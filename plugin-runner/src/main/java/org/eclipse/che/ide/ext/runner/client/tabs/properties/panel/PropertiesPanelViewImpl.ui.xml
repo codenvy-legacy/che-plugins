@@ -1,0 +1,139 @@
+<!--
+
+    Copyright (c) 2012-2015 Codenvy, S.A.
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License v1.0
+    which accompanies this distribution, and is available at
+    http://www.eclipse.org/legal/epl-v10.html
+
+    Contributors:
+      Codenvy, S.A. - initial API and implementation
+
+-->
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+
+    <ui:with field="locale" type="org.eclipse.che.ide.ext.runner.client.RunnerLocalizationConstant"/>
+    <ui:with field="resources" type="org.eclipse.che.ide.ext.runner.client.RunnerResources"/>
+
+    <ui:style>
+        .mainPanel {
+            background: #474747;
+        }
+
+        .itemPanel {
+            float: left;
+            width: 100%;
+            height: 30px;
+        }
+
+        .settingsPanel {
+            width: 100%;
+            height: 100%;
+            margin-left: 6px;
+            margin-top: 11px;
+        }
+
+        .settingField {
+            float: right;
+            font-weight: inherit;
+            width: 160px;
+            border: 1px solid #191c1e;
+            border-radius: 2px;
+            margin-right: 35px;
+            padding-left: 5px;
+            padding-top: 2px;
+            background-color: #373737;
+            box-shadow: 0 1px 0 0 rgba(223, 223, 223, 0.4);
+        }
+
+        .listBoxStyle {
+            width: 170px !important;
+            padding-left: 3px;
+        }
+
+        .label {
+            margin-top: 3px;
+            margin-left: 6px;
+            float: left;
+        }
+
+        .dockerFileLabel {
+            margin-top: 7px;
+        }
+
+        .editor {
+            border: 1px solid #191c1e;
+            width: calc(100% - 20px);
+            margin-bottom: 15px;
+        }
+
+        .buttonsPanel {
+            width: 115px;
+            margin-left: 20px;
+            margin-top: 14px;
+        }
+    </ui:style>
+
+    <g:DockLayoutPanel ui:field="propertiesPanel" unit="PX" addStyleNames="{resources.runnerCss.fullSize} {style.mainPanel}">
+        <g:west size="300">
+            <g:FlowPanel addStyleNames="{style.settingsPanel}">
+                <g:FlowPanel addStyleNames="{style.itemPanel}">
+                    <g:Label text="{locale.propertiesName}" addStyleNames="{style.label} {resources.runnerCss.propertiesFont}"/>
+                    <g:TextBox ui:field="name" addStyleNames="{style.settingField} {resources.runnerCss.propertiesFont}"/>
+                </g:FlowPanel>
+
+                <g:FlowPanel addStyleNames="{style.itemPanel}">
+                    <g:Label text="{locale.propertiesType}" addStyleNames="{style.label} {resources.runnerCss.propertiesFont}"/>
+                    <g:TextBox ui:field="type" enabled="false" addStyleNames="{style.settingField} {resources.runnerCss.propertiesFont}"/>
+                </g:FlowPanel>
+
+                <g:FlowPanel addStyleNames="{style.itemPanel}">
+                    <g:Label text="{locale.propertiesRam}" addStyleNames="{style.label} {resources.runnerCss.propertiesFont}"/>
+                    <g:ListBox ui:field="ram" addStyleNames="{style.settingField}
+                                                             {style.listBoxStyle}
+                                                             {resources.runnerCss.propertiesFont}"/>
+                </g:FlowPanel>
+
+                <g:FlowPanel addStyleNames="{style.itemPanel}">
+                    <g:Label text="{locale.propertiesBoot}" addStyleNames="{style.label} {resources.runnerCss.propertiesFont}"/>
+                    <g:ListBox ui:field="boot" addStyleNames="{style.settingField}
+                                                              {style.listBoxStyle}
+                                                              {resources.runnerCss.propertiesFont}"/>
+                </g:FlowPanel>
+
+                <g:FlowPanel addStyleNames="{style.itemPanel}">
+                    <g:Label text="{locale.propertiesShutdown}" addStyleNames="{style.label} {resources.runnerCss.propertiesFont}"/>
+                    <g:ListBox ui:field="shutdown" addStyleNames="{style.settingField}
+                                                                  {style.listBoxStyle}
+                                                                  {resources.runnerCss.propertiesFont}"/>
+                </g:FlowPanel>
+
+                <g:FlowPanel addStyleNames="{style.itemPanel}">
+                    <g:Label text="{locale.propertiesScope}" addStyleNames="{style.label} {resources.runnerCss.propertiesFont}"/>
+                    <g:ListBox ui:field="scope" addStyleNames="{style.settingField}
+                                                               {style.listBoxStyle}
+                                                               {resources.runnerCss.propertiesFont}"/>
+                </g:FlowPanel>
+            </g:FlowPanel>
+        </g:west>
+
+        <g:east size="115">
+            <g:FlowPanel ui:field="buttonsPanel" addStyleNames="{style.buttonsPanel}" debugId="docker-buttons-panel"/>
+        </g:east>
+
+        <g:center>
+            <g:DockLayoutPanel unit="PX" addStyleNames="{resources.runnerCss.fullSize}">
+                <g:north size="25">
+                    <g:Label text="{locale.propertiesDockerfile}" addStyleNames="{style.dockerFileLabel}
+                                                                                 {resources.runnerCss.propertiesFont}"/>
+                </g:north>
+
+                <g:center>
+                    <g:SimpleLayoutPanel ui:field="editorPanel" addStyleNames="{style.editor}" debugId="dockerEditor"/>
+                </g:center>
+            </g:DockLayoutPanel>
+        </g:center>
+    </g:DockLayoutPanel>
+
+</ui:UiBinder>

@@ -1,0 +1,2724 @@
+{"templateDotProviders": [
+    {
+        "name": "ngApp",
+        "methods": [],
+        "constructors": [],
+        "type": "DIRECTIVE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "angular",
+        "methods": [],
+        "constructors": [],
+        "type": null,
+        "events": [],
+        "functions": [],
+        "objects": [
+            {
+                "name": "version"
+            },
+            {
+                "name": "mock"
+            }
+        ]
+    },
+    {
+        "name": "$injector",
+        "methods": [
+            {
+                "name": "get",
+                "params": [
+                    {
+                        "name": "name",
+                        "type": "string",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "invoke",
+                "params": [
+                    {
+                        "name": "fn",
+                        "type": "!Function",
+                        "desc": null
+                    },
+                    {
+                        "name": "self",
+                        "type": "NgObject=",
+                        "desc": null
+                    },
+                    {
+                        "name": "locals",
+                        "type": "NgObject=",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "has",
+                "params": [
+                    {
+                        "name": "Name",
+                        "type": "string",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "instantiate",
+                "params": [
+                    {
+                        "name": "Type",
+                        "type": "Function",
+                        "desc": null
+                    },
+                    {
+                        "name": "locals",
+                        "type": "NgObject=",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "annotate",
+                "params": [
+                    {
+                        "name": "fn",
+                        "type": "Function|Array.<string|Function>",
+                        "desc": null
+                    }
+                ]
+            }
+        ],
+        "constructors": [],
+        "type": "SERVICE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "$provide",
+        "methods": [
+            {
+                "name": "provider",
+                "params": [
+                    {
+                        "name": "name",
+                        "type": "string",
+                        "desc": null
+                    },
+                    {
+                        "name": "provider",
+                        "type": "(NgObject|function())",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "factory",
+                "params": [
+                    {
+                        "name": "name",
+                        "type": "string",
+                        "desc": null
+                    },
+                    {
+                        "name": "$getFn",
+                        "type": "function()",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "service",
+                "params": [
+                    {
+                        "name": "name",
+                        "type": "string",
+                        "desc": null
+                    },
+                    {
+                        "name": "constructor",
+                        "type": "Function",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "value",
+                "params": [
+                    {
+                        "name": "name",
+                        "type": "string",
+                        "desc": null
+                    },
+                    {
+                        "name": "value",
+                        "type": "*",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "constant",
+                "params": [
+                    {
+                        "name": "name",
+                        "type": "string",
+                        "desc": null
+                    },
+                    {
+                        "name": "value",
+                        "type": "*",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "decorator",
+                "params": [
+                    {
+                        "name": "name",
+                        "type": "string",
+                        "desc": null
+                    },
+                    {
+                        "name": "decorator",
+                        "type": "function()",
+                        "desc": null
+                    }
+                ]
+            }
+        ],
+        "constructors": [],
+        "type": "OBJECT",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "$anchorScroll",
+        "methods": [],
+        "constructors": [],
+        "type": "SERVICE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "$animateProvider",
+        "methods": [
+            {
+                "name": "register",
+                "params": [
+                    {
+                        "name": "name",
+                        "type": "string",
+                        "desc": null
+                    },
+                    {
+                        "name": "factory",
+                        "type": "Function",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "classNameFilter",
+                "params": [
+                    {
+                        "name": "expression",
+                        "type": "RegExp=",
+                        "desc": null
+                    }
+                ]
+            }
+        ],
+        "constructors": [],
+        "type": "PROVIDER",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "$animate",
+        "methods": [
+            {
+                "name": "enter",
+                "params": [
+                    {
+                        "name": "element",
+                        "type": "DOMElement",
+                        "desc": null
+                    },
+                    {
+                        "name": "parent",
+                        "type": "DOMElement",
+                        "desc": null
+                    },
+                    {
+                        "name": "after",
+                        "type": "DOMElement",
+                        "desc": null
+                    },
+                    {
+                        "name": "done",
+                        "type": "Function=",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "leave",
+                "params": [
+                    {
+                        "name": "element",
+                        "type": "DOMElement",
+                        "desc": null
+                    },
+                    {
+                        "name": "done",
+                        "type": "Function=",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "move",
+                "params": [
+                    {
+                        "name": "element",
+                        "type": "DOMElement",
+                        "desc": null
+                    },
+                    {
+                        "name": "parent",
+                        "type": "DOMElement",
+                        "desc": null
+                    },
+                    {
+                        "name": "after",
+                        "type": "DOMElement",
+                        "desc": null
+                    },
+                    {
+                        "name": "done",
+                        "type": "Function=",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "addClass",
+                "params": [
+                    {
+                        "name": "element",
+                        "type": "DOMElement",
+                        "desc": null
+                    },
+                    {
+                        "name": "className",
+                        "type": "string",
+                        "desc": null
+                    },
+                    {
+                        "name": "done",
+                        "type": "Function=",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "removeClass",
+                "params": [
+                    {
+                        "name": "element",
+                        "type": "DOMElement",
+                        "desc": null
+                    },
+                    {
+                        "name": "className",
+                        "type": "string",
+                        "desc": null
+                    },
+                    {
+                        "name": "done",
+                        "type": "Function=",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "setClass",
+                "params": [
+                    {
+                        "name": "element",
+                        "type": "DOMElement",
+                        "desc": null
+                    },
+                    {
+                        "name": "add",
+                        "type": "string",
+                        "desc": null
+                    },
+                    {
+                        "name": "remove",
+                        "type": "string",
+                        "desc": null
+                    },
+                    {
+                        "name": "done",
+                        "type": "Function=",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "enter",
+                "params": [
+                    {
+                        "name": "element",
+                        "type": "DOMElement",
+                        "desc": null
+                    },
+                    {
+                        "name": "parentElement",
+                        "type": "DOMElement",
+                        "desc": null
+                    },
+                    {
+                        "name": "afterElement",
+                        "type": "DOMElement",
+                        "desc": null
+                    },
+                    {
+                        "name": "doneCallback",
+                        "type": "function()=",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "leave",
+                "params": [
+                    {
+                        "name": "element",
+                        "type": "DOMElement",
+                        "desc": null
+                    },
+                    {
+                        "name": "doneCallback",
+                        "type": "function()=",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "move",
+                "params": [
+                    {
+                        "name": "element",
+                        "type": "DOMElement",
+                        "desc": null
+                    },
+                    {
+                        "name": "parentElement",
+                        "type": "DOMElement",
+                        "desc": null
+                    },
+                    {
+                        "name": "afterElement",
+                        "type": "DOMElement",
+                        "desc": null
+                    },
+                    {
+                        "name": "doneCallback",
+                        "type": "function()=",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "addClass",
+                "params": [
+                    {
+                        "name": "element",
+                        "type": "DOMElement",
+                        "desc": null
+                    },
+                    {
+                        "name": "className",
+                        "type": "string",
+                        "desc": null
+                    },
+                    {
+                        "name": "doneCallback",
+                        "type": "function()=",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "removeClass",
+                "params": [
+                    {
+                        "name": "element",
+                        "type": "DOMElement",
+                        "desc": null
+                    },
+                    {
+                        "name": "className",
+                        "type": "string",
+                        "desc": null
+                    },
+                    {
+                        "name": "doneCallback",
+                        "type": "function()=",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "enabled",
+                "params": [
+                    {
+                        "name": "value",
+                        "type": "boolean=",
+                        "desc": null
+                    },
+                    {
+                        "name": "element",
+                        "type": "DOMElement=",
+                        "desc": null
+                    }
+                ]
+            }
+        ],
+        "constructors": [],
+        "type": "SERVICE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "$cacheFactory",
+        "methods": [
+            {
+                "name": "info",
+                "params": []
+            },
+            {
+                "name": "get",
+                "params": [
+                    {
+                        "name": "cacheId",
+                        "type": "string",
+                        "desc": null
+                    }
+                ]
+            }
+        ],
+        "constructors": [
+            {
+                "name": "cacheId",
+                "type": "string",
+                "desc": null
+            },
+            {
+                "name": "options",
+                "type": "object=",
+                "desc": null
+            }
+        ],
+        "type": "SERVICE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "$templateCache",
+        "methods": [],
+        "constructors": [],
+        "type": "SERVICE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "$compile",
+        "methods": [],
+        "constructors": [
+            {
+                "name": "element",
+                "type": "string|DOMElement",
+                "desc": null
+            },
+            {
+                "name": "transclude",
+                "type": "function(angular.Scope, cloneAttachFn=)",
+                "desc": null
+            },
+            {
+                "name": "maxPriority",
+                "type": "number",
+                "desc": null
+            }
+        ],
+        "type": "SERVICE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "$compileProvider",
+        "methods": [
+            {
+                "name": "directive",
+                "params": [
+                    {
+                        "name": "name",
+                        "type": "string|NgObject",
+                        "desc": null
+                    },
+                    {
+                        "name": "directiveFactory",
+                        "type": "Function|Array",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "aHrefSanitizationWhitelist",
+                "params": [
+                    {
+                        "name": "regexp",
+                        "type": "RegExp=",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "imgSrcSanitizationWhitelist",
+                "params": [
+                    {
+                        "name": "regexp",
+                        "type": "RegExp=",
+                        "desc": null
+                    }
+                ]
+            }
+        ],
+        "constructors": [],
+        "type": "PROVIDER",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "$controllerProvider",
+        "methods": [
+            {
+                "name": "register",
+                "params": [
+                    {
+                        "name": "name",
+                        "type": "string|NgObject",
+                        "desc": null
+                    },
+                    {
+                        "name": "constructor",
+                        "type": "Function|Array",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "register",
+                "params": [
+                    {
+                        "name": "name",
+                        "type": "string|NgObject",
+                        "desc": null
+                    }
+                ]
+            }
+        ],
+        "constructors": [],
+        "type": "PROVIDER",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "$controller",
+        "methods": [],
+        "constructors": [
+            {
+                "name": "constructor",
+                "type": "Function|string",
+                "desc": null
+            },
+            {
+                "name": "locals",
+                "type": "Object",
+                "desc": null
+            }
+        ],
+        "type": "SERVICE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "a",
+        "methods": [],
+        "constructors": [],
+        "type": "DIRECTIVE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "ngHref",
+        "methods": [],
+        "constructors": [],
+        "type": "DIRECTIVE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "ngSrc",
+        "methods": [],
+        "constructors": [],
+        "type": "DIRECTIVE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "ngSrcset",
+        "methods": [],
+        "constructors": [],
+        "type": "DIRECTIVE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "ngDisabled",
+        "methods": [],
+        "constructors": [],
+        "type": "DIRECTIVE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "ngChecked",
+        "methods": [],
+        "constructors": [],
+        "type": "DIRECTIVE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "ngReadonly",
+        "methods": [],
+        "constructors": [],
+        "type": "DIRECTIVE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "ngSelected",
+        "methods": [],
+        "constructors": [],
+        "type": "DIRECTIVE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "ngOpen",
+        "methods": [],
+        "constructors": [],
+        "type": "DIRECTIVE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "ngForm",
+        "methods": [],
+        "constructors": [],
+        "type": "DIRECTIVE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "form",
+        "methods": [],
+        "constructors": [],
+        "type": "DIRECTIVE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "textarea",
+        "methods": [],
+        "constructors": [],
+        "type": "DIRECTIVE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "input",
+        "methods": [],
+        "constructors": [],
+        "type": "DIRECTIVE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "ngModel",
+        "methods": [],
+        "constructors": [],
+        "type": "DIRECTIVE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "ngChange",
+        "methods": [],
+        "constructors": [],
+        "type": "DIRECTIVE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "ngList",
+        "methods": [],
+        "constructors": [],
+        "type": "DIRECTIVE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "ngValue",
+        "methods": [],
+        "constructors": [],
+        "type": "DIRECTIVE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "ngBind",
+        "methods": [],
+        "constructors": [],
+        "type": "DIRECTIVE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "ngBindTemplate",
+        "methods": [],
+        "constructors": [],
+        "type": "DIRECTIVE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "ngBindHtml",
+        "methods": [],
+        "constructors": [],
+        "type": "DIRECTIVE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "ngClass",
+        "methods": [],
+        "constructors": [],
+        "type": "DIRECTIVE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "ngClassOdd",
+        "methods": [],
+        "constructors": [],
+        "type": "DIRECTIVE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "ngClassEven",
+        "methods": [],
+        "constructors": [],
+        "type": "DIRECTIVE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "ngCloak",
+        "methods": [],
+        "constructors": [],
+        "type": "DIRECTIVE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "ngController",
+        "methods": [],
+        "constructors": [],
+        "type": "DIRECTIVE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "ngCsp",
+        "methods": [],
+        "constructors": [],
+        "type": "DIRECTIVE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "ngClick",
+        "methods": [],
+        "constructors": [],
+        "type": "DIRECTIVE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "ngDblclick",
+        "methods": [],
+        "constructors": [],
+        "type": "DIRECTIVE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "ngMousedown",
+        "methods": [],
+        "constructors": [],
+        "type": "DIRECTIVE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "ngMouseup",
+        "methods": [],
+        "constructors": [],
+        "type": "DIRECTIVE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "ngMouseover",
+        "methods": [],
+        "constructors": [],
+        "type": "DIRECTIVE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "ngMouseenter",
+        "methods": [],
+        "constructors": [],
+        "type": "DIRECTIVE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "ngMouseleave",
+        "methods": [],
+        "constructors": [],
+        "type": "DIRECTIVE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "ngMousemove",
+        "methods": [],
+        "constructors": [],
+        "type": "DIRECTIVE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "ngKeydown",
+        "methods": [],
+        "constructors": [],
+        "type": "DIRECTIVE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "ngKeyup",
+        "methods": [],
+        "constructors": [],
+        "type": "DIRECTIVE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "ngKeypress",
+        "methods": [],
+        "constructors": [],
+        "type": "DIRECTIVE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "ngSubmit",
+        "methods": [],
+        "constructors": [],
+        "type": "DIRECTIVE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "ngFocus",
+        "methods": [],
+        "constructors": [],
+        "type": "DIRECTIVE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "ngBlur",
+        "methods": [],
+        "constructors": [],
+        "type": "DIRECTIVE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "ngCopy",
+        "methods": [],
+        "constructors": [],
+        "type": "DIRECTIVE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "ngCut",
+        "methods": [],
+        "constructors": [],
+        "type": "DIRECTIVE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "ngPaste",
+        "methods": [],
+        "constructors": [],
+        "type": "DIRECTIVE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "ngIf",
+        "methods": [],
+        "constructors": [],
+        "type": "DIRECTIVE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "ngInclude",
+        "methods": [],
+        "constructors": [],
+        "type": "DIRECTIVE",
+        "events": [
+            {
+                "name": "$includeContentRequested"
+            },
+            {
+                "name": "$includeContentLoaded"
+            }
+        ],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "ngInit",
+        "methods": [],
+        "constructors": [],
+        "type": "DIRECTIVE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "ngNonBindable",
+        "methods": [],
+        "constructors": [],
+        "type": "DIRECTIVE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "ngPluralize",
+        "methods": [],
+        "constructors": [],
+        "type": "DIRECTIVE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "ngRepeat",
+        "methods": [],
+        "constructors": [],
+        "type": "DIRECTIVE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "ngShow",
+        "methods": [],
+        "constructors": [],
+        "type": "DIRECTIVE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "ngHide",
+        "methods": [],
+        "constructors": [],
+        "type": "DIRECTIVE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "ngStyle",
+        "methods": [],
+        "constructors": [],
+        "type": "DIRECTIVE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "ngSwitch",
+        "methods": [],
+        "constructors": [],
+        "type": "DIRECTIVE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "ngTransclude",
+        "methods": [],
+        "constructors": [],
+        "type": "DIRECTIVE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "script",
+        "methods": [],
+        "constructors": [],
+        "type": "DIRECTIVE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "select",
+        "methods": [],
+        "constructors": [],
+        "type": "DIRECTIVE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "$document",
+        "methods": [],
+        "constructors": [],
+        "type": "SERVICE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "$exceptionHandler",
+        "methods": [],
+        "constructors": [
+            {
+                "name": "exception",
+                "type": "Error",
+                "desc": null
+            },
+            {
+                "name": "cause",
+                "type": "string=",
+                "desc": null
+            }
+        ],
+        "type": "SERVICE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "$filterProvider",
+        "methods": [
+            {
+                "name": "register",
+                "params": [
+                    {
+                        "name": "name",
+                        "type": "String",
+                        "desc": null
+                    },
+                    {
+                        "name": "fn",
+                        "type": "Function",
+                        "desc": null
+                    }
+                ]
+            }
+        ],
+        "constructors": [],
+        "type": "PROVIDER",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "$filter",
+        "methods": [],
+        "constructors": [
+            {
+                "name": "name",
+                "type": "String",
+                "desc": null
+            }
+        ],
+        "type": "SERVICE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "$http",
+        "methods": [
+            {
+                "name": "get",
+                "params": [
+                    {
+                        "name": "url",
+                        "type": "string",
+                        "desc": null
+                    },
+                    {
+                        "name": "config",
+                        "type": "NgObject=",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "delete",
+                "params": [
+                    {
+                        "name": "url",
+                        "type": "string",
+                        "desc": null
+                    },
+                    {
+                        "name": "config",
+                        "type": "NgObject=",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "head",
+                "params": [
+                    {
+                        "name": "url",
+                        "type": "string",
+                        "desc": null
+                    },
+                    {
+                        "name": "config",
+                        "type": "NgObject=",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "jsonp",
+                "params": [
+                    {
+                        "name": "url",
+                        "type": "string",
+                        "desc": null
+                    },
+                    {
+                        "name": "config",
+                        "type": "NgObject=",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "post",
+                "params": [
+                    {
+                        "name": "url",
+                        "type": "string",
+                        "desc": null
+                    },
+                    {
+                        "name": "data",
+                        "type": "*",
+                        "desc": null
+                    },
+                    {
+                        "name": "config",
+                        "type": "NgObject=",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "put",
+                "params": [
+                    {
+                        "name": "url",
+                        "type": "string",
+                        "desc": null
+                    },
+                    {
+                        "name": "data",
+                        "type": "*",
+                        "desc": null
+                    },
+                    {
+                        "name": "config",
+                        "type": "NgObject=",
+                        "desc": null
+                    }
+                ]
+            }
+        ],
+        "constructors": [
+            {
+                "name": "config",
+                "type": "object",
+                "desc": null
+            }
+        ],
+        "type": "SERVICE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "$httpBackend",
+        "methods": [
+            {
+                "name": "when",
+                "params": [
+                    {
+                        "name": "method",
+                        "type": "string",
+                        "desc": null
+                    },
+                    {
+                        "name": "url",
+                        "type": "string|RegExp",
+                        "desc": null
+                    },
+                    {
+                        "name": "data",
+                        "type": "(string|RegExp|function(string))=",
+                        "desc": null
+                    },
+                    {
+                        "name": "headers",
+                        "type": "(NgObject|function(NgObject))=",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "whenGET",
+                "params": [
+                    {
+                        "name": "url",
+                        "type": "string|RegExp",
+                        "desc": null
+                    },
+                    {
+                        "name": "headers",
+                        "type": "(NgObject|function(NgObject))=",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "whenHEAD",
+                "params": [
+                    {
+                        "name": "url",
+                        "type": "string|RegExp",
+                        "desc": null
+                    },
+                    {
+                        "name": "headers",
+                        "type": "(NgObject|function(NgObject))=",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "whenDELETE",
+                "params": [
+                    {
+                        "name": "url",
+                        "type": "string|RegExp",
+                        "desc": null
+                    },
+                    {
+                        "name": "headers",
+                        "type": "(NgObject|function(NgObject))=",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "whenPOST",
+                "params": [
+                    {
+                        "name": "url",
+                        "type": "string|RegExp",
+                        "desc": null
+                    },
+                    {
+                        "name": "data",
+                        "type": "(string|RegExp|function(string))=",
+                        "desc": null
+                    },
+                    {
+                        "name": "headers",
+                        "type": "(NgObject|function(NgObject))=",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "whenPUT",
+                "params": [
+                    {
+                        "name": "url",
+                        "type": "string|RegExp",
+                        "desc": null
+                    },
+                    {
+                        "name": "data",
+                        "type": "(string|RegExp|function(string))=",
+                        "desc": null
+                    },
+                    {
+                        "name": "headers",
+                        "type": "(NgObject|function(NgObject))=",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "whenJSONP",
+                "params": [
+                    {
+                        "name": "url",
+                        "type": "string|RegExp",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "expect",
+                "params": [
+                    {
+                        "name": "method",
+                        "type": "string",
+                        "desc": null
+                    },
+                    {
+                        "name": "url",
+                        "type": "string|RegExp",
+                        "desc": null
+                    },
+                    {
+                        "name": "data",
+                        "type": "(string|RegExp|function(string)|NgObject)=",
+                        "desc": null
+                    },
+                    {
+                        "name": "headers",
+                        "type": "(NgObject|function(NgObject))=",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "expectGET",
+                "params": [
+                    {
+                        "name": "url",
+                        "type": "string|RegExp",
+                        "desc": null
+                    },
+                    {
+                        "name": "headers",
+                        "type": "NgObject=",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "expectHEAD",
+                "params": [
+                    {
+                        "name": "url",
+                        "type": "string|RegExp",
+                        "desc": null
+                    },
+                    {
+                        "name": "headers",
+                        "type": "NgObject=",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "expectDELETE",
+                "params": [
+                    {
+                        "name": "url",
+                        "type": "string|RegExp",
+                        "desc": null
+                    },
+                    {
+                        "name": "headers",
+                        "type": "NgObject=",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "expectPOST",
+                "params": [
+                    {
+                        "name": "url",
+                        "type": "string|RegExp",
+                        "desc": null
+                    },
+                    {
+                        "name": "data",
+                        "type": "(string|RegExp|function(string)|NgObject)=",
+                        "desc": null
+                    },
+                    {
+                        "name": "headers",
+                        "type": "NgObject=",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "expectPUT",
+                "params": [
+                    {
+                        "name": "url",
+                        "type": "string|RegExp",
+                        "desc": null
+                    },
+                    {
+                        "name": "data",
+                        "type": "(string|RegExp|function(string)|NgObject)=",
+                        "desc": null
+                    },
+                    {
+                        "name": "headers",
+                        "type": "NgObject=",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "expectPATCH",
+                "params": [
+                    {
+                        "name": "url",
+                        "type": "string|RegExp",
+                        "desc": null
+                    },
+                    {
+                        "name": "data",
+                        "type": "(string|RegExp|function(string)|NgObject)=",
+                        "desc": null
+                    },
+                    {
+                        "name": "headers",
+                        "type": "NgObject=",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "expectJSONP",
+                "params": [
+                    {
+                        "name": "url",
+                        "type": "string|RegExp",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "flush",
+                "params": [
+                    {
+                        "name": "count",
+                        "type": "number=",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "verifyNoOutstandingExpectation",
+                "params": []
+            },
+            {
+                "name": "verifyNoOutstandingRequest",
+                "params": []
+            },
+            {
+                "name": "resetExpectations",
+                "params": []
+            },
+            {
+                "name": "when",
+                "params": [
+                    {
+                        "name": "method",
+                        "type": "string",
+                        "desc": null
+                    },
+                    {
+                        "name": "url",
+                        "type": "string|RegExp",
+                        "desc": null
+                    },
+                    {
+                        "name": "data",
+                        "type": "(string|RegExp)=",
+                        "desc": null
+                    },
+                    {
+                        "name": "headers",
+                        "type": "(NgObject|function(NgObject))=",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "whenGET",
+                "params": [
+                    {
+                        "name": "url",
+                        "type": "string|RegExp",
+                        "desc": null
+                    },
+                    {
+                        "name": "headers",
+                        "type": "(NgObject|function(NgObject))=",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "whenHEAD",
+                "params": [
+                    {
+                        "name": "url",
+                        "type": "string|RegExp",
+                        "desc": null
+                    },
+                    {
+                        "name": "headers",
+                        "type": "(NgObject|function(NgObject))=",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "whenDELETE",
+                "params": [
+                    {
+                        "name": "url",
+                        "type": "string|RegExp",
+                        "desc": null
+                    },
+                    {
+                        "name": "headers",
+                        "type": "(NgObject|function(NgObject))=",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "whenPOST",
+                "params": [
+                    {
+                        "name": "url",
+                        "type": "string|RegExp",
+                        "desc": null
+                    },
+                    {
+                        "name": "data",
+                        "type": "(string|RegExp)=",
+                        "desc": null
+                    },
+                    {
+                        "name": "headers",
+                        "type": "(NgObject|function(NgObject))=",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "whenPUT",
+                "params": [
+                    {
+                        "name": "url",
+                        "type": "string|RegExp",
+                        "desc": null
+                    },
+                    {
+                        "name": "data",
+                        "type": "(string|RegExp)=",
+                        "desc": null
+                    },
+                    {
+                        "name": "headers",
+                        "type": "(NgObject|function(NgObject))=",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "whenPATCH",
+                "params": [
+                    {
+                        "name": "url",
+                        "type": "string|RegExp",
+                        "desc": null
+                    },
+                    {
+                        "name": "data",
+                        "type": "(string|RegExp)=",
+                        "desc": null
+                    },
+                    {
+                        "name": "headers",
+                        "type": "(NgObject|function(NgObject))=",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "whenJSONP",
+                "params": [
+                    {
+                        "name": "url",
+                        "type": "string|RegExp",
+                        "desc": null
+                    }
+                ]
+            }
+        ],
+        "constructors": [],
+        "type": "SERVICE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "$interpolateProvider",
+        "methods": [
+            {
+                "name": "startSymbol",
+                "params": [
+                    {
+                        "name": "value",
+                        "type": "string=",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "endSymbol",
+                "params": [
+                    {
+                        "name": "value",
+                        "type": "string=",
+                        "desc": null
+                    }
+                ]
+            }
+        ],
+        "constructors": [],
+        "type": "PROVIDER",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "$interpolate",
+        "methods": [
+            {
+                "name": "startSymbol",
+                "params": []
+            },
+            {
+                "name": "endSymbol",
+                "params": []
+            }
+        ],
+        "constructors": [
+            {
+                "name": "text",
+                "type": "string",
+                "desc": null
+            },
+            {
+                "name": "mustHaveExpression",
+                "type": "boolean=",
+                "desc": null
+            },
+            {
+                "name": "trustedContext",
+                "type": "string=",
+                "desc": null
+            }
+        ],
+        "type": "SERVICE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "$interval",
+        "methods": [
+            {
+                "name": "cancel",
+                "params": [
+                    {
+                        "name": "promise",
+                        "type": "promise",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "cancel",
+                "params": [
+                    {
+                        "name": "promise",
+                        "type": "promise",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "flush",
+                "params": [
+                    {
+                        "name": "millis",
+                        "type": "number=",
+                        "desc": null
+                    }
+                ]
+            }
+        ],
+        "constructors": [
+            {
+                "name": "fn",
+                "type": "function()",
+                "desc": null
+            },
+            {
+                "name": "delay",
+                "type": "number",
+                "desc": null
+            },
+            {
+                "name": "[count=0]",
+                "type": "number=",
+                "desc": null
+            },
+            {
+                "name": "[invokeApply=true]",
+                "type": "boolean=",
+                "desc": null
+            }
+        ],
+        "type": "SERVICE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "$locale",
+        "methods": [],
+        "constructors": [],
+        "type": "SERVICE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "$location",
+        "methods": [],
+        "constructors": [],
+        "type": "SERVICE",
+        "events": [
+            {
+                "name": "$locationChangeStart"
+            },
+            {
+                "name": "$locationChangeSuccess"
+            }
+        ],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "$locationProvider",
+        "methods": [],
+        "constructors": [],
+        "type": "PROVIDER",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "$log",
+        "methods": [
+            {
+                "name": "log",
+                "params": []
+            },
+            {
+                "name": "info",
+                "params": []
+            },
+            {
+                "name": "warn",
+                "params": []
+            },
+            {
+                "name": "error",
+                "params": []
+            },
+            {
+                "name": "debug",
+                "params": []
+            },
+            {
+                "name": "reset",
+                "params": []
+            },
+            {
+                "name": "assertEmpty",
+                "params": []
+            }
+        ],
+        "constructors": [],
+        "type": "SERVICE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "$logProvider",
+        "methods": [],
+        "constructors": [],
+        "type": "PROVIDER",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "$parse",
+        "methods": [],
+        "constructors": [
+            {
+                "name": "expression",
+                "type": "string",
+                "desc": null
+            }
+        ],
+        "type": "SERVICE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "$parseProvider",
+        "methods": [
+            {
+                "name": "unwrapPromises",
+                "params": [
+                    {
+                        "name": "value",
+                        "type": "boolean=",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "logPromiseWarnings",
+                "params": [
+                    {
+                        "name": "value",
+                        "type": "boolean=",
+                        "desc": null
+                    }
+                ]
+            }
+        ],
+        "constructors": [],
+        "type": "PROVIDER",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "$q",
+        "methods": [
+            {
+                "name": "defer",
+                "params": []
+            },
+            {
+                "name": "reject",
+                "params": [
+                    {
+                        "name": "reason",
+                        "type": "*",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "when",
+                "params": [
+                    {
+                        "name": "value",
+                        "type": "*",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "all",
+                "params": [
+                    {
+                        "name": "promises",
+                        "type": "Array.<Promise>|NgObject.<Promise>",
+                        "desc": null
+                    }
+                ]
+            }
+        ],
+        "constructors": [],
+        "type": "SERVICE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "$rootElement",
+        "methods": [],
+        "constructors": [],
+        "type": "SERVICE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "$rootScopeProvider",
+        "methods": [
+            {
+                "name": "digestTtl",
+                "params": [
+                    {
+                        "name": "limit",
+                        "type": "number",
+                        "desc": null
+                    }
+                ]
+            }
+        ],
+        "constructors": [],
+        "type": "PROVIDER",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "$rootScope",
+        "methods": [],
+        "constructors": [],
+        "type": "SERVICE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "$sceDelegate",
+        "methods": [
+            {
+                "name": "trustAs",
+                "params": [
+                    {
+                        "name": "type",
+                        "type": "string",
+                        "desc": null
+                    },
+                    {
+                        "name": "value",
+                        "type": "*",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "valueOf",
+                "params": [
+                    {
+                        "name": "value",
+                        "type": "*",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "getTrusted",
+                "params": [
+                    {
+                        "name": "type",
+                        "type": "string",
+                        "desc": null
+                    },
+                    {
+                        "name": "maybeTrusted",
+                        "type": "*",
+                        "desc": null
+                    }
+                ]
+            }
+        ],
+        "constructors": [],
+        "type": "SERVICE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "$sceDelegateProvider",
+        "methods": [
+            {
+                "name": "resourceUrlWhitelist",
+                "params": [
+                    {
+                        "name": "whitelist",
+                        "type": "Array=",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "resourceUrlBlacklist",
+                "params": [
+                    {
+                        "name": "blacklist",
+                        "type": "Array=",
+                        "desc": null
+                    }
+                ]
+            }
+        ],
+        "constructors": [],
+        "type": "PROVIDER",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "$sceProvider",
+        "methods": [
+            {
+                "name": "enabled",
+                "params": [
+                    {
+                        "name": "value",
+                        "type": "boolean=",
+                        "desc": null
+                    }
+                ]
+            }
+        ],
+        "constructors": [],
+        "type": "PROVIDER",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "$sce",
+        "methods": [
+            {
+                "name": "isEnabled",
+                "params": []
+            },
+            {
+                "name": "parse",
+                "params": [
+                    {
+                        "name": "type",
+                        "type": "string",
+                        "desc": null
+                    },
+                    {
+                        "name": "expression",
+                        "type": "string",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "trustAs",
+                "params": [
+                    {
+                        "name": "type",
+                        "type": "string",
+                        "desc": null
+                    },
+                    {
+                        "name": "value",
+                        "type": "*",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "trustAsHtml",
+                "params": [
+                    {
+                        "name": "value",
+                        "type": "*",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "trustAsUrl",
+                "params": [
+                    {
+                        "name": "value",
+                        "type": "*",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "trustAsResourceUrl",
+                "params": [
+                    {
+                        "name": "value",
+                        "type": "*",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "trustAsJs",
+                "params": [
+                    {
+                        "name": "value",
+                        "type": "*",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "getTrusted",
+                "params": [
+                    {
+                        "name": "type",
+                        "type": "string",
+                        "desc": null
+                    },
+                    {
+                        "name": "maybeTrusted",
+                        "type": "*",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "getTrustedHtml",
+                "params": [
+                    {
+                        "name": "value",
+                        "type": "*",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "getTrustedCss",
+                "params": [
+                    {
+                        "name": "value",
+                        "type": "*",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "getTrustedUrl",
+                "params": [
+                    {
+                        "name": "value",
+                        "type": "*",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "getTrustedResourceUrl",
+                "params": [
+                    {
+                        "name": "value",
+                        "type": "*",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "getTrustedJs",
+                "params": [
+                    {
+                        "name": "value",
+                        "type": "*",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "parseAsHtml",
+                "params": [
+                    {
+                        "name": "expression",
+                        "type": "string",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "parseAsCss",
+                "params": [
+                    {
+                        "name": "expression",
+                        "type": "string",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "parseAsUrl",
+                "params": [
+                    {
+                        "name": "expression",
+                        "type": "string",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "parseAsResourceUrl",
+                "params": [
+                    {
+                        "name": "expression",
+                        "type": "string",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "parseAsJs",
+                "params": [
+                    {
+                        "name": "expression",
+                        "type": "string",
+                        "desc": null
+                    }
+                ]
+            }
+        ],
+        "constructors": [],
+        "type": "SERVICE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "$timeout",
+        "methods": [
+            {
+                "name": "cancel",
+                "params": [
+                    {
+                        "name": "promise",
+                        "type": "Promise=",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "flush",
+                "params": [
+                    {
+                        "name": "delay",
+                        "type": "number=",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "verifyNoPendingTasks",
+                "params": []
+            }
+        ],
+        "constructors": [
+            {
+                "name": "fn",
+                "type": "function()",
+                "desc": null
+            },
+            {
+                "name": "[delay=0]",
+                "type": "number=",
+                "desc": null
+            },
+            {
+                "name": "[invokeApply=true]",
+                "type": "boolean=",
+                "desc": null
+            }
+        ],
+        "type": "SERVICE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "$window",
+        "methods": [],
+        "constructors": [],
+        "type": "SERVICE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "$cookies",
+        "methods": [],
+        "constructors": [],
+        "type": "SERVICE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "$cookieStore",
+        "methods": [
+            {
+                "name": "get",
+                "params": [
+                    {
+                        "name": "key",
+                        "type": "string",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "put",
+                "params": [
+                    {
+                        "name": "key",
+                        "type": "string",
+                        "desc": null
+                    },
+                    {
+                        "name": "value",
+                        "type": "Object",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "remove",
+                "params": [
+                    {
+                        "name": "key",
+                        "type": "string",
+                        "desc": null
+                    }
+                ]
+            }
+        ],
+        "constructors": [],
+        "type": "SERVICE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "$exceptionHandlerProvider",
+        "methods": [
+            {
+                "name": "mode",
+                "params": [
+                    {
+                        "name": "mode",
+                        "type": "string",
+                        "desc": null
+                    }
+                ]
+            }
+        ],
+        "constructors": [],
+        "type": "PROVIDER",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "$resource",
+        "methods": [],
+        "constructors": [
+            {
+                "name": "url",
+                "type": "string",
+                "desc": null
+            },
+            {
+                "name": "paramDefaults",
+                "type": "NgObject=",
+                "desc": null
+            },
+            {
+                "name": "actions",
+                "type": "NgObject.<NgObject>=",
+                "desc": null
+            }
+        ],
+        "type": "SERVICE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "ngView",
+        "methods": [],
+        "constructors": [],
+        "type": "DIRECTIVE",
+        "events": [
+            {
+                "name": "$viewContentLoaded"
+            }
+        ],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "$routeProvider",
+        "methods": [
+            {
+                "name": "when",
+                "params": [
+                    {
+                        "name": "path",
+                        "type": "string",
+                        "desc": null
+                    },
+                    {
+                        "name": "route",
+                        "type": "Object",
+                        "desc": null
+                    }
+                ]
+            },
+            {
+                "name": "otherwise",
+                "params": [
+                    {
+                        "name": "params",
+                        "type": "Object",
+                        "desc": null
+                    }
+                ]
+            }
+        ],
+        "constructors": [],
+        "type": "PROVIDER",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "$route",
+        "methods": [
+            {
+                "name": "reload",
+                "params": []
+            }
+        ],
+        "constructors": [],
+        "type": "SERVICE",
+        "events": [
+            {
+                "name": "$routeChangeStart"
+            },
+            {
+                "name": "$routeChangeSuccess"
+            },
+            {
+                "name": "$routeChangeError"
+            },
+            {
+                "name": "$routeUpdate"
+            }
+        ],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "$routeParams",
+        "methods": [],
+        "constructors": [],
+        "type": "SERVICE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "$sanitize",
+        "methods": [],
+        "constructors": [
+            {
+                "name": "html",
+                "type": "string",
+                "desc": null
+            }
+        ],
+        "type": "SERVICE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "ngSwipeLeft",
+        "methods": [],
+        "constructors": [],
+        "type": "DIRECTIVE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "ngSwipeRight",
+        "methods": [],
+        "constructors": [],
+        "type": "DIRECTIVE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    },
+    {
+        "name": "$swipe",
+        "methods": [
+            {
+                "name": "bind",
+                "params": []
+            }
+        ],
+        "constructors": [],
+        "type": "SERVICE",
+        "events": [],
+        "functions": [],
+        "objects": []
+    }
+]}

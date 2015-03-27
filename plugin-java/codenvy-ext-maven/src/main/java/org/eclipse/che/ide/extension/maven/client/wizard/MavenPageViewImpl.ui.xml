@@ -1,0 +1,138 @@
+<!--
+
+    Copyright (c) 2012-2015 Codenvy, S.A.
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License v1.0
+    which accompanies this distribution, and is available at
+    http://www.eclipse.org/legal/epl-v10.html
+
+    Contributors:
+      Codenvy, S.A. - initial API and implementation
+
+-->
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+    <ui:style src="org/eclipse/che/ide/api/ui/style.css" type="org.eclipse.che.ide.extension.maven.client.wizard.MavenPageViewImpl.Style">
+        @eval InputBackgroundColor org.eclipse.che.ide.api.theme.Style.getInputBackground();
+        @eval borderColor org.eclipse.che.ide.api.theme.Style.getTabBorderColor();
+        .field {
+            background-color: InputBackgroundColor;
+            color: #dbdbdb;
+            border: 1px solid #191c1e;
+            border-radius: 1px;
+            box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.19) inset, 0px 1px 0px 0px rgba(223, 223, 223, 0.4);
+            font-size: 12px;
+            padding-left: 8px;
+            height: 20px;
+        }
+
+        .projectNamePosition {
+            position: relative;
+            line-height: 29px;
+            margin-left: 20px;
+
+        }
+
+        .spaceRight {
+            margin-right: 8px;
+            margin-top: 1px;
+        }
+
+        .mainDoc {
+            margin: 15px;
+        }
+
+        .inputError {
+            border-color: #ffe400;
+            box-shadow: 0 0 5px #ffe400;
+        }
+
+        .checkBoxPosition {
+            position: relative;
+            top: 5px;
+        }
+    </ui:style>
+
+    <g:DockLayoutPanel unit="PX" debugId="mavenPageView-mainPanel" addStyleNames="{style.mainDoc}">
+        <g:north size="50">
+            <g:DockLayoutPanel unit="PX" width="100%" height="100%">
+                <g:west size="138">
+                    <g:FlowPanel>
+                        <g:CheckBox ui:field="generateFromArchetype" debugId="mavenPageView-generateFromArchetype"
+                                    addStyleNames="{style.checkBoxPosition}"/>
+                        <g:Label ui:field="archetypeLabel" text="From Archetype:" addStyleNames="{style.projectNamePosition}"/>
+                    </g:FlowPanel>
+                </g:west>
+                <g:center>
+                    <g:SimplePanel addStyleNames="{style.spaceRight}">
+                        <g:ListBox ui:field="archetypeField" multipleSelect="false" visibleItemCount="1" selectedIndex="0"
+                                   debugId="mavenPageView-archetypeField" width="511px" height="29px" addStyleNames="{style.field}"/>
+                    </g:SimplePanel>
+                </g:center>
+            </g:DockLayoutPanel>
+        </g:north>
+        <g:north size="50">
+            <g:DockLayoutPanel unit="PX" width="100%" height="100%">
+                <g:west size="138">
+                    <g:FlowPanel>
+                        <g:Label text="Artifact Id:" addStyleNames="{style.projectNamePosition}"/>
+                    </g:FlowPanel>
+                </g:west>
+                <g:center>
+                    <g:SimplePanel addStyleNames="{style.spaceRight}">
+                        <g:TextBox width="500px" ui:field="artifactId" debugId="mavenPageView-artifactId" addStyleNames="{style.field}"/>
+                    </g:SimplePanel>
+                </g:center>
+            </g:DockLayoutPanel>
+        </g:north>
+        <g:north size="50">
+            <g:DockLayoutPanel unit="PX" width="100%" height="100%">
+                <g:west size="138">
+                    <g:FlowPanel>
+                        <g:Label text="Group Id:" addStyleNames="{style.projectNamePosition}"/>
+                    </g:FlowPanel>
+                </g:west>
+                <g:center>
+                    <g:SimplePanel addStyleNames="{style.spaceRight}">
+                        <g:TextBox width="500px" ui:field="groupId" debugId="mavenPageView-groupId" addStyleNames="{style.field}"/>
+                    </g:SimplePanel>
+                </g:center>
+            </g:DockLayoutPanel>
+        </g:north>
+        <g:north size="50">
+            <g:DockLayoutPanel unit="PX" width="100%" height="100%">
+                <g:west size="138">
+                    <g:FlowPanel>
+                        <g:Label text="Version:" addStyleNames="{style.projectNamePosition}"/>
+                    </g:FlowPanel>
+                </g:west>
+                <g:center>
+                    <g:SimplePanel addStyleNames="{style.spaceRight}">
+                        <g:TextBox width="500px" ui:field="versionField" debugId="mavenPageView-version" addStyleNames="{style.field}">
+                            1.0-SNAPSHOT
+                        </g:TextBox>
+                    </g:SimplePanel>
+                </g:center>
+            </g:DockLayoutPanel>
+        </g:north>
+        <g:north size="50">
+            <g:DockLayoutPanel unit="PX" width="100%" height="100%">
+                <g:west size="138">
+                    <g:FlowPanel>
+                        <g:Label ui:field="packagingLabel" text="Packaging:" addStyleNames="{style.projectNamePosition}"/>
+                    </g:FlowPanel>
+                </g:west>
+                <g:center>
+                    <g:SimplePanel addStyleNames="{style.spaceRight}">
+                        <g:ListBox ui:field="packagingField" multipleSelect="false" visibleItemCount="1" selectedIndex="0"
+                                   debugId="mavenPageView-packagingField" width="511px" height="29px" addStyleNames="{style.field}">
+                            <g:item value="jar">JAR</g:item>
+                            <g:item value="war">WAR</g:item>
+                            <g:item value="pom">POM</g:item>
+                        </g:ListBox>
+                    </g:SimplePanel>
+                </g:center>
+            </g:DockLayoutPanel>
+        </g:north>
+    </g:DockLayoutPanel>
+</ui:UiBinder>

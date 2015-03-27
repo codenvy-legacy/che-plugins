@@ -1,0 +1,44 @@
+[
+    {
+        "displayName": "Go",
+        "category": "Samples - Hello World",
+        "description": "A simple Go application.",
+        "source": {
+            "type": "git",
+            "location": "https://github.com/codenvy-templates/desktop-go-simple.git",
+            "parameters": {
+                "branch": "3.1.0",
+                "keepVcs": "false"
+            }
+        },
+        "runners": {
+            "default": "system:/go/standalone",
+            "configs": {
+                "recommend": {
+                    "ram": 256
+                }
+            }
+        }
+    },
+    {
+        "displayName": "Go Web",
+        "category": "Samples - Hello World",
+        "description": "A simple web Go application.",
+        "source": {
+            "type": "git",
+            "location": "https://github.com/codenvy-templates/web-go-simple.git",
+            "parameters": {
+                "branch": "3.1.0",
+                "keepVcs": "false"
+            }
+        },
+        "runners": {
+            "default": "system:/go/web",
+            "configs": {
+                "recommend": {
+                    "ram": 256
+                }
+            }
+        }
+    }
+]

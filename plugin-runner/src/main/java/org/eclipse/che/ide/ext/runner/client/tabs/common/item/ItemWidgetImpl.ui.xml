@@ -1,0 +1,80 @@
+<!--
+
+    Copyright (c) 2012-2015 Codenvy, S.A.
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License v1.0
+    which accompanies this distribution, and is available at
+    http://www.eclipse.org/legal/epl-v10.html
+
+    Contributors:
+      Codenvy, S.A. - initial API and implementation
+
+-->
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+
+    <ui:with field="resources" type="org.eclipse.che.ide.ext.runner.client.RunnerResources"/>
+
+    <ui:style>
+        .runnerSize {
+            direction: ltr;
+            width: 100%;
+            height: 35px;
+            cursor: pointer;
+            overflow: hidden;
+            text-overflow: clip;
+            white-space: nowrap;
+        }
+
+        .runnerName {
+            margin-top: 3px;
+            margin-left: 6px;
+            float: left;
+        }
+
+        .ramLabel {
+            color: #1c9dee;
+            float: left;
+            margin-left: 6px;
+        }
+
+        .timeLabel {
+            color: #b6b6b6;
+            float: left;
+            margin-left: 5px;
+        }
+
+        .svgImage {
+            position: absolute;
+            z-index: 0;
+        }
+
+        .imagePanel {
+            position: absolute;
+            z-index: 1;
+            width: 20px;
+            height: 35px;
+        }
+    </ui:style>
+
+    <g:DockLayoutPanel unit="PX" addStyleNames="{style.runnerSize}">
+        <g:west size="20">
+            <g:SimpleLayoutPanel ui:field="imagePanel" addStyleNames="{style.imagePanel}">
+                <g:SimpleLayoutPanel ui:field="image" addStyleNames="{style.svgImage}"/>
+            </g:SimpleLayoutPanel>
+        </g:west>
+
+        <g:north size="20">
+            <g:FlowPanel>
+                <g:Label ui:field="runnerName" addStyleNames="{style.runnerName} {resources.runnerCss.fontSizeTwelve}"/>
+            </g:FlowPanel>
+        </g:north>
+
+        <g:center>
+            <g:FlowPanel>
+                <g:Label ui:field="ram" addStyleNames="{style.ramLabel} {resources.runnerCss.fontSizeTen}"/>
+                <g:Label ui:field="startTime" addStyleNames="{style.timeLabel} {resources.runnerCss.fontSizeTen}"/>
+            </g:FlowPanel>
+        </g:center>
+    </g:DockLayoutPanel>
+</ui:UiBinder>

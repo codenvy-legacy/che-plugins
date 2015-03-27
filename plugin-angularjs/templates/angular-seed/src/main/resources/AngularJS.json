@@ -1,0 +1,77 @@
+[
+    {
+        "displayName":  "AngularJS - Seed",
+        "category": "Samples - Hello World",
+        "description": "Project using Angular seed scaffolding.",
+        "source": {
+            "type": "git",
+            "location": "https://github.com/codenvy-templates/web-angularjs-javascript-angular-seed",
+            "parameters": {
+                "branch": "3.1.0",
+                "keepVcs": "false"
+            }
+        },
+        "runners": {
+            "default": "system:/javascript/web/grunt",
+            "configs": {
+            }
+        }
+    },
+
+    {
+        "displayName":  "AngularJS - Gulp",
+        "category": "Samples - Hello World",
+        "description": "Project using gulp and AngularJS scaffolding.",
+        "source": {
+            "type": "git",
+            "location": "https://github.com/codenvy-templates/web-angularjs-javascript-gulp-starter",
+            "parameters": {
+                "branch": "3.1.0",
+                "keepVcs": "false"
+            }
+        },
+        "runners": {
+            "default": "system:/javascript/web/gulp",
+            "configs": {
+            }
+        }
+    },
+
+    {
+        "displayName":  "AngularJS - Yeoman",
+        "category": "Samples - Hello World",
+        "description": "Project using yeoman scaffolding.",
+        "source": {
+            "type": "git",
+            "location": "https://github.com/codenvy-templates/web-angularjs-javascript-yeoman",
+            "parameters": {
+                "branch": "3.1.0",
+                "keepVcs": "false"
+            }
+        },
+        "runners": {
+            "default": "system:/javascript/web/grunt",
+            "configs": {
+            }
+        }
+    },
+
+    {
+        "displayName":  "User Dashboard",
+        "category": "Samples - Codenvy",
+        "description": "Codenvy User Dashboard example.",
+        "source": {
+            "type": "git",
+            "location": "https://github.com/codenvy/user-dashboard.git",
+            "parameters": {
+                "branch": "3.1.0",
+                "keepVcs": "false"
+            }
+        },
+        "runners": {
+            "default": "system:/javascript/web/grunt",
+            "configs": {
+            }
+        }
+    }
+]

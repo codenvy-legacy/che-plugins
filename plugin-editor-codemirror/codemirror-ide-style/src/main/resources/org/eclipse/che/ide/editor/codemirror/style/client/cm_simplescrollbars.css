@@ -1,0 +1,84 @@
+/*******************************************************************************
+ * Copyright (c) 2014-2015 Codenvy, S.A.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *   Codenvy, S.A. - initial API and implementation
+ *******************************************************************************/
+  @external *;
+
+.cm-s-codenvy .CodeMirror-simplescroll-horizontal div, .cm-s-codenvy .CodeMirror-simplescroll-vertical div {
+  background-clip: padding-box;
+  background-color: rgba(178, 178, 178, 0.2);
+  border-radius: 0;
+  border: 0;
+
+  -webkit-box-shadow: inset 1px 1px 0px rgba(178, 178, 178, 0.10),
+                    inset 0px -1px 0px rgba(178, 178, 178, 0.07);
+  -moz-box-shadow: inset 1px 1px 0px rgba(178, 178, 178, 0.10),
+                    inset 0px -1px 0px rgba(178, 178, 178, 0.07);
+  box-shadow: inset 1px 1px 0px rgba(178, 178, 178, 0.10),
+                    inset 0px -1px 0px rgba(178, 178, 178, 0.07);
+}
+.cm-s-codenvy .CodeMirror-simplescroll-horizontal div:hover, .cm-s-codenvy .CodeMirror-simplescroll-vertical div:hover {
+  background-color: rgba(178, 178, 178, 0.4);
+  -webkit-box-shadow: inset 1px 1px 1px rgba(178, 178, 178, 0.25);
+  -moz-box-shadow: inset 1px 1px 1px rgba(178, 178, 178, 0.25);
+  -box-shadow: inset 1px 1px 1px rgba(178, 178, 178, 0.25);
+}
+.cm-s-codenvy .CodeMirror-simplescroll-horizontal div:active, .cm-s-codenvy .CodeMirror-simplescroll-vertical div:active {
+  background-color: rgba(178, 178, 178, 0.5);
+  -webkit-box-shadow: inset 1px 1px 1px rgba(178, 178, 178, 0.35);
+  -moz-box-shadow: inset 1px 1px 1px rgba(178, 178, 178, 0.35);
+  -box-shadow: inset 1px 1px 1px rgba(178, 178, 178, 0.35);
+}
+
+.cm-s-codenvy .CodeMirror-simplescroll-horizontal, .cm-s-codenvy .CodeMirror-simplescroll-vertical {
+  background-color: editorBackgroundColor;
+}
+
+.cm-s-codenvy .CodeMirror-simplescroll-horizontal:hover, .cm-s-codenvy .CodeMirror-simplescroll-vertical:hover {
+  background-color: rgba(178, 178, 178, 0.05);
+
+  -webkit-box-shadow: inset 1px 0px 0px rgba(178, 178, 178, 0.10);
+  -moz-box-shadow: inset 1px 0px 0px rgba(178, 178, 178, 0.10);
+  box-shadow: inset 1px 0px 0px rgba(178, 178, 178, 0.10);
+}
+
+.cm-s-codenvy .CodeMirror-simplescroll-horizontal:active, .cm-s-codenvy .CodeMirror-simplescroll-vertical:active {
+    background-color: rgba(178, 178, 178, 0.05);
+
+    -webkit-box-shadow: inset 1px 0px 0px rgba(178, 178, 178, 0.10),
+                        inset -1px -1px 0px rgba(178, 178, 178, 0.07);
+    -moz-box-shadow: inset 1px 0px 0px rgba(178, 178, 178, 0.10),
+                    inset -1px -1px 0px rgba(178, 178, 178, 0.07);
+    box-shadow: inset 1px 0px 0px rgba(178, 178, 178, 0.10),
+                inset -1px -1px 0px rgba(178, 178, 178, 0.07);
+}
+
+.cm-s-codenvy .CodeMirror-simplescroll-horizontal {
+  bottom: 0; left: 0;
+  height: scrollbarSize;
+  border-bottom: 1px solid transparent;
+}
+.cm-s-codenvy .CodeMirror-simplescroll-horizontal div {
+  border-left: 0px solid transparent;
+  border-right: 0px solid transparent;
+  border-bottom: 1px solid transparent;
+  min-width: 28px;
+}
+
+.cm-s-codenvy .CodeMirror-simplescroll-vertical {
+  right: 0; top: 0;
+  width: scrollbarSize;
+  border-right: 1px solid transparent;
+}
+.cm-s-codenvy .CodeMirror-simplescroll-vertical div {
+  border-right: 1px solid transparent;
+  border-top: 0px solid transparent;
+  border-bottom: 0px solid transparent;
+  min-height: 28px;
+}

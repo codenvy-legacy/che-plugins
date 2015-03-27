@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (c) 2012-2015 Codenvy, S.A.
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License v1.0
+    which accompanies this distribution, and is available at
+    http://www.eclipse.org/legal/epl-v10.html
+
+    Contributors:
+      Codenvy, S.A. - initial API and implementation
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>maven-depmgt-pom</artifactId>
+        <groupId>com.codenvy</groupId>
+        <version>1.20.0-SNAPSHOT</version>
+    </parent>
+    <groupId>com.codenvy.plugin-go</groupId>
+    <artifactId>codenvy-plugin-go-parent</artifactId>
+    <version>1.5.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>Codenvy Plugin Go :: Parent</name>
+    <modules>
+        <module>codenvy-ext-go</module>
+    </modules>
+    <scm>
+        <connection>scm:git:git@github.com:codenvy/plugin-go.git</connection>
+        <developerConnection>scm:git:git@github.com:codenvy/plugin-go.git</developerConnection>
+        <tag>HEAD</tag>
+    </scm>
+    <repositories>
+        <repository>
+            <id>codenvy-public-repo</id>
+            <name>codenvy public</name>
+            <url>https://maven.codenvycorp.com/content/groups/public/</url>
+        </repository>
+    </repositories>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>codenvy-public-repo</id>
+            <name>codenvy public</name>
+            <url>https://maven.codenvycorp.com/content/groups/public/</url>
+        </pluginRepository>
+    </pluginRepositories>
+</project>

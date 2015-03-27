@@ -1,0 +1,1 @@
+<pre style='margin:0px;'>[<span style='color:#00B7EC;'><b>DOCKER</b></span>][<span style='color:#F62217;'><b>ERROR</b></span>] some text</pre>

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (c) 2012-2015 Codenvy, S.A.
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License v1.0
+    which accompanies this distribution, and is available at
+    http://www.eclipse.org/legal/epl-v10.html
+
+    Contributors:
+      Codenvy, S.A. - initial API and implementation
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>maven-depmgt-pom</artifactId>
+        <groupId>com.codenvy</groupId>
+        <version>1.20.0-SNAPSHOT</version>
+    </parent>
+    <groupId>com.codenvy.ide</groupId>
+    <artifactId>codenvy-ext-datasource-parent</artifactId>
+    <version>1.12.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>Codenvy Extension :: Datasource parent</name>
+    <modules>
+        <module>codenvy-ssl-socket-factory</module>
+        <module>codenvy-ext-datasource-shared</module>
+        <module>codenvy-ext-datasource-server</module>
+        <module>codenvy-ext-datasource-client</module>
+        <module>codenvy-ext-datasource-server-war-sdk</module>
+        <module>codenvy-ext-datasource-server-war-standalone</module>
+        <module>codenvy-ext-datasource-client-widget</module>
+        <module>codenvy-ext-datasource-client-store</module>
+        <module>codenvy-ext-datasource-itests</module>
+    </modules>
+    <scm>
+        <connection>scm:git:git@github.com:codenvy/plugin-datasource.git</connection>
+        <developerConnection>scm:git:git@github.com:codenvy/plugin-datasource.git</developerConnection>
+        <tag>HEAD</tag>
+    </scm>
+    <properties>
+        <dto-generator-out-directory>${project.build.directory}/generated-sources/dto/</dto-generator-out-directory>
+    </properties>
+    <repositories>
+        <repository>
+            <id>codenvy-public-repo</id>
+            <name>codenvy public</name>
+            <url>https://maven.codenvycorp.com/content/groups/public/</url>
+        </repository>
+        <repository>
+            <id>codenvy-public-snapshots-repo</id>
+            <name>codenvy public snapshots</name>
+            <url>https://maven.codenvycorp.com/content/repositories/codenvy-public-snapshots/</url>
+        </repository>
+    </repositories>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>codenvy-public-repo</id>
+            <name>codenvy public</name>
+            <url>https://maven.codenvycorp.com/content/groups/public/</url>
+        </pluginRepository>
+        <pluginRepository>
+            <id>codenvy-public-snapshots-repo</id>
+            <name>codenvy public snapshots</name>
+            <url>https://maven.codenvycorp.com/content/repositories/codenvy-public-snapshots/</url>
+        </pluginRepository>
+    </pluginRepositories>
+</project>

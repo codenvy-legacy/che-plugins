@@ -1,0 +1,74 @@
+<!--
+
+    Copyright (c) 2012-2015 Codenvy, S.A.
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License v1.0
+    which accompanies this distribution, and is available at
+    http://www.eclipse.org/legal/epl-v10.html
+
+    Contributors:
+      Codenvy, S.A. - initial API and implementation
+
+-->
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+
+    <ui:with field="resources" type="org.eclipse.che.ide.ext.runner.client.RunnerResources"/>
+    <ui:with field="locale" type="org.eclipse.che.ide.ext.runner.client.RunnerLocalizationConstant"/>
+
+    <ui:style>
+        .container {
+            width: 100%;
+            height: 100%;
+            margin-top: 6px;
+            margin-left: 2px;
+        }
+
+        .scroll {
+            width: 100%;
+            height: 100%;
+            direction: rtl;
+        }
+
+        .environmentPanel {
+            padding-bottom: 13px;
+            margin-right: 2px;
+            margin-left: 5px;
+        }
+
+        .generalSeparator {
+            position: relative;
+            width: 100%;
+            z-index: 1;
+            box-shadow: -6px 0 6px 3px rgba(50, 50, 50, 0.75);
+        }
+
+        .topSeparator {
+            height: 6px;
+        }
+
+        .bottomSeparator {
+            top: -13px;
+        }
+    </ui:style>
+    <g:DockLayoutPanel unit="PX" addStyleNames="{style.container}">
+        <!--scope panel-->
+        <g:north size="40">
+            <g:SimplePanel ui:field="filterPanel"/>
+        </g:north>
+
+        <!--templates panel-->
+        <g:center>
+            <g:FlowPanel>
+                <g:SimplePanel addStyleNames="{style.generalSeparator} {style.topSeparator}"/>
+
+                <g:ScrollPanel addStyleNames="{style.scroll}">
+                    <g:FlowPanel ui:field="environmentsPanel" debugId="environmentsPanel" addStyleNames="{style.environmentPanel}"/>
+                </g:ScrollPanel>
+
+                <g:SimplePanel addStyleNames="{style.generalSeparator} {style.bottomSeparator}"/>
+            </g:FlowPanel>
+        </g:center>
+    </g:DockLayoutPanel>
+
+</ui:UiBinder>

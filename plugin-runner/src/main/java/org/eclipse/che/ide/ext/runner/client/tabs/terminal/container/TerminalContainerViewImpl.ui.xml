@@ -1,0 +1,41 @@
+<!--
+
+    Copyright (c) 2012-2015 Codenvy, S.A.
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License v1.0
+    which accompanies this distribution, and is available at
+    http://www.eclipse.org/legal/epl-v10.html
+
+    Contributors:
+      Codenvy, S.A. - initial API and implementation
+
+-->
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+
+    <ui:with field="resources" type="org.eclipse.che.ide.ext.runner.client.RunnerResources"/>
+
+    <ui:style>
+        .background {
+            background: #474747;
+        }
+
+        .border {
+            border: 1px solid #242424;
+        }
+    </ui:style>
+
+    <g:DockLayoutPanel unit="PX" addStyleNames="{resources.runnerCss.fullSize}">
+        <g:north size="6">
+            <g:FlowPanel addStyleNames="{style.background}"/>
+        </g:north>
+
+        <g:west size="6">
+            <g:FlowPanel addStyleNames="{style.background}"/>
+        </g:west>
+
+        <g:center>
+            <g:FlowPanel ui:field="mainPanel" addStyleNames="{resources.runnerCss.fullSize} {style.border}"/>
+        </g:center>
+    </g:DockLayoutPanel>
+</ui:UiBinder>

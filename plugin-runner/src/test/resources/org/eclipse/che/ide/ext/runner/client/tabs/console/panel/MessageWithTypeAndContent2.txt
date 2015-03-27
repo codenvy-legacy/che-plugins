@@ -1,0 +1,1 @@
+<pre style='margin:0px;'>[<span style='color:lightgreen;'><b>INFO</b></span>] other text</pre>

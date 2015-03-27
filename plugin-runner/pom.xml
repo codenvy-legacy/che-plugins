@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (c) 2012-2015 Codenvy, S.A.
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License v1.0
+    which accompanies this distribution, and is available at
+    http://www.eclipse.org/legal/epl-v10.html
+
+    Contributors:
+      Codenvy, S.A. - initial API and implementation
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>maven-depmgt-pom</artifactId>
+        <groupId>com.codenvy</groupId>
+        <version>1.20.0-SNAPSHOT</version>
+    </parent>
+    <groupId>com.codenvy.plugin-runner</groupId>
+    <artifactId>codenvy-plugin-runner</artifactId>
+    <version>1.1.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+    <name>Codenvy Plugin Runner</name>
+    <scm>
+        <connection>scm:git:git@github.com:codenvy/plugin-runner.git</connection>
+        <developerConnection>scm:git:git@github.com:codenvy/plugin-runner.git</developerConnection>
+        <tag>HEAD</tag>
+    </scm>
+    <properties>
+        <!-- this argument needs for Jacoco for analyzing code coverage -->
+        <argLine>-XX:MaxPermSize=256M</argLine>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>com.codenvy.ide</groupId>
+            <artifactId>codenvy-ide-api</artifactId>
+            <version>${codenvy.ide.version}</version>
+        </dependency>
+        <!--this dependency need to use Resources which needed for correct displaying of custom environments table -->
+        <dependency>
+            <groupId>com.codenvy.ide</groupId>
+            <artifactId>codenvy-ide-core</artifactId>
+            <version>${codenvy.ide-sdk.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.codenvy.ide</groupId>
+            <artifactId>codenvy-ide-ui</artifactId>
+            <version>${codenvy.ide-sdk.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.codenvy.platform-api</groupId>
+            <artifactId>codenvy-api-runner</artifactId>
+            <version>${codenvy.platform-api.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.gwt.inject</groupId>
+            <artifactId>gin</artifactId>
+            <version>${com.google.gwt.gin.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.codenvy.platform-api-gwt-client</groupId>
+            <artifactId>codenvy-api-runner-gwt-client</artifactId>
+            <version>${codenvy.platform-api-gwt-client.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.gwt</groupId>
+            <artifactId>gwt-user</artifactId>
+            <version>${com.google.gwt.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${ch.qos.logback.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.gwt.gwtmockito</groupId>
+            <artifactId>gwtmockito</artifactId>
+            <version>${com.google.gwt.gwtmockito}</version>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <artifactId>mockito-all</artifactId>
+                    <groupId>org.mockito</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>gwt-user</artifactId>
+                    <groupId>com.google.gwt</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.tngtech.java</groupId>
+            <artifactId>junit-dataprovider</artifactId>
+            <version>${com.tngtech.java}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>${org.mockito.version}</version>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <artifactId>hamcrest-core</artifactId>
+                    <groupId>org.hamcrest</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+    </dependencies>
+    <repositories>
+        <repository>
+            <id>codenvy-public-repo</id>
+            <name>codenvy public</name>
+            <url>https://maven.codenvycorp.com/content/groups/public/</url>
+        </repository>
+    </repositories>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>codenvy-public-repo</id>
+            <name>codenvy public</name>
+            <url>https://maven.codenvycorp.com/content/groups/public/</url>
+        </pluginRepository>
+    </pluginRepositories>
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/java</directory>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+        </resources>
+        <testResources>
+            <testResource>
+                <directory>src/test/java</directory>
+            </testResource>
+            <testResource>
+                <directory>src/test/resources</directory>
+            </testResource>
+        </testResources>
+    </build>
+</project>

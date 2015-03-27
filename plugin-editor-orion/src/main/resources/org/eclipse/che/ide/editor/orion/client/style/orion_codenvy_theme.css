@@ -1,0 +1,125 @@
+/*******************************************************************************
+ * Copyright (c) 2014-2015 Codenvy, S.A.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *   Codenvy, S.A. - initial API and implementation
+ *******************************************************************************/
+ @external *;
+
+.orionCodenvy {
+    font-family: editorFontFamily;
+    font-size: 13px;
+    color: editorDefaultFontColor
+}
+.orionCodenvy.textview {
+    background-color: editorBackgroundColor;
+}
+.orionCodenvy .ruler.annotations {
+    background-color: editorBackgroundColor;
+}
+.orionCodenvy .ruler.lines {
+    background-color: editorBackgroundColor;
+}
+.orionCodenvy .ruler.folding {
+    background-color: editorBackgroundColor;
+}
+.orionCodenvy .ruler.overview {
+    background-color: editorBackgroundColor;
+}
+.orionCodenvy.textviewBlockCursor {
+    background-color: editorCursorColor;
+    opacity: 1;
+}
+.orionCodenvy .rulerLines {
+    /* duplicated from LineNumerRenderer.css -> .lineNumber */
+    font-family: "DejaVu Sans Mono", alternativeFontFamily;
+    font-size: 12px;
+    color: editorGutterLineNumberColor;
+}
+.orionCodenvy .textviewLeftRuler {
+    border-right: 1px dotted editorGutterSeparatorColor;
+}
+.orionCodenvy .rulerLines.even {
+}
+.orionCodenvy .rulerLines.odd {
+}
+.orionCodenvy .annotationLine.currentLine {
+    background-color: editorCurrentLineColor !important;
+}
+.orionCodenvy .entity-name-tag {
+    color: tag;
+}
+.orionCodenvy .entity-other-attribute-name {
+    color: attribute;
+}
+.orionCodenvy .string-quoted {
+}
+.orionCodenvy .meta.annotation.currentLine {
+    background-color: editorCurrentLineColor !important;
+}
+.orionCodenvy .keyword {
+    color: keyword;
+    font-weight: normal;
+}
+.orionCodenvy .string {
+    color: string;
+}
+.orionCodenvy .comment {
+    color: comment;
+}
+.orionCodenvy .comment.block.documentation {
+    color: comment;
+}
+.orionCodenvy .keyword.other.documentation.markup {
+    color: comment;
+}
+
+
+.orionCodenvy .textViewFind {
+    background-color: activeTabBackground;
+    color: mainFontColor;
+    text-shadow: boxTextShadow;
+    font-family: mainFontFamily;
+    font-size: boxFontSize;
+    border: 1px solid black;
+}
+.orionCodenvy .textViewFind.show {
+}
+.orionCodenvy .textViewFindButton {
+}
+.orionCodenvy .textViewFindButton:first-child {
+}
+.orionCodenvy .textViewFindButton:last-child {
+}
+.orionCodenvy .textViewFindButton.checked {
+}
+.orionCodenvy input {
+	/* duplicated from Core.css gwt-TextBox style */
+    background-color: boxBackgroundColor;
+    color: boxTextColor;
+    border: 1px solid boxBorderColor;
+    border-radius: 1px;
+    box-shadow: boxInnerShadow, boxOuterShadow;
+    font-family: mainFontFamily;
+    font-size: boxFontSize;
+    text-shadow: boxTextShadow;
+}
+.orionCodenvy .textViewReplaceInput {
+}
+.orionCodenvy .textViewFindInput {
+}
+.orionCodenvy .textViewFindCloseButton {
+    border: 1px solid transparent;
+    background: none;
+    background-color: transparent;
+    background-repeat: no-repeat;
+    background-image: url(data:image/gif;base64,R0lGODlhEAAQAJEAAAAAAP///4CAgP///yH5BAEAAAMALAAAAAAQABAAAAIdnI+py+1vhECSyTluu9px+HkctnSdUh0pxLYuVAAAOw==);
+}
+.orionCodenvy .textViewFindCloseButton:hover {
+	/* from Core.css gwt:TextButton:hover */
+    border: 1px solid tabBorder;
+}
