@@ -23,29 +23,29 @@
     <name>Codenvy Extension :: Ant</name>
     <dependencies>
         <dependency>
-            <groupId>org.eclipse.che.core</groupId>
-            <artifactId>codenvy-ide-api</artifactId>
-            <version>${che.plugins.version}</version>
+            <groupId>com.google.inject</groupId>
+            <artifactId>guice</artifactId>
+            <version>${com.google.code.guice.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.codenvy.plugin-java</groupId>
+            <groupId>org.eclipse.che.core</groupId>
+            <artifactId>codenvy-ide-api</artifactId>
+            <version>${che.core.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.che.plugin</groupId>
             <artifactId>codenvy-ant-tools</artifactId>
             <version>${che.plugins.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.codenvy.plugin-java</groupId>
+            <groupId>org.eclipse.che.plugin</groupId>
             <artifactId>codenvy-ext-java</artifactId>
             <version>${che.plugins.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.codenvy.plugin-runner</groupId>
+            <groupId>org.eclipse.che.plugin</groupId>
             <artifactId>codenvy-plugin-runner</artifactId>
             <version>${che.plugins.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.inject</groupId>
-            <artifactId>guice</artifactId>
-            <version>${com.google.code.guice.version}</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>

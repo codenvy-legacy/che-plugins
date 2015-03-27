@@ -26,14 +26,24 @@
     </properties>
     <dependencies>
         <dependency>
-            <groupId>org.eclipse.che.core</groupId>
-            <artifactId>codenvy-ide-api</artifactId>
-            <version>${codenvy.ide.version}</version>
+            <groupId>com.google.gwt.inject</groupId>
+            <artifactId>gin</artifactId>
+            <version>${com.google.gwt.gin.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.validation</groupId>
+            <artifactId>validation-api</artifactId>
+            <version>${javax.validation.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.antlr</groupId>
+            <artifactId>antlr</artifactId>
+            <version>${org.antlr.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.core</groupId>
-            <artifactId>codenvy-ide-core</artifactId>
-            <version>${codenvy.ide.version}</version>
+            <artifactId>codenvy-api-project-gwt-client</artifactId>
+            <version>${che.core.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.core</groupId>
@@ -42,11 +52,16 @@
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.core</groupId>
-            <artifactId>codenvy-api-project-gwt-client</artifactId>
-            <version>${codenvy.platform-api-gwt-client.version}</version>
+            <artifactId>codenvy-ide-api</artifactId>
+            <version>${che.core.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.codenvy.plugin-java</groupId>
+            <groupId>org.eclipse.che.core</groupId>
+            <artifactId>codenvy-ide-core</artifactId>
+            <version>${che.core.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.che.plugin</groupId>
             <artifactId>codenvy-ext-java</artifactId>
             <version>${project.version}</version>
             <exclusions>
@@ -85,29 +100,14 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>com.codenvy.plugin-java</groupId>
+            <groupId>org.eclipse.che.plugin</groupId>
             <artifactId>codenvy-ext-maven</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.codenvy.plugin-runner</groupId>
+            <groupId>org.eclipse.che.plugin</groupId>
             <artifactId>codenvy-plugin-runner</artifactId>
-            <version>${codenvy.plugin.runner.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.gwt.inject</groupId>
-            <artifactId>gin</artifactId>
-            <version>${com.google.gwt.gin.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>javax.validation</groupId>
-            <artifactId>validation-api</artifactId>
-            <version>${javax.validation.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.antlr</groupId>
-            <artifactId>antlr</artifactId>
-            <version>${org.antlr.version}</version>
+            <version>${che.plugins.version}</version>
         </dependency>
         <dependency>
             <groupId>org.everrest</groupId>

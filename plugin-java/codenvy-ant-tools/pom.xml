@@ -23,6 +23,11 @@
     <name>Codenvy Ant Tools</name>
     <dependencies>
         <dependency>
+            <groupId>org.apache.ant</groupId>
+            <artifactId>ant</artifactId>
+            <version>${org.apache.ant.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.eclipse.che.core</groupId>
             <artifactId>codenvy-api-core</artifactId>
             <version>${che.core.version}</version>
@@ -36,11 +41,6 @@
             <groupId>org.eclipse.che.core</groupId>
             <artifactId>codenvy-vfs-impl</artifactId>
             <version>${che.core.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.ant</groupId>
-            <artifactId>ant</artifactId>
-            <version>${org.apache.ant.version}</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>

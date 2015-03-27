@@ -25,12 +25,12 @@
         <dependency>
             <groupId>org.eclipse.che.core</groupId>
             <artifactId>codenvy-ide-api</artifactId>
-            <version>${codenvy.ide.version}</version>
+             <version>${che.core.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.codenvy.plugin-runner</groupId>
+            <groupId>org.eclipse.che.plugin</groupId>
             <artifactId>codenvy-plugin-runner</artifactId>
-            <version>${codenvy.plugin.runner.version}</version>
+             <version>${che.plugins.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.inject</groupId>

@@ -48,17 +48,17 @@
         <dependency>
             <groupId>org.eclipse.che.core</groupId>
             <artifactId>codenvy-ext-ssh</artifactId>
-            <version>${codenvy.ide.version}</version>
+             <version>${che.core.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.core</groupId>
             <artifactId>codenvy-ide-api</artifactId>
-            <version>${codenvy.ide.version}</version>
+             <version>${che.core.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.core</groupId>
             <artifactId>codenvy-ide-core</artifactId>
-            <version>${codenvy.ide.version}</version>
+             <version>${che.core.version}</version>
             <exclusions>
                 <exclusion>
                     <artifactId>javassist</artifactId>
@@ -69,7 +69,7 @@
         <dependency>
             <groupId>org.eclipse.che.core</groupId>
             <artifactId>codenvy-ide-ui</artifactId>
-            <version>${codenvy.ide.version}</version>
+             <version>${che.core.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.core</groupId>
@@ -105,17 +105,17 @@
         <dependency>
             <groupId>org.eclipse.che.core</groupId>
             <artifactId>codenvy-api-analytics-gwt-client</artifactId>
-            <version>${codenvy.platform-api-gwt-client.version}</version>
+             <version>${che.core.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.core</groupId>
             <artifactId>codenvy-api-project-gwt-client</artifactId>
-            <version>${codenvy.platform-api-gwt-client.version}</version>
+             <version>${che.core.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.core</groupId>
             <artifactId>codenvy-gwt-client-commons</artifactId>
-            <version>${codenvy.platform-api-gwt-client.version}</version>
+             <version>${che.core.version}</version>
             <exclusions>
                 <exclusion>
                     <artifactId>javassist</artifactId>

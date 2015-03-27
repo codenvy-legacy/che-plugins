@@ -31,9 +31,9 @@
             <version>${che.core.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.codenvy.plugin-java</groupId>
+            <groupId>org.eclipse.che.plugin</groupId>
             <artifactId>codenvy-maven-tools</artifactId>
-            <version>${project.version}</version>
+            <version>${che.plugins.version}</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>

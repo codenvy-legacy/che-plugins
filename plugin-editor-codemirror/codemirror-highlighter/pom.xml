@@ -23,7 +23,7 @@
         <dependency>
             <groupId>org.eclipse.che.core</groupId>
             <artifactId>codenvy-ide-api</artifactId>
-            <version>${codenvy.ide.version}</version>
+             <version>${che.core.version}</version>
         </dependency>
         <dependency>
             <groupId>com.codenvy.plugin-editor-codemirror</groupId>

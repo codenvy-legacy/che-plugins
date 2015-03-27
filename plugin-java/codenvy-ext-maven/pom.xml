@@ -26,19 +26,9 @@
     </properties>
     <dependencies>
         <dependency>
-            <groupId>org.eclipse.che.core</groupId>
-            <artifactId>codenvy-commons-lang</artifactId>
-            <version>${che.core.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.che.core</groupId>
-            <artifactId>codenvy-ext-builder</artifactId>
-            <version>${codenvy.ide.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.che.core</groupId>
-            <artifactId>codenvy-ide-api</artifactId>
-            <version>${codenvy.ide.version}</version>
+            <groupId>javax.validation</groupId>
+            <artifactId>validation-api</artifactId>
+            <version>${javax.validation.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.core</groupId>
@@ -48,32 +38,42 @@
         <dependency>
             <groupId>org.eclipse.che.core</groupId>
             <artifactId>codenvy-api-builder-gwt-client</artifactId>
-            <version>${codenvy.platform-api-gwt-client.version}</version>
+            <version>${che.core.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.codenvy.plugin-java</groupId>
+            <groupId>org.eclipse.che.core</groupId>
+            <artifactId>codenvy-commons-lang</artifactId>
+            <version>${che.core.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.che.core</groupId>
+            <artifactId>codenvy-ext-builder</artifactId>
+            <version>${che.core.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.che.core</groupId>
+            <artifactId>codenvy-ide-api</artifactId>
+            <version>${che.core.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.che.plugin</groupId>
             <artifactId>codenvy-ext-java</artifactId>
-            <version>${project.version}</version>
+            <version>${che.plugins.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.codenvy.plugin-java</groupId>
+            <groupId>org.eclipse.che.plugin</groupId>
             <artifactId>codenvy-generator-archetype</artifactId>
-            <version>${project.version}</version>
+            <version>${che.plugins.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.codenvy.plugin-java</groupId>
+            <groupId>org.eclipse.che.plugin</groupId>
             <artifactId>codenvy-maven-tools</artifactId>
-            <version>${project.version}</version>
+            <version>${che.plugins.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.codenvy.plugin-runner</groupId>
+            <groupId>org.eclipse.che.plugin</groupId>
             <artifactId>codenvy-plugin-runner</artifactId>
-            <version>${codenvy.plugin.runner.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>javax.validation</groupId>
-            <artifactId>validation-api</artifactId>
-            <version>${javax.validation.version}</version>
+            <version>${che.plugins.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.gwt</groupId>
