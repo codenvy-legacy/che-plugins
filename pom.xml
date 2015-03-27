@@ -24,6 +24,24 @@
     <packaging>pom</packaging>
     <name>Codenvy Plugin Parent</name>
     <modules>
+        <module>plugin-java</module>
+        <!--module>plugin-editor-codemirror</module>
+        <module>plugin-editor-orion</module>
+        <module>plugin-php</module>
+        <module>plugin-git</module>
+        <module>plugin-datasource</module>
+        <module>plugin-angularjs</module>
+        <module>plugin-bower</module>
+        <module>plugin-gulp</module>
+        <module>plugin-grunt</module>
+        <module>plugin-npm</module>
+        <module>plugin-yeoman</module>
+        <module>plugin-cpp</module>
+        <module>plugin-ruby</module>
+        <module>plugin-go</module>
+        <module>plugin-python</module>
+        <module>plugin-tour</module>
+        <module>plugin-runner</module-->
     </modules>
     <scm>
         <connection>scm:git:git@github.com:codenvy/che-plugin.git</connection>

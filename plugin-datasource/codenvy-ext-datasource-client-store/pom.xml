@@ -15,18 +15,18 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>codenvy-ext-datasource-parent</artifactId>
-        <groupId>com.codenvy.ide</groupId>
+        <groupId>org.eclipse.che.core</groupId>
         <version>1.12.0-SNAPSHOT</version>
     </parent>
     <artifactId>codenvy-ext-datasource-client-store</artifactId>
     <dependencies>
         <dependency>
-            <groupId>com.codenvy.ide</groupId>
+            <groupId>org.eclipse.che.core</groupId>
             <artifactId>codenvy-ext-datasource-shared</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.codenvy.ide</groupId>
+            <groupId>org.eclipse.che.core</groupId>
             <artifactId>codenvy-ide-api</artifactId>
             <version>${codenvy.ide.version}</version>
         </dependency>

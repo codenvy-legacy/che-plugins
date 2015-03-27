@@ -23,9 +23,9 @@
     <name>AngularJS Plugin :: Completion :: Parser</name>
     <dependencies>
         <dependency>
-            <groupId>com.codenvy.platform-api</groupId>
+            <groupId>org.eclipse.che.core</groupId>
             <artifactId>codenvy-dto</artifactId>
-            <version>${codenvy.platform-api.version}</version>
+            <version>${che.core.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

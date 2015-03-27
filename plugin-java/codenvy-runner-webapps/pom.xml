@@ -15,20 +15,20 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>codenvy-plugin-java-parent</artifactId>
-        <groupId>com.codenvy.plugin-java</groupId>
-        <version>1.9.0-SNAPSHOT</version>
+        <groupId>org.eclipse.che.plugin</groupId>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
     <artifactId>codenvy-runner-webapps</artifactId>
     <packaging>jar</packaging>
     <name>Codenvy Runner :: WebApps</name>
     <dependencies>
         <dependency>
-            <groupId>com.codenvy.platform-api</groupId>
+            <groupId>org.eclipse.che.core</groupId>
             <artifactId>codenvy-api-runner</artifactId>
-            <version>${codenvy.platform-api.version}</version>
+            <version>${che.core.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.codenvy.platform-api-gwt-client</groupId>
+            <groupId>org.eclipse.che.core</groupId>
             <artifactId>codenvy-gwt-client-commons</artifactId>
             <version>${codenvy.platform-api-gwt-client.version}</version>
         </dependency>

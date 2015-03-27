@@ -15,7 +15,7 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>codenvy-ext-datasource-parent</artifactId>
-        <groupId>com.codenvy.ide</groupId>
+        <groupId>org.eclipse.che.core</groupId>
         <version>1.12.0-SNAPSHOT</version>
     </parent>
     <artifactId>codenvy-ssl-socket-factory</artifactId>

@@ -61,7 +61,7 @@
         <dependencies>
             <dependency>
                 <!-- required until api/core cleanup! -->
-                <groupId>com.codenvy.ide</groupId>
+                <groupId>org.eclipse.che.core</groupId>
                 <artifactId>codenvy-ide-core</artifactId>
                 <version>${codenvy.ide.version}</version>
                 <scope>compile</scope>

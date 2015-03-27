@@ -21,7 +21,7 @@
     <artifactId>codemirror-highlighter</artifactId>
     <dependencies>
         <dependency>
-            <groupId>com.codenvy.ide</groupId>
+            <groupId>org.eclipse.che.core</groupId>
             <artifactId>codenvy-ide-api</artifactId>
             <version>${codenvy.ide.version}</version>
         </dependency>

@@ -15,32 +15,32 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>codenvy-plugin-java-parent</artifactId>
-        <groupId>com.codenvy.plugin-java</groupId>
-        <version>1.9.0-SNAPSHOT</version>
+        <groupId>org.eclipse.che.plugin</groupId>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
     <artifactId>codenvy-ext-ant</artifactId>
     <packaging>jar</packaging>
     <name>Codenvy Extension :: Ant</name>
     <dependencies>
         <dependency>
-            <groupId>com.codenvy.ide</groupId>
+            <groupId>org.eclipse.che.core</groupId>
             <artifactId>codenvy-ide-api</artifactId>
-            <version>${codenvy.ide.version}</version>
+            <version>${che.plugins.version}</version>
         </dependency>
         <dependency>
             <groupId>com.codenvy.plugin-java</groupId>
             <artifactId>codenvy-ant-tools</artifactId>
-            <version>${project.version}</version>
+            <version>${che.plugins.version}</version>
         </dependency>
         <dependency>
             <groupId>com.codenvy.plugin-java</groupId>
             <artifactId>codenvy-ext-java</artifactId>
-            <version>${project.version}</version>
+            <version>${che.plugins.version}</version>
         </dependency>
         <dependency>
             <groupId>com.codenvy.plugin-runner</groupId>
             <artifactId>codenvy-plugin-runner</artifactId>
-            <version>${codenvy.plugin.runner.version}</version>
+            <version>${che.plugins.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.inject</groupId>

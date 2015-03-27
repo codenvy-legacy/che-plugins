@@ -15,19 +15,19 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>codenvy-ext-datasource-parent</artifactId>
-        <groupId>com.codenvy.ide</groupId>
+        <groupId>org.eclipse.che.core</groupId>
         <version>1.12.0-SNAPSHOT</version>
     </parent>
     <artifactId>codenvy-ext-datasource-shared</artifactId>
     <name>Codenvy Extension :: Datasource Shared</name>
     <dependencies>
         <dependency>
-            <groupId>com.codenvy.platform-api</groupId>
+            <groupId>org.eclipse.che.core</groupId>
             <artifactId>codenvy-dto</artifactId>
-            <version>${codenvy.platform-api.version}</version>
+            <version>${che.core.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.codenvy.platform-api-gwt-client</groupId>
+            <groupId>org.eclipse.che.core</groupId>
             <artifactId>codenvy-api-project-gwt-client</artifactId>
             <version>${codenvy.platform-api-gwt-client.version}</version>
         </dependency>
@@ -108,9 +108,9 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>com.codenvy.platform-api</groupId>
+                <groupId>org.eclipse.che.core</groupId>
                 <artifactId>codenvy-dto-maven-plugin</artifactId>
-                <version>${codenvy.platform-api.version}</version>
+                <version>${che.core.version}</version>
                 <executions>
                     <execution>
                         <id>generate-client-dto</id>
@@ -146,7 +146,7 @@
                 <dependencies>
                     <!-- this current module needs to be in the dto maven plugin dependencies so its DTO can be processed and generated -->
                     <dependency>
-                        <groupId>com.codenvy.ide</groupId>
+                        <groupId>org.eclipse.che.core</groupId>
                         <artifactId>codenvy-ext-datasource-shared</artifactId>
                         <version>${project.version}</version>
                     </dependency>

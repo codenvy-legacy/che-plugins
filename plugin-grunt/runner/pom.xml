@@ -24,9 +24,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.codenvy.platform-api</groupId>
+            <groupId>org.eclipse.che.core</groupId>
             <artifactId>codenvy-api-runner</artifactId>
-            <version>${codenvy.platform-api.version}</version>
+            <version>${che.core.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

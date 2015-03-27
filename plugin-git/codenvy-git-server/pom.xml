@@ -15,7 +15,7 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>codenvy-plugin-git-parent</artifactId>
-        <groupId>com.codenvy.ide</groupId>
+        <groupId>org.eclipse.che.core</groupId>
         <version>1.12.0-SNAPSHOT</version>
     </parent>
     <artifactId>codenvy-git-server</artifactId>
@@ -23,9 +23,9 @@
     <name>Codenvy :: Plugin Git :: Git server</name>
     <dependencies>
         <dependency>
-            <groupId>com.codenvy.platform-api</groupId>
+            <groupId>org.eclipse.che.core</groupId>
             <artifactId>codenvy-api-auth</artifactId>
-            <version>${codenvy.platform-api.version}</version>
+            <version>${che.core.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jgit</groupId>

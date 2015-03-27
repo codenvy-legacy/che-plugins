@@ -15,7 +15,7 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>codenvy-ext-datasource-parent</artifactId>
-        <groupId>com.codenvy.ide</groupId>
+        <groupId>org.eclipse.che.core</groupId>
         <version>1.12.0-SNAPSHOT</version>
     </parent>
     <artifactId>codenvy-ext-datasource-server-war-sdk</artifactId>
@@ -25,9 +25,9 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>com.codenvy.commons</groupId>
+                <groupId>org.eclipse.che.core</groupId>
                 <artifactId>codenvy-commons-inject</artifactId>
-                <version>${codenvy.commons.version}</version>
+                <version>${che.core.version}</version>
                 <scope>compile</scope>
                 <exclusions>
                     <exclusion>
@@ -40,34 +40,34 @@
     </dependencyManagement>
     <dependencies>
         <dependency>
-            <groupId>com.codenvy.commons</groupId>
+            <groupId>org.eclipse.che.core</groupId>
             <artifactId>codenvy-commons-inject</artifactId>
-            <version>${codenvy.commons.version}</version>
+            <version>${che.core.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.codenvy.ide</groupId>
+            <groupId>org.eclipse.che.core</groupId>
             <artifactId>codenvy-ext-datasource-server</artifactId>
             <version>${project.version}</version>
             <exclusions>
                 <exclusion>
                     <artifactId>codenvy-api-vfs-gwt-client</artifactId>
-                    <groupId>com.codenvy.platform-api-gwt-client</groupId>
+                    <groupId>org.eclipse.che.core</groupId>
                 </exclusion>
                 <exclusion>
                     <artifactId>codenvy-api-user-gwt-client</artifactId>
-                    <groupId>com.codenvy.platform-api-gwt-client</groupId>
+                    <groupId>org.eclipse.che.core</groupId>
                 </exclusion>
                 <exclusion>
                     <artifactId>codenvy-api-project-gwt-client</artifactId>
-                    <groupId>com.codenvy.platform-api-gwt-client</groupId>
+                    <groupId>org.eclipse.che.core</groupId>
                 </exclusion>
                 <exclusion>
                     <artifactId>codenvy-api-core-gwt-client</artifactId>
-                    <groupId>com.codenvy.platform-api-gwt-client</groupId>
+                    <groupId>org.eclipse.che.core</groupId>
                 </exclusion>
                 <exclusion>
                     <artifactId>codenvy-gwt-client-commons</artifactId>
-                    <groupId>com.codenvy.platform-api-gwt-client</groupId>
+                    <groupId>org.eclipse.che.core</groupId>
                 </exclusion>
                 <exclusion>
                     <artifactId>gwt-elemental</artifactId>
