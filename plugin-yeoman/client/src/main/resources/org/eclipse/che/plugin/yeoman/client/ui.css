@@ -1,0 +1,36 @@
+/*******************************************************************************
+ * Copyright (c) 2014 Codenvy, S.A.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *   Codenvy, S.A. - initial API and implementation
+ *******************************************************************************/
+.yeoman-wizard-generateButton-icon > svg {
+    width: 20px;
+    height: 20px;
+    margin-top: -12px;
+}
+
+.yeoman-wizard-generateButton {
+    color: notableButtonTopColor;
+    background: none repeat scroll 0% 0% notableButtonColor;
+    border-color: brColor;
+    font-size: boxFontSize;
+    font-weight: bold;
+    padding-left: 12px;
+    padding-right: 12px;
+    height: 25px;
+    margin: 5px;
+
+    box-shadow: 0px 1px 1px 0px rgba(255, 255, 255, 0.2) inset, 0px 1px 1px 0px rgba(0, 0, 0, 0.29);
+}
+
+.foldingPanel {
+  background-color: cellEvenRow;
+  border: 1px solid boxBorderColor;
+  margin-bottom: 4px;
+}
+

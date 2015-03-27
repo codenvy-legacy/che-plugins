@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (c) 2014 Codenvy, S.A.
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License v1.0
+    which accompanies this distribution, and is available at
+    http://www.eclipse.org/legal/epl-v10.html
+
+    Contributors:
+      Codenvy, S.A. - initial API and implementation
+
+-->
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'
+             xmlns:svgui='urn:import:org.vectomatic.dom.svg.ui'>
+
+    <ui:with field="uiResources" type="org.eclipse.che.plugin.yeoman.client.YeomanResources"/>
+
+    <ui:style>
+        .item-name {
+            margin-left: 10px;
+        }
+
+        .trashImage {
+            width: 15px;
+            height: 15px;
+            cursor: pointer;
+        }
+
+    </ui:style>
+    <g:Grid width="100%" ui:field="gridEntry">
+        <g:row>
+            <g:customCell>
+                <g:Label text="myController1" ui:field="textEntry" addStyleNames="{style.item-name}"/>
+            </g:customCell>
+            <g:customCell>
+                <g:FlowPanel addStyleNames="gwt-button {style.trashImage}">
+                    <svgui:SVGPushButton ui:field="trashButton" resource="{uiResources.trashIcon}">
+                    </svgui:SVGPushButton>
+                </g:FlowPanel>
+            </g:customCell>
+        </g:row>
+    </g:Grid>
+</ui:UiBinder>
