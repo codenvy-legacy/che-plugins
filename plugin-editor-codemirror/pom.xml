@@ -14,30 +14,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>maven-depmgt-pom</artifactId>
-        <groupId>com.codenvy</groupId>
-        <version>1.20.0-SNAPSHOT</version>
-        <relativePath />
+        <artifactId>che-plugin-parent</artifactId>
+        <groupId>org.eclipse.che.plugin</groupId>
+        <version>1.0.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
-    <groupId>com.codenvy.plugin-editor-codemirror</groupId>
     <artifactId>plugin-editor-codemirror-parent</artifactId>
-    <version>1.9.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>CodeMirror Editor Plugin :: Parent</name>
-    <licenses>
-        <license>
-            <name>Eclipse Public License</name>
-            <url>http://www.eclipse.org/legal/epl-v10.html</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
-    <developers>
-        <developer>
-            <name>Mickaël Leduque</name>
-            <organization>Serli</organization>
-            <organizationUrl>http://www.serli.com</organizationUrl>
-        </developer>
-    </developers>
     <modules>
         <module>codemirror-ide-style</module>
         <module>codemirror-jso</module>
@@ -46,11 +30,6 @@
         <module>codemirror-base-init</module>
         <module>codemirror-highlighter</module>
     </modules>
-    <scm>
-        <connection>scm:git:git@github.com:codenvy/plugin-editor-codemirror.git</connection>
-        <developerConnection>scm:git:git@github.com:codenvy/plugin-editor-codemirror.git</developerConnection>
-        <tag>HEAD</tag>
-    </scm>
     <properties>
         <codemirror.plugin.revision>1</codemirror.plugin.revision>
         <codemirror.upstream.version>4.12</codemirror.upstream.version>
@@ -63,23 +42,9 @@
                 <!-- required until api/core cleanup! -->
                 <groupId>org.eclipse.che.core</groupId>
                 <artifactId>codenvy-ide-core</artifactId>
-                 <version>${che.core.version}</version>
+                <version>${che.core.version}</version>
                 <scope>compile</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
-    <repositories>
-        <repository>
-            <id>codenvy-public-repo</id>
-            <name>codenvy public</name>
-            <url>https://maven.codenvycorp.com/content/groups/public/</url>
-        </repository>
-    </repositories>
-    <pluginRepositories>
-        <pluginRepository>
-            <id>codenvy-public-repo</id>
-            <name>codenvy public</name>
-            <url>https://maven.codenvycorp.com/content/groups/public/</url>
-        </pluginRepository>
-    </pluginRepositories>
 </project>

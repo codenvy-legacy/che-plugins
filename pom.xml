@@ -26,9 +26,9 @@
     <modules>
         <module>plugin-runner</module>
         <module>plugin-java</module>
-        <!--module>plugin-editor-codemirror</module>
+        <module>plugin-editor-codemirror</module>
         <module>plugin-editor-orion</module>
-        <module>plugin-php</module>
+        <!--module>plugin-php</module>
         <module>plugin-git</module>
         <module>plugin-datasource</module>
         <module>plugin-angularjs</module>
