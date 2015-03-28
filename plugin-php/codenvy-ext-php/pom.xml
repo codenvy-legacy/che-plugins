@@ -15,27 +15,27 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>codenvy-plugin-php-parent</artifactId>
-        <groupId>com.codenvy.plugin-php</groupId>
-        <version>1.8.0-SNAPSHOT</version>
+        <groupId>org.eclipse.che.plugin</groupId>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
     <artifactId>codenvy-ext-php</artifactId>
     <packaging>jar</packaging>
     <name>Codenvy Extension :: PHP</name>
     <dependencies>
         <dependency>
+            <groupId>com.google.inject</groupId>
+            <artifactId>guice</artifactId>
+            <version>${com.google.code.guice.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.eclipse.che.core</groupId>
             <artifactId>codenvy-ide-api</artifactId>
-             <version>${che.core.version}</version>
+            <version>${che.core.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.plugin</groupId>
             <artifactId>codenvy-plugin-runner</artifactId>
-             <version>${che.plugins.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.inject</groupId>
-            <artifactId>guice</artifactId>
-            <version>${com.google.code.guice.version}</version>
+            <version>${che.plugins.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.gwt.inject</groupId>
