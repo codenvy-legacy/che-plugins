@@ -32,8 +32,8 @@
         <module>plugin-git</module>
         <module>plugin-datasource</module>
         <module>plugin-angularjs</module>
-        <!--module>plugin-bower</module>
-        <module>plugin-gulp</module>
+        <module>plugin-bower</module>
+        <!--module>plugin-gulp</module>
         <module>plugin-grunt</module>
         <module>plugin-npm</module>
         <module>plugin-yeoman</module>
