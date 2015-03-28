@@ -15,10 +15,9 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>tour-parent</artifactId>
-        <groupId>com.codenvy.plugin-tour</groupId>
-        <version>1.6.0-SNAPSHOT</version>
+        <groupId>org.eclipse.che.plugin</groupId>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
-    <groupId>com.codenvy.plugin-tour</groupId>
     <artifactId>tour-client</artifactId>
     <name>Guided Tour Plugin :: client</name>
     <dependencies>
@@ -26,30 +25,6 @@
             <groupId>org.eclipse.che.core</groupId>
             <artifactId>codenvy-api-analytics</artifactId>
             <version>${che.core.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>gwt-tour</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>tour-dto</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>tour-dto-gen</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.che.core</groupId>
-            <artifactId>codenvy-ide-api</artifactId>
-             <version>${che.core.version}</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.google.gwt</groupId>
@@ -73,6 +48,30 @@
             <groupId>com.google.inject.extensions</groupId>
             <artifactId>guice-assistedinject</artifactId>
             <version>${com.google.code.guice.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.che.core</groupId>
+            <artifactId>codenvy-ide-api</artifactId>
+            <version>${che.core.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.che.plugin</groupId>
+            <artifactId>gwt-tour</artifactId>
+            <version>${che.plugins.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.che.plugin</groupId>
+            <artifactId>tour-dto</artifactId>
+            <version>${che.plugins.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.che.plugin</groupId>
+            <artifactId>tour-dto-gen</artifactId>
+            <version>${che.plugins.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

@@ -37,11 +37,11 @@
         <module>plugin-grunt</module>
         <module>plugin-npm</module>
         <module>plugin-yeoman</module>
-        <!--module>plugin-cpp</module>
+        <module>plugin-cpp</module>
         <module>plugin-ruby</module>
         <module>plugin-go</module>
         <module>plugin-python</module>
-        <module>plugin-tour</module-->
+        <module>plugin-tour</module>
     </modules>
     <scm>
         <connection>scm:git:git@github.com:codenvy/che-plugin.git</connection>

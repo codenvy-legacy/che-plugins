@@ -15,31 +15,28 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>tour-parent</artifactId>
-        <groupId>com.codenvy.plugin-tour</groupId>
-        <version>1.6.0-SNAPSHOT</version>
+        <groupId>org.eclipse.che.plugin</groupId>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
-    <groupId>com.codenvy.plugin-tour</groupId>
     <artifactId>tour-dto-gen</artifactId>
     <name>Guided Tour Plugin :: DTO Generation</name>
     <properties>
         <dto-generator-out-directory>${project.build.directory}/generated-sources/dto/</dto-generator-out-directory>
     </properties>
-
     <dependencies>
-        <dependency>
-            <groupId>org.eclipse.che.core</groupId>
-            <artifactId>codenvy-ide-api</artifactId>
-             <version>${che.core.version}</version>
-            <scope>provided</scope>
-        </dependency>
         <dependency>
             <groupId>com.codenvy.plugin-tour</groupId>
             <artifactId>tour-dto</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.eclipse.che.core</groupId>
+            <artifactId>codenvy-ide-api</artifactId>
+            <version>${che.core.version}</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
-
     <build>
         <outputDirectory>target/classes</outputDirectory>
         <resources>
