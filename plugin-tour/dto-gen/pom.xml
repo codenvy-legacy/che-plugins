@@ -25,15 +25,15 @@
     </properties>
     <dependencies>
         <dependency>
-            <groupId>com.codenvy.plugin-tour</groupId>
-            <artifactId>tour-dto</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>org.eclipse.che.core</groupId>
             <artifactId>codenvy-ide-api</artifactId>
             <version>${che.core.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.che.plugin</groupId>
+            <artifactId>tour-dto</artifactId>
+            <version>${che.plugins.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
@@ -113,7 +113,7 @@
                 </executions>
                 <dependencies>
                     <dependency>
-                        <groupId>com.codenvy.plugin-tour</groupId>
+                        <groupId>org.eclipse.che.plugin</groupId>
                         <artifactId>tour-dto</artifactId>
                         <version>${project.version}</version>
                     </dependency>
