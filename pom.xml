@@ -30,8 +30,8 @@
         <module>plugin-editor-orion</module>
         <module>plugin-php</module>
         <module>plugin-git</module>
-        <!--module>plugin-datasource</module>
-        <module>plugin-angularjs</module>
+        <module>plugin-datasource</module>
+        <!--module>plugin-angularjs</module>
         <module>plugin-bower</module>
         <module>plugin-gulp</module>
         <module>plugin-grunt</module>
@@ -42,7 +42,6 @@
         <module>plugin-go</module>
         <module>plugin-python</module>
         <module>plugin-tour</module-->
-
     </modules>
     <scm>
         <connection>scm:git:git@github.com:codenvy/che-plugin.git</connection>
@@ -51,6 +50,7 @@
         <url>https://github.com/codenvy/che-plugin</url>
     </scm>
     <properties>
+        <dto-generator-out-directory>${project.build.directory}/generated-sources/dto/</dto-generator-out-directory>
         <maven.model.version>3.0.5</maven.model.version>
         <specification.version>1.0-beta2</specification.version>
     </properties>
@@ -60,12 +60,22 @@
             <name>codenvy public</name>
             <url>https://maven.codenvycorp.com/content/groups/public/</url>
         </repository>
+        <repository>
+            <id>codenvy-public-snapshots-repo</id>
+            <name>codenvy public snapshots</name>
+            <url>https://maven.codenvycorp.com/content/repositories/codenvy-public-snapshots/</url>
+        </repository>
     </repositories>
     <pluginRepositories>
         <pluginRepository>
             <id>codenvy-public-repo</id>
             <name>codenvy public</name>
             <url>https://maven.codenvycorp.com/content/groups/public/</url>
+        </pluginRepository>
+        <pluginRepository>
+            <id>codenvy-public-snapshots-repo</id>
+            <name>codenvy public snapshots</name>
+            <url>https://maven.codenvycorp.com/content/repositories/codenvy-public-snapshots/</url>
         </pluginRepository>
     </pluginRepositories>
 </project>

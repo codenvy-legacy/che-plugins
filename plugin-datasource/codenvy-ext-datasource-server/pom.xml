@@ -15,23 +15,12 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>codenvy-ext-datasource-parent</artifactId>
-        <groupId>org.eclipse.che.core</groupId>
-        <version>1.12.0-SNAPSHOT</version>
+        <groupId>org.eclipse.che.plugin</groupId>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
     <artifactId>codenvy-ext-datasource-server</artifactId>
     <name>Codenvy Extension :: Datasource Server</name>
     <dependencies>
-        <dependency>
-            <groupId>org.eclipse.che.core</groupId>
-            <artifactId>codenvy-ext-datasource-shared</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <!-- needed for Profile DTO -->
-        <dependency>
-            <groupId>org.eclipse.che.core</groupId>
-            <artifactId>codenvy-api-user</artifactId>
-            <version>${che.core.version}</version>
-        </dependency>
         <dependency>
             <groupId>net.sf.opencsv</groupId>
             <artifactId>opencsv</artifactId>
@@ -42,8 +31,19 @@
             <artifactId>schemacrawler</artifactId>
             <version>${net.sourceforge.schemacrawler.version}</version>
         </dependency>
+        <!-- needed for Profile DTO -->
         <dependency>
             <groupId>org.eclipse.che.core</groupId>
+            <artifactId>codenvy-api-user</artifactId>
+            <version>${che.core.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.che.plugin</groupId>
+            <artifactId>codenvy-ext-datasource-shared</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.che.plugin</groupId>
             <artifactId>codenvy-ssl-socket-factory</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>

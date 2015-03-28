@@ -15,8 +15,8 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>codenvy-ext-datasource-parent</artifactId>
-        <groupId>org.eclipse.che.core</groupId>
-        <version>1.12.0-SNAPSHOT</version>
+        <groupId>org.eclipse.che.plugin</groupId>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
     <artifactId>codenvy-ext-datasource-server-war-sdk</artifactId>
     <packaging>war</packaging>
@@ -40,14 +40,39 @@
     </dependencyManagement>
     <dependencies>
         <dependency>
+            <groupId>com.nuodb.jdbc</groupId>
+            <artifactId>nuodb-jdbc</artifactId>
+            <version>${jdbc.nuodb-driver.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>${commons-codec.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>${commons-io.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>${jdbc.mysql-driver.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.sourceforge.jtds</groupId>
+            <artifactId>jtds</artifactId>
+            <version>${jdbc.jtds-driver.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.eclipse.che.core</groupId>
             <artifactId>codenvy-commons-inject</artifactId>
             <version>${che.core.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.che.core</groupId>
+            <groupId>org.eclipse.che.plugin</groupId>
             <artifactId>codenvy-ext-datasource-server</artifactId>
-            <version>${project.version}</version>
+            <version>${che.plugins.version}</version>
             <exclusions>
                 <exclusion>
                     <artifactId>codenvy-api-vfs-gwt-client</artifactId>
@@ -90,31 +115,6 @@
                     <groupId>com.google.gwt.inject</groupId>
                 </exclusion>
             </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>com.nuodb.jdbc</groupId>
-            <artifactId>nuodb-jdbc</artifactId>
-            <version>${jdbc.nuodb-driver.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-codec</groupId>
-            <artifactId>commons-codec</artifactId>
-            <version>${commons-codec.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>${commons-io.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>${jdbc.mysql-driver.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>net.sourceforge.jtds</groupId>
-            <artifactId>jtds</artifactId>
-            <version>${jdbc.jtds-driver.version}</version>
         </dependency>
         <dependency>
             <groupId>org.postgresql</groupId>
