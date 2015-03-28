@@ -14,39 +14,18 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>maven-depmgt-pom</artifactId>
-        <groupId>com.codenvy</groupId>
-        <version>1.20.0-SNAPSHOT</version>
-        <relativePath />
+        <artifactId>che-plugin-parent</artifactId>
+        <groupId>org.eclipse.che.plugin</groupId>
+        <version>1.0.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
-    <groupId>com.codenvy.plugin-npm</groupId>
     <artifactId>plugin-npm</artifactId>
-    <version>1.10.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>NPM Plugin</name>
-    <licenses>
-        <license>
-            <name>Eclipse Public License</name>
-            <url>http://www.eclipse.org/legal/epl-v10.html</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
-    <developers>
-        <developer>
-            <name>Florent Benoit</name>
-            <organization>Serli</organization>
-            <organizationUrl>http://www.serli.com</organizationUrl>
-        </developer>
-    </developers>
     <modules>
         <module>builder</module>
         <module>client</module>
-      </modules>
-    <scm>
-        <connection>scm:git:git@github.com:codenvy/plugin-npm.git</connection>
-        <developerConnection>scm:git:git@github.com:codenvy/plugin-npm.git</developerConnection>
-        <tag>HEAD</tag>
-    </scm>
+    </modules>
     <properties>
         <license_years>2014</license_years>
     </properties>
