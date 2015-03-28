@@ -16,7 +16,7 @@
     <parent>
         <artifactId>plugin-gulp</artifactId>
         <groupId>org.eclipse.che.plugin</groupId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>3.9.0-SNAPSHOT</version>
     </parent>
     <artifactId>gulp-runner</artifactId>
     <packaging>jar</packaging>
