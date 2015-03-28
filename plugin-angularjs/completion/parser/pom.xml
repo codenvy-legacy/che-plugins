@@ -15,8 +15,8 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>angularjs-completion</artifactId>
-        <groupId>com.codenvy.plugin-angularjs</groupId>
-        <version>1.12.0-SNAPSHOT</version>
+        <groupId>org.eclipse.che.plugin</groupId>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
     <artifactId>angularjs-completion-parser</artifactId>
     <packaging>jar</packaging>
@@ -29,13 +29,13 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.codenvy.plugin-angularjs</groupId>
+            <groupId>org.eclipse.che.plugin</groupId>
             <artifactId>angularjs-completion-dto</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.codenvy.plugin-angularjs</groupId>
+            <groupId>org.eclipse.che.plugin</groupId>
             <artifactId>angularjs-completion-dto-gen</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
