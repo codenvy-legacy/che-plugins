@@ -14,13 +14,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>maven-depmgt-pom</artifactId>
-        <groupId>com.codenvy</groupId>
-        <version>1.20.0-SNAPSHOT</version>
+        <artifactId>che-plugin-parent</artifactId>
+        <groupId>org.eclipse.che.plugin</groupId>
+        <version>1.0.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
-    <groupId>org.eclipse.che.core</groupId>
     <artifactId>codenvy-plugin-git-parent</artifactId>
-    <version>1.12.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Codenvy :: Plugin Git</name>
     <modules>
@@ -34,22 +33,6 @@
         <module>codenvy-ext-git-provider-wso2</module>
         <module>codenvy-ext-git-provider-bitbucket</module>
     </modules>
-    <scm>
-        <connection>scm:git:git@github.com:codenvy/plugin-git.git</connection>
-        <developerConnection>scm:git:git@github.com:codenvy/plugin-git.git</developerConnection>
-        <tag>HEAD</tag>
-    </scm>
-    <properties>
-        <dto-generator-out-directory>${project.build.directory}/generated-sources/dto/</dto-generator-out-directory>
-        <gwt.test.skip>true</gwt.test.skip>
-    </properties>
-    <repositories>
-        <repository>
-            <id>codenvy-public-repo</id>
-            <name>codenvy public</name>
-            <url>https://maven.codenvycorp.com/content/groups/public/</url>
-        </repository>
-    </repositories>
     <!-- skip tests on Windows -->
     <profiles>
         <profile>

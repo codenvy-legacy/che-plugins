@@ -15,8 +15,8 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>codenvy-plugin-git-parent</artifactId>
-        <groupId>org.eclipse.che.core</groupId>
-        <version>1.12.0-SNAPSHOT</version>
+        <groupId>org.eclipse.che.plugin</groupId>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
     <artifactId>codenvy-ext-git</artifactId>
     <packaging>jar</packaging>
@@ -25,119 +25,6 @@
         <dto-generator-out-directory>${project.build.directory}/generated-sources/dto/</dto-generator-out-directory>
     </properties>
     <dependencies>
-        <dependency>
-            <groupId>org.eclipse.che.core</groupId>
-            <artifactId>codenvy-commons-env</artifactId>
-            <version>${che.core.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.che.core</groupId>
-            <artifactId>codenvy-commons-inject</artifactId>
-            <version>${che.core.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.che.core</groupId>
-            <artifactId>codenvy-commons-json</artifactId>
-            <version>${che.core.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.che.core</groupId>
-            <artifactId>codenvy-commons-lang</artifactId>
-            <version>${che.core.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.che.core</groupId>
-            <artifactId>codenvy-ext-ssh</artifactId>
-             <version>${che.core.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.che.core</groupId>
-            <artifactId>codenvy-ide-api</artifactId>
-             <version>${che.core.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.che.core</groupId>
-            <artifactId>codenvy-ide-core</artifactId>
-             <version>${che.core.version}</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>javassist</artifactId>
-                    <groupId>javassist</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.che.core</groupId>
-            <artifactId>codenvy-ide-ui</artifactId>
-             <version>${che.core.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.che.core</groupId>
-            <artifactId>codenvy-api-auth</artifactId>
-            <version>${che.core.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.che.core</groupId>
-            <artifactId>codenvy-api-core</artifactId>
-            <version>${che.core.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.che.core</groupId>
-            <artifactId>codenvy-api-project</artifactId>
-            <version>${che.core.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.che.core</groupId>
-            <artifactId>codenvy-api-user</artifactId>
-            <version>${che.core.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.che.core</groupId>
-            <artifactId>codenvy-api-vfs</artifactId>
-            <version>${che.core.version}</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>javassist</artifactId>
-                    <groupId>javassist</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.che.core</groupId>
-            <artifactId>codenvy-api-analytics-gwt-client</artifactId>
-             <version>${che.core.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.che.core</groupId>
-            <artifactId>codenvy-api-project-gwt-client</artifactId>
-             <version>${che.core.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.che.core</groupId>
-            <artifactId>codenvy-gwt-client-commons</artifactId>
-             <version>${che.core.version}</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>javassist</artifactId>
-                    <groupId>javassist</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>com.codenvy.plugin-editor-codemirror</groupId>
-            <artifactId>codemirror-highlighter</artifactId>
-            <version>${codenvy.plugin-editor-codemirror.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.che.core</groupId>
-            <artifactId>codenvy-security-oauth2-gwt-client</artifactId>
-            <version>${codenvy.security.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.che.core</groupId>
-            <artifactId>codenvy-vfs-impl</artifactId>
-            <version>${che.core.version}</version>
-        </dependency>
         <dependency>
             <groupId>com.google.code.findbugs</groupId>
             <artifactId>jsr305</artifactId>
@@ -162,6 +49,119 @@
             <groupId>javax.ws.rs</groupId>
             <artifactId>javax.ws.rs-api</artifactId>
             <version>${javax.ws.rs.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.che.core</groupId>
+            <artifactId>codenvy-api-analytics-gwt-client</artifactId>
+            <version>${che.core.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.che.core</groupId>
+            <artifactId>codenvy-api-auth</artifactId>
+            <version>${che.core.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.che.core</groupId>
+            <artifactId>codenvy-api-core</artifactId>
+            <version>${che.core.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.che.core</groupId>
+            <artifactId>codenvy-api-project</artifactId>
+            <version>${che.core.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.che.core</groupId>
+            <artifactId>codenvy-api-project-gwt-client</artifactId>
+            <version>${che.core.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.che.core</groupId>
+            <artifactId>codenvy-api-user</artifactId>
+            <version>${che.core.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.che.core</groupId>
+            <artifactId>codenvy-api-vfs</artifactId>
+            <version>${che.core.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>javassist</artifactId>
+                    <groupId>javassist</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.che.core</groupId>
+            <artifactId>codenvy-commons-env</artifactId>
+            <version>${che.core.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.che.core</groupId>
+            <artifactId>codenvy-commons-inject</artifactId>
+            <version>${che.core.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.che.core</groupId>
+            <artifactId>codenvy-commons-json</artifactId>
+            <version>${che.core.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.che.core</groupId>
+            <artifactId>codenvy-commons-lang</artifactId>
+            <version>${che.core.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.che.core</groupId>
+            <artifactId>codenvy-ext-ssh</artifactId>
+            <version>${che.core.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.che.core</groupId>
+            <artifactId>codenvy-gwt-client-commons</artifactId>
+            <version>${che.core.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>javassist</artifactId>
+                    <groupId>javassist</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.che.core</groupId>
+            <artifactId>codenvy-ide-api</artifactId>
+            <version>${che.core.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.che.core</groupId>
+            <artifactId>codenvy-ide-core</artifactId>
+            <version>${che.core.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>javassist</artifactId>
+                    <groupId>javassist</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.che.core</groupId>
+            <artifactId>codenvy-ide-ui</artifactId>
+            <version>${che.core.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.che.core</groupId>
+            <artifactId>codenvy-security-oauth2-gwt-client</artifactId>
+            <version>${che.core.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.che.core</groupId>
+            <artifactId>codenvy-vfs-impl</artifactId>
+            <version>${che.core.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.che.plugin</groupId>
+            <artifactId>codemirror-highlighter</artifactId>
+            <version>${che.plugins.version}</version>
         </dependency>
         <dependency>
             <groupId>org.everrest</groupId>
@@ -349,9 +349,9 @@
                 </executions>
                 <dependencies>
                     <dependency>
-                        <groupId>org.eclipse.che.core</groupId>
+                        <groupId>org.eclipse.che.plugin</groupId>
                         <artifactId>codenvy-ext-git</artifactId>
-                        <version>${project.version}</version>
+                        <version>${che.plugins.version}</version>
                     </dependency>
                 </dependencies>
             </plugin>

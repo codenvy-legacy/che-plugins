@@ -15,21 +15,21 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>codenvy-plugin-git-parent</artifactId>
-        <groupId>org.eclipse.che.core</groupId>
-        <version>1.12.0-SNAPSHOT</version>
+        <groupId>org.eclipse.che.plugin</groupId>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
     <artifactId>codenvy-ext-git-provider-github</artifactId>
     <name>Codenvy :: Plugin Git :: Github CredentialProvider</name>
     <dependencies>
         <dependency>
             <groupId>org.eclipse.che.core</groupId>
-            <artifactId>codenvy-ext-git</artifactId>
-            <version>${project.version}</version>
+            <artifactId>codenvy-security-oauth2-github</artifactId>
+            <version>${che.core.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.che.core</groupId>
-            <artifactId>codenvy-security-oauth2-github</artifactId>
-            <version>${codenvy.security.version}</version>
+            <groupId>org.eclipse.che.plugin</groupId>
+            <artifactId>codenvy-ext-git</artifactId>
+            <version>${che.plugins.version}</version>
         </dependency>
     </dependencies>
 </project>
