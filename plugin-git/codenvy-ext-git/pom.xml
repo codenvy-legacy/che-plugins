@@ -52,6 +52,11 @@
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.core</groupId>
+            <artifactId>che-core-api-analytics-gwt-client</artifactId>
+            <version>${che.core.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.che.core</groupId>
             <artifactId>che-core-api-auth</artifactId>
             <version>${che.core.version}</version>
         </dependency>
@@ -63,6 +68,11 @@
         <dependency>
             <groupId>org.eclipse.che.core</groupId>
             <artifactId>che-core-api-project</artifactId>
+            <version>${che.core.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.che.core</groupId>
+            <artifactId>che-core-api-project-gwt-client</artifactId>
             <version>${che.core.version}</version>
         </dependency>
         <dependency>
@@ -98,13 +108,14 @@
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.core</groupId>
-            <artifactId>codenvy-api-analytics-gwt-client</artifactId>
+            <artifactId>che-core-gwt-client-commons</artifactId>
             <version>${che.core.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.che.core</groupId>
-            <artifactId>codenvy-api-project-gwt-client</artifactId>
-            <version>${che.core.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>javassist</artifactId>
+                    <groupId>javassist</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.core</groupId>
@@ -115,17 +126,6 @@
             <groupId>org.eclipse.che.core</groupId>
             <artifactId>codenvy-ext-ssh</artifactId>
             <version>${che.core.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.che.core</groupId>
-            <artifactId>codenvy-gwt-client-commons</artifactId>
-            <version>${che.core.version}</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>javassist</artifactId>
-                    <groupId>javassist</groupId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.core</groupId>

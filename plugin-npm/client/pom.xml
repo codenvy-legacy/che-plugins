@@ -48,6 +48,12 @@
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.core</groupId>
+            <artifactId>che-core-gwt-client-commons</artifactId>
+            <version>${che.core.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.che.core</groupId>
             <artifactId>codenvy-ext-builder</artifactId>
             <version>${che.core.version}</version>
             <scope>provided</scope>
@@ -55,12 +61,6 @@
         <dependency>
             <groupId>org.eclipse.che.core</groupId>
             <artifactId>codenvy-ext-web</artifactId>
-            <version>${che.core.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.che.core</groupId>
-            <artifactId>codenvy-gwt-client-commons</artifactId>
             <version>${che.core.version}</version>
             <scope>provided</scope>
         </dependency>

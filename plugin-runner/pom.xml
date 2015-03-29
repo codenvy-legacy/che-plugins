@@ -61,7 +61,7 @@
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.core</groupId>
-            <artifactId>codenvy-api-runner-gwt-client</artifactId>
+            <artifactId>che-core-api-user-gwt-client</artifactId>
             <version>${che.core.version}</version>
             <scope>provided</scope>
         </dependency>
