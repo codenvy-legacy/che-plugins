@@ -24,12 +24,12 @@
     <dependencies>
         <dependency>
             <groupId>org.eclipse.che.core</groupId>
-            <artifactId>codenvy-api-vfs</artifactId>
+            <artifactId>che-core-commons-xml</artifactId>
             <version>${che.core.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.core</groupId>
-            <artifactId>codenvy-commons-xml</artifactId>
+            <artifactId>codenvy-api-vfs</artifactId>
             <version>${che.core.version}</version>
         </dependency>
         <dependency>

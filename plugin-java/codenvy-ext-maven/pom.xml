@@ -32,17 +32,17 @@
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.core</groupId>
+            <artifactId>che-core-commons-lang</artifactId>
+            <version>${che.core.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.che.core</groupId>
             <artifactId>codenvy-api-builder</artifactId>
             <version>${che.core.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.core</groupId>
             <artifactId>codenvy-api-builder-gwt-client</artifactId>
-            <version>${che.core.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.che.core</groupId>
-            <artifactId>codenvy-commons-lang</artifactId>
             <version>${che.core.version}</version>
         </dependency>
         <dependency>

@@ -26,7 +26,7 @@
         <dependencies>
             <dependency>
                 <groupId>org.eclipse.che.core</groupId>
-                <artifactId>codenvy-commons-inject</artifactId>
+                <artifactId>che-core-commons-inject</artifactId>
                 <version>${che.core.version}</version>
                 <scope>compile</scope>
                 <exclusions>
@@ -66,7 +66,7 @@
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.core</groupId>
-            <artifactId>codenvy-commons-inject</artifactId>
+            <artifactId>che-core-commons-inject</artifactId>
             <version>${che.core.version}</version>
         </dependency>
         <dependency>
