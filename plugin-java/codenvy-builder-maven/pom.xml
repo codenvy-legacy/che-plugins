@@ -27,12 +27,12 @@
     <dependencies>
         <dependency>
             <groupId>org.eclipse.che.core</groupId>
-            <artifactId>che-core-commons-inject</artifactId>
+            <artifactId>che-core-api-builder</artifactId>
             <version>${che.core.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.core</groupId>
-            <artifactId>che-core-api-builder</artifactId>
+            <artifactId>che-core-commons-inject</artifactId>
             <version>${che.core.version}</version>
         </dependency>
         <dependency>
