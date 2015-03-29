@@ -37,12 +37,12 @@
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.core</groupId>
-            <artifactId>codenvy-api-auth</artifactId>
+            <artifactId>che-core-api-auth</artifactId>
             <version>${che.core.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.core</groupId>
-            <artifactId>codenvy-api-core</artifactId>
+            <artifactId>che-core-api-core</artifactId>
             <version>${che.core.version}</version>
         </dependency>
         <dependency>
@@ -172,7 +172,7 @@
             </plugin>
             <plugin>
                 <groupId>org.eclipse.che.core</groupId>
-                <artifactId>codenvy-dto-maven-plugin</artifactId>
+                <artifactId>che-core-api-dto-maven-plugin</artifactId>
                 <version>${che.core.version}</version>
                 <executions>
                     <execution>

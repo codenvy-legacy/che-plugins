@@ -34,7 +34,7 @@
         <!-- needed for Profile DTO -->
         <dependency>
             <groupId>org.eclipse.che.core</groupId>
-            <artifactId>codenvy-api-user</artifactId>
+            <artifactId>che-core-api-user</artifactId>
             <version>${che.core.version}</version>
         </dependency>
         <dependency>

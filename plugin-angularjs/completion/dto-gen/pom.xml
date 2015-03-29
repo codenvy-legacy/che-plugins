@@ -33,19 +33,19 @@
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.core</groupId>
-            <artifactId>codenvy-api-builder</artifactId>
+            <artifactId>che-core-api-builder</artifactId>
             <version>${che.core.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.core</groupId>
-            <artifactId>codenvy-api-project</artifactId>
+            <artifactId>che-core-api-project</artifactId>
             <version>${che.core.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.core</groupId>
-            <artifactId>codenvy-api-runner</artifactId>
+            <artifactId>che-core-api-runner</artifactId>
             <version>${che.core.version}</version>
             <scope>provided</scope>
         </dependency>
@@ -139,7 +139,7 @@
             </plugin>
             <plugin>
                 <groupId>org.eclipse.che.core</groupId>
-                <artifactId>codenvy-dto-maven-plugin</artifactId>
+                <artifactId>che-core-api-dto-maven-plugin</artifactId>
                 <version>${che.core.version}</version>
                 <executions>
                     <execution>

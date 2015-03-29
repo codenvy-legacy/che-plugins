@@ -49,7 +49,7 @@
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.core</groupId>
-            <artifactId>codenvy-api-builder</artifactId>
+            <artifactId>che-core-api-builder</artifactId>
             <version>${che.core.version}</version>
         </dependency>
         <dependency>
