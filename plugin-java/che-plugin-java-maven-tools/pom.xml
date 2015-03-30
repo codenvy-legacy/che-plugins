@@ -20,7 +20,7 @@
     </parent>
     <artifactId>che-plugin-java-maven-tools</artifactId>
     <packaging>jar</packaging>
-    <name>Codenvy Maven Tools</name>
+    <name>Che Plugin :: Java :: Maven Tools</name>
     <dependencies>
         <dependency>
             <groupId>org.eclipse.che.core</groupId>

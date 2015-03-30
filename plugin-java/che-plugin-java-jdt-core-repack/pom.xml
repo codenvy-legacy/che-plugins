@@ -20,7 +20,7 @@
     </parent>
     <artifactId>che-plugin-java-jdt-core-repack</artifactId>
     <packaging>jar</packaging>
-    <name>Codenvy :: Eclipse JDT Core Repack</name>
+    <name>Che Plugin :: Java :: Eclipse JDT Core Repack</name>
     <dependencies>
         <dependency>
             <groupId>org.eclipse.tycho</groupId>

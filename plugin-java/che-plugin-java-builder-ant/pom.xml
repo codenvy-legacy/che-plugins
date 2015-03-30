@@ -20,7 +20,7 @@
     </parent>
     <artifactId>che-plugin-java-builder-ant</artifactId>
     <packaging>jar</packaging>
-    <name>Codenvy Builder Ant</name>
+    <name>Che Plugin :: Java :: Builder Ant</name>
     <dependencies>
         <dependency>
             <groupId>org.eclipse.che.core</groupId>

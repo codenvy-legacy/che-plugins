@@ -20,7 +20,7 @@
     </parent>
     <artifactId>che-plugin-java-generator-archetype</artifactId>
     <packaging>jar</packaging>
-    <name>Codenvy Archetype Generator</name>
+    <name>Che Plugin :: Java :: Archetype Generator</name>
     <properties>
         <dto-generator-out-directory>${project.build.directory}/generated-sources/dto/</dto-generator-out-directory>
     </properties>

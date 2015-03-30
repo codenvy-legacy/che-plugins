@@ -21,7 +21,7 @@
     </parent>
     <artifactId>che-plugin-java-parent</artifactId>
     <packaging>pom</packaging>
-    <name>Codenvy Plugin Java :: Parent</name>
+    <name>Che Plugin :: Java :: Parent</name>
     <modules>
         <module>che-plugin-java-jdt-core-repack</module>
         <module>che-plugin-java-maven-tools</module>

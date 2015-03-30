@@ -20,7 +20,7 @@
     </parent>
     <artifactId>che-plugin-runner-ext-runner</artifactId>
     <packaging>jar</packaging>
-    <name>Codenvy Plugin Runner</name>
+    <name>Che Plugin :: Runner :: Runner</name>
     <properties>
         <!-- this argument needs for Jacoco for analyzing code coverage -->
         <argLine>-XX:MaxPermSize=256M</argLine>

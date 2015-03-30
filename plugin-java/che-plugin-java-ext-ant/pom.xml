@@ -20,7 +20,7 @@
     </parent>
     <artifactId>che-plugin-java-ext-ant</artifactId>
     <packaging>jar</packaging>
-    <name>Codenvy Extension :: Ant</name>
+    <name>Che Plugin :: Java :: Extension Ant</name>
     <dependencies>
         <dependency>
             <groupId>com.google.inject</groupId>

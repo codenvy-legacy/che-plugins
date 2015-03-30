@@ -20,7 +20,7 @@
     </parent>
     <artifactId>che-plugin-java-ext-java-codeassistant</artifactId>
     <packaging>jar</packaging>
-    <name>Codenvy Extension :: Java : Codeassistant</name>
+    <name>Che Plugin :: Java :: Extension Java Codeassistant</name>
     <dependencies>
         <dependency>
             <groupId>com.google.guava</groupId>

@@ -20,7 +20,7 @@
     </parent>
     <artifactId>che-plugin-java-ext-maven</artifactId>
     <packaging>jar</packaging>
-    <name>Codenvy Extension :: Maven</name>
+    <name>Che Plugin :: Java :: Extension Maven</name>
     <properties>
         <dto-generator-out-directory>${project.build.directory}/generated-sources/dto/</dto-generator-out-directory>
     </properties>

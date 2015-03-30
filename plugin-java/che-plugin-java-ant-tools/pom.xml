@@ -20,7 +20,7 @@
     </parent>
     <artifactId>che-plugin-java-ant-tools</artifactId>
     <packaging>jar</packaging>
-    <name>Codenvy Ant Tools</name>
+    <name>Che Plugin :: Java :: Ant Tools</name>
     <dependencies>
         <dependency>
             <groupId>org.apache.ant</groupId>

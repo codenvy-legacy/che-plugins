@@ -20,7 +20,7 @@
     </parent>
     <artifactId>che-plugin-java-runner-webapps</artifactId>
     <packaging>jar</packaging>
-    <name>Codenvy Runner :: WebApps</name>
+    <name>Che Plugin :: Java :: Runner webApps</name>
     <dependencies>
         <dependency>
             <groupId>org.eclipse.che.core</groupId>

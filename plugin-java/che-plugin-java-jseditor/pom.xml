@@ -19,7 +19,7 @@
         <version>3.9.0-SNAPSHOT</version>
     </parent>
     <artifactId>che-plugin-java-jseditor</artifactId>
-    <name>Codenvy :: JsEditor</name>
+    <name>Che Plugin :: Java :: JsEditor</name>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <requirejs.upstream.url>http://requirejs.org/docs/release/${requirejs.upstream.version}/comments/</requirejs.upstream.url>

@@ -21,7 +21,7 @@
     </parent>
     <artifactId>codenvy-plugin-runner-parent</artifactId>
     <packaging>pom</packaging>
-    <name>Codenvy Plugin Runner :: Parent</name>
+    <name>Che Plugin :: Runner :: Parent</name>
     <modules>
         <module>che-plugin-runner-ext-runner</module>
     </modules>
