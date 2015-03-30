@@ -54,7 +54,7 @@
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.core</groupId>
-            <artifactId>codenvy-vfs-impl</artifactId>
+            <artifactId>che-core-vfs-impl</artifactId>
             <version>${che.core.version}</version>
         </dependency>
         <dependency>
@@ -72,7 +72,7 @@
                     <groupId>org.eclipse.che.core</groupId>
                 </exclusion>
                 <exclusion>
-                    <artifactId>codenvy-vfs-impl</artifactId>
+                    <artifactId>che-core-vfs-impl</artifactId>
                     <groupId>org.eclipse.che.core</groupId>
                 </exclusion>
                 <exclusion>
