@@ -14,11 +14,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>codenvy-plugin-java-parent</artifactId>
+        <artifactId>che-plugin-java-parent</artifactId>
         <groupId>org.eclipse.che.plugin</groupId>
         <version>3.9.0-SNAPSHOT</version>
     </parent>
-    <artifactId>codenvy-builder-maven</artifactId>
+    <artifactId>che-plugin-java-builder-maven</artifactId>
     <packaging>jar</packaging>
     <name>Codenvy Builder Maven</name>
     <properties>
@@ -37,7 +37,7 @@
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.plugin</groupId>
-            <artifactId>codenvy-maven-tools</artifactId>
+            <artifactId>che-plugin-java-maven-tools</artifactId>
             <version>${che.plugins.version}</version>
         </dependency>
     </dependencies>
@@ -119,7 +119,7 @@
                     </dependency>
                     <dependency>
                         <groupId>org.eclipse.che.plugin</groupId>
-                        <artifactId>codenvy-builder-maven</artifactId>
+                        <artifactId>che-plugin-java-builder-maven</artifactId>
                         <version>${che.plugins.version}</version>
                     </dependency>
                 </dependencies>

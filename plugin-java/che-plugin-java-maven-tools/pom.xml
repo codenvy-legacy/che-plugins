@@ -14,43 +14,42 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>codenvy-plugin-java-parent</artifactId>
+        <artifactId>che-plugin-java-parent</artifactId>
         <groupId>org.eclipse.che.plugin</groupId>
         <version>3.9.0-SNAPSHOT</version>
     </parent>
-    <artifactId>codenvy-plugin-java-jseditor</artifactId>
-    <name>Codenvy :: JsEditor</name>
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <requirejs.upstream.url>http://requirejs.org/docs/release/${requirejs.upstream.version}/comments/</requirejs.upstream.url>
-        <requirejs.upstream.version>2.1.14</requirejs.upstream.version>
-    </properties>
+    <artifactId>che-plugin-java-maven-tools</artifactId>
+    <packaging>jar</packaging>
+    <name>Codenvy Maven Tools</name>
     <dependencies>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>codenvy-ext-java</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.eclipse.che.core</groupId>
-            <artifactId>codenvy-ide-api</artifactId>
+            <artifactId>che-core-api-vfs</artifactId>
             <version>${che.core.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.core</groupId>
-            <artifactId>codenvy-ide-jseditor</artifactId>
+            <artifactId>che-core-commons-xml</artifactId>
             <version>${che.core.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <version>${org.testng.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
     <build>
-        <sourceDirectory>src/main/java</sourceDirectory>
-        <resources>
-            <resource>
-                <directory>src/main/java</directory>
-            </resource>
-            <resource>
-                <directory>src/main/resources</directory>
-            </resource>
-        </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <systemPropertyVariables>
+                        <workDir>${project.build.directory}</workDir>
+                    </systemPropertyVariables>
+                </configuration>
+            </plugin>
+        </plugins>
     </build>
 </project>

@@ -14,11 +14,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>codenvy-plugin-java-parent</artifactId>
+        <artifactId>che-plugin-java-parent</artifactId>
         <groupId>org.eclipse.che.plugin</groupId>
         <version>3.9.0-SNAPSHOT</version>
     </parent>
-    <artifactId>codenvy-ext-java-codeassistant</artifactId>
+    <artifactId>che-plugin-java-ext-java-codeassistant</artifactId>
     <packaging>jar</packaging>
     <name>Codenvy Extension :: Java : Codeassistant</name>
     <dependencies>
@@ -59,12 +59,12 @@
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.plugin</groupId>
-            <artifactId>codenvy-ant-tools</artifactId>
+            <artifactId>che-plugin-java-ant-tools</artifactId>
             <version>${che.plugins.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.plugin</groupId>
-            <artifactId>codenvy-ext-java</artifactId>
+            <artifactId>che-plugin-java-ext-java</artifactId>
             <version>${che.plugins.version}</version>
             <exclusions>
                 <exclusion>
@@ -91,12 +91,12 @@
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.plugin</groupId>
-            <artifactId>codenvy-jdt-core-repack</artifactId>
+            <artifactId>che-plugin-java-jdt-core-repack</artifactId>
             <version>${che.plugins.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.plugin</groupId>
-            <artifactId>codenvy-maven-tools</artifactId>
+            <artifactId>che-plugin-java-maven-tools</artifactId>
             <version>${che.plugins.version}</version>
         </dependency>
         <dependency>
