@@ -160,7 +160,7 @@
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.plugin</groupId>
-            <artifactId>codemirror-highlighter</artifactId>
+            <artifactId>che-plugin-codemirror-highlighter</artifactId>
             <version>${che.plugins.version}</version>
         </dependency>
         <dependency>

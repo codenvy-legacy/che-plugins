@@ -19,16 +19,16 @@
         <version>3.9.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <artifactId>plugin-editor-codemirror-parent</artifactId>
+    <artifactId>che-plugin-codemirror-parent</artifactId>
     <packaging>pom</packaging>
-    <name>CodeMirror Editor Plugin :: Parent</name>
+    <name>Che Plugin :: CodeMirror :: Parent</name>
     <modules>
-        <module>codemirror-ide-style</module>
-        <module>codemirror-jso</module>
-        <module>codemirror-editorwidget</module>
-        <module>codemirror-resources</module>
-        <module>codemirror-base-init</module>
-        <module>codemirror-highlighter</module>
+        <module>che-plugin-codemirror-ide-style</module>
+        <module>che-plugin-codemirror-jso</module>
+        <module>che-plugin-codemirror-editorwidget</module>
+        <module>che-plugin-codemirror-resources</module>
+        <module>che-plugin-codemirror-base-init</module>
+        <module>che-plugin-codemirror-highlighter</module>
     </modules>
     <properties>
         <codemirror.plugin.revision>1</codemirror.plugin.revision>
