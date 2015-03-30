@@ -29,7 +29,7 @@
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.plugin</groupId>
-            <artifactId>codenvy-plugin-runner</artifactId>
+            <artifactId>che-plugin-runner-ext-runner</artifactId>
             <version>${che.plugins.version}</version>
         </dependency>
         <dependency>
