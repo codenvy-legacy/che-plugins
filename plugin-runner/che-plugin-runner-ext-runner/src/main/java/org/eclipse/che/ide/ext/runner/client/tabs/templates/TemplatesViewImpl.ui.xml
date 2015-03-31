@@ -53,7 +53,7 @@
     </ui:style>
     <g:DockLayoutPanel unit="PX" addStyleNames="{style.container}">
         <!--scope panel-->
-        <g:north size="40">
+        <g:north size="45">
             <g:SimplePanel ui:field="filterPanel"/>
         </g:north>
 
