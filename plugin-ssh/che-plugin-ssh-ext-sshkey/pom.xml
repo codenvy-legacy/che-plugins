@@ -114,7 +114,7 @@
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.core</groupId>
-            <artifactId>codenvy-ide-ui</artifactId>
+            <artifactId>che-core-ide-ui</artifactId>
             <version>${che.core.version}</version>
             <scope>provided</scope>
         </dependency>

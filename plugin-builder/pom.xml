@@ -19,7 +19,7 @@
         <version>3.9.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <artifactId>codenvy-plugin-builder-parent</artifactId>
+    <artifactId>che-plugin-builder-parent</artifactId>
     <packaging>pom</packaging>
     <name>Che Plugin :: Builder :: Parent</name>
     <modules>
