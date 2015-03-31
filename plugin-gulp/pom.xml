@@ -19,11 +19,11 @@
         <version>3.9.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <artifactId>plugin-gulp</artifactId>
+    <artifactId>che-plugin-gulp-parent</artifactId>
     <packaging>pom</packaging>
-    <name>GulpJS Plugin</name>
+    <name>Che Plugin :: GulpJS :: Parent</name>
     <modules>
-        <module>runner</module>
+        <module>che-plugin-gulp-runner</module>
     </modules>
     <properties>
         <license_years>2014</license_years>
