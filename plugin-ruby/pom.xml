@@ -19,10 +19,10 @@
         <version>3.9.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <artifactId>codenvy-plugin-ruby-parent</artifactId>
+    <artifactId>che-plugin-ruby-parent</artifactId>
     <packaging>pom</packaging>
-    <name>Codenvy Plugin Ruby :: Parent</name>
+    <name>Che Plugin :: Ruby :: Parent</name>
     <modules>
-        <module>codenvy-ext-ruby</module>
+        <module>che-plugin-ruby-ext-ruby</module>
     </modules>
 </project>
