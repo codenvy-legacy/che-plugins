@@ -30,6 +30,7 @@
         <module>plugin-orion</module>
         <module>plugin-php</module>
         <module>plugin-git</module>
+        <module>plugin-github</module>
         <module>plugin-datasource</module>
         <module>plugin-angularjs</module>
         <module>plugin-bower</module>
