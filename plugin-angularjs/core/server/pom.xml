@@ -42,7 +42,7 @@
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.core</groupId>
-            <artifactId>che-core-client-gwt-commons</artifactId>
+            <artifactId>che-core-commons-gwt</artifactId>
             <version>${che.core.version}</version>
             <scope>provided</scope>
         </dependency>
@@ -54,7 +54,7 @@
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.core</groupId>
-            <artifactId>codenvy-ide-api</artifactId>
+            <artifactId>che-core-ide-api</artifactId>
             <version>${che.core.version}</version>
             <scope>provided</scope>
         </dependency>

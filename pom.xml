@@ -24,11 +24,14 @@
     <packaging>pom</packaging>
     <name>Codenvy Plugin Parent</name>
     <modules>
+        <module>plugin-builder</module>
         <module>plugin-runner</module>
+        <module>plugin-web</module>
         <module>plugin-java</module>
         <module>plugin-codemirror</module>
         <module>plugin-orion</module>
         <module>plugin-php</module>
+        <module>plugin-ssh</module>
         <module>plugin-git</module>
         <module>plugin-github</module>
         <module>plugin-datasource</module>

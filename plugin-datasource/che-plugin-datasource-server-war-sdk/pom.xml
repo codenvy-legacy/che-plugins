@@ -91,7 +91,7 @@
                     <groupId>org.eclipse.che.core</groupId>
                 </exclusion>
                 <exclusion>
-                    <artifactId>che-core-client-gwt-commons</artifactId>
+                    <artifactId>che-core-commons-gwt</artifactId>
                     <groupId>org.eclipse.che.core</groupId>
                 </exclusion>
                 <exclusion>

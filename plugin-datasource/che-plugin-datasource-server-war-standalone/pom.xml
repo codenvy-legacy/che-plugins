@@ -86,7 +86,7 @@
                     <groupId>org.eclipse.che.core</groupId>
                 </exclusion>
                 <exclusion>
-                    <artifactId>che-core-client-gwt-commons</artifactId>
+                    <artifactId>che-core-commons-gwt</artifactId>
                     <groupId>org.eclipse.che.core</groupId>
                 </exclusion>
                 <exclusion>
@@ -110,7 +110,7 @@
                     <groupId>com.google.gwt.inject</groupId>
                 </exclusion>
                 <exclusion>
-                    <artifactId>codenvy-ide-api</artifactId>
+                    <artifactId>che-core-ide-api</artifactId>
                     <groupId>org.eclipse.che.core</groupId>
                 </exclusion>
             </exclusions>

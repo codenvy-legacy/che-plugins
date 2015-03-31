@@ -80,11 +80,11 @@
                     <groupId>org.eclipse.che.core</groupId>
                 </exclusion>
                 <exclusion>
-                    <artifactId>codenvy-ide-core</artifactId>
+                    <artifactId>che-core-ide-app</artifactId>
                     <groupId>org.eclipse.che.core</groupId>
                 </exclusion>
                 <exclusion>
-                    <artifactId>codenvy-ide-api</artifactId>
+                    <artifactId>che-core-ide-api</artifactId>
                     <groupId>org.eclipse.che.core</groupId>
                 </exclusion>
             </exclusions>
