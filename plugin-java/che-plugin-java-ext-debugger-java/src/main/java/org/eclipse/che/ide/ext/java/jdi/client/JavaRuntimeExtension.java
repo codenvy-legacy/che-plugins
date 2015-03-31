@@ -83,6 +83,7 @@ public class JavaRuntimeExtension {
         debuggerManager.registeredDebugger(MavenAttributes.MAVEN_ID, debuggerPresenter);
         debuggerManager.registeredDebugger(Constants.CODENVY_PLUGIN_ID, debuggerPresenter);
         resolverFactory.addResolver(TEXT_X_JAVA, javaFqnResolver);
+        resolverFactory.addResolver("application/java", javaFqnResolver);
         resolverFactory.addResolver(TEXT_X_JAVA_SOURCE, javaFqnResolver);
     }
 }
