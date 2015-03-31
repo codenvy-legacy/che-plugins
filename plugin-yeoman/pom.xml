@@ -19,12 +19,12 @@
         <version>3.9.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <artifactId>plugin-yeoman</artifactId>
+    <artifactId>che-plugin-yeoman-parent</artifactId>
     <packaging>pom</packaging>
-    <name>Yeoman Plugin</name>
+    <name>Che Plugin :: Yeoman :: Parent</name>
     <modules>
-        <module>builder</module>
-        <module>client</module>
+        <module>che-plugin-yeoman-builder</module>
+        <module>che-plugin-yeoman-ext-client</module>
     </modules>
     <properties>
         <license_years>2014</license_years>
