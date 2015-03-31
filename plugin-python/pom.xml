@@ -19,10 +19,10 @@
         <version>3.9.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <artifactId>codenvy-plugin-python-parent</artifactId>
+    <artifactId>che-plugin-python-parent</artifactId>
     <packaging>pom</packaging>
-    <name>Codenvy Plugin Python :: Parent</name>
+    <name>Che Plugin :: Python :: Parent</name>
     <modules>
-        <module>codenvy-ext-python</module>
+        <module>che-plugin-python-ext-python</module>
     </modules>
 </project>
