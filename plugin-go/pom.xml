@@ -19,10 +19,10 @@
         <version>3.9.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <artifactId>codenvy-plugin-go-parent</artifactId>
+    <artifactId>che-plugin-go-parent</artifactId>
     <packaging>pom</packaging>
-    <name>Codenvy Plugin Go :: Parent</name>
+    <name>Che Plugin :: Go :: Parent</name>
     <modules>
-        <module>codenvy-ext-go</module>
+        <module>che-plugin-go-ext-go</module>
     </modules>
 </project>
