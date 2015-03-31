@@ -25,9 +25,9 @@
     <modules>
         <module>che-plugin-codemirror-ide-style</module>
         <module>che-plugin-codemirror-jso</module>
+        <module>che-plugin-codemirror-base-init</module>
         <module>che-plugin-codemirror-editorwidget</module>
         <module>che-plugin-codemirror-resources</module>
-        <module>che-plugin-codemirror-base-init</module>
         <module>che-plugin-codemirror-highlighter</module>
     </modules>
     <properties>

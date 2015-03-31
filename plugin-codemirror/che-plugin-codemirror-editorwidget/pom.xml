@@ -24,6 +24,11 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>che-plugin-codemirror-base-init</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>che-plugin-codemirror-ide-style</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -35,11 +40,6 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>che-plugin-codemirror-resources</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>codemirror-base-init</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
