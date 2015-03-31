@@ -14,12 +14,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>tour-parent</artifactId>
+        <artifactId>plugin-tour-parent</artifactId>
         <groupId>org.eclipse.che.plugin</groupId>
         <version>3.9.0-SNAPSHOT</version>
     </parent>
-    <artifactId>tour-dto-gen</artifactId>
-    <name>Guided Tour Plugin :: DTO Generation</name>
+    <artifactId>che-plugin-tour-dto-gen</artifactId>
+    <name>Che Plugin :: Tour :: DTO Generation</name>
     <properties>
         <dto-generator-out-directory>${project.build.directory}/generated-sources/dto/</dto-generator-out-directory>
     </properties>
@@ -32,7 +32,7 @@
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.plugin</groupId>
-            <artifactId>tour-dto</artifactId>
+            <artifactId>che-plugin-tour-dto</artifactId>
             <version>${che.plugins.version}</version>
             <scope>provided</scope>
         </dependency>
@@ -114,7 +114,7 @@
                 <dependencies>
                     <dependency>
                         <groupId>org.eclipse.che.plugin</groupId>
-                        <artifactId>tour-dto</artifactId>
+                        <artifactId>che-plugin-tour-dto</artifactId>
                         <version>${project.version}</version>
                     </dependency>
                 </dependencies>

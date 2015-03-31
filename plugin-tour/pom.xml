@@ -19,15 +19,15 @@
         <version>3.9.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <artifactId>tour-parent</artifactId>
+    <artifactId>plugin-tour-parent</artifactId>
     <packaging>pom</packaging>
-    <name>Guided Tour Plugin</name>
+    <name>Che Plugin :: Tour :: Parent</name>
     <modules>
-        <module>hopscotch</module>
-        <module>dto</module>
-        <module>dto-gen</module>
-        <module>client</module>
-        <module>server</module>
+        <module>che-plugin-tour-hopscotch</module>
+        <module>che-plugin-tour-dto</module>
+        <module>che-plugin-tour-dto-gen</module>
+        <module>che-plugin-tour-ext-client</module>
+        <module>che-plugin-tour-server</module>
     </modules>
     <properties>
         <license_years>2014</license_years>
