@@ -36,6 +36,7 @@ import javax.annotation.Nonnull;
 import java.util.List;
 
 import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope.SYSTEM;
+import static org.eclipse.che.ide.ext.runner.client.util.GetEnvironmentsUtil.DEFAULT_RUNNER_PROJECT_TYPE;
 
 /**
  * The class contains business logic to get system environments which are added on templates panel.
@@ -133,7 +134,7 @@ public class GetSystemEnvironmentsAction extends AbstractRunnerAction {
 
         String defaultRunner = currentProject.getRunner();
 
-        if (defaultRunner == null) {
+        if (defaultRunner == null || defaultRunner.startsWith(DEFAULT_RUNNER_PROJECT_TYPE)) {
             RunnerEnvironmentTree envTree = environmentUtil.getRunnerCategoryByProjectType(tree, projectType);
             container.setTypeItem(envTree.getDisplayName());
         } else {

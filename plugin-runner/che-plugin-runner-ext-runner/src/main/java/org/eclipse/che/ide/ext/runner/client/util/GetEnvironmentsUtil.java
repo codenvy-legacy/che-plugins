@@ -28,6 +28,8 @@ import java.util.List;
 @ImplementedBy(GetEnvironmentsUtilImpl.class)
 public interface GetEnvironmentsUtil {
 
+    final String DEFAULT_RUNNER_PROJECT_TYPE = "project:/";
+
     /**
      * The method allows get all environments.
      *
