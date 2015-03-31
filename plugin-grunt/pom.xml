@@ -19,13 +19,13 @@
         <version>3.9.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <artifactId>plugin-grunt</artifactId>
+    <artifactId>che-plugin-grunt-parent</artifactId>
     <packaging>pom</packaging>
-    <name>Grunt Plugin</name>
+    <name>Che Plugin :: Grunt :: Parent</name>
     <modules>
-        <module>client</module>
-        <module>builder</module>
-        <module>runner</module>
+        <module>che-plugin-grunt-ext-client</module>
+        <module>che-plugin-grunt-builder</module>
+        <module>che-plugin-grunt-runner</module>
     </modules>
     <properties>
         <license_years>2014</license_years>
