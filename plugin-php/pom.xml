@@ -19,10 +19,10 @@
         <version>3.9.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <artifactId>codenvy-plugin-php-parent</artifactId>
+    <artifactId>che-plugin-php-parent</artifactId>
     <packaging>pom</packaging>
-    <name>Codenvy Plugin PHP :: Parent</name>
+    <name>Che Plugin :: PHP :: Parent</name>
     <modules>
-        <module>codenvy-ext-php</module>
+        <module>che-plugin-php-ext-php</module>
     </modules>
 </project>
