@@ -73,7 +73,7 @@
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.core</groupId>
-            <artifactId>codenvy-commons-env</artifactId>
+            <artifactId>che-core-commons-env</artifactId>
             <version>${che.core.version}</version>
         </dependency>
         <dependency>
