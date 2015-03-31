@@ -47,12 +47,12 @@
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.core</groupId>
-            <artifactId>codenvy-ext-builder</artifactId>
+            <artifactId>che-core-ide-api</artifactId>
             <version>${che.core.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.core</groupId>
-            <artifactId>che-core-ide-api</artifactId>
+            <artifactId>che-plugin-builder-ext-builder</artifactId>
             <version>${che.core.version}</version>
         </dependency>
         <dependency>

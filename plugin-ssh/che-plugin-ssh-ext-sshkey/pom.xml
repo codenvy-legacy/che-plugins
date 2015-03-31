@@ -14,13 +14,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>codenvy-ide-parent</artifactId>
-        <groupId>org.eclipse.che.core</groupId>
+        <artifactId>che-plugin-ssh-parent</artifactId>
+        <groupId>org.eclipse.che.plugin</groupId>
         <version>3.9.0-SNAPSHOT</version>
     </parent>
-    <artifactId>codenvy-ext-ssh</artifactId>
+    <artifactId>che-plugin-ssh-ext-sshkey</artifactId>
     <packaging>jar</packaging>
-    <name>Codenvy Extension :: SSH</name>
+    <name>Che Extension :: SSH Key</name>
     <properties>
         <dto-generator-out-directory>${project.build.directory}/generated-sources/dto/</dto-generator-out-directory>
     </properties>
@@ -90,13 +90,13 @@
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.core</groupId>
-            <artifactId>che-core-commons-gwt</artifactId>
+            <artifactId>che-core-client-gwt-user</artifactId>
             <version>${che.core.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.core</groupId>
-            <artifactId>che-core-client-gwt-user</artifactId>
+            <artifactId>che-core-commons-gwt</artifactId>
             <version>${che.core.version}</version>
             <scope>provided</scope>
         </dependency>
@@ -207,6 +207,7 @@
             <plugin>
                 <groupId>org.eclipse.che.core</groupId>
                 <artifactId>che-core-api-dto-maven-plugin</artifactId>
+                <version>${che.core.version}</version>
                 <executions>
                     <execution>
                         <id>generate-client-dto</id>
@@ -241,9 +242,9 @@
                 </executions>
                 <dependencies>
                     <dependency>
-                        <groupId>org.eclipse.che.core</groupId>
-                        <artifactId>codenvy-ext-ssh</artifactId>
-                        <version>${che.core.version}</version>
+                        <groupId>org.eclipse.che.plugin</groupId>
+                        <artifactId>che-plugin-ssh-ext-sshkey</artifactId>
+                        <version>${che.plugins.version}</version>
                     </dependency>
                     <!-- Other dependencies if DTOs from current project need them. -->
                 </dependencies>

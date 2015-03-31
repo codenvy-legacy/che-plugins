@@ -19,7 +19,7 @@
         <version>3.9.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <artifactId>codenvy-plugin-ssh-parent</artifactId>
+    <artifactId>che-plugin-ssh-parent</artifactId>
     <packaging>pom</packaging>
     <name>Che Plugin :: SSH :: Parent</name>
     <modules>

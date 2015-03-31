@@ -14,8 +14,8 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>codenvy-ide-parent</artifactId>
-        <groupId>org.eclipse.che.core</groupId>
+        <artifactId>che-plugin-web-parent</artifactId>
+        <groupId>org.eclipse.che.plugin</groupId>
         <version>3.9.0-SNAPSHOT</version>
     </parent>
     <artifactId>che-plugin-web-ext-web</artifactId>
@@ -63,13 +63,13 @@
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.core</groupId>
-            <artifactId>che-core-commons-gwt</artifactId>
+            <artifactId>che-core-client-gwt-project</artifactId>
             <version>${che.core.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.core</groupId>
-            <artifactId>che-core-client-gwt-project</artifactId>
+            <artifactId>che-core-commons-gwt</artifactId>
             <version>${che.core.version}</version>
             <scope>provided</scope>
         </dependency>

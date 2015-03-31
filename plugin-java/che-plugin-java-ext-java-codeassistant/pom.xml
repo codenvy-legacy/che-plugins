@@ -68,7 +68,7 @@
             <version>${che.plugins.version}</version>
             <exclusions>
                 <exclusion>
-                    <artifactId>codenvy-ext-builder</artifactId>
+                    <artifactId>che-plugin-builder-ext-builder</artifactId>
                     <groupId>org.eclipse.che.core</groupId>
                 </exclusion>
                 <exclusion>
