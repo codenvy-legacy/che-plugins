@@ -18,33 +18,23 @@
         <groupId>org.eclipse.che.plugin</groupId>
         <version>3.9.0-SNAPSHOT</version>
     </parent>
-    <artifactId>codenvy-ext-datasource-client-store</artifactId>
+    <artifactId>che-plugin-datasource-ext-client-widget</artifactId>
+    <name>Che Plugin :: Datasource :: Client widget</name>
     <dependencies>
-        <dependency>
-            <groupId>com.google.inject</groupId>
-            <artifactId>guice</artifactId>
-            <version>${com.google.code.guice.version}</version>
-        </dependency>
         <dependency>
             <groupId>org.eclipse.che.core</groupId>
             <artifactId>codenvy-ide-api</artifactId>
             <version>${che.core.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.che.plugin</groupId>
-            <artifactId>che-plugin-runner-ext-runner</artifactId>
-            <version>${che.plugins.version}</version>
+            <groupId>org.eclipse.che.core</groupId>
+            <artifactId>codenvy-ide-core</artifactId>
+            <version>${che.core.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.che.plugin</groupId>
-            <artifactId>codenvy-ext-datasource-shared</artifactId>
-            <version>${che.plugins.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.gwt.inject</groupId>
-            <artifactId>gin</artifactId>
-            <version>${com.google.gwt.gin.version}</version>
-            <scope>provided</scope>
+            <groupId>org.eclipse.che.core</groupId>
+            <artifactId>codenvy-ide-jseditor</artifactId>
+            <version>${che.core.version}</version>
         </dependency>
     </dependencies>
     <build>
@@ -56,5 +46,17 @@
                 <directory>src/main/resources</directory>
             </resource>
         </resources>
+        <plugins>
+            <plugin>
+                <groupId>com.mycila</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>**/ext/datasource/client/common/pager/ShowMorePagerPanel.java</exclude>
+                        <exclude>**/*.png</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+        </plugins>
     </build>
 </project>

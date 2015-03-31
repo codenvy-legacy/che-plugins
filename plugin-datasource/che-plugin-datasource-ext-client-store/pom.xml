@@ -18,47 +18,44 @@
         <groupId>org.eclipse.che.plugin</groupId>
         <version>3.9.0-SNAPSHOT</version>
     </parent>
-    <artifactId>codenvy-ext-datasource-server</artifactId>
-    <name>Codenvy Extension :: Datasource Server</name>
+    <artifactId>che-plugin-datasource-ext-client-store</artifactId>
+    <name>Che Plugin :: Datasource :: Client Store</name>
     <dependencies>
         <dependency>
-            <groupId>net.sf.opencsv</groupId>
-            <artifactId>opencsv</artifactId>
-            <version>${net.sf.opencsv.version}</version>
+            <groupId>com.google.inject</groupId>
+            <artifactId>guice</artifactId>
+            <version>${com.google.code.guice.version}</version>
         </dependency>
-        <dependency>
-            <groupId>net.sourceforge.schemacrawler</groupId>
-            <artifactId>schemacrawler</artifactId>
-            <version>${net.sourceforge.schemacrawler.version}</version>
-        </dependency>
-        <!-- needed for Profile DTO -->
         <dependency>
             <groupId>org.eclipse.che.core</groupId>
-            <artifactId>che-core-api-user</artifactId>
+            <artifactId>codenvy-ide-api</artifactId>
             <version>${che.core.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.plugin</groupId>
-            <artifactId>codenvy-ext-datasource-shared</artifactId>
-            <version>${project.version}</version>
+            <artifactId>che-plugin-datasource-ext-shared</artifactId>
+            <version>${che.plugins.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.plugin</groupId>
-            <artifactId>codenvy-ssl-socket-factory</artifactId>
-            <version>${project.version}</version>
+            <artifactId>che-plugin-runner-ext-runner</artifactId>
+            <version>${che.plugins.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.gwt.inject</groupId>
+            <artifactId>gin</artifactId>
+            <version>${com.google.gwt.gin.version}</version>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>${junit.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <version>${org.mockito.version}</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/java</directory>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+        </resources>
+    </build>
 </project>

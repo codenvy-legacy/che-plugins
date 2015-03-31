@@ -18,15 +18,13 @@
         <groupId>org.eclipse.che.plugin</groupId>
         <version>3.9.0-SNAPSHOT</version>
     </parent>
-    <artifactId>codenvy-ssl-socket-factory</artifactId>
-    <name>Codenvy SSL Socket factory</name>
-
-
+    <artifactId>che-plugin-datasource-itests</artifactId>
+    <name>Che Plugin :: Datasource :: Integration Tests</name>
     <dependencies>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>${org.slf4j.version}</version>
+            <groupId>org.eclipse.che.core</groupId>
+            <artifactId>che-core-test-framework</artifactId>
+            <version>${che.core.version}</version>
         </dependency>
     </dependencies>
 </project>

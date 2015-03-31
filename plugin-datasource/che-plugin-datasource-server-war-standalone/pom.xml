@@ -18,9 +18,9 @@
         <groupId>org.eclipse.che.plugin</groupId>
         <version>3.9.0-SNAPSHOT</version>
     </parent>
-    <artifactId>codenvy-ext-datasource-server-war-standalone</artifactId>
+    <artifactId>che-plugin-datasource-server-war-standalone</artifactId>
     <packaging>war</packaging>
-    <name>Datasource plugin server WAR</name>
+    <name>Che Plugin :: Datasource :: Server WAR</name>
     <description>Standalone WAR packaging for the server-side par of the datasource plugin</description>
     <dependencyManagement>
         <dependencies>
@@ -66,7 +66,7 @@
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.plugin</groupId>
-            <artifactId>codenvy-ext-datasource-server</artifactId>
+            <artifactId>che-plugin-datasource-server</artifactId>
             <version>${che.plugins.version}</version>
             <exclusions>
                 <exclusion>

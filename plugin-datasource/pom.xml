@@ -21,16 +21,16 @@
     </parent>
     <artifactId>codenvy-ext-datasource-parent</artifactId>
     <packaging>pom</packaging>
-    <name>Codenvy Extension :: Datasource parent</name>
+    <name>Che Plugin :: Datasource :: Parent</name>
     <modules>
-        <module>codenvy-ssl-socket-factory</module>
-        <module>codenvy-ext-datasource-shared</module>
-        <module>codenvy-ext-datasource-client-widget</module>
-        <module>codenvy-ext-datasource-client-store</module>
-        <module>codenvy-ext-datasource-server</module>
-        <module>codenvy-ext-datasource-client</module>
-        <module>codenvy-ext-datasource-server-war-sdk</module>
-        <module>codenvy-ext-datasource-server-war-standalone</module>
-        <module>codenvy-ext-datasource-itests</module>
+        <module>che-plugin-datasource-ssl-socket-factory</module>
+        <module>che-plugin-datasource-ext-shared</module>
+        <module>che-plugin-datasource-ext-client-widget</module>
+        <module>che-plugin-datasource-ext-client-store</module>
+        <module>che-plugin-datasource-server</module>
+        <module>che-plugin-datasource-ext-client</module>
+        <module>che-plugin-datasource-server-war-sdk</module>
+        <module>che-plugin-datasource-server-war-standalone</module>
+        <module>che-plugin-datasource-itests</module>
     </modules>
 </project>

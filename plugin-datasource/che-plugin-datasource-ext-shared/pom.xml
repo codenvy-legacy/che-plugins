@@ -18,8 +18,8 @@
         <groupId>org.eclipse.che.plugin</groupId>
         <version>3.9.0-SNAPSHOT</version>
     </parent>
-    <artifactId>codenvy-ext-datasource-shared</artifactId>
-    <name>Codenvy Extension :: Datasource Shared</name>
+    <artifactId>che-plugin-datasource-ext-shared</artifactId>
+    <name>Che Plugin :: Datasource :: Shared</name>
     <dependencies>
         <dependency>
             <groupId>com.google.gwt</groupId>
@@ -147,7 +147,7 @@
                     <!-- this current module needs to be in the dto maven plugin dependencies so its DTO can be processed and generated -->
                     <dependency>
                         <groupId>org.eclipse.che.plugin</groupId>
-                        <artifactId>codenvy-ext-datasource-shared</artifactId>
+                        <artifactId>che-plugin-datasource-ext-shared</artifactId>
                         <version>${che.plugins.version}</version>
                     </dependency>
                 </dependencies>
