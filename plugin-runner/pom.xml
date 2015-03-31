@@ -19,7 +19,7 @@
         <version>3.9.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <artifactId>codenvy-plugin-runner-parent</artifactId>
+    <artifactId>che-plugin-runner-parent</artifactId>
     <packaging>pom</packaging>
     <name>Che Plugin :: Runner :: Parent</name>
     <modules>

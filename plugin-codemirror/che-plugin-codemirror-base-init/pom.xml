@@ -49,7 +49,7 @@
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.core</groupId>
-            <artifactId>codenvy-ide-jseditor</artifactId>
+            <artifactId>che-core-ide-jseditor</artifactId>
             <version>${che.core.version}</version>
         </dependency>
     </dependencies>

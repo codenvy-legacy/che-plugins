@@ -59,15 +59,15 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.che.core</groupId>
+            <groupId>org.eclipse.che.plugin</groupId>
             <artifactId>che-plugin-builder-ext-builder</artifactId>
-            <version>${che.core.version}</version>
+            <version>${che.plugins.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.che.core</groupId>
+            <groupId>org.eclipse.che.plugin</groupId>
             <artifactId>che-plugin-web-ext-web</artifactId>
-            <version>${che.core.version}</version>
+            <version>${che.plugins.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

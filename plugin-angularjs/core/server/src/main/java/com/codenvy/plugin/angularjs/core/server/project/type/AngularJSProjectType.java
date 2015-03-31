@@ -12,7 +12,6 @@ package com.codenvy.plugin.angularjs.core.server.project.type;
 
 import org.eclipse.che.api.project.server.type.ProjectType;
 import org.eclipse.che.ide.Constants;
-import org.eclipse.che.ide.api.project.type.RunnerCategory;
 
 import javax.inject.Singleton;
 import java.util.Arrays;
@@ -29,6 +28,6 @@ public class AngularJSProjectType extends ProjectType {
         addConstantDefinition(Constants.LANGUAGE, Constants.LANGUAGE, "javascript");
         addConstantDefinition(Constants.FRAMEWORK, Constants.FRAMEWORK, "AngularJS");
         setDefaultRunner("system:/javascript/webapp/grunt");
-        addRunnerCategories(Arrays.asList(RunnerCategory.JAVASCRIPT.toString()));
+        addRunnerCategories(Arrays.asList("javascript"));
     }
 }

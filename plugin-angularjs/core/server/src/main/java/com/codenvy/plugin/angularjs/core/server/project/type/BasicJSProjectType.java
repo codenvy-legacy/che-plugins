@@ -16,7 +16,6 @@ import org.eclipse.che.ide.Constants;
 import javax.inject.Singleton;
 import java.util.Arrays;
 
-import static org.eclipse.che.ide.api.project.type.RunnerCategory.JAVASCRIPT;
 
 /**
  * @author Vitaliy Parfonov
@@ -30,7 +29,7 @@ public class BasicJSProjectType extends ProjectType {
         addConstantDefinition(Constants.LANGUAGE, Constants.LANGUAGE, "javascript");
         addConstantDefinition(Constants.FRAMEWORK, Constants.FRAMEWORK, "BasicJS");
         setDefaultRunner("system:/java/web/tomcat7");
-        addRunnerCategories(Arrays.asList(JAVASCRIPT.toString()));
+        addRunnerCategories(Arrays.asList("javascript"));
     }
 
 }

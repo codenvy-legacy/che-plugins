@@ -76,7 +76,7 @@
                     <groupId>org.eclipse.che.core</groupId>
                 </exclusion>
                 <exclusion>
-                    <artifactId>codenvy-ide-jseditor</artifactId>
+                    <artifactId>che-core-ide-jseditor</artifactId>
                     <groupId>org.eclipse.che.core</groupId>
                 </exclusion>
                 <exclusion>

@@ -17,7 +17,6 @@ import org.eclipse.che.ide.Constants;
 import javax.inject.Singleton;
 import java.util.Arrays;
 
-import static org.eclipse.che.ide.api.project.type.RunnerCategory.JAVASCRIPT;
 
 /**
  * @author Vitaliy Parfonov
@@ -31,6 +30,6 @@ public class GulpJSProjectType extends ProjectType {
         addConstantDefinition(Constants.LANGUAGE, Constants.LANGUAGE, "javascript");
         addConstantDefinition(Constants.FRAMEWORK, Constants.FRAMEWORK, "BasicJS");
         setDefaultRunner("system:/javascript/web/gulp");
-        addRunnerCategories(Arrays.asList(JAVASCRIPT.toString()));
+        addRunnerCategories(Arrays.asList("javascript"));
     }
 }

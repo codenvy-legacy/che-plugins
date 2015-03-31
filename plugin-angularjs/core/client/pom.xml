@@ -60,19 +60,7 @@
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.core</groupId>
-            <artifactId>che-plugin-builder-ext-builder</artifactId>
-            <version>${che.core.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.che.core</groupId>
-            <artifactId>che-plugin-web-ext-web</artifactId>
-            <version>${che.core.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.che.core</groupId>
-            <artifactId>codenvy-ide-jseditor</artifactId>
+            <artifactId>che-core-ide-jseditor</artifactId>
             <version>${che.core.version}</version>
             <scope>provided</scope>
         </dependency>
@@ -90,7 +78,19 @@
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.plugin</groupId>
+            <artifactId>che-plugin-builder-ext-builder</artifactId>
+            <version>${che.plugins.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.che.plugin</groupId>
             <artifactId>che-plugin-runner-ext-runner</artifactId>
+            <version>${che.plugins.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.che.plugin</groupId>
+            <artifactId>che-plugin-web-ext-web</artifactId>
             <version>${che.plugins.version}</version>
             <scope>provided</scope>
         </dependency>

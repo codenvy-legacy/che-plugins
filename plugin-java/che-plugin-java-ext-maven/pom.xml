@@ -51,9 +51,9 @@
             <version>${che.core.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.che.core</groupId>
+            <groupId>org.eclipse.che.plugin</groupId>
             <artifactId>che-plugin-builder-ext-builder</artifactId>
-            <version>${che.core.version}</version>
+            <version>${che.plugins.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.plugin</groupId>

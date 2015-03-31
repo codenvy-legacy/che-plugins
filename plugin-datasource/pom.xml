@@ -19,7 +19,7 @@
         <version>3.9.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <artifactId>codenvy-ext-datasource-parent</artifactId>
+    <artifactId>che-plugin-datasource-parent</artifactId>
     <packaging>pom</packaging>
     <name>Che Plugin :: Datasource :: Parent</name>
     <modules>

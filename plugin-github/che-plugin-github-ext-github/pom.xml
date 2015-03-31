@@ -18,7 +18,7 @@
         <groupId>org.eclipse.che.plugin</groupId>
         <version>3.9.0-SNAPSHOT</version>
     </parent>
-    <artifactId>codenvy-ext-github</artifactId>
+    <artifactId>che-plugin-github-ext-github</artifactId>
     <packaging>jar</packaging>
     <name>Che Plugin :: Github :: Github</name>
     <properties>
@@ -61,13 +61,13 @@
             <version>${che.core.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.che.core</groupId>
-            <artifactId>codenvy-ext-ssh</artifactId>
-            <version>${che.core.version}</version>
+            <groupId>org.eclipse.che.plugin</groupId>
+            <artifactId>che-plugin-git-ext-git</artifactId>
+            <version>${che.plugins.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.plugin</groupId>
-            <artifactId>che-plugin-git-ext-git</artifactId>
+            <artifactId>che-plugin-ssh-ext-sshkey</artifactId>
             <version>${che.plugins.version}</version>
         </dependency>
         <dependency>
@@ -209,7 +209,7 @@
                 <dependencies>
                     <dependency>
                         <groupId>org.eclipse.che.plugin</groupId>
-                        <artifactId>codenvy-ext-github</artifactId>
+                        <artifactId>che-plugin-github-ext-github</artifactId>
                         <version>${che.plugins.version}</version>
                     </dependency>
                     <!--
