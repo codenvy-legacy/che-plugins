@@ -23,16 +23,20 @@
 
         .typePanel {
             float: left;
+            width: 100%;
+            margin-top: 6px;
         }
 
         .scopePanel {
             float: left;
             margin-top: 6px;
+            width: 100%;
         }
 
         .label {
             float: left;
-            margin-top: -1px;
+            margin-top: 2px;
+            margin-left: 4px;
         }
 
         .marginType {
@@ -44,8 +48,10 @@
         }
 
         .listBox {
-            float: left;
+            float: right;
             width: 120px;
+            margin-right: 6px;
+            font-weight: inherit;
             border: 1px solid #191c1e;
             border-radius: 2px;
             padding-left: 5px;
@@ -56,13 +62,13 @@
 
     <g:FlowPanel addStyleNames="{style.main}">
         <g:FlowPanel addStyleNames="{style.typePanel}">
-            <g:Label text="{locale.configsType}" addStyleNames="{style.label}"/>
+            <g:Label text="{locale.configsType}" addStyleNames="{resources.runnerCss.propertiesFont} {style.label}"/>
 
             <g:ListBox ui:field="types" addStyleNames="{style.listBox} {style.marginType} {resources.runnerCss.propertiesFont}"/>
         </g:FlowPanel>
 
         <g:FlowPanel addStyleNames="{style.scopePanel}">
-            <g:Label text="{locale.configsScope}" addStyleNames="{style.label}"/>
+            <g:Label text="{locale.configsScope}" addStyleNames="{resources.runnerCss.propertiesFont} {style.label}"/>
 
             <g:ListBox ui:field="scopes" addStyleNames="{style.listBox} {style.marginScope} {resources.runnerCss.propertiesFont}"/>
         </g:FlowPanel>
