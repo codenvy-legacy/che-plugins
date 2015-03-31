@@ -33,6 +33,7 @@ import java.util.List;
 
 import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope.PROJECT;
 import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope.SYSTEM;
+import static org.eclipse.che.ide.ext.runner.client.util.GetEnvironmentsUtil.DEFAULT_RUNNER_PROJECT_TYPE;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.core.Is.is;
@@ -244,6 +245,30 @@ public class GetEnvironmentsUtilImplTest {
         List<Environment> environments = util.getEnvironmentsByProjectType(tree, PROJECT_TYPE, SYSTEM);
 
         assertThat(environments.size(), is(3));
+    }
+
+    @Test
+    public void environmentsShouldBeReturnedWhenDefaultEnvironmentHasProjectScope() throws Exception {
+        when(currentProject.getRunner()).thenReturn(DEFAULT_RUNNER_PROJECT_TYPE + "text1/text2/text");
+        when(tree.getNode("text1")).thenReturn(runnerEnvTree6);
+        when(runnerEnvTree6.getNode("text2")).thenReturn(runnerEnvTree5);
+
+        when(runnerEnvLeaf4.getEnvironment()).thenReturn(runEnvironment1);
+        when(runnerEnvLeaf5.getEnvironment()).thenReturn(runEnvironment2);
+        when(runnerEnvLeaf6.getEnvironment()).thenReturn(runEnvironment3);
+
+        when(modelsFactory.createEnvironment(runEnvironment1, SYSTEM)).thenReturn(environment1);
+        when(modelsFactory.createEnvironment(runEnvironment2, SYSTEM)).thenReturn(environment2);
+        when(modelsFactory.createEnvironment(runEnvironment3, SYSTEM)).thenReturn(environment3);
+
+        when(environment1.compareTo(environment2)).thenReturn(1);
+        when(environment2.compareTo(environment1)).thenReturn(2);
+        when(environment3.compareTo(environment1)).thenReturn(-1);
+        when(environment3.compareTo(environment2)).thenReturn(5);
+
+        List<Environment> environments = util.getEnvironmentsByProjectType(tree, PROJECT_TYPE, SYSTEM);
+
+        assertThat(environments.size(), is(2));
     }
 
     @Test

@@ -43,6 +43,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.util.List;
 
 import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope.SYSTEM;
+import static org.eclipse.che.ide.ext.runner.client.util.GetEnvironmentsUtil.DEFAULT_RUNNER_PROJECT_TYPE;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.never;
@@ -231,6 +232,21 @@ public class GetSystemEnvironmentsActionTest {
         verify(environmentUtil).getCorrectCategoryName(MESSAGE);
         verify(templatesContainer).setTypeItem(MESSAGE);
         verify(environmentUtil, never()).getRunnerCategoryByProjectType(Matchers.<RunnerEnvironmentTree>anyObject(), anyString());
+    }
+
+    @Test
+    public void environmentTreeShouldBeReturnedWhenDefaultRunnerWithProjectScope() throws Exception {
+        when(currentProject.getRunner()).thenReturn(DEFAULT_RUNNER_PROJECT_TYPE + MESSAGE);
+
+        action.perform();
+
+        verify(asyncCallbackBuilder).success(successCallBackCaptor.capture());
+        SuccessCallback<RunnerEnvironmentTree> successCallback = successCallBackCaptor.getValue();
+        successCallback.onSuccess(tree);
+
+        verify(environmentUtil).getRunnerCategoryByProjectType(tree, MESSAGE);
+        verify(templatesContainer).setTypeItem(MESSAGE);
+        verify(environmentUtil, never()).getCorrectCategoryName(anyString());
     }
 
     @Test

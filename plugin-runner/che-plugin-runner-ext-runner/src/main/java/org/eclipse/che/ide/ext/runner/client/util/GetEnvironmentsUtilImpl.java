@@ -101,7 +101,7 @@ public class GetEnvironmentsUtilImpl implements GetEnvironmentsUtil {
 
         String defaultRunner = currentProject.getRunner();
 
-        if (defaultRunner == null || PROJECT.equals(scope)) {
+        if (defaultRunner == null || defaultRunner.startsWith(DEFAULT_RUNNER_PROJECT_TYPE) || PROJECT.equals(scope)) {
             RunnerEnvironmentTree categoryNode = getRunnerCategoryByProjectType(tree, projectType);
 
             leaves = getAllEnvironments(categoryNode);
@@ -134,7 +134,7 @@ public class GetEnvironmentsUtilImpl implements GetEnvironmentsUtil {
 
         String defaultRunner = currentProject.getRunner();
 
-        if (defaultRunner == null) {
+        if (defaultRunner == null || defaultRunner.startsWith(DEFAULT_RUNNER_PROJECT_TYPE)) {
             ProjectTypeDefinition definition = projectTypeRegistry.getProjectType(descriptor.getType());
 
             List<String> categories = definition.getRunnerCategories();
