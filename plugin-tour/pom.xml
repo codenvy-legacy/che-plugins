@@ -19,7 +19,7 @@
         <version>3.9.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <artifactId>plugin-tour-parent</artifactId>
+    <artifactId>che-plugin-tour-parent</artifactId>
     <packaging>pom</packaging>
     <name>Che Plugin :: Tour :: Parent</name>
     <modules>

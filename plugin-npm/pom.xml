@@ -19,7 +19,7 @@
         <version>3.9.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <artifactId>plugin-npm-parent</artifactId>
+    <artifactId>che-plugin-npm-parent</artifactId>
     <packaging>pom</packaging>
     <name>Che Plugin :: NPM :: Parent</name>
     <modules>
