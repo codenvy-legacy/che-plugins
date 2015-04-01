@@ -32,7 +32,7 @@
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.core</groupId>
-            <artifactId>che-core-client-gwt-commons</artifactId>
+            <artifactId>che-core-commons-gwt</artifactId>
             <version>${che.core.version}</version>
         </dependency>
         <dependency>
@@ -88,8 +88,8 @@
                                     <destFileName>tomcat.zip</destFileName>
                                 </artifactItem>
                                 <artifactItem>
-                                    <groupId>org.eclipse.che.sdk</groupId>
-                                    <artifactId>codenvy-sdk-api-war</artifactId>
+                                    <groupId>org.eclipse.che.plugin</groupId>
+                                    <artifactId>che-plugin-sdk-api-war</artifactId>
                                     <type>war</type>
                                     <version>${project.version}</version>
                                     <outputDirectory>${project.build.directory}/classes/tomcat-resources/webapps</outputDirectory>

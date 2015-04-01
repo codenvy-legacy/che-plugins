@@ -15,6 +15,7 @@ import org.eclipse.che.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.codeassist.impl.AssistOptions;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.junit.After;
 import org.junit.Before;
 
 import java.io.File;
@@ -35,6 +36,11 @@ public class BaseTest {
     public void setUp() throws Exception {
         project = new JavaProject(new File(BaseTest.class.getResource("/projects").getFile()), "/test",BaseTest.class.getResource("/temp").getPath(),
                                   "ws", options);
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        project.close();
     }
 
     public BaseTest() {
