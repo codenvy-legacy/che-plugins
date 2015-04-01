@@ -18,8 +18,8 @@
         <groupId>org.eclipse.che.plugin</groupId>
         <version>3.9.0-SNAPSHOT</version>
     </parent>
-    <artifactId>che-plugin-git-provider-codenvy</artifactId>
-    <name>Che Plugin :: Git :: Codenvy credential provider</name>
+    <artifactId>che-plugin-git-provider-che</artifactId>
+    <name>Che Plugin :: Git :: Che credential provider</name>
     <dependencies>
         <dependency>
             <groupId>org.eclipse.che.plugin</groupId>
