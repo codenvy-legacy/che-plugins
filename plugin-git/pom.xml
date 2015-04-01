@@ -24,6 +24,7 @@
     <name>Che Plugin :: Git :: Parent</name>
     <modules>
         <module>che-plugin-git-ext-git</module>
+        <module>che-plugin-git-provider-codenvy</module>
         <module>che-plugin-git-server</module>
     </modules>
     <!-- skip tests on Windows -->

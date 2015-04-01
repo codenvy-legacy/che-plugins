@@ -149,11 +149,6 @@
             <version>${che.core.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.che.core</groupId>
-            <artifactId>codenvy-security-oauth2-gwt-client</artifactId>
-            <version>${che.core.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.eclipse.che.plugin</groupId>
             <artifactId>che-plugin-codemirror-highlighter</artifactId>
             <version>${che.plugins.version}</version>
