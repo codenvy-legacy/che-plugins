@@ -10,9 +10,10 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.git.client.patcher;
 
-import org.eclipse.che.ide.util.Config;
 import com.googlecode.gwt.test.patchers.PatchClass;
 import com.googlecode.gwt.test.patchers.PatchMethod;
+
+import org.eclipse.che.ide.util.Config;
 
 /**
  * Patcher for Utils class. Replace native method into Utils.

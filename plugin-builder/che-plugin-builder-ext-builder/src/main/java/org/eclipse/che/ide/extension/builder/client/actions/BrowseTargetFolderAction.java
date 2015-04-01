@@ -16,6 +16,7 @@ import org.eclipse.che.ide.api.action.ProjectAction;
 import org.eclipse.che.ide.api.build.BuildContext;
 import org.eclipse.che.ide.extension.builder.client.BuilderLocalizationConstant;
 import org.eclipse.che.ide.util.Config;
+
 import com.google.gwt.user.client.Window;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;

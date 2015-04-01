@@ -24,11 +24,11 @@ import org.eclipse.che.ide.ext.ssh.dto.KeyItem;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
-import org.eclipse.che.ide.util.Config;
 import org.eclipse.che.ide.util.loging.Log;
 import org.eclipse.che.security.oauth.JsOAuthWindow;
 import org.eclipse.che.security.oauth.OAuthCallback;
 import org.eclipse.che.security.oauth.OAuthStatus;
+import org.eclipse.che.ide.util.Config;
 
 import javax.annotation.Nonnull;
 

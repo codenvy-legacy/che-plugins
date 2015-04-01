@@ -18,10 +18,11 @@ import org.eclipse.che.ide.rest.AsyncRequestCallback;
 
 import org.eclipse.che.ide.ui.dialogs.ConfirmCallback;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
-import org.eclipse.che.ide.util.Config;
 import org.eclipse.che.security.oauth.JsOAuthWindow;
 import org.eclipse.che.security.oauth.OAuthCallback;
 import org.eclipse.che.security.oauth.OAuthStatus;
+import org.eclipse.che.ide.util.Config;
+
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
