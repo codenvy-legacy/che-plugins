@@ -65,7 +65,6 @@ public class TemplatesPresenter implements TemplatesContainer, FilterWidget.Acti
     private final Map<Scope, List<Environment>> environmentMap;
     private final PropertiesContainer           propertiesContainer;
     private final AppContext                    appContext;
-    private final String                        typeAll;
     private final RunnerManagerView             runnerManagerView;
     private final RunnerUtil                    runnerUtil;
     private final PanelState panelState;
@@ -73,6 +72,7 @@ public class TemplatesPresenter implements TemplatesContainer, FilterWidget.Acti
     private RunnerEnvironmentTree tree;
     private String                currentType;
     private Scope                 currentScope;
+    private boolean               matchProjectType;
 
     @Inject
     public TemplatesPresenter(TemplatesView view,
@@ -110,8 +110,7 @@ public class TemplatesPresenter implements TemplatesContainer, FilterWidget.Acti
         this.environmentMap.put(PROJECT, projectEnvironments);
         this.environmentMap.put(SYSTEM, systemEnvironments);
 
-        this.currentScope = PROJECT;
-        this.typeAll = locale.configsTypeAll();
+        this.currentScope = ALL;
     }
 
     /** {@inheritDoc} */
@@ -188,8 +187,6 @@ public class TemplatesPresenter implements TemplatesContainer, FilterWidget.Acti
     @Override
     public void setTypeItem(@Nonnull String item) {
         currentType = item;
-
-        filter.addType(currentType);
     }
 
     /** {@inheritDoc} */
@@ -200,10 +197,7 @@ public class TemplatesPresenter implements TemplatesContainer, FilterWidget.Acti
 
         projectEnvironmentsAction.perform();
 
-        currentScope = PROJECT;
-
-        filter.selectScope(currentScope);
-        filter.selectType(currentType);
+        filter.setMatchesProjectType(true);
 
         selectEnvironment();
     }
@@ -224,8 +218,7 @@ public class TemplatesPresenter implements TemplatesContainer, FilterWidget.Acti
     public void onValueChanged() {
         view.clearEnvironmentsPanel();
 
-        currentType = filter.getType();
-        currentScope = filter.getScope();
+        matchProjectType = filter.getMatchesProjectType();
 
         switch (currentScope) {
             case SYSTEM:
@@ -258,10 +251,10 @@ public class TemplatesPresenter implements TemplatesContainer, FilterWidget.Acti
     private void selectSystemScope() {
         projectEnvironments.clear();
 
-        if (currentType.equals(typeAll)) {
-            performSystemEnvironments();
-        } else {
+        if (matchProjectType) {
             systemEnvironmentsAction.perform();
+        } else {
+            performSystemEnvironments();
         }
     }
 
@@ -273,12 +266,12 @@ public class TemplatesPresenter implements TemplatesContainer, FilterWidget.Acti
     }
 
     private void selectAllScope() {
-        if (currentType.equals(typeAll)) {
-            performProjectEnvironments();
-            performSystemEnvironments();
-        } else {
+        if (matchProjectType) {
             projectEnvironmentsAction.perform();
             systemEnvironmentsAction.perform();
+        } else {
+            performProjectEnvironments();
+            performSystemEnvironments();
         }
     }
 
