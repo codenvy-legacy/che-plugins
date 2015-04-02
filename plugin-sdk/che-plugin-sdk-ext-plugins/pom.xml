@@ -20,7 +20,7 @@
     </parent>
     <artifactId>che-plugin-sdk-ext-plugins</artifactId>
     <packaging>jar</packaging>
-    <name>Codenvy Extension :: Plugins</name>
+    <name>Che Plugin :: SDK :: Plugins Parent</name>
     <dependencies>
         <dependency>
             <groupId>javax.validation</groupId>

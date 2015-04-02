@@ -20,7 +20,7 @@
     </parent>
     <artifactId>angularjs-templates</artifactId>
     <packaging>pom</packaging>
-    <name>AngularJS Plugin :: Templates</name>
+    <name>Che Plugin :: AngularJS :: Templates</name>
     <modules>
         <module>angular-seed</module>
         <module>yeoman</module>

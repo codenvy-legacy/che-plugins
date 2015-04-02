@@ -20,7 +20,7 @@
     </parent>
     <artifactId>angularjs-completion-parser</artifactId>
     <packaging>jar</packaging>
-    <name>AngularJS Plugin :: Completion :: Parser</name>
+    <name>Che Plugin :: AngularJS :: Completion :: Parser</name>
     <dependencies>
         <dependency>
             <groupId>org.eclipse.che.core</groupId>

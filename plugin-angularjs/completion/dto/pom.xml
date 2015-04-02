@@ -20,7 +20,7 @@
     </parent>
     <artifactId>angularjs-completion-dto</artifactId>
     <packaging>jar</packaging>
-    <name>AngularJS Plugin :: Completion :: DTO</name>
+    <name>Che Plugin :: AngularJS :: Completion :: DTO</name>
     <dependencies>
         <dependency>
             <groupId>org.eclipse.che.core</groupId>

@@ -20,7 +20,7 @@
     </parent>
     <artifactId>angularjs-api</artifactId>
     <packaging>pom</packaging>
-    <name>AngularJS Plugin :: API</name>
+    <name>Che Plugin :: AngularJS :: API</name>
     <modules>
         <module>client</module>
         <module>server</module>

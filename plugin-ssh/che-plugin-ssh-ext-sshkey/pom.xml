@@ -20,7 +20,7 @@
     </parent>
     <artifactId>che-plugin-ssh-ext-sshkey</artifactId>
     <packaging>jar</packaging>
-    <name>Che Extension :: SSH Key</name>
+    <name>Che Plugin :: SSH :: SSH Key</name>
     <properties>
         <dto-generator-out-directory>${project.build.directory}/generated-sources/dto/</dto-generator-out-directory>
     </properties>

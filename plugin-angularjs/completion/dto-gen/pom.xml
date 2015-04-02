@@ -20,7 +20,7 @@
     </parent>
     <artifactId>angularjs-completion-dto-gen</artifactId>
     <packaging>jar</packaging>
-    <name>AngularJS Plugin :: Completion :: DTO Generators</name>
+    <name>Che Plugin :: AngularJS :: Completion :: DTO Gen</name>
     <properties>
         <dto-generator-out-directory>${project.build.directory}/generated-sources/dto/</dto-generator-out-directory>
     </properties>

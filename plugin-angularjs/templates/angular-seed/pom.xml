@@ -20,5 +20,5 @@
     </parent>
     <artifactId>angularjs-template-angular-seed</artifactId>
     <packaging>jar</packaging>
-    <name>AngularJS Plugin :: Templates :: Angular Seed</name>
+    <name>Che Plugin :: AngularJS :: Templates :: Angular Seed</name>
 </project>

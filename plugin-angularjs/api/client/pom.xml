@@ -20,5 +20,5 @@
     </parent>
     <artifactId>angularjs-api-client</artifactId>
     <packaging>jar</packaging>
-    <name>AngularJS Plugin :: API :: Client</name>
+    <name>Che Plugin :: AngularJS :: API :: Client</name>
 </project>

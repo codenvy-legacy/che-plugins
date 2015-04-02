@@ -21,7 +21,7 @@
     </parent>
     <artifactId>angularjs-parent</artifactId>
     <packaging>pom</packaging>
-    <name>AngularJS Plugin</name>
+    <name>Che Plugin :: AngularJS :: Parent</name>
 
     <modules>
         <module>api</module>

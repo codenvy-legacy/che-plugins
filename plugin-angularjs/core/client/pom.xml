@@ -20,7 +20,7 @@
     </parent>
     <artifactId>angularjs-core-client</artifactId>
     <packaging>jar</packaging>
-    <name>AngularJS Plugin :: Core :: Client</name>
+    <name>Che Plugin :: AngularJS :: Core :: Client</name>
     <dependencies>
         <dependency>
             <groupId>com.google.gwt</groupId>

@@ -20,7 +20,7 @@
     </parent>
     <artifactId>che-plugin-web-ext-web</artifactId>
     <packaging>jar</packaging>
-    <name>Che Extension :: Web File Types</name>
+    <name>Che Plugin :: Web :: File Types</name>
     <dependencies>
         <dependency>
             <groupId>com.google.inject</groupId>

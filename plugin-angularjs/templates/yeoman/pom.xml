@@ -20,5 +20,5 @@
     </parent>
     <artifactId>angularjs-template-yeoman</artifactId>
     <packaging>jar</packaging>
-    <name>AngularJS Plugin :: Templates :: Yeoman</name>
+    <name>Che Plugin :: AngularJS :: Templates :: Yeoman</name>
 </project>

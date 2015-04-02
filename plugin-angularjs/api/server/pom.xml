@@ -20,7 +20,7 @@
     </parent>
     <artifactId>angularjs-api-server</artifactId>
     <packaging>jar</packaging>
-    <name>AngularJS Plugin :: API :: Server</name>
+    <name>Che Plugin :: AngularJS :: API :: Server</name>
     <dependencies>
         <dependency>
             <groupId>org.eclipse.che.core</groupId>

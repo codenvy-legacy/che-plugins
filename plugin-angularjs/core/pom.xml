@@ -20,7 +20,7 @@
     </parent>
     <artifactId>angularjs-core</artifactId>
     <packaging>pom</packaging>
-    <name>AngularJS Plugin :: Core :: Server</name>
+    <name>Che Plugin :: AngularJS :: Core</name>
     <modules>
         <module>client</module>
         <module>server</module>

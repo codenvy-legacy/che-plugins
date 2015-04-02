@@ -20,7 +20,7 @@
     </parent>
     <artifactId>che-plugin-builder-ext-builder</artifactId>
     <packaging>jar</packaging>
-    <name>Che Extension :: Builder</name>
+    <name>Che Plugin :: Builder</name>
     <dependencies>
         <dependency>
             <groupId>com.google.inject</groupId>
