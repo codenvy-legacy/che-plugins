@@ -68,6 +68,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Matchers;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -85,6 +87,7 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isNull;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
@@ -533,7 +536,14 @@ public class PropertiesEnvironmentPanelTest {
         when(view.getName()).thenReturn(TEXT);
         when(environment.getName()).thenReturn(TEXT2);
         when(editor.isDirty()).thenReturn(true);
-
+        doAnswer(new Answer() {
+            public Object answer(InvocationOnMock invocation) {
+                Object[] args = invocation.getArguments();
+                AsyncCallback callback = (AsyncCallback)args[0];
+                callback.onSuccess(editorInput);
+                return null;
+            }
+        }).when(editor).doSave(any(AsyncCallback.class));
         presenter.onSaveButtonClicked();
 
         verify(environment).getRam();
@@ -601,6 +611,14 @@ public class PropertiesEnvironmentPanelTest {
         when(view.getName()).thenReturn(TEXT);
         when(environment.getName()).thenReturn(TEXT2);
         when(editor.isDirty()).thenReturn(true);
+        doAnswer(new Answer() {
+            public Object answer(InvocationOnMock invocation) {
+                Object[] args = invocation.getArguments();
+                AsyncCallback callback = (AsyncCallback)args[0];
+                callback.onSuccess(editorInput);
+                return null;
+            }
+        }).when(editor).doSave(any(AsyncCallback.class));
 
         presenter.onSaveButtonClicked();
 

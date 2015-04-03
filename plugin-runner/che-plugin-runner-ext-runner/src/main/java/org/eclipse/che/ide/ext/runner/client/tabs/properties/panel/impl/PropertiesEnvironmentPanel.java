@@ -322,10 +322,10 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
         final String newEnvironmentName = view.getName();
         final String environmentName = environment.getName();
 
-        String pathToProject = projectDescriptor.getPath();
-        String path = pathToProject + ROOT_FOLDER + environmentName;
+        final String pathToProject = projectDescriptor.getPath();
+        final String path = pathToProject + ROOT_FOLDER + environmentName;
 
-        AsyncRequestCallback<Void> asyncRequestCallback = voidAsyncCallbackBuilder
+        final AsyncRequestCallback<Void> renameAsyncRequestCallback = voidAsyncCallbackBuilder
                 .success(new SuccessCallback<Void>() {
                     @Override
                     public void onSuccess(Void result) {
@@ -346,16 +346,19 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
                 })
                 .build();
 
-        if (!environmentName.equals(newEnvironmentName)) {
-            projectService.rename(path, newEnvironmentName, null, asyncRequestCallback);
-        }
 
+        // we save before trying to rename the file
         if (editor.isDirty()) {
             editor.doSave(new AsyncCallback<EditorInput>() {
                 @Override
                 public void onSuccess(EditorInput editorInput) {
                     view.setEnableSaveButton(false);
                     view.setEnableCancelButton(false);
+                    // rename file
+                    if (!environmentName.equals(newEnvironmentName)) {
+                        projectService.rename(path, newEnvironmentName, null, renameAsyncRequestCallback);
+                    }
+
                 }
 
                 @Override
@@ -363,7 +366,14 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
                     Log.error(getClass(), throwable.getMessage());
                 }
             });
+        } else {
+            // rename directly as nothing to save
+            if (!environmentName.equals(newEnvironmentName)) {
+                projectService.rename(path, newEnvironmentName, null, renameAsyncRequestCallback);
+            }
+
         }
+
 
         RunnerConfiguration config = dtoFactory.createDto(RunnerConfiguration.class).withRam(environment.getRam());
 
