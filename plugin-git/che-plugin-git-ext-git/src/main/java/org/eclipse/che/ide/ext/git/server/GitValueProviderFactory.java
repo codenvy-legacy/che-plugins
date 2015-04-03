@@ -52,10 +52,10 @@ public class GitValueProviderFactory implements ValueProviderFactory {
         return new ValueProvider() {
             @Override
             public List<String> getValues(String attributeName) throws ValueStorageException {
-                try {
+                try (GitConnection gitConnection =
+                             gitConnectionFactory.getConnection(resolveLocalPathByPath(folder.getPath(), folder.getWorkspace()))) {
+
                     //check whether the project git repository by performing git status(throw Exception if the project is not git repository)
-                    GitConnection gitConnection =
-                            gitConnectionFactory.getConnection(resolveLocalPathByPath(folder.getPath(), folder.getWorkspace()));
                     gitConnection.status(LONG);
                     return Arrays.asList("git");
                 } catch (ApiException e) {
