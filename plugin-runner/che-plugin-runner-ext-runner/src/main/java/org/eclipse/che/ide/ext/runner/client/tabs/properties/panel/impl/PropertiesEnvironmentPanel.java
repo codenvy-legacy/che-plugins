@@ -66,7 +66,8 @@ import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common
  */
 public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
 
-    private static final String DOCKER_SCRIPT_NAME = "/Dockerfile";
+    private static final String DOCKER_SCRIPT_NAME    = "/Dockerfile";
+    public static final  String ENVIRONMENT_ID_PREFIX = "project://";
 
     private final Environment                                environment;
     private final DtoFactory                                 dtoFactory;
@@ -154,14 +155,14 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
 
         runnerConfigs = projectDescriptor.getRunners().getConfigs();
 
-        currentRam = getRam(environment.getName());
+        currentRam = getRam(environment.getId());
     }
 
     @Nonnegative
-    private int getRam(@Nonnull String environmentName) {
-        boolean isConfigExist = runnerConfigs.containsKey(environmentName);
+    private int getRam(@Nonnull String environmentId) {
+        boolean isConfigExist = runnerConfigs.containsKey(environmentId);
 
-        return isConfigExist ? runnerConfigs.get(environmentName).getRam() : RAM.DEFAULT.getValue();
+        return isConfigExist ? runnerConfigs.get(environmentId).getRam() : RAM.DEFAULT.getValue();
     }
 
     private void getProjectEnvironmentDocker() {
@@ -275,19 +276,17 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
     }
 
     private void updateRunnerConfig(@Nonnull ItemReference result) {
-        String environmentName = environment.getName();
-
-        boolean isConfigExist = runnerConfigs.containsKey(environmentName);
+        boolean isConfigExist = runnerConfigs.containsKey(environment.getId());
 
         if (isConfigExist) {
-            int ram = getRam(environmentName);
+            int ram = getRam(environment.getId());
 
             String newEnvironmentName = getNewEnvironmentName(result.getPath());
 
             RunnerConfiguration newConfig = dtoFactory.createDto(RunnerConfiguration.class)
                                                       .withRam(ram);
 
-            runnerConfigs.put(newEnvironmentName, newConfig);
+            runnerConfigs.put(generateEnvironmentId(newEnvironmentName), newConfig);
 
             environment.setRam(ram);
             view.selectMemory(RAM.detect(ram));
@@ -301,6 +300,10 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
         String withoutDocker = path.substring(0, path.lastIndexOf('/'));
 
         return withoutDocker.substring(withoutDocker.lastIndexOf('/') + 1);
+    }
+
+    private String generateEnvironmentId(@Nonnull String environmentName) {
+        return ENVIRONMENT_ID_PREFIX + environmentName;
     }
 
     /** {@inheritDoc} */
@@ -321,6 +324,7 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
 
         final String newEnvironmentName = view.getName();
         final String environmentName = environment.getName();
+        final String environmentId = environment.getId();
 
         final String pathToProject = projectDescriptor.getPath();
         final String path = pathToProject + ROOT_FOLDER + environmentName;
@@ -329,11 +333,11 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
                 .success(new SuccessCallback<Void>() {
                     @Override
                     public void onSuccess(Void result) {
-                        RunnerConfiguration config = runnerConfigs.get(environmentName);
+                        RunnerConfiguration config = runnerConfigs.get(environmentId);
 
-                        runnerConfigs.remove(environmentName);
+                        runnerConfigs.remove(environmentId);
 
-                        runnerConfigs.put(newEnvironmentName, config);
+                        runnerConfigs.put(generateEnvironmentId(newEnvironmentName), config);
 
                         updateProject();
                     }
@@ -377,7 +381,7 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
 
         RunnerConfiguration config = dtoFactory.createDto(RunnerConfiguration.class).withRam(environment.getRam());
 
-        runnerConfigs.put(environmentName, config);
+        runnerConfigs.put(environmentId, config);
 
         updateProject();
     }
@@ -427,9 +431,9 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
                 .success(new SuccessCallback<Void>() {
                     @Override
                     public void onSuccess(Void result) {
-                        String environmentName = environment.getName();
+                        String environmentId = environment.getId();
 
-                        runnerConfigs.remove(environmentName);
+                        runnerConfigs.remove(environmentId);
 
                         updateProject();
 
@@ -490,9 +494,9 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
 
         String environmentName = environment.getName();
 
-        boolean isConfigExist = runnerConfigs.containsKey(environmentName);
+        boolean isConfigExist = runnerConfigs.containsKey(environment.getId());
 
-        RAM ram = RAM.detect(isConfigExist && !isParameterChanged ? getRam(environmentName) : environment.getRam());
+        RAM ram = RAM.detect(isConfigExist && !isParameterChanged ? getRam(environment.getId()) : environment.getRam());
 
         this.environment.setRam(ram.getValue());
 
