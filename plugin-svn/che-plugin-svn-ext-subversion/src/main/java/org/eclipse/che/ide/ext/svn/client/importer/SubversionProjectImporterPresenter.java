@@ -112,7 +112,7 @@ public class SubversionProjectImporterPresenter extends AbstractWizardPage<Impor
         view.setProjectDescription(project.getDescription());
         view.setProjectVisibility(PUBLIC_VISIBILITY.equals(project.getVisibility()));
         view.setProjectUrl(dataObject.getSource().getProject().getLocation());
-        view.setProjectRelativePath("trunk");
+//        view.setProjectRelativePath("trunk");
 
         container.setWidget(view);
 

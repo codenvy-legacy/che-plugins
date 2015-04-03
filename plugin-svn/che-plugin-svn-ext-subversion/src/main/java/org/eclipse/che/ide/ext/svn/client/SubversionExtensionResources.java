@@ -68,6 +68,9 @@ public interface SubversionExtensionResources extends ClientBundle {
     @Source("actions/delete.svg")
     SVGResource delete();
 
+    @Source("actions/diff.svg")
+    SVGResource diff();
+
     @Source("actions/export.svg")
     SVGResource export();
 

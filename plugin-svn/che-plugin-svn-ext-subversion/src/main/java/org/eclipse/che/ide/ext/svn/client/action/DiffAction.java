@@ -37,7 +37,7 @@ public class DiffAction extends SubversionAction {
                       final SubversionExtensionLocalizationConstants constants,
                       final SubversionExtensionResources resources,
                       final DiffPresenter presenter) {
-        super(constants.diffTitle(), constants.diffDescription(), resources.status(), eventLogger,
+        super(constants.diffTitle(), constants.diffDescription(), resources.diff(), eventLogger,
               appContext, constants, resources, selectionAgent);
 
         this.presenter = presenter;
