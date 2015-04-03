@@ -24,7 +24,6 @@ import org.eclipse.che.api.vfs.server.VirtualFileSystem;
 import org.eclipse.che.api.vfs.server.VirtualFileSystemRegistry;
 import org.eclipse.che.api.vfs.shared.PropertyFilter;
 import org.eclipse.che.api.vfs.shared.dto.Item;
-import org.eclipse.che.ide.ext.git.shared.Status;
 import org.eclipse.che.vfs.impl.fs.LocalPathResolver;
 import org.eclipse.che.vfs.impl.fs.VirtualFileImpl;
 
@@ -55,7 +54,9 @@ public class GitValueProviderFactory implements ValueProviderFactory {
             public List<String> getValues(String attributeName) throws ValueStorageException {
                 try {
                     //check whether the project git repository by performing git status(throw Exception if the project is not git repository)
-                    getStatus(folder.getPath(), folder.getWorkspace());
+                    GitConnection gitConnection =
+                            gitConnectionFactory.getConnection(resolveLocalPathByPath(folder.getPath(), folder.getWorkspace()));
+                    gitConnection.status(LONG);
                     return Arrays.asList("git");
                 } catch (ApiException e) {
                     throw new ValueStorageException(e.getMessage());
@@ -69,15 +70,6 @@ public class GitValueProviderFactory implements ValueProviderFactory {
                                       attributeName, folder.getPath()));
             }
         };
-    }
-
-    private Status getStatus(String projectPath, String wsId) throws ApiException {
-        GitConnection gitConnection = gitConnectionFactory.getConnection(resolveLocalPathByPath(projectPath, wsId));
-        try {
-            return gitConnection.status(LONG);
-        } finally {
-            gitConnection.close();
-        }
     }
 
     private String resolveLocalPathByPath(String folderPath, String wsId) throws ApiException {
