@@ -13,28 +13,17 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
         <artifactId>che-plugin-svn-parent</artifactId>
         <groupId>org.eclipse.che.plugin</groupId>
         <version>3.9.0-SNAPSHOT</version>
     </parent>
-
     <artifactId>che-plugin-svn-ext-subversion</artifactId>
     <packaging>jar</packaging>
-
     <name>Che Plugin :: SVN :: Subversion</name>
-
-    <!--<scm>-->
-        <!--<connection>scm:git:git@github.com:codenvy/plugin-svn.git</connection>-->
-        <!--<developerConnection>scm:git:git@github.com:codenvy/plugin-svn.git</developerConnection>-->
-        <!--<tag>HEAD</tag>-->
-    <!--</scm>-->
-
     <properties>
         <dto.generator.out.directory>${project.build.directory}/generated-sources/dto/</dto.generator.out.directory>
     </properties>
-
     <dependencies>
         <dependency>
             <groupId>com.google.guava</groupId>
@@ -112,23 +101,6 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
-    <!-- Codenvy Repositories -->
-    <!--<repositories>-->
-        <!--<repository>-->
-            <!--<id>codenvy-public-repo</id>-->
-            <!--<name>codenvy public</name>-->
-            <!--<url>https://maven.codenvycorp.com/content/groups/public/</url>-->
-        <!--</repository>-->
-    <!--</repositories>-->
-    <!--<pluginRepositories>-->
-        <!--<pluginRepository>-->
-            <!--<id>codenvy-public-repo</id>-->
-            <!--<name>codenvy public</name>-->
-            <!--<url>https://maven.codenvycorp.com/content/groups/public/</url>-->
-        <!--</pluginRepository>-->
-    <!--</pluginRepositories>-->
-
     <build>
         <sourceDirectory>src/main/java</sourceDirectory>
         <testSourceDirectory>src/test/java</testSourceDirectory>
@@ -252,7 +224,6 @@
                     </excludes>
                 </configuration>
             </plugin>
-
             <!-- Configure failsafe to include the integration tests -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
