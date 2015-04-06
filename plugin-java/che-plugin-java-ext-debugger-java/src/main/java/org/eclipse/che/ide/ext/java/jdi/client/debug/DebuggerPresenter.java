@@ -20,6 +20,7 @@ import com.google.inject.Singleton;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
 
+import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.api.runner.dto.ApplicationProcessDescriptor;
 import org.eclipse.che.api.runner.dto.RunOptions;
 import org.eclipse.che.ide.api.app.AppContext;
@@ -80,6 +81,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static org.eclipse.che.api.runner.ApplicationStatus.CANCELLED;
 import static org.eclipse.che.api.runner.ApplicationStatus.RUNNING;
@@ -132,6 +134,7 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
 
     private String host;
     private int    port;
+    private String srcFolder;
 
     @Inject
     public DebuggerPresenter(DebuggerView view,
@@ -226,7 +229,23 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
         eventBus.addHandler(ProjectActionEvent.TYPE, new ProjectActionHandler() {
             @Override
             public void onProjectOpened(ProjectActionEvent event) {
-                // do nothing
+                CurrentProject currentProject = appContext.getCurrentProject();
+
+                if (currentProject == null) {
+                    return;
+                }
+
+                ProjectDescriptor descriptor = currentProject.getProjectDescription();
+
+                Map<String, List<String>> attributes = descriptor.getAttributes();
+
+                String defaultBuilder = descriptor.getBuilders().getDefault();
+
+                String key = defaultBuilder + ".source.folder";
+
+                List<String> sources = attributes.get(key);
+
+                srcFolder = sources == null ? "src/main/java" : sources.get(0);
             }
 
             @Override
@@ -369,8 +388,7 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
             return "";
         }
 
-        final String sourcePath = "src/main/java";
-        return activeFile.getProject().getPath() + "/" + sourcePath + "/" + location.getClassName().replace(".", "/") + ".java";
+        return activeFile.getProject().getPath() + "/" + srcFolder + "/" + location.getClassName().replace(".", "/") + ".java";
     }
 
     private void openFile(@Nonnull Location location, @Nullable VirtualFile activeFile, final AsyncCallback<FileNode> callback) {
