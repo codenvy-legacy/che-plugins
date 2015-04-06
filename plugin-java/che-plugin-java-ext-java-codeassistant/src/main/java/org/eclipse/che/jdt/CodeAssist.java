@@ -28,7 +28,6 @@ import org.eclipse.che.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.che.jface.text.contentassist.ICompletionProposalExtension;
 import org.eclipse.che.jface.text.contentassist.ICompletionProposalExtension2;
 import org.eclipse.che.jface.text.contentassist.ICompletionProposalExtension4;
-import org.eclipse.core.resources.IFile;
 import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
@@ -73,12 +72,12 @@ public class CodeAssist {
                 }).build();
     }
 
-    public Proposals computeProposals(IJavaProject project, String fqn, int offset) throws JavaModelException {
+    public Proposals computeProposals(IJavaProject project, String fqn, int offset, final String content) throws JavaModelException {
 
         WorkingCopyOwner copyOwner = new WorkingCopyOwner() {
             @Override
             public IBuffer createBuffer(ICompilationUnit workingCopy) {
-                return new org.eclipse.jdt.internal.ui.javaeditor.DocumentAdapter(workingCopy, (IFile)workingCopy.getResource());
+                return new org.eclipse.jdt.internal.ui.javaeditor.DocumentAdapter(workingCopy, workingCopy.getPath(), content);
             }
         };
         ICompilationUnit compilationUnit = null;

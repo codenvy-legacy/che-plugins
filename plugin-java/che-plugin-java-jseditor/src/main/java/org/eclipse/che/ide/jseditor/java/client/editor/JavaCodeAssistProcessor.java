@@ -146,7 +146,7 @@ public class JavaCodeAssistProcessor implements CodeAssistProcessor {
         final String projectPath = file.getProject().getPath();
         String fqn = JavaSourceFolderUtil.getFQNForFile(file);
         Unmarshallable<Proposals> unmarshaller = unmarshallerFactory.newUnmarshaller(Proposals.class);
-        client.computeProposals(projectPath, fqn, offset, new AsyncRequestCallback<Proposals>(unmarshaller) {
+        client.computeProposals(projectPath, fqn, offset, textEditor.getDocument().getContents(), new AsyncRequestCallback<Proposals>(unmarshaller) {
             @Override
             protected void onSuccess(Proposals proposals) {
                 showProposals(callback, proposals);

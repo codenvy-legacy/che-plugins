@@ -23,6 +23,7 @@ import org.eclipse.jdt.internal.ui.JavaPlugin;
 import javax.inject.Inject;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
@@ -39,15 +40,15 @@ public class CodeAssistService {
     @Inject
     private CodeAssist codeAssist;
 
-    @GET
+    @POST
     @Path("compute/completion")
     @Produces("application/json")
     public Proposals computeCompletionProposals(@QueryParam("projectpath") String projectPath,
                                                 @QueryParam("fqn") String fqn,
-                                                @QueryParam("offset") int offset) {
+                                                @QueryParam("offset") int offset, String content) {
         IJavaProject javaProject = model.getJavaProject(projectPath);
         try {
-            return codeAssist.computeProposals(javaProject, fqn, offset);
+            return codeAssist.computeProposals(javaProject, fqn, offset, content);
         } catch (JavaModelException e) {
             JavaPlugin.log(e);
             throw new WebApplicationException(e.getMessage());

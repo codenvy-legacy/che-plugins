@@ -252,6 +252,21 @@ public class DocumentAdapter implements IBuffer, IDocumentListener, ITextEditCap
 		initialize();
 	}
 
+	/**
+	 * Constructs a new document adapter.
+	 *
+	 * @param owner the owner of this buffer
+	 * @param file the <code>IFile</code> that backs the buffer
+	 */
+	public DocumentAdapter(IOpenable owner, IPath path, String content) {
+		fOwner = owner;
+//		fFile = file;
+		fPath = path;
+//		fLocationKind = LocationKind.IFILE;
+		fDocument = new Document(content);
+		initialize();
+	}
+
 	private void initialize() {
 //		ITextFileBufferManager manager = FileBuffers.getTextFileBufferManager();
 //		try {
@@ -262,18 +277,18 @@ public class DocumentAdapter implements IBuffer, IDocumentListener, ITextEditCap
 //				manager.connect(fPath, fLocationKind, new NullProgressMonitor());
 //				fTextFileBuffer = manager.getTextFileBuffer(fPath, fLocationKind);
 //			}
-
-		    if(fFile != null){
-				try (InputStream inputStream = fFile.getContents()){
-					fDocument = new Document(IoUtil.readStream(inputStream));
-				} catch (IOException | CoreException  e) {
-					JavaPlugin.log(e);
+			if(fDocument == null) {
+				if (fFile != null) {
+					try (InputStream inputStream = fFile.getContents()) {
+						fDocument = new Document(IoUtil.readStream(inputStream));
+					} catch (IOException | CoreException e) {
+						JavaPlugin.log(e);
+						fDocument = new Document("");
+					}
+				} else {
 					fDocument = new Document("");
 				}
-			} else {
-				fDocument = new Document("");
 			}
-
 //			fDocument = fTextFileBuffer.getDocument();
 //		} catch (CoreException x) {
 //			fDocument = manager.createEmptyDocument(fPath, fLocationKind);
