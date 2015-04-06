@@ -24,7 +24,7 @@ public class PackageDeclaration extends SourceRefElement implements IPackageDecl
 	String name;
 
 protected PackageDeclaration(CompilationUnit parent, String name) {
-	super(parent, parent.manager);
+	super(parent);
 	this.name = name;
 }
 public boolean equals(Object o) {

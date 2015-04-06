@@ -16,13 +16,14 @@ import org.eclipse.che.jdt.core.search.SearchDocument;
 import org.eclipse.che.jdt.core.search.SearchEngine;
 import org.eclipse.che.jdt.core.search.SearchParticipant;
 import org.eclipse.che.jdt.internal.core.ClasspathEntry;
+import org.eclipse.che.jdt.internal.core.JavaModel;
 import org.eclipse.che.jdt.internal.core.JavaModelManager;
 import org.eclipse.che.jdt.internal.core.JavaProject;
 import org.eclipse.che.jdt.internal.core.search.BasicSearchEngine;
 import org.eclipse.che.jdt.internal.core.search.PatternSearchJob;
 import org.eclipse.che.jdt.internal.core.search.processing.JobManager;
-
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -92,11 +93,9 @@ public class IndexManager extends JobManager implements IIndexConstants {
     private SimpleLookupTable participantsContainers = null;
     private boolean           participantUpdated     = false;
     private String indexLocation;
-    private JavaProject javaProject;
 
-    public IndexManager(String indexLocation, JavaProject javaProject) {
+    public IndexManager(String indexLocation) {
         this.indexLocation = indexLocation;
-        this.javaProject = javaProject;
         indexNamesMapFile = new File(getSavedIndexesDirectory(), "indexNamesMap.txt");
         savedIndexNamesFile = new File(getSavedIndexesDirectory(), "savedIndexNames.txt");
         participantIndexNamesFile = new File(getSavedIndexesDirectory(), "participantsIndexNames.txt");
@@ -126,7 +125,7 @@ public class IndexManager extends JobManager implements IIndexConstants {
      */
     public void addBinary(IFile resource, IPath containerPath) {
 //        if (JavaCore.getPlugin() == null) return;
-        SearchParticipant participant = SearchEngine.getDefaultSearchParticipant(this, javaProject);
+        SearchParticipant participant = SearchEngine.getDefaultSearchParticipant();
         SearchDocument document = participant.getDocument(resource.getFullPath().toString());
         IndexLocation indexLocation = computeIndexLocation(containerPath);
         scheduleDocumentIndexing(document, containerPath, indexLocation, participant);
@@ -136,10 +135,10 @@ public class IndexManager extends JobManager implements IIndexConstants {
      * Trigger addition of a resource to an index
      * Note: the actual operation is performed in background
      */
-    public void addSource(java.nio.file.Path resource, IPath containerPath, SourceElementParser parser) {
+    public void addSource(IFile resource, IPath containerPath, SourceElementParser parser) {
 //        if (JavaCore.getPlugin() == null) return;
-        SearchParticipant participant = SearchEngine.getDefaultSearchParticipant(this, javaProject);
-        SearchDocument document = participant.getDocument(resource.toAbsolutePath().toString());
+        SearchParticipant participant = SearchEngine.getDefaultSearchParticipant();
+        SearchDocument document = participant.getDocument(resource.getFullPath().toString());
         document.setParser(parser);
         IndexLocation indexLocation = computeIndexLocation(containerPath);
         scheduleDocumentIndexing(document, containerPath, indexLocation, participant);
@@ -151,7 +150,7 @@ public class IndexManager extends JobManager implements IIndexConstants {
     public void cleanUpIndexes() {
         SimpleSet knownPaths = new SimpleSet();
         IJavaSearchScope scope = BasicSearchEngine.createWorkspaceScope();
-        PatternSearchJob job = new PatternSearchJob(null, SearchEngine.getDefaultSearchParticipant(this, javaProject), scope, null, this);
+        PatternSearchJob job = new PatternSearchJob(null, SearchEngine.getDefaultSearchParticipant(), scope, null, this);
         Index[] selectedIndexes = job.getIndexes(null);
         for (int i = 0, l = selectedIndexes.length; i < l; i++) {
             IndexLocation IndexLocation = selectedIndexes[i].getIndexLocation();
@@ -567,22 +566,22 @@ public class IndexManager extends JobManager implements IIndexConstants {
      * Trigger addition of the entire content of a project
      * Note: the actual operation is performed in background
      */
-    public void indexAll(JavaProject project) {
+    public void indexAll(IProject project) {
 //        if (JavaCore.getPlugin() == null) return;
 
         // Also request indexing of binaries on the classpath
         // determine the new children
         try {
-//            JavaModel model = JavaModelManager.getJavaModelManager().getJavaModel();
-//            JavaProject javaProject = (JavaProject)model.getJavaProject(project);
+            JavaModel model = JavaModelManager.getJavaModelManager().getJavaModel();
+            JavaProject javaProject = (JavaProject)model.getJavaProject(project);
             // only consider immediate libraries - each project will do the same
             // NOTE: force to resolve CP variables before calling indexer - 19303, so that initializers
             // will be run in the current thread.
-            IClasspathEntry[] entries = project.getResolvedClasspath();
+            IClasspathEntry[] entries = javaProject.getResolvedClasspath();
             for (int i = 0; i < entries.length; i++) {
                 IClasspathEntry entry = entries[i];
                 if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY)
-                    indexLibrary(entry.getPath(),/* project,*/ ((ClasspathEntry)entry).getLibraryIndexLocation());
+                    indexLibrary(entry.getPath(), project, ((ClasspathEntry)entry).getLibraryIndexLocation());
             }
         } catch (JavaModelException e) { // cannot retrieve classpath info
         }
@@ -593,15 +592,15 @@ public class IndexManager extends JobManager implements IIndexConstants {
             request(request);
     }
 
-    public void indexLibrary(IPath path, /*IProject requestingProject,*/ URL indexURL) {
-        this.indexLibrary(path, /*requestingProject,*/ indexURL, false);
+    public void indexLibrary(IPath path, IProject requestingProject, URL indexURL) {
+        this.indexLibrary(path, requestingProject, indexURL, false);
     }
 
     /**
      * Trigger addition of a library to an index
      * Note: the actual operation is performed in background
      */
-    public void indexLibrary(IPath path, /*IProject requestingProject,*/ URL indexURL, final boolean updateIndex) {
+    public void indexLibrary(IPath path, IProject requestingProject, URL indexURL, final boolean updateIndex) {
         // requestingProject is no longer used to cancel jobs but leave it here just in case
         IndexLocation indexFile = null;
         if (indexURL != null) {
@@ -619,7 +618,7 @@ public class IndexManager extends JobManager implements IIndexConstants {
 //		request = new AddJarFileToIndex((IFile) target, indexFile, this, forceIndexUpdate);
 //	} else
 //        if (target instanceof File) {
-        request = new AddJarFileToIndex(path, indexFile, this, forceIndexUpdate, javaProject);
+        request = new AddJarFileToIndex(path, indexFile, this, forceIndexUpdate);
 //	} else if (target instanceof IContainer) {
 //		request = new IndexBinaryFolder((IContainer) target, this);
 //        } else {
@@ -648,14 +647,14 @@ public class IndexManager extends JobManager implements IIndexConstants {
      * Index the content of the given source folder.
      */
     public void indexSourceFolder(JavaProject javaProject, IPath sourceFolder, char[][] inclusionPatterns, char[][] exclusionPatterns) {
-//        IProject project = javaProject.getProject();
+        IProject project = javaProject.getProject();
         if (this.jobEnd > this.jobStart) {
             // skip it if a job to index the project is already in the queue
-            IndexRequest request = new IndexAllProject(javaProject, this);
+            IndexRequest request = new IndexAllProject(project, this);
             if (isJobWaiting(request)) return;
         }
 
-        request(new AddFolderToIndex(sourceFolder, javaProject, inclusionPatterns, exclusionPatterns, this));
+        request(new AddFolderToIndex(sourceFolder, project, inclusionPatterns, exclusionPatterns, this));
     }
 
     public synchronized void jobWasCancelled(IPath containerPath) {
@@ -879,14 +878,14 @@ public class IndexManager extends JobManager implements IIndexConstants {
      */
     public void removeSourceFolderFromIndex(JavaProject javaProject, IPath sourceFolder, char[][] inclusionPatterns,
                                             char[][] exclusionPatterns) {
-//        IProject project = javaProject.getProject();
+        IProject project = javaProject.getProject();
         if (this.jobEnd > this.jobStart) {
             // skip it if a job to index the project is already in the queue
-            IndexRequest request = new IndexAllProject(javaProject, this);
+            IndexRequest request = new IndexAllProject(project, this);
             if (isJobWaiting(request)) return;
         }
 
-        request(new RemoveFolderFromIndex(sourceFolder, inclusionPatterns, exclusionPatterns, javaProject, this));
+        request(new RemoveFolderFromIndex(sourceFolder, inclusionPatterns, exclusionPatterns, project, this));
     }
 
     /**

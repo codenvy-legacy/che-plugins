@@ -12,7 +12,6 @@
 package org.eclipse.che.jdt.internal.core;
 
 import org.eclipse.che.jdt.internal.core.util.Util;
-
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
@@ -170,7 +169,6 @@ public class SourceMapper
      * Options to be used
      */
     Map           options;
-    private JavaModelManager manager;
     /**
      * imports references
      */
@@ -185,8 +183,7 @@ public class SourceMapper
      * Creates a <code>SourceMapper</code> that locates source in the zip file
      * at the given location in the specified package fragment root.
      */
-    public SourceMapper(IPath sourcePath, String rootPath, Map options, String encoding, JavaModelManager manager) {
-        this.manager = manager;
+    public SourceMapper(IPath sourcePath, String rootPath, Map options, String encoding) {
         this.areRootPathsComputed = false;
         this.options = options;
         this.encoding = encoding;
@@ -397,7 +394,7 @@ public class SourceMapper
 //			org.eclipse.jdt.internal.core.JavaModelManager manager = org.eclipse.jdt.internal.core.JavaModelManager.getJavaModelManager();
             ZipFile zip = null;
             try {
-                zip = manager.getZipFile(pkgFragmentRootPath);
+                zip = JavaModelManager.getJavaModelManager().getZipFile(pkgFragmentRootPath);
                 for (Enumeration entries = zip.entries(); entries.hasMoreElements(); ) {
                     ZipEntry entry = (ZipEntry)entries.nextElement();
                     String entryName = entry.getName();
@@ -430,7 +427,7 @@ public class SourceMapper
             } catch (CoreException e) {
                 // ignore
             } finally {
-                manager.closeZipFile(zip); // handle null case
+                JavaModelManager.getJavaModelManager().closeZipFile(zip); // handle null case
             }
         } /*else {
             Object target = JavaModel.getTarget(root.getPath(), true);
@@ -473,8 +470,8 @@ public class SourceMapper
 //				computeRootPath(folder, firstLevelPackageNames, containsADefaultPackage, tempRoots, folder.getFullPath().segmentCount()
 // /*if external folder, this is the linked folder path*/);
 //			} else {
-//				JavaModelManager
-//						manager = JavaModelManager.getJavaModelManager();
+				JavaModelManager
+						manager = JavaModelManager.getJavaModelManager();
             ZipFile zip = null;
             try {
                 zip = manager.getZipFile(this.sourcePath);
@@ -933,10 +930,10 @@ public class SourceMapper
 
         char[] source = null;
 
-//		org.eclipse.jdt.internal.core.JavaModelManager
-//				javaModelManager = org.eclipse.jdt.internal.core.JavaModelManager.getJavaModelManager();
+        JavaModelManager
+				manager = JavaModelManager.getJavaModelManager();
         try {
-//			manager.cacheZipFiles(this); // Cache any zip files we open during this operation
+			manager.cacheZipFiles(this); // Cache any zip files we open during this operation
 
             if (this.rootPath != null) {
                 source = getSourceForRootPath(this.rootPath, name);
@@ -960,7 +957,7 @@ public class SourceMapper
                 }
             }
         } finally {
-//			manager.flushZipFiles(this); // clean up cached zip files.
+			manager.flushZipFiles(this); // clean up cached zip files.
         }
         if (VERBOSE) {
             System.out.println(
@@ -1017,7 +1014,7 @@ public class SourceMapper
         // try to get the entry
         ZipEntry entry = null;
         ZipFile zip = null;
-//			JavaModelManager manager = JavaModelManager.getJavaModelManager();
+		JavaModelManager manager = JavaModelManager.getJavaModelManager();
         try {
             zip = manager.getZipFile(this.sourcePath);
             entry = zip.getEntry(fullName);
@@ -1176,7 +1173,7 @@ public class SourceMapper
                 newClassFileName.append(classFileName.charAt(i));
             newClassFileName.append(Integer.toString(this.anonymousCounter));
             PackageFragment pkg = (PackageFragment)classFile.getParent();
-            return new BinaryType(new ClassFile(pkg, manager, newClassFileName.toString()), manager, typeName);
+            return new BinaryType(new ClassFile(pkg, newClassFileName.toString()), typeName);
         } else if (this.binaryType.getElementName().equals(typeName))
             return this.binaryType;
         else

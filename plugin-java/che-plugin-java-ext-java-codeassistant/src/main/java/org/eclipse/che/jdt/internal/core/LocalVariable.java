@@ -11,7 +11,6 @@
 package org.eclipse.che.jdt.internal.core;
 
 import org.eclipse.che.jdt.internal.core.util.Util;
-
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -44,7 +43,6 @@ import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.parser.RecoveryScanner;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 
-import java.io.File;
 import java.util.HashMap;
 
 
@@ -63,7 +61,6 @@ public class LocalVariable extends SourceRefElement implements ILocalVariable {
 
 	public LocalVariable(
 			JavaElement parent,
-			JavaModelManager manager,
 			String name,
 			int declarationSourceStart,
 			int declarationSourceEnd,
@@ -74,7 +71,7 @@ public class LocalVariable extends SourceRefElement implements ILocalVariable {
 			int flags,
 			boolean isParameter) {
 
-		super(parent, manager);
+		super(parent);
 		this.name = name;
 		this.declarationSourceStart = declarationSourceStart;
 		this.declarationSourceEnd = declarationSourceEnd;
@@ -88,7 +85,6 @@ public class LocalVariable extends SourceRefElement implements ILocalVariable {
 
 	public LocalVariable(
 			JavaElement parent,
-			JavaModelManager manager,
 			String name,
 			int declarationSourceStart,
 			int declarationSourceEnd,
@@ -100,7 +96,7 @@ public class LocalVariable extends SourceRefElement implements ILocalVariable {
 			boolean isParameter,
 			org.eclipse.jdt.internal.compiler.ast.Annotation[][] astAnnotationsOnDimensions) {
 
-		this(parent,manager, name, declarationSourceStart, declarationSourceEnd, nameStart,
+		this(parent, name, declarationSourceStart, declarationSourceEnd, nameStart,
 			 nameEnd, typeSignature, astAnnotations, flags, isParameter);
 
 		int noOfDimensions = astAnnotationsOnDimensions == null ? 0 : astAnnotationsOnDimensions.length;
@@ -173,7 +169,7 @@ public class LocalVariable extends SourceRefElement implements ILocalVariable {
 			IMemberValuePair[] memberValuePairs;
 
 			public LocalVarAnnotation(JavaElement localVar, String elementName) {
-				super(localVar, localVar.manager, elementName);
+				super(localVar, elementName);
 			}
 
 			public IMemberValuePair[] getMemberValuePairs() throws JavaModelException {
@@ -404,7 +400,7 @@ public class LocalVariable extends SourceRefElement implements ILocalVariable {
 		return this.parent.getPath();
 	}
 
-	public File resource() {
+	public IResource resource() {
 		return this.parent.resource();
 	}
 

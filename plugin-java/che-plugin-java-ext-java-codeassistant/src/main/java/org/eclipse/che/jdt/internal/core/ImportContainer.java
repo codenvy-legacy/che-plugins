@@ -25,7 +25,7 @@ import org.eclipse.jdt.internal.core.util.MementoTokenizer;
  */
 public class ImportContainer extends SourceRefElement implements IImportContainer {
 protected ImportContainer(CompilationUnit parent) {
-	super(parent, parent.manager);
+	super(parent);
 }
 public boolean equals(Object o) {
 	if (!(o instanceof ImportContainer)) return false;
@@ -103,7 +103,7 @@ public String readableName() {
  * @private Debugging purposes
  */
 protected void toString(int tab, StringBuffer buffer) {
-	Object info = manager.peekAtInfo(this);
+	Object info = JavaModelManager.getJavaModelManager().peekAtInfo(this);
 	if (info == null || !(info instanceof JavaElementInfo)) return;
 	IJavaElement[] children = ((JavaElementInfo)info).getChildren();
 	for (int i = 0; i < children.length; i++) {

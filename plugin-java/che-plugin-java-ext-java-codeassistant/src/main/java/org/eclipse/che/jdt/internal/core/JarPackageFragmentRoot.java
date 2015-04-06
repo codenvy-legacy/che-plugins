@@ -11,11 +11,11 @@
 
 package org.eclipse.che.jdt.internal.core;
 
+import org.eclipse.che.jdt.internal.core.util.Util;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
@@ -23,9 +23,7 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.util.HashtableOfArrayToObject;
-import org.eclipse.jdt.internal.core.util.Util;
 
-import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -50,11 +48,19 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
      */
     protected final IPath jarPath;
 
-    protected JarPackageFragmentRoot(File file, JavaProject project, JavaModelManager manager) {
-        super(file, project, manager);
-        jarPath = new Path(file.getPath());
+    protected JarPackageFragmentRoot(IPath externalJarPath, JavaProject project) {
+        super(null, project);
+        jarPath = externalJarPath;
     }
 
+    /**
+     * Constructs a package fragment root which is the root of the Java package directory hierarchy
+     * based on a JAR file.
+     */
+    protected JarPackageFragmentRoot(IResource resource, JavaProject project) {
+        super(resource, project);
+        this.jarPath = resource.getFullPath();
+    }
 
     @Override
     public IPath getPath() {
@@ -66,15 +72,14 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
      * These are all of the directory zip entries, and any directories implied
      * by the path of class files contained in the jar of this package fragment root.
      */
-    protected boolean computeChildren(OpenableElementInfo info, File underlyingResource) throws
-                                                                                                                            JavaModelException {
+    protected boolean computeChildren(OpenableElementInfo info, IResource underlyingResource) throws JavaModelException {
         HashtableOfArrayToObject rawPackageInfo = new HashtableOfArrayToObject();
         IJavaElement[] children;
         ZipFile jar = null;
         try {
-//            Object file = JavaModel.getTarget(getPath(), true);
-//            long level = Util.getJdkLevel(file);
-            String compliance = CompilerOptions.VERSION_1_8;
+            Object file = JavaModel.getTarget(getPath(), true);
+            long level = Util.getJdkLevel(file);
+            String compliance = CompilerOptions.versionFromJdkLevel(level);
             jar = getJar();
 
             // always create the default package
@@ -105,7 +110,7 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
                 throw new JavaModelException(e);
             }
         } finally {
-           manager.closeZipFile(jar);
+            JavaModelManager.getJavaModelManager().closeZipFile(jar);
         }
 
         info.setChildren(children);
@@ -121,7 +126,7 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
     /**
      * A Jar is always K_BINARY.
      */
-    protected int determineKind(File underlyingResource) {
+    protected int determineKind(IResource underlyingResource) {
         return IPackageFragmentRoot.K_BINARY;
     }
     /**
@@ -149,11 +154,11 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
      * @exception CoreException if an error occurs accessing the jar
      */
     public ZipFile getJar() throws CoreException {
-        return manager.getZipFile(getPath());
+        return JavaModelManager.getJavaModelManager().getZipFile(getPath());
     }
 
     public void closeJar(ZipFile jar){
-        manager.closeZipFile(jar);
+        JavaModelManager.getJavaModelManager().closeZipFile(jar);
     }
     /**
      * @see IPackageFragmentRoot
@@ -181,20 +186,20 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
         return nonJavaResources;
     }
     public PackageFragment getPackageFragment(String[] pkgName) {
-        return new JarPackageFragment(this,manager, pkgName);
+        return new JarPackageFragment(this, pkgName);
     }
-//    public IPath internalPath() {
-//        if (isExternal()) {
-//            return this.jarPath;
-//        } else {
-//            return super.internalPath();
-//        }
-//    }
-    public File resource(PackageFragmentRoot root) {
-//        if (this.resource == null) {
-//            // external jar
-//            return null;
-//        }
+    public IPath internalPath() {
+        if (isExternal()) {
+            return this.jarPath;
+        } else {
+            return super.internalPath();
+        }
+    }
+    public IResource resource(PackageFragmentRoot root) {
+        if (this.resource == null) {
+            // external jar
+            return null;
+        }
         return super.resource(root);
     }
 
@@ -229,7 +234,7 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
             // sourceLevel must be null because we know nothing about it based on a jar file
             if (Util.isValidFolderNameForPackage(pkgName[i], null, compliance)) {
                 System.arraycopy(existing, 0, existing = new String[i+1], 0, i);
-                existing[i] = manager.intern(pkgName[i]);
+                existing[i] = JavaModelManager.getJavaModelManager().intern(pkgName[i]);
                 rawPackageInfo.put(existing, new ArrayList[] { EMPTY_LIST, EMPTY_LIST });
             } else {
                 // non-Java resource folder

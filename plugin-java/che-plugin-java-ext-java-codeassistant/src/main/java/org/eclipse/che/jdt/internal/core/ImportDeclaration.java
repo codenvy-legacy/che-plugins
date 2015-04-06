@@ -32,7 +32,7 @@ public class ImportDeclaration extends SourceRefElement implements IImportDeclar
      * with the given name.
      */
     protected ImportDeclaration(ImportContainer parent, String name, boolean isOnDemand) {
-        super(parent, parent.manager);
+        super(parent);
         this.name = name;
         this.isOnDemand = isOnDemand;
     }

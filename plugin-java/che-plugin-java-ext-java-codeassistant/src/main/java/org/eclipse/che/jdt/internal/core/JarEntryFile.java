@@ -31,15 +31,13 @@ import java.util.zip.ZipFile;
  */
 public class JarEntryFile  extends JarEntryResource {
 	private static final IJarEntryResource[] NO_CHILDREN = new IJarEntryResource[0];
-	private JavaModelManager manager;
 
-	public JarEntryFile(String simpleName, JavaModelManager manager) {
+	public JarEntryFile(String simpleName) {
 		super(simpleName);
-		this.manager = manager;
 	}
 
 	public JarEntryResource clone(Object newParent) {
-		JarEntryFile file = new JarEntryFile(this.simpleName, this.manager);
+		JarEntryFile file = new JarEntryFile(this.simpleName);
 		file.setParent(newParent);
 		return file;
 	}
@@ -63,7 +61,7 @@ public class JarEntryFile  extends JarEntryResource {
 			throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
 		} finally {
 			// avoid leaking ZipFiles
-			manager.closeZipFile(zipFile);
+            JavaModelManager.getJavaModelManager().closeZipFile(zipFile);
 		}
 	}
 

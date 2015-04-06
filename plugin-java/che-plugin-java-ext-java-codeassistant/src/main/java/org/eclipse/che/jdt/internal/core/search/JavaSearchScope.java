@@ -13,27 +13,30 @@ package org.eclipse.che.jdt.internal.core.search;
 import org.eclipse.che.jdt.core.JavaCore;
 import org.eclipse.che.jdt.internal.core.ClasspathEntry;
 import org.eclipse.che.jdt.internal.core.JavaElement;
+import org.eclipse.che.jdt.internal.core.JavaModel;
+import org.eclipse.che.jdt.internal.core.JavaModelManager;
 import org.eclipse.che.jdt.internal.core.JavaProject;
 import org.eclipse.che.jdt.internal.core.PackageFragment;
 import org.eclipse.che.jdt.internal.core.PackageFragmentRoot;
-
 import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IClasspathContainer;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaElementDelta;
+import org.eclipse.jdt.core.IJavaModel;
 import org.eclipse.jdt.core.IMember;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.core.ExternalFoldersManager;
-import org.eclipse.jdt.internal.core.JavaModel;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Map;
 
 /**
  * A Java-specific scope for searching relative to one or more java elements.
@@ -112,105 +115,100 @@ public class JavaSearchScope extends AbstractJavaSearchScope {
 	 */
 	void add(JavaProject javaProject, IPath pathToAdd, int includeMask, HashSet projectsToBeAdded, HashSet visitedProjects,
 			 IClasspathEntry referringEntry) throws JavaModelException {
-//        IProject project = javaProject.getProject();
-//        if (!project.isAccessible() || !visitedProjects.add(project)) return;
+        IProject project = javaProject.getProject();
+        if (!project.isAccessible() || !visitedProjects.add(project)) return;
 
-		IPath projectPath = javaProject.getFullPath();
-		String projectPathString = projectPath.toString();
-		addEnclosingProjectOrJar(projectPath);
+        IPath projectPath = project.getFullPath();
+        String projectPathString = projectPath.toString();
+        addEnclosingProjectOrJar(projectPath);
 
-		IClasspathEntry[] entries = javaProject.getResolvedClasspath();
-//        IJavaModel model = javaProject.getJavaModel();
-//        JavaModelManager.PerProjectInfo perProjectInfo = javaProject.getPerProjectInfo();
-		for (int i = 0, length = entries.length; i < length; i++) {
-			IClasspathEntry entry = entries[i];
-			AccessRuleSet access = null;
-			ClasspathEntry cpEntry = (ClasspathEntry)entry;
-			if (referringEntry != null) {
-				// Add only exported entries.
-				// Source folder are implicitly exported.
-				if (!entry.isExported() && entry.getEntryKind() != IClasspathEntry.CPE_SOURCE) {
-					continue;
-				}
-				cpEntry = cpEntry.combineWith((ClasspathEntry)referringEntry);
+        IClasspathEntry[] entries = javaProject.getResolvedClasspath();
+        IJavaModel model = javaProject.getJavaModel();
+        JavaModelManager.PerProjectInfo perProjectInfo = javaProject.getPerProjectInfo();
+        for (int i = 0, length = entries.length; i < length; i++) {
+            IClasspathEntry entry = entries[i];
+            AccessRuleSet access = null;
+            ClasspathEntry cpEntry = (ClasspathEntry) entry;
+            if (referringEntry != null) {
+                // Add only exported entries.
+                // Source folder are implicitly exported.
+                if (!entry.isExported() && entry.getEntryKind() != IClasspathEntry.CPE_SOURCE) {
+                    continue;
+                }
+                cpEntry = cpEntry.combineWith((ClasspathEntry)referringEntry);
 //				cpEntry = ((ClasspathEntry)referringEntry).combineWith(cpEntry);
-			}
-			access = cpEntry.getAccessRuleSet();
-			switch (entry.getEntryKind()) {
-				case IClasspathEntry.CPE_LIBRARY:
-				IClasspathEntry rawEntry = null;
-//                    Map rootPathToRawEntries = perProjectInfo.rootPathToRawEntries;
-//                    if (rootPathToRawEntries != null) {
-//                        rawEntry = (IClasspathEntry)rootPathToRawEntries.get(entry.getPath());
-//                    }
-//                    if (rawEntry == null) break;
-					rawKind:
-					switch (cpEntry.getEntryKind()) {
-						case IClasspathEntry.CPE_LIBRARY:
-						case IClasspathEntry.CPE_VARIABLE:
-							if ((includeMask & APPLICATION_LIBRARIES) != 0) {
-								IPath path = entry.getPath();
-							if (pathToAdd == null || pathToAdd.equals(path)) {
-//                                    Object target = JavaModel.getTarget(path, false/*don't check existence*/);
-//                                    if (target instanceof IFolder) // case of an external folder
-//                                        path = ((IFolder)target).getFullPath();
-								String pathToString = path.getDevice() == null ? path.toString() : path.toOSString();
-								add(projectPath.toString(), "", pathToString, false/*not a package*/, access); //$NON-NLS-1$
-								addEnclosingProjectOrJar(entry.getPath());
-							}
-							}
-							break;
-						case IClasspathEntry.CPE_CONTAINER:
-							IClasspathContainer container = JavaCore.getClasspathContainer(rawEntry.getPath(), javaProject);
-							if (container == null) break;
-							switch (container.getKind()) {
-								case IClasspathContainer.K_APPLICATION:
-									if ((includeMask & APPLICATION_LIBRARIES) == 0) break rawKind;
-									break;
-								case IClasspathContainer.K_SYSTEM:
-								case IClasspathContainer.K_DEFAULT_SYSTEM:
-									if ((includeMask & SYSTEM_LIBRARIES) == 0) break rawKind;
-									break;
-								default:
-									break rawKind;
-							}
-							IPath path = entry.getPath();
-							if (pathToAdd == null || pathToAdd.equals(path)) {
-								Object target = JavaModel.getTarget(path, false/*don't check existence*/);
-								if (target instanceof IFolder) // case of an external folder
-									path = ((IFolder)target).getFullPath();
-								String pathToString = path.getDevice() == null ? path.toString() : path.toOSString();
-								add(projectPath.toString(), "", pathToString, false/*not a package*/, access); //$NON-NLS-1$
-								addEnclosingProjectOrJar(entry.getPath());
-							}
-							break;
-				}
-				break;
-			case IClasspathEntry.CPE_PROJECT:
-//                    if ((includeMask & REFERENCED_PROJECTS) != 0) {
-//                        IPath path = entry.getPath();
-//                        if (pathToAdd == null || pathToAdd.equals(path)) {
-//                            JavaProject referencedProject = (JavaProject)model.getJavaProject(path.lastSegment());
-//                            if (!projectsToBeAdded
-//                                    .contains(referencedProject)) { // do not recurse if depending project was used to create the scope
-//                                add(referencedProject, null, includeMask, projectsToBeAdded, visitedProjects, cpEntry);
-//                            }
-//                        }
-//                    }
-				break;
-				case IClasspathEntry.CPE_SOURCE:
-					if ((includeMask & SOURCES) != 0) {
-						IPath path = entry.getPath();
-						if (pathToAdd == null || pathToAdd.equals(path)) {
-							add(projectPath.toString(), path.toOSString().substring(projectPath.toString().length()+1)/*Util.relativePath(path, 1*//*remove project segment*//*)*/, projectPathString,
-								false/*not a
-						package*/,
-								access);
-						}
-					}
-					break;
-			}
-		}
+            }
+            access = cpEntry.getAccessRuleSet();
+            switch (entry.getEntryKind()) {
+                case IClasspathEntry.CPE_LIBRARY:
+                    IClasspathEntry rawEntry = null;
+                    Map rootPathToRawEntries = perProjectInfo.rootPathToRawEntries;
+                    if (rootPathToRawEntries != null) {
+                        rawEntry = (IClasspathEntry) rootPathToRawEntries.get(entry.getPath());
+                    }
+                    if (rawEntry == null) break;
+                    rawKind: switch (rawEntry.getEntryKind()) {
+                        case IClasspathEntry.CPE_LIBRARY:
+                        case IClasspathEntry.CPE_VARIABLE:
+                            if ((includeMask & APPLICATION_LIBRARIES) != 0) {
+                                IPath path = entry.getPath();
+                                if (pathToAdd == null || pathToAdd.equals(path)) {
+                                    Object target = JavaModel.getTarget(path, false/*don't check existence*/);
+                                    if (target instanceof IFolder) // case of an external folder
+                                        path = ((IFolder) target).getFullPath();
+                                    String pathToString = path.getDevice() == null ? path.toString() : path.toOSString();
+                                    add(projectPath.toString(), "", pathToString, false/*not a package*/, access); //$NON-NLS-1$
+                                    addEnclosingProjectOrJar(entry.getPath());
+                                }
+                            }
+                            break;
+                        case IClasspathEntry.CPE_CONTAINER:
+                            IClasspathContainer container = JavaCore.getClasspathContainer(rawEntry.getPath(), javaProject);
+                            if (container == null) break;
+                            switch (container.getKind()) {
+                                case IClasspathContainer.K_APPLICATION:
+                                    if ((includeMask & APPLICATION_LIBRARIES) == 0) break rawKind;
+                                    break;
+                                case IClasspathContainer.K_SYSTEM:
+                                case IClasspathContainer.K_DEFAULT_SYSTEM:
+                                    if ((includeMask & SYSTEM_LIBRARIES) == 0) break rawKind;
+                                    break;
+                                default:
+                                    break rawKind;
+                            }
+                            IPath path = entry.getPath();
+                            if (pathToAdd == null || pathToAdd.equals(path)) {
+                                Object target = JavaModel.getTarget(path, false/*don't check existence*/);
+                                if (target instanceof IFolder) // case of an external folder
+                                    path = ((IFolder) target).getFullPath();
+                                String pathToString = path.getDevice() == null ? path.toString() : path.toOSString();
+                                add(projectPath.toString(), "", pathToString, false/*not a package*/, access); //$NON-NLS-1$
+                                addEnclosingProjectOrJar(entry.getPath());
+                            }
+                            break;
+                    }
+                    break;
+                case IClasspathEntry.CPE_PROJECT:
+                    if ((includeMask & REFERENCED_PROJECTS) != 0) {
+                        IPath path = entry.getPath();
+                        if (pathToAdd == null || pathToAdd.equals(path)) {
+                            JavaProject referencedProject = (JavaProject) model.getJavaProject(path.lastSegment());
+                            if (!projectsToBeAdded.contains(referencedProject)) { // do not recurse if depending project was used to create the scope
+                                add(referencedProject, null, includeMask, projectsToBeAdded, visitedProjects, cpEntry);
+                            }
+                        }
+                    }
+                    break;
+                case IClasspathEntry.CPE_SOURCE:
+                    if ((includeMask & SOURCES) != 0) {
+                        IPath path = entry.getPath();
+                        if (pathToAdd == null || pathToAdd.equals(path)) {
+                            add(projectPath.toString(), Util.relativePath(path,1/*remove project segment*/), projectPathString, false/*not a package*/, access);
+                        }
+                    }
+                    break;
+            }
+        }
 	}
 
 	/**
@@ -238,10 +236,10 @@ public class JavaSearchScope extends AbstractJavaSearchScope {
 				IPath rootPath = root.internalPath();
 				containerPath = root.getKind() == IPackageFragmentRoot.K_SOURCE ? root.getParent().getPath() : rootPath;
 				containerPathToString = containerPath.getDevice() == null ? containerPath.toString() : containerPath.toOSString();
-				File rootResource = root.resource();
+				IResource rootResource = root.resource();
 				String projectPath = root.getJavaProject().getPath().toString();
 				if (rootResource != null /*&& rootResource.isAccessible()*/) {
-					String relativePath = Util.relativePath(new Path(rootResource.getAbsolutePath()), containerPath.segmentCount());
+					String relativePath = Util.relativePath(rootResource.getFullPath(), containerPath.segmentCount());
 					add(projectPath, relativePath, containerPathToString, false/*not a package*/, null);
 				} else {
 					add(projectPath, "", containerPathToString, false/*not a package*/, null); //$NON-NLS-1$
@@ -256,7 +254,7 @@ public class JavaSearchScope extends AbstractJavaSearchScope {
 					containerPathToString = containerPath.getDevice() == null ? containerPath.toString() : containerPath.toOSString();
 					add(projectPath, relativePath, containerPathToString, true/*package*/, null);
 				} else {
-					File resource = ((JavaElement)element).resource();
+					IResource resource = ((JavaElement)element).resource();
 					if (resource != null) {
 //						if (resource.isAccessible()) {
 							containerPath =
@@ -266,7 +264,7 @@ public class JavaSearchScope extends AbstractJavaSearchScope {
 //							containerPath = resource.getParent().getFullPath();
 //						}
 						containerPathToString = containerPath.getDevice() == null ? containerPath.toString() : containerPath.toOSString();
-						String relativePath = Util.relativePath(new Path(resource.getAbsolutePath()), containerPath.segmentCount());
+						String relativePath = Util.relativePath(resource.getFullPath(), containerPath.segmentCount());
 						add(projectPath, relativePath, containerPathToString, true/*package*/, null);
 					}
 				}

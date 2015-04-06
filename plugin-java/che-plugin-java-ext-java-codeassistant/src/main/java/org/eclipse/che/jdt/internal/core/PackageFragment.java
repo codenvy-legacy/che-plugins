@@ -15,6 +15,7 @@ import org.eclipse.che.jdt.internal.core.util.Util;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -34,7 +35,6 @@ import org.eclipse.jdt.internal.core.JavaModelStatus;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 import org.eclipse.jdt.internal.core.util.Messages;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Map;
@@ -57,8 +57,8 @@ public class PackageFragment extends Openable implements IPackageFragment, Suffi
 
     private boolean isValidPackageName;
 
-    protected PackageFragment(PackageFragmentRoot root, JavaModelManager manager, String[] names) {
-        super(root, manager);
+    protected PackageFragment(PackageFragmentRoot root, String[] names) {
+        super(root);
         this.names = names;
         this.isValidPackageName = internalIsValidPackageName();
     }
@@ -66,30 +66,29 @@ public class PackageFragment extends Openable implements IPackageFragment, Suffi
     /**
      * @see Openable
      */
-    protected boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, Map newElements, File underlyingResource)
+    protected boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, Map newElements, IResource underlyingResource)
             throws JavaModelException {
         // add compilation units/class files from resources
         HashSet vChildren = new HashSet();
         int kind = getKind();
+        try {
         PackageFragmentRoot root = getPackageFragmentRoot();
         char[][] inclusionPatterns = root.fullInclusionPatternChars();
         char[][] exclusionPatterns = root.fullExclusionPatternChars();
-        File[] members = underlyingResource.listFiles();
-
-        {
+        IResource[] members = ((IContainer) underlyingResource).members();
             int length = members.length;
             if (length > 0) {
                 IJavaProject project = getJavaProject();
                 String sourceLevel = project.getOption(JavaCore.COMPILER_SOURCE, true);
                 String complianceLevel = project.getOption(JavaCore.COMPILER_COMPLIANCE, true);
                 for (int i = 0; i < length; i++) {
-                    File child = members[i];
-                    if (child.isFile()
-                        && !Util.isExcluded(new Path(child.getAbsolutePath()), inclusionPatterns, exclusionPatterns, false)) {
+                    IResource child = members[i];
+                    if (child.getType() != IResource.FOLDER
+                        && !Util.isExcluded(child, inclusionPatterns, exclusionPatterns)) {
                         IJavaElement childElement;
                         if (kind == IPackageFragmentRoot.K_SOURCE &&
                             Util.isValidCompilationUnitName(child.getName(), sourceLevel, complianceLevel)) {
-                            childElement = new CompilationUnit(this, manager, child.getName(), DefaultWorkingCopyOwner.PRIMARY);
+                            childElement = new CompilationUnit(this, child.getName(), DefaultWorkingCopyOwner.PRIMARY);
                             vChildren.add(childElement);
                         } else if (kind == IPackageFragmentRoot.K_BINARY &&
                                    Util.isValidClassFileName(child.getName(), sourceLevel, complianceLevel)) {
@@ -99,7 +98,11 @@ public class PackageFragment extends Openable implements IPackageFragment, Suffi
                     }
                 }
             }
+
+        } catch (CoreException e) {
+            throw new JavaModelException(e);
         }
+
         if (kind == IPackageFragmentRoot.K_SOURCE) {
             // add primary compilation units
             ICompilationUnit[] primaryCompilationUnits = getCompilationUnits(DefaultWorkingCopyOwner.PRIMARY);
@@ -202,7 +205,7 @@ public class PackageFragment extends Openable implements IPackageFragment, Suffi
         int length = classFileName.length() - 6;
         char[] nameWithoutExtension = new char[length];
         classFileName.getChars(0, length, nameWithoutExtension, 0);
-        return new ClassFile(this, manager, new String(nameWithoutExtension));
+        return new ClassFile(this, new String(nameWithoutExtension));
     }
 
     /**
@@ -232,7 +235,7 @@ public class PackageFragment extends Openable implements IPackageFragment, Suffi
         if (!Util.isJavaLikeFileName(cuName)) {
             throw new IllegalArgumentException(Messages.convention_unit_notJavaName);
         }
-        return new CompilationUnit(this, manager, cuName, DefaultWorkingCopyOwner.PRIMARY);
+        return new CompilationUnit(this, cuName, DefaultWorkingCopyOwner.PRIMARY);
     }
 
     /**
@@ -297,7 +300,7 @@ public class PackageFragment extends Openable implements IPackageFragment, Suffi
             case JEM_COMPILATIONUNIT:
                 if (!memento.hasMoreTokens()) return this;
                 String cuName = memento.nextToken();
-                JavaElement cu = new CompilationUnit(this, manager, cuName, owner);
+                JavaElement cu = new CompilationUnit(this, cuName, owner);
                 return cu.getHandleFromMemento(memento, owner);
         }
         return null;
@@ -350,7 +353,7 @@ public class PackageFragment extends Openable implements IPackageFragment, Suffi
     /**
      * @see JavaElement#resource()
      */
-    public File resource(PackageFragmentRoot root) {
+    public IResource resource(PackageFragmentRoot root) {
         int length = this.names.length;
         if (length == 0) {
             return root.resource(root);
@@ -358,7 +361,7 @@ public class PackageFragment extends Openable implements IPackageFragment, Suffi
             IPath path = new Path(this.names[0]);
             for (int i = 1; i < length; i++)
                 path = path.append(this.names[i]);
-            return new File(root.resource(root), path.toOSString());
+            return ((IContainer)root.resource(root)).getFolder(path);
         }
     }
 
@@ -547,7 +550,7 @@ public class PackageFragment extends Openable implements IPackageFragment, Suffi
         throw new UnsupportedOperationException();
     }
 
-    protected IStatus validateExistence(File underlyingResource) {
+    protected IStatus validateExistence(IResource underlyingResource) {
         // check that the name of the package is valid (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=108456)
         if (!isValidPackageName())
             return newDoesNotExistStatus();

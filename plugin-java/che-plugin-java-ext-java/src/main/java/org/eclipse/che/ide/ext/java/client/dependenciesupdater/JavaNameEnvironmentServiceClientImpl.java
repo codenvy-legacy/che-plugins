@@ -31,20 +31,20 @@ import static org.eclipse.che.ide.rest.HTTPHeader.ACCEPT;
 public class JavaNameEnvironmentServiceClientImpl implements JavaNameEnvironmentServiceClient {
     private final AsyncRequestFactory asyncRequestFactory;
 
-    private final String UPDATE_DEPENDENCIES          = "/update-dependencies-launch-task";
+    private final String UPDATE_DEPENDENCIES          = "/update";
     private final String UPDATE_DEPENDENCIES_AND_WAIT = "/update-dependencies-wait-build-end";
     private final String SERVICE_PATH;
 
     @Inject
     protected JavaNameEnvironmentServiceClientImpl(@Named("workspaceId") String workspaceId, AsyncRequestFactory asyncRequestFactory) {
         this.asyncRequestFactory = asyncRequestFactory;
-        SERVICE_PATH = JavaExtension.getJavaCAPath() + "/java-name-environment/" + workspaceId;
+        SERVICE_PATH = JavaExtension.getJavaCAPath() + "/classpath";
     }
 
     /** {@inheritDoc} */
     @Override
-    public void updateDependencies(String projectPath, boolean force, AsyncRequestCallback<BuildTaskDescriptor> callback) {
-        final String requestUrl = SERVICE_PATH + UPDATE_DEPENDENCIES + "?projectpath=" + projectPath + "&force=" + force;
+    public void updateDependencies(String projectPath, boolean force, AsyncRequestCallback<Boolean> callback) {
+        final String requestUrl = SERVICE_PATH + UPDATE_DEPENDENCIES + "?projectpath=" + projectPath;
         asyncRequestFactory.createGetRequest(requestUrl)
                            .header(ACCEPT, APPLICATION_JSON)
                            .send(callback);

@@ -24,9 +24,9 @@ public class ResolvedBinaryType extends BinaryType {
 	/*
 	 * See class comments.
 	 */
-	public ResolvedBinaryType(JavaElement parent, JavaModelManager manager, String name, String uniqueKey) {
-		super(parent, manager, name);
-		this.uniqueKey = uniqueKey;
+    public ResolvedBinaryType(JavaElement parent, String name, String uniqueKey) {
+        super(parent, name);
+        this.uniqueKey = uniqueKey;
 	}
 
 	public String getFullyQualifiedParameterizedName() throws JavaModelException {
@@ -60,8 +60,8 @@ public class ResolvedBinaryType extends BinaryType {
 	}
 
 	public JavaElement unresolved() {
-		SourceRefElement handle = new BinaryType(this.parent, this.manager, this.name);
-		handle.occurrenceCount = this.occurrenceCount;
+        SourceRefElement handle = new BinaryType(this.parent, this.name);
+        handle.occurrenceCount = this.occurrenceCount;
 		return handle;
 	}
 }

@@ -42,7 +42,6 @@ import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 import org.eclipse.jdt.internal.core.util.Util;
 
 import java.io.BufferedInputStream;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -120,7 +119,6 @@ public abstract class JavaElement implements IJavaElement {
      * element does not have a parent.
      */
     protected JavaElement      parent;
-    protected JavaModelManager manager;
 
     /**
      * Constructs a handle for a java element with
@@ -132,9 +130,8 @@ public abstract class JavaElement implements IJavaElement {
      *         if the type is not one of the valid
      *         Java element type constants
      */
-    protected JavaElement(JavaElement parent, JavaModelManager manager) throws IllegalArgumentException {
+    protected JavaElement(JavaElement parent) throws IllegalArgumentException {
         this.parent = parent;
-        this.manager = manager;
     }
 
     protected static URL getLibraryJavadocLocation(IClasspathEntry entry) throws JavaModelException {
@@ -165,7 +162,7 @@ public abstract class JavaElement implements IJavaElement {
      * @see org.eclipse.jdt.core.IOpenable
      */
     public void close() throws JavaModelException {
-        manager.removeInfoAndChildren(this);
+        JavaModelManager.getJavaModelManager().removeInfoAndChildren(this);
     }
 
     /**
@@ -349,6 +346,7 @@ public abstract class JavaElement implements IJavaElement {
      *         if the element is not present or not accessible
      */
     public Object getElementInfo(IProgressMonitor monitor) throws JavaModelException {
+        JavaModelManager manager = JavaModelManager.getJavaModelManager();
         Object info = manager.getInfo(this);
         if (info != null) return info;
         return openWhenClosed(createElementInfo(), false, monitor);
@@ -468,11 +466,10 @@ public abstract class JavaElement implements IJavaElement {
     }
 
     public IResource getResource() {
-//		return resource();
-        throw new UnsupportedOperationException();
+		return resource();
     }
 
-    public abstract File resource();
+    public abstract IResource resource();
 
     /**
      * Returns the element that is located at the given source position
@@ -575,7 +572,7 @@ public abstract class JavaElement implements IJavaElement {
     public boolean hasChildren() throws JavaModelException {
         // if I am not open, return true to avoid opening (case of a Java project, a compilation unit or a class file).
         // also see https://bugs.eclipse.org/bugs/show_bug.cgi?id=52474
-        Object elementInfo = manager.getInfo(this);
+        Object elementInfo = JavaModelManager.getJavaModelManager().getInfo(this);
         if (elementInfo instanceof JavaElementInfo) {
             return ((JavaElementInfo)elementInfo).getChildren().length > 0;
         } else {
@@ -639,7 +636,7 @@ public abstract class JavaElement implements IJavaElement {
      * Returns the created element info.
      */
     protected Object openWhenClosed(Object info, boolean forceAdd, IProgressMonitor monitor) throws JavaModelException {
-//		JavaModelManager manager = JavaModelManager.getJavaModelManager();
+		JavaModelManager manager = JavaModelManager.getJavaModelManager();
         boolean hadTemporaryCache = manager.hasTemporaryCache();
         try {
             HashMap newElements = manager.getTemporaryCache();
@@ -763,7 +760,7 @@ public abstract class JavaElement implements IJavaElement {
      * Debugging purposes
      */
     public Object toStringInfo(int tab, StringBuffer buffer) {
-        Object info = manager.peekAtInfo(this);
+        Object info = JavaModelManager.getJavaModelManager().peekAtInfo(this);
         this.toStringInfo(tab, buffer, info, true/*show resolved info*/);
         return info;
     }

@@ -12,7 +12,6 @@
 package org.eclipse.che.jdt.internal.core;
 
 import org.eclipse.che.jdt.internal.core.util.Util;
-
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.IAnnotation;
@@ -114,7 +113,6 @@ public class CompilationUnitStructureRequestor extends ReferenceInfoAdapter impl
     protected HashtableOfObject      messageRefCache;
     protected HashtableOfObject      typeRefCache;
     protected HashtableOfObject      unknownRefCache;
-    private   JavaModelManager       manager;
     /*
      * A table from a handle (with occurenceCount == 1) to the current occurence count for this handle
      */
@@ -125,12 +123,10 @@ public class CompilationUnitStructureRequestor extends ReferenceInfoAdapter impl
      */
     private   HashtableOfObjectToInt localOccurrenceCounts;
 
-    protected CompilationUnitStructureRequestor(ICompilationUnit unit, CompilationUnitElementInfo unitInfo, Map newElements,
-                                                JavaModelManager manager) {
+    protected CompilationUnitStructureRequestor(ICompilationUnit unit, CompilationUnitElementInfo unitInfo, Map newElements) {
         this.unit = unit;
         this.unitInfo = unitInfo;
         this.newElements = newElements;
-        this.manager = manager;
         this.occurenceCounts = new HashtableOfObjectToInt();
         this.localOccurrenceCounts = new HashtableOfObjectToInt(5);
     }
@@ -174,7 +170,7 @@ public class CompilationUnitStructureRequestor extends ReferenceInfoAdapter impl
 			this.newElements.put(this.importContainer, this.importContainerInfo);
 		}
 
-		String elementName = manager.intern(new String(CharOperation.concatWith(tokens, '.')));
+		String elementName = JavaModelManager.getJavaModelManager().intern(new String(CharOperation.concatWith(tokens, '.')));
 		ImportDeclaration handle = createImportDeclaration(this.importContainer, elementName, onDemand);
 		resolveDuplicates(handle);
 
@@ -248,12 +244,12 @@ public class CompilationUnitStructureRequestor extends ReferenceInfoAdapter impl
     }
 
     protected Annotation createAnnotation(JavaElement parent, String name) {
-        return new Annotation(parent, parent.manager, name);
+        return new Annotation(parent, name);
     }
 
     protected SourceField createField(JavaElement parent, FieldInfo fieldInfo) {
-        String fieldName = manager.intern(new String(fieldInfo.name));
-        return new SourceField(parent, manager, fieldName);
+        String fieldName = JavaModelManager.getJavaModelManager().intern(new String(fieldInfo.name));
+        return new SourceField(parent, fieldName);
     }
 
     protected ImportContainer createImportContainer(ICompilationUnit parent) {
@@ -263,13 +259,13 @@ protected ImportDeclaration createImportDeclaration(ImportContainer parent, Stri
 	return new ImportDeclaration(parent, name, onDemand);
 }
     protected Initializer createInitializer(JavaElement parent) {
-        return new Initializer(parent, manager, 1);
+        return new Initializer(parent, 1);
     }
 
     protected SourceMethod createMethodHandle(JavaElement parent, MethodInfo methodInfo) {
-        String selector = manager.intern(new String(methodInfo.name));
+        String selector = JavaModelManager.getJavaModelManager().intern(new String(methodInfo.name));
         String[] parameterTypeSigs = convertTypeNamesToSigs(methodInfo.parameterTypes);
-        return new SourceMethod(parent, manager, selector, parameterTypeSigs);
+        return new SourceMethod(parent, selector, parameterTypeSigs);
     }
 
     protected PackageDeclaration createPackageDeclaration(JavaElement parent, String name) {
@@ -277,11 +273,11 @@ protected ImportDeclaration createImportDeclaration(ImportContainer parent, Stri
     }
     protected SourceType createTypeHandle(JavaElement parent, TypeInfo typeInfo) {
         String nameString = new String(typeInfo.name);
-        return new SourceType(parent, manager, nameString);
+        return new SourceType(parent, nameString);
     }
 
     protected TypeParameter createTypeParameter(JavaElement parent, String name) {
-        return new TypeParameter(parent, manager, name);
+        return new TypeParameter(parent, name);
     }
 
     protected IAnnotation acceptAnnotation(org.eclipse.jdt.internal.compiler.ast.Annotation annotation, AnnotatableInfo parentInfo,
@@ -430,7 +426,7 @@ protected ImportDeclaration createImportDeclaration(ImportContainer parent, Stri
         info.setNameSourceStart(methodInfo.nameSourceStart);
         info.setNameSourceEnd(methodInfo.nameSourceEnd);
         info.setFlags(flags);
-        JavaModelManager manager = handle.manager; //JavaModelManager.getJavaModelManager();
+        JavaModelManager manager = JavaModelManager.getJavaModelManager();
         char[][] parameterNames = methodInfo.parameterNames;
         for (int i = 0, length = parameterNames.length; i < length; i++)
             parameterNames[i] = manager.intern(parameterNames[i]);
@@ -454,7 +450,7 @@ protected ImportDeclaration createImportDeclaration(ImportContainer parent, Stri
             this.unitInfo.annotationNumber += length;
             for (int i = 0; i < length; i++) {
                 org.eclipse.jdt.internal.compiler.ast.Annotation annotation = methodInfo.annotations[i];
-//			acceptAnnotation(annotation, info, handle);
+			    acceptAnnotation(annotation, info, handle);
             }
         }
         // https://bugs.eclipse.org/bugs/show_bug.cgi?id=334783
@@ -480,10 +476,10 @@ protected ImportDeclaration createImportDeclaration(ImportContainer parent, Stri
             localVarInfo.setNameSourceStart(argument.sourceStart);
             localVarInfo.setNameSourceEnd(argument.sourceEnd);
 
-            String paramTypeSig = manager.intern(Signature.createTypeSignature(methodInfo.parameterTypes[i], false));
+            String paramTypeSig = JavaModelManager.getJavaModelManager().intern(
+                    Signature.createTypeSignature(methodInfo.parameterTypes[i], false));
             result[i] = new LocalVariable(
                     methodHandle,
-                    manager,
                     new String(argument.name),
                     argument.declarationSourceStart,
                     argument.declarationSourceEnd,
@@ -542,10 +538,10 @@ protected ImportDeclaration createImportDeclaration(ImportContainer parent, Stri
         info.setNameSourceStart(typeInfo.nameSourceStart);
         info.setNameSourceEnd(typeInfo.nameSourceEnd);
         char[] superclass = typeInfo.superclass;
-        info.setSuperclassName(superclass == null ? null : manager.intern(superclass));
+        info.setSuperclassName(superclass == null ? null : JavaModelManager.getJavaModelManager().intern(superclass));
         char[][] superinterfaces = typeInfo.superinterfaces;
         for (int i = 0, length = superinterfaces == null ? 0 : superinterfaces.length; i < length; i++)
-            superinterfaces[i] = manager.intern(superinterfaces[i]);
+            superinterfaces[i] = JavaModelManager.getJavaModelManager().intern(superinterfaces[i]);
         info.setSuperInterfaceNames(superinterfaces);
         info.addCategories(handle, typeInfo.categories);
         this.newElements.put(handle, info);
@@ -643,7 +639,7 @@ protected ImportDeclaration createImportDeclaration(ImportContainer parent, Stri
         info.setNameSourceEnd(fieldInfo.nameSourceEnd);
         info.setSourceRangeStart(fieldInfo.declarationStart);
         info.setFlags(fieldInfo.modifiers);
-        char[] typeName = manager.intern(fieldInfo.type);
+        char[] typeName = JavaModelManager.getJavaModelManager().intern(fieldInfo.type);
         info.setTypeName(typeName);
         this.newElements.put(handle, info);
 

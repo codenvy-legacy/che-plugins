@@ -15,12 +15,9 @@ import org.eclipse.che.jdt.core.search.SearchDocument;
 import org.eclipse.che.jdt.core.search.SearchParticipant;
 import org.eclipse.che.jdt.core.search.SearchPattern;
 import org.eclipse.che.jdt.core.search.SearchRequestor;
-import org.eclipse.che.jdt.internal.core.JavaProject;
 import org.eclipse.che.jdt.internal.core.search.indexing.BinaryIndexer;
-import org.eclipse.che.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.che.jdt.internal.core.search.indexing.SourceIndexer;
 import org.eclipse.che.jdt.internal.core.search.matching.MatchLocator;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -43,13 +40,7 @@ public class JavaSearchParticipant extends SearchParticipant {
 
     private ThreadLocal indexSelector = new ThreadLocal();
     private SourceIndexer sourceIndexer;
-    private IndexManager  indexManager;
-    private JavaProject   javaProject;
 
-    public JavaSearchParticipant(IndexManager indexManager, JavaProject javaProject) {
-        this.indexManager = indexManager;
-        this.javaProject = javaProject;
-    }
 
     /* (non-Javadoc)
      * @see org.eclipse.jdt.core.search.SearchParticipant#beginSearching()
@@ -90,7 +81,7 @@ public class JavaSearchParticipant extends SearchParticipant {
 
         String documentPath = document.getPath();
         if (org.eclipse.che.jdt.internal.core.search.Util.isJavaLikeFileName(documentPath)) {
-            this.sourceIndexer = new SourceIndexer(document, indexManager, javaProject);
+            this.sourceIndexer = new SourceIndexer(document);
             this.sourceIndexer.indexDocument();
         } else if (org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(documentPath)) {
             new BinaryIndexer(document).indexDocument();
@@ -147,7 +138,7 @@ public class JavaSearchParticipant extends SearchParticipant {
     public IPath[] selectIndexes(SearchPattern pattern, IJavaSearchScope scope) {
         IndexSelector selector = (IndexSelector)this.indexSelector.get();
         if (selector == null) {
-            selector = new IndexSelector(scope, pattern, indexManager);
+            selector = new IndexSelector(scope, pattern);
             this.indexSelector.set(selector);
         }
         IndexLocation[] urls = selector.getIndexLocations();
@@ -161,7 +152,7 @@ public class JavaSearchParticipant extends SearchParticipant {
     public IndexLocation[] selectIndexURLs(SearchPattern pattern, IJavaSearchScope scope) {
         IndexSelector selector = (IndexSelector)this.indexSelector.get();
         if (selector == null) {
-            selector = new IndexSelector(scope, pattern, indexManager);
+            selector = new IndexSelector(scope, pattern);
             this.indexSelector.set(selector);
         }
         return selector.getIndexLocations();

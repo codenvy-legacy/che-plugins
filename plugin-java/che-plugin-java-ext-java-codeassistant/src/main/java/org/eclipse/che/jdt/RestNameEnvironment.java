@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.che.jdt;
 
+import com.google.inject.name.Named;
+
 import org.eclipse.che.api.builder.BuildStatus;
 import org.eclipse.che.api.builder.BuilderException;
 import org.eclipse.che.api.builder.dto.BuildOptions;
@@ -23,19 +25,12 @@ import org.eclipse.che.commons.lang.ZipUtils;
 import org.eclipse.che.commons.user.User;
 import org.eclipse.che.dto.server.DtoFactory;
 import org.eclipse.che.jdt.internal.core.JavaProject;
-import org.eclipse.che.jdt.internal.core.SearchableEnvironment;
 import org.eclipse.che.jdt.internal.core.SourceTypeElementInfo;
 import org.eclipse.che.vfs.impl.fs.LocalFSMountStrategy;
-import com.google.inject.name.Named;
-
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
-import org.eclipse.jdt.core.dom.CodenvyCompilationUnitResolver;
 import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.ITypeBinding;
-import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
@@ -69,7 +64,6 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -118,44 +112,44 @@ public class RestNameEnvironment {
     @Produces(MediaType.APPLICATION_JSON)
     @javax.ws.rs.Path("findTypeCompound")
     public String findTypeCompound(@QueryParam("compoundTypeName") String compoundTypeName, @QueryParam("projectpath") String projectPath) {
-        JavaProject javaProject = getJavaProject(projectPath);
-        SearchableEnvironment environment = javaProject.getNameEnvironment();
-        try {
-            NameEnvironmentAnswer answer = environment.findType(getCharArrayFrom(compoundTypeName));
-            if (answer == null && compoundTypeName.contains("$")) {
-                String innerName = compoundTypeName.substring(compoundTypeName.indexOf('$') + 1, compoundTypeName.length());
-                compoundTypeName = compoundTypeName.substring(0, compoundTypeName.indexOf('$'));
-                answer = environment.findType(getCharArrayFrom(compoundTypeName));
-                if (!answer.isCompilationUnit()) return null;
-                ICompilationUnit compilationUnit = answer.getCompilationUnit();
-                CompilationUnit result = getCompilationUnit(javaProject, environment, compilationUnit);
-                AbstractTypeDeclaration o = (AbstractTypeDeclaration)result.types().get(0);
-                ITypeBinding typeBinding = o.resolveBinding();
-
-                for (ITypeBinding binding : typeBinding.getDeclaredTypes()) {
-                    if (binding.getBinaryName().endsWith(innerName)) {
-                        typeBinding = binding;
-                        break;
-                    }
-                }
-                Map<TypeBinding, ?> bindings = (Map<TypeBinding, ?>)result.getProperty("compilerBindingsToASTBindings");
-                SourceTypeBinding binding = null;
-                for (Map.Entry<TypeBinding, ?> entry : bindings.entrySet()) {
-                    if (entry.getValue().equals(typeBinding)) {
-                        binding = (SourceTypeBinding)entry.getKey();
-                        break;
-                    }
-                }
-                return TypeBindingConvector.toJsonBinaryType(binding);
-            }
-
-            return processAnswer(answer, javaProject, environment);
-        } catch (JavaModelException e) {
-            if (LOG.isDebugEnabled()) {
-                LOG.error("Can't parse class: ", e);
-            }
-            throw new WebApplicationException();
-        }
+//        JavaProject javaProject = getJavaProject(projectPath);
+//        SearchableEnvironment environment = javaProject.getNameEnvironment();
+//        try {
+//            NameEnvironmentAnswer answer = environment.findType(getCharArrayFrom(compoundTypeName));
+//            if (answer == null && compoundTypeName.contains("$")) {
+//                String innerName = compoundTypeName.substring(compoundTypeName.indexOf('$') + 1, compoundTypeName.length());
+//                compoundTypeName = compoundTypeName.substring(0, compoundTypeName.indexOf('$'));
+//                answer = environment.findType(getCharArrayFrom(compoundTypeName));
+//                if (!answer.isCompilationUnit()) return null;
+//                ICompilationUnit compilationUnit = answer.getCompilationUnit();
+//                CompilationUnit result = getCompilationUnit(javaProject, environment, compilationUnit);
+//                AbstractTypeDeclaration o = (AbstractTypeDeclaration)result.types().get(0);
+//                ITypeBinding typeBinding = o.resolveBinding();
+//
+//                for (ITypeBinding binding : typeBinding.getDeclaredTypes()) {
+//                    if (binding.getBinaryName().endsWith(innerName)) {
+//                        typeBinding = binding;
+//                        break;
+//                    }
+//                }
+//                Map<TypeBinding, ?> bindings = (Map<TypeBinding, ?>)result.getProperty("compilerBindingsToASTBindings");
+//                SourceTypeBinding binding = null;
+//                for (Map.Entry<TypeBinding, ?> entry : bindings.entrySet()) {
+//                    if (entry.getValue().equals(typeBinding)) {
+//                        binding = (SourceTypeBinding)entry.getKey();
+//                        break;
+//                    }
+//                }
+//                return TypeBindingConvector.toJsonBinaryType(binding);
+//            }
+//
+//            return processAnswer(answer, javaProject, environment);
+//        } catch (JavaModelException e) {
+//            if (LOG.isDebugEnabled()) {
+//                LOG.error("Can't parse class: ", e);
+//            }
+        throw new WebApplicationException();
+//        }
     }
 
     private JavaProject getJavaProject(String projectPath) {
@@ -167,18 +161,18 @@ public class RestNameEnvironment {
     @javax.ws.rs.Path("findType")
     public String findType(@QueryParam("typename") String typeName, @QueryParam("packagename") String packageName,
                            @QueryParam("projectpath") String projectPath) {
-        JavaProject javaProject = getJavaProject(projectPath);
-        SearchableEnvironment environment = javaProject.getNameEnvironment();
-
-        NameEnvironmentAnswer answer = environment.findType(typeName.toCharArray(), getCharArrayFrom(packageName));
-        try {
-            return processAnswer(answer, javaProject, environment);
-        } catch (JavaModelException e) {
-            if (LOG.isDebugEnabled()) {
-                LOG.error("Can't parse class: ", e);
-            }
-            throw new WebApplicationException(e);
-        }
+//        JavaProject javaProject = getJavaProject(projectPath);
+//        SearchableEnvironment environment = javaProject.getNameEnvironment();
+//
+//        NameEnvironmentAnswer answer = environment.findType(typeName.toCharArray(), getCharArrayFrom(packageName));
+//        try {
+//            return processAnswer(answer, javaProject, environment);
+//        } catch (JavaModelException e) {
+//            if (LOG.isDebugEnabled()) {
+//                LOG.error("Can't parse class: ", e);
+//            }
+            throw new WebApplicationException();
+//        }
     }
 
     @GET
@@ -186,20 +180,22 @@ public class RestNameEnvironment {
     @Produces("text/plain")
     public String isPackage(@QueryParam("packagename") String packageName, @QueryParam("parent") String parentPackageName,
                             @QueryParam("projectpath") String projectPath) {
-        JavaProject javaProject = getJavaProject(projectPath);
-        SearchableEnvironment environment = javaProject.getNameEnvironment();
-        return String.valueOf(environment.isPackage(getCharArrayFrom(parentPackageName), packageName.toCharArray()));
+//        JavaProject javaProject = getJavaProject(projectPath);
+//        SearchableEnvironment environment = javaProject.getNameEnvironment();
+//        return String.valueOf(environment.isPackage(getCharArrayFrom(parentPackageName), packageName.toCharArray()));
+        throw new WebApplicationException();
     }
 
     @GET
     @Path("findPackages")
     @Produces(MediaType.APPLICATION_JSON)
     public String findPackages(@QueryParam("packagename") String packageName, @QueryParam("projectpath") String projectPath) {
-        JavaProject javaProject = getJavaProject(projectPath);
-        SearchableEnvironment environment = javaProject.getNameEnvironment();
-        JsonSearchRequester requestor = new JsonSearchRequester();
-        environment.findPackages(packageName.toCharArray(), requestor);
-        return requestor.toJsonString();
+//        JavaProject javaProject = getJavaProject(projectPath);
+//        SearchableEnvironment environment = javaProject.getNameEnvironment();
+//        JsonSearchRequester requestor = new JsonSearchRequester();
+//        environment.findPackages(packageName.toCharArray(), requestor);
+//        return requestor.toJsonString();
+        throw new WebApplicationException();
     }
 
     @GET
@@ -208,11 +204,12 @@ public class RestNameEnvironment {
     public String findConstructorDeclarations(@QueryParam("prefix") String prefix,
                                               @QueryParam("camelcase") boolean camelCaseMatch,
                                               @QueryParam("projectpath") String projectPath) {
-        JavaProject javaProject = getJavaProject(projectPath);
-        SearchableEnvironment environment = javaProject.getNameEnvironment();
-        JsonSearchRequester searchRequester = new JsonSearchRequester();
-        environment.findConstructorDeclarations(prefix.toCharArray(), camelCaseMatch, searchRequester, null);
-        return searchRequester.toJsonString();
+//        JavaProject javaProject = getJavaProject(projectPath);
+//        SearchableEnvironment environment = javaProject.getNameEnvironment();
+//        JsonSearchRequester searchRequester = new JsonSearchRequester();
+//        environment.findConstructorDeclarations(prefix.toCharArray(), camelCaseMatch, searchRequester, null);
+//        return searchRequester.toJsonString();
+        throw new WebApplicationException();
     }
 
     @GET
@@ -222,11 +219,12 @@ public class RestNameEnvironment {
                             @QueryParam("camelcase") boolean camelCaseMatch,
                             @QueryParam("searchfor") int searchFor,
                             @QueryParam("projectpath") String projectPath) {
-        JavaProject javaProject = getJavaProject(projectPath);
-        SearchableEnvironment environment = javaProject.getNameEnvironment();
-        JsonSearchRequester searchRequester = new JsonSearchRequester();
-        environment.findTypes(qualifiedName.toCharArray(), findMembers, camelCaseMatch, searchFor, searchRequester);
-        return searchRequester.toJsonString();
+//        JavaProject javaProject = getJavaProject(projectPath);
+//        SearchableEnvironment environment = javaProject.getNameEnvironment();
+//        JsonSearchRequester searchRequester = new JsonSearchRequester();
+//        environment.findTypes(qualifiedName.toCharArray(), findMembers, camelCaseMatch, searchFor, searchRequester);
+//        return searchRequester.toJsonString();
+        throw new WebApplicationException();
     }
 
     @GET
@@ -235,11 +233,12 @@ public class RestNameEnvironment {
     public String findExactTypes(@QueryParam("missingsimplename") String missingSimpleName, @QueryParam("findmembers") boolean findMembers,
                                  @QueryParam("searchfor") int searchFor,
                                  @QueryParam("projectpath") String projectPath) {
-        JavaProject javaProject = getJavaProject(projectPath);
-        SearchableEnvironment environment = javaProject.getNameEnvironment();
-        JsonSearchRequester searchRequester = new JsonSearchRequester();
-        environment.findExactTypes(missingSimpleName.toCharArray(), findMembers, searchFor, searchRequester);
-        return searchRequester.toJsonString();
+//        JavaProject javaProject = getJavaProject(projectPath);
+//        SearchableEnvironment environment = javaProject.getNameEnvironment();
+//        JsonSearchRequester searchRequester = new JsonSearchRequester();
+//        environment.findExactTypes(missingSimpleName.toCharArray(), findMembers, searchFor, searchRequester);
+//        return searchRequester.toJsonString();
+        throw new WebApplicationException();
     }
 
     @GET
@@ -440,17 +439,18 @@ public class RestNameEnvironment {
 
     private CompilationUnit getCompilationUnit(IJavaProject project, INameEnvironment environment,
                                                ICompilationUnit compilationUnit) throws JavaModelException {
-        int flags = 0;
-        flags |= org.eclipse.jdt.core.ICompilationUnit.ENABLE_STATEMENTS_RECOVERY;
-        flags |= org.eclipse.jdt.core.ICompilationUnit.IGNORE_METHOD_BODIES;
-        flags |= org.eclipse.jdt.core.ICompilationUnit.ENABLE_BINDINGS_RECOVERY;
-        HashMap<String, String> opts = new HashMap<>(javaProjectService.getOptions());
-        CompilationUnitDeclaration compilationUnitDeclaration =
-                CodenvyCompilationUnitResolver.resolve(compilationUnit, project, environment, opts, flags, null);
-        return CodenvyCompilationUnitResolver.convert(
-                compilationUnitDeclaration,
-                compilationUnit.getContents(),
-                flags, opts);
+//        int flags = 0;
+//        flags |= org.eclipse.jdt.core.ICompilationUnit.ENABLE_STATEMENTS_RECOVERY;
+//        flags |= org.eclipse.jdt.core.ICompilationUnit.IGNORE_METHOD_BODIES;
+//        flags |= org.eclipse.jdt.core.ICompilationUnit.ENABLE_BINDINGS_RECOVERY;
+//        HashMap<String, String> opts = new HashMap<>(javaProjectService.getOptions());
+//        CompilationUnitDeclaration compilationUnitDeclaration =
+//                CheCompilationUnitResolver.resolve(compilationUnit, project, environment, opts, flags, null);
+//        return CheCompilationUnitResolver.convert(
+//                compilationUnitDeclaration,
+//                compilationUnit.getContents(),
+//                flags, opts);
+        throw new UnsupportedOperationException();
     }
 
     private char[][] getCharArrayFrom(String list) {

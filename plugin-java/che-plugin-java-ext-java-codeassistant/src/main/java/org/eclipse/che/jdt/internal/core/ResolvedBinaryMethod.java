@@ -22,9 +22,9 @@ public class ResolvedBinaryMethod extends BinaryMethod {
 	/*
 	 * See class comments.
 	 */
-	public ResolvedBinaryMethod(JavaElement parent, JavaModelManager manager, String name, String[] parameterTypes, String uniqueKey) {
-		super(parent, manager, name, parameterTypes);
-		this.uniqueKey = uniqueKey;
+    public ResolvedBinaryMethod(JavaElement parent, String name, String[] parameterTypes, String uniqueKey) {
+        super(parent, name, parameterTypes);
+        this.uniqueKey = uniqueKey;
 	}
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.core.BinaryMethod#getKey()
@@ -52,8 +52,8 @@ public class ResolvedBinaryMethod extends BinaryMethod {
 	}
 
 	public JavaElement unresolved() {
-		SourceRefElement handle = new BinaryMethod(this.parent, this.manager, this.name, this.parameterTypes);
-		handle.occurrenceCount = this.occurrenceCount;
+        SourceRefElement handle = new BinaryMethod(this.parent, this.name, this.parameterTypes);
+        handle.occurrenceCount = this.occurrenceCount;
 		return handle;
 	}
 }

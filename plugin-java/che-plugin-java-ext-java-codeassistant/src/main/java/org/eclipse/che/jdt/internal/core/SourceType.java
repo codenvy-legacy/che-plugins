@@ -58,8 +58,8 @@ public class SourceType extends NamedMember implements IType {
  */
 public int localOccurrenceCount = 1;
 
-protected SourceType(JavaElement parent, JavaModelManager manager, String name) {
-	super(parent, manager, name);
+protected SourceType(JavaElement parent, String name) {
+	super(parent, name);
 }
 protected void closing(Object info) throws JavaModelException {
 	super.closing(info);
@@ -278,7 +278,7 @@ public int getElementType() {
  * @see org.eclipse.jdt.core.IType#getField
  */
 public IField getField(String fieldName) {
-	return new SourceField(this, manager, fieldName);
+	return new SourceField(this, fieldName);
 }
 /**
  * @see org.eclipse.jdt.core.IType
@@ -399,12 +399,12 @@ public IJavaElement getHandleFromMemento(String token, MementoTokenizer memento,
 		case JEM_TYPE_PARAMETER:
 			if (!memento.hasMoreTokens()) return this;
 			String typeParameterName = memento.nextToken();
-			JavaElement typeParameter = new TypeParameter(this, manager, typeParameterName);
+			JavaElement typeParameter = new TypeParameter(this, typeParameterName);
 			return typeParameter.getHandleFromMemento(memento, workingCopyOwner);
 		case JEM_ANNOTATION:
 			if (!memento.hasMoreTokens()) return this;
 			String annotationName = memento.nextToken();
-			JavaElement annotation = new Annotation(this, manager, annotationName);
+			JavaElement annotation = new Annotation(this, annotationName);
 			return annotation.getHandleFromMemento(memento, workingCopyOwner);
 	}
 	return null;
@@ -413,7 +413,7 @@ public IJavaElement getHandleFromMemento(String token, MementoTokenizer memento,
  * @see org.eclipse.jdt.core.IType
  */
 public IInitializer getInitializer(int count) {
-	return new Initializer(this, manager, count);
+	return new Initializer(this, count);
 }
 /**
  * @see org.eclipse.jdt.core.IType
@@ -439,7 +439,7 @@ public String getKey() {
  * @see org.eclipse.jdt.core.IType#getMethod
  */
 public IMethod getMethod(String selector, String[] parameterTypeSignatures) {
-	return new SourceMethod(this,manager, selector, parameterTypeSignatures);
+	return new SourceMethod(this, selector, parameterTypeSignatures);
 }
 /**
  * @see org.eclipse.jdt.core.IType
@@ -574,7 +574,7 @@ public String[] getTypeParameterSignatures() throws JavaModelException {
  * @see org.eclipse.jdt.core.IType
  */
 public IType getType(String typeName) {
-	return new SourceType(this, manager, typeName);
+	return new SourceType(this, typeName);
 }
 public ITypeParameter getTypeParameter(String typeParameterName) {
 //	return new TypeParameter(this, typeParameterName);

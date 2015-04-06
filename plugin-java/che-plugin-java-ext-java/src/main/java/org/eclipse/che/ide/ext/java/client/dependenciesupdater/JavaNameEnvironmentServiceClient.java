@@ -29,7 +29,7 @@ public interface JavaNameEnvironmentServiceClient {
      * @param callback
      *         the callback to use for the response
      */
-    void updateDependencies(String projectPath, boolean force, AsyncRequestCallback<BuildTaskDescriptor> callback);
+    void updateDependencies(String projectPath, boolean force, AsyncRequestCallback<Boolean> callback);
 
     /**
      * Update project dependencies and wait for ending.

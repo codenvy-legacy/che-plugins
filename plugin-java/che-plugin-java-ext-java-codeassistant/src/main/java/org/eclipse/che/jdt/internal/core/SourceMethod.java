@@ -37,8 +37,8 @@ public class SourceMethod extends NamedMember implements IMethod {
 	 */
 	protected String[] parameterTypes;
 
-protected SourceMethod(JavaElement parent,JavaModelManager manager, String name, String[] parameterTypes) {
-	super(parent,manager, name);
+protected SourceMethod(JavaElement parent, String name, String[] parameterTypes) {
+	super(parent, name);
 	// Assertion disabled since bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=179011
 	// Assert.isTrue(name.indexOf('.') == -1);
 	if (parameterTypes == null) {
@@ -136,7 +136,7 @@ public String[] getParameterTypes() {
 }
 
 public ITypeParameter getTypeParameter(String typeParameterName) {
-	return new TypeParameter(this, manager, typeParameterName);
+	return new TypeParameter(this, typeParameterName);
 }
 
 public ITypeParameter[] getTypeParameters() throws JavaModelException {

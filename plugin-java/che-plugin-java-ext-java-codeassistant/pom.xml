@@ -206,6 +206,12 @@
                         <exclude>**/readableNames</exclude>
                         <exclude>**/projects/**</exclude>
                         <exclude>**/org/eclipse/che/jdt/javadoc/**</exclude>
+                        <exclude>**/org/eclipse/jdt/**</exclude>
+                        <exclude>**/org/eclipse/swt/**</exclude>
+                        <exclude>**/org/eclipse/che/jface/**</exclude>
+                        <exclude>**/org/eclipse/che/jdt/internal/codeassist/**</exclude>
+                        <exclude>**/org/eclipse/ui/**</exclude>
+                        <exclude>**/templates/**</exclude>
                         <exclude>**/org/eclipse/che/jdt/core/**</exclude>
                         <exclude>**/org/eclipse/che/jdt/dom/**</exclude>
                         <exclude>**/org/eclipse/che/jdt/corext/util/**</exclude>

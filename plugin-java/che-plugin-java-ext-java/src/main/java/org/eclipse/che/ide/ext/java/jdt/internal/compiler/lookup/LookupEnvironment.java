@@ -35,77 +35,47 @@ import java.util.Set;
 
 public class LookupEnvironment implements ProblemReasons, TypeConstants {
 
+    final static int                     BUILD_FIELDS_AND_METHODS = 4;
+    final static int                     BUILD_TYPE_HIERARCHY     = 1;
+    final static int                     CHECK_AND_SET_IMPORTS    = 2;
+    final static int                     CONNECT_TYPE_HIERARCHY   = 3;
+    static final ProblemPackageBinding   TheNotFoundPackage       = new ProblemPackageBinding(CharOperation.NO_CHAR, NotFound);
+    static final ProblemReferenceBinding TheNotFoundType          = new ProblemReferenceBinding(CharOperation.NO_CHAR_CHAR, null,
+                                                                                                NotFound);
+    public PackageBinding defaultPackage;
+    public INameEnvironment nameEnvironment;
+    public CompilerOptions globalOptions;
+    public ProblemReporter problemReporter;
+    public ITypeRequestor typeRequestor;
+    public CompilationUnitDeclaration unitBeingCompleted       = null; // only set while completing units
+    public Object                     missingClassFileLocation = null;
+            // only set when resolving certain references, to help locating problems
+    public MethodBinding arrayClone;
+    public boolean isProcessingAnnotations = false;
+    ImportBinding[]    defaultImports;
+    HashtableOfPackage knownPackages;
+    Set                typesBeingConnected;
     /** Map from typeBinding -> accessRestriction rule */
     private Map accessRestrictions;
-
-    ImportBinding[] defaultImports;
-
-    public PackageBinding defaultPackage;
-
-    HashtableOfPackage knownPackages;
-
     private int lastCompletedUnitIndex = -1;
-
-    private int lastUnitIndex = -1;
-
-    public INameEnvironment nameEnvironment;
-
-    public CompilerOptions globalOptions;
-
-    public ProblemReporter problemReporter;
-
+    private int lastUnitIndex          = -1;
     // public ClassFilePool classFilePool;
     // indicate in which step on the compilation we are.
     // step 1 : build the reference binding
     // step 2 : conect the hierarchy (connect bindings)
     // step 3 : build fields and method bindings.
     private int stepCompleted;
-
-    public ITypeRequestor typeRequestor;
-
     private ArrayBinding[][] uniqueArrayBindings;
-
     private SimpleLookupTable uniqueParameterizedTypeBindings;
-
     private SimpleLookupTable uniqueRawTypeBindings;
-
     private SimpleLookupTable uniqueWildcardBindings;
-
     private SimpleLookupTable uniqueParameterizedGenericMethodBindings;
-
     // key is a string with the method selector value is an array of method bindings
     private SimpleLookupTable uniquePolymorphicMethodBindings;
-
     private SimpleLookupTable uniqueGetClassMethodBinding; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=300734
-
-    public CompilationUnitDeclaration unitBeingCompleted = null; // only set while completing units
-
-    public Object missingClassFileLocation = null; // only set when resolving certain references, to help locating problems
-
     private CompilationUnitDeclaration[] units = new CompilationUnitDeclaration[4];
-
     private MethodVerifier verifier;
-
-    public MethodBinding arrayClone;
-
     private ArrayList missingTypes;
-
-    Set typesBeingConnected;
-
-    public boolean isProcessingAnnotations = false;
-
-    final static int BUILD_FIELDS_AND_METHODS = 4;
-
-    final static int BUILD_TYPE_HIERARCHY = 1;
-
-    final static int CHECK_AND_SET_IMPORTS = 2;
-
-    final static int CONNECT_TYPE_HIERARCHY = 3;
-
-    static final ProblemPackageBinding TheNotFoundPackage = new ProblemPackageBinding(CharOperation.NO_CHAR, NotFound);
-
-    static final ProblemReferenceBinding TheNotFoundType = new ProblemReferenceBinding(CharOperation.NO_CHAR_CHAR, null,
-                                                                                       NotFound);
 
     public LookupEnvironment(ITypeRequestor typeRequestor, CompilerOptions globalOptions,
                              ProblemReporter problemReporter, INameEnvironment nameEnvironment) {

@@ -27,9 +27,9 @@ public class TypeParameter extends SourceRefElement implements ITypeParameter {
 
 	protected String name;
 
-	public TypeParameter(JavaElement parent, JavaModelManager manager, String name) {
-		super(parent, manager);
-		this.name = name;
+    public TypeParameter(JavaElement parent, String name) {
+        super(parent);
+        this.name = name;
 	}
 
 	public boolean equals(Object o) {

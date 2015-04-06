@@ -23,7 +23,6 @@ import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.core.JavaModelStatus;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -39,13 +38,13 @@ public class JarPackageFragment extends PackageFragment {
 /**
  * Constructs a package fragment that is contained within a jar or a zip.
  */
-protected JarPackageFragment(PackageFragmentRoot root, JavaModelManager manager, String[] names) {
-	super(root,manager, names);
+protected JarPackageFragment(PackageFragmentRoot root, String[] names) {
+	super(root, names);
 }
 /**
  * @see org.eclipse.jdt.internal.core.Openable
  */
-protected boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, Map newElements, File underlyingResource) throws
+protected boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, Map newElements, IResource underlyingResource) throws
 																															   JavaModelException {
 	JarPackageFragmentRoot root = (JarPackageFragmentRoot) getParent();
 	JarPackageFragmentRootInfo parentInfo = (JarPackageFragmentRootInfo) root.getElementInfo();
@@ -74,7 +73,7 @@ private IJavaElement[] computeChildren(ArrayList namesWithoutExtension) {
 	IJavaElement[] children = new IJavaElement[size];
 	for (int i = 0; i < size; i++) {
 		String nameWithoutExtension = (String) namesWithoutExtension.get(i);
-		children[i] = new ClassFile(this, manager, nameWithoutExtension);
+		children[i] = new ClassFile(this, nameWithoutExtension);
 	}
 	return children;
 }
@@ -98,7 +97,7 @@ private Object[] computeNonJavaResources(ArrayList entryNames) {
 				// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=222665
 				continue;
 			}
-			JarEntryFile file = new JarEntryFile(filePath.lastSegment(), manager);
+			JarEntryFile file = new JarEntryFile(filePath.lastSegment());
 			jarEntries.put(childPath, file);
 			if (childPath.segmentCount() == 1) {
 				file.setParent(this);

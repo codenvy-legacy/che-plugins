@@ -12,10 +12,13 @@ package org.eclipse.che.jdt.internal.core.search;
 
 import org.eclipse.che.jdt.core.search.IJavaSearchScope;
 import org.eclipse.che.jdt.core.search.SearchPattern;
+import org.eclipse.che.jdt.internal.core.JarPackageFragmentRoot;
+import org.eclipse.che.jdt.internal.core.JavaModel;
+import org.eclipse.che.jdt.internal.core.JavaModelManager;
+import org.eclipse.che.jdt.internal.core.JavaProject;
 import org.eclipse.che.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.che.jdt.internal.core.search.matching.MatchLocator;
 import org.eclipse.che.jdt.internal.core.search.matching.MethodPattern;
-
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
@@ -32,10 +35,6 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.util.ObjectVector;
 import org.eclipse.jdt.internal.compiler.util.SimpleSet;
-import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
-import org.eclipse.jdt.internal.core.JavaModel;
-import org.eclipse.jdt.internal.core.JavaModelManager;
-import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.builder.ReferenceCollection;
 import org.eclipse.jdt.internal.core.builder.State;
 import org.eclipse.jdt.internal.core.index.IndexLocation;
@@ -58,15 +57,13 @@ public class IndexSelector {
 	IJavaSearchScope searchScope;
 	SearchPattern    pattern;
 	IndexLocation[] indexLocations; // cache of the keys for looking index up
-	private IndexManager indexManager;
 
 	public IndexSelector(
 			IJavaSearchScope searchScope,
-			SearchPattern pattern, IndexManager indexManager) {
+			SearchPattern pattern) {
 
 		this.searchScope = searchScope;
 		this.pattern = pattern;
-		this.indexManager = indexManager;
 	}
 
 	/**
@@ -226,6 +223,7 @@ private static IJavaElement[] getFocusedElementsAndTypes(SearchPattern pattern, 
      */
 private void initializeIndexLocations() {
 	IPath[] projectsAndJars = this.searchScope.enclosingProjectsAndJars();
+    IndexManager manager = JavaModelManager.getIndexManager();
 	// use a linked set to preserve the order during search: see bug 348507
 	LinkedHashSet locations = new LinkedHashSet();
 	IJavaElement focus = MatchLocator.projectOrJarFocus(this.pattern);
@@ -235,7 +233,7 @@ private void initializeIndexLocations() {
 			Object target = new File(path.toOSString());//JavaModel.getTarget(path, false/*don't check existence*/);
 			if (target instanceof IFolder) // case of an external folder
 				path = ((IFolder) target).getFullPath();
-			locations.add(indexManager.computeIndexLocation(path));
+			locations.add(manager.computeIndexLocation(path));
 		}
 	} else {
 		try {
@@ -262,7 +260,7 @@ private void initializeIndexLocations() {
 					visitedProjects.add(project);
 					int canSeeFocus = canSeeFocus(focuses, project, focusQualifiedNames);
 					if (canSeeFocus == PROJECT_CAN_SEE_FOCUS) {
-						locations.add(indexManager.computeIndexLocation(path));
+						locations.add(manager.computeIndexLocation(path));
 					}
 					if (canSeeFocus != PROJECT_CAN_NOT_SEE_FOCUS) {
 						projectsCanSeeFocus[projectIndex++] = project;
@@ -281,7 +279,7 @@ private void initializeIndexLocations() {
 							Object target = JavaModel.getTarget(path, false/*don't check existence*/);
 							if (target instanceof IFolder) // case of an external folder
 								path = ((IFolder) target).getFullPath();
-							locations.add(indexManager.computeIndexLocation(path));
+							locations.add(manager.computeIndexLocation(path));
 						}
 					}
 				}
@@ -301,7 +299,7 @@ private void initializeIndexLocations() {
 									Object target = JavaModel.getTarget(path, false/*don't check existence*/);
 									if (target instanceof IFolder) // case of an external folder
 										path = ((IFolder) target).getFullPath();
-									locations.add(indexManager.computeIndexLocation(path));
+									locations.add(manager.computeIndexLocation(path));
 								}
 							}
 						}

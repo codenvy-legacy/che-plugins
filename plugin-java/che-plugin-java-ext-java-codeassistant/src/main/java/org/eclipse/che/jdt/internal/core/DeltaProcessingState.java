@@ -11,7 +11,7 @@
 package org.eclipse.che.jdt.internal.core;
 
 import org.eclipse.che.jdt.core.resources.IResourceDelta;
-
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.runtime.CoreException;
@@ -206,29 +206,29 @@ public class DeltaProcessingState implements IResourceChangeListener {
 		return deltaProcessor;
 	}
 
-//	public ClasspathChange addClasspathChange(IProject project, IClasspathEntry[] oldRawClasspath, IPath oldOutputLocation, IClasspathEntry[] oldResolvedClasspath) {
-//		synchronized (this.classpathChanges) {
-//			ClasspathChange change = (ClasspathChange) this.classpathChanges.get(project);
-//			if (change == null) {
-//				change = new ClasspathChange((JavaProject) JavaModelManager.getJavaModelManager().getJavaModel().getJavaProject(project), oldRawClasspath, oldOutputLocation, oldResolvedClasspath);
-//				this.classpathChanges.put(project, change);
-//			} else {
-//				if (change.oldRawClasspath == null)
-//					change.oldRawClasspath = oldRawClasspath;
-//				if (change.oldOutputLocation == null)
-//					change.oldOutputLocation = oldOutputLocation;
-//				if (change.oldResolvedClasspath == null)
-//					change.oldResolvedClasspath = oldResolvedClasspath;
-//			}
-//			return change;
-//		}
-//	}
-//
-//	public ClasspathChange getClasspathChange(IProject project) {
-//		synchronized (this.classpathChanges) {
-//			return (ClasspathChange) this.classpathChanges.get(project);
-//		}
-//	}
+	public ClasspathChange addClasspathChange(IProject project, IClasspathEntry[] oldRawClasspath, IPath oldOutputLocation, IClasspathEntry[] oldResolvedClasspath) {
+		synchronized (this.classpathChanges) {
+			ClasspathChange change = (ClasspathChange) this.classpathChanges.get(project);
+			if (change == null) {
+				change = new ClasspathChange((JavaProject) JavaModelManager.getJavaModelManager().getJavaModel().getJavaProject(project), oldRawClasspath, oldOutputLocation, oldResolvedClasspath);
+				this.classpathChanges.put(project, change);
+			} else {
+				if (change.oldRawClasspath == null)
+					change.oldRawClasspath = oldRawClasspath;
+				if (change.oldOutputLocation == null)
+					change.oldOutputLocation = oldOutputLocation;
+				if (change.oldResolvedClasspath == null)
+					change.oldResolvedClasspath = oldResolvedClasspath;
+			}
+			return change;
+		}
+	}
+
+	public ClasspathChange getClasspathChange(IProject project) {
+		synchronized (this.classpathChanges) {
+			return (ClasspathChange) this.classpathChanges.get(project);
+		}
+	}
 
 	public HashMap removeAllClasspathChanges() {
 		synchronized (this.classpathChanges) {

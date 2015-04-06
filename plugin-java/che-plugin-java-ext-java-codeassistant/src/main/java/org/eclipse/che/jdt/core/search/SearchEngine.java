@@ -53,8 +53,6 @@ import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
  */
 public class SearchEngine {
 
-    private IndexManager indexManager;
-
     /**
      * Internal adapter class.
      *
@@ -136,9 +134,8 @@ public class SearchEngine {
     /**
      * Creates a new search engine.
      */
-    public SearchEngine(IndexManager indexManager, JavaProject javaProject) {
-        this.indexManager = indexManager;
-        this.basicEngine = new BasicSearchEngine(indexManager, javaProject);
+    public SearchEngine() {
+        this.basicEngine = new BasicSearchEngine();
     }
 
 //	/**
@@ -516,8 +513,8 @@ public class SearchEngine {
      * @return a new default Java search participant
      * @since 3.0
      */
-    public static SearchParticipant getDefaultSearchParticipant(IndexManager indexManager, JavaProject javaProject) {
-        return BasicSearchEngine.getDefaultSearchParticipant(indexManager, javaProject);
+    public static SearchParticipant getDefaultSearchParticipant() {
+        return BasicSearchEngine.getDefaultSearchParticipant();
     }
 
     /**

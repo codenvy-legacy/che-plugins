@@ -47,7 +47,7 @@ public class BufferManager {
 
 	public static IBuffer createBuffer(IOpenable owner) {
 		JavaElement element = (JavaElement)owner;
-		IResource resource = null; element.resource();
+		IResource resource = element.resource();
 		return
 				new Buffer(
 						resource instanceof IFile ? (IFile)resource : null,
@@ -57,7 +57,7 @@ public class BufferManager {
 
 	public static IBuffer createNullBuffer(IOpenable owner) {
 		JavaElement element = (JavaElement)owner;
-		IResource resource = null; //element.resource();
+		IResource resource = element.resource();
 		return
 		new NullBuffer(
 			resource instanceof IFile ? (IFile)resource : null,

@@ -1,48 +1,60 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2012 IBM Corporation and others.
+ * Copyright (c) 2012-2015 Codenvy, S.A.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *    IBM Corporation - initial API and implementation
+ *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
 
 package org.eclipse.che.jdt.internal.core;
 
+import org.eclipse.che.core.internal.resources.ResourcesPlugin;
 import org.eclipse.che.jdt.core.JavaConventions;
+import org.eclipse.che.jdt.core.JavaCore;
+import org.eclipse.che.jdt.core.launching.JREContainerInitializer;
 import org.eclipse.che.jdt.internal.core.search.BasicSearchEngine;
 import org.eclipse.che.jdt.internal.core.search.IRestrictedAccessTypeRequestor;
 import org.eclipse.che.jdt.internal.core.search.JavaWorkspaceScope;
-import org.eclipse.che.jdt.internal.core.search.Util;
 import org.eclipse.che.jdt.internal.core.search.indexing.IndexManager;
-
+import org.eclipse.che.jdt.internal.core.util.Util;
+import org.eclipse.che.jdt.maven.MavenClasspathContainer;
+import org.eclipse.che.jdt.maven.MavenClasspathContainerInitializer;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.jdt.core.ClasspathContainerInitializer;
 import org.eclipse.jdt.core.IClassFile;
+import org.eclipse.jdt.core.IClasspathContainer;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaModelStatus;
+import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IParent;
 import org.eclipse.jdt.core.IProblemRequestor;
 import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.core.DefaultWorkingCopyOwner;
-import org.eclipse.jdt.internal.core.JavaModelStatus;
+import org.eclipse.jdt.internal.core.builder.JavaBuilder;
 import org.eclipse.jdt.internal.core.util.HashtableOfArrayToObject;
 import org.eclipse.jdt.internal.core.util.LRUCache;
 import org.eclipse.jdt.internal.core.util.Messages;
@@ -51,6 +63,7 @@ import org.eclipse.jdt.internal.core.util.WeakHashSetOfCharArray;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -66,92 +79,185 @@ import java.util.zip.ZipFile;
  * @author Evgen Vidolob
  */
 public class JavaModelManager {
+    public final static  String             TRUE                                        = "true"; //$NON-NLS-1$
+    public final static  ICompilationUnit[] NO_WORKING_COPY                             = new ICompilationUnit[0];
+    private final static String             INDEXED_SECONDARY_TYPES                     = "#@*_indexing secondary cache_*@#"; //$NON-NLS-1$
+    public static        boolean            VERBOSE                                     = false;
+    public static        boolean            CP_RESOLVE_VERBOSE                          = false;
+    public static        boolean            CP_RESOLVE_VERBOSE_ADVANCED                 = false;
+    public static        boolean            CP_RESOLVE_VERBOSE_FAILURE                  = false;
+    public static        boolean            ZIP_ACCESS_VERBOSE                          = false;
+    /**
+     * Name of the JVM parameter to specify whether or not referenced JAR should be resolved for container libraries.
+     */
+    private static final String             RESOLVE_REFERENCED_LIBRARIES_FOR_CONTAINERS = "resolveReferencedLibrariesForContainers";
+            //$NON-NLS-1$
 
-    private final static String             INDEXED_SECONDARY_TYPES        = "#@*_indexing secondary cache_*@#"; //$NON-NLS-1$
-    public static        boolean            ZIP_ACCESS_VERBOSE             = false;
-    public static        boolean            VERBOSE                        = false;
-    public final static  ICompilationUnit[] NO_WORKING_COPY                = new ICompilationUnit[0];
+    public final static IClasspathContainer CONTAINER_INITIALIZATION_IN_PROGRESS = new IClasspathContainer() {
+        public IClasspathEntry[] getClasspathEntries() {
+            return null;
+        }
+
+        public String getDescription() {
+            return "Container Initialization In Progress";
+        } //$NON-NLS-1$
+
+        public int getKind() {
+            return 0;
+        }
+
+        public IPath getPath() {
+            return null;
+        }
+
+        public String toString() {
+            return getDescription();
+        }
+    };
     /**
      * A set of java.io.Files used as a cache of external jars that
      * are known to be existing.
      * Note this cache is kept for the whole session.
      */
-    public static        HashSet<File>      existingExternalFiles          = new HashSet<>();
-//    /**
+    public static       HashSet<File>       existingExternalFiles                = new HashSet<>();
+    //    /**
 //     * The singleton manager
 //     */
-//    private static JavaModelManager MANAGER                        = new JavaModelManager();
+    private static      JavaModelManager    MANAGER                              = new JavaModelManager();
+    // Non-static, which will give it a chance to retain the default when and if JavaModelManager is restarted.
+    boolean resolveReferencedLibrariesForContainers = false;
+
+    /*
+     * A HashSet that contains the IJavaProject whose classpath is being resolved.
+     */
+    private       ThreadLocal<HashSet<IJavaProject>> classpathsBeingResolved        = new ThreadLocal<>();
     /**
      * A set of external files ({@link #existingExternalFiles}) which have
      * been confirmed as file (i.e. which returns true to {@link java.io.File#isFile()}.
      * Note this cache is kept for the whole session.
      */
-    public static        HashSet<File>      existingExternalConfirmedFiles = new HashSet<>();
+    public static HashSet<File>                      existingExternalConfirmedFiles = new HashSet<>();
+    /**
+     * Unique handle onto the JavaModel
+     */
+    final JavaModel javaModel;
     /* whether an AbortCompilationUnit should be thrown when the source of a compilation unit cannot be retrieved */
-    public               ThreadLocal        abortOnMissingSource           = new ThreadLocal();
+    public ThreadLocal abortOnMissingSource = new ThreadLocal();
+    public IndexManager         indexManager;
+    /**
+     * Holds the state used for delta processing.
+     */
+    public DeltaProcessingState deltaState;
+    /*
+     * The unique workspace scope
+     */
+    public JavaWorkspaceScope   workspaceScope;
     /**
      * Set of elements which are out of sync with their buffers.
      */
-    protected            HashSet            elementsOutOfSynchWithBuffers  = new HashSet(11);
+    protected HashSet     elementsOutOfSynchWithBuffers = new HashSet(11);
     /**
      * Table from WorkingCopyOwner to a table of ICompilationUnit (working copy handle) to PerWorkingCopyInfo.
      * NOTE: this object itself is used as a lock to synchronize creation/removal of per working copy infos
      */
-    protected            Map                perWorkingCopyInfos            = new HashMap(5);
+    protected Map         perWorkingCopyInfos           = new HashMap(5);
     /**
-     * List of IPath of jars that are known to be invalid - such as not being a valid/known format
+     * A weak set of the known search scopes.
      */
-    private Set<IPath> invalidArchives;
+    protected WeakHashMap searchScopes                  = new WeakHashMap();
+    /*
+         * A set of IPaths for jars that are known to not contain a chaining (through MANIFEST.MF) to another library
+         */
+    private Set nonChainingJars;
+
+    /*
+     * A set of IPaths for jars that are known to be invalid - such as not being a valid/known format
+     */
+    private Set invalidArchives;
+
+    /*
+     * A set of IPaths for files that are known to be external to the workspace.
+     * Need not be referenced by the classpath.
+     */
+    private Set externalFiles;
+
+    /*
+     * A set of IPaths for files that do not exist on the file system but are assumed to be
+     * external archives (rather than external folders).
+     */
+    private Set assumedExternalFiles;
     /**
      * A cache of opened zip files per thread.
      * (for a given thread, the object value is a HashMap from IPath to java.io.ZipFile)
      */
-    private ThreadLocal<ZipCache>  zipFiles         = new ThreadLocal<>();
+    private ThreadLocal<ZipCache> zipFiles       = new ThreadLocal<>();
     /*
  * Temporary cache of newly opened elements
  */
-    private ThreadLocal            temporaryCache   = new ThreadLocal();
+    private ThreadLocal           temporaryCache = new ThreadLocal();
+    ThreadLocal containersBeingInitialized = new ThreadLocal();
+    public Hashtable<String, ClasspathContainerInitializer> containerInitializersCache = new Hashtable<>(5);
+
+    /**
+     * Table from IProject to PerProjectInfo.
+     * NOTE: this object itself is used as a lock to synchronize creation/removal of per project infos
+     */
+    protected Map<IProject, PerProjectInfo> perProjectInfos           = new HashMap<>(5);
     /*
      * Pools of symbols used in the Java model.
      * Used as a replacement for String#intern() that could prevent garbage collection of strings on some VMs.
      */
-    private WeakHashSet            stringSymbols    = new WeakHashSet(5);
-    private WeakHashSetOfCharArray charArraySymbols = new WeakHashSetOfCharArray(5);
+    private   WeakHashSet                   stringSymbols             = new WeakHashSet(5);
+    private   WeakHashSetOfCharArray        charArraySymbols          = new WeakHashSetOfCharArray(5);
+    public    HashMap                       containers                = new HashMap(5);
+    public    HashMap                       previousSessionContainers = new HashMap(5);
+    public    HashMap                       previousSessionVariables  = new HashMap(5);
     /**
      * Infos cache.
      */
-    private JavaModelCache       cache;
-    public  IndexManager         indexManager;
-    private PerProjectInfo       info;
-    private BufferManager        DEFAULT_BUFFER_MANAGER;
-    /**
-     * Holds the state used for delta processing.
-     */
-    public  DeltaProcessingState deltaState;
-    /**
-     * Unique handle onto the JavaModel
-     */
-    final   JavaModel            javaModel;
-    /**
-     * A weak set of the known search scopes.
-     */
-    protected WeakHashMap searchScopes = new WeakHashMap();
+    private JavaModelCache cache;
+    private BufferManager  DEFAULT_BUFFER_MANAGER;
 
-    /*
-     * The unique workspace scope
-     */
-    public JavaWorkspaceScope workspaceScope;
-    private JavaProject javaProject;
-
-//    public static JavaModelManager getJavaModelManager() {
-//        return MANAGER;
-//    }
+    public static JavaModelManager getJavaModelManager() {
+        return MANAGER;
+    }
 
     public JavaModelManager() {
         // initialize Java model cache
         this.cache = new JavaModelCache();
-        javaModel = new JavaModel(this);
+        javaModel = new JavaModel();
+        this.indexManager = new IndexManager(ResourcesPlugin.getIndexPath());
         deltaState = new DeltaProcessingState(this);
+        this.nonChainingJars = new HashSet();//loadClasspathListCache(NON_CHAINING_JARS_CACHE);
+        this.invalidArchives = new HashSet(); //loadClasspathListCache(INVALID_ARCHIVES_CACHE);
+        this.externalFiles = new HashSet(); //loadClasspathListCache(EXTERNAL_FILES_CACHE);
+        this.assumedExternalFiles = new HashSet(); //loadClasspathListCache(ASSUMED_EXTERNAL_FILES_CACHE);
+        String includeContainerReferencedLib = System.getProperty(RESOLVE_REFERENCED_LIBRARIES_FOR_CONTAINERS);
+//        this.resolveReferencedLibrariesForContainers = TRUE.equalsIgnoreCase(includeContainerReferencedLib);
+        containerInitializersCache.put(JREContainerInitializer.JRE_CONTAINER, new JREContainerInitializer());
+        containerInitializersCache.put(MavenClasspathContainer.CONTAINER_ID, new MavenClasspathContainerInitializer());
+        startIndexing();
+    }
+
+    /**
+     * Initiate the background indexing process.
+     * This should be deferred after the plug-in activation.
+     */
+    private void startIndexing() {
+        if (this.indexManager != null) this.indexManager.reset();
+    }
+
+    /**
+     * Helper method - returns the {@link IResource} corresponding to the provided {@link IPath},
+     * or <code>null</code> if no such resource exists.
+     */
+    public static IResource getWorkspaceTarget(IPath path) {
+        if (path == null || path.getDevice() != null)
+            return null;
+        IWorkspace workspace = ResourcesPlugin.getWorkspace();
+        if (workspace == null)
+            return null;
+        return workspace.getRoot().findMember(path);
     }
 
     /**
@@ -160,44 +266,51 @@ public class JavaModelManager {
      * Internal items must be referred to using container relative paths.
      */
     public static Object getTarget(IPath path, boolean checkResourceExistence) {
+        Object target = getWorkspaceTarget(path); // Implicitly checks resource existence
+        if (target != null)
+            return target;
+        return getExternalTarget(path, checkResourceExistence);
+    }
+
+    /**
+     * Helper method - returns either the linked {@link IFolder} or the {@link File} corresponding
+     * to the provided {@link IPath}. If <code>checkResourceExistence</code> is <code>false</code>,
+     * then the IFolder or File object is always returned, otherwise <code>null</code> is returned
+     * if it does not exist on the file system.
+     */
+    public static Object getExternalTarget(IPath path, boolean checkResourceExistence) {
+        if (path == null)
+            return null;
+//        ExternalFoldersManager externalFoldersManager = JavaModelManager.getExternalManager();
+//        Object linkedFolder = externalFoldersManager.getFolder(path);
+//        if (linkedFolder != null) {
+//            if (checkResourceExistence) {
+//                check if external folder is present
+//                File externalFile = new File(path.toOSString());
+//                if (!externalFile.isDirectory()) {
+//                    return null;
+//                }
+//            }
+//            return linkedFolder;
+//        }
         File externalFile = new File(path.toOSString());
         if (!checkResourceExistence) {
             return externalFile;
-        } else if (existingExternalFilesContains(externalFile)) {
+        } else if (externalFile.exists()) {
             return externalFile;
-        } else {
-            if (JavaModelManager.ZIP_ACCESS_VERBOSE) {
-                System.out.println("(" + Thread.currentThread() + ") [JavaModel.getTarget...)] Checking existence of " +
-                                   path.toString()); //$NON-NLS-1$ //$NON-NLS-2$
-            }
-            if (externalFile.isFile()) { // isFile() checks for existence (it returns false if a directory)
-                // cache external file
-                existingExternalFilesAdd(externalFile);
-                return externalFile;
-            } else {
-                if (externalFile.exists()) {
-                    existingExternalFilesAdd(externalFile);
-                    return externalFile;
-                }
-            }
         }
         return null;
     }
-
-    public IndexManager getIndexManager() {
-        return indexManager;
-    }
-
-    public JavaModel getJavaModel() {
-        return javaModel;
-    }
-
     private synchronized static void existingExternalFilesAdd(File externalFile) {
         existingExternalFiles.add(externalFile);
     }
 
     private synchronized static boolean existingExternalFilesContains(File externalFile) {
         return existingExternalFiles.contains(externalFile);
+    }
+
+    public boolean isNonChainingJar(IPath path) {
+        return this.nonChainingJars != null && this.nonChainingJars.contains(path);
     }
 
     /**
@@ -232,20 +345,41 @@ public class JavaModelManager {
 
         return null;
     }
+    public static DeltaProcessingState getDeltaState() {
+        return MANAGER.deltaState;
+    }
+
+    /**
+     * Returns a persisted container from previous session if any. Note that it is not the original container from previous
+     * session (i.e. it did not get serialized) but rather a summary of its entries recreated for CP initialization purpose.
+     * As such it should not be stored into container caches.
+     */
+    public IClasspathContainer getPreviousSessionContainer(IPath containerPath, IJavaProject project) {
+        Map previousContainerValues = (Map)this.previousSessionContainers.get(project);
+        if (previousContainerValues != null){
+            IClasspathContainer previousContainer = (IClasspathContainer)previousContainerValues.get(containerPath);
+            if (previousContainer != null) {
+                if (JavaModelManager.CP_RESOLVE_VERBOSE_ADVANCED)
+//                    verbose_reentering_project_container_access(containerPath, project, previousContainer);
+                return previousContainer;
+            }
+        }
+        return null; // break cycle if none found
+    }
 
     /**
      * Creates and returns a compilation unit element for the given <code>.java</code>
      * file, its project being the given project. Returns <code>null</code> if unable
      * to recognize the compilation unit.
      */
-    public static ICompilationUnit createCompilationUnitFrom(File file, IJavaProject project) {
+    public static ICompilationUnit createCompilationUnitFrom(IFile file, IJavaProject project) {
 
         if (file == null) return null;
 
-//        if (project == null) {
-//            project = JavaCore.create(file.getProject());
-//        }
-        IPackageFragment pkg = (IPackageFragment)determineIfOnClasspath(file, (JavaProject)project);
+        if (project == null) {
+            project = JavaCore.create(file.getProject());
+        }
+        IPackageFragment pkg = (IPackageFragment)determineIfOnClasspath(file, project);
         if (pkg == null) {
             // not on classpath - make the root its folder, and a default package
             PackageFragmentRoot root = (PackageFragmentRoot)project.getPackageFragmentRoot(file.getParent());
@@ -253,10 +387,18 @@ public class JavaModelManager {
 
             if (VERBOSE) {
                 System.out.println("WARNING : creating unit element outside classpath (" + Thread.currentThread() + "): " +
-                                   file.getAbsolutePath()); //$NON-NLS-1$//$NON-NLS-2$
+                                   file.getFullPath()); //$NON-NLS-1$//$NON-NLS-2$
             }
         }
         return pkg.getCompilationUnit(file.getName());
+    }
+
+    public void verifyArchiveContent(IPath path) throws CoreException {
+        if (isInvalidArchive(path)) {
+            throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Messages.status_IOException, new ZipException()));
+        }
+        ZipFile file = getZipFile(path);
+        closeZipFile(file);
     }
 
     /**
@@ -264,14 +406,14 @@ public class JavaModelManager {
      * the package fragment the given resource is located in, or <code>null</code>
      * if the given resource is not on the classpath of the given project.
      */
-    public static IJavaElement determineIfOnClasspath(File resource, JavaProject project) {
-        IPath resourcePath = new Path(resource.getAbsolutePath());
+    public static IJavaElement determineIfOnClasspath(IResource resource, IJavaProject project) {
+        IPath resourcePath = resource.getFullPath();
         boolean isExternal = false; //ExternalFoldersManager.isInternalPathForExternalFolder(resourcePath);
 //        if (isExternal)
 //            resourcePath = resource.getLocation();
 
         try {
-            JavaProjectElementInfo projectInfo = (JavaProjectElementInfo)((JavaProject)project).manager.getInfo(project);
+            JavaProjectElementInfo projectInfo = (JavaProjectElementInfo)JavaModelManager.getJavaModelManager().getInfo(project);
             JavaProjectElementInfo.ProjectCache projectCache = projectInfo == null ? null : projectInfo.projectCache;
             HashtableOfArrayToObject allPkgFragmentsCache = projectCache == null ? null : projectCache.allPkgFragmentsCache;
             boolean isJavaLike = Util.isJavaLikeFileName(resourcePath.lastSegment());
@@ -304,7 +446,7 @@ public class JavaModelManager {
                             if (root == null) return null;
                             IPath pkgPath = resourcePath.removeFirstSegments(rootPath.segmentCount());
 
-                            if (resource.isFile()) {
+                            if (resource.getType() == IResource.FILE) {
                                 // if the resource is a file, then remove the last segment which
                                 // is the file name in the package
                                 pkgPath = pkgPath.removeLastSegments(1);
@@ -330,6 +472,209 @@ public class JavaModelManager {
             return null;
         }
         return null;
+    }
+
+    /**
+     * Returns the Java element corresponding to the given resource, or
+     * <code>null</code> if unable to associate the given resource
+     * with a Java element.
+     * <p>
+     * The resource must be one of:<ul>
+     *	<li>a project - the element returned is the corresponding <code>IJavaProject</code></li>
+     *	<li>a <code>.java</code> file - the element returned is the corresponding <code>ICompilationUnit</code></li>
+     *	<li>a <code>.class</code> file - the element returned is the corresponding <code>IClassFile</code></li>
+     *	<li>a ZIP archive (e.g. a <code>.jar</code>, a <code>.zip</code> file, etc.) - the element returned is the corresponding
+     *	<code>IPackageFragmentRoot</code></li>
+     *  <li>a folder - the element returned is the corresponding <code>IPackageFragmentRoot</code>
+     *			or <code>IPackageFragment</code></li>
+     *  <li>the workspace root resource - the element returned is the <code>IJavaModel</code></li>
+     *	</ul>
+     * <p>
+     * Creating a Java element has the side effect of creating and opening all of the
+     * element's parents if they are not yet open.
+     */
+    public static IJavaElement create(IResource resource, IJavaProject project) {
+        if (resource == null) {
+            return null;
+        }
+
+        int type = resource.getType();
+        switch (type) {
+            case IResource.PROJECT :
+                return JavaCore.create((IProject) resource);
+            case IResource.FILE :
+                return create((IFile) resource, project);
+            case IResource.FOLDER :
+                return create((IFolder) resource, project);
+            case IResource.ROOT :
+                return JavaCore.create((IWorkspaceRoot) resource);
+            default :
+                return null;
+        }
+    }
+    /**
+     * Returns the Java element corresponding to the given file, its project being the given
+     * project.
+     * Returns <code>null</code> if unable to associate the given file
+     * with a Java element.
+     *
+     * <p>The file must be one of:<ul>
+     *	<li>a <code>.java</code> file - the element returned is the corresponding <code>ICompilationUnit</code></li>
+     *	<li>a <code>.class</code> file - the element returned is the corresponding <code>IClassFile</code></li>
+     *	<li>a ZIP archive (e.g. a <code>.jar</code>, a <code>.zip</code> file, etc.) - the element returned is the corresponding <code>IPackageFragmentRoot</code></li>
+     *	</ul>
+     * <p>
+     * Creating a Java element has the side effect of creating and opening all of the
+     * element's parents if they are not yet open.
+     */
+    public static IJavaElement create(IFile file, IJavaProject project) {
+        if (file == null) {
+            return null;
+        }
+        if (project == null) {
+            project = JavaCore.create(file.getProject());
+        }
+
+        if (file.getFileExtension() != null) {
+            String name = file.getName();
+            if (Util.isJavaLikeFileName(name))
+                return createCompilationUnitFrom(file, project);
+            if (org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(name))
+                return createClassFileFrom(file, project);
+            return createJarPackageFragmentRootFrom(file, project);
+        }
+        return null;
+    }
+    /**
+     * Returns the package fragment or package fragment root corresponding to the given folder,
+     * its parent or great parent being the given project.
+     * or <code>null</code> if unable to associate the given folder with a Java element.
+     * <p>
+     * Note that a package fragment root is returned rather than a default package.
+     * <p>
+     * Creating a Java element has the side effect of creating and opening all of the
+     * element's parents if they are not yet open.
+     */
+    public static IJavaElement create(IFolder folder, IJavaProject project) {
+        if (folder == null) {
+            return null;
+        }
+        IJavaElement element;
+        if (project == null) {
+            project = JavaCore.create(folder.getProject());
+            element = determineIfOnClasspath(folder, project);
+            if (element == null) {
+                // walk all projects and find one that have the given folder on its classpath
+                IJavaProject[] projects;
+                try {
+                    projects = JavaModelManager.getJavaModelManager().getJavaModel().getJavaProjects();
+                } catch (JavaModelException e) {
+                    return null;
+                }
+                for (int i = 0, length = projects.length; i < length; i++) {
+                    project = projects[i];
+                    element = determineIfOnClasspath(folder, project);
+                    if (element != null)
+                        break;
+                }
+            }
+        } else {
+            element = determineIfOnClasspath(folder, project);
+        }
+        return element;
+    }
+
+
+    /**
+     * Creates and returns a class file element for the given <code>.class</code> file,
+     * its project being the given project. Returns <code>null</code> if unable
+     * to recognize the class file.
+     */
+    public static IClassFile createClassFileFrom(IFile file, IJavaProject project) {
+        if (file == null) {
+            return null;
+        }
+        if (project == null) {
+            project = JavaCore.create(file.getProject());
+        }
+        IPackageFragment pkg = (IPackageFragment)determineIfOnClasspath(file, (JavaProject)project);
+        if (pkg == null) {
+            // fix for 1FVS7WE
+            // not on classpath - make the root its folder, and a default package
+            PackageFragmentRoot root = (PackageFragmentRoot)project.getPackageFragmentRoot(file.getParent());
+            pkg = root.getPackageFragment(CharOperation.NO_STRINGS);
+        }
+        return pkg.getClassFile(file.getName());
+    }
+
+    /**
+     * Creates and returns a handle for the given JAR file, its project being the given project.
+     * The Java model associated with the JAR's project may be
+     * created as a side effect.
+     * Returns <code>null</code> if unable to create a JAR package fragment root.
+     * (for example, if the JAR file represents a non-Java resource)
+     */
+    public static IPackageFragmentRoot createJarPackageFragmentRootFrom(IFile file, IJavaProject project) {
+        if (file == null) {
+            return null;
+        }
+        if (project == null) {
+            project = JavaCore.create(file.getProject());
+        }
+
+        // Create a jar package fragment root only if on the classpath
+        IPath resourcePath = file.getFullPath();
+        try {
+            IClasspathEntry entry = ((JavaProject)project).getClasspathEntryFor(resourcePath);
+            if (entry != null) {
+                return project.getPackageFragmentRoot(file);
+            }
+        } catch (JavaModelException e) {
+            // project doesn't exist: return null
+        }
+        return null;
+    }
+
+
+    public static IndexManager getIndexManager() {
+        return MANAGER.indexManager;
+    }
+
+    public JavaModel getJavaModel() {
+        return javaModel;
+    }
+
+    public DeltaProcessor getDeltaProcessor() {
+        return this.deltaState.getDeltaProcessor();
+    }
+
+    /**
+     * Flushes ZipFiles cache if there are no more clients.
+     */
+    public void flushZipFiles(Object owner) {
+        ZipCache zipCache = this.zipFiles.get();
+        if (zipCache == null) {
+            return;
+        }
+        // the owner will be responsible for flushing the cache
+        // we want to check object identity to make sure this is the owner that created the cache
+        if (zipCache.owner == owner) {
+            this.zipFiles.set(null);
+            zipCache.flush();
+        }
+    }
+
+    /**
+     * Starts caching ZipFiles.
+     * Ignores if there are already clients.
+     */
+    public void cacheZipFiles(Object owner) {
+        ZipCache zipCache = this.zipFiles.get();
+        if (zipCache != null) {
+            return;
+        }
+        // the owner will be responsible for flushing the cache
+        this.zipFiles.set(new ZipCache(owner));
     }
 
     public synchronized char[] intern(char[] array) {
@@ -380,37 +725,30 @@ public class JavaModelManager {
 
         ZipCache zipCache;
         ZipFile zipFile;
-        if ((zipCache = this.zipFiles.get()) != null
+        if ((zipCache = (ZipCache)this.zipFiles.get()) != null
             && (zipFile = zipCache.getCache(path)) != null) {
             return zipFile;
         }
         File localFile = null;
-//        IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-//        IResource file = root.findMember(path);
-//        if (file != null) {
-//            // internal resource
-//            URI location;
-//            if (file.getType() != IResource.FILE || (location = file.getLocationURI()) == null) {
-//                throw new CoreException(
-//                        new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Messages.bind(Messages.file_notFound, path.toString()), null));
-//            }
-//            localFile = Util.toLocalFile(location, null*//*no progress availaible*//*);
-//            if (localFile == null)
-//                throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Messages.bind(Messages.file_notFound,
-// path.toString()), null));
-//        } else {
-//            // external resource -> it is ok to use toFile()
-        localFile = path.toFile();
-//        }
-        if (!localFile.exists()) {
-            throw new CoreException(
-                    new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Messages.bind(Messages.file_notFound, path.toString()), null));
+        IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+        IResource file = root.findMember(path);
+        if (file != null) {
+            // internal resource
+            URI location;
+            if (file.getType() != IResource.FILE || (location = file.getLocationURI()) == null) {
+                throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Messages.bind(Messages.file_notFound, path.toString()), null));
+            }
+            localFile = Util.toLocalFile(location, null/*no progress availaible*/);
+            if (localFile == null)
+                throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Messages.bind(Messages.file_notFound, path.toString()), null));
+        } else {
+            // external resource -> it is ok to use toFile()
+            localFile= path.toFile();
         }
 
         try {
             if (ZIP_ACCESS_VERBOSE) {
-                System.out.println("(" + Thread.currentThread() + ") [JavaModelManager.getZipFile(IPath)] Creating ZipFile on " +
-                                   localFile); //$NON-NLS-1$ //$NON-NLS-2$
+                System.out.println("(" + Thread.currentThread() + ") [JavaModelManager.getZipFile(IPath)] Creating ZipFile on " + localFile ); //$NON-NLS-1$ //$NON-NLS-2$
             }
             zipFile = new ZipFile(localFile);
             if (zipCache != null) {
@@ -441,6 +779,11 @@ public class JavaModelManager {
         if (this.invalidArchives != null) {
             this.invalidArchives.add(path);
         }
+    }
+
+    public void addNonChainingJar(IPath path) {
+        if (this.nonChainingJars != null)
+            this.nonChainingJars.add(path);
     }
 
     public ICompilationUnit[] getWorkingCopies(DefaultWorkingCopyOwner primary, boolean b) {
@@ -531,6 +874,7 @@ public class JavaModelManager {
         }
         return null;
     }
+
     public void removePerProjectInfo(JavaProject javaProject, boolean removeExtJarInfo) {
         //todo
 //        synchronized(this.perProjectInfos) { // use the perProjectInfo collection as its own lock
@@ -672,15 +1016,15 @@ public class JavaModelManager {
     /*
  * Returns the per-project info for the given project. If specified, create the info if the info doesn't exist.
  */
-    public PerProjectInfo getPerProjectInfo(boolean create) {
-//        synchronized(this.perProjectInfos) { // use the perProjectInfo collection as its own lock
-//            PerProjectInfo info= (PerProjectInfo) this.perProjectInfos.get(project);
+    public PerProjectInfo getPerProjectInfo(IProject project, boolean create) {
+        synchronized(this.perProjectInfos) { // use the perProjectInfo collection as its own lock
+            PerProjectInfo info= this.perProjectInfos.get(project);
         if (info == null && create) {
-            info = new PerProjectInfo();
-//                this.perProjectInfos.put(project, info);
+            info = new PerProjectInfo(project);
+                this.perProjectInfos.put(project, info);
         }
         return info;
-//        }
+        }
     }
 
     /*
@@ -688,15 +1032,36 @@ public class JavaModelManager {
      * If the info doesn't exist, check for the project existence and create the info.
      * @throws JavaModelException if the project doesn't exist.
      */
-    public PerProjectInfo getPerProjectInfoCheckExistence() throws JavaModelException {
-        JavaModelManager.PerProjectInfo info = getPerProjectInfo(false /* don't create info */);
+    public PerProjectInfo getPerProjectInfoCheckExistence(IProject project) throws JavaModelException {
+        JavaModelManager.PerProjectInfo info = getPerProjectInfo(project, false /* don't create info */);
         if (info == null) {
 //            if (!JavaProject.hasJavaNature(project)) {
 //                throw ((JavaProject)JavaCore.create(project)).newNotPresentException();
 //            }
-            info = getPerProjectInfo(true /* create info */);
+            info = getPerProjectInfo(project, true /* create info */);
         }
         return info;
+    }
+
+    public boolean isClasspathBeingResolved(IJavaProject project) {
+        return getClasspathBeingResolved().contains(project);
+    }
+
+    private HashSet getClasspathBeingResolved() {
+        HashSet<IJavaProject> result = this.classpathsBeingResolved.get();
+        if (result == null) {
+            result = new HashSet<>();
+            this.classpathsBeingResolved.set(result);
+        }
+        return result;
+    }
+
+    public void setClasspathBeingResolved(IJavaProject project, boolean classpathIsResolved) {
+        if (classpathIsResolved) {
+            getClasspathBeingResolved().add(project);
+        } else {
+            getClasspathBeingResolved().remove(project);
+        }
     }
 
     /**
@@ -735,7 +1100,7 @@ public class JavaModelManager {
         }
 
         // Return cache if not empty and there's no new secondary types created during indexing
-        final PerProjectInfo projectInfo = getPerProjectInfoCheckExistence();
+        final PerProjectInfo projectInfo = getPerProjectInfoCheckExistence(project.getProject());
         Map indexingSecondaryCache =
                 projectInfo.secondaryTypes == null ? null : (Map)projectInfo.secondaryTypes.get(INDEXED_SECONDARY_TYPES);
         if (projectInfo.secondaryTypes != null && indexingSecondaryCache == null) {
@@ -799,7 +1164,7 @@ public class JavaModelManager {
         Iterator entries = indexedSecondaryTypes.entrySet().iterator();
         while (entries.hasNext()) {
             Map.Entry entry = (Map.Entry)entries.next();
-            File file = (File)entry.getKey();
+            IFile file = (IFile) entry.getKey();
 
             // Remove all secondary types of indexed file from cache
             secondaryTypesRemoving(secondaryTypes, file);
@@ -837,6 +1202,32 @@ public class JavaModelManager {
     }
 
     /**
+     * Returns the last built state for the given project, or null if there is none.
+     * Deserializes the state if necessary.
+     *
+     * For use by image builder and evaluation support only
+     */
+    public Object getLastBuiltState(IProject project, IProgressMonitor monitor) {
+        if (!JavaProject.hasJavaNature(project)) {
+            if (JavaBuilder.DEBUG)
+                System.out.println(project + " is not a Java project"); //$NON-NLS-1$
+            return null; // should never be requested on non-Java projects
+        }
+        PerProjectInfo info = getPerProjectInfo(project, true/*create if missing*/);
+        if (!info.triedRead) {
+            info.triedRead = true;
+//            try {
+                if (monitor != null)
+                    monitor.subTask(Messages.bind(Messages.build_readStateProgress, project.getName()));
+                info.savedState = null;//readState(project);
+//            } catch (CoreException e) {
+//                e.printStackTrace();
+//            }
+        }
+        return info.savedState;
+    }
+
+    /**
      * Remove from secondary types cache all types belonging to a given file.
      * Clean secondary types cache built while indexing if requested.
      * <p/>
@@ -845,7 +1236,7 @@ public class JavaModelManager {
      * @param file
      *         File to remove
      */
-    public void secondaryTypesRemoving(File file, boolean cleanIndexCache) {
+    public void secondaryTypesRemoving(IFile file, boolean cleanIndexCache) {
         if (VERBOSE) {
             StringBuffer buffer = new StringBuffer("JavaModelManager.removeFromSecondaryTypesCache("); //$NON-NLS-1$
             buffer.append(file.getName());
@@ -853,10 +1244,10 @@ public class JavaModelManager {
             Util.verbose(buffer.toString());
         }
         if (file != null) {
-            PerProjectInfo projectInfo = getPerProjectInfo(false);
+            PerProjectInfo projectInfo = getPerProjectInfo(file.getProject(), false);
             if (projectInfo != null && projectInfo.secondaryTypes != null) {
                 if (VERBOSE) {
-                    Util.verbose("-> remove file from cache of project: " + file.getAbsolutePath()); //$NON-NLS-1$
+                    Util.verbose("-> remove file from cache of project: " + file.getProject().getName()); //$NON-NLS-1$
                 }
 
                 // Clean current cache
@@ -899,7 +1290,7 @@ public class JavaModelManager {
      * Remove from a given cache map all secondary types belonging to a given file.
 	 * Note that there can have several secondary types per file...
 	 */
-    private void secondaryTypesRemoving(Hashtable secondaryTypesMap, File file) {
+    private void secondaryTypesRemoving(Hashtable secondaryTypesMap, IFile file) {
         if (VERBOSE) {
             StringBuffer buffer = new StringBuffer("JavaModelManager.removeSecondaryTypesFromMap("); //$NON-NLS-1$
             Iterator entries = secondaryTypesMap.entrySet().iterator();
@@ -909,7 +1300,7 @@ public class JavaModelManager {
                 buffer.append(qualifiedName + ':' + entry.getValue());
             }
             buffer.append(',');
-            buffer.append(file.getAbsolutePath());
+            buffer.append(file.getFullPath());
             buffer.append(')');
             Util.verbose(buffer.toString());
         }
@@ -1019,7 +1410,7 @@ public class JavaModelManager {
         }
 
         // Search all secondary types on scope
-        new BasicSearchEngine(indexManager, (JavaProject)project)
+        new BasicSearchEngine()
                 .searchAllSecondaryTypeNames(allSourceFolders, nameRequestor, waitForIndexes, monitor);
 
         // Build types from paths
@@ -1034,8 +1425,9 @@ public class JavaModelManager {
                 String path = (String)entry.getValue();
                 names.remove();
                 if (Util.isJavaLikeFileName(path)) {
-                    File file = new File(path);// ResourcesPlugin.getWorkspace().getRoot().getFile(new Path(path));
-                    ICompilationUnit unit = JavaModelManager.createCompilationUnitFrom(file, null);
+                    IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(new Path(path));
+                    ICompilationUnit unit = JavaModelManager
+                            .createCompilationUnitFrom(file, null);
                     IType type = unit.getType(typeName);
                     tempTypes.put(typeName, type);
                 }
@@ -1058,6 +1450,415 @@ public class JavaModelManager {
             }
         }
         return projectInfo.secondaryTypes;
+    }
+
+    /*
+	 * Discards the per working copy info for the given working copy (making it a compilation unit)
+	 * if its use count was 1. Otherwise, just decrement the use count.
+	 * If the working copy is primary, computes the delta between its state and the original compilation unit
+	 * and register it.
+	 * Close the working copy, its buffer and remove it from the shared working copy table.
+	 * Ignore if no per-working copy info existed.
+	 * NOTE: it must NOT be synchronized as it may interact with the element info cache (if useCount is decremented to 0), see bug 50667.
+	 * Returns the new use count (or -1 if it didn't exist).
+	 */
+    public int discardPerWorkingCopyInfo(CompilationUnit workingCopy) throws JavaModelException {
+
+        // create the delta builder (this remembers the current content of the working copy)
+        // outside the perWorkingCopyInfos lock (see bug 50667)
+        JavaElementDeltaBuilder deltaBuilder = null;
+        if (workingCopy.isPrimary() && workingCopy.hasUnsavedChanges()) {
+            deltaBuilder = new JavaElementDeltaBuilder(workingCopy);
+        }
+        PerWorkingCopyInfo info = null;
+        synchronized(this.perWorkingCopyInfos) {
+            WorkingCopyOwner owner = workingCopy.owner;
+            Map workingCopyToInfos = (Map)this.perWorkingCopyInfos.get(owner);
+            if (workingCopyToInfos == null) return -1;
+
+            info = (PerWorkingCopyInfo)workingCopyToInfos.get(workingCopy);
+            if (info == null) return -1;
+
+            if (--info.useCount == 0) {
+                // remove per working copy info
+                workingCopyToInfos.remove(workingCopy);
+                if (workingCopyToInfos.isEmpty()) {
+                    this.perWorkingCopyInfos.remove(owner);
+                }
+            }
+        }
+        if (info.useCount == 0) { // info cannot be null here (check was done above)
+            // remove infos + close buffer (since no longer working copy)
+            // outside the perWorkingCopyInfos lock (see bug 50667)
+            removeInfoAndChildren(workingCopy);
+            workingCopy.closeBuffer();
+
+            // compute the delta if needed and register it if there are changes
+            if (deltaBuilder != null) {
+                deltaBuilder.buildDeltas();
+                if (deltaBuilder.delta != null) {
+                    getDeltaProcessor().registerJavaModelDelta(deltaBuilder.delta);
+                }
+            }
+        }
+        return info.useCount;
+    }
+
+    public IClasspathContainer getClasspathContainer(final IPath containerPath, final IJavaProject project) throws JavaModelException {
+
+        IClasspathContainer container = containerGet(project, containerPath);
+
+        if (container == null) {
+//            if (batchContainerInitializations()) {
+//                // avoid deep recursion while initializing container on workspace restart
+//                // (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=60437)
+//                try {
+//                    container = initializeAllContainers(project, containerPath);
+//                } finally {
+//                    batchInitializationFinished();
+//                }
+//            } else {
+                container = initializeContainer(project, containerPath);
+//                containerBeingInitializedRemove(project, containerPath);
+                SetContainerOperation operation = new SetContainerOperation(containerPath, new IJavaProject[] {project}, new IClasspathContainer[] {container});
+                operation.runOperation(null);
+//            }
+        }
+        return container;
+    }
+
+    private IClasspathContainer initializeContainer(IJavaProject project, IPath containerPath) throws JavaModelException {
+        ClasspathContainerInitializer initializer = containerInitializersCache.get(containerPath.segment(0));
+        IClasspathContainer container = null;
+        if(initializer != null){
+            try {
+                initializer.initialize(containerPath, project);
+
+//            if (monitor != null)
+//                monitor.subTask(""); //$NON-NLS-1$
+
+            // retrieve value (if initialization was successful)
+            container = containerBeingInitializedGet(project, containerPath);
+            if (container == null && containerGet(project, containerPath) == null) {
+                // initializer failed to do its job: redirect to the failure container
+                container = initializer.getFailureContainer(containerPath, project);
+//                if (container == null) {
+//                    if (CP_RESOLVE_VERBOSE || CP_RESOLVE_VERBOSE_FAILURE)
+//                        verbose_container_null_failure_container(project, containerPath, initializer);
+//                    return null; // break cycle
+//                }
+//                if (CP_RESOLVE_VERBOSE || CP_RESOLVE_VERBOSE_FAILURE)
+//                    verbose_container_using_failure_container(project, containerPath, initializer);
+                containerPut(project, containerPath, container);
+            }
+            } catch (CoreException e) {
+                if (e instanceof JavaModelException) {
+                    throw (JavaModelException) e;
+                } else {
+                    throw new JavaModelException(e);
+                }
+            }
+        } else {
+            // create a dummy initializer and get the default failure container
+            container = (new ClasspathContainerInitializer() {
+                public void initialize(IPath path, IJavaProject javaProject) throws CoreException {
+                    // not used
+                }
+            }).getFailureContainer(containerPath, project);
+        }
+        return container;
+    }
+
+    public synchronized IClasspathContainer containerGet(IJavaProject project, IPath containerPath) {
+//        // check initialization in progress first
+//        if (containerIsInitializationInProgress(project, containerPath)) {
+//            return CONTAINER_INITIALIZATION_IN_PROGRESS;
+//        }
+
+        Map projectContainers = (Map)this.containers.get(project);
+        if (projectContainers == null){
+            return null;
+        }
+        IClasspathContainer container = (IClasspathContainer)projectContainers.get(containerPath);
+        return container;
+    }
+
+    public boolean containerPutIfInitializingWithSameEntries(IPath containerPath, IJavaProject[] projects, IClasspathContainer[] respectiveContainers) {
+        int projectLength = projects.length;
+        if (projectLength != 1)
+            return false;
+        final IClasspathContainer container = respectiveContainers[0];
+        IJavaProject project = projects[0];
+//        // optimize only if initializing, otherwise we are in a regular setContainer(...) call
+//        if (!containerIsInitializationInProgress(project, containerPath))
+//            return false;
+        IClasspathContainer previousContainer = containerGetDefaultToPreviousSession(project, containerPath);
+        if (container == null) {
+            if (previousContainer == null) {
+                containerPut(project, containerPath, null);
+                return true;
+            }
+            return false;
+        }
+        final IClasspathEntry[] newEntries = container.getClasspathEntries();
+        if (previousContainer == null)
+            if (newEntries.length == 0) {
+                containerPut(project, containerPath, container);
+                return true;
+            } else {
+                if (CP_RESOLVE_VERBOSE || CP_RESOLVE_VERBOSE_FAILURE)
+                    verbose_missbehaving_container(containerPath, projects, respectiveContainers, container, newEntries, null/*no old entries*/);
+                return false;
+            }
+        final IClasspathEntry[] oldEntries = previousContainer.getClasspathEntries();
+        if (oldEntries.length != newEntries.length) {
+            if (CP_RESOLVE_VERBOSE || CP_RESOLVE_VERBOSE_FAILURE)
+                verbose_missbehaving_container(containerPath, projects, respectiveContainers, container, newEntries, oldEntries);
+            return false;
+        }
+        for (int i = 0, length = newEntries.length; i < length; i++) {
+            if (newEntries[i] == null) {
+                if (CP_RESOLVE_VERBOSE || CP_RESOLVE_VERBOSE_FAILURE)
+                    verbose_missbehaving_container(project, containerPath, newEntries);
+                return false;
+            }
+            if (!newEntries[i].equals(oldEntries[i])) {
+                if (CP_RESOLVE_VERBOSE || CP_RESOLVE_VERBOSE_FAILURE)
+                    verbose_missbehaving_container(containerPath, projects, respectiveContainers, container, newEntries, oldEntries);
+                return false;
+            }
+        }
+        containerPut(project, containerPath, container);
+        return true;
+    }
+
+    public void containerBeingInitializedPut(IJavaProject project, IPath containerPath, IClasspathContainer container) {
+        Map perProjectContainers = (Map)this.containersBeingInitialized.get();
+        if (perProjectContainers == null)
+            this.containersBeingInitialized.set(perProjectContainers = new HashMap());
+        HashMap perPathContainers = (HashMap) perProjectContainers.get(project);
+        if (perPathContainers == null)
+            perProjectContainers.put(project, perPathContainers = new HashMap());
+        perPathContainers.put(containerPath, container);
+    }
+
+    public IClasspathContainer containerBeingInitializedGet(IJavaProject project, IPath containerPath) {
+        Map perProjectContainers = (Map)this.containersBeingInitialized.get();
+        if (perProjectContainers == null)
+            return null;
+        HashMap perPathContainers = (HashMap) perProjectContainers.get(project);
+        if (perPathContainers == null)
+            return null;
+        return (IClasspathContainer) perPathContainers.get(containerPath);
+    }
+
+    private void verbose_missbehaving_container(
+            IPath containerPath,
+            IJavaProject[] projects,
+            IClasspathContainer[] respectiveContainers,
+            final IClasspathContainer container,
+            final IClasspathEntry[] newEntries,
+            final IClasspathEntry[] oldEntries) {
+        Util.verbose(
+                "CPContainer SET  - missbehaving container\n" + //$NON-NLS-1$
+                "	container path: " + containerPath + '\n' + //$NON-NLS-1$
+                "	projects: {" +//$NON-NLS-1$
+                org.eclipse.jdt.internal.compiler.util.Util.toString(
+                        projects,
+                        new org.eclipse.jdt.internal.compiler.util.Util.Displayable(){
+                            public String displayString(Object o) { return ((IJavaProject) o).getElementName(); }
+                        }) +
+                "}\n	values on previous session: {\n"  +//$NON-NLS-1$
+                org.eclipse.jdt.internal.compiler.util.Util.toString(
+                        respectiveContainers,
+                        new org.eclipse.jdt.internal.compiler.util.Util.Displayable(){
+                            public String displayString(Object o) {
+                                StringBuffer buffer = new StringBuffer("		"); //$NON-NLS-1$
+                                if (o == null) {
+                                    buffer.append("<null>"); //$NON-NLS-1$
+                                    return buffer.toString();
+                                }
+                                buffer.append(container.getDescription());
+                                buffer.append(" {\n"); //$NON-NLS-1$
+                                if (oldEntries == null) {
+                                    buffer.append(" 			"); //$NON-NLS-1$
+                                    buffer.append("<null>\n"); //$NON-NLS-1$
+                                } else {
+                                    for (int j = 0; j < oldEntries.length; j++){
+                                        buffer.append(" 			"); //$NON-NLS-1$
+                                        buffer.append(oldEntries[j]);
+                                        buffer.append('\n');
+                                    }
+                                }
+                                buffer.append(" 		}"); //$NON-NLS-1$
+                                return buffer.toString();
+                            }
+                        }) +
+                "}\n	new values: {\n"  +//$NON-NLS-1$
+                org.eclipse.jdt.internal.compiler.util.Util.toString(
+                        respectiveContainers,
+                        new org.eclipse.jdt.internal.compiler.util.Util.Displayable(){
+                            public String displayString(Object o) {
+                                StringBuffer buffer = new StringBuffer("		"); //$NON-NLS-1$
+                                if (o == null) {
+                                    buffer.append("<null>"); //$NON-NLS-1$
+                                    return buffer.toString();
+                                }
+                                buffer.append(container.getDescription());
+                                buffer.append(" {\n"); //$NON-NLS-1$
+                                for (int j = 0; j < newEntries.length; j++){
+                                    buffer.append(" 			"); //$NON-NLS-1$
+                                    buffer.append(newEntries[j]);
+                                    buffer.append('\n');
+                                }
+                                buffer.append(" 		}"); //$NON-NLS-1$
+                                return buffer.toString();
+                            }
+                        }) +
+                "\n	}"); //$NON-NLS-1$
+    }
+
+    void verbose_missbehaving_container(IJavaProject project, IPath containerPath, IClasspathEntry[] classpathEntries) {
+        Util.verbose(
+                "CPContainer GET - missbehaving container (returning null classpath entry)\n" + //$NON-NLS-1$
+                "	project: " + project.getElementName() + '\n' + //$NON-NLS-1$
+                "	container path: " + containerPath + '\n' + //$NON-NLS-1$
+                "	classpath entries: {\n" + //$NON-NLS-1$
+                org.eclipse.jdt.internal.compiler.util.Util.toString(
+                        classpathEntries,
+                        new org.eclipse.jdt.internal.compiler.util.Util.Displayable(){
+                            public String displayString(Object o) {
+                                StringBuffer buffer = new StringBuffer("		"); //$NON-NLS-1$
+                                if (o == null) {
+                                    buffer.append("<null>"); //$NON-NLS-1$
+                                    return buffer.toString();
+                                }
+                                buffer.append(o);
+                                return buffer.toString();
+                            }
+                        }) +
+                "\n	}" //$NON-NLS-1$
+                    );
+    }
+
+
+    public synchronized IClasspathContainer containerGetDefaultToPreviousSession(IJavaProject project, IPath containerPath) {
+        Map projectContainers = (Map)this.containers.get(project);
+        if (projectContainers == null)
+            return getPreviousSessionContainer(containerPath, project);
+        IClasspathContainer container = (IClasspathContainer)projectContainers.get(containerPath);
+        if (container == null)
+            return getPreviousSessionContainer(containerPath, project);
+        return container;
+    }
+
+
+    public IClasspathEntry resolveVariableEntry(IClasspathEntry entry, boolean usePreviousSession) {
+
+        if (entry.getEntryKind() != IClasspathEntry.CPE_VARIABLE)
+            return entry;
+
+        IPath resolvedPath = getResolvedVariablePath(entry.getPath(), usePreviousSession);
+        if (resolvedPath == null)
+            return null;
+        // By passing a null reference path, we keep it relative to workspace root.
+        resolvedPath = ClasspathEntry.resolveDotDot(null, resolvedPath);
+
+        Object target = JavaModel.getTarget(resolvedPath, false);
+        if (target == null)
+            return null;
+
+        // inside the workspace
+        if (target instanceof IResource) {
+            IResource resolvedResource = (IResource) target;
+            switch (resolvedResource.getType()) {
+
+                case IResource.PROJECT :
+                    // internal project
+                    return JavaCore.newProjectEntry(
+                            resolvedPath,
+                            entry.getAccessRules(),
+                            entry.combineAccessRules(),
+                            entry.getExtraAttributes(),
+                            entry.isExported());
+                case IResource.FILE :
+                    // internal binary archive
+                    return JavaCore.newLibraryEntry(
+                            resolvedPath,
+                            getResolvedVariablePath(entry.getSourceAttachmentPath(), usePreviousSession),
+                            getResolvedVariablePath(entry.getSourceAttachmentRootPath(), usePreviousSession),
+                            entry.getAccessRules(),
+                            entry.getExtraAttributes(),
+                            entry.isExported());
+                case IResource.FOLDER :
+                    // internal binary folder
+                    return JavaCore.newLibraryEntry(
+                            resolvedPath,
+                            getResolvedVariablePath(entry.getSourceAttachmentPath(), usePreviousSession),
+                            getResolvedVariablePath(entry.getSourceAttachmentRootPath(), usePreviousSession),
+                            entry.getAccessRules(),
+                            entry.getExtraAttributes(),
+                            entry.isExported());
+            }
+        }
+        if (target instanceof File) {
+            File externalFile = JavaModel.getFile(target);
+            if (externalFile != null) {
+                // external binary archive
+                return JavaCore.newLibraryEntry(
+                        resolvedPath,
+                        getResolvedVariablePath(entry.getSourceAttachmentPath(), usePreviousSession),
+                        getResolvedVariablePath(entry.getSourceAttachmentRootPath(), usePreviousSession),
+                        entry.getAccessRules(),
+                        entry.getExtraAttributes(),
+                        entry.isExported());
+            } else {
+                // non-existing file
+                if (resolvedPath.isAbsolute()){
+                    return JavaCore.newLibraryEntry(
+                            resolvedPath,
+                            getResolvedVariablePath(entry.getSourceAttachmentPath(), usePreviousSession),
+                            getResolvedVariablePath(entry.getSourceAttachmentRootPath(), usePreviousSession),
+                            entry.getAccessRules(),
+                            entry.getExtraAttributes(),
+                            entry.isExported());
+                }
+            }
+        }
+        return null;
+    }
+
+    public IPath getResolvedVariablePath(IPath variablePath, boolean usePreviousSession) {
+
+        if (variablePath == null)
+            return null;
+        int count = variablePath.segmentCount();
+        if (count == 0)
+            return null;
+
+        // lookup variable
+        String variableName = variablePath.segment(0);
+        IPath resolvedPath = usePreviousSession ? getPreviousSessionVariable(variableName) : /*JavaCore.getClasspathVariable(variableName)*/ null;
+        if (resolvedPath == null)
+            return null;
+
+        // append path suffix
+        if (count > 1) {
+            resolvedPath = resolvedPath.append(variablePath.removeFirstSegments(1));
+        }
+        return resolvedPath;
+    }
+    /**
+     * Returns a persisted container from previous session if any
+     */
+    public IPath getPreviousSessionVariable(String variableName) {
+        IPath previousPath = (IPath)this.previousSessionVariables.get(variableName);
+        if (previousPath != null){
+            if (CP_RESOLVE_VERBOSE_ADVANCED)
+//                verbose_reentering_variable_access(variableName, previousPath);
+            return previousPath;
+        }
+        return null; // break cycle
     }
 
     /*
@@ -1087,10 +1888,6 @@ public class JavaModelManager {
         }
     }
 
-    public void setIndexManager(IndexManager indexManager) {
-        this.indexManager = indexManager;
-    }
-
     public synchronized BufferManager getDefaultBufferManager() {
         if (DEFAULT_BUFFER_MANAGER == null) {
             DEFAULT_BUFFER_MANAGER = new BufferManager();
@@ -1098,180 +1895,54 @@ public class JavaModelManager {
         return DEFAULT_BUFFER_MANAGER;
     }
 
-    /**
-     * Returns the Java element corresponding to the given resource, or
-     * <code>null</code> if unable to associate the given resource
-     * with a Java element.
-     * <p>
-     * The resource must be one of:<ul>
-     *	<li>a project - the element returned is the corresponding <code>IJavaProject</code></li>
-     *	<li>a <code>.java</code> file - the element returned is the corresponding <code>ICompilationUnit</code></li>
-     *	<li>a <code>.class</code> file - the element returned is the corresponding <code>IClassFile</code></li>
-     *	<li>a ZIP archive (e.g. a <code>.jar</code>, a <code>.zip</code> file, etc.) - the element returned is the corresponding <code>IPackageFragmentRoot</code></li>
-     *  <li>a folder - the element returned is the corresponding <code>IPackageFragmentRoot</code>
-     *			or <code>IPackageFragment</code></li>
-     *  <li>the workspace root resource - the element returned is the <code>IJavaModel</code></li>
-     *	</ul>
-     * <p>
-     * Creating a Java element has the side effect of creating and opening all of the
-     * element's parents if they are not yet open.
-     */
-    public static IJavaElement create(File resource, IJavaProject project) {
-        if (resource == null) {
-            return null;
-        }
-        if(resource.isFile()) {
-            return createFromFile(resource, project);
-        } else {
-            return createFromDirectory(resource, project);
-        }
-//        int type = resource.getType();
-//        switch (type) {
-//            case IResource.PROJECT :
-//                return JavaCore.create((IProject) resource);
-//            case IResource.FILE :
-//                return create((IFile) resource, project);
-//            case IResource.FOLDER :
-//                return create((IFolder) resource, project);
-//            case IResource.ROOT :
-//                return JavaCore.create((IWorkspaceRoot) resource);
-//            default :
-//                return null;
-//        }
-    }
-
-    /**
-     * Returns the Java element corresponding to the given file, its project being the given
-     * project.
-     * Returns <code>null</code> if unable to associate the given file
-     * with a Java element.
-     *
-     * <p>The file must be one of:<ul>
-     *	<li>a <code>.java</code> file - the element returned is the corresponding <code>ICompilationUnit</code></li>
-     *	<li>a <code>.class</code> file - the element returned is the corresponding <code>IClassFile</code></li>
-     *	<li>a ZIP archive (e.g. a <code>.jar</code>, a <code>.zip</code> file, etc.) - the element returned is the corresponding <code>IPackageFragmentRoot</code></li>
-     *	</ul>
-     * <p>
-     * Creating a Java element has the side effect of creating and opening all of the
-     * element's parents if they are not yet open.
-     */
-    public static IJavaElement createFromFile(File file, IJavaProject project) {
-        if (file == null) {
-            return null;
-        }
-//        if (project == null) {
-//            project = JavaCore.create(file.getProject());
-//        }
-
-//        if (file.getFileExtension() != null) {
-            String name = file.getName();
-            if (Util.isJavaLikeFileName(name))
-                return createCompilationUnitFrom(file, project);
-            if (org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(name))
-                return createClassFileFrom(file, project);
-            return createJarPackageFragmentRootFrom(file, (JavaProject)project);
-//        }
-//        return null;
-    }
-
-    /**
-     * Creates and returns a class file element for the given <code>.class</code> file,
-     * its project being the given project. Returns <code>null</code> if unable
-     * to recognize the class file.
-     */
-    public static IClassFile createClassFileFrom(File file, IJavaProject project ) {
-        if (file == null) {
-            return null;
-        }
-//        if (project == null) {
-//            project = JavaCore.create(file.getProject());
-//        }
-        IPackageFragment pkg = (IPackageFragment) determineIfOnClasspath(file, (JavaProject)project);
-        if (pkg == null) {
-            // fix for 1FVS7WE
-            // not on classpath - make the root its folder, and a default package
-            PackageFragmentRoot root = (PackageFragmentRoot) project.getPackageFragmentRoot(file.getParent());
-            pkg = root.getPackageFragment(CharOperation.NO_STRINGS);
-        }
-        return pkg.getClassFile(file.getName());
-    }
-
-    /**
-     * Creates and returns a handle for the given JAR file, its project being the given project.
-     * The Java model associated with the JAR's project may be
-     * created as a side effect.
-     * Returns <code>null</code> if unable to create a JAR package fragment root.
-     * (for example, if the JAR file represents a non-Java resource)
-     */
-    public static IPackageFragmentRoot createJarPackageFragmentRootFrom(File file, JavaProject project) {
-        if (file == null) {
-            return null;
-        }
-//        if (project == null) {
-//            project = JavaCore.create(file.getProject());
-//        }
-
-        // Create a jar package fragment root only if on the classpath
-        IPath resourcePath = new Path(file.getPath());
-        try {
-            IClasspathEntry entry = project.getClasspathEntryFor(resourcePath);
-            if (entry != null) {
-                return project.getPackageFragmentRoot(file);
-            }
-        } catch (JavaModelException e) {
-            // project doesn't exist: return null
-        }
-        return null;
-    }
-    /**
-     * Returns the package fragment or package fragment root corresponding to the given folder,
-     * its parent or great parent being the given project.
-     * or <code>null</code> if unable to associate the given folder with a Java element.
-     * <p>
-     * Note that a package fragment root is returned rather than a default package.
-     * <p>
-     * Creating a Java element has the side effect of creating and opening all of the
-     * element's parents if they are not yet open.
-     */
-    public static IJavaElement createFromDirectory(File folder, IJavaProject project) {
-        if (folder == null) {
-            return null;
-        }
-        IJavaElement element;
-//        if (project == null) {
-//            project = JavaCore.create(folder.getProject());
-//            element = determineIfOnClasspath(folder, project);
-//            if (element == null) {
-//                // walk all projects and find one that have the given folder on its classpath
-//                IJavaProject[] projects;
-//                try {
-//                    projects = JavaModelManager.getJavaModelManager().getJavaModel().getJavaProjects();
-//                } catch (JavaModelException e) {
-//                    return null;
-//                }
-//                for (int i = 0, length = projects.length; i < length; i++) {
-//                    project = projects[i];
-//                    element = determineIfOnClasspath(folder, project);
-//                    if (element != null)
-//                        break;
-//                }
-//            }
-//        } else {
-            element = determineIfOnClasspath(folder, (JavaProject)project);
-//        }
-        return element;
-    }
-
     public boolean forceBatchInitializations(boolean initAfterLoad) {
         return false;
     }
 
-    public void setJavaProject(JavaProject javaProject) {
-        this.javaProject = javaProject;
+    public synchronized void containerPut(IJavaProject project, IPath containerPath, IClasspathContainer container){
+
+        // set/unset the initialization in progress
+        if (container == CONTAINER_INITIALIZATION_IN_PROGRESS) {
+//            containerAddInitializationInProgress(project, containerPath);
+
+            // do not write out intermediate initialization value
+            return;
+        } else {
+//            containerRemoveInitializationInProgress(project, containerPath);
+
+            Map projectContainers = (Map)this.containers.get(project);
+            if (projectContainers == null){
+                projectContainers = new HashMap(1);
+                this.containers.put(project, projectContainers);
+            }
+
+            if (container == null) {
+                projectContainers.remove(containerPath);
+            } else {
+                projectContainers.put(containerPath, container);
+            }
+            // discard obsoleted information about previous session
+            Map previousContainers = (Map)this.previousSessionContainers.get(project);
+            if (previousContainers != null){
+                previousContainers.remove(containerPath);
+            }
+        }
+        // container values are persisted in preferences during save operations, see #saving(ISaveContext)
     }
 
-    public JavaProject getJavaProject() {
-        return javaProject;
+    public int getOpenableCacheSize() {
+        return this.cache.openableCache.getSpaceLimit();
+    }
+
+    public void resetClasspathListCache() {
+        if (this.nonChainingJars != null)
+            this.nonChainingJars.clear();
+        if (this.invalidArchives != null)
+            this.invalidArchives.clear();
+        if (this.externalFiles != null)
+            this.externalFiles.clear();
+        if (this.assumedExternalFiles != null)
+            this.assumedExternalFiles.clear();
     }
 
     /**
@@ -1313,7 +1984,7 @@ public class JavaModelManager {
     public static class PerProjectInfo {
         static final         IJavaModelStatus NEED_RESOLUTION            = new JavaModelStatus();
         private static final int              JAVADOC_CACHE_INITIAL_SIZE = 10;
-        //        public IProject          project;
+                public IProject          project;
         public Object            savedState;
         public boolean           triedRead;
         public IClasspathEntry[] rawClasspath;
@@ -1332,11 +2003,11 @@ public class JavaModelManager {
         public Hashtable secondaryTypes;
         public LRUCache  javadocCache;
 
-        public PerProjectInfo(/*IProject project*/) {
+        public PerProjectInfo(IProject project) {
 
             this.triedRead = false;
             this.savedState = null;
-//            this.project = project;
+            this.project = project;
             this.javadocCache = new LRUCache(JAVADOC_CACHE_INITIAL_SIZE);
         }
 
@@ -1387,139 +2058,136 @@ public class JavaModelManager {
             throw new UnsupportedOperationException();
         }
 
-//        public synchronized ClasspathChange resetResolvedClasspath() {
-//            // clear non-chaining jars cache and invalid jars cache
-//            JavaModelManager.getJavaModelManager().resetClasspathListCache();
-//
-//            // null out resolved information
-//            return setResolvedClasspath(null, null, null, null, this.rawTimeStamp, true/*add classpath change*/);
-//            throw new UnsupportedOperationException();
-//        }
+        public synchronized ClasspathChange resetResolvedClasspath() {
+            // clear non-chaining jars cache and invalid jars cache
+            JavaModelManager.getJavaModelManager().resetClasspathListCache();
 
-//        private ClasspathChange setClasspath(IClasspathEntry[] newRawClasspath, IClasspathEntry[] referencedEntries,
-//                                             IPath newOutputLocation, IJavaModelStatus newRawClasspathStatus,
-//                                             IClasspathEntry[] newResolvedClasspath, Map newRootPathToRawEntries,
-//                                             Map newRootPathToResolvedEntries, IJavaModelStatus newUnresolvedEntryStatus,
-//                                             boolean addClasspathChange) {
-//            ClasspathChange classpathChange = addClasspathChange ? addClasspathChange() : null;
-//
-//            if (referencedEntries != null) this.referencedEntries = referencedEntries;
-//            if (this.referencedEntries == null) this.referencedEntries = org.eclipse.jdt.internal.core.ClasspathEntry.NO_ENTRIES;
-//            this.rawClasspath = newRawClasspath;
-//            this.outputLocation = newOutputLocation;
-//            this.rawClasspathStatus = newRawClasspathStatus;
-//            this.resolvedClasspath = newResolvedClasspath;
-//            this.rootPathToRawEntries = newRootPathToRawEntries;
-//            this.rootPathToResolvedEntries = newRootPathToResolvedEntries;
-//            this.unresolvedEntryStatus = newUnresolvedEntryStatus;
-//            this.javadocCache = new LRUCache(JAVADOC_CACHE_INITIAL_SIZE);
-//
-//            return classpathChange;
-//        }
-//
-//        protected ClasspathChange addClasspathChange() {
-////            // remember old info
-////            JavaModelManager manager = JavaModelManager.getJavaModelManager();
-////            ClasspathChange classpathChange =
-////                    manager.deltaState.addClasspathChange(this.project, this.rawClasspath, this.outputLocation, this.resolvedClasspath);
-////            return classpathChange;
-//            throw new UnsupportedOperationException();
-//        }
-//
-//        public ClasspathChange setRawClasspath(IClasspathEntry[] newRawClasspath, IPath newOutputLocation,
-//                                               IJavaModelStatus newRawClasspathStatus) {
-//            return setRawClasspath(newRawClasspath, null, newOutputLocation, newRawClasspathStatus);
-//        }
-//
-//        public synchronized ClasspathChange setRawClasspath(IClasspathEntry[] newRawClasspath, IClasspathEntry[] referencedEntries,
-//                                                            IPath newOutputLocation, IJavaModelStatus newRawClasspathStatus) {
-//            this.rawTimeStamp++;
-//            return setClasspath(newRawClasspath, referencedEntries, newOutputLocation, newRawClasspathStatus, null/*resolved classpath*/,
-//                                null/*root to raw map*/, null/*root to resolved map*/, null/*unresolved status*/, true/*add classpath
-//                                change*/);
-//        }
-//
-//        public ClasspathChange setResolvedClasspath(IClasspathEntry[] newResolvedClasspath, Map newRootPathToRawEntries,
-//                                                    Map newRootPathToResolvedEntries, IJavaModelStatus newUnresolvedEntryStatus,
-//                                                    int timeStamp, boolean addClasspathChange) {
-//            return setResolvedClasspath(newResolvedClasspath, null, newRootPathToRawEntries, newRootPathToResolvedEntries,
-//                                        newUnresolvedEntryStatus, timeStamp, addClasspathChange);
-//        }
-//
-//        public synchronized ClasspathChange setResolvedClasspath(IClasspathEntry[] newResolvedClasspath,
-//                                                                 IClasspathEntry[] referencedEntries, Map newRootPathToRawEntries,
-//                                                                 Map newRootPathToResolvedEntries,
-//                                                                 IJavaModelStatus newUnresolvedEntryStatus, int timeStamp,
-//                                                                 boolean addClasspathChange) {
-//            if (this.rawTimeStamp != timeStamp)
-//                return null;
-//            return setClasspath(this.rawClasspath, referencedEntries, this.outputLocation, this.rawClasspathStatus, newResolvedClasspath,
-//                                newRootPathToRawEntries, newRootPathToResolvedEntries, newUnresolvedEntryStatus, addClasspathChange);
-//        }
+            // null out resolved information
+            return setResolvedClasspath(null, null, null, null, this.rawTimeStamp, true/*add classpath change*/);
+        }
+
+        private ClasspathChange setClasspath(IClasspathEntry[] newRawClasspath, IClasspathEntry[] referencedEntries,
+                                             IPath newOutputLocation, IJavaModelStatus newRawClasspathStatus,
+                                             IClasspathEntry[] newResolvedClasspath, Map newRootPathToRawEntries,
+                                             Map newRootPathToResolvedEntries, IJavaModelStatus newUnresolvedEntryStatus,
+                                             boolean addClasspathChange) {
+            ClasspathChange classpathChange = addClasspathChange ? addClasspathChange() : null;
+
+            if (referencedEntries != null) this.referencedEntries = referencedEntries;
+            if (this.referencedEntries == null) this.referencedEntries = org.eclipse.jdt.internal.core.ClasspathEntry.NO_ENTRIES;
+            this.rawClasspath = newRawClasspath;
+            this.outputLocation = newOutputLocation;
+            this.rawClasspathStatus = newRawClasspathStatus;
+            this.resolvedClasspath = newResolvedClasspath;
+            this.rootPathToRawEntries = newRootPathToRawEntries;
+            this.rootPathToResolvedEntries = newRootPathToResolvedEntries;
+            this.unresolvedEntryStatus = newUnresolvedEntryStatus;
+            this.javadocCache = new LRUCache(JAVADOC_CACHE_INITIAL_SIZE);
+
+            return classpathChange;
+        }
+
+        protected ClasspathChange addClasspathChange() {
+            // remember old info
+            JavaModelManager manager = JavaModelManager.getJavaModelManager();
+            ClasspathChange classpathChange =
+                    manager.deltaState.addClasspathChange(this.project, this.rawClasspath, this.outputLocation, this.resolvedClasspath);
+            return classpathChange;
+        }
+
+        public ClasspathChange setRawClasspath(IClasspathEntry[] newRawClasspath, IPath newOutputLocation,
+                                               IJavaModelStatus newRawClasspathStatus) {
+            return setRawClasspath(newRawClasspath, null, newOutputLocation, newRawClasspathStatus);
+        }
+
+        public synchronized ClasspathChange setRawClasspath(IClasspathEntry[] newRawClasspath, IClasspathEntry[] referencedEntries,
+                                                            IPath newOutputLocation, IJavaModelStatus newRawClasspathStatus) {
+            this.rawTimeStamp++;
+            return setClasspath(newRawClasspath, referencedEntries, newOutputLocation, newRawClasspathStatus, null/*resolved classpath*/,
+                                null/*root to raw map*/, null/*root to resolved map*/, null/*unresolved status*/, true/*add classpath
+                                change*/);
+        }
+
+        public ClasspathChange setResolvedClasspath(IClasspathEntry[] newResolvedClasspath, Map newRootPathToRawEntries,
+                                                    Map newRootPathToResolvedEntries, IJavaModelStatus newUnresolvedEntryStatus,
+                                                    int timeStamp, boolean addClasspathChange) {
+            return setResolvedClasspath(newResolvedClasspath, null, newRootPathToRawEntries, newRootPathToResolvedEntries,
+                                        newUnresolvedEntryStatus, timeStamp, addClasspathChange);
+        }
+
+        public synchronized ClasspathChange setResolvedClasspath(IClasspathEntry[] newResolvedClasspath,
+                                                                 IClasspathEntry[] referencedEntries, Map newRootPathToRawEntries,
+                                                                 Map newRootPathToResolvedEntries,
+                                                                 IJavaModelStatus newUnresolvedEntryStatus, int timeStamp,
+                                                                 boolean addClasspathChange) {
+            if (this.rawTimeStamp != timeStamp)
+                return null;
+            return setClasspath(this.rawClasspath, referencedEntries, this.outputLocation, this.rawClasspathStatus, newResolvedClasspath,
+                                newRootPathToRawEntries, newRootPathToResolvedEntries, newUnresolvedEntryStatus, addClasspathChange);
+        }
 
         /**
          * Reads the classpath and caches the entries. Returns a two-dimensional array, where the number of elements in the row is fixed
          * to 2.
          * The first element is an array of raw classpath entries and the second element is an array of referenced entries that may have
          * been stored
-         * by the client earlier. See {@link IJavaProject#getReferencedClasspathEntries()} for more details.
+         * by the client earlier. See {@link org.eclipse.jdt.core.IJavaProject#getReferencedClasspathEntries()} for more details.
          */
         public synchronized IClasspathEntry[][] readAndCacheClasspath(JavaProject javaProject) {
-//            // read file entries and update status
-//            IClasspathEntry[][] classpath;
-//            IJavaModelStatus status;
-//            try {
-//                classpath = javaProject.readFileEntriesWithException(null/*not interested in unknown elements*/);
-//                status = JavaModelStatus.VERIFIED_OK;
-//            } catch (CoreException e) {
-//                classpath = new IClasspathEntry[][]{JavaProject.INVALID_CLASSPATH,
-//                                                    ClasspathEntry.NO_ENTRIES};
-//                status =
-//                        new JavaModelStatus(
-//                                IJavaModelStatusConstants.INVALID_CLASSPATH_FILE_FORMAT,
-//                                Messages.bind(Messages.classpath_cannotReadClasspathFile, javaProject.getElementName()));
-//            } catch (IOException e) {
-//                classpath = new IClasspathEntry[][]{JavaProject.INVALID_CLASSPATH,
-//                                                    ClasspathEntry.NO_ENTRIES};
-//                if (Messages.file_badFormat.equals(e.getMessage()))
-//                    status =
-//                            new JavaModelStatus(
-//                                    IJavaModelStatusConstants.INVALID_CLASSPATH_FILE_FORMAT,
-//                                    Messages.bind(Messages.classpath_xmlFormatError, javaProject.getElementName(),
-//                                                  Messages.file_badFormat));
-//                else
-//                    status =
-//                            new JavaModelStatus(
-//                                    IJavaModelStatusConstants.INVALID_CLASSPATH_FILE_FORMAT,
-//                                    Messages.bind(Messages.classpath_cannotReadClasspathFile, javaProject.getElementName()));
-//            } catch (ClasspathEntry.AssertionFailedException e) {
-//                classpath = new IClasspathEntry[][]{JavaProject.INVALID_CLASSPATH,
-//                                                    ClasspathEntry.NO_ENTRIES};
-//                status =
-//                        new JavaModelStatus(
-//                                IJavaModelStatusConstants.INVALID_CLASSPATH_FILE_FORMAT,
-//                                Messages.bind(Messages.classpath_illegalEntryInClasspathFile,
-//                                              new String[]{javaProject.getElementName(), e.getMessage()}));
-//            }
-//
-//            // extract out the output location
-//            int rawClasspathLength = classpath[0].length;
-//            IPath output = null;
-//            if (rawClasspathLength > 0) {
-//                IClasspathEntry entry = classpath[0][rawClasspathLength - 1];
-//                if (entry.getContentKind() == ClasspathEntry.K_OUTPUT) {
-//                    output = entry.getPath();
-//                    IClasspathEntry[] copy = new IClasspathEntry[rawClasspathLength - 1];
-//                    System.arraycopy(classpath[0], 0, copy, 0, copy.length);
-//                    classpath[0] = copy;
-//                }
-//            }
-//
-//            // store new raw classpath, new output and new status, and null out resolved info
-////            setRawClasspath(classpath[0], classpath[1], output, status);
-//
-//            return classpath;
-            throw new UnsupportedOperationException();
+            // read file entries and update status
+            IClasspathEntry[][] classpath;
+            IJavaModelStatus status;
+            try {
+                classpath = javaProject.readFileEntriesWithException(null/*not interested in unknown elements*/);
+                status = JavaModelStatus.VERIFIED_OK;
+            } catch (CoreException e) {
+                classpath = new IClasspathEntry[][]{JavaProject.INVALID_CLASSPATH,
+                                                    ClasspathEntry.NO_ENTRIES};
+                status =
+                        new JavaModelStatus(
+                                IJavaModelStatusConstants.INVALID_CLASSPATH_FILE_FORMAT,
+                                Messages.bind(Messages.classpath_cannotReadClasspathFile, javaProject.getElementName()));
+            } catch (IOException e) {
+                classpath = new IClasspathEntry[][]{JavaProject.INVALID_CLASSPATH,
+                                                    ClasspathEntry.NO_ENTRIES};
+                if (Messages.file_badFormat.equals(e.getMessage()))
+                    status =
+                            new JavaModelStatus(
+                                    IJavaModelStatusConstants.INVALID_CLASSPATH_FILE_FORMAT,
+                                    Messages.bind(Messages.classpath_xmlFormatError, javaProject.getElementName(),
+                                                  Messages.file_badFormat));
+                else
+                    status =
+                            new JavaModelStatus(
+                                    IJavaModelStatusConstants.INVALID_CLASSPATH_FILE_FORMAT,
+                                    Messages.bind(Messages.classpath_cannotReadClasspathFile, javaProject.getElementName()));
+            } catch (ClasspathEntry.AssertionFailedException e) {
+                classpath = new IClasspathEntry[][]{JavaProject.INVALID_CLASSPATH,
+                                                    ClasspathEntry.NO_ENTRIES};
+                status =
+                        new JavaModelStatus(
+                                IJavaModelStatusConstants.INVALID_CLASSPATH_FILE_FORMAT,
+                                Messages.bind(Messages.classpath_illegalEntryInClasspathFile,
+                                              new String[]{javaProject.getElementName(), e.getMessage()}));
+            }
+
+            // extract out the output location
+            int rawClasspathLength = classpath[0].length;
+            IPath output = null;
+            if (rawClasspathLength > 0) {
+                IClasspathEntry entry = classpath[0][rawClasspathLength - 1];
+                if (entry.getContentKind() == ClasspathEntry.K_OUTPUT) {
+                    output = entry.getPath();
+                    IClasspathEntry[] copy = new IClasspathEntry[rawClasspathLength - 1];
+                    System.arraycopy(classpath[0], 0, copy, 0, copy.length);
+                    classpath[0] = copy;
+                }
+            }
+
+            // store new raw classpath, new output and new status, and null out resolved info
+            setRawClasspath(classpath[0], classpath[1], output, status);
+
+            return classpath;
         }
 
         public String toString() {

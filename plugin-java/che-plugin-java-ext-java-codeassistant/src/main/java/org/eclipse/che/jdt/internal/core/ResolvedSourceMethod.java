@@ -23,7 +23,7 @@ public class ResolvedSourceMethod extends SourceMethod {
 	 * See class comments.
 	 */
 	public ResolvedSourceMethod(JavaElement parent, String name, String[] parameterTypes, String uniqueKey) {
-		super(parent,parent.manager, name, parameterTypes);
+		super(parent, name, parameterTypes);
 		this.uniqueKey = uniqueKey;
 	}
 
@@ -53,7 +53,7 @@ public class ResolvedSourceMethod extends SourceMethod {
 	}
 
 	public JavaElement unresolved() {
-		SourceRefElement handle = new SourceMethod(this.parent, manager, this.name, this.parameterTypes);
+		SourceRefElement handle = new SourceMethod(this.parent, this.name, this.parameterTypes);
 		handle.occurrenceCount = this.occurrenceCount;
 		return handle;
 	}

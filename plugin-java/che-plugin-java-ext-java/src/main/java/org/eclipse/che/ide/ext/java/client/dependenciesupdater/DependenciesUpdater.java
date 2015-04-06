@@ -14,7 +14,6 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.event.shared.EventBus;
 
-import org.eclipse.che.api.builder.BuildStatus;
 import org.eclipse.che.api.builder.dto.BuildTaskDescriptor;
 import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.ide.api.app.AppContext;
@@ -122,19 +121,19 @@ public class DependenciesUpdater {
         // send a first request to launch build process and return build task descriptor
         final Unmarshallable<BuildTaskDescriptor> unmarshaller = dtoUnmarshallerFactory.newUnmarshaller(BuildTaskDescriptor.class);
         nameEnvironmentServiceClient.updateDependencies(
-                project.getPath(), force, new AsyncRequestCallback<BuildTaskDescriptor>(unmarshaller) {
+                project.getPath(), force, new AsyncRequestCallback<Boolean>() {
                     @Override
-                    protected void onSuccess(BuildTaskDescriptor descriptor) {
-                        buildContext.setBuildTaskDescriptor(descriptor);
-
-                        if (descriptor.getStatus() == BuildStatus.SUCCESSFUL) {
-                            onUpdated();
-                            return;
-                        }
-                        buildController.showRunningBuild(descriptor, "[INFO] Updating dependencies...");
-
-                        // send a second request to be notified when dependencies update is finished
-                        updateAndWait(descriptor, project);
+                    protected void onSuccess(Boolean descriptor) {
+////                        buildContext.setBuildTaskDescriptor(descriptor);
+//
+//                        if (descriptor.getStatus() == BuildStatus.SUCCESSFUL) {
+                        onUpdated();
+//                            return;
+//                        }
+//                        buildController.showRunningBuild(descriptor, "[INFO] Updating dependencies...");
+//
+//                        // send a second request to be notified when dependencies update is finished
+//                        updateAndWait(descriptor, project);
                     }
 
                     @Override

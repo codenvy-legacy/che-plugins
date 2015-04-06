@@ -118,15 +118,12 @@ public class NameLookup implements SuffixConstants {
      * Allows working copies to take precedence over compilation units.
      */
     protected HashMap          typesInWorkingCopies;
-    private   JavaModelManager manager;
 
     public NameLookup(
             IPackageFragmentRoot[] packageFragmentRoots,
             HashtableOfArrayToObject packageFragments,
             ICompilationUnit[] workingCopies,
-            Map rootToResolvedEntries,
-            JavaModelManager manager) {
-        this.manager = manager;
+            Map rootToResolvedEntries) {
         long start = -1;
         if (VERBOSE) {
             Util.verbose(" BUILDING NameLoopkup");  //$NON-NLS-1$
@@ -572,7 +569,7 @@ public class NameLookup implements SuffixConstants {
      */
     private IType findSecondaryType(String packageName, String typeName, IJavaProject project, boolean waitForIndexes,
                                     IProgressMonitor monitor) {
-//		JavaModelManager manager = JavaModelManager.getJavaModelManager();
+        JavaModelManager manager = JavaModelManager.getJavaModelManager();
         try {
             IJavaProject javaProject = project;
             Map secondaryTypePaths = manager.secondaryTypes(javaProject, waitForIndexes, monitor);
@@ -1056,7 +1053,7 @@ public class NameLookup implements SuffixConstants {
             if (!partialMatch) {
                 // exact match
                 if (requestor.isCanceled()) return;
-                ClassFile classFile = new ClassFile((PackageFragment)pkg, manager, name);
+                ClassFile classFile = new ClassFile((PackageFragment)pkg, name);
                 if (classFile.existsUsingJarTypeCache()) {
                     IType type = classFile.getType();
                     if (acceptType(type, acceptFlags, false/*not a source type*/)) {

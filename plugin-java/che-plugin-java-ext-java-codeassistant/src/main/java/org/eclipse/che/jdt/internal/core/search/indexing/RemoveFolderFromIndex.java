@@ -10,8 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.jdt.internal.core.search.indexing;
 
-import org.eclipse.che.jdt.internal.core.JavaProject;
-
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
@@ -27,7 +26,7 @@ class RemoveFolderFromIndex extends IndexRequest {
 	char[][] inclusionPatterns;
 	char[][] exclusionPatterns;
 
-	public RemoveFolderFromIndex(IPath folderPath, char[][] inclusionPatterns, char[][] exclusionPatterns, JavaProject project, IndexManager manager) {
+	public RemoveFolderFromIndex(IPath folderPath, char[][] inclusionPatterns, char[][] exclusionPatterns, IProject project, IndexManager manager) {
 		super(project.getFullPath(), manager);
 		this.folderPath = folderPath;
 		this.inclusionPatterns = inclusionPatterns;

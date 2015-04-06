@@ -49,7 +49,7 @@ public class JavadocTest extends BaseTest {
 
     @Test
     public void findObjectDoc() throws JavaModelException {
-        String javadoc = finder.findJavadoc(project, "Ljava/lang/Object;");
+        String javadoc = finder.findJavadoc(project, "java.lang.Object", 514);
         Assert.assertNotNull(javadoc);
         assertThat(javadoc).isNotNull().isNotEmpty().contains("Class <code>Object</code> is the root of the class hierarchy.");
     }

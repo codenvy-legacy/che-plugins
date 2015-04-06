@@ -10,6 +10,11 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.java.worker;
 
+import com.google.gwt.webworker.client.MessageEvent;
+import com.google.gwt.webworker.client.MessageHandler;
+import com.google.gwt.webworker.client.messages.MessageFilter;
+import com.google.gwt.webworker.client.messages.MessageImpl;
+
 import org.eclipse.che.ide.collections.Jso;
 import org.eclipse.che.ide.collections.StringMap;
 import org.eclipse.che.ide.collections.js.JsoArray;
@@ -45,16 +50,6 @@ import org.eclipse.che.ide.ext.java.jdt.templates.TemplateStore;
 import org.eclipse.che.ide.ext.java.jdt.templates.TypeResolver;
 import org.eclipse.che.ide.ext.java.jdt.templates.TypeVariableResolver;
 import org.eclipse.che.ide.ext.java.jdt.templates.VarResolver;
-import org.eclipse.che.ide.ext.java.messages.ConfigMessage;
-import org.eclipse.che.ide.ext.java.messages.DependenciesUpdatedMessage;
-import org.eclipse.che.ide.ext.java.messages.FileClosedMessage;
-import org.eclipse.che.ide.ext.java.messages.FormatMessage;
-import org.eclipse.che.ide.ext.java.messages.ParseMessage;
-import org.eclipse.che.ide.ext.java.messages.PreferenceFormatSetMessage;
-import org.eclipse.che.ide.ext.java.messages.Problem;
-import org.eclipse.che.ide.ext.java.messages.RemoveFqnMessage;
-import org.eclipse.che.ide.ext.java.messages.RoutingTypes;
-import org.eclipse.che.ide.ext.java.messages.impl.MessagesImpls;
 import org.eclipse.che.ide.ext.java.jdt.text.edits.CopySourceEdit;
 import org.eclipse.che.ide.ext.java.jdt.text.edits.CopyTargetEdit;
 import org.eclipse.che.ide.ext.java.jdt.text.edits.CopyingRangeMarker;
@@ -66,10 +61,16 @@ import org.eclipse.che.ide.ext.java.jdt.text.edits.MultiTextEdit;
 import org.eclipse.che.ide.ext.java.jdt.text.edits.RangeMarker;
 import org.eclipse.che.ide.ext.java.jdt.text.edits.ReplaceEdit;
 import org.eclipse.che.ide.ext.java.jdt.text.edits.TextEdit;
-import com.google.gwt.webworker.client.MessageEvent;
-import com.google.gwt.webworker.client.MessageHandler;
-import com.google.gwt.webworker.client.messages.MessageFilter;
-import com.google.gwt.webworker.client.messages.MessageImpl;
+import org.eclipse.che.ide.ext.java.messages.ConfigMessage;
+import org.eclipse.che.ide.ext.java.messages.DependenciesUpdatedMessage;
+import org.eclipse.che.ide.ext.java.messages.FileClosedMessage;
+import org.eclipse.che.ide.ext.java.messages.FormatMessage;
+import org.eclipse.che.ide.ext.java.messages.ParseMessage;
+import org.eclipse.che.ide.ext.java.messages.PreferenceFormatSetMessage;
+import org.eclipse.che.ide.ext.java.messages.Problem;
+import org.eclipse.che.ide.ext.java.messages.RemoveFqnMessage;
+import org.eclipse.che.ide.ext.java.messages.RoutingTypes;
+import org.eclipse.che.ide.ext.java.messages.impl.MessagesImpls;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -274,7 +275,7 @@ public class WorkerMessageHandler implements MessageHandler, MessageFilter.Messa
         options.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
         options.put(CompilerOptions.OPTION_TaskTags, CompilerOptions.WARNING);
         options.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.WARNING);
-        options.put(CompilerOptions.OPTION_SuppressWarnings, CompilerOptions.DISABLED);
+        options.put(CompilerOptions.OPTION_SuppressWarnings, CompilerOptions.ENABLED);
         options.put(JavaCore.COMPILER_TASK_TAGS, "TODO,FIXME,XXX");
         options.put(JavaCore.COMPILER_PB_UNUSED_PARAMETER_INCLUDE_DOC_COMMENT_REFERENCE, JavaCore.ENABLED);
         options.put(JavaCore.COMPILER_DOC_COMMENT_SUPPORT, JavaCore.ENABLED);

@@ -32,12 +32,12 @@ public class Annotation extends SourceRefElement implements IAnnotation {
 	// require to distinguish same annotations in different member value pairs
 	protected String memberValuePairName;
 
-	public Annotation(JavaElement parent, JavaModelManager manager, String name) {
-		this(parent, manager, name, null);
+	public Annotation(JavaElement parent, String name) {
+		this(parent, name, null);
 	}
 
-	public Annotation(JavaElement parent,JavaModelManager manager, String name, String memberValuePairName) {
-		super(parent, manager);
+	public Annotation(JavaElement parent, String name, String memberValuePairName) {
+		super(parent);
 		this.name = name;
 		this.memberValuePairName = memberValuePairName;
 	}
@@ -83,7 +83,7 @@ public class Annotation extends SourceRefElement implements IAnnotation {
 		for (int i = 0; i < length; i++) {
 			IBinaryElementValuePair binaryAnnotation = binaryAnnotations[i];
 			MemberValuePair memberValuePair = new MemberValuePair(new String(binaryAnnotation.getName()));
-			memberValuePair.value = Util.getAnnotationMemberValue(this, manager, memberValuePair, binaryAnnotation.getValue());
+			memberValuePair.value = Util.getAnnotationMemberValue(this, memberValuePair, binaryAnnotation.getValue());
 			result[i] = memberValuePair;
 		}
 		return result;

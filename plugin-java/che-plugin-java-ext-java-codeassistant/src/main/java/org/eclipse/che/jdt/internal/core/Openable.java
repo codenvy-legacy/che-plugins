@@ -11,6 +11,7 @@
 
 package org.eclipse.che.jdt.internal.core;
 
+import org.eclipse.che.jdt.internal.codeassist.SelectionEngine;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -27,10 +28,10 @@ import org.eclipse.jdt.core.IOpenable;
 import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
+import org.eclipse.che.jdt.internal.codeassist.CompletionEngine;
 import org.eclipse.jdt.internal.core.JavaModelStatus;
 import org.eclipse.jdt.internal.core.util.Util;
 
-import java.io.File;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -39,8 +40,8 @@ import java.util.Map;
  * @author Evgen Vidolob
  */
 public abstract class Openable extends JavaElement implements IOpenable, IBufferChangedListener {
-    protected Openable(JavaElement parent, JavaModelManager manager) {
-        super(parent, manager);
+    protected Openable(JavaElement parent) {
+        super(parent);
     }
 
 //    @Override
@@ -58,10 +59,10 @@ public abstract class Openable extends JavaElement implements IOpenable, IBuffer
      */
     public void bufferChanged(BufferChangedEvent event) {
         if (event.getBuffer().isClosed()) {
-            manager.getElementsOutOfSynchWithBuffers().remove(this);
+            JavaModelManager.getJavaModelManager().getElementsOutOfSynchWithBuffers().remove(this);
             getBufferManager().removeBuffer(event.getBuffer());
         } else {
-            manager.getElementsOutOfSynchWithBuffers().add(this);
+            JavaModelManager.getJavaModelManager().getElementsOutOfSynchWithBuffers().add(this);
         }
     }
 
@@ -75,9 +76,8 @@ public abstract class Openable extends JavaElement implements IOpenable, IBuffer
      * if successful, or false if an error is encountered while determining
      * the structure of this element.
      */
-    protected abstract boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, Map newElements, File underlyingResource)
-            throws
-            JavaModelException;
+    protected abstract boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, Map newElements, IResource underlyingResource)
+            throws JavaModelException;
 
     /*
      * Returns whether this element can be removed from the Java model cache to make space.
@@ -123,41 +123,40 @@ public abstract class Openable extends JavaElement implements IOpenable, IBuffer
             WorkingCopyOwner owner,
             ITypeRoot typeRoot,
             IProgressMonitor monitor) throws JavaModelException {
-//        if (requestor == null) {
-//            throw new IllegalArgumentException("Completion requestor cannot be null"); //$NON-NLS-1$
-//        }
+        if (requestor == null) {
+            throw new IllegalArgumentException("Completion requestor cannot be null"); //$NON-NLS-1$
+        }
 //        PerformanceStats performanceStats = CompletionEngine.PERF
 //                                            ? PerformanceStats.getStats(JavaModelManager.COMPLETION_PERF, this)
 //                                            : null;
 //        if(performanceStats != null) {
 //            performanceStats.startRun(new String(cu.getFileName()) + " at " + position); //$NON-NLS-1$
 //        }
-//        IBuffer buffer = getBuffer();
-//        if (buffer == null) {
-//            return;
-//        }
-//        if (position < -1 || position > buffer.getLength()) {
-//            throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INDEX_OUT_OF_BOUNDS));
-//        }
-//        JavaProject project = (JavaProject) getJavaProject();
-//        SearchableEnvironment environment = project.newSearchableNameEnvironment(owner);
-//
-//        // set unit to skip
-//        environment.unitToSkip = unitToSkip;
-//
-//        // code complete
-//        CompletionEngine engine = new CompletionEngine(environment, requestor, project.getOptions(true), project, owner, monitor);
-//        engine.complete(cu, position, 0, typeRoot);
+        IBuffer buffer = getBuffer();
+        if (buffer == null) {
+            return;
+        }
+        if (position < -1 || position > buffer.getLength()) {
+            throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INDEX_OUT_OF_BOUNDS));
+        }
+        JavaProject project = (JavaProject) getJavaProject();
+        SearchableEnvironment environment = project.newSearchableNameEnvironment(owner);
+
+        // set unit to skip
+        environment.unitToSkip = unitToSkip;
+
+        // code complete
+        CompletionEngine engine = new CompletionEngine(environment, requestor, project.getOptions(true), project, owner, monitor);
+        engine.complete(cu, position, 0, typeRoot);
 //        if(performanceStats != null) {
 //            performanceStats.endRun();
 //        }
-//        if (NameLookup.VERBOSE) {
-//            System.out.println(Thread.currentThread() + " TIME SPENT in NameLoopkup#seekTypesInSourcePackage: " + environment
-// .nameLookup.timeSpentInSeekTypesInSourcePackage + "ms");  //$NON-NLS-1$ //$NON-NLS-2$
-//            System.out.println(Thread.currentThread() + " TIME SPENT in NameLoopkup#seekTypesInBinaryPackage: " + environment
-// .nameLookup.timeSpentInSeekTypesInBinaryPackage + "ms");  //$NON-NLS-1$ //$NON-NLS-2$
-//        }
-        throw new UnsupportedOperationException();
+        if (NameLookup.VERBOSE) {
+            System.out.println(Thread.currentThread() + " TIME SPENT in NameLoopkup#seekTypesInSourcePackage: " + environment
+ .nameLookup.timeSpentInSeekTypesInSourcePackage + "ms");  //$NON-NLS-1$ //$NON-NLS-2$
+            System.out.println(Thread.currentThread() + " TIME SPENT in NameLoopkup#seekTypesInBinaryPackage: " + environment
+ .nameLookup.timeSpentInSeekTypesInBinaryPackage + "ms");  //$NON-NLS-1$ //$NON-NLS-2$
+        }
     }
 
     protected IJavaElement[] codeSelect(org.eclipse.jdt.internal.compiler.env.ICompilationUnit cu, int offset, int length, WorkingCopyOwner
@@ -170,34 +169,33 @@ public abstract class Openable extends JavaElement implements IOpenable, IBuffer
 // $NON-NLS-2$ //$NON-NLS-3$
 //        }
 //
-//        JavaProject project = (JavaProject)getJavaProject();
-//        SearchableEnvironment environment = project.newSearchableNameEnvironment(owner);
+        JavaProject project = (JavaProject)getJavaProject();
+        SearchableEnvironment environment = project.newSearchableNameEnvironment(owner);
 //
-//        SelectionRequestor requestor= new SelectionRequestor(environment.nameLookup, this);
-//        IBuffer buffer = getBuffer();
-//        if (buffer == null) {
-//            return requestor.getElements();
-//        }
-//        int end= buffer.getLength();
-//        if (offset < 0 || length < 0 || offset + length > end ) {
-//            throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INDEX_OUT_OF_BOUNDS));
-//        }
-//
-//        // fix for 1FVXGDK
-//        SelectionEngine engine = new SelectionEngine(environment, requestor, project.getOptions(true), owner);
-//        engine.select(cu, offset, offset + length - 1);
-//
+        SelectionRequestor requestor= new SelectionRequestor(environment.nameLookup, this);
+        IBuffer buffer = getBuffer();
+        if (buffer == null) {
+            return requestor.getElements();
+        }
+        int end= buffer.getLength();
+        if (offset < 0 || length < 0 || offset + length > end ) {
+            throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INDEX_OUT_OF_BOUNDS));
+        }
+
+        // fix for 1FVXGDK
+        SelectionEngine engine = new SelectionEngine(environment, requestor, project.getOptions(true), owner);
+        engine.select(cu, offset, offset + length - 1);
+
 //        if(performanceStats != null) {
 //            performanceStats.endRun();
 //        }
-//        if (NameLookup.VERBOSE) {
-//            System.out.println(Thread.currentThread() + " TIME SPENT in NameLoopkup#seekTypesInSourcePackage: " + environment
-// .nameLookup.timeSpentInSeekTypesInSourcePackage + "ms");  //$NON-NLS-1$ //$NON-NLS-2$
-//            System.out.println(Thread.currentThread() + " TIME SPENT in NameLoopkup#seekTypesInBinaryPackage: " + environment
-// .nameLookup.timeSpentInSeekTypesInBinaryPackage + "ms");  //$NON-NLS-1$ //$NON-NLS-2$
-//        }
-//        return requestor.getElements();
-        throw new UnsupportedOperationException();
+        if (NameLookup.VERBOSE) {
+            System.out.println(Thread.currentThread() + " TIME SPENT in NameLoopkup#seekTypesInSourcePackage: " + environment
+.nameLookup.timeSpentInSeekTypesInSourcePackage + "ms");  //$NON-NLS-1$ //$NON-NLS-2$
+            System.out.println(Thread.currentThread() + " TIME SPENT in NameLoopkup#seekTypesInBinaryPackage: " + environment
+.nameLookup.timeSpentInSeekTypesInBinaryPackage + "ms");  //$NON-NLS-1$ //$NON-NLS-2$
+        }
+        return requestor.getElements();
     }
 
     /*
@@ -211,7 +209,7 @@ public abstract class Openable extends JavaElement implements IOpenable, IBuffer
      * @see IJavaElement
      */
     public boolean exists() {
-        if (manager.getInfo(this) != null)
+        if (JavaModelManager.getJavaModelManager().getInfo(this) != null)
             return true;
         switch (getElementType()) {
             case IJavaElement.PACKAGE_FRAGMENT:
@@ -274,7 +272,7 @@ public abstract class Openable extends JavaElement implements IOpenable, IBuffer
         openAncestors(newElements, monitor);
 
         // validate existence
-        File underlResource = resource();
+        IResource underlResource = resource();
         IStatus status = validateExistence(underlResource);
         if (!status.isOK())
             throw newJavaModelException(status);
@@ -300,7 +298,7 @@ public abstract class Openable extends JavaElement implements IOpenable, IBuffer
 //        JavaModelManager.getJavaModelManager().getElementsOutOfSynchWithBuffers().remove(this);
 
         if (JavaModelCache.VERBOSE) {
-            System.out.println(manager.cacheToString("-> ")); //$NON-NLS-1$
+            System.out.println(JavaModelManager.getJavaModelManager().cacheToString("-> ")); //$NON-NLS-1$
         }
     }
 
@@ -344,7 +342,7 @@ public abstract class Openable extends JavaElement implements IOpenable, IBuffer
      * Returns the buffer manager for this element.
      */
     protected BufferManager getBufferManager() {
-        return manager.getDefaultBufferManager();
+        return JavaModelManager.getJavaModelManager().getDefaultBufferManager();
     }
 
     /**
@@ -442,7 +440,7 @@ public abstract class Openable extends JavaElement implements IOpenable, IBuffer
      * @see IOpenable
      */
     public boolean isOpen() {
-        return manager.getInfo(this) != null;
+        return JavaModelManager.getJavaModelManager().getInfo(this) != null;
     }
 
     /**
@@ -487,30 +485,29 @@ public abstract class Openable extends JavaElement implements IOpenable, IBuffer
     }
 
     public IResource getResource() {
-//        PackageFragmentRoot root = getPackageFragmentRoot();
-//        if (root != null) {
-//            if (root.isExternal())
-//                return null;
-//            if (root.isArchive())
-//                return root.resource(root);
-//        }
-//        return resource(root);
-        throw new UnsupportedOperationException();
+        PackageFragmentRoot root = getPackageFragmentRoot();
+        if (root != null) {
+            if (root.isExternal())
+                return null;
+            if (root.isArchive())
+                return root.resource(root);
+        }
+        return resource(root);
     }
 
-    public File resource() {
+    public IResource resource() {
         PackageFragmentRoot root = getPackageFragmentRoot();
         if (root != null && root.isArchive())
             return root.resource(root);
         return resource(root);
     }
 
-    protected abstract File resource(PackageFragmentRoot root);
+    protected abstract IResource resource(PackageFragmentRoot root);
 
     /**
      * Returns whether the corresponding resource or associated file exists
      */
-    protected boolean resourceExists(File underlyingResource) {
+    protected boolean resourceExists(IResource underlyingResource) {
         return underlyingResource.exists();
     }
 
@@ -538,7 +535,7 @@ public abstract class Openable extends JavaElement implements IOpenable, IBuffer
     /*
      * Validates the existence of this openable. Returns a non ok status if it doesn't exist.
      */
-    abstract protected IStatus validateExistence(File underlyingResource);
+    abstract protected IStatus validateExistence(IResource underlyingResource);
 
     /*
      * Opens the ancestors of this openable that are not yet opened, validating their existence.

@@ -14,10 +14,8 @@ import org.eclipse.che.jdt.core.search.IJavaSearchScope;
 import org.eclipse.che.jdt.core.search.SearchEngine;
 import org.eclipse.che.jdt.core.search.SearchParticipant;
 import org.eclipse.che.jdt.internal.core.JavaModelManager;
-import org.eclipse.che.jdt.internal.core.JavaProject;
 import org.eclipse.che.jdt.internal.core.search.JavaSearchDocument;
 import org.eclipse.che.jdt.internal.core.search.processing.JobManager;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -44,11 +42,10 @@ import java.util.zip.ZipFile;
 class AddJarFileToIndex extends IndexRequest {
 
 	private static final char JAR_SEPARATOR = IJavaSearchScope.JAR_FILE_ENTRY_SEPARATOR.charAt(0);
-	IFile   resource;
+    private final boolean forceIndexUpdate;
+    IFile   resource;
 	Scanner scanner;
 	private       IndexLocation indexFileURL;
-	private final boolean       forceIndexUpdate;
-	private       JavaProject   javaProject;
 
 //    public AddJarFileToIndex(IFile resource, IndexLocation indexFile,IndexManager manager) {
 //        this(resource, indexFile, manager, false);
@@ -67,12 +64,11 @@ class AddJarFileToIndex extends IndexRequest {
 //    }
 
 	public AddJarFileToIndex(IPath jarPath, IndexLocation indexFile, IndexManager manager,
-							 final boolean updateIndex, JavaProject javaProject) {
-		// external JAR scenario - no resource
+                             final boolean updateIndex) {
+        // external JAR scenario - no resource
 		super(jarPath, manager);
 		this.indexFileURL = indexFile;
 		this.forceIndexUpdate = updateIndex;
-		this.javaProject = javaProject;
 	}
 
 	public boolean equals(Object o) {
@@ -218,8 +214,8 @@ class AddJarFileToIndex extends IndexRequest {
 
 				// Index the jar for the first time or reindex the jar in case the previous index file has been corrupted
 				// index already existed: recreate it so that we forget about previous entries
-				SearchParticipant participant = SearchEngine.getDefaultSearchParticipant(manager, javaProject);
-				if (!this.manager.resetIndex(this.containerPath)) {
+                SearchParticipant participant = SearchEngine.getDefaultSearchParticipant();
+                if (!this.manager.resetIndex(this.containerPath)) {
 					// failed to recreate index, see 73330
 					this.manager.removeIndex(this.containerPath);
 					return false;

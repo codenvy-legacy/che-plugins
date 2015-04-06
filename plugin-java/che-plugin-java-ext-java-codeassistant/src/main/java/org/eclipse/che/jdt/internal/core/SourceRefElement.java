@@ -11,7 +11,6 @@
 package org.eclipse.che.jdt.internal.core;
 
 import org.eclipse.che.jdt.internal.core.util.DOMFinder;
-
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -29,7 +28,6 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 import org.eclipse.jdt.internal.core.util.Messages;
 
-import java.io.File;
 import java.util.HashMap;
 
 /**
@@ -53,8 +51,8 @@ public abstract class SourceRefElement extends JavaElement implements ISourceRef
      * @param parent
      *         The parent of java element
      */
-    protected SourceRefElement(JavaElement parent, JavaModelManager manager) {
-        super(parent, manager);
+    protected SourceRefElement(JavaElement parent) {
+        super(parent);
     }
 
     /**
@@ -120,13 +118,13 @@ public abstract class SourceRefElement extends JavaElement implements ISourceRef
        Openable openableParent = (Openable)getOpenableParent();
         if (openableParent == null) return;
 
-        JavaElementInfo openableParentInfo = (JavaElementInfo) manager.getInfo(openableParent);
+        JavaElementInfo openableParentInfo = (JavaElementInfo)JavaModelManager.getJavaModelManager().getInfo(openableParent);
         if (openableParentInfo == null) {
             openableParent.generateInfos(openableParent.createElementInfo(), newElements, pm);
         }
     }
     public IAnnotation getAnnotation(String name) {
-        return new Annotation(this, manager, name);
+        return new Annotation(this, name);
     }
     public IAnnotation[] getAnnotations() throws JavaModelException {
         AnnotatableInfo info = (AnnotatableInfo) getElementInfo();
@@ -205,7 +203,7 @@ public abstract class SourceRefElement extends JavaElement implements ISourceRef
     /*
      * @see IJavaElement
      */
-    public File resource() {
+    public IResource resource() {
         return this.parent.resource();
     }
     /**

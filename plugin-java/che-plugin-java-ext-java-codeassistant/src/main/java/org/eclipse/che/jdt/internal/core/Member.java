@@ -48,8 +48,8 @@ public abstract class Member extends SourceRefElement implements IMember {
      * @param parent
      *         The parent of java element
      */
-    protected Member(JavaElement parent, JavaModelManager manager) {
-        super(parent, manager);
+    protected Member(JavaElement parent) {
+        super(parent);
     }
 
     protected static boolean areSimilarMethods(
@@ -200,25 +200,24 @@ public abstract class Member extends SourceRefElement implements IMember {
             case JEM_COUNT:
                 return getHandleUpdatingCountFromMemento(memento, workingCopyOwner);
             case JEM_LAMBDA_EXPRESSION:
-//                if (!memento.hasMoreTokens() || memento.nextToken() != MementoTokenizer.STRING)
-//                    return this;
-//                if (!memento.hasMoreTokens()) return this;
-//                String interphase = memento.nextToken();
-//                if (!memento.hasMoreTokens() || memento.nextToken() != MementoTokenizer.COUNT)
-//                    return this;
-//                int sourceStart = Integer.parseInt(memento.nextToken());
-//                if (!memento.hasMoreTokens() || memento.nextToken() != MementoTokenizer.COUNT)
-//                    return this;
-//                int sourceEnd = Integer.parseInt(memento.nextToken());
-//                if (!memento.hasMoreTokens() || memento.nextToken() != MementoTokenizer.COUNT)
-//                    return this;
-//                int arrowPosition = Integer.parseInt(memento.nextToken());
-//                LambdaExpression expression = LambdaFactory.createLambdaExpression(this, interphase, sourceStart, sourceEnd,
-// arrowPosition);
-//                if (!memento.hasMoreTokens() || (token = memento.nextToken()) != MementoTokenizer.LAMBDA_METHOD)
-//                    return expression;
-//                return expression.getHandleFromMemento(token, memento, workingCopyOwner);
-                throw new UnsupportedOperationException();
+                if (!memento.hasMoreTokens() || memento.nextToken() != MementoTokenizer.STRING)
+                    return this;
+                if (!memento.hasMoreTokens()) return this;
+                String interphase = memento.nextToken();
+                if (!memento.hasMoreTokens() || memento.nextToken() != MementoTokenizer.COUNT)
+                    return this;
+                int sourceStart = Integer.parseInt(memento.nextToken());
+                if (!memento.hasMoreTokens() || memento.nextToken() != MementoTokenizer.COUNT)
+                    return this;
+                int sourceEnd = Integer.parseInt(memento.nextToken());
+                if (!memento.hasMoreTokens() || memento.nextToken() != MementoTokenizer.COUNT)
+                    return this;
+                int arrowPosition = Integer.parseInt(memento.nextToken());
+                LambdaExpression expression = LambdaFactory.createLambdaExpression(this, interphase, sourceStart, sourceEnd,
+arrowPosition);
+                if (!memento.hasMoreTokens() || (token = memento.nextToken()) != MementoTokenizer.LAMBDA_METHOD)
+                    return expression;
+                return expression.getHandleFromMemento(token, memento, workingCopyOwner);
             case JEM_TYPE:
                 String typeName;
                 if (memento.hasMoreTokens()) {
@@ -270,17 +269,17 @@ public abstract class Member extends SourceRefElement implements IMember {
                 memento.nextToken(); // JEM_COUNT
                 if (!memento.hasMoreTokens()) return this;
                 boolean isParameter = Boolean.valueOf(memento.nextToken()).booleanValue();
-                return new LocalVariable(this,manager, varName, declarationStart, declarationEnd, nameStart, nameEnd, typeSignature, null, flags, isParameter);
+                return new LocalVariable(this, varName, declarationStart, declarationEnd, nameStart, nameEnd, typeSignature, null, flags, isParameter);
 //                throw new UnsupportedOperationException();
             case JEM_TYPE_PARAMETER:
                 if (!memento.hasMoreTokens()) return this;
                 String typeParameterName = memento.nextToken();
-                JavaElement typeParameter = new TypeParameter(this, manager, typeParameterName);
+                JavaElement typeParameter = new TypeParameter(this, typeParameterName);
                 return typeParameter.getHandleFromMemento(memento, workingCopyOwner);
             case JEM_ANNOTATION:
                 if (!memento.hasMoreTokens()) return this;
                 String annotationName = memento.nextToken();
-                JavaElement annotation = new Annotation(this,manager, annotationName);
+                JavaElement annotation = new Annotation(this, annotationName);
                 return annotation.getHandleFromMemento(memento, workingCopyOwner);
 
         }
@@ -389,7 +388,7 @@ public abstract class Member extends SourceRefElement implements IMember {
         if (isBinary()) {
             throw new IllegalArgumentException("Not a source member " + toStringWithAncestors()); //$NON-NLS-1$
         } else {
-            SourceType type = new SourceType(this, manager, typeName);
+            SourceType type = new SourceType(this, typeName);
             type.occurrenceCount = count;
             return type;
         }

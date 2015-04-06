@@ -68,8 +68,8 @@ public class BinaryType extends BinaryMember implements IType, SuffixConstants {
 	private static final IType[]         NO_TYPES        = new IType[0];
 	private static final IInitializer[]  NO_INITIALIZERS = new IInitializer[0];
 
-	protected BinaryType(JavaElement parent, JavaModelManager manager, String name) {
-		super(parent, manager, name);
+	protected BinaryType(JavaElement parent, String name) {
+		super(parent, name);
 	}
 
 	/*
@@ -316,13 +316,13 @@ public IType getDeclaringType() {
 			String enclosingClassFileName = enclosingName + SUFFIX_STRING_class;
 			return
 				new BinaryType(
-					(JavaElement)getPackageFragment().getClassFile(enclosingClassFileName), manager,
+					(JavaElement)getPackageFragment().getClassFile(enclosingClassFileName),
 					Util.localTypeName(enclosingName, enclosingName.lastIndexOf('$'), enclosingName.length()));
 		}
 	}
 }
 public Object getElementInfo(IProgressMonitor monitor) throws JavaModelException {
-	Object info = manager.getInfo(this);
+	Object info = JavaModelManager.getJavaModelManager().getInfo(this);
 	if (info != null && info != JavaModelCache.NON_EXISTING_JAR_TYPE_INFO) return info;
 	return openWhenClosed(createElementInfo(), false, monitor);
 }
@@ -336,7 +336,7 @@ public int getElementType() {
  * @see IType#getField(String name)
  */
 public IField getField(String fieldName) {
-	return new BinaryField(this, manager, fieldName);
+	return new BinaryField(this, fieldName);
 }
 /*
  * @see IType#getFields()
@@ -480,7 +480,7 @@ public IJavaElement getHandleFromMemento(String token, MementoTokenizer memento,
  * @see IType#getInitializer(int occurrenceCount)
  */
 public IInitializer getInitializer(int count) {
-	return new Initializer(this, manager, count);
+	return new Initializer(this, count);
 }
 /*
  * @see IType#getInitializers()
@@ -495,7 +495,7 @@ public String getKey(boolean forceOpen) throws JavaModelException {
  * @see IType#getMethod(String name, String[] parameterTypeSignatures)
  */
 public IMethod getMethod(String selector, String[] parameterTypeSignatures) {
-	return new BinaryMethod(this, manager, selector, parameterTypeSignatures);
+	return new BinaryMethod(this, selector, parameterTypeSignatures);
 }
 /*
  * @see IType#getMethods()
@@ -673,7 +673,7 @@ public ITypeParameter[] getTypeParameters() throws JavaModelException {
 	ITypeParameter[] typeParameters = new ITypeParameter[length];
 	for (int i = 0; i < typeParameterSignatures.length; i++) {
 		String typeParameterName = Signature.getTypeVariable(typeParameterSignatures[i]);
-		typeParameters[i] = new TypeParameter(this, manager, typeParameterName);
+		typeParameters[i] = new TypeParameter(this, typeParameterName);
 	}
 	return typeParameters;
 }
@@ -698,10 +698,10 @@ public String[] getTypeParameterSignatures() throws JavaModelException {
  */
 public IType getType(String typeName) {
 	IClassFile classFile= getPackageFragment().getClassFile(getTypeQualifiedName() + "$" + typeName + SUFFIX_STRING_class); //$NON-NLS-1$
-	return new BinaryType((JavaElement)classFile,manager, typeName);
+	return new BinaryType((JavaElement)classFile, typeName);
 }
 public ITypeParameter getTypeParameter(String typeParameterName) {
-	return new TypeParameter(this, manager, typeParameterName);
+	return new TypeParameter(this, typeParameterName);
 }
 /*
  * @see IType#getTypeQualifiedName()
@@ -974,7 +974,7 @@ public ITypeHierarchy newTypeHierarchy(
 	throw new UnsupportedOperationException();
 }
 public JavaElement resolved(Binding binding) {
-	SourceRefElement resolvedHandle = new ResolvedBinaryType(this.parent, this.manager, this.name, new String(binding.computeUniqueKey()));
+	SourceRefElement resolvedHandle = new ResolvedBinaryType(this.parent, this.name, new String(binding.computeUniqueKey()));
 	resolvedHandle.occurrenceCount = this.occurrenceCount;
 	return resolvedHandle;
 }
@@ -1052,7 +1052,7 @@ public String getAttachedJavadoc(IProgressMonitor monitor) throws JavaModelExcep
 	return javadocContents.getTypeDoc();
 }
 public JavadocContents getJavadocContents(IProgressMonitor monitor) throws JavaModelException {
-	JavaModelManager.PerProjectInfo projectInfo = manager.getPerProjectInfoCheckExistence();
+	JavaModelManager.PerProjectInfo projectInfo = JavaModelManager.getJavaModelManager().getPerProjectInfoCheckExistence(getJavaProject().getProject());
 	JavadocContents cachedJavadoc = null;
 	synchronized (projectInfo.javadocCache) {
 		cachedJavadoc = (JavadocContents) projectInfo.javadocCache.get(this);

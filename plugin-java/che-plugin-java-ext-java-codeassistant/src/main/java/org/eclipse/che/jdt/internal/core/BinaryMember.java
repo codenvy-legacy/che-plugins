@@ -12,7 +12,6 @@
 package org.eclipse.che.jdt.internal.core;
 
 import org.eclipse.che.jdt.internal.core.util.Util;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IAnnotation;
 import org.eclipse.jdt.core.IJavaElement;
@@ -36,8 +35,8 @@ public abstract class BinaryMember extends NamedMember {
     /*
      * Constructs a binary member.
      */
-    protected BinaryMember(JavaElement parent, JavaModelManager manager, String name) {
-        super(parent, manager, name);
+    protected BinaryMember(JavaElement parent, String name) {
+        super(parent, name);
     }
 
     /*
@@ -60,14 +59,14 @@ public abstract class BinaryMember extends NamedMember {
         }
         IAnnotation[] annotations = new IAnnotation[fullLength];
         for (int i = 0; i < length; i++) {
-            annotations[i] = Util.getAnnotation(this, manager, binaryAnnotations[i], null);
+            annotations[i] = Util.getAnnotation(this, binaryAnnotations[i], null);
         }
         System.arraycopy(standardAnnotations, 0, annotations, length, standardLength);
         return annotations;
     }
 
     private IAnnotation getAnnotation(char[][] annotationName) {
-        return new Annotation(this, manager, new String(CharOperation.concatWith(annotationName, '.')));
+        return new Annotation(this, new String(CharOperation.concatWith(annotationName, '.')));
     }
 
     protected IAnnotation[] getStandardAnnotations(long tagBits) {

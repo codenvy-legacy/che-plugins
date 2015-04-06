@@ -51,11 +51,6 @@ import java.util.HashMap;
 	 * The type parameters in this class file.
 	 */
 	protected ITypeParameter[] typeParameters;
-	private JavaModelManager manager;
-
-	public ClassFileInfo(JavaModelManager manager) {
-		this.manager = manager;
-	}
 
 	private void generateAnnotationsInfos(JavaElement member, IBinaryAnnotation[] binaryAnnotations, long tagBits, HashMap newElements) {
 		generateAnnotationsInfos(member, null, binaryAnnotations, tagBits, newElements);
@@ -84,8 +79,8 @@ import java.util.HashMap;
 	private void generateAnnotationInfo(JavaElement parent, char[] parameterName, HashMap newElements, IBinaryAnnotation annotationInfo,
 										String memberValuePairName) {
 		char[] typeName = org.eclipse.jdt.core.Signature.toCharArray(CharOperation.replaceOnCopy(annotationInfo.getTypeName(), '/', '.'));
-		Annotation annotation = new Annotation(parent, parent.manager, new String(typeName), memberValuePairName);
-		while (newElements.containsKey(annotation)) {
+        Annotation annotation = new Annotation(parent, new String(typeName), memberValuePairName);
+        while (newElements.containsKey(annotation)) {
 			annotation.occurrenceCount++;
 		}
 		newElements.put(annotation, annotationInfo);
@@ -134,8 +129,8 @@ private void generateStandardAnnotationsInfos(JavaElement javaElement, char[] pa
 }
 
 private void generateStandardAnnotation(JavaElement javaElement, char[][] typeName, IMemberValuePair[] members, HashMap newElements) {
-	IAnnotation annotation = new Annotation(javaElement,javaElement.manager, new String(CharOperation.concatWith(typeName, '.')));
-	AnnotationInfo annotationInfo = new AnnotationInfo();
+    IAnnotation annotation = new Annotation(javaElement, new String(CharOperation.concatWith(typeName, '.')));
+    AnnotationInfo annotationInfo = new AnnotationInfo();
 	annotationInfo.members = members;
 	newElements.put(annotation, annotationInfo);
 }
@@ -235,12 +230,12 @@ private void generateFieldInfos(IType type, IBinaryType typeInfo, HashMap newEle
 	if (fields == null) {
 		return;
 	}
-	JavaModelManager manager = ((JavaElement)type).manager;
-	for (int i = 0, fieldCount = fields.length; i < fieldCount; i++) {
+    JavaModelManager manager = JavaModelManager.getJavaModelManager();
+    for (int i = 0, fieldCount = fields.length; i < fieldCount; i++) {
 		IBinaryField fieldInfo = fields[i];
 		BinaryField
-				field = new BinaryField((JavaElement)type, manager, manager.intern(new String(fieldInfo.getName())));
-		newElements.put(field, fieldInfo);
+                field = new BinaryField((JavaElement)type, manager.intern(new String(fieldInfo.getName())));
+        newElements.put(field, fieldInfo);
 		childrenHandles.add(field);
 		generateAnnotationsInfos(field, fieldInfo.getAnnotations(), fieldInfo.getTagBits(), newElements);
 	}
@@ -259,9 +254,10 @@ private void generateInnerClassHandles(IType type, IBinaryType typeInfo, ArrayLi
 		IPackageFragment pkg = (IPackageFragment) type.getAncestor(IJavaElement.PACKAGE_FRAGMENT);
 		for (int i = 0, typeCount = innerTypes.length; i < typeCount; i++) {
 			IBinaryNestedType binaryType = innerTypes[i];
-			IClassFile parentClassFile= pkg.getClassFile(new String(ClassFile.unqualifiedName(binaryType.getName())) + SUFFIX_STRING_class);
-			IType innerType = new BinaryType((JavaElement) parentClassFile, ((JavaElement)parentClassFile).manager, ClassFile.simpleName(binaryType.getName()));
-			childrenHandles.add(innerType);
+			IClassFile parentClassFile= pkg.getClassFile(new String(ClassFile.unqualifiedName(binaryType.getName())) +
+                                                         SUFFIX_STRING_class);
+            IType innerType = new BinaryType((JavaElement)parentClassFile, ClassFile.simpleName(binaryType.getName()));
+            childrenHandles.add(innerType);
 		}
 	}
 }
@@ -331,14 +327,14 @@ private void generateMethodInfos(IType type, IBinaryType typeInfo, HashMap newEl
 			paramNames[j]= pNames[j].toCharArray();
 		}
 		char[][] parameterTypes = ClassFile.translatedNames(paramNames);
-		JavaModelManager manager = ((JavaElement)type).manager;
-		selector =  manager.intern(selector);
+        JavaModelManager manager = JavaModelManager.getJavaModelManager();
+        selector =  manager.intern(selector);
 		for (int j= 0; j < pNames.length; j++) {
 			pNames[j]= manager.intern(new String(parameterTypes[j]));
 		}
 		BinaryMethod
-				method = new BinaryMethod((JavaElement)type, manager, selector, pNames);
-		childrenHandles.add(method);
+                method = new BinaryMethod((JavaElement)type, selector, pNames);
+        childrenHandles.add(method);
 
 		// ensure that 2 binary methods with the same signature but with different return types have different occurrence counts.
 		// (case of bridge methods in 1.5)
@@ -410,8 +406,8 @@ private void generateTypeParameterInfos(BinaryMember parent, char[] signature, H
 		for (int j = 0; j < boundLength; j++) {
 			typeParameterBounds[j] = Signature.toCharArray(typeParameterBoundSignatures[j]);
 		}
-		TypeParameter typeParameter = new TypeParameter(parent, parent.manager, new String(typeParameterName));
-		TypeParameterElementInfo info = new TypeParameterElementInfo();
+        TypeParameter typeParameter = new TypeParameter(parent, new String(typeParameterName));
+        TypeParameterElementInfo info = new TypeParameterElementInfo();
 		info.bounds = typeParameterBounds;
 		info.boundsSignatures = typeParameterBoundSignatures;
 		typeParameterHandles.add(typeParameter);
@@ -468,18 +464,18 @@ void removeBinaryChildren() throws JavaModelException {
 		for (int i = 0; i <this.binaryChildren.length; i++) {
 			JavaElement child = this.binaryChildren[i];
 			if (child instanceof BinaryType) {
-				manager.removeInfoAndChildren((JavaElement)child.getParent());
-			} else {
-				manager.removeInfoAndChildren(child);
-			}
+                JavaModelManager.getJavaModelManager().removeInfoAndChildren((JavaElement)child.getParent());
+            } else {
+                JavaModelManager.getJavaModelManager().removeInfoAndChildren(child);
+            }
 		}
 		this.binaryChildren = JavaElement.NO_ELEMENTS;
 	}
 	if (this.typeParameters != null) {
 		for (int i = 0; i <this.typeParameters.length; i++) {
 			TypeParameter typeParameter = (TypeParameter) this.typeParameters[i];
-			manager.removeInfoAndChildren(typeParameter);
-		}
+            JavaModelManager.getJavaModelManager().removeInfoAndChildren(typeParameter);
+        }
 		this.typeParameters = TypeParameter.NO_TYPE_PARAMETERS;
 	}
 }

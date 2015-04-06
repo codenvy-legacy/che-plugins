@@ -24,7 +24,7 @@ public class ResolvedSourceType extends SourceType {
 	 * See class comments.
 	 */
 	public ResolvedSourceType(JavaElement parent, String name, String uniqueKey) {
-		super(parent,parent.manager, name);
+		super(parent, name);
 		this.uniqueKey = uniqueKey;
 	}
 
@@ -59,7 +59,7 @@ public class ResolvedSourceType extends SourceType {
 	}
 
 	public JavaElement unresolved() {
-		SourceType handle = new SourceType(this.parent, manager, this.name);
+		SourceType handle = new SourceType(this.parent, this.name);
 		handle.occurrenceCount = this.occurrenceCount;
 		handle.localOccurrenceCount = this.localOccurrenceCount;
 		return handle;

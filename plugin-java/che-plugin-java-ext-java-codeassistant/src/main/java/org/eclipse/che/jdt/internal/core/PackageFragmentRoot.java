@@ -11,25 +11,27 @@
 
 package org.eclipse.che.jdt.internal.core;
 
+import org.eclipse.che.jdt.core.JavaCore;
 import org.eclipse.che.jdt.internal.core.util.Util;
+import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
-import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.core.JavaModelStatus;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -47,11 +49,14 @@ public class PackageFragmentRoot extends Openable implements IPackageFragmentRoo
      * attachment server property.
      */
     protected final static char   ATTACHMENT_PROPERTY_DELIMITER = '*';
-    private final IPath path;
+    /**
+     * The resource associated with this root (null for external jar)
+     */
+    protected IResource resource;
 
-    protected PackageFragmentRoot(File folder, JavaProject project, JavaModelManager manager) {
-        super(project, manager);
-        path = new Path(folder.getPath());
+    protected PackageFragmentRoot(IResource resource, JavaProject project) {
+        super(project);
+        this.resource = resource;
     }
 
     /*
@@ -90,23 +95,23 @@ public class PackageFragmentRoot extends Openable implements IPackageFragmentRoo
 
     @Override
     public void attachSource(IPath sourcePath, IPath rootPath, IProgressMonitor monitor) throws JavaModelException {
-
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void copy(IPath destination, int updateResourceFlags, int updateModelFlags, IClasspathEntry sibling, IProgressMonitor monitor)
             throws JavaModelException {
-
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public IPackageFragment createPackageFragment(String name, boolean force, IProgressMonitor monitor) throws JavaModelException {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void delete(int updateResourceFlags, int updateModelFlags, IProgressMonitor monitor) throws JavaModelException {
-
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -116,7 +121,7 @@ public class PackageFragmentRoot extends Openable implements IPackageFragmentRoo
 
     @Override
     public Object[] getNonJavaResources() throws JavaModelException {
-        return new Object[0];
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -131,7 +136,7 @@ public class PackageFragmentRoot extends Openable implements IPackageFragmentRoo
         IClasspathEntry rawEntry = null;
         JavaProject project = (JavaProject)getJavaProject();
         project.getResolvedClasspath(); // force the reverse rawEntry cache to be populated
-        Map rootPathToRawEntries = project.resolvedClasspath().rawReverseMap;
+        Map rootPathToRawEntries = project.getPerProjectInfo().rootPathToRawEntries;
         if (rootPathToRawEntries != null) {
             rawEntry = (IClasspathEntry)rootPathToRawEntries.get(getPath());
         }
@@ -146,7 +151,7 @@ public class PackageFragmentRoot extends Openable implements IPackageFragmentRoo
         IClasspathEntry rawEntry = null;
         JavaProject project = (JavaProject)getJavaProject();
         project.getResolvedClasspath(); // force the reverse rawEntry cache to be populated
-        Map rootPathToRawEntries = project.resolvedClasspath().rootPathToResolvedEntries;
+        Map rootPathToRawEntries = project.getPerProjectInfo().rootPathToResolvedEntries;
         if (rootPathToRawEntries != null) {
             rawEntry = (IClasspathEntry)rootPathToRawEntries.get(getPath());
         }
@@ -161,7 +166,7 @@ public class PackageFragmentRoot extends Openable implements IPackageFragmentRoo
         if (getKind() != K_BINARY) return null;
 
 //        // 1) look source attachment property (set iff attachSource(...) was called
-//        IPath path = getPath();
+        IPath path = getPath();
 //        String serverPathString= Util.getSourceAttachmentProperty(path);
 //        if (serverPathString != null) {
 //            int index= serverPathString.lastIndexOf(ATTACHMENT_PROPERTY_DELIMITER);
@@ -194,7 +199,7 @@ public class PackageFragmentRoot extends Openable implements IPackageFragmentRoo
         if (getKind() != K_BINARY) return null;
 
 //        // 1) look source attachment property (set iff attachSource(...) was called
-//        IPath path = getPath();
+        IPath path = getPath();
 //        String serverPathString= Util.getSourceAttachmentProperty(path);
 //        if (serverPathString != null) {
 //            int index = serverPathString.lastIndexOf(ATTACHMENT_PROPERTY_DELIMITER);
@@ -277,11 +282,11 @@ public class PackageFragmentRoot extends Openable implements IPackageFragmentRoo
     @Override
     public void move(IPath destination, int updateResourceFlags, int updateModelFlags, IClasspathEntry sibling, IProgressMonitor monitor)
             throws JavaModelException {
-
+        throw new UnsupportedOperationException();
     }
 
     @Override
-    protected boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, Map newElements, File underlyingResource)
+    protected boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, Map newElements, IResource underlyingResource)
             throws JavaModelException {
         ((PackageFragmentRootInfo)info).setRootKind(determineKind(underlyingResource));
         return computeChildren(info, underlyingResource);
@@ -295,8 +300,8 @@ public class PackageFragmentRoot extends Openable implements IPackageFragmentRoo
      *         if the project and root do
      *         not exist.
      */
-    protected int determineKind(File underlyingResource) throws JavaModelException {
-        IClasspathEntry entry = ((JavaProject)getJavaProject()).getClasspathEntryFor(new Path(underlyingResource.getAbsolutePath()));
+    protected int determineKind(IResource underlyingResource) throws JavaModelException {
+        IClasspathEntry entry = ((JavaProject)getJavaProject()).getClasspathEntryFor(underlyingResource.getFullPath());
         if (entry != null) {
             return entry.getContentKind();
         }
@@ -304,7 +309,7 @@ public class PackageFragmentRoot extends Openable implements IPackageFragmentRoo
     }
 
     public PackageFragment getPackageFragment(String[] pkgName) {
-        return new PackageFragment(this, manager, pkgName);
+        return new PackageFragment(this, pkgName);
     }
 
     /**
@@ -313,20 +318,19 @@ public class PackageFragmentRoot extends Openable implements IPackageFragmentRoo
      * @throws JavaModelException
      *         The resource associated with this package fragment root does not exist
      */
-    protected boolean computeChildren(OpenableElementInfo info, File underlyingResource) throws JavaModelException {
+    protected boolean computeChildren(OpenableElementInfo info, IResource underlyingResource) throws JavaModelException {
         // Note the children are not opened (so not added to newElements) for a regular package fragment root
         // However they are opened for a Jar package fragment root (see JarPackageFragmentRoot#computeChildren)
         try {
             // the underlying resource may be a folder or a project (in the case that the project folder
             // is actually the package fragment root)
-            if (underlyingResource.isDirectory() || underlyingResource.isFile()) {
+            if (underlyingResource.getType() == IResource.FOLDER || underlyingResource.getType() == IResource.PROJECT) {
                 ArrayList vChildren = new ArrayList(5);
-//                IContainer rootFolder = (IContainer) underlyingResource;
+                IContainer rootFolder = (IContainer) underlyingResource;
                 char[][] inclusionPatterns = fullInclusionPatternChars();
                 char[][] exclusionPatterns = fullExclusionPatternChars();
-                computeFolderChildren(underlyingResource,
-                                      !Util.isExcluded(new Path(underlyingResource.getAbsolutePath()), inclusionPatterns, exclusionPatterns,
-                                                       true), CharOperation.NO_STRINGS, vChildren, inclusionPatterns, exclusionPatterns);
+                computeFolderChildren(rootFolder,
+                                      !Util.isExcluded(rootFolder, inclusionPatterns, exclusionPatterns), CharOperation.NO_STRINGS, vChildren, inclusionPatterns, exclusionPatterns);
                 IJavaElement[] children = new IJavaElement[vChildren.size()];
                 vChildren.toArray(children);
                 info.setChildren(children);
@@ -346,7 +350,7 @@ public class PackageFragmentRoot extends Openable implements IPackageFragmentRoo
      * @throws JavaModelException
      *         The resource associated with this package fragment does not exist
      */
-    protected void computeFolderChildren(File folder, boolean isIncluded, String[] pkgName, ArrayList vChildren, char[][] inclusionPatterns,
+    protected void computeFolderChildren(IContainer folder, boolean isIncluded, String[] pkgName, ArrayList vChildren, char[][] inclusionPatterns,
                                          char[][] exclusionPatterns) throws JavaModelException {
 
         if (isIncluded) {
@@ -354,86 +358,63 @@ public class PackageFragmentRoot extends Openable implements IPackageFragmentRoo
             vChildren.add(pkg);
         }
         try {
-            File[] members = folder.listFiles();
+            IResource[] members = folder.members();
             boolean hasIncluded = isIncluded;
             int length = members.length;
             if (length > 0) {
                 // if package fragment root refers to folder in another IProject, then
                 // folder.getProject() is different than getJavaProject().getProject()
                 // use the other java project's options to verify the name
-//                IJavaProject otherJavaProject = JavaCore.create(folder.getProject());
-                JavaProject javaProject = (JavaProject)getJavaProject();
-                String sourceLevel = javaProject.getOption(JavaCore.COMPILER_SOURCE, true);
-                String complianceLevel = javaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true);
-//                JavaModelManager manager = JavaModelManager.getJavaModelManager();
+                IJavaProject otherJavaProject = JavaCore.create(folder.getProject());
+                String sourceLevel = otherJavaProject.getOption(JavaCore.COMPILER_SOURCE, true);
+                String complianceLevel = otherJavaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true);
+                JavaProject javaProject = (JavaProject) getJavaProject();
+                JavaModelManager manager = JavaModelManager.getJavaModelManager();
                 for (int i = 0; i < length; i++) {
-                    File member = members[i];
+                    IResource member = members[i];
                     String memberName = member.getName();
-                    if (member.isDirectory()) {
-                        // recurse into sub folders even even parent not included as a sub folder could be included
-//                            // (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=65637)
-                        if (Util.isValidFolderNameForPackage(memberName, sourceLevel, complianceLevel)) {
-                            // eliminate binary output only if nested inside direct subfolders
-//                                if (javaProject.contains(member)) {
-                            String[] newNames = Util.arrayConcat(pkgName, manager.intern(memberName));
-                            boolean isMemberIncluded = false;//!Util.isExcluded(member, inclusionPatterns, exclusionPatterns);
-                            computeFolderChildren(member, isMemberIncluded, newNames, vChildren, inclusionPatterns, exclusionPatterns);
-//                                }
-                        }
-                    } else {
-                        if (!hasIncluded
-                            && Util.isValidCompilationUnitName(memberName, sourceLevel, complianceLevel)
-                                /*&& !Util.isExcluded(member, inclusionPatterns, exclusionPatterns)*/) {
-                            hasIncluded = true;
-                            IPackageFragment pkg = getPackageFragment(pkgName);
-                            vChildren.add(pkg);
-                        }
+
+                    switch(member.getType()) {
+
+                        case IResource.FOLDER:
+                            // recurse into sub folders even even parent not included as a sub folder could be included
+                            // (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=65637)
+                            if (Util.isValidFolderNameForPackage(memberName, sourceLevel, complianceLevel)) {
+                                // eliminate binary output only if nested inside direct subfolders
+                                if (javaProject.contains(member)) {
+                                    String[] newNames = Util.arrayConcat(pkgName, manager.intern(memberName));
+                                    boolean isMemberIncluded = !Util.isExcluded(member, inclusionPatterns, exclusionPatterns);
+                                    computeFolderChildren((IFolder) member, isMemberIncluded, newNames, vChildren, inclusionPatterns, exclusionPatterns);
+                                }
+                            }
+                            break;
+                        case IResource.FILE:
+                            // inclusion filter may only include files, in which case we still want to include the immediate parent package (lazily)
+                            if (!hasIncluded
+                                && Util.isValidCompilationUnitName(memberName, sourceLevel, complianceLevel)
+                                && !Util.isExcluded(member, inclusionPatterns, exclusionPatterns)) {
+                                hasIncluded = true;
+                                IPackageFragment pkg = getPackageFragment(pkgName);
+                                vChildren.add(pkg);
+                            }
+                            break;
                     }
-//                    switch(member.getType()) {
-//
-//                        case IResource.FOLDER:
-//                            // recurse into sub folders even even parent not included as a sub folder could be included
-//                            // (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=65637)
-//                            if (Util.isValidFolderNameForPackage(memberName, sourceLevel, complianceLevel)) {
-//                                // eliminate binary output only if nested inside direct subfolders
-//                                if (javaProject.contains(member)) {
-//                                    String[] newNames = Util.arrayConcat(pkgName, manager.intern(memberName));
-//                                    boolean isMemberIncluded = !Util.isExcluded(member, inclusionPatterns, exclusionPatterns);
-//                                    computeFolderChildren((IFolder) member, isMemberIncluded, newNames, vChildren, inclusionPatterns,
-// exclusionPatterns);
-//                                }
-//                            }
-//                            break;
-//                        case IResource.FILE:
-//                            // inclusion filter may only include files, in which case we still want to include the immediate parent
-// package (lazily)
-//                            if (!hasIncluded
-//                                && Util.isValidCompilationUnitName(memberName, sourceLevel, complianceLevel)
-//                                && !Util.isExcluded(member, inclusionPatterns, exclusionPatterns)) {
-//                                hasIncluded = true;
-//                                IPackageFragment pkg = getPackageFragment(pkgName);
-//                                vChildren.add(pkg);
-//                            }
-//                            break;
-//                    }
                 }
             }
-        } catch (IllegalArgumentException e) {
-            throw new JavaModelException(e,
-                                         IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST); // could be thrown by ElementTree when path
-                                         // is not found
+        } catch(IllegalArgumentException e){
+            throw new JavaModelException(e, IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST); // could be thrown by ElementTree when path is not found
         } catch (CoreException e) {
             throw new JavaModelException(e);
         }
     }
 
     @Override
-    protected File resource(PackageFragmentRoot root) {
-        return path.toFile();
+    protected IResource resource(PackageFragmentRoot root) {
+        return resource;
     }
 
     @Override
-    protected IStatus validateExistence(File underlyingResource) {
+    protected IStatus validateExistence(IResource underlyingResource) {
         return JavaModelStatus.VERIFIED_OK;
     }
 
@@ -475,14 +456,14 @@ public class PackageFragmentRoot extends Openable implements IPackageFragmentRoo
      */
     protected void getHandleMemento(StringBuffer buff) {
         IPath path;
-        File underlyingResource = resource();
+        IResource underlyingResource = getResource();
         if (underlyingResource != null) {
             // internal jar or regular root
-//            if (resource().getProject().equals(getJavaProject().getProject())) {
-//                path = underlyingResource.getProjectRelativePath();
-//            } else {
-            path = new Path(underlyingResource.getAbsolutePath());
-//            }
+            if (resource().getProject().equals(getJavaProject().getProject())) {
+                path = underlyingResource.getProjectRelativePath();
+            } else {
+            path = underlyingResource.getProjectRelativePath();
+            }
         } else {
             // external jar
             path = getPath();
@@ -499,11 +480,11 @@ public class PackageFragmentRoot extends Openable implements IPackageFragmentRoo
 
     @Override
     public IPath getPath() {
-        return path;
+        return internalPath();
     }
 
     public IPath internalPath() {
-        return path;
+        return resource().getFullPath();
     }
 
     SourceMapper createSourceMapper(IPath sourcePath, IPath rootPath) throws JavaModelException {
@@ -514,14 +495,13 @@ public class PackageFragmentRoot extends Openable implements IPackageFragmentRoo
                 rootPath == null ? null : rootPath.toOSString(),
                 getJavaProject().getOptions(true),
 // cannot use workspace options if external jar is 1.5 jar and workspace options are 1.4 options
-                encoding,
-                manager);
+                encoding);
 
         return mapper;
     }
 
     public int hashCode() {
-        return resource().getAbsolutePath().hashCode();
+        return resource().hashCode();
     }
 
     /**
@@ -577,7 +557,7 @@ public class PackageFragmentRoot extends Openable implements IPackageFragmentRoo
  */
     int internalKind() throws JavaModelException {
 //        org.eclipse.jdt.internal.core.JavaModelManager manager = org.eclipse.jdt.internal.core.JavaModelManager.getJavaModelManager();
-        PackageFragmentRootInfo info = (PackageFragmentRootInfo)manager.peekAtInfo(this);
+        PackageFragmentRootInfo info = (PackageFragmentRootInfo)JavaModelManager.getJavaModelManager().peekAtInfo(this);
         if (info == null) {
             info = (PackageFragmentRootInfo)openWhenClosed(createElementInfo(), false, null);
         }

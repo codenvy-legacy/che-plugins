@@ -130,10 +130,10 @@ public class ModelUpdater {
 
 		switch (elementType) {
 			case IJavaElement.JAVA_MODEL :
-				element.manager.getIndexManager().reset();
+                JavaModelManager.getIndexManager().reset();
 				break;
 			case IJavaElement.JAVA_PROJECT :
-				JavaModelManager manager = element.manager;
+				JavaModelManager manager = JavaModelManager.getJavaModelManager();
 				JavaProject javaProject = (JavaProject) element;
 				manager.removePerProjectInfo(javaProject, true /* remove external jar files indexes and timestamps*/);
 				manager.containerRemove(javaProject);

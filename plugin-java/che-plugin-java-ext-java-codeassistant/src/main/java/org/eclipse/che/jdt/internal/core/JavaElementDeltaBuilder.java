@@ -11,7 +11,6 @@
 package org.eclipse.che.jdt.internal.core;
 
 import org.eclipse.che.jdt.internal.core.util.Util;
-
 import org.eclipse.jdt.core.IAnnotation;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaElementDelta;
@@ -417,7 +416,7 @@ private void recordElementInfo(IJavaElement element, int depth) {
 	if (depth >= this.maxDepth) {
 		return;
 	}
-	JavaElementInfo info = (JavaElementInfo)((JavaElement)element).manager.getInfo(element);
+	JavaElementInfo info = (JavaElementInfo) JavaModelManager.getJavaModelManager().getInfo(element);
 	if (info == null) // no longer in the java model.
 		return;
 	this.infos.put(element, info);
@@ -436,7 +435,7 @@ private void recordElementInfo(IJavaElement element, int depth) {
 	if (annotations != null) {
 		if (this.annotationInfos == null)
 			this.annotationInfos = new HashMap();
-		JavaModelManager manager = ((JavaElement)element).manager;
+		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		for (int i = 0, length = annotations.length; i < length; i++) {
 			this.annotationInfos.put(annotations[i], manager.getInfo(annotations[i]));
 		}

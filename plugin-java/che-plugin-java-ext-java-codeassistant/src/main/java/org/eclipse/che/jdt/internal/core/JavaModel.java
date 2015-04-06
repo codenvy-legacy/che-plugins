@@ -10,9 +10,12 @@
  *******************************************************************************/
 package org.eclipse.che.jdt.internal.core;
 
+import org.eclipse.che.core.internal.resources.ResourcesPlugin;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -21,11 +24,17 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaModel;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
+import org.eclipse.jdt.internal.codeassist.impl.AssistOptions;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
+import org.eclipse.jdt.internal.core.util.Messages;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -38,39 +47,57 @@ import java.util.Map;
  */
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class JavaModel extends Openable implements IJavaModel {
+    private Map<String, String> options = new HashMap<>();
 
-/**
- * Constructs a new Java Model on the given workspace.
- * Note that only one instance of JavaModel handle should ever be created.
- * One should only indirect through JavaModelManager#getJavaModel() to get
- * access to it.
- *
- * @exception Error if called more than once
- */
-protected JavaModel(JavaModelManager manager) throws Error {
-	super(null, manager);
-}
-protected boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, Map newElements, File underlyingResource)	/*throws JavaModelException*/ {
+    /**
+     * Constructs a new Java Model on the given workspace.
+     * Note that only one instance of JavaModel handle should ever be created.
+     * One should only indirect through JavaModelManager#getJavaModel() to get
+     * access to it.
+     *
+     * @throws Error
+     *         if called more than once
+     */
+    protected JavaModel() throws Error {
+        super(null);
+        options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_7);
+        options.put(JavaCore.CORE_ENCODING, "UTF-8");
+        options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_7);
+        options.put(CompilerOptions.OPTION_TargetPlatform, JavaCore.VERSION_1_7);
+        options.put(AssistOptions.OPTION_PerformVisibilityCheck, AssistOptions.ENABLED);
+        options.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
+        options.put(CompilerOptions.OPTION_TaskTags, CompilerOptions.WARNING);
+        options.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.WARNING);
+        options.put(CompilerOptions.OPTION_SuppressWarnings, CompilerOptions.ENABLED);
+        options.put(JavaCore.COMPILER_TASK_TAGS, "TODO,FIXME,XXX");
+        options.put(JavaCore.COMPILER_PB_UNUSED_PARAMETER_INCLUDE_DOC_COMMENT_REFERENCE, JavaCore.ENABLED);
+        options.put(JavaCore.COMPILER_DOC_COMMENT_SUPPORT, JavaCore.ENABLED);
+        options.put(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
+        options.put(CompilerOptions.OPTION_Process_Annotations, JavaCore.ENABLED);
+        options.put(CompilerOptions.OPTION_GenerateClassFiles, JavaCore.ENABLED);
+    }
 
-//	// determine my children
-//	IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
-//	int length = projects.length;
-//	IJavaElement[] children = new IJavaElement[length];
-//	int index = 0;
-//	for (int i = 0; i < length; i++) {
-//		IProject project = projects[i];
-//		if (JavaProject.hasJavaNature(project)) {
-//			children[index++] = getJavaProject(project);
-//		}
-//	}
-//	if (index < length)
-//		System.arraycopy(children, 0, children = new IJavaElement[index], 0, index);
-//	info.setChildren(children);
-//
-//	newElements.put(this, info);
-//
-//	return true;
-	throw new UnsupportedOperationException();
+    protected boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, Map newElements,
+                                     IResource underlyingResource)	/*throws JavaModelException*/ {
+
+        // determine my children
+        IProject[] projects = new IProject[0];//ResourcesPlugin.getWorkspace().getRoot().getProjects();
+        int length = projects.length;
+        IJavaElement[] children = new IJavaElement[length];
+        int index = 0;
+        for (int i = 0; i < length; i++) {
+            IProject project = projects[i];
+            if (JavaProject.hasJavaNature(project)) {
+                children[index++] = getJavaProject(project);
+            }
+        }
+        if (index < length)
+            System.arraycopy(children, 0, children = new IJavaElement[index], 0, index);
+        info.setChildren(children);
+
+        newElements.put(this, info);
+
+        return true;
 }
 /*
  * @see IJavaModel
@@ -169,8 +196,7 @@ protected char getHandleMementoDelimiter(){
  * @see org.eclipse.jdt.core.IJavaModel
  */
 public IJavaProject getJavaProject(String projectName) {
-//	return new JavaProject(ResourcesPlugin.getWorkspace().getRoot().getProject(projectName), this);
-	throw new UnsupportedOperationException();
+    return new JavaProject(ResourcesPlugin.getWorkspace().getRoot().getProject(projectName), this, new HashMap<>(options));
 }
 /**
  * Returns the active Java project associated with the specified
@@ -181,28 +207,25 @@ public IJavaProject getJavaProject(String projectName) {
  * is not one of an IProject, IFolder, or IFile.
  */
 public IJavaProject getJavaProject(IResource resource) {
-//	switch(resource.getType()){
-//		case IResource.FOLDER:
-//			return new JavaProject(((IFolder)resource).getProject(), this);
-//		case IResource.FILE:
-//			return new JavaProject(((IFile)resource).getProject(), this);
-//		case IResource.PROJECT:
-//			return new JavaProject((IProject)resource, this);
-//		default:
-//			throw new IllegalArgumentException(Messages.element_invalidResourceForProject);
-//	}
-	throw new UnsupportedOperationException();
+    switch (resource.getType()) {
+        case IResource.FOLDER:
+            return new JavaProject(((IFolder)resource).getProject(), this, new HashMap<>(options));
+        case IResource.FILE:
+            return new JavaProject(((IFile)resource).getProject(), this, new HashMap<>(options));
+        case IResource.PROJECT:
+            return new JavaProject((IProject)resource, this, new HashMap<>(options));
+        default:
+            throw new IllegalArgumentException(Messages.element_invalidResourceForProject);
+    }
 }
 /**
  * @see org.eclipse.jdt.core.IJavaModel
  */
 public IJavaProject[] getJavaProjects() throws JavaModelException {
-//	ArrayList list = getChildrenOfType(JAVA_PROJECT);
-//	IJavaProject[] array= new IJavaProject[list.size()];
-//	list.toArray(array);
-//	return array;
-	return new IJavaProject[]{manager.getJavaProject()};
-
+    ArrayList list = getChildrenOfType(JAVA_PROJECT);
+    IJavaProject[] array = new IJavaProject[list.size()];
+    list.toArray(array);
+    return array;
 }
 /**
  * @see org.eclipse.jdt.core.IJavaModel
@@ -221,9 +244,8 @@ public IPath getPath() {
 /*
  * @see IJavaElement
  */
-public File resource(PackageFragmentRoot root) {
-//	return ResourcesPlugin.getWorkspace().getRoot();
-	throw new UnsupportedOperationException();
+public IResource resource(PackageFragmentRoot root) {
+    return ResourcesPlugin.getWorkspace().getRoot();
 }
 
 	@Override
@@ -332,17 +354,17 @@ public static Object getTarget(IPath path, boolean checkResourceExistence) {
 }
 
 /**
- * Helper method - returns the {@link org.eclipse.core.resources.IResource} corresponding to the provided {@link org.eclipse.core.runtime.IPath},
+ * Helper method - returns the {@link org.eclipse.core.resources.IResource} corresponding to the provided {@link org.eclipse.core.runtime
+ * .IPath},
  * or <code>null</code> if no such resource exists.
  */
 public static IResource getWorkspaceTarget(IPath path) {
-//	if (path == null || path.getDevice() != null)
-//		return null;
-//	IWorkspace workspace = ResourcesPlugin.getWorkspace();
-//	if (workspace == null)
-//		return null;
-//	return workspace.getRoot().findMember(path);
-	throw new UnsupportedOperationException();
+    if (path == null || path.getDevice() != null)
+        return null;
+    IWorkspace workspace = ResourcesPlugin.getWorkspace();
+    if (workspace == null)
+        return null;
+    return workspace.getRoot().findMember(path);
 }
 
 /**
@@ -372,8 +394,8 @@ public static Object getExternalTarget(IPath path, boolean checkResourceExistenc
 //	} else if (isExternalFile(path)) {
 //		return externalFile;
 //	}
-//	return null;
-	throw new UnsupportedOperationException();
+    return null;
+//	throw new UnsupportedOperationException();
 }
 
 /**
@@ -415,8 +437,8 @@ public static File getFile(Object target) {
 	return isFile(target) ? (File) target : null;
 }
 
-protected IStatus validateExistence(File underlyingResource) {
-	// Java model always exists
+    protected IStatus validateExistence(IResource underlyingResource) {
+        // Java model always exists
 	return JavaModelStatus.VERIFIED_OK;
 }
 }

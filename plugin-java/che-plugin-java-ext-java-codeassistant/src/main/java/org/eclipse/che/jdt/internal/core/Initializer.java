@@ -26,8 +26,8 @@ import org.eclipse.jdt.internal.core.util.Util;
  */
 public class Initializer extends Member implements IInitializer {
 
-    protected Initializer(JavaElement parent, JavaModelManager manager, int count) {
-        super(parent, manager);
+    protected Initializer(JavaElement parent, int count) {
+        super(parent);
         // 0 is not valid: this first occurrence is occurrence 1.
         if (count <= 0)
             throw new IllegalArgumentException();

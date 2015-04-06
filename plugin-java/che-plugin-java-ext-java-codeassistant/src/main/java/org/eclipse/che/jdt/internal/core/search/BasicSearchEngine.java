@@ -17,6 +17,7 @@ import org.eclipse.che.jdt.core.search.SearchParticipant;
 import org.eclipse.che.jdt.core.search.SearchPattern;
 import org.eclipse.che.jdt.core.search.SearchRequestor;
 import org.eclipse.che.jdt.core.search.TypeNameMatch;
+import org.eclipse.che.jdt.internal.core.JavaModelManager;
 import org.eclipse.che.jdt.internal.core.JavaProject;
 import org.eclipse.che.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.che.jdt.internal.core.search.matching.ConstructorDeclarationPattern;
@@ -29,7 +30,6 @@ import org.eclipse.che.jdt.internal.core.search.matching.MultiTypeDeclarationPat
 import org.eclipse.che.jdt.internal.core.search.matching.QualifiedTypeDeclarationPattern;
 import org.eclipse.che.jdt.internal.core.search.matching.SecondaryTypeDeclarationPattern;
 import org.eclipse.che.jdt.internal.core.search.matching.TypeDeclarationPattern;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
@@ -111,16 +111,12 @@ public class BasicSearchEngine {
 	 * For tracing purpose.
 	 */
 	public static boolean VERBOSE = false;
-	private IndexManager indexManager;
-	private JavaProject  javaProject;
 
 	/*
 	 * Creates a new search basic engine.
 	 */
-	public BasicSearchEngine(IndexManager indexManager, JavaProject javaProject) {
+	public BasicSearchEngine() {
 		// will use working copies of PRIMARY owner
-		this.indexManager = indexManager;
-		this.javaProject = javaProject;
 	}
 
 //    /**
@@ -235,8 +231,9 @@ public class BasicSearchEngine {
 	 */
 	public static IJavaSearchScope createWorkspaceScope() {
 		//TODO
-		throw new UnsupportedOperationException();
+//		throw new UnsupportedOperationException();
 //		return JavaModelManager.getJavaModelManager().getWorkspaceScope();
+        return new JavaWorkspaceScope();
 	}
 
 	/**
@@ -264,6 +261,7 @@ public class BasicSearchEngine {
 			int length = participants.length;
 			if (monitor != null)
 				monitor.beginTask(Messages.engine_searching, 100 * length);
+            IndexManager indexManager = JavaModelManager.getIndexManager();
 			requestor.beginReporting();
 			for (int i = 0; i < length; i++) {
 				if (monitor != null && monitor.isCanceled()) throw new OperationCanceledException();
@@ -312,8 +310,8 @@ public class BasicSearchEngine {
 	 * @return a new default Java search participant
 	 * @since 3.0
 	 */
-	public static SearchParticipant getDefaultSearchParticipant(IndexManager indexManager, JavaProject javaProject) {
-		return new JavaSearchParticipant(indexManager, javaProject);
+	public static SearchParticipant getDefaultSearchParticipant() {
+		return new JavaSearchParticipant();
 	}
 
 	/**
@@ -416,7 +414,7 @@ public class BasicSearchEngine {
 		ICompilationUnit[] copies;
 		if (this.workingCopies != null) {
 			if (this.workingCopyOwner == null) {
-				copies = javaProject.getJavaModelManager().getWorkingCopies(DefaultWorkingCopyOwner.PRIMARY, false/*don't add primary WCs
+				copies = JavaModelManager.getJavaModelManager().getWorkingCopies(DefaultWorkingCopyOwner.PRIMARY, false/*don't add primary WCs
 				a second time*/);
 				if (copies == null) {
 					copies = this.workingCopies;
@@ -438,9 +436,9 @@ public class BasicSearchEngine {
 				copies = this.workingCopies;
 			}
 		} else if (this.workingCopyOwner != null) {
-			copies = javaProject.getJavaModelManager().getWorkingCopies(this.workingCopyOwner, true/*add primary WCs*/);
+			copies = JavaModelManager.getJavaModelManager().getWorkingCopies(this.workingCopyOwner, true/*add primary WCs*/);
 		} else {
-			copies = javaProject
+			copies = JavaModelManager
 					.getJavaModelManager().getWorkingCopies(DefaultWorkingCopyOwner.PRIMARY, false/*don't add primary WCs a second time*/);
 		}
 		if (copies == null) return null;
@@ -615,6 +613,8 @@ public class BasicSearchEngine {
 		if (validatedTypeMatchRule == -1) return; // invalid match rule => return no results
 
 		// Create pattern
+        // Create pattern
+        IndexManager indexManager = JavaModelManager.getIndexManager();
 		final ConstructorDeclarationPattern pattern = new ConstructorDeclarationPattern(
 				packageName,
 				typeName,
@@ -711,7 +711,7 @@ public class BasicSearchEngine {
 			indexManager.performConcurrentJob(
 					new PatternSearchJob(
 							pattern,
-							getDefaultSearchParticipant(indexManager, javaProject), // Java search only
+							getDefaultSearchParticipant(), // Java search only
 					scope,
 					searchRequestor, indexManager),
 				waitingPolicy,
@@ -960,6 +960,7 @@ public class BasicSearchEngine {
 			Util.verbose(buffer.toString());
 		}
 
+        IndexManager indexManager = JavaModelManager.getIndexManager();
 		final TypeDeclarationPattern pattern = new SecondaryTypeDeclarationPattern();
 
 		// Get working copy path(s). Store in a single string in case of only one to optimize comparison in requestor
@@ -1043,7 +1044,7 @@ public class BasicSearchEngine {
 			indexManager.performConcurrentJob(
 					new PatternSearchJob(
 							pattern,
-							getDefaultSearchParticipant(indexManager, javaProject), // Java search only
+							getDefaultSearchParticipant(), // Java search only
 							createJavaSearchScope(sourceFolders),
 							searchRequestor, indexManager),
 					waitForIndexes
@@ -1099,6 +1100,9 @@ public class BasicSearchEngine {
 			Util.verbose("	- scope: " + scope); //$NON-NLS-1$
 		}
 		if (validatedTypeMatchRule == -1) return; // invalid match rule => return no results
+
+        // Create pattern
+        IndexManager indexManager = JavaModelManager.getIndexManager();
 
 		final char typeSuffix;
 		switch (searchFor) {
@@ -1221,7 +1225,7 @@ public class BasicSearchEngine {
 			indexManager.performConcurrentJob(
 					new PatternSearchJob(
 							pattern,
-							getDefaultSearchParticipant(indexManager, javaProject), // Java search only
+							getDefaultSearchParticipant(), // Java search only
 							scope,
 							searchRequestor, indexManager),
 					waitingPolicy,
@@ -1387,6 +1391,7 @@ public class BasicSearchEngine {
 			Util.verbose("	- search for: " + searchFor); //$NON-NLS-1$
 			Util.verbose("	- scope: " + scope); //$NON-NLS-1$
 		}
+        IndexManager indexManager = JavaModelManager.getIndexManager();
 
 		// Create pattern
 		final char typeSuffix;
@@ -1497,7 +1502,7 @@ public class BasicSearchEngine {
 			indexManager.performConcurrentJob(
 					new PatternSearchJob(
 							pattern,
-							getDefaultSearchParticipant(indexManager, javaProject), // Java search only
+							getDefaultSearchParticipant(), // Java search only
 							scope,
 							searchRequestor, indexManager),
 					waitingPolicy,
@@ -1634,7 +1639,7 @@ public class BasicSearchEngine {
 					if (VERBOSE) {
 						Util.verbose("Searching for " + pattern + " in " + resource.getFullPath()); //$NON-NLS-1$//$NON-NLS-2$
 					}
-					SearchParticipant participant = getDefaultSearchParticipant(indexManager, javaProject);
+					SearchParticipant participant = getDefaultSearchParticipant();
 					SearchDocument[] documents = MatchLocator.addWorkingCopies(
 							pattern,
 							new SearchDocument[]{new JavaSearchDocument(enclosingElement.getPath().toString(), participant)},
@@ -1652,7 +1657,7 @@ public class BasicSearchEngine {
 			} else {
 				search(
 					pattern,
-					new SearchParticipant[] {getDefaultSearchParticipant(indexManager, javaProject)},
+					new SearchParticipant[] {getDefaultSearchParticipant()},
 					scope,
 					requestor,
 					monitor);

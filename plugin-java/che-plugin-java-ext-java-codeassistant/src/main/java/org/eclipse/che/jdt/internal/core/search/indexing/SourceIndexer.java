@@ -10,12 +10,18 @@
  *******************************************************************************/
 package org.eclipse.che.jdt.internal.core.search.indexing;
 
+import org.eclipse.che.core.internal.resources.ResourcesPlugin;
+import org.eclipse.che.jdt.core.JavaCore;
 import org.eclipse.che.jdt.core.search.SearchDocument;
+import org.eclipse.che.jdt.internal.core.JavaModel;
+import org.eclipse.che.jdt.internal.core.JavaModelManager;
 import org.eclipse.che.jdt.internal.core.JavaProject;
 import org.eclipse.che.jdt.internal.core.search.matching.JavaSearchNameEnvironment;
 import org.eclipse.che.jdt.internal.core.search.matching.MethodPattern;
 import org.eclipse.che.jdt.internal.core.search.processing.JobManager;
-
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
@@ -70,13 +76,9 @@ public class SourceIndexer extends AbstractIndexer implements ITypeRequestor, Su
 	private Parser                     basicParser;
 	private CompilationUnit            compilationUnit;
 	private CompilationUnitDeclaration cud;
-	private IndexManager indexManager;
-	private JavaProject  javaProject;
 
-	public SourceIndexer(SearchDocument document, IndexManager indexManager, JavaProject javaProject) {
+	public SourceIndexer(SearchDocument document) {
 		super(document);
-		this.indexManager = indexManager;
-		this.javaProject = javaProject;
 		this.requestor = new SourceIndexerRequestor(this);
 	}
 
@@ -85,10 +87,9 @@ public class SourceIndexer extends AbstractIndexer implements ITypeRequestor, Su
 		String documentPath = this.document.getPath();
 		SourceElementParser parser = this.document.getParser();
 		if (parser == null) {
-//			IPath path = new Path(documentPath);
-//			IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(path.segment(0));
-//			parser = JavaModelManager.getJavaModelManager().indexManager.getSourceElementParser(JavaCore.create(project), requestor);
-			parser = indexManager.getSourceElementParser(javaProject, requestor);
+			IPath path = new Path(documentPath);
+			IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(path.segment(0));
+			parser = JavaModelManager.getJavaModelManager().indexManager.getSourceElementParser(JavaCore.create(project), requestor);
 		} else {
 			parser.setRequestor(requestor);
 		}
@@ -137,10 +138,10 @@ public class SourceIndexer extends AbstractIndexer implements ITypeRequestor, Su
 
 	public void resolveDocument() {
 		try {
-//			IPath path = new Path(this.document.getPath());
-//			IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(path.segment(0));
-//			JavaModel model = JavaModelManager.getJavaModelManager().getJavaModel();
-//			JavaProject javaProject = (JavaProject) model.getJavaProject(project);
+			IPath path = new Path(this.document.getPath());
+			IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(path.segment(0));
+			JavaModel model = JavaModelManager.getJavaModelManager().getJavaModel();
+			JavaProject javaProject = (JavaProject) model.getJavaProject(project);
 
 			this.options = new CompilerOptions(javaProject.getOptions(true));
 			ProblemReporter problemReporter =

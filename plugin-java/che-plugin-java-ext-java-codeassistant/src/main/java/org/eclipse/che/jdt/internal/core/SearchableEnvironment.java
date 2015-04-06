@@ -73,7 +73,7 @@ public class SearchableEnvironment
 	 * Creates a SearchableEnvironment on the given project
 	 */
 	public SearchableEnvironment(JavaProject project, WorkingCopyOwner owner) throws JavaModelException {
-		this(project, owner == null ? null : project.manager.getWorkingCopies(owner, true/*add primary WCs*/));
+		this(project, owner == null ? null : JavaModelManager.getJavaModelManager().getWorkingCopies(owner, true/*add primary WCs*/));
 		this.owner = owner;
 	}
 
@@ -243,7 +243,7 @@ public class SearchableEnvironment
 				}
 			};
 			try {
-				new BasicSearchEngine(project.getIndexManager(), project).searchAllTypeNames(
+				new BasicSearchEngine().searchAllTypeNames(
 						null,
 						SearchPattern.R_EXACT_MATCH,
 						name,
@@ -427,10 +427,10 @@ public class SearchableEnvironment
 			int matchRule = SearchPattern.R_PREFIX_MATCH;
 			if (camelCaseMatch) matchRule |= SearchPattern.R_CAMELCASE_MATCH;
 			if (monitor != null) {
-				IndexManager indexManager = project.getIndexManager();
+				IndexManager indexManager = JavaModelManager.getIndexManager();
 				if (indexManager.awaitingJobsCount() == 0) {
 					// indexes were already there, so perform an immediate search to avoid any index rebuilt
-					new BasicSearchEngine(project.getIndexManager(), project).searchAllTypeNames(
+					new BasicSearchEngine().searchAllTypeNames(
 						qualification,
 						SearchPattern.R_EXACT_MATCH,
 						simpleName,
@@ -452,7 +452,7 @@ public class SearchableEnvironment
 					}
 					if (indexManager.awaitingJobsCount() == 0) {
 						// indexes are now ready, so perform an immediate search to avoid any index rebuilt
-						new BasicSearchEngine(project.getIndexManager(), project).searchAllTypeNames(
+						new BasicSearchEngine().searchAllTypeNames(
 							qualification,
 							SearchPattern.R_EXACT_MATCH,
 							simpleName,
@@ -472,16 +472,16 @@ public class SearchableEnvironment
 				}
 			} else {
 				try {
-					new BasicSearchEngine(project.getIndexManager(), project).searchAllTypeNames(
-						qualification,
-						SearchPattern.R_EXACT_MATCH,
-						simpleName,
-						matchRule, // not case sensitive
-						searchFor,
-						getSearchScope(),
-						typeRequestor,
-						CANCEL_IF_NOT_READY_TO_SEARCH,
-						progressMonitor);
+					new BasicSearchEngine().searchAllTypeNames(
+                            qualification,
+                            SearchPattern.R_EXACT_MATCH,
+                            simpleName,
+                            matchRule, // not case sensitive
+                            searchFor,
+                            getSearchScope(),
+                            typeRequestor,
+                            CANCEL_IF_NOT_READY_TO_SEARCH,
+                            progressMonitor);
 				} catch (OperationCanceledException e) {
 					findTypes(
 						new String(prefix),
@@ -600,7 +600,7 @@ public class SearchableEnvironment
 			int matchRule = SearchPattern.R_PREFIX_MATCH;
 			if (camelCaseMatch) matchRule |= SearchPattern.R_CAMELCASE_MATCH;
 			if (monitor != null) {
-				IndexManager indexManager = project.getIndexManager();
+				IndexManager indexManager = JavaModelManager.getIndexManager();
 				while (indexManager.awaitingJobsCount() > 0) {
 					try {
 						Thread.sleep(50); // indexes are not ready,  sleep 50ms...
@@ -611,7 +611,7 @@ public class SearchableEnvironment
 						throw new OperationCanceledException();
 					}
 				}
-				new BasicSearchEngine(project.getIndexManager(), project).searchAllConstructorDeclarations(
+				new BasicSearchEngine().searchAllConstructorDeclarations(
 						qualification,
 						simpleName,
 						matchRule,
@@ -621,7 +621,7 @@ public class SearchableEnvironment
 						progressMonitor);
 			} else {
 				try {
-					new BasicSearchEngine(project.getIndexManager(), project).searchAllConstructorDeclarations(
+					new BasicSearchEngine().searchAllConstructorDeclarations(
 							qualification,
 							simpleName,
 							matchRule,

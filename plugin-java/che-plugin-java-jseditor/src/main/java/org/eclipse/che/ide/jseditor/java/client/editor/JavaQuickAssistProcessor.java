@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.che.ide.jseditor.java.client.editor;
 
-import org.eclipse.che.ide.api.icon.Icon;
 import org.eclipse.che.ide.api.text.Position;
 import org.eclipse.che.ide.api.text.annotation.Annotation;
 import org.eclipse.che.ide.collections.Array;
@@ -155,13 +154,13 @@ public class JavaQuickAssistProcessor implements QuickAssistProcessor {
 
     private List<CompletionProposal> buildProposals(final Array<WorkerProposal> problems) {
         final List<CompletionProposal> proposals = new ArrayList<>();
-        for (final WorkerProposal problem : problems.asIterable()) {
-            final String style = JavaCodeAssistProcessor.insertStyle(javaResources, problem.displayText());
-            final Icon icon = new Icon("", JavaCodeAssistProcessor.getImage(javaResources, problem.image()));
-            final CompletionProposal proposal = new JavaCompletionProposal(problem.id(), style, icon,
-                                                                           worker);
-            proposals.add(proposal);
-        }
+//        for (final WorkerProposal problem : problems.asIterable()) {
+//            final String style = JavaCodeAssistProcessor.insertStyle(javaResources, problem.displayText());
+//            final Icon icon = new Icon("", JavaCodeAssistProcessor.getImage(javaResources, problem.image()));
+//            final CompletionProposal proposal = new JavaCompletionProposal(problem.id(), style, icon,
+//                                                                           worker, respons.getSessionId());
+//            proposals.add(proposal);
+//        }
         return proposals;
     }
 

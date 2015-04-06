@@ -22,8 +22,8 @@ public class ResolvedBinaryField extends BinaryField {
 	/*
 	 * See class comments.
 	 */
-	public ResolvedBinaryField(JavaElement parent, JavaModelManager manager, String name, String uniqueKey) {
-		super(parent, manager, name);
+	public ResolvedBinaryField(JavaElement parent, String name, String uniqueKey) {
+		super(parent, name);
 		this.uniqueKey = uniqueKey;
 	}
 
@@ -54,7 +54,7 @@ public class ResolvedBinaryField extends BinaryField {
 	}
 
 	public JavaElement unresolved() {
-		SourceRefElement handle = new BinaryField(this.parent, this.manager, this.name);
+		SourceRefElement handle = new BinaryField(this.parent, this.name);
 		handle.occurrenceCount = this.occurrenceCount;
 		return handle;
 	}

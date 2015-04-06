@@ -10,8 +10,11 @@
  *******************************************************************************/
 package org.eclipse.che.jdt.internal.core.search;
 
+import org.eclipse.che.jdt.internal.core.DeltaProcessor;
+import org.eclipse.che.jdt.internal.core.JavaModel;
+import org.eclipse.che.jdt.internal.core.JavaModelManager;
+import org.eclipse.che.jdt.internal.core.JavaProject;
 import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IClasspathEntry;
@@ -21,13 +24,6 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
-import org.eclipse.jdt.internal.core.DeltaProcessor;
-import org.eclipse.jdt.internal.core.ExternalFoldersManager;
-import org.eclipse.jdt.internal.core.JavaModel;
-import org.eclipse.jdt.internal.core.JavaModelManager;
-import org.eclipse.jdt.internal.core.JavaProject;
-import org.eclipse.jdt.internal.core.search.BasicSearchEngine;
-import org.eclipse.jdt.internal.core.util.Util;
 
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -39,7 +35,7 @@ import java.util.Set;
  * are included.
  */
 @SuppressWarnings({"rawtypes", "unchecked"})
-public class JavaWorkspaceScope extends org.eclipse.jdt.internal.core.search.AbstractJavaSearchScope {
+public class JavaWorkspaceScope extends AbstractJavaSearchScope {
 
 	private IPath[] enclosingPaths = null;
 
@@ -73,8 +69,8 @@ public class JavaWorkspaceScope extends org.eclipse.jdt.internal.core.search.Abs
 		if (result != null) {
 			return result;
 		}
-		long start = org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE ? System.currentTimeMillis() : -1;
-		try {
+        long start = BasicSearchEngine.VERBOSE ? System.currentTimeMillis() : -1;
+        try {
 			IJavaProject[] projects = JavaModelManager.getJavaModelManager().getJavaModel().getJavaProjects();
 			// use a linked set to preserve the order during search: see bug 348507
 			Set paths = new LinkedHashSet(projects.length * 2);
@@ -131,7 +127,7 @@ public AccessRuleSet getAccessRuleSet(String relativePath, String containerPath)
 }
 
 public int hashCode() {
-	return org.eclipse.jdt.internal.core.search.JavaWorkspaceScope.class.hashCode();
+    return JavaWorkspaceScope.class.hashCode();
 }
 
 /**
@@ -145,19 +141,19 @@ public IPackageFragmentRoot packageFragmentRoot(String resourcePathString, int j
 		rootInfo = (DeltaProcessor.RootInfo) rootInfos.get(path);
 	} else {
 		IPath path = new Path(resourcePathString);
-		if (ExternalFoldersManager.isInternalPathForExternalFolder(path)) {
-			IResource resource = JavaModel
-					.getWorkspaceTarget(path.uptoSegment(2/*linked folders for external folders are always of size 2*/));
-			if (resource != null)
-				rootInfo = (DeltaProcessor.RootInfo) rootInfos.get(resource.getLocation());
-		} else {
-			rootInfo = (DeltaProcessor.RootInfo) rootInfos.get(path);
+//		if (ExternalFoldersManager.isInternalPathForExternalFolder(path)) {
+//			IResource resource = JavaModel
+//					.getWorkspaceTarget(path.uptoSegment(2/*linked folders for external folders are always of size 2*/));
+//			if (resource != null)
+//				rootInfo = (DeltaProcessor.RootInfo) rootInfos.get(resource.getLocation());
+//		} else {
+        rootInfo = (DeltaProcessor.RootInfo) rootInfos.get(path);
 			while (rootInfo == null && path.segmentCount() > 0) {
 				path = path.removeLastSegments(1);
 				rootInfo = (DeltaProcessor.RootInfo) rootInfos.get(path);
 			}
-		}
-	}
+//		}
+    }
 	if (rootInfo == null)
 		return null;
 	return rootInfo.getPackageFragmentRoot(null/*no resource hint*/);

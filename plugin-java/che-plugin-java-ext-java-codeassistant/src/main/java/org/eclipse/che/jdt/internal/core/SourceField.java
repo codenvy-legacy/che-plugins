@@ -29,8 +29,8 @@ public class SourceField extends NamedMember implements IField {
 /**
  * Constructs a handle to the field with the given name in the specified type.
  */
-protected SourceField(JavaElement parent, JavaModelManager manager, String name) {
-	super(parent,manager, name);
+protected SourceField(JavaElement parent, String name) {
+	super(parent, name);
 }
 public boolean equals(Object o) {
 	if (!(o instanceof SourceField)) return false;

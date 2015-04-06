@@ -192,13 +192,13 @@ class JavaProjectElementInfo extends OpenableElementInfo {
                 reverseMap.clear();
             }
 
-//			HashMap rootInfos = JavaModelManager.getJavaModelManager().deltaState.roots;
+            HashMap rootInfos = JavaModelManager.getJavaModelManager().deltaState.roots;
             HashMap pkgFragmentsCaches = new HashMap();
             int length = roots.length;
-            JavaModelManager manager = project.manager; //JavaModelManager.getJavaModelManager();
+            JavaModelManager manager = JavaModelManager.getJavaModelManager();
             for (int i = 0; i < length; i++) {
                 IPackageFragmentRoot root = roots[i];
-                DeltaProcessor.RootInfo rootInfo = null;// (DeltaProcessor.RootInfo) rootInfos.get(root.getPath());
+                DeltaProcessor.RootInfo rootInfo = (DeltaProcessor.RootInfo)rootInfos.get(root.getPath());
                 if (rootInfo == null || rootInfo.project.equals(project)) {
                     // ensure that an identical root is used (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=217059 )
                     roots[i] = root = (IPackageFragmentRoot)manager.getExistingElement(root);
@@ -326,8 +326,7 @@ class JavaProjectElementInfo extends OpenableElementInfo {
             }
             cache.allPkgFragmentsCache = allPkgFragmentsCache;
         }
-        return new NameLookup(cache.allPkgFragmentRootsCache, cache.allPkgFragmentsCache, workingCopies, cache.rootToResolvedEntries,
-                              project.getJavaModelManager());
+        return new NameLookup(cache.allPkgFragmentRootsCache, cache.allPkgFragmentsCache, workingCopies, cache.rootToResolvedEntries);
     }
 
     /*

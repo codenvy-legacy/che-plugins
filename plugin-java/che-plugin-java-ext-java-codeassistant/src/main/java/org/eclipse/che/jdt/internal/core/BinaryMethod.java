@@ -54,8 +54,8 @@ import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 	protected String[] exceptionTypes;
 	protected String returnType;
 
-protected BinaryMethod(JavaElement parent, JavaModelManager manager, String name, String[] paramTypes) {
-	super(parent, manager, name);
+protected BinaryMethod(JavaElement parent, String name, String[] paramTypes) {
+	super(parent, name);
 	// Assertion disabled since bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=179011
 	// Assert.isTrue(name.indexOf('.') == -1);
 	if (paramTypes == null) {
@@ -106,7 +106,6 @@ public ILocalVariable[] getParameters() throws JavaModelException {
 		if (i < startIndex) {
 			LocalVariable localVariable = new LocalVariable(
 					this,
-					manager,
 					new String(argumentNames[i]),
 					0,
 					-1,
@@ -121,7 +120,6 @@ public ILocalVariable[] getParameters() throws JavaModelException {
 		} else {
 			LocalVariable localVariable = new LocalVariable(
 					this,
-					manager,
 					new String(argumentNames[i]),
 					0,
 					-1,
@@ -143,7 +141,7 @@ private IAnnotation[] getAnnotations(JavaElement annotationParent, IBinaryAnnota
 	int length = binaryAnnotations.length;
 	IAnnotation[] annotations = new IAnnotation[length];
 	for (int i = 0; i < length; i++) {
-		annotations[i] = Util.getAnnotation(annotationParent,manager, binaryAnnotations[i], null);
+		annotations[i] = Util.getAnnotation(annotationParent, binaryAnnotations[i], null);
 	}
 	return annotations;
 }
@@ -153,7 +151,7 @@ public IMemberValuePair getDefaultValue() throws JavaModelException {
 	if (defaultValue == null)
 		return null;
 	MemberValuePair memberValuePair = new MemberValuePair(getElementName());
-	memberValuePair.value = Util.getAnnotationMemberValue(this, manager, memberValuePair, defaultValue);
+	memberValuePair.value = Util.getAnnotationMemberValue(this, memberValuePair, defaultValue);
 	return memberValuePair;
 }
 /*
@@ -294,7 +292,7 @@ public String[] getParameterNames() throws JavaModelException {
 		}
 		JavadocContents javadocContents = null;
 		IType declaringType = getDeclaringType();
-		JavaModelManager.PerProjectInfo projectInfo = manager.getPerProjectInfoCheckExistence();
+		JavaModelManager.PerProjectInfo projectInfo = JavaModelManager.getJavaModelManager().getPerProjectInfoCheckExistence(getJavaProject().getProject());
 		synchronized (projectInfo.javadocCache) {
 			javadocContents = (JavadocContents) projectInfo.javadocCache.get(declaringType);
 			if (javadocContents == null) {
@@ -520,7 +518,7 @@ private String getErasedParameterType(int index) {
 }
 
 public ITypeParameter getTypeParameter(String typeParameterName) {
-	return new TypeParameter(this, manager, typeParameterName);
+	return new TypeParameter(this, typeParameterName);
 }
 
 public ITypeParameter[] getTypeParameters() throws JavaModelException {
@@ -530,7 +528,7 @@ public ITypeParameter[] getTypeParameters() throws JavaModelException {
 	ITypeParameter[] typeParameters = new ITypeParameter[length];
 	for (int i = 0; i < typeParameterSignatures.length; i++) {
 		String typeParameterName = Signature.getTypeVariable(typeParameterSignatures[i]);
-		typeParameters[i] = new TypeParameter(this, manager, typeParameterName);
+		typeParameters[i] = new TypeParameter(this, typeParameterName);
 	}
 	return typeParameters;
 }
@@ -656,7 +654,7 @@ public String readableName() {
 }
 public JavaElement resolved(Binding binding) {
 	SourceRefElement
-			resolvedHandle = new ResolvedBinaryMethod(this.parent, this.manager, this.name, this.parameterTypes, new String(binding.computeUniqueKey()));
+			resolvedHandle = new ResolvedBinaryMethod(this.parent, this.name, this.parameterTypes, new String(binding.computeUniqueKey()));
 	resolvedHandle.occurrenceCount = this.occurrenceCount;
 	return resolvedHandle;
 }/*

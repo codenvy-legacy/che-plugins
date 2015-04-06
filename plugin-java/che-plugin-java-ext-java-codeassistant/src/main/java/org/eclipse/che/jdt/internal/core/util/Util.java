@@ -10,65 +10,102 @@
  *******************************************************************************/
 package org.eclipse.che.jdt.internal.core.util;
 
+import org.eclipse.che.core.internal.resources.ResourcesPlugin;
+import org.eclipse.che.ide.runtime.Assert;
 import org.eclipse.che.jdt.dom.JavaConventions;
 import org.eclipse.che.jdt.internal.core.Annotation;
-import org.eclipse.che.jdt.internal.core.CompilationUnit;
+import org.eclipse.che.jdt.internal.core.ClassFile;
 import org.eclipse.che.jdt.internal.core.JavaElement;
 import org.eclipse.che.jdt.internal.core.JavaModelManager;
+import org.eclipse.che.jdt.internal.core.Member;
 import org.eclipse.che.jdt.internal.core.MemberValuePair;
 import org.eclipse.che.jdt.internal.core.PackageFragment;
 import org.eclipse.che.jdt.internal.core.PackageFragmentRoot;
-import org.eclipse.che.ide.runtime.Assert;
-
+import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.core.IAnnotation;
+import org.eclipse.jdt.core.IClassFile;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IInitializer;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMemberValuePair;
+import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.ISourceRange;
+import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
+import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.AnnotationMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
+import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.ast.UnionTypeReference;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.env.ClassSignature;
 import org.eclipse.jdt.internal.compiler.env.EnumConstantSignature;
 import org.eclipse.jdt.internal.compiler.env.IBinaryAnnotation;
+import org.eclipse.jdt.internal.compiler.env.IDependent;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
+import org.eclipse.jdt.internal.compiler.lookup.Binding;
+import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
+import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.util.KeyToSignature;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintStream;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 /** Provides convenient utility methods to other types in this package. */
 public class Util {
-
-    private static final char ARGUMENTS_DELIMITER = '#';
-    private static final String EMPTY_ARGUMENT = "   "; //$NON-NLS-1$
-    private static final char[] BOOLEAN = "boolean".toCharArray(); //$NON-NLS-1$
-    private static final char[] BYTE = "byte".toCharArray(); //$NON-NLS-1$
-    private static final char[] CHAR = "char".toCharArray(); //$NON-NLS-1$
-    private static final char[] DOUBLE = "double".toCharArray(); //$NON-NLS-1$
-    private static final char[] FLOAT = "float".toCharArray(); //$NON-NLS-1$
-    private static final char[] INT = "int".toCharArray(); //$NON-NLS-1$
-    private static final char[] LONG = "long".toCharArray(); //$NON-NLS-1$
-    private static final char[] SHORT = "short".toCharArray(); //$NON-NLS-1$
-    private static final char[] VOID = "void".toCharArray(); //$NON-NLS-1$
+    private static final Logger LOG                 = LoggerFactory.getLogger(Util.class);
+    private static final char   ARGUMENTS_DELIMITER = '#';
+    private static final String EMPTY_ARGUMENT      = "   "; //$NON-NLS-1$
+    private static final char[] BOOLEAN             = "boolean".toCharArray(); //$NON-NLS-1$
+    private static final char[] BYTE                = "byte".toCharArray(); //$NON-NLS-1$
+    private static final char[] CHAR                = "char".toCharArray(); //$NON-NLS-1$
+    private static final char[] DOUBLE              = "double".toCharArray(); //$NON-NLS-1$
+    private static final char[] FLOAT               = "float".toCharArray(); //$NON-NLS-1$
+    private static final char[] INT                 = "int".toCharArray(); //$NON-NLS-1$
+    private static final char[] LONG                = "long".toCharArray(); //$NON-NLS-1$
+    private static final char[] SHORT               = "short".toCharArray(); //$NON-NLS-1$
+    private static final char[] VOID                = "void".toCharArray(); //$NON-NLS-1$
     private static char[][] JAVA_LIKE_EXTENSIONS;
+    private static List fgRepeatedMessages = new ArrayList(5);
 
     private Util() {
         // cannot be instantiated
@@ -977,10 +1014,113 @@ public class Util {
 
     /* Add a log entry */
     public static void log(Throwable e, String message) {
-        //TODO log error
-//        Log.error(Util.class, message, e);
-
+        LOG.error(message, e);
     }
+      /* Add a log entry */
+    public static void log(Throwable e) {
+        LOG.error(e.getMessage(), e);
+    }
+
+    /*
+ * Add a log entry
+ */
+    public static void log(int statusErrorID, String message) {
+        log(new Status(
+                statusErrorID,
+                JavaCore.PLUGIN_ID,
+                message));
+    }
+
+    public static void log(IStatus status) {
+       LOG.error(status.toString());
+    }
+
+    private static IFile findFirstClassFile(IFolder folder) {
+        try {
+            IResource[] members = folder.members();
+            for (int i = 0, max = members.length; i < max; i++) {
+                IResource member = members[i];
+                if (member.getType() == IResource.FOLDER) {
+                    return findFirstClassFile((IFolder)member);
+                } else if (org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(member.getName())) {
+                    return (IFile) member;
+                }
+            }
+        } catch (CoreException e) {
+            // ignore
+        }
+        return null;
+    }
+
+    public static ClassFileReader newClassFileReader(IResource resource) throws CoreException, ClassFormatException, IOException {
+        InputStream in = null;
+        try {
+            in = ((IFile) resource).getContents(true);
+            return ClassFileReader.read(in, resource.getFullPath().toString());
+        } finally {
+            if (in != null)
+                in.close();
+        }
+    }
+    /**
+     * Get the jdk level of this root.
+     * The value can be:
+     * <ul>
+     * <li>major<<16 + minor : see predefined constants on ClassFileConstants </li>
+     * <li><code>0</null> if the root is a source package fragment root or if a Java model exception occured</li>
+     * </ul>
+     * Returns the jdk level
+     */
+    public static long getJdkLevel(Object targetLibrary) {
+        try {
+            ClassFileReader reader = null;
+            if (targetLibrary instanceof IFolder) {
+                IFile classFile = findFirstClassFile((IFolder) targetLibrary); // only internal classfolders are allowed
+                if (classFile != null)
+                    reader = Util.newClassFileReader(classFile);
+            } else {
+                // root is a jar file or a zip file
+                ZipFile jar = null;
+                try {
+                    IPath path = null;
+                    if (targetLibrary instanceof IResource) {
+                        path = ((IResource)targetLibrary).getFullPath();
+                    } else if (targetLibrary instanceof File){
+                        File f = (File) targetLibrary;
+                        if (!f.isDirectory()) {
+                            path = new Path(((File)targetLibrary).getPath());
+                        }
+                    }
+                    if (path != null) {
+                        jar = JavaModelManager.getJavaModelManager().getZipFile(path);
+                        for (Enumeration e= jar.entries(); e.hasMoreElements();) {
+                            ZipEntry member= (ZipEntry) e.nextElement();
+                            String entryName= member.getName();
+                            if (org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(entryName)) {
+                                reader = ClassFileReader.read(jar, entryName);
+                                break;
+                            }
+                        }
+                    }
+                } catch (CoreException e) {
+                    // ignore
+                } finally {
+                    JavaModelManager.getJavaModelManager().closeZipFile(jar);
+                }
+            }
+            if (reader != null) {
+                return reader.getVersion();
+            }
+        } catch (CoreException e) {
+            // ignore
+        } catch(ClassFormatException e) {
+            // ignore
+        } catch(IOException e) {
+            // ignore
+        }
+        return 0;
+    }
+
 
     /** Returns the length of the common prefix between s1 and s2. */
     public static int prefixLength(char[] s1, char[] s2) {
@@ -1801,17 +1941,17 @@ public class Util {
         return result;
     }
 
-    public static IAnnotation getAnnotation(JavaElement parent, JavaModelManager manager, IBinaryAnnotation binaryAnnotation, String memberValuePairName) {
+    public static IAnnotation getAnnotation(JavaElement parent, IBinaryAnnotation binaryAnnotation, String memberValuePairName) {
         char[] typeName = org.eclipse.jdt.core.Signature.toCharArray(CharOperation.replaceOnCopy(binaryAnnotation.getTypeName(), '/', '.'));
-        return new Annotation(parent,manager, new String(typeName), memberValuePairName);
+        return new Annotation(parent, new String(typeName), memberValuePairName);
     }
 
-    public static Object getAnnotationMemberValue(JavaElement parent, JavaModelManager manager, MemberValuePair memberValuePair, Object binaryValue) {
+    public static Object getAnnotationMemberValue(JavaElement parent, MemberValuePair memberValuePair, Object binaryValue) {
         if (binaryValue instanceof Constant) {
             return getAnnotationMemberValue(memberValuePair, (Constant) binaryValue);
         } else if (binaryValue instanceof IBinaryAnnotation) {
             memberValuePair.valueKind = IMemberValuePair.K_ANNOTATION;
-            return getAnnotation(parent,manager, (IBinaryAnnotation) binaryValue, memberValuePair.getMemberName());
+            return getAnnotation(parent, (IBinaryAnnotation) binaryValue, memberValuePair.getMemberName());
         } else if (binaryValue instanceof ClassSignature) {
             memberValuePair.valueKind = IMemberValuePair.K_CLASS;
             char[] className = Signature.toCharArray(CharOperation.replaceOnCopy(((ClassSignature) binaryValue).getTypeName(), '/', '.'));
@@ -1829,7 +1969,7 @@ public class Util {
             Object[] values = new Object[length];
             for (int i = 0; i < length; i++) {
                 int previousValueKind = memberValuePair.valueKind;
-                Object value = getAnnotationMemberValue(parent,manager, memberValuePair, binaryValues[i]);
+                Object value = getAnnotationMemberValue(parent, memberValuePair, binaryValues[i]);
                 if (previousValueKind != -1 && memberValuePair.valueKind != previousValueKind) {
                     // values are heterogeneous, value kind is thus unknown
                     memberValuePair.valueKind = IMemberValuePair.K_UNKNOWN;
@@ -1965,7 +2105,17 @@ public class Util {
         if (inclusionPatterns == null && exclusionPatterns == null) return false;
         return org.eclipse.jdt.internal.compiler.util.Util.isExcluded(resourcePath.toString().toCharArray(), inclusionPatterns, exclusionPatterns, isFolderPath);
     }
-
+    /*
+     * Returns whether the given resource matches one of the exclusion patterns.
+     * NOTE: should not be asked directly using pkg root pathes
+     * @see IClasspathEntry#getExclusionPatterns
+     */
+    public final static boolean isExcluded(IResource resource, char[][] inclusionPatterns, char[][] exclusionPatterns) {
+        IPath path = resource.getFullPath();
+        // ensure that folders are only excluded if all of their children are excluded
+        int resourceType = resource.getType();
+        return isExcluded(path, inclusionPatterns, exclusionPatterns, resourceType == IResource.FOLDER || resourceType == IResource.PROJECT);
+    }
     /*
  * Returns whether the given java element is exluded from its root's classpath.
  * It doesn't check whether the root itself is on the classpath or not
@@ -1980,12 +2130,12 @@ public class Util {
 
             case IJavaElement.PACKAGE_FRAGMENT:
                 PackageFragmentRoot root = (PackageFragmentRoot) element.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
-                File resource = ((PackageFragment) element).resource();
+                IResource resource = ((PackageFragment) element).resource();
                 return resource != null && isExcluded(resource, root.fullInclusionPatternChars(), root.fullExclusionPatternChars());
 
             case IJavaElement.COMPILATION_UNIT:
                 root = (PackageFragmentRoot) element.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
-                resource = ((CompilationUnit)element).resource();
+                resource = element.getResource();
                 if (resource == null)
                     return false;
                 if (isExcluded(resource, root.fullInclusionPatternChars(), root.fullExclusionPatternChars()))
@@ -2047,18 +2197,18 @@ public class Util {
      * Returns the given file's contents as a character array.
      * This Method uses "UTF-8" encoding as default.
      */
-    public static char[] getResourceContentsAsCharArray(File file) throws JavaModelException {
+    public static char[] getResourceContentsAsCharArray(IFile file) throws JavaModelException {
         // Get encoding from file
         String encoding;
         encoding = "UTF-8";
         return getResourceContentsAsCharArray(file, encoding);
     }
 
-    public static char[] getResourceContentsAsCharArray(File file, String encoding) throws JavaModelException {
+    public static char[] getResourceContentsAsCharArray(IFile file, String encoding) throws JavaModelException {
         // Get file length
         // workaround https://bugs.eclipse.org/bugs/show_bug.cgi?id=130736 by using java.io.File if possible
-//        IPath location = file.getLocation();
-        long length;
+        IPath location = file.getLocation();
+        long length = 0;
 //        if (location == null) {
 //            // non local file
 //            try {
@@ -2071,15 +2221,15 @@ public class Util {
 //                throw new JavaModelException(e, IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST);
 //            }
 //        } else {
-//            // local file
-            length = file.length();
+////            // local file
+//            length = file.length();
 //        }
 
         // Get resource contents
         InputStream stream= null;
         try {
-            stream = new FileInputStream(file);
-        } catch (FileNotFoundException e) {
+            stream = file.getContents();
+        } catch (CoreException e) {
             throw new JavaModelException(e, IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST);
         }
         try {
@@ -2095,6 +2245,424 @@ public class Util {
         }
     }
 
+    public static IPackageFragment getPackageFragment(char[] fileName, int pkgEnd, int jarSeparator) {
+        if (jarSeparator != -1) {
+            String jarMemento = new String(fileName, 0, jarSeparator);
+            PackageFragmentRoot root = (PackageFragmentRoot) JavaCore.create(jarMemento);
+            if (pkgEnd == jarSeparator)
+                return root.getPackageFragment(CharOperation.NO_STRINGS);
+            char[] pkgName = CharOperation.subarray(fileName, jarSeparator+1, pkgEnd);
+            char[][] compoundName = CharOperation.splitOn('/', pkgName);
+            return root.getPackageFragment(CharOperation.toStrings(compoundName));
+        } else {
+            Path path = new Path(new String(fileName, 0, pkgEnd));
+            IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
+            IContainer folder = path.segmentCount() == 1 ? workspaceRoot.getProject(path.lastSegment()) : (IContainer) workspaceRoot.getFolder(path);
+            IJavaElement element = JavaCore.create(folder);
+            if (element == null) return null;
+            switch (element.getElementType()) {
+                case IJavaElement.PACKAGE_FRAGMENT:
+                    return (IPackageFragment) element;
+                case IJavaElement.PACKAGE_FRAGMENT_ROOT:
+                    return ((PackageFragmentRoot) element).getPackageFragment(CharOperation.NO_STRINGS);
+                case IJavaElement.JAVA_PROJECT:
+                    PackageFragmentRoot root = (PackageFragmentRoot) ((IJavaProject) element).getPackageFragmentRoot(folder);
+                    if (root == null) return null;
+                    return root.getPackageFragment(CharOperation.NO_STRINGS);
+            }
+            return null;
+        }
+    }
+
+
+    private static IClassFile getClassFile(char[] fileName) {
+        int jarSeparator = CharOperation.indexOf(IDependent.JAR_FILE_ENTRY_SEPARATOR, fileName);
+        int pkgEnd = CharOperation.lastIndexOf('/', fileName); // pkgEnd is exclusive
+        if (pkgEnd == -1)
+            pkgEnd = CharOperation.lastIndexOf(File.separatorChar, fileName);
+        if (jarSeparator != -1 && pkgEnd < jarSeparator) // if in a jar and no slash, it is a default package -> pkgEnd should be equal to jarSeparator
+            pkgEnd = jarSeparator;
+        if (pkgEnd == -1)
+            return null;
+        IPackageFragment pkg = getPackageFragment(fileName, pkgEnd, jarSeparator);
+        if (pkg == null) return null;
+        int start;
+        return pkg.getClassFile(new String(fileName, start = pkgEnd + 1, fileName.length - start));
+    }
+
+
+    private static ICompilationUnit getCompilationUnit(char[] fileName, WorkingCopyOwner workingCopyOwner) {
+        char[] slashSeparatedFileName = CharOperation.replaceOnCopy(fileName, File.separatorChar, '/');
+        int pkgEnd = CharOperation.lastIndexOf('/', slashSeparatedFileName); // pkgEnd is exclusive
+        if (pkgEnd == -1)
+            return null;
+        IPackageFragment pkg = getPackageFragment(slashSeparatedFileName, pkgEnd, -1/*no jar separator for .java files*/);
+        if (pkg == null) return null;
+        int start;
+        ICompilationUnit cu = pkg.getCompilationUnit(new String(slashSeparatedFileName, start =  pkgEnd+1, slashSeparatedFileName.length - start));
+        if (workingCopyOwner != null) {
+            ICompilationUnit workingCopy = cu.findWorkingCopy(workingCopyOwner);
+            if (workingCopy != null)
+                return workingCopy;
+        }
+        return cu;
+    }
+    /**
+     * Return the java element corresponding to the given compiler binding.
+     */
+    public static JavaElement getUnresolvedJavaElement(TypeBinding typeBinding, WorkingCopyOwner workingCopyOwner, BindingsToNodesMap bindingsToNodes) {
+        if (typeBinding == null)
+            return null;
+        switch (typeBinding.kind()) {
+            case Binding.ARRAY_TYPE :
+                typeBinding = ((org.eclipse.jdt.internal.compiler.lookup.ArrayBinding) typeBinding).leafComponentType();
+                return getUnresolvedJavaElement(typeBinding, workingCopyOwner, bindingsToNodes);
+            case Binding.BASE_TYPE :
+            case Binding.WILDCARD_TYPE :
+            case Binding.INTERSECTION_TYPE:
+                return null;
+            default :
+                if (typeBinding.isCapture())
+                    return null;
+        }
+        ReferenceBinding referenceBinding;
+        if (typeBinding.isParameterizedType() || typeBinding.isRawType())
+            referenceBinding = (ReferenceBinding) typeBinding.erasure();
+        else
+            referenceBinding = (ReferenceBinding) typeBinding;
+        char[] fileName = referenceBinding.getFileName();
+        if (referenceBinding.isLocalType() || referenceBinding.isAnonymousType()) {
+            // local or anonymous type
+            if (org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(fileName)) {
+                int jarSeparator = CharOperation.indexOf(IDependent.JAR_FILE_ENTRY_SEPARATOR, fileName);
+                int pkgEnd = CharOperation.lastIndexOf('/', fileName); // pkgEnd is exclusive
+                if (pkgEnd == -1)
+                    pkgEnd = CharOperation.lastIndexOf(File.separatorChar, fileName);
+                if (jarSeparator != -1 && pkgEnd < jarSeparator) // if in a jar and no slash, it is a default package -> pkgEnd should be equal to jarSeparator
+                    pkgEnd = jarSeparator;
+                if (pkgEnd == -1)
+                    return null;
+                IPackageFragment pkg = getPackageFragment(fileName, pkgEnd, jarSeparator);
+                char[] constantPoolName = referenceBinding.constantPoolName();
+                if (constantPoolName == null) {
+                    ClassFile classFile = (ClassFile) getClassFile(fileName);
+                    return classFile == null ? null : (JavaElement) classFile.getType();
+                }
+                pkgEnd = CharOperation.lastIndexOf('/', constantPoolName);
+                char[] classFileName = CharOperation.subarray(constantPoolName, pkgEnd+1, constantPoolName.length);
+                ClassFile classFile = (ClassFile) pkg.getClassFile(new String(classFileName) + SuffixConstants.SUFFIX_STRING_class);
+                return (JavaElement) classFile.getType();
+            }
+            ICompilationUnit cu = getCompilationUnit(fileName, workingCopyOwner);
+            if (cu == null) return null;
+            // must use getElementAt(...) as there is no back pointer to the defining method (scope is null after resolution has ended)
+            try {
+                int sourceStart = ((org.eclipse.jdt.internal.compiler.lookup.LocalTypeBinding) referenceBinding).sourceStart;
+                return (JavaElement) cu.getElementAt(sourceStart);
+            } catch (JavaModelException e) {
+                // does not exist
+                return null;
+            }
+        } else if (referenceBinding.isTypeVariable()) {
+            // type parameter
+            final String typeVariableName = new String(referenceBinding.sourceName());
+            org.eclipse.jdt.internal.compiler.lookup.Binding declaringElement = ((org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding) referenceBinding).declaringElement;
+            if (declaringElement instanceof MethodBinding) {
+                IMethod declaringMethod = (IMethod) getUnresolvedJavaElement((MethodBinding) declaringElement, workingCopyOwner, bindingsToNodes);
+                return (JavaElement) declaringMethod.getTypeParameter(typeVariableName);
+            } else {
+                IType declaringType = (IType) getUnresolvedJavaElement((TypeBinding) declaringElement, workingCopyOwner, bindingsToNodes);
+                return (JavaElement) declaringType.getTypeParameter(typeVariableName);
+            }
+        } else {
+            if (fileName == null) return null; // case of a WilCardBinding that doesn't have a corresponding Java element
+            // member or top level type
+            TypeBinding declaringTypeBinding = typeBinding.enclosingType();
+            if (declaringTypeBinding == null) {
+                // top level type
+                if (org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(fileName)) {
+                    ClassFile classFile = (ClassFile) getClassFile(fileName);
+                    if (classFile == null) return null;
+                    return (JavaElement) classFile.getType();
+                }
+                ICompilationUnit cu = getCompilationUnit(fileName, workingCopyOwner);
+                if (cu == null) return null;
+                return (JavaElement) cu.getType(new String(referenceBinding.sourceName()));
+            } else {
+                // member type
+                IType declaringType = (IType) getUnresolvedJavaElement(declaringTypeBinding, workingCopyOwner, bindingsToNodes);
+                if (declaringType == null) return null;
+                return (JavaElement) declaringType.getType(new String(referenceBinding.sourceName()));
+            }
+        }
+    }
+
+
+    /**
+     * Return the java element corresponding to the given compiler binding.
+     */
+    public static JavaElement getUnresolvedJavaElement(MethodBinding methodBinding, WorkingCopyOwner workingCopyOwner, BindingsToNodesMap bindingsToNodes) {
+        JavaElement unresolvedJavaElement = getUnresolvedJavaElement(methodBinding.declaringClass, workingCopyOwner, bindingsToNodes);
+        if (unresolvedJavaElement == null || unresolvedJavaElement.getElementType() != IJavaElement.TYPE) {
+            return null;
+        }
+        IType declaringType = (IType) unresolvedJavaElement;
+
+        org.eclipse.jdt.internal.compiler.ast.ASTNode node = bindingsToNodes == null ? null : bindingsToNodes.get(methodBinding);
+        if (node != null && !declaringType.isBinary()) {
+            if (node instanceof AnnotationMethodDeclaration) {
+                // node is an AnnotationMethodDeclaration
+                AnnotationMethodDeclaration typeMemberDeclaration = (AnnotationMethodDeclaration) node;
+                return (JavaElement) declaringType.getMethod(String.valueOf(typeMemberDeclaration.selector), CharOperation.NO_STRINGS); // annotation type members don't have parameters
+            } else {
+                // node is an MethodDeclaration
+                MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+
+                Argument[] arguments = methodDeclaration.arguments;
+                String[] parameterSignatures;
+                if (arguments != null) {
+                    parameterSignatures = new String[arguments.length];
+                    for (int i = 0; i < arguments.length; i++) {
+                        Argument argument = arguments[i];
+                        TypeReference typeReference = argument.type;
+                        int arrayDim = typeReference.dimensions();
+
+                        String typeSig =
+                                Signature.createTypeSignature(
+                                        CharOperation.concatWith(
+                                                typeReference.getTypeName(), '.'), false);
+                        if (arrayDim > 0) {
+                            typeSig = Signature.createArraySignature(typeSig, arrayDim);
+                        }
+                        parameterSignatures[i] = typeSig;
+
+                    }
+                } else {
+                    parameterSignatures = CharOperation.NO_STRINGS;
+                }
+                return (JavaElement) declaringType.getMethod(String.valueOf(methodDeclaration.selector), parameterSignatures);
+            }
+        } else {
+            // case of method not in the created AST, or a binary method
+            org.eclipse.jdt.internal.compiler.lookup.MethodBinding original = methodBinding.original();
+            String selector = original.isConstructor() ? declaringType.getElementName() : new String(original.selector);
+            boolean isBinary = declaringType.isBinary();
+            ReferenceBinding enclosingType = original.declaringClass.enclosingType();
+            // Static inner types' constructors don't get receivers (https://bugs.eclipse.org/bugs/show_bug.cgi?id=388137)
+            boolean isInnerBinaryTypeConstructor = isBinary && original.isConstructor() && !original.declaringClass.isStatic() && enclosingType != null;
+            TypeBinding[] parameters = original.parameters;
+            int length = parameters == null ? 0 : parameters.length;
+            int declaringIndex = isInnerBinaryTypeConstructor ? 1 : 0;
+            String[] parameterSignatures = new String[declaringIndex + length];
+            if (isInnerBinaryTypeConstructor)
+                parameterSignatures[0] = new String(enclosingType.genericTypeSignature()).replace('/', '.');
+            for (int i = 0;  i < length; i++) {
+                char[] signature = parameters[i].genericTypeSignature();
+                if (isBinary) {
+                    signature = CharOperation.replaceOnCopy(signature, '/', '.');
+                } else {
+                    signature = toUnresolvedTypeSignature(signature);
+                }
+                parameterSignatures[declaringIndex + i] = new String(signature);
+            }
+            IMethod result = declaringType.getMethod(selector, parameterSignatures);
+            if (isBinary)
+                return (JavaElement) result;
+            if (result.exists()) // if perfect match (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=249567 )
+                return (JavaElement) result;
+            IMethod[] methods = null;
+            try {
+                methods = declaringType.getMethods();
+            } catch (JavaModelException e) {
+                // declaring type doesn't exist
+                return null;
+            }
+            IMethod[] candidates = Member.findMethods(result, methods);
+            if (candidates == null || candidates.length == 0)
+                return null;
+            return (JavaElement) candidates[0];
+        }
+    }
+
+    private static char[] toUnresolvedTypeSignature(char[] signature) {
+        int length = signature.length;
+        if (length <= 1)
+            return signature;
+        StringBuffer buffer = new StringBuffer(length);
+        toUnresolvedTypeSignature(signature, 0, length, buffer);
+        int bufferLength = buffer.length();
+        char[] result = new char[bufferLength];
+        buffer.getChars(0, bufferLength, result, 0);
+        return result;
+    }
+    private static int toUnresolvedTypeSignature(char[] signature, int start, int length, StringBuffer buffer) {
+        if (signature[start] == Signature.C_RESOLVED)
+            buffer.append(Signature.C_UNRESOLVED);
+        else
+            buffer.append(signature[start]);
+        for (int i = start+1; i < length; i++) {
+            char c = signature[i];
+            switch (c) {
+                case '/':
+                case Signature.C_DOLLAR:
+                    buffer.append(Signature.C_DOT);
+                    break;
+                case Signature.C_GENERIC_START:
+                    buffer.append(Signature.C_GENERIC_START);
+                    i = toUnresolvedTypeSignature(signature, i+1, length, buffer);
+                    break;
+                case Signature.C_GENERIC_END:
+                    buffer.append(Signature.C_GENERIC_END);
+                    return i;
+                default:
+                    buffer.append(c);
+                    break;
+            }
+        }
+        return length;
+    }
+    /**
+     * Return the java element corresponding to the given compiler binding.
+     */
+    public static JavaElement getUnresolvedJavaElement(FieldBinding binding, WorkingCopyOwner workingCopyOwner, BindingsToNodesMap bindingsToNodes) {
+        if (binding.declaringClass == null) return null; // array length
+        JavaElement unresolvedJavaElement = getUnresolvedJavaElement(binding.declaringClass, workingCopyOwner, bindingsToNodes);
+        if (unresolvedJavaElement == null || unresolvedJavaElement.getElementType() != IJavaElement.TYPE) {
+            return null;
+        }
+        return (JavaElement) ((IType) unresolvedJavaElement).getField(String.valueOf(binding.name));
+    }
+
+    /**
+     * Returns the IInitializer that contains the given local variable in the given type
+     */
+    public static JavaElement getUnresolvedJavaElement(int localSourceStart, int localSourceEnd, JavaElement type) {
+        try {
+            if (!(type instanceof IType))
+                return null;
+            IInitializer[] initializers = ((IType) type).getInitializers();
+            for (int i = 0; i < initializers.length; i++) {
+                IInitializer initializer = initializers[i];
+                ISourceRange sourceRange = initializer.getSourceRange();
+                if (sourceRange != null) {
+                    int initializerStart = sourceRange.getOffset();
+                    int initializerEnd = initializerStart + sourceRange.getLength();
+                    if (initializerStart <= localSourceStart && localSourceEnd <= initializerEnd) {
+                        return (JavaElement) initializer;
+                    }
+                }
+            }
+            return null;
+        } catch (JavaModelException e) {
+            return null;
+        }
+    }
+
+    /**
+     * Log a message that is potentially repeated in the same session.
+     * The first time this method is called with a given exception, the
+     * exception stack trace is written to the log.
+     * <p>Only intended for use in debug statements.</p>
+     *
+     * @param key the given key
+     * @param e the given exception
+     * @throws IllegalArgumentException if the given key is null
+     */
+    public static void logRepeatedMessage(String key, Exception e) {
+        if (key == null) {
+            throw new IllegalArgumentException("key cannot be null"); //$NON-NLS-1$
+        }
+        if (fgRepeatedMessages.contains(key)) {
+            return;
+        }
+        fgRepeatedMessages.add(key);
+        log(e);
+    }
+
+    /**
+     * Converts the given relative path into a package name.
+     * Returns null if the path is not a valid package name.
+     *
+     * @param pkgPath
+     *         the package path
+     * @param sourceLevel
+     *         the source level
+     * @param complianceLevel
+     *         the compliance level
+     */
+    public static String packageName(IPath pkgPath, String sourceLevel, String complianceLevel) {
+        StringBuffer pkgName = new StringBuffer(IPackageFragment.DEFAULT_PACKAGE_NAME);
+        for (int j = 0, max = pkgPath.segmentCount(); j < max; j++) {
+            String segment = pkgPath.segment(j);
+            if (!isValidFolderNameForPackage(segment, sourceLevel, complianceLevel)) {
+                return null;
+            }
+            pkgName.append(segment);
+            if (j < pkgPath.segmentCount() - 1) {
+                pkgName.append("."); //$NON-NLS-1$
+            }
+        }
+        return pkgName.toString();
+    }
+    /*
+         * Converts the given URI to a local file. Use the existing file if the uri is on the local file system.
+         * Otherwise fetch it.
+         * Returns null if unable to fetch it.
+         */
+    public static File toLocalFile(URI uri, IProgressMonitor monitor) throws CoreException {
+//        IFileStore fileStore = EFS.getStore(uri);
+//        File localFile = fileStore.toLocalFile(EFS.NONE, monitor);
+//        if (localFile ==null)
+//            // non local file system
+//            localFile= fileStore.toLocalFile(EFS.CACHE, monitor);
+//        return localFile;
+        String file;
+        try {
+            file = uri.toURL().getFile();
+            return new File(file);
+        } catch (MalformedURLException e) {
+            log(e, "Can't convert URI to File. URI: " + uri.toString());
+        }
+        return null;
+    }
+    /**
+     * Returns the given file's contents as a byte array.
+     */
+    public static byte[] getResourceContentsAsByteArray(IFile file) throws JavaModelException {
+        InputStream stream= null;
+        try {
+            stream = file.getContents(true);
+        } catch (CoreException e) {
+            throw new JavaModelException(e);
+        }
+        try {
+            return org.eclipse.jdt.internal.compiler.util.Util.getInputStreamAsByteArray(stream, -1);
+        } catch (IOException e) {
+            throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
+        } finally {
+            try {
+                stream.close();
+            } catch (IOException e) {
+                // ignore
+            }
+        }
+    }
+    public static void verbose(String log) {
+        verbose(log, System.out);
+    }
+
+    public static synchronized void verbose(String log, PrintStream printStream) {
+        int start = 0;
+        do {
+            int end = log.indexOf('\n', start);
+            printStream.print(Thread.currentThread());
+            printStream.print(" "); //$NON-NLS-1$
+            printStream.print(log.substring(start, end == -1 ? log.length() : end + 1));
+            start = end + 1;
+        } while (start != 0);
+        printStream.println();
+    }
+
     public interface Comparable {
         /** Returns 0 if this and c are equal, >0 if this is greater than c, or <0 if this is less than c. */
         int compareTo(Comparable c);
@@ -2103,5 +2671,9 @@ public class Util {
     public interface Comparer {
         /** Returns 0 if a and b are equal, >0 if a is greater than b, or <0 if a is less than b. */
         int compare(Object a, Object b);
+    }
+
+    public static interface BindingsToNodesMap {
+        public org.eclipse.jdt.internal.compiler.ast.ASTNode get(Binding binding);
     }
 }

@@ -1,7 +1,15 @@
 package org.eclipse.che.jdt.util;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
@@ -11,6 +19,9 @@ import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
+import org.eclipse.jdt.internal.corext.CorextMessages;
+import org.eclipse.jdt.internal.corext.ValidateEditException;
+import org.eclipse.text.edits.TextEdit;
 
 /**
  * @author Evgen Vidolob
@@ -126,6 +137,27 @@ public class JavaModelUtil {
     }
 
     /**
+     * Concatenates two names. Uses a dot for separation.
+     * Both strings can be empty or <code>null</code>.
+     * @param name1 the first string
+     * @param name2 the second string
+     * @return the concatenated string
+     */
+    public static String concatenateName(char[] name1, char[] name2) {
+        StringBuffer buf= new StringBuffer();
+        if (name1 != null && name1.length > 0) {
+            buf.append(name1);
+        }
+        if (name2 != null && name2.length > 0) {
+            if (buf.length() > 0) {
+                buf.append('.');
+            }
+            buf.append(name2);
+        }
+        return buf.toString();
+    }
+
+    /**
      * Returns the package fragment root of <code>IJavaElement</code>. If the given
      * element is already a package fragment root, the element itself is returned.
      *
@@ -190,4 +222,183 @@ public class JavaModelUtil {
         return result;
     }
 
+    public static boolean is50OrHigher(String compliance) {
+        return !isVersionLessThan(compliance, JavaCore.VERSION_1_5);
+    }
+
+    /**
+     * Checks if the given project or workspace has source compliance 1.5 or greater.
+     *
+     * @param project the project to test or <code>null</code> to test the workspace settings
+     * @return <code>true</code> if the given project or workspace has source compliance 1.5 or greater.
+     */
+    public static boolean is50OrHigher(IJavaProject project) {
+        return is50OrHigher(getSourceCompliance(project));
+    }
+
+    /**
+     * Applies an text edit to a compilation unit. Filed bug 117694 against jdt.core.
+     * 	@param cu the compilation unit to apply the edit to
+     * 	@param edit the edit to apply
+     * @param save is set, save the CU after the edit has been applied
+     * @param monitor the progress monitor to use
+     * @throws CoreException Thrown when the access to the CU failed
+     * @throws ValidateEditException if validate edit fails
+     */
+    public static void applyEdit(ICompilationUnit cu, TextEdit edit, boolean save, IProgressMonitor monitor) throws CoreException,
+                                                                                                                    ValidateEditException {
+        IFile file= (IFile) cu.getResource();
+        if (!save || !file.exists()) {
+            cu.applyTextEdit(edit, monitor);
+        } else {
+            if (monitor == null) {
+                monitor= new NullProgressMonitor();
+            }
+            monitor.beginTask(CorextMessages.JavaModelUtil_applyedit_operation, 2);
+            try {
+//                IStatus status= Resources.makeCommittable(file, null);
+//                if (!status.isOK()) {
+//                    throw new ValidateEditException(status);
+//                }
+
+                cu.applyTextEdit(edit, new SubProgressMonitor(monitor, 1));
+
+                cu.save(new SubProgressMonitor(monitor, 1), true);
+            } finally {
+                monitor.done();
+            }
+        }
+    }
+
+    public static boolean isImplicitImport(String qualifier, ICompilationUnit cu) {
+        if ("java.lang".equals(qualifier)) {  //$NON-NLS-1$
+            return true;
+        }
+        String packageName= cu.getParent().getElementName();
+        if (qualifier.equals(packageName)) {
+            return true;
+        }
+        String typeName= JavaCore.removeJavaLikeExtension(cu.getElementName());
+        String mainTypeName= JavaModelUtil.concatenateName(packageName, typeName);
+        return qualifier.equals(mainTypeName);
+    }
+
+    /**
+     * Checks whether the given type has a valid main method or not.
+     * @param type the type to test
+     * @return returns <code>true</code> if the type has a main method
+     * @throws JavaModelException thrown when the type can not be accessed
+     */
+    public static boolean hasMainMethod(IType type) throws JavaModelException {
+        IMethod[] methods= type.getMethods();
+        for (int i= 0; i < methods.length; i++) {
+            if (methods[i].isMainMethod()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Finds a method in a type.
+     * This searches for a method with the same name and signature. Parameter types are only
+     * compared by the simple name, no resolving for the fully qualified type name is done.
+     * Constructors are only compared by parameters, not the name.
+     * @param name The name of the method to find
+     * @param paramTypes The type signatures of the parameters e.g. <code>{"QString;","I"}</code>
+     * @param isConstructor If the method is a constructor
+     * @param type the type
+     * @return The first found method or <code>null</code>, if nothing foun
+     * @throws JavaModelException thrown when the type can not be accessed
+     */
+    public static IMethod findMethod(String name, String[] paramTypes, boolean isConstructor, IType type) throws JavaModelException {
+        IMethod[] methods= type.getMethods();
+        for (int i= 0; i < methods.length; i++) {
+            if (isSameMethodSignature(name, paramTypes, isConstructor, methods[i])) {
+                return methods[i];
+            }
+        }
+        return null;
+    }
+
+
+    /**
+     * Tests if a method equals to the given signature.
+     * Parameter types are only compared by the simple name, no resolving for
+     * the fully qualified type name is done. Constructors are only compared by
+     * parameters, not the name.
+     * @param name Name of the method
+     * @param paramTypes The type signatures of the parameters e.g. <code>{"QString;","I"}</code>
+     * @param isConstructor Specifies if the method is a constructor
+     * @param curr the method
+     * @return Returns <code>true</code> if the method has the given name and parameter types and constructor state.
+     * @throws JavaModelException thrown when the method can not be accessed
+     */
+    public static boolean isSameMethodSignature(String name, String[] paramTypes, boolean isConstructor, IMethod curr) throws JavaModelException {
+        if (isConstructor || name.equals(curr.getElementName())) {
+            if (isConstructor == curr.isConstructor()) {
+                String[] currParamTypes= curr.getParameterTypes();
+                if (paramTypes.length == currParamTypes.length) {
+                    for (int i= 0; i < paramTypes.length; i++) {
+                        String t1= Signature.getSimpleName(Signature.toString(paramTypes[i]));
+                        String t2= Signature.getSimpleName(Signature.toString(currParamTypes[i]));
+                        if (!t1.equals(t2)) {
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Checks if the field is boolean.
+     * @param field the field
+     * @return returns <code>true</code> if the field returns a boolean
+     * @throws JavaModelException thrown when the field can not be accessed
+     */
+    public static boolean isBoolean(IField field) throws JavaModelException{
+        return field.getTypeSignature().equals(Signature.SIG_BOOLEAN);
+    }
+
+    /**
+     * Returns the classpath entry of the given package fragment root. This is the raw entry, except
+     * if the root is a referenced library, in which case it's the resolved entry.
+     *
+     * @param root a package fragment root
+     * @return the corresponding classpath entry
+     * @throws JavaModelException if accessing the entry failed
+     * @since 3.6
+     */
+    public static IClasspathEntry getClasspathEntry(IPackageFragmentRoot root) throws JavaModelException {
+        IClasspathEntry rawEntry= root.getRawClasspathEntry();
+        int rawEntryKind= rawEntry.getEntryKind();
+        switch (rawEntryKind) {
+            case IClasspathEntry.CPE_LIBRARY:
+            case IClasspathEntry.CPE_VARIABLE:
+            case IClasspathEntry.CPE_CONTAINER: // should not happen, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=305037
+                if (root.isArchive() && root.getKind() == IPackageFragmentRoot.K_BINARY) {
+                    IClasspathEntry resolvedEntry= root.getResolvedClasspathEntry();
+                    if (resolvedEntry.getReferencingEntry() != null)
+                        return resolvedEntry;
+                    else
+                        return rawEntry;
+                }
+        }
+        return rawEntry;
+    }
+
+
+    /**
+     * Tells whether the given CU is the package-info.java.
+     *
+     * @param cu the compilation unit to test
+     * @return <code>true</code> if the given CU is the package-info.java
+     * @since 3.4
+     */
+    public static boolean isPackageInfo(ICompilationUnit cu) {
+        return PACKAGE_INFO_JAVA.equals(cu.getElementName());
+    }
 }

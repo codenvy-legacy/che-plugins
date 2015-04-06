@@ -31,8 +31,8 @@ import org.eclipse.jdt.internal.compiler.lookup.Binding;
 /*
  * Constructs a handle to the field with the given name in the specified type.
  */
-protected BinaryField(JavaElement parent, JavaModelManager manager, String name) {
-	super(parent, manager, name);
+protected BinaryField(JavaElement parent, String name) {
+	super(parent, name);
 }
 public boolean equals(Object o) {
 	if (!(o instanceof BinaryField)) return false;
@@ -95,7 +95,7 @@ public boolean isResolved() {
 	return false;
 }
 public JavaElement resolved(Binding binding) {
-	SourceRefElement resolvedHandle = new ResolvedBinaryField(this.parent, this.manager, this.name, new String(binding.computeUniqueKey()));
+	SourceRefElement resolvedHandle = new ResolvedBinaryField(this.parent, this.name, new String(binding.computeUniqueKey()));
 	resolvedHandle.occurrenceCount = this.occurrenceCount;
 	return resolvedHandle;
 }

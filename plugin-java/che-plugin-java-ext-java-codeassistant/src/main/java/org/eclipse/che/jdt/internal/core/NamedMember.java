@@ -39,8 +39,8 @@ public abstract  class NamedMember extends Member {
      */
     protected String name;
 
-    public NamedMember(JavaElement parent, JavaModelManager manager, String name) {
-        super(parent, manager);
+    public NamedMember(JavaElement parent, String name) {
+        super(parent);
         this.name = name;
     }
 
@@ -299,7 +299,7 @@ public abstract  class NamedMember extends Member {
         }
         TypeResolveRequestor requestor = new TypeResolveRequestor();
         SelectionEngine engine =
-                new SelectionEngine(environment, requestor, project.getOptions(true), owner, project.getIndexManager(), project);
+                new SelectionEngine(environment, requestor, project.getOptions(true), owner);
 
         engine.selectType(typeName.toCharArray(), (IType) this);
         if (NameLookup.VERBOSE) {
