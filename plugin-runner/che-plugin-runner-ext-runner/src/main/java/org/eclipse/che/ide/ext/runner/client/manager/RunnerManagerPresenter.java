@@ -544,6 +544,10 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
         runnerTimer.schedule(ONE_SEC.getValue());
     }
 
+    @Override
+    public void onProjectClosing(ProjectActionEvent event) {
+    }
+
     /** {@inheritDoc} */
     @Override
     public void onProjectClosed(@Nonnull ProjectActionEvent projectActionEvent) {

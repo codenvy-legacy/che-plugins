@@ -224,7 +224,10 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
         eventBus.addHandler(ProjectActionEvent.TYPE, new ProjectActionHandler() {
             @Override
             public void onProjectOpened(ProjectActionEvent event) {
-                // do nothing
+            }
+
+            @Override
+            public void onProjectClosing(ProjectActionEvent event) {
             }
 
             @Override

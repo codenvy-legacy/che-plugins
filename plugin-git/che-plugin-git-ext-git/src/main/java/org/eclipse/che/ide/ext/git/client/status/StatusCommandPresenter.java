@@ -78,6 +78,11 @@ public class StatusCommandPresenter {
             }
 
             @Override
+            public void onProjectClosing(ProjectActionEvent event) {
+
+            }
+
+            @Override
             public void onProjectClosed(ProjectActionEvent event) {
                 isViewClosed = true;
                 console.clear();

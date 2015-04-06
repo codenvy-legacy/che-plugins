@@ -39,6 +39,11 @@ public class FormatController {
             }
 
             @Override
+            public void onProjectClosing(ProjectActionEvent event) {
+
+            }
+
+            @Override
             public void onProjectClosed(ProjectActionEvent event) {
 
             }

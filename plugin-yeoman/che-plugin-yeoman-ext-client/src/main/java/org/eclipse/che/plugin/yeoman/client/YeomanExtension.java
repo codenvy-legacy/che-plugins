@@ -53,6 +53,10 @@ public class YeomanExtension {
                 }
             }
 
+            @Override
+            public void onProjectClosing(ProjectActionEvent event) {
+            }
+
             /**
              * Remove Yeoman panel when closing the project if this panel is displayed.
              * @param event the project event
