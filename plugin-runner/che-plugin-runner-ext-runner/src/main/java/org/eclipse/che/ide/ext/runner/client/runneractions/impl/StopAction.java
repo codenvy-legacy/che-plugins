@@ -103,6 +103,9 @@ public class StopAction extends AbstractRunnerAction {
 
         this.runner = runner;
 
+        runner.setStatus(Runner.Status.STOPPED);
+        presenter.update(runner);
+
         project = appContext.getCurrentProject();
         if (project == null) {
             return;
@@ -112,8 +115,6 @@ public class StopAction extends AbstractRunnerAction {
         if (stopLink == null) {
             runnerUtil.showError(runner, constant.applicationFailed(project.getProjectDescription().getName()), null);
 
-            runner.setStatus(Runner.Status.STOPPED);
-            presenter.update(runner);
             return;
         }
 
@@ -130,6 +131,7 @@ public class StopAction extends AbstractRunnerAction {
                     @Override
                     public void onFailure(@Nonnull Throwable reason) {
                         runner.setStatus(Runner.Status.FAILED);
+                        presenter.update(runner);
                         runner.setProcessDescriptor(null);
 
                         project.setIsRunningEnabled(true);
@@ -158,10 +160,9 @@ public class StopAction extends AbstractRunnerAction {
 
         Runner.Status runnerStatus = runner.getStatus();
 
-        if (Runner.Status.RUNNING.equals(runnerStatus) || Runner.Status.DONE.equals(runnerStatus)) {
+        if (Runner.Status.RUNNING.equals(runnerStatus) || Runner.Status.DONE.equals(runnerStatus) || Runner.Status.IN_PROGRESS.equals(runnerStatus)) {
             notificationType = INFO;
 
-            runner.setStatus(Runner.Status.STOPPED);
             consoleContainer.printInfo(runner, message);
         } else {
             // this mean that application has failed to start

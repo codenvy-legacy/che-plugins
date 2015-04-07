@@ -139,7 +139,7 @@ public class JsJavaEditorConfiguration extends DefaultTextEditorConfiguration {
     private Reconciler initReconciler(final ReconcilerFactory reconcilerFactory,
                                       final JavaReconcilerStrategy javaReconcilerStrategy) {
         final BasicIncrementalScheduler scheduler = new BasicIncrementalScheduler(userActivityManager, 50, 100);
-        final Reconciler reconciler = reconcilerFactory.create(DEFAULT_PARTITIONING, scheduler, this.partitioner);
+        final Reconciler reconciler = reconcilerFactory.create(DEFAULT_PARTITIONING, this.partitioner);
         reconciler.addReconcilingStrategy(DEFAULT_CONTENT_TYPE, javaReconcilerStrategy);
         return reconciler;
     }
