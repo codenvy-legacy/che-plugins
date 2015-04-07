@@ -12,14 +12,16 @@ package org.eclipse.che.ide.ext.svn.server;
 
 
 import org.eclipse.che.api.core.rest.ServiceContext;
-import org.eclipse.che.api.core.rest.shared.dto.Hyperlinks;
-import org.eclipse.che.api.core.rest.shared.dto.Link;
-import org.eclipse.che.api.vfs.server.ContentStream;
 import org.eclipse.che.commons.lang.ZipUtils;
 import org.eclipse.che.dto.server.DtoFactory;
 import org.eclipse.che.ide.ext.svn.server.credentials.CredentialsProvider;
 import org.eclipse.che.ide.ext.svn.server.repository.RepositoryUrlProvider;
-import org.eclipse.che.ide.ext.svn.shared.*;
+import org.eclipse.che.ide.ext.svn.shared.CLIOutputResponse;
+import org.eclipse.che.ide.ext.svn.shared.CLIOutputWithRevisionResponse;
+import org.eclipse.che.ide.ext.svn.shared.CheckoutRequest;
+import org.eclipse.che.ide.ext.svn.shared.CopyRequest;
+import org.eclipse.che.ide.ext.svn.shared.MoveRequest;
+import org.eclipse.che.ide.ext.svn.shared.UpdateRequest;
 import org.eclipse.che.ide.ext.svn.utils.TestUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,10 +32,11 @@ import org.mockito.runners.MockitoJUnitRunner;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import java.io.File;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedList;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -140,14 +143,9 @@ public class SubversionApiITest {
 
         Response response = this.subversionApi.exportPath(tmpDir.toFile().getAbsolutePath(), "A/B/lambda", null, newServiceContext(), "ws");
 
-        Link link = DtoFactory.getInstance().createDto(Link.class)
-                              .withHref("http://localhost:8080/api/svn/ws/export/download/ws")
-                              .withRel(Constants.REL_DOWNLOAD_EXPORT_PATH)
-                              .withProduces("application/zip")
-                              .withMethod("GET");
-        Hyperlinks hyperlinks = DtoFactory.getInstance().createDto(Hyperlinks.class).withLinks(Collections.singletonList(link));
-
-        assertEquals(response.getEntity(), hyperlinks);
+        Collection<String> items = ZipUtils.listEntries((InputStream) response.getEntity());
+        assertEquals(items.size(), 1);
+        assertEquals(items.iterator().next(), "lambda");
     }
 
     private ServiceContext newServiceContext() {
