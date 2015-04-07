@@ -23,8 +23,10 @@ import org.eclipse.che.ide.api.editor.EditorRegistry;
 import org.eclipse.che.ide.api.filetypes.FileType;
 import org.eclipse.che.ide.api.filetypes.FileTypeRegistry;
 import org.eclipse.che.ide.api.parts.PropertyListener;
+import org.eclipse.che.ide.ext.runner.client.RunnerLocalizationConstant;
 import org.eclipse.che.ide.ext.runner.client.constants.TimeInterval;
 import org.eclipse.che.ide.ext.runner.client.models.Runner;
+import org.eclipse.che.ide.ext.runner.client.tabs.container.TabContainer;
 import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.PropertiesPanelView;
 import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM;
 import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope;
@@ -32,6 +34,7 @@ import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.docker
 import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.docker.DockerFileEditorInput;
 import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.docker.DockerFileFactory;
 import org.eclipse.che.ide.ext.runner.client.util.TimerFactory;
+import org.eclipse.che.ide.ext.runner.client.util.annotations.LeftPanel;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -70,6 +73,10 @@ public class PropertiesRunnerPanelTest {
     private TimerFactory        timerFactory;
     @Mock
     private Runner              runner;
+    @Mock
+    private TabContainer        tabContainer;
+    @Mock
+    private RunnerLocalizationConstant locale;
 
     @Mock
     private CurrentProject      currentProject;
@@ -102,7 +109,7 @@ public class PropertiesRunnerPanelTest {
                                   dockerFileFactory,
                                   appContext,
                                   timerFactory,
-                                  runner);
+                                  runner, tabContainer, locale);
 
         when(runner.getTitle()).thenReturn(TEXT);
         when(runner.getRAM()).thenReturn(MB_512.getValue());

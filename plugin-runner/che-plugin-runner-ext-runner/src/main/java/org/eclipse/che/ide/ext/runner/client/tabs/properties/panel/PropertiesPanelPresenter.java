@@ -50,6 +50,7 @@ public abstract class PropertiesPanelPresenter implements PropertiesPanelView.Ac
     protected EditorPartPresenter editor;
     protected int                 undoOperations;
 
+
     public PropertiesPanelPresenter(@Nonnull PropertiesPanelView view, @Nonnull AppContext appContext) {
         this.view = view;
         this.view.setDelegate(this);
@@ -61,6 +62,7 @@ public abstract class PropertiesPanelPresenter implements PropertiesPanelView.Ac
         }
 
         setEnableSaveCancelDeleteBtn(false);
+        this.view.setVisibleConfigLink(true);
     }
 
     protected void setEnableSaveCancelDeleteBtn(boolean enable) {
@@ -189,6 +191,12 @@ public abstract class PropertiesPanelPresenter implements PropertiesPanelView.Ac
     /** {@inheritDoc} */
     @Override
     public void onCancelButtonClicked() {
+        throw new UnsupportedOperationException(UNSUPPORTED_METHOD);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void onConfigLinkClicked() {
         throw new UnsupportedOperationException(UNSUPPORTED_METHOD);
     }
 }
