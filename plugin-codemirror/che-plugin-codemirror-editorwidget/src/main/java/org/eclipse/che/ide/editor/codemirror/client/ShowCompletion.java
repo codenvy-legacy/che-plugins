@@ -10,39 +10,6 @@
  *******************************************************************************/
 package org.eclipse.che.ide.editor.codemirror.client;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Logger;
-
-import org.eclipse.che.ide.editor.codemirrorjso.client.CMEditorOverlay;
-import org.eclipse.che.ide.editor.codemirrorjso.client.CMPositionOverlay;
-import org.eclipse.che.ide.editor.codemirrorjso.client.CodeMirrorOverlay;
-import org.eclipse.che.ide.editor.codemirrorjso.client.EventHandlers;
-import org.eclipse.che.ide.editor.codemirrorjso.client.EventTypes;
-import org.eclipse.che.ide.editor.codemirrorjso.client.hints.CMCompletionObjectOverlay;
-import org.eclipse.che.ide.editor.codemirrorjso.client.hints.CMHintApplyOverlay;
-import org.eclipse.che.ide.editor.codemirrorjso.client.hints.CMHintCallback;
-import org.eclipse.che.ide.editor.codemirrorjso.client.hints.CMHintFunctionOverlay;
-import org.eclipse.che.ide.editor.codemirrorjso.client.hints.CMHintOptionsOverlay;
-import org.eclipse.che.ide.editor.codemirrorjso.client.hints.CMHintResultsOverlay;
-import org.eclipse.che.ide.editor.codemirrorjso.client.hints.CMRenderFunctionOverlay;
-import org.eclipse.che.ide.editor.codemirrorjso.client.hints.CMHintApplyOverlay.HintApplyFunction;
-import org.eclipse.che.ide.editor.codemirrorjso.client.hints.CMHintFunctionOverlay.AsyncHintFunction;
-import org.eclipse.che.ide.editor.codemirrorjso.client.hints.CMHintFunctionOverlay.HintFunction;
-import org.eclipse.che.ide.editor.codemirrorjso.client.hints.CMRenderFunctionOverlay.RenderFunction;
-import org.eclipse.che.ide.jseditor.client.codeassist.AdditionalInfoCallback;
-import org.eclipse.che.ide.jseditor.client.codeassist.Completion;
-import org.eclipse.che.ide.jseditor.client.codeassist.CompletionProposal;
-import org.eclipse.che.ide.jseditor.client.codeassist.CompletionProposal.CompletionCallback;
-import org.eclipse.che.ide.jseditor.client.codeassist.CompletionReadyCallback;
-import org.eclipse.che.ide.jseditor.client.codeassist.CompletionResources.CompletionCss;
-import org.eclipse.che.ide.jseditor.client.codeassist.CompletionsSource;
-import org.eclipse.che.ide.jseditor.client.document.EmbeddedDocument;
-import org.eclipse.che.ide.jseditor.client.text.LinearRange;
-import org.eclipse.che.ide.util.dom.Elements;
-import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.core.client.JsArrayMixed;
-
 import elemental.dom.Document;
 import elemental.dom.Element;
 import elemental.dom.Node;
@@ -52,6 +19,42 @@ import elemental.html.SpanElement;
 import elemental.js.dom.JsElement;
 import elemental.js.util.JsMapFromStringTo;
 import elemental.util.Timer;
+
+import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.JsArrayMixed;
+
+import org.eclipse.che.ide.editor.codemirrorjso.client.CMEditorOverlay;
+import org.eclipse.che.ide.editor.codemirrorjso.client.CMKeymapOverlay;
+import org.eclipse.che.ide.editor.codemirrorjso.client.CMPositionOverlay;
+import org.eclipse.che.ide.editor.codemirrorjso.client.CodeMirrorOverlay;
+import org.eclipse.che.ide.editor.codemirrorjso.client.EventHandlers;
+import org.eclipse.che.ide.editor.codemirrorjso.client.EventTypes;
+import org.eclipse.che.ide.editor.codemirrorjso.client.hints.CMCompletionObjectOverlay;
+import org.eclipse.che.ide.editor.codemirrorjso.client.hints.CMHintApplyOverlay;
+import org.eclipse.che.ide.editor.codemirrorjso.client.hints.CMHintApplyOverlay.HintApplyFunction;
+import org.eclipse.che.ide.editor.codemirrorjso.client.hints.CMHintCallback;
+import org.eclipse.che.ide.editor.codemirrorjso.client.hints.CMHintFunctionOverlay;
+import org.eclipse.che.ide.editor.codemirrorjso.client.hints.CMHintFunctionOverlay.AsyncHintFunction;
+import org.eclipse.che.ide.editor.codemirrorjso.client.hints.CMHintFunctionOverlay.HintFunction;
+import org.eclipse.che.ide.editor.codemirrorjso.client.hints.CMHintOptionsOverlay;
+import org.eclipse.che.ide.editor.codemirrorjso.client.hints.CMHintResultsOverlay;
+import org.eclipse.che.ide.editor.codemirrorjso.client.hints.CMRenderFunctionOverlay;
+import org.eclipse.che.ide.editor.codemirrorjso.client.hints.CMRenderFunctionOverlay.RenderFunction;
+import org.eclipse.che.ide.jseditor.client.codeassist.AdditionalInfoCallback;
+import org.eclipse.che.ide.jseditor.client.codeassist.Completion;
+import org.eclipse.che.ide.jseditor.client.codeassist.CompletionProposal;
+import org.eclipse.che.ide.jseditor.client.codeassist.CompletionProposal.CompletionCallback;
+import org.eclipse.che.ide.jseditor.client.codeassist.CompletionProposalExtension;
+import org.eclipse.che.ide.jseditor.client.codeassist.CompletionReadyCallback;
+import org.eclipse.che.ide.jseditor.client.codeassist.CompletionResources.CompletionCss;
+import org.eclipse.che.ide.jseditor.client.codeassist.CompletionsSource;
+import org.eclipse.che.ide.jseditor.client.document.EmbeddedDocument;
+import org.eclipse.che.ide.jseditor.client.text.LinearRange;
+import org.eclipse.che.ide.util.dom.Elements;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * Component that handles the showCompletion(...) operations.
@@ -70,16 +73,17 @@ public final class ShowCompletion {
     private final CompletionCss completionCss;
 
     private final CodeMirrorEditorWidget editorWidget;
+    private boolean insert = true;
 
     public ShowCompletion(final CodeMirrorEditorWidget editorWidget,
-                                final CompletionCss css) {
+                          final CompletionCss css) {
         this.completionCss = css;
         this.editorWidget = editorWidget;
     }
 
     public void showCompletionProposals(final List<CompletionProposal> proposals,
                                         final AdditionalInfoCallback additionalInfoCallback) {
-        if (! editorWidget.getEditorOverlay().hasShowHint() || proposals == null || proposals.isEmpty()) {
+        if (!editorWidget.getEditorOverlay().hasShowHint() || proposals == null || proposals.isEmpty()) {
             // no support for hints or no proposals
             return;
         }
@@ -93,7 +97,7 @@ public final class ShowCompletion {
                                                  final CMHintOptionsOverlay options) {
                 final CMHintResultsOverlay result = CMHintResultsOverlay.create();
                 final JsArrayMixed list = result.getList();
-                for (final CompletionProposal proposal: proposals) {
+                for (final CompletionProposal proposal : proposals) {
 
                     final CMHintApplyOverlay hintApply = createApplyHintFunc(proposal);
                     final CMRenderFunctionOverlay renderFunc = createRenderHintFunc(proposal,
@@ -123,19 +127,35 @@ public final class ShowCompletion {
         final CMHintOptionsOverlay hintOptions = CMHintOptionsOverlay.create();
         hintOptions.setCloseOnUnfocus(false); // default=true
         hintOptions.setAlignWithWord(true); //default
-        hintOptions.setCompleteSingle(true); //default
+        hintOptions.setCompleteSingle(false);
+        CMKeymapOverlay keymapOverlay = CMKeymapOverlay.create();
+        addTabKey(keymapOverlay, this);
+        hintOptions.setExtraKeys(keymapOverlay);
         return hintOptions;
     }
+
+    private void setCompletionInsert(boolean insert) {
+        ShowCompletion.this.insert = insert;
+    }
+
+
+    private native void addTabKey(CMKeymapOverlay keymap, ShowCompletion show) /*-{
+        keymap["Tab"] = function (cm, handler) {
+            show.@org.eclipse.che.ide.editor.codemirror.client.ShowCompletion::setCompletionInsert(*)(false);
+            handler.pick();
+        }
+    }-*/;
 
     /* async version */
     public void showCompletionProposals(final CompletionsSource completionsSource,
                                         final AdditionalInfoCallback additionalInfoCallback) {
-        if (! editorWidget.getEditorOverlay().hasShowHint()) {
+        if (!editorWidget.getEditorOverlay().hasShowHint()) {
             // no support for hints
             return;
         }
         if (completionsSource == null) {
             showCompletionProposals();
+            return;
         }
 
         final CMHintOptionsOverlay hintOptions = createDefaultHintOptions();
@@ -151,7 +171,7 @@ public final class ShowCompletion {
                     public void onCompletionReady(final List<CompletionProposal> proposals) {
                         final CMHintResultsOverlay result = CMHintResultsOverlay.create();
                         final JsArrayMixed list = result.getList();
-                        for (final CompletionProposal proposal: proposals) {
+                        for (final CompletionProposal proposal : proposals) {
 
                             final CMHintApplyOverlay hintApply = createApplyHintFunc(proposal);
                             final CMRenderFunctionOverlay renderFunc = createRenderHintFunc(proposal,
@@ -249,7 +269,7 @@ public final class ShowCompletion {
             @Override
             public void applyHint(final CMEditorOverlay editor, final CMHintResultsOverlay data,
                                   final JavaScriptObject completion) {
-                proposal.getCompletion(new CompletionCallback() {
+                CompletionCallback callback = new CompletionCallback() {
 
                     @Override
                     public void onCompletion(final Completion completion) {
@@ -262,8 +282,13 @@ public final class ShowCompletion {
                             editorWidget.getDocument().setSelectedRange(selection, true);
                         }
                     }
-                });
-
+                };
+                if( proposal instanceof CompletionProposalExtension){
+                    ((CompletionProposalExtension)proposal).getCompletion(insert, callback);
+                    insert = true; // default
+                } else {
+                    proposal.getCompletion(callback);
+                }
             }
         });
     }

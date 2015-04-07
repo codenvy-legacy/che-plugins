@@ -21,6 +21,7 @@ import org.eclipse.che.ide.ext.java.shared.dto.ProposalApplyResult;
 import org.eclipse.che.ide.ext.java.shared.dto.Region;
 import org.eclipse.che.ide.jseditor.client.codeassist.Completion;
 import org.eclipse.che.ide.jseditor.client.codeassist.CompletionProposal;
+import org.eclipse.che.ide.jseditor.client.codeassist.CompletionProposalExtension;
 import org.eclipse.che.ide.jseditor.client.document.EmbeddedDocument;
 import org.eclipse.che.ide.jseditor.client.text.LinearRange;
 import org.eclipse.che.ide.util.loging.Log;
@@ -28,9 +29,9 @@ import org.eclipse.che.ide.util.loging.Log;
 import java.util.List;
 
 /**
- * @author <a href="mailto:evidolob@codenvy.com">Evgen Vidolob</a>
+ * @author Evgen Vidolob
  */
-public class JavaCompletionProposal implements CompletionProposal {
+public class JavaCompletionProposal implements CompletionProposal, CompletionProposalExtension {
 
     private final int                  id;
     private final String               display;
@@ -67,7 +68,12 @@ public class JavaCompletionProposal implements CompletionProposal {
 
     @Override
     public void getCompletion(final CompletionCallback callback) {
-        client.applyProposal(sessionId, id, true, new AsyncCallback<ProposalApplyResult>() {
+        getCompletion(true, callback);
+    }
+
+    @Override
+    public void getCompletion(boolean insert, final CompletionCallback callback) {
+        client.applyProposal(sessionId, id, insert, new AsyncCallback<ProposalApplyResult>() {
             @Override
             public void onFailure(Throwable caught) {
                 Log.error(JavaCompletionProposal.class, caught);
