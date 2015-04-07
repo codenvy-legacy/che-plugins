@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.svn.server;
 
-
-import org.eclipse.che.api.core.rest.ServiceContext;
 import org.eclipse.che.commons.lang.ZipUtils;
 import org.eclipse.che.dto.server.DtoFactory;
 import org.eclipse.che.ide.ext.svn.server.credentials.CredentialsProvider;
@@ -30,7 +28,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
 import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -40,8 +37,7 @@ import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
+
 
 /**
  * Integration tests for {@link SubversionApi}.
@@ -141,18 +137,11 @@ public class SubversionApiITest {
                                               .withProjectPath(tmpDir.toFile().getAbsolutePath())
                                               .withUrl("file://" + repoRoot.getAbsolutePath()));
 
-        Response response = this.subversionApi.exportPath(tmpDir.toFile().getAbsolutePath(), "A/B/lambda", null, newServiceContext(), "ws");
+        Response response = this.subversionApi.exportPath(tmpDir.toFile().getAbsolutePath(), "A/B/lambda", null);
 
         Collection<String> items = ZipUtils.listEntries((InputStream) response.getEntity());
         assertEquals(items.size(), 1);
         assertEquals(items.iterator().next(), "lambda");
-    }
-
-    private ServiceContext newServiceContext() {
-        ServiceContext sc = mock(ServiceContext.class);
-        doReturn(UriBuilder.fromUri("http://localhost:8080/api")).when(sc).getBaseUriBuilder();
-        doReturn(UriBuilder.fromUri("http://localhost:8080/api/svn/" + "ws")).when(sc).getServiceUriBuilder();
-        return sc;
     }
 
     /**

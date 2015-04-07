@@ -345,7 +345,7 @@ public class SubversionService extends Service {
     public Response exportPath(final @PathParam("projectPath") String projectPath,
                                final @DefaultValue(".") @QueryParam("path") String path,
                                final @QueryParam("revision") String revision) throws ServerException, IOException {
-        return this.subversionApi.exportPath(getRealPath(projectPath), path, revision, getServiceContext(), workspaceId);
+        return this.subversionApi.exportPath(getRealPath(projectPath), path, revision);
     }
 
     /**
