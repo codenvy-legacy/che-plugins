@@ -15,6 +15,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
+import java.util.regex.Pattern;
 
 import org.eclipse.che.ide.ext.svn.server.SubversionException;
 import org.eclipse.che.ide.ext.svn.server.SubversionProjectImporter;
@@ -149,8 +150,8 @@ public class SubversionProjectImporterTest {
         } catch (SubversionException e) {
             final String message = e.getMessage();
 
-            assertTrue(message.trim().startsWith("svn: E170000: URL 'file://"));
-            assertTrue(message.trim().endsWith("/fake' doesn't exist"));
+            boolean assertBoolean = Pattern.matches("svn: (E[0-9]{6}: )?URL 'file://.*/fake' doesn't exist\n?", message.trim());
+            assertTrue(message, assertBoolean);
         }
     }
 
