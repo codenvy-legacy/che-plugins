@@ -290,9 +290,9 @@ public class StopActionTest {
     }
 
     @Test
-    public void shouldSuccessPerformWithStatusNotRunningOrDone() {
+    public void shouldSuccessPerformWithStatusIsFailed() {
         //set status not running or done
-        when(runner.getStatus()).thenReturn(Runner.Status.TIMEOUT);
+        when(runner.getStatus()).thenReturn(Runner.Status.FAILED);
 
         when(runner.getOptions()).thenReturn(runOptions);
 
