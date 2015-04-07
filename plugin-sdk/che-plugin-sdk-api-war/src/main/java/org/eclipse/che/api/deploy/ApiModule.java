@@ -10,12 +10,14 @@
  *******************************************************************************/
 package org.eclipse.che.api.deploy;
 
+import org.eclipse.che.api.auth.AuthenticationService;
 import org.eclipse.che.api.builder.BuilderAdminService;
 import org.eclipse.che.api.builder.BuilderSelectionStrategy;
 import org.eclipse.che.api.builder.BuilderService;
 import org.eclipse.che.api.builder.LastInUseBuilderSelectionStrategy;
 import org.eclipse.che.api.builder.internal.BuilderModule;
 import org.eclipse.che.api.builder.internal.SlaveBuilderService;
+import org.eclipse.che.api.local.LocalInfrastructureModule;
 import org.eclipse.che.api.runner.LastInUseRunnerSelectionStrategy;
 import org.eclipse.che.api.runner.RunnerAdminService;
 import org.eclipse.che.api.runner.RunnerSelectionStrategy;
@@ -65,6 +67,9 @@ public class ApiModule extends AbstractModule {
         bind(UserService.class);
         bind(UserProfileService.class);
 
+
+        bind(AuthenticationService.class);
+
         bind(AsynchronousJobPool.class).to(CodenvyAsynchronousJobPool.class);
         bind(new PathKey<>(AsynchronousJobService.class, "/async/{ws-id}")).to(AsynchronousJobService.class);
 
@@ -77,5 +82,6 @@ public class ApiModule extends AbstractModule {
         install(new RunnerModule());
         install(new VirtualFileSystemModule());
         install(new VirtualFileSystemFSModule());
+        install(new LocalInfrastructureModule());
     }
 }
