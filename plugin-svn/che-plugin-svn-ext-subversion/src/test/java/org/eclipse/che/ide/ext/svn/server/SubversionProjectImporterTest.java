@@ -131,7 +131,7 @@ public class SubversionProjectImporterTest {
     }
 
     /**
-     * Test for {@link SubversionProjectImporter#importSources(com.codenvy.api.project.server.FolderEntry, String, java.util.Map, com.codenvy.api.core.util.LineConsumerFactory)}
+     * Test for {@link SubversionProjectImporter#importSources(org.eclipse.che.api.project.server.FolderEntry, String, java.util.Map, org.eclipse.che.api.core.util.LineConsumerFactory)}
      * invalid url.
      *
      * @throws Exception if anything goes wrong
@@ -155,7 +155,7 @@ public class SubversionProjectImporterTest {
     }
 
     /**
-     * Test for {@link SubversionProjectImporter#importSources(com.codenvy.api.project.server.FolderEntry, String, java.util.Map, com.codenvy.api.core.util.LineConsumerFactory)}
+     * Test for {@link SubversionProjectImporter#importSources(org.eclipse.che.api.project.server.FolderEntry, String, java.util.Map, org.eclipse.che.api.core.util.LineConsumerFactory)}
      * with a valid url.
      *
      * @throws Exception if anything goes wrong
