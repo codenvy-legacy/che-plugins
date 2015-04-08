@@ -43,6 +43,7 @@ import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common
 import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope.SYSTEM;
 import static org.mockito.Answers.RETURNS_DEEP_STUBS;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -197,6 +198,20 @@ public class TemplatesViewImplTest {
         view.setDefaultProjectWidget(environmentWidget);
 
         verify(view.defaultRunner).setWidget(environmentWidget);
+    }
+
+    @Test
+    public void defaultRunnerShouldBeSetAndAllEnvironmentWidgetsShouldBeUpdated() {
+        view.addEnvironment(environmentMap);
+        reset(widget);
+
+        view.setDefaultProjectWidget(environmentWidget);
+
+        verify(view.defaultRunner).setWidget(environmentWidget);
+        verify(widget).update(projectEnvironment1);
+        verify(widget).update(projectEnvironment2);
+        verify(widget).update(systemEnvironment1);
+        verify(widget).update(systemEnvironment2);
     }
 
     @Test
