@@ -102,6 +102,12 @@ public class RunAction extends AbstractRunnerAction {
                 .failure(new FailureCallback() {
                     @Override
                     public void onFailure(@Nonnull Throwable reason) {
+
+                        if (project.getRunner() == null) {
+                            runnerUtil.showError(runner, locale.defaultRunnerAbsent(), null);
+                            return;
+                        }
+
                         runnerUtil.showError(runner, locale.startApplicationFailed(project.getProjectDescription().getName()), null);
                     }
                 })

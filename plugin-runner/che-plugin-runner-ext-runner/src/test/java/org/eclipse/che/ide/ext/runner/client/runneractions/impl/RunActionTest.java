@@ -41,6 +41,7 @@ import org.mockito.Mock;
 import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MB_512;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -166,6 +167,9 @@ public class RunActionTest {
 
         when(runner.getOptions()).thenReturn(runOptions);
         when(locale.startApplicationFailed(PROJECT_NAME)).thenReturn(someRunningMessage);
+        when(project.getRunner()).thenReturn(PROJECT_NAME);
+        when(projectDescriptor.getName()).thenReturn(someRunningMessage);
+        when(locale.startApplicationFailed(someRunningMessage)).thenReturn(someRunningMessage);
 
         runAction.perform(runner);
 
@@ -176,7 +180,38 @@ public class RunActionTest {
         FailureCallback failureCallback = failedCallBackCaptor.getValue();
         failureCallback.onFailure(reason);
 
-        runnerUtil.showError(runner, someRunningMessage, null);
+        verify(runnerUtil).showError(runner, someRunningMessage, null);
+
+        verify(project).getRunner();
+        verify(project, times(2)).getProjectDescription();
+        verify(projectDescriptor).getName();
+        verify(locale).startApplicationFailed(someRunningMessage);
+
+        verify(service).run(PATH_TO_PROJECT, runOptions, asyncRequestCallback);
+    }
+
+    @Test
+    public void shouldFailedWhenDefaultRunnerAbsent() {
+        String someRunningMessage = "run information";
+
+        when(runner.getOptions()).thenReturn(runOptions);
+        when(locale.startApplicationFailed(PROJECT_NAME)).thenReturn(someRunningMessage);
+        when(projectDescriptor.getName()).thenReturn(someRunningMessage);
+        when(locale.defaultRunnerAbsent()).thenReturn(someRunningMessage);
+
+        runAction.perform(runner);
+
+        verify(eventLogger).log(runAction);
+        verify(presenter).setActive();
+
+        verify(asyncCallbackBuilder).failure(failedCallBackCaptor.capture());
+        FailureCallback failureCallback = failedCallBackCaptor.getValue();
+        failureCallback.onFailure(reason);
+
+        verify(runnerUtil).showError(runner, someRunningMessage, null);
+
+        verify(project).getRunner();
+        verify(locale).defaultRunnerAbsent();
 
         verify(service).run(PATH_TO_PROJECT, runOptions, asyncRequestCallback);
     }
