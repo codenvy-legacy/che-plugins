@@ -50,12 +50,17 @@
         .bottomSeparator {
             top: -13px;
         }
+
+        .projectDefaultLabel {
+            margin-left: 3px;
+        }
     </ui:style>
     <g:DockLayoutPanel unit="PX" addStyleNames="{style.container}">
         <!--default runner panel-->
         <g:north size="12">
             <g:FlowPanel>
-                <g:Label text="{locale.templateDefaultRunner}" addStyleNames="{resources.runnerCss.fontSizeTen}"/>
+                <g:Label text="{locale.templateDefaultRunner}" addStyleNames="{resources.runnerCss.fontSizeTen}
+                                                                              {style.projectDefaultLabel}"/>
             </g:FlowPanel>
         </g:north>
         <g:north size="30">
