@@ -48,7 +48,6 @@ import java.util.List;
 import java.util.Map;
 
 import static org.eclipse.che.ide.ext.runner.client.state.State.RUNNERS;
-import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope.ALL;
 import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope.PROJECT;
 import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope.SYSTEM;
 
@@ -81,9 +80,7 @@ public class TemplatesPresenter implements TemplatesContainer, FilterWidget.Acti
     private final PanelState                              panelState;
 
     private RunnerEnvironmentTree tree;
-    private Scope                 currentScope;
     private Environment           defaultEnvironment;
-    private boolean               matchProjectType;
     private Environment           selectedEnvironment;
 
     @Inject
@@ -109,7 +106,6 @@ public class TemplatesPresenter implements TemplatesContainer, FilterWidget.Acti
         this.view = view;
         this.view.setDelegate(this);
         this.view.setFilterWidget(filter);
-        this.view.setDefaultProjectWidget(null);
 
         this.defaultEnvWidget = defaultEnvWidget;
 
@@ -131,8 +127,6 @@ public class TemplatesPresenter implements TemplatesContainer, FilterWidget.Acti
         this.environmentMap = new EnumMap<>(Scope.class);
         this.environmentMap.put(PROJECT, projectEnvironments);
         this.environmentMap.put(SYSTEM, systemEnvironments);
-
-        this.currentScope = ALL;
     }
 
     /** {@inheritDoc} */
@@ -157,10 +151,8 @@ public class TemplatesPresenter implements TemplatesContainer, FilterWidget.Acti
             list = projectEnvironments;
         }
 
-        if (scope.equals(currentScope) || ALL.equals(currentScope)) {
-            List<Environment> environments = environmentUtil.getEnvironmentsByProjectType(tree, descriptor.getType(), scope);
-            addEnvironments(list, environments, scope);
-        }
+        List<Environment> environments = environmentUtil.getEnvironmentsByProjectType(tree, descriptor.getType(), scope);
+        addEnvironments(list, environments, scope);
     }
 
     @Nonnull
@@ -225,6 +217,8 @@ public class TemplatesPresenter implements TemplatesContainer, FilterWidget.Acti
     /** {@inheritDoc} */
     @Override
     public void showEnvironments() {
+        view.setDefaultProjectWidget(null);
+
         view.clearEnvironmentsPanel();
         systemEnvironments.clear();
 
@@ -251,20 +245,28 @@ public class TemplatesPresenter implements TemplatesContainer, FilterWidget.Acti
     public void onValueChanged() {
         view.clearEnvironmentsPanel();
 
-        matchProjectType = filter.getMatchesProjectType();
-
-        switch (currentScope) {
-            case SYSTEM:
-                selectSystemScope();
-                break;
-
-            case PROJECT:
-                performProjectEnvironments();
-                break;
-
-            default:
-                selectAllScope();
+        if (filter.getMatchesProjectType()) {
+            projectEnvironmentsAction.perform();
+            systemEnvironmentsAction.perform();
+        } else {
+            performProjectEnvironments();
+            performSystemEnvironments();
         }
+    }
+
+    private void performProjectEnvironments() {
+        projectEnvironments.clear();
+        systemEnvironments.clear();
+
+        projectEnvironmentsAction.perform();
+    }
+
+    private void performSystemEnvironments() {
+        systemEnvironments.clear();
+        List<RunnerEnvironmentLeaf> leaves = environmentUtil.getAllEnvironments(tree);
+        List<Environment> environments = environmentUtil.getEnvironmentsFromNodes(leaves, SYSTEM);
+
+        addEnvironments(systemEnvironments, environments, SYSTEM);
     }
 
     /** {@inheritDoc} */
@@ -274,9 +276,10 @@ public class TemplatesPresenter implements TemplatesContainer, FilterWidget.Acti
             return;
         }
 
-        List<Environment> environmentList = environmentMap.get(currentScope);
+        List<Environment> projectEnvironments = environmentMap.get(PROJECT);
+        List<Environment> systemEnvironments = environmentMap.get(SYSTEM);
 
-        boolean runButtonIsEnable = currentScope == ALL || !environmentList.isEmpty();
+        boolean runButtonIsEnable = !projectEnvironments.isEmpty() || !systemEnvironments.isEmpty();
 
         runnerManagerView.setEnableRunButton(runButtonIsEnable);
     }
@@ -332,41 +335,6 @@ public class TemplatesPresenter implements TemplatesContainer, FilterWidget.Acti
                 }).build();
 
         projectService.updateProject(descriptor.getPath(), descriptor, asyncDescriptorCallback);
-    }
-
-    private void selectSystemScope() {
-        projectEnvironments.clear();
-
-        if (matchProjectType) {
-            systemEnvironmentsAction.perform();
-        } else {
-            performSystemEnvironments();
-        }
-    }
-
-    private void performProjectEnvironments() {
-        projectEnvironments.clear();
-        systemEnvironments.clear();
-
-        projectEnvironmentsAction.perform();
-    }
-
-    private void selectAllScope() {
-        if (matchProjectType) {
-            projectEnvironmentsAction.perform();
-            systemEnvironmentsAction.perform();
-        } else {
-            performProjectEnvironments();
-            performSystemEnvironments();
-        }
-    }
-
-    private void performSystemEnvironments() {
-        systemEnvironments.clear();
-        List<RunnerEnvironmentLeaf> leaves = environmentUtil.getAllEnvironments(tree);
-        List<Environment> environments = environmentUtil.getEnvironmentsFromNodes(leaves, SYSTEM);
-
-        addEnvironments(systemEnvironments, environments, SYSTEM);
     }
 
     /** {@inheritDoc} */

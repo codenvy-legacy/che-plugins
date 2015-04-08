@@ -250,10 +250,10 @@ public class TemplatesPresenterTest {
 
     @Test
     public void environmentsShouldBeShown() throws Exception {
-
         presenter.showEnvironments();
         presenter.addEnvironments(tree, PROJECT);
 
+        verify(view).setDefaultProjectWidget(null);
         verify(view).clearEnvironmentsPanel();
         verify(projectEnvironmentsAction).perform();
         verify(filter).setMatchesProjectType(true);

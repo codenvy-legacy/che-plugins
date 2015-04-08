@@ -563,10 +563,10 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
             return;
         }
 
+        templateContainer.showEnvironments();
+
         getRunningProcessAction.perform();
         getSystemEnvironmentsAction.perform();
-
-        templateContainer.showEnvironments();
 
         runnerTimer.schedule(ONE_SEC.getValue());
     }
