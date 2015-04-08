@@ -32,6 +32,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -137,11 +138,12 @@ public class SubversionApiITest {
                                               .withProjectPath(tmpDir.toFile().getAbsolutePath())
                                               .withUrl("file://" + repoRoot.getAbsolutePath()));
 
-        Response response = this.subversionApi.exportPath(tmpDir.toFile().getAbsolutePath(), "A/B/lambda", null);
+        Response response = this.subversionApi.exportPath(tmpDir.toFile().getAbsolutePath(), "A/B", null);
 
         Collection<String> items = ZipUtils.listEntries((InputStream) response.getEntity());
-        assertEquals(items.size(), 1);
-        assertEquals(items.iterator().next(), "lambda");
+        Collection<String> expected = Arrays.asList("lambda", "E/alpha", "E/beta");
+        assertEquals(items.size(), 3);
+        assertEquals(items, expected);
     }
 
     /**
