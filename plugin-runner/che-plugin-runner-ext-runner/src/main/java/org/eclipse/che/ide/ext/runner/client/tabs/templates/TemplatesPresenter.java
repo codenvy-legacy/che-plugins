@@ -294,36 +294,35 @@ public class TemplatesPresenter implements TemplatesContainer, FilterWidget.Acti
         ProjectDescriptor descriptor = currentProject.getProjectDescription();
 
         if (environment == null) {
-            view.setDefaultProjectWidget(null);
-
             descriptor.getRunners().setDefault(null);
 
-            updateProject(descriptor);
-
+            updateProject(descriptor, null);
             return;
         }
 
         String defaultRunner = currentProject.getRunner();
 
-        defaultEnvWidget.update(environment);
-
         String environmentId = environment.getId();
 
         if (!environmentId.equals(defaultRunner)) {
-
             descriptor.getRunners().setDefault(environmentId);
 
-            updateProject(descriptor);
+            updateProject(descriptor, defaultEnvWidget);
+
+            defaultEnvWidget.update(environment);
+            return;
         }
 
         view.setDefaultProjectWidget(defaultEnvWidget);
+        defaultEnvWidget.update(environment);
     }
 
-    private void updateProject(@Nonnull ProjectDescriptor descriptor) {
+    private void updateProject(@Nonnull ProjectDescriptor descriptor, @Nullable final EnvironmentWidget environmentWidget) {
         AsyncRequestCallback<ProjectDescriptor> asyncDescriptorCallback =
                 asyncDescriptorCallbackBuilder.success(new SuccessCallback<ProjectDescriptor>() {
                     @Override
                     public void onSuccess(ProjectDescriptor result) {
+                        view.setDefaultProjectWidget(environmentWidget);
                         chooseRunnerAction.selectDefaultRunner();
                     }
                 }).failure(new FailureCallback() {

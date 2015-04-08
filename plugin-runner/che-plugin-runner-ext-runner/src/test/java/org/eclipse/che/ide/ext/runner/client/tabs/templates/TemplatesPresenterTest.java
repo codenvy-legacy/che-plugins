@@ -79,7 +79,7 @@ public class TemplatesPresenterTest {
     @Mock
     private FilterWidget                            filter;
     @Mock
-    private EnvironmentWidget                       environmentWidget;
+    private EnvironmentWidget                       defaultEnvWidget;
     @Mock
     private RunnerLocalizationConstant              locale;
     @Mock
@@ -142,7 +142,7 @@ public class TemplatesPresenterTest {
     public void setUp() throws Exception {
         presenter = new TemplatesPresenter(view,
                                            filter,
-                                           environmentWidget,
+                                           defaultEnvWidget,
                                            appContext,
                                            projectEnvironmentsAction,
                                            systemEnvironmentsAction,
@@ -447,7 +447,7 @@ public class TemplatesPresenterTest {
 
         presenter.setDefaultEnvironment(environment);
 
-        verify(view, never()).setDefaultProjectWidget(environmentWidget);
+        verify(view, never()).setDefaultProjectWidget(defaultEnvWidget);
     }
 
     @Test
@@ -456,13 +456,19 @@ public class TemplatesPresenterTest {
 
         presenter.setDefaultEnvironment(null);
 
-        verify(view).setDefaultProjectWidget(null);
+        verify(appContext).getCurrentProject();
+        verify(currentProject).getProjectDescription();
         verify(descriptor).getRunners();
         verify(runnersDescriptor).setDefault(null);
 
-        updateProjectShouldBeVerified();
+        verify(projectService).updateProject(SOME_TEXT, descriptor, asyncRequestCallback);
+        verify(asyncDescriptorCallbackBuilder).success(successCaptor.capture());
 
-        verify(view, never()).setDefaultProjectWidget(environmentWidget);
+        successCaptor.getValue().onSuccess(descriptor);
+
+        verify(view).setDefaultProjectWidget(null);
+
+        verify(chooseRunnerAction).selectDefaultRunner();
     }
 
     private void updateProjectShouldBeVerified() {
@@ -470,6 +476,8 @@ public class TemplatesPresenterTest {
         verify(asyncDescriptorCallbackBuilder).success(successCaptor.capture());
 
         successCaptor.getValue().onSuccess(descriptor);
+
+        verify(view).setDefaultProjectWidget(defaultEnvWidget);
 
         verify(chooseRunnerAction).selectDefaultRunner();
     }
@@ -480,14 +488,18 @@ public class TemplatesPresenterTest {
 
         presenter.setDefaultEnvironment(environment);
 
+        verify(appContext).getCurrentProject();
+        verify(currentProject).getProjectDescription();
+
         verify(descriptor, never()).getRunners();
         verify(runnersDescriptor, never()).setDefault(SOME_TEXT);
 
         verify(currentProject).getRunner();
-        verify(environmentWidget).update(environment);
+        verify(defaultEnvWidget).update(environment);
         verify(environment).getId();
 
-        verify(view).setDefaultProjectWidget(environmentWidget);
+        verify(view).setDefaultProjectWidget(defaultEnvWidget);
+        verify(defaultEnvWidget).update(environment);
     }
 
     @Test
@@ -497,14 +509,14 @@ public class TemplatesPresenterTest {
         presenter.setDefaultEnvironment(environment);
 
         verify(currentProject).getRunner();
-        verify(environmentWidget).update(environment);
+        verify(defaultEnvWidget).update(environment);
         verify(environment).getId();
         verify(descriptor).getRunners();
         verify(runnersDescriptor).setDefault("other");
 
         updateProjectShouldBeVerified();
 
-        verify(view).setDefaultProjectWidget(environmentWidget);
+        verify(defaultEnvWidget).update(environment);
     }
 
     @Test
