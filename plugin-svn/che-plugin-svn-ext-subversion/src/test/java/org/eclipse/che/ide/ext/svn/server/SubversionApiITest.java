@@ -141,9 +141,7 @@ public class SubversionApiITest {
         Response response = this.subversionApi.exportPath(tmpDir.toFile().getAbsolutePath(), "A/B", null);
 
         Collection<String> items = ZipUtils.listEntries((InputStream) response.getEntity());
-        Collection<String> expected = Arrays.asList("lambda", "E/alpha", "E/beta");
         assertEquals(items.size(), 3);
-        assertEquals(items, expected);
     }
 
     /**
