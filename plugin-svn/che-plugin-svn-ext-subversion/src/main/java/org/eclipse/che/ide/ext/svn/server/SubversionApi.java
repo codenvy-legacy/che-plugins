@@ -12,10 +12,10 @@ package org.eclipse.che.ide.ext.svn.server;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import com.google.common.io.Files;
 import com.google.common.net.MediaType;
 import com.google.inject.Singleton;
 import org.eclipse.che.api.core.ServerException;
-import org.eclipse.che.api.core.rest.ServiceContext;
 import org.eclipse.che.api.vfs.server.util.DeleteOnCloseFileInputStream;
 import org.eclipse.che.commons.lang.IoUtil;
 import org.eclipse.che.commons.lang.Strings;
@@ -55,7 +55,6 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -515,17 +514,13 @@ public class SubversionApi {
      *         exported path
      * @param revision
      *         specified revision to export
-     * @param serviceContext
-     *         REST service context
-     * @param workspace
-     *         current user workspace
      * @return Response which contains hyperlink with download url
      * @throws IOException
      *         if there is a problem executing the command
      * @throws ServerException
      *         if there is an exporting issue
      */
-    public Response exportPath(String projectPath, String path, String revision, ServiceContext serviceContext, String workspace)
+    public Response exportPath(String projectPath, String path, String revision)
             throws IOException, ServerException {
 
         final File project = new File(projectPath);
@@ -544,14 +539,14 @@ public class SubversionApi {
         File zip = null;
 
         try {
-            tempDir = Files.createTempDirectory("svn-export-").toFile();
+            tempDir = Files.createTempDir();
             final CommandLineResult result = runCommand(uArgs, project, Arrays.asList(path, tempDir.getAbsolutePath()));
             if (result.getExitCode() != 0) {
                 LOG.warn("Svn export process finished with exit status {}", result.getExitCode());
                 throw new ServerException("Exporting was failed");
             }
 
-            zip = Files.createTempFile("svn-export-", "").toFile();
+            zip = new File(Files.createTempDir(), "export.zip");
             ZipUtils.zipDir(tempDir.getPath(), tempDir, zip, IoUtil.ANY_FILTER);
         } finally {
             if (tempDir != null) {
