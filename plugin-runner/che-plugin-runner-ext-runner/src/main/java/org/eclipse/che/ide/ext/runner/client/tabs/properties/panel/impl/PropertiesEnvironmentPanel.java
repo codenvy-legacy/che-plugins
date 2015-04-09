@@ -13,6 +13,7 @@ package org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.impl;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
+import com.google.inject.name.Named;
 import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
@@ -21,7 +22,7 @@ import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.api.project.shared.dto.RunnerConfiguration;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.editor.EditorInput;
-import org.eclipse.che.ide.api.editor.EditorRegistry;
+import org.eclipse.che.ide.api.editor.EditorProvider;
 import org.eclipse.che.ide.api.filetypes.FileTypeRegistry;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.project.tree.generic.FileNode;
@@ -71,7 +72,7 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
 
     private final Environment                                environment;
     private final DtoFactory                                 dtoFactory;
-    private final EditorRegistry                             editorRegistry;
+    private final EditorProvider                             editorProvider;
     private final FileTypeRegistry                           fileTypeRegistry;
     private final DockerFileFactory                          dockerFileFactory;
     private final ProjectServiceClient                       projectService;
@@ -95,7 +96,7 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
     @AssistedInject
     public PropertiesEnvironmentPanel(final PropertiesPanelView view,
                                       DtoFactory dtoFactory,
-                                      @Nonnull final EditorRegistry editorRegistry,
+                                      @Named("DefaultEditorProvider")EditorProvider editorProvider,
                                       @Nonnull final FileTypeRegistry fileTypeRegistry,
                                       final DockerFileFactory dockerFileFactory,
                                       final ProjectServiceClient projectService,
@@ -114,7 +115,7 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
         super(view, appContext);
 
         this.dtoFactory = dtoFactory;
-        this.editorRegistry = editorRegistry;
+        this.editorProvider = editorProvider;
         this.fileTypeRegistry = fileTypeRegistry;
         this.dockerFileFactory = dockerFileFactory;
         this.projectService = projectService;
@@ -189,7 +190,7 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
                                                                                            unmarshallerFactory,
                                                                                            environment.getName());
 
-                                                     initializeEditor(file, editorRegistry, fileTypeRegistry);
+                                                     initializeEditor(file, editorProvider, fileTypeRegistry);
                                                  }
                                              }
                                          })
@@ -207,7 +208,7 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
 
     private void getSystemEnvironmentDocker() {
         DockerFile file = dockerFileFactory.newInstance(environment.getPath());
-        initializeEditor(file, editorRegistry, fileTypeRegistry);
+        initializeEditor(file, editorProvider, fileTypeRegistry);
     }
 
     /** {@inheritDoc} */

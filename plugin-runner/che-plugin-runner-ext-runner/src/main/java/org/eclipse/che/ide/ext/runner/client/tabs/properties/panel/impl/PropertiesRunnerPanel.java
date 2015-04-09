@@ -13,9 +13,10 @@ package org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.impl;
 import com.google.gwt.user.client.Timer;
 import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
+import com.google.inject.name.Named;
 
 import org.eclipse.che.ide.api.app.AppContext;
-import org.eclipse.che.ide.api.editor.EditorRegistry;
+import org.eclipse.che.ide.api.editor.EditorProvider;
 import org.eclipse.che.ide.api.filetypes.FileTypeRegistry;
 import org.eclipse.che.ide.ext.runner.client.models.Runner;
 import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.PropertiesPanelPresenter;
@@ -40,7 +41,7 @@ public class PropertiesRunnerPanel extends PropertiesPanelPresenter {
 
     @AssistedInject
     public PropertiesRunnerPanel(final PropertiesPanelView view,
-                                 final EditorRegistry editorRegistry,
+                                 @Named("DefaultEditorProvider") final EditorProvider editorProvider,
                                  final FileTypeRegistry fileTypeRegistry,
                                  final DockerFileFactory dockerFileFactory,
                                  AppContext appContext,
@@ -61,7 +62,7 @@ public class PropertiesRunnerPanel extends PropertiesPanelPresenter {
                 timer.cancel();
 
                 DockerFile file = dockerFileFactory.newInstance(dockerUrl);
-                initializeEditor(file, editorRegistry, fileTypeRegistry);
+                initializeEditor(file, editorProvider, fileTypeRegistry);
 
                 view.selectMemory(RAM.detect(runner.getRAM()));
             }
