@@ -14,6 +14,8 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.KeyUpEvent;
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -23,6 +25,7 @@ import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.SimpleLayoutPanel;
+import com.google.gwt.user.client.ui.SplitLayoutPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
@@ -37,6 +40,7 @@ import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Boot;
 import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM;
 import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope;
 import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Shutdown;
+import org.eclipse.che.ide.ui.switcher.Switcher;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -75,13 +79,17 @@ public class PropertiesPanelViewImpl extends Composite implements PropertiesPane
     FlowPanel buttonsPanel;
 
     @UiField
-    ListBox ram;
+    ListBox          ram;
     @UiField
-    ListBox scope;
+    ListBox          scope;
     @UiField
-    ListBox boot;
+    ListBox          boot;
     @UiField
-    ListBox shutdown;
+    ListBox          shutdown;
+    @UiField
+    SplitLayoutPanel switcherPanel;
+    @UiField
+    Label            defaultLabel;
 
     @UiField
     DockLayoutPanel   propertiesPanel;
@@ -93,8 +101,10 @@ public class PropertiesPanelViewImpl extends Composite implements PropertiesPane
     @UiField(provided = true)
     final RunnerResources            resources;
 
+
     private final WidgetFactory widgetFactory;
     private final Label         unAvailableMessage;
+    private final Switcher      switcher;
 
     private ActionDelegate delegate;
 
@@ -103,7 +113,10 @@ public class PropertiesPanelViewImpl extends Composite implements PropertiesPane
     private PropertyButtonWidget deleteBtn;
 
     @Inject
-    public PropertiesPanelViewImpl(RunnerLocalizationConstant locale, RunnerResources resources, WidgetFactory widgetFactory) {
+    public PropertiesPanelViewImpl(RunnerLocalizationConstant locale,
+                                   RunnerResources resources,
+                                   WidgetFactory widgetFactory,
+                                   Switcher switcher) {
         this.locale = locale;
         this.resources = resources;
 
@@ -153,6 +166,19 @@ public class PropertiesPanelViewImpl extends Composite implements PropertiesPane
             }
         };
         cancelBtn = createButton(locale.propertiesButtonCancel(), cancelDelegate, GREY);
+
+        this.switcher = switcher;
+
+        ValueChangeHandler<Boolean> valueChangeHandler = new ValueChangeHandler<Boolean>() {
+            @Override
+            public void onValueChange(ValueChangeEvent<Boolean> valueChangeEvent) {
+                delegate.onSwitcherChanged(valueChangeEvent.getValue());
+            }
+        };
+
+        switcher.addValueChangeHandler(valueChangeHandler);
+
+        switcherPanel.add(switcher);
     }
 
     private void prepareField(@Nonnull ListBox field, @Nonnull Set<? extends Enum> items) {
@@ -363,6 +389,19 @@ public class PropertiesPanelViewImpl extends Composite implements PropertiesPane
     @Override
     public void hideButtonsPanel() {
         propertiesPanel.setWidgetHidden(buttonsPanel, true);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void changeSwitcherState(boolean isOn) {
+        switcher.setValue(isOn);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void hideSwitcher() {
+        switcher.addStyleName(resources.runnerCss().hideElement());
+        defaultLabel.addStyleName(resources.runnerCss().hideElement());
     }
 
     @UiHandler("name")

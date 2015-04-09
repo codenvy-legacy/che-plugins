@@ -47,6 +47,9 @@ public interface RunnerLocalizationConstant extends Messages {
 
     String applicationLogsFailed();
 
+    @Key("defaultRunnerAbsent")
+    String defaultRunnerAbsent();
+
     @Key("runner.label.application.info")
     String runnerLabelApplicationInfo();
 
@@ -241,4 +244,16 @@ public interface RunnerLocalizationConstant extends Messages {
 
     @Key("message.runner.shutting.down")
     String messageRunnerShuttingDown();
+
+    @Key("template.default.runner")
+    String templateDefaultRunner();
+
+    @Key("templates.default.runner.stub")
+    String templatesDefaultRunnerStub();
+
+    @Key("template.default.more.info")
+    String templateDefaultMoreInfo();
+
+    @Key("template.default.project.runner")
+    String templateDefaultProjectRunner();
 }
