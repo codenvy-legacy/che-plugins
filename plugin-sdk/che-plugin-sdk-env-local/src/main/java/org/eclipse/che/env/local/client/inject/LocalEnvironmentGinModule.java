@@ -33,6 +33,6 @@ public class LocalEnvironmentGinModule extends AbstractGinModule {
         bind(ActionDenyAccessDialog.class).annotatedWith(Build.class).to(ActionDenyAccessDialogLocalEnv.class).in(Singleton.class);
         bind(ActionPermit.class).annotatedWith(Run.class).to(ActionPermitLocalEnv.class).in(Singleton.class);
         bind(ActionDenyAccessDialog.class).annotatedWith(Run.class).to(ActionDenyAccessDialogLocalEnv.class).in(Singleton.class);
-        bind(ActionPermit.class).annotatedWith(Indicator.class).to(ActionPermit.class).in(Singleton.class);
+        bind(ActionPermit.class).annotatedWith(Indicator.class).to(ActionPermitLocalEnv.class).in(Singleton.class);
     }
 }
