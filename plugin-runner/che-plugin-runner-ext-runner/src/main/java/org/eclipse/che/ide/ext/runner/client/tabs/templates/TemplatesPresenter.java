@@ -44,6 +44,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -180,6 +181,13 @@ public class TemplatesPresenter implements TemplatesContainer, FilterWidget.Acti
         if (!(RUNNERS).equals(panelState.getState())) {
             changeEnableStateRunButton();
         }
+    }
+
+    /**
+     * @return environments
+     */
+    public Map<Scope, List<Environment>> getEnvironments() {
+        return new HashMap<>(environmentMap);
     }
 
     private void selectPreviousOrFirstEnvironment() {

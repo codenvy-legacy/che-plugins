@@ -214,10 +214,25 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
         initializeEditor(file, editorRegistry, fileTypeRegistry);
     }
 
+
+
+
     /** {@inheritDoc} */
     @Override
     public void onCopyButtonClicked() {
-        final String fileName = NameGenerator.generate();
+        // get projects env
+        Map<Scope, List<Environment>> envs = this.templatesContainer.getEnvironments();
+        List<Environment> projectEnvs = envs.get(Scope.PROJECT);
+        List<String> existingNames = new ArrayList<>();
+        if (projectEnvs != null) {
+            for (Environment env : projectEnvs) {
+                existingNames.add(env.getName());
+            }
+        }
+        // new name is based from existing one
+        final String fileName = NameGenerator.generateCopy(environment.getName(), existingNames);
+
+
         String path = projectDescriptor.getPath() + ROOT_FOLDER + fileName;
 
         AsyncRequestCallback<ItemReference> callback = asyncCallbackBuilder.unmarshaller(ItemReference.class)
