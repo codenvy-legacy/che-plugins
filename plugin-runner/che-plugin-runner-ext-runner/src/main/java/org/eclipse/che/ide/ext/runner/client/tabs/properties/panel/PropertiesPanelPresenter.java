@@ -16,7 +16,7 @@ import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.editor.EditorInitException;
 import org.eclipse.che.ide.api.editor.EditorPartPresenter;
-import org.eclipse.che.ide.api.editor.EditorRegistry;
+import org.eclipse.che.ide.api.editor.EditorProvider;
 import org.eclipse.che.ide.api.filetypes.FileType;
 import org.eclipse.che.ide.api.filetypes.FileTypeRegistry;
 import org.eclipse.che.ide.api.parts.PartPresenter;
@@ -72,10 +72,10 @@ public abstract class PropertiesPanelPresenter implements PropertiesPanelView.Ac
     }
 
     protected void initializeEditor(@Nonnull final FileNode file,
-                                    @Nonnull EditorRegistry editorRegistry,
+                                    @Nonnull EditorProvider provider,
                                     @Nonnull FileTypeRegistry fileTypeRegistry) {
         FileType fileType = fileTypeRegistry.getFileTypeByFile(file);
-        editor = editorRegistry.getEditor(fileType).getEditor();
+        editor = provider.getEditor();
 
         // wait when editor is initialized
         editor.addPropertyListener(new PropertyListener() {
