@@ -216,9 +216,6 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
         initializeEditor(file, editorProvider, fileTypeRegistry);
     }
 
-
-
-
     /** {@inheritDoc} */
     @Override
     public void onCopyButtonClicked() {
