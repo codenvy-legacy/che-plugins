@@ -113,6 +113,9 @@ public class GitHubDTOFactory {
         dtoRepository.setPushedAt(String.valueOf(ghRepository.getPushedAt()));
         dtoRepository.setHasDownloads(ghRepository.hasDownloads());
         dtoRepository.setHasIssues(ghRepository.hasIssues());
+        if (ghRepository.getParent() != null) {
+            dtoRepository.setParent(createRepository(ghRepository.getParent()));
+        }
 
         return dtoRepository;
     }
@@ -205,7 +208,7 @@ public class GitHubDTOFactory {
         GitHubUser dtoUser = DtoFactory.getInstance().createDto(GitHubUser.class);
 
         dtoUser.setId(String.valueOf(ghUser.getId()));
-        dtoUser.setHtmlUrl(ghUser.getHtmlUrl());
+        dtoUser.setHtmlUrl(ghUser.getHtmlUrl().toString());
         dtoUser.setAvatarUrl(ghUser.getAvatarUrl());
         dtoUser.setBio(ghUser.getBlog());
         dtoUser.setCompany(ghUser.getCompany());
