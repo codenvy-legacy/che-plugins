@@ -24,29 +24,29 @@
     <packaging>pom</packaging>
     <name>Che Plugin :: Parent</name>
     <modules>
-        <module>plugin-builder</module>
-        <module>plugin-runner</module>
+        <!--<module>plugin-builder</module>-->
+        <!--<module>plugin-runner</module>-->
         <module>plugin-web</module>
-        <module>plugin-java</module>
-        <module>plugin-sdk</module>
+        <!--<module>plugin-java</module>-->
+        <!--<module>plugin-sdk</module>-->
         <module>plugin-codemirror</module>
         <module>plugin-orion</module>
-        <module>plugin-php</module>
+        <!--<module>plugin-php</module>-->
         <module>plugin-ssh</module>
         <module>plugin-git</module>
         <module>plugin-github</module>
-        <module>plugin-datasource</module>
-        <module>plugin-angularjs</module>
-        <module>plugin-bower</module>
-        <module>plugin-gulp</module>
-        <module>plugin-grunt</module>
-        <module>plugin-npm</module>
-        <module>plugin-yeoman</module>
-        <module>plugin-cpp</module>
-        <module>plugin-ruby</module>
-        <module>plugin-go</module>
-        <module>plugin-python</module>
-        <module>plugin-tour</module>
+        <!--<module>plugin-datasource</module>-->
+        <!--<module>plugin-angularjs</module>-->
+        <!--<module>plugin-bower</module>-->
+        <!--<module>plugin-gulp</module>-->
+        <!--<module>plugin-grunt</module>-->
+        <!--<module>plugin-npm</module>-->
+        <!--<module>plugin-yeoman</module>-->
+        <!--<module>plugin-cpp</module>-->
+        <!--<module>plugin-ruby</module>-->
+        <!--<module>plugin-go</module>-->
+        <!--<module>plugin-python</module>-->
+        <!--<module>plugin-tour</module>-->
         <module>plugin-svn</module>
     </modules>
     <scm>
