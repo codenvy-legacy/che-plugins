@@ -240,7 +240,6 @@ public class TemplatesPresenterTest {
         verify(environmentUtil).getEnvironmentsByProjectType(tree, SOME_TEXT, PROJECT);
         verify(view).addEnvironment(Matchers.<Map<Scope, List<Environment>>>anyObject());
 
-        verify(propertiesContainer).setVisible(true);
         verify(propertiesContainer).show(projectEnvironment1);
         verify(view).selectEnvironment(projectEnvironment1);
         verify(selectionManager).setEnvironment(projectEnvironment1);
@@ -435,7 +434,6 @@ public class TemplatesPresenterTest {
         verify(environmentUtil).getEnvironmentsByProjectType(tree, SOME_TEXT, PROJECT);
         verify(view).addEnvironment(Matchers.<Map<Scope, List<Environment>>>anyObject());
 
-        verify(propertiesContainer).setVisible(true);
         verify(propertiesContainer).show(projectEnvironment1);
         verify(view).selectEnvironment(projectEnvironment1);
         verify(selectionManager).setEnvironment(projectEnvironment1);

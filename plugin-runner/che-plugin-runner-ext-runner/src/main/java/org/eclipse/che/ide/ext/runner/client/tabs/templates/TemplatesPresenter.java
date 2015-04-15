@@ -83,6 +83,7 @@ public class TemplatesPresenter implements TemplatesContainer, FilterWidget.Acti
     private RunnerEnvironmentTree tree;
     private Environment           defaultEnvironment;
     private Environment           selectedEnvironment;
+    private List<Environment>     previousProjectEnvironments;
 
     @Inject
     public TemplatesPresenter(TemplatesView view,
@@ -124,6 +125,7 @@ public class TemplatesPresenter implements TemplatesContainer, FilterWidget.Acti
 
         this.projectEnvironments = new ArrayList<>();
         this.systemEnvironments = new ArrayList<>();
+        this.previousProjectEnvironments = new ArrayList<>();
 
         this.environmentMap = new EnumMap<>(Scope.class);
         this.environmentMap.put(PROJECT, projectEnvironments);
@@ -178,10 +180,28 @@ public class TemplatesPresenter implements TemplatesContainer, FilterWidget.Acti
         environmentMap.put(scope, sourceList);
         view.addEnvironment(environmentMap);
 
-        selectPreviousOrFirstEnvironment();
+        if (PROJECT.equals(scope) && previousProjectEnvironments.size() < sourceList.size()) {
+            selectNewProjectEnvironment(targetList);
+        } else {
+            selectPreviousOrFirstEnvironment();
+        }
+
+        if (PROJECT.equals(scope)) {
+            previousProjectEnvironments.clear();
+            previousProjectEnvironments.addAll(targetList);
+        }
 
         if (!(RUNNERS).equals(panelState.getState())) {
             changeEnableStateRunButton();
+        }
+    }
+
+    private void selectNewProjectEnvironment(@Nonnull List<Environment> currentProjectEnvironments) {
+        for (Environment environment : currentProjectEnvironments) {
+            if (!previousProjectEnvironments.contains(environment)) {
+                select(environment);
+                selectionManager.setEnvironment(environment);
+            }
         }
     }
 
@@ -323,8 +343,8 @@ public class TemplatesPresenter implements TemplatesContainer, FilterWidget.Acti
             return;
         }
 
-        view.setDefaultProjectWidget(defaultEnvWidget);
         defaultEnvWidget.update(environment);
+        view.setDefaultProjectWidget(defaultEnvWidget);
     }
 
     private void updateProject(@Nonnull ProjectDescriptor descriptor, @Nullable final EnvironmentWidget environmentWidget) {
