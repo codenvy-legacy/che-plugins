@@ -31,6 +31,7 @@ import org.eclipse.che.ide.ext.svn.server.utils.InfoUtils;
 import org.eclipse.che.ide.ext.svn.server.utils.SubversionUtils;
 import org.eclipse.che.ide.ext.svn.shared.AddRequest;
 import org.eclipse.che.ide.ext.svn.shared.CLIOutputResponse;
+import org.eclipse.che.ide.ext.svn.shared.CLIOutputResponseList;
 import org.eclipse.che.ide.ext.svn.shared.CLIOutputWithRevisionResponse;
 import org.eclipse.che.ide.ext.svn.shared.CheckoutRequest;
 import org.eclipse.che.ide.ext.svn.shared.CleanupRequest;
@@ -481,11 +482,11 @@ public class SubversionApi {
      * @throws SubversionException
      *         if there is a Subversion issue
      */
-    public CLIOutputResponse resolve(final ResolveRequest request) throws IOException, SubversionException {
+    public CLIOutputResponseList resolve(final ResolveRequest request) throws IOException, SubversionException {
         final File projectPath = new File(request.getProjectPath());
 
         Map<String, String> resolutions = request.getConflictResolutions();
-        List<String> results = new ArrayList<String>();
+        List<CLIOutputResponse> results = new ArrayList<CLIOutputResponse>();
 
         for (String path : resolutions.keySet()) {
             final List<String> uArgs = new LinkedList<>();
@@ -497,12 +498,16 @@ public class SubversionApi {
 
             final CommandLineResult result = runCommand(uArgs, projectPath, Arrays.asList(path));
 
-            results.addAll(result.getStdout());
+            CLIOutputResponse outputResponse = DtoFactory.getInstance()
+                                                   .createDto(CLIOutputResponse.class)
+                                                   .withCommand(result.getCommandLine().toString())
+                                                   .withOutput(result.getStdout());
+            results.add(outputResponse);
         }
 
         return DtoFactory.getInstance()
-                         .createDto(CLIOutputResponse.class)
-                         .withOutput(results);
+                         .createDto(CLIOutputResponseList.class)
+                         .withCLIOutputResponses(results);
     }
 
     /**

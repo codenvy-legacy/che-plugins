@@ -17,6 +17,7 @@ import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import javax.validation.constraints.NotNull;
 
 import org.eclipse.che.ide.ext.svn.shared.CLIOutputResponse;
+import org.eclipse.che.ide.ext.svn.shared.CLIOutputResponseList;
 import org.eclipse.che.ide.ext.svn.shared.CLIOutputWithRevisionResponse;
 
 import java.util.List;
@@ -212,7 +213,7 @@ public interface SubversionClientService {
     void resolve(final @NotNull String projectPath,
                  final Map<String, String> resolution,
                  final String depth,
-                 final AsyncCallback<List<String>> callback);
+                 final AsyncCallback<CLIOutputResponseList> callback);
 
     void saveCredentials(String repositoryUrl, String username, String password, AsyncRequestCallback<Void> callback);
 
