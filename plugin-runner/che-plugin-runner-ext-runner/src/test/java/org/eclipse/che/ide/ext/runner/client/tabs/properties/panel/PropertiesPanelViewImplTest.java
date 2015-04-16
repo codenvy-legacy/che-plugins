@@ -528,12 +528,10 @@ public class PropertiesPanelViewImplTest {
 
     @Test
     public void elementsShouldBeHideWhenScopeIsProject() throws Exception {
-        when(resources.runnerCss().hideElement()).thenReturn(TEXT);
-
         view.hideSwitcher();
 
-        verify(switcher).addStyleName(TEXT);
-        verify(resources.runnerCss(), times(2)).hideElement();
+        verify(view.switcherPanel).setVisible(false);
+        verify(view.defaultLabel).setVisible(false);
     }
 
 }
