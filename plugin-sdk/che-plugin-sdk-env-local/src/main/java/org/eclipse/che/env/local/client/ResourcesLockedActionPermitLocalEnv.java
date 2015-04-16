@@ -8,30 +8,30 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.ide.ext.runner.client.constants;
+package org.eclipse.che.env.local.client;
 
-import javax.annotation.Nonnull;
+import org.eclipse.che.ide.api.action.permits.ResourcesLockedActionPermit;
 
 /**
- * The class contains ids of runner components.
- *
- * @author Valeriy Svydenko
+ * @author Vitaly Parfonov
  */
-public enum ActionId {
-    RUN_APP_ID("runApp"),
-    CHOOSE_RUNNER_ID("chooseRunner"),
-    RUN_WITH("runWith"),
-    CREATE_CUSTOM_RUNNER("createCustomRunner");
+public class ResourcesLockedActionPermitLocalEnv implements ResourcesLockedActionPermit {
 
-    private final String id;
-
-    ActionId(@Nonnull String id) {
-        this.id = id;
+    /** {@inheritDoc} */
+    @Override
+    public boolean isAllowed() {
+        return true;
     }
 
-    /** @return id of the runner component. */
-    @Nonnull
-    public String getId() {
-        return id;
+    /** {@inheritDoc} */
+    @Override
+    public boolean isAccountLocked() {
+        return false;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public boolean isWorkspaceLocked() {
+        return false;
     }
 }

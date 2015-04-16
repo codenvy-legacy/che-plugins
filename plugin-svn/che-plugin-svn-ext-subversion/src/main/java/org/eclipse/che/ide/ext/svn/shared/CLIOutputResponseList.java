@@ -8,16 +8,21 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.env.local.client;
+package org.eclipse.che.ide.ext.svn.shared;
 
-import org.eclipse.che.ide.api.action.permits.ActionPermit;
+import java.util.List;
 
-/**
- * @author Vitaly Parfonov
- */
-public class ActionPermitLocalEnv implements ActionPermit{
-    @Override
-    public boolean isAllowed() {
-        return true;
-    }
+import org.eclipse.che.dto.shared.DTO;
+
+@DTO
+public interface CLIOutputResponseList {
+
+    /**
+     * @return {@link List} the list of repositories
+     */
+    List<CLIOutputResponse> getCLIOutputResponses();
+    
+    void setCLIOutputResponses(List<CLIOutputResponse> outputResponses);
+
+    CLIOutputResponseList withCLIOutputResponses(List<CLIOutputResponse> outputResponses);
 }
