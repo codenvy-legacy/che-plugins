@@ -27,6 +27,7 @@ import org.eclipse.che.ide.ext.svn.server.credentials.CredentialsProvider;
 import org.eclipse.che.ide.ext.svn.server.credentials.CredentialsProvider.Credentials;
 import org.eclipse.che.ide.ext.svn.shared.AddRequest;
 import org.eclipse.che.ide.ext.svn.shared.CLIOutputResponse;
+import org.eclipse.che.ide.ext.svn.shared.CLIOutputResponseList;
 import org.eclipse.che.ide.ext.svn.shared.CLIOutputWithRevisionResponse;
 import org.eclipse.che.ide.ext.svn.shared.CleanupRequest;
 import org.eclipse.che.ide.ext.svn.shared.CommitRequest;
@@ -267,7 +268,7 @@ public class SubversionService extends Service {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
-    public CLIOutputResponse resolve(final ResolveRequest request) throws ServerException, IOException {
+    public CLIOutputResponseList resolve(final ResolveRequest request) throws ServerException, IOException {
         request.setProjectPath(getRealPath(request.getProjectPath()));
         return subversionApi.resolve(request);
     }
