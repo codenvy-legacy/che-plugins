@@ -31,6 +31,8 @@ import org.eclipse.che.ide.ext.svn.shared.CLIOutputWithRevisionResponse;
 import org.eclipse.che.ide.ext.svn.shared.CleanupRequest;
 import org.eclipse.che.ide.ext.svn.shared.CommitRequest;
 import org.eclipse.che.ide.ext.svn.shared.CopyRequest;
+import org.eclipse.che.ide.ext.svn.shared.InfoRequest;
+import org.eclipse.che.ide.ext.svn.shared.InfoResponse;
 import org.eclipse.che.ide.ext.svn.shared.LockRequest;
 import org.eclipse.che.ide.ext.svn.shared.MoveRequest;
 import org.eclipse.che.ide.ext.svn.shared.RemoveRequest;
@@ -190,6 +192,15 @@ public class SubversionService extends Service {
     public CLIOutputResponse update(final StatusRequest request) throws ServerException, IOException {
         request.setProjectPath(getRealPath(request.getProjectPath()));
         return this.subversionApi.status(request);
+    }
+
+    @Path("info")
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
+    public InfoResponse info(final InfoRequest request) throws ServerException, IOException {
+        request.setProjectPath(getRealPath(request.getProjectPath()));
+        return this.subversionApi.info(request);
     }
 
     /**

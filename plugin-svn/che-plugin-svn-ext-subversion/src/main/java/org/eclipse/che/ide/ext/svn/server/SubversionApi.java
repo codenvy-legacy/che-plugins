@@ -736,26 +736,25 @@ public class SubversionApi {
     }
 
     public InfoResponse info(final InfoRequest request) throws SubversionException, IOException {
+        final List<String> cliArgs = new LinkedList<>();
+        addStandardArgs(cliArgs);
+        cliArgs.add("info");
+
         final File projectPath = new File(request.getProjectPath());
-        List<String> pathList;
-        if (request.getPath() == null) {
-            pathList = Collections.emptyList();
-        } else {
-            pathList = Collections.singletonList(request.getPath());
-        }
-        final CommandLineResult clResult = runCommand(Collections.singletonList("info"),
-                                                      projectPath,
-                                                      pathList,
-                                                      null);
+
+        final CommandLineResult result = runCommand(cliArgs, projectPath,
+                addWorkingCopyPathIfNecessary(request.getPaths()));
+
         final InfoResponse response = DtoFactory.getInstance().createDto(InfoResponse.class)
-                                                .withCommandLine(clResult.getCommandLine().toString())
-                                                .withExitCode(clResult.getExitCode());
-        if (clResult.getExitCode() == 0) {
-            response.withRepositoryUrl(InfoUtils.getRepositoryUrl(clResult.getStdout()))
-                    .withRepositoryRoot(InfoUtils.getRepositoryRootUrl(clResult.getStdout()))
-                    .withRevision(InfoUtils.getRevision(clResult.getStdout()));
+                .withCommand(result.getCommandLine().toString())
+                .withOutput(result.getStdout());
+
+        if (result.getExitCode() == 0) {
+            response.withRepositoryUrl(InfoUtils.getRepositoryUrl(result.getStdout()))
+                    .withRepositoryRoot(InfoUtils.getRepositoryRootUrl(result.getStdout()))
+                    .withRevision(InfoUtils.getRevision(result.getStdout()));
         } else {
-            response.withErrorOutput(clResult.getStderr());
+            response.withErrorOutput(result.getStderr());
         }
 
         return response;

@@ -12,6 +12,7 @@ package org.eclipse.che.ide.ext.svn.client;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
+import org.eclipse.che.ide.ext.svn.shared.InfoResponse;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 
 import javax.validation.constraints.NotNull;
@@ -93,6 +94,16 @@ public interface SubversionClientService {
      */
     void copy(final @NotNull String projectPath, final String source, final String destination, final String comment,
               final AsyncRequestCallback<CLIOutputResponse> callback);
+
+
+    /**
+     * Retrieves the information about repository.
+     *
+     * @param projectPath
+     * @param paths
+     */
+    void info(final @NotNull String projectPath, final List<String> paths, final String revision,
+              final AsyncRequestCallback<InfoResponse> callback);
 
     /**
      * Retrieves the status for the provided paths, or the working copy as a whole.

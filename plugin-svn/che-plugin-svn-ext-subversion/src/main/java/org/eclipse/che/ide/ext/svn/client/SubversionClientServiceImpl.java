@@ -23,6 +23,8 @@ import org.eclipse.che.ide.ext.svn.shared.CLIOutputWithRevisionResponse;
 import org.eclipse.che.ide.ext.svn.shared.CleanupRequest;
 import org.eclipse.che.ide.ext.svn.shared.CommitRequest;
 import org.eclipse.che.ide.ext.svn.shared.CopyRequest;
+import org.eclipse.che.ide.ext.svn.shared.InfoRequest;
+import org.eclipse.che.ide.ext.svn.shared.InfoResponse;
 import org.eclipse.che.ide.ext.svn.shared.LockRequest;
 import org.eclipse.che.ide.ext.svn.shared.MoveRequest;
 import org.eclipse.che.ide.ext.svn.shared.RemoveRequest;
@@ -120,6 +122,17 @@ public class SubversionClientServiceImpl implements SubversionClientService {
                           .withProjectPath(projectPath);
 
         asyncRequestFactory.createPostRequest(baseHttpUrl + "/remove", request).loader(loader).send(callback);
+    }
+
+    @Override
+    public void info(final @NotNull String projectPath, final List<String> paths, final String revision,
+                     final AsyncRequestCallback<InfoResponse> callback) {
+        final InfoRequest request = dtoFactory.createDto(InfoRequest.class)
+                .withProjectPath(projectPath)
+                .withPaths(paths)
+                .withRevision(revision);
+
+        asyncRequestFactory.createPostRequest(baseHttpUrl + "/info", request).loader(loader).send(callback);
     }
 
     @Override
