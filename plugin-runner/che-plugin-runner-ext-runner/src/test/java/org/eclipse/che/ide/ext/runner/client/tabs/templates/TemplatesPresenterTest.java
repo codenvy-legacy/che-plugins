@@ -279,9 +279,9 @@ public class TemplatesPresenterTest {
         verify(environmentUtil).getEnvironmentsByProjectType(tree, SOME_TEXT, PROJECT);
         verify(view).addEnvironment(Matchers.<Map<Scope, List<Environment>>>anyObject());
 
-        verify(propertiesContainer).show(projectEnvironment1);
-        verify(view).selectEnvironment(projectEnvironment1);
-        verify(selectionManager).setEnvironment(projectEnvironment1);
+        verify(propertiesContainer, times(2)).show(projectEnvironment1);
+        verify(view, times(2)).selectEnvironment(projectEnvironment1);
+        verify(selectionManager, times(2)).setEnvironment(projectEnvironment1);
 
         verify(panelState).getState();
         verify(runnerUtil).hasRunPermission();
@@ -299,9 +299,9 @@ public class TemplatesPresenterTest {
         verify(projectEnvironmentsAction).perform();
         verify(filter).setMatchesProjectType(true);
 
-        verify(propertiesContainer).show(projectEnvironment1);
-        verify(view).selectEnvironment(projectEnvironment1);
-        verify(selectionManager).setEnvironment(projectEnvironment1);
+        verify(propertiesContainer, times(2)).show(projectEnvironment1);
+        verify(view, times(2)).selectEnvironment(projectEnvironment1);
+        verify(selectionManager, times(2)).setEnvironment(projectEnvironment1);
     }
 
     @Test
@@ -315,9 +315,9 @@ public class TemplatesPresenterTest {
         verify(projectEnvironmentsAction).perform();
         verify(filter).setMatchesProjectType(true);
 
-        verify(propertiesContainer).show(projectEnvironment1);
-        verify(view).selectEnvironment(projectEnvironment1);
-        verify(selectionManager).setEnvironment(projectEnvironment1);
+        verify(propertiesContainer, times(2)).show(projectEnvironment1);
+        verify(view, times(2)).selectEnvironment(projectEnvironment1);
+        verify(selectionManager, times(2)).setEnvironment(projectEnvironment1);
     }
 
     @Test
@@ -473,9 +473,9 @@ public class TemplatesPresenterTest {
         verify(environmentUtil).getEnvironmentsByProjectType(tree, SOME_TEXT, PROJECT);
         verify(view).addEnvironment(Matchers.<Map<Scope, List<Environment>>>anyObject());
 
-        verify(propertiesContainer).show(projectEnvironment1);
-        verify(view).selectEnvironment(projectEnvironment1);
-        verify(selectionManager).setEnvironment(projectEnvironment1);
+        verify(propertiesContainer, times(2)).show(projectEnvironment1);
+        verify(view, times(2)).selectEnvironment(projectEnvironment1);
+        verify(selectionManager, times(2)).setEnvironment(projectEnvironment1);
 
         verify(panelState).getState();
 
