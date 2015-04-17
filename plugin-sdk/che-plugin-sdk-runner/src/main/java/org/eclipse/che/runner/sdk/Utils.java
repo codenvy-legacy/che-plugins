@@ -46,7 +46,8 @@ class Utils {
 
     /** Returns URL to get Tomcat binary distribution. */
     static URL getTomcatBinaryDistribution() throws IOException {
-        URL tomcatDistributionUrl = Thread.currentThread().getContextClassLoader().getResource("tomcat.zip");
+
+        URL tomcatDistributionUrl = Thread.currentThread().getContextClassLoader().getResource("sdk-tomcat.zip");
         if (tomcatDistributionUrl == null) {
             throw new IOException("Unable to get Tomcat binary distribution.");
         }
