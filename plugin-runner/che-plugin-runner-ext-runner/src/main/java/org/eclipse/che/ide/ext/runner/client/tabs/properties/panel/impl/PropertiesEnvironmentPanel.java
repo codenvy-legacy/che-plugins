@@ -411,12 +411,13 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
 
         }
 
-
         RunnerConfiguration config = dtoFactory.createDto(RunnerConfiguration.class).withRam(environment.getRam());
 
         runnerConfigs.put(environmentId, config);
 
         updateProject();
+
+        projectEnvironmentsAction.perform();
     }
 
     private void updateProject() {
@@ -426,8 +427,6 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
                     public void onSuccess(ProjectDescriptor result) {
                         view.setEnableSaveButton(false);
                         view.setEnableCancelButton(false);
-
-                        projectEnvironmentsAction.perform();
                     }
                 }).failure(new FailureCallback() {
                     @Override
@@ -469,6 +468,8 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
                         runnerConfigs.remove(environmentId);
 
                         updateProject();
+
+                        projectEnvironmentsAction.perform();
 
                         notifyListeners(environment);
                     }

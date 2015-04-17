@@ -198,10 +198,10 @@ public class TemplatesPresenter implements TemplatesContainer, FilterWidget.Acti
         environmentMap.put(scope, sourceList);
         view.addEnvironment(environmentMap);
 
-        if (PROJECT.equals(scope) && previousProjectEnvironments.size() < sourceList.size()) {
+        selectPreviousOrFirstEnvironment();
+
+        if (PROJECT.equals(scope) && previousProjectEnvironments.size() <= sourceList.size()) {
             selectNewProjectEnvironment(targetList);
-        } else {
-            selectPreviousOrFirstEnvironment();
         }
 
         if (PROJECT.equals(scope)) {
