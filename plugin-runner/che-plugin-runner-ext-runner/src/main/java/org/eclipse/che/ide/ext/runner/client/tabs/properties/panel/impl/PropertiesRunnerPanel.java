@@ -73,7 +73,6 @@ public class PropertiesRunnerPanel extends PropertiesPanelPresenter {
 
                 DockerFile file = dockerFileFactory.newInstance(dockerUrl);
                 initializeEditor(file, editorProvider, fileTypeRegistry);
-
                 view.selectMemory(RAM.detect(runner.getRAM()));
             }
         });
@@ -89,6 +88,7 @@ public class PropertiesRunnerPanel extends PropertiesPanelPresenter {
         this.view.setVisibleDeleteButton(false);
         this.view.setVisibleCancelButton(false);
 
+        this.view.selectShutdown(getTimeout());
         this.view.selectMemory(RAM.detect(runner.getRAM()));
     }
 

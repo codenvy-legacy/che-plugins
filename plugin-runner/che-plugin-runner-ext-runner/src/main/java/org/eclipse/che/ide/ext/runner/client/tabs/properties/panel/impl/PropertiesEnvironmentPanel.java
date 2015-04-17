@@ -121,7 +121,6 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
                                       TemplatesContainer templatesContainer,
                                       @Assisted @Nonnull final Environment environment) {
         super(view, appContext);
-
         this.dtoFactory = dtoFactory;
         this.editorProvider = editorProvider;
         this.fileTypeRegistry = fileTypeRegistry;
@@ -179,6 +178,8 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
 
         return isConfigExist ? runnerConfigs.get(environmentId).getRam() : RAM.DEFAULT.getValue();
     }
+
+
 
     private void getProjectEnvironmentDocker() {
         Unmarshallable<Array<ItemReference>> unmarshaller = unmarshallerFactory.newArrayUnmarshaller(ItemReference.class);
@@ -304,7 +305,7 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
 
     private void updateRunnerConfig(@Nonnull ItemReference result) {
         boolean isConfigExist = runnerConfigs.containsKey(environment.getId());
-
+        view.selectShutdown(getTimeout());
         if (isConfigExist) {
             int ram = getRam(environment.getId());
 
@@ -314,7 +315,6 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
                                                       .withRam(ram);
 
             runnerConfigs.put(generateEnvironmentId(newEnvironmentName), newConfig);
-
             environment.setRam(ram);
             view.selectMemory(RAM.detect(ram));
         } else {
@@ -534,6 +534,7 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
 
         this.environment.setRam(ram.getValue());
 
+        view.selectShutdown(getTimeout());
         view.selectMemory(ram);
         view.setName(environmentName);
         view.setType(environment.getType());
