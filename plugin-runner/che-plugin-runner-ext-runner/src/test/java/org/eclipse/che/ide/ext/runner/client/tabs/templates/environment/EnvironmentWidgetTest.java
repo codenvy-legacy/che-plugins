@@ -78,6 +78,7 @@ public class EnvironmentWidgetTest {
 
         when(appContext.getCurrentProject()).thenReturn(currentProject);
         when(environment.getId()).thenReturn(TEXT);
+        when(environment.getScope()).thenReturn(PROJECT);
 
         environmentWidget = new EnvironmentWidget(itemWidget, resources, selectionManager, appContext);
     }
@@ -166,6 +167,7 @@ public class EnvironmentWidgetTest {
     @Test
     public void shouldUpdateWhenDescriptionIsNullAndCurrentProjectIsNullAndScopeIsSystem() {
         when(environment.getName()).thenReturn(ID);
+        when(environment.getScope()).thenReturn(SYSTEM);
         when(environment.getDescription()).thenReturn(null);
         when(appContext.getCurrentProject()).thenReturn(null);
 
@@ -240,6 +242,7 @@ public class EnvironmentWidgetTest {
     @Test
     public void shouldUpdateWhenDescriptionIsNullAndScopeIsSystem() {
         when(environment.getName()).thenReturn(ID);
+        when(environment.getScope()).thenReturn(SYSTEM);
         when(environment.getDescription()).thenReturn(null);
 
         environmentWidget.update(environment);
@@ -271,6 +274,7 @@ public class EnvironmentWidgetTest {
     @Test
     public void shouldUpdateWhenScopeSystem() throws Exception {
         when(environment.getName()).thenReturn(ID);
+        when(environment.getScope()).thenReturn(SYSTEM);
         when(environment.getDescription()).thenReturn(TEXT);
 
         environmentWidget.setScope(SYSTEM);

@@ -372,6 +372,12 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
 
                         runnerConfigs.put(generateEnvironmentId(newEnvironmentName), config);
 
+                        String defaultRunner = currentProject.getRunner();
+
+                        if (defaultRunner != null && defaultRunner.equals(environmentId)) {
+                            projectDescriptor.getRunners().setDefault(generateEnvironmentId(newEnvironmentName));
+                        }
+
                         updateProject();
                     }
                 })
@@ -466,6 +472,13 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
                         String environmentId = environment.getId();
 
                         runnerConfigs.remove(environmentId);
+
+                        String defaultRunner = currentProject.getRunner();
+
+                        if (defaultRunner != null && defaultRunner.equals(environmentId)) {
+                            templatesContainer.setDefaultEnvironment(null);
+                            chooseRunnerAction.setEmptyDefaultRunner();
+                        }
 
                         updateProject();
 
