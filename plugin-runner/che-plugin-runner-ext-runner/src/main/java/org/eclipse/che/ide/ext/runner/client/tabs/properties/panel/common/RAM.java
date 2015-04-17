@@ -43,7 +43,7 @@ public enum RAM {
     @Nonnull
     @Override
     public String toString() {
-        return size + " mb";
+        return size + " mib";
     }
 
     /**
