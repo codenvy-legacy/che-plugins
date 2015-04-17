@@ -268,4 +268,7 @@ public interface RunnerLocalizationConstant extends Messages {
 
     @Key("terminal.not.ready")
     String terminalNotReady();
+
+    @Key("template.create.new")
+    String templateCreateNew();
 }
