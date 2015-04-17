@@ -10,23 +10,26 @@
  *******************************************************************************/
 package org.eclipse.che.env.local.client;
 
-import com.google.gwt.i18n.client.Messages;
+import com.google.inject.ImplementedBy;
 
-/** @author Vitalii Parfonov */
-public interface LocalizationConstant extends Messages {
+import org.eclipse.che.ide.api.mvp.View;
 
+import javax.annotation.Nonnull;
+import java.util.Map;
 
-    @Key("che.projectClosed.title")
-    String cheTabTitle();
+/**
+ * @author Vitalii Parfonov
+ */
+@ImplementedBy(WorkspaceMappingViewImpl.class)
+public interface WorkspaceMappingView extends View<WorkspaceMappingView.ActionDelegate> {
 
-    @Key("che.projectOpened.title")
-    String cheTabTitle(String projectName);
+    public interface ActionDelegate {
 
-    @Key("ws.mapping.add")
-    @DefaultMessage("add")
-    String wsMappingAdd();
+        void onDeleteClicked();
 
-    @Key("ws.mapping.delete")
-    @DefaultMessage("delete")
-    String wsMappingDelete();
+        void onAddClicked();
+
+    }
+
+    void setWorkspaces(@Nonnull Map<String, String> ws);
 }

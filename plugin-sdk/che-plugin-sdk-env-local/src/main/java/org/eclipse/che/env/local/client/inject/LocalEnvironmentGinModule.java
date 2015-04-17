@@ -11,17 +11,20 @@
 package org.eclipse.che.env.local.client.inject;
 
 import com.google.gwt.inject.client.AbstractGinModule;
+import com.google.gwt.inject.client.multibindings.GinMultibinder;
 import com.google.inject.Singleton;
 
 import org.eclipse.che.env.local.client.ActionDenyAccessDialogLocalEnv;
 import org.eclipse.che.env.local.client.ResourcesLockedActionPermitLocalEnv;
 import org.eclipse.che.env.local.client.SdkDocumentTitleDecorator;
+import org.eclipse.che.env.local.client.WorkspaceMappingPresenter;
 import org.eclipse.che.ide.api.DocumentTitleDecorator;
 import org.eclipse.che.ide.api.action.permits.ActionDenyAccessDialog;
 import org.eclipse.che.ide.api.action.permits.ResourcesLockedActionPermit;
 import org.eclipse.che.ide.api.action.permits.Build;
 import org.eclipse.che.ide.api.action.permits.Run;
 import org.eclipse.che.ide.api.extension.ExtensionGinModule;
+import org.eclipse.che.ide.api.preferences.PreferencePagePresenter;
 
 /**
  * @author Vitaly Parfonov
@@ -36,5 +39,7 @@ public class LocalEnvironmentGinModule extends AbstractGinModule {
         bind(ActionDenyAccessDialog.class).annotatedWith(Run.class).to(ActionDenyAccessDialogLocalEnv.class).in(Singleton.class);
         bind(ResourcesLockedActionPermit.class).to(ResourcesLockedActionPermitLocalEnv.class).in(Singleton.class);
         bind(DocumentTitleDecorator.class).to(SdkDocumentTitleDecorator.class).in(Singleton.class);
+
+        GinMultibinder.newSetBinder(binder(), PreferencePagePresenter.class).addBinding().to(WorkspaceMappingPresenter.class);
     }
 }
