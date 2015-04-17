@@ -71,9 +71,6 @@ public interface RunnerLocalizationConstant extends Messages {
     @Key("messages.availableLessRequiredMemory")
     String messagesAvailableLessRequiredMemory(@Nonnegative int totalRAM, @Nonnegative int usedRAM, @Nonnegative int requestedRAM);
 
-    @Key("messages.totalLessOverrideMemory")
-    String messagesTotalLessOverrideMemory(@Nonnegative int overrideRAM, @Nonnegative int totalRAM);
-
     @Key("messages.availableLessOverrideMemory")
     String messagesAvailableLessOverrideMemory(@Nonnegative int availableRAM);
 
@@ -268,4 +265,7 @@ public interface RunnerLocalizationConstant extends Messages {
 
     @Key("template.default.project.runner")
     String templateDefaultProjectRunner();
+
+    @Key("terminal.not.ready")
+    String terminalNotReady();
 }
