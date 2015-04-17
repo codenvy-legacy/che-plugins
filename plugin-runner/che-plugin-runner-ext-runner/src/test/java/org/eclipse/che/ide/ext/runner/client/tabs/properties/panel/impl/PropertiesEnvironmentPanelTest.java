@@ -661,6 +661,60 @@ public class PropertiesEnvironmentPanelTest {
     }
 
     @Test
+    public void defaultRunnerShouldBeRenamedWhenClickOnSaveButton() {
+        reset(projectDescriptor);
+        when(projectDescriptor.getRunners()).thenReturn(runnersDescriptor);
+        when(environment.getId()).thenReturn(TEXT);
+        when(currentProject.getRunner()).thenReturn(TEXT);
+        when(environment.getName()).thenReturn(TEXT);
+        when(view.getName()).thenReturn(TEXT2);
+
+        presenter.onSaveButtonClicked();
+
+        verify(voidAsyncCallbackBuilder).success(voidArgumentCaptor.capture());
+        voidArgumentCaptor.getValue().onSuccess(null);
+
+        verify(projectDescriptor).getRunners();
+        verify(runnersDescriptor).setDefault(anyString());
+    }
+
+    @Test
+    public void defaultRunnerShouldNotBeRenamedWhenDefaultRunnerIsNull() {
+        reset(projectDescriptor);
+        when(projectDescriptor.getRunners()).thenReturn(runnersDescriptor);
+        when(environment.getId()).thenReturn(TEXT);
+        when(currentProject.getRunner()).thenReturn(null);
+        when(environment.getName()).thenReturn(TEXT);
+        when(view.getName()).thenReturn(TEXT2);
+
+        presenter.onSaveButtonClicked();
+
+        verify(voidAsyncCallbackBuilder).success(voidArgumentCaptor.capture());
+        voidArgumentCaptor.getValue().onSuccess(null);
+
+        verify(projectDescriptor, never()).getRunners();
+        verify(runnersDescriptor, never()).setDefault(anyString());
+    }
+
+    @Test
+    public void defaultRunnerShouldNotBeRenamedWhenRenameNotDefaultRunner() {
+        reset(projectDescriptor);
+        when(projectDescriptor.getRunners()).thenReturn(runnersDescriptor);
+        when(environment.getId()).thenReturn(TEXT2);
+        when(currentProject.getRunner()).thenReturn(TEXT);
+        when(environment.getName()).thenReturn(TEXT);
+        when(view.getName()).thenReturn(TEXT2);
+
+        presenter.onSaveButtonClicked();
+
+        verify(voidAsyncCallbackBuilder).success(voidArgumentCaptor.capture());
+        voidArgumentCaptor.getValue().onSuccess(null);
+
+        verify(projectDescriptor, never()).getRunners();
+        verify(runnersDescriptor, never()).setDefault(anyString());
+    }
+
+    @Test
     public void deletedButtonShouldBeClickedAndScopeIsSystem() {
         presenter.onDeleteButtonClicked();
 
@@ -739,6 +793,26 @@ public class PropertiesEnvironmentPanelTest {
 
         verify(exception).getMessage();
         verify(notificationManager).showError(TEXT);
+    }
+
+    @Test
+    public void stubShouldBeShownWhenDeleteDefaultRunner() {
+        when(environment.getScope()).thenReturn(PROJECT);
+        when(currentProject.getRunner()).thenReturn(TEXT);
+        when(environment.getId()).thenReturn(TEXT);
+        ArgumentCaptor<ConfirmCallback> argumentCaptor = ArgumentCaptor.forClass(ConfirmCallback.class);
+
+        presenter.onDeleteButtonClicked();
+
+        verify(dialogFactory).createConfirmDialog(eq(TEXT), eq(TEXT), argumentCaptor.capture(), isNull(CancelCallback.class));
+        verify(confirmDialog).show();
+        argumentCaptor.getValue().accepted();
+
+        verify(voidAsyncCallbackBuilder).success(voidArgumentCaptor.capture());
+        voidArgumentCaptor.getValue().onSuccess(null);
+
+        verify(templatesContainer).setDefaultEnvironment(null);
+        verify(chooseRunnerAction).setEmptyDefaultRunner();
     }
 
     private void verifyUpdateProject() {
