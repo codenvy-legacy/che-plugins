@@ -268,4 +268,8 @@ public interface RunnerLocalizationConstant extends Messages {
 
     @Key("template.default.project.runner")
     String templateDefaultProjectRunner();
+
+    @Key("template.create.new")
+    String templateCreateNew();
+
 }
