@@ -10,16 +10,23 @@
  *******************************************************************************/
 package org.eclipse.che.env.local.client;
 
-import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.google.web.bindery.event.shared.EventBus;
 
-import org.eclipse.che.api.workspace.gwt.client.WorkspaceServiceClient;
+import org.eclipse.che.ide.api.DocumentTitleDecorator;
 import org.eclipse.che.ide.api.app.AppContext;
+import org.eclipse.che.ide.api.event.RefreshProjectTreeEvent;
 import org.eclipse.che.ide.api.notification.NotificationManager;
-import org.eclipse.che.ide.api.preferences.AbstractPreferencePagePresenter;
-import org.eclipse.che.ide.dto.DtoFactory;
-import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
+import org.eclipse.che.ide.rest.AsyncRequestCallback;
+import org.eclipse.che.ide.rest.StringMapUnmarshaller;
+import org.eclipse.che.ide.ui.dialogs.CancelCallback;
+import org.eclipse.che.ide.ui.dialogs.DialogFactory;
+import org.eclipse.che.ide.ui.dialogs.InputCallback;
+import org.eclipse.che.ide.ui.dialogs.input.InputDialog;
+import org.eclipse.che.ide.util.loging.Log;
+
+import java.util.Map;
 
 /**
  * The presenter for managing user's runners settings,.
@@ -27,57 +34,102 @@ import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
  * @author Vitalii Parfonov
  */
 @Singleton
-public class WorkspaceMappingPresenter extends AbstractPreferencePagePresenter implements WorkspaceMappingView.ActionDelegate {
-    private       AppContext             appContext;
-    private final DtoFactory             dtoFactory;
-    private final DtoUnmarshallerFactory dtoUnmarshallerFactory;
-    private       NotificationManager    notificationManager;
-    private final WorkspaceMappingView   view;
+public class WorkspaceMappingPresenter {
+    private final AppContext                               appContext;
+    private final NotificationManager                      notificationManager;
+    private final EventBus                                 eventBus;
+    private final DialogFactory                            dialogFactory;
+    private final WorkspaceToDirectoryMappingServiceClient service;
+
+    private String rootFolder;
 
 
     /** Create presenter. */
     @Inject
-    public WorkspaceMappingPresenter(WorkspaceMappingView view,
+    public WorkspaceMappingPresenter(DialogFactory dialogFactory,
                                      AppContext appContext,
                                      NotificationManager notificationManager,
-                                     WorkspaceServiceClient workspaceService,
-                                     DtoFactory dtoFactory,
-                                     DtoUnmarshallerFactory dtoUnmarshallerFactory) {
-        super("Workspases", "Workspaces", null);
-        this.view = view;
+                                     WorkspaceToDirectoryMappingServiceClient service,
+                                     EventBus eventBus) {
+        this.dialogFactory = dialogFactory;
+        this.service = service;
         this.appContext = appContext;
-        this.dtoFactory = dtoFactory;
-        this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
-        this.view.setDelegate(this);
         this.notificationManager = notificationManager;
+        this.eventBus = eventBus;
+
+        init();
     }
 
-    @Override
-    public boolean isDirty() {
-        return false;
+
+    public void init() {
+        service.getDirectoryMapping(new AsyncRequestCallback<Map<String, String>>(new StringMapUnmarshaller()) {
+            @Override
+            public void onSuccess(Map<String, String> result) {
+                if (result == null || result.isEmpty()) {
+                    final String wsId = appContext.getWorkspace().getId();
+                    getSetupDialog(wsId, "").show();
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable exception) {
+                Log.error(WorkspaceMappingPresenter.class, exception.getMessage());
+                notificationManager.showError(exception.getMessage());
+            }
+        });
     }
 
-    @Override
-    public void go(AcceptsOneWidget container) {
-        container.setWidget(view);
+    public void showDialog() {
+        service.getDirectoryMapping(new AsyncRequestCallback<Map<String, String>>(new StringMapUnmarshaller()) {
+            @Override
+            public void onSuccess(Map<String, String> result) {
+                if (result == null && result.isEmpty()) {
+                    return;
+                }
+                Map.Entry<String, String> entry = result.entrySet().iterator().next();
+                final String wsId = entry.getKey();
+                final String path = entry.getValue();
+                getSetupDialog(wsId, path).show();
+            }
+
+            @Override
+            public void onFailure(Throwable exception) {
+                Log.error(WorkspaceMappingPresenter.class, exception.getMessage());
+                notificationManager.showError(exception.getMessage());
+            }
+        });
     }
 
-    @Override
-    public void storeChanges() {
+    public String getRootFolder() {
+        return rootFolder;
     }
 
-    @Override
-    public void revertChanges() {
 
+    private InputDialog getSetupDialog(final String workspaceId, final String path) {
+        InputDialog inputDialog = dialogFactory.createInputDialog("Workspace", "Workspace", path, 0, 0, new InputCallback() {
+            @Override
+            public void accepted(final String value) {
+                service.setMountPath(workspaceId, value, new AsyncRequestCallback<Map<String, String>>(new StringMapUnmarshaller()) {
+                    @Override
+                    protected void onSuccess(Map<String, String> result) {
+                        eventBus.fireEvent(new RefreshProjectTreeEvent());
+                        rootFolder = value;
+                    }
+
+                    @Override
+                    protected void onFailure(Throwable exception) {/* do nothing for now  */}
+                });
+
+            }
+        }, new CancelCallback() {
+            @Override
+            public void cancelled() {
+
+            }
+        });
+
+        return inputDialog;
     }
 
-    @Override
-    public void onDeleteClicked() {
 
-    }
-
-    @Override
-    public void onAddClicked() {
-
-    }
 }

@@ -10,26 +10,20 @@
  *******************************************************************************/
 package org.eclipse.che.env.local.client;
 
-import com.google.inject.ImplementedBy;
+import org.eclipse.che.ide.rest.AsyncRequestCallback;
 
-import org.eclipse.che.ide.api.mvp.View;
-
-import javax.annotation.Nonnull;
 import java.util.Map;
 
 /**
- * @author Vitalii Parfonov
+ * @author Vitaly Parfonov
  */
-@ImplementedBy(WorkspaceMappingViewImpl.class)
-public interface WorkspaceMappingView extends View<WorkspaceMappingView.ActionDelegate> {
+public interface WorkspaceToDirectoryMappingServiceClient {
 
-    public interface ActionDelegate {
 
-        void onDeleteClicked();
+    public void setMountPath(String workspaceId, String mountPath, AsyncRequestCallback<Map<String, String>> callback);
 
-        void onAddClicked();
+    public void removeMountPath(String workspaceId, AsyncRequestCallback<Map<String, String>> callback);
 
-    }
+    public void getDirectoryMapping(AsyncRequestCallback<Map<String, String>> callback);
 
-    void setWorkspaces(@Nonnull Map<String, String> ws);
 }

@@ -22,11 +22,14 @@ public interface LocalizationConstant extends Messages {
     @Key("che.projectOpened.title")
     String cheTabTitle(String projectName);
 
-    @Key("ws.mapping.add")
-    @DefaultMessage("add")
-    String wsMappingAdd();
+    @Key("action.workspace.location")
+    @DefaultMessage("Root folder")
+    String actionWorkspaceLocation();
 
-    @Key("ws.mapping.delete")
-    @DefaultMessage("delete")
-    String wsMappingDelete();
+    @Key("action.workspace.location.title")
+    @DefaultMessage("Che stores your projects in a folder.\n" +
+                    "Choose a workspace folder to use for this session.")
+    String actionWorkspaceLocationTitle();
+
+
 }
