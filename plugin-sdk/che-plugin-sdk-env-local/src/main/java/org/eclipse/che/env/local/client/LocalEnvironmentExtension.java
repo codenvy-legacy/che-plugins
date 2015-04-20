@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.env.local.client;
 
+import com.google.gwt.user.client.Window;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -29,6 +30,7 @@ public class LocalEnvironmentExtension {
 
     @Inject
     public LocalEnvironmentExtension(WorkspaceMappingPresenter presenter, ActionManager actionManager, ShowWorkspaceMappingDirAction action) {
+        Window.alert("sffffffffffff");
         this.actionManager = actionManager;
         DefaultActionGroup fileGroup = (DefaultActionGroup)actionManager.getAction(IdeActions.GROUP_FILE);
         actionManager.registerAction("showWorkspaceMappingDirAction", action);
