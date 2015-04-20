@@ -747,7 +747,7 @@ public class RunnerManagerPresenterTest {
     public void runnerShouldRunSelectedEnvironment() {
         when(chooseRunnerAction.selectEnvironment()).thenReturn(runnerEnvironment);
         when(runnerEnvironment.getId()).thenReturn("myEnvId");
-        Map<String, String> options =Collections.emptyMap();
+        Map<String, String> options = Collections.emptyMap();
         when(runnerEnvironment.getOptions()).thenReturn(options);
 
         // click on Run
@@ -757,8 +757,6 @@ public class RunnerManagerPresenterTest {
         verify(runOptions).withOptions(any(Map.class));
         verify(runOptions).withEnvironmentId("myEnvId");
     }
-
-
 
     @Test
     public void runnerShouldBeRunIfSelectedRunnerNotNullAndStatusIsInProgress() {
@@ -820,6 +818,51 @@ public class RunnerManagerPresenterTest {
         verify(dtoFactory, times(2)).createDto(RunOptions.class);
         verify(runOptions).withSkipBuild(true);
         verify(runOptions).withMemorySize(RAM_SIZE);
+        verify(runOptions).withEnvironmentId(TEXT);
+        verify(modelsFactory).createRunner(runOptions);
+
+        //verify launch runner
+        verify(panelState, times(2)).setState(RUNNERS);
+        verify(view).showOtherButtons();
+        verify(history).addRunner(runner);
+        verify(actionFactory).createCheckRamAndRun();
+        verify(checkRamAndRunAction).perform(runner);
+        verify(runner, times(2)).resetCreationTime();
+    }
+
+    @Test
+    public void defaultRunnerShouldBeLaunchedIfThisRunnerWasSelect() {
+        RunOptions defaultRunOptions = mock(RunOptions.class);
+        RunnerConfiguration runnerConfiguration = mock(RunnerConfiguration.class);
+        Map<String, RunnerConfiguration> configs = new HashMap<>();
+        configs.put(TEXT, runnerConfiguration);
+
+        when(runner.getStatus()).thenReturn(Runner.Status.IN_PROGRESS);
+        when(runnersDescriptor.getDefault()).thenReturn(TEXT);
+        when(runnersDescriptor.getConfigs()).thenReturn(configs);
+        when(runnerConfiguration.getRam()).thenReturn(RAM_SIZE);
+        when(runOptions.withMemorySize(RAM_SIZE)).thenReturn(defaultRunOptions);
+        when(modelsFactory.createRunner(defaultRunOptions)).thenReturn(runner);
+        when(runActionPermit.isAllowed()).thenReturn(true);
+        when(chooseRunnerAction.selectEnvironment()).thenReturn(runnerEnvironment);
+        when(runnerEnvironment.getId()).thenReturn(TEXT);
+
+        presenter.addRunner(processDescriptor);
+        reset(view, history);
+
+        presenter.launchRunner();
+
+        verify(appContext, times(2)).getCurrentProject();
+        verify(currentProject).getProjectDescription();
+        verify(descriptor).getRunners();
+        verify(runnersDescriptor).getDefault();
+
+        verify(runnersDescriptor).getConfigs();
+
+        verify(dtoFactory, times(2)).createDto(RunOptions.class);
+        verify(runOptions).withSkipBuild(true);
+        verify(runOptions).withMemorySize(RAM_SIZE);
+        verify(runOptions).withEnvironmentId(TEXT);
         verify(modelsFactory).createRunner(runOptions);
 
         //verify launch runner

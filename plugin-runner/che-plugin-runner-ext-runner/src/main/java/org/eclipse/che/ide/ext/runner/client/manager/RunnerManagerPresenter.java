@@ -474,15 +474,17 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
 
         RunOptions runOptions = dtoFactory.createDto(RunOptions.class)
                                           .withSkipBuild(Boolean.valueOf(currentProject.getAttributeValue("runner:skipBuild")))
+                                          .withEnvironmentId(defaultRunner)
                                           .withMemorySize(ram);
 
-        if (this.selectedEnvironment == null) {
-            Environment environment = chooseRunnerAction.selectEnvironment();
-            if (environment != null) {
-                runOptions = runOptions.withOptions(environment.getOptions()).withEnvironmentId(environment.getId());
+        Environment environment = chooseRunnerAction.selectEnvironment();
+        if (environment != null) {
+            if (defaultRunner != null && defaultRunner.equals(environment.getId())) {
+                return launchRunner(modelsFactory.createRunner(runOptions));
             }
+            runOptions = runOptions.withOptions(environment.getOptions()).withEnvironmentId(environment.getId());
+            return launchRunner(modelsFactory.createRunner(runOptions, environment.getName()));
         }
-
 
         return launchRunner(modelsFactory.createRunner(runOptions));
     }
