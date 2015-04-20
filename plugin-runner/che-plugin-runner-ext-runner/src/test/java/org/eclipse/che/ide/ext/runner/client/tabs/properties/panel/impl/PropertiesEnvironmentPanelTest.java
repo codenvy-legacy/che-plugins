@@ -259,6 +259,7 @@ public class PropertiesEnvironmentPanelTest {
         when(dtoFactory.createDto(RunnerConfiguration.class)).thenReturn(runnerConfiguration);
         when(runnerConfiguration.withRam(anyInt())).thenReturn(runnerConfiguration);
         when(runnerConfiguration.getRam()).thenReturn(MB_512.getValue());
+        when(runnerConfiguration.withVariables(anyMap())).thenReturn(runnerConfiguration);
 
         when(currentProject.getCurrentTree()).thenReturn(treeStructure);
 
@@ -278,6 +279,9 @@ public class PropertiesEnvironmentPanelTest {
         when(fileTypeRegistry.getFileTypeByFile(any(FileNode.class))).thenReturn(fileType);
 
         when(locale.runnerTabTemplates()).thenReturn(TEXT);
+
+        when(itemReference1.getPath()).thenReturn("/this is a path/Dockerfile");
+        when(itemReference2.getPath()).thenReturn("/this is a path/Dockerfile");
 
         when(unmarshallerFactory.newArrayUnmarshaller(ItemReference.class)).thenReturn(unmarshaller);
         when(asyncArrayCallbackBuilder.unmarshaller(unmarshaller)).thenReturn(asyncArrayCallbackBuilder);
@@ -392,7 +396,7 @@ public class PropertiesEnvironmentPanelTest {
 
         verify(view).selectMemory(MB_512);
         verify(projectEnvironmentsAction).perform();
-        verify(dtoFactory, never()).createDto(RunnerConfiguration.class);
+        verify(dtoFactory).createDto(RunnerConfiguration.class);
     }
 
     @Test
@@ -1043,7 +1047,7 @@ public class PropertiesEnvironmentPanelTest {
         verify(view).setEnableSaveButton(false);
         verify(view).setEnableDeleteButton(false);
 
-        verify(environment, times(4)).getId();
+        verify(environment, times(5)).getId();
         verify(environment).getName();
         verify(environment).setRam(MB_512.getValue());
 
@@ -1071,7 +1075,7 @@ public class PropertiesEnvironmentPanelTest {
         verify(view).setEnableSaveButton(false);
         verify(view).setEnableDeleteButton(false);
 
-        verify(environment, times(3)).getId();
+        verify(environment, times(4)).getId();
         verify(environment).getName();
         verify(environment).setRam(MB_512.getValue());
 

@@ -59,6 +59,7 @@ import org.eclipse.che.ide.util.loging.Log;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -71,6 +72,7 @@ import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common
  */
 public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
 
+    private static final String CONFIGURATION_TYPE = "configuration.type";
     private static final String DOCKER_SCRIPT_NAME    = "/Dockerfile";
     public static final  String ENVIRONMENT_ID_PREFIX = "project://";
 
@@ -177,6 +179,24 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
         boolean isConfigExist = runnerConfigs.containsKey(environmentId);
 
         return isConfigExist ? runnerConfigs.get(environmentId).getRam() : RAM.DEFAULT.getValue();
+    }
+
+    /**
+     * Gets the type of an environment. First we check if type is not defined by a runner configuration. If there is not, use type of the
+     * environment
+     *
+     * @param environment
+     *         the environment to check
+     * @return the type of the provided environment
+     */
+    private String getType(@Nonnull Environment environment) {
+        String envId = URL.encode(environment.getId());
+        RunnerConfiguration runnerConfiguration = runnerConfigs.get(envId);
+        if (runnerConfiguration != null) {
+            return runnerConfiguration.getVariables().get(CONFIGURATION_TYPE);
+        } else {
+            return environment.getType();
+        }
     }
 
 
@@ -306,19 +326,28 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
     private void updateRunnerConfig(@Nonnull ItemReference result) {
         boolean isConfigExist = runnerConfigs.containsKey(environment.getId());
         view.selectShutdown(getTimeout());
+        String newEnvironmentName = getNewEnvironmentName(result.getPath());
+        Map<String, String> variables = new HashMap<>();
+        variables.put(CONFIGURATION_TYPE, environment.getType());
+
         if (isConfigExist) {
             int ram = getRam(environment.getId());
-
-            String newEnvironmentName = getNewEnvironmentName(result.getPath());
-
             RunnerConfiguration newConfig = dtoFactory.createDto(RunnerConfiguration.class)
+                                                      .withVariables(variables)
                                                       .withRam(ram);
 
             runnerConfigs.put(generateEnvironmentId(newEnvironmentName), newConfig);
             environment.setRam(ram);
             view.selectMemory(RAM.detect(ram));
         } else {
-            view.selectMemory(RAM.detect(environment.getRam()));
+            int ram = environment.getRam();
+            RunnerConfiguration newConfig = dtoFactory.createDto(RunnerConfiguration.class)
+                                                      .withVariables(variables)
+                                                      .withRam(ram);
+            runnerConfigs.put(generateEnvironmentId(newEnvironmentName), newConfig);
+            updateProject();
+            view.setType(environment.getType());
+            view.selectMemory(RAM.detect(ram));
         }
     }
 
@@ -417,7 +446,9 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
 
         }
 
-        RunnerConfiguration config = dtoFactory.createDto(RunnerConfiguration.class).withRam(environment.getRam());
+        Map<String, String> variables = new HashMap<>();
+        variables.put(CONFIGURATION_TYPE, environment.getType());
+        RunnerConfiguration config = dtoFactory.createDto(RunnerConfiguration.class).withRam(environment.getRam()).withVariables(variables);
 
         runnerConfigs.put(environmentId, config);
 
@@ -550,7 +581,8 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
         view.selectShutdown(getTimeout());
         view.selectMemory(ram);
         view.setName(environmentName);
-        view.setType(environment.getType());
+        String type = getType(environment);
+        view.setType(type);
         view.selectScope(scope);
 
         String defaultRunner = currentProject.getRunner();
