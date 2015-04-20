@@ -67,6 +67,7 @@ public class NameGenerator {
             index++;
         }
 
+        //TODO copy name mustn't contain + or ++. It's variant for C++, but in future need add more suitable solving.
         return copyName.endsWith("++") ? copyName.replace("++", "") : copyName;
     }
 
