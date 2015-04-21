@@ -37,6 +37,7 @@ public class WorkspaceMappingPresenter {
     private final AppContext                               appContext;
     private final NotificationManager                      notificationManager;
     private final EventBus                                 eventBus;
+    private       LocalizationConstant                     localizationConstant;
     private final DialogFactory                            dialogFactory;
     private final WorkspaceToDirectoryMappingServiceClient service;
 
@@ -45,11 +46,13 @@ public class WorkspaceMappingPresenter {
 
     /** Create presenter. */
     @Inject
-    public WorkspaceMappingPresenter(DialogFactory dialogFactory,
+    public WorkspaceMappingPresenter(LocalizationConstant localizationConstant,
+                                     DialogFactory dialogFactory,
                                      AppContext appContext,
                                      NotificationManager notificationManager,
                                      WorkspaceToDirectoryMappingServiceClient service,
                                      EventBus eventBus) {
+        this.localizationConstant = localizationConstant;
         this.dialogFactory = dialogFactory;
         this.service = service;
         this.appContext = appContext;
@@ -65,7 +68,8 @@ public class WorkspaceMappingPresenter {
             public void onSuccess(Map<String, String> result) {
                 if (result == null || result.isEmpty()) {
                     final String wsId = appContext.getWorkspace().getId();
-                    getSetupDialog(wsId, "").show();
+                    getSetupDialog(localizationConstant.rootFolderDialogTitleNeedSetup(), localizationConstant.rootFolderDialogLabel(),
+                                   wsId, "").show();
                 }
             }
 
@@ -87,7 +91,8 @@ public class WorkspaceMappingPresenter {
                 Map.Entry<String, String> entry = result.entrySet().iterator().next();
                 final String wsId = entry.getKey();
                 final String path = entry.getValue();
-                getSetupDialog(wsId, path).show();
+                getSetupDialog(localizationConstant.rootFolderDialogTitleChange(), localizationConstant.rootFolderDialogLabel(), wsId, path)
+                        .show();
             }
 
             @Override
@@ -98,13 +103,9 @@ public class WorkspaceMappingPresenter {
         });
     }
 
-    public String getRootFolder() {
-        return rootFolder;
-    }
 
-
-    private InputDialog getSetupDialog(final String workspaceId, final String path) {
-        InputDialog inputDialog = dialogFactory.createInputDialog("Workspace", "Workspace", path, 0, 0, new InputCallback() {
+    private InputDialog getSetupDialog(String title, String label, final String workspaceId, final String path) {
+        InputDialog inputDialog = dialogFactory.createInputDialog(title, label, path, 0, 0, new InputCallback() {
             @Override
             public void accepted(final String value) {
                 service.setMountPath(workspaceId, value, new AsyncRequestCallback<Map<String, String>>(new StringMapUnmarshaller()) {

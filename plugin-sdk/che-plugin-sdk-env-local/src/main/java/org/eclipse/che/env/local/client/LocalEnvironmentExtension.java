@@ -30,7 +30,6 @@ public class LocalEnvironmentExtension {
 
     @Inject
     public LocalEnvironmentExtension(WorkspaceMappingPresenter presenter, ActionManager actionManager, ShowWorkspaceMappingDirAction action) {
-        Window.alert("sffffffffffff");
         this.actionManager = actionManager;
         DefaultActionGroup fileGroup = (DefaultActionGroup)actionManager.getAction(IdeActions.GROUP_FILE);
         actionManager.registerAction("showWorkspaceMappingDirAction", action);
