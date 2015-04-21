@@ -16,6 +16,18 @@ import com.google.gwt.i18n.client.Messages;
 public interface LocalizationConstant extends Messages {
 
 
+    @Key("che.rootFolder.dialog.title")
+    @DefaultMessage("Need setup root folder location")
+    String rootFolderDialogTitleNeedSetup();
+
+    @Key("che.rootFolder.dialog.title")
+    @DefaultMessage("Change toot folder location")
+    String rootFolderDialogTitleChange();
+
+    @Key("che.rootFolder.dialog.label")
+    @DefaultMessage("Root folder:")
+    String rootFolderDialogLabel();
+
     @Key("che.projectClosed.title")
     String cheTabTitle();
 
