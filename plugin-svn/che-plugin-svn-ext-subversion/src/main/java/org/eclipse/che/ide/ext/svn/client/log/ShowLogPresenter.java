@@ -87,9 +87,6 @@ public class ShowLogPresenter extends SubversionActionPresenter {
                 new AsyncRequestCallback<InfoResponse>(dtoUnmarshallerFactory.newUnmarshaller(InfoResponse.class)) {
                     @Override
                     protected void onSuccess(InfoResponse result) {
-                        printCommand(result.getCommand());
-                        printAndSpace(result.getOutput());
-
                         view.setRevisionCount(result.getRevision());
                         view.rangeFiend().setValue("1:" + result.getRevision());
                         view.show();
