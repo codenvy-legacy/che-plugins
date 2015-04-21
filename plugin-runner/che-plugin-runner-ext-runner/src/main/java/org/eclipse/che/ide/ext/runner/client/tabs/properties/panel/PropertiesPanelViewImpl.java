@@ -50,8 +50,8 @@ import java.util.Set;
 import static org.eclipse.che.ide.ext.runner.client.tabs.container.tab.Background.BLUE;
 import static org.eclipse.che.ide.ext.runner.client.tabs.container.tab.Background.GREY;
 import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.DEFAULT;
-import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MiB_100;
-import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MiB_8000;
+import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MB_128;
+import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MB_8192;
 import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope.PROJECT;
 import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope.SYSTEM;
 
@@ -124,7 +124,7 @@ public class PropertiesPanelViewImpl extends Composite implements PropertiesPane
 
         this.widgetFactory = widgetFactory;
 
-        prepareField(ram, EnumSet.range(MiB_100, MiB_8000));
+        prepareField(ram, EnumSet.range(MB_128, MB_8192));
         prepareField(scope, EnumSet.range(PROJECT, SYSTEM));
         prepareField(boot, EnumSet.allOf(Boot.class));
         prepareField(shutdown, EnumSet.allOf(Shutdown.class));

@@ -19,14 +19,14 @@ import javax.annotation.Nonnull;
  * @author Dmitry Shnurenko
  */
 public enum RAM {
-    MiB_100(100),
-    MiB_200(200),
-    MiB_500(500),
-    MiB_1000(1000),
-    MiB_2000(2000),
-    MiB_4000(4000),
-    MiB_8000(8000),
-    DEFAULT(1000);
+    MB_128(128),
+    MB_256(256),
+    MB_512(512),
+    MB_1024(1024),
+    MB_2048(2048),
+    MB_4096(4096),
+    MB_8192(8192),
+    DEFAULT(1024);
 
     private final int size;
 

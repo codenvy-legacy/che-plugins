@@ -36,7 +36,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MiB_200;
+import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MB_256;
 
 /**
  * @author Dmitry Shnurenko
@@ -141,12 +141,12 @@ public class RunActionTest {
 
         when(environment.getName()).thenReturn(SOME_STRING);
         when(environment.getId()).thenReturn(SOME_STRING);
-        when(environment.getRam()).thenReturn(MiB_200.getValue());
+        when(environment.getRam()).thenReturn(MB_256.getValue());
 
         when(dtoFactory.createDto(RunOptions.class)).thenReturn(runOptions);
         when(runOptions.withOptions(Matchers.<Map<String, String>>any())).thenReturn(runOptions);
         when(runOptions.withEnvironmentId(anyString())).thenReturn(runOptions);
-        when(runOptions.withMemorySize(MiB_200.getValue())).thenReturn(runOptions);
+        when(runOptions.withMemorySize(MB_256.getValue())).thenReturn(runOptions);
 
         action.actionPerformed(actionEvent);
 
@@ -159,7 +159,7 @@ public class RunActionTest {
         verify(dtoFactory).createDto(RunOptions.class);
         verify(runOptions).withOptions(Matchers.<Map<String, String>>any());
         verify(runOptions).withEnvironmentId(anyString());
-        verify(runOptions).withMemorySize(MiB_200.getValue());
+        verify(runOptions).withMemorySize(MB_256.getValue());
 
         verify(runOptions).withOptions(Matchers.<Map<String, String>>any());
         verify(runnerManager).launchRunner(runOptions, SOME_STRING);
