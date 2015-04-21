@@ -58,8 +58,6 @@ public class WorkspaceMappingPresenter {
         this.appContext = appContext;
         this.notificationManager = notificationManager;
         this.eventBus = eventBus;
-
-        init();
     }
 
 
@@ -67,6 +65,7 @@ public class WorkspaceMappingPresenter {
         service.getDirectoryMapping(new AsyncRequestCallback<Map<String, String>>(new StringMapUnmarshaller()) {
             @Override
             public void onSuccess(Map<String, String> result) {
+                Log.info(this.getClass(), result);
                 if (result == null || result.isEmpty()) {
                     final String wsId = appContext.getWorkspace().getId();
                     getSetupDialog(localizationConstant.rootFolderDialogTitleNeedSetup(), localizationConstant.rootFolderDialogLabel(),
@@ -86,14 +85,18 @@ public class WorkspaceMappingPresenter {
         service.getDirectoryMapping(new AsyncRequestCallback<Map<String, String>>(new StringMapUnmarshaller()) {
             @Override
             public void onSuccess(Map<String, String> result) {
-                if (result == null && result.isEmpty()) {
-                    return;
+                if (result == null || result.isEmpty()) {
+                    final String wsId = appContext.getWorkspace().getId();
+                    getSetupDialog(localizationConstant.rootFolderDialogTitleChange(), localizationConstant.rootFolderDialogLabel(), wsId, "")
+                            .show();
+                } else {
+                    Map.Entry<String, String> entry = result.entrySet().iterator().next();
+                    final String wsId = entry.getKey();
+                    final String path = entry.getValue();
+                    getSetupDialog(localizationConstant.rootFolderDialogTitleChange(), localizationConstant.rootFolderDialogLabel(), wsId,
+                                   path)
+                            .show();
                 }
-                Map.Entry<String, String> entry = result.entrySet().iterator().next();
-                final String wsId = entry.getKey();
-                final String path = entry.getValue();
-                getSetupDialog(localizationConstant.rootFolderDialogTitleChange(), localizationConstant.rootFolderDialogLabel(), wsId, path)
-                        .show();
             }
 
             @Override
