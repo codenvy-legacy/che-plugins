@@ -40,7 +40,7 @@ import org.eclipse.che.ide.ui.dialogs.message.MessageDialog;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
-import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MB_4096;
+import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MiB_4000;
 
 /**
  * This action executes a request on the server side for getting resources of project. These resources are used for checking RAM and
@@ -253,7 +253,7 @@ public class CheckRamAndRunAction extends AbstractRunnerAction {
             return false;
         }
 
-        if (overrideMemory > MB_4096.getValue()) {
+        if (overrideMemory > MiB_4000.getValue()) {
             consoleContainer.printInfo(runner, constant.messagesLargeMemoryRequest());
         }
 

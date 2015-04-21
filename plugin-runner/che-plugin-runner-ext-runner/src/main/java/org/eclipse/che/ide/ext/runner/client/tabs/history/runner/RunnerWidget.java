@@ -129,7 +129,7 @@ public class RunnerWidget implements RunnerItems<Runner> {
         changeRunnerStatusIcon();
 
         itemWidget.setName(runner.getTitle());
-        itemWidget.setDescription(runner.getRAM() + "MB");
+        itemWidget.setDescription(runner.getRAM() + "MiB");
         itemWidget.setStartTime(runner.getCreationTime());
     }
 
