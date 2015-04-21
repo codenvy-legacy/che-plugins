@@ -78,8 +78,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.eclipse.che.ide.ext.runner.client.models.EnvironmentImpl.ROOT_FOLDER;
-import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MiB_1000;
-import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MiB_500;
+import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MB_1024;
+import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MB_512;
 import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope.PROJECT;
 import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope.SYSTEM;
 import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.impl.PropertiesEnvironmentPanel.ENVIRONMENT_ID_PREFIX;
@@ -251,19 +251,19 @@ public class PropertiesEnvironmentPanelTest {
         when(currentProject.getProjectDescription()).thenReturn(projectDescriptor);
         when(projectDescriptor.getRunners()).thenReturn(runnersDescriptor);
         when(runnersDescriptor.getConfigs()).thenReturn(runnerConfigs);
-        when(runner.getRAM()).thenReturn(MiB_500.getValue());
+        when(runner.getRAM()).thenReturn(MB_512.getValue());
         when(unmarshallerFactory.newArrayUnmarshaller(ItemReference.class)).thenReturn(unmarshaller);
 
         when(environment.getScope()).thenReturn(SYSTEM);
         when(environment.getPath()).thenReturn(TEXT);
         when(environment.getName()).thenReturn(TEXT);
         when(environment.getType()).thenReturn(TEXT);
-        when(environment.getRam()).thenReturn(MiB_500.getValue());
+        when(environment.getRam()).thenReturn(MB_512.getValue());
         when(environment.getId()).thenReturn(TEXT);
 
         when(dtoFactory.createDto(RunnerConfiguration.class)).thenReturn(runnerConfiguration);
         when(runnerConfiguration.withRam(anyInt())).thenReturn(runnerConfiguration);
-        when(runnerConfiguration.getRam()).thenReturn(MiB_500.getValue());
+        when(runnerConfiguration.getRam()).thenReturn(MB_512.getValue());
         when(runnerConfiguration.withVariables(anyMap())).thenReturn(runnerConfiguration);
 
         when(currentProject.getCurrentTree()).thenReturn(treeStructure);
@@ -342,11 +342,11 @@ public class PropertiesEnvironmentPanelTest {
 
         verify(environment, times(3)).getId();
         verify(environment).getScope();
-        verify(environment).setRam(MiB_500.getValue());
-        verify(view).selectMemory(MiB_500);
+        verify(environment).setRam(MB_512.getValue());
+        verify(view).selectMemory(MB_512);
 
         verify(dtoFactory).createDto(RunnerConfiguration.class);
-        verify(runnerConfiguration).withRam(MiB_500.getValue());
+        verify(runnerConfiguration).withRam(MB_512.getValue());
 
         verify(asyncCallbackBuilder, times(2)).failure(any(FailureCallback.class));
         verify(asyncCallbackBuilder, times(2)).build();
@@ -399,7 +399,7 @@ public class PropertiesEnvironmentPanelTest {
         verify(view, times(2)).setEnableSaveButton(false);
         verify(view, times(2)).setEnableDeleteButton(false);
 
-        verify(view).selectMemory(MiB_500);
+        verify(view).selectMemory(MB_512);
         verify(projectEnvironmentsAction).perform();
         verify(dtoFactory).createDto(RunnerConfiguration.class);
     }
@@ -483,7 +483,7 @@ public class PropertiesEnvironmentPanelTest {
     @Test
     public void saveButtonShouldBeClickedWhenEditorIsNotDirty() throws Exception {
         when(editorProvider.getEditor()).thenReturn(editor);
-        when(view.getRam()).thenReturn(MiB_500);
+        when(view.getRam()).thenReturn(MB_512);
         when(view.getName()).thenReturn(TEXT);
         when(environment.getName()).thenReturn(TEXT2);
         when(projectDescriptor.getPath()).thenReturn(TEXT);
@@ -506,7 +506,7 @@ public class PropertiesEnvironmentPanelTest {
         verify(editor).isDirty();
 
         verify(dtoFactory).createDto(RunnerConfiguration.class);
-        verify(runnerConfiguration).withRam(MiB_500.getValue());
+        verify(runnerConfiguration).withRam(MB_512.getValue());
 
         verify(projectService, times(2)).updateProject(anyString(),
                                                        eq(projectDescriptor),
@@ -524,7 +524,7 @@ public class PropertiesEnvironmentPanelTest {
     @Test
     public void saveButtonShouldBeClickedButRenameFileFailed() throws Exception {
         when(editorProvider.getEditor()).thenReturn(editor);
-        when(view.getRam()).thenReturn(MiB_500);
+        when(view.getRam()).thenReturn(MB_512);
         when(view.getName()).thenReturn(TEXT);
         when(environment.getName()).thenReturn(TEXT2);
         when(exception.getMessage()).thenReturn(TEXT);
@@ -550,7 +550,7 @@ public class PropertiesEnvironmentPanelTest {
     @Test
     public void saveButtonShouldBeClickedWhenEditorIsDirty() throws Exception {
         when(editorProvider.getEditor()).thenReturn(editor);
-        when(view.getRam()).thenReturn(MiB_500);
+        when(view.getRam()).thenReturn(MB_512);
         when(view.getName()).thenReturn(TEXT);
         when(environment.getName()).thenReturn(TEXT2);
         when(editor.isDirty()).thenReturn(true);
@@ -598,7 +598,7 @@ public class PropertiesEnvironmentPanelTest {
         verify(view).setEnableCancelButton(false);
 
         verify(dtoFactory).createDto(RunnerConfiguration.class);
-        verify(runnerConfiguration).withRam(MiB_500.getValue());
+        verify(runnerConfiguration).withRam(MB_512.getValue());
 
         assertThat(runnerConfigs.containsKey(ENVIRONMENT_ID_PREFIX + TEXT), is(true));
     }
@@ -606,7 +606,7 @@ public class PropertiesEnvironmentPanelTest {
     @Test
     public void updateProjectShouldBeSuccessfulWhenClickOnSaveButton() throws Exception {
         reset(view);
-        when(view.getRam()).thenReturn(MiB_500);
+        when(view.getRam()).thenReturn(MB_512);
 
         presenter.onSaveButtonClicked();
 
@@ -625,7 +625,7 @@ public class PropertiesEnvironmentPanelTest {
     @Test
     public void saveButtonShouldBeClickedButSaveEditorFailed() throws Exception {
         when(editorProvider.getEditor()).thenReturn(editor);
-        when(view.getRam()).thenReturn(MiB_500);
+        when(view.getRam()).thenReturn(MB_512);
         when(view.getName()).thenReturn(TEXT);
         when(environment.getName()).thenReturn(TEXT2);
         when(editor.isDirty()).thenReturn(true);
@@ -849,9 +849,9 @@ public class PropertiesEnvironmentPanelTest {
 
         verify(view).incorrectName(false);
         verify(environment).getId();
-        verify(environment).setRam(MiB_1000.getValue());
+        verify(environment).setRam(MB_1024.getValue());
         verify(view).setName(TEXT);
-        verify(view).selectMemory(MiB_1000);
+        verify(view).selectMemory(MB_1024);
         verify(environment, times(3)).getScope();
         verify(view).selectScope(SYSTEM);
     }
@@ -870,9 +870,9 @@ public class PropertiesEnvironmentPanelTest {
         verify(view).incorrectName(false);
         verify(environment).getName();
         verify(environment).getId();
-        verify(environment).setRam(MiB_1000.getValue());
+        verify(environment).setRam(MB_1024.getValue());
         verify(view).setName(TEXT);
-        verify(view).selectMemory(MiB_1000);
+        verify(view).selectMemory(MB_1024);
         verify(environment, times(3)).getScope();
         verify(view).selectScope(PROJECT);
     }
@@ -882,7 +882,7 @@ public class PropertiesEnvironmentPanelTest {
         reset(appContext, view);
         when(environment.getScope()).thenReturn(SYSTEM);
         when(environment.getName()).thenReturn(TEXT);
-        when(environment.getRam()).thenReturn(MiB_500.getValue());
+        when(environment.getRam()).thenReturn(MB_512.getValue());
         when(environment.getPath()).thenReturn(TEXT);
         when(appContext.getCurrentProject()).thenReturn(currentProject);
         when(environment.getScope()).thenReturn(PROJECT);
@@ -983,7 +983,7 @@ public class PropertiesEnvironmentPanelTest {
         reset(editorProvider, view, environment);
         when(environment.getScope()).thenReturn(SYSTEM);
         when(environment.getName()).thenReturn(TEXT);
-        when(environment.getRam()).thenReturn(MiB_500.getValue());
+        when(environment.getRam()).thenReturn(MB_512.getValue());
 
         EditorPartPresenter editor2 = mock(TestEditor.class);
         when(editor2.getEditorInput()).thenReturn(editorInput);
@@ -1027,9 +1027,9 @@ public class PropertiesEnvironmentPanelTest {
         verify(handlesUndoRedo, times(3)).undoable();
 
         verify(environment).getId();
-        verify(environment).setRam(MiB_1000.getValue());
+        verify(environment).setRam(MB_1024.getValue());
         verify(view).setName(TEXT);
-        verify(view).selectMemory(MiB_1000);
+        verify(view).selectMemory(MB_1024);
         verify(environment, times(3)).getScope();
         verify(view).selectScope(SYSTEM);
     }
@@ -1056,9 +1056,9 @@ public class PropertiesEnvironmentPanelTest {
 
         verify(environment, times(5)).getId();
         verify(environment).getName();
-        verify(environment).setRam(MiB_500.getValue());
+        verify(environment).setRam(MB_512.getValue());
 
-        verify(view).selectMemory(MiB_500);
+        verify(view).selectMemory(MB_512);
         verify(view).setName(TEXT);
         verify(view).setType(TEXT);
         verify(view).selectScope(SYSTEM);
@@ -1084,9 +1084,9 @@ public class PropertiesEnvironmentPanelTest {
 
         verify(environment, times(4)).getId();
         verify(environment).getName();
-        verify(environment).setRam(MiB_500.getValue());
+        verify(environment).setRam(MB_512.getValue());
 
-        verify(view).selectMemory(MiB_500);
+        verify(view).selectMemory(MB_512);
         verify(view).setName(TEXT);
         verify(view).setType(TEXT);
         verify(view).selectScope(SYSTEM);
@@ -1097,13 +1097,13 @@ public class PropertiesEnvironmentPanelTest {
 
     @Test
     public void configurationShouldBeChanged() throws Exception {
-        when(view.getRam()).thenReturn(MiB_500);
+        when(view.getRam()).thenReturn(MB_512);
         when(view.getName()).thenReturn(TEXT);
         when(environment.getScope()).thenReturn(PROJECT);
 
         presenter.onConfigurationChanged();
 
-        verify(environment).setRam(500);
+        verify(environment).setRam(512);
         verify(environment, times(2)).getScope();
         verify(view).getRam();
         verify(view).setEnableSaveButton(true);
@@ -1123,7 +1123,7 @@ public class PropertiesEnvironmentPanelTest {
 
     @Test
     public void nameShouldBeCorrect() {
-        when(view.getRam()).thenReturn(MiB_500);
+        when(view.getRam()).thenReturn(MB_512);
         when(view.getName()).thenReturn(TEXT);
         when(environment.getScope()).thenReturn(PROJECT);
 

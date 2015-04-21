@@ -33,6 +33,7 @@ import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.docker
 import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.docker.DockerFileEditorInput;
 import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.docker.DockerFileFactory;
 import org.eclipse.che.ide.ext.runner.client.util.TimerFactory;
+import org.eclipse.che.ide.ext.runner.client.util.annotations.LeftPanel;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -43,7 +44,7 @@ import org.mockito.Mock;
 import java.util.HashMap;
 
 import static org.eclipse.che.ide.ext.runner.client.constants.TimeInterval.ONE_SEC;
-import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MiB_500;
+import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MB_512;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -112,7 +113,7 @@ public class PropertiesRunnerPanelTest {
                                   runner, tabContainer, locale);
 
         when(runner.getTitle()).thenReturn(TEXT);
-        when(runner.getRAM()).thenReturn(MiB_500.getValue());
+        when(runner.getRAM()).thenReturn(MB_512.getValue());
         when(runner.getScope()).thenReturn(Scope.SYSTEM);
         when(runner.getType()).thenReturn(TEXT);
         when(runner.getTitle()).thenReturn(TEXT);
@@ -138,7 +139,7 @@ public class PropertiesRunnerPanelTest {
         verify(editor).init(any(DockerFileEditorInput.class));
 
         verify(runner, times(2)).getRAM();
-        verify(view).selectMemory(MiB_500);
+        verify(view).selectMemory(MB_512);
 
         verify(timer).schedule(ONE_SEC.getValue());
 

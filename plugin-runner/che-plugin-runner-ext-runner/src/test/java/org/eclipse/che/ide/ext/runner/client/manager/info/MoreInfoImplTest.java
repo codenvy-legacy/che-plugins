@@ -41,7 +41,7 @@ public class MoreInfoImplTest {
         when(runner.getStopTime()).thenReturn(SOME_TEXT);
         when(runner.getTimeout()).thenReturn(SOME_TEXT);
         when(runner.getActiveTime()).thenReturn(SOME_TEXT);
-        when(runner.getRAM()).thenReturn(100);
+        when(runner.getRAM()).thenReturn(128);
 
         widget.update(runner);
 
@@ -49,7 +49,7 @@ public class MoreInfoImplTest {
         verify(widget.finished).setText(SOME_TEXT);
         verify(widget.timeout).setText(SOME_TEXT);
         verify(widget.activeTime).setText(SOME_TEXT);
-        verify(widget.ram).setText("100MiB");
+        verify(widget.ram).setText("128MB");
     }
 
     @Test
@@ -60,7 +60,7 @@ public class MoreInfoImplTest {
         verify(widget.finished).setText(TIMER_STUB);
         verify(widget.timeout).setText(TIMER_STUB);
         verify(widget.activeTime).setText(TIMER_STUB);
-        verify(widget.ram).setText("0MiB");
+        verify(widget.ram).setText("0MB");
     }
 
 }
