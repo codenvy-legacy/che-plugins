@@ -106,7 +106,7 @@ public class RunnerWidgetTest {
 
         when(resources.runnerCss()).thenReturn(css);
         when(runner.getTitle()).thenReturn(TEXT);
-        when(runner.getRAM()).thenReturn(512);
+        when(runner.getRAM()).thenReturn(500);
         when(runner.getCreationTime()).thenReturn(TEXT);
 
         runnerWidget.setDelegate(delegate);
@@ -321,7 +321,7 @@ public class RunnerWidgetTest {
         verify(runner).getTitle();
         verify(itemWidget).setName(TEXT);
         verify(runner).getRAM();
-        verify(itemWidget).setDescription("512MB");
+        verify(itemWidget).setDescription("500MiB");
         verify(runner).getCreationTime();
         verify(itemWidget).setStartTime(TEXT);
     }

@@ -49,7 +49,7 @@ public class DefaultRunnerInfoImplTest {
     public void setUp() {
         when(environment.getName()).thenReturn(SOME_TEXT);
         when(environment.getType()).thenReturn(SOME_TEXT);
-        when(environment.getRam()).thenReturn(512);
+        when(environment.getRam()).thenReturn(500);
     }
 
     @Test
@@ -58,7 +58,7 @@ public class DefaultRunnerInfoImplTest {
 
         verify(view.name).setText(SOME_TEXT);
         verify(view.type).setText(SOME_TEXT);
-        verify(view.ram).setText("512 mb");
+        verify(view.ram).setText("500 MiB");
 
         verify(environment).getName();
         verify(environment).getType();

@@ -43,8 +43,8 @@ import static org.eclipse.che.api.runner.internal.Constants.LINK_REL_STOP;
 import static org.eclipse.che.api.runner.internal.Constants.LINK_REL_VIEW_LOG;
 import static org.eclipse.che.api.runner.internal.Constants.LINK_REL_WEB_URL;
 import static org.eclipse.che.ide.ext.runner.client.models.RunnerImpl.DATE_TIME_FORMAT;
-import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MB_1024;
-import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MB_2048;
+import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MiB_1000;
+import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MiB_2000;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -121,7 +121,7 @@ public class RunnerImplTest {
     }
 
     private void initConstructorParameter() {
-        when(runOptions.getMemorySize()).thenReturn(MB_2048.getValue());
+        when(runOptions.getMemorySize()).thenReturn(MiB_2000.getValue());
         when(runnerCounter.getRunnerNumber()).thenReturn(RUNNER_NUMBER);
         when(locale.runnerTabConsole()).thenReturn(TEXT);
     }
@@ -138,7 +138,7 @@ public class RunnerImplTest {
         verify(locale).runnerTabConsole();
 
         assertThat(runner.getActiveTab(), is(TEXT));
-        assertThat(runner.getRAM(), is(MB_2048.getValue()));
+        assertThat(runner.getRAM(), is(MiB_2000.getValue()));
         assertThat(runner.getStatus(), is(Runner.Status.IN_QUEUE));
     }
 
@@ -185,11 +185,11 @@ public class RunnerImplTest {
 
     @Test
     public void ramShouldBeChanged() {
-        assertThat(runner.getRAM(), is(MB_2048.getValue()));
+        assertThat(runner.getRAM(), is(MiB_2000.getValue()));
 
-        runner.setRAM(MB_1024.getValue());
+        runner.setRAM(MiB_1000.getValue());
 
-        assertThat(runner.getRAM(), is(MB_1024.getValue()));
+        assertThat(runner.getRAM(), is(MiB_1000.getValue()));
     }
 
     @Test

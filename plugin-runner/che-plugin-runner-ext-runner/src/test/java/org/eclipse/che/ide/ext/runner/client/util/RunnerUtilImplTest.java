@@ -41,7 +41,7 @@ import javax.annotation.Nonnegative;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MB_128;
+import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MiB_100;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
@@ -134,12 +134,12 @@ public class RunnerUtilImplTest {
 
     @Test
     public void errorMessageShouldBeShownWhenMemoryNotMultiple128() throws Exception {
-        when(locale.ramSizeMustBeMultipleOf(MB_128.getValue())).thenReturn(SOME_TEXT);
+        when(locale.ramSizeMustBeMultipleOf(MiB_100.getValue())).thenReturn(SOME_TEXT);
 
         boolean isCorrect = util.isRunnerMemoryCorrect(125, 123, 125);
 
         verifyShowWarning();
-        verify(locale).ramSizeMustBeMultipleOf(MB_128.getValue());
+        verify(locale).ramSizeMustBeMultipleOf(MiB_100.getValue());
 
         assertThat(isCorrect, is(false));
     }
@@ -148,10 +148,10 @@ public class RunnerUtilImplTest {
     public void errorMessageShouldBeShownWhenUsedMemoryMoreTotalMemory() throws Exception {
         when(locale.messagesTotalRamLessCustom(anyInt(), anyInt())).thenReturn(SOME_TEXT);
 
-        boolean isCorrect = util.isRunnerMemoryCorrect(125, 128, 125);
+        boolean isCorrect = util.isRunnerMemoryCorrect(99, 100, 99);
 
         verifyShowWarning();
-        verify(locale).messagesTotalRamLessCustom(128, 125);
+        verify(locale).messagesTotalRamLessCustom(100, 99);
 
         assertThat(isCorrect, is(false));
     }
@@ -160,17 +160,17 @@ public class RunnerUtilImplTest {
     public void errorMessageShouldBeShownWhenUsedMemoryMoreAvailableMemory() throws Exception {
         when(locale.messagesAvailableRamLessCustom(anyInt(), anyInt(), anyInt())).thenReturn(SOME_TEXT);
 
-        boolean isCorrect = util.isRunnerMemoryCorrect(257, 256, 128);
+        boolean isCorrect = util.isRunnerMemoryCorrect(257, 200, 128);
 
         verifyShowWarning();
-        verify(locale).messagesAvailableRamLessCustom(256, 257, 129);
+        verify(locale).messagesAvailableRamLessCustom(200, 257, 129);
 
         assertThat(isCorrect, is(false));
     }
 
     @Test
     public void memoryShouldBeCorrect() throws Exception {
-        boolean isCorrect = util.isRunnerMemoryCorrect(256, 256, 256);
+        boolean isCorrect = util.isRunnerMemoryCorrect(200, 200, 200);
 
         assertThat(isCorrect, is(true));
 
