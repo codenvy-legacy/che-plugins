@@ -20,6 +20,7 @@ import com.google.gwt.event.dom.client.MouseOverHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.PopupPanel;
@@ -38,6 +39,7 @@ import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope;
 import org.eclipse.che.ide.ext.runner.client.tabs.templates.defaultrunnerinfo.DefaultRunnerInfo;
 import org.eclipse.che.ide.ext.runner.client.tabs.templates.environment.EnvironmentWidget;
 import org.eclipse.che.ide.ext.runner.client.tabs.templates.filterwidget.FilterWidget;
+import org.eclipse.che.ide.util.Config;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -75,6 +77,10 @@ public class TemplatesViewImpl extends Composite implements TemplatesView {
     SimpleLayoutPanel defaultRunner;
     @UiField
     FlowPanel         createNewButton;
+    @UiField
+    DockLayoutPanel templatesPanel;
+    @UiField
+    FlowPanel       defaultRunnerPanel;
 
     @UiField(provided = true)
     final RunnerResources            resources;
@@ -117,12 +123,18 @@ public class TemplatesViewImpl extends Composite implements TemplatesView {
 
         addDefaultRunnerInfoHandler();
 
-        createNewButton.addDomHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                delegate.createNewEnvironment();
-            }
-        }, ClickEvent.getType());
+        if (Config.isSdkProject()) {
+            templatesPanel.remove(defaultRunnerPanel);
+            templatesPanel.remove(defaultRunner);
+            templatesPanel.remove(filterPanel);
+        } else {
+            createNewButton.addDomHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    delegate.createNewEnvironment();
+                }
+            }, ClickEvent.getType());
+        }
     }
 
     private void addDefaultRunnerInfoHandler() {
