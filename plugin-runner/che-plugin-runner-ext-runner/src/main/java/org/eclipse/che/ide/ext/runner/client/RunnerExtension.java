@@ -26,6 +26,7 @@ import org.eclipse.che.ide.ext.runner.client.actions.RunAction;
 import org.eclipse.che.ide.ext.runner.client.actions.RunWithAction;
 import org.eclipse.che.ide.ext.runner.client.constants.ActionId;
 import org.eclipse.che.ide.ext.runner.client.manager.RunnerManagerPresenter;
+import org.eclipse.che.ide.util.Config;
 
 import static org.eclipse.che.ide.api.action.IdeActions.GROUP_BUILD_TOOLBAR;
 import static org.eclipse.che.ide.api.action.IdeActions.GROUP_MAIN_CONTEXT_MENU;
@@ -98,8 +99,10 @@ public class RunnerExtension {
         //add custom list of environments
         DefaultActionGroup runnersList = new DefaultActionGroup(RUNNER_LIST, false, actionManager);
         actionManager.registerAction(RUNNER_LIST, runnersList);
-        runnersList.add(createCustomRunner, FIRST);
-        runnersList.addSeparator();
+        if (!Config.isSdkProject()) {
+            runnersList.add(createCustomRunner, FIRST);
+            runnersList.addSeparator();
+        }
     }
 
 }

@@ -90,10 +90,10 @@
             font-size: 10pt;
         }
     </ui:style>
-    <g:DockLayoutPanel unit="PX" addStyleNames="{style.container}">
+    <g:DockLayoutPanel ui:field="templatesPanel" unit="PX" addStyleNames="{style.container}">
         <!--default runner panel-->
         <g:north size="45">
-            <g:FlowPanel>
+            <g:FlowPanel ui:field="defaultRunnerPanel">
                 <g:FlowPanel ui:field="createNewButton" addStyleNames="{style.button}">
                     <g:Label text="+ " addStyleNames="{style.plusLabel}"/>
                     <g:Label text="{locale.templateCreateNew}" addStyleNames="{style.buttonLabel}"/>
