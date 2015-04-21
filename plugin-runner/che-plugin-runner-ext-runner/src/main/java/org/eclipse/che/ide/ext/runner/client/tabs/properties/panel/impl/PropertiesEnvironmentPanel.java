@@ -74,7 +74,7 @@ import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common
 public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
 
     private static       RegExp FILE_NAME             = RegExp.compile("^[A-Za-z0-9_\\s-\\.]+$");
-    private static final String CONFIGURATION_TYPE    = "configuration.type";
+    private static final String CONFIGURATION_TYPE    = "configurationType";
     private static final String DOCKER_SCRIPT_NAME    = "/Dockerfile";
     public static final  String ENVIRONMENT_ID_PREFIX = "project://";
 
