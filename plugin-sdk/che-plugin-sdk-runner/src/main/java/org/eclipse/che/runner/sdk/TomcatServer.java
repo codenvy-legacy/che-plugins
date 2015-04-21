@@ -97,7 +97,7 @@ public class TomcatServer implements ApplicationServer {
                                      final SDKRunnerConfiguration runnerConfiguration,
                                      CodeServer.CodeServerProcess codeServerProcess,
                                      ApplicationProcess.Callback callback) throws RunnerException {
-        final Path tomcatPath;
+        Path tomcatPath;
         final Path webappsPath;
         final Path apiAppContextPath;
         try {

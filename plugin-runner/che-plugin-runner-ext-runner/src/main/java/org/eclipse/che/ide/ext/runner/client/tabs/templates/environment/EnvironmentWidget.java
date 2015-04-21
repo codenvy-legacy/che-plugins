@@ -97,6 +97,7 @@ public class EnvironmentWidget implements RunnerItems<Environment> {
     @Override
     public void update(@Nonnull Environment environment) {
         this.environment = environment;
+        this.environmentScope = environment.getScope();
 
         itemWidget.setName(environment.getName());
 

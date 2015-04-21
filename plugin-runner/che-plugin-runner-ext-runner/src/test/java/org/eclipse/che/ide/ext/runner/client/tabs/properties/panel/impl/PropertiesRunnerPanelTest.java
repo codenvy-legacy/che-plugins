@@ -14,6 +14,7 @@ import com.google.gwt.user.client.Timer;
 import com.google.gwtmockito.GwtMockitoTestRunner;
 
 import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
+import org.eclipse.che.api.workspace.shared.dto.WorkspaceDescriptor;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.editor.EditorInitException;
@@ -32,7 +33,6 @@ import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.docker
 import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.docker.DockerFileEditorInput;
 import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.docker.DockerFileFactory;
 import org.eclipse.che.ide.ext.runner.client.util.TimerFactory;
-import org.eclipse.che.ide.ext.runner.client.util.annotations.LeftPanel;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,8 +40,10 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 
+import java.util.HashMap;
+
 import static org.eclipse.che.ide.ext.runner.client.constants.TimeInterval.ONE_SEC;
-import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MB_512;
+import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MB_500;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -76,6 +78,8 @@ public class PropertiesRunnerPanelTest {
     @Mock
     private CurrentProject      currentProject;
     @Mock
+    private WorkspaceDescriptor         currentWorkspace;
+    @Mock
     private Timer               timer;
     @Mock
     private ProjectDescriptor   descriptor;
@@ -93,6 +97,8 @@ public class PropertiesRunnerPanelTest {
     public void setUp() {
         when(timerFactory.newInstance(any(TimerFactory.TimerCallBack.class))).thenReturn(timer);
         when(appContext.getCurrentProject()).thenReturn(currentProject);
+        when(appContext.getWorkspace()).thenReturn(currentWorkspace);
+        when(appContext.getWorkspace().getAttributes()).thenReturn(new HashMap<String, String>());
         when(currentProject.getProjectDescription()).thenReturn(descriptor);
         when(editorProvider.getEditor()).thenReturn(editor);
         when(dockerFileFactory.newInstance(TEXT)).thenReturn(file);
@@ -106,7 +112,7 @@ public class PropertiesRunnerPanelTest {
                                   runner, tabContainer, locale);
 
         when(runner.getTitle()).thenReturn(TEXT);
-        when(runner.getRAM()).thenReturn(MB_512.getValue());
+        when(runner.getRAM()).thenReturn(MB_500.getValue());
         when(runner.getScope()).thenReturn(Scope.SYSTEM);
         when(runner.getType()).thenReturn(TEXT);
         when(runner.getTitle()).thenReturn(TEXT);
@@ -132,7 +138,7 @@ public class PropertiesRunnerPanelTest {
         verify(editor).init(any(DockerFileEditorInput.class));
 
         verify(runner, times(2)).getRAM();
-        verify(view).selectMemory(MB_512);
+        verify(view).selectMemory(MB_500);
 
         verify(timer).schedule(ONE_SEC.getValue());
 
