@@ -20,6 +20,7 @@ import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
+import com.google.gwt.safehtml.shared.SimpleHtmlSanitizer;
 import org.eclipse.che.ide.api.event.RefreshProjectTreeEvent;
 import org.eclipse.che.ide.api.parts.ProjectExplorerPart;
 import org.eclipse.che.ide.ext.svn.client.action.SubversionAction;
@@ -237,7 +238,7 @@ public class SubversionActionPresenter {
                     for (String[] stcol : STATUS_COLORS) {
                         if (stcol[0].equals(prefix)) {
                             // TODO: Turn the file paths into links (where appropriate)
-                            console.print("<span style=\"color:" + stcol[1] + ";\">" + line + "</span>");
+                            console.print("<span style=\"color:" + stcol[1] + ";\">" + SimpleHtmlSanitizer.sanitizeHtml(line).asString() + "</span>");
 
                             found = true;
                             break;
@@ -246,14 +247,14 @@ public class SubversionActionPresenter {
                 }
 
                 if (!found) {
-                    console.print(line);
+                    console.print(SimpleHtmlSanitizer.sanitizeHtml(line).asString());
                 }
             }
         }
 
         if (errors != null) {
             for (final String line : errors) {
-                console.print("<span style=\"color:red;\">" + line + "</span>");
+                console.print("<span style=\"color:red;\">" + SimpleHtmlSanitizer.sanitizeHtml(line).asString() + "</span>");
             }
         }
 

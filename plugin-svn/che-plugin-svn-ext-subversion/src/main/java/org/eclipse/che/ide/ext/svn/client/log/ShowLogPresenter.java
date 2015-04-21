@@ -26,7 +26,7 @@ import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 
 /**
- * Shows logs for specified period.
+ * Manages the displaying commit log messages for specified period.
  */
 public class ShowLogPresenter extends SubversionActionPresenter {
 
@@ -37,6 +37,9 @@ public class ShowLogPresenter extends SubversionActionPresenter {
 
     private final ShowLogsView            view;
 
+    /**
+     * Creates an instance of this presenter.
+     */
     @Inject
     protected ShowLogPresenter(final AppContext appContext,
                                final DtoUnmarshallerFactory dtoUnmarshallerFactory,
@@ -72,6 +75,9 @@ public class ShowLogPresenter extends SubversionActionPresenter {
         });
     }
 
+    /**
+     * Fetches the count of revisions and opens the popup.
+     */
     public void showLog() {
         if (appContext.getCurrentProject() == null) {
             return;
@@ -97,6 +103,11 @@ public class ShowLogPresenter extends SubversionActionPresenter {
 
     }
 
+    /**
+     * Fetches and displays commit log messages for specified range.
+     *
+     * @param range range to be logged
+     */
     private void showLogs(String range) {
         subversionClientService.showLog(appContext.getCurrentProject().getRootProject().getPath(), getSelectedPaths(), range,
                 new AsyncRequestCallback<CLIOutputResponse>(dtoUnmarshallerFactory.newUnmarshaller(CLIOutputResponse.class)) {

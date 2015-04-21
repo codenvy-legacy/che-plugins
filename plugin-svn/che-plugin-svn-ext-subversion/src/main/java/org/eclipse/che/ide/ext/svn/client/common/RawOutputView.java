@@ -22,7 +22,7 @@ public interface RawOutputView extends View<RawOutputView.ActionDelegate> {
     /**
      * Action handler for the view actions/controls.
      */
-    public interface ActionDelegate extends BaseActionDelegate {
+    interface ActionDelegate extends BaseActionDelegate {
         /**
          * Handle the clear button.
          */
@@ -53,9 +53,4 @@ public interface RawOutputView extends View<RawOutputView.ActionDelegate> {
      */
     void scrollBottom();
 
-    void printInfo(String text);
-
-    void print(String text, String color);
-
-//    void printBold(String text);
 }

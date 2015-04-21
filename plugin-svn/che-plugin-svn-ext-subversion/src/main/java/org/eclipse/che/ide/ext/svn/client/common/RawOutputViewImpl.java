@@ -17,7 +17,6 @@ import org.eclipse.che.ide.api.parts.base.ToolButton;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.safehtml.shared.SimpleHtmlSanitizer;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.FlowPanel;
@@ -37,8 +36,6 @@ public class RawOutputViewImpl extends BaseView<RawOutputView.ActionDelegate> im
     interface RawOutputViewImplUiBinder extends UiBinder<Widget, RawOutputViewImpl> { }
 
     private static RawOutputViewImplUiBinder uiBinder = GWT.create(RawOutputViewImplUiBinder.class);
-
-    private static final String INFO_COLOR = "lightgreen";
 
     @UiField
     ScrollPanel scrollPanel;
@@ -82,30 +79,10 @@ public class RawOutputViewImpl extends BaseView<RawOutputView.ActionDelegate> im
 
     @Override
     public void print(String text) {
-        final String preStyle = " style='margin:0px; font-size: 11px;' ";
-        final HTML html = new HTML();
-
-        html.setHTML("<pre" + preStyle + "><span>" + text + "</span></pre>");
-        html.getElement().setAttribute("style", "padding-left: 2px;");
-
-        outputArea.add(html);
-    }
-
-    @Override
-    public void print(String text, String color) {
-        String preStyle = " style='margin:0px; font-size: 11px;' ";
-
         HTML html = new HTML();
-        html.setHTML("<pre" + preStyle + "><span style='color:" + SimpleHtmlSanitizer.sanitizeHtml(color).asString() +
-                ";'>" + SimpleHtmlSanitizer.sanitizeHtml(text).asString() + "</span></pre>");
-
+        html.setHTML("<pre style='margin:0px; font-size: 11px;'>" + text + "</pre>");
         html.getElement().setAttribute("style", "padding-left: 2px;");
         outputArea.add(html);
-    }
-
-    @Override
-    public void printInfo(String text) {
-        print(text, INFO_COLOR);
     }
 
     @Override

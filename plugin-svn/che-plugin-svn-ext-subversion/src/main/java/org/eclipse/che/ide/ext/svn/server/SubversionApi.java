@@ -821,6 +821,15 @@ public class SubversionApi {
                 .withCommand(result.getCommandLine().toString())
                 .withOutput(result.getStdout());
 
+        // Remove "Working Copy Root Path" property from the output
+        for (int i = 0; i < result.getStdout().size(); i++) {
+            String line = result.getStdout().get(i);
+            if (line.startsWith(InfoUtils.KEY_WORKING_COPY_ROOT_PATH + ":")) {
+                result.getStdout().remove(i);
+                break;
+            }
+        }
+
         if (result.getExitCode() == 0) {
             response.withRepositoryUrl(InfoUtils.getRepositoryUrl(result.getStdout()))
                     .withRepositoryRoot(InfoUtils.getRepositoryRootUrl(result.getStdout()))
