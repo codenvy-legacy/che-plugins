@@ -41,10 +41,10 @@ import java.util.EnumSet;
 import static org.eclipse.che.ide.ext.runner.client.tabs.container.tab.Background.BLUE;
 import static org.eclipse.che.ide.ext.runner.client.tabs.container.tab.Background.GREY;
 import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.DEFAULT;
-import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MB_1024;
-import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MB_128;
-import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MB_512;
-import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MB_8192;
+import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MB_1000;
+import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MB_100;
+import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MB_500;
+import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MB_8000;
 import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope.PROJECT;
 import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope.SYSTEM;
 import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Shutdown.ALWAYS_ON;
@@ -203,7 +203,7 @@ public class PropertiesPanelViewImplTest {
     }
 
     private void ramItemsShouldBeAdded() {
-        for (Enum item : EnumSet.range(MB_128, MB_8192)) {
+        for (Enum item : EnumSet.range(MB_100, MB_8000)) {
             verify(view.ram).addItem(item.toString().toLowerCase());
         }
     }
@@ -253,9 +253,9 @@ public class PropertiesPanelViewImplTest {
     @Test
     public void ramShouldBeReturned() {
         when(view.ram.getSelectedIndex()).thenReturn(2);
-        when(view.ram.getValue(2)).thenReturn(MB_512.toString());
+        when(view.ram.getValue(2)).thenReturn(MB_500.toString());
 
-        assertThat(view.getRam(), is(MB_512));
+        assertThat(view.getRam(), is(MB_500));
 
         verify(view.ram).getSelectedIndex();
         verify(view.ram).getValue(2);
@@ -263,14 +263,14 @@ public class PropertiesPanelViewImplTest {
 
     @Test
     public void defaultAmountMemoryShouldBeSelected() {
-        when(view.ram.getValue(MB_1024.ordinal())).thenReturn("1024");
+        when(view.ram.getValue(MB_1000.ordinal())).thenReturn("1000");
         when(view.ram.getItemCount()).thenReturn(RAM.values().length);
 
         view.selectMemory(DEFAULT);
 
         verify(view.ram).getItemCount();
         verify(view.ram, times(4)).getValue(anyInt());
-        verify(view.ram).setItemSelected(MB_1024.ordinal(), true);
+        verify(view.ram).setItemSelected(MB_1000.ordinal(), true);
     }
 
     @Test
@@ -286,9 +286,9 @@ public class PropertiesPanelViewImplTest {
 
     @Test
     public void amountMemoryShouldBeSelected() {
-        view.selectMemory(MB_1024);
+        view.selectMemory(MB_1000);
 
-        verify(view.ram).setItemSelected(MB_1024.ordinal(), true);
+        verify(view.ram).setItemSelected(MB_1000.ordinal(), true);
     }
 
     @Test

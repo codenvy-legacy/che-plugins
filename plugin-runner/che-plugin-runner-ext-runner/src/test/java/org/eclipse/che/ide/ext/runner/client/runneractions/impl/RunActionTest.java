@@ -38,7 +38,7 @@ import org.mockito.Captor;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 
-import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MB_512;
+import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MB_500;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
@@ -137,7 +137,7 @@ public class RunActionTest {
     @Test
     public void shouldSuccessPerform() {
         //preparing descriptor data
-        when(descriptor.getMemorySize()).thenReturn(MB_512.getValue());
+        when(descriptor.getMemorySize()).thenReturn(MB_500.getValue());
         when(descriptor.getProcessId()).thenReturn(12345678L);
 
         when(runner.getOptions()).thenReturn(runOptions);
@@ -152,7 +152,7 @@ public class RunActionTest {
         successCallback.onSuccess(descriptor);
 
         verify(runner).setProcessDescriptor(descriptor);
-        verify(runner).setRAM(MB_512.getValue());
+        verify(runner).setRAM(MB_500.getValue());
         verify(runner).setStatus(Runner.Status.IN_PROGRESS);
 
         verify(presenter).addRunnerId(12345678L);
