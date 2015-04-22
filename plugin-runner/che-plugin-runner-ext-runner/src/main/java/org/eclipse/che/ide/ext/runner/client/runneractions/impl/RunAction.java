@@ -10,6 +10,10 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.runner.client.runneractions.impl;
 
+import com.google.gwt.http.client.URL;
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+
 import org.eclipse.che.api.analytics.client.logger.AnalyticsEventLogger;
 import org.eclipse.che.api.runner.dto.ApplicationProcessDescriptor;
 import org.eclipse.che.api.runner.gwt.client.RunnerServiceClient;
@@ -26,9 +30,6 @@ import org.eclipse.che.ide.ext.runner.client.runneractions.AbstractRunnerAction;
 import org.eclipse.che.ide.ext.runner.client.runneractions.impl.launch.LaunchAction;
 import org.eclipse.che.ide.ext.runner.client.util.RunnerUtil;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
-
-import com.google.inject.Inject;
-import com.google.inject.Provider;
 
 import javax.annotation.Nonnull;
 
@@ -112,6 +113,12 @@ public class RunAction extends AbstractRunnerAction {
                     }
                 })
                 .build();
+
+        String encodedEnvironmentId = runner.getOptions().getEnvironmentId();
+        if (encodedEnvironmentId != null) {
+            encodedEnvironmentId = URL.encode(runner.getOptions().getEnvironmentId());
+        }
+        runner.getOptions().setEnvironmentId(encodedEnvironmentId);
 
         service.run(project.getProjectDescription().getPath(), runner.getOptions(), callback);
     }

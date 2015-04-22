@@ -87,6 +87,7 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isNull;
@@ -115,7 +116,7 @@ public class RunnerManagerPresenterTest {
     private static final String PROPERTIES     = "properties";
     private static final String STOPPED_RUNNER = "application shut down";
     private static final String APP_URL        = "http://runner1.codenvy.com/";
-    private static final int    RAM_SIZE       = 1024;
+    private static final int    RAM_SIZE       = 1000;
     private static final long   PROCESS_ID     = 1234567L;
 
     //mocks for constructor
@@ -313,8 +314,8 @@ public class RunnerManagerPresenterTest {
         when(definition.getRunnerCategories()).thenReturn(Arrays.asList(TEXT));
         when(currentProject.getAttributeValue("runner:skipBuild")).thenReturn("true");
         when(runOptions.withSkipBuild(true)).thenReturn(runOptions);
-        when(runOptions.withMemorySize(DEFAULT.getValue())).thenReturn(runOptions);
         when(runOptions.withOptions(any(Map.class))).thenReturn(runOptions);
+        when(runOptions.withMemorySize(anyInt())).thenReturn(runOptions);
         when(runOptions.withEnvironmentId(anyString())).thenReturn(runOptions);
 
         when(actionFactory.createCheckRamAndRun()).thenReturn(checkRamAndRunAction);
@@ -749,6 +750,7 @@ public class RunnerManagerPresenterTest {
         when(runnerEnvironment.getId()).thenReturn("myEnvId");
         Map<String, String> options = Collections.emptyMap();
         when(runnerEnvironment.getOptions()).thenReturn(options);
+        when(runnerEnvironment.getRam()).thenReturn(2);
 
         // click on Run
         presenter.onRunButtonClicked();
@@ -818,7 +820,7 @@ public class RunnerManagerPresenterTest {
         verify(dtoFactory, times(2)).createDto(RunOptions.class);
         verify(runOptions).withSkipBuild(true);
         verify(runOptions).withMemorySize(RAM_SIZE);
-        verify(runOptions).withEnvironmentId(TEXT);
+        verify(runOptions).withEnvironmentId(anyString());
         verify(modelsFactory).createRunner(runOptions);
 
         //verify launch runner
@@ -832,7 +834,6 @@ public class RunnerManagerPresenterTest {
 
     @Test
     public void defaultRunnerShouldBeLaunchedIfThisRunnerWasSelect() {
-        RunOptions defaultRunOptions = mock(RunOptions.class);
         RunnerConfiguration runnerConfiguration = mock(RunnerConfiguration.class);
         Map<String, RunnerConfiguration> configs = new HashMap<>();
         configs.put(TEXT, runnerConfiguration);
@@ -841,11 +842,15 @@ public class RunnerManagerPresenterTest {
         when(runnersDescriptor.getDefault()).thenReturn(TEXT);
         when(runnersDescriptor.getConfigs()).thenReturn(configs);
         when(runnerConfiguration.getRam()).thenReturn(RAM_SIZE);
-        when(runOptions.withMemorySize(RAM_SIZE)).thenReturn(defaultRunOptions);
-        when(modelsFactory.createRunner(defaultRunOptions)).thenReturn(runner);
+        when(runOptions.withMemorySize(RAM_SIZE)).thenReturn(runOptions);
         when(runActionPermit.isAllowed()).thenReturn(true);
         when(chooseRunnerAction.selectEnvironment()).thenReturn(runnerEnvironment);
         when(runnerEnvironment.getId()).thenReturn(TEXT);
+        Map<String, String> options = Collections.emptyMap();
+        when(runnerEnvironment.getOptions()).thenReturn(options);
+        when(runnerEnvironment.getRam()).thenReturn(2);
+        when(runnerEnvironment.getName()).thenReturn(TEXT);
+        when(modelsFactory.createRunner(runOptions, TEXT)).thenReturn(runner);
 
         presenter.addRunner(processDescriptor);
         reset(view, history);
@@ -862,8 +867,7 @@ public class RunnerManagerPresenterTest {
         verify(dtoFactory, times(2)).createDto(RunOptions.class);
         verify(runOptions).withSkipBuild(true);
         verify(runOptions).withMemorySize(RAM_SIZE);
-        verify(runOptions).withEnvironmentId(TEXT);
-        verify(modelsFactory).createRunner(runOptions);
+        verify(modelsFactory,times(2)).createRunner(runOptions);
 
         //verify launch runner
         verify(panelState, times(2)).setState(RUNNERS);
