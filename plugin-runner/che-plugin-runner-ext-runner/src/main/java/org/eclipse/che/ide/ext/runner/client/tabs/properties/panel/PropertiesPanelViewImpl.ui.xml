@@ -103,6 +103,10 @@
             float: left;
             margin-left: 24px;
         }
+        .portsPanel {
+            float: left;
+            margin-left: 127px;
+        }
     </ui:style>
 
     <g:DockLayoutPanel ui:field="propertiesPanel" unit="PX" addStyleNames="{resources.runnerCss.fullSize} {style.mainPanel}">
@@ -156,6 +160,14 @@
                             <g:Label text="{locale.templateDefaultRunner}" addStyleNames="{style.label} {resources.runnerCss.propertiesFont}"/>
                             <e:Switcher ui:field="projectDefault" addStyleNames="{style.switcher}"/>
                         </g:FlowPanel>
+                        <g:FlowPanel ui:field="portMappingHeader">
+                            <g:Label text="{locale.propertiesPortMapping}" addStyleNames="{resources.runnerCss.propertiesFont} {style.label}"
+                                    width="90px"/>
+                            <g:Label text="{locale.propertiesPortOpened}" addStyleNames="{resources.runnerCss.propertiesFont} {style.label}"
+                                     width="70px"/>
+                            <g:Label text="{locale.propertiesPortMappedTo}" addStyleNames="{resources.runnerCss.propertiesFont} {style.label}"/>
+                        </g:FlowPanel>
+                        <g:FlowPanel ui:field="portsPanel" addStyleNames="{resources.runnerCss.fontSizeTen} {style.label} {style.portsPanel}"/>
                     </g:FlowPanel>
             </g:FlowPanel>
         </g:west>

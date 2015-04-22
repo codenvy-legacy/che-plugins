@@ -22,6 +22,8 @@ import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
 import org.eclipse.che.api.project.shared.dto.ItemReference;
 import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.api.project.shared.dto.RunnerConfiguration;
+import org.eclipse.che.api.runner.dto.ApplicationProcessDescriptor;
+import org.eclipse.che.api.runner.dto.PortMapping;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.editor.EditorInput;
 import org.eclipse.che.ide.api.editor.EditorProvider;
@@ -39,7 +41,9 @@ import org.eclipse.che.ide.ext.runner.client.callbacks.AsyncCallbackBuilder;
 import org.eclipse.che.ide.ext.runner.client.callbacks.FailureCallback;
 import org.eclipse.che.ide.ext.runner.client.callbacks.SuccessCallback;
 import org.eclipse.che.ide.ext.runner.client.models.Environment;
+import org.eclipse.che.ide.ext.runner.client.models.Runner;
 import org.eclipse.che.ide.ext.runner.client.runneractions.impl.environments.GetProjectEnvironmentsAction;
+import org.eclipse.che.ide.ext.runner.client.runneractions.impl.launch.common.RunnerApplicationStatusEventHandler;
 import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.PropertiesPanelPresenter;
 import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.PropertiesPanelView;
 import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.EnvironmentScript;
@@ -65,6 +69,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.eclipse.che.ide.ext.runner.client.models.EnvironmentImpl.ROOT_FOLDER;
+import static org.eclipse.che.ide.ext.runner.client.runneractions.impl.launch.common.RunnerApplicationStatusEvent.TYPE;
 import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope.PROJECT;
 
 /**
@@ -174,6 +179,8 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
         runnerConfigs = projectDescriptor.getRunners().getConfigs();
 
         currentRam = getRam(environment.getId());
+
+        configureStatusRunEventHandler();
     }
 
     @Nonnegative
@@ -606,5 +613,27 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
     @Override
     public void addListener(@Nonnull RemovePanelListener listener) {
         listeners.add(listener);
+    }
+
+    private void configureStatusRunEventHandler() {
+        eventBus.addHandler(TYPE, new RunnerApplicationStatusEventHandler() {
+            @Override
+            public void onRunnerStatusChanged(@Nonnull final Runner runner) {
+                if (runner.getEnvironmentId().equals(environment.getId())) {
+                    setPorts(runner);
+                }
+            }
+        });
+    }
+
+    private void setPorts(final Runner runner) {
+        ApplicationProcessDescriptor runnerDescriptor = runner.getDescriptor();
+        if (runnerDescriptor == null) {
+            return;
+        }
+
+        final PortMapping portMapping = runnerDescriptor.getPortMapping();
+        Map<String, String> ports = portMapping != null ? portMapping.getPorts() : null;
+        view.setPorts(ports);
     }
 }

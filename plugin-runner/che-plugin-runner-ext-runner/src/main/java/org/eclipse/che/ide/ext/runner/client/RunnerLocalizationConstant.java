@@ -189,6 +189,15 @@ public interface RunnerLocalizationConstant extends Messages {
     @Key("properties.shutdown")
     String propertiesShutdown();
 
+    @Key("properties.port.mapping")
+    String propertiesPortMapping();
+
+    @Key("properties.port.opened")
+    String propertiesPortOpened();
+
+    @Key("properties.port.mappedTo")
+    String propertiesPortMappedTo();
+
     @Key("properties.dockerfile")
     String propertiesDockerfile();
 
