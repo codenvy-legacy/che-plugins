@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.runner.client.manager;
 
+import com.google.gwt.http.client.URL;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
@@ -466,7 +467,13 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
 
         RunnersDescriptor runnersDescriptor = currentProject.getProjectDescription().getRunners();
         String defaultRunner = runnersDescriptor.getDefault();
-        RunnerConfiguration defaultConfigs = runnersDescriptor.getConfigs().get(defaultRunner);
+
+        String encodedDefaultRunner = defaultRunner;
+        if (defaultRunner != null) {
+            encodedDefaultRunner = URL.encode(defaultRunner);
+        }
+
+        RunnerConfiguration defaultConfigs = runnersDescriptor.getConfigs().get(encodedDefaultRunner);
 
         if (defaultRunner != null && defaultConfigs != null) {
             ram = defaultConfigs.getRam();
@@ -482,7 +489,9 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
             if (defaultRunner != null && defaultRunner.equals(environment.getId())) {
                 return launchRunner(modelsFactory.createRunner(runOptions));
             }
-            runOptions = runOptions.withOptions(environment.getOptions()).withEnvironmentId(environment.getId());
+            runOptions = runOptions.withOptions(environment.getOptions())
+                                   .withMemorySize(environment.getRam())
+                                   .withEnvironmentId(environment.getId());
             return launchRunner(modelsFactory.createRunner(runOptions, environment.getName()));
         }
 
