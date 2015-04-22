@@ -16,7 +16,9 @@ import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.Widget;
 import com.google.gwtmockito.GwtMockitoTestRunner;
 
 import org.eclipse.che.ide.api.editor.EditorPartPresenter;
@@ -37,6 +39,8 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 
 import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.eclipse.che.ide.ext.runner.client.tabs.container.tab.Background.BLUE;
 import static org.eclipse.che.ide.ext.runner.client.tabs.container.tab.Background.GREY;
@@ -53,7 +57,10 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -552,5 +559,32 @@ public class PropertiesPanelViewImplTest {
         view.hideSwitcher();
 
         verify(view.projectDefaultPanel).setVisible(false);
+    }
+
+    @Test
+    public void testSetPorts() throws Exception {
+        reset(view.portMappingHeader);
+
+        view.setPorts(null);
+
+        verify(view.portMappingHeader).setVisible(eq(false));
+        verify(view.portsPanel).clear();
+        verify(view.portMappingHeader, never()).setVisible(eq(true));
+        verify(view.portsPanel, never()).add((Widget)anyObject());
+    }
+
+    @Test
+    public void testSetPortsWhenPortsIsNull() throws Exception {
+        reset(view.portMappingHeader);
+        String port = "8080";
+        Map<String, String> ports = new HashMap<>();
+        ports.put(port, port);
+
+        view.setPorts(ports);
+
+        verify(view.portMappingHeader).setVisible(eq(true));
+        verify(view.portsPanel, never()).clear();
+        verify(view.portMappingHeader, never()).setVisible(eq(false));
+        verify(view.portsPanel).add((Widget)anyObject());
     }
 }
