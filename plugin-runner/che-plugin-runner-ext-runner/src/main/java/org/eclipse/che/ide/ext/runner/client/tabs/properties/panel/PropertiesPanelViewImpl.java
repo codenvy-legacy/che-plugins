@@ -25,7 +25,6 @@ import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.SimpleLayoutPanel;
-import com.google.gwt.user.client.ui.SplitLayoutPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
@@ -41,6 +40,7 @@ import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM;
 import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope;
 import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Shutdown;
 import org.eclipse.che.ide.ui.switcher.Switcher;
+import org.eclipse.che.ide.util.Config;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -50,8 +50,8 @@ import java.util.Set;
 import static org.eclipse.che.ide.ext.runner.client.tabs.container.tab.Background.BLUE;
 import static org.eclipse.che.ide.ext.runner.client.tabs.container.tab.Background.GREY;
 import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.DEFAULT;
-import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MB_128;
-import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MB_8192;
+import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MB_100;
+import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MB_8000;
 import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope.PROJECT;
 import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope.SYSTEM;
 
@@ -67,44 +67,45 @@ public class PropertiesPanelViewImpl extends Composite implements PropertiesPane
     private static final PropertiesPanelViewImplUiBinder UI_BINDER = GWT.create(PropertiesPanelViewImplUiBinder.class);
 
     @UiField
-    Label configLink;
+    Label     configLink;
     @UiField
     FlowPanel configLinkPanel;
     @UiField
-    TextBox name;
+    TextBox   name;
     @UiField
-    TextBox type;
+    TextBox   type;
 
     @UiField
     FlowPanel buttonsPanel;
 
     @UiField
-    ListBox          ram;
+    ListBox   ram;
     @UiField
-    ListBox          scope;
+    ListBox   scope;
     @UiField
-    ListBox          boot;
+    ListBox   boot;
     @UiField
-    ListBox          shutdown;
+    ListBox   shutdown;
     @UiField
-    SplitLayoutPanel switcherPanel;
+    Switcher  projectDefault;
     @UiField
-    Label            defaultLabel;
+    FlowPanel projectDefaultPanel;
+
 
     @UiField
     DockLayoutPanel   propertiesPanel;
     @UiField
     SimpleLayoutPanel editorPanel;
+    @UiField
+    Label             dockerLabel;
 
     @UiField(provided = true)
     final RunnerLocalizationConstant locale;
     @UiField(provided = true)
     final RunnerResources            resources;
 
-
     private final WidgetFactory widgetFactory;
     private final Label         unAvailableMessage;
-    private final Switcher      switcher;
 
     private ActionDelegate delegate;
 
@@ -115,8 +116,7 @@ public class PropertiesPanelViewImpl extends Composite implements PropertiesPane
     @Inject
     public PropertiesPanelViewImpl(RunnerLocalizationConstant locale,
                                    RunnerResources resources,
-                                   WidgetFactory widgetFactory,
-                                   Switcher switcher) {
+                                   WidgetFactory widgetFactory) {
         this.locale = locale;
         this.resources = resources;
 
@@ -124,7 +124,7 @@ public class PropertiesPanelViewImpl extends Composite implements PropertiesPane
 
         this.widgetFactory = widgetFactory;
 
-        prepareField(ram, EnumSet.range(MB_128, MB_8192));
+        prepareField(ram, EnumSet.range(MB_100, MB_8000));
         prepareField(scope, EnumSet.range(PROJECT, SYSTEM));
         prepareField(boot, EnumSet.allOf(Boot.class));
         prepareField(shutdown, EnumSet.allOf(Shutdown.class));
@@ -167,7 +167,6 @@ public class PropertiesPanelViewImpl extends Composite implements PropertiesPane
         };
         cancelBtn = createButton(locale.propertiesButtonCancel(), cancelDelegate, GREY);
 
-        this.switcher = switcher;
 
         ValueChangeHandler<Boolean> valueChangeHandler = new ValueChangeHandler<Boolean>() {
             @Override
@@ -176,9 +175,15 @@ public class PropertiesPanelViewImpl extends Composite implements PropertiesPane
             }
         };
 
-        switcher.addValueChangeHandler(valueChangeHandler);
+        projectDefault.addValueChangeHandler(valueChangeHandler);
 
-        switcherPanel.add(switcher);
+        if (Config.isSdkProject()) {
+            hideSwitcher();
+            hideButtonsPanel();
+
+            editorPanel.setVisible(false);
+            dockerLabel.setVisible(false);
+        }
     }
 
     private void prepareField(@Nonnull ListBox field, @Nonnull Set<? extends Enum> items) {
@@ -372,8 +377,11 @@ public class PropertiesPanelViewImpl extends Composite implements PropertiesPane
         cancelBtn.setVisible(visible);
     }
 
+    /** {@inheritDoc} */
     @Override
-    public void setVisibleConfigLink(boolean visible) { configLinkPanel.setVisible(visible); }
+    public void setVisibleConfigLink(boolean visible) {
+        configLinkPanel.setVisible(visible);
+    }
 
     /** {@inheritDoc} */
     @Override
@@ -394,14 +402,21 @@ public class PropertiesPanelViewImpl extends Composite implements PropertiesPane
     /** {@inheritDoc} */
     @Override
     public void changeSwitcherState(boolean isOn) {
-        switcher.setValue(isOn);
+        projectDefault.setValue(isOn);
     }
 
     /** {@inheritDoc} */
     @Override
     public void hideSwitcher() {
-        switcher.addStyleName(resources.runnerCss().hideElement());
-        defaultLabel.addStyleName(resources.runnerCss().hideElement());
+        projectDefaultPanel.setVisible(false);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void incorrectName(boolean isCorrect) {
+        saveBtn.setEnable(!isCorrect);
+
+        name.getElement().getStyle().setBorderColor(isCorrect ? "#ffe400" : "#191c1e");
     }
 
     @UiHandler("name")

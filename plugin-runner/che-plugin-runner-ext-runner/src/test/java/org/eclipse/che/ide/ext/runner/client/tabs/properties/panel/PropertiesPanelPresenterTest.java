@@ -41,7 +41,7 @@ import org.mockito.Mock;
 
 import static org.eclipse.che.ide.api.editor.EditorPartPresenter.PROP_DIRTY;
 import static org.eclipse.che.ide.api.editor.EditorPartPresenter.PROP_INPUT;
-import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MB_512;
+import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MB_500;
 import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope.SYSTEM;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -104,7 +104,7 @@ public class PropertiesPanelPresenterTest {
         when(environment.getPath()).thenReturn(TEXT);
         when(environment.getName()).thenReturn(TEXT);
         when(environment.getType()).thenReturn(TEXT);
-        when(environment.getRam()).thenReturn(MB_512.getValue());
+        when(environment.getRam()).thenReturn(MB_500.getValue());
 
         when(currentProject.getCurrentTree()).thenReturn(treeStructure);
         when(currentProject.getProjectDescription()).thenReturn(descriptor);
@@ -228,7 +228,7 @@ public class PropertiesPanelPresenterTest {
     @Test
     public void runnerShouldBeUpdated() {
         Runner runner1 = mock(Runner.class);
-        when(runner1.getRAM()).thenReturn(MB_512.getValue());
+        when(runner1.getRAM()).thenReturn(MB_500.getValue());
 
         reset(view);
         presenter.update(runner1);
@@ -236,7 +236,7 @@ public class PropertiesPanelPresenterTest {
         verify(view).setName(runner1.getTitle());
         verify(view).setType(runner1.getType());
         verify(runner1).getRAM();
-        verify(view).selectMemory(MB_512);
+        verify(view).selectMemory(MB_500);
         verify(view).selectScope(runner1.getScope());
     }
 

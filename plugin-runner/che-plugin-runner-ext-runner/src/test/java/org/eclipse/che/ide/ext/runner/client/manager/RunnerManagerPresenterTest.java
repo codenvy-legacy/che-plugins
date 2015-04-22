@@ -25,7 +25,6 @@ import org.eclipse.che.api.runner.dto.ApplicationProcessDescriptor;
 import org.eclipse.che.api.runner.dto.RunOptions;
 import org.eclipse.che.ide.api.action.permits.ActionDenyAccessDialog;
 import org.eclipse.che.ide.api.action.permits.ResourcesLockedActionPermit;
-import org.eclipse.che.ide.api.action.permits.Run;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.event.ProjectActionEvent;
@@ -82,13 +81,14 @@ import static org.eclipse.che.ide.ext.runner.client.tabs.common.Tab.VisibleState
 import static org.eclipse.che.ide.ext.runner.client.tabs.common.Tab.VisibleState.VISIBLE;
 import static org.eclipse.che.ide.ext.runner.client.tabs.container.tab.TabType.LEFT;
 import static org.eclipse.che.ide.ext.runner.client.tabs.container.tab.TabType.RIGHT;
-import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MB_512;
+import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.DEFAULT;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -293,7 +293,7 @@ public class RunnerManagerPresenterTest {
         when(dtoFactory.createDto(RunOptions.class)).thenReturn(runOptions);
         when(modelsFactory.createRunner(runOptions)).thenReturn(runner);
         when(processDescriptor.getProcessId()).thenReturn(PROCESS_ID);
-        when(processDescriptor.getMemorySize()).thenReturn(MB_512.getValue());
+        when(processDescriptor.getMemorySize()).thenReturn(DEFAULT.getValue());
         when(actionFactory.createLaunch()).thenReturn(launchAction);
         when(runner.getTimeout()).thenReturn(TEXT);
         when(selectionManager.getRunner()).thenReturn(runner);
@@ -313,7 +313,7 @@ public class RunnerManagerPresenterTest {
         when(definition.getRunnerCategories()).thenReturn(Arrays.asList(TEXT));
         when(currentProject.getAttributeValue("runner:skipBuild")).thenReturn("true");
         when(runOptions.withSkipBuild(true)).thenReturn(runOptions);
-        when(runOptions.withMemorySize(MB_512.getValue())).thenReturn(runOptions);
+        when(runOptions.withMemorySize(DEFAULT.getValue())).thenReturn(runOptions);
         when(runOptions.withOptions(any(Map.class))).thenReturn(runOptions);
         when(runOptions.withEnvironmentId(anyString())).thenReturn(runOptions);
 
@@ -555,7 +555,7 @@ public class RunnerManagerPresenterTest {
         verify(modelsFactory).createRunner(runOptions);
         verify(processDescriptor).getProcessId();
         verify(runner).setProcessDescriptor(processDescriptor);
-        verify(runner).setRAM(MB_512.getValue());
+        verify(runner).setRAM(DEFAULT.getValue());
         verify(runner).setStatus(Runner.Status.DONE);
         verify(runner).resetCreationTime();
         verify(history).addRunner(runner);
@@ -701,6 +701,45 @@ public class RunnerManagerPresenterTest {
         verifyLaunchRunnerWithNotNullCurrentProject();
     }
 
+    @Test
+    public void shouldShowDebugPort() {
+        int debugPort = 777_777;
+        presenter.addRunner(processDescriptor);
+        reset(history, terminalContainer, view);
+        when(runner.getStatus()).thenReturn(Runner.Status.DONE);
+        when(runner.getDescriptor()).thenReturn(processDescriptor);
+        when(processDescriptor.getDebugPort()).thenReturn(debugPort);
+
+        presenter.update(runner);
+
+        verify(view).setDebugPort(eq(String.valueOf(debugPort)));
+    }
+
+    @Test
+    public void shouldNotShowDebugPort() {
+        presenter.addRunner(processDescriptor);
+        reset(history, terminalContainer, view);
+        when(runner.getStatus()).thenReturn(Runner.Status.DONE);
+        when(runner.getDescriptor()).thenReturn(processDescriptor);
+        when(processDescriptor.getDebugPort()).thenReturn(-1);
+
+        presenter.update(runner);
+
+        verify(view, never()).setDebugPort(anyString());
+    }
+
+    @Test
+    public void shouldHideDebugPortAfterCloseProject() {
+        presenter.addRunner(processDescriptor);
+        presenter.onRunButtonClicked();
+        presenter.onProjectOpened(projectActionEvent);
+        presenter.setPartStack(partStack);
+
+        presenter.onProjectClosed(projectActionEvent);
+
+        verify(view).setDebugPort((String)isNull());
+    }
+
     /**
      * IDEX-2319 Check that if runner is selected in choose options this will run this one.
      */
@@ -708,7 +747,7 @@ public class RunnerManagerPresenterTest {
     public void runnerShouldRunSelectedEnvironment() {
         when(chooseRunnerAction.selectEnvironment()).thenReturn(runnerEnvironment);
         when(runnerEnvironment.getId()).thenReturn("myEnvId");
-        Map<String, String> options =Collections.emptyMap();
+        Map<String, String> options = Collections.emptyMap();
         when(runnerEnvironment.getOptions()).thenReturn(options);
 
         // click on Run
@@ -718,8 +757,6 @@ public class RunnerManagerPresenterTest {
         verify(runOptions).withOptions(any(Map.class));
         verify(runOptions).withEnvironmentId("myEnvId");
     }
-
-
 
     @Test
     public void runnerShouldBeRunIfSelectedRunnerNotNullAndStatusIsInProgress() {
@@ -739,7 +776,7 @@ public class RunnerManagerPresenterTest {
 
         verify(dtoFactory, times(2)).createDto(RunOptions.class);
         verify(runOptions).withSkipBuild(true);
-        verify(runOptions).withMemorySize(MB_512.getValue());
+        verify(runOptions).withMemorySize(DEFAULT.getValue());
         verify(modelsFactory, times(2)).createRunner(runOptions);
 
         //verify launch runner
@@ -781,6 +818,51 @@ public class RunnerManagerPresenterTest {
         verify(dtoFactory, times(2)).createDto(RunOptions.class);
         verify(runOptions).withSkipBuild(true);
         verify(runOptions).withMemorySize(RAM_SIZE);
+        verify(runOptions).withEnvironmentId(TEXT);
+        verify(modelsFactory).createRunner(runOptions);
+
+        //verify launch runner
+        verify(panelState, times(2)).setState(RUNNERS);
+        verify(view).showOtherButtons();
+        verify(history).addRunner(runner);
+        verify(actionFactory).createCheckRamAndRun();
+        verify(checkRamAndRunAction).perform(runner);
+        verify(runner, times(2)).resetCreationTime();
+    }
+
+    @Test
+    public void defaultRunnerShouldBeLaunchedIfThisRunnerWasSelect() {
+        RunOptions defaultRunOptions = mock(RunOptions.class);
+        RunnerConfiguration runnerConfiguration = mock(RunnerConfiguration.class);
+        Map<String, RunnerConfiguration> configs = new HashMap<>();
+        configs.put(TEXT, runnerConfiguration);
+
+        when(runner.getStatus()).thenReturn(Runner.Status.IN_PROGRESS);
+        when(runnersDescriptor.getDefault()).thenReturn(TEXT);
+        when(runnersDescriptor.getConfigs()).thenReturn(configs);
+        when(runnerConfiguration.getRam()).thenReturn(RAM_SIZE);
+        when(runOptions.withMemorySize(RAM_SIZE)).thenReturn(defaultRunOptions);
+        when(modelsFactory.createRunner(defaultRunOptions)).thenReturn(runner);
+        when(runActionPermit.isAllowed()).thenReturn(true);
+        when(chooseRunnerAction.selectEnvironment()).thenReturn(runnerEnvironment);
+        when(runnerEnvironment.getId()).thenReturn(TEXT);
+
+        presenter.addRunner(processDescriptor);
+        reset(view, history);
+
+        presenter.launchRunner();
+
+        verify(appContext, times(2)).getCurrentProject();
+        verify(currentProject).getProjectDescription();
+        verify(descriptor).getRunners();
+        verify(runnersDescriptor).getDefault();
+
+        verify(runnersDescriptor).getConfigs();
+
+        verify(dtoFactory, times(2)).createDto(RunOptions.class);
+        verify(runOptions).withSkipBuild(true);
+        verify(runOptions).withMemorySize(RAM_SIZE);
+        verify(runOptions).withEnvironmentId(TEXT);
         verify(modelsFactory).createRunner(runOptions);
 
         //verify launch runner
@@ -1165,7 +1247,7 @@ public class RunnerManagerPresenterTest {
 
         verify(dtoFactory).createDto(RunOptions.class);
         verify(runOptions).withSkipBuild(true);
-        verify(runOptions).withMemorySize(MB_512.getValue());
+        verify(runOptions).withMemorySize(DEFAULT.getValue());
         verify(modelsFactory).createRunner(runOptions);
 
         //verify launch runner

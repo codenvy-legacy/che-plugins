@@ -62,6 +62,7 @@ import org.eclipse.che.ide.ext.runner.client.util.RunnerUtil;
 import org.eclipse.che.ide.ext.runner.client.util.TimerFactory;
 import org.eclipse.che.ide.ext.runner.client.util.annotations.LeftPanel;
 import org.eclipse.che.ide.ext.runner.client.util.annotations.RightPanel;
+import org.eclipse.che.ide.util.Config;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -80,7 +81,7 @@ import static org.eclipse.che.ide.ext.runner.client.tabs.common.Tab.VisibleState
 import static org.eclipse.che.ide.ext.runner.client.tabs.container.TabContainer.TabSelectHandler;
 import static org.eclipse.che.ide.ext.runner.client.tabs.container.tab.TabType.LEFT;
 import static org.eclipse.che.ide.ext.runner.client.tabs.container.tab.TabType.RIGHT;
-import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MB_512;
+import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.DEFAULT;
 
 /**
  * The class provides much business logic:
@@ -303,8 +304,9 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
                                             .scope(EnumSet.of(RUNNERS))
                                             .tabType(RIGHT)
                                             .build();
-
-        container.addTab(terminalTab);
+        if (!Config.isSdkProject()) {
+            container.addTab(terminalTab);
+        }
 
         TabSelectHandler propertiesHandler = new TabSelectHandler() {
             @Override
@@ -371,6 +373,7 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
             default:
                 String url = runner.getApplicationURL();
                 view.setApplicationURl(url == null ? locale.urlAppRunning() : url);
+                setDebugPort(runner);
         }
     }
 
@@ -459,7 +462,7 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
             throw new IllegalStateException("Can't launch runner for current project. Current project is absent...");
         }
 
-        int ram = MB_512.getValue();
+        int ram = DEFAULT.getValue();
 
         RunnersDescriptor runnersDescriptor = currentProject.getProjectDescription().getRunners();
         String defaultRunner = runnersDescriptor.getDefault();
@@ -471,15 +474,17 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
 
         RunOptions runOptions = dtoFactory.createDto(RunOptions.class)
                                           .withSkipBuild(Boolean.valueOf(currentProject.getAttributeValue("runner:skipBuild")))
+                                          .withEnvironmentId(defaultRunner)
                                           .withMemorySize(ram);
 
-        if (this.selectedEnvironment == null) {
-            Environment environment = chooseRunnerAction.selectEnvironment();
-            if (environment != null) {
-                runOptions = runOptions.withOptions(environment.getOptions()).withEnvironmentId(environment.getId());
+        Environment environment = chooseRunnerAction.selectEnvironment();
+        if (environment != null) {
+            if (defaultRunner != null && defaultRunner.equals(environment.getId())) {
+                return launchRunner(modelsFactory.createRunner(runOptions));
             }
+            runOptions = runOptions.withOptions(environment.getOptions()).withEnvironmentId(environment.getId());
+            return launchRunner(modelsFactory.createRunner(runOptions, environment.getName()));
         }
-
 
         return launchRunner(modelsFactory.createRunner(runOptions));
     }
@@ -605,6 +610,7 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
         view.setEnableLogsButton(false);
 
         view.setApplicationURl(null);
+        view.setDebugPort(null);
         view.setTimeout(TIMER_STUB);
 
         history.clear();
@@ -713,5 +719,12 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
         view.setEnableRunButton(runnerUtil.hasRunPermission());
 
         view.showOtherButtons();
+    }
+
+    private void setDebugPort(Runner runner) {
+        ApplicationProcessDescriptor runnerDescriptor = runner.getDescriptor();
+        if (runnerDescriptor != null && runnerDescriptor.getDebugPort() != -1) {
+            view.setDebugPort(String.valueOf(runnerDescriptor.getDebugPort()));
+        }
     }
 }
