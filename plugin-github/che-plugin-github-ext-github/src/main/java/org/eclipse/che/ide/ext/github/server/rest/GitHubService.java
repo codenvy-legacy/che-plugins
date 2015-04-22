@@ -31,8 +31,12 @@ import org.eclipse.che.ide.ext.ssh.server.SshKeyStoreException;
 import org.kohsuke.github.GHIssueState;
 import org.kohsuke.github.GHOrganization;
 import org.kohsuke.github.GHPersonSet;
+import org.kohsuke.github.GHPullRequest;
 import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GitHub;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.ws.rs.GET;
@@ -70,6 +74,8 @@ public class GitHubService {
     @Inject
     private SshKeyStore sshKeyStore;
 
+    private static final Logger LOG = LoggerFactory.getLogger(GitHubService.class);
+
     @GET
     @Path("repositories/{user}/{repository}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -78,6 +84,7 @@ public class GitHubService {
         try {
             return gitHubDTOFactory.createRepository(gitHubFactory.connect().getUser(user).getRepository(repository));
         } catch (IOException e) {
+            LOG.error("Get user info error", e);
             throw new ServerException(e.getMessage());
         }
     }
@@ -89,6 +96,7 @@ public class GitHubService {
         try {
             return gitHubDTOFactory.createRepositoriesList(gitHubFactory.connect().getUser(userName).listRepositories());
         } catch (IOException e) {
+            LOG.error("Get list repositories by user fail", e);
             throw new ServerException(e.getMessage());
         }
     }
@@ -100,6 +108,7 @@ public class GitHubService {
         try {
             return gitHubDTOFactory.createRepositoriesList(gitHubFactory.connect().getOrganization(organization).listRepositories());
         } catch (IOException e) {
+            LOG.error("Get list repositories by organization fail", e);
             throw new ServerException(e.getMessage());
         }
     }
@@ -113,10 +122,12 @@ public class GitHubService {
             //First, try to retrieve organization repositories:
             return gitHubDTOFactory.createRepositoriesList(gitHub.getOrganization(account).listRepositories());
         } catch (IOException ioException) {
+            LOG.error("Get list repositories by account fail", ioException);
             //If account is not organization, then try by user name:
             try {
                 return gitHubDTOFactory.createRepositoriesList(gitHub.getUser(account).listRepositories());
             } catch (IOException exception) {
+                LOG.error("Get list repositories by account fail", exception);
                 throw new ServerException(exception.getMessage());
             }
         }
@@ -129,6 +140,7 @@ public class GitHubService {
         try {
             return gitHubDTOFactory.createRepositoriesList(gitHubFactory.connect().getMyself().listRepositories());
         } catch (IOException e) {
+            LOG.error("Get list repositories fail", e);
             throw new ServerException(e.getMessage());
         }
     }
@@ -148,6 +160,7 @@ public class GitHubService {
                 }
             }
         } catch (IOException e) {
+            LOG.error("Get forks fail", e);
             throw new ServerException(e.getMessage());
         }
         return gitHubRepositoryList;
@@ -160,6 +173,7 @@ public class GitHubService {
         try {
             return gitHubDTOFactory.createRepository(gitHubFactory.connect().getUser(user).getRepository(repository).fork());
         } catch (IOException e) {
+            LOG.error("Fork fail", e);
             throw new ServerException(e.getMessage());
         }
     }
@@ -174,6 +188,7 @@ public class GitHubService {
         try {
             gitHubFactory.connect().getUser(user).getRepository(repository).getIssue(Integer.getInteger(issue)).comment(input.getBody());
         } catch (IOException e) {
+            LOG.error("Comment issue fail", e);
             throw new ServerException(e.getMessage());
         }
     }
@@ -187,6 +202,7 @@ public class GitHubService {
             return gitHubDTOFactory.createPullRequestsList(gitHubFactory.connect().getUser(user).getRepository(repository)
                                                                         .listPullRequests(GHIssueState.OPEN));
         } catch (IOException e) {
+            LOG.error("Getting list of pull request by repositories", e);
             throw new ServerException(e.getMessage());
         }
     }
@@ -200,6 +216,7 @@ public class GitHubService {
             return gitHubDTOFactory.createPullRequestsList(gitHubFactory.connect().getUser(user).getRepository(repository)
                                                                         .getPullRequest(Integer.valueOf(pullRequestId)));
         } catch (IOException e) {
+            LOG.error("Getting list of pull request by id", e);
             throw new ServerException(e.getMessage());
         }
 
@@ -211,9 +228,11 @@ public class GitHubService {
     public GitHubPullRequest createPullRequest(@PathParam("user") String user, @PathParam("repository") String repository, GitHubPullRequestCreationInput input)
             throws ApiException {
         try {
-            return gitHubDTOFactory.createPullRequest(gitHubFactory.connect().getUser(user).getRepository(repository).createPullRequest(
-                    input.getTitle(), input.getHead(), input.getBase(), input.getBody()));
-        } catch (IOException e) {
+            GHPullRequest pullRequest = gitHubFactory.connect().getUser(user).getRepository(repository).createPullRequest(
+                    input.getTitle(), input.getHead(), input.getBase(), input.getBody());
+            return gitHubDTOFactory.createPullRequest(pullRequest);
+        } catch (Exception e) {
+            LOG.error("Creating  pull request fail", e);
             throw new ServerException(e.getMessage());
         }
     }
@@ -238,6 +257,7 @@ public class GitHubService {
                                                                .getRepositories());
             }
         } catch (IOException e) {
+            LOG.error("Getting list of available repositories fail", e);
             throw new ServerException(e.getMessage());
         }
         return repoList;
@@ -253,6 +273,7 @@ public class GitHubService {
         try {
             myOrganizations = gitHubFactory.connect().getMyself().getAllOrganizations();
         } catch (IOException e) {
+            LOG.error("Getting list of available organizations fail", e);
             throw new ServerException(e.getMessage());
         }
 
@@ -270,6 +291,7 @@ public class GitHubService {
         try {
             return gitHubDTOFactory.createUser(gitHubFactory.connect().getMyself());
         } catch (IOException e) {
+            LOG.error("Getting user info fail", e);
             throw new ServerException(e.getMessage());
         }
     }
@@ -281,6 +303,7 @@ public class GitHubService {
         try {
             return gitHubDTOFactory.createCollaborators(gitHubFactory.connect().getUser(user).getRepository(repository).getCollaborators());
         } catch (IOException e) {
+            LOG.error("Get collaborators fail", e);
             throw new ServerException(e.getMessage());
         }
     }
@@ -313,6 +336,7 @@ public class GitHubService {
                 publicKey = sshKeyStore.genKeyPair(host, null, null).getPublicKey();
             }
         } catch (SshKeyStoreException e) {
+            LOG.error("Generate github ssh key fail", e);
             throw new GitException(e.getMessage(), e);
         }
 
@@ -320,6 +344,7 @@ public class GitHubService {
         try {
             githubKeyUploader.uploadKey(publicKey);
         } catch (IOException e) {
+            LOG.error("Upload github ssh key fail", e);
             throw new GitException(e.getMessage(), e);
         }
     }
