@@ -60,7 +60,7 @@ public class RunnerManagerViewImpl extends BaseView<RunnerManagerView.ActionDele
     private static final String GWT_POPUP_STANDARD_STYLE = "gwt-PopupPanel";
     private static final String SPLITTER_STYLE_NAME      = "gwt-SplitLayoutPanel-HDragger";
 
-    private static final int SHIFT_LEFT     = 100;
+    private static final int SHIFT_LEFT     = 80;
     private static final int SHIFT_TOP      = 130;
     private static final int SPLITTER_WIDTH = 2;
 
