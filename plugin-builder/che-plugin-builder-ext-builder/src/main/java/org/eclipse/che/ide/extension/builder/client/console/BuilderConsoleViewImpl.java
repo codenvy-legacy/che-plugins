@@ -54,7 +54,7 @@ public class BuilderConsoleViewImpl extends BaseView<BuilderConsoleView.ActionDe
     private static final int MAX_LINE_COUNT = 1000;
 
     /** Rate (limit per 1 sec.) */
-    private static final int LIMIT        = 300;
+    private static final int LIMIT = 300;
 
     /** Period to print all collected messages. */
     private static final int FLUSH_PERIOD = 500;
@@ -135,6 +135,8 @@ public class BuilderConsoleViewImpl extends BaseView<BuilderConsoleView.ActionDe
         }
 
         buffer.clear();
+
+        scrollBottom();
     }
 
     /** {@inheritDoc} */
