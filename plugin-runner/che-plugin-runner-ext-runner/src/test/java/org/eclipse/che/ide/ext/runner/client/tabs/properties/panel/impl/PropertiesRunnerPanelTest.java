@@ -12,6 +12,7 @@ package org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.impl;
 
 import com.google.gwt.user.client.Timer;
 import com.google.gwtmockito.GwtMockitoTestRunner;
+import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.api.workspace.shared.dto.WorkspaceDescriptor;
@@ -59,26 +60,26 @@ public class PropertiesRunnerPanelTest {
 
     //mocks for constructors
     @Mock
-    private PropertiesPanelView view;
+    private PropertiesPanelView        view;
     @Mock
-    private FileTypeRegistry    fileTypeRegistry;
+    private FileTypeRegistry           fileTypeRegistry;
     @Mock
-    private DockerFileFactory   dockerFileFactory;
+    private DockerFileFactory          dockerFileFactory;
     @Mock
-    private AppContext          appContext;
+    private AppContext                 appContext;
     @Mock
-    private TimerFactory        timerFactory;
+    private TimerFactory               timerFactory;
     @Mock
-    private Runner              runner;
+    private Runner                     runner;
     @Mock
-    private TabContainer        tabContainer;
+    private TabContainer               tabContainer;
     @Mock
     private RunnerLocalizationConstant locale;
 
     @Mock
     private CurrentProject      currentProject;
     @Mock
-    private WorkspaceDescriptor         currentWorkspace;
+    private WorkspaceDescriptor currentWorkspace;
     @Mock
     private Timer               timer;
     @Mock
@@ -89,6 +90,8 @@ public class PropertiesRunnerPanelTest {
     private EditorPartPresenter editor;
     @Mock
     private DockerFile          file;
+    @Mock
+    private EventBus            eventBus;
 
     @Captor
     private ArgumentCaptor<TimerFactory.TimerCallBack> timerCaptor;
@@ -109,7 +112,8 @@ public class PropertiesRunnerPanelTest {
                                   dockerFileFactory,
                                   appContext,
                                   timerFactory,
-                                  runner, tabContainer, locale);
+                                  runner, tabContainer, locale,
+                                  eventBus);
 
         when(runner.getTitle()).thenReturn(TEXT);
         when(runner.getRAM()).thenReturn(MB_500.getValue());
