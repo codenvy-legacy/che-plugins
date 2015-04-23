@@ -73,7 +73,7 @@ public class StopMachineAction extends Action {
         }
 
         machineServiceClient.getMachines(
-                workspaceId, null,
+                workspaceId, currentProject.getRootProject().getPath(),
                 new AsyncRequestCallback<Array<MachineDescriptor>>(dtoUnmarshallerFactory.newArrayUnmarshaller(MachineDescriptor.class)) {
                     @Override
                     protected void onSuccess(Array<MachineDescriptor> result) {

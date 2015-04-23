@@ -16,6 +16,7 @@ import com.google.inject.name.Named;
 
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
 import org.eclipse.che.api.machine.shared.dto.MachineDescriptor;
+import org.eclipse.che.api.machine.shared.dto.MachineStateEvent;
 import org.eclipse.che.ide.extension.machine.client.console.MachineConsolePresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
@@ -25,9 +26,13 @@ import org.eclipse.che.ide.websocket.WebSocketException;
 import org.eclipse.che.ide.websocket.rest.StringUnmarshallerWS;
 import org.eclipse.che.ide.websocket.rest.SubscriptionHandler;
 
+import static org.eclipse.che.api.machine.shared.dto.MachineStateEvent.EventType.RUNNING;
+
 /** @author Artem Zatsarynnyy */
 @Singleton
 public class MachineManager {
+
+    private static final String MACHINE_STATE_WS_CHANNEL = "machine:state:";
 
     private final String                  workspaceId;
     private final MachineResources        machineResources;
@@ -56,8 +61,6 @@ public class MachineManager {
 
         subscribeToOutput(wsChannel);
 
-        // TODO: subscribe to machine's state
-
         machineServiceClient.createMachineFromRecipe(
                 workspaceId,
                 "docker",
@@ -67,6 +70,7 @@ public class MachineManager {
                 new AsyncRequestCallback<MachineDescriptor>(dtoUnmarshallerFactory.newUnmarshaller(MachineDescriptor.class)) {
                     @Override
                     protected void onSuccess(MachineDescriptor result) {
+                        bindProject1(projectPath, result.getId());
                     }
 
                     @Override
@@ -94,7 +98,28 @@ public class MachineManager {
         } catch (WebSocketException e) {
             Log.error(MachineManager.class, e);
         }
+    }
 
+    private void bindProject1(final String projectPath, final String machineId) {
+        try {
+            messageBus.subscribe(
+                    MACHINE_STATE_WS_CHANNEL + machineId,
+                    new SubscriptionHandler<MachineStateEvent>(dtoUnmarshallerFactory.newWSUnmarshaller(MachineStateEvent.class)) {
+                        @Override
+                        protected void onMessageReceived(MachineStateEvent result) {
+                            if (RUNNING == result.getEventType()) {
+                                bindProject(projectPath, machineId);
+                            }
+                        }
+
+                        @Override
+                        protected void onErrorReceived(Throwable exception) {
+                            Log.error(MachineManager.class, exception);
+                        }
+                    });
+        } catch (WebSocketException e) {
+            Log.error(MachineManager.class, e);
+        }
     }
 
     public void bindProject(final String projectPath, final String machineId) {

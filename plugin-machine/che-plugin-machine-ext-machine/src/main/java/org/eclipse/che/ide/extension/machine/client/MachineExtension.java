@@ -26,7 +26,6 @@ import org.eclipse.che.ide.api.extension.Extension;
 import org.eclipse.che.ide.api.parts.PartStackType;
 import org.eclipse.che.ide.api.parts.WorkspaceAgent;
 import org.eclipse.che.ide.collections.Array;
-import org.eclipse.che.ide.extension.machine.client.actions.BindProjectAction;
 import org.eclipse.che.ide.extension.machine.client.actions.StopMachineAction;
 import org.eclipse.che.ide.extension.machine.client.console.ClearConsoleAction;
 import org.eclipse.che.ide.extension.machine.client.console.MachineConsolePresenter;
@@ -57,7 +56,8 @@ public class MachineExtension {
                             final MachineServiceClient machineServiceClient,
                             final DtoUnmarshallerFactory dtoUnmarshallerFactory,
                             @Named("workspaceId") final String workspaceId,
-                            final MachineManager machineManager) {
+                            final MachineManager machineManager,
+                            final MachineConsolePresenter machineConsolePresenter) {
 
         machineResources.machine().ensureInjected();
 
@@ -86,6 +86,7 @@ public class MachineExtension {
 
             @Override
             public void onProjectClosed(ProjectActionEvent event) {
+                machineConsolePresenter.clear();
             }
         });
     }
@@ -93,8 +94,7 @@ public class MachineExtension {
     @Inject
     private void prepareActions(MachineLocalizationConstant localizationConstant,
                                 ActionManager actionManager,
-                                StopMachineAction stopMachineAction,
-                                BindProjectAction bindProjectAction) {
+                                StopMachineAction stopMachineAction) {
         final DefaultActionGroup mainMenu = (DefaultActionGroup)actionManager.getAction(GROUP_MAIN_MENU);
 
         final DefaultActionGroup machinesMenu = new DefaultActionGroup(localizationConstant.mainMenuMachinesName(), true, actionManager);
@@ -104,11 +104,9 @@ public class MachineExtension {
 
         // register actions
         actionManager.registerAction("stopMachine", stopMachineAction);
-        actionManager.registerAction("bindProjectToMachine", bindProjectAction);
 
         // add actions in main menu
         machinesMenu.add(stopMachineAction);
-        machinesMenu.add(bindProjectAction);
     }
 
     @Inject

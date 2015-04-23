@@ -59,16 +59,18 @@ public class MachineConsolePresenter extends BasePresenter implements MachineCon
         });
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public View getView() {
-        return view;
-    }
-
     private void onPartActivated(PartPresenter part) {
         if (part != null && part.equals(this) && hasUnreadMessages) {
             hasUnreadMessages = false;
         }
+
+        firePropertyChange(TITLE_PROPERTY);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public View getView() {
+        return view;
     }
 
     /** {@inheritDoc} */
@@ -106,6 +108,8 @@ public class MachineConsolePresenter extends BasePresenter implements MachineCon
         if (activePart == null || !activePart.equals(this)) {
             hasUnreadMessages = true;
         }
+
+        firePropertyChange(TITLE_PROPERTY);
     }
 
     /** Set the console active (selected) in the parts stack. */
