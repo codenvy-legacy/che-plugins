@@ -53,6 +53,7 @@ import static org.mockito.Mockito.when;
 public class RunActionTest {
     private static final String PATH_TO_PROJECT = "somePath";
     private static final String PROJECT_NAME    = "projectName";
+    private static final String ENV_ID          = "project://project a";
 
     /*constructor variables*/
     @Mock
@@ -120,6 +121,8 @@ public class RunActionTest {
         //preparing project data
         when(project.getProjectDescription()).thenReturn(projectDescriptor);
         when(projectDescriptor.getPath()).thenReturn(PATH_TO_PROJECT);
+        when(runner.getOptions()).thenReturn(runOptions);
+        when(runOptions.getEnvironmentId()).thenReturn(ENV_ID);
     }
 
     @Test

@@ -116,6 +116,7 @@ public class RunnerManagerPresenterTest {
     private static final String PROPERTIES     = "properties";
     private static final String STOPPED_RUNNER = "application shut down";
     private static final String APP_URL        = "http://runner1.codenvy.com/";
+    private static final String ENV_ID         = "project://project a";
     private static final int    RAM_SIZE       = 1000;
     private static final long   PROCESS_ID     = 1234567L;
 
@@ -310,6 +311,7 @@ public class RunnerManagerPresenterTest {
         when(appContext.getCurrentProject()).thenReturn(currentProject);
         when(currentProject.getProjectDescription()).thenReturn(descriptor);
         when(descriptor.getRunners()).thenReturn(runnersDescriptor);
+        when(runnersDescriptor.getDefault()).thenReturn(ENV_ID);
         when(descriptor.getType()).thenReturn(TEXT);
         when(definition.getRunnerCategories()).thenReturn(Arrays.asList(TEXT));
         when(currentProject.getAttributeValue("runner:skipBuild")).thenReturn("true");
@@ -867,7 +869,7 @@ public class RunnerManagerPresenterTest {
         verify(dtoFactory, times(2)).createDto(RunOptions.class);
         verify(runOptions).withSkipBuild(true);
         verify(runOptions).withMemorySize(RAM_SIZE);
-        verify(modelsFactory,times(2)).createRunner(runOptions);
+        verify(modelsFactory, times(1)).createRunner(runOptions);
 
         //verify launch runner
         verify(panelState, times(2)).setState(RUNNERS);
