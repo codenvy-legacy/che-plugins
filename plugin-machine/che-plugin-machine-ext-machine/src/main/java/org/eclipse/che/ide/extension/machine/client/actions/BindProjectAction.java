@@ -20,6 +20,7 @@ import org.eclipse.che.ide.api.action.ActionEvent;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.collections.Array;
+import org.eclipse.che.ide.extension.machine.client.MachineManager;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
@@ -29,26 +30,29 @@ import org.eclipse.che.ide.util.loging.Log;
  *
  * @author Artem Zatsarynnyy
  */
-public class BindProjectToMachineAction extends Action {
+public class BindProjectAction extends Action {
 
-    private final AppContext           appContext;
-    private final MachineServiceClient machineServiceClient;
-    private final String               workspaceId;
-    private final DialogFactory        dialogFactory;
+    private final AppContext             appContext;
+    private final MachineServiceClient   machineServiceClient;
+    private final String                 workspaceId;
+    private final DialogFactory          dialogFactory;
     private final DtoUnmarshallerFactory dtoUnmarshallerFactory;
+    private final MachineManager machineManager;
 
     @Inject
-    public BindProjectToMachineAction(AppContext appContext,
-                                      MachineServiceClient machineServiceClient,
-                                      @Named("workspaceId") String workspaceId,
-                                      DialogFactory dialogFactory,
-                                      DtoUnmarshallerFactory dtoUnmarshallerFactory) {
+    public BindProjectAction(AppContext appContext,
+                             MachineServiceClient machineServiceClient,
+                             @Named("workspaceId") String workspaceId,
+                             DialogFactory dialogFactory,
+                             DtoUnmarshallerFactory dtoUnmarshallerFactory,
+                             MachineManager machineManager) {
         super("Bind Project to Machine", "", null, null);
         this.appContext = appContext;
         this.machineServiceClient = machineServiceClient;
         this.workspaceId = workspaceId;
         this.dialogFactory = dialogFactory;
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
+        this.machineManager = machineManager;
     }
 
     /** {@inheritDoc} */
@@ -65,35 +69,24 @@ public class BindProjectToMachineAction extends Action {
             return;
         }
 
+        final String projectPath = currentProject.getRootProject().getPath();
+
         machineServiceClient.getMachines(
                 workspaceId, null,
                 new AsyncRequestCallback<Array<MachineDescriptor>>(dtoUnmarshallerFactory.newArrayUnmarshaller(MachineDescriptor.class)) {
                     @Override
                     protected void onSuccess(Array<MachineDescriptor> result) {
                         if (result.isEmpty()) {
-                            dialogFactory.createMessageDialog("", "No machine is running", null).show();
+                            dialogFactory.createMessageDialog("Machine creation", "No machine is running", null).show();
                         } else {
-                            bindProject(result.get(0).getId(), currentProject.getRootProject().getPath());
+                            machineManager.bindProject(projectPath, result.get(0).getId());
                         }
                     }
 
                     @Override
                     protected void onFailure(Throwable exception) {
-                        Log.error(BindProjectToMachineAction.class, exception);
+                        Log.error(BindProjectAction.class, exception);
                     }
                 });
     }
-
-    private void bindProject(final String machineId, final String projectPath) {
-        machineServiceClient.bindProject(machineId, projectPath, new AsyncRequestCallback<Void>() {
-            @Override
-            protected void onSuccess(Void result) {
-                Log.info(BindProjectToMachineAction.class, "Project bound");
-            }
-
-            @Override
-            protected void onFailure(Throwable exception) {
-                Log.error(BindProjectToMachineAction.class, exception);
-            }
-        });
-    }}
+}

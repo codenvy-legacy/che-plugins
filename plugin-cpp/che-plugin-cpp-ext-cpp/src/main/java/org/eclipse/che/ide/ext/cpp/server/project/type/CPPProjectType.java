@@ -20,7 +20,7 @@ import org.eclipse.che.ide.ext.cpp.shared.ProjectAttributes;
 public class CPPProjectType extends ProjectType {
 
     public CPPProjectType() {
-        super(ProjectAttributes.CPP_ID, ProjectAttributes.CPP_NAME, true, false, true, "http://www.recipe.url");
+        super(ProjectAttributes.CPP_ID, ProjectAttributes.CPP_NAME, true, false, true, "http://www.test.url/recipe");
         addConstantDefinition("language", "language", ProjectAttributes.PROGRAMMING_LANGUAGE);
     }
 }

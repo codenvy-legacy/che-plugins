@@ -12,19 +12,29 @@ package org.eclipse.che.ide.extension.machine.client;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.google.inject.name.Named;
+import com.google.web.bindery.event.shared.EventBus;
 
+import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
+import org.eclipse.che.api.machine.shared.dto.MachineDescriptor;
 import org.eclipse.che.ide.api.action.ActionManager;
 import org.eclipse.che.ide.api.action.DefaultActionGroup;
 import org.eclipse.che.ide.api.constraints.Constraints;
+import org.eclipse.che.ide.api.event.ProjectActionEvent;
+import org.eclipse.che.ide.api.event.ProjectActionHandler;
 import org.eclipse.che.ide.api.extension.Extension;
 import org.eclipse.che.ide.api.parts.PartStackType;
 import org.eclipse.che.ide.api.parts.WorkspaceAgent;
-import org.eclipse.che.ide.extension.machine.client.actions.BindProjectToMachineAction;
+import org.eclipse.che.ide.collections.Array;
+import org.eclipse.che.ide.extension.machine.client.actions.BindProjectAction;
 import org.eclipse.che.ide.extension.machine.client.actions.StopMachineAction;
 import org.eclipse.che.ide.extension.machine.client.console.ClearConsoleAction;
 import org.eclipse.che.ide.extension.machine.client.console.MachineConsolePresenter;
 import org.eclipse.che.ide.extension.machine.client.console.MachineConsoleToolbar;
+import org.eclipse.che.ide.rest.AsyncRequestCallback;
+import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.ui.toolbar.ToolbarPresenter;
+import org.eclipse.che.ide.util.loging.Log;
 
 import static org.eclipse.che.ide.api.action.IdeActions.GROUP_CODE;
 import static org.eclipse.che.ide.api.action.IdeActions.GROUP_MAIN_MENU;
@@ -39,32 +49,66 @@ import static org.eclipse.che.ide.api.constraints.Anchor.AFTER;
 @Extension(title = "Machine", version = "1.0.0")
 public class MachineExtension {
 
-    public static final String MACHINES_GROUP_MAIN_MENU      = "Machines";
     public static final String GROUP_MACHINE_CONSOLE_TOOLBAR = "MachineConsoleToolbar";
 
     @Inject
-    public MachineExtension(MachineResources machineResources) {
+    public MachineExtension(MachineResources machineResources,
+                            EventBus eventBus,
+                            final MachineServiceClient machineServiceClient,
+                            final DtoUnmarshallerFactory dtoUnmarshallerFactory,
+                            @Named("workspaceId") final String workspaceId,
+                            final MachineManager machineManager) {
+
         machineResources.machine().ensureInjected();
+
+        eventBus.addHandler(ProjectActionEvent.TYPE, new ProjectActionHandler() {
+            @Override
+            public void onProjectOpened(ProjectActionEvent event) {
+                final String projectPath = event.getProject().getPath();
+
+                machineServiceClient.getMachines(
+                        workspaceId, projectPath,
+                        new AsyncRequestCallback<Array<MachineDescriptor>>(
+                                dtoUnmarshallerFactory.newArrayUnmarshaller(MachineDescriptor.class)) {
+                            @Override
+                            protected void onSuccess(Array<MachineDescriptor> result) {
+                                if (result.isEmpty()) {
+                                    machineManager.startMachineAndBindProject(projectPath);
+                                }
+                            }
+
+                            @Override
+                            protected void onFailure(Throwable exception) {
+                                Log.error(MachineExtension.class, exception);
+                            }
+                        });
+            }
+
+            @Override
+            public void onProjectClosed(ProjectActionEvent event) {
+            }
+        });
     }
 
     @Inject
-    private void prepareActions(ActionManager actionManager,
+    private void prepareActions(MachineLocalizationConstant localizationConstant,
+                                ActionManager actionManager,
                                 StopMachineAction stopMachineAction,
-                                BindProjectToMachineAction bindProjectToMachineAction) {
+                                BindProjectAction bindProjectAction) {
         final DefaultActionGroup mainMenu = (DefaultActionGroup)actionManager.getAction(GROUP_MAIN_MENU);
 
-        final DefaultActionGroup machinesMenu = new DefaultActionGroup(MACHINES_GROUP_MAIN_MENU, true, actionManager);
+        final DefaultActionGroup machinesMenu = new DefaultActionGroup(localizationConstant.mainMenuMachinesName(), true, actionManager);
         actionManager.registerAction("machines", machinesMenu);
         final Constraints afterCodeConstraint = new Constraints(AFTER, GROUP_CODE);
         mainMenu.add(machinesMenu, afterCodeConstraint);
 
         // register actions
         actionManager.registerAction("stopMachine", stopMachineAction);
-        actionManager.registerAction("bindProjectToMachine", bindProjectToMachineAction);
+        actionManager.registerAction("bindProjectToMachine", bindProjectAction);
 
         // add actions in main menu
         machinesMenu.add(stopMachineAction);
-        machinesMenu.add(bindProjectToMachineAction);
+        machinesMenu.add(bindProjectAction);
     }
 
     @Inject
@@ -72,13 +116,13 @@ public class MachineExtension {
                                        ClearConsoleAction clearConsoleAction,
                                        WorkspaceAgent workspaceAgent,
                                        MachineConsolePresenter machineConsolePresenter,
-                                       @MachineConsoleToolbar ToolbarPresenter builderConsoleToolbar) {
+                                       @MachineConsoleToolbar ToolbarPresenter machineConsoleToolbar) {
         workspaceAgent.openPart(machineConsolePresenter, PartStackType.INFORMATION);
 
-        // add toolbar with indicators to Builder console
-        DefaultActionGroup consoleToolbarActionGroup = new DefaultActionGroup(GROUP_MACHINE_CONSOLE_TOOLBAR, false, actionManager);
+        // add toolbar to Machine console
+        final DefaultActionGroup consoleToolbarActionGroup = new DefaultActionGroup(GROUP_MACHINE_CONSOLE_TOOLBAR, false, actionManager);
         consoleToolbarActionGroup.add(clearConsoleAction);
         consoleToolbarActionGroup.addSeparator();
-        builderConsoleToolbar.bindMainGroup(consoleToolbarActionGroup);
+        machineConsoleToolbar.bindMainGroup(consoleToolbarActionGroup);
     }
 }

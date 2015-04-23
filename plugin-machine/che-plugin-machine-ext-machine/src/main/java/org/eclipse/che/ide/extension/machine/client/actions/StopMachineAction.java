@@ -13,6 +13,7 @@ package org.eclipse.che.ide.extension.machine.client.actions;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
+import org.eclipse.che.api.analytics.client.logger.AnalyticsEventLogger;
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
 import org.eclipse.che.api.machine.shared.dto.MachineDescriptor;
 import org.eclipse.che.ide.api.action.Action;
@@ -20,35 +21,39 @@ import org.eclipse.che.ide.api.action.ActionEvent;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.collections.Array;
+import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 import org.eclipse.che.ide.util.loging.Log;
 
-/**
- *
- * @author Artem Zatsarynnyy
- */
+/** @author Artem Zatsarynnyy */
 public class StopMachineAction extends Action {
 
-    private final AppContext           appContext;
-    private final MachineServiceClient machineServiceClient;
-    private final String               workspaceId;
-    private final DialogFactory        dialogFactory;
-    private final DtoUnmarshallerFactory dtoUnmarshallerFactory;
+    private final AppContext                  appContext;
+    private final MachineLocalizationConstant localizationConstant;
+    private final MachineServiceClient        machineServiceClient;
+    private final String                      workspaceId;
+    private final DialogFactory               dialogFactory;
+    private final DtoUnmarshallerFactory      dtoUnmarshallerFactory;
+    private final AnalyticsEventLogger        eventLogger;
 
     @Inject
     public StopMachineAction(AppContext appContext,
+                             MachineLocalizationConstant localizationConstant,
                              MachineServiceClient machineServiceClient,
                              @Named("workspaceId") String workspaceId,
                              DialogFactory dialogFactory,
-                             DtoUnmarshallerFactory dtoUnmarshallerFactory) {
-        super("Stop Machine", "", null, null);
+                             DtoUnmarshallerFactory dtoUnmarshallerFactory,
+                             AnalyticsEventLogger eventLogger) {
+        super(localizationConstant.stopMachineControlTitle(), localizationConstant.stopMachineControlDescription(), null, null);
         this.appContext = appContext;
+        this.localizationConstant = localizationConstant;
         this.machineServiceClient = machineServiceClient;
         this.workspaceId = workspaceId;
         this.dialogFactory = dialogFactory;
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
+        this.eventLogger = eventLogger;
     }
 
     /** {@inheritDoc} */
@@ -60,6 +65,8 @@ public class StopMachineAction extends Action {
     /** {@inheritDoc} */
     @Override
     public void actionPerformed(ActionEvent e) {
+        eventLogger.log(this);
+
         final CurrentProject currentProject = appContext.getCurrentProject();
         if (currentProject == null) {
             return;
@@ -71,7 +78,7 @@ public class StopMachineAction extends Action {
                     @Override
                     protected void onSuccess(Array<MachineDescriptor> result) {
                         if (result.isEmpty()) {
-                            dialogFactory.createMessageDialog("", "No machine is running", null).show();
+                            dialogFactory.createMessageDialog("", localizationConstant.noMachineIsRunning(), null).show();
                         } else {
                             for (MachineDescriptor machineDescriptor : result.asIterable()) {
                                 stopMachine(machineDescriptor.getId());
@@ -86,7 +93,7 @@ public class StopMachineAction extends Action {
                 });
     }
 
-    private void stopMachine (final String machineId) {
+    private void stopMachine(final String machineId) {
         machineServiceClient.destroyMachine(machineId, new AsyncRequestCallback<Void>() {
             @Override
             protected void onSuccess(Void result) {

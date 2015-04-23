@@ -22,6 +22,7 @@ import org.eclipse.che.ide.ui.toolbar.ToolbarPresenter;
 /** @author Artem Zatsarynnyy */
 @ExtensionGinModule
 public class MachineGinModule extends AbstractGinModule {
+
     /** {@inheritDoc} */
     @Override
     protected void configure() {

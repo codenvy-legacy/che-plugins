@@ -1,0 +1,2 @@
+FROM garagatyi/jdk7_mvn_tomcat
+CMD tail -f /dev/null

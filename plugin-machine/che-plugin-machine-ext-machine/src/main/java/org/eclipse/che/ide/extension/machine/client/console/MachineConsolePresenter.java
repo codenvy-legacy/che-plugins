@@ -38,7 +38,7 @@ public class MachineConsolePresenter extends BasePresenter implements MachineCon
     private final MachineLocalizationConstant machineLocalizationConstant;
     private final MachineConsoleView          view;
     private final ToolbarPresenter            consoleToolbar;
-    private boolean isUnread = false;
+    private boolean hasUnreadMessages = false;
 
     @Inject
     public MachineConsolePresenter(MachineConsoleView view,
@@ -48,11 +48,10 @@ public class MachineConsolePresenter extends BasePresenter implements MachineCon
         this.view = view;
         this.consoleToolbar = consoleToolbar;
         this.machineLocalizationConstant = machineLocalizationConstant;
-        this.view.setTitle(machineLocalizationConstant.builderConsoleViewTitle());
+        this.view.setTitle(machineLocalizationConstant.machineConsoleViewTitle());
         this.view.setDelegate(this);
 
         eventBus.addHandler(ActivePartChangedEvent.TYPE, new ActivePartChangedHandler() {
-
             @Override
             public void onActivePartChanged(ActivePartChangedEvent event) {
                 onPartActivated(event.getActivePart());
@@ -60,23 +59,23 @@ public class MachineConsolePresenter extends BasePresenter implements MachineCon
         });
     }
 
+    /** {@inheritDoc} */
     @Override
     public View getView() {
         return view;
     }
 
     private void onPartActivated(PartPresenter part) {
-        if (part != null && part.equals(this) && isUnread) {
-            isUnread = false;
+        if (part != null && part.equals(this) && hasUnreadMessages) {
+            hasUnreadMessages = false;
         }
-        firePropertyChange(TITLE_PROPERTY);
     }
 
     /** {@inheritDoc} */
     @Nonnull
     @Override
     public String getTitle() {
-        return machineLocalizationConstant.builderConsoleViewTitle() + (isUnread ? " *" : "");
+        return machineLocalizationConstant.machineConsoleViewTitle() + (hasUnreadMessages ? " *" : "");
     }
 
     /** {@inheritDoc} */
@@ -88,7 +87,7 @@ public class MachineConsolePresenter extends BasePresenter implements MachineCon
     /** {@inheritDoc} */
     @Override
     public String getTitleToolTip() {
-        return "Displays Machine Output";
+        return machineLocalizationConstant.machineConsoleViewTooltip();
     }
 
     /** {@inheritDoc} */
@@ -98,37 +97,26 @@ public class MachineConsolePresenter extends BasePresenter implements MachineCon
         container.setWidget(view);
     }
 
-    /**
-     * Print message to console.
-     *
-     * @param message
-     *         message that need to be print
-     */
+    /** Print message to console. */
     public void print(String message) {
-        String[] lines = message.split("\n");
-        for (String line : lines) {
-            view.print(line);
-        }
+        view.print(message);
         view.scrollBottom();
 
-        PartPresenter activePart = partStack.getActivePart();
+        final PartPresenter activePart = partStack.getActivePart();
         if (activePart == null || !activePart.equals(this)) {
-            isUnread = true;
+            hasUnreadMessages = true;
         }
-        firePropertyChange(TITLE_PROPERTY);
     }
 
-    /**
-     * Set the console active (selected) in the parts stack.
-     */
+    /** Set the console active (selected) in the parts stack. */
     public void setActive() {
-        PartPresenter activePart = partStack.getActivePart();
+        final PartPresenter activePart = partStack.getActivePart();
         if (activePart == null || !activePart.equals(this)) {
             partStack.setActivePart(this);
         }
     }
 
-    /** Clear console. Remove all messages. */
+    /** Clear console. */
     public void clear() {
         view.clear();
     }

@@ -10,9 +10,10 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.machine.client.console;
 
+import com.google.gwt.user.client.ui.AcceptsOneWidget;
+
 import org.eclipse.che.ide.api.mvp.View;
 import org.eclipse.che.ide.api.parts.base.BaseActionDelegate;
-import com.google.gwt.user.client.ui.AcceptsOneWidget;
 
 /**
  * View of {@link MachineConsolePresenter}.
@@ -21,37 +22,35 @@ import com.google.gwt.user.client.ui.AcceptsOneWidget;
  */
 public interface MachineConsoleView extends View<MachineConsoleView.ActionDelegate> {
 
-    interface ActionDelegate extends BaseActionDelegate {
-    }
-
     /**
      * Returns toolbar panel.
      *
      * @return toolbar panel
      */
-     AcceptsOneWidget getToolbarPanel();
+    AcceptsOneWidget getToolbarPanel();
 
     /**
      * Print message to console area.
      *
-     * @param message message that need to be shown
+     * @param message
+     *         message to output
      */
     void print(String message);
 
     /**
      * Set title of console part.
      *
-     * @param title title that need to be set
+     * @param title
+     *         new title for console
      */
     void setTitle(String title);
 
-    /**
-     * Clears the console.
-     */
+    /** Clears the console. */
     void clear();
 
-    /**
-     * Scrolls console bottom.
-     */
+    /** Scrolls console to bottom. */
     void scrollBottom();
+
+    interface ActionDelegate extends BaseActionDelegate {
+    }
 }
