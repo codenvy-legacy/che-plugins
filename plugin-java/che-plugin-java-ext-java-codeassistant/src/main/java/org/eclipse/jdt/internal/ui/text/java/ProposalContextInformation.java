@@ -14,7 +14,7 @@ package org.eclipse.jdt.internal.ui.text.java;
 import org.eclipse.jdt.core.CompletionProposal;
 import org.eclipse.jdt.internal.ui.JavaPlugin;
 import org.eclipse.jdt.ui.text.java.CompletionProposalLabelProvider;
-import org.eclipse.che.jface.resource.ImageDescriptor;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.che.jface.text.contentassist.IContextInformation;
 import org.eclipse.che.jface.text.contentassist.IContextInformationExtension;
 import org.eclipse.swt.graphics.Image;

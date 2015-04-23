@@ -10,14 +10,17 @@
  *******************************************************************************/
 package org.eclipse.che.jdt.internal.core;
 
-import org.eclipse.che.core.internal.resources.ResourcesPlugin;
+import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceStatus;
-import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.jdt.core.IBuffer;
@@ -36,6 +39,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.text.edits.TextEdit;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -287,37 +291,37 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 //			throw new JavaModelException(e);
 //		}
 //	}
-//	/**
-//	 * Convenience method to create a file
-//	 */
-//	protected void createFile(IContainer folder, String name, InputStream contents, boolean forceFlag) throws JavaModelException {
-//		IFile file= folder.getFile(new Path(name));
-//		try {
-//			file.create(
-//				contents,
-//				forceFlag ? IResource.FORCE | IResource.KEEP_HISTORY : IResource.KEEP_HISTORY,
-//				getSubProgressMonitor(1));
-//				setAttribute(HAS_MODIFIED_RESOURCE_ATTR, TRUE);
-//		} catch (CoreException e) {
-//			throw new JavaModelException(e);
-//		}
-//	}
-//	/**
-//	 * Convenience method to create a folder
-//	 */
-//	protected void createFolder(IContainer parentFolder, String name, boolean forceFlag) throws JavaModelException {
-//		IFolder folder= parentFolder.getFolder(new Path(name));
-//		try {
-//			// we should use true to create the file locally. Only VCM should use tru/false
-//			folder.create(
-//				forceFlag ? IResource.FORCE | IResource.KEEP_HISTORY : IResource.KEEP_HISTORY,
-//				true, // local
-//				getSubProgressMonitor(1));
-//			setAttribute(HAS_MODIFIED_RESOURCE_ATTR, TRUE);
-//		} catch (CoreException e) {
-//			throw new JavaModelException(e);
-//		}
-//	}
+	/**
+	 * Convenience method to create a file
+	 */
+	protected void createFile(IContainer folder, String name, InputStream contents, boolean forceFlag) throws JavaModelException {
+		IFile file= folder.getFile(new Path(name));
+		try {
+			file.create(
+				contents,
+				forceFlag ? IResource.FORCE | IResource.KEEP_HISTORY : IResource.KEEP_HISTORY,
+				getSubProgressMonitor(1));
+				setAttribute(HAS_MODIFIED_RESOURCE_ATTR, TRUE);
+		} catch (CoreException e) {
+			throw new JavaModelException(e);
+		}
+	}
+	/**
+	 * Convenience method to create a folder
+	 */
+	protected void createFolder(IContainer parentFolder, String name, boolean forceFlag) throws JavaModelException {
+		IFolder folder= parentFolder.getFolder(new Path(name));
+		try {
+			// we should use true to create the file locally. Only VCM should use tru/false
+			folder.create(
+				forceFlag ? IResource.FORCE | IResource.KEEP_HISTORY : IResource.KEEP_HISTORY,
+				true, // local
+				getSubProgressMonitor(1));
+			setAttribute(HAS_MODIFIED_RESOURCE_ATTR, TRUE);
+		} catch (CoreException e) {
+			throw new JavaModelException(e);
+		}
+	}
 //	/**
 //	 * Convenience method to delete an empty package fragment
 //	 */

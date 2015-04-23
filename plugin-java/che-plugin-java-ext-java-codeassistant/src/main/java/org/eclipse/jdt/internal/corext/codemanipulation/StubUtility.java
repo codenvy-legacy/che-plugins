@@ -11,6 +11,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.corext.codemanipulation;
 
+import org.eclipse.che.jdt.core.dom.rewrite.ImportRewrite;
+import org.eclipse.che.jface.text.templates.persistence.TemplatePersistenceData;
+import org.eclipse.che.jface.text.templates.persistence.TemplateStore;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ProjectScope;
 import org.eclipse.core.runtime.CoreException;
@@ -39,10 +42,10 @@ import org.eclipse.jdt.core.NamingConventions;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.CheASTParser;
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.ArrayType;
 import org.eclipse.jdt.core.dom.CastExpression;
+import org.eclipse.jdt.core.dom.CheASTParser;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.ConstructorInvocation;
@@ -64,7 +67,6 @@ import org.eclipse.jdt.core.dom.SuperConstructorInvocation;
 import org.eclipse.jdt.core.dom.SuperMethodInvocation;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeParameter;
-import org.eclipse.che.jdt.core.dom.rewrite.ImportRewrite;
 import org.eclipse.jdt.core.formatter.IndentManipulation;
 import org.eclipse.jdt.internal.corext.dom.ASTNodes;
 import org.eclipse.jdt.internal.corext.dom.Bindings;
@@ -77,6 +79,7 @@ import org.eclipse.jdt.internal.ui.javaeditor.ASTProvider;
 import org.eclipse.jdt.internal.ui.text.correction.ASTResolving;
 import org.eclipse.jdt.ui.CodeGeneration;
 import org.eclipse.jdt.ui.CodeStyleConfiguration;
+import org.eclipse.jdt.ui.PreferenceConstants;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
@@ -1441,38 +1444,35 @@ public class StubUtility {
 	// -------------------- preference access -----------------------
 
 	public static boolean useThisForFieldAccess(IJavaProject project) {
-//		return Boolean.valueOf(PreferenceConstants.getPreference(PreferenceConstants.CODEGEN_KEYWORD_THIS, project)).booleanValue();
-		return false;
+		return Boolean.valueOf(PreferenceConstants.getPreference(PreferenceConstants.CODEGEN_KEYWORD_THIS, project)).booleanValue();
 	}
 
 	public static boolean useIsForBooleanGetters(IJavaProject project) {
-//		return Boolean.valueOf(PreferenceConstants.getPreference(PreferenceConstants.CODEGEN_IS_FOR_GETTERS, project)).booleanValue();
-		return true;
+		return Boolean.valueOf(PreferenceConstants.getPreference(PreferenceConstants.CODEGEN_IS_FOR_GETTERS, project)).booleanValue();
 	}
 
 	public static String getExceptionVariableName(IJavaProject project) {
-		return "e"; // PreferenceConstants.getPreference(PreferenceConstants.CODEGEN_EXCEPTION_VAR_NAME, project);
+		return PreferenceConstants.getPreference(PreferenceConstants.CODEGEN_EXCEPTION_VAR_NAME, project);
 	}
 
 	public static boolean doAddComments(IJavaProject project) {
-//		return Boolean.valueOf(PreferenceConstants.getPreference(PreferenceConstants.CODEGEN_ADD_COMMENTS, project)).booleanValue();
-		return true;
+		return Boolean.valueOf(PreferenceConstants.getPreference(PreferenceConstants.CODEGEN_ADD_COMMENTS, project)).booleanValue();
 	}
 
-//	/**
-//	 * Only to be used by tests
-//	 *
-//	 * @param templateId the template id
-//	 * @param pattern the new pattern
-//	 * @param project not used
-//	 */
-//	public static void setCodeTemplate(String templateId, String pattern, IJavaProject project) {
-//		TemplateStore codeTemplateStore= JavaPlugin.getDefault().getCodeTemplateStore();
-//		TemplatePersistenceData data= codeTemplateStore.getTemplateData(templateId);
-//		Template orig= data.getTemplate();
-//		Template copy= new Template(orig.getName(), orig.getDescription(), orig.getContextTypeId(), pattern, true);
-//		data.setTemplate(copy);
-//	}
+	/**
+	 * Only to be used by tests
+	 *
+	 * @param templateId the template id
+	 * @param pattern the new pattern
+	 * @param project not used
+	 */
+	public static void setCodeTemplate(String templateId, String pattern, IJavaProject project) {
+		TemplateStore codeTemplateStore= JavaPlugin.getDefault().getCodeTemplateStore();
+		TemplatePersistenceData data= codeTemplateStore.getTemplateData(templateId);
+		Template orig= data.getTemplate();
+		Template copy= new Template(orig.getName(), orig.getDescription(), orig.getContextTypeId(), pattern, true);
+		data.setTemplate(copy);
+	}
 
 	public static Template getCodeTemplate(String id, IJavaProject project) {
 //		if (project == null)

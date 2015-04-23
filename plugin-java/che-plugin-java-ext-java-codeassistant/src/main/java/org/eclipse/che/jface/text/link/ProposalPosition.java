@@ -64,7 +64,7 @@ public class ProposalPosition extends LinkedPosition {
 	 */
 	private ICompletionProposal[] copy(ICompletionProposal[] proposals) {
 		if (proposals != null) {
-			ICompletionProposal[] copy= new ICompletionProposal[proposals.length];
+			ICompletionProposal[] copy = new ICompletionProposal[proposals.length];
 			System.arraycopy(proposals, 0, copy, 0, proposals.length);
 			return copy;
 		}

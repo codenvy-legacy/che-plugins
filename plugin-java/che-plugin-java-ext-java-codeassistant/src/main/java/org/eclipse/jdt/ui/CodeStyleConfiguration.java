@@ -73,14 +73,14 @@ public class CodeStyleConfiguration {
 	private static ImportRewrite configureImportRewrite(ImportRewrite rewrite) {
 		//TODO Configure
 		IJavaProject project= rewrite.getCompilationUnit().getJavaProject();
-		String order=""; // PreferenceConstants.getPreference(PreferenceConstants.ORGIMPORTS_IMPORTORDER, project);
+		String order= PreferenceConstants.getPreference(PreferenceConstants.ORGIMPORTS_IMPORTORDER, project);
 		if (order.endsWith(";")) { //$NON-NLS-1$
 			order= order.substring(0, order.length() - 1);
 		}
 		String[] split= SEMICOLON_PATTERN.split(order, -1);
 		rewrite.setImportOrder(split);
 
-		String thres="99"; // PreferenceConstants.getPreference(PreferenceConstants.ORGIMPORTS_ONDEMANDTHRESHOLD, project);
+		String thres= PreferenceConstants.getPreference(PreferenceConstants.ORGIMPORTS_ONDEMANDTHRESHOLD, project);
 		try {
 			int num= Integer.parseInt(thres);
 			if (num == 0)
@@ -89,7 +89,7 @@ public class CodeStyleConfiguration {
 		} catch (NumberFormatException e) {
 			// ignore
 		}
-		String thresStatic= "99";// PreferenceConstants.getPreference(PreferenceConstants.ORGIMPORTS_STATIC_ONDEMANDTHRESHOLD, project);
+		String thresStatic= PreferenceConstants.getPreference(PreferenceConstants.ORGIMPORTS_STATIC_ONDEMANDTHRESHOLD, project);
 		try {
 			int num= Integer.parseInt(thresStatic);
 			if (num == 0)

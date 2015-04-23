@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.jface.text.contentassist;
 
-import org.eclipse.che.jface.viewers.StyledString;
+import org.eclipse.jface.viewers.StyledString;
 
 
 /**

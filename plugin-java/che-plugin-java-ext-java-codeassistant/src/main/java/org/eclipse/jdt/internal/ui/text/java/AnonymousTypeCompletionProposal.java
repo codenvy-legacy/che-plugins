@@ -46,7 +46,7 @@ import org.eclipse.jdt.internal.ui.JavaPluginImages;
 import org.eclipse.jdt.internal.ui.JavaPreferencesSettings;
 import org.eclipse.jdt.internal.ui.javaeditor.ASTProvider;
 import org.eclipse.jdt.ui.text.java.JavaContentAssistInvocationContext;
-import org.eclipse.che.jface.resource.ImageDescriptor;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
@@ -55,7 +55,7 @@ import org.eclipse.jface.text.TextUtilities;
 import org.eclipse.che.jface.text.contentassist.ICompletionProposalExtension4;
 import org.eclipse.che.jface.text.contentassist.IContextInformation;
 import org.eclipse.jface.text.link.LinkedModeModel;
-import org.eclipse.che.jface.viewers.StyledString;
+import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.text.edits.MalformedTreeException;
 

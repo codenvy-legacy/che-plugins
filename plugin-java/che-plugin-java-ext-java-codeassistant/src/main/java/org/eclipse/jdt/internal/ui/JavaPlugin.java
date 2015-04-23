@@ -14,8 +14,6 @@ package org.eclipse.jdt.internal.ui;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
-import org.eclipse.che.jface.text.templates.ContextTypeRegistry;
-import org.eclipse.che.jface.text.templates.persistence.TemplateStore;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
@@ -26,10 +24,16 @@ import org.eclipse.jdt.internal.corext.template.java.JavaContextType;
 import org.eclipse.jdt.internal.corext.util.QualifiedTypeNameHistory;
 import org.eclipse.jdt.internal.corext.util.TypeFilter;
 import org.eclipse.jdt.internal.ui.javaeditor.ASTProvider;
+import org.eclipse.jdt.internal.ui.preferences.MembersOrderPreferenceCache;
 import org.eclipse.jdt.internal.ui.text.java.ContentAssistHistory;
 import org.eclipse.jdt.internal.ui.viewsupport.ImageDescriptorRegistry;
+import org.eclipse.jdt.ui.PreferenceConstants;
+import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.preference.PreferenceStore;
+import org.eclipse.che.jface.text.templates.ContextTypeRegistry;
 import org.eclipse.jface.text.templates.TemplateContextType;
 import org.eclipse.jface.text.templates.TemplateVariableResolver;
+import org.eclipse.che.jface.text.templates.persistence.TemplateStore;
 import org.eclipse.ui.editors.text.templates.ContributionContextTypeRegistry;
 import org.eclipse.ui.editors.text.templates.ContributionTemplateStore;
 import org.slf4j.Logger;
@@ -113,10 +117,17 @@ public class JavaPlugin {
      */
     private ASTProvider fASTProvider;
 
+    private MembersOrderPreferenceCache fMembersOrderPreferenceCache;
+
+    /**
+     * Storage for preferences.
+     */
+    private IPreferenceStore preferenceStore;
+
 
     private ImageDescriptorRegistry fImageDescriptorRegistry;
     private String                  settingsDir;
-    private String cahPath;
+    private String                  cahPath;
 
     @Inject
     public JavaPlugin(@Named("che.jdt.settings.dir") String settingsDir) {
@@ -126,7 +137,7 @@ public class JavaPlugin {
     }
 
     @PostConstruct
-    void start(){
+    public void start() {
 //        WorkingCopyOwner.setPrimaryBufferProvider(new WorkingCopyOwner() {
 //            @Override
 //            public IBuffer createBuffer(ICompilationUnit workingCopy) {
@@ -137,6 +148,8 @@ public class JavaPlugin {
 //                return DocumentAdapter.NULL;
 //            }
 //        });
+        fMembersOrderPreferenceCache= new MembersOrderPreferenceCache();
+        PreferenceConstants.initializeDefaultValues(PreferenceConstants.getPreferenceStore());
     }
 
     @PreDestroy
@@ -181,9 +194,36 @@ public class JavaPlugin {
      */
     public synchronized ASTProvider getASTProvider() {
         if (fASTProvider == null)
-            fASTProvider= new ASTProvider();
+            fASTProvider = new ASTProvider();
 
         return fASTProvider;
+    }
+
+    /**
+     * Returns the preference store for this UI plug-in.
+     * This preference store is used to hold persistent settings for this plug-in in
+     * the context of a workbench. Some of these settings will be user controlled,
+     * whereas others may be internal setting that are never exposed to the user.
+     * <p>
+     * If an error occurs reading the preference store, an empty preference store is
+     * quietly created, initialized with defaults, and returned.
+     * </p>
+     * <p>
+     * <strong>NOTE:</strong> As of Eclipse 3.1 this method is
+     * no longer referring to the core runtime compatibility layer and so
+     * plug-ins relying on Plugin#initializeDefaultPreferences
+     * will have to access the compatibility layer themselves.
+     * </p>
+     *
+     * @return the preference store
+     */
+    public IPreferenceStore getPreferenceStore() {
+        // Create the preference store lazily.
+        if (preferenceStore == null) {
+            preferenceStore = new PreferenceStore("test");
+
+        }
+        return preferenceStore;
     }
 
 
@@ -197,13 +237,14 @@ public class JavaPlugin {
      */
     public ContextTypeRegistry getCodeTemplateContextRegistry() {
         if (fCodeTemplateContextTypeRegistry == null) {
-            fCodeTemplateContextTypeRegistry= new ContributionContextTypeRegistry();
+            fCodeTemplateContextTypeRegistry = new ContributionContextTypeRegistry();
 
             CodeTemplateContextType.registerContextTypes(fCodeTemplateContextTypeRegistry);
         }
 
         return fCodeTemplateContextTypeRegistry;
     }
+
     /**
      * Returns the template store for the code generation templates.
      *
@@ -215,9 +256,10 @@ public class JavaPlugin {
 //            IPreferenceStore store= getPreferenceStore();
 //            boolean alreadyMigrated= store.getBoolean(CODE_TEMPLATES_MIGRATION_KEY);
 //            if (alreadyMigrated)
-                fCodeTemplateStore= new ContributionTemplateStore(getCodeTemplateContextRegistry(), /*store,*/ CODE_TEMPLATES_KEY);
+            fCodeTemplateStore = new ContributionTemplateStore(getCodeTemplateContextRegistry(), /*store,*/ CODE_TEMPLATES_KEY);
 //            else {
-//                fCodeTemplateStore= new CompatibilityTemplateStore(getCodeTemplateContextRegistry(), store, CODE_TEMPLATES_KEY, getOldCodeTemplateStoreInstance());
+//                fCodeTemplateStore= new CompatibilityTemplateStore(getCodeTemplateContextRegistry(), store, CODE_TEMPLATES_KEY,
+// getOldCodeTemplateStoreInstance());
 //                store.setValue(CODE_TEMPLATES_MIGRATION_KEY, true);
 //            }
 
@@ -347,5 +389,9 @@ public class JavaPlugin {
 
     public static void logErrorMessage(String message) {
         LOG.error(message);
+    }
+
+    public MembersOrderPreferenceCache getMemberOrderPreferenceCache() {
+        return fMembersOrderPreferenceCache;
     }
 }

@@ -11,7 +11,7 @@
 
 package org.eclipse.jdt.internal.ui.viewsupport;
 
-import org.eclipse.che.jface.resource.ImageDescriptor;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.Image;
 
 import java.util.Collections;

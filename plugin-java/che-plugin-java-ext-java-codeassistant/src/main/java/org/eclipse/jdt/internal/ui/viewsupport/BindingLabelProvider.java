@@ -23,7 +23,7 @@ import org.eclipse.jdt.internal.ui.JavaPluginImages;
 import org.eclipse.jdt.internal.ui.JavaUIMessages;
 import org.eclipse.jdt.ui.JavaElementImageDescriptor;
 import org.eclipse.jdt.ui.JavaElementLabels;
-import org.eclipse.che.jface.resource.ImageDescriptor;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 

@@ -16,6 +16,7 @@ import com.google.inject.AbstractModule;
 import org.eclipse.che.core.internal.resources.ResourcesPlugin;
 import org.eclipse.che.inject.DynaModule;
 import org.eclipse.che.jdt.rest.CodeAssistService;
+import org.eclipse.core.internal.filebuffers.FileBuffersPlugin;
 import org.eclipse.jdt.internal.ui.JavaPlugin;
 
 /**
@@ -28,6 +29,7 @@ public class JdtGuiceModule extends AbstractModule {
     protected void configure() {
         bind(JavaPlugin.class).asEagerSingleton();
         bind(ResourcesPlugin.class).asEagerSingleton();
+        bind(FileBuffersPlugin.class).asEagerSingleton();
         bind(CodeAssistService.class);
     }
 }

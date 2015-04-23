@@ -10,8 +10,8 @@
  *******************************************************************************/
 package org.eclipse.che.jface.text.templates.persistence;
 
-import org.eclipse.core.runtime.Assert;
 import org.eclipse.che.jface.text.templates.ContextTypeRegistry;
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.text.templates.Template;
 import org.eclipse.jface.text.templates.TemplateException;
 

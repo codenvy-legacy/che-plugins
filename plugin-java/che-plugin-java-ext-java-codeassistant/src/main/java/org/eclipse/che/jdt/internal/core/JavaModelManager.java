@@ -2074,7 +2074,7 @@ public class JavaModelManager {
             ClasspathChange classpathChange = addClasspathChange ? addClasspathChange() : null;
 
             if (referencedEntries != null) this.referencedEntries = referencedEntries;
-            if (this.referencedEntries == null) this.referencedEntries = org.eclipse.jdt.internal.core.ClasspathEntry.NO_ENTRIES;
+            if (this.referencedEntries == null) this.referencedEntries = org.eclipse.che.jdt.internal.core.ClasspathEntry.NO_ENTRIES;
             this.rawClasspath = newRawClasspath;
             this.outputLocation = newOutputLocation;
             this.rawClasspathStatus = newRawClasspathStatus;

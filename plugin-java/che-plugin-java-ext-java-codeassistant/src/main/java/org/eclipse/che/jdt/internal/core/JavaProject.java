@@ -407,7 +407,7 @@ public class JavaProject extends Openable implements IJavaProject, SuffixConstan
     @Override
     public void setRawClasspath(IClasspathEntry[] entries, IPath outputLocation, boolean canModifyResources, IProgressMonitor monitor)
             throws JavaModelException {
-        throw new UnsupportedOperationException();
+        setRawClasspath(entries, null, outputLocation, canModifyResources, monitor);
     }
 
     @Override
@@ -428,14 +428,43 @@ public class JavaProject extends Openable implements IJavaProject, SuffixConstan
 
     @Override
     public void setRawClasspath(IClasspathEntry[] entries, IProgressMonitor monitor) throws JavaModelException {
-        throw new UnsupportedOperationException();
+        setRawClasspath(
+                entries,
+//                getOutputLocation()/*don't change output*/,
+                null,
+                true/*can change resource (as per API contract)*/,
+                monitor);
     }
 
     @Override
     public void setRawClasspath(IClasspathEntry[] entries, IPath outputLocation, IProgressMonitor monitor) throws JavaModelException {
-        throw new UnsupportedOperationException();
+        setRawClasspath(
+                entries,
+                outputLocation,
+                true/*can change resource (as per API contract)*/,
+                monitor);
     }
 
+    protected void setRawClasspath(IClasspathEntry[] newRawClasspath, IClasspathEntry[] referencedEntries, IPath newOutputLocation,
+                                   boolean canModifyResources,	IProgressMonitor monitor) throws JavaModelException {
+
+        try {
+            if (newRawClasspath == null) //are we already with the default classpath
+                newRawClasspath = defaultClasspath();
+
+            SetClasspathOperation op =
+                    new SetClasspathOperation(
+                            this,
+                            newRawClasspath,
+                            referencedEntries,
+                            newOutputLocation,
+                            canModifyResources);
+            op.runOperation(monitor);
+        } catch (JavaModelException e) {
+            JavaModelManager.getJavaModelManager().getDeltaProcessor().flush();
+            throw e;
+        }
+    }
     /**
      * This is a helper method returning the resolved classpath for the project
      * as a list of simple (non-variable, non-container) classpath entries.

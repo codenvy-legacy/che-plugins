@@ -32,6 +32,7 @@ import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.ClasspathAccessRule;
 import org.eclipse.jdt.internal.core.ClasspathAttribute;
@@ -1337,5 +1338,79 @@ public class JavaCore {
      */
     public static String removeJavaLikeExtension(String fileName) {
         return Util.getNameWithoutJavaLikeExtension(fileName);
+    }
+
+    /**
+     * Sets the default compiler options inside the given options map according
+     * to the given compliance.
+     *
+     * <p>The given compliance must be one of those supported by the compiler,
+     * that is one of the acceptable values for option {@link #COMPILER_COMPLIANCE}.</p>
+     *
+     * <p>The list of modified options is currently:</p>
+     * <ul>
+     * <li>{@link #COMPILER_COMPLIANCE}</li>
+     * <li>{@link #COMPILER_SOURCE}</li>
+     * <li>{@link #COMPILER_CODEGEN_TARGET_PLATFORM}</li>
+     * <li>{@link #COMPILER_PB_ASSERT_IDENTIFIER}</li>
+     * <li>{@link #COMPILER_PB_ENUM_IDENTIFIER}</li>
+     * <li>{@link #COMPILER_CODEGEN_INLINE_JSR_BYTECODE} for compliance levels 1.5 and greater</li>
+     * </ul>
+     *
+     * <p>If the given compliance is unknown, the given map is unmodified.</p>
+     *
+     * @param compliance the given compliance
+     * @param options the given options map
+     * @since 3.3
+     */
+    public static void setComplianceOptions(String compliance, Map options) {
+        switch((int) (CompilerOptions.versionToJdkLevel(compliance) >>> 16)) {
+            case ClassFileConstants.MAJOR_VERSION_1_3:
+                options.put(org.eclipse.jdt.core.JavaCore.COMPILER_COMPLIANCE, org.eclipse.jdt.core.JavaCore.VERSION_1_3);
+                options.put(org.eclipse.jdt.core.JavaCore.COMPILER_SOURCE, org.eclipse.jdt.core.JavaCore.VERSION_1_3);
+                options.put(org.eclipse.jdt.core.JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, org.eclipse.jdt.core.JavaCore.VERSION_1_1);
+                options.put(org.eclipse.jdt.core.JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, org.eclipse.jdt.core.JavaCore.IGNORE);
+                options.put(org.eclipse.jdt.core.JavaCore.COMPILER_PB_ENUM_IDENTIFIER, org.eclipse.jdt.core.JavaCore.IGNORE);
+                break;
+            case ClassFileConstants.MAJOR_VERSION_1_4:
+                options.put(org.eclipse.jdt.core.JavaCore.COMPILER_COMPLIANCE, org.eclipse.jdt.core.JavaCore.VERSION_1_4);
+                options.put(org.eclipse.jdt.core.JavaCore.COMPILER_SOURCE, org.eclipse.jdt.core.JavaCore.VERSION_1_3);
+                options.put(org.eclipse.jdt.core.JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, org.eclipse.jdt.core.JavaCore.VERSION_1_2);
+                options.put(org.eclipse.jdt.core.JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, org.eclipse.jdt.core.JavaCore.WARNING);
+                options.put(org.eclipse.jdt.core.JavaCore.COMPILER_PB_ENUM_IDENTIFIER, org.eclipse.jdt.core.JavaCore.WARNING);
+                break;
+            case ClassFileConstants.MAJOR_VERSION_1_5:
+                options.put(org.eclipse.jdt.core.JavaCore.COMPILER_COMPLIANCE, org.eclipse.jdt.core.JavaCore.VERSION_1_5);
+                options.put(org.eclipse.jdt.core.JavaCore.COMPILER_SOURCE, org.eclipse.jdt.core.JavaCore.VERSION_1_5);
+                options.put(org.eclipse.jdt.core.JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, org.eclipse.jdt.core.JavaCore.VERSION_1_5);
+                options.put(org.eclipse.jdt.core.JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, org.eclipse.jdt.core.JavaCore.ERROR);
+                options.put(org.eclipse.jdt.core.JavaCore.COMPILER_PB_ENUM_IDENTIFIER, org.eclipse.jdt.core.JavaCore.ERROR);
+                options.put(org.eclipse.jdt.core.JavaCore.COMPILER_CODEGEN_INLINE_JSR_BYTECODE, org.eclipse.jdt.core.JavaCore.ENABLED);
+                break;
+            case ClassFileConstants.MAJOR_VERSION_1_6:
+                options.put(org.eclipse.jdt.core.JavaCore.COMPILER_COMPLIANCE, org.eclipse.jdt.core.JavaCore.VERSION_1_6);
+                options.put(org.eclipse.jdt.core.JavaCore.COMPILER_SOURCE, org.eclipse.jdt.core.JavaCore.VERSION_1_6);
+                options.put(org.eclipse.jdt.core.JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, org.eclipse.jdt.core.JavaCore.VERSION_1_6);
+                options.put(org.eclipse.jdt.core.JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, org.eclipse.jdt.core.JavaCore.ERROR);
+                options.put(org.eclipse.jdt.core.JavaCore.COMPILER_PB_ENUM_IDENTIFIER, org.eclipse.jdt.core.JavaCore.ERROR);
+                options.put(org.eclipse.jdt.core.JavaCore.COMPILER_CODEGEN_INLINE_JSR_BYTECODE, org.eclipse.jdt.core.JavaCore.ENABLED);
+                break;
+            case ClassFileConstants.MAJOR_VERSION_1_7:
+                options.put(org.eclipse.jdt.core.JavaCore.COMPILER_COMPLIANCE, org.eclipse.jdt.core.JavaCore.VERSION_1_7);
+                options.put(org.eclipse.jdt.core.JavaCore.COMPILER_SOURCE, org.eclipse.jdt.core.JavaCore.VERSION_1_7);
+                options.put(org.eclipse.jdt.core.JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, org.eclipse.jdt.core.JavaCore.VERSION_1_7);
+                options.put(org.eclipse.jdt.core.JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, org.eclipse.jdt.core.JavaCore.ERROR);
+                options.put(org.eclipse.jdt.core.JavaCore.COMPILER_PB_ENUM_IDENTIFIER, org.eclipse.jdt.core.JavaCore.ERROR);
+                options.put(org.eclipse.jdt.core.JavaCore.COMPILER_CODEGEN_INLINE_JSR_BYTECODE, org.eclipse.jdt.core.JavaCore.ENABLED);
+                break;
+            case ClassFileConstants.MAJOR_VERSION_1_8:
+                options.put(org.eclipse.jdt.core.JavaCore.COMPILER_COMPLIANCE, org.eclipse.jdt.core.JavaCore.VERSION_1_8);
+                options.put(org.eclipse.jdt.core.JavaCore.COMPILER_SOURCE, org.eclipse.jdt.core.JavaCore.VERSION_1_8);
+                options.put(org.eclipse.jdt.core.JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, org.eclipse.jdt.core.JavaCore.VERSION_1_8);
+                options.put(org.eclipse.jdt.core.JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, org.eclipse.jdt.core.JavaCore.ERROR);
+                options.put(org.eclipse.jdt.core.JavaCore.COMPILER_PB_ENUM_IDENTIFIER, org.eclipse.jdt.core.JavaCore.ERROR);
+                options.put(org.eclipse.jdt.core.JavaCore.COMPILER_CODEGEN_INLINE_JSR_BYTECODE, org.eclipse.jdt.core.JavaCore.ENABLED);
+                break;
+        }
     }
 }

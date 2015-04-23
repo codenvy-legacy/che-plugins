@@ -17,7 +17,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DefaultLineTracker;
 import org.eclipse.jface.text.ILineTracker;
 import org.eclipse.jface.text.IRegion;
-import org.eclipse.che.jface.viewers.StyledString;
+import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.osgi.util.TextProcessor;
 
 

@@ -12,9 +12,11 @@
 package org.eclipse.che.core.internal.resources;
 
 import org.eclipse.core.resources.IBuildConfiguration;
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IProjectNature;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IPluginDescriptor;
@@ -54,18 +56,18 @@ public class Project extends Container implements IProject {
     }
 
     @Override
-    public void create(IProjectDescription iProjectDescription, IProgressMonitor iProgressMonitor) throws CoreException {
-        throw new UnsupportedOperationException();
+    public void create(IProjectDescription description, IProgressMonitor monitor) throws CoreException {
+        create(description, IResource.NONE, monitor);
     }
 
     @Override
-    public void create(IProgressMonitor iProgressMonitor) throws CoreException {
-        throw new UnsupportedOperationException();
+    public void create(IProgressMonitor monitor) throws CoreException {
+        create(null, monitor);
     }
 
     @Override
-    public void create(IProjectDescription iProjectDescription, int i, IProgressMonitor iProgressMonitor) throws CoreException {
-        throw new UnsupportedOperationException();
+    public void create(IProjectDescription description, int updateFlags, IProgressMonitor monitor) throws CoreException {
+        workspace.createResource(this, updateFlags);
     }
 
     @Override
@@ -140,7 +142,8 @@ public class Project extends Container implements IProject {
 
     @Override
     public boolean isOpen() {
-        throw new UnsupportedOperationException();
+//        throw new UnsupportedOperationException();
+        return true;
     }
 
     @Override
@@ -186,5 +189,10 @@ public class Project extends Container implements IProject {
     @Override
     public int getType() {
         return PROJECT;
+    }
+
+    @Override
+    public IContainer getParent() {
+        return workspace.getRoot();
     }
 }

@@ -32,7 +32,7 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.corext.util.Strings;
 import org.eclipse.jdt.internal.ui.viewsupport.BasicElementLabels;
 import org.eclipse.jdt.internal.ui.viewsupport.JavaElementLabelComposer;
-import org.eclipse.che.jface.viewers.StyledString;
+import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.osgi.util.TextProcessor;
 
 

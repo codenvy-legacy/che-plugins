@@ -45,8 +45,8 @@ import org.eclipse.jface.text.templates.TemplateBuffer;
 import org.eclipse.jface.text.templates.TemplateContext;
 import org.eclipse.jface.text.templates.TemplateException;
 import org.eclipse.jface.text.templates.TemplateVariable;
-import org.eclipse.che.jface.viewers.StyledCellLabelProvider;
-import org.eclipse.che.jface.viewers.StyledString;
+import org.eclipse.jface.viewers.StyledCellLabelProvider;
+import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 

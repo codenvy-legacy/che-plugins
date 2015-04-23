@@ -23,8 +23,8 @@ import org.eclipse.jdt.internal.ui.viewsupport.BasicElementLabels;
 import org.eclipse.jdt.internal.ui.viewsupport.JavaElementImageProvider;
 import org.eclipse.jdt.ui.JavaElementImageDescriptor;
 import org.eclipse.jdt.ui.JavaElementLabels;
-import org.eclipse.che.jface.resource.ImageDescriptor;
-import org.eclipse.che.jface.viewers.StyledString;
+import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.viewers.StyledString;
 
 
 /**

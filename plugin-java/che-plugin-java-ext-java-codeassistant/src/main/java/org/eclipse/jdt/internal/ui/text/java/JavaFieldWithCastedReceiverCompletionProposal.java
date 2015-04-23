@@ -13,7 +13,7 @@ package org.eclipse.jdt.internal.ui.text.java;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.jdt.core.CompletionProposal;
 import org.eclipse.jdt.ui.text.java.JavaContentAssistInvocationContext;
-import org.eclipse.che.jface.viewers.StyledString;
+import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.swt.graphics.Image;
 
 

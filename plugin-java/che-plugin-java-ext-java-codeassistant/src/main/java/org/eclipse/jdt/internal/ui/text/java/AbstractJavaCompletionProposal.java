@@ -41,7 +41,7 @@ import org.eclipse.che.jface.text.contentassist.ICompletionProposalExtension3;
 import org.eclipse.che.jface.text.contentassist.ICompletionProposalExtension5;
 import org.eclipse.che.jface.text.contentassist.ICompletionProposalExtension6;
 import org.eclipse.che.jface.text.contentassist.IContextInformation;
-import org.eclipse.che.jface.viewers.StyledString;
+import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.osgi.util.TextProcessor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;

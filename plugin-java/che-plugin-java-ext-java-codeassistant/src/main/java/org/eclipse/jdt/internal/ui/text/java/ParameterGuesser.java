@@ -28,7 +28,7 @@ import org.eclipse.jdt.internal.ui.text.template.contentassist.PositionBasedComp
 import org.eclipse.jdt.internal.ui.util.StringMatcher;
 import org.eclipse.jdt.internal.ui.viewsupport.JavaElementImageProvider;
 import org.eclipse.jdt.ui.JavaElementImageDescriptor;
-import org.eclipse.che.jface.resource.ImageDescriptor;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.text.Position;
 import org.eclipse.che.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.swt.graphics.Image;

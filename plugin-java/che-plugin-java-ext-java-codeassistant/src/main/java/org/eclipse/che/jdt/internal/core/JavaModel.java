@@ -60,10 +60,10 @@ public class JavaModel extends Openable implements IJavaModel {
      */
     protected JavaModel() throws Error {
         super(null);
-        options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_7);
+        options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_8);
+        options.put(CompilerOptions.OPTION_TargetPlatform, JavaCore.VERSION_1_8);
+        options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_8);
         options.put(JavaCore.CORE_ENCODING, "UTF-8");
-        options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_7);
-        options.put(CompilerOptions.OPTION_TargetPlatform, JavaCore.VERSION_1_7);
         options.put(AssistOptions.OPTION_PerformVisibilityCheck, AssistOptions.ENABLED);
         options.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
         options.put(CompilerOptions.OPTION_TaskTags, CompilerOptions.WARNING);

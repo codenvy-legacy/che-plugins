@@ -152,10 +152,9 @@ public class PackageFragment extends Openable implements IPackageFragment, Suffi
      */
     public ICompilationUnit createCompilationUnit(String cuName, String contents, boolean force, IProgressMonitor monitor) throws
                                                                                                                            JavaModelException {
-//	CreateCompilationUnitOperation op= new CreateCompilationUnitOperation(this, cuName, contents, force);
-//	op.runOperation(monitor);
-//	return new CompilationUnit(this, cuName, DefaultWorkingCopyOwner.PRIMARY);
-        throw new UnsupportedOperationException();
+	    CreateCompilationUnitOperation op= new CreateCompilationUnitOperation(this, cuName, contents, force);
+	    op.runOperation(monitor);
+	    return new CompilationUnit(this, cuName, DefaultWorkingCopyOwner.PRIMARY);
     }
 
     /**

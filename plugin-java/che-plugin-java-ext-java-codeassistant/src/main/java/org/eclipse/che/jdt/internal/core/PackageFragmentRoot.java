@@ -105,8 +105,11 @@ public class PackageFragmentRoot extends Openable implements IPackageFragmentRoo
     }
 
     @Override
-    public IPackageFragment createPackageFragment(String name, boolean force, IProgressMonitor monitor) throws JavaModelException {
-        throw new UnsupportedOperationException();
+    public IPackageFragment createPackageFragment(String pkgName, boolean force, IProgressMonitor monitor) throws JavaModelException {
+      CreatePackageFragmentOperation
+                op = new CreatePackageFragmentOperation(this, pkgName, force);
+        op.runOperation(monitor);
+        return getPackageFragment(op.pkgName);
     }
 
     @Override

@@ -56,10 +56,13 @@ public class File  extends Resource implements IFile{
 
     @Override
     public void create(InputStream content, int updateFlags, IProgressMonitor monitor) throws CoreException {
-        throw new UnsupportedOperationException();
+        workspace.createResource(this, updateFlags);
+        internalSetContents(content);
     }
-
-    @Override
+    protected void internalSetContents(InputStream content) {
+        workspace.setFileContent(this, content);
+    }
+                                       @Override
     public String getCharset() throws CoreException {
         return getCharset(true);
     }

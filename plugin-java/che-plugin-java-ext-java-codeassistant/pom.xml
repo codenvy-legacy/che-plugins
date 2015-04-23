@@ -105,6 +105,11 @@
             <version>${org.eclipse.core.contenttype.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.eclipse.ltk.core</groupId>
+            <artifactId>refactoring</artifactId>
+            <version>3.6.101.v20140817-1500</version>
+        </dependency>
+        <dependency>
             <groupId>org.eclipse.text</groupId>
             <artifactId>org.eclipse.text</artifactId>
             <version>${org.eclipse.text.version}</version>
@@ -211,6 +216,9 @@
                         <exclude>**/org/eclipse/che/jface/**</exclude>
                         <exclude>**/org/eclipse/che/jdt/internal/codeassist/**</exclude>
                         <exclude>**/org/eclipse/ui/**</exclude>
+                        <exclude>**/org/eclipse/core/**</exclude>
+                        <exclude>**/org/eclipse/search/**</exclude>
+                        <exclude>**/org/eclipse/jface/**</exclude>
                         <exclude>**/templates/**</exclude>
                         <exclude>**/org/eclipse/che/jdt/core/**</exclude>
                         <exclude>**/org/eclipse/che/jdt/dom/**</exclude>

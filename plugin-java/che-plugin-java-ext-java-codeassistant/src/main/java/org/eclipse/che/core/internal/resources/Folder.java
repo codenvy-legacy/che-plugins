@@ -34,7 +34,7 @@ public class Folder extends Container implements IFolder {
 
     @Override
     public void create(int updateFlags, boolean local, IProgressMonitor monitor) throws CoreException {
-        throw new UnsupportedOperationException();
+        workspace.createResource(this, 0);
     }
 
     @Override

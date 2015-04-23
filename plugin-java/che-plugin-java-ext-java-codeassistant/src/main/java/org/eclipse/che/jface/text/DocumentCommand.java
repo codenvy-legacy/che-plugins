@@ -113,7 +113,7 @@ public class DocumentCommand {
 				return true;
 			if (!(object instanceof Command))
 				return false;
-			final Command command= (Command) object;
+			final Command command = (Command)object;
 			return command.fOffset == fOffset && command.fLength == fLength;
 		}
 	}

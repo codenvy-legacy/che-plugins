@@ -12,7 +12,7 @@ package org.eclipse.jdt.ui;
 
 
 import org.eclipse.core.runtime.Assert;
-import org.eclipse.che.jface.resource.ImageDescriptor;
+import org.eclipse.jface.resource.ImageDescriptor;
 
 /**
  * A {@link JavaElementImageDescriptor} consists of a base image and several adornments. The adornments

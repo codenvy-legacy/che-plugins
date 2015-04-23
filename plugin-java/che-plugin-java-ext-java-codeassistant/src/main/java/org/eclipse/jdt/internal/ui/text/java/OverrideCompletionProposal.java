@@ -46,7 +46,7 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.TextUtilities;
 import org.eclipse.che.jface.text.contentassist.ICompletionProposalExtension4;
-import org.eclipse.che.jface.viewers.StyledString;
+import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.text.edits.MalformedTreeException;
 
 public class OverrideCompletionProposal extends JavaTypeCompletionProposal implements ICompletionProposalExtension4 {

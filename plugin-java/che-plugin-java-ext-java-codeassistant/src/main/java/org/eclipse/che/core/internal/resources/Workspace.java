@@ -11,7 +11,11 @@
 
 package org.eclipse.che.core.internal.resources;
 
+import org.eclipse.che.core.internal.utils.Policy;
+import org.eclipse.che.core.resources.team.TeamHook;
 import org.eclipse.core.internal.resources.ICoreConstants;
+import org.eclipse.core.internal.resources.ResourceException;
+import org.eclipse.core.internal.utils.Messages;
 import org.eclipse.core.resources.IBuildConfiguration;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFilterMatcherDescriptor;
@@ -23,6 +27,7 @@ import org.eclipse.core.resources.IProjectNatureDescriptor;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.IResourceRuleFactory;
+import org.eclipse.core.resources.IResourceStatus;
 import org.eclipse.core.resources.ISaveParticipant;
 import org.eclipse.core.resources.ISavedState;
 import org.eclipse.core.resources.ISynchronizer;
@@ -35,10 +40,16 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Plugin;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
+import org.eclipse.jdt.internal.ui.JavaPlugin;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.Map;
@@ -47,12 +58,29 @@ import java.util.Map;
  * @author Evgen Vidolob
  */
 public class Workspace implements IWorkspace{
+    /**
+     * Work manager should never be accessed directly because accessor
+     * asserts that workspace is still open.
+     */
+    protected WorkManager _workManager;
     protected final IWorkspaceRoot defaultRoot = new WorkspaceRoot(Path.ROOT, this);
     private String wsPath;
-    private java.io.File workspaceFile;
+    /**
+     * Scheduling rule factory. This field is null if the factory has not been used
+     * yet.  The accessor method should be used rather than accessing this field
+     * directly.
+     */
+    private IResourceRuleFactory ruleFactory;
+
+    /**
+     * The currently installed team hook.
+     */
+    protected TeamHook teamHook = null;
 
     public Workspace(String path) {
         this.wsPath = path;
+        _workManager = new WorkManager(this);
+        _workManager.startup(null);
     }
 
     public String getAbsoluteWorkspacePath() {
@@ -197,7 +225,11 @@ public class Workspace implements IWorkspace{
 
     @Override
     public IResourceRuleFactory getRuleFactory() {
-        throw new UnsupportedOperationException();
+        //note that the rule factory is created lazily because it
+        //requires loading the teamHook extension
+        if (ruleFactory == null)
+            ruleFactory = new Rules(this);
+        return ruleFactory;
     }
 
     @Override
@@ -260,12 +292,143 @@ public class Workspace implements IWorkspace{
     public void removeSaveParticipant(String s) {
         throw new UnsupportedOperationException();
     }
+    /**
+     * Called before checking the pre-conditions of an operation.  Optionally supply
+     * a scheduling rule to determine when the operation is safe to run.  If a scheduling
+     * rule is supplied, this method will block until it is safe to run.
+     *
+     * @param rule the scheduling rule that describes what this operation intends to modify.
+     */
+    public void prepareOperation(ISchedulingRule rule, IProgressMonitor monitor) throws CoreException {
+        try {
+            //make sure autobuild is not running if it conflicts with this operation
+            ISchedulingRule buildRule = getRuleFactory().buildRule();
+//            if (rule != null && buildRule != null && (rule.isConflicting(buildRule) || buildRule.isConflicting(rule)))
+//                buildManager.interrupt();
+        } finally {
+            getWorkManager().checkIn(rule, monitor);
+        }
+//        if (!isOpen()) {
+//            String message = Messages.resources_workspaceClosed;
+//            throw new ResourceException(IResourceStatus.OPERATION_FAILED, null, message, null);
+//        }
+    }
 
+    /**
+     * We should not have direct references to this field. All references should go through
+     * this method.
+     */
+    public WorkManager getWorkManager() throws CoreException {
+        if (_workManager == null) {
+            String message = Messages.resources_shutdown;
+            throw new ResourceException(new ResourceStatus(IResourceStatus.INTERNAL_ERROR, null, message));
+        }
+        return _workManager;
+    }
     @Override
     public void run(IWorkspaceRunnable action, ISchedulingRule rule, int options, IProgressMonitor monitor)
             throws CoreException {
-        throw new UnsupportedOperationException();
+        monitor = Policy.monitorFor(monitor);
+        try {
+            monitor.beginTask("", Policy.totalWork); //$NON-NLS-1$
+            int depth = -1;
+            boolean avoidNotification = (options & IWorkspace.AVOID_UPDATE) != 0;
+            try {
+                prepareOperation(rule, monitor);
+                beginOperation(true);
+//                if (avoidNotification)
+//                    avoidNotification = notificationManager.beginAvoidNotify();
+                depth = getWorkManager().beginUnprotected();
+                action.run(Policy.subMonitorFor(monitor, Policy.opWork, SubProgressMonitor.PREPEND_MAIN_LABEL_TO_SUBTASK));
+            } catch (OperationCanceledException e) {
+                getWorkManager().operationCanceled();
+                throw e;
+            } finally {
+//                if (avoidNotification)
+//                    notificationManager.endAvoidNotify();
+                if (depth >= 0)
+                    getWorkManager().endUnprotected(depth);
+//                endOperation(rule, false, Policy.subMonitorFor(monitor, Policy.endOpWork));
+            }
+        } finally {
+            monitor.done();
+        }
     }
+
+    public void beginOperation(boolean createNewTree) throws CoreException {
+        WorkManager workManager = getWorkManager();
+        workManager.incrementNestedOperations();
+        if (!workManager.isBalanced())
+            Assert.isTrue(false, "Operation was not prepared."); //$NON-NLS-1$
+//        if (workManager.getPreparedOperationDepth() > 1) {
+//            if (createNewTree && tree.isImmutable())
+//                newWorkingTree();
+//            return;
+//        }
+//        // stash the current tree as the basis for this operation.
+//        operationTree = tree;
+//        if (createNewTree && tree.isImmutable())
+//            newWorkingTree();
+    }
+
+    /**
+     * End an operation (group of resource changes).
+     * Notify interested parties that resource changes have taken place.  All
+     * registered resource change listeners are notified.  If autobuilding is
+     * enabled, a build is run.
+     */
+    public void endOperation(ISchedulingRule rule, boolean build, IProgressMonitor monitor) throws CoreException {
+        WorkManager workManager = getWorkManager();
+        //don't do any end operation work if we failed to check in
+        if (workManager.checkInFailed(rule))
+            return;
+        // This is done in a try finally to ensure that we always decrement the operation count
+        // and release the workspace lock.  This must be done at the end because snapshot
+        // and "hasChanges" comparison have to happen without interference from other threads.
+        boolean hasTreeChanges = false;
+        boolean depthOne = false;
+        try {
+            workManager.setBuild(build);
+            // if we are not exiting a top level operation then just decrement the count and return
+            depthOne = workManager.getPreparedOperationDepth() == 1;
+//            if (!(notificationManager.shouldNotify() || depthOne)) {
+//                notificationManager.requestNotify();
+//                return;
+//            }
+            // do the following in a try/finally to ensure that the operation tree is nulled at the end
+            // as we are completing a top level operation.
+            try {
+//                notificationManager.beginNotify();
+                // check for a programming error on using beginOperation/endOperation
+                Assert.isTrue(workManager.getPreparedOperationDepth() > 0, "Mismatched begin/endOperation"); //$NON-NLS-1$
+
+                // At this time we need to re-balance the nested operations. It is necessary because
+                // build() and snapshot() should not fail if they are called.
+                workManager.rebalanceNestedOperations();
+
+                //find out if any operation has potentially modified the tree
+//                hasTreeChanges = workManager.shouldBuild();
+                //double check if the tree has actually changed
+//                if (hasTreeChanges)
+//                    hasTreeChanges = operationTree != null && ElementTree.hasChanges(tree, operationTree, ResourceComparator.getBuildComparator(), true);
+//                broadcastPostChange();
+//                // Request a snapshot if we are sufficiently out of date.
+//                saveManager.snapshotIfNeeded(hasTreeChanges);
+            } finally {
+//                // make sure the tree is immutable if we are ending a top-level operation.
+//                if (depthOne) {
+//                    tree.immutable();
+//                    operationTree = null;
+//                } else
+//                    newWorkingTree();
+            }
+        } finally {
+            workManager.checkOut(rule);
+        }
+//        if (depthOne)
+//            buildManager.endTopLevel(hasTreeChanges);
+    }
+
 
     @Override
     public void run(IWorkspaceRunnable action, IProgressMonitor monitor) throws CoreException {
@@ -407,7 +570,83 @@ public class Workspace implements IWorkspace{
         return ICoreConstants.EMPTY_RESOURCE_ARRAY;
     }
 
-    public java.io.File getWorkspaceFile() {
-        return workspaceFile;
+//    public java.io.File getWorkspaceFile() {
+//        return workspaceFile;
+//    }
+
+    public void createResource(IResource resource, int updateFlags) throws CoreException{
+        switch (resource.getType()) {
+            case IResource.FILE :
+                java.io.File file = new java.io.File(wsPath, resource.getFullPath().toOSString());
+                try {
+                    file.createNewFile();
+                } catch (IOException e) {
+                    throw new CoreException(new Status(0, JavaPlugin.getPluginId(), e.getMessage(), e));
+                }
+            case IResource.FOLDER :
+                java.io.File folder = new java.io.File(wsPath, resource.getFullPath().toOSString());
+                folder.mkdirs();
+                break;
+            case IResource.PROJECT :
+                java.io.File project = new java.io.File(wsPath, resource.getFullPath().toOSString());
+                project.mkdirs();
+                java.io.File codenvy = new java.io.File(project, ".codenvy");
+                codenvy.mkdir();
+                break;
+            default:
+                throw new UnsupportedOperationException();
+        }
+
+
+    }
+
+    public void setFileContent(File file, InputStream content) {
+        java.io.File ioFile = getFile(file.getFullPath());
+        try(FileOutputStream outputStream = new FileOutputStream(ioFile)){
+            FileUtil.transferStreams(content, outputStream, file.getFullPath().toOSString(), null);
+        } catch (IOException | CoreException e) {
+            JavaPlugin.log(e);
+        }
+
+    }
+
+
+    public TeamHook getTeamHook() {
+        // default to use Core's implementation
+        //create anonymous subclass because TeamHook is abstract
+        if (teamHook == null)
+            teamHook = new TeamHook() {
+                // empty
+            };
+        return teamHook;
+    }
+
+    public void delete(Resource resource) {
+        java.io.File file = getFile(resource.getFullPath());
+        if(file.exists()){
+            if(file.isFile()){
+                file.delete();
+            } else {
+                deleteDirectory(file);
+            }
+
+        }
+    }
+
+    private static boolean deleteDirectory(java.io.File directory) {
+        if(directory.exists()){
+            java.io.File[] files = directory.listFiles();
+            if(null!=files){
+                for(int i=0; i<files.length; i++) {
+                    if(files[i].isDirectory()) {
+                        deleteDirectory(files[i]);
+                    }
+                    else {
+                        files[i].delete();
+                    }
+                }
+            }
+        }
+        return(directory.delete());
     }
 }

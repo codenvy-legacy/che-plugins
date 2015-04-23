@@ -41,8 +41,8 @@ import org.eclipse.jdt.internal.corext.util.Messages;
 import org.eclipse.jdt.internal.ui.JavaPlugin;
 import org.eclipse.jdt.internal.ui.JavaUIMessages;
 import org.eclipse.jdt.ui.JavaElementLabels;
-import org.eclipse.che.jface.viewers.StyledString;
-import org.eclipse.che.jface.viewers.StyledString.Styler;
+import org.eclipse.jface.viewers.StyledString;
+import org.eclipse.jface.viewers.StyledString.Styler;
 
 import java.util.ArrayList;
 import java.util.Collections;

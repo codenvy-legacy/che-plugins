@@ -49,9 +49,9 @@ import org.eclipse.jdt.internal.ui.text.java.ProposalContextInformation;
 import org.eclipse.jdt.internal.ui.text.javadoc.JavadocInlineTagCompletionProposal;
 import org.eclipse.jdt.internal.ui.text.javadoc.JavadocLinkTypeCompletionProposal;
 import org.eclipse.jdt.internal.ui.viewsupport.ImageDescriptorRegistry;
-import org.eclipse.che.jface.resource.ImageDescriptor;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.che.jface.text.contentassist.IContextInformation;
-import org.eclipse.che.jface.viewers.StyledString;
+import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.swt.graphics.Image;
 
 import java.util.ArrayList;

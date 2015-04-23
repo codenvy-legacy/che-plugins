@@ -11,7 +11,7 @@
 
 package org.eclipse.swt.graphics;
 
-import org.eclipse.che.jface.resource.ImageDescriptor;
+import org.eclipse.jface.resource.ImageDescriptor;
 
 /**
  * @author Evgen Vidolob

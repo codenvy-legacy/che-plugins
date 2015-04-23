@@ -12,7 +12,6 @@ package org.eclipse.che.core.internal.resources;
 
 import org.eclipse.core.internal.resources.IManager;
 import org.eclipse.core.internal.resources.ResourceException;
-import org.eclipse.core.internal.resources.Workspace;
 import org.eclipse.core.internal.utils.Messages;
 import org.eclipse.core.internal.utils.Policy;
 import org.eclipse.core.resources.IResource;
@@ -87,7 +86,7 @@ public class WorkManager implements IManager {
      * The current depth of prepared operations.
      */
     private int preparedOperations = 0;
-    private org.eclipse.core.internal.resources.Workspace workspace;
+    private Workspace workspace;
 
     public WorkManager(Workspace workspace) {
         this.workspace = workspace;

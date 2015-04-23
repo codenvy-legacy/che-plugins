@@ -11,6 +11,7 @@
 
 package org.eclipse.che.core.internal.resources;
 
+import org.eclipse.che.core.internal.utils.Policy;
 import org.eclipse.core.internal.resources.ICoreConstants;
 import org.eclipse.core.internal.utils.WrappedRuntimeException;
 import org.eclipse.core.internal.watson.IPathRequestor;
@@ -31,6 +32,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.runtime.Status;
@@ -141,7 +143,25 @@ public abstract class Resource implements IResource, IPathRequestor {
 
     @Override
     public boolean contains(ISchedulingRule rule) {
-        throw new UnsupportedOperationException();
+        if (this == rule)
+            return true;
+        //must allow notifications to nest in all resource rules
+        if (rule.getClass().equals(WorkManager.NotifyRule.class))
+            return true;
+        if (rule instanceof MultiRule) {
+            MultiRule multi = (MultiRule) rule;
+            ISchedulingRule[] children = multi.getChildren();
+            for (int i = 0; i < children.length; i++)
+                if (!contains(children[i]))
+                    return false;
+            return true;
+        }
+        if (!(rule instanceof IResource))
+            return false;
+        IResource resource = (IResource) rule;
+        if (!workspace.equals(resource.getWorkspace()))
+            return false;
+        return path.isPrefixOf(resource.getFullPath());
     }
 
     @Override
@@ -181,12 +201,72 @@ public abstract class Resource implements IResource, IPathRequestor {
 
     @Override
     public void delete(boolean force, IProgressMonitor monitor) throws CoreException {
-        throw new UnsupportedOperationException();
+        delete(force ? IResource.FORCE : IResource.NONE, monitor);
     }
 
     @Override
     public void delete(int updateFlags, IProgressMonitor monitor) throws CoreException {
-        throw new UnsupportedOperationException();
+        monitor = Policy.monitorFor(monitor);
+        try {
+//            String message = NLS.bind(Messages.resources_deleting, getFullPath());
+//            monitor.beginTask("", Policy.totalWork * 1000); //$NON-NLS-1$
+//            monitor.subTask(message);
+            final ISchedulingRule rule = workspace.getRuleFactory().deleteRule(this);
+            try {
+                workspace.prepareOperation(rule, monitor);
+                // if there is no resource then there is nothing to delete so just return
+                if (!exists())
+                    return;
+                workspace.beginOperation(true);
+//                broadcastPreDeleteEvent();
+
+                // when a project is being deleted, flush the build order in case there is a problem
+//                if (this.getType() == IResource.PROJECT)
+//                    workspace.flushBuildOrder();
+
+//                final IFileStore originalStore = getStore();
+//                boolean wasLinked = isLinked();
+//                message = Messages.resources_deleteProblem;
+//                MultiStatus status = new MultiStatus(ResourcesPlugin.PI_RESOURCES, IResourceStatus.FAILED_DELETE_LOCAL, message, null);
+                WorkManager workManager = workspace.getWorkManager();
+//                ResourceTree tree = new ResourceTree(workspace.getFileSystemManager(), workManager.getLock(), status, updateFlags);
+                int depth = 0;
+                try {
+                    depth = workManager.beginUnprotected();
+                    workspace.delete(this);
+//                    unprotectedDelete(tree, updateFlags, monitor);
+                } finally {
+                    workManager.endUnprotected(depth);
+                }
+                if (getType() == ROOT) {
+//                    // need to clear out the root info
+//                    workspace.getMarkerManager().removeMarkers(this, IResource.DEPTH_ZERO);
+//                    getPropertyManager().deleteProperties(this, IResource.DEPTH_ZERO);
+//                    getResourceInfo(false, false).clearSessionProperties();
+                }
+                // Invalidate the tree for further use by clients.
+//                tree.makeInvalid();
+//                if (!tree.getStatus().isOK())
+//                    throw new ResourceException(tree.getStatus());
+                //update any aliases of this resource
+                //note that deletion of a linked resource cannot affect other resources
+//                if (!wasLinked)
+//                    workspace.getAliasManager().updateAliases(this, originalStore, IResource.DEPTH_INFINITE, monitor);
+//                if (getType() == PROJECT) {
+//                     make sure the rule factory is cleared on project deletion
+//                    ((Rules) workspace.getRuleFactory()).setRuleFactory((IProject) this, null);
+//                     make sure project deletion is remembered
+//                    workspace.getSaveManager().requestSnapshot();
+//                }
+            } catch (OperationCanceledException e) {
+                workspace.getWorkManager().operationCanceled();
+                throw e;
+            } finally {
+                workspace.endOperation(rule, true, Policy.subMonitorFor(monitor, Policy.endOpWork * 1000));
+            }
+        } finally {
+            monitor.done();
+        }
     }
 
     @Override
@@ -397,7 +477,8 @@ public abstract class Resource implements IResource, IPathRequestor {
 
     @Override
     public boolean isSynchronized(int depth) {
-        throw new UnsupportedOperationException();
+//        throw new UnsupportedOperationException();
+        return true;
     }
 
     @Override
@@ -433,7 +514,7 @@ public abstract class Resource implements IResource, IPathRequestor {
 
     @Override
     public void refreshLocal(int depth, IProgressMonitor monitor) throws CoreException {
-        throw new UnsupportedOperationException();
+//        throw new UnsupportedOperationException();
     }
 
     @Override
