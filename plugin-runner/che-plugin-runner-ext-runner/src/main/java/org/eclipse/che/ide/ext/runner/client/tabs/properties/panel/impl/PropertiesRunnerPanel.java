@@ -51,6 +51,7 @@ public class PropertiesRunnerPanel extends PropertiesPanelPresenter {
     private final TabContainer               tabContainer;
     private final RunnerLocalizationConstant locale;
     private final EventBus                   eventBus;
+    private       Runner                     currentRunner;
 
     @AssistedInject
     public PropertiesRunnerPanel(final PropertiesPanelView view,
@@ -68,6 +69,7 @@ public class PropertiesRunnerPanel extends PropertiesPanelPresenter {
         this.tabContainer = tabContainer;
         this.locale = locale;
         this.eventBus = eventBus;
+        this.currentRunner = runner;
 
         // We're waiting for getting application descriptor from server. So we can't show editor without knowing about configuration file.
         timer = timerFactory.newInstance(new TimerFactory.TimerCallBack() {
@@ -113,7 +115,9 @@ public class PropertiesRunnerPanel extends PropertiesPanelPresenter {
         eventBus.addHandler(TYPE, new RunnerApplicationStatusEventHandler() {
             @Override
             public void onRunnerStatusChanged(@Nonnull final Runner runner) {
-                setPorts(runner);
+                if (currentRunner.equals(runner)) {
+                    setPorts(runner);
+                }
             }
         });
     }
