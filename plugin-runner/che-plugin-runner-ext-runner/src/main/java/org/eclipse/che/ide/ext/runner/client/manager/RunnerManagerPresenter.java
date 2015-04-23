@@ -61,6 +61,7 @@ import org.eclipse.che.ide.ext.runner.client.tabs.templates.TemplatesContainer;
 import org.eclipse.che.ide.ext.runner.client.tabs.terminal.container.TerminalContainer;
 import org.eclipse.che.ide.ext.runner.client.util.RunnerUtil;
 import org.eclipse.che.ide.ext.runner.client.util.TimerFactory;
+import org.eclipse.che.ide.ext.runner.client.util.EnvironmentIdValidator;
 import org.eclipse.che.ide.ext.runner.client.util.annotations.LeftPanel;
 import org.eclipse.che.ide.ext.runner.client.util.annotations.RightPanel;
 import org.eclipse.che.ide.util.Config;
@@ -468,12 +469,11 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
         RunnersDescriptor runnersDescriptor = currentProject.getProjectDescription().getRunners();
         String defaultRunner = runnersDescriptor.getDefault();
 
-        String encodedDefaultRunner = defaultRunner;
-        if (defaultRunner != null) {
-            encodedDefaultRunner = URL.encode(defaultRunner);
+        if (!EnvironmentIdValidator.isValid(defaultRunner)) {
+            defaultRunner = URL.encode(defaultRunner);
         }
 
-        RunnerConfiguration defaultConfigs = runnersDescriptor.getConfigs().get(encodedDefaultRunner);
+        RunnerConfiguration defaultConfigs = runnersDescriptor.getConfigs().get(defaultRunner);
 
         if (defaultRunner != null && defaultConfigs != null) {
             ram = defaultConfigs.getRam();

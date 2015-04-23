@@ -29,6 +29,7 @@ import org.eclipse.che.ide.ext.runner.client.models.Runner;
 import org.eclipse.che.ide.ext.runner.client.runneractions.AbstractRunnerAction;
 import org.eclipse.che.ide.ext.runner.client.runneractions.impl.launch.LaunchAction;
 import org.eclipse.che.ide.ext.runner.client.util.RunnerUtil;
+import org.eclipse.che.ide.ext.runner.client.util.EnvironmentIdValidator;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 
 import javax.annotation.Nonnull;
@@ -115,10 +116,9 @@ public class RunAction extends AbstractRunnerAction {
                 .build();
 
         String encodedEnvironmentId = runner.getOptions().getEnvironmentId();
-        if (encodedEnvironmentId != null) {
-            encodedEnvironmentId = URL.encode(runner.getOptions().getEnvironmentId());
+        if (!EnvironmentIdValidator.isValid(encodedEnvironmentId)) {
+            runner.getOptions().setEnvironmentId(URL.encode(encodedEnvironmentId));
         }
-        runner.getOptions().setEnvironmentId(encodedEnvironmentId);
 
         service.run(project.getProjectDescription().getPath(), runner.getOptions(), callback);
     }
