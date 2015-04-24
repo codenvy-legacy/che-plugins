@@ -27,7 +27,7 @@ public class AngularJSProjectType extends ProjectType {
         super("AngularJS", "AngularJS Project", true, false);
         addConstantDefinition(Constants.LANGUAGE, Constants.LANGUAGE, "javascript");
         addConstantDefinition(Constants.FRAMEWORK, Constants.FRAMEWORK, "AngularJS");
-        setDefaultRunner("system:/javascript/webapp/grunt");
+        setDefaultRunner("system:/javascript/web/grunt");
         addRunnerCategories(Arrays.asList("javascript"));
     }
 }
