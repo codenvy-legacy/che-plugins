@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.machine.client;
 
+import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.json.client.JSONString;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
@@ -87,7 +89,8 @@ public class MachineManager {
                     new SubscriptionHandler<String>(new StringUnmarshallerWS()) {
                         @Override
                         protected void onMessageReceived(String result) {
-                            machineConsolePresenter.print(result);
+                            final JSONString jsonString = JSONParser.parseStrict(result).isString();
+                            machineConsolePresenter.print(jsonString.stringValue());
                         }
 
                         @Override
