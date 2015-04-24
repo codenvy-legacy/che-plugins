@@ -111,6 +111,7 @@ public class MachineExtension {
 
         // add actions in main menu
         machinesMenu.add(executeCommandAction);
+        machinesMenu.addSeparator();
         machinesMenu.add(terminateMachineAction);
     }
 

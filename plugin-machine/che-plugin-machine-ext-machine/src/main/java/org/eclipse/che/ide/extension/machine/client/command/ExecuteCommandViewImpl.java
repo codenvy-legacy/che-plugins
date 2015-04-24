@@ -13,8 +13,11 @@ package org.eclipse.che.ide.extension.machine.client.command;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.KeyDownEvent;
+import com.google.gwt.event.dom.client.KeyDownHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
@@ -27,6 +30,8 @@ import org.eclipse.che.ide.ui.window.Window;
 
 import javax.annotation.Nonnull;
 
+import static com.google.gwt.event.dom.client.KeyCodes.KEY_ENTER;
+
 /**
  * The implementation of {@link ExecuteCommandView}.
  *
@@ -35,7 +40,7 @@ import javax.annotation.Nonnull;
 @Singleton
 public class ExecuteCommandViewImpl extends Window implements ExecuteCommandView {
 
-    private static ExecuteCommandViewImplUiBinder uiBinder = GWT.create(ExecuteCommandViewImplUiBinder.class);
+    private static final ExecuteCommandViewImplUiBinder UI_BINDER = GWT.create(ExecuteCommandViewImplUiBinder.class);
 
     @UiField(provided = true)
     final MachineResources            res;
@@ -50,19 +55,23 @@ public class ExecuteCommandViewImpl extends Window implements ExecuteCommandView
     protected ExecuteCommandViewImpl(MachineResources resources, MachineLocalizationConstant locale) {
         this.res = resources;
         this.locale = locale;
-        Widget widget = uiBinder.createAndBindUi(this);
-        this.setTitle(locale.executeCommandViewTitle());
-        this.setWidget(widget);
 
+        setTitle(locale.executeCommandViewTitle());
+        setWidget(UI_BINDER.createAndBindUi(this));
         createButtons();
-    }
 
-    @Override
-    protected void onClose() {
+        command.addKeyDownHandler(new KeyDownHandler() {
+            @Override
+            public void onKeyDown(KeyDownEvent event) {
+                if (KEY_ENTER == event.getNativeKeyCode()) {
+                    delegate.onExecuteClicked();
+                }
+            }
+        });
     }
 
     private void createButtons() {
-        final Button btnCancel = createButton(locale.executeCommandViewCancel(), "view-executeCommand-cancel", new ClickHandler() {
+        final Button btnCancel = createButton(locale.cancelButton(), "view-executeCommand-cancel", new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 delegate.onCancelClicked();
@@ -70,7 +79,7 @@ public class ExecuteCommandViewImpl extends Window implements ExecuteCommandView
         });
         getFooter().add(btnCancel);
 
-        final Button btnExecute = createButton(locale.executeCommandViewExecute(), "view-executeCommand-execute", new ClickHandler() {
+        final Button btnExecute = createButton(locale.executeButton(), "view-executeCommand-execute", new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 delegate.onExecuteClicked();
@@ -94,14 +103,26 @@ public class ExecuteCommandViewImpl extends Window implements ExecuteCommandView
 
     /** {@inheritDoc} */
     @Override
-    public void close() {
-        this.hide();
+    public void showDialog() {
+        command.setText("");
+        show();
+        new Timer() {
+            @Override
+            public void run() {
+                command.setFocus(true);
+            }
+        }.schedule(300);
     }
 
     /** {@inheritDoc} */
     @Override
-    public void showDialog() {
-        this.show();
+    public void close() {
+        hide();
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    protected void onClose() {
     }
 
     /** {@inheritDoc} */
