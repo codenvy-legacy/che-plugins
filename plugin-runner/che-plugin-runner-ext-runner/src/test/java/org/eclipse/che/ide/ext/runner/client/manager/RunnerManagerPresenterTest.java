@@ -328,6 +328,7 @@ public class RunnerManagerPresenterTest {
         when(actionFactory.createGetRunningProcess()).thenReturn(getRunningProcessAction);
         when(runner.getTimeout()).thenReturn(TEXT);
         when(panelState.getState()).thenReturn(RUNNERS);
+        when(history.isRunnerExist(runner)).thenReturn(true);
 
         when(runnerUtil.hasRunPermission()).thenReturn(true);
     }
@@ -612,6 +613,7 @@ public class RunnerManagerPresenterTest {
     public void runnerWhichIsAlreadyExistWithStatusInProgressShouldBeUpdated() {
         presenter.addRunner(processDescriptor);
         reset(history, terminalContainer, view);
+        when(history.isRunnerExist(runner)).thenReturn(true);
 
         presenter.update(runner);
 
@@ -625,6 +627,7 @@ public class RunnerManagerPresenterTest {
         presenter.addRunner(processDescriptor);
         reset(history, terminalContainer, view);
         when(runner.getStatus()).thenReturn(Runner.Status.IN_QUEUE);
+        when(history.isRunnerExist(runner)).thenReturn(true);
 
         presenter.update(runner);
 
@@ -637,6 +640,7 @@ public class RunnerManagerPresenterTest {
         presenter.addRunner(processDescriptor);
         reset(history, terminalContainer, view);
         when(runner.getStatus()).thenReturn(STOPPED);
+        when(history.isRunnerExist(runner)).thenReturn(true);
 
         presenter.update(runner);
 
@@ -650,6 +654,7 @@ public class RunnerManagerPresenterTest {
         presenter.addRunner(processDescriptor);
         reset(history, terminalContainer, view);
         when(runner.getStatus()).thenReturn(Runner.Status.FAILED);
+        when(history.isRunnerExist(runner)).thenReturn(true);
 
         presenter.update(runner);
 
@@ -662,6 +667,7 @@ public class RunnerManagerPresenterTest {
         presenter.addRunner(processDescriptor);
         reset(history, terminalContainer, view);
         when(runner.getStatus()).thenReturn(Runner.Status.DONE);
+        when(history.isRunnerExist(runner)).thenReturn(true);
 
         presenter.update(runner);
 
@@ -675,6 +681,7 @@ public class RunnerManagerPresenterTest {
         reset(history, terminalContainer, view);
         when(runner.getStatus()).thenReturn(Runner.Status.DONE);
         when(runner.getApplicationURL()).thenReturn(null);
+        when(history.isRunnerExist(runner)).thenReturn(true);
 
         presenter.update(runner);
 
@@ -687,6 +694,7 @@ public class RunnerManagerPresenterTest {
         presenter.addRunner(processDescriptor);
         reset(history, terminalContainer, view);
         when(runner.getStatus()).thenReturn(Runner.Status.TIMEOUT);
+        when(history.isRunnerExist(runner)).thenReturn(true);
 
         presenter.update(runner);
 
@@ -712,6 +720,7 @@ public class RunnerManagerPresenterTest {
         when(runner.getStatus()).thenReturn(Runner.Status.DONE);
         when(runner.getDescriptor()).thenReturn(processDescriptor);
         when(processDescriptor.getDebugPort()).thenReturn(debugPort);
+        when(history.isRunnerExist(runner)).thenReturn(true);
 
         presenter.update(runner);
 
@@ -940,6 +949,7 @@ public class RunnerManagerPresenterTest {
         when(runActionPermit.isAllowed()).thenReturn(true);
         presenter.addRunner(processDescriptor);
         reset(view, history);
+        when(history.isRunnerExist(runner)).thenReturn(true);
 
         presenter.launchRunner(runOptions);
         presenter.onRerunButtonClicked();

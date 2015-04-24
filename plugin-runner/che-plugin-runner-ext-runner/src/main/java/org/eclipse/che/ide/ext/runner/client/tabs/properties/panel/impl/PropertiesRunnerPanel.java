@@ -34,7 +34,6 @@ import org.eclipse.che.ide.ext.runner.client.util.TimerFactory;
 import org.eclipse.che.ide.ext.runner.client.util.annotations.LeftPanel;
 
 import javax.annotation.Nonnull;
-
 import java.util.Map;
 
 import static org.eclipse.che.ide.ext.runner.client.constants.TimeInterval.ONE_SEC;
@@ -102,6 +101,7 @@ public class PropertiesRunnerPanel extends PropertiesPanelPresenter {
 
         this.view.selectShutdown(getTimeout());
         this.view.selectMemory(RAM.detect(runner.getRAM()));
+        this.view.hideSwitcher();
 
         configureStatusRunEventHandler();
     }

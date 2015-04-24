@@ -16,6 +16,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import org.eclipse.che.ide.ext.runner.client.inject.factories.WidgetFactory;
+import org.eclipse.che.ide.ext.runner.client.manager.RunnerManagerView;
 import org.eclipse.che.ide.ext.runner.client.models.Runner;
 import org.eclipse.che.ide.ext.runner.client.selection.SelectionManager;
 import org.eclipse.che.ide.ext.runner.client.tabs.common.item.RunnerItems;
@@ -41,12 +42,14 @@ public class HistoryPresenter implements HistoryPanel, RunnerWidget.ActionDelega
     private final Map<Runner, RunnerWidget> runnerWidgets;
     private final SelectionManager          selectionManager;
     private final ConsoleContainer          consolePresenter;
+    private final RunnerManagerView         runnerManagerView;
     private final TerminalContainer         terminalContainer;
 
     @Inject
     public HistoryPresenter(HistoryView view,
                             WidgetFactory widgetFactory,
                             SelectionManager selectionManager,
+                            RunnerManagerView runnerManager,
                             ConsoleContainer consolePresenter,
                             TerminalContainer terminalContainer) {
         this.view = view;
@@ -54,6 +57,7 @@ public class HistoryPresenter implements HistoryPanel, RunnerWidget.ActionDelega
         this.terminalContainer = terminalContainer;
 
         this.selectionManager = selectionManager;
+        this.runnerManagerView = runnerManager;
         this.widgetFactory = widgetFactory;
         this.runnerWidgets = new HashMap<>();
     }
@@ -129,6 +133,12 @@ public class HistoryPresenter implements HistoryPanel, RunnerWidget.ActionDelega
 
     /** {@inheritDoc} */
     @Override
+    public boolean isRunnerExist(@Nonnull Runner runner) {
+        return runnerWidgets.get(runner) != null;
+    }
+
+    /** {@inheritDoc} */
+    @Override
     public void onRunnerCleanBtnClicked(@Nonnull Runner runner) {
         RunnerWidget widget = runnerWidgets.get(runner);
 
@@ -137,6 +147,7 @@ public class HistoryPresenter implements HistoryPanel, RunnerWidget.ActionDelega
         consolePresenter.deleteConsoleByRunner(runner);
 
         if (runnerWidgets.isEmpty()) {
+            runnerManagerView.setEnableReRunButton(false);
             terminalContainer.reset();
             return;
         }
