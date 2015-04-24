@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.env.local.client;
 
+import com.google.gwt.user.client.Window;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.event.shared.EventBus;
@@ -17,9 +18,11 @@ import com.google.web.bindery.event.shared.EventBus;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.event.RefreshProjectTreeEvent;
 import org.eclipse.che.ide.api.notification.NotificationManager;
+import org.eclipse.che.ide.json.JsonHelper;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.StringMapUnmarshaller;
 import org.eclipse.che.ide.ui.dialogs.CancelCallback;
+import org.eclipse.che.ide.ui.dialogs.ConfirmCallback;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 import org.eclipse.che.ide.ui.dialogs.InputCallback;
 import org.eclipse.che.ide.ui.dialogs.input.InputDialog;
@@ -40,8 +43,6 @@ public class WorkspaceMappingPresenter {
     private       LocalizationConstant                     localizationConstant;
     private final DialogFactory                            dialogFactory;
     private final WorkspaceToDirectoryMappingServiceClient service;
-
-    private String rootFolder;
 
 
     /** Create presenter. */
@@ -65,11 +66,10 @@ public class WorkspaceMappingPresenter {
         service.getDirectoryMapping(new AsyncRequestCallback<Map<String, String>>(new StringMapUnmarshaller()) {
             @Override
             public void onSuccess(Map<String, String> result) {
-                Log.info(this.getClass(), result);
                 if (result == null || result.isEmpty()) {
                     final String wsId = appContext.getWorkspace().getId();
                     getSetupDialog(localizationConstant.rootFolderDialogTitleNeedSetup(), localizationConstant.rootFolderDialogLabel(),
-                                   wsId, "").show();
+                                   wsId, "/select/workspace/folder").show();
                 }
             }
 
@@ -77,6 +77,12 @@ public class WorkspaceMappingPresenter {
             public void onFailure(Throwable exception) {
                 Log.error(WorkspaceMappingPresenter.class, exception.getMessage());
                 notificationManager.showError(exception.getMessage());
+                dialogFactory.createMessageDialog("Workspace not set", exception.getMessage(), new ConfirmCallback() {
+                    @Override
+                    public void accepted() {
+                        init();
+                    }
+                }).show();
             }
         });
     }
@@ -116,11 +122,19 @@ public class WorkspaceMappingPresenter {
                     @Override
                     protected void onSuccess(Map<String, String> result) {
                         eventBus.fireEvent(new RefreshProjectTreeEvent());
-                        rootFolder = value;
                     }
 
                     @Override
-                    protected void onFailure(Throwable exception) {/* do nothing for now  */}
+                    protected void onFailure(Throwable exception) {
+                        Log.error(WorkspaceMappingPresenter.class, exception.getMessage());
+                        notificationManager.showError(exception.getMessage());
+                        dialogFactory.createMessageDialog("Workspace not set", JsonHelper.parseJsonMessage(exception.getMessage()), new ConfirmCallback() {
+                            @Override
+                            public void accepted() {
+                                init();
+                            }
+                        }).show();
+                    }
                 });
 
             }
