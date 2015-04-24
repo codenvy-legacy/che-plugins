@@ -196,7 +196,7 @@ protected char getHandleMementoDelimiter(){
  * @see org.eclipse.jdt.core.IJavaModel
  */
 public IJavaProject getJavaProject(String projectName) {
-    return new JavaProject(ResourcesPlugin.getWorkspace().getRoot().getProject(projectName), this, new HashMap<>(options));
+    return new JavaProject(ResourcesPlugin.getWorkspace().getRoot().getProject(projectName), this);
 }
 /**
  * Returns the active Java project associated with the specified
@@ -209,11 +209,11 @@ public IJavaProject getJavaProject(String projectName) {
 public IJavaProject getJavaProject(IResource resource) {
     switch (resource.getType()) {
         case IResource.FOLDER:
-            return new JavaProject(((IFolder)resource).getProject(), this, new HashMap<>(options));
+            return new JavaProject(((IFolder)resource).getProject(), this);
         case IResource.FILE:
-            return new JavaProject(((IFile)resource).getProject(), this, new HashMap<>(options));
+            return new JavaProject(((IFile)resource).getProject(), this);
         case IResource.PROJECT:
-            return new JavaProject((IProject)resource, this, new HashMap<>(options));
+            return new JavaProject((IProject)resource, this);
         default:
             throw new IllegalArgumentException(Messages.element_invalidResourceForProject);
     }

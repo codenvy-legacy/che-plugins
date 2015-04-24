@@ -11,8 +11,15 @@
 package org.eclipse.jdt.internal.ui.text.correction;
 
 import org.eclipse.che.jdt.util.JavaModelUtil;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -32,6 +39,7 @@ import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.internal.corext.codemanipulation.GetterSetterUtil;
 import org.eclipse.jdt.internal.corext.dom.ASTNodes;
 import org.eclipse.jdt.internal.corext.dom.Bindings;
+import org.eclipse.jdt.internal.corext.refactoring.sef.SelfEncapsulateFieldRefactoring;
 import org.eclipse.jdt.internal.corext.util.Messages;
 import org.eclipse.jdt.internal.ui.JavaPluginImages;
 import org.eclipse.jdt.internal.ui.viewsupport.BasicElementLabels;
@@ -40,6 +48,10 @@ import org.eclipse.jdt.ui.text.java.IProblemLocation;
 import org.eclipse.jdt.ui.text.java.correction.ASTRewriteCorrectionProposal;
 import org.eclipse.jdt.ui.text.java.correction.ChangeCorrectionProposal;
 import org.eclipse.jdt.ui.text.java.correction.ICommandAccess;
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.ltk.core.refactoring.Change;
+import org.eclipse.ltk.core.refactoring.CompositeChange;
+import org.eclipse.ltk.core.refactoring.TextFileChange;
 import org.eclipse.swt.graphics.Image;
 
 import java.util.ArrayList;
@@ -69,104 +81,104 @@ public class GetterSetterCorrectionSubProcessor {
 		}
 	}
 
-//	public static class SelfEncapsulateFieldProposal extends ChangeCorrectionProposal { // public for tests
-//
-//		private IField  fField;
-//		private boolean fNoDialog;
-//
-//		public SelfEncapsulateFieldProposal(int relevance, IField field) {
-//			super(getDescription(field), null, relevance, JavaPluginImages.get(JavaPluginImages.IMG_CORRECTION_CHANGE));
-//			fField = field;
-//			fNoDialog = false;
-//			setCommandId(SELF_ENCAPSULATE_FIELD_ID);
-//		}
-//
-//		public IField getField() {
-//			return fField;
-//		}
-//
-//		public void setNoDialog(boolean noDialog) {
-//			fNoDialog = noDialog;
-//		}
-//
-//		public TextFileChange getChange(IFile file) throws CoreException {
-//			final SelfEncapsulateFieldRefactoring refactoring = new SelfEncapsulateFieldRefactoring(fField);
-//			refactoring.setVisibility(Flags.AccPublic);
-//			refactoring.setConsiderVisibility(false);//private field references are just searched in local file
-//			refactoring.checkInitialConditions(new NullProgressMonitor());
-//			refactoring.checkFinalConditions(new NullProgressMonitor());
-//			Change createdChange = refactoring.createChange(new NullProgressMonitor());
-//			if (createdChange instanceof CompositeChange) {
-//				Change[] children = ((CompositeChange)createdChange).getChildren();
-//				for (int i = 0; i < children.length; i++) {
-//					Change curr = children[i];
-//					if (curr instanceof TextFileChange && ((TextFileChange)curr).getFile().equals(file)) {
-//						return (TextFileChange)curr;
+	public static class SelfEncapsulateFieldProposal extends ChangeCorrectionProposal { // public for tests
+
+		private IField  fField;
+		private boolean fNoDialog;
+
+		public SelfEncapsulateFieldProposal(int relevance, IField field) {
+			super(getDescription(field), null, relevance, JavaPluginImages.get(JavaPluginImages.IMG_CORRECTION_CHANGE));
+			fField = field;
+			fNoDialog = false;
+			setCommandId(SELF_ENCAPSULATE_FIELD_ID);
+		}
+
+		public IField getField() {
+			return fField;
+		}
+
+		public void setNoDialog(boolean noDialog) {
+			fNoDialog = noDialog;
+		}
+
+		public TextFileChange getChange(IFile file) throws CoreException {
+			final SelfEncapsulateFieldRefactoring refactoring = new SelfEncapsulateFieldRefactoring(fField);
+			refactoring.setVisibility(Flags.AccPublic);
+			refactoring.setConsiderVisibility(false);//private field references are just searched in local file
+			refactoring.checkInitialConditions(new NullProgressMonitor());
+			refactoring.checkFinalConditions(new NullProgressMonitor());
+			Change createdChange = refactoring.createChange(new NullProgressMonitor());
+			if (createdChange instanceof CompositeChange) {
+				Change[] children = ((CompositeChange)createdChange).getChildren();
+				for (int i = 0; i < children.length; i++) {
+					Change curr = children[i];
+					if (curr instanceof TextFileChange && ((TextFileChange)curr).getFile().equals(file)) {
+						return (TextFileChange)curr;
+					}
+				}
+			}
+			return null;
+		}
+
+
+		private static String getDescription(IField field) {
+			return Messages.format(CorrectionMessages.GetterSetterCorrectionSubProcessor_creategetterunsingencapsulatefield_description,
+								   BasicElementLabels.getJavaElementName(field.getElementName()));
+		}
+
+		/*
+		 * @see org.eclipse.jface.text.contentassist.ICompletionProposalExtension5#getAdditionalProposalInfo(org.eclipse.core.runtime
+		 * .IProgressMonitor)
+		 * @since 3.5
+		 */
+		@Override
+		public Object getAdditionalProposalInfo(IProgressMonitor monitor) {
+			return CorrectionMessages.GetterSetterCorrectionSubProcessor_additional_info;
+		}
+
+		@Override
+		public void apply(IDocument document) {
+			try {
+				final SelfEncapsulateFieldRefactoring refactoring = new SelfEncapsulateFieldRefactoring(fField);
+				refactoring.setVisibility(Flags.AccPublic);
+				refactoring.setConsiderVisibility(false);//private field references are just searched in local file
+//				if (fNoDialog) {
+//					IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+//					final RefactoringExecutionHelper helper =
+//							new RefactoringExecutionHelper(refactoring, RefactoringStatus.ERROR, RefactoringSaveHelper.SAVE_REFACTORING,
+//														   JavaPlugin.getActiveWorkbenchShell(), window);
+//					if (Display.getCurrent() != null) {
+//						try {
+//							helper.perform(false, false);
+//						} catch (InterruptedException e) {
+//							JavaPlugin.log(e);
+//						} catch (InvocationTargetException e) {
+//							JavaPlugin.log(e);
+//						}
+//					} else {
+//						Display.getDefault().syncExec(new Runnable() {
+//							public void run() {
+//								try {
+//									helper.perform(false, false);
+//								} catch (InterruptedException e) {
+//									JavaPlugin.log(e);
+//								} catch (InvocationTargetException e) {
+//									JavaPlugin.log(e);
+//								}
+//							}
+//						});
 //					}
-//				}
-//			}
-//			return null;
-//		}
-//
-//
-//		private static String getDescription(IField field) {
-//			return Messages.format(CorrectionMessages.GetterSetterCorrectionSubProcessor_creategetterunsingencapsulatefield_description,
-//								   BasicElementLabels.getJavaElementName(field.getElementName()));
-//		}
-//
-//		/*
-//		 * @see org.eclipse.jface.text.contentassist.ICompletionProposalExtension5#getAdditionalProposalInfo(org.eclipse.core.runtime
-//		 * .IProgressMonitor)
-//		 * @since 3.5
-//		 */
-//		@Override
-//		public Object getAdditionalProposalInfo(IProgressMonitor monitor) {
-//			return CorrectionMessages.GetterSetterCorrectionSubProcessor_additional_info;
-//		}
-//
-//		@Override
-//		public void apply(IDocument document) {
-//			try {
-//				final SelfEncapsulateFieldRefactoring refactoring = new SelfEncapsulateFieldRefactoring(fField);
-//				refactoring.setVisibility(Flags.AccPublic);
-//				refactoring.setConsiderVisibility(false);//private field references are just searched in local file
-////				if (fNoDialog) {
-////					IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-////					final RefactoringExecutionHelper helper =
-////							new RefactoringExecutionHelper(refactoring, RefactoringStatus.ERROR, RefactoringSaveHelper.SAVE_REFACTORING,
-////														   JavaPlugin.getActiveWorkbenchShell(), window);
-////					if (Display.getCurrent() != null) {
-////						try {
-////							helper.perform(false, false);
-////						} catch (InterruptedException e) {
-////							JavaPlugin.log(e);
-////						} catch (InvocationTargetException e) {
-////							JavaPlugin.log(e);
-////						}
-////					} else {
-////						Display.getDefault().syncExec(new Runnable() {
-////							public void run() {
-////								try {
-////									helper.perform(false, false);
-////								} catch (InterruptedException e) {
-////									JavaPlugin.log(e);
-////								} catch (InvocationTargetException e) {
-////									JavaPlugin.log(e);
-////								}
-////							}
-////						});
-////					}
-////				} else {
+//				} else {
 //					new RefactoringStarter().activate(new SelfEncapsulateFieldWizard(refactoring), JavaPlugin.getActiveWorkbenchShell(),
 //													  "",
 //													  RefactoringSaveHelper.SAVE_REFACTORING); //$NON-NLS-1$
-////				}
-//			} catch (JavaModelException e) {
+//				}
+			} catch (JavaModelException e) {
 //				ExceptionHandler.handle(e, CorrectionMessages.GetterSetterCorrectionSubProcessor_encapsulate_field_error_title,
 //										CorrectionMessages.GetterSetterCorrectionSubProcessor_encapsulate_field_error_message);
-//			}
-//		}
-//	}
+			}
+		}
+	}
 
 	/**
 	 * Used by quick assist
@@ -262,7 +274,6 @@ public class GetterSetterCorrectionSubProcessor {
 					proposal= new ASTRewriteCorrectionProposal(label, context.compilationUnit, context.astRewrite, relevance, image);
 			return proposal;
 		} else {
-			//TODO
 //			IJavaElement element= context.variableBinding.getJavaElement();
 //			if (element instanceof IField) {
 //				IField field= (IField) element;

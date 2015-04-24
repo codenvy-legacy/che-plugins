@@ -31,7 +31,6 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
-import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.ClasspathAccessRule;
@@ -1249,58 +1248,7 @@ public class JavaCore {
      * @see JavaCorePreferenceInitializer for changing default settings
      */
     public static Hashtable<String, String> getOptions() {
-        Map<String, String> defaultOptionsMap = new CompilerOptions().getMap(); // compiler defaults
-
-        // Override some compiler defaults
-        defaultOptionsMap.put(org.eclipse.jdt.core.JavaCore.COMPILER_LOCAL_VARIABLE_ATTR, org.eclipse.jdt.core.JavaCore.GENERATE);
-        defaultOptionsMap.put(org.eclipse.jdt.core.JavaCore.COMPILER_CODEGEN_UNUSED_LOCAL, org.eclipse.jdt.core.JavaCore.PRESERVE);
-        defaultOptionsMap.put(JavaCore.COMPILER_TASK_TAGS, org.eclipse.jdt.core.JavaCore.DEFAULT_TASK_TAGS);
-        defaultOptionsMap.put(org.eclipse.jdt.core.JavaCore.COMPILER_TASK_PRIORITIES, org.eclipse.jdt.core.JavaCore.DEFAULT_TASK_PRIORITIES);
-        defaultOptionsMap.put(org.eclipse.jdt.core.JavaCore.COMPILER_TASK_CASE_SENSITIVE, org.eclipse.jdt.core.JavaCore.ENABLED);
-        defaultOptionsMap.put(org.eclipse.jdt.core.JavaCore.COMPILER_DOC_COMMENT_SUPPORT, org.eclipse.jdt.core.JavaCore.ENABLED);
-        defaultOptionsMap.put(org.eclipse.jdt.core.JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, org.eclipse.jdt.core.JavaCore.ERROR);
-
-        // Builder settings
-        defaultOptionsMap.put(org.eclipse.jdt.core.JavaCore.CORE_JAVA_BUILD_RESOURCE_COPY_FILTER, ""); //$NON-NLS-1$
-        defaultOptionsMap.put(org.eclipse.jdt.core.JavaCore.CORE_JAVA_BUILD_INVALID_CLASSPATH, org.eclipse.jdt.core.JavaCore.ABORT);
-        defaultOptionsMap.put(org.eclipse.jdt.core.JavaCore.CORE_JAVA_BUILD_DUPLICATE_RESOURCE, org.eclipse.jdt.core.JavaCore.WARNING);
-        defaultOptionsMap.put(org.eclipse.jdt.core.JavaCore.CORE_JAVA_BUILD_CLEAN_OUTPUT_FOLDER, org.eclipse.jdt.core.JavaCore.CLEAN);
-
-        // JavaCore settings
-        defaultOptionsMap.put(org.eclipse.jdt.core.JavaCore.CORE_JAVA_BUILD_ORDER, org.eclipse.jdt.core.JavaCore.IGNORE);
-        defaultOptionsMap.put(org.eclipse.jdt.core.JavaCore.CORE_INCOMPLETE_CLASSPATH, org.eclipse.jdt.core.JavaCore.ERROR);
-        defaultOptionsMap.put(org.eclipse.jdt.core.JavaCore.CORE_CIRCULAR_CLASSPATH, org.eclipse.jdt.core.JavaCore.ERROR);
-        defaultOptionsMap.put(org.eclipse.jdt.core.JavaCore.CORE_INCOMPATIBLE_JDK_LEVEL, org.eclipse.jdt.core.JavaCore.IGNORE);
-        defaultOptionsMap.put(org.eclipse.jdt.core.JavaCore.CORE_OUTPUT_LOCATION_OVERLAPPING_ANOTHER_SOURCE, org.eclipse.jdt.core.JavaCore.ERROR);
-        defaultOptionsMap.put(org.eclipse.jdt.core.JavaCore.CORE_ENABLE_CLASSPATH_EXCLUSION_PATTERNS, org.eclipse.jdt.core.JavaCore.ENABLED);
-        defaultOptionsMap.put(org.eclipse.jdt.core.JavaCore.CORE_ENABLE_CLASSPATH_MULTIPLE_OUTPUT_LOCATIONS, org.eclipse.jdt.core.JavaCore.ENABLED);
-
-        // Formatter settings
-        defaultOptionsMap.putAll(DefaultCodeFormatterConstants.getEclipseDefaultSettings());
-
-        // CodeAssist settings
-        defaultOptionsMap.put(org.eclipse.jdt.core.JavaCore.CODEASSIST_VISIBILITY_CHECK, org.eclipse.jdt.core.JavaCore.DISABLED);
-        defaultOptionsMap.put(org.eclipse.jdt.core.JavaCore.CODEASSIST_DEPRECATION_CHECK, org.eclipse.jdt.core.JavaCore.DISABLED);
-        defaultOptionsMap.put(org.eclipse.jdt.core.JavaCore.CODEASSIST_IMPLICIT_QUALIFICATION, org.eclipse.jdt.core.JavaCore.DISABLED);
-        defaultOptionsMap.put(org.eclipse.jdt.core.JavaCore.CODEASSIST_FIELD_PREFIXES, ""); //$NON-NLS-1$
-        defaultOptionsMap.put(org.eclipse.jdt.core.JavaCore.CODEASSIST_STATIC_FIELD_PREFIXES, ""); //$NON-NLS-1$
-        defaultOptionsMap.put(org.eclipse.jdt.core.JavaCore.CODEASSIST_STATIC_FINAL_FIELD_PREFIXES, ""); //$NON-NLS-1$
-        defaultOptionsMap.put(org.eclipse.jdt.core.JavaCore.CODEASSIST_LOCAL_PREFIXES, ""); //$NON-NLS-1$
-        defaultOptionsMap.put(org.eclipse.jdt.core.JavaCore.CODEASSIST_ARGUMENT_PREFIXES, ""); //$NON-NLS-1$
-        defaultOptionsMap.put(org.eclipse.jdt.core.JavaCore.CODEASSIST_FIELD_SUFFIXES, ""); //$NON-NLS-1$
-        defaultOptionsMap.put(org.eclipse.jdt.core.JavaCore.CODEASSIST_STATIC_FIELD_SUFFIXES, ""); //$NON-NLS-1$
-        defaultOptionsMap.put(org.eclipse.jdt.core.JavaCore.CODEASSIST_STATIC_FINAL_FIELD_SUFFIXES, ""); //$NON-NLS-1$
-        defaultOptionsMap.put(org.eclipse.jdt.core.JavaCore.CODEASSIST_LOCAL_SUFFIXES, ""); //$NON-NLS-1$
-        defaultOptionsMap.put(org.eclipse.jdt.core.JavaCore.CODEASSIST_ARGUMENT_SUFFIXES, ""); //$NON-NLS-1$
-        defaultOptionsMap.put(org.eclipse.jdt.core.JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, org.eclipse.jdt.core.JavaCore.ENABLED);
-        defaultOptionsMap.put(org.eclipse.jdt.core.JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, org.eclipse.jdt.core.JavaCore.DISABLED);
-        defaultOptionsMap.put(org.eclipse.jdt.core.JavaCore.CODEASSIST_CAMEL_CASE_MATCH, org.eclipse.jdt.core.JavaCore.ENABLED);
-        defaultOptionsMap.put(org.eclipse.jdt.core.JavaCore.CODEASSIST_SUGGEST_STATIC_IMPORTS, org.eclipse.jdt.core.JavaCore.ENABLED);
-
-        // Time out for parameter names
-        defaultOptionsMap.put(org.eclipse.jdt.core.JavaCore.TIMEOUT_FOR_PARAMETER_NAME_FROM_ATTACHED_JAVADOC, "50"); //$NON-NLS-1$
-
-        return new Hashtable<>(defaultOptionsMap);
+        return JavaModelManager.getJavaModelManager().getOptions();
     }
 
     /**
@@ -1323,8 +1271,51 @@ public class JavaCore {
      * @since 2.0
      */
     public static String getOption(String optionName) {
-//        return JavaModelManager.getJavaModelManager().getOption(optionName);
-        return getOptions().get(optionName);
+        return JavaModelManager.getJavaModelManager().getOption(optionName);
+    }
+
+    /**
+     * Sets the current table of options. All and only the options explicitly
+     * included in the given table are remembered; all previous option settings
+     * are forgotten, including ones not explicitly mentioned.
+     * <p>
+     * Helper constants have been defined on JavaCore for each of the option IDs
+     * (categorized in Code assist option ID, Compiler option ID and Core option ID)
+     * and some of their acceptable values (categorized in Option value). Some
+     * options accept open value sets beyond the documented constant values.
+     * </p>
+     * Note: each release may add new options.
+     *
+     * @param newOptions
+     *            the new options (key type: <code>String</code>; value type:
+     *            <code>String</code>), or <code>null</code> to reset all
+     *            options to their default values
+     * @see JavaCore#getDefaultOptions()
+     * @see JavaCorePreferenceInitializer for changing default settings
+     */
+    public static void setOptions(Hashtable newOptions) {
+        JavaModelManager.getJavaModelManager().setOptions(newOptions);
+    }
+
+    /**
+     * Returns a table of all known configurable options with their default values.
+     * These options allow to configure the behaviour of the underlying components.
+     * The client may safely use the result as a template that they can modify and
+     * then pass to <code>setOptions</code>.
+     * <p>
+     * Helper constants have been defined on JavaCore for each of the option IDs
+     * (categorized in Code assist option ID, Compiler option ID and Core option ID)
+     * and some of their acceptable values (categorized in Option value). Some
+     * options accept open value sets beyond the documented constant values.
+     * </p>
+     * <p>
+     * Note: each release may add new options.
+     * </p>
+     *
+     * @return a table of all known configurable options with their default values
+     */
+    public static Hashtable getDefaultOptions(){
+        return JavaModelManager.getJavaModelManager().getDefaultOptions();
     }
 
     /**

@@ -11,7 +11,9 @@
 
 package org.eclipse.che.core.internal.resources;
 
+import org.eclipse.che.core.internal.utils.Policy;
 import org.eclipse.che.jdt.internal.core.JavaModelStatus;
+import org.eclipse.core.internal.utils.Messages;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFileState;
 import org.eclipse.core.resources.IResource;
@@ -19,8 +21,12 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.content.IContentDescription;
+import org.eclipse.core.runtime.jobs.ISchedulingRule;
+import org.eclipse.osgi.util.NLS;
 
+import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -79,7 +85,8 @@ public class File  extends Resource implements IFile{
 
     @Override
     public IContentDescription getContentDescription() throws CoreException {
-        throw new UnsupportedOperationException();
+//        throw new UnsupportedOperationException();
+        return null;
     }
 
     @Override
@@ -117,23 +124,60 @@ public class File  extends Resource implements IFile{
     }
 
     @Override
-    public void setContents(InputStream inputStream, boolean b, boolean b1, IProgressMonitor iProgressMonitor) throws CoreException {
-        throw new UnsupportedOperationException();
+    public void setContents(InputStream content, boolean force, boolean keepHistory, IProgressMonitor monitor) throws CoreException {
+        // funnel all operations to central method
+        int updateFlags = force ? IResource.FORCE : IResource.NONE;
+        updateFlags |= keepHistory ? IResource.KEEP_HISTORY : IResource.NONE;
+        setContents(content, updateFlags, monitor);
     }
 
     @Override
-    public void setContents(IFileState iFileState, boolean b, boolean b1, IProgressMonitor iProgressMonitor) throws CoreException {
-        throw new UnsupportedOperationException();
+    public void setContents(IFileState source, boolean force, boolean keepHistory, IProgressMonitor monitor) throws CoreException {
+        // funnel all operations to central method
+        int updateFlags = force ? IResource.FORCE : IResource.NONE;
+        updateFlags |= keepHistory ? IResource.KEEP_HISTORY : IResource.NONE;
+        setContents(source.getContents(), updateFlags, monitor);
     }
 
     @Override
-    public void setContents(InputStream inputStream, int i, IProgressMonitor iProgressMonitor) throws CoreException {
-        throw new UnsupportedOperationException();
+    public void setContents(InputStream content, int updateFlags, IProgressMonitor monitor) throws CoreException {
+        monitor = Policy.monitorFor(monitor);
+        try {
+            String message = NLS.bind(Messages.resources_settingContents, getFullPath());
+            monitor.beginTask(message, Policy.totalWork);
+//            if (workspace.shouldValidate)
+//                workspace.validateSave(this);
+            final ISchedulingRule rule = workspace.getRuleFactory().modifyRule(this);
+            try {
+                workspace.prepareOperation(rule, monitor);
+                ResourceInfo info = getResourceInfo(false, false);
+//                checkAccessible(getFlags(info));
+                workspace.beginOperation(true);
+//                IFileInfo fileInfo = getStore().fetchInfo();
+                internalSetContents(content, updateFlags, false, Policy.subMonitorFor(monitor, Policy.opWork));
+            } catch (OperationCanceledException e) {
+                workspace.getWorkManager().operationCanceled();
+                throw e;
+            } finally {
+                workspace.endOperation(rule, true, Policy.subMonitorFor(monitor, Policy.endOpWork));
+            }
+        } finally {
+            monitor.done();
+            FileUtil.safeClose(content);
+        }
+    }
+
+    protected void internalSetContents(InputStream content, int updateFlags, boolean append, IProgressMonitor monitor) throws CoreException {
+        if (content == null)
+            content = new ByteArrayInputStream(new byte[0]);
+        workspace.write(this, content, updateFlags, append, monitor);
+
+//        workspace.getAliasManager().updateAliases(this, getStore(), IResource.DEPTH_ZERO, monitor);
     }
 
     @Override
-    public void setContents(IFileState iFileState, int i, IProgressMonitor iProgressMonitor) throws CoreException {
-        throw new UnsupportedOperationException();
+    public void setContents(IFileState content, int updateFlags, IProgressMonitor monitor) throws CoreException {
+        setContents(content.getContents(), updateFlags, monitor);
     }
 
     @Override

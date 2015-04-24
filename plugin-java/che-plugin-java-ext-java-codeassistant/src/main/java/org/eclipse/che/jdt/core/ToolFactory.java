@@ -11,7 +11,7 @@
 package org.eclipse.che.jdt.core;
 
 import org.eclipse.che.jdt.internal.core.JarPackageFragmentRoot;
-import org.eclipse.che.jdt.internal.core.JavaElement;
+import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.che.jdt.internal.core.PackageFragment;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
@@ -230,7 +230,7 @@ DefaultCodeFormatterConstants.FALSE);
                     }
                     PackageFragment packageFragment = (PackageFragment)classfile.getParent();
                     String classFileName = classfile.getElementName();
-                    String entryName = org.eclipse.che.jdt.internal.core.util.Util.concatWith(packageFragment.names, classFileName, '/');
+                    String entryName = org.eclipse.jdt.internal.core.util.Util.concatWith(packageFragment.names, classFileName, '/');
                     return createDefaultClassFileReader(archiveName, entryName, decodingFlag);
                 } else {
                     InputStream in = null;

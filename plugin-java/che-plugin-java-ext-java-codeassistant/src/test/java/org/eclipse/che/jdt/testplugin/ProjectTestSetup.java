@@ -62,9 +62,7 @@ public class ProjectTestSetup /*extends TestSetup */{
 //		fAutobuilding = CoreUtility.setAutoBuilding(false);
 
 		fJProject= createAndInitializeProject();
-//TODO
-		fJProject.setOptions(TestOptions.getDefaultOptions());
-//		JavaCore.setOptions(TestOptions.getDefaultOptions());
+		JavaCore.setOptions(TestOptions.getDefaultOptions());
 		TestOptions.initializeCodeGenerationOptions();
 		JavaPlugin.getDefault().getCodeTemplateStore().load();
 	}

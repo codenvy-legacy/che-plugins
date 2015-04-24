@@ -11,12 +11,10 @@
  *******************************************************************************/
 package org.eclipse.che.jdt.core.search;
 
-import org.eclipse.che.jdt.internal.core.JavaProject;
 import org.eclipse.che.jdt.internal.core.search.BasicSearchEngine;
 import org.eclipse.che.jdt.internal.core.search.IRestrictedAccessTypeRequestor;
 import org.eclipse.che.jdt.internal.core.search.TypeNameMatchRequestorWrapper;
 import org.eclipse.che.jdt.internal.core.search.TypeNameRequestorWrapper;
-import org.eclipse.che.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.che.jdt.internal.core.search.matching.DeclarationOfAccessedFieldsPattern;
 import org.eclipse.che.jdt.internal.core.search.matching.DeclarationOfReferencedMethodsPattern;
 import org.eclipse.che.jdt.internal.core.search.matching.DeclarationOfReferencedTypesPattern;

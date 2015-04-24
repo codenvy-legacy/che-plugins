@@ -1472,15 +1472,14 @@ public class CompilationUnit extends Openable
      * @see org.eclipse.jdt.core.IOpenable
      */
     public void save(IProgressMonitor pm, boolean force) throws JavaModelException {
-//	if (isWorkingCopy()) {
-//		// no need to save the buffer for a working copy (this is a noop)
-//		reconcile();   // not simply makeConsistent, also computes fine-grain deltas
-//								// in case the working copy is being reconciled already (if not it would miss
-//								// one iteration of deltas).
-//	} else {
-//		super.save(pm, force);
-//	}
-        throw new UnsupportedOperationException();
+	if (isWorkingCopy()) {
+		// no need to save the buffer for a working copy (this is a noop)
+		reconcile();   // not simply makeConsistent, also computes fine-grain deltas
+								// in case the working copy is being reconciled already (if not it would miss
+								// one iteration of deltas).
+	} else {
+		super.save(pm, force);
+	}
     }
 
     /**

@@ -87,6 +87,7 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -105,6 +106,7 @@ public class Util {
     private static final char[] SHORT               = "short".toCharArray(); //$NON-NLS-1$
     private static final char[] VOID                = "void".toCharArray(); //$NON-NLS-1$
     private static char[][] JAVA_LIKE_EXTENSIONS;
+    private static final String TASK_PRIORITIES_PROBLEM = "TASK_PRIORITIES_PB"; //$NON-NLS-1$
     private static List fgRepeatedMessages = new ArrayList(5);
 
     private Util() {
@@ -2579,6 +2581,17 @@ public class Util {
         log(e);
     }
 
+    public static void logRepeatedMessage(String key, int statusErrorID, String message) {
+        if (key == null) {
+            throw new IllegalArgumentException("key cannot be null"); //$NON-NLS-1$
+        }
+        if (fgRepeatedMessages.contains(key)) {
+            return;
+        }
+        fgRepeatedMessages.add(key);
+        log(statusErrorID, message);
+    }
+
     /**
      * Converts the given relative path into a package name.
      * Returns null if the path is not a valid package name.
@@ -2625,6 +2638,46 @@ public class Util {
         }
         return null;
     }
+
+    /*
+ * This method adjusts the task tags and task priorities so that they have the same size
+ */
+    public static void fixTaskTags(Map defaultOptionsMap) {
+        Object taskTagsValue = defaultOptionsMap.get(org.eclipse.jdt.core.JavaCore.COMPILER_TASK_TAGS);
+        char[][] taskTags = null;
+        if (taskTagsValue instanceof String) {
+            taskTags = CharOperation.splitAndTrimOn(',', ((String) taskTagsValue).toCharArray());
+        }
+        Object taskPrioritiesValue = defaultOptionsMap.get(org.eclipse.jdt.core.JavaCore.COMPILER_TASK_PRIORITIES);
+        char[][] taskPriorities = null;
+        if (taskPrioritiesValue instanceof String) {
+            taskPriorities = CharOperation.splitAndTrimOn(',', ((String) taskPrioritiesValue).toCharArray());
+        }
+        if (taskPriorities == null) {
+            if (taskTags != null) {
+                Util.logRepeatedMessage(TASK_PRIORITIES_PROBLEM, IStatus.ERROR, "Inconsistent values for taskTags (not null) and task priorities (null)"); //$NON-NLS-1$
+                defaultOptionsMap.remove(org.eclipse.jdt.core.JavaCore.COMPILER_TASK_TAGS);
+            }
+            return;
+        } else if (taskTags == null) {
+            Util.logRepeatedMessage(TASK_PRIORITIES_PROBLEM, IStatus.ERROR, "Inconsistent values for taskTags (null) and task priorities (not null)"); //$NON-NLS-1$
+            defaultOptionsMap.remove(org.eclipse.jdt.core.JavaCore.COMPILER_TASK_PRIORITIES);
+            return;
+        }
+        int taskTagsLength = taskTags.length;
+        int taskPrioritiesLength = taskPriorities.length;
+        if (taskTagsLength != taskPrioritiesLength) {
+            Util.logRepeatedMessage(TASK_PRIORITIES_PROBLEM, IStatus.ERROR, "Inconsistent values for taskTags and task priorities : length is different"); //$NON-NLS-1$
+            if (taskTagsLength > taskPrioritiesLength) {
+                System.arraycopy(taskTags, 0, (taskTags = new char[taskPrioritiesLength][]), 0, taskPrioritiesLength);
+                defaultOptionsMap.put(org.eclipse.jdt.core.JavaCore.COMPILER_TASK_TAGS, new String(CharOperation.concatWith(taskTags,',')));
+            } else {
+                System.arraycopy(taskPriorities, 0, (taskPriorities = new char[taskTagsLength][]), 0, taskTagsLength);
+                defaultOptionsMap.put(org.eclipse.jdt.core.JavaCore.COMPILER_TASK_PRIORITIES, new String(CharOperation.concatWith(taskPriorities,',')));
+            }
+        }
+    }
+
     /**
      * Returns the given file's contents as a byte array.
      */

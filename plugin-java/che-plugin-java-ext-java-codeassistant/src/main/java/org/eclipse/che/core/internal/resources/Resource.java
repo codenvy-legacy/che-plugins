@@ -13,6 +13,8 @@ package org.eclipse.che.core.internal.resources;
 
 import org.eclipse.che.core.internal.utils.Policy;
 import org.eclipse.core.internal.resources.ICoreConstants;
+import org.eclipse.core.internal.resources.ResourceException;
+import org.eclipse.core.internal.utils.Messages;
 import org.eclipse.core.internal.utils.WrappedRuntimeException;
 import org.eclipse.core.internal.watson.IPathRequestor;
 import org.eclipse.core.resources.IContainer;
@@ -24,6 +26,7 @@ import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceProxy;
 import org.eclipse.core.resources.IResourceProxyVisitor;
+import org.eclipse.core.resources.IResourceStatus;
 import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourceAttributes;
@@ -39,6 +42,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.core.runtime.jobs.MultiRule;
 import org.eclipse.jdt.internal.ui.JavaPlugin;
+import org.eclipse.osgi.util.NLS;
 
 import java.io.IOException;
 import java.net.URI;
@@ -699,4 +703,36 @@ public abstract class Resource implements IResource, IPathRequestor {
     public void createLink(URI localLocation, int updateFlags, IProgressMonitor monitor) throws CoreException {
         throw new UnsupportedOperationException();
     }
+
+    /**
+     * Returns the resource info.  Returns null if the resource doesn't exist.
+     * If the phantom flag is true, phantom resources are considered.
+     * If the mutable flag is true, a mutable info is returned.
+     */
+    public ResourceInfo getResourceInfo(boolean phantom, boolean mutable) {
+        return workspace.getResourceInfo(getFullPath());
+    }
+
+    public void checkAccessible(int flags) throws CoreException {
+        checkExists(flags, true);
+    }
+
+    /**
+     * Checks that this resource exists.
+     * If checkType is true, the type of this resource and the one in the tree must match.
+     *
+     * @exception CoreException if this resource does not exist
+     */
+    public void checkExists(int flags, boolean checkType) throws CoreException {
+        if (!exists(flags, checkType)) {
+            String message = NLS.bind(Messages.resources_mustExist, getFullPath());
+            throw new ResourceException(IResourceStatus.RESOURCE_NOT_FOUND, getFullPath(), message, null);
+        }
+    }
+
+    public boolean exists(int flags, boolean checkType) {
+//        return flags != NULL_FLAG && !(checkType && ResourceInfo.getType(flags) != getType());
+        return true;
+    }
+
 }

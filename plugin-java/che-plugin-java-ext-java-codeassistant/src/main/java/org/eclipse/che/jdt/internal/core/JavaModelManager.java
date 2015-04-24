@@ -34,6 +34,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.jdt.core.ClasspathContainerInitializer;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.IClasspathContainer;
@@ -52,7 +53,10 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
+import org.eclipse.jdt.internal.codeassist.impl.AssistOptions;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.DefaultWorkingCopyOwner;
 import org.eclipse.jdt.internal.core.builder.JavaBuilder;
 import org.eclipse.jdt.internal.core.util.HashtableOfArrayToObject;
@@ -79,6 +83,25 @@ import java.util.zip.ZipFile;
  * @author Evgen Vidolob
  */
 public class JavaModelManager {
+    private static Map<String, String> defaultOptions= new HashMap<>();
+    static {
+        defaultOptions.put(JavaCore.COMPILER_COMPLIANCE, org.eclipse.jdt.core.JavaCore.VERSION_1_8);
+        defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, org.eclipse.jdt.core.JavaCore.VERSION_1_8);
+        defaultOptions.put(JavaCore.COMPILER_SOURCE, org.eclipse.jdt.core.JavaCore.VERSION_1_8);
+        defaultOptions.put(AssistOptions.OPTION_PerformVisibilityCheck, AssistOptions.ENABLED);
+        defaultOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
+        defaultOptions.put(CompilerOptions.OPTION_TaskTags, CompilerOptions.WARNING);
+        defaultOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.WARNING);
+        defaultOptions.put(CompilerOptions.OPTION_SuppressWarnings, CompilerOptions.ENABLED);
+        defaultOptions.put(JavaCore.COMPILER_TASK_TAGS, "TODO,FIXME,XXX");
+        defaultOptions.put(org.eclipse.jdt.core.JavaCore.COMPILER_TASK_PRIORITIES, org.eclipse.jdt.core.JavaCore.DEFAULT_TASK_PRIORITIES);
+        defaultOptions.put(org.eclipse.jdt.core.JavaCore.COMPILER_PB_UNUSED_PARAMETER_INCLUDE_DOC_COMMENT_REFERENCE, org.eclipse.jdt.core.JavaCore.ENABLED);
+        defaultOptions.put(org.eclipse.jdt.core.JavaCore.COMPILER_DOC_COMMENT_SUPPORT, org.eclipse.jdt.core.JavaCore.ENABLED);
+        defaultOptions.put(org.eclipse.jdt.core.JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, org.eclipse.jdt.core.JavaCore.ENABLED);
+        defaultOptions.put(CompilerOptions.OPTION_Process_Annotations, org.eclipse.jdt.core.JavaCore.ENABLED);
+        defaultOptions.put(CompilerOptions.OPTION_GenerateClassFiles, org.eclipse.jdt.core.JavaCore.ENABLED);
+
+    }
     public final static  String             TRUE                                        = "true"; //$NON-NLS-1$
     public final static  ICompilationUnit[] NO_WORKING_COPY                             = new ICompilationUnit[0];
     private final static String             INDEXED_SECONDARY_TYPES                     = "#@*_indexing secondary cache_*@#"; //$NON-NLS-1$
@@ -87,6 +110,14 @@ public class JavaModelManager {
     public static        boolean            CP_RESOLVE_VERBOSE_ADVANCED                 = false;
     public static        boolean            CP_RESOLVE_VERBOSE_FAILURE                  = false;
     public static        boolean            ZIP_ACCESS_VERBOSE                          = false;
+
+    // Options
+    private final static int UNKNOWN_OPTION = 0;
+    private final static int DEPRECATED_OPTION = 1;
+    private final static int VALID_OPTION = 2;
+    HashSet optionNames = new HashSet(20);
+    Map deprecatedOptions = new HashMap();
+
     /**
      * Name of the JVM parameter to specify whether or not referenced JAR should be resolved for container libraries.
      */
@@ -218,6 +249,9 @@ public class JavaModelManager {
     private JavaModelCache cache;
     private BufferManager  DEFAULT_BUFFER_MANAGER;
 
+    Hashtable<String, String> optionsCache;
+
+
     public static JavaModelManager getJavaModelManager() {
         return MANAGER;
     }
@@ -225,6 +259,7 @@ public class JavaModelManager {
     public JavaModelManager() {
         // initialize Java model cache
         this.cache = new JavaModelCache();
+        optionsCache = new Hashtable<>(defaultOptions);
         javaModel = new JavaModel();
         this.indexManager = new IndexManager(ResourcesPlugin.getIndexPath());
         deltaState = new DeltaProcessingState(this);
@@ -1452,6 +1487,324 @@ public class JavaModelManager {
         return projectInfo.secondaryTypes;
     }
 
+    public String getOption(String optionName) {
+
+        if (org.eclipse.jdt.core.JavaCore.CORE_ENCODING.equals(optionName)){
+            return "UTF-8";
+        }
+        // backward compatibility
+//        if (isDeprecatedOption(optionName)) {
+//            return JavaCore.ERROR;
+//        }
+        int optionLevel = getOptionLevel(optionName);
+        if (optionLevel != UNKNOWN_OPTION) {
+
+            String value = optionsCache.get(optionName);
+//            if (value == null && optionLevel == DEPRECATED_OPTION) {
+//                 May be a deprecated option, retrieve the new value in compatible options
+//                String[] compatibleOptions = (String[]) this.deprecatedOptions.get(optionName);
+//                value = service.get(compatibleOptions[0], null, this.preferencesLookup);
+//            }
+            return value == null ? null : value.trim();
+        }
+        return null;
+    }
+
+    public void setOptions(Hashtable newOptions) {
+        Hashtable cachedValue = newOptions == null ? null : new Hashtable(newOptions);
+//        IEclipsePreferences defaultPreferences = getDefaultPreferences();
+//        IEclipsePreferences instancePreferences = getInstancePreferences();
+
+        if (newOptions == null){
+//            try {
+                optionsCache.clear();
+//            } catch(BackingStoreException e) {
+//                 ignore
+//            }
+        }
+//        else {
+//            Enumeration keys = newOptions.keys();
+//            while (keys.hasMoreElements()){
+//                String key = (String)keys.nextElement();
+//                int optionLevel = getOptionLevel(key);
+//                if (optionLevel == UNKNOWN_OPTION) continue; // unrecognized option
+//                if (key.equals(JavaCore.CORE_ENCODING)) {
+//                    if (cachedValue != null) {
+//                        cachedValue.put(key, JavaCore.getEncoding());
+//                    }
+//                    continue; // skipped, contributed by resource prefs
+//                }
+//                String value = (String) newOptions.get(key);
+//                String defaultValue = defaultPreferences.get(key, null);
+//                // Store value in preferences
+//                if (defaultValue != null && defaultValue.equals(value)) {
+//                    value = null;
+//                }
+//                storePreference(key, value, instancePreferences, newOptions);
+//            }
+//            try {
+//                // persist options
+//                instancePreferences.flush();
+//            } catch(BackingStoreException e) {
+//                // ignore
+//            }
+//        }
+        // update cache
+        Util.fixTaskTags(cachedValue);
+        this.optionsCache.putAll(cachedValue);
+    }
+
+    public Hashtable getOptions() {
+
+        // return cached options if already computed
+        Hashtable cachedOptions; // use a local variable to avoid race condition (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=256329 )
+        if ((cachedOptions = this.optionsCache) != null) {
+            return new Hashtable(cachedOptions);
+        }
+//        if (!Platform.isRunning()) {
+            this.optionsCache = getDefaultOptionsNoInitialization();
+            return new Hashtable(this.optionsCache);
+//        }
+//        // init
+//        Hashtable options = new Hashtable(10);
+//        IPreferencesService service = Platform.getPreferencesService();
+//
+//        // set options using preferences service lookup
+//        Iterator iterator = this.optionNames.iterator();
+//        while (iterator.hasNext()) {
+//            String propertyName = (String) iterator.next();
+//            String propertyValue = service.get(propertyName, null, this.preferencesLookup);
+//            if (propertyValue != null) {
+//                options.put(propertyName, propertyValue);
+//            }
+//        }
+//
+//        // set deprecated options using preferences service lookup
+//        Iterator deprecatedEntries = this.deprecatedOptions.entrySet().iterator();
+//        while (deprecatedEntries.hasNext()) {
+//            Entry entry = (Entry) deprecatedEntries.next();
+//            String propertyName = (String) entry.getKey();
+//            String propertyValue = service.get(propertyName, null, this.preferencesLookup);
+//            if (propertyValue != null) {
+//                options.put(propertyName, propertyValue);
+//                String[] compatibleOptions = (String[]) entry.getValue();
+//                for (int co=0, length=compatibleOptions.length; co < length; co++) {
+//                    String compatibleOption = compatibleOptions[co];
+//                    if (!options.containsKey(compatibleOption))
+//                        options.put(compatibleOption, propertyValue);
+//                }
+//            }
+//        }
+//
+//        // get encoding through resource plugin
+//        options.put(JavaCore.CORE_ENCODING, JavaCore.getEncoding());
+//
+//        // backward compatibility
+//        addDeprecatedOptions(options);
+//
+//        Util.fixTaskTags(options);
+//        // store built map in cache
+//        this.optionsCache = new Hashtable(options);
+//        // return built map
+//        return options;
+    }
+
+    // If modified, also modify the method getDefaultOptionsNoInitialization()
+    public Hashtable getDefaultOptions(){
+
+        Hashtable defaultOptions = new Hashtable(10);
+
+        // see JavaCorePreferenceInitializer#initializeDefaultPluginPreferences() for changing default settings
+        // If modified, also modify the method getDefaultOptionsNoInitialization()
+//        IEclipsePreferences defaultPreferences = getDefaultPreferences();
+
+        // initialize preferences to their default
+//        Iterator iterator = this.optionNames.iterator();
+//        while (iterator.hasNext()) {
+//            String propertyName = (String) iterator.next();
+//            String value = defaultPreferences.get(propertyName, null);
+//            if (value != null) defaultOptions.put(propertyName, value);
+//        }
+        // get encoding through resource plugin
+        defaultOptions.put(org.eclipse.jdt.core.JavaCore.CORE_ENCODING, "UTF-8");
+        defaultOptions.putAll(getDefaultOptionsNoInitialization());
+        // backward compatibility
+//        addDeprecatedOptions(defaultOptions);
+
+        return defaultOptions;
+    }
+
+    // Do not modify without modifying getDefaultOptions()
+    private Hashtable getDefaultOptionsNoInitialization() {
+        Map defaultOptionsMap = new CompilerOptions().getMap(); // compiler defaults
+
+        // Override some compiler defaults
+        defaultOptionsMap.put(org.eclipse.jdt.core.JavaCore.COMPILER_LOCAL_VARIABLE_ATTR, org.eclipse.jdt.core.JavaCore.GENERATE);
+        defaultOptionsMap.put(org.eclipse.jdt.core.JavaCore.COMPILER_CODEGEN_UNUSED_LOCAL, org.eclipse.jdt.core.JavaCore.PRESERVE);
+        defaultOptionsMap.put(org.eclipse.jdt.core.JavaCore.COMPILER_TASK_TAGS, org.eclipse.jdt.core.JavaCore.DEFAULT_TASK_TAGS);
+        defaultOptionsMap.put(org.eclipse.jdt.core.JavaCore.COMPILER_TASK_PRIORITIES, org.eclipse.jdt.core.JavaCore.DEFAULT_TASK_PRIORITIES);
+        defaultOptionsMap.put(org.eclipse.jdt.core.JavaCore.COMPILER_TASK_CASE_SENSITIVE, org.eclipse.jdt.core.JavaCore.ENABLED);
+        defaultOptionsMap.put(org.eclipse.jdt.core.JavaCore.COMPILER_DOC_COMMENT_SUPPORT, org.eclipse.jdt.core.JavaCore.ENABLED);
+        defaultOptionsMap.put(org.eclipse.jdt.core.JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, org.eclipse.jdt.core.JavaCore.ERROR);
+
+        // Builder settings
+        defaultOptionsMap.put(org.eclipse.jdt.core.JavaCore.CORE_JAVA_BUILD_RESOURCE_COPY_FILTER, ""); //$NON-NLS-1$
+        defaultOptionsMap.put(org.eclipse.jdt.core.JavaCore.CORE_JAVA_BUILD_INVALID_CLASSPATH, org.eclipse.jdt.core.JavaCore.ABORT);
+        defaultOptionsMap.put(org.eclipse.jdt.core.JavaCore.CORE_JAVA_BUILD_DUPLICATE_RESOURCE, org.eclipse.jdt.core.JavaCore.WARNING);
+        defaultOptionsMap.put(org.eclipse.jdt.core.JavaCore.CORE_JAVA_BUILD_CLEAN_OUTPUT_FOLDER, org.eclipse.jdt.core.JavaCore.CLEAN);
+
+        // JavaCore settings
+        defaultOptionsMap.put(org.eclipse.jdt.core.JavaCore.CORE_JAVA_BUILD_ORDER, org.eclipse.jdt.core.JavaCore.IGNORE);
+        defaultOptionsMap.put(org.eclipse.jdt.core.JavaCore.CORE_INCOMPLETE_CLASSPATH, org.eclipse.jdt.core.JavaCore.ERROR);
+        defaultOptionsMap.put(org.eclipse.jdt.core.JavaCore.CORE_CIRCULAR_CLASSPATH, org.eclipse.jdt.core.JavaCore.ERROR);
+        defaultOptionsMap.put(org.eclipse.jdt.core.JavaCore.CORE_INCOMPATIBLE_JDK_LEVEL, org.eclipse.jdt.core.JavaCore.IGNORE);
+        defaultOptionsMap.put(org.eclipse.jdt.core.JavaCore.CORE_OUTPUT_LOCATION_OVERLAPPING_ANOTHER_SOURCE, org.eclipse.jdt.core.JavaCore.ERROR);
+        defaultOptionsMap.put(org.eclipse.jdt.core.JavaCore.CORE_ENABLE_CLASSPATH_EXCLUSION_PATTERNS, org.eclipse.jdt.core.JavaCore.ENABLED);
+        defaultOptionsMap.put(org.eclipse.jdt.core.JavaCore.CORE_ENABLE_CLASSPATH_MULTIPLE_OUTPUT_LOCATIONS, org.eclipse.jdt.core.JavaCore.ENABLED);
+
+        // Formatter settings
+        defaultOptionsMap.putAll(DefaultCodeFormatterConstants.getEclipseDefaultSettings());
+
+        // CodeAssist settings
+        defaultOptionsMap.put(org.eclipse.jdt.core.JavaCore.CODEASSIST_VISIBILITY_CHECK, org.eclipse.jdt.core.JavaCore.DISABLED);
+        defaultOptionsMap.put(org.eclipse.jdt.core.JavaCore.CODEASSIST_DEPRECATION_CHECK, org.eclipse.jdt.core.JavaCore.DISABLED);
+        defaultOptionsMap.put(org.eclipse.jdt.core.JavaCore.CODEASSIST_IMPLICIT_QUALIFICATION, org.eclipse.jdt.core.JavaCore.DISABLED);
+        defaultOptionsMap.put(org.eclipse.jdt.core.JavaCore.CODEASSIST_FIELD_PREFIXES, ""); //$NON-NLS-1$
+        defaultOptionsMap.put(org.eclipse.jdt.core.JavaCore.CODEASSIST_STATIC_FIELD_PREFIXES, ""); //$NON-NLS-1$
+        defaultOptionsMap.put(org.eclipse.jdt.core.JavaCore.CODEASSIST_STATIC_FINAL_FIELD_PREFIXES, ""); //$NON-NLS-1$
+        defaultOptionsMap.put(org.eclipse.jdt.core.JavaCore.CODEASSIST_LOCAL_PREFIXES, ""); //$NON-NLS-1$
+        defaultOptionsMap.put(org.eclipse.jdt.core.JavaCore.CODEASSIST_ARGUMENT_PREFIXES, ""); //$NON-NLS-1$
+        defaultOptionsMap.put(org.eclipse.jdt.core.JavaCore.CODEASSIST_FIELD_SUFFIXES, ""); //$NON-NLS-1$
+        defaultOptionsMap.put(org.eclipse.jdt.core.JavaCore.CODEASSIST_STATIC_FIELD_SUFFIXES, ""); //$NON-NLS-1$
+        defaultOptionsMap.put(org.eclipse.jdt.core.JavaCore.CODEASSIST_STATIC_FINAL_FIELD_SUFFIXES, ""); //$NON-NLS-1$
+        defaultOptionsMap.put(org.eclipse.jdt.core.JavaCore.CODEASSIST_LOCAL_SUFFIXES, ""); //$NON-NLS-1$
+        defaultOptionsMap.put(org.eclipse.jdt.core.JavaCore.CODEASSIST_ARGUMENT_SUFFIXES, ""); //$NON-NLS-1$
+        defaultOptionsMap.put(org.eclipse.jdt.core.JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, org.eclipse.jdt.core.JavaCore.ENABLED);
+        defaultOptionsMap.put(org.eclipse.jdt.core.JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, org.eclipse.jdt.core.JavaCore.DISABLED);
+        defaultOptionsMap.put(org.eclipse.jdt.core.JavaCore.CODEASSIST_CAMEL_CASE_MATCH, org.eclipse.jdt.core.JavaCore.ENABLED);
+        defaultOptionsMap.put(org.eclipse.jdt.core.JavaCore.CODEASSIST_SUGGEST_STATIC_IMPORTS, org.eclipse.jdt.core.JavaCore.ENABLED);
+
+        // Time out for parameter names
+        defaultOptionsMap.put(org.eclipse.jdt.core.JavaCore.TIMEOUT_FOR_PARAMETER_NAME_FROM_ATTACHED_JAVADOC, "50"); //$NON-NLS-1$
+
+        return new Hashtable(defaultOptionsMap);
+    }
+
+    /**
+     * Returns the level of the given option.
+     *
+     * @param optionName The name of the option
+     * @return The level of the option as an int which may have the following
+     * values:
+     * <ul>
+     * <li>{@link #UNKNOWN_OPTION}: the given option is unknown</li>
+     * <li>{@link #DEPRECATED_OPTION}: the given option is deprecated</li>
+     * <li>{@link #VALID_OPTION}: the given option is valid</li>
+     * </ul>
+     */
+    public int getOptionLevel(String optionName) {
+        if (this.optionNames.contains(optionName)) {
+            return VALID_OPTION;
+        }
+        if (this.deprecatedOptions.get(optionName) != null) {
+            return DEPRECATED_OPTION;
+        }
+        return UNKNOWN_OPTION;
+    }
+
+    /**
+     * Returns the value of the given option for the given Eclipse preferences.
+     * If no value was already set, then inherits from the global options if specified.
+     *
+     * @param optionName The name of the option
+     * @param inheritJavaCoreOptions Tells whether the value can be inherited from global JavaCore options
+     * @param projectPreferences The eclipse preferences from which to get the value
+     * @return The value of the option. May be <code>null</code>
+     */
+    public String getOption(String optionName, boolean inheritJavaCoreOptions, IEclipsePreferences projectPreferences) {
+        // Return the option value depending on its level
+        switch (getOptionLevel(optionName)) {
+            case VALID_OPTION:
+                // Valid option, return the preference value
+                String javaCoreDefault = inheritJavaCoreOptions ? JavaCore.getOption(optionName) : null;
+                if (projectPreferences == null) return javaCoreDefault;
+                String value = projectPreferences.get(optionName, javaCoreDefault);
+                return value == null ? null : value.trim();
+            case DEPRECATED_OPTION:
+                // Return the deprecated option value if it was already set
+                String oldValue = projectPreferences.get(optionName, null);
+                if (oldValue != null) {
+                    return oldValue.trim();
+                }
+                // Get the new compatible value
+                String[] compatibleOptions = (String[]) this.deprecatedOptions.get(optionName);
+                String newDefault = inheritJavaCoreOptions ? JavaCore.getOption(compatibleOptions[0]) : null;
+                String newValue = projectPreferences.get(compatibleOptions[0], newDefault);
+                return newValue == null ? null : newValue.trim();
+        }
+        return null;
+    }
+
+    /**
+     * Returns whether an option name is known or not.
+     *
+     * @param optionName The name of the option
+     * @return <code>true</code> when the option name is either
+     * {@link #VALID_OPTION valid} or {@link #DEPRECATED_OPTION deprecated},
+     * <code>false</code> otherwise.
+     */
+    public boolean knowsOption(String optionName) {
+        boolean knownOption = this.optionNames.contains(optionName);
+        if (!knownOption) {
+            knownOption = this.deprecatedOptions.get(optionName) != null;
+        }
+        return knownOption;
+    }
+
+    /**
+     * Store the preferences value for the given option name.
+     *
+     * @param optionName The name of the option
+     * @param optionValue The value of the option. If <code>null</code>, then
+     * 	the option will be removed from the preferences instead.
+     * @param eclipsePreferences The eclipse preferences to be updated
+     * @param otherOptions more options being stored, used to avoid conflict between deprecated option and its compatible
+     * @return <code>true</code> if the preferences have been changed,
+     * 	<code>false</code> otherwise.
+     */
+    public boolean storePreference(String optionName, String optionValue, IEclipsePreferences eclipsePreferences, Map otherOptions) {
+        int optionLevel = this.getOptionLevel(optionName);
+        if (optionLevel == UNKNOWN_OPTION) return false; // unrecognized option
+
+        // Store option value
+        switch (optionLevel) {
+            case JavaModelManager.VALID_OPTION:
+                if (optionValue == null) {
+                    eclipsePreferences.remove(optionName);
+                } else {
+                    eclipsePreferences.put(optionName, optionValue);
+                }
+                break;
+            case JavaModelManager.DEPRECATED_OPTION:
+                // Try to migrate deprecated option
+                eclipsePreferences.remove(optionName); // get rid off old preference
+                String[] compatibleOptions = (String[]) this.deprecatedOptions.get(optionName);
+                for (int co=0, length=compatibleOptions.length; co < length; co++) {
+                    if (otherOptions != null && otherOptions.containsKey(compatibleOptions[co]))
+                        continue; // don't overwrite explicit value of otherOptions at compatibleOptions[co]
+                    if (optionValue == null) {
+                        eclipsePreferences.remove(compatibleOptions[co]);
+                    } else {
+                        eclipsePreferences.put(compatibleOptions[co], optionValue);
+                    }
+                }
+                break;
+            default:
+                return false;
+        }
+        return true;
+    }
+
     /*
 	 * Discards the per working copy info for the given working copy (making it a compilation unit)
 	 * if its use count was 1. Otherwise, just decrement the use count.
@@ -1998,10 +2351,10 @@ public class JavaModelManager {
         public Map               rootPathToResolvedEntries; // map from a package fragment root's path to the resolved entry
         public IPath             outputLocation;
 
-        //        public IEclipsePreferences preferences;
-        public Hashtable options;
-        public Hashtable secondaryTypes;
-        public LRUCache  javadocCache;
+        public IEclipsePreferences preferences;
+        public Hashtable           options;
+        public Hashtable           secondaryTypes;
+        public LRUCache            javadocCache;
 
         public PerProjectInfo(IProject project) {
 

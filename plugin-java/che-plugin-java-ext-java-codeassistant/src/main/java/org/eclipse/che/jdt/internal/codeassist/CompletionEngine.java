@@ -24,7 +24,7 @@ import org.eclipse.che.jdt.internal.core.SourceMethodElementInfo;
 import org.eclipse.che.jdt.internal.core.SourceType;
 import org.eclipse.che.jdt.internal.core.SourceTypeElementInfo;
 import org.eclipse.che.jdt.internal.core.search.matching.JavaSearchNameEnvironment;
-import org.eclipse.che.jdt.internal.core.util.Util;
+import org.eclipse.jdt.internal.core.util.Util;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.CompletionContext;

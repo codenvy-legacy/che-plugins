@@ -13,16 +13,22 @@ package org.eclipse.che.jdt.internal.core;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResourceStatus;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.ISafeRunnable;
 import org.eclipse.core.runtime.SafeRunner;
+import org.eclipse.core.runtime.content.IContentDescription;
 import org.eclipse.jdt.core.BufferChangedEvent;
 import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.core.IBufferChangedListener;
+import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.IOpenable;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.internal.core.util.Util;
+import org.eclipse.che.jdt.internal.core.util.Util;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -335,72 +341,72 @@ public void replace(int position, int length, String text) {
  */
 public void save(IProgressMonitor progress, boolean force) throws JavaModelException {
 
-//	// determine if saving is required
-//	if (isReadOnly() || this.file == null) {
-//		return;
-//	}
-//	if (!hasUnsavedChanges())
-//		return;
-//
-//	// use a platform operation to update the resource contents
-//	try {
-//		String stringContents = getContents();
-//		if (stringContents == null) return;
-//
-//		// Get encoding
-//		String encoding = null;
-//		try {
-//			encoding = this.file.getCharset();
-//		}
-//		catch (CoreException ce) {
-//			// use no encoding
-//		}
-//
-//		// Create bytes array
-//		byte[] bytes = encoding == null
-//			? stringContents.getBytes()
-//			: stringContents.getBytes(encoding);
-//
-//		// Special case for UTF-8 BOM files
-//		// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=110576
-//		if (encoding != null && encoding.equals(org.eclipse.jdt.internal.compiler.util.Util.UTF_8)) {
-//			IContentDescription description;
-//			try {
-//				description = this.file.getContentDescription();
-//			} catch (CoreException e) {
-//				if (e.getStatus().getCode() != IResourceStatus.RESOURCE_NOT_FOUND)
-//					throw e;
-//				// file no longer exist (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=234307 )
-//				description = null;
-//			}
-//			if (description != null && description.getProperty(IContentDescription.BYTE_ORDER_MARK) != null) {
-//				int bomLength= IContentDescription.BOM_UTF_8.length;
-//				byte[] bytesWithBOM= new byte[bytes.length + bomLength];
-//				System.arraycopy(IContentDescription.BOM_UTF_8, 0, bytesWithBOM, 0, bomLength);
-//				System.arraycopy(bytes, 0, bytesWithBOM, bomLength, bytes.length);
-//				bytes= bytesWithBOM;
-//			}
-//		}
-//
-//		// Set file contents
-//		ByteArrayInputStream stream = new ByteArrayInputStream(bytes);
-//		if (this.file.exists()) {
-//			this.file.setContents(
-//				stream,
-//				force ? IResource.FORCE | IResource.KEEP_HISTORY : IResource.KEEP_HISTORY,
-//				null);
-//		} else {
-//			this.file.create(stream, force, null);
-//		}
-//	} catch (IOException e) {
-//		throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
-//	} catch (CoreException e) {
-//		throw new JavaModelException(e);
-//	}
-//
-//	// the resource no longer has unsaved changes
-//	this.flags &= ~ (F_HAS_UNSAVED_CHANGES);
-	throw new UnsupportedOperationException("Save is not implemented");
+	// determine if saving is required
+	if (isReadOnly() || this.file == null) {
+		return;
+	}
+	if (!hasUnsavedChanges())
+		return;
+
+	// use a platform operation to update the resource contents
+	try {
+		String stringContents = getContents();
+		if (stringContents == null) return;
+
+		// Get encoding
+		String encoding = null;
+		try {
+			encoding = this.file.getCharset();
+		}
+		catch (CoreException ce) {
+			// use no encoding
+		}
+
+		// Create bytes array
+		byte[] bytes = encoding == null
+			? stringContents.getBytes()
+			: stringContents.getBytes(encoding);
+
+		// Special case for UTF-8 BOM files
+		// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=110576
+		if (encoding != null && encoding.equals(org.eclipse.jdt.internal.compiler.util.Util.UTF_8)) {
+			IContentDescription description;
+			try {
+				description = this.file.getContentDescription();
+			} catch (CoreException e) {
+				if (e.getStatus().getCode() != IResourceStatus.RESOURCE_NOT_FOUND)
+					throw e;
+				// file no longer exist (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=234307 )
+				description = null;
+			}
+			if (description != null && description.getProperty(IContentDescription.BYTE_ORDER_MARK) != null) {
+				int bomLength= IContentDescription.BOM_UTF_8.length;
+				byte[] bytesWithBOM= new byte[bytes.length + bomLength];
+				System.arraycopy(IContentDescription.BOM_UTF_8, 0, bytesWithBOM, 0, bomLength);
+				System.arraycopy(bytes, 0, bytesWithBOM, bomLength, bytes.length);
+				bytes= bytesWithBOM;
+			}
+		}
+
+		// Set file contents
+		ByteArrayInputStream stream = new ByteArrayInputStream(bytes);
+		if (this.file.exists()) {
+			this.file.setContents(
+				stream,
+				force ? IResource.FORCE | IResource.KEEP_HISTORY : IResource.KEEP_HISTORY,
+				null);
+		} else {
+			this.file.create(stream, force, null);
+		}
+	} catch (IOException e) {
+		throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
+	} catch (CoreException e) {
+		throw new JavaModelException(e);
+	}
+
+	// the resource no longer has unsaved changes
+	this.flags &= ~ (F_HAS_UNSAVED_CHANGES);
+//	throw new UnsupportedOperationException("Save is not implemented");
 }
 /**
  * @see org.eclipse.jdt.core.IBuffer

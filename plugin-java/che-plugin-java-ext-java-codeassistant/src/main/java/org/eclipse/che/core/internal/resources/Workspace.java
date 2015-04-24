@@ -57,14 +57,14 @@ import java.util.Map;
 /**
  * @author Evgen Vidolob
  */
-public class Workspace implements IWorkspace{
+public class Workspace implements IWorkspace {
     /**
      * Work manager should never be accessed directly because accessor
      * asserts that workspace is still open.
      */
     protected WorkManager _workManager;
     protected final IWorkspaceRoot defaultRoot = new WorkspaceRoot(Path.ROOT, this);
-    private String wsPath;
+    private String               wsPath;
     /**
      * Scheduling rule factory. This field is null if the factory has not been used
      * yet.  The accessor method should be used rather than accessing this field
@@ -292,6 +292,7 @@ public class Workspace implements IWorkspace{
     public void removeSaveParticipant(String s) {
         throw new UnsupportedOperationException();
     }
+
     /**
      * Called before checking the pre-conditions of an operation.  Optionally supply
      * a scheduling rule to determine when the operation is safe to run.  If a scheduling
@@ -325,6 +326,7 @@ public class Workspace implements IWorkspace{
         }
         return _workManager;
     }
+
     @Override
     public void run(IWorkspaceRunnable action, ISchedulingRule rule, int options, IProgressMonitor monitor)
             throws CoreException {
@@ -410,7 +412,8 @@ public class Workspace implements IWorkspace{
 //                hasTreeChanges = workManager.shouldBuild();
                 //double check if the tree has actually changed
 //                if (hasTreeChanges)
-//                    hasTreeChanges = operationTree != null && ElementTree.hasChanges(tree, operationTree, ResourceComparator.getBuildComparator(), true);
+//                    hasTreeChanges = operationTree != null && ElementTree.hasChanges(tree, operationTree, ResourceComparator
+// .getBuildComparator(), true);
 //                broadcastPostChange();
 //                // Request a snapshot if we are sufficiently out of date.
 //                saveManager.snapshotIfNeeded(hasTreeChanges);
@@ -511,20 +514,20 @@ public class Workspace implements IWorkspace{
 
     public ResourceInfo getResourceInfo(IPath path) {
         java.io.File file = getFile(path);
-        if(file.exists()) {
+        if (file.exists()) {
             return newElement(getType(file));
         }
         return null;
     }
 
-    private int getType(java.io.File file){
-        if(file.isFile()){
+    private int getType(java.io.File file) {
+        if (file.isFile()) {
             return IResource.FILE;
         } else {
             java.io.File codenvy = new java.io.File(file, ".codenvy");
-            if(codenvy.exists()){
+            if (codenvy.exists()) {
                 return IResource.PROJECT;
-            }else {
+            } else {
                 return IResource.FOLDER;
             }
         }
@@ -536,14 +539,14 @@ public class Workspace implements IWorkspace{
     protected ResourceInfo newElement(int type) {
         ResourceInfo result = null;
         switch (type) {
-            case IResource.FILE :
-            case IResource.FOLDER :
+            case IResource.FILE:
+            case IResource.FOLDER:
                 result = new ResourceInfo(type);
                 break;
-            case IResource.PROJECT :
+            case IResource.PROJECT:
                 result = new ResourceInfo(type);
                 break;
-            case IResource.ROOT :
+            case IResource.ROOT:
                 result = new ResourceInfo(type);
                 break;
         }
@@ -553,9 +556,9 @@ public class Workspace implements IWorkspace{
 
     public IResource[] getChildren(IPath path) {
         java.io.File file = getFile(path);
-        if(file.exists() && file.isDirectory()){
+        if (file.exists() && file.isDirectory()) {
             java.io.File[] list = file.listFiles();
-            if(list!=null) {
+            if (list != null) {
                 IResource[] resources = new IResource[list.length];
                 for (int i = 0; i < list.length; i++) {
 
@@ -574,20 +577,20 @@ public class Workspace implements IWorkspace{
 //        return workspaceFile;
 //    }
 
-    public void createResource(IResource resource, int updateFlags) throws CoreException{
+    public void createResource(IResource resource, int updateFlags) throws CoreException {
         switch (resource.getType()) {
-            case IResource.FILE :
+            case IResource.FILE:
                 java.io.File file = new java.io.File(wsPath, resource.getFullPath().toOSString());
                 try {
                     file.createNewFile();
                 } catch (IOException e) {
                     throw new CoreException(new Status(0, JavaPlugin.getPluginId(), e.getMessage(), e));
                 }
-            case IResource.FOLDER :
+            case IResource.FOLDER:
                 java.io.File folder = new java.io.File(wsPath, resource.getFullPath().toOSString());
                 folder.mkdirs();
                 break;
-            case IResource.PROJECT :
+            case IResource.PROJECT:
                 java.io.File project = new java.io.File(wsPath, resource.getFullPath().toOSString());
                 project.mkdirs();
                 java.io.File codenvy = new java.io.File(project, ".codenvy");
@@ -602,7 +605,7 @@ public class Workspace implements IWorkspace{
 
     public void setFileContent(File file, InputStream content) {
         java.io.File ioFile = getFile(file.getFullPath());
-        try(FileOutputStream outputStream = new FileOutputStream(ioFile)){
+        try (FileOutputStream outputStream = new FileOutputStream(ioFile)) {
             FileUtil.transferStreams(content, outputStream, file.getFullPath().toOSString(), null);
         } catch (IOException | CoreException e) {
             JavaPlugin.log(e);
@@ -623,8 +626,8 @@ public class Workspace implements IWorkspace{
 
     public void delete(Resource resource) {
         java.io.File file = getFile(resource.getFullPath());
-        if(file.exists()){
-            if(file.isFile()){
+        if (file.exists()) {
+            if (file.isFile()) {
                 file.delete();
             } else {
                 deleteDirectory(file);
@@ -634,19 +637,31 @@ public class Workspace implements IWorkspace{
     }
 
     private static boolean deleteDirectory(java.io.File directory) {
-        if(directory.exists()){
+        if (directory.exists()) {
             java.io.File[] files = directory.listFiles();
-            if(null!=files){
-                for(int i=0; i<files.length; i++) {
-                    if(files[i].isDirectory()) {
+            if (null != files) {
+                for (int i = 0; i < files.length; i++) {
+                    if (files[i].isDirectory()) {
                         deleteDirectory(files[i]);
-                    }
-                    else {
+                    } else {
                         files[i].delete();
                     }
                 }
             }
         }
-        return(directory.delete());
+        return (directory.delete());
+    }
+
+    void write(File file, InputStream content, int updateFlags, boolean append, IProgressMonitor monitor) throws CoreException{
+        try {
+            java.io.File ioFile = getFile(file.getFullPath());
+            if (!ioFile.exists()) {
+                ioFile.createNewFile();
+            }
+            FileOutputStream outputStream = new FileOutputStream(ioFile);
+            FileUtil.transferStreams(content, outputStream, file.getFullPath().toOSString(), monitor);
+        } catch (IOException e) {
+            throw new CoreException(new Status(0, "", e.getMessage(), e));
+        }
     }
 }

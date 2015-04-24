@@ -418,7 +418,7 @@ public class SourceMapper
                             } else {
                                 containsADefaultPackage = true;
                             }
-                        } else if (!containsJavaSource && org.eclipse.che.jdt.internal.core.util.Util.isJavaLikeFileName(
+                        } else if (!containsJavaSource && Util.isJavaLikeFileName(
                                 entryName)) {
                             containsJavaSource = true;
                         }

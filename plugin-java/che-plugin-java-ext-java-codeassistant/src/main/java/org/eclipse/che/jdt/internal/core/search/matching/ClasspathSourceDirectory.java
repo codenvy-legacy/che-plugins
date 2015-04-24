@@ -12,7 +12,7 @@ package org.eclipse.che.jdt.internal.core.search.matching;
 
 import org.eclipse.che.jdt.internal.core.builder.CodenvyClasspathLocation;
 import org.eclipse.che.jdt.internal.core.util.ResourceCompilationUnit;
-import org.eclipse.che.jdt.internal.core.util.Util;
+import org.eclipse.jdt.internal.core.util.Util;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.internal.codeassist.ISearchRequestor;

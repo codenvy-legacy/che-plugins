@@ -19,8 +19,6 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 
-import java.util.HashMap;
-
 public class ExternalJavaProject extends JavaProject {
 
 	/*
@@ -29,7 +27,7 @@ public class ExternalJavaProject extends JavaProject {
 	public static final String EXTERNAL_PROJECT_NAME = " "; //$NON-NLS-1$
 
 	public ExternalJavaProject(IClasspathEntry[] rawClasspath) {
-		super(ResourcesPlugin.getWorkspace().getRoot().getProject(EXTERNAL_PROJECT_NAME), JavaModelManager.getJavaModelManager().getJavaModel(), new HashMap<String, String>());
+		super(ResourcesPlugin.getWorkspace().getRoot().getProject(EXTERNAL_PROJECT_NAME), JavaModelManager.getJavaModelManager().getJavaModel());
 		try {
 			getPerProjectInfo().setRawClasspath(rawClasspath, defaultOutputLocation(), JavaModelStatus.VERIFIED_OK/*no .classpath format problem*/);
 		} catch (JavaModelException e) {
