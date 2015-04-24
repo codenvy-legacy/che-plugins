@@ -151,12 +151,12 @@
         <dependency>
             <groupId>org.eclipse.che.plugin</groupId>
             <artifactId>che-plugin-codemirror-highlighter</artifactId>
-            <version>${che.plugins.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.plugin</groupId>
             <artifactId>che-plugin-ssh-ext-sshkey</artifactId>
-            <version>${che.plugins.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.everrest</groupId>
@@ -346,7 +346,7 @@
                     <dependency>
                         <groupId>org.eclipse.che.plugin</groupId>
                         <artifactId>che-plugin-git-ext-git</artifactId>
-                        <version>${che.plugins.version}</version>
+                        <version>${project.version}</version>
                     </dependency>
                 </dependencies>
             </plugin>

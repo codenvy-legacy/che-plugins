@@ -244,7 +244,7 @@
                     <dependency>
                         <groupId>org.eclipse.che.plugin</groupId>
                         <artifactId>che-plugin-ssh-ext-sshkey</artifactId>
-                        <version>${che.plugins.version}</version>
+                        <version>${project.version}</version>
                     </dependency>
                     <!-- Other dependencies if DTOs from current project need them. -->
                 </dependencies>
