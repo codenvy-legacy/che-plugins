@@ -68,6 +68,15 @@ public interface SubversionExtensionLocalizationConstants extends Messages {
     @Key("commit.title")
     String commitTitle();
 
+    @Key("commit.placeholder")
+    String commitPlaceholder();
+
+    @Key("commit.message.empty")
+    String commitMessageEmpty();
+
+    @Key("commit.diff.unavailable")
+    String commitDiffUnavailable();
+
     @Key("copy.description")
     String copyDescription();
 
