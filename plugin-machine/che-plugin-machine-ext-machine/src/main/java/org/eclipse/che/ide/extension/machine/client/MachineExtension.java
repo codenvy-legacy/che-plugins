@@ -26,7 +26,8 @@ import org.eclipse.che.ide.api.extension.Extension;
 import org.eclipse.che.ide.api.parts.PartStackType;
 import org.eclipse.che.ide.api.parts.WorkspaceAgent;
 import org.eclipse.che.ide.collections.Array;
-import org.eclipse.che.ide.extension.machine.client.actions.StopMachineAction;
+import org.eclipse.che.ide.extension.machine.client.actions.ExecuteCommandAction;
+import org.eclipse.che.ide.extension.machine.client.actions.TerminateMachineAction;
 import org.eclipse.che.ide.extension.machine.client.console.ClearConsoleAction;
 import org.eclipse.che.ide.extension.machine.client.console.MachineConsolePresenter;
 import org.eclipse.che.ide.extension.machine.client.console.MachineConsoleToolbar;
@@ -94,19 +95,23 @@ public class MachineExtension {
     @Inject
     private void prepareActions(MachineLocalizationConstant localizationConstant,
                                 ActionManager actionManager,
-                                StopMachineAction stopMachineAction) {
+                                ExecuteCommandAction executeCommandAction,
+                                TerminateMachineAction terminateMachineAction) {
         final DefaultActionGroup mainMenu = (DefaultActionGroup)actionManager.getAction(GROUP_MAIN_MENU);
 
-        final DefaultActionGroup machinesMenu = new DefaultActionGroup(localizationConstant.mainMenuMachinesName(), true, actionManager);
-        actionManager.registerAction("machines", machinesMenu);
-        final Constraints afterCodeConstraint = new Constraints(AFTER, GROUP_CODE);
-        mainMenu.add(machinesMenu, afterCodeConstraint);
+        final String runGroupId = "run";
+        final DefaultActionGroup machinesMenu = new DefaultActionGroup(localizationConstant.mainMenuRunName(), true, actionManager);
+        actionManager.registerAction(runGroupId, machinesMenu);
+
+        mainMenu.add(machinesMenu, new Constraints(AFTER, GROUP_CODE));
 
         // register actions
-        actionManager.registerAction("stopMachine", stopMachineAction);
+        actionManager.registerAction("executeCommand", executeCommandAction);
+        actionManager.registerAction("stopMachine", terminateMachineAction);
 
         // add actions in main menu
-        machinesMenu.add(stopMachineAction);
+        machinesMenu.add(executeCommandAction);
+        machinesMenu.add(terminateMachineAction);
     }
 
     @Inject

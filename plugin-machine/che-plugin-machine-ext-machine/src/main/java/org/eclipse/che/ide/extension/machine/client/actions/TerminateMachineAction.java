@@ -27,8 +27,12 @@ import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 import org.eclipse.che.ide.util.loging.Log;
 
-/** @author Artem Zatsarynnyy */
-public class StopMachineAction extends Action {
+/**
+ * Action to destroy the machine.
+ *
+ * @author Artem Zatsarynnyy
+ */
+public class TerminateMachineAction extends Action {
 
     private final AppContext                  appContext;
     private final MachineLocalizationConstant localizationConstant;
@@ -39,14 +43,14 @@ public class StopMachineAction extends Action {
     private final AnalyticsEventLogger        eventLogger;
 
     @Inject
-    public StopMachineAction(AppContext appContext,
-                             MachineLocalizationConstant localizationConstant,
-                             MachineServiceClient machineServiceClient,
-                             @Named("workspaceId") String workspaceId,
-                             DialogFactory dialogFactory,
-                             DtoUnmarshallerFactory dtoUnmarshallerFactory,
-                             AnalyticsEventLogger eventLogger) {
-        super(localizationConstant.stopMachineControlTitle(), localizationConstant.stopMachineControlDescription(), null, null);
+    public TerminateMachineAction(AppContext appContext,
+                                  MachineLocalizationConstant localizationConstant,
+                                  MachineServiceClient machineServiceClient,
+                                  @Named("workspaceId") String workspaceId,
+                                  DialogFactory dialogFactory,
+                                  DtoUnmarshallerFactory dtoUnmarshallerFactory,
+                                  AnalyticsEventLogger eventLogger) {
+        super(localizationConstant.terminateMachineControlTitle(), localizationConstant.terminateMachineControlDescription(), null, null);
         this.appContext = appContext;
         this.localizationConstant = localizationConstant;
         this.machineServiceClient = machineServiceClient;
@@ -81,28 +85,28 @@ public class StopMachineAction extends Action {
                             dialogFactory.createMessageDialog("", localizationConstant.noMachineIsRunning(), null).show();
                         } else {
                             for (MachineDescriptor machineDescriptor : result.asIterable()) {
-                                stopMachine(machineDescriptor.getId());
+                                destroyMachine(machineDescriptor.getId());
                             }
                         }
                     }
 
                     @Override
                     protected void onFailure(Throwable exception) {
-                        Log.error(StopMachineAction.class, exception);
+                        Log.error(TerminateMachineAction.class, exception);
                     }
                 });
     }
 
-    private void stopMachine(final String machineId) {
+    private void destroyMachine(final String machineId) {
         machineServiceClient.destroyMachine(machineId, new AsyncRequestCallback<Void>() {
             @Override
             protected void onSuccess(Void result) {
-                Log.info(StopMachineAction.class, "Machine " + machineId + " stopped");
+                Log.info(TerminateMachineAction.class, "Machine " + machineId + " stopped");
             }
 
             @Override
             protected void onFailure(Throwable exception) {
-                Log.error(StopMachineAction.class, exception);
+                Log.error(TerminateMachineAction.class, exception);
             }
         });
     }

@@ -20,14 +20,20 @@ import com.google.gwt.i18n.client.Messages;
 public interface MachineLocalizationConstant extends Messages {
 
     /* Actions */
-    @Key("mainMenu.machines.name")
-    String mainMenuMachinesName();
+    @Key("mainMenu.run.name")
+    String mainMenuRunName();
 
-    @Key("control.stopMachine.text")
-    String stopMachineControlTitle();
+    @Key("control.terminateMachine.text")
+    String terminateMachineControlTitle();
 
-    @Key("control.stopMachine.description")
-    String stopMachineControlDescription();
+    @Key("control.terminateMachine.description")
+    String terminateMachineControlDescription();
+
+    @Key("control.executeCommand.text")
+    String executeCommandControlTitle();
+
+    @Key("control.executeCommand.description")
+    String executeCommandControlDescription();
 
     @Key("control.clearMachineConsole.text")
     String clearConsoleControlTitle();
@@ -47,4 +53,15 @@ public interface MachineLocalizationConstant extends Messages {
 
     @Key("view.machineConsole.tooltip")
     String machineConsoleViewTooltip();
+
+
+    /* ExecuteCommandView */
+    @Key("view.executeCommand.title")
+    String executeCommandViewTitle();
+
+    @Key("view.executeCommand.execute")
+    String executeCommandViewExecute();
+
+    @Key("view.executeCommand.cancel")
+    String executeCommandViewCancel();
 }

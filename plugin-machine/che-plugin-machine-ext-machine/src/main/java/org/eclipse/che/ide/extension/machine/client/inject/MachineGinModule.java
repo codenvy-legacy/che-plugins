@@ -14,6 +14,8 @@ import com.google.gwt.inject.client.AbstractGinModule;
 import com.google.inject.Singleton;
 
 import org.eclipse.che.ide.api.extension.ExtensionGinModule;
+import org.eclipse.che.ide.extension.machine.client.command.ExecuteCommandView;
+import org.eclipse.che.ide.extension.machine.client.command.ExecuteCommandViewImpl;
 import org.eclipse.che.ide.extension.machine.client.console.MachineConsoleToolbar;
 import org.eclipse.che.ide.extension.machine.client.console.MachineConsoleView;
 import org.eclipse.che.ide.extension.machine.client.console.MachineConsoleViewImpl;
@@ -28,5 +30,7 @@ public class MachineGinModule extends AbstractGinModule {
     protected void configure() {
         bind(MachineConsoleView.class).to(MachineConsoleViewImpl.class).in(Singleton.class);
         bind(ToolbarPresenter.class).annotatedWith(MachineConsoleToolbar.class).to(ToolbarPresenter.class).in(Singleton.class);
+
+        bind(ExecuteCommandView.class).to(ExecuteCommandViewImpl.class).in(Singleton.class);
     }
 }

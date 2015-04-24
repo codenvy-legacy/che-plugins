@@ -101,6 +101,8 @@ public class MachineConsolePresenter extends BasePresenter implements MachineCon
 
     /** Print message to console. */
     public void print(String message) {
+        setActive();
+
         view.print(message);
         view.scrollBottom();
 

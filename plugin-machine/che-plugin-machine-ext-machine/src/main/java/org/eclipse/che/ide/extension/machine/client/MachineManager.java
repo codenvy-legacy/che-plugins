@@ -57,7 +57,7 @@ public class MachineManager {
     }
 
     void startMachineAndBindProject(final String projectPath) {
-        final String wsChannel = workspaceId + '_' + projectPath.replace('/', '_');
+        final String wsChannel = "machine:output:" + workspaceId + ':' + projectPath.replace('/', '_');
 
         subscribeToOutput(wsChannel);
 
