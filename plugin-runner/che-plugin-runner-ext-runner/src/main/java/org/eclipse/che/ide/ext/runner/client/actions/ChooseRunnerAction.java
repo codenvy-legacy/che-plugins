@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.runner.client.actions;
 
+import com.google.gwt.http.client.URL;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -229,14 +230,19 @@ public class ChooseRunnerAction extends AbstractRunnerActions implements CustomC
             return null;
         }
 
+        String defaultRunner = currentProject.getRunner();
+        if (defaultRunner != null) {
+            defaultRunner = URL.decode(defaultRunner);
+        }
+
         for (Environment e : systemRunners) {
-            if (e.getId().equals(currentProject.getRunner())) {
+            if (e.getId().equals(defaultRunner)) {
                 return e.getName();
             }
         }
 
         for (Environment e : projectRunners) {
-            if (e.getId().equals(currentProject.getRunner())) {
+            if (e.getId().equals(defaultRunner)) {
                 return e.getName();
             }
         }
