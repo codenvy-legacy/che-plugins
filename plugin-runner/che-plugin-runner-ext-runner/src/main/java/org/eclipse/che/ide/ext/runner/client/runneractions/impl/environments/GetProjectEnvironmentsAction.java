@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.runner.client.runneractions.impl.environments;
 
+import com.google.gwt.http.client.URL;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
@@ -28,7 +29,6 @@ import org.eclipse.che.ide.ext.runner.client.callbacks.SuccessCallback;
 import org.eclipse.che.ide.ext.runner.client.models.Environment;
 import org.eclipse.che.ide.ext.runner.client.runneractions.AbstractRunnerAction;
 import org.eclipse.che.ide.ext.runner.client.tabs.templates.TemplatesContainer;
-import org.eclipse.che.ide.ext.runner.client.util.GetEnvironmentsUtil;
 import org.eclipse.che.ide.ext.runner.client.util.RunnerUtil;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 
@@ -95,6 +95,9 @@ public class GetProjectEnvironmentsAction extends AbstractRunnerAction {
                         List<Environment> projectEnvironments = panel.addEnvironments(result, PROJECT);
 
                         String defaultRunner = currentProject.getRunner();
+                        if (defaultRunner != null) {
+                            defaultRunner = URL.decode(defaultRunner);
+                        }
 
                         for (Environment environment : projectEnvironments) {
                             if (environment.getId().equals(defaultRunner)) {
