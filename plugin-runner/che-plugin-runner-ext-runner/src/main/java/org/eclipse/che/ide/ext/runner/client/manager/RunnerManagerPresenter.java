@@ -59,9 +59,9 @@ import org.eclipse.che.ide.ext.runner.client.tabs.history.HistoryPanel;
 import org.eclipse.che.ide.ext.runner.client.tabs.properties.container.PropertiesContainer;
 import org.eclipse.che.ide.ext.runner.client.tabs.templates.TemplatesContainer;
 import org.eclipse.che.ide.ext.runner.client.tabs.terminal.container.TerminalContainer;
+import org.eclipse.che.ide.ext.runner.client.util.EnvironmentIdValidator;
 import org.eclipse.che.ide.ext.runner.client.util.RunnerUtil;
 import org.eclipse.che.ide.ext.runner.client.util.TimerFactory;
-import org.eclipse.che.ide.ext.runner.client.util.EnvironmentIdValidator;
 import org.eclipse.che.ide.ext.runner.client.util.annotations.LeftPanel;
 import org.eclipse.che.ide.ext.runner.client.util.annotations.RightPanel;
 import org.eclipse.che.ide.util.Config;
@@ -352,7 +352,7 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
     public void update(@Nonnull Runner runner) {
         history.update(runner);
 
-        if (runner.equals(selectedRunner)) {
+        if (runner.equals(selectedRunner) && history.isRunnerExist(runner)) {
             view.update(runner);
             changeURLDependingOnState(runner);
         }

@@ -155,6 +155,7 @@ public class PropertiesRunnerPanelTest {
         verify(view).setVisibleSaveButton(false);
         verify(view).setVisibleDeleteButton(false);
         verify(view).setVisibleCancelButton(false);
+        verify(view).hideSwitcher();
     }
 
     @Test
