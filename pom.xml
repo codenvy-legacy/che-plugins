@@ -50,10 +50,10 @@
         <module>plugin-svn</module>
     </modules>
     <scm>
-        <connection>scm:git:git@github.com:codenvy/che-plugin.git</connection>
-        <developerConnection>scm:git:git@github.com:codenvy/che-plugin.git</developerConnection>
+        <connection>scm:git:git@github.com:codenvy/che-plugins.git</connection>
+        <developerConnection>scm:git:git@github.com:codenvy/che-plugins.git</developerConnection>
         <tag>HEAD</tag>
-        <url>https://github.com/codenvy/che-plugin</url>
+        <url>https://github.com/codenvy/che-plugins</url>
     </scm>
     <properties>
         <dto-generator-out-directory>${project.build.directory}/generated-sources/dto/</dto-generator-out-directory>
