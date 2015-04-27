@@ -19,21 +19,21 @@ import org.eclipse.che.jdt.internal.codeassist.impl.AssistSourceField;
 import org.eclipse.che.jdt.internal.codeassist.impl.AssistSourceMethod;
 import org.eclipse.che.jdt.internal.codeassist.impl.AssistSourceType;
 import org.eclipse.che.jdt.internal.codeassist.impl.AssistTypeParameter;
-import org.eclipse.che.jdt.internal.core.AnnotatableInfo;
-import org.eclipse.che.jdt.internal.core.Annotation;
-import org.eclipse.che.jdt.internal.core.CompilationUnit;
-import org.eclipse.che.jdt.internal.core.CompilationUnitElementInfo;
-import org.eclipse.che.jdt.internal.core.CompilationUnitStructureRequestor;
-import org.eclipse.che.jdt.internal.core.ImportContainer;
-import org.eclipse.che.jdt.internal.core.ImportDeclaration;
-import org.eclipse.che.jdt.internal.core.Initializer;
-import org.eclipse.che.jdt.internal.core.JavaElement;
-import org.eclipse.che.jdt.internal.core.JavaModelManager;
-import org.eclipse.che.jdt.internal.core.PackageDeclaration;
-import org.eclipse.che.jdt.internal.core.SourceField;
-import org.eclipse.che.jdt.internal.core.SourceMethod;
-import org.eclipse.che.jdt.internal.core.SourceType;
-import org.eclipse.che.jdt.internal.core.TypeParameter;
+import org.eclipse.jdt.internal.core.AnnotatableInfo;
+import org.eclipse.jdt.internal.core.Annotation;
+import org.eclipse.jdt.internal.core.CompilationUnit;
+import org.eclipse.jdt.internal.core.CompilationUnitElementInfo;
+import org.eclipse.jdt.internal.core.CompilationUnitStructureRequestor;
+import org.eclipse.jdt.internal.core.ImportContainer;
+import org.eclipse.jdt.internal.core.ImportDeclaration;
+import org.eclipse.jdt.internal.core.Initializer;
+import org.eclipse.jdt.internal.core.JavaElement;
+import org.eclipse.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.internal.core.PackageDeclaration;
+import org.eclipse.jdt.internal.core.SourceField;
+import org.eclipse.jdt.internal.core.SourceMethod;
+import org.eclipse.jdt.internal.core.SourceType;
+import org.eclipse.jdt.internal.core.TypeParameter;
 import org.eclipse.jdt.core.IAnnotation;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IMemberValuePair;
@@ -154,7 +154,7 @@ public class CompletionUnitStructureRequestor extends CompilationUnitStructureRe
 	}
 
 	protected Object getMemberValue(
-			org.eclipse.che.jdt.internal.core.MemberValuePair memberValuePair,
+			org.eclipse.jdt.internal.core.MemberValuePair memberValuePair,
 			Expression expression) {
 		if (expression instanceof CompletionOnSingleNameReference) {
 			CompletionOnSingleNameReference reference = (CompletionOnSingleNameReference) expression;

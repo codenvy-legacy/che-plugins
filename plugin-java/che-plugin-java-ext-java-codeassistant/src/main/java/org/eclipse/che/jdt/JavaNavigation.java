@@ -21,10 +21,10 @@ import org.eclipse.che.ide.ext.java.shared.Jar;
 import org.eclipse.che.ide.ext.java.shared.JarEntry;
 import org.eclipse.che.ide.ext.java.shared.JarEntry.JarEntryType;
 import org.eclipse.che.ide.ext.java.shared.OpenDeclarationDescriptor;
-import org.eclipse.che.jdt.internal.core.JarEntryDirectory;
-import org.eclipse.che.jdt.internal.core.JarEntryFile;
-import org.eclipse.che.jdt.internal.core.JarEntryResource;
-import org.eclipse.che.jdt.internal.core.JarPackageFragmentRoot;
+import org.eclipse.jdt.internal.core.JarEntryDirectory;
+import org.eclipse.jdt.internal.core.JarEntryFile;
+import org.eclipse.jdt.internal.core.JarEntryResource;
+import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
 import org.eclipse.che.jdt.javadoc.JavaElementLabels;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IClassFile;
@@ -39,6 +39,7 @@ import org.eclipse.jdt.core.ISourceRange;
 import org.eclipse.jdt.core.ISourceReference;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -508,7 +509,7 @@ public class JavaNavigation {
                     }
                 } finally {
                     if (jar != null) {
-                        jarPackageFragmentRoot.closeJar(jar);
+                        JavaModelManager.getJavaModelManager().closeZipFile(jar);
                     }
                 }
             }
@@ -589,7 +590,7 @@ public class JavaNavigation {
                 }
             } finally {
                 if (jar != null) {
-                    jarPackageFragmentRoot.closeJar(jar);
+                    JavaModelManager.getJavaModelManager().closeZipFile(jar);
                 }
             }
 

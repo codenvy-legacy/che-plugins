@@ -11,7 +11,7 @@
 package org.eclipse.che.jdt.core.launching;
 
 
-import org.eclipse.che.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.che.jdt.core.launching.environments.IExecutionEnvironment;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;

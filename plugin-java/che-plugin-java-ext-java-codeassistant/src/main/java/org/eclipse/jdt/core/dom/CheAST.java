@@ -49,7 +49,7 @@ public class CheAST {
             org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration compilationUnitDeclaration,
             Map options,
             boolean isResolved,
-            org.eclipse.che.jdt.internal.core.CompilationUnit workingCopy,
+            org.eclipse.jdt.internal.core.CompilationUnit workingCopy,
             int reconcileFlags,
             IProgressMonitor monitor) {
 

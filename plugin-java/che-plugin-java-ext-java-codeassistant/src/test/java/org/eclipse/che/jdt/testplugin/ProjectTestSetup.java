@@ -11,7 +11,7 @@
 package org.eclipse.che.jdt.testplugin;
 
 import org.eclipse.che.core.internal.resources.ResourcesPlugin;
-import org.eclipse.che.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;

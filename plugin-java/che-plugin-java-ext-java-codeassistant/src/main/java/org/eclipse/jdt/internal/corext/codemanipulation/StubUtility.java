@@ -11,7 +11,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.corext.codemanipulation;
 
-import org.eclipse.che.jdt.core.dom.rewrite.ImportRewrite;
+import org.eclipse.jdt.core.dom.rewrite.ImportRewrite;
 import org.eclipse.che.jface.text.templates.persistence.TemplatePersistenceData;
 import org.eclipse.che.jface.text.templates.persistence.TemplateStore;
 import org.eclipse.core.resources.IProject;
@@ -1267,6 +1267,7 @@ public class StubUtility {
 				}
 			} catch (JavaModelException e) {
 				// ignore
+				e.printStackTrace();
 			}
 		}
 		String[][] names= new String[nParams][];

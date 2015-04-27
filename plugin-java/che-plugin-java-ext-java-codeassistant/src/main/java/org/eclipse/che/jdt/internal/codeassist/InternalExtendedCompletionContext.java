@@ -13,10 +13,10 @@
 package org.eclipse.che.jdt.internal.codeassist;
 
 import org.eclipse.che.jdt.internal.codeassist.impl.AssistCompilationUnit;
-import org.eclipse.che.jdt.internal.core.CompilationUnitElementInfo;
-import org.eclipse.che.jdt.internal.core.JavaElement;
-import org.eclipse.che.jdt.internal.core.LocalVariable;
-import org.eclipse.che.jdt.internal.core.util.Util;
+import org.eclipse.jdt.internal.core.CompilationUnitElementInfo;
+import org.eclipse.jdt.internal.core.JavaElement;
+import org.eclipse.jdt.internal.core.LocalVariable;
+import org.eclipse.jdt.internal.core.util.Util;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.ITypeRoot;

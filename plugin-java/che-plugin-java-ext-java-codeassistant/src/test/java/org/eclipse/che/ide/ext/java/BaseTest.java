@@ -11,14 +11,17 @@
 package org.eclipse.che.ide.ext.java;
 
 import org.eclipse.che.core.internal.resources.ResourcesPlugin;
-import org.eclipse.che.jdt.internal.core.JavaModelManager;
-import org.eclipse.che.jdt.internal.core.JavaProject;
+import org.eclipse.che.jdt.javadoc.JavaElementLinks;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.codeassist.impl.AssistOptions;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.internal.core.JavaProject;
+import org.eclipse.jdt.internal.ui.JavaPlugin;
 import org.junit.After;
 import org.junit.Before;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,9 +34,11 @@ public class BaseTest {
     protected static JavaProject project;
     protected static final String wsPath = BaseTest.class.getResource("/projects").getFile();
     protected static ResourcesPlugin plugin = new ResourcesPlugin(wsPath + "/index", BaseTest.class.getResource("/projects").getFile());
+    protected static JavaPlugin javaPlugin = new JavaPlugin(wsPath + "/set");
 
     static {
         plugin.start();
+        javaPlugin.start();
     }
 
 
@@ -56,7 +61,7 @@ public class BaseTest {
     protected static String getHandldeForRtJarStart() {
         String javaHome = System.getProperty("java.home") + "/lib/rt.jar";
         javaHome = javaHome.replaceAll("/", "\\\\/");
-        return "☂/" + javaHome;
+        return String.valueOf(JavaElementLinks.LINK_SEPARATOR) + "=test/" + javaHome;
     }
 
     @Before
@@ -66,7 +71,12 @@ public class BaseTest {
 
     @After
     public void closeProject() throws Exception {
+        File pref = new File(wsPath + "/test/.codenvy/project.preferences");
         project.close();
+        if(pref.exists()){
+            pref.delete();
+        }
+
     }
 
 

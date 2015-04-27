@@ -13,7 +13,7 @@
  *******************************************************************************/
 package org.eclipse.che.jdt.quickfix;
 
-import org.eclipse.che.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.che.jdt.testplugin.JavaProjectHelper;
 import org.eclipse.che.jdt.testplugin.ProjectTestSetup;
 import org.eclipse.che.jdt.testplugin.TestOptions;
@@ -6370,9 +6370,9 @@ public class AssistQuickFixTest extends QuickFixTest {
 	@Test
 	public void testConvertAnonymousToNested2() throws Exception {
 //		Preferences corePrefs= JavaPlugin.getJavaCorePluginPreferences();
-//		corePrefs.setValue(JavaCore.CODEASSIST_FIELD_PREFIXES, "f");
-//		corePrefs.setValue(JavaCore.CODEASSIST_LOCAL_PREFIXES, "l");
-//		corePrefs.setValue(JavaCore.CODEASSIST_ARGUMENT_PREFIXES, "p");
+		fJProject1.setOption(JavaCore.CODEASSIST_FIELD_PREFIXES, "f");
+		fJProject1.setOption(JavaCore.CODEASSIST_LOCAL_PREFIXES, "l");
+		fJProject1.setOption(JavaCore.CODEASSIST_ARGUMENT_PREFIXES, "p");
 
 		IPackageFragment pack1= fSourceFolder.createPackageFragment("pack", false, null);
 		StringBuffer buf= new StringBuffer();

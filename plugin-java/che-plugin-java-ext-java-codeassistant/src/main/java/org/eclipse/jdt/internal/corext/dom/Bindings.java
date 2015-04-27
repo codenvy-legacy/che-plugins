@@ -14,7 +14,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.corext.dom;
 
-import org.eclipse.che.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.che.jdt.util.JavaModelUtil;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.jdt.core.ICompilationUnit;

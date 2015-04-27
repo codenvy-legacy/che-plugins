@@ -14,7 +14,7 @@ package org.eclipse.jdt.internal.ui;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
-import org.eclipse.che.jdt.internal.core.JavaCorePreferenceInitializer;
+import org.eclipse.jdt.internal.core.JavaCorePreferenceInitializer;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;

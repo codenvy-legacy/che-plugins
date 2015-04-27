@@ -93,6 +93,12 @@
             <groupId>org.eclipse.che.plugin</groupId>
             <artifactId>che-plugin-java-jdt-core-repack</artifactId>
             <version>${che.plugins.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>org.eclipse.jdt.core</artifactId>
+                    <groupId>org.eclipse.tycho</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.plugin</groupId>
@@ -224,6 +230,9 @@
                         <exclude>**/org/eclipse/che/jdt/dom/**</exclude>
                         <exclude>**/org/eclipse/che/jdt/corext/util/**</exclude>
                         <exclude>**/org/eclipse/che/jdt/util/**</exclude>
+                        <exclude>**/org/eclipse/che/core/**</exclude>
+                        <exclude>**/org/eclipse/che/ltk/**</exclude>
+                        <exclude>**/org/eclipse/che/jdt/**</exclude>
                         <exclude>**/org/eclipse/che/jdt/internal/core/**</exclude>
                         <exclude>**/org/eclipse/che/jdt/core/launching/IVMInstallType.java</exclude>
                         <exclude>**/org/eclipse/che/jdt/core/launching/JREContainer.java</exclude>

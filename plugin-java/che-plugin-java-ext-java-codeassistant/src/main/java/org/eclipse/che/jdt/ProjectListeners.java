@@ -19,7 +19,7 @@ import org.eclipse.che.api.project.server.ProjectCreatedEvent;
 import org.eclipse.che.api.vfs.server.observation.CreateEvent;
 import org.eclipse.che.api.vfs.server.observation.VirtualFileEvent;
 import org.eclipse.che.jdt.core.resources.ResourceChangedEvent;
-import org.eclipse.che.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.che.vfs.impl.fs.LocalFSMountStrategy;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;

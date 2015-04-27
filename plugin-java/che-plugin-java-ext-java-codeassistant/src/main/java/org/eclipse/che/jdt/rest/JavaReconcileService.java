@@ -14,8 +14,8 @@ package org.eclipse.che.jdt.rest;
 import com.google.inject.Inject;
 
 import org.eclipse.che.ide.ext.java.shared.dto.ReconcileResult;
-import org.eclipse.che.jdt.internal.core.JavaModel;
-import org.eclipse.che.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.internal.core.JavaModel;
+import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.che.jdt.javaeditor.JavaReconciler;
 import org.eclipse.jdt.core.IJavaProject;
 

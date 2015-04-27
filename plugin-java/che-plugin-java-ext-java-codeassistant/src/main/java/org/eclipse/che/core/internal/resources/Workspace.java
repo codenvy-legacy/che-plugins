@@ -81,6 +81,7 @@ public class Workspace implements IWorkspace {
         this.wsPath = path;
         _workManager = new WorkManager(this);
         _workManager.startup(null);
+        _workManager.postWorkspaceStartup();
     }
 
     public String getAbsoluteWorkspacePath() {

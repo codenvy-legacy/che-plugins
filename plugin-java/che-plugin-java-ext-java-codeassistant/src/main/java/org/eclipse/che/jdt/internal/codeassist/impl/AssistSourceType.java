@@ -19,8 +19,8 @@ import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.ITypeParameter;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
-import org.eclipse.che.jdt.internal.core.JavaElement;
-import org.eclipse.che.jdt.internal.core.ResolvedSourceType;
+import org.eclipse.jdt.internal.core.JavaElement;
+import org.eclipse.jdt.internal.core.ResolvedSourceType;
 
 import java.util.Map;
 

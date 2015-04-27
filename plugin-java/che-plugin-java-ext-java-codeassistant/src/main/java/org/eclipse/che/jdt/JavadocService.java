@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.jdt;
 
-import org.eclipse.che.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
 

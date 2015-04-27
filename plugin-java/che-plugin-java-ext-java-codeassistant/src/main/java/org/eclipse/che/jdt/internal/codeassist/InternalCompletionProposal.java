@@ -12,11 +12,11 @@
 package org.eclipse.che.jdt.internal.codeassist;
 
 import org.eclipse.jdt.core.dom.CheASTParser;
-import org.eclipse.che.jdt.internal.core.BinaryType;
-import org.eclipse.che.jdt.internal.core.JavaElement;
-import org.eclipse.che.jdt.internal.core.JavaModelManager;
-import org.eclipse.che.jdt.internal.core.NameLookup;
-import org.eclipse.che.jdt.internal.core.SourceMapper;
+import org.eclipse.jdt.internal.core.BinaryType;
+import org.eclipse.jdt.internal.core.JavaElement;
+import org.eclipse.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.internal.core.NameLookup;
+import org.eclipse.jdt.internal.core.SourceMapper;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.CompletionContext;
 import org.eclipse.jdt.core.CompletionFlags;

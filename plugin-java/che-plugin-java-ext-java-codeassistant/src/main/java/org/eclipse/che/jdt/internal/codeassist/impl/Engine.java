@@ -11,8 +11,8 @@
 package org.eclipse.che.jdt.internal.codeassist.impl;
 
 import org.eclipse.che.jdt.internal.compiler.parser.SourceTypeConverter;
-import org.eclipse.che.jdt.internal.core.NameLookup;
-import org.eclipse.che.jdt.internal.core.SearchableEnvironment;
+import org.eclipse.jdt.internal.core.NameLookup;
+import org.eclipse.jdt.internal.core.SearchableEnvironment;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.codeassist.impl.AssistOptions;
 import org.eclipse.jdt.internal.codeassist.impl.AssistParser;

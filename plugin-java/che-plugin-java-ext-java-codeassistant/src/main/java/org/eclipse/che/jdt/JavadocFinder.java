@@ -14,7 +14,7 @@ import com.google.inject.Singleton;
 
 import org.eclipse.che.commons.lang.IoUtil;
 import org.eclipse.che.jdt.dom.ASTNodes;
-import org.eclipse.che.jdt.internal.core.JavaProject;
+import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.che.jdt.javadoc.HTMLPrinter;
 import org.eclipse.che.jdt.javadoc.JavaDocLocations;
 import org.eclipse.che.jdt.javadoc.JavaElementLabels;

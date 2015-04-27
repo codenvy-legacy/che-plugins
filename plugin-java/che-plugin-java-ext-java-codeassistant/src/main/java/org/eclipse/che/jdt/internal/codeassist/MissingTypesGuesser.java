@@ -32,7 +32,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObjectToInt;
-import org.eclipse.che.jdt.internal.core.SearchableEnvironment;
+import org.eclipse.jdt.internal.core.SearchableEnvironment;
 
 import java.util.ArrayList;
 import java.util.HashMap;

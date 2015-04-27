@@ -25,7 +25,7 @@ import java.util.Map;
 public class TestOptions {
 
 	public static Hashtable getDefaultOptions() {
-		Hashtable result= org.eclipse.che.jdt.core.JavaCore.getDefaultOptions();
+		Hashtable result= org.eclipse.jdt.core.JavaCore.getDefaultOptions();
 		result.put(JavaCore.COMPILER_PB_LOCAL_VARIABLE_HIDING, JavaCore.IGNORE);
 		result.put(JavaCore.COMPILER_PB_FIELD_HIDING, JavaCore.IGNORE);
 		result.put(JavaCore.COMPILER_PB_UNUSED_PRIVATE_MEMBER, JavaCore.IGNORE);

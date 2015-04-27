@@ -10,9 +10,9 @@
  *******************************************************************************/
 package org.eclipse.che.jdt.core;
 
-import org.eclipse.che.jdt.internal.core.JarPackageFragmentRoot;
+import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
 import org.eclipse.jdt.internal.core.JavaElement;
-import org.eclipse.che.jdt.internal.core.PackageFragment;
+import org.eclipse.jdt.internal.core.PackageFragment;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IClassFile;

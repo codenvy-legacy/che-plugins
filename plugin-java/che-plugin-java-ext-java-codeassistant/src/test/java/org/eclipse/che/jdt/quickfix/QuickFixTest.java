@@ -11,7 +11,7 @@
 package org.eclipse.che.jdt.quickfix;
 
 import org.eclipse.che.core.internal.resources.ResourcesPlugin;
-import org.eclipse.che.jdt.internal.core.BufferManager;
+import org.eclipse.jdt.internal.core.BufferManager;
 import org.eclipse.che.jdt.testplugin.JavaProjectHelper;
 import org.eclipse.che.jdt.testplugin.ProjectTestSetup;
 import org.eclipse.che.jdt.testplugin.StringAsserts;

@@ -10,9 +10,9 @@
  *******************************************************************************/
 package org.eclipse.che.jdt.internal.codeassist.impl;
 
-import org.eclipse.che.jdt.internal.core.CompilationUnit;
-import org.eclipse.che.jdt.internal.core.JavaElementInfo;
-import org.eclipse.che.jdt.internal.core.PackageFragment;
+import org.eclipse.jdt.internal.core.CompilationUnit;
+import org.eclipse.jdt.internal.core.JavaElementInfo;
+import org.eclipse.jdt.internal.core.PackageFragment;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IImportContainer;

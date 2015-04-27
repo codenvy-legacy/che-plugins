@@ -11,10 +11,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.dom;
 
-import org.eclipse.che.jdt.internal.core.CancelableNameEnvironment;
-import org.eclipse.che.jdt.internal.core.JavaProject;
-import org.eclipse.che.jdt.internal.core.NameLookup;
-import org.eclipse.che.jdt.internal.core.SourceTypeElementInfo;
+import org.eclipse.jdt.internal.core.CancelableNameEnvironment;
+import org.eclipse.jdt.internal.core.JavaProject;
+import org.eclipse.jdt.internal.core.NameLookup;
+import org.eclipse.jdt.internal.core.SourceTypeElementInfo;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;

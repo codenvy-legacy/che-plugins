@@ -11,7 +11,7 @@
 
 package org.eclipse.che.jdt.maven;
 
-import org.eclipse.che.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.core.util.Util;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.jdt.core.IClasspathContainer;

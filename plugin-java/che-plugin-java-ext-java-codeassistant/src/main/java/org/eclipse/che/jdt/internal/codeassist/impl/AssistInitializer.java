@@ -13,8 +13,8 @@ package org.eclipse.che.jdt.internal.codeassist.impl;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.che.jdt.internal.core.Initializer;
-import org.eclipse.che.jdt.internal.core.JavaElement;
+import org.eclipse.jdt.internal.core.Initializer;
+import org.eclipse.jdt.internal.core.JavaElement;
 
 import java.util.Map;
 

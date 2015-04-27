@@ -12,7 +12,7 @@
 package org.eclipse.che.core.internal.resources;
 
 import org.eclipse.che.core.internal.utils.Policy;
-import org.eclipse.che.jdt.internal.core.JavaModelStatus;
+import org.eclipse.jdt.internal.core.JavaModelStatus;
 import org.eclipse.core.internal.utils.Messages;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFileState;

@@ -12,8 +12,8 @@ package org.eclipse.che.jdt.internal.codeassist.impl;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.che.jdt.internal.core.ImportContainer;
-import org.eclipse.che.jdt.internal.core.ImportDeclaration;
+import org.eclipse.jdt.internal.core.ImportContainer;
+import org.eclipse.jdt.internal.core.ImportDeclaration;
 
 import java.util.Map;
 

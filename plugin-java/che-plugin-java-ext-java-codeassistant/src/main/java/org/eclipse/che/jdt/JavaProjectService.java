@@ -22,7 +22,7 @@ import org.eclipse.che.api.core.notification.EventService;
 import org.eclipse.che.api.core.notification.EventSubscriber;
 import org.eclipse.che.api.vfs.server.observation.VirtualFileEvent;
 import org.eclipse.che.commons.lang.IoUtil;
-import org.eclipse.che.jdt.internal.core.JavaProject;
+import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.che.vfs.impl.fs.LocalFSMountStrategy;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
