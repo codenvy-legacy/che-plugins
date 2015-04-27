@@ -25,11 +25,14 @@ import org.eclipse.che.ide.collections.Array;
 import org.eclipse.che.ide.extension.machine.client.console.MachineConsolePresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
+import org.eclipse.che.ide.util.UUID;
 import org.eclipse.che.ide.util.loging.Log;
 import org.eclipse.che.ide.websocket.MessageBus;
 import org.eclipse.che.ide.websocket.WebSocketException;
 import org.eclipse.che.ide.websocket.rest.StringUnmarshallerWS;
 import org.eclipse.che.ide.websocket.rest.SubscriptionHandler;
+
+import javax.annotation.Nonnull;
 
 /**
  * Presenter for executing command in machine.
@@ -45,7 +48,6 @@ public class ExecuteCommandPresenter implements ExecuteCommandView.ActionDelegat
     private final MachineServiceClient    machineServiceClient;
     private final MachineConsolePresenter machineConsolePresenter;
     private final AppContext appContext;
-    private int i;
 
     @Inject
     protected ExecuteCommandPresenter(@Named("workspaceId") final String workspaceId,
@@ -65,8 +67,13 @@ public class ExecuteCommandPresenter implements ExecuteCommandView.ActionDelegat
         this.view.setDelegate(this);
     }
 
-    public void showDialog() {
+    public void show() {
         view.showDialog();
+    }
+
+    @Override
+    public void onCancelClicked() {
+        view.close();
     }
 
     @Override
@@ -78,13 +85,14 @@ public class ExecuteCommandPresenter implements ExecuteCommandView.ActionDelegat
 
         view.close();
 
+        // TODO: for now, command will be executed in the first machine to which project is bound
         machineServiceClient.getMachines(
                 workspaceId, currentProject.getRootProject().getPath(),
                 new AsyncRequestCallback<Array<MachineDescriptor>>(dtoUnmarshallerFactory.newArrayUnmarshaller(MachineDescriptor.class)) {
                     @Override
                     protected void onSuccess(Array<MachineDescriptor> result) {
                         if (!result.isEmpty()) {
-                            doExecute(result.get(0).getId());
+                            executeCommandInMachine(view.getCommand(), result.get(0).getId());
                         }
                     }
 
@@ -95,17 +103,17 @@ public class ExecuteCommandPresenter implements ExecuteCommandView.ActionDelegat
                 });
     }
 
-    private void doExecute(final String machineId) {
-        final String wsChannel = "process:output:" + machineId + i++;
+    private void executeCommandInMachine(final String command, final String machineId) {
+        final String outputChannel = getNewOutputChannel();
 
-        subscribeToOutput(wsChannel);
+        subscribeToOutput(outputChannel);
 
         machineServiceClient.executeCommandInMachine(
-                machineId, view.getCommand(), wsChannel,
+                machineId, command, outputChannel,
                 new AsyncRequestCallback<ProcessDescriptor>(dtoUnmarshallerFactory.newUnmarshaller(ProcessDescriptor.class)) {
                     @Override
                     protected void onSuccess(ProcessDescriptor result) {
-
+                        Log.info(ExecuteCommandPresenter.class, "Process with PID" + result.getPid() + " executed");
                     }
 
                     @Override
@@ -113,6 +121,11 @@ public class ExecuteCommandPresenter implements ExecuteCommandView.ActionDelegat
                         Log.error(ExecuteCommandPresenter.class, exception);
                     }
                 });
+    }
+
+    @Nonnull
+    private String getNewOutputChannel() {
+        return "process:output:" + UUID.uuid();
     }
 
     private void subscribeToOutput(final String channel) {
@@ -134,10 +147,5 @@ public class ExecuteCommandPresenter implements ExecuteCommandView.ActionDelegat
         } catch (WebSocketException e) {
             Log.error(ExecuteCommandPresenter.class, e);
         }
-    }
-
-    @Override
-    public void onCancelClicked() {
-        view.close();
     }
 }

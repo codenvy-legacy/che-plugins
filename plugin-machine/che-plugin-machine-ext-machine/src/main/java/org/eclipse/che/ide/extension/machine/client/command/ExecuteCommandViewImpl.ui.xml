@@ -14,7 +14,7 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
              xmlns:g='urn:import:com.google.gwt.user.client.ui'>
     <ui:with field='locale' type='org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant'/>
-    <ui:with field='res' type='org.eclipse.che.ide.extension.machine.client.MachineResources'/>
+    <ui:with field='machineResources' type='org.eclipse.che.ide.extension.machine.client.MachineResources'/>
     <ui:style>
         .spacing {
             margin-bottom: 10px;
@@ -28,7 +28,7 @@
         <g:center>
             <g:DockLayoutPanel unit="PX" width="100%" height="100%" styleName="{style.spacing}">
                 <g:north size="30.0">
-                    <g:TextBox ui:field="command" width="340px" height="22px" debugId="view-executeCommand-command"/>
+                    <g:TextBox ui:field="commandBox" width="340px" height="22px" debugId="view-executeCommand-command"/>
                 </g:north>
             </g:DockLayoutPanel>
         </g:center>

@@ -115,7 +115,7 @@ public class MachineConsolePresenter extends BasePresenter implements MachineCon
     }
 
     /** Set the console active (selected) in the parts stack. */
-    public void setActive() {
+    private void setActive() {
         final PartPresenter activePart = partStack.getActivePart();
         if (activePart == null || !activePart.equals(this)) {
             partStack.setActivePart(this);

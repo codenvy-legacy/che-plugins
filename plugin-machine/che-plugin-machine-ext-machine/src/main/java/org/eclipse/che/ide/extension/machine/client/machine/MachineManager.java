@@ -8,7 +8,7 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.ide.extension.machine.client;
+package org.eclipse.che.ide.extension.machine.client.machine;
 
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONString;
@@ -19,14 +19,18 @@ import com.google.inject.name.Named;
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
 import org.eclipse.che.api.machine.shared.dto.MachineDescriptor;
 import org.eclipse.che.api.machine.shared.dto.MachineStateEvent;
+import org.eclipse.che.ide.extension.machine.client.MachineResources;
 import org.eclipse.che.ide.extension.machine.client.console.MachineConsolePresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
+import org.eclipse.che.ide.util.UUID;
 import org.eclipse.che.ide.util.loging.Log;
 import org.eclipse.che.ide.websocket.MessageBus;
 import org.eclipse.che.ide.websocket.WebSocketException;
 import org.eclipse.che.ide.websocket.rest.StringUnmarshallerWS;
 import org.eclipse.che.ide.websocket.rest.SubscriptionHandler;
+
+import javax.annotation.Nonnull;
 
 import static org.eclipse.che.api.machine.shared.dto.MachineStateEvent.EventType.RUNNING;
 
@@ -34,7 +38,8 @@ import static org.eclipse.che.api.machine.shared.dto.MachineStateEvent.EventType
 @Singleton
 public class MachineManager {
 
-    private static final String MACHINE_STATE_WS_CHANNEL = "machine:state:";
+    /** WebSocket channel to receive messages about changing machine state (machine:state:machineID). */
+    private static final String MACHINE_STATE_CHANNEL = "machine:state:";
 
     private final String                  workspaceId;
     private final MachineResources        machineResources;
@@ -58,21 +63,21 @@ public class MachineManager {
         this.machineConsolePresenter = machineConsolePresenter;
     }
 
-    void startMachineAndBindProject(final String projectPath) {
-        final String wsChannel = "machine:output:" + workspaceId + ':' + projectPath.replace('/', '_');
+    public void startMachineAndBindProject(final String projectPath) {
+        final String outputChannel = getNewOutputChannel();
 
-        subscribeToOutput(wsChannel);
+        subscribeToOutput(outputChannel);
 
         machineServiceClient.createMachineFromRecipe(
                 workspaceId,
                 "docker",
                 "Dockerfile",
                 machineResources.testDockerRecipe().getText(),
-                wsChannel,
+                outputChannel,
                 new AsyncRequestCallback<MachineDescriptor>(dtoUnmarshallerFactory.newUnmarshaller(MachineDescriptor.class)) {
                     @Override
                     protected void onSuccess(MachineDescriptor result) {
-                        bindProject1(projectPath, result.getId());
+                        bindProjectWhenMachineWillRun(projectPath, result.getId());
                     }
 
                     @Override
@@ -80,6 +85,11 @@ public class MachineManager {
                         Log.error(MachineManager.class, exception);
                     }
                 });
+    }
+
+    @Nonnull
+    private String getNewOutputChannel() {
+        return "machine:output:" + UUID.uuid();
     }
 
     private void subscribeToOutput(final String channel) {
@@ -103,10 +113,10 @@ public class MachineManager {
         }
     }
 
-    private void bindProject1(final String projectPath, final String machineId) {
+    private void bindProjectWhenMachineWillRun(final String projectPath, final String machineId) {
         try {
             messageBus.subscribe(
-                    MACHINE_STATE_WS_CHANNEL + machineId,
+                    MACHINE_STATE_CHANNEL + machineId,
                     new SubscriptionHandler<MachineStateEvent>(dtoUnmarshallerFactory.newWSUnmarshaller(MachineStateEvent.class)) {
                         @Override
                         protected void onMessageReceived(MachineStateEvent result) {

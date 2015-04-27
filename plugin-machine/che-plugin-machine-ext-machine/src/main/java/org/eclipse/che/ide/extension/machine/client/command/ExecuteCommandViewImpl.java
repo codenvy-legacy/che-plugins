@@ -13,10 +13,10 @@ package org.eclipse.che.ide.extension.machine.client.command;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.KeyDownEvent;
-import com.google.gwt.event.dom.client.KeyDownHandler;
+import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.TextBox;
@@ -30,8 +30,6 @@ import org.eclipse.che.ide.ui.window.Window;
 
 import javax.annotation.Nonnull;
 
-import static com.google.gwt.event.dom.client.KeyCodes.KEY_ENTER;
-
 /**
  * The implementation of {@link ExecuteCommandView}.
  *
@@ -43,73 +41,86 @@ public class ExecuteCommandViewImpl extends Window implements ExecuteCommandView
     private static final ExecuteCommandViewImplUiBinder UI_BINDER = GWT.create(ExecuteCommandViewImplUiBinder.class);
 
     @UiField(provided = true)
-    final MachineResources            res;
+    final MachineResources            machineResources;
     @UiField(provided = true)
     final MachineLocalizationConstant locale;
     @UiField
-    TextBox command;
+    TextBox commandBox;
 
     private ActionDelegate delegate;
+    private Button         executeButton;
 
     @Inject
     protected ExecuteCommandViewImpl(MachineResources resources, MachineLocalizationConstant locale) {
-        this.res = resources;
+        this.machineResources = resources;
         this.locale = locale;
 
         setTitle(locale.executeCommandViewTitle());
         setWidget(UI_BINDER.createAndBindUi(this));
         createButtons();
-
-        command.addKeyDownHandler(new KeyDownHandler() {
-            @Override
-            public void onKeyDown(KeyDownEvent event) {
-                if (KEY_ENTER == event.getNativeKeyCode()) {
-                    delegate.onExecuteClicked();
-                }
-            }
-        });
     }
 
     private void createButtons() {
-        final Button btnCancel = createButton(locale.cancelButton(), "view-executeCommand-cancel", new ClickHandler() {
+        final Button cancelButton = createButton(locale.cancelButton(), "view-executeCommand-cancel", new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 delegate.onCancelClicked();
             }
         });
-        getFooter().add(btnCancel);
+        getFooter().add(cancelButton);
 
-        final Button btnExecute = createButton(locale.executeButton(), "view-executeCommand-execute", new ClickHandler() {
+        executeButton = createButton(locale.executeButton(), "view-executeCommand-execute", new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 delegate.onExecuteClicked();
             }
         });
-        getFooter().add(btnExecute);
+        executeButton.addStyleName(resources.centerPanelCss().blueButton());
+        getFooter().add(executeButton);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void setDelegate(ActionDelegate delegate) {
+        this.delegate = delegate;
     }
 
     /** {@inheritDoc} */
     @Nonnull
     @Override
     public String getCommand() {
-        return command.getText();
+        return commandBox.getText();
     }
 
     /** {@inheritDoc} */
     @Override
     public void setCommand(@Nonnull String command) {
-        this.command.setText(command);
+        commandBox.setText(command);
+    }
+
+    @UiHandler("commandBox")
+    void onKeyUp(KeyUpEvent event) {
+        executeButton.setEnabled(!commandBox.getText().isEmpty());
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    protected void onEnterClicked() {
+        if (!commandBox.getText().isEmpty()) {
+            delegate.onExecuteClicked();
+        }
     }
 
     /** {@inheritDoc} */
     @Override
     public void showDialog() {
-        command.setText("");
+        executeButton.setEnabled(false);
+        commandBox.setText("");
         show();
         new Timer() {
             @Override
             public void run() {
-                command.setFocus(true);
+                commandBox.setFocus(true);
             }
         }.schedule(300);
     }
@@ -123,12 +134,6 @@ public class ExecuteCommandViewImpl extends Window implements ExecuteCommandView
     /** {@inheritDoc} */
     @Override
     protected void onClose() {
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void setDelegate(ActionDelegate delegate) {
-        this.delegate = delegate;
     }
 
     interface ExecuteCommandViewImplUiBinder extends UiBinder<Widget, ExecuteCommandViewImpl> {

@@ -31,6 +31,7 @@ import org.eclipse.che.ide.extension.machine.client.actions.TerminateMachineActi
 import org.eclipse.che.ide.extension.machine.client.console.ClearConsoleAction;
 import org.eclipse.che.ide.extension.machine.client.console.MachineConsolePresenter;
 import org.eclipse.che.ide.extension.machine.client.console.MachineConsoleToolbar;
+import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.ui.toolbar.ToolbarPresenter;
@@ -67,6 +68,7 @@ public class MachineExtension {
             public void onProjectOpened(ProjectActionEvent event) {
                 final String projectPath = event.getProject().getPath();
 
+                // start machine and bind project
                 machineServiceClient.getMachines(
                         workspaceId, projectPath,
                         new AsyncRequestCallback<Array<MachineDescriptor>>(

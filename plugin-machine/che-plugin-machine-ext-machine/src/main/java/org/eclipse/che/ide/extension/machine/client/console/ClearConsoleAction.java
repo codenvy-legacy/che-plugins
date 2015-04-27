@@ -28,8 +28,8 @@ import org.eclipse.che.ide.extension.machine.client.MachineResources;
 @Singleton
 public class ClearConsoleAction extends Action {
 
-    private       MachineConsolePresenter presenter;
-    private       AppContext              appContext;
+    private final MachineConsolePresenter presenter;
+    private final AppContext              appContext;
     private final AnalyticsEventLogger    eventLogger;
 
     @Inject
@@ -38,7 +38,9 @@ public class ClearConsoleAction extends Action {
                               MachineResources resources,
                               MachineLocalizationConstant localizationConstant,
                               AnalyticsEventLogger eventLogger) {
-        super(localizationConstant.clearConsoleControlTitle(), localizationConstant.clearConsoleControlDescription(), null,
+        super(localizationConstant.clearConsoleControlTitle(),
+              localizationConstant.clearConsoleControlDescription(),
+              null,
               resources.clear());
         this.presenter = presenter;
         this.appContext = appContext;
@@ -47,14 +49,14 @@ public class ClearConsoleAction extends Action {
 
     /** {@inheritDoc} */
     @Override
-    public void actionPerformed(ActionEvent e) {
-        eventLogger.log(this);
-        presenter.clear();
+    public void update(ActionEvent e) {
+        e.getPresentation().setEnabledAndVisible(appContext.getCurrentProject() != null);
     }
 
     /** {@inheritDoc} */
     @Override
-    public void update(ActionEvent e) {
-        e.getPresentation().setEnabledAndVisible(appContext.getCurrentProject() != null);
+    public void actionPerformed(ActionEvent e) {
+        eventLogger.log(this);
+        presenter.clear();
     }
 }

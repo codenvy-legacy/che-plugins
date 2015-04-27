@@ -28,7 +28,7 @@ import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 import org.eclipse.che.ide.util.loging.Log;
 
 /**
- * Action to destroy the machine.
+ * Action to destroy all the machines to which current project is bound.
  *
  * @author Artem Zatsarynnyy
  */
