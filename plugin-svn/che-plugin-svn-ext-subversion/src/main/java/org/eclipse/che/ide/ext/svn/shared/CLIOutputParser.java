@@ -8,13 +8,24 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.ide.ext.svn.client.commit;
+package org.eclipse.che.ide.ext.svn.shared;
 
-import com.google.gwt.uibinder.client.UiBinder;
-import com.google.gwt.uibinder.client.UiTemplate;
-import com.google.gwt.user.client.ui.Widget;
+import java.util.ArrayList;
+import java.util.List;
 
-@UiTemplate(value = "CommitViewImpl.ui.xml")
-public interface CommitViewImplUiBinder extends UiBinder<Widget, CommitViewImpl> {
+/**
+ * Class that provides methods for parsing CLI output.
+ */
+public final class CLIOutputParser {
+
+    public static List<StatusItem> parseFilesStatus(final List<String> statusOutput) {
+        final List<StatusItem> statusItems = new ArrayList<>();
+
+        for (final String line : statusOutput) {
+            statusItems.add(new StatusItem(line));
+        }
+
+        return statusItems;
+    }
 
 }

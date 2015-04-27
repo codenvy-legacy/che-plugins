@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.svn.client.inject;
 
+import org.eclipse.che.ide.ext.svn.client.commit.diff.DiffViewerView;
+import org.eclipse.che.ide.ext.svn.client.commit.diff.DiffViewerViewImpl;
 import org.eclipse.che.ide.ext.svn.client.log.ShowLogsView;
 import org.eclipse.che.ide.ext.svn.client.log.ShowLogsViewImpl;
 import org.eclipse.che.ide.ext.svn.client.move.MoveView;
@@ -80,7 +82,8 @@ public class SubversionGinModule extends AbstractGinModule {
         install(new GinFactoryModuleBuilder().build(FilteredNodeFactory.class));
         GinMultibinder.newSetBinder(binder(), TreeStructureProvider.class).addBinding().to(FilteredTreeStructureProvider.class);
 
-        bind(CommitView.class).to(CommitViewImpl.class);
+        bind(CommitView.class).to(CommitViewImpl.class).in(Singleton.class);
+        bind(DiffViewerView.class).to(DiffViewerViewImpl.class).in(Singleton.class);
 
         bind(AskCredentialsPresenter.class);
         bind(AskCredentialsView.class).to(AskCredentialsViewImpl.class);
