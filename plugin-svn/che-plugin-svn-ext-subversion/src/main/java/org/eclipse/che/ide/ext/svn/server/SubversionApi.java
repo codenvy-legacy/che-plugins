@@ -830,10 +830,30 @@ public class SubversionApi {
             }
         }
 
+        /*
+            $ svn --no-auth-cache --non-interactive --trust-server-cert info .
+            Path: .
+            URL: svn://localhost/myproj/trunk
+            Relative URL: ^/trunk
+            Repository Root: svn://localhost/myproj
+            Repository UUID: 5d5b3ac5-18a3-4240-a205-376b3b68caaa
+            Revision: 33
+            Node Kind: directory
+            [ Schedule: normal ]
+            Last Changed Rev: 32
+            Last Changed Date: 2015-04-22 14:20:33 +0300 (Wed, 22 Apr 2015)
+         */
+
         if (result.getExitCode() == 0) {
-            response.withRepositoryUrl(InfoUtils.getRepositoryUrl(result.getStdout()))
-                    .withRepositoryRoot(InfoUtils.getRepositoryRootUrl(result.getStdout()))
-                    .withRevision(InfoUtils.getRevision(result.getStdout()));
+            response.withPath(InfoUtils.getPath(result.getStdout()))
+                    .withURL(InfoUtils.getUrl(result.getStdout()))
+                    .withRelativeUrl(InfoUtils.getRelativeUrl(result.getStdout()))
+                    .withRepositoryRoot(InfoUtils.getRepositoryRoot(result.getStdout()))
+                    .withRepositoryUUID(InfoUtils.getRepositoryUUID(result.getStdout()))
+                    .withRevision(InfoUtils.getRevision(result.getStdout()))
+                    .withNodeKind(InfoUtils.getNodeKind(result.getStdout()))
+                    .withLastChangedRev(InfoUtils.getLastChangedRev(result.getStdout()))
+                    .withLastChangedDate(InfoUtils.getLastChangedDate(result.getStdout()));
         } else {
             response.withErrorOutput(result.getStderr());
         }

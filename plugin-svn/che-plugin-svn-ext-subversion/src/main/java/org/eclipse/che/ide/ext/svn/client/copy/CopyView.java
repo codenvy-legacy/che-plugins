@@ -95,9 +95,10 @@ public interface CopyView extends View<CopyView.ActionDelegate> {
     /** Get user comment. */
     String getComment();
 
-    /** Perform actions when close window performed. */
-    void onClose();
-
     /** Perform actions when open window performed. */
-    void onShow();
+    void show();
+
+    /** Perform actions when close window performed. */
+    void hide();
+
 }

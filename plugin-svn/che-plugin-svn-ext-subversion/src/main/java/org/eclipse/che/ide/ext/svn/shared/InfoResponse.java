@@ -53,29 +53,51 @@ public interface InfoResponse {
      */
     InfoResponse withOutput(@NotNull final List<String> output);
 
-    String getRepositoryUrl();
-
-    InfoResponse withRepositoryUrl(String repositoryUrl);
-
-
-    String getRepositoryRoot();
-
-    InfoResponse withRepositoryRoot(String repositoryRootUrl);
-
-
-    String getRevision();
-
-    InfoResponse withRevision(String revision);
-
 
     int getExitCode();
-
     InfoResponse withExitCode(int exitCode);
 
 
     List<String> getErrorOutput();
-
     InfoResponse withErrorOutput(List<String> stderr);
 
+//    Path: .
+//    URL: svn://localhost/myproj/trunk
+//    Relative URL: ^/trunk
+//    Repository Root: svn://localhost/myproj
+//    Repository UUID: 5d5b3ac5-18a3-4240-a205-376b3b68caaa
+//    Revision: 33
+//    Node Kind: directory
+//    Schedule: normal
+//    Last Changed Rev: 32
+//    Last Changed Date: 2015-04-22 14:20:33 +0300 (Wed, 22 Apr 2015)
+
+
+    String getPath();
+    InfoResponse withPath(String path);
+
+    String getURL();
+    InfoResponse withURL(String url);
+
+    String getRelativeUrl();
+    InfoResponse withRelativeUrl(String relativeUrl);
+
+    String getRepositoryRoot();
+    InfoResponse withRepositoryRoot(String repositoryRoot);
+
+    String getRepositoryUUID();
+    InfoResponse withRepositoryUUID(String repositoryUUID);
+
+    String getRevision();
+    InfoResponse withRevision(String revision);
+
+    String getNodeKind();
+    InfoResponse withNodeKind(String nodeKind);
+
+    String getLastChangedRev();
+    InfoResponse withLastChangedRev(String lastChangedRev);
+
+    String getLastChangedDate();
+    InfoResponse withLastChangedDate(String lastChangedDate);
 
 }

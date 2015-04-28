@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.svn.client.common;
 
+import org.eclipse.che.ide.api.project.tree.TreeNode;
 import static org.eclipse.che.ide.ext.svn.client.common.PathTypeFilter.ALL;
 import static org.eclipse.che.ide.ext.svn.client.common.PathTypeFilter.PROJECT;
 
@@ -115,6 +116,15 @@ public class SubversionActionPresenter {
         }
 
         return projectPath;
+    }
+
+    /**
+     * Returns currently selected project item.
+     * @return
+     */
+    protected TreeNode<?> getSelectedNode() {
+        Object selectedNode = projectExplorerPart.getSelection().getHeadElement();
+        return selectedNode != null && selectedNode instanceof StorableNode ? (StorableNode)selectedNode : null;
     }
 
     /**

@@ -167,8 +167,8 @@ public class SubversionExtension {
         fileCommandGroup.add(moveAction);
 
         // Commands that interact with the repository
-        // actionManager.registerAction("SvnMerge", mergeAction);
-        // repositoryCommandGroup.add(mergeAction);
+        actionManager.registerAction("SvnMerge", mergeAction);
+        repositoryCommandGroup.add(mergeAction);
         actionManager.registerAction("SvnExport", exportAction);
         repositoryCommandGroup.add(exportAction);
         // actionManager.registerAction("SvnBranchTag", branchTagAction);

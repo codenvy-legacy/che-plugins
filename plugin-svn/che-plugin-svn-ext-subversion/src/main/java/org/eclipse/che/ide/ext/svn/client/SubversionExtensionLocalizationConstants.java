@@ -277,6 +277,9 @@ public interface SubversionExtensionLocalizationConstants extends Messages {
     @Key("button.commit")
     String buttonCommit();
 
+    @Key("button.merge")
+    String buttonMerge();
+
     @Key("button.resolve")
     String buttonResolve();
 
