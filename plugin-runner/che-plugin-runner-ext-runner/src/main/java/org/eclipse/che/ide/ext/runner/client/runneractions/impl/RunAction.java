@@ -28,8 +28,8 @@ import org.eclipse.che.ide.ext.runner.client.manager.RunnerManagerPresenter;
 import org.eclipse.che.ide.ext.runner.client.models.Runner;
 import org.eclipse.che.ide.ext.runner.client.runneractions.AbstractRunnerAction;
 import org.eclipse.che.ide.ext.runner.client.runneractions.impl.launch.LaunchAction;
-import org.eclipse.che.ide.ext.runner.client.util.RunnerUtil;
 import org.eclipse.che.ide.ext.runner.client.util.EnvironmentIdValidator;
+import org.eclipse.che.ide.ext.runner.client.util.RunnerUtil;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 
 import javax.annotation.Nonnull;
@@ -116,7 +116,7 @@ public class RunAction extends AbstractRunnerAction {
                 .build();
 
         String encodedEnvironmentId = runner.getOptions().getEnvironmentId();
-        if (!EnvironmentIdValidator.isValid(encodedEnvironmentId)) {
+        if (encodedEnvironmentId != null && !EnvironmentIdValidator.isValid(encodedEnvironmentId)) {
             runner.getOptions().setEnvironmentId(URL.encode(encodedEnvironmentId));
         }
 
