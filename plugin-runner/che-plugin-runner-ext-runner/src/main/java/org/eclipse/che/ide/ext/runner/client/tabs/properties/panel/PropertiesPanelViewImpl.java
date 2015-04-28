@@ -67,7 +67,7 @@ public class PropertiesPanelViewImpl extends Composite implements PropertiesPane
 
     private static final PropertiesPanelViewImplUiBinder UI_BINDER = GWT.create(PropertiesPanelViewImplUiBinder.class);
 
-    public static final String PORT_STUB = " ---------- ";
+    public static final String PORT_STUB = " ------------- ";
 
     @UiField
     Label     configLink;
