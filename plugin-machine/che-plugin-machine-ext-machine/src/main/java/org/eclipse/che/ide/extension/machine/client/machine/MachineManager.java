@@ -14,11 +14,11 @@ import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONString;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.google.inject.name.Named;
 
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
 import org.eclipse.che.api.machine.shared.dto.MachineDescriptor;
 import org.eclipse.che.api.machine.shared.dto.MachineStateEvent;
+import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.extension.machine.client.MachineResources;
 import org.eclipse.che.ide.extension.machine.client.console.MachineConsolePresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
@@ -40,27 +40,33 @@ public class MachineManager {
 
     /** WebSocket channel to receive messages about changing machine state (machine:state:machineID). */
     private static final String MACHINE_STATE_CHANNEL = "machine:state:";
+    private static String currentMachineId;
 
-    private final String                  workspaceId;
-    private final MachineResources        machineResources;
+    private final AppContext appContext;
+    private final MachineResources machineResources;
     private final MachineServiceClient    machineServiceClient;
     private final DtoUnmarshallerFactory  dtoUnmarshallerFactory;
     private final MessageBus              messageBus;
     private final MachineConsolePresenter machineConsolePresenter;
 
     @Inject
-    public MachineManager(@Named("workspaceId") final String workspaceId,
+    public MachineManager(AppContext appContext,
                           MachineResources machineResources,
                           MachineServiceClient machineServiceClient,
                           DtoUnmarshallerFactory dtoUnmarshallerFactory,
                           MessageBus messageBus,
                           MachineConsolePresenter machineConsolePresenter) {
-        this.workspaceId = workspaceId;
+        this.appContext = appContext;
         this.machineResources = machineResources;
         this.machineServiceClient = machineServiceClient;
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
         this.messageBus = messageBus;
         this.machineConsolePresenter = machineConsolePresenter;
+    }
+
+    /** Returns ID of the machine where current project is bound. */
+    public String getCurrentMachineId() {
+        return currentMachineId;
     }
 
     public void startMachineAndBindProject(final String projectPath) {
@@ -69,7 +75,7 @@ public class MachineManager {
         subscribeToOutput(outputChannel);
 
         machineServiceClient.createMachineFromRecipe(
-                workspaceId,
+                appContext.getWorkspace().getId(),
                 "docker",
                 "Dockerfile",
                 machineResources.testDockerRecipe().getText(),
@@ -139,6 +145,7 @@ public class MachineManager {
         machineServiceClient.bindProject(machineId, projectPath, new AsyncRequestCallback<Void>() {
             @Override
             protected void onSuccess(Void result) {
+                currentMachineId = machineId;
             }
 
             @Override

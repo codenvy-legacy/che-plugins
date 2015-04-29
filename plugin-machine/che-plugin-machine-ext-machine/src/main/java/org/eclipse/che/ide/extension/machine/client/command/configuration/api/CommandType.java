@@ -8,20 +8,29 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.ide.extension.machine.client.command.configuration;
+package org.eclipse.che.ide.extension.machine.client.command.configuration.api;
 
 import javax.annotation.Nonnull;
 
 /**
+ * //
+ *
  * @author Artem Zatsarynnyy
  */
-public interface CommandConfiguration {
+public interface CommandType {
 
-    /** Returns human-readable name of command configuration. */
+    /** Returns unique identifier for this command type. */
     @Nonnull
-    String getName();
+    String getId();
 
-    /** Returns configuration type. */
+    /** Returns name of this command type. */
     @Nonnull
-    CommandType getType();
+    String getDisplayName();
+
+    /** Returns the {@link ConfigurationPage}. */
+    @Nonnull
+    ConfigurationPage getConfigurationPage();
+
+    @Nonnull
+    ConfigurationFactory getConfigurationFactory();
 }

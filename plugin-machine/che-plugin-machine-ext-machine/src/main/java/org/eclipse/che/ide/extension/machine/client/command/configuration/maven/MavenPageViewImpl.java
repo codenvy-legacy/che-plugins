@@ -11,8 +11,10 @@
 package org.eclipse.che.ide.extension.machine.client.command.configuration.maven;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
@@ -25,6 +27,7 @@ public class MavenPageViewImpl implements MavenPageView {
     private static final MavenPageViewImplUiBinder UI_BINDER = GWT.create(MavenPageViewImplUiBinder.class);
 
     private final DockLayoutPanel rootElement;
+
     @UiField
     TextBox commandLine;
 
@@ -53,6 +56,11 @@ public class MavenPageViewImpl implements MavenPageView {
     @Override
     public void setCommandLine(String commandLine) {
         this.commandLine.setText(commandLine);
+    }
+
+    @UiHandler({"commandLine"})
+    void onKeyUp(KeyUpEvent event) {
+        delegate.onCommandLineChanged(getCommandLine());
     }
 
     interface MavenPageViewImplUiBinder extends UiBinder<DockLayoutPanel, MavenPageViewImpl> {

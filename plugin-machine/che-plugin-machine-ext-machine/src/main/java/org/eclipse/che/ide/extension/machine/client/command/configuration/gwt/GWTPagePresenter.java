@@ -14,8 +14,10 @@ import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandConfiguration;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.ConfigurationPage;
+import org.eclipse.che.ide.extension.machine.client.command.configuration.api.CommandConfiguration;
+import org.eclipse.che.ide.extension.machine.client.command.configuration.api.ConfigurationPage;
+
+import javax.annotation.Nonnull;
 
 /**
  * @author Artem Zatsarynnyy
@@ -23,7 +25,8 @@ import org.eclipse.che.ide.extension.machine.client.command.configuration.Config
 @Singleton
 public class GWTPagePresenter implements GWTPageView.ActionDelegate, ConfigurationPage {
 
-    protected final GWTPageView view;
+    private final GWTPageView             view;
+    private       GWTCommandConfiguration configuration;
 
     @Inject
     public GWTPagePresenter(GWTPageView view) {
@@ -32,12 +35,25 @@ public class GWTPagePresenter implements GWTPageView.ActionDelegate, Configurati
     }
 
     @Override
-    public void reset(CommandConfiguration configuration) {
+    public void reset(@Nonnull CommandConfiguration configuration) {
+        this.configuration = (GWTCommandConfiguration)configuration;
     }
 
     @Override
     public void go(AcceptsOneWidget container) {
         container.setWidget(view);
-        view.setDevModeParameters("-noincremental -nostartServer -port 8080");
+
+        view.setDevModeParameters(configuration.getDevModeParameters());
+        view.setVmOptionsField(configuration.getVmOptions());
+    }
+
+    @Override
+    public void onDevModeParametersChanged(String devModeParameters) {
+        configuration.setDevModeParameters(devModeParameters);
+    }
+
+    @Override
+    public void onVmOptionsChanged(String vmOptions) {
+        configuration.setVmOptions(vmOptions);
     }
 }

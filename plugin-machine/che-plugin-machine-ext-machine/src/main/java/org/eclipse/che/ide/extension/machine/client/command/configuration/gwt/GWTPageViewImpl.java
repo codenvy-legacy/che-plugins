@@ -11,14 +11,16 @@
 package org.eclipse.che.ide.extension.machine.client.command.configuration.gwt;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
 
 /**
- * @author Evgen Vidolob
+ * @author Artem Zatsarynnyy
  */
 public class GWTPageViewImpl implements GWTPageView {
 
@@ -27,6 +29,8 @@ public class GWTPageViewImpl implements GWTPageView {
 
     @UiField
     TextBox devModeParametersField;
+    @UiField
+    TextBox vmOptionsField;
 
     private ActionDelegate delegate;
 
@@ -54,6 +58,26 @@ public class GWTPageViewImpl implements GWTPageView {
     @Override
     public void setDevModeParameters(String value) {
         devModeParametersField.setText(value);
+    }
+
+    @Override
+    public String getVmOptionsField() {
+        return vmOptionsField.getText();
+    }
+
+    @Override
+    public void setVmOptionsField(String vmOptions) {
+        vmOptionsField.setText(vmOptions);
+    }
+
+    @UiHandler({"devModeParametersField"})
+    void onKeyUpInDevModeParametersField(KeyUpEvent event) {
+        delegate.onDevModeParametersChanged(getDevModeParameters());
+    }
+
+    @UiHandler({"vmOptionsField"})
+    void onKeyUpInVmOptionsField(KeyUpEvent event) {
+        delegate.onVmOptionsChanged(getVmOptionsField());
     }
 
     interface GWTPageViewImplUiBinder extends UiBinder<DockLayoutPanel, GWTPageViewImpl> {

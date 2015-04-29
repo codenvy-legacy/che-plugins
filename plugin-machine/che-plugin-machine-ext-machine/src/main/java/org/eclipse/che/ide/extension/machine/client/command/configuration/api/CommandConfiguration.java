@@ -8,16 +8,22 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.ide.extension.machine.client.command.configuration;
+package org.eclipse.che.ide.extension.machine.client.command.configuration.api;
 
-import org.eclipse.che.ide.api.mvp.Presenter;
+import javax.annotation.Nonnull;
 
 /**
- * Page allows to control specific parameters of the command.
- *
  * @author Artem Zatsarynnyy
  */
-public interface ConfigurationPage extends Presenter {
+public interface CommandConfiguration {
 
-    void reset(CommandConfiguration configuration);
+    /** Returns human-readable name of command configuration. */
+    @Nonnull
+    String getName();
+
+    /** Returns configuration type. */
+    @Nonnull
+    CommandType getType();
+
+    String getCommand();
 }

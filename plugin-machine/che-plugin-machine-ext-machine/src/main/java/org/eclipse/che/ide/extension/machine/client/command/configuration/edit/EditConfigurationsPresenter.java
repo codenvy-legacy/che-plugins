@@ -13,10 +13,10 @@ package org.eclipse.che.ide.extension.machine.client.command.configuration.edit;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandConfiguration;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandType;
+import org.eclipse.che.ide.extension.machine.client.command.configuration.api.CommandConfiguration;
+import org.eclipse.che.ide.extension.machine.client.command.configuration.api.CommandType;
 import org.eclipse.che.ide.extension.machine.client.command.configuration.ConfigurationManager;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.ConfigurationPage;
+import org.eclipse.che.ide.extension.machine.client.command.configuration.api.ConfigurationPage;
 
 import java.util.HashMap;
 import java.util.HashSet;

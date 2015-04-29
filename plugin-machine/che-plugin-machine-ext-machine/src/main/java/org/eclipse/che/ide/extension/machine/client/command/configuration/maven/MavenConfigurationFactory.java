@@ -12,47 +12,27 @@ package org.eclipse.che.ide.extension.machine.client.command.configuration.maven
 
 import org.eclipse.che.ide.extension.machine.client.command.configuration.api.CommandConfiguration;
 import org.eclipse.che.ide.extension.machine.client.command.configuration.api.CommandType;
+import org.eclipse.che.ide.extension.machine.client.command.configuration.api.ConfigurationFactory;
 
 import javax.annotation.Nonnull;
 
 /**
- * //
+ * Factory for {@link MavenCommandConfiguration}s.
  *
  * @author Artem Zatsarynnyy
  */
-public class MavenCommandConfiguration implements CommandConfiguration {
+public class MavenConfigurationFactory extends ConfigurationFactory {
 
-    private final String      name;
-    private final CommandType type;
-    private       String      commandLine;
-
-    public MavenCommandConfiguration(String name, CommandType type) {
-        this.name = name;
-        this.type = type;
-    }
-
-    @Nonnull
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    @Nonnull
-    @Override
-    public CommandType getType() {
-        return type;
+    public MavenConfigurationFactory(CommandType commandType) {
+        super(commandType);
     }
 
     @Override
-    public String getCommand() {
-        return "uname";
-    }
+    public CommandConfiguration createConfiguration(@Nonnull String name) {
+        final MavenCommandConfiguration configuration = new MavenCommandConfiguration(name, getCommandType());
 
-    public String getCommandLine() {
-        return commandLine;
-    }
+        configuration.setCommandLine("mvn clean install");
 
-    public void setCommandLine(String commandLine) {
-        this.commandLine = commandLine;
+        return configuration;
     }
 }

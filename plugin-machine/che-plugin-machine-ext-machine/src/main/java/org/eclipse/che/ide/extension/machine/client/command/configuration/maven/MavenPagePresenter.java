@@ -14,8 +14,10 @@ import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandConfiguration;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.ConfigurationPage;
+import org.eclipse.che.ide.extension.machine.client.command.configuration.api.CommandConfiguration;
+import org.eclipse.che.ide.extension.machine.client.command.configuration.api.ConfigurationPage;
+
+import javax.annotation.Nonnull;
 
 /**
  * @author Artem Zatsarynnyy
@@ -23,7 +25,8 @@ import org.eclipse.che.ide.extension.machine.client.command.configuration.Config
 @Singleton
 public class MavenPagePresenter implements MavenPageView.ActionDelegate, ConfigurationPage {
 
-    protected final MavenPageView view;
+    private final MavenPageView        view;
+    private       MavenCommandConfiguration configuration;
 
     @Inject
     public MavenPagePresenter(MavenPageView view) {
@@ -32,12 +35,19 @@ public class MavenPagePresenter implements MavenPageView.ActionDelegate, Configu
     }
 
     @Override
-    public void reset(CommandConfiguration configuration) {
+    public void reset(@Nonnull CommandConfiguration configuration) {
+        this.configuration = (MavenCommandConfiguration)configuration;
     }
 
     @Override
     public void go(AcceptsOneWidget container) {
         container.setWidget(view);
-        view.setCommandLine("mvn clean install");
+
+        view.setCommandLine(configuration.getCommandLine());
+    }
+
+    @Override
+    public void onCommandLineChanged(String commandLine) {
+        configuration.setCommandLine(commandLine);
     }
 }

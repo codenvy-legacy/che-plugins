@@ -13,8 +13,9 @@ package org.eclipse.che.ide.extension.machine.client.command.configuration.maven
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandType;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.ConfigurationPage;
+import org.eclipse.che.ide.extension.machine.client.command.configuration.api.CommandType;
+import org.eclipse.che.ide.extension.machine.client.command.configuration.api.ConfigurationFactory;
+import org.eclipse.che.ide.extension.machine.client.command.configuration.api.ConfigurationPage;
 
 import javax.annotation.Nonnull;
 
@@ -26,11 +27,13 @@ import javax.annotation.Nonnull;
 @Singleton
 public class MavenCommandType implements CommandType {
 
-    private final MavenPagePresenter page;
+    private final MavenPagePresenter        page;
+    private final MavenConfigurationFactory configurationFactory;
 
     @Inject
     public MavenCommandType(MavenPagePresenter page) {
         this.page = page;
+        this.configurationFactory = new MavenConfigurationFactory(this);
     }
 
     @Nonnull
@@ -49,5 +52,11 @@ public class MavenCommandType implements CommandType {
     @Override
     public ConfigurationPage getConfigurationPage() {
         return page;
+    }
+
+    @Nonnull
+    @Override
+    public ConfigurationFactory getConfigurationFactory() {
+        return configurationFactory;
     }
 }

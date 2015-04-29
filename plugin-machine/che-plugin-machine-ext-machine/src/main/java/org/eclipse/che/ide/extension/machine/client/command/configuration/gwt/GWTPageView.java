@@ -24,6 +24,14 @@ public interface GWTPageView extends View<GWTPageView.ActionDelegate> {
 
     void setDevModeParameters(String parameters);
 
+    String getVmOptionsField();
+
+    void setVmOptionsField(String vmOptions);
+
     interface ActionDelegate {
+
+        void onDevModeParametersChanged(String devModeParameters);
+
+        void onVmOptionsChanged(String vmOptions);
     }
 }

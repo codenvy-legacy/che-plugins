@@ -13,8 +13,9 @@ package org.eclipse.che.ide.extension.machine.client.command.configuration.gwt;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandType;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.ConfigurationPage;
+import org.eclipse.che.ide.extension.machine.client.command.configuration.api.CommandType;
+import org.eclipse.che.ide.extension.machine.client.command.configuration.api.ConfigurationFactory;
+import org.eclipse.che.ide.extension.machine.client.command.configuration.api.ConfigurationPage;
 
 import javax.annotation.Nonnull;
 
@@ -26,11 +27,13 @@ import javax.annotation.Nonnull;
 @Singleton
 public class GWTCommandType implements CommandType {
 
-    private final GWTPagePresenter page;
+    private final GWTPagePresenter        page;
+    private final GWTConfigurationFactory configurationFactory;
 
     @Inject
     public GWTCommandType(GWTPagePresenter page) {
         this.page = page;
+        this.configurationFactory = new GWTConfigurationFactory(this);
     }
 
     @Nonnull
@@ -49,5 +52,11 @@ public class GWTCommandType implements CommandType {
     @Override
     public ConfigurationPage getConfigurationPage() {
         return page;
+    }
+
+    @Nonnull
+    @Override
+    public ConfigurationFactory getConfigurationFactory() {
+        return configurationFactory;
     }
 }

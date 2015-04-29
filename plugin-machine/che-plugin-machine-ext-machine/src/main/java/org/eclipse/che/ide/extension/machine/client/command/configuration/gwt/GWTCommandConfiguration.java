@@ -10,8 +10,8 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.machine.client.command.configuration.gwt;
 
-import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandConfiguration;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandType;
+import org.eclipse.che.ide.extension.machine.client.command.configuration.api.CommandConfiguration;
+import org.eclipse.che.ide.extension.machine.client.command.configuration.api.CommandType;
 
 import javax.annotation.Nonnull;
 
@@ -25,6 +25,7 @@ public class GWTCommandConfiguration implements CommandConfiguration {
     private final String      name;
     private final CommandType type;
     private       String      devModeParameters;
+    private       String      vmOptions;
 
     public GWTCommandConfiguration(String name, CommandType type) {
         this.name = name;
@@ -43,11 +44,24 @@ public class GWTCommandConfiguration implements CommandConfiguration {
         return type;
     }
 
+    @Override
+    public String getCommand() {
+        return "java -version";
+    }
+
     public String getDevModeParameters() {
         return devModeParameters;
     }
 
     public void setDevModeParameters(String devModeParameters) {
         this.devModeParameters = devModeParameters;
+    }
+
+    public String getVmOptions() {
+        return vmOptions;
+    }
+
+    public void setVmOptions(String vmOptions) {
+        this.vmOptions = vmOptions;
     }
 }

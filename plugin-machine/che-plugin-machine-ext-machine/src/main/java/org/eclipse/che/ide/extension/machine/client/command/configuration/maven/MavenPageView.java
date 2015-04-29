@@ -25,5 +25,7 @@ public interface MavenPageView extends View<MavenPageView.ActionDelegate> {
     void setCommandLine(String commandLine);
 
     interface ActionDelegate {
+
+        void onCommandLineChanged(String commandLine);
     }
 }

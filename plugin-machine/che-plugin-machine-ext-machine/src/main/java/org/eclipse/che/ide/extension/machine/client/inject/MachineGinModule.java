@@ -17,7 +17,7 @@ import com.google.inject.Singleton;
 import org.eclipse.che.ide.api.extension.ExtensionGinModule;
 import org.eclipse.che.ide.extension.machine.client.command.ExecuteCommandView;
 import org.eclipse.che.ide.extension.machine.client.command.ExecuteCommandViewImpl;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandType;
+import org.eclipse.che.ide.extension.machine.client.command.configuration.api.CommandType;
 import org.eclipse.che.ide.extension.machine.client.command.configuration.edit.EditConfigurationsView;
 import org.eclipse.che.ide.extension.machine.client.command.configuration.edit.EditConfigurationsViewImpl;
 import org.eclipse.che.ide.extension.machine.client.command.configuration.gwt.GWTCommandType;
