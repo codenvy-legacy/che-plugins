@@ -26,6 +26,7 @@ import org.eclipse.che.ide.api.extension.Extension;
 import org.eclipse.che.ide.api.parts.PartStackType;
 import org.eclipse.che.ide.api.parts.WorkspaceAgent;
 import org.eclipse.che.ide.collections.Array;
+import org.eclipse.che.ide.extension.machine.client.actions.EditConfigurationsAction;
 import org.eclipse.che.ide.extension.machine.client.actions.ExecuteCommandAction;
 import org.eclipse.che.ide.extension.machine.client.actions.TerminateMachineAction;
 import org.eclipse.che.ide.extension.machine.client.console.ClearConsoleAction;
@@ -98,6 +99,7 @@ public class MachineExtension {
     private void prepareActions(MachineLocalizationConstant localizationConstant,
                                 ActionManager actionManager,
                                 ExecuteCommandAction executeCommandAction,
+                                EditConfigurationsAction editConfigurationsAction,
                                 TerminateMachineAction terminateMachineAction) {
         final DefaultActionGroup mainMenu = (DefaultActionGroup)actionManager.getAction(GROUP_MAIN_MENU);
 
@@ -109,10 +111,12 @@ public class MachineExtension {
 
         // register actions
         actionManager.registerAction("executeCommand", executeCommandAction);
+        actionManager.registerAction("editConfigurations", editConfigurationsAction);
         actionManager.registerAction("stopMachine", terminateMachineAction);
 
         // add actions in main menu
         machinesMenu.add(executeCommandAction);
+//        machinesMenu.add(editConfigurationsAction);
         machinesMenu.addSeparator();
         machinesMenu.add(terminateMachineAction);
     }

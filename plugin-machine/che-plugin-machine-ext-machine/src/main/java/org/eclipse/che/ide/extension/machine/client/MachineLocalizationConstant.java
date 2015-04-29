@@ -20,6 +20,9 @@ import com.google.gwt.i18n.client.Messages;
 public interface MachineLocalizationConstant extends Messages {
 
     /* Buttons */
+    @Key("button.ok")
+    String okButton();
+
     @Key("button.execute")
     String executeButton();
 
@@ -42,6 +45,12 @@ public interface MachineLocalizationConstant extends Messages {
 
     @Key("control.executeCommand.description")
     String executeCommandControlDescription();
+
+    @Key("control.editConfigurations.text")
+    String editConfigurationsControlTitle();
+
+    @Key("control.editConfigurations.description")
+    String editConfigurationsControlDescription();
 
     @Key("control.clearMachineConsole.text")
     String clearConsoleControlTitle();
@@ -66,4 +75,9 @@ public interface MachineLocalizationConstant extends Messages {
     /* ExecuteCommandView */
     @Key("view.executeCommand.title")
     String executeCommandViewTitle();
+
+
+    /* EditConfigurationsView */
+    @Key("view.editConfigurations.title")
+    String editConfigurationsViewTitle();
 }
