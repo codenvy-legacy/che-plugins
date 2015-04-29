@@ -11,6 +11,12 @@
 
 package org.eclipse.che.plugin.grunt.client.presenter;
 
+import com.google.gwt.regexp.shared.MatchResult;
+import com.google.gwt.regexp.shared.RegExp;
+import com.google.gwt.user.client.ui.AcceptsOneWidget;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+
 import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
 import org.eclipse.che.api.runner.dto.RunOptions;
 import org.eclipse.che.ide.api.app.AppContext;
@@ -24,11 +30,6 @@ import org.eclipse.che.ide.ext.runner.client.manager.RunnerManagerPresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.StringUnmarshaller;
 import org.eclipse.che.ide.util.loging.Log;
-import com.google.gwt.regexp.shared.MatchResult;
-import com.google.gwt.regexp.shared.RegExp;
-import com.google.gwt.user.client.ui.AcceptsOneWidget;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
@@ -156,7 +157,7 @@ public class SelectGruntTaskPagePresenter extends AbstractWizardPage implements 
     public void onStartRunClicked() {
         view.close();
         Map<String, String> options = new HashMap<>();
-        options.put("taskname", taskSelected);
+        options.put("taskName", taskSelected);
         RunOptions runOptions = dtoFactory.createDto(RunOptions.class).withSkipBuild(true).withOptions(options);
         runnerManagerPresenter.launchRunner(runOptions);
     }

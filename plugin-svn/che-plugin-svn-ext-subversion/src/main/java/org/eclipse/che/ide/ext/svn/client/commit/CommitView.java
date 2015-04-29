@@ -10,37 +10,48 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.svn.client.commit;
 
-public interface CommitView {
+import org.eclipse.che.ide.api.mvp.View;
+import org.eclipse.che.ide.ext.svn.shared.StatusItem;
 
-    void setDelegate(CommitViewDelegate delegate);
+import java.util.List;
 
-    public interface CommitViewDelegate {
+/**
+ * View for {@link org.eclipse.che.ide.ext.svn.client.commit.CommitPresenter}.
+ *
+ * @author Vladyslav Zhukovskyi
+ */
+public interface CommitView extends View<CommitView.ActionDelegate> {
 
+    /** Action handler for the view actions/controls. */
+    public interface ActionDelegate {
+        /** Perform actions when cancel button clicked. */
         void onCancelClicked();
 
+        /** Perform actions when commit button clicked. */
         void onCommitClicked();
 
-        void onValueChanged();
-
+        /** Show diff for specified file in new window. */
+        void showDiff(String path);
     }
 
+    /** Get commit message. */
     String getMessage();
 
-    void setMessage(String message);
+    /** Return true if keep lock state check box selected. */
+    boolean isKeepLocksStateSelected();
 
-    boolean isCommitSelection();
+    /** Return true if commit all section selected. */
+    boolean isCommitAllSelected();
 
-    void setCommitSelection(boolean commitSelection);
+    /** Return true if commit selection section selected. */
+    boolean isCommitSelectionSelected();
 
-    void setEnableCommitButton(boolean enable);
+    /** Set list of files that will be commited. */
+    void setChangesList(List<StatusItem> changes);
 
-    void setKeepLocksState(boolean keepLocks);
+    /** Perform actions when close window performed. */
+    void onClose();
 
-    boolean getKeepLocksState();
-
-    void focusInMessageField();
-
-    void close();
-
-    void showDialog();
+    /** Perform actions when open window performed. */
+    void onShow();
 }

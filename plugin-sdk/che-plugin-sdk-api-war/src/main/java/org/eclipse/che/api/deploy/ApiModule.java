@@ -35,10 +35,13 @@ import org.eclipse.che.everrest.CodenvyAsynchronousJobPool;
 import org.eclipse.che.api.core.rest.CoreRestModule;
 import org.eclipse.che.generator.archetype.ArchetypeGeneratorModule;
 import org.eclipse.che.inject.DynaModule;
+import org.eclipse.che.vfs.impl.fs.LocalFSMountStrategy;
 import org.eclipse.che.vfs.impl.fs.LocalFileSystemRegistryPlugin;
+import org.eclipse.che.vfs.impl.fs.MappedDirectoryLocalFSMountStrategy;
 import org.eclipse.che.vfs.impl.fs.VirtualFileSystemFSModule;
 import com.google.inject.AbstractModule;
 
+import org.eclipse.che.vfs.impl.fs.WorkspaceToDirectoryMappingService;
 import org.everrest.core.impl.async.AsynchronousJobPool;
 import org.everrest.core.impl.async.AsynchronousJobService;
 import org.everrest.guice.PathKey;
@@ -65,6 +68,8 @@ public class ApiModule extends AbstractModule {
         bind(UserService.class);
         bind(UserProfileService.class);
 
+        bind(LocalFSMountStrategy.class).to(MappedDirectoryLocalFSMountStrategy.class);
+        bind(WorkspaceToDirectoryMappingService.class);
         bind(AsynchronousJobPool.class).to(CodenvyAsynchronousJobPool.class);
         bind(new PathKey<>(AsynchronousJobService.class, "/async/{ws-id}")).to(AsynchronousJobService.class);
 

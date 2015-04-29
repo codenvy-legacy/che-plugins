@@ -13,6 +13,7 @@ package org.eclipse.che.ide.ext.runner.client.actions;
 import org.eclipse.che.api.analytics.client.logger.AnalyticsEventLogger;
 import org.eclipse.che.api.runner.dto.RunOptions;
 import org.eclipse.che.ide.api.action.ActionEvent;
+import org.eclipse.che.ide.api.action.permits.ActionDenyAccessDialog;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.notification.NotificationManager;
@@ -32,8 +33,10 @@ import java.util.Map;
 
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MB_200;
 
 /**
  * @author Dmitry Shnurenko
@@ -67,6 +70,8 @@ public class RunActionTest {
     private CurrentProject     currentProject;
     @Mock
     private Environment        environment;
+    @Mock
+    private ActionDenyAccessDialog runActionDenyAccessDialog;
 
     @InjectMocks
     private RunAction action;
@@ -133,16 +138,29 @@ public class RunActionTest {
         when(chooseRunnerAction.selectEnvironment()).thenReturn(environment);
         when(appContext.getCurrentProject()).thenReturn(currentProject);
         when(currentProject.getRunner()).thenReturn(SOME_STRING + SOME_STRING);
+
         when(environment.getName()).thenReturn(SOME_STRING);
+        when(environment.getId()).thenReturn(SOME_STRING);
+        when(environment.getRam()).thenReturn(MB_200.getValue());
+
         when(dtoFactory.createDto(RunOptions.class)).thenReturn(runOptions);
         when(runOptions.withOptions(Matchers.<Map<String, String>>any())).thenReturn(runOptions);
         when(runOptions.withEnvironmentId(anyString())).thenReturn(runOptions);
+        when(runOptions.withMemorySize(MB_200.getValue())).thenReturn(runOptions);
 
         action.actionPerformed(actionEvent);
 
         verify(eventLogger).log(action);
         verify(environment).getOptions();
+        verify(environment, times(2)).getId();
+        verify(environment).getRam();
         verify(environment).getName();
+
+        verify(dtoFactory).createDto(RunOptions.class);
+        verify(runOptions).withOptions(Matchers.<Map<String, String>>any());
+        verify(runOptions).withEnvironmentId(anyString());
+        verify(runOptions).withMemorySize(MB_200.getValue());
+
         verify(runOptions).withOptions(Matchers.<Map<String, String>>any());
         verify(runnerManager).launchRunner(runOptions, SOME_STRING);
     }
@@ -155,6 +173,7 @@ public class RunActionTest {
 
         action.actionPerformed(actionEvent);
 
+        verify(eventLogger).log(action);
         verify(locale).actionRunnerNotSpecified();
         verify(notificationManager).showError(SOME_STRING);
     }

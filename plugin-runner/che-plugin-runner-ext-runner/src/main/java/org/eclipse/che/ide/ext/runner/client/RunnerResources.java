@@ -132,15 +132,13 @@ public interface RunnerResources extends ClientBundle {
 
         String wrappedText();
 
-        String runnersAction();
-
-        String runnerFontStyle();
-
         String mainButtonIcon();
 
         String leftTabContainerShadow();
 
         String itemIcon();
+
+        String defaultRunnerStub();
     }
 
 }

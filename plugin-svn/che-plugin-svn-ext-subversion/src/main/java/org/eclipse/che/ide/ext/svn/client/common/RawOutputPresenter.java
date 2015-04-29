@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.svn.client.common;
 
-import org.eclipse.che.ide.api.parts.ConsolePart;
 import org.eclipse.che.ide.api.parts.PartPresenter;
 import org.eclipse.che.ide.api.parts.base.BasePresenter;
 import org.eclipse.che.ide.workspace.WorkBenchPartControllerImpl;
@@ -30,7 +29,7 @@ import javax.validation.constraints.NotNull;
  * Presenter for the {@link RawOutputView}.
  */
 @Singleton
-public class RawOutputPresenter extends BasePresenter implements RawOutputView.ActionDelegate, ConsolePart {
+public class RawOutputPresenter extends BasePresenter implements RawOutputView.ActionDelegate {
 
     private final RawOutputView view;
     private final String title;
@@ -66,55 +65,16 @@ public class RawOutputPresenter extends BasePresenter implements RawOutputView.A
         }, WorkBenchPartControllerImpl.DURATION);
     }
 
-    @Override
     public void print(@NotNull final String text) {
         final String[] lines = text.split("\n");
 
         for (final String line : lines) {
             view.print(line.isEmpty() ? " " : line);
-
         }
 
         performPostOutputActions();
     }
 
-    public void print(String text, String color) {
-        final String[] lines = text.split("\n");
-
-        for (final String line : lines) {
-            view.print(line.isEmpty() ? " " : line, color);
-        }
-
-        performPostOutputActions();
-    }
-
-    @Override
-    public void displayException(final Exception e) { }
-
-//    public void printBold(final String text) {
-//        view.printBold(text);
-//        performPostOutputActions();
-//    }
-
-    @Override
-    public void printInfo(final String text) {
-        view.printInfo(text);
-        performPostOutputActions();
-    }
-
-    @Override
-    public void printError(final String text) {
-        view.print(text);
-        performPostOutputActions();
-    }
-
-    @Override
-    public void printWarn(final String text) {
-        view.print(text);
-        performPostOutputActions();
-    }
-
-    @Override
     public void clear() {
         view.clear();
     }

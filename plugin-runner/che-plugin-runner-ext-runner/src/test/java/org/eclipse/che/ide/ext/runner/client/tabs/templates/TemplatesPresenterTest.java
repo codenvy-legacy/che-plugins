@@ -10,14 +10,24 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.runner.client.tabs.templates;
 
+import com.google.gwt.resources.client.TextResource;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 
+import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
+import org.eclipse.che.api.project.shared.dto.ItemReference;
 import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.api.project.shared.dto.RunnerEnvironmentLeaf;
 import org.eclipse.che.api.project.shared.dto.RunnerEnvironmentTree;
+import org.eclipse.che.api.project.shared.dto.RunnersDescriptor;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
+import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.ext.runner.client.RunnerLocalizationConstant;
+import org.eclipse.che.ide.ext.runner.client.RunnerResources;
+import org.eclipse.che.ide.ext.runner.client.actions.ChooseRunnerAction;
+import org.eclipse.che.ide.ext.runner.client.callbacks.AsyncCallbackBuilder;
+import org.eclipse.che.ide.ext.runner.client.callbacks.FailureCallback;
+import org.eclipse.che.ide.ext.runner.client.callbacks.SuccessCallback;
 import org.eclipse.che.ide.ext.runner.client.manager.RunnerManagerView;
 import org.eclipse.che.ide.ext.runner.client.models.Environment;
 import org.eclipse.che.ide.ext.runner.client.runneractions.impl.environments.GetProjectEnvironmentsAction;
@@ -26,12 +36,16 @@ import org.eclipse.che.ide.ext.runner.client.selection.SelectionManager;
 import org.eclipse.che.ide.ext.runner.client.state.PanelState;
 import org.eclipse.che.ide.ext.runner.client.tabs.properties.container.PropertiesContainer;
 import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope;
+import org.eclipse.che.ide.ext.runner.client.tabs.templates.environment.EnvironmentWidget;
 import org.eclipse.che.ide.ext.runner.client.tabs.templates.filterwidget.FilterWidget;
 import org.eclipse.che.ide.ext.runner.client.util.GetEnvironmentsUtil;
 import org.eclipse.che.ide.ext.runner.client.util.RunnerUtil;
+import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -42,12 +56,16 @@ import java.util.List;
 import java.util.Map;
 
 import static org.eclipse.che.ide.ext.runner.client.state.State.RUNNERS;
-import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope.ALL;
+import static org.eclipse.che.ide.ext.runner.client.state.State.TEMPLATE;
 import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope.PROJECT;
 import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope.SYSTEM;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.hasItems;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
@@ -55,7 +73,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
-import static org.eclipse.che.ide.ext.runner.client.state.State.TEMPLATE;
 
 /**
  * @author Dmitry Shnurenko
@@ -63,56 +80,89 @@ import static org.eclipse.che.ide.ext.runner.client.state.State.TEMPLATE;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class TemplatesPresenterTest {
-
-    private static final String SOME_TEXT = "someText";
+    private static final String DOCKER_TEMPLATE = "docker";
+    private static final String SOME_TEXT       = "someText";
 
     //constructor mocks
     @Mock
-    private TemplatesView                view;
+    private TemplatesView                           view;
     @Mock
-    private FilterWidget                 filter;
+    private FilterWidget                            filter;
     @Mock
-    private RunnerLocalizationConstant   locale;
+    private EnvironmentWidget                       defaultEnvWidget;
     @Mock
-    private GetProjectEnvironmentsAction projectEnvironmentsAction;
+    private RunnerLocalizationConstant              locale;
     @Mock
-    private GetSystemEnvironmentsAction  systemEnvironmentsAction;
+    private GetProjectEnvironmentsAction            projectEnvironmentsAction;
     @Mock
-    private GetEnvironmentsUtil          environmentUtil;
+    private GetSystemEnvironmentsAction             systemEnvironmentsAction;
     @Mock
-    private PropertiesContainer          propertiesContainer;
+    private GetEnvironmentsUtil                     environmentUtil;
     @Mock
-    private AppContext                   appContext;
+    private PropertiesContainer                     propertiesContainer;
     @Mock
-    private SelectionManager             selectionManager;
+    private AppContext                              appContext;
     @Mock
-    private RunnerManagerView            runnerManagerView;
+    private SelectionManager                        selectionManager;
     @Mock
-    private  RunnerUtil runnerUtil;
+    private RunnerManagerView                       runnerManagerView;
     @Mock
-    private PanelState panelState;
+    private RunnerUtil                              runnerUtil;
+    @Mock
+    private PanelState                              panelState;
+    @Mock
+    private AsyncCallbackBuilder<ProjectDescriptor> asyncDescriptorCallbackBuilder;
+    @Mock
+    private ChooseRunnerAction                      chooseRunnerAction;
+    @Mock
+    private ProjectServiceClient                    projectService;
+    @Mock
+    private RunnerResources                         resources;
 
     //additional mocks
     @Mock
-    private Environment                 environment;
+    private Environment                             environment;
     @Mock
-    private RunnerEnvironmentTree       tree;
+    private RunnerEnvironmentTree                   tree;
     @Mock
-    private CurrentProject              currentProject;
+    private CurrentProject                          currentProject;
     @Mock
-    private ProjectDescriptor           descriptor;
+    private ProjectDescriptor                       descriptor;
     @Mock
-    private Environment                 systemEnvironment1;
+    private Environment                             systemEnvironment1;
     @Mock
-    private Environment                 systemEnvironment2;
+    private Environment                             systemEnvironment2;
     @Mock
-    private Environment                 projectEnvironment1;
+    private Environment                             projectEnvironment1;
     @Mock
-    private Environment                 projectEnvironment2;
+    private ItemReference                           itemReference1;
     @Mock
-    private List<RunnerEnvironmentLeaf> leaves;
+    private Environment                             projectEnvironment2;
     @Mock
-    private AcceptsOneWidget            container;
+    private List<RunnerEnvironmentLeaf>             leaves;
+    @Mock
+    private Throwable                               exception;
+    @Mock
+    private AcceptsOneWidget                        container;
+    @Mock
+    private RunnersDescriptor                       runnersDescriptor;
+    @Mock
+    private AsyncRequestCallback<ProjectDescriptor> asyncRequestCallback;
+    @Mock
+    private AsyncRequestCallback<ItemReference>     asyncRequestCallbackItemReference;
+    @Mock
+    private AsyncCallbackBuilder<ItemReference>     asyncCallbackBuilder;
+    @Mock
+    private TextResource                            textResource;
+    @Mock
+    private NotificationManager                     notificationManager;
+
+    @Captor
+    private ArgumentCaptor<SuccessCallback<ProjectDescriptor>> successCaptor;
+    @Captor
+    private ArgumentCaptor<SuccessCallback<ItemReference>>     successCallbackArgumentCaptor;
+    @Captor
+    private ArgumentCaptor<FailureCallback>                    failureCallbackArgumentCaptor;
 
     private TemplatesPresenter presenter;
 
@@ -120,20 +170,39 @@ public class TemplatesPresenterTest {
     public void setUp() throws Exception {
         presenter = new TemplatesPresenter(view,
                                            filter,
-                                           locale,
+                                           defaultEnvWidget,
                                            appContext,
                                            projectEnvironmentsAction,
                                            systemEnvironmentsAction,
                                            environmentUtil,
                                            propertiesContainer,
                                            selectionManager,
+                                           asyncCallbackBuilder,
                                            runnerManagerView,
+                                           notificationManager,
                                            runnerUtil,
-                                           panelState);
+                                           resources,
+                                           panelState,
+                                           projectService,
+                                           asyncDescriptorCallbackBuilder,
+                                           chooseRunnerAction);
 
         when(appContext.getCurrentProject()).thenReturn(currentProject);
         when(currentProject.getProjectDescription()).thenReturn(descriptor);
+        when(descriptor.getPath()).thenReturn("/path");
+        when(descriptor.getName()).thenReturn("project");
+        when(currentProject.getRunner()).thenReturn(SOME_TEXT);
         when(descriptor.getType()).thenReturn(SOME_TEXT);
+        when(descriptor.getPath()).thenReturn(SOME_TEXT);
+        when(descriptor.getRunners()).thenReturn(runnersDescriptor);
+        when(exception.getMessage()).thenReturn(SOME_TEXT);
+        when(resources.dockerTemplate()).thenReturn(textResource);
+        when(textResource.getText()).thenReturn(DOCKER_TEMPLATE);
+
+        when(asyncCallbackBuilder.unmarshaller(ItemReference.class)).thenReturn(asyncCallbackBuilder);
+        when(asyncCallbackBuilder.success(Matchers.<SuccessCallback<ItemReference>>anyObject())).thenReturn(asyncCallbackBuilder);
+        when(asyncCallbackBuilder.failure(any(FailureCallback.class))).thenReturn(asyncCallbackBuilder);
+        when(asyncCallbackBuilder.build()).thenReturn(asyncRequestCallbackItemReference);
 
         when(environmentUtil.getEnvironmentsByProjectType(tree, SOME_TEXT, SYSTEM)).thenReturn(Arrays.asList(systemEnvironment1,
                                                                                                              systemEnvironment2));
@@ -144,6 +213,10 @@ public class TemplatesPresenterTest {
 
         when(panelState.getState()).thenReturn(TEMPLATE);
         when(runnerUtil.hasRunPermission()).thenReturn(true);
+        when(asyncDescriptorCallbackBuilder.success(Matchers.<SuccessCallback<ProjectDescriptor>>anyObject()))
+                .thenReturn(asyncDescriptorCallbackBuilder);
+        when(asyncDescriptorCallbackBuilder.failure(Matchers.<FailureCallback>anyObject())).thenReturn(asyncDescriptorCallbackBuilder);
+        when(asyncDescriptorCallbackBuilder.build()).thenReturn(asyncRequestCallback);
 
         when(systemEnvironment1.getName()).thenReturn("systemEnvironment1");
         when(systemEnvironment1.getScope()).thenReturn(SYSTEM);
@@ -190,7 +263,7 @@ public class TemplatesPresenterTest {
         presenter.onValueChanged();
         reset(view, propertiesContainer, selectionManager);
 
-        presenter.addEnvironments(tree, SYSTEM);
+        assertThat(presenter.addEnvironments(tree, SYSTEM).isEmpty(), is(true));
 
         verify(propertiesContainer).setVisible(true);
         verify(propertiesContainer).show(isNull(Environment.class));
@@ -199,17 +272,16 @@ public class TemplatesPresenterTest {
 
     @Test
     public void environmentWithScopeProjectShouldBeAdded() throws Exception {
-        presenter.addEnvironments(tree, PROJECT);
+        assertThat(presenter.addEnvironments(tree, PROJECT), hasItems(projectEnvironment1, projectEnvironment2));
 
         getProjectDescriptorShouldBeVerified();
 
         verify(environmentUtil).getEnvironmentsByProjectType(tree, SOME_TEXT, PROJECT);
         verify(view).addEnvironment(Matchers.<Map<Scope, List<Environment>>>anyObject());
 
-        verify(propertiesContainer).setVisible(true);
-        verify(propertiesContainer).show(projectEnvironment1);
-        verify(view).selectEnvironment(projectEnvironment1);
-        verify(selectionManager).setEnvironment(projectEnvironment1);
+        verify(propertiesContainer, times(2)).show(projectEnvironment1);
+        verify(view, times(2)).selectEnvironment(projectEnvironment1);
+        verify(selectionManager, times(2)).setEnvironment(projectEnvironment1);
 
         verify(panelState).getState();
         verify(runnerUtil).hasRunPermission();
@@ -218,46 +290,42 @@ public class TemplatesPresenterTest {
 
     @Test
     public void environmentsShouldBeShown() throws Exception {
-        presenter.setTypeItem(SOME_TEXT);
-
         presenter.showEnvironments();
-        presenter.addEnvironments(tree, PROJECT);
 
+        assertThat(presenter.addEnvironments(tree, PROJECT), hasItems(projectEnvironment1, projectEnvironment2));
+
+        verify(view).setDefaultProjectWidget(null);
         verify(view).clearEnvironmentsPanel();
         verify(projectEnvironmentsAction).perform();
         verify(filter).setMatchesProjectType(true);
 
-        verify(propertiesContainer).show(projectEnvironment1);
-        verify(view).selectEnvironment(projectEnvironment1);
-        verify(selectionManager).setEnvironment(projectEnvironment1);
+        verify(propertiesContainer, times(2)).show(projectEnvironment1);
+        verify(view, times(2)).selectEnvironment(projectEnvironment1);
+        verify(selectionManager, times(2)).setEnvironment(projectEnvironment1);
     }
 
     @Test
     public void firstEnvironmentShouldBeSelectedIfSelectedEnvIsNull() throws Exception {
         when(selectionManager.getEnvironment()).thenReturn(null);
 
-        presenter.setTypeItem(SOME_TEXT);
-
         presenter.showEnvironments();
-        presenter.addEnvironments(tree, PROJECT);
+        assertThat(presenter.addEnvironments(tree, PROJECT), hasItems(projectEnvironment1, projectEnvironment2));
 
         verify(view).clearEnvironmentsPanel();
         verify(projectEnvironmentsAction).perform();
         verify(filter).setMatchesProjectType(true);
 
-        verify(propertiesContainer).show(projectEnvironment1);
-        verify(view).selectEnvironment(projectEnvironment1);
-        verify(selectionManager).setEnvironment(projectEnvironment1);
+        verify(propertiesContainer, times(2)).show(projectEnvironment1);
+        verify(view, times(2)).selectEnvironment(projectEnvironment1);
+        verify(selectionManager, times(2)).setEnvironment(projectEnvironment1);
     }
 
     @Test
     public void previousEnvironmentShouldBeSelected() throws Exception {
         when(selectionManager.getEnvironment()).thenReturn(environment);
 
-        presenter.setTypeItem(SOME_TEXT);
-
         presenter.showEnvironments();
-        presenter.addEnvironments(tree, PROJECT);
+        assertThat(presenter.addEnvironments(tree, PROJECT), hasItems(projectEnvironment1, projectEnvironment2));
 
         verify(view).clearEnvironmentsPanel();
         verify(projectEnvironmentsAction).perform();
@@ -335,6 +403,7 @@ public class TemplatesPresenterTest {
 
         presenter.onValueChanged();
         presenter.addEnvironments(tree, SYSTEM);
+        assertThat(presenter.addEnvironments(tree, SYSTEM), hasItems(systemEnvironment1, systemEnvironment1));
 
         reset(propertiesContainer, selectionManager);
     }
@@ -397,20 +466,178 @@ public class TemplatesPresenterTest {
     public void runnerStateShouldNotBeChangedIfOpenRunnerPropertiesPanel1() {
         when(panelState.getState()).thenReturn(RUNNERS);
 
-        presenter.addEnvironments(tree, PROJECT);
+        assertThat(presenter.addEnvironments(tree, PROJECT), hasItems(projectEnvironment1, projectEnvironment2));
 
         getProjectDescriptorShouldBeVerified();
 
         verify(environmentUtil).getEnvironmentsByProjectType(tree, SOME_TEXT, PROJECT);
         verify(view).addEnvironment(Matchers.<Map<Scope, List<Environment>>>anyObject());
 
-        verify(propertiesContainer).setVisible(true);
-        verify(propertiesContainer).show(projectEnvironment1);
-        verify(view).selectEnvironment(projectEnvironment1);
-        verify(selectionManager).setEnvironment(projectEnvironment1);
+        verify(propertiesContainer, times(2)).show(projectEnvironment1);
+        verify(view, times(2)).selectEnvironment(projectEnvironment1);
+        verify(selectionManager, times(2)).setEnvironment(projectEnvironment1);
 
         verify(panelState).getState();
 
         verifyNoMoreInteractions(panelState, runnerUtil, runnerManagerView);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void defaultEnvironmentShouldNotBeSetWhenCurrentProjectIsNull() throws Exception {
+        when(appContext.getCurrentProject()).thenReturn(null);
+
+        presenter.setDefaultEnvironment(environment);
+
+        verify(view, never()).setDefaultProjectWidget(defaultEnvWidget);
+    }
+
+    @Test
+    public void defaultRunnerShouldNotBeSetWhenEnvironmentIsNull() throws Exception {
+        reset(view);
+
+        presenter.setDefaultEnvironment(null);
+
+        verify(appContext).getCurrentProject();
+        verify(currentProject).getProjectDescription();
+        verify(descriptor).getRunners();
+        verify(runnersDescriptor).setDefault(null);
+
+        verify(projectService).updateProject(SOME_TEXT, descriptor, asyncRequestCallback);
+        verify(asyncDescriptorCallbackBuilder).success(successCaptor.capture());
+
+        successCaptor.getValue().onSuccess(descriptor);
+
+        verify(view).setDefaultProjectWidget(null);
+
+        verify(chooseRunnerAction).selectDefaultRunner();
+    }
+
+    private void updateProjectShouldBeVerified() {
+        verify(projectService).updateProject(SOME_TEXT, descriptor, asyncRequestCallback);
+        verify(asyncDescriptorCallbackBuilder).success(successCaptor.capture());
+
+        successCaptor.getValue().onSuccess(descriptor);
+
+        verify(view).setDefaultProjectWidget(defaultEnvWidget);
+
+        verify(chooseRunnerAction).selectDefaultRunner();
+    }
+
+    @Test
+    public void defaultEnvironmentShouldNotBeSetWhenDefaultRunnerIsNotChanged() throws Exception {
+        when(environment.getId()).thenReturn(SOME_TEXT);
+
+        presenter.setDefaultEnvironment(environment);
+
+        verify(appContext).getCurrentProject();
+        verify(currentProject).getProjectDescription();
+
+        verify(descriptor, never()).getRunners();
+        verify(runnersDescriptor, never()).setDefault(SOME_TEXT);
+
+        verify(currentProject).getRunner();
+        verify(defaultEnvWidget).update(environment);
+        verify(environment).getId();
+
+        verify(view).setDefaultProjectWidget(defaultEnvWidget);
+        verify(defaultEnvWidget).update(environment);
+    }
+
+    @Test
+    public void defaultEnvironmentShouldNotBeSetWhenDefaultRunnerIsChanged() throws Exception {
+        when(environment.getId()).thenReturn("other");
+
+        presenter.setDefaultEnvironment(environment);
+
+        verify(currentProject).getRunner();
+        verify(defaultEnvWidget).update(environment);
+        verify(environment).getId();
+        verify(descriptor).getRunners();
+        verify(runnersDescriptor).setDefault("other");
+
+        updateProjectShouldBeVerified();
+
+        verify(defaultEnvWidget).update(environment);
+    }
+
+    @Test
+    public void defaultEnvironmentInfoShouldBeShownWhenDefaultEnvironmentIsNotNull() throws Exception {
+        when(environment.getId()).thenReturn(SOME_TEXT);
+        presenter.setDefaultEnvironment(environment);
+
+        presenter.onDefaultRunnerMouseOver();
+
+        verify(view).showDefaultEnvironmentInfo(environment);
+    }
+
+    @Test
+    public void defaultEnvironmentInfoShouldBeShownWhenDefaultEnvironmentIsNull() throws Exception {
+        when(environment.getId()).thenReturn(SOME_TEXT);
+        presenter.setDefaultEnvironment(null);
+
+        presenter.onDefaultRunnerMouseOver();
+
+        verify(view, never()).showDefaultEnvironmentInfo(environment);
+    }
+
+    @Test
+    public void environmentShouldNotBeCreatedIfCurrentProjectIsNull() throws Exception {
+        when(appContext.getCurrentProject()).thenReturn(null);
+
+        presenter.createNewEnvironment();
+
+        verify(projectService, never()).createFolder(anyString(), (AsyncRequestCallback<ItemReference>)any());
+    }
+
+    @Test
+    public void environmentShouldBeCreated() throws Exception {
+        presenter.createNewEnvironment();
+
+        verify(asyncCallbackBuilder).unmarshaller(ItemReference.class);
+        verify(asyncCallbackBuilder).success(successCallbackArgumentCaptor.capture());
+
+        successCallbackArgumentCaptor.getValue().onSuccess(itemReference1);
+
+        verify(projectService).createFolder(anyString(), eq(asyncRequestCallbackItemReference));
+        verify(descriptor, times(2)).getPath();
+
+        verify(asyncCallbackBuilder, times(2)).unmarshaller(ItemReference.class);
+        verify(asyncCallbackBuilder, times(2)).success(successCallbackArgumentCaptor.capture());
+
+        successCallbackArgumentCaptor.getValue().onSuccess(itemReference1);
+
+        verify(projectEnvironmentsAction).perform();
+    }
+
+    @Test
+    public void notificationMessageShouldBeShowedIfParentFolderDoesNotCreate() throws Exception {
+        presenter.createNewEnvironment();
+
+        verify(asyncCallbackBuilder).unmarshaller(ItemReference.class);
+        verify(asyncCallbackBuilder).failure(failureCallbackArgumentCaptor.capture());
+
+        failureCallbackArgumentCaptor.getValue().onFailure(exception);
+
+        verify(notificationManager).showError(SOME_TEXT);
+    }
+
+    @Test
+    public void environmentDoesNotCreatedIfDockerFileNotCrested() throws Exception {
+        presenter.createNewEnvironment();
+
+        verify(asyncCallbackBuilder).unmarshaller(ItemReference.class);
+        verify(asyncCallbackBuilder).success(successCallbackArgumentCaptor.capture());
+
+        successCallbackArgumentCaptor.getValue().onSuccess(itemReference1);
+
+        verify(projectService).createFolder(anyString(), eq(asyncRequestCallbackItemReference));
+        verify(descriptor, times(2)).getPath();
+
+        verify(asyncCallbackBuilder, times(2)).unmarshaller(ItemReference.class);
+        verify(asyncCallbackBuilder, times(2)).failure(failureCallbackArgumentCaptor.capture());
+
+        failureCallbackArgumentCaptor.getValue().onFailure(exception);
+
+        verify(projectEnvironmentsAction, never()).perform();
     }
 }

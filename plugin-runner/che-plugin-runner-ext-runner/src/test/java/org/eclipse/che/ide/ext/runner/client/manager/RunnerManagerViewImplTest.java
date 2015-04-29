@@ -305,7 +305,7 @@ public class RunnerManagerViewImplTest {
         verify(moreInfoWidget).update(runner);
         verify(view.timeout).getAbsoluteLeft();
         verify(view.timeout).getAbsoluteTop();
-        verify(popupPanel).setPopupPosition(50, 20);
+        verify(popupPanel).setPopupPosition(70, 20);
         verify(popupPanel).show();
     }
 

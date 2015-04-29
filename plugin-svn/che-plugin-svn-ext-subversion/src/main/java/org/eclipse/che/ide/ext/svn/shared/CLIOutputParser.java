@@ -8,16 +8,24 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.env.local.client;
+package org.eclipse.che.ide.ext.svn.shared;
 
-import org.eclipse.che.ide.api.action.permits.ActionPermit;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * @author Vitaly Parfonov
+ * Class that provides methods for parsing CLI output.
  */
-public class ActionPermitLocalEnv implements ActionPermit{
-    @Override
-    public boolean isAllowed() {
-        return true;
+public final class CLIOutputParser {
+
+    public static List<StatusItem> parseFilesStatus(final List<String> statusOutput) {
+        final List<StatusItem> statusItems = new ArrayList<>();
+
+        for (final String line : statusOutput) {
+            statusItems.add(new StatusItem(line));
+        }
+
+        return statusItems;
     }
+
 }

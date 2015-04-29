@@ -12,12 +12,14 @@ package org.eclipse.che.ide.ext.svn.client;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
-import org.eclipse.che.api.core.rest.shared.dto.Hyperlinks;
+import org.eclipse.che.ide.ext.svn.shared.Depth;
+import org.eclipse.che.ide.ext.svn.shared.InfoResponse;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 
 import javax.validation.constraints.NotNull;
 
 import org.eclipse.che.ide.ext.svn.shared.CLIOutputResponse;
+import org.eclipse.che.ide.ext.svn.shared.CLIOutputResponseList;
 import org.eclipse.che.ide.ext.svn.shared.CLIOutputWithRevisionResponse;
 
 import java.util.List;
@@ -95,6 +97,16 @@ public interface SubversionClientService {
     void copy(final @NotNull String projectPath, final String source, final String destination, final String comment,
               final AsyncRequestCallback<CLIOutputResponse> callback);
 
+
+    /**
+     * Retrieves the information about repository.
+     *
+     * @param projectPath
+     * @param paths
+     */
+    void info(final @NotNull String projectPath, final List<String> paths, final String revision,
+              final AsyncRequestCallback<InfoResponse> callback);
+
     /**
      * Retrieves the status for the provided paths, or the working copy as a whole.
      *
@@ -150,31 +162,39 @@ public interface SubversionClientService {
                  final AsyncRequestCallback<CLIOutputResponse> callback);
 
     void showDiff(final @NotNull String projectPath, final List<String> paths, final String revision,
-                 final AsyncRequestCallback<CLIOutputResponse> callback);
+                  final AsyncRequestCallback<CLIOutputResponse> callback);
 
     /**
      * Locks the given paths.
-     * 
-     * @param projectPath the path of the project
-     * @param paths the paths to lock
-     * @param force if false, will warn if another user already has a lock on a target, leave this target unchanged, and continue.<br>
-     *            if true, will steal the lock from the previous owner instead
-     * @param callback follow-up action
+     *
+     * @param projectPath
+     *         the path of the project
+     * @param paths
+     *         the paths to lock
+     * @param force
+     *         if false, will warn if another user already has a lock on a target, leave this target unchanged, and continue.<br>
+     *         if true, will steal the lock from the previous owner instead
+     * @param callback
+     *         follow-up action
      */
     void lock(final @NotNull String projectPath, final List<String> paths, final boolean force,
               final AsyncRequestCallback<CLIOutputResponse> callback);
 
     /**
      * Unocks the given paths.
-     * 
-     * @param projectPath the path of the project
-     * @param paths the paths to lock
-     * @param force if false, will warn if another user already has a lock on a target, leave this target unchanged, and continue.<br>
-     *            if true, will unlock anyway
-     * @param callback follow-up action
+     *
+     * @param projectPath
+     *         the path of the project
+     * @param paths
+     *         the paths to lock
+     * @param force
+     *         if false, will warn if another user already has a lock on a target, leave this target unchanged, and continue.<br>
+     *         if true, will unlock anyway
+     * @param callback
+     *         follow-up action
      */
     void unlock(final @NotNull String projectPath, final List<String> paths, final boolean force,
-              final AsyncRequestCallback<CLIOutputResponse> callback);
+                final AsyncRequestCallback<CLIOutputResponse> callback);
 
     /**
      * Commits the changes in the repository.
@@ -213,23 +233,9 @@ public interface SubversionClientService {
     void resolve(final @NotNull String projectPath,
                  final Map<String, String> resolution,
                  final String depth,
-                 final AsyncCallback<List<String>> callback);
+                 final AsyncCallback<CLIOutputResponseList> callback);
 
     void saveCredentials(String repositoryUrl, String username, String password, AsyncRequestCallback<Void> callback);
-
-    /**
-     * Perform exporting specified path from working directory.
-     *
-     * @param projectPath
-     *         the project path
-     * @param exportPath
-     *         exported path
-     * @param revision
-     *         exported revision
-     * @param callback
-     *         the callback
-     */
-    void export(String projectPath, String exportPath, String revision, AsyncRequestCallback<Hyperlinks> callback);
 
     /**
      * Move provided path.
@@ -245,4 +251,45 @@ public interface SubversionClientService {
      */
     void move(final @NotNull String projectPath, final List<String> source, final String destination, final String comment,
               final AsyncRequestCallback<CLIOutputResponse> callback);
+
+    /**
+     * Set specified property to a path or a target.
+     *
+     * @param projectPath
+     *         the project path
+     * @param propertyName
+     *         the property name
+     * @param propertyValues
+     *         the property value
+     * @param depth
+     *         the depth
+     * @param force
+     *         forcing or not
+     * @param path
+     *         path to which property sets
+     * @param callback
+     *         the callback
+     */
+    void propertySet(final String projectPath, final String propertyName, final String propertyValues,
+                     final Depth depth, final boolean force, final String path,
+                     final AsyncRequestCallback<CLIOutputResponse> callback);
+
+    /**
+     * Delete specified property from a path or a target.
+     *
+     * @param projectPath
+     *         the project path
+     * @param propertyName
+     *         the property name
+     * @param depth
+     *         the depth
+     * @param force
+     *         forcing or not
+     * @param path
+     *         path from which property should be deleted
+     * @param callback
+     *         the callback
+     */
+    void propertyDelete(final String projectPath, final String propertyName, final Depth depth,
+                        final boolean force, final String path, final AsyncRequestCallback<CLIOutputResponse> callback);
 }

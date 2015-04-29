@@ -14,15 +14,10 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.io.Files;
 import com.google.common.net.MediaType;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Singleton;
 
-import org.eclipse.che.api.core.NotFoundException;
 import org.eclipse.che.api.core.ServerException;
-import org.eclipse.che.api.core.rest.ServiceContext;
-import org.eclipse.che.api.core.rest.shared.dto.Hyperlinks;
-import org.eclipse.che.api.core.rest.shared.dto.Link;
-import org.eclipse.che.api.vfs.server.ContentStream;
+import org.eclipse.che.api.vfs.server.util.DeleteOnCloseFileInputStream;
 import org.eclipse.che.commons.lang.IoUtil;
 import org.eclipse.che.commons.lang.Strings;
 import org.eclipse.che.commons.lang.ZipUtils;
@@ -31,23 +26,24 @@ import org.eclipse.che.ide.ext.svn.server.credentials.CredentialsException;
 import org.eclipse.che.ide.ext.svn.server.credentials.CredentialsProvider;
 import org.eclipse.che.ide.ext.svn.server.credentials.CredentialsProvider.Credentials;
 import org.eclipse.che.ide.ext.svn.server.repository.RepositoryUrlProvider;
-import org.eclipse.che.ide.ext.svn.server.rest.SubversionService;
 import org.eclipse.che.ide.ext.svn.server.upstream.CommandLineResult;
 import org.eclipse.che.ide.ext.svn.server.upstream.UpstreamUtils;
 import org.eclipse.che.ide.ext.svn.server.utils.InfoUtils;
 import org.eclipse.che.ide.ext.svn.server.utils.SubversionUtils;
 import org.eclipse.che.ide.ext.svn.shared.AddRequest;
 import org.eclipse.che.ide.ext.svn.shared.CLIOutputResponse;
+import org.eclipse.che.ide.ext.svn.shared.CLIOutputResponseList;
 import org.eclipse.che.ide.ext.svn.shared.CLIOutputWithRevisionResponse;
 import org.eclipse.che.ide.ext.svn.shared.CheckoutRequest;
 import org.eclipse.che.ide.ext.svn.shared.CleanupRequest;
 import org.eclipse.che.ide.ext.svn.shared.CommitRequest;
-import org.eclipse.che.ide.ext.svn.shared.Constants;
 import org.eclipse.che.ide.ext.svn.shared.CopyRequest;
 import org.eclipse.che.ide.ext.svn.shared.InfoRequest;
 import org.eclipse.che.ide.ext.svn.shared.InfoResponse;
 import org.eclipse.che.ide.ext.svn.shared.LockRequest;
 import org.eclipse.che.ide.ext.svn.shared.MoveRequest;
+import org.eclipse.che.ide.ext.svn.shared.PropertyDeleteRequest;
+import org.eclipse.che.ide.ext.svn.shared.PropertySetRequest;
 import org.eclipse.che.ide.ext.svn.shared.RemoveRequest;
 import org.eclipse.che.ide.ext.svn.shared.ResolveRequest;
 import org.eclipse.che.ide.ext.svn.shared.RevertRequest;
@@ -58,28 +54,18 @@ import org.eclipse.che.ide.ext.svn.shared.UpdateRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.inject.Inject;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FilenameFilter;
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Provides Subversion APIs.
@@ -91,50 +77,6 @@ public class SubversionApi {
 
     private final CredentialsProvider   credentialsProvider;
     private final RepositoryUrlProvider repositoryUrlProvider;
-
-    private final ConcurrentHashMap<String, ExportedItem> exportedItems = new ConcurrentHashMap<>();
-
-    private ScheduledExecutorService cleanScheduler;
-    private static final int EXPORTED_ITEM_CLEAN_PERIOD = 30; // 30 minutes
-
-    private class ExportedItem {
-        String exportedPath;
-        File   zip;
-        long   generatedAt;
-
-        public ExportedItem(String exportedPath, File zip, long generatedAt) {
-            this.exportedPath = exportedPath;
-            this.zip = zip;
-            this.generatedAt = generatedAt;
-        }
-    }
-
-    @PostConstruct
-    public void start() {
-        cleanScheduler = Executors.newSingleThreadScheduledExecutor(new ThreadFactoryBuilder().setNameFormat("ExportedItemsScheduler-")
-                                                                                              .setDaemon(true).build());
-
-        cleanScheduler.scheduleAtFixedRate(new Runnable() {
-            @Override
-            public void run() {
-                Iterator<Map.Entry<String, ExportedItem>> iterator = exportedItems.entrySet().iterator();
-                while (iterator.hasNext()) {
-                    Map.Entry<String, ExportedItem> exportedItemEntry = iterator.next();
-                    if (System.currentTimeMillis() - exportedItemEntry.getValue().generatedAt > 1000 * 60 * 30) {
-                        if (!IoUtil.deleteRecursive(exportedItemEntry.getValue().zip.getParentFile())) {
-                            LOG.warn("Item {} deletion was failed.", exportedItemEntry.getValue().exportedPath);
-                        }
-                        iterator.remove();
-                    }
-                }
-            }
-        }, EXPORTED_ITEM_CLEAN_PERIOD, EXPORTED_ITEM_CLEAN_PERIOD, TimeUnit.MINUTES);
-    }
-
-    @PreDestroy
-    public void stop() {
-        cleanScheduler.shutdownNow();
-    }
 
     @Inject
     public SubversionApi(final CredentialsProvider credentialsProvider,
@@ -526,9 +468,9 @@ public class SubversionApi {
         final CommandLineResult result = runCommand(uArgs, projectPath, request.getPaths());
 
         return DtoFactory.getInstance()
-                .createDto(CLIOutputResponse.class)
-                .withCommand(result.getCommandLine().toString())
-                .withOutput(result.getStdout());
+                         .createDto(CLIOutputResponse.class)
+                         .withCommand(result.getCommandLine().toString())
+                         .withOutput(result.getStdout());
     }
 
     /**
@@ -542,11 +484,11 @@ public class SubversionApi {
      * @throws SubversionException
      *         if there is a Subversion issue
      */
-    public CLIOutputResponse resolve(final ResolveRequest request) throws IOException, SubversionException {
+    public CLIOutputResponseList resolve(final ResolveRequest request) throws IOException, SubversionException {
         final File projectPath = new File(request.getProjectPath());
 
         Map<String, String> resolutions = request.getConflictResolutions();
-        List<String> results = new ArrayList<String>();
+        List<CLIOutputResponse> results = new ArrayList<>();
 
         for (String path : resolutions.keySet()) {
             final List<String> uArgs = new LinkedList<>();
@@ -558,12 +500,16 @@ public class SubversionApi {
 
             final CommandLineResult result = runCommand(uArgs, projectPath, Arrays.asList(path));
 
-            results.addAll(result.getStdout());
+            CLIOutputResponse outputResponse = DtoFactory.getInstance()
+                                                         .createDto(CLIOutputResponse.class)
+                                                         .withCommand(result.getCommandLine().toString())
+                                                         .withOutput(result.getStdout());
+            results.add(outputResponse);
         }
 
         return DtoFactory.getInstance()
-                         .createDto(CLIOutputResponse.class)
-                         .withOutput(results);
+                         .createDto(CLIOutputResponseList.class)
+                         .withCLIOutputResponses(results);
     }
 
     /**
@@ -575,17 +521,13 @@ public class SubversionApi {
      *         exported path
      * @param revision
      *         specified revision to export
-     * @param serviceContext
-     *         REST service context
-     * @param workspace
-     *         current user workspace
      * @return Response which contains hyperlink with download url
      * @throws IOException
      *         if there is a problem executing the command
      * @throws ServerException
      *         if there is an exporting issue
      */
-    public Response exportPath(String projectPath, String path, String revision, ServiceContext serviceContext, String workspace)
+    public Response exportPath(String projectPath, String path, String revision)
             throws IOException, ServerException {
 
         final File project = new File(projectPath);
@@ -600,64 +542,32 @@ public class SubversionApi {
         uArgs.add("--force");
         uArgs.add("export");
 
-        File tempDir = Files.createTempDir();
-        tempDir.deleteOnExit();
+        File tempDir = null;
+        File zip = null;
 
-        final CommandLineResult result = runCommand(uArgs, project, Arrays.asList(path, tempDir.getAbsolutePath()));
-
-        if (result.getExitCode() != 0) {
-            throw new ServerException("Exporting was failed.");
-        }
-
-        final String fileName = Paths.get(".".equals(path) ? projectPath : path).getFileName().toString() + ".zip";
-
-        File zip = new File(tempDir, fileName);
-        ZipUtils.zipDir(tempDir.getPath(), zip.getParentFile(), zip, new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String name) {
-                return !name.equals(fileName);
+        try {
+            tempDir = Files.createTempDir();
+            final CommandLineResult result = runCommand(uArgs, project, Arrays.asList(path, tempDir.getAbsolutePath()));
+            if (result.getExitCode() != 0) {
+                LOG.warn("Svn export process finished with exit status {}", result.getExitCode());
+                throw new ServerException("Exporting was failed");
             }
-        });
 
-        exportedItems.put(fileName, new ExportedItem(path, zip, System.currentTimeMillis()));
-
-        Link link = DtoFactory.getInstance().createDto(Link.class)
-                              .withRel(Constants.REL_DOWNLOAD_EXPORT_PATH)
-                              .withHref(serviceContext.getServiceUriBuilder().clone().path(SubversionService.class, "downloadExportedPath")
-                                                      .build(workspace, fileName)
-                                                      .toString())
-                              .withMethod("GET").withProduces(MediaType.ZIP.toString());
-
-
-        Hyperlinks links = DtoFactory.getInstance().createDto(Hyperlinks.class)
-                                     .withLinks(Collections.singletonList(link));
-
-        return Response.ok(links, MediaType.JSON_UTF_8.toString()).build();
-    }
-
-    /**
-     * Download stored zip created by method {@link SubversionApi#exportPath}
-     *
-     * @param path
-     *         exported path
-     * @return ContentStream of zip archive
-     * @throws NotFoundException
-     *         in case if exported zip wasn't found
-     * @throws IOException
-     *         if there is a problem executing the command
-     */
-    public ContentStream downloadExportedPath(String path) throws NotFoundException, IOException {
-        if (!exportedItems.containsKey(path)) {
-            throw new NotFoundException("Exported zip for path '" + path + "' doesn't exists or deleted due to expiration.");
+            zip = new File(Files.createTempDir(), "export.zip");
+            ZipUtils.zipDir(tempDir.getPath(), tempDir, zip, IoUtil.ANY_FILTER);
+        } finally {
+            if (tempDir != null) {
+                IoUtil.deleteRecursive(tempDir);
+            }
         }
 
-        ExportedItem item = exportedItems.get(path);
+        final Response.ResponseBuilder responseBuilder = Response
+                .ok(new DeleteOnCloseFileInputStream(zip), MediaType.ZIP.toString())
+                .lastModified(new Date(zip.lastModified()))
+                .header(HttpHeaders.CONTENT_LENGTH, Long.toString(zip.length()))
+                .header("Content-Disposition", "attachment; filename=\"export.zip\"");
 
-        return new ContentStream(item.zip.getName(),
-                                 new FileInputStream(item.zip),
-                                 MediaType.ZIP.toString(),
-                                 item.zip.length(),
-                                 new Date(item.generatedAt));
+        return responseBuilder.build();
     }
 
     /**
@@ -708,6 +618,71 @@ public class SubversionApi {
                          .withCommand(result.getCommandLine().toString())
                          .withOutput(result.getStdout())
                          .withErrOutput(result.getStderr());
+    }
+
+    /**
+     * Perform an "svn propset" based on the request.
+     *
+     * @param request
+     *         the request
+     * @return the response
+     * @throws IOException
+     *         if there is a problem executing the command
+     * @throws ServerException
+     *         if there is a Subversion issue
+     */
+    public CLIOutputResponse propset(final PropertySetRequest request) throws IOException, ServerException {
+        final File projectPath = new File(request.getProjectPath());
+        final List<String> uArgs = new LinkedList<>();
+
+        addStandardArgs(uArgs);
+
+        if (request.isForce()) {
+            uArgs.add("--force");
+        }
+
+        addDepth(uArgs, request.getDepth().getValue());
+
+        uArgs.add("propset");
+        uArgs.add(request.getName());
+        uArgs.add("\"" + request.getValue() + "\"");
+
+        final CommandLineResult result = runCommand(uArgs, projectPath, Arrays.asList(request.getPath()));
+
+        return DtoFactory.getInstance()
+                         .createDto(CLIOutputResponse.class)
+                         .withCommand(result.getCommandLine().toString())
+                         .withOutput(result.getStdout());
+    }
+
+    /**
+     * Perform an "svn propdel" based on the request.
+     *
+     * @param request
+     *         the request
+     * @return the response
+     * @throws IOException
+     *         if there is a problem executing the command
+     * @throws ServerException
+     *         if there is a Subversion issue
+     */
+    public CLIOutputResponse propdel(final PropertyDeleteRequest request) throws IOException, ServerException {
+        final File projectPath = new File(request.getProjectPath());
+        final List<String> uArgs = new LinkedList<>();
+
+        addStandardArgs(uArgs);
+
+        addDepth(uArgs, request.getDepth().getValue());
+
+        uArgs.add("propdel");
+        uArgs.add(request.getName());
+
+        final CommandLineResult result = runCommand(uArgs, projectPath, Arrays.asList(request.getPath()));
+
+        return DtoFactory.getInstance()
+                         .createDto(CLIOutputResponse.class)
+                         .withCommand(result.getCommandLine().toString())
+                         .withOutput(result.getStdout());
     }
 
     private static void addDepth(final List<String> args, final String depth) {
@@ -833,26 +808,34 @@ public class SubversionApi {
     }
 
     public InfoResponse info(final InfoRequest request) throws SubversionException, IOException {
+        final List<String> cliArgs = new LinkedList<>();
+        addStandardArgs(cliArgs);
+        cliArgs.add("info");
+
         final File projectPath = new File(request.getProjectPath());
-        List<String> pathList;
-        if (request.getPath() == null) {
-            pathList = Collections.emptyList();
-        } else {
-            pathList = Collections.singletonList(request.getPath());
-        }
-        final CommandLineResult clResult = runCommand(Collections.singletonList("info"),
-                                                      projectPath,
-                                                      pathList,
-                                                      null);
+
+        final CommandLineResult result = runCommand(cliArgs, projectPath,
+                addWorkingCopyPathIfNecessary(request.getPaths()));
+
         final InfoResponse response = DtoFactory.getInstance().createDto(InfoResponse.class)
-                                                .withCommandLine(clResult.getCommandLine().toString())
-                                                .withExitCode(clResult.getExitCode());
-        if (clResult.getExitCode() == 0) {
-            response.withRepositoryUrl(InfoUtils.getRepositoryUrl(clResult.getStdout()))
-                    .withRepositoryRoot(InfoUtils.getRepositoryRootUrl(clResult.getStdout()))
-                    .withRevision(InfoUtils.getRevision(clResult.getStdout()));
+                .withCommand(result.getCommandLine().toString())
+                .withOutput(result.getStdout());
+
+        // Remove "Working Copy Root Path" property from the output
+        for (int i = 0; i < result.getStdout().size(); i++) {
+            String line = result.getStdout().get(i);
+            if (line.startsWith(InfoUtils.KEY_WORKING_COPY_ROOT_PATH + ":")) {
+                result.getStdout().remove(i);
+                break;
+            }
+        }
+
+        if (result.getExitCode() == 0) {
+            response.withRepositoryUrl(InfoUtils.getRepositoryUrl(result.getStdout()))
+                    .withRepositoryRoot(InfoUtils.getRepositoryRootUrl(result.getStdout()))
+                    .withRevision(InfoUtils.getRevision(result.getStdout()));
         } else {
-            response.withErrorOutput(clResult.getStderr());
+            response.withErrorOutput(result.getStderr());
         }
 
         return response;

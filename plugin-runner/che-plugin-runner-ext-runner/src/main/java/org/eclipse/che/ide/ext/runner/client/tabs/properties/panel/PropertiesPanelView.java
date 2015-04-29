@@ -21,6 +21,7 @@ import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Shutdo
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Map;
 
 /**
  * The visual part of Properties panel that has an ability to show configuration of a runner.
@@ -72,12 +73,28 @@ public interface PropertiesPanelView extends View<PropertiesPanelView.ActionDele
     String getType();
 
     /**
+     * Changes content of Config label.
+     *
+     * @param config
+     *         content that needs to be set
+     */
+    void setConfig(@Nonnull String config);
+
+    /**
      * Changes content of Type field.
      *
      * @param type
      *         content that needs to be set
      */
     void setType(@Nonnull String type);
+
+    /**
+     * Display port mapping.
+     *
+     * @param ports
+     *         private ports are used as keys and public ports as values in received {@code Map}.
+     */
+    void setPorts(Map<String, String> ports);
 
     /** @return chosen value of Boot field */
     @Nonnull
@@ -192,6 +209,14 @@ public interface PropertiesPanelView extends View<PropertiesPanelView.ActionDele
     void setVisibleCancelButton(boolean visible);
 
     /**
+     * Sets visibility of the config clink.
+     *
+     * @param visible
+     *         config link visibility
+     */
+    void setVisibleConfigLink(boolean visible);
+
+    /**
      * Show a given editor in the special place on the container.
      *
      * @param editor
@@ -202,10 +227,32 @@ public interface PropertiesPanelView extends View<PropertiesPanelView.ActionDele
     /** Hides panel with property buttons. */
     void hideButtonsPanel();
 
+    /**
+     * Calls special method which changes state of switcher.
+     *
+     * @param isOn
+     *         <code>true</code> switcher is on,<code>false</code> switcher is off
+     */
+    void changeSwitcherState(boolean isOn);
+
+    /** Hides switcher for current panel. */
+    void hideSwitcher();
+
+    /**
+     * Adds special elements on view when user input incorrect name of environment.
+     *
+     * @param isCorrect
+     *         <code>true</code> input is incorrect,<code>false</code> input is correct
+     */
+    void incorrectName(boolean isCorrect);
+
     interface ActionDelegate {
 
         /** Performs some actions in response to user's changing some configuration. */
         void onConfigurationChanged();
+
+        /** Performs some actions in response to user's clicking configuration link. */
+        void onConfigLinkClicked();
 
         /** Performs some actions in response to user's clicking on the 'Create' button. */
         void onCopyButtonClicked();
@@ -219,6 +266,14 @@ public interface PropertiesPanelView extends View<PropertiesPanelView.ActionDele
         /** Performs some actions in response to user's clicking on the 'Cancel' button. */
         void onCancelButtonClicked();
 
+        /**
+         * Performs some actions in response to user's changing switcher.
+         *
+         * @param isOn
+         *         <code>true</code> switcher state when selected environment is default <code>false</code> when
+         *         environments is not default
+         */
+        void onSwitcherChanged(boolean isOn);
     }
 
 }

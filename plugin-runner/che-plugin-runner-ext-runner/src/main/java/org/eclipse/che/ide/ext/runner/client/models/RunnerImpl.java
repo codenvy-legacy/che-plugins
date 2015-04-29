@@ -126,6 +126,12 @@ public class RunnerImpl implements Runner {
         } else {
             this.type = util.getCorrectCategoryName(runOptions.getEnvironmentId());
         }
+
+        // the environment ID in runOptions should be an URL
+        if (environmentId != null) {
+            runOptions.setEnvironmentId(environmentId);
+        }
+
     }
 
     @Nonnull

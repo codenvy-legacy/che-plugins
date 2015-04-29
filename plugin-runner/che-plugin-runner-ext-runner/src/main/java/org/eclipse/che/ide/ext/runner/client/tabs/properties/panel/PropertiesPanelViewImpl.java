@@ -12,7 +12,10 @@ package org.eclipse.che.ide.ext.runner.client.tabs.properties.panel;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.KeyUpEvent;
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -36,17 +39,20 @@ import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Boot;
 import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM;
 import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope;
 import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Shutdown;
+import org.eclipse.che.ide.ui.switcher.Switcher;
+import org.eclipse.che.ide.util.Config;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.EnumSet;
+import java.util.Map;
 import java.util.Set;
 
 import static org.eclipse.che.ide.ext.runner.client.tabs.container.tab.Background.BLUE;
 import static org.eclipse.che.ide.ext.runner.client.tabs.container.tab.Background.GREY;
 import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.DEFAULT;
-import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MB_128;
-import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MB_8192;
+import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MB_100;
+import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MB_8000;
 import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope.PROJECT;
 import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope.SYSTEM;
 
@@ -61,27 +67,44 @@ public class PropertiesPanelViewImpl extends Composite implements PropertiesPane
 
     private static final PropertiesPanelViewImplUiBinder UI_BINDER = GWT.create(PropertiesPanelViewImplUiBinder.class);
 
+    public static final String PORT_STUB = " ------------- ";
+
     @UiField
-    TextBox name;
+    Label     configLink;
     @UiField
-    TextBox type;
+    FlowPanel configLinkPanel;
+    @UiField
+    TextBox   name;
+    @UiField
+    TextBox   type;
 
     @UiField
     FlowPanel buttonsPanel;
 
     @UiField
-    ListBox ram;
+    ListBox   ram;
     @UiField
-    ListBox scope;
+    ListBox   scope;
     @UiField
-    ListBox boot;
+    ListBox   boot;
     @UiField
-    ListBox shutdown;
+    ListBox   shutdown;
+    @UiField
+    Switcher  projectDefault;
+    @UiField
+    FlowPanel projectDefaultPanel;
+
 
     @UiField
     DockLayoutPanel   propertiesPanel;
     @UiField
     SimpleLayoutPanel editorPanel;
+    @UiField
+    Label             dockerLabel;
+    @UiField
+    FlowPanel         portMappingHeader;
+    @UiField
+    FlowPanel         portsPanel;
 
     @UiField(provided = true)
     final RunnerLocalizationConstant locale;
@@ -98,7 +121,9 @@ public class PropertiesPanelViewImpl extends Composite implements PropertiesPane
     private PropertyButtonWidget deleteBtn;
 
     @Inject
-    public PropertiesPanelViewImpl(RunnerLocalizationConstant locale, RunnerResources resources, WidgetFactory widgetFactory) {
+    public PropertiesPanelViewImpl(RunnerLocalizationConstant locale,
+                                   RunnerResources resources,
+                                   WidgetFactory widgetFactory) {
         this.locale = locale;
         this.resources = resources;
 
@@ -106,7 +131,7 @@ public class PropertiesPanelViewImpl extends Composite implements PropertiesPane
 
         this.widgetFactory = widgetFactory;
 
-        prepareField(ram, EnumSet.range(MB_128, MB_8192));
+        prepareField(ram, EnumSet.range(MB_100, MB_8000));
         prepareField(scope, EnumSet.range(PROJECT, SYSTEM));
         prepareField(boot, EnumSet.allOf(Boot.class));
         prepareField(shutdown, EnumSet.allOf(Shutdown.class));
@@ -148,11 +173,30 @@ public class PropertiesPanelViewImpl extends Composite implements PropertiesPane
             }
         };
         cancelBtn = createButton(locale.propertiesButtonCancel(), cancelDelegate, GREY);
+
+
+        ValueChangeHandler<Boolean> valueChangeHandler = new ValueChangeHandler<Boolean>() {
+            @Override
+            public void onValueChange(ValueChangeEvent<Boolean> valueChangeEvent) {
+                delegate.onSwitcherChanged(valueChangeEvent.getValue());
+            }
+        };
+
+        projectDefault.addValueChangeHandler(valueChangeHandler);
+
+        if (Config.isSdkProject()) {
+            hideSwitcher();
+            hideButtonsPanel();
+
+            editorPanel.setVisible(false);
+            dockerLabel.setVisible(false);
+        }
+        portMappingHeader.setVisible(false);
     }
 
     private void prepareField(@Nonnull ListBox field, @Nonnull Set<? extends Enum> items) {
         for (Enum item : items) {
-            field.addItem(item.toString());
+            field.addItem(item.toString().toLowerCase());
         }
     }
 
@@ -236,10 +280,32 @@ public class PropertiesPanelViewImpl extends Composite implements PropertiesPane
         return type.getText();
     }
 
+    @Override
+    public void setConfig(@Nonnull String config) {
+        configLink.setText(config);
+    }
+
     /** {@inheritDoc} */
     @Override
     public void setType(@Nonnull String type) {
         this.type.setText(type);
+    }
+
+    @Override
+    public void setPorts(Map<String, String> ports) {
+        if (ports == null) {
+            portMappingHeader.setVisible(false);
+            portsPanel.clear();
+            return;
+        }
+
+        portMappingHeader.setVisible(true);
+        for (Map.Entry<String, String> entry : ports.entrySet()) {
+            FlowPanel port = new FlowPanel();
+            Label portLabel = new Label(entry.getKey() + PORT_STUB + entry.getValue());
+            port.add(portLabel);
+            portsPanel.add(port);
+        }
     }
 
     /** {@inheritDoc} */
@@ -338,6 +404,12 @@ public class PropertiesPanelViewImpl extends Composite implements PropertiesPane
 
     /** {@inheritDoc} */
     @Override
+    public void setVisibleConfigLink(boolean visible) {
+        configLinkPanel.setVisible(visible);
+    }
+
+    /** {@inheritDoc} */
+    @Override
     public void showEditor(@Nullable EditorPartPresenter editor) {
         if (editor == null) {
             editorPanel.setWidget(unAvailableMessage);
@@ -352,6 +424,26 @@ public class PropertiesPanelViewImpl extends Composite implements PropertiesPane
         propertiesPanel.setWidgetHidden(buttonsPanel, true);
     }
 
+    /** {@inheritDoc} */
+    @Override
+    public void changeSwitcherState(boolean isOn) {
+        projectDefault.setValue(isOn);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void hideSwitcher() {
+        projectDefaultPanel.setVisible(false);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void incorrectName(boolean isCorrect) {
+        saveBtn.setEnable(!isCorrect);
+
+        name.getElement().getStyle().setBorderColor(isCorrect ? "#ffe400" : "#191c1e");
+    }
+
     @UiHandler("name")
     public void onTextInputted(@SuppressWarnings("UnusedParameters") KeyUpEvent event) {
         delegate.onConfigurationChanged();
@@ -362,4 +454,8 @@ public class PropertiesPanelViewImpl extends Composite implements PropertiesPane
         delegate.onConfigurationChanged();
     }
 
+    @UiHandler({"configLink"})
+    public void handleConfigClick(@SuppressWarnings("UnusedParameters") ClickEvent event) {
+        delegate.onConfigLinkClicked();
+    }
 }

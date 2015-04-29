@@ -8,13 +8,21 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.ide.ext.svn.client.commit;
+package org.eclipse.che.ide.ext.svn.shared;
 
-import com.google.gwt.uibinder.client.UiBinder;
-import com.google.gwt.uibinder.client.UiTemplate;
-import com.google.gwt.user.client.ui.Widget;
+import java.util.List;
 
-@UiTemplate(value = "CommitViewImpl.ui.xml")
-public interface CommitViewImplUiBinder extends UiBinder<Widget, CommitViewImpl> {
+import org.eclipse.che.dto.shared.DTO;
 
+@DTO
+public interface CLIOutputResponseList {
+
+    /**
+     * @return {@link List} the list of repositories
+     */
+    List<CLIOutputResponse> getCLIOutputResponses();
+    
+    void setCLIOutputResponses(List<CLIOutputResponse> outputResponses);
+
+    CLIOutputResponseList withCLIOutputResponses(List<CLIOutputResponse> outputResponses);
 }

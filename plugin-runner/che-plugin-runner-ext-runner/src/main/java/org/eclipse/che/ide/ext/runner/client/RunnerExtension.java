@@ -21,10 +21,12 @@ import org.eclipse.che.ide.api.extension.Extension;
 import org.eclipse.che.ide.api.parts.PartStackType;
 import org.eclipse.che.ide.api.parts.WorkspaceAgent;
 import org.eclipse.che.ide.ext.runner.client.actions.ChooseRunnerAction;
+import org.eclipse.che.ide.ext.runner.client.actions.CreateCustomRunnerAction;
 import org.eclipse.che.ide.ext.runner.client.actions.RunAction;
 import org.eclipse.che.ide.ext.runner.client.actions.RunWithAction;
 import org.eclipse.che.ide.ext.runner.client.constants.ActionId;
 import org.eclipse.che.ide.ext.runner.client.manager.RunnerManagerPresenter;
+import org.eclipse.che.ide.util.Config;
 
 import static org.eclipse.che.ide.api.action.IdeActions.GROUP_BUILD_TOOLBAR;
 import static org.eclipse.che.ide.api.action.IdeActions.GROUP_MAIN_CONTEXT_MENU;
@@ -47,6 +49,7 @@ import static org.eclipse.che.ide.api.constraints.Constraints.FIRST;
 public class RunnerExtension {
     //This constant must be synchronized with BUILDER_PART_ID constant which defined into builder extension.
     public static final String BUILDER_PART_ID = "Builder";
+    public static final String RUNNER_LIST     = "runnerList";
 
     @Inject
     public RunnerExtension(RunnerResources resources) {
@@ -62,7 +65,8 @@ public class RunnerExtension {
     public void setUpRunActions(ActionManager actionManager,
                                 RunAction runAction,
                                 RunWithAction runWithAction,
-                                ChooseRunnerAction chooseRunner) {
+                                ChooseRunnerAction chooseRunner,
+                                CreateCustomRunnerAction createCustomRunner) {
 
         //add actions in main toolbar
         DefaultActionGroup runToolbarGroup = (DefaultActionGroup)actionManager.getAction(GROUP_RUN_TOOLBAR);
@@ -76,6 +80,7 @@ public class RunnerExtension {
         actionManager.registerAction(ActionId.CHOOSE_RUNNER_ID.getId(), chooseRunner);
         actionManager.registerAction(ActionId.RUN_APP_ID.getId(), runAction);
         actionManager.registerAction(ActionId.RUN_WITH.getId(), runWithAction);
+        actionManager.registerAction(ActionId.CREATE_CUSTOM_RUNNER.getId(), createCustomRunner);
 
         // add actions in context menu
         DefaultActionGroup contextMenuGroup = (DefaultActionGroup)actionManager.getAction(GROUP_MAIN_CONTEXT_MENU);
@@ -90,6 +95,14 @@ public class RunnerExtension {
         DefaultActionGroup runMenuActionGroup = (DefaultActionGroup)actionManager.getAction(GROUP_RUN);
         runMenuActionGroup.add(runAction, FIRST);
         runMenuActionGroup.add(runWithAction, new Constraints(Anchor.AFTER, ActionId.RUN_APP_ID.getId()));
+
+        //add custom list of environments
+        DefaultActionGroup runnersList = new DefaultActionGroup(RUNNER_LIST, false, actionManager);
+        actionManager.registerAction(RUNNER_LIST, runnersList);
+        if (!Config.isSdkProject()) {
+            runnersList.add(createCustomRunner, FIRST);
+            runnersList.addSeparator();
+        }
     }
 
 }

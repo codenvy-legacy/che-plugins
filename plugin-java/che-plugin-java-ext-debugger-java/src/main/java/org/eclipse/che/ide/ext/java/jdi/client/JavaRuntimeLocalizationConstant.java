@@ -99,6 +99,9 @@ public interface JavaRuntimeLocalizationConstant extends com.google.gwt.i18n.cli
     @Key("debugger.disconnected")
     String debuggerDisconnected(String address);
 
+    @Key("debugger.runnerNotSpecified")
+    String debuggerRunnerNotSpecified();
+
     @Key("error.source-not-found-for-class")
     String errorSourceNotFoundForClass(String className);
 

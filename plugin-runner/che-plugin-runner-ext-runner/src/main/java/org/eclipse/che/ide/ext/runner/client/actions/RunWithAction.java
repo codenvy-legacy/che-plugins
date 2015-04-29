@@ -27,9 +27,9 @@ import org.eclipse.che.ide.ext.runner.client.util.annotations.LeftPanel;
  */
 public class RunWithAction extends AbstractRunnerActions {
 
-    private final RunnerManagerPresenter     runnerManagerPresenter;
-    private final TabContainer               tabContainer;
-    private final RunnerLocalizationConstant locale;
+    private final RunnerManagerPresenter      runnerManagerPresenter;
+    private final TabContainer                tabContainer;
+    private final RunnerLocalizationConstant  locale;
 
     @Inject
     public RunWithAction(RunnerManagerPresenter runnerManagerPresenter,
@@ -47,7 +47,7 @@ public class RunWithAction extends AbstractRunnerActions {
     /** {@inheritDoc} */
     @Override
     public void actionPerformed(ActionEvent e) {
-        runnerManagerPresenter.setActive();
-        tabContainer.showTab(locale.runnerTabTemplates());
+            runnerManagerPresenter.setActive();
+            tabContainer.showTab(locale.runnerTabTemplates());
     }
 }

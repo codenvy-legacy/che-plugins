@@ -18,16 +18,19 @@ import java.util.regex.Pattern;
 
 public final class InfoUtils {
 
-    private static final String KEY_PATH = "Path";
-    private static final String KEY_NAME = "Name";
-    private static final String KEY_URL = "URL";
-    private static final String KEY_REPOSITORY_ROOT = "Repository Root";
-    private static final String KEY_REPOSITORY_UUID = "Repository UUID";
-    private static final String KEY_REVISION = "Revision";
-    private static final String KEY_NODE_KIND = "Node Kind";
-    private static final String KEY_LAST_CHANGE_AUTHOR = "Last Changed Author";
-    private static final String KEY_LAST_CHANGE_REVISION = "Last Changed Rev";
-    private static final String KEY_LAST_CHANGE_DATE = "Last Changed Date";
+    public static final String KEY_PATH = "Path";
+    public static final String KEY_NAME = "Name";
+    public static final String KEY_URL = "URL";
+    public static final String KEY_REPOSITORY_ROOT = "Repository Root";
+    public static final String KEY_REPOSITORY_UUID = "Repository UUID";
+    public static final String KEY_REVISION = "Revision";
+    public static final String KEY_NODE_KIND = "Node Kind";
+    public static final String KEY_LAST_CHANGE_AUTHOR = "Last Changed Author";
+    public static final String KEY_LAST_CHANGE_REVISION = "Last Changed Rev";
+    public static final String KEY_LAST_CHANGE_DATE = "Last Changed Date";
+
+    /** The absolute path to the project on the server and must be hidden for the user. */
+    public static final String KEY_WORKING_COPY_ROOT_PATH = "Working Copy Root Path";
 
     private static final String STARTSWITH_PATTERN = "^{0}: (.*)$";
 

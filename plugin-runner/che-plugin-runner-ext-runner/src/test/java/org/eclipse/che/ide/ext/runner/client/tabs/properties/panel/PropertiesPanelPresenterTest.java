@@ -20,7 +20,6 @@ import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.editor.EditorInput;
 import org.eclipse.che.ide.api.editor.EditorPartPresenter;
 import org.eclipse.che.ide.api.editor.EditorProvider;
-import org.eclipse.che.ide.api.editor.EditorRegistry;
 import org.eclipse.che.ide.api.filetypes.FileType;
 import org.eclipse.che.ide.api.filetypes.FileTypeRegistry;
 import org.eclipse.che.ide.api.parts.PartPresenter;
@@ -42,7 +41,7 @@ import org.mockito.Mock;
 
 import static org.eclipse.che.ide.api.editor.EditorPartPresenter.PROP_DIRTY;
 import static org.eclipse.che.ide.api.editor.EditorPartPresenter.PROP_INPUT;
-import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MB_512;
+import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MB_500;
 import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope.SYSTEM;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -52,6 +51,7 @@ import static org.mockito.Mockito.when;
 
 /**
  * @author Alexander Andrienko
+ * @author Dmitry Shnurenko
  */
 @RunWith(GwtMockitoTestRunner.class)
 public class PropertiesPanelPresenterTest {
@@ -64,8 +64,6 @@ public class PropertiesPanelPresenterTest {
     @Mock
     private AppContext          appContext;
 
-    @Mock
-    private EditorRegistry                      editorRegistry;
     @Mock
     private FileTypeRegistry                    fileTypeRegistry;
     @Mock
@@ -106,13 +104,12 @@ public class PropertiesPanelPresenterTest {
         when(environment.getPath()).thenReturn(TEXT);
         when(environment.getName()).thenReturn(TEXT);
         when(environment.getType()).thenReturn(TEXT);
-        when(environment.getRam()).thenReturn(MB_512.getValue());
+        when(environment.getRam()).thenReturn(MB_500.getValue());
 
         when(currentProject.getCurrentTree()).thenReturn(treeStructure);
         when(currentProject.getProjectDescription()).thenReturn(descriptor);
 
         when(fileTypeRegistry.getFileTypeByFile(file)).thenReturn(fileType);
-        when(editorRegistry.getEditor(fileType)).thenReturn(editorProvider);
         when(editorProvider.getEditor()).thenReturn(editor);
 
         when(editor.getEditorInput()).thenReturn(editorInput);
@@ -152,10 +149,9 @@ public class PropertiesPanelPresenterTest {
     public void propertiesShouldBeChangedWithPropIdPropInputAndEditorIsNotInstanceOfHasReadOnlyProperty() {
         PartPresenter partPresenter = mock(PartPresenter.class);
 
-        presenter.initializeEditor(file, editorRegistry, fileTypeRegistry);
+        presenter.initializeEditor(file, editorProvider, fileTypeRegistry);
 
         verify(fileTypeRegistry).getFileTypeByFile(file);
-        verify(editorRegistry).getEditor(fileType);
         verify(editorProvider).getEditor();
 
         verify(editor).addPropertyListener(propertyListenerArgCaptor.capture());
@@ -171,10 +167,9 @@ public class PropertiesPanelPresenterTest {
         when(editorProvider.getEditor()).thenReturn(editor2);
         when(file.isReadOnly()).thenReturn(true);
 
-        presenter.initializeEditor(file, editorRegistry, fileTypeRegistry);
+        presenter.initializeEditor(file, editorProvider, fileTypeRegistry);
 
         verify(fileTypeRegistry).getFileTypeByFile(file);
-        verify(editorRegistry).getEditor(fileType);
         verify(editorProvider).getEditor();
 
         verify(editor2).addPropertyListener(propertyListenerArgCaptor.capture());
@@ -193,10 +188,9 @@ public class PropertiesPanelPresenterTest {
         when(editorProvider.getEditor()).thenReturn(editor2);
         when(file.isReadOnly()).thenReturn(true);
 
-        presenter.initializeEditor(file, editorRegistry, fileTypeRegistry);
+        presenter.initializeEditor(file, editorProvider, fileTypeRegistry);
 
         verify(fileTypeRegistry).getFileTypeByFile(file);
-        verify(editorRegistry).getEditor(fileType);
         verify(editorProvider).getEditor();
 
         verify(editor2).addPropertyListener(propertyListenerArgCaptor.capture());
@@ -213,7 +207,7 @@ public class PropertiesPanelPresenterTest {
         when(editorProvider.getEditor()).thenReturn(editor2);
         when(file.isReadOnly()).thenReturn(true);
 
-        presenter.initializeEditor(file, editorRegistry, fileTypeRegistry);
+        presenter.initializeEditor(file, editorProvider, fileTypeRegistry);
 
         verify(editor2).addPropertyListener(propertyListenerArgCaptor.capture());
         propertyListenerArgCaptor.getValue().propertyChanged(partPresenter, PROP_DIRTY);
@@ -234,7 +228,7 @@ public class PropertiesPanelPresenterTest {
     @Test
     public void runnerShouldBeUpdated() {
         Runner runner1 = mock(Runner.class);
-        when(runner1.getRAM()).thenReturn(MB_512.getValue());
+        when(runner1.getRAM()).thenReturn(MB_500.getValue());
 
         reset(view);
         presenter.update(runner1);
@@ -242,7 +236,7 @@ public class PropertiesPanelPresenterTest {
         verify(view).setName(runner1.getTitle());
         verify(view).setType(runner1.getType());
         verify(runner1).getRAM();
-        verify(view).selectMemory(MB_512);
+        verify(view).selectMemory(MB_500);
         verify(view).selectScope(runner1.getScope());
     }
 
@@ -257,7 +251,7 @@ public class PropertiesPanelPresenterTest {
     public void presenterShouldGoneContainerWhenEditorNotNull() {
         AcceptsOneWidget container = mock(AcceptsOneWidget.class);
 
-        presenter.initializeEditor(file, editorRegistry, fileTypeRegistry);
+        presenter.initializeEditor(file, editorProvider, fileTypeRegistry);
         presenter.go(container);
 
         verify(container).setWidget(view);
@@ -310,6 +304,11 @@ public class PropertiesPanelPresenterTest {
     @Test(expected = UnsupportedOperationException.class)
     public void unsupportedOperationExceptionShouldBeThrownWhenCallUpdateEnvironment() {
         presenter.update(environment);
+    }
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void unsupportedOperationExceptionShouldBeThrownWhenTryChangeEnvironment() {
+        presenter.onSwitcherChanged(true);
     }
 
     private class DummyPanelProperties extends PropertiesPanelPresenter {

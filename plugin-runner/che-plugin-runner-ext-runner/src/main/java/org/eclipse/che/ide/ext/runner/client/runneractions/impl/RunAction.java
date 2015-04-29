@@ -10,6 +10,10 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.runner.client.runneractions.impl;
 
+import com.google.gwt.http.client.URL;
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+
 import org.eclipse.che.api.analytics.client.logger.AnalyticsEventLogger;
 import org.eclipse.che.api.runner.dto.ApplicationProcessDescriptor;
 import org.eclipse.che.api.runner.gwt.client.RunnerServiceClient;
@@ -24,10 +28,9 @@ import org.eclipse.che.ide.ext.runner.client.manager.RunnerManagerPresenter;
 import org.eclipse.che.ide.ext.runner.client.models.Runner;
 import org.eclipse.che.ide.ext.runner.client.runneractions.AbstractRunnerAction;
 import org.eclipse.che.ide.ext.runner.client.runneractions.impl.launch.LaunchAction;
+import org.eclipse.che.ide.ext.runner.client.util.EnvironmentIdValidator;
 import org.eclipse.che.ide.ext.runner.client.util.RunnerUtil;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
-import com.google.inject.Inject;
-import com.google.inject.Provider;
 
 import javax.annotation.Nonnull;
 
@@ -76,7 +79,6 @@ public class RunAction extends AbstractRunnerAction {
     @Override
     public void perform(@Nonnull final Runner runner) {
         eventLogger.log(this);
-
         final CurrentProject project = appContext.getCurrentProject();
         if (project == null) {
             return;
@@ -102,10 +104,21 @@ public class RunAction extends AbstractRunnerAction {
                 .failure(new FailureCallback() {
                     @Override
                     public void onFailure(@Nonnull Throwable reason) {
+
+                        if (project.getRunner() == null) {
+                            runnerUtil.showError(runner, locale.defaultRunnerAbsent(), null);
+                            return;
+                        }
+
                         runnerUtil.showError(runner, locale.startApplicationFailed(project.getProjectDescription().getName()), null);
                     }
                 })
                 .build();
+
+        String encodedEnvironmentId = runner.getOptions().getEnvironmentId();
+        if (encodedEnvironmentId != null && !EnvironmentIdValidator.isValid(encodedEnvironmentId)) {
+            runner.getOptions().setEnvironmentId(URL.encode(encodedEnvironmentId));
+        }
 
         service.run(project.getProjectDescription().getPath(), runner.getOptions(), callback);
     }

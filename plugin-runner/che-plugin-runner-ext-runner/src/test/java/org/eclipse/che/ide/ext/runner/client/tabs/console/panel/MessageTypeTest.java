@@ -13,11 +13,11 @@ package org.eclipse.che.ide.ext.runner.client.tabs.console.panel;
 import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 
-import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 /**
  * @author Andrey Plotnikov
+ * @author Dmitry Shnurenko
  */
 public class MessageTypeTest {
 
@@ -59,9 +59,9 @@ public class MessageTypeTest {
         assertThat(MessageType.detect(content), CoreMatchers.is(MessageType.STDERR));
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void exceptionShouldBeThrownWhenIncorrectValueIsInputted() throws Exception {
-        MessageType.detect(SOME_TEXT);
+        assertThat(MessageType.detect(SOME_TEXT), CoreMatchers.is(MessageType.UNDEFINED));
     }
 
 }

@@ -26,7 +26,6 @@ import org.eclipse.che.ide.ext.runner.client.callbacks.FailureCallback;
 import org.eclipse.che.ide.ext.runner.client.callbacks.SuccessCallback;
 import org.eclipse.che.ide.ext.runner.client.models.Environment;
 import org.eclipse.che.ide.ext.runner.client.tabs.templates.TemplatesContainer;
-import org.eclipse.che.ide.ext.runner.client.util.GetEnvironmentsUtil;
 import org.eclipse.che.ide.ext.runner.client.util.RunnerUtil;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.junit.Before;
@@ -38,6 +37,7 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope.PROJECT;
@@ -68,8 +68,6 @@ public class GetProjectEnvironmentsActionTest {
     @Mock
     private RunnerLocalizationConstant                            locale;
     @Mock
-    private GetEnvironmentsUtil                                   environmentUtil;
-    @Mock
     private RunnerUtil                                            runnerUtil;
     @Mock
     private ChooseRunnerAction                                    chooseRunnerAction;
@@ -89,7 +87,7 @@ public class GetProjectEnvironmentsActionTest {
     private ProjectDescriptor                           projectDescriptor;
     //runner variables
     @Mock
-    private TemplatesContainer                          templatesContainer;
+    private TemplatesContainer                          panel;
     @Mock
     private List<RunnerEnvironmentLeaf>                 environmentLeaves;
     @Mock
@@ -100,6 +98,8 @@ public class GetProjectEnvironmentsActionTest {
     private CurrentProject                              currentProject;
     @Mock
     private ProjectDescriptor                           descriptor;
+    @Mock
+    private Environment                                 environment;
 
     //captors
     @Captor
@@ -116,17 +116,19 @@ public class GetProjectEnvironmentsActionTest {
                                                   notificationManager,
                                                   callbackBuilderProvider,
                                                   locale,
-                                                  environmentUtil,
                                                   runnerUtil,
                                                   chooseRunnerAction,
                                                   templatesContainerProvider);
 
-        when(templatesContainerProvider.get()).thenReturn(templatesContainer);
+        when(templatesContainerProvider.get()).thenReturn(panel);
         //preparing callbacks for server
         when(appContext.getCurrentProject()).thenReturn(project);
+        when(project.getRunner()).thenReturn(SOME_STRING);
         when(callbackBuilderProvider.get()).thenReturn(asyncCallbackBuilder);
         when(asyncCallbackBuilder.unmarshaller(RunnerEnvironmentTree.class)).thenReturn(asyncCallbackBuilder);
         when(asyncCallbackBuilder.failure(any(FailureCallback.class))).thenReturn(asyncCallbackBuilder);
+        when(panel.addEnvironments(result, PROJECT)).thenReturn(Arrays.asList(environment));
+        when(environment.getId()).thenReturn(SOME_STRING);
         when(asyncCallbackBuilder.success(Matchers.<SuccessCallback<RunnerEnvironmentTree>>anyObject()))
                 .thenReturn(asyncCallbackBuilder);
         when(asyncCallbackBuilder.build()).thenReturn(asyncRequestCallback);
@@ -149,7 +151,6 @@ public class GetProjectEnvironmentsActionTest {
                                  notificationManager,
                                  callbackBuilderProvider,
                                  locale,
-                                 environmentUtil,
                                  runnerUtil,
                                  chooseRunnerAction,
                                  templatesContainerProvider,
@@ -169,7 +170,6 @@ public class GetProjectEnvironmentsActionTest {
                                  notificationManager,
                                  callbackBuilderProvider,
                                  locale,
-                                 environmentUtil,
                                  runnerUtil,
                                  chooseRunnerAction,
                                  templatesContainerProvider,
@@ -197,9 +197,9 @@ public class GetProjectEnvironmentsActionTest {
 
     @Test
     public void shouldPerformSuccessWithToRunnerEnvironment() {
-        when(environmentUtil.getEnvironmentsByProjectType(result, SOME_STRING, PROJECT)).thenReturn(environments);
         when(appContext.getCurrentProject()).thenReturn(currentProject);
         when(currentProject.getProjectDescription()).thenReturn(descriptor);
+        when(currentProject.getRunner()).thenReturn(SOME_STRING);
         when(descriptor.getPath()).thenReturn(SOME_STRING);
         when(descriptor.getType()).thenReturn(SOME_STRING);
 
@@ -208,14 +208,20 @@ public class GetProjectEnvironmentsActionTest {
         verify(appContext).getCurrentProject();
 
         verify(asyncCallbackBuilder).success(successCallBackCaptor.capture());
-        SuccessCallback<RunnerEnvironmentTree> successCallback = successCallBackCaptor.getValue();
-        successCallback.onSuccess(result);
+    }
 
-        verify(templatesContainerProvider).get();
+    @Test
+    public void shouldPerformSuccessWithToRunnerEnvironmentButDefaultRunnerIsNotExist() {
+        when(appContext.getCurrentProject()).thenReturn(currentProject);
+        when(currentProject.getProjectDescription()).thenReturn(descriptor);
+        when(currentProject.getRunner()).thenReturn(SOME_STRING + 1);
+        when(descriptor.getPath()).thenReturn(SOME_STRING);
+        when(descriptor.getType()).thenReturn(SOME_STRING);
 
-        verify(environmentUtil).getEnvironmentsByProjectType(result, SOME_STRING, PROJECT);
+        action.perform();
 
-        verify(projectService).getRunnerEnvironments(SOME_STRING, asyncRequestCallback);
-        verify(chooseRunnerAction).addProjectRunners(environments);
+        verify(appContext).getCurrentProject();
+
+        verify(asyncCallbackBuilder).success(successCallBackCaptor.capture());
     }
 }

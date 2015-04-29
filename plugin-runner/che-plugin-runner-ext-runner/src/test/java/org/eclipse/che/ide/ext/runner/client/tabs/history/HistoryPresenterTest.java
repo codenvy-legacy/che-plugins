@@ -15,10 +15,12 @@ import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwtmockito.GwtMockitoTestRunner;
 
 import org.eclipse.che.ide.ext.runner.client.inject.factories.WidgetFactory;
+import org.eclipse.che.ide.ext.runner.client.manager.RunnerManagerView;
 import org.eclipse.che.ide.ext.runner.client.models.Runner;
 import org.eclipse.che.ide.ext.runner.client.selection.SelectionManager;
 import org.eclipse.che.ide.ext.runner.client.tabs.console.container.ConsoleContainer;
 import org.eclipse.che.ide.ext.runner.client.tabs.history.runner.RunnerWidget;
+import org.eclipse.che.ide.ext.runner.client.tabs.terminal.container.TerminalContainer;
 import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,7 +28,9 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
@@ -42,13 +46,17 @@ import static org.mockito.Mockito.when;
 @RunWith(GwtMockitoTestRunner.class)
 public class HistoryPresenterTest {
     @Mock
-    private HistoryView      view;
+    private HistoryView       view;
     @Mock
-    private WidgetFactory    widgetFactory;
+    private WidgetFactory     widgetFactory;
     @Mock
-    private SelectionManager selectionManager;
+    private SelectionManager  selectionManager;
     @Mock
-    private ConsoleContainer consolePresenter;
+    private ConsoleContainer  consolePresenter;
+    @Mock
+    private TerminalContainer terminalContainer;
+    @Mock
+    private RunnerManagerView runnerManagerView;
 
     @Mock
     private RunnerWidget runnerWidget;
@@ -134,6 +142,20 @@ public class HistoryPresenterTest {
     }
 
     @Test
+    public void historyShouldContainsRunner() throws Exception {
+        historyPresenter.addRunner(runner);
+
+        assertTrue(historyPresenter.isRunnerExist(runner));
+    }
+
+    @Test
+    public void historyShouldNotContainsRunner() throws Exception {
+        historyPresenter.addRunner(runner);
+
+        assertFalse(historyPresenter.isRunnerExist(runner2));
+    }
+
+    @Test
     public void viewShouldBeReturned() {
         assertThat(historyPresenter.getView(), CoreMatchers.<IsWidget>is(view));
     }
@@ -168,13 +190,26 @@ public class HistoryPresenterTest {
 
     @Test
     public void runnerShouldBeRemoved() throws Exception {
+        Runner testRunner = mock(Runner.class);
         historyPresenter.addRunner(runner);
+        historyPresenter.addRunner(testRunner);
 
         historyPresenter.onRunnerCleanBtnClicked(runner);
 
         verify(view).removeRunner(runnerWidget);
-        verify(consolePresenter).deleteSelectedConsole();
+        verify(consolePresenter).deleteConsoleByRunner(runner);
         verify(selectionManager).getRunner();
+    }
+
+    @Test
+    public void terminalContainerShouldBeResetWhenHistoryPanelIsEmpty() {
+        historyPresenter.addRunner(runner);
+
+        historyPresenter.onRunnerCleanBtnClicked(runner);
+
+        verify(terminalContainer).reset();
+        verify(runnerManagerView).setEnableReRunButton(false);
+        verify(selectionManager, never()).getRunner();
     }
 
     @Test
@@ -186,7 +221,7 @@ public class HistoryPresenterTest {
         historyPresenter.onRunnerCleanBtnClicked(runner2);
 
         verify(view).removeRunner(runnerWidget2);
-        verify(consolePresenter).deleteSelectedConsole();
+        verify(consolePresenter).deleteConsoleByRunner(runner2);
         verify(selectionManager).getRunner();
 
         verify(selectionManager, times(2)).setRunner(runner);
@@ -204,7 +239,7 @@ public class HistoryPresenterTest {
         historyPresenter.onRunnerCleanBtnClicked(runner2);
 
         verify(view).removeRunner(runnerWidget2);
-        verify(consolePresenter).deleteSelectedConsole();
+        verify(consolePresenter).deleteConsoleByRunner(runner2);
         verify(selectionManager).getRunner();
 
         verify(selectionManager, never()).setRunner(runner);

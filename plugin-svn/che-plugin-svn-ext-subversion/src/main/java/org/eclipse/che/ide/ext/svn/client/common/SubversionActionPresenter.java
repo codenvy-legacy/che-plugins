@@ -20,6 +20,7 @@ import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import org.eclipse.che.ide.api.event.RefreshProjectTreeEvent;
 import org.eclipse.che.ide.api.parts.ProjectExplorerPart;
 import org.eclipse.che.ide.ext.svn.client.action.SubversionAction;
@@ -134,6 +135,8 @@ public class SubversionActionPresenter {
                     final String path = relativePath((StorableNode)item);
                     if (!path.isEmpty()) {
                         paths.add(path);
+                    } else {
+                        paths.add("."); //it may be root path for our project
                     }
                 }
             }
@@ -239,7 +242,7 @@ public class SubversionActionPresenter {
                     for (String[] stcol : STATUS_COLORS) {
                         if (stcol[0].equals(prefix)) {
                             // TODO: Turn the file paths into links (where appropriate)
-                            console.print("<span style=\"color:" + stcol[1] + ";\">" + line + "</span>");
+                            console.print("<span style=\"color:" + stcol[1] + ";\">" + SafeHtmlUtils.htmlEscape(line) + "</span>");
 
                             found = true;
                             break;
@@ -248,14 +251,14 @@ public class SubversionActionPresenter {
                 }
 
                 if (!found) {
-                    console.print(line);
+                    console.print(SafeHtmlUtils.htmlEscape(line));
                 }
             }
         }
 
         if (errors != null) {
             for (final String line : errors) {
-                console.print("<span style=\"color:red;\">" + line + "</span>");
+                console.print("<span style=\"color:red;\">" + SafeHtmlUtils.htmlEscape(line) + "</span>");
             }
         }
 
