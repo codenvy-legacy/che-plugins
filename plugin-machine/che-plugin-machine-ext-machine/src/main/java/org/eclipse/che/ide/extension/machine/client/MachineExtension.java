@@ -12,13 +12,13 @@ package org.eclipse.che.ide.extension.machine.client;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.google.inject.name.Named;
 import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
 import org.eclipse.che.api.machine.shared.dto.MachineDescriptor;
 import org.eclipse.che.ide.api.action.ActionManager;
 import org.eclipse.che.ide.api.action.DefaultActionGroup;
+import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.constraints.Constraints;
 import org.eclipse.che.ide.api.event.ProjectActionEvent;
 import org.eclipse.che.ide.api.event.ProjectActionHandler;
@@ -56,9 +56,9 @@ public class MachineExtension {
     @Inject
     public MachineExtension(MachineResources machineResources,
                             EventBus eventBus,
+                            final AppContext appContext,
                             final MachineServiceClient machineServiceClient,
                             final DtoUnmarshallerFactory dtoUnmarshallerFactory,
-                            @Named("workspaceId") final String workspaceId,
                             final MachineManager machineManager,
                             final MachineConsolePresenter machineConsolePresenter) {
 
@@ -71,7 +71,8 @@ public class MachineExtension {
 
                 // start machine and bind project
                 machineServiceClient.getMachines(
-                        workspaceId, projectPath,
+                        appContext.getWorkspace().getId(),
+                        projectPath,
                         new AsyncRequestCallback<Array<MachineDescriptor>>(
                                 dtoUnmarshallerFactory.newArrayUnmarshaller(MachineDescriptor.class)) {
                             @Override

@@ -14,7 +14,6 @@ import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONString;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.google.inject.name.Named;
 
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
 import org.eclipse.che.api.machine.shared.dto.MachineDescriptor;
@@ -41,7 +40,6 @@ import javax.annotation.Nonnull;
  */
 @Singleton
 public class ExecuteCommandPresenter implements ExecuteCommandView.ActionDelegate {
-    private final String                  workspaceId;
     private final DtoUnmarshallerFactory  dtoUnmarshallerFactory;
     private final MessageBus              messageBus;
     private final ExecuteCommandView      view;
@@ -50,14 +48,12 @@ public class ExecuteCommandPresenter implements ExecuteCommandView.ActionDelegat
     private final AppContext appContext;
 
     @Inject
-    protected ExecuteCommandPresenter(@Named("workspaceId") final String workspaceId,
-                                      DtoUnmarshallerFactory dtoUnmarshallerFactory,
+    protected ExecuteCommandPresenter(DtoUnmarshallerFactory dtoUnmarshallerFactory,
                                       MessageBus messageBus,
                                       ExecuteCommandView view,
                                       MachineServiceClient machineServiceClient,
                                       MachineConsolePresenter machineConsolePresenter,
                                       AppContext appContext) {
-        this.workspaceId = workspaceId;
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
         this.messageBus = messageBus;
         this.view = view;
@@ -87,7 +83,8 @@ public class ExecuteCommandPresenter implements ExecuteCommandView.ActionDelegat
 
         // TODO: for now, command will be executed in the first machine to which project is bound
         machineServiceClient.getMachines(
-                workspaceId, currentProject.getRootProject().getPath(),
+                appContext.getWorkspace().getId(),
+                currentProject.getRootProject().getPath(),
                 new AsyncRequestCallback<Array<MachineDescriptor>>(dtoUnmarshallerFactory.newArrayUnmarshaller(MachineDescriptor.class)) {
                     @Override
                     protected void onSuccess(Array<MachineDescriptor> result) {

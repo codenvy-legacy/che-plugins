@@ -11,7 +11,6 @@
 package org.eclipse.che.ide.extension.machine.client.actions;
 
 import com.google.inject.Inject;
-import com.google.inject.name.Named;
 
 import org.eclipse.che.api.analytics.client.logger.AnalyticsEventLogger;
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
@@ -37,7 +36,6 @@ public class TerminateMachineAction extends Action {
     private final AppContext                  appContext;
     private final MachineLocalizationConstant localizationConstant;
     private final MachineServiceClient        machineServiceClient;
-    private final String                      workspaceId;
     private final DialogFactory               dialogFactory;
     private final DtoUnmarshallerFactory      dtoUnmarshallerFactory;
     private final AnalyticsEventLogger        eventLogger;
@@ -46,7 +44,6 @@ public class TerminateMachineAction extends Action {
     public TerminateMachineAction(AppContext appContext,
                                   MachineLocalizationConstant localizationConstant,
                                   MachineServiceClient machineServiceClient,
-                                  @Named("workspaceId") String workspaceId,
                                   DialogFactory dialogFactory,
                                   DtoUnmarshallerFactory dtoUnmarshallerFactory,
                                   AnalyticsEventLogger eventLogger) {
@@ -54,7 +51,6 @@ public class TerminateMachineAction extends Action {
         this.appContext = appContext;
         this.localizationConstant = localizationConstant;
         this.machineServiceClient = machineServiceClient;
-        this.workspaceId = workspaceId;
         this.dialogFactory = dialogFactory;
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
         this.eventLogger = eventLogger;
@@ -77,7 +73,8 @@ public class TerminateMachineAction extends Action {
         }
 
         machineServiceClient.getMachines(
-                workspaceId, currentProject.getRootProject().getPath(),
+                appContext.getWorkspace().getId(),
+                currentProject.getRootProject().getPath(),
                 new AsyncRequestCallback<Array<MachineDescriptor>>(dtoUnmarshallerFactory.newArrayUnmarshaller(MachineDescriptor.class)) {
                     @Override
                     protected void onSuccess(Array<MachineDescriptor> result) {
