@@ -57,6 +57,7 @@ public class NameGenerator {
         }
 
         name = removeCopyPrefix(name);
+        name = name.replace("+", "");
 
         String copyName = "Copy of ".concat(name);
         boolean alreadyExists = existingNames.contains(copyName);
