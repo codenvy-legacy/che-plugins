@@ -104,7 +104,7 @@
             </g:FlowPanel>
         </g:north>
         <g:north size="30">
-            <g:SimpleLayoutPanel ui:field="defaultRunner"/>
+            <g:SimpleLayoutPanel ui:field="defaultRunner" debugId="defaultRunner"/>
         </g:north>
         <!--scope panel-->
         <g:north size="25">

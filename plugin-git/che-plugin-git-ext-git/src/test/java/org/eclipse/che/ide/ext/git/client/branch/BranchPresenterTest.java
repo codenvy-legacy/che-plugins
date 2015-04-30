@@ -24,27 +24,27 @@ import org.eclipse.che.ide.ext.git.client.BaseTest;
 import org.eclipse.che.ide.ext.git.client.GitOutputPartPresenter;
 import org.eclipse.che.ide.ext.git.shared.Branch;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
+import org.eclipse.che.ide.ui.dialogs.CancelCallback;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.web.bindery.event.shared.Event;
-import com.googlecode.gwt.test.utils.GwtReflectionUtils;
 
+import org.eclipse.che.ide.ui.dialogs.InputCallback;
+import org.eclipse.che.ide.ui.dialogs.input.InputDialog;
+import org.eclipse.che.test.GwtReflectionUtils;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Matchers;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-
-import java.lang.reflect.Method;
 
 import static org.eclipse.che.ide.ext.git.client.patcher.WindowPatcher.RETURNED_MESSAGE;
 import static org.eclipse.che.ide.ext.git.shared.BranchListRequest.LIST_ALL;
-import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -57,6 +57,16 @@ import static org.mockito.Mockito.when;
  * @author Andrey Plotnikov
  */
 public class BranchPresenterTest extends BaseTest {
+
+    @Captor
+    private ArgumentCaptor<InputCallback>                       inputCallbackCaptor;
+    @Captor
+    private ArgumentCaptor<AsyncRequestCallback<Branch>>        createBranchCallbackCaptor;
+    @Captor
+    private ArgumentCaptor<AsyncRequestCallback<Array<Branch>>> branchListCallbackCaptor;
+    @Captor
+    private ArgumentCaptor<AsyncRequestCallback<String>>        asyncRequestCallbackCaptor;
+
     public static final String  BRANCH_NAME   = "branchName";
     public static final boolean NEED_DELETING = true;
     public static final boolean IS_REMOTE     = true;
@@ -105,18 +115,12 @@ public class BranchPresenterTest extends BaseTest {
     @Ignore
     public void testShowDialogWhenGetBranchesRequestIsSuccessful() throws Exception {
         final Array<Branch> branches = Collections.createArray();
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                Object[] arguments = invocation.getArguments();
-                AsyncRequestCallback<Array<Branch>> callback = (AsyncRequestCallback<Array<Branch>>)arguments[3];
-                Method onSuccess = GwtReflectionUtils.getMethod(callback.getClass(), "onSuccess");
-                onSuccess.invoke(callback, branches);
-                return callback;
-            }
-        }).when(service).branchList((ProjectDescriptor)anyObject(), anyString(), (AsyncRequestCallback<Array<Branch>>)anyObject());
 
         presenter.showDialog();
+
+        verify(service).branchList(eq(projectDescriptor), eq(LIST_ALL), branchListCallbackCaptor.capture());
+        AsyncRequestCallback<Array<Branch>> branchListCallback = branchListCallbackCaptor.getValue();
+        GwtReflectionUtils.callOnSuccess(branchListCallback, branches);
 
         verify(appContext).getCurrentProject();
         verify(view).setEnableCheckoutButton(eq(DISABLE_BUTTON));
@@ -124,32 +128,23 @@ public class BranchPresenterTest extends BaseTest {
         verify(view).setEnableRenameButton(eq(DISABLE_BUTTON));
         verify(view).showDialog();
         verify(view).setBranches(eq(branches));
-        verify(service).branchList(eq(projectDescriptor), eq(LIST_ALL), (AsyncRequestCallback<Array<Branch>>)anyObject());
         verify(notificationManager, never()).showError(anyString());
         verify(constant, never()).branchesListFailed();
     }
 
     @Test
     public void testShowDialogWhenGetBranchesRequestIsFailed() throws Exception {
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                Object[] arguments = invocation.getArguments();
-                AsyncRequestCallback<Array<Branch>> callback = (AsyncRequestCallback<Array<Branch>>)arguments[2];
-                Method onFailure = GwtReflectionUtils.getMethod(callback.getClass(), "onFailure");
-                onFailure.invoke(callback, mock(Throwable.class));
-                return callback;
-            }
-        }).when(service).branchList((ProjectDescriptor)anyObject(), anyString(), (AsyncRequestCallback<Array<Branch>>)anyObject());
-
         presenter.showDialog();
+
+        verify(service).branchList(eq(rootProjectDescriptor), eq(LIST_ALL), branchListCallbackCaptor.capture());
+        AsyncRequestCallback<Array<Branch>> branchListCallback = branchListCallbackCaptor.getValue();
+        GwtReflectionUtils.callOnFailure(branchListCallback, mock(Throwable.class));
 
         verify(appContext).getCurrentProject();
         verify(view).setEnableCheckoutButton(eq(DISABLE_BUTTON));
         verify(view).setEnableDeleteButton(eq(DISABLE_BUTTON));
         verify(view).setEnableRenameButton(eq(DISABLE_BUTTON));
         verify(view).showDialog();
-        verify(service).branchList(eq(rootProjectDescriptor), eq(LIST_ALL), (AsyncRequestCallback<Array<Branch>>)anyObject());
         verify(notificationManager).showError(anyString());
         verify(constant).branchesListFailed();
     }
@@ -162,25 +157,25 @@ public class BranchPresenterTest extends BaseTest {
     }
 
     @Test
-    @Ignore
     public void testOnRenameClickedWhenBranchRenameRequestIsSuccessful() throws Exception {
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                Object[] arguments = invocation.getArguments();
-                AsyncRequestCallback<String> callback = (AsyncRequestCallback<String>)arguments[3];
-                Method onSuccess = GwtReflectionUtils.getMethod(callback.getClass(), "onSuccess");
-                onSuccess.invoke(callback, PROJECT_PATH);
-                return callback;
-            }
-        }).when(service).branchRename((ProjectDescriptor)anyObject(), anyString(), anyString(), (AsyncRequestCallback<String>)anyObject());
+        InputDialog inputDialog = mock(InputDialog.class);
+        when(dialogFactory.createInputDialog(anyString(), anyString(), anyString(), anyInt(), anyInt(), (InputCallback)anyObject(),
+                                             (CancelCallback)anyObject()))
+                .thenReturn(inputDialog);
 
         selectBranch();
         presenter.onRenameClicked();
 
+        verify(dialogFactory).createInputDialog(anyString(), anyString(), anyString(), anyInt(), anyInt(), inputCallbackCaptor.capture(),
+                                                (CancelCallback)anyObject());
+        InputCallback inputCallback = inputCallbackCaptor.getValue();
+        inputCallback.accepted(RETURNED_MESSAGE);
+
+        verify(service).branchRename(eq(rootProjectDescriptor), eq(BRANCH_NAME), eq(RETURNED_MESSAGE), asyncRequestCallbackCaptor.capture());
+        AsyncRequestCallback<String> renameBranchCallback = asyncRequestCallbackCaptor.getValue();
+        GwtReflectionUtils.callOnSuccess(renameBranchCallback, PROJECT_PATH);
+
         verify(selectedBranch).getDisplayName();
-        verify(service).branchRename(eq(rootProjectDescriptor), eq(BRANCH_NAME), eq(RETURNED_MESSAGE),
-                                     (AsyncRequestCallback<String>)anyObject());
         verify(service, times(2))
                 .branchList(eq(rootProjectDescriptor), eq(LIST_ALL), (AsyncRequestCallback<Array<Branch>>)anyObject());
         verify(notificationManager, never()).showError(anyString());
@@ -194,48 +189,39 @@ public class BranchPresenterTest extends BaseTest {
     }
 
     @Test
-    @Ignore
     public void testOnRenameClickedWhenBranchRenameRequestIsFailed() throws Exception {
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                Object[] arguments = invocation.getArguments();
-                AsyncRequestCallback<String> callback = (AsyncRequestCallback<String>)arguments[3];
-                Method onFailure = GwtReflectionUtils.getMethod(callback.getClass(), "onFailure");
-                onFailure.invoke(callback, mock(Throwable.class));
-                return callback;
-            }
-        }).when(service).branchRename((ProjectDescriptor)anyObject(), anyString(), anyString(), (AsyncRequestCallback<String>)anyObject());
+        InputDialog inputDialog = mock(InputDialog.class);
+        when(dialogFactory.createInputDialog(anyString(), anyString(), anyString(), anyInt(), anyInt(), (InputCallback)anyObject(),
+                                             (CancelCallback)anyObject()))
+                .thenReturn(inputDialog);
 
         selectBranch();
         presenter.onRenameClicked();
 
+        verify(dialogFactory).createInputDialog(anyString(), anyString(), anyString(), anyInt(), anyInt(), inputCallbackCaptor.capture(),
+                                                (CancelCallback)anyObject());
+        InputCallback inputCallback = inputCallbackCaptor.getValue();
+        inputCallback.accepted(RETURNED_MESSAGE);
+
+        verify(service).branchRename(eq(rootProjectDescriptor), eq(BRANCH_NAME), eq(RETURNED_MESSAGE), asyncRequestCallbackCaptor.capture());
+        AsyncRequestCallback<String> renameBranchCallback = asyncRequestCallbackCaptor.getValue();
+        GwtReflectionUtils.callOnFailure(renameBranchCallback, mock(Throwable.class));
+
         verify(selectedBranch).getDisplayName();
-        verify(service).branchRename(eq(rootProjectDescriptor), eq(BRANCH_NAME), eq(RETURNED_MESSAGE),
-                                     (AsyncRequestCallback<String>)anyObject());
         verify(notificationManager).showError(anyString());
         verify(constant).branchRenameFailed();
     }
 
     @Test
     public void testOnDeleteClickedWhenBranchDeleteRequestIsSuccessful() throws Exception {
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                Object[] arguments = invocation.getArguments();
-                AsyncRequestCallback<String> callback = (AsyncRequestCallback<String>)arguments[3];
-                Method onSuccess = GwtReflectionUtils.getMethod(callback.getClass(), "onSuccess");
-                onSuccess.invoke(callback, PROJECT_PATH);
-                return callback;
-            }
-        }).when(service).branchDelete((ProjectDescriptor)anyObject(), anyString(), anyBoolean(), (AsyncRequestCallback<String>)anyObject());
-
         selectBranch();
         presenter.onDeleteClicked();
 
+        verify(service).branchDelete(eq(rootProjectDescriptor), eq(BRANCH_NAME), eq(NEED_DELETING), asyncRequestCallbackCaptor.capture());
+        AsyncRequestCallback<String> deleteBranchCallback = asyncRequestCallbackCaptor.getValue();
+        GwtReflectionUtils.callOnSuccess(deleteBranchCallback, PROJECT_PATH);
+
         verify(selectedBranch).getName();
-        verify(service)
-                .branchDelete(eq(rootProjectDescriptor), eq(BRANCH_NAME), eq(NEED_DELETING), (AsyncRequestCallback<String>)anyObject());
         verify(service, times(2))
                 .branchList(eq(rootProjectDescriptor), eq(LIST_ALL), (AsyncRequestCallback<Array<Branch>>)anyObject());
         verify(constant, never()).branchDeleteFailed();
@@ -244,57 +230,31 @@ public class BranchPresenterTest extends BaseTest {
 
     @Test
     public void testOnDeleteClickedWhenBranchDeleteRequestIsFailed() throws Exception {
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                Object[] arguments = invocation.getArguments();
-                AsyncRequestCallback<String> callback = (AsyncRequestCallback<String>)arguments[3];
-                Method onFailure = GwtReflectionUtils.getMethod(callback.getClass(), "onFailure");
-                onFailure.invoke(callback, mock(Throwable.class));
-                return callback;
-            }
-        }).when(service).branchDelete((ProjectDescriptor)anyObject(), anyString(), anyBoolean(), (AsyncRequestCallback<String>)anyObject());
-
         selectBranch();
         presenter.onDeleteClicked();
 
+        verify(service).branchDelete(eq(rootProjectDescriptor), eq(BRANCH_NAME), eq(NEED_DELETING), asyncRequestCallbackCaptor.capture());
+        AsyncRequestCallback<String> deleteBranchCallback = asyncRequestCallbackCaptor.getValue();
+        GwtReflectionUtils.callOnFailure(deleteBranchCallback, mock(Throwable.class));
+
         verify(selectedBranch).getName();
-        verify(service).branchDelete(eq(rootProjectDescriptor), anyString(), eq(NEED_DELETING), (AsyncRequestCallback<String>)anyObject());
         verify(constant).branchDeleteFailed();
         verify(notificationManager).showError(anyString());
     }
 
     @Test
     public void testOnCheckoutClickedWhenBranchCheckoutRequestAndRefreshProjectIsSuccessful() throws Exception {
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                Object[] arguments = invocation.getArguments();
-                AsyncRequestCallback<String> callback = (AsyncRequestCallback<String>)arguments[4];
-                Method onSuccess = GwtReflectionUtils.getMethod(callback.getClass(), "onSuccess");
-                onSuccess.invoke(callback, PROJECT_PATH);
-                return callback;
-            }
-        }).when(service).branchCheckout((ProjectDescriptor)anyObject(), anyString(), anyString(), anyBoolean(),
-                                        (AsyncRequestCallback<String>)anyObject());
-
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                Object[] arguments = invocation.getArguments();
-                AsyncRequestCallback<String> callback = (AsyncRequestCallback<String>)arguments[1];
-                Method onSuccess = GwtReflectionUtils.getMethod(callback.getClass(), "onSuccess");
-                onSuccess.invoke(callback, "content");
-                return callback;
-            }
-        }).when(projectServiceClient).getFileContent(anyString(), (AsyncRequestCallback<String>)anyObject());
-
         selectBranch();
         presenter.onCheckoutClicked();
 
+        verify(service).branchCheckout(eq(rootProjectDescriptor), eq(BRANCH_NAME), eq(BRANCH_NAME), eq(IS_REMOTE),
+                                       asyncRequestCallbackCaptor.capture());
+        AsyncRequestCallback<String> checkoutBranchCallback = asyncRequestCallbackCaptor.getValue();
+        GwtReflectionUtils.callOnSuccess(checkoutBranchCallback, PROJECT_PATH);
+
         verify(editorAgent).getOpenedEditors();
         verify(selectedBranch, times(2)).getDisplayName();
-        verify(selectedBranch).isRemote();
+        verify(selectedBranch, times(2)).isRemote();
         verify(service).branchCheckout(eq(rootProjectDescriptor), eq(BRANCH_NAME), eq(BRANCH_NAME), eq(IS_REMOTE),
                                        (AsyncRequestCallback<String>)anyObject());
         verify(service, times(2)).branchList(eq(rootProjectDescriptor), eq(LIST_ALL), (AsyncRequestCallback<Array<Branch>>)anyObject());
@@ -307,37 +267,17 @@ public class BranchPresenterTest extends BaseTest {
     @Test
     public void testOnCheckoutClickedWhenBranchCheckoutRequestAndRefreshProjectIsSuccessfulButOpenFileIsNotExistInBranch()
             throws Exception {
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                Object[] arguments = invocation.getArguments();
-                AsyncRequestCallback<String> callback = (AsyncRequestCallback<String>)arguments[4];
-                Method onSuccess = GwtReflectionUtils.getMethod(callback.getClass(), "onSuccess");
-                onSuccess.invoke(callback, PROJECT_PATH);
-                return callback;
-            }
-        }).when(service).branchCheckout((ProjectDescriptor)anyObject(), anyString(), anyString(), anyBoolean(),
-                                        (AsyncRequestCallback<String>)anyObject());
-
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                Object[] arguments = invocation.getArguments();
-                AsyncRequestCallback<String> callback = (AsyncRequestCallback<String>)arguments[1];
-                Method onFailure = GwtReflectionUtils.getMethod(callback.getClass(), "onFailure");
-                onFailure.invoke(callback, mock(Throwable.class));
-                return callback;
-            }
-        }).when(projectServiceClient).getFileContent(anyString(), (AsyncRequestCallback<String>)anyObject());
-
         selectBranch();
         presenter.onCheckoutClicked();
 
+        verify(service).branchCheckout(eq(rootProjectDescriptor), eq(BRANCH_NAME), eq(BRANCH_NAME), eq(IS_REMOTE),
+                                       asyncRequestCallbackCaptor.capture());
+        AsyncRequestCallback<String> checkoutBranchCallback = asyncRequestCallbackCaptor.getValue();
+        GwtReflectionUtils.callOnSuccess(checkoutBranchCallback, PROJECT_PATH);
+
         verify(editorAgent).getOpenedEditors();
         verify(selectedBranch, times(2)).getDisplayName();
-        verify(selectedBranch).isRemote();
-        verify(service).branchCheckout(eq(rootProjectDescriptor), eq(BRANCH_NAME), eq(BRANCH_NAME), eq(IS_REMOTE),
-                                       (AsyncRequestCallback<String>)anyObject());
+        verify(selectedBranch, times(2)).isRemote();
         verify(service, times(2)).branchList(eq(rootProjectDescriptor), eq(LIST_ALL), (AsyncRequestCallback<Array<Branch>>)anyObject());
         verify(appContext).getCurrentProject();
         verify(partPresenter).getEditorInput();
@@ -346,43 +286,34 @@ public class BranchPresenterTest extends BaseTest {
 
     @Test
     public void testOnCheckoutClickedWhenBranchCheckoutRequestIsFailed() throws Exception {
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                Object[] arguments = invocation.getArguments();
-                AsyncRequestCallback<String> callback = (AsyncRequestCallback<String>)arguments[4];
-                Method onFailure = GwtReflectionUtils.getMethod(callback.getClass(), "onFailure");
-                onFailure.invoke(callback, mock(Throwable.class));
-                return callback;
-            }
-        }).when(service).branchCheckout((ProjectDescriptor)anyObject(), anyString(), anyString(), anyBoolean(),
-                                        (AsyncRequestCallback<String>)anyObject());
-
         selectBranch();
         presenter.onCheckoutClicked();
 
-        verify(selectedBranch, times(2)).getDisplayName();
-        verify(selectedBranch).isRemote();
         verify(service).branchCheckout(eq(rootProjectDescriptor), eq(BRANCH_NAME), eq(BRANCH_NAME), eq(IS_REMOTE),
-                                       (AsyncRequestCallback<String>)anyObject());
+                                       asyncRequestCallbackCaptor.capture());
+        AsyncRequestCallback<String> checkoutBranchCallback = asyncRequestCallbackCaptor.getValue();
+        GwtReflectionUtils.callOnFailure(checkoutBranchCallback, mock(Throwable.class));
+
+        verify(selectedBranch, times(2)).getDisplayName();
+        verify(selectedBranch, times(2)).isRemote();
     }
 
     @Test
-    @Ignore
     public void testOnCreateClickedWhenBranchCreateRequestIsSuccessful() throws Exception {
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                Object[] arguments = invocation.getArguments();
-                AsyncRequestCallback<Branch> callback = (AsyncRequestCallback<Branch>)arguments[3];
-                Method onSuccess = GwtReflectionUtils.getMethod(callback.getClass(), "onSuccess");
-                onSuccess.invoke(callback, selectedBranch);
-                return callback;
-            }
-        }).when(service).branchCreate((ProjectDescriptor)anyObject(), anyString(), anyString(), (AsyncRequestCallback<Branch>)anyObject());
+        InputDialog inputDialog = mock(InputDialog.class);
+        when(dialogFactory.createInputDialog(anyString(), anyString(), (InputCallback)anyObject(), (CancelCallback)anyObject()))
+                .thenReturn(inputDialog);
 
         presenter.showDialog();
         presenter.onCreateClicked();
+
+        verify(dialogFactory).createInputDialog(anyString(), anyString(), inputCallbackCaptor.capture(), (CancelCallback)anyObject());
+        InputCallback inputCallback = inputCallbackCaptor.getValue();
+        inputCallback.accepted(BRANCH_NAME);
+
+        verify(service).branchCreate((ProjectDescriptor)anyObject(), anyString(), anyString(), createBranchCallbackCaptor.capture());
+        AsyncRequestCallback<Branch> createBranchCallback = createBranchCallbackCaptor.getValue();
+        GwtReflectionUtils.callOnSuccess(createBranchCallback, selectedBranch);
 
         verify(constant).branchTypeNew();
         verify(service).branchCreate(eq(rootProjectDescriptor), anyString(), anyString(), (AsyncRequestCallback<Branch>)anyObject());
@@ -391,33 +322,80 @@ public class BranchPresenterTest extends BaseTest {
     }
 
     @Test
-    @Ignore
     public void testOnCreateClickedWhenBranchCreateRequestIsFailed() throws Exception {
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                Object[] arguments = invocation.getArguments();
-                AsyncRequestCallback<Branch> callback = (AsyncRequestCallback<Branch>)arguments[3];
-                Method onFailure = GwtReflectionUtils.getMethod(callback.getClass(), "onFailure");
-                onFailure.invoke(callback, mock(Throwable.class));
-                return callback;
-            }
-        }).when(service).branchCreate((ProjectDescriptor)anyObject(), anyString(), anyString(), (AsyncRequestCallback<Branch>)anyObject());
+        Throwable exception = mock(Exception.class);
+        InputDialog inputDialog = mock(InputDialog.class);
+        when(dialogFactory.createInputDialog(anyString(), anyString(), (InputCallback)anyObject(), (CancelCallback)anyObject()))
+                .thenReturn(inputDialog);
 
         presenter.showDialog();
         presenter.onCreateClicked();
 
-        verify(service).branchCreate(eq(rootProjectDescriptor), anyString(), anyString(), (AsyncRequestCallback<Branch>)anyObject());
+        verify(dialogFactory).createInputDialog(anyString(), anyString(), inputCallbackCaptor.capture(), (CancelCallback)anyObject());
+        InputCallback inputCallback = inputCallbackCaptor.getValue();
+        inputCallback.accepted(BRANCH_NAME);
+
+        verify(service).branchCreate((ProjectDescriptor)anyObject(), anyString(), anyString(), createBranchCallbackCaptor.capture());
+        AsyncRequestCallback<Branch> createBranchCallback = createBranchCallbackCaptor.getValue();
+        GwtReflectionUtils.callOnFailure(createBranchCallback, exception);
+
         verify(constant).branchCreateFailed();
         verify(notificationManager).showError(anyString());
     }
 
     @Test
-    public void testOnBranchSelected() throws Exception {
+    public void checkoutButtonShouldBeEnabled() throws Exception {
+        when(selectedBranch.isActive()).thenReturn(false);
+
+        presenter.onBranchSelected(selectedBranch);
+
+        verify(view).setEnableCheckoutButton(eq(ENABLE_BUTTON));
+    }
+
+    @Test
+    public void checkoutButtonShouldBeDisabled() throws Exception {
+        when(selectedBranch.isActive()).thenReturn(true);
+
         presenter.onBranchSelected(selectedBranch);
 
         verify(view).setEnableCheckoutButton(eq(DISABLE_BUTTON));
-        verify(view).setEnableDeleteButton(eq(ENABLE_BUTTON));
+    }
+
+    @Test
+    public void renameButtonShouldBeEnabled() throws Exception {
+        //we can not rename remote branch for now
+        when(selectedBranch.isRemote()).thenReturn(false);
+
+        presenter.onBranchSelected(selectedBranch);
+
         verify(view).setEnableRenameButton(eq(ENABLE_BUTTON));
+    }
+
+    @Test
+    public void renameButtonShouldBeDisabled() throws Exception {
+        //we can not rename remote branch for now
+        when(selectedBranch.isRemote()).thenReturn(true);
+
+        presenter.onBranchSelected(selectedBranch);
+
+        verify(view).setEnableRenameButton(eq(DISABLE_BUTTON));
+    }
+
+    @Test
+    public void deleteButtonShouldBeEnabled() throws Exception {
+        when(selectedBranch.isActive()).thenReturn(false);
+
+        presenter.onBranchSelected(selectedBranch);
+
+        verify(view).setEnableDeleteButton(eq(ENABLE_BUTTON));
+    }
+
+    @Test
+    public void deleteButtonShouldBeDisabled() throws Exception {
+        when(selectedBranch.isActive()).thenReturn(true);
+
+        presenter.onBranchSelected(selectedBranch);
+
+        verify(view).setEnableDeleteButton(eq(DISABLE_BUTTON));
     }
 }
