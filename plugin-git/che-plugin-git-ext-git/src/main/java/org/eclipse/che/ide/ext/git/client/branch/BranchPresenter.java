@@ -273,10 +273,11 @@ public class BranchPresenter implements BranchView.ActionDelegate {
     @Override
     public void onBranchSelected(@Nonnull Branch branch) {
         selectedBranch = branch;
-        boolean enabled = !selectedBranch.isActive();
-        view.setEnableCheckoutButton(enabled);
-        view.setEnableDeleteButton(true);
-        view.setEnableRenameButton(true);
+        boolean isActive = selectedBranch.isActive();
+
+        view.setEnableCheckoutButton(!isActive);
+        view.setEnableDeleteButton(!isActive);
+        view.setEnableRenameButton(!selectedBranch.isRemote());//we can not rename remote branch for now
     }
 
     /**
