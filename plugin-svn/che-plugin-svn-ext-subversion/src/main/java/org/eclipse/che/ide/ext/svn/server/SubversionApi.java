@@ -337,7 +337,7 @@ public class SubversionApi {
 
         // Flags
         addFlag(cliArgs, "--ignore-externals", request.isIgnoreExternals());
-        addFlag(cliArgs, "--no-ignore", !request.isShowIgnored());
+        addFlag(cliArgs, "--no-ignore", request.isShowIgnored());
         addFlag(cliArgs, "--quiet", !request.isShowUnversioned());
         addFlag(cliArgs, "--show-updates", request.isShowUpdates());
         addFlag(cliArgs, "--verbose", request.isVerbose());
