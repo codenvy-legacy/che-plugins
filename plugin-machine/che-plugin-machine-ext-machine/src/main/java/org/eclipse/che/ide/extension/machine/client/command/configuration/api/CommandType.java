@@ -13,8 +13,6 @@ package org.eclipse.che.ide.extension.machine.client.command.configuration.api;
 import javax.annotation.Nonnull;
 
 /**
- * //
- *
  * @author Artem Zatsarynnyy
  */
 public interface CommandType {
