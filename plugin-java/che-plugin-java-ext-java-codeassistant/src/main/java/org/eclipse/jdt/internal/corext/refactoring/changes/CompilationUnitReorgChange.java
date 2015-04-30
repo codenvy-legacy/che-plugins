@@ -23,7 +23,6 @@ import org.eclipse.jdt.internal.corext.refactoring.reorg.INewNameQuery;
 import org.eclipse.jdt.internal.corext.util.JavaElementResourceMapping;
 import org.eclipse.jdt.ui.JavaElementLabels;
 import org.eclipse.ltk.core.refactoring.Change;
-import org.eclipse.ltk.core.refactoring.participants.ReorgExecutionLog;
 import org.eclipse.ltk.core.refactoring.resource.ResourceChange;
 
 abstract class CompilationUnitReorgChange extends ResourceChange {
@@ -107,10 +106,10 @@ abstract class CompilationUnitReorgChange extends ResourceChange {
 	}
 
 	private void markAsExecuted(ICompilationUnit unit, ResourceMapping mapping) {
-		ReorgExecutionLog log= (ReorgExecutionLog)getAdapter(ReorgExecutionLog.class);
-		if (log != null) {
-			log.markAsProcessed(unit);
-			log.markAsProcessed(mapping);
-		}
+//		ReorgExecutionLog log= (ReorgExecutionLog)getAdapter(ReorgExecutionLog.class);
+//		if (log != null) {
+//			log.markAsProcessed(unit);
+//			log.markAsProcessed(mapping);
+//		}
 	}
 }

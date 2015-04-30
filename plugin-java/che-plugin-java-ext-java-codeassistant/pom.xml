@@ -266,6 +266,7 @@
                         <exclude>**/org/eclipse/che/jdt/internal/core/search/TypeNameRequestorWrapper.java</exclude>
                         <exclude>**/org/eclipse/che/jdt/internal/core/util/**</exclude>
                         <exclude>**/org/eclipse/che/jdt/internal/core/ClasspathEntry.java</exclude>
+                        <exclude>**/org/eclipse/che/text/test/Accessor.java</exclude>
                         <exclude>**/org/eclipse/che/jdt/internal/corext/CorextMessages.properties</exclude>
                     </excludes>
                 </configuration>

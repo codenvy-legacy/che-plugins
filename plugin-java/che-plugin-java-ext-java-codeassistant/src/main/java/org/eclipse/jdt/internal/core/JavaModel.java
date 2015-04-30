@@ -256,12 +256,11 @@ public IWorkspace getWorkspace() {
  */
 public void move(IJavaElement[] elements, IJavaElement[] containers, IJavaElement[] siblings, String[] renamings, boolean force, IProgressMonitor monitor) throws
 																																						   JavaModelException {
-//	if (elements != null && elements.length > 0 && elements[0] != null && elements[0].getElementType() < IJavaElement.TYPE) {
-//		runOperation(new MoveResourceElementsOperation(elements, containers, force), elements, siblings, renamings, monitor);
-//	} else {
-//		runOperation(new MoveElementsOperation(elements, containers, force), elements, siblings, renamings, monitor);
-//	}
-	throw new UnsupportedOperationException();
+	if (elements != null && elements.length > 0 && elements[0] != null && elements[0].getElementType() < IJavaElement.TYPE) {
+		runOperation(new MoveResourceElementsOperation(elements, containers, force), elements, siblings, renamings, monitor);
+	} else {
+		runOperation(new MoveElementsOperation(elements, containers, force), elements, siblings, renamings, monitor);
+	}
 }
 
 /**
@@ -280,29 +279,29 @@ public void refreshExternalArchives(IJavaElement[] elementsScope, IProgressMonit
  */
 public void rename(IJavaElement[] elements, IJavaElement[] destinations, String[] renamings, boolean force, IProgressMonitor monitor) throws
 																																	  JavaModelException {
-//	MultiOperation op;
-//	if (elements != null && elements.length > 0 && elements[0] != null && elements[0].getElementType() < IJavaElement.TYPE) {
-//		op = new RenameResourceElementsOperation(elements, destinations, renamings, force);
-//	} else {
-//		op = new RenameElementsOperation(elements, destinations, renamings, force);
-//	}
-//
-//	op.runOperation(monitor);
-	throw new UnsupportedOperationException();
+	MultiOperation op;
+	if (elements != null && elements.length > 0 && elements[0] != null && elements[0].getElementType() < IJavaElement.TYPE) {
+		op = new RenameResourceElementsOperation(elements, destinations, renamings, force);
+	} else {
+		op = new RenameElementsOperation(elements, destinations, renamings, force);
+	}
+
+	op.runOperation(monitor);
+//	throw new UnsupportedOperationException();
 }
-///**
-// * Configures and runs the <code>MultiOperation</code>.
-// */
-//protected void runOperation(MultiOperation op, IJavaElement[] elements, IJavaElement[] siblings, String[] renamings, IProgressMonitor monitor) throws
-//																																			   JavaModelException {
-//	op.setRenamings(renamings);
-//	if (siblings != null) {
-//		for (int i = 0; i < elements.length; i++) {
-//			op.setInsertBefore(elements[i], siblings[i]);
-//		}
-//	}
-//	op.runOperation(monitor);
-//}
+/**
+ * Configures and runs the <code>MultiOperation</code>.
+ */
+protected void runOperation(MultiOperation op, IJavaElement[] elements, IJavaElement[] siblings, String[] renamings, IProgressMonitor monitor) throws
+																																			   JavaModelException {
+	op.setRenamings(renamings);
+	if (siblings != null) {
+		for (int i = 0; i < elements.length; i++) {
+			op.setInsertBefore(elements[i], siblings[i]);
+		}
+	}
+	op.runOperation(monitor);
+}
 /**
  * @private Debugging purposes
  */
@@ -368,11 +367,20 @@ public static Object getExternalTarget(IPath path, boolean checkResourceExistenc
 //		}
 //		return linkedFolder;
 //	}
+
 	File externalFile = new File(path.toOSString());
+    if(externalFile.exists()){
+//        if(checkResourceExistence){
+//            if(!externalFile.isDirectory()){
+//                return null;
+//            }
+//        }
+        return externalFile;
+    }
 //	if (!checkResourceExistence) {
 //		return externalFile;
 //	} else if (isExternalFile(path)) {
-		return externalFile;
+		return null;
 //	}
 //	throw new UnsupportedOperationException();
 }

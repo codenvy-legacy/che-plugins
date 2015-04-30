@@ -1306,6 +1306,7 @@ public class StubUtility {
 				}
 			} catch (JavaModelException e) {
 				// ignore
+                e.printStackTrace();
 			}
 		}
 		String[] names= new String[nParams];

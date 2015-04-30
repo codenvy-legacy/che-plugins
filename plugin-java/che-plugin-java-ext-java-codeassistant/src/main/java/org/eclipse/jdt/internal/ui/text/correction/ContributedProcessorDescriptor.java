@@ -135,7 +135,7 @@ public final class ContributedProcessorDescriptor {
 
 	public boolean canHandleMarkerType(String markerType) {
 //		return fHandledMarkerTypes == null || fHandledMarkerTypes.contains(markerType);
-		return false;
+		return true;
 	}
 
 }

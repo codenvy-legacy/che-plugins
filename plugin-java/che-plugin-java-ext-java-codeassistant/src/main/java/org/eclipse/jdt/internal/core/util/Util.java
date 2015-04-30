@@ -2944,6 +2944,27 @@ public class Util {
         return method;
     }
 
+    /**
+     * Sets or unsets the given resource as read-only in the file system.
+     * It's a no-op if the file system does not support the read-only attribute.
+     *
+     * @param resource The resource to set as read-only
+     * @param readOnly <code>true</code> to set it to read-only,
+     *		<code>false</code> to unset
+     */
+    public static void setReadOnly(IResource resource, boolean readOnly) {
+//        if (isReadOnlySupported()) {
+//            ResourceAttributes resourceAttributes = resource.getResourceAttributes();
+//            if (resourceAttributes == null) return; // not supported on this platform for this resource
+//            resourceAttributes.setReadOnly(readOnly);
+//            try {
+//                resource.setResourceAttributes(resourceAttributes);
+//            } catch (CoreException e) {
+//                // ignore
+//            }
+//        }
+    }
+
     public static synchronized void verbose(String log, PrintStream printStream) {
         int start = 0;
         do {

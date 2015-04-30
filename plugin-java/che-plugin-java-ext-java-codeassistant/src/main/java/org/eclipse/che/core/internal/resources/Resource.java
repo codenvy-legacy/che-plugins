@@ -18,6 +18,7 @@ import org.eclipse.core.internal.utils.Messages;
 import org.eclipse.core.internal.utils.WrappedRuntimeException;
 import org.eclipse.core.internal.watson.IPathRequestor;
 import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IPathVariableManager;
@@ -396,7 +397,8 @@ public abstract class Resource implements IResource, IPathRequestor {
 
     @Override
     public ResourceAttributes getResourceAttributes() {
-        throw new UnsupportedOperationException();
+//        throw new UnsupportedOperationException();
+        return new ResourceAttributes();
     }
 
     @Override
@@ -466,7 +468,8 @@ public abstract class Resource implements IResource, IPathRequestor {
 
     @Override
     public boolean isLinked(int options) {
-        throw new UnsupportedOperationException();
+//        throw new UnsupportedOperationException();
+        return false;
     }
 
     @Override
@@ -476,7 +479,8 @@ public abstract class Resource implements IResource, IPathRequestor {
 
     @Override
     public boolean isReadOnly() {
-        throw new UnsupportedOperationException();
+//        throw new UnsupportedOperationException();
+        return false;
     }
 
     @Override
@@ -497,12 +501,76 @@ public abstract class Resource implements IResource, IPathRequestor {
 
     @Override
     public void move(IPath destination, boolean force, IProgressMonitor monitor) throws CoreException {
-        throw new UnsupportedOperationException();
+        move(destination, force ? IResource.FORCE : IResource.NONE, monitor);
     }
 
     @Override
     public void move(IPath destination, int updateFlags, IProgressMonitor monitor) throws CoreException {
-        throw new UnsupportedOperationException();
+        monitor = Policy.monitorFor(monitor);
+        try{
+            String message = NLS.bind(Messages.resources_moving, getFullPath());
+            monitor.beginTask(message, Policy.totalWork);
+            Policy.checkCanceled(monitor);
+            destination = makePathAbsolute(destination);
+//            checkValidPath(destination, getType(), false);
+            Resource destResource = workspace.newResource(destination, getType());
+            final ISchedulingRule rule = workspace.getRuleFactory().moveRule(this, destResource);
+            WorkManager workManager = workspace.getWorkManager();
+            try {
+                workspace.prepareOperation(rule, monitor);
+                workspace.beginOperation(true);
+                int depth = 0;
+                try {
+                    depth = workManager.beginUnprotected();
+                    unprotectedMove(destResource, updateFlags, monitor);
+                } finally {
+                    workManager.endUnprotected(depth);
+                }
+            } finally {
+                workspace.endOperation(rule, true, Policy.subMonitorFor(monitor, Policy.endOpWork));
+            }
+        } finally {
+            monitor.done();
+        }
+    }
+
+    protected IPath makePathAbsolute(IPath target) {
+        if (target.isAbsolute())
+            return target;
+        return getParent().getFullPath().append(target);
+    }
+
+    /**
+     * Calls the move/delete hook to perform the move.  Since this method calls
+     * client code, it is run "unprotected", so the workspace lock is not held.
+     * Returns true if resources were actually moved, and false otherwise.
+     */
+    private boolean unprotectedMove(final IResource destination, int updateFlags, IProgressMonitor monitor) throws CoreException, ResourceException {
+//        IMoveDeleteHook hook = workspace.getMoveDeleteHook();
+        switch (getType()) {
+            case IResource.FILE :
+//                if (!hook.moveFile(tree, (IFile) this, (IFile) destination, updateFlags, Policy.subMonitorFor(monitor, Policy.opWork / 2)))
+                    workspace.standardMoveFile((IFile) this, (IFile) destination, updateFlags, Policy.subMonitorFor(monitor, Policy.opWork));
+                break;
+            case IResource.FOLDER :
+//                if (!hook.moveFolder(tree, (IFolder) this, (IFolder) destination, updateFlags, Policy.subMonitorFor(monitor, Policy.opWork / 2)))
+                workspace.standardMoveFolder((IFolder) this, (IFolder) destination, updateFlags, Policy.subMonitorFor(monitor, Policy.opWork));
+                break;
+            case IResource.PROJECT :
+                IProject project = (IProject) this;
+                // if there is no change in name, there is nothing to do so return.
+                if (getName().equals(destination.getName()))
+                    return false;
+                IProjectDescription description = project.getDescription();
+                description.setName(destination.getName());
+//                if (!hook.moveProject(tree, project, description, updateFlags, Policy.subMonitorFor(monitor, Policy.opWork / 2)))
+                workspace.standardMoveProject(project, description, updateFlags, Policy.subMonitorFor(monitor, Policy.opWork));
+                break;
+            case IResource.ROOT :
+                String msg = Messages.resources_moveRoot;
+                throw new ResourceException(new ResourceStatus(IResourceStatus.INVALID_VALUE, getFullPath(), msg));
+        }
+        return true;
     }
 
     @Override

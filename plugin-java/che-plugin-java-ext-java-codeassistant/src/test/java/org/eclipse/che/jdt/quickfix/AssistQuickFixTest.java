@@ -52,9 +52,9 @@ public class AssistQuickFixTest extends QuickFixTest {
 	private IJavaProject fJProject1;
 	private IPackageFragmentRoot fSourceFolder;
 
-//	public AssistQuickFixTest(String name) {
-//		super(name);
-//	}
+	public AssistQuickFixTest() {
+		super(new ProjectTestSetup());
+	}
 
 //	public static Test suite() {
 //		return setUpTest(new TestSuite(THIS));

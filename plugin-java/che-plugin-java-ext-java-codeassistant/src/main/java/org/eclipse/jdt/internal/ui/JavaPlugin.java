@@ -14,6 +14,7 @@ package org.eclipse.jdt.internal.ui;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.core.JavaCorePreferenceInitializer;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -149,6 +150,7 @@ public class JavaPlugin {
 //                return DocumentAdapter.NULL;
 //            }
 //        });
+        new JavaCore();
         fMembersOrderPreferenceCache= new MembersOrderPreferenceCache();
         PreferenceConstants.initializeDefaultValues(PreferenceConstants.getPreferenceStore());
         new JavaCorePreferenceInitializer().initializeDefaultPreferences();

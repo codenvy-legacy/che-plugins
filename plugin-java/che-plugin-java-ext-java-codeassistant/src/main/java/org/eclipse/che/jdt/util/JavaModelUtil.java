@@ -27,6 +27,7 @@ import org.eclipse.text.edits.TextEdit;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Map;
 
 /**
  * @author Evgen Vidolob
@@ -608,5 +609,8 @@ public class JavaModelUtil {
 //        if (compliance == null)
             return true; // assume 1.5
 //        return is50OrHigher(compliance);
+    }
+    public static void setComplianceOptions(Map<String, String> map, String compliance) {
+        JavaCore.setComplianceOptions(compliance, map);
     }
 }

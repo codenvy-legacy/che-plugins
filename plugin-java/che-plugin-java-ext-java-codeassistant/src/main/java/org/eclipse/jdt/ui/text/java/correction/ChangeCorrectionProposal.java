@@ -159,19 +159,19 @@ public class ChangeCorrectionProposal
 						valid.getMessageMatchingSeverity(RefactoringStatus.FATAL), null);
 					throw new CoreException(status);
 				} else {
-					IUndoManager manager= RefactoringCore.getUndoManager();
+//					IUndoManager manager= RefactoringCore.getUndoManager();
 					Change undoChange;
 					boolean successful= false;
 					try {
-						manager.aboutToPerformChange(change);
+//						manager.aboutToPerformChange(change);
 						undoChange= change.perform(new NullProgressMonitor());
 						successful= true;
 					} finally {
-						manager.changePerformed(change, successful);
+//						manager.changePerformed(change, successful);
 					}
 					if (undoChange != null) {
-						undoChange.initializeValidationData(new NullProgressMonitor());
-						manager.addUndo(getName(), undoChange);
+//						undoChange.initializeValidationData(new NullProgressMonitor());
+//						manager.addUndo(getName(), undoChange);
 					}
 				}
 			}

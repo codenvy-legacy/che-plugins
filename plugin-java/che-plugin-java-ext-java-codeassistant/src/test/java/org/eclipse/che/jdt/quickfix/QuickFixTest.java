@@ -11,7 +11,6 @@
 package org.eclipse.che.jdt.quickfix;
 
 import org.eclipse.che.core.internal.resources.ResourcesPlugin;
-import org.eclipse.jdt.internal.core.BufferManager;
 import org.eclipse.che.jdt.testplugin.JavaProjectHelper;
 import org.eclipse.che.jdt.testplugin.ProjectTestSetup;
 import org.eclipse.che.jdt.testplugin.StringAsserts;
@@ -31,6 +30,7 @@ import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
+import org.eclipse.jdt.internal.core.BufferManager;
 import org.eclipse.jdt.internal.core.DefaultWorkingCopyOwner;
 import org.eclipse.jdt.internal.ui.JavaPlugin;
 import org.eclipse.jdt.internal.ui.text.correction.ASTResolving;
@@ -46,6 +46,8 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
+import org.junit.After;
+import org.junit.Before;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -57,7 +59,7 @@ import static org.junit.Assert.assertTrue;
 
 /**
  */
-public class QuickFixTest extends ProjectTestSetup {
+public class QuickFixTest  {
 	protected static final String wsPath = QuickFixTest.class.getResource("/projects").getFile();
 	protected static ResourcesPlugin plugin = new ResourcesPlugin(wsPath + "/index", QuickFixTest.class.getResource("/projects").getFile());
 	protected static JavaPlugin javaPlugin = new JavaPlugin(wsPath + "/set");
@@ -66,6 +68,7 @@ public class QuickFixTest extends ProjectTestSetup {
 	static {
 		plugin.start();
 		javaPlugin.start();
+
 		DefaultWorkingCopyOwner.setPrimaryBufferProvider(new WorkingCopyOwner() {
 			@Override
 			public IBuffer createBuffer(ICompilationUnit workingCopy) {
@@ -73,6 +76,8 @@ public class QuickFixTest extends ProjectTestSetup {
 			}
 		});
 	}
+
+    private ProjectTestSetup setup;
 
 //	public static Test suite() {
 //		TestSuite suite = new TestSuite(QuickFixTest.class.getName());
@@ -113,46 +118,54 @@ public class QuickFixTest extends ProjectTestSetup {
 //	}
 
 
-//	public QuickFixTest(String name) {
-//		super(name);
-//	}
+    public QuickFixTest(ProjectTestSetup setup) {
+        this.setup = setup;
+    }
+    @Before
+    public void setUp() throws Exception {
+        setup.setUp();
+    }
+    @After
+    public void tearDown() throws Exception {
+        setup.setUp();
+    }
 
-	public static void assertCorrectLabels(List proposals) {
-		for (int i = 0; i < proposals.size(); i++) {
-			ICompletionProposal proposal = (ICompletionProposal)proposals.get(i);
-			String name = proposal.getDisplayString();
-			if (name == null || name.length() == 0 || name.charAt(0) == '!' || name.indexOf("{0}") != -1 || name.indexOf("{1}") != -1) {
-				assertTrue("wrong proposal label: " + name, false);
-			}
-			if (proposal.getImage() == null) {
-				assertTrue("wrong proposal image", false);
-			}
-		}
-	}
+    public static void assertCorrectLabels(List proposals) {
+        for (int i = 0; i < proposals.size(); i++) {
+            ICompletionProposal proposal = (ICompletionProposal)proposals.get(i);
+            String name = proposal.getDisplayString();
+            if (name == null || name.length() == 0 || name.charAt(0) == '!' || name.indexOf("{0}") != -1 || name.indexOf("{1}") != -1) {
+                assertTrue("wrong proposal label: " + name, false);
+            }
+            if (proposal.getImage() == null) {
+                assertTrue("wrong proposal image", false);
+            }
+        }
+    }
 
-	public static void assertCorrectContext(IInvocationContext context, ProblemLocation problem) {
-		if (problem.getProblemId() != 0) {
-			if (!JavaCorrectionProcessor.hasCorrections(context.getCompilationUnit(), problem.getProblemId(), problem.getMarkerType())) {
-				assertTrue("Problem type not marked with light bulb: " + problem, false);
-			}
-		}
-	}
-
-
-	public static void assertNumberOf(String name, int nProblems, int nProblemsExpected) {
-		assertTrue("Wrong number of " + name + ", is: " + nProblems + ", expected: " + nProblemsExpected, nProblems == nProblemsExpected);
-	}
+    public static void assertCorrectContext(IInvocationContext context, ProblemLocation problem) {
+        if (problem.getProblemId() != 0) {
+            if (!JavaCorrectionProcessor.hasCorrections(context.getCompilationUnit(), problem.getProblemId(), problem.getMarkerType())) {
+                assertTrue("Problem type not marked with light bulb: " + problem, false);
+            }
+        }
+    }
 
 
-	public static void assertEqualString(String actual, String expected) {
-		StringAsserts.assertEqualString(actual, expected);
-	}
+    public static void assertNumberOf(String name, int nProblems, int nProblemsExpected) {
+        assertTrue("Wrong number of " + name + ", is: " + nProblems + ", expected: " + nProblemsExpected, nProblems == nProblemsExpected);
+    }
 
-	public static void assertEqualStringIgnoreDelim(String actual, String expected) throws IOException {
-		StringAsserts.assertEqualStringIgnoreDelim(actual, expected);
-	}
 
-	public static void assertEqualStringsIgnoreOrder(String[] actuals, String[] expecteds) {
+    public static void assertEqualString(String actual, String expected) {
+        StringAsserts.assertEqualString(actual, expected);
+    }
+
+    public static void assertEqualStringIgnoreDelim(String actual, String expected) throws IOException {
+        StringAsserts.assertEqualStringIgnoreDelim(actual, expected);
+    }
+
+    public static void assertEqualStringsIgnoreOrder(String[] actuals, String[] expecteds) {
 		StringAsserts.assertEqualStringsIgnoreOrder(actuals, expecteds);
 	}
 

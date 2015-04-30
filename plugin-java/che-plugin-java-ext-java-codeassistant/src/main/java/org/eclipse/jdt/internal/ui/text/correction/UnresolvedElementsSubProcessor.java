@@ -12,8 +12,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.ui.text.correction;
 
-import org.eclipse.jdt.core.dom.rewrite.ImportRewrite;
-import org.eclipse.jdt.core.dom.rewrite.ImportRewrite.ImportRewriteContext;
 import org.eclipse.che.jdt.util.JavaModelUtil;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -69,6 +67,8 @@ import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
+import org.eclipse.jdt.core.dom.rewrite.ImportRewrite;
+import org.eclipse.jdt.core.dom.rewrite.ImportRewrite.ImportRewriteContext;
 import org.eclipse.jdt.core.refactoring.CompilationUnitChange;
 import org.eclipse.jdt.internal.corext.codemanipulation.ContextSensitiveImportRewriteContext;
 import org.eclipse.jdt.internal.corext.codemanipulation.StubUtility;
@@ -92,7 +92,6 @@ import org.eclipse.jdt.internal.ui.text.correction.proposals.ChangeMethodSignatu
 import org.eclipse.jdt.internal.ui.text.correction.proposals.ChangeMethodSignatureProposal.SwapDescription;
 import org.eclipse.jdt.internal.ui.text.correction.proposals.LinkedCorrectionProposal;
 import org.eclipse.jdt.internal.ui.text.correction.proposals.NewAnnotationMemberProposal;
-import org.eclipse.jdt.internal.ui.text.correction.proposals.NewCUUsingWizardProposal;
 import org.eclipse.jdt.internal.ui.text.correction.proposals.NewMethodCorrectionProposal;
 import org.eclipse.jdt.internal.ui.text.correction.proposals.NewVariableCorrectionProposal;
 import org.eclipse.jdt.internal.ui.text.correction.proposals.RenameNodeCorrectionProposal;
@@ -927,17 +926,18 @@ public class UnresolvedElementsSubProcessor {
 						|| enclosingType != null && !enclosingType.isReadOnly() && !enclosingType.getType(typeName).exists()) { // new member type
 					IJavaElement enclosing= enclosingPackage != null ? (IJavaElement) enclosingPackage : enclosingType;
 
+					//TODO NewCUUsingWizardProposal
 					if ((kind & SimilarElementsRequestor.CLASSES) != 0) {
-						proposals.add(new NewCUUsingWizardProposal(cu, node, NewCUUsingWizardProposal.K_CLASS, enclosing, rel+3));
+//						proposals.add(new NewCUUsingWizardProposal(cu, node, NewCUUsingWizardProposal.K_CLASS, enclosing, rel+3));
 					}
 					if ((kind & SimilarElementsRequestor.INTERFACES) != 0) {
-						proposals.add(new NewCUUsingWizardProposal(cu, node, NewCUUsingWizardProposal.K_INTERFACE, enclosing, rel+2));
+//						proposals.add(new NewCUUsingWizardProposal(cu, node, NewCUUsingWizardProposal.K_INTERFACE, enclosing, rel+2));
 					}
 					if ((kind & SimilarElementsRequestor.ENUMS) != 0) {
-						proposals.add(new NewCUUsingWizardProposal(cu, node, NewCUUsingWizardProposal.K_ENUM, enclosing, rel));
+//						proposals.add(new NewCUUsingWizardProposal(cu, node, NewCUUsingWizardProposal.K_ENUM, enclosing, rel));
 					}
 					if ((kind & SimilarElementsRequestor.ANNOTATIONS) != 0) {
-						proposals.add(new NewCUUsingWizardProposal(cu, node, NewCUUsingWizardProposal.K_ANNOTATION, enclosing, rel + 1));
+//						proposals.add(new NewCUUsingWizardProposal(cu, node, NewCUUsingWizardProposal.K_ANNOTATION, enclosing, rel + 1));
 						addNullityAnnotationTypesProposals(cu, node, proposals);
 					}
 				}

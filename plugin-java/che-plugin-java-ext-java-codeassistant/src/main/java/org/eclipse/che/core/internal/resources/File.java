@@ -120,7 +120,7 @@ public class File  extends Resource implements IFile{
 
     @Override
     public void setCharset(String s, IProgressMonitor iProgressMonitor) throws CoreException {
-        throw new UnsupportedOperationException();
+//        throw new UnsupportedOperationException();
     }
 
     @Override

@@ -19,6 +19,7 @@ import org.eclipse.core.internal.utils.Messages;
 import org.eclipse.core.resources.IBuildConfiguration;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFilterMatcherDescriptor;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IPathVariableManager;
 import org.eclipse.core.resources.IProject;
@@ -52,6 +53,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.Map;
 
 /**
@@ -664,5 +667,29 @@ public class Workspace implements IWorkspace {
         } catch (IOException e) {
             throw new CoreException(new Status(0, "", e.getMessage(), e));
         }
+    }
+
+    public void standardMoveFile(IFile file, IFile destination, int updateFlags, IProgressMonitor monitor) throws CoreException{
+        java.io.File ioFile = getFile(file.getFullPath());
+        java.io.File ioDestination = getFile(destination.getFullPath());
+        try {
+            Files.move(ioFile.toPath(), ioDestination.toPath());
+        } catch (IOException e) {
+           throw new CoreException(new Status(IStatus.ERROR, "", "Can't move file: " + file.getFullPath() + " to: " + destination.getFullPath(), e));
+        }
+    }
+
+    public void standardMoveFolder(IFolder folder, IFolder destination, int updateFlags, IProgressMonitor monitor) throws CoreException {
+        java.io.File ioFile = getFile(folder.getFullPath());
+        java.io.File ioDestination = getFile(destination.getFullPath());
+        try {
+            Files.move(ioFile.toPath(), ioDestination.toPath(), StandardCopyOption.COPY_ATTRIBUTES);
+        } catch (IOException e) {
+            throw new CoreException(new Status(IStatus.ERROR, "", "Can't move folder: " + folder.getFullPath() + " to: " + destination.getFullPath(), e));
+        }
+    }
+
+    public void standardMoveProject(IProject project, IProjectDescription description, int updateFlags, IProgressMonitor monitor) {
+        throw new UnsupportedOperationException("standardMoveProject");
     }
 }
