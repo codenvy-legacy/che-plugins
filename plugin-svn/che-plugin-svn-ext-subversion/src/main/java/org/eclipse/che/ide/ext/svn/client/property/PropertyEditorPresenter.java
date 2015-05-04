@@ -115,13 +115,13 @@ public class PropertyEditorPresenter extends SubversionActionPresenter implement
     /** {@inheritDoc} */
     @Override
     public void minimize() {
-        //stub
+        // stub
     }
 
     /** {@inheritDoc} */
     @Override
     public void activatePart() {
-        //stub
+        // stub
     }
 
     private void getAndShowPropertyValue(String property, String projectPath) {

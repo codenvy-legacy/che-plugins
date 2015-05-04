@@ -51,34 +51,34 @@ public class PropertyEditorViewImpl extends Window implements PropertyEditorView
     interface PropertyEditorViewImplUiBinder extends UiBinder<Widget, PropertyEditorViewImpl> {
     }
 
-    Button btnOk;
-    Button btnCancel;
+    Button                                    btnOk;
+    Button                                    btnCancel;
 
     @UiField(provided = true)
-    SuggestBox propertyList;
+    SuggestBox                                propertyList;
 
     @UiField
-    RadioButton editProperty;
+    RadioButton                               editProperty;
 
     @UiField
-    RadioButton deleteProperty;
+    RadioButton                               deleteProperty;
 
     @UiField
-    TextArea propertyValue;
+    TextArea                                  propertyValue;
 
     @UiField
-    ListBox depth;
+    ListBox                                   depth;
 
     @UiField
-    CheckBox force;
+    CheckBox                                  force;
 
     @UiField
-    TextArea propertyCurrentValue;
+    TextArea                                  propertyCurrentValue;
 
     @UiField(provided = true)
-    SubversionExtensionResources             resources;
+    SubversionExtensionResources              resources;
     @UiField(provided = true)
-    SubversionExtensionLocalizationConstants constants;
+    SubversionExtensionLocalizationConstants  constants;
 
     private PropertyEditorView.ActionDelegate delegate;
 
