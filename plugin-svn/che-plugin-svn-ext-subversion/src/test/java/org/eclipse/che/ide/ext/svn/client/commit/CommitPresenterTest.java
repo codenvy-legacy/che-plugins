@@ -18,6 +18,7 @@ import org.eclipse.che.ide.ext.svn.client.commit.diff.DiffViewerPresenter;
 import org.eclipse.che.ide.ext.svn.client.common.BaseSubversionPresenterTest;
 import org.eclipse.che.ide.ext.svn.shared.CLIOutputResponse;
 import org.eclipse.che.ide.ext.svn.shared.CLIOutputWithRevisionResponse;
+import org.eclipse.che.ide.ext.svn.shared.StatusItem;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.test.GwtReflectionUtils;
 import org.junit.Test;
@@ -66,7 +67,7 @@ public class CommitPresenterTest extends BaseSubversionPresenterTest {
     }
 
     @Test
-    public void testCommitViewShouldBeShowed() throws Exception {
+    public void testCommitViewShouldLoadAllChanges() throws Exception {
         CLIOutputResponse response = mock(CLIOutputResponse.class);
 
         when(response.getOutput()).thenReturn(Collections.EMPTY_LIST);
@@ -83,10 +84,11 @@ public class CommitPresenterTest extends BaseSubversionPresenterTest {
                                eq(false),
                                isNull(List.class),
                                asyncRequestCallbackStatusCaptor.capture());
+
         AsyncRequestCallback<CLIOutputResponse> requestCallback = asyncRequestCallbackStatusCaptor.getValue();
         GwtReflectionUtils.callPrivateMethod(requestCallback, "onSuccess", response);
 
-        verify(view).onShow();
+        verify(view).setChangesList(anyListOf(StatusItem.class));
     }
 
     @Test
