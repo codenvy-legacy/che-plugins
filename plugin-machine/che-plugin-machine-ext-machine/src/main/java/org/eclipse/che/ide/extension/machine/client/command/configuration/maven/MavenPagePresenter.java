@@ -36,6 +36,9 @@ public class MavenPagePresenter implements MavenPageView.ActionDelegate, Configu
 
     @Override
     public void reset(@Nonnull CommandConfiguration configuration) {
+        if (!(configuration instanceof MavenCommandConfiguration)) {
+            throw new IllegalArgumentException("Configuration should be MavenCommandConfiguration instance only.");
+        }
         this.configuration = (MavenCommandConfiguration)configuration;
     }
 

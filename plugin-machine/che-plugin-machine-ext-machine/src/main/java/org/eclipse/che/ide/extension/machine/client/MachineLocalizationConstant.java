@@ -20,14 +20,11 @@ import com.google.gwt.i18n.client.Messages;
 public interface MachineLocalizationConstant extends Messages {
 
     /* Buttons */
-    @Key("button.ok")
-    String okButton();
-
     @Key("button.execute")
     String executeButton();
 
-    @Key("button.cancel")
-    String cancelButton();
+    @Key("button.close")
+    String closeButton();
 
 
     /* Actions */

@@ -26,7 +26,6 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import org.eclipse.che.ide.api.preferences.PreferencePagePresenter;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.command.configuration.api.CommandConfiguration;
 import org.eclipse.che.ide.extension.machine.client.command.configuration.api.CommandType;
@@ -51,16 +50,21 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
 
     private static final EditConfigurationsViewImplUiBinder UI_BINDER = GWT.create(EditConfigurationsViewImplUiBinder.class);
 
-    private final CategoriesList list;
-    Button btnClose;
-    Button btnSave;
+    private final CategoriesList              categoriesList;
+    private final MachineLocalizationConstant locale;
+    @UiField
+    Button                        addButton;
+    @UiField
+    Button                        removeButton;
+    @UiField
+    Button                        executeButton;
     @UiField
     SimplePanel                   configurations;
     @UiField
     SimplePanel                   contentPanel;
     @UiField(provided = true)
     org.eclipse.che.ide.Resources resources;
-    private final CategoryRenderer<CommandConfiguration> preferencesPageRenderer =
+    private final CategoryRenderer<CommandConfiguration> categoryRenderer =
             new CategoryRenderer<CommandConfiguration>() {
                 @Override
                 public void renderElement(com.google.gwt.dom.client.Element element, CommandConfiguration preference) {
@@ -75,13 +79,15 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
                     return spanElement;
                 }
             };
-    private final MachineLocalizationConstant locale;
-    private ActionDelegate           delegate;
-    private final Category.CategoryEventDelegate<CommandConfiguration> preferencesPageDelegate =
+    private ActionDelegate delegate;
+    private final Category.CategoryEventDelegate<CommandConfiguration> eventDelegate =
             new Category.CategoryEventDelegate<CommandConfiguration>() {
                 @Override
                 public void onListItemClicked(com.google.gwt.dom.client.Element listItemBase, CommandConfiguration itemData) {
                     delegate.onConfigurationSelected(itemData);
+
+                    removeButton.setEnabled(true);
+                    executeButton.setEnabled(true);
                 }
             };
 
@@ -90,39 +96,46 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
         this.resources = resources;
         this.locale = locale;
 
-        Widget widget = UI_BINDER.createAndBindUi(this);
-
-        this.setTitle(locale.editConfigurationsViewTitle());
+        final Widget widget = UI_BINDER.createAndBindUi(this);
         this.setWidget(widget);
+        this.setTitle(locale.editConfigurationsViewTitle());
 
         //create list of configurations
         TableElement tableElement = Elements.createTableElement();
         tableElement.setAttribute("style", "width: 100%");
-        list = new CategoriesList(resources);
-        configurations.add(list);
+        categoriesList = new CategoriesList(resources);
+        configurations.add(categoriesList);
         createButtons();
+
+        addButton.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent clickEvent) {
+                delegate.onAddClicked();
+            }
+        });
+        removeButton.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent clickEvent) {
+                delegate.onDeleteClicked();
+            }
+        });
+        executeButton.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent clickEvent) {
+                delegate.onExecuteClicked();
+            }
+        });
     }
 
     private void createButtons() {
-        btnSave = createButton(locale.okButton(), "window-edit-configurations-storeChanges", new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                delegate.onSaveClicked();
-            }
-        });
-        btnSave.addStyleName(resources.wizardCss().button());
-        btnSave.addStyleName(resources.wizardCss().rightButton());
-        btnSave.addStyleName(resources.wizardCss().buttonPrimary());
-        getFooter().add(btnSave);
-
-        btnClose = createButton(locale.cancelButton(), "window-edit-configurations-cancel", new ClickHandler() {
+        final Button closeButton = createButton(locale.closeButton(), "window-edit-configurations-close", new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 delegate.onCloseClicked();
             }
         });
-        btnClose.addStyleName(resources.wizardCss().button());
-        getFooter().add(btnClose);
+        closeButton.addStyleName(resources.wizardCss().button());
+        getFooter().add(closeButton);
     }
 
     /** {@inheritDoc} */
@@ -133,14 +146,18 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
 
     /** {@inheritDoc} */
     @Override
-    public void close() {
-        this.hide();
+    public void show() {
+        super.show();
+
+        contentPanel.clear();
+        removeButton.setEnabled(false);
+        executeButton.setEnabled(false);
     }
 
     /** {@inheritDoc} */
     @Override
-    public void show() {
-        super.show();
+    public void close() {
+        this.hide();
     }
 
     /** {@inheritDoc} */
@@ -151,33 +168,33 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
 
     /** {@inheritDoc} */
     @Override
-    public void enableSaveButton(boolean enabled) {
-        btnSave.setEnabled(enabled);
+    public void setCommandConfigurations(Map<CommandType, Set<CommandConfiguration>> commandConfigurations) {
+        categoriesList.clear();
+
+        List<Category<?>> categoriesList = new ArrayList<>();
+        for (CommandType commandType : commandConfigurations.keySet()) {
+            final Set<CommandConfiguration> configurations = commandConfigurations.get(commandType);
+            if (!configurations.isEmpty()) {
+                final Category<CommandConfiguration> category = new Category<>(commandType.getDisplayName(),
+                                                                               categoryRenderer,
+                                                                               configurations,
+                                                                               eventDelegate);
+                categoriesList.add(category);
+            }
+        }
+
+        this.categoriesList.render(categoriesList);
     }
 
     /** {@inheritDoc} */
     @Override
-    public void setCommandTypes(Map<CommandType, Set<CommandConfiguration>> preferences) {
-        List<Category<?>> categoriesList = new ArrayList<>();
-        for (CommandType s : preferences.keySet()) {
-            Category<CommandConfiguration> category = new Category<>(s.getDisplayName(),
-                                                                     preferencesPageRenderer,
-                                                                     preferences.get(s),
-                                                                     preferencesPageDelegate);
-            categoriesList.add(category);
-        }
-        list.render(categoriesList);
+    public void selectConfiguration(CommandConfiguration configuration) {
+        categoriesList.selectElement(configuration);
     }
 
     /** {@inheritDoc} */
     @Override
     protected void onClose() {
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void selectPreference(PreferencePagePresenter preference) {
-        list.selectElement(preference);
     }
 
     interface EditConfigurationsViewImplUiBinder extends UiBinder<Widget, EditConfigurationsViewImpl> {

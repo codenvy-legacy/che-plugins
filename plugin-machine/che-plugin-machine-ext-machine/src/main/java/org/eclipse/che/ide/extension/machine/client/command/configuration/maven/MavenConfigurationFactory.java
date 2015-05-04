@@ -17,13 +17,13 @@ import org.eclipse.che.ide.extension.machine.client.command.configuration.api.Co
 import javax.annotation.Nonnull;
 
 /**
- * Factory for {@link MavenCommandConfiguration}s.
+ * Factory for {@link MavenCommandConfiguration} instances.
  *
  * @author Artem Zatsarynnyy
  */
 public class MavenConfigurationFactory extends ConfigurationFactory {
 
-    public MavenConfigurationFactory(CommandType commandType) {
+    protected MavenConfigurationFactory(CommandType commandType) {
         super(commandType);
     }
 

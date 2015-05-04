@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.machine.client.command.configuration.api;
 
+import com.google.gwt.user.client.ui.AcceptsOneWidget;
+
 import org.eclipse.che.ide.api.mvp.Presenter;
 
 import javax.annotation.Nonnull;
@@ -21,5 +23,21 @@ import javax.annotation.Nonnull;
  */
 public interface ConfigurationPage extends Presenter {
 
+    /**
+     * Initializes this page with the given {@code configuration}.
+     * <p/>
+     * This method is called every time when user selects
+     * an appropriate command configuration in 'Command Configuration'
+     * dialog and before actual displaying this page.
+     */
     void reset(@Nonnull CommandConfiguration configuration);
+
+    /**
+     * This method is called every time when user selects
+     * an appropriate command configuration in 'Command Configuration'.
+     * <p/>
+     * {@inheritDoc}
+     */
+    @Override
+    void go(final AcceptsOneWidget container);
 }

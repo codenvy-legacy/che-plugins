@@ -15,7 +15,7 @@ import com.google.inject.Singleton;
 
 import org.eclipse.che.ide.extension.machine.client.command.configuration.api.CommandConfiguration;
 import org.eclipse.che.ide.extension.machine.client.command.configuration.api.CommandType;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.ConfigurationManager;
+import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandConfigurationManager;
 import org.eclipse.che.ide.extension.machine.client.command.configuration.api.ConfigurationPage;
 
 import java.util.HashMap;
@@ -31,17 +31,15 @@ import java.util.Set;
 @Singleton
 public class EditConfigurationsPresenter implements EditConfigurationsView.ActionDelegate {
 
-    private final ConfigurationManager   configurationManager;
-    private final EditConfigurationsView view;
+    private final CommandConfigurationManager commandConfigurationManager;
+    private final EditConfigurationsView      view;
+    private       CommandConfiguration        selectedConfiguration;
 
     @Inject
-    protected EditConfigurationsPresenter(EditConfigurationsView view, ConfigurationManager configurationManager) {
+    protected EditConfigurationsPresenter(EditConfigurationsView view, CommandConfigurationManager commandConfigurationManager) {
         this.view = view;
-        this.configurationManager = configurationManager;
+        this.commandConfigurationManager = commandConfigurationManager;
         this.view.setDelegate(this);
-//        for (ConfigurationPage preference : preferences) {
-//            preference.setUpdateDelegate(this);
-//        }
     }
 
     /** {@inheritDoc} */
@@ -50,39 +48,58 @@ public class EditConfigurationsPresenter implements EditConfigurationsView.Actio
         final ConfigurationPage configurationPage = configuration.getType().getConfigurationPage();
         configurationPage.reset(configuration);
         configurationPage.go(view.getContentPanel());
-    }
 
-    /** Shows dialog. */
-    public void show() {
-        final Set<CommandType> commandTypes = configurationManager.getCommandTypes();
-        final Set<CommandConfiguration> commandConfigurations = configurationManager.getCommandConfigurations();
-
-        final Map<CommandType, Set<CommandConfiguration>> commandsMap = new HashMap<>();
-
-        for (CommandType commandType : commandTypes) {
-            Set<CommandConfiguration> configurations = new HashSet<>();
-            commandsMap.put(commandType, configurations);
-            for (CommandConfiguration configuration : commandConfigurations) {
-                if (commandType.getId().equals(configuration.getType().getId())) {
-                    configurations.add(configuration);
-                }
-            }
-        }
-        view.setCommandTypes(commandsMap);
-
-        view.show();
-        view.enableSaveButton(false);
-//        view.selectPreference(commandsMap.entrySet().iterator().next().getValue().iterator().next());
+        selectedConfiguration = configuration;
     }
 
     /** {@inheritDoc} */
     @Override
-    public void onSaveClicked() {
+    public void onAddClicked() {
+        commandConfigurationManager.createConfiguration(selectedConfiguration.getType());
+        refreshView();
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void onDeleteClicked() {
+        commandConfigurationManager.removeConfiguration(selectedConfiguration);
+        refreshView();
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void onExecuteClicked() {
+        commandConfigurationManager.execute(selectedConfiguration);
     }
 
     /** {@inheritDoc} */
     @Override
     public void onCloseClicked() {
         view.close();
+    }
+
+    /** Show dialog. */
+    public void show() {
+        refreshView();
+        view.show();
+    }
+
+    private void refreshView() {
+        final Set<CommandType> commandTypes = commandConfigurationManager.getCommandTypes();
+        final Set<CommandConfiguration> commandConfigurations = commandConfigurationManager.getCommandConfigurations();
+
+        final Map<CommandType, Set<CommandConfiguration>> commands = new HashMap<>();
+
+        for (CommandType commandType : commandTypes) {
+            Set<CommandConfiguration> configurations = new HashSet<>();
+            commands.put(commandType, configurations);
+            for (CommandConfiguration configuration : commandConfigurations) {
+                if (commandType.getId().equals(configuration.getType().getId())) {
+                    configurations.add(configuration);
+                }
+            }
+        }
+
+        view.setCommandConfigurations(commands);
     }
 }

@@ -13,7 +13,7 @@ package org.eclipse.che.ide.extension.machine.client.command.configuration.api;
 import javax.annotation.Nonnull;
 
 /**
- * Factory for {@link CommandConfiguration}s.
+ * Factory for {@link CommandConfiguration} instances.
  *
  * @author Artem Zatsarynnyy
  */
@@ -21,10 +21,17 @@ public abstract class ConfigurationFactory {
 
     private final CommandType commandType;
 
-    public ConfigurationFactory(CommandType commandType) {
+    /**
+     * Creates new command configuration factory for the specified command type.
+     *
+     * @param commandType
+     *         type of the command configuration which this factory should create
+     */
+    protected ConfigurationFactory(CommandType commandType) {
         this.commandType = commandType;
     }
 
+    /** Returns type of the command configuration which this factory creates. */
     @Nonnull
     public CommandType getCommandType() {
         return commandType;

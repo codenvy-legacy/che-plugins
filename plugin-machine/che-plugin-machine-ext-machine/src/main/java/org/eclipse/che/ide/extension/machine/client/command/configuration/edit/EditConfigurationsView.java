@@ -13,7 +13,6 @@ package org.eclipse.che.ide.extension.machine.client.command.configuration.edit;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 
 import org.eclipse.che.ide.api.mvp.View;
-import org.eclipse.che.ide.api.preferences.PreferencePagePresenter;
 import org.eclipse.che.ide.extension.machine.client.command.configuration.api.CommandConfiguration;
 import org.eclipse.che.ide.extension.machine.client.command.configuration.api.CommandType;
 
@@ -27,63 +26,47 @@ import java.util.Set;
  */
 public interface EditConfigurationsView extends View<EditConfigurationsView.ActionDelegate> {
 
-    /**
-     * Select the pointed preference.
-     *
-     * @param preference
-     *         preference to select.
-     */
-    void selectPreference(PreferencePagePresenter preference);
-
     /** Show view. */
     void show();
 
     /** Close view. */
     void close();
 
-    /**
-     * Returns content panel.
-     *
-     * @return
-     */
+    /** Returns content panel. */
     AcceptsOneWidget getContentPanel();
 
-    /**
-     * Enables or disables Save button.
-     *
-     * @param enabled
-     *         <code>true</code> to enable the button, <code>false</code>
-     *         to disable it
-     */
-    void enableSaveButton(boolean enabled);
+    /** Sets available command configurations. */
+    void setCommandConfigurations(Map<CommandType, Set<CommandConfiguration>> commandConfigurations);
 
     /**
-     * Sets available preferences.
+     * Select the given {@code configuration}.
      *
-     * @param preferences
+     * @param configuration
+     *         configuration to select
      */
-    void setCommandTypes(Map<CommandType, Set<CommandConfiguration>> preferences);
+    void selectConfiguration(CommandConfiguration configuration);
 
     /** Needs for delegate some function into preferences view. */
     interface ActionDelegate {
-        /**
-         * Performs actions when user click Save button.
-         * Actually when button is pressed, preferences must be stored on the server.
-         */
-        void onSaveClicked();
 
-        /**
-         * Performs any actions appropriate in response to the user
-         * having pressed the Close button
-         */
+        /** Called when 'Close' button is clicked. */
         void onCloseClicked();
 
         /**
-         * Performs any actions appropriate in response to select some preference.
+         * Called when some configuration is selected.
          *
-         * @param preference
-         *         selected preference
+         * @param configuration
+         *         selected configuration
          */
-        void onConfigurationSelected(CommandConfiguration preference);
+        void onConfigurationSelected(CommandConfiguration configuration);
+
+        /** Called when 'Add' button is clicked. */
+        void onAddClicked();
+
+        /** Called when 'Delete' button is clicked. */
+        void onDeleteClicked();
+
+        /** Called when 'Execute' button is clicked. */
+        void onExecuteClicked();
     }
 }

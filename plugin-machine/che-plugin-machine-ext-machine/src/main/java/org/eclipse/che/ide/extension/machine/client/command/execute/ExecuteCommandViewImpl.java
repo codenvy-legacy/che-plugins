@@ -61,13 +61,13 @@ public class ExecuteCommandViewImpl extends Window implements ExecuteCommandView
     }
 
     private void createButtons() {
-        final Button cancelButton = createButton(locale.cancelButton(), "view-executeCommand-cancel", new ClickHandler() {
+        final Button closeButton = createButton(locale.closeButton(), "view-executeCommand-close", new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 delegate.onCancelClicked();
             }
         });
-        getFooter().add(cancelButton);
+        getFooter().add(closeButton);
 
         executeButton = createButton(locale.executeButton(), "view-executeCommand-execute", new ClickHandler() {
             @Override

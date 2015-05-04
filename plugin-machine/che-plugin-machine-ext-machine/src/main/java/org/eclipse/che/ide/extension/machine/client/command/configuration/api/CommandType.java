@@ -13,6 +13,8 @@ package org.eclipse.che.ide.extension.machine.client.command.configuration.api;
 import javax.annotation.Nonnull;
 
 /**
+ * The type of a command.
+ *
  * @author Artem Zatsarynnyy
  */
 public interface CommandType {
@@ -25,10 +27,11 @@ public interface CommandType {
     @Nonnull
     String getDisplayName();
 
-    /** Returns the {@link ConfigurationPage}. */
+    /** Returns the {@link ConfigurationPage} that allows to configure specific command parameters. */
     @Nonnull
     ConfigurationPage getConfigurationPage();
 
+    /** Returns factory for {@link CommandConfiguration} instances. */
     @Nonnull
     ConfigurationFactory getConfigurationFactory();
 }

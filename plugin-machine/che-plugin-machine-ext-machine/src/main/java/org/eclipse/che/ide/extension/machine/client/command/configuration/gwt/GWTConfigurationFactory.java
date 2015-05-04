@@ -18,13 +18,13 @@ import org.eclipse.che.ide.extension.machine.client.command.configuration.maven.
 import javax.annotation.Nonnull;
 
 /**
- * Factory for {@link GWTCommandConfiguration}s.
+ * Factory for {@link GWTCommandConfiguration} instances.
  *
  * @author Artem Zatsarynnyy
  */
 public class GWTConfigurationFactory extends ConfigurationFactory {
 
-    public GWTConfigurationFactory(CommandType commandType) {
+    protected GWTConfigurationFactory(CommandType commandType) {
         super(commandType);
     }
 

@@ -13,17 +13,20 @@ package org.eclipse.che.ide.extension.machine.client.command.configuration.api;
 import javax.annotation.Nonnull;
 
 /**
+ * Represents configured command which can be executed in machine.
+ *
  * @author Artem Zatsarynnyy
  */
 public interface CommandConfiguration {
 
-    /** Returns human-readable name of command configuration. */
+    /** Returns command configuration name. */
     @Nonnull
     String getName();
 
-    /** Returns configuration type. */
+    /** Returns command configuration type. */
     @Nonnull
     CommandType getType();
 
+    /** Returns command line to execute in machine. */
     String getCommand();
 }

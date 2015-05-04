@@ -79,6 +79,8 @@ public class MachineExtension {
                             protected void onSuccess(Array<MachineDescriptor> result) {
                                 if (result.isEmpty()) {
                                     machineManager.startMachineAndBindProject(projectPath);
+                                } else {
+                                    machineManager.setCurrentMachineId(result.get(0).getId());
                                 }
                             }
 
@@ -91,6 +93,7 @@ public class MachineExtension {
 
             @Override
             public void onProjectClosed(ProjectActionEvent event) {
+                machineManager.setCurrentMachineId(null);
                 machineConsolePresenter.clear();
             }
         });
@@ -117,7 +120,7 @@ public class MachineExtension {
 
         // add actions in main menu
         machinesMenu.add(executeCommandAction);
-//        machinesMenu.add(editConfigurationsAction);
+        machinesMenu.add(editConfigurationsAction);
         machinesMenu.addSeparator();
         machinesMenu.add(terminateMachineAction);
     }

@@ -36,6 +36,9 @@ public class GWTPagePresenter implements GWTPageView.ActionDelegate, Configurati
 
     @Override
     public void reset(@Nonnull CommandConfiguration configuration) {
+        if (!(configuration instanceof GWTCommandConfiguration)) {
+            throw new IllegalArgumentException("Configuration should be GWTCommandConfiguration instance only.");
+        }
         this.configuration = (GWTCommandConfiguration)configuration;
     }
 

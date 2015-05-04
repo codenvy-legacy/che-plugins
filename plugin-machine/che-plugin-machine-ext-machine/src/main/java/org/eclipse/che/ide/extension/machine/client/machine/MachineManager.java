@@ -40,7 +40,7 @@ public class MachineManager {
 
     /** WebSocket channel to receive messages about changing machine state (machine:state:machineID). */
     private static final String MACHINE_STATE_CHANNEL = "machine:state:";
-    private static String currentMachineId;
+    private String currentMachineId;
 
     private final AppContext appContext;
     private final MachineResources machineResources;
@@ -67,6 +67,10 @@ public class MachineManager {
     /** Returns ID of the machine where current project is bound. */
     public String getCurrentMachineId() {
         return currentMachineId;
+    }
+
+    public void setCurrentMachineId(String currentMachineId) {
+        this.currentMachineId = currentMachineId;
     }
 
     public void startMachineAndBindProject(final String projectPath) {
@@ -145,7 +149,7 @@ public class MachineManager {
         machineServiceClient.bindProject(machineId, projectPath, new AsyncRequestCallback<Void>() {
             @Override
             protected void onSuccess(Void result) {
-                currentMachineId = machineId;
+                setCurrentMachineId(machineId);
             }
 
             @Override
