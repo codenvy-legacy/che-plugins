@@ -37,6 +37,7 @@ import org.eclipse.che.ide.ext.svn.shared.Depth;
 import org.eclipse.che.ide.ui.window.Window;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -157,14 +158,16 @@ public class PropertyEditorViewImpl extends Window implements PropertyEditorView
 
                 String propertyListValue = propertyList.getValue();
 
-                if (!Strings.isNullOrEmpty(propertyListValue) && existingProperties.contains(propertyListValue)) {
+                int keyCode = event.getNativeKeyCode();
+                if (keyCode >= KeyCodes.KEY_A && keyCode <= KeyCodes.KEY_Z
+                    || keyCode >= KeyCodes.KEY_ZERO && keyCode <= KeyCodes.KEY_NINE
+                    || keyCode >= KeyCodes.KEY_NUM_ZERO && keyCode <= KeyCodes.KEY_NUM_NINE
+                    || keyCode == KeyCodes.KEY_ENTER
+                    || keyCode == KeyCodes.KEY_BACKSPACE) {
 
-                    int keyCode = event.getNativeKeyCode();
-                    if (keyCode >= KeyCodes.KEY_A && keyCode <= KeyCodes.KEY_Z
-                        || keyCode >= KeyCodes.KEY_ZERO && keyCode <= KeyCodes.KEY_NINE
-                        || keyCode >= KeyCodes.KEY_NUM_ZERO && keyCode <= KeyCodes.KEY_NUM_NINE
-                        || keyCode == KeyCodes.KEY_ENTER
-                        || keyCode == KeyCodes.KEY_BACKSPACE) {
+                    setPropertyCurrentValue(Arrays.asList(""));
+
+                    if (!Strings.isNullOrEmpty(propertyListValue) && existingProperties.contains(propertyListValue)) {
 
                         btnOk.setEnabled(editProperty.getValue() && !Strings.isNullOrEmpty(propertyValue.getText())
                                          || deleteProperty.getValue());
