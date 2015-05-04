@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.svn.client.property;
 
+import java.util.List;
+
 import org.eclipse.che.ide.api.mvp.View;
 import org.eclipse.che.ide.api.parts.base.BaseActionDelegate;
 import org.eclipse.che.ide.ext.svn.shared.Depth;
@@ -18,6 +20,7 @@ import org.eclipse.che.ide.ext.svn.shared.Depth;
  * View for {@link org.eclipse.che.ide.ext.svn.client.property.PropertyEditorPresenter}.
  *
  * @author Vladyslav Zhukovskyi
+ * @author Stephane Tournie
  */
 public interface PropertyEditorView extends View<PropertyEditorView.ActionDelegate> {
 
@@ -25,6 +28,10 @@ public interface PropertyEditorView extends View<PropertyEditorView.ActionDelega
         void onCancelClicked();
 
         void onOkClicked();
+
+        void onPropertyNameChanged(String propertyName);
+
+        void obtainExistingPropertiesForPath();
     }
 
     /** Perform actions when close window performed. */
@@ -50,4 +57,8 @@ public interface PropertyEditorView extends View<PropertyEditorView.ActionDelega
 
     /** Return true if user selected forcing. */
     boolean isForceSelected();
+
+    void setPropertyCurrentValue(List<String> values);
+
+    void setExistingPropertiesForPath(List<String> properties);
 }

@@ -43,6 +43,8 @@ import org.eclipse.che.ide.ext.svn.shared.InfoResponse;
 import org.eclipse.che.ide.ext.svn.shared.LockRequest;
 import org.eclipse.che.ide.ext.svn.shared.MoveRequest;
 import org.eclipse.che.ide.ext.svn.shared.PropertyDeleteRequest;
+import org.eclipse.che.ide.ext.svn.shared.PropertyGetRequest;
+import org.eclipse.che.ide.ext.svn.shared.PropertyListRequest;
 import org.eclipse.che.ide.ext.svn.shared.PropertySetRequest;
 import org.eclipse.che.ide.ext.svn.shared.RemoveRequest;
 import org.eclipse.che.ide.ext.svn.shared.ResolveRequest;
@@ -683,6 +685,61 @@ public class SubversionApi {
                          .createDto(CLIOutputResponse.class)
                          .withCommand(result.getCommandLine().toString())
                          .withOutput(result.getStdout());
+    }
+
+    /**
+     * Perform an "svn propget" based on the request.
+     *
+     * @param request
+     *         the request
+     * @return the response
+     * @throws IOException
+     *         if there is a problem executing the command
+     * @throws ServerException
+     *         if there is a Subversion issue
+     */
+    public CLIOutputResponse propget(final PropertyGetRequest request) throws IOException, ServerException {
+        final File projectPath = new File(request.getProjectPath());
+        final List<String> uArgs = new LinkedList<>();
+
+        addStandardArgs(uArgs);
+
+        uArgs.add("propget");
+        uArgs.add(request.getName());
+
+        final CommandLineResult result = runCommand(uArgs, projectPath, Arrays.asList(request.getPath()));
+
+        return DtoFactory.getInstance()
+                         .createDto(CLIOutputResponse.class)
+                         .withCommand(result.getCommandLine().toString())
+                         .withOutput(result.getStdout());
+    }
+
+    /**
+     * Perform an "svn proplist" based on the request.
+     *
+     * @param request
+     *         the request
+     * @return the response
+     * @throws IOException
+     *         if there is a problem executing the command
+     * @throws ServerException
+     *         if there is a Subversion issue
+     */
+    public CLIOutputResponse proplist(final PropertyListRequest request) throws IOException, ServerException {
+        final File projectPath = new File(request.getProjectPath());
+        final List<String> uArgs = new LinkedList<>();
+
+        addStandardArgs(uArgs);
+
+        uArgs.add("proplist");
+
+        final CommandLineResult result = runCommand(uArgs, projectPath, Arrays.asList(request.getPath()));
+
+        return DtoFactory.getInstance()
+                         .createDto(CLIOutputResponse.class)
+                         .withCommand(result.getCommandLine().toString())
+                         .withOutput(result.getStdout().subList(1, result.getStdout().size()));
     }
 
     private static void addDepth(final List<String> args, final String depth) {
