@@ -298,4 +298,10 @@ public interface RunnerLocalizationConstant extends Messages {
 
     @Key("template.create.new")
     String templateCreateNew();
+
+    @Key("tooltip.header.menu.button")
+    String tooltipHeaderMenuButton();
+
+    @Key("menu.toggle.splitter")
+    String menuToggleSplitter();
 }

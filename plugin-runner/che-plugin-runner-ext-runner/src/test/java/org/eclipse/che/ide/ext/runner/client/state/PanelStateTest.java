@@ -11,11 +11,14 @@
 package org.eclipse.che.ide.ext.runner.client.state;
 
 import com.google.gwtmockito.GwtMockitoTestRunner;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
+import static org.eclipse.che.ide.ext.runner.client.manager.menu.SplitterState.SPLITTER_ON;
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.verify;
@@ -74,6 +77,13 @@ public class PanelStateTest {
         assertThat(panelState.getState(), is(State.TEMPLATE));
         verify(listener1).onStateChanged();
         verify(listener2).onStateChanged();
+    }
+
+    @Test
+    public void splitterStateShouldBeChanged() {
+        panelState.setSplitterState(SPLITTER_ON);
+
+        assertThat(panelState.getSplitterState(), equalTo(SPLITTER_ON));
     }
 
 }

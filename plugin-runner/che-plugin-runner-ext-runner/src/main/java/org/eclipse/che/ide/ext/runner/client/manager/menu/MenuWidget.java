@@ -8,32 +8,32 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.ide.ext.runner.client.tabs.common;
+package org.eclipse.che.ide.ext.runner.client.manager.menu;
 
 import com.google.gwt.user.client.ui.IsWidget;
+import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.inject.ImplementedBy;
 
-import org.eclipse.che.ide.api.mvp.Presenter;
+import org.eclipse.che.ide.ext.runner.client.manager.menu.entry.MenuEntry;
 
 import javax.annotation.Nonnull;
 
 /**
- * Provides general methods which must be implemented by all presenters which are added in tab container.
+ * The interface provides methods to control header menu.
  *
- * @author Andrey Plotnikov
  * @author Dmitry Shnurenko
  */
-public interface TabPresenter extends Presenter {
+@ImplementedBy(MenuWidgetImpl.class)
+public interface MenuWidget extends IsWidget {
 
-    /** @return view representation of current tab. */
-    @Nonnull
-    IsWidget getView();
+    /** Returns special span panel. It is needed to catch click events beside entry to hide this menu. */
+    SimplePanel getSpan();
 
     /**
-     * Sets visibility of tab.
+     * Adds entry to menu widget.
      *
-     * @param visible
-     *         <code>true</code> tab is visible,<code>false</code> tab isn't visible
+     * @param entry
+     *         entry which need add
      */
-    void setVisible(boolean visible);
-
+    void addEntry(@Nonnull MenuEntry entry);
 }

@@ -8,59 +8,53 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.ide.ext.runner.client.tabs.terminal.container;
+package org.eclipse.che.ide.ext.runner.client.manager.menu;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.IsWidget;
+import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 
-import org.eclipse.che.ide.ext.runner.client.RunnerResources;
+import org.eclipse.che.ide.ext.runner.client.manager.menu.entry.MenuEntry;
 
 import javax.annotation.Nonnull;
 
 /**
- * @author Valeriy Svydenko
+ * The class describes special widget which is header menu and contains menu entries.
+ *
+ * @author Dmitry Shnurenko
  */
-public class TerminalContainerViewImpl extends Composite implements TerminalContainerView {
-
-    interface TerminalContainerViewImplUiBinder extends UiBinder<Widget, TerminalContainerViewImpl> {
+public class MenuWidgetImpl extends Composite implements MenuWidget {
+    interface MenuWidgetImplUiBinder extends UiBinder<Widget, MenuWidgetImpl> {
     }
 
-    private static final TerminalContainerViewImplUiBinder UI_BINDER = GWT.create(TerminalContainerViewImplUiBinder.class);
+    private final static MenuWidgetImplUiBinder UI_BINDER = GWT.create(MenuWidgetImplUiBinder.class);
 
     @UiField
-    FlowPanel mainPanel;
-    @UiField(provided = true)
-    final RunnerResources resources;
+    FlowPanel   entityPanel;
+    @UiField
+    SimplePanel span;
+    @UiField
+    FlowPanel   menuPanel;
 
     @Inject
-    public TerminalContainerViewImpl(RunnerResources resources) {
-        this.resources = resources;
-
+    public MenuWidgetImpl() {
         initWidget(UI_BINDER.createAndBindUi(this));
     }
 
     /** {@inheritDoc} */
     @Override
-    public void setDelegate(ActionDelegate delegate) {
-        // elided
+    public SimplePanel getSpan() {
+        return span;
     }
 
     /** {@inheritDoc} */
     @Override
-    public void addWidget(@Nonnull IsWidget terminal) {
-        mainPanel.add(terminal);
+    public void addEntry(@Nonnull MenuEntry entry) {
+        entityPanel.add(entry);
     }
-
-    /** {@inheritDoc} */
-    @Override
-    public void removeWidget(@Nonnull IsWidget terminal) {
-        mainPanel.remove(terminal);
-    }
-
 }

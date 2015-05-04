@@ -10,13 +10,19 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.runner.client.manager;
 
+import com.google.gwt.dom.client.Style;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.MouseOutEvent;
 import com.google.gwt.event.dom.client.MouseOutHandler;
 import com.google.gwt.event.dom.client.MouseOverEvent;
 import com.google.gwt.event.dom.client.MouseOverHandler;
+import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.PopupPanel;
+import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.SplitLayoutPanel;
+import com.google.gwt.user.client.ui.Widget;
 import com.google.gwtmockito.GwtMockitoTestRunner;
 
 import org.eclipse.che.ide.api.app.AppContext;
@@ -27,15 +33,20 @@ import org.eclipse.che.ide.ext.runner.client.RunnerResources;
 import org.eclipse.che.ide.ext.runner.client.inject.factories.WidgetFactory;
 import org.eclipse.che.ide.ext.runner.client.manager.button.ButtonWidget;
 import org.eclipse.che.ide.ext.runner.client.manager.info.MoreInfo;
+import org.eclipse.che.ide.ext.runner.client.manager.menu.MenuWidget;
+import org.eclipse.che.ide.ext.runner.client.manager.menu.entry.MenuEntry;
 import org.eclipse.che.ide.ext.runner.client.models.Runner;
 import org.eclipse.che.ide.ext.runner.client.tabs.container.TabContainer;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.vectomatic.dom.svg.ui.SVGResource;
 
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
@@ -48,9 +59,14 @@ import static org.mockito.Mockito.when;
 /**
  * @author Andrienko Alexander
  * @author Valeriy Svydenko
+ * @author Dmitry Shnurenko
  */
 @RunWith(GwtMockitoTestRunner.class)
 public class RunnerManagerViewImplTest {
+
+    private static final String CONSOLE    = "Console";
+    private static final String TERMINAL   = "Terminal";
+    private static final String PROPERTIES = "Properties";
 
     private static final String TEXT                     = "some text";
     private static final String GWT_POPUP_STANDARD_STYLE = "gwt-PopupPanel";
@@ -65,12 +81,15 @@ public class RunnerManagerViewImplTest {
     @Mock
     private WidgetFactory              widgetFactory;
     @Mock
-    private PopupPanel                 popupPanel;
+    private PopupPanel                 moreInfoPopup;
+    @Mock
+    private PopupPanel                 menuPopup;
     @Mock
     private ButtonWidget               buttonWidget;
     @Mock
     private AppContext                 appContext;
 
+    //additional mocks
     @Mock
     private PartStackUIResources.PartStackCss css;
     @Mock
@@ -94,6 +113,12 @@ public class RunnerManagerViewImplTest {
     @Mock
     private SVGResource                       imageLogs;
     @Mock
+    private ButtonWidget                      headerMenuBtn;
+    @Mock
+    private SVGResource                       menuIcon;
+    @Mock
+    private SimplePanel                       span;
+    @Mock
     private ButtonWidget                      logs;
     @Mock
     private Runner                            runner;
@@ -101,11 +126,36 @@ public class RunnerManagerViewImplTest {
     private TabContainer                      containerPresenter;
     @Mock
     private CurrentProject                    currentProject;
+    @Mock
+    private MenuWidget                        menuWidget;
+    @Mock
+    private MenuEntry                         entry;
+    @Mock
+    private RunnerManagerView.ActionDelegate  delegate;
+    @Mock
+    private ClickEvent                        clickEvent;
+    @Mock
+    private Element                           element;
+    @Mock
+    private Style                             style;
+    @Mock
+    private Widget                            splitter;
+
+    @Captor
+    private ArgumentCaptor<MenuEntry.ActionDelegate>    entryDelegateCaptor;
+    @Captor
+    private ArgumentCaptor<ButtonWidget.ActionDelegate> buttonDelegateCaptor;
+    @Captor
+    private ArgumentCaptor<ClickHandler>                clickHandlerCaptor;
 
     private RunnerManagerViewImpl view;
 
     @Before
     public void setUp() {
+        when(locale.runnerTabConsole()).thenReturn(CONSOLE);
+        when(locale.runnerTabProperties()).thenReturn(PROPERTIES);
+        when(locale.runnerTabTerminal()).thenReturn(TERMINAL);
+
         when(partStackUIResources.partStackCss()).thenReturn(css);
         when(css.ideBasePartToolbar()).thenReturn(TEXT);
         when(partStackUIResources.minimize()).thenReturn(mock(SVGResource.class, RETURNS_DEEP_STUBS));
@@ -129,6 +179,17 @@ public class RunnerManagerViewImplTest {
         when(locale.tooltipLogsButton()).thenReturn(TEXT);
         when(widgetFactory.createButton(TEXT, imageLogs)).thenReturn(logs);
 
+        when(locale.tooltipHeaderMenuButton()).thenReturn(TEXT);
+        when(resources.menuIcon()).thenReturn(menuIcon);
+        when(widgetFactory.createButton(TEXT, menuIcon)).thenReturn(headerMenuBtn);
+
+        when(locale.menuToggleSplitter()).thenReturn(TEXT);
+        when(widgetFactory.createMenuEntry(TEXT)).thenReturn(entry);
+
+        when(widgetFactory.createMenuWidget()).thenReturn(menuWidget);
+
+        when(menuWidget.getSpan()).thenReturn(span);
+
         when(resources.moreInfo()).thenReturn(mock(SVGResource.class, RETURNS_DEEP_STUBS));
 
         when(locale.tooltipDockerButton()).thenReturn(TEXT);
@@ -137,7 +198,8 @@ public class RunnerManagerViewImplTest {
         when(locale.runnersPanelTitle()).thenReturn(TEXT);
         when(appContext.getCurrentProject()).thenReturn(currentProject);
 
-        view = new RunnerManagerViewImpl(partStackUIResources, resources, locale, widgetFactory, appContext, popupPanel);
+        view = new RunnerManagerViewImpl(partStackUIResources, resources, locale, widgetFactory, appContext, moreInfoPopup, menuPopup);
+        view.setDelegate(delegate);
     }
 
     @Test
@@ -145,8 +207,8 @@ public class RunnerManagerViewImplTest {
         verify(widgetFactory).createMoreInfo();
         verify(locale).runnersPanelTitle();
 
-        verify(popupPanel).removeStyleName(GWT_POPUP_STANDARD_STYLE);
-        verify(popupPanel).add(moreInfoWidget);
+        verify(moreInfoPopup).removeStyleName(GWT_POPUP_STANDARD_STYLE);
+        verify(moreInfoPopup).add(moreInfoWidget);
 
         //set action delegate for testing handlers
         RunnerManagerView.ActionDelegate actionDelegate = mock(RunnerManagerView.ActionDelegate.class);
@@ -165,10 +227,10 @@ public class RunnerManagerViewImplTest {
         MouseOutHandler mouseOutHandler = mouseOutHandlerCaptor.getValue();
         mouseOutHandler.onMouseOut(mock(MouseOutEvent.class));
 
-        verify(resources, times(3)).runnerCss();
+        verify(resources, times(5)).runnerCss();
         verify(runnerCss, times(2)).opacityButton();
         verify(view.image).removeStyleName(TEXT);
-        verify(popupPanel).hide();
+        verify(moreInfoPopup).hide();
 
         /* verify initialize button */
         //run button
@@ -202,6 +264,50 @@ public class RunnerManagerViewImplTest {
 
         ButtonWidget.ActionDelegate runButtonDelegate = btnCaptor.getValue();
         runButtonDelegate.onButtonClicked();
+    }
+
+    @Test
+    public void menuShouldBeInitialized() throws Exception {
+        verify(menuPopup).removeStyleName(GWT_POPUP_STANDARD_STYLE);
+
+        verify(widgetFactory).createMenuWidget();
+        verify(widgetFactory).createMenuEntry(TEXT);
+        verify(entry).setDelegate(Matchers.<MenuEntry.ActionDelegate>anyObject());
+        verify(menuWidget).addEntry(entry);
+        verify(menuPopup).add(menuWidget);
+
+        verify(widgetFactory).createButton(TEXT, menuIcon);
+        headerMenuBtn.setEnable();
+        headerMenuBtn.setDelegate(Matchers.<ButtonWidget.ActionDelegate>anyObject());
+
+        verify(menuWidget).getSpan();
+        verify(span).addDomHandler(Matchers.<ClickHandler>anyObject(), eq(ClickEvent.getType()));
+    }
+
+    @Test
+    public void onMenuEntryShouldBeClicked() throws Exception {
+        verify(entry).setDelegate(entryDelegateCaptor.capture());
+        entryDelegateCaptor.getValue().onEntryClicked(true);
+
+        verify(delegate).onToggleSplitterClicked(true);
+        verify(menuPopup).hide();
+    }
+
+    @Test
+    public void onMenuButtonClicked() throws Exception {
+        verify(headerMenuBtn).setDelegate(buttonDelegateCaptor.capture());
+        buttonDelegateCaptor.getValue().onButtonClicked();
+
+        verify(menuPopup).setPopupPosition(anyInt(), anyInt());
+
+        verify(menuPopup).show();
+    }
+
+    @Test
+    public void menuShouldBtHiddenWhenClickNotOnMenu() throws Exception {
+        verify(span).addDomHandler(clickHandlerCaptor.capture(), eq(ClickEvent.getType()));
+        clickHandlerCaptor.getValue().onClick(clickEvent);
+        verify(menuPopup).hide();
     }
 
     @Test
@@ -305,8 +411,8 @@ public class RunnerManagerViewImplTest {
         verify(moreInfoWidget).update(runner);
         verify(view.timeout).getAbsoluteLeft();
         verify(view.timeout).getAbsoluteTop();
-        verify(popupPanel).setPopupPosition(70, 20);
-        verify(popupPanel).show();
+        verify(moreInfoPopup).setPopupPosition(70, 20);
+        verify(moreInfoPopup).show();
     }
 
     @Test
@@ -324,10 +430,15 @@ public class RunnerManagerViewImplTest {
     }
 
     @Test
-    public void shouldSetRightPanel() {
-        view.setRightPanel(containerPresenter);
+    public void rightPropertiesPanelShouldBeSet() {
+        view.setRightPropertiesPanel(containerPresenter);
 
-        verify(containerPresenter).go(view.rightPanel);
+        verify(containerPresenter).showTabTitle(CONSOLE, false);
+        verify(containerPresenter).showTabTitle(PROPERTIES, false);
+
+        verify(containerPresenter).showTab(TERMINAL);
+
+        verify(containerPresenter).go(view.rightPropertiesPanel);
     }
 
     @Test

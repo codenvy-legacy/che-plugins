@@ -10,21 +10,29 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.runner.client.tabs.container;
 
-import org.eclipse.che.ide.ext.runner.client.state.PanelState;
-import org.eclipse.che.ide.ext.runner.client.state.State;
-import org.eclipse.che.ide.ext.runner.client.tabs.common.Tab;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.gwtmockito.GwtMockitoTestRunner;
 
+import org.eclipse.che.ide.ext.runner.client.RunnerLocalizationConstant;
+import org.eclipse.che.ide.ext.runner.client.state.PanelState;
+import org.eclipse.che.ide.ext.runner.client.tabs.common.Tab;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 
 import java.util.Map;
 
+import static org.eclipse.che.ide.ext.runner.client.manager.menu.SplitterState.SPLITTER_OFF;
+import static org.eclipse.che.ide.ext.runner.client.state.State.RUNNERS;
+import static org.eclipse.che.ide.ext.runner.client.tabs.container.PanelLocation.LEFT_PROPERTIES;
+import static org.eclipse.che.ide.ext.runner.client.tabs.container.PanelLocation.RIGHT_PROPERTIES;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -36,33 +44,40 @@ import static org.mockito.Mockito.when;
 
 /**
  * @author Andrienko Alexander
+ * @author Dmitry Shnurenko
  */
 @RunWith(GwtMockitoTestRunner.class)
 public class TabContainerPresenterTest {
     private static final String TITLE2 = "title2";
+    private static final String TITLE1 = "title1";
 
     //variables for constructor
     @Mock
-    private TabContainerView view;
+    private TabContainerView           view;
     @Mock
-    private PanelState       panelState;
+    private PanelState                 panelState;
+    @Mock
+    private RunnerLocalizationConstant locale;
 
     @Mock
     private Tab tab1;
     @Mock
     private Tab tab2;
 
+    @Captor
+    private ArgumentCaptor<Map<String, Boolean>> mapCaptor;
+
     @InjectMocks
     private TabContainerPresenter tabContainerPresenter;
 
     @Before
     public void setUp() {
-        String TITLE1 = "title";
-
+        when(tab2.getTitle()).thenReturn(TITLE2);
+        when(locale.runnerTabTerminal()).thenReturn(TITLE2);
         when(tab1.getTitle()).thenReturn(TITLE1);
         when(tab2.getTitle()).thenReturn(TITLE2);
 
-        when(panelState.getState()).thenReturn(State.RUNNERS);
+        when(panelState.getState()).thenReturn(RUNNERS);
     }
 
     @Test
@@ -82,6 +97,25 @@ public class TabContainerPresenterTest {
         verify(view).addTab(tab1);
         verify(view).showTab(tab1);
         verify(view).selectTab(tab1);
+    }
+
+    @Test
+    public void terminalTabShouldBeAdded() {
+        tabContainerPresenter.addTab(tab1);
+        tabContainerPresenter.addTab(tab2);
+
+        verify(view).addTab(tab1);
+        verify(view).addTab(tab2);
+
+        verify(view).showTab(tab1);
+        verify(view).showTab(tab2);
+    }
+
+    @Test
+    public void tabTitleShouldBeShown() {
+        tabContainerPresenter.showTabTitle(TITLE2, true);
+
+        verify(view).showTabTitle(TITLE2, true);
     }
 
     @Test
@@ -156,9 +190,44 @@ public class TabContainerPresenterTest {
     }
 
     @Test
+    public void firstTabShouldBeVisibleWhenItIsNotRightPanel() {
+        when(panelState.getState()).thenReturn(RUNNERS);
+        when(tab2.isAvailableScope(RUNNERS)).thenReturn(true);
+        addTwoTabs();
+        tabContainerPresenter.setLocation(LEFT_PROPERTIES);
+
+        tabContainerPresenter.onStateChanged();
+
+        verify(view).setVisibleTitle(mapCaptor.capture());
+
+        Map<String, Boolean> tabVisibilities = mapCaptor.getValue();
+
+        assertThat(tabVisibilities.get(TITLE2), equalTo(true));
+        assertThat(tabVisibilities.get(TITLE1), equalTo(false));
+    }
+
+    @Test
+    public void firstTabShouldBeVisibleWhenSplitterIsOff() {
+        when(panelState.getState()).thenReturn(RUNNERS);
+        when(tab1.isAvailableScope(RUNNERS)).thenReturn(true);
+        when(panelState.getSplitterState()).thenReturn(SPLITTER_OFF);
+        addTwoTabs();
+        tabContainerPresenter.setLocation(RIGHT_PROPERTIES);
+
+        tabContainerPresenter.onStateChanged();
+
+        verify(view).setVisibleTitle(mapCaptor.capture());
+
+        Map<String, Boolean> tabVisibilities = mapCaptor.getValue();
+
+        assertThat(tabVisibilities.get(TITLE1), equalTo(true));
+        assertThat(tabVisibilities.get(TITLE2), equalTo(false));
+    }
+
+    @Test
     public void shouldOnStateChangedWhenOneTabIsVisible() {
-        when(tab1.isAvailableScope(State.RUNNERS)).thenReturn(true);
-        when(tab2.isAvailableScope(State.RUNNERS)).thenReturn(false);
+        when(tab1.isAvailableScope(RUNNERS)).thenReturn(true);
+        when(tab2.isAvailableScope(RUNNERS)).thenReturn(false);
 
         addTwoTabs();
 
@@ -166,8 +235,8 @@ public class TabContainerPresenterTest {
 
         verify(panelState).getState();
 
-        verify(tab1).isAvailableScope(State.RUNNERS);
-        verify(tab2).isAvailableScope(State.RUNNERS);
+        verify(tab1).isAvailableScope(RUNNERS);
+        verify(tab2).isAvailableScope(RUNNERS);
 
         verify(tab1, times(2)).getTitle();
         verify(tab2, times(2)).getTitle();
@@ -180,8 +249,8 @@ public class TabContainerPresenterTest {
 
     @Test
     public void shouldOnStateChangedWhenNoneTabIsVisible() {
-        when(tab1.isAvailableScope(State.RUNNERS)).thenReturn(false);
-        when(tab2.isAvailableScope(State.RUNNERS)).thenReturn(false);
+        when(tab1.isAvailableScope(RUNNERS)).thenReturn(false);
+        when(tab2.isAvailableScope(RUNNERS)).thenReturn(false);
 
         addTwoTabs();
 
@@ -189,8 +258,8 @@ public class TabContainerPresenterTest {
 
         verify(panelState).getState();
 
-        verify(tab1).isAvailableScope(State.RUNNERS);
-        verify(tab2).isAvailableScope(State.RUNNERS);
+        verify(tab1).isAvailableScope(RUNNERS);
+        verify(tab2).isAvailableScope(RUNNERS);
 
         verify(tab1, times(2)).getTitle();
         verify(tab2, times(2)).getTitle();
@@ -215,8 +284,8 @@ public class TabContainerPresenterTest {
     @Test
     /* Two tabs are visible, but we should select first of them */
     public void shouldOnStateChangedWhenTwoTabAreVisible() {
-        when(tab1.isAvailableScope(State.RUNNERS)).thenReturn(true);
-        when(tab2.isAvailableScope(State.RUNNERS)).thenReturn(true);
+        when(tab1.isAvailableScope(RUNNERS)).thenReturn(true);
+        when(tab2.isAvailableScope(RUNNERS)).thenReturn(true);
 
         addTwoTabs();
 
@@ -224,8 +293,8 @@ public class TabContainerPresenterTest {
 
         verify(panelState).getState();
 
-        verify(tab1).isAvailableScope(State.RUNNERS);
-        verify(tab2).isAvailableScope(State.RUNNERS);
+        verify(tab1).isAvailableScope(RUNNERS);
+        verify(tab2).isAvailableScope(RUNNERS);
 
         verify(tab1, times(2)).getTitle();
         verify(tab2, times(2)).getTitle();
