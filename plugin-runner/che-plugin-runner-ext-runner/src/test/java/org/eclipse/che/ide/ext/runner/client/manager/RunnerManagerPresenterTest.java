@@ -64,6 +64,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 
 import java.util.Arrays;
@@ -73,6 +74,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import static org.eclipse.che.ide.ext.runner.client.manager.menu.SplitterState.SPLITTER_OFF;
+import static org.eclipse.che.ide.ext.runner.client.manager.menu.SplitterState.SPLITTER_ON;
 import static org.eclipse.che.ide.ext.runner.client.models.Runner.Status.STOPPED;
 import static org.eclipse.che.ide.ext.runner.client.selection.Selection.RUNNER;
 import static org.eclipse.che.ide.ext.runner.client.state.State.RUNNERS;
@@ -138,7 +141,9 @@ public class RunnerManagerPresenterTest {
     @Mock
     private TabContainer                 leftTabContainer;
     @Mock
-    private TabContainer                 rightTabContainer;
+    private TabContainer                 rightPropertiesContainer;
+    @Mock
+    private TabContainer                 leftPropertiesContainer;
     @Mock
     private PanelState                   panelState;
     @Mock
@@ -239,11 +244,15 @@ public class RunnerManagerPresenterTest {
         when(locale.runnerTabTerminal()).thenReturn(TERMINAL);
         when(locale.runnerTabProperties()).thenReturn(PROPERTIES);
 
+        when(consoleTab.getTitle()).thenReturn(CONSOLE);
+        when(propertiesTab.getTitle()).thenReturn(PROPERTIES);
+
+        //order of return mocks must match of order of initialize mocks
         when(tabBuilderProvider.get()).thenReturn(tabBuilderHistory)
                                       .thenReturn(tabBuilderTemplate)
                                       .thenReturn(tabBuilderConsole)
-                                      .thenReturn(tabBuilderTerminal)
-                                      .thenReturn(tabBuilderProperties);
+                                      .thenReturn(tabBuilderProperties)
+                                      .thenReturn(tabBuilderTerminal);
         //init new historyTab
         initTab(tabBuilderHistory, history, REMOVABLE, LEFT, EnumSet.allOf(State.class), HISTORY_TAB);
         when(tabBuilderHistory.build()).thenReturn(historyTab);
@@ -257,7 +266,7 @@ public class RunnerManagerPresenterTest {
         when(tabBuilderConsole.build()).thenReturn(consoleTab);
 
         //init terminal tab
-        initTab(tabBuilderTerminal, terminalContainer, VISIBLE, RIGHT, EnumSet.of(RUNNERS), TERMINAL);
+        initTab(tabBuilderTerminal, terminalContainer, VISIBLE, RIGHT, EnumSet.allOf(State.class), TERMINAL);
         when(tabBuilderTerminal.build()).thenReturn(terminalTab);
 
         //init properties tab
@@ -275,7 +284,8 @@ public class RunnerManagerPresenterTest {
                                                eventBus,
                                                locale,
                                                leftTabContainer,
-                                               rightTabContainer,
+                                               leftPropertiesContainer,
+                                               rightPropertiesContainer,
                                                panelState,
                                                tabBuilderProvider,
                                                consoleContainer,
@@ -355,7 +365,7 @@ public class RunnerManagerPresenterTest {
         verify(eventBus).addHandler(ProjectActionEvent.TYPE, presenter);
 
         verify(view).setLeftPanel(leftTabContainer);
-        verify(view).setRightPanel(rightTabContainer);
+        verify(view).setRightPropertiesPanel(rightPropertiesContainer);
     }
 
     @Test
@@ -376,22 +386,25 @@ public class RunnerManagerPresenterTest {
     public void verifyCreationConsoleTab() {
         verifyInitTab(tabBuilderConsole, consoleContainer, REMOVABLE, RIGHT, EnumSet.of(RUNNERS), CONSOLE);
         verify(locale).runnerTabConsole();
-        verify(rightTabContainer).addTab(consoleTab);
+        verify(leftPropertiesContainer).addTab(consoleTab);
 
     }
 
     @Test
     public void verifyCreationTerminalTab() {
-        verifyInitTab(tabBuilderTerminal, terminalContainer, VISIBLE, RIGHT, EnumSet.of(RUNNERS), TERMINAL);
+        verifyInitTab(tabBuilderTerminal, terminalContainer, VISIBLE, RIGHT, EnumSet.allOf(State.class), TERMINAL);
         verify(locale).runnerTabTerminal();
-        verify(rightTabContainer).addTab(terminalTab);
+        verify(rightPropertiesContainer).addTab(terminalTab);
     }
 
     @Test
     public void verifyCreationPropertiesTab() {
         verifyInitTab(tabBuilderProperties, propertiesContainer, REMOVABLE, RIGHT, EnumSet.allOf(State.class), PROPERTIES);
         verify(locale).runnerTabProperties();
-        verify(rightTabContainer).addTab(propertiesTab);
+        verify(leftPropertiesContainer).addTab(propertiesTab);
+
+        verify(rightPropertiesContainer).showTabTitle(CONSOLE, false);
+        verify(rightPropertiesContainer).showTabTitle(PROPERTIES, false);
     }
 
     private void verifyInitTab(TabBuilder tabBuilder,
@@ -496,7 +509,7 @@ public class RunnerManagerPresenterTest {
         verifyTabSelectHandler(tabBuilderTerminal);
         verify(locale, times(2)).runnerTabTerminal();
         verify(runner).setActiveTab(TERMINAL);
-        verify(terminalContainer).update(runner);
+        verify(terminalContainer, times(2)).update(runner);
     }
 
     @Test
@@ -1145,12 +1158,12 @@ public class RunnerManagerPresenterTest {
     @Test
     public void selectionShouldNotBeChangedWhenSelectionIsRunnerAndRunnerIsNull() {
         when(selectionManager.getRunner()).thenReturn(null);
-        reset(history, rightTabContainer, view);
+        reset(history, rightPropertiesContainer, view);
 
         presenter.onSelectionChanged(RUNNER);
 
         verify(selectionManager).getRunner();
-        verifyNoMoreInteractions(history, rightTabContainer, view);
+        verifyNoMoreInteractions(history, rightPropertiesContainer, view);
     }
 
     @Test
@@ -1286,7 +1299,7 @@ public class RunnerManagerPresenterTest {
 
     private void verifyRunnerSelected() {
         verify(history).selectRunner(runner);
-        verify(rightTabContainer).showTab(TEXT);
+        verify(terminalContainer).update(runner);
 
         //update
         verify(history).update(runner);
@@ -1334,6 +1347,50 @@ public class RunnerManagerPresenterTest {
         presenter.onLogsButtonClicked();
 
         verify(view).showLog(TEXT);
+    }
+
+    @Test
+    public void splitterShouldBeShownWhenPanelStateIsHistory() throws Exception {
+        reset(leftPropertiesContainer, view);
+
+        presenter.onToggleSplitterClicked(true);
+
+        verify(terminalTab).setScopes(EnumSet.allOf(State.class));
+
+        verify(panelState).setSplitterState(SPLITTER_ON);
+
+        verify(view).setLeftPropertiesPanel(leftPropertiesContainer);
+        verify(view).setRightPropertiesPanel(rightPropertiesContainer);
+
+        verify(panelState, never()).setSplitterState(SPLITTER_OFF);
+        verify(view, never()).setGeneralPropertiesPanel(Matchers.<TabContainer>anyObject());
+
+        verify(panelState, never()).setState(TEMPLATE);
+        verify(leftTabContainer, never()).showTab(TEMPLATES);
+    }
+
+    @Test
+    public void splitterShouldNotBeShownAndPanelStateIsTemplate() throws Exception {
+        verifyTabSelectHandler(tabBuilderTemplate);
+        reset(leftPropertiesContainer, view, panelState);
+
+        when(panelState.getSplitterState()).thenReturn(SPLITTER_OFF);
+
+        presenter.onToggleSplitterClicked(false);
+
+        verify(terminalTab).setScopes(EnumSet.of(RUNNERS));
+
+        verify(panelState, never()).setSplitterState(SPLITTER_ON);
+        verify(view, never()).setLeftPropertiesPanel(leftPropertiesContainer);
+        verify(view, never()).setRightPropertiesPanel(rightPropertiesContainer);
+
+        verify(panelState).setSplitterState(SPLITTER_OFF);
+
+        verify(view).setGeneralPropertiesPanel(rightPropertiesContainer);
+
+        verify(panelState).setState(TEMPLATE);
+        verify(leftTabContainer).showTab(TEMPLATES);
+        verify(rightPropertiesContainer).showTab(PROPERTIES);
     }
 
 }

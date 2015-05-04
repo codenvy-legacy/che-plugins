@@ -8,22 +8,13 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.ide.ext.runner.client.util.annotations;
-
-import com.google.inject.BindingAnnotation;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+package org.eclipse.che.ide.ext.runner.client.manager.menu;
 
 /**
- * The annotation is added to left tab container to do it as singleton.
+ * Enums which defines splitter state of panel.
  *
  * @author Dmitry Shnurenko
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.PARAMETER})
-@BindingAnnotation
-public @interface RightPanel {
+public enum SplitterState {
+    SPLITTER_ON, SPLITTER_OFF
 }

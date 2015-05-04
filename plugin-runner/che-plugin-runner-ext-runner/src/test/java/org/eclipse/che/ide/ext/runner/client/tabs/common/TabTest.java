@@ -20,6 +20,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -31,6 +32,7 @@ import static org.mockito.Mockito.verify;
 
 /**
  * @author Andrienko Alexander
+ * @author Dmitry Shnurenko
  */
 @RunWith(GwtMockitoTestRunner.class)
 public class TabTest {
@@ -57,6 +59,14 @@ public class TabTest {
         assertThat(tab.isAvailableScope(State.TEMPLATE), is(false));
         assertThat(tab.getTabType(), is(TabType.LEFT));
         assertThat(tab.isRemovable(), is(false));
+    }
+
+    @Test
+    public void scopesShouldBeSet() {
+        tab.setScopes(EnumSet.allOf(State.class));
+
+        assertThat(tab.isAvailableScope(State.RUNNERS), is(true));
+        assertThat(tab.isAvailableScope(State.TEMPLATE), is(true));
     }
 
     @Test

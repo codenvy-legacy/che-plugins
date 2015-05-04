@@ -123,6 +123,17 @@
     cursor: col-resize;
 }
 
+.propertiesSplitter {
+    background: #474747;
+    cursor: col-resize;
+    border-left: 1px solid #000000;
+    box-shadow: inset -2px 0 0 0 #000000;
+}
+
+.hideSplitter{
+    display: none;
+}
+
 .cursor {
     cursor: pointer;
 }

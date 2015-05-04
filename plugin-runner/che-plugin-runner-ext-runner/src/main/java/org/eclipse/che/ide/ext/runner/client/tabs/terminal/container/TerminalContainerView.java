@@ -10,9 +10,10 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.runner.client.tabs.terminal.container;
 
-import org.eclipse.che.ide.api.mvp.View;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.inject.ImplementedBy;
+
+import org.eclipse.che.ide.api.mvp.View;
 
 import javax.annotation.Nonnull;
 
