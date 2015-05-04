@@ -13,7 +13,9 @@ package org.eclipse.che.ide.ext.svn.client.commit;
 import static org.eclipse.che.ide.api.notification.Notification.Type.ERROR;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
@@ -33,9 +35,11 @@ import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.parts.WorkspaceAgent;
+import org.eclipse.che.ide.ext.svn.shared.StatusItem;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.rest.Unmarshallable;
+import org.eclipse.che.ide.util.loging.Log;
 
 import com.google.common.base.Joiner;
 import com.google.inject.Singleton;
@@ -55,6 +59,13 @@ public class CommitPresenter extends SubversionActionPresenter implements Action
     private final DtoUnmarshallerFactory                   dtoUnmarshallerFactory;
     private final NotificationManager                      notificationManager;
     private final SubversionExtensionLocalizationConstants constants;
+
+    private enum Changes {
+        ALL,
+        SELECTION
+    }
+
+    private Map<Changes, List<StatusItem>> cache = new HashMap<>();
 
     @Inject
     public CommitPresenter(final AppContext appContext,
@@ -79,28 +90,60 @@ public class CommitPresenter extends SubversionActionPresenter implements Action
     }
 
     public void show() {
-        loadChanges();
+        loadAllChanges();
     }
 
-    private void loadChanges() {
+    private void loadAllChanges() {
         Unmarshallable<CLIOutputResponse> unmarshaller = dtoUnmarshallerFactory.newUnmarshaller(CLIOutputResponse.class);
         subversionService.status(getCurrentProjectPath(), Collections.<String>emptyList(), null, false, false, false, true, false, null,
                                  new AsyncRequestCallback<CLIOutputResponse>(unmarshaller) {
                                      @Override
                                      protected void onSuccess(CLIOutputResponse response) {
-                                         parseChangesList(response);
+                                         List<StatusItem> statusItems = parseChangesList(response);
+                                         view.setChangesList(statusItems);
+
+                                         loadSelectionChanges();
+
+                                         cache.put(Changes.ALL, statusItems);
                                      }
 
                                      @Override
                                      protected void onFailure(Throwable exception) {
-
+                                         Log.error(CommitPresenter.class, exception);
                                      }
                                  });
     }
 
-    private void parseChangesList(CLIOutputResponse response) {
-        view.setChangesList(CLIOutputParser.parseFilesStatus(response.getOutput()));
-        view.onShow();
+    private  List<StatusItem> parseChangesList(CLIOutputResponse response) {
+        return CLIOutputParser.parseFilesStatus(response.getOutput());
+    }
+
+    private void loadSelectionChanges() {
+        Unmarshallable<CLIOutputResponse> unmarshaller = dtoUnmarshallerFactory.newUnmarshaller(CLIOutputResponse.class);
+        subversionService.status(getCurrentProjectPath(), getSelectedPaths(), null, false, false, false, true, false, null,
+                                 new AsyncRequestCallback<CLIOutputResponse>(unmarshaller) {
+                                     @Override
+                                     protected void onSuccess(CLIOutputResponse response) {
+                                         view.onShow();
+
+                                         cache.put(Changes.SELECTION, parseChangesList(response));
+                                     }
+
+                                     @Override
+                                     protected void onFailure(Throwable exception) {
+                                         Log.error(CommitPresenter.class, exception);
+                                     }
+                                 });
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void onCommitModeChanged() {
+        if (view.isCommitAllSelected()) {
+            view.setChangesList(cache.get(Changes.ALL));
+        } else if (view.isCommitSelectionSelected()) {
+            view.setChangesList(cache.get(Changes.SELECTION));
+        }
     }
 
     /** {@inheritDoc} */

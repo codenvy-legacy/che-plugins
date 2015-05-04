@@ -220,6 +220,12 @@ public class CommitViewImpl extends Window implements CommitView {
         alertMarker.getStyle().setVisibility(!message.getText().isEmpty() ? Style.Visibility.HIDDEN : Style.Visibility.VISIBLE);
     }
 
+    @UiHandler({"commitAll", "commitSelection"})
+    @SuppressWarnings("unused")
+    public void onCommitModeChanged(ClickEvent event) {
+        delegate.onCommitModeChanged();
+    }
+
     private class ChangesListRenderer extends SimpleList.ListItemRenderer<StatusItem> {
 
         class FileStatusColor {
