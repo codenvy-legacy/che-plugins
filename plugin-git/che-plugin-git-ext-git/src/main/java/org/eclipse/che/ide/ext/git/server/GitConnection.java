@@ -115,7 +115,7 @@ public interface GitConnection extends Closeable {
      * @throws GitException
      *         if any error occurs when delete branch
      */
-    void branchRename(String oldName, String newName) throws GitException;
+    void branchRename(String oldName, String newName) throws GitException, UnauthorizedException;
 
     /**
      * List branches.
