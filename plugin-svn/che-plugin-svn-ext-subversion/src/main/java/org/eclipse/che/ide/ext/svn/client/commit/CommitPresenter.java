@@ -101,8 +101,7 @@ public class CommitPresenter extends SubversionActionPresenter implements Action
                                      protected void onSuccess(CLIOutputResponse response) {
                                          List<StatusItem> statusItems = parseChangesList(response);
                                          view.setChangesList(statusItems);
-
-                                         loadSelectionChanges();
+                                         view.onShow();
 
                                          cache.put(Changes.ALL, statusItems);
                                      }
@@ -124,9 +123,10 @@ public class CommitPresenter extends SubversionActionPresenter implements Action
                                  new AsyncRequestCallback<CLIOutputResponse>(unmarshaller) {
                                      @Override
                                      protected void onSuccess(CLIOutputResponse response) {
-                                         view.onShow();
+                                         List<StatusItem> statusItems = parseChangesList(response);
+                                         view.setChangesList(statusItems);
 
-                                         cache.put(Changes.SELECTION, parseChangesList(response));
+                                         cache.put(Changes.SELECTION, statusItems);
                                      }
 
                                      @Override
@@ -142,13 +142,19 @@ public class CommitPresenter extends SubversionActionPresenter implements Action
         if (view.isCommitAllSelected()) {
             view.setChangesList(cache.get(Changes.ALL));
         } else if (view.isCommitSelectionSelected()) {
-            view.setChangesList(cache.get(Changes.SELECTION));
+            if (cache.containsKey(Changes.SELECTION)) {
+                view.setChangesList(cache.get(Changes.SELECTION));
+                return;
+            }
+
+            loadSelectionChanges();
         }
     }
 
     /** {@inheritDoc} */
     @Override
     public void onCancelClicked() {
+        cache.clear();
         view.onClose();
     }
 

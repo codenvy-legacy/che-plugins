@@ -178,6 +178,8 @@ public class CommitViewImpl extends Window implements CommitView {
     /** {@inheritDoc} */
     @Override
     public void onShow() {
+        commitAll.setValue(true);
+        commitSelection.setValue(false);
         show();
     }
 
