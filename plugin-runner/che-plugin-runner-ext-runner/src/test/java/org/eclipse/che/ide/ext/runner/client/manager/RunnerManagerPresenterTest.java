@@ -44,7 +44,6 @@ import org.eclipse.che.ide.ext.runner.client.runneractions.impl.GetRunningProces
 import org.eclipse.che.ide.ext.runner.client.runneractions.impl.StopAction;
 import org.eclipse.che.ide.ext.runner.client.runneractions.impl.environments.GetSystemEnvironmentsAction;
 import org.eclipse.che.ide.ext.runner.client.runneractions.impl.launch.LaunchAction;
-import org.eclipse.che.ide.ext.runner.client.selection.Selection;
 import org.eclipse.che.ide.ext.runner.client.selection.SelectionManager;
 import org.eclipse.che.ide.ext.runner.client.state.PanelState;
 import org.eclipse.che.ide.ext.runner.client.state.State;
@@ -77,6 +76,7 @@ import java.util.Set;
 import static org.eclipse.che.ide.ext.runner.client.manager.menu.SplitterState.SPLITTER_OFF;
 import static org.eclipse.che.ide.ext.runner.client.manager.menu.SplitterState.SPLITTER_ON;
 import static org.eclipse.che.ide.ext.runner.client.models.Runner.Status.STOPPED;
+import static org.eclipse.che.ide.ext.runner.client.selection.Selection.ENVIRONMENT;
 import static org.eclipse.che.ide.ext.runner.client.selection.Selection.RUNNER;
 import static org.eclipse.che.ide.ext.runner.client.state.State.RUNNERS;
 import static org.eclipse.che.ide.ext.runner.client.state.State.TEMPLATE;
@@ -85,6 +85,7 @@ import static org.eclipse.che.ide.ext.runner.client.tabs.common.Tab.VisibleState
 import static org.eclipse.che.ide.ext.runner.client.tabs.container.tab.TabType.LEFT;
 import static org.eclipse.che.ide.ext.runner.client.tabs.container.tab.TabType.RIGHT;
 import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.DEFAULT;
+import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope.PROJECT;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -477,6 +478,29 @@ public class RunnerManagerPresenterTest {
         verifyTabSelectHandler(tabBuilderTerminal);
 
         verifyZeroInteractions(locale);
+    }
+
+    @Test
+    public void projectScopeShouldBeSetAfterReloadProjectWithProjectScopeRunner() {
+        when(processDescriptor.getEnvironmentId()).thenReturn("project://");
+
+        presenter.addRunner(processDescriptor);
+
+        verify(runner).setScope(PROJECT);
+    }
+
+    @Test
+    public void projectScopeShouldBeSetWhenRunProjectEnvironment() {
+        when(panelState.getState()).thenReturn(TEMPLATE);
+        when(runnerEnvironment.getScope()).thenReturn(PROJECT);
+        when(selectionManager.getEnvironment()).thenReturn(runnerEnvironment);
+        when(modelsFactory.createRunner(eq(runOptions), anyString())).thenReturn(runner);
+
+        presenter.onSelectionChanged(ENVIRONMENT);
+
+        presenter.onRunButtonClicked();
+
+        verify(runner).setScope(PROJECT);
     }
 
     @Test
@@ -935,7 +959,7 @@ public class RunnerManagerPresenterTest {
         when(panelState.getState()).thenReturn(TEMPLATE);
         when(runActionPermit.isAllowed()).thenReturn(true);
 
-        presenter.onSelectionChanged(Selection.ENVIRONMENT);
+        presenter.onSelectionChanged(ENVIRONMENT);
 
         presenter.onRunButtonClicked();
 
@@ -1014,7 +1038,7 @@ public class RunnerManagerPresenterTest {
 
         presenter.addRunner(processDescriptor);
         reset(view, history);
-        presenter.onSelectionChanged(Selection.ENVIRONMENT);
+        presenter.onSelectionChanged(ENVIRONMENT);
 
         presenter.onRunButtonClicked();
 
@@ -1177,7 +1201,7 @@ public class RunnerManagerPresenterTest {
 
     @Test
     public void selectionShouldBeChangedWhenSelectionIsEnvironmentAndRunnerEnvironmentIsNull() {
-        presenter.onSelectionChanged(Selection.ENVIRONMENT);
+        presenter.onSelectionChanged(ENVIRONMENT);
 
         verify(selectionManager).getEnvironment();
         verifyNoMoreInteractions(templates);
@@ -1186,7 +1210,7 @@ public class RunnerManagerPresenterTest {
     @Test
     public void selectionShouldBeChangedWhenSelectionIsEnvironment() {
         when(selectionManager.getEnvironment()).thenReturn(runnerEnvironment);
-        presenter.onSelectionChanged(Selection.ENVIRONMENT);
+        presenter.onSelectionChanged(ENVIRONMENT);
 
         verify(selectionManager).getEnvironment();
         verify(templates).select(runnerEnvironment);

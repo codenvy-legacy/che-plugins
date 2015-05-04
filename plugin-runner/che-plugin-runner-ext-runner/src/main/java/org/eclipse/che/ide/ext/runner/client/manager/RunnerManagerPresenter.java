@@ -90,6 +90,7 @@ import static org.eclipse.che.ide.ext.runner.client.tabs.container.TabContainer.
 import static org.eclipse.che.ide.ext.runner.client.tabs.container.tab.TabType.LEFT;
 import static org.eclipse.che.ide.ext.runner.client.tabs.container.tab.TabType.RIGHT;
 import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.DEFAULT;
+import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope.PROJECT;
 
 /**
  * The class provides much business logic:
@@ -107,6 +108,8 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
                                                                      ProjectActionHandler,
                                                                      SelectionManager.SelectionChangeListener {
     public static final String TIMER_STUB = "--:--:--";
+
+    private static final String PROJECT_PREFIX = "project://";
 
     private final RunnerManagerView           view;
     private final DtoFactory                  dtoFactory;
@@ -416,7 +419,13 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
                                               .withEnvironmentId(selectedEnvironment.getId())
                                               .withMemorySize(selectedEnvironment.getRam());
 
-            launchRunner(runOptions, selectedEnvironment.getName());
+            Runner runner = modelsFactory.createRunner(runOptions, selectedEnvironment.getName());
+
+            if (PROJECT.equals(selectedEnvironment.getScope())) {
+                runner.setScope(PROJECT);
+            }
+
+            launchRunner(runner);
         } else {
             launchRunner();
         }
@@ -704,6 +713,13 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
     public Runner addRunner(@Nonnull ApplicationProcessDescriptor processDescriptor) {
         RunOptions runOptions = dtoFactory.createDto(RunOptions.class);
         Runner runner = modelsFactory.createRunner(runOptions);
+
+        String environmentId = processDescriptor.getEnvironmentId();
+
+        if (environmentId != null && environmentId.startsWith(PROJECT_PREFIX)) {
+            runner.setScope(PROJECT);
+        }
+
         runnersId.add(processDescriptor.getProcessId());
 
         runner.setProcessDescriptor(processDescriptor);
