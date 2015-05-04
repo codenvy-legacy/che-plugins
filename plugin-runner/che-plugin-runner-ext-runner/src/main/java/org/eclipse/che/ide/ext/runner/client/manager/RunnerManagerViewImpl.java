@@ -265,8 +265,8 @@ public class RunnerManagerViewImpl extends BaseView<RunnerManagerView.ActionDele
         headerMenuBtn.setDelegate(new ButtonWidget.ActionDelegate() {
             @Override
             public void onButtonClicked() {
-                int x = menuButton.getAbsoluteLeft() + MENU_SHIFT_LEFT;
-                int y = menuButton.getAbsoluteTop() + MENU_SHIFT_TOP;
+                int x = menuPanel.getAbsoluteLeft() + MENU_SHIFT_LEFT;
+                int y = menuPanel.getAbsoluteTop() + MENU_SHIFT_TOP;
 
                 menuPopup.setPopupPosition(x, y);
 
