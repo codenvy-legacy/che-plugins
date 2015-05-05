@@ -813,6 +813,8 @@ public class SubversionApi {
         args.add("--no-auth-cache");
         args.add("--non-interactive");
         args.add("--trust-server-cert");
+
+        return args;
     }
 
     private List<String> addWorkingCopyPathIfNecessary(List<String> paths) {
