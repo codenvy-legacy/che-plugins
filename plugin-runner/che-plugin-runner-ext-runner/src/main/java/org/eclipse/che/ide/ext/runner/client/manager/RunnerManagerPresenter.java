@@ -228,8 +228,9 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
         initializeRightPropertiesPanel(tabBuilderProvider);
 
         view.setLeftPanel(leftTabContainer);
-        view.setLeftPropertiesPanel(leftPropertiesContainer);
-        view.setRightPropertiesPanel(rightPropertiesContainer);
+
+        panelState.setSplitterState(SPLITTER_OFF);
+        view.setGeneralPropertiesPanel(rightPropertiesContainer);
     }
 
     private void updateRunnerTimer() {

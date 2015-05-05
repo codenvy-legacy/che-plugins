@@ -148,7 +148,13 @@ public interface RunnerResources extends ClientBundle {
 
         String propertiesSplitter();
 
-        String hideSplitter();
+        String displayNone();
+
+        String displayBlock();
+
+        String highWidth();
+
+        String defaultWidth();
     }
 
 }

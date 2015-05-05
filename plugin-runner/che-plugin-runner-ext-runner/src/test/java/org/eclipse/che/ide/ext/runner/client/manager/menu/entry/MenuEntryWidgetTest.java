@@ -23,7 +23,6 @@ import org.mockito.Mock;
 import org.vectomatic.dom.svg.ui.SVGResource;
 
 import static org.mockito.Answers.RETURNS_DEEP_STUBS;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -58,7 +57,6 @@ public class MenuEntryWidgetTest {
 
     @Test
     public void constructorShouldBeVerified() {
-        verify(menuEntry.image).getElement();
         verify(resources).selectedMenuEntry();
         verify(menuEntry.text).setText(SOME_TEXT);
     }
@@ -67,12 +65,12 @@ public class MenuEntryWidgetTest {
     public void onEntryShouldBeClicked() {
         menuEntry.onClick(event);
 
-        verify(menuEntry.image, times(2)).getElement();
-        verify(delegate).onEntryClicked(false);
+        verify(menuEntry.image).getElement();
+        verify(delegate).onEntryClicked(true);
 
         menuEntry.onClick(event);
 
-        verify(delegate).onEntryClicked(true);
+        verify(delegate).onEntryClicked(false);
     }
 
 }

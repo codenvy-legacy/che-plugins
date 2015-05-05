@@ -130,10 +130,6 @@
     box-shadow: inset -2px 0 0 0 #000000;
 }
 
-.hideSplitter{
-    display: none;
-}
-
 .cursor {
     cursor: pointer;
 }
@@ -177,4 +173,20 @@
 .defaultRunnerStub {
     margin-top: 10px;
     text-align: center;
+}
+
+.displayNone {
+    display: none !important;
+}
+
+.displayBlock {
+    display: block !important;
+}
+
+.highWidth {
+    width: 100% !important;
+}
+
+.defaultWidth {
+    width: 800px;
 }

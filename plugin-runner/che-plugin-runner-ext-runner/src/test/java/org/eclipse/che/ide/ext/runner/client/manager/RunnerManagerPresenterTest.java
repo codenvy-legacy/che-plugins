@@ -366,7 +366,8 @@ public class RunnerManagerPresenterTest {
         verify(eventBus).addHandler(ProjectActionEvent.TYPE, presenter);
 
         verify(view).setLeftPanel(leftTabContainer);
-        verify(view).setRightPropertiesPanel(rightPropertiesContainer);
+        verify(panelState).setSplitterState(SPLITTER_OFF);
+        verify(view).setGeneralPropertiesPanel(rightPropertiesContainer);
     }
 
     @Test
@@ -1375,7 +1376,7 @@ public class RunnerManagerPresenterTest {
 
     @Test
     public void splitterShouldBeShownWhenPanelStateIsHistory() throws Exception {
-        reset(leftPropertiesContainer, view);
+        reset(leftPropertiesContainer, view, panelState);
 
         presenter.onToggleSplitterClicked(true);
 

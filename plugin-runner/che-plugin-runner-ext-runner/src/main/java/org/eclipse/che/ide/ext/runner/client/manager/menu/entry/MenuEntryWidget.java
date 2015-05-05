@@ -58,13 +58,12 @@ public class MenuEntryWidget extends Composite implements MenuEntry, ClickHandle
         initWidget(UI_BINDER.createAndBindUi(this));
 
         icon = new SVGImage(resources.selectedMenuEntry());
-        image.getElement().setInnerHTML(icon.toString());
 
         text.setText(entryName);
 
         addDomHandler(this, ClickEvent.getType());
 
-        isSplitterHidden = false;
+        isSplitterHidden = true;
     }
 
     /** {@inheritDoc} */

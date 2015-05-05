@@ -11,8 +11,7 @@
 package org.eclipse.che.ide.ext.runner.client.manager;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.dom.client.Style.Display;
-import com.google.gwt.dom.client.Style.Unit;
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.MouseOutEvent;
@@ -410,12 +409,22 @@ public class RunnerManagerViewImpl extends BaseView<RunnerManagerView.ActionDele
     public void setLeftPropertiesPanel(@Nonnull TabContainer containerPresenter) {
         containerPresenter.showTab(locale.runnerTabConsole());
 
-        leftPropertiesPanel.getElement().getParentElement().getStyle().setDisplay(Display.BLOCK);
-        propertiesPanel.getElement().getFirstChildElement().getNextSiblingElement().getStyle().setWidth(panelWidth, Unit.PX);
+        Element leftContainer = leftPropertiesPanel.getElement().getParentElement();
 
-        splitter.removeStyleName(resources.runnerCss().hideSplitter());
+        changeStyle(leftContainer, resources.runnerCss().displayNone(), resources.runnerCss().displayBlock());
+
+        Element rightContainer = propertiesPanel.getElement().getFirstChildElement().getNextSiblingElement();
+
+        changeStyle(rightContainer, resources.runnerCss().highWidth(), resources.runnerCss().defaultWidth());
+
+        splitter.removeStyleName(resources.runnerCss().displayNone());
 
         containerPresenter.go(leftPropertiesPanel);
+    }
+
+    private void changeStyle(@Nonnull Element element, @Nonnull String styleToRemove, @Nonnull String styleToAdd) {
+        element.removeClassName(styleToRemove);
+        element.addClassName(styleToAdd);
     }
 
     /** {@inheritDoc} */
@@ -423,14 +432,19 @@ public class RunnerManagerViewImpl extends BaseView<RunnerManagerView.ActionDele
     public void setGeneralPropertiesPanel(@Nonnull TabContainer containerPresenter) {
         containerPresenter.showTabTitle(locale.runnerTabConsole(), true);
         containerPresenter.showTabTitle(locale.runnerTabProperties(), true);
-        containerPresenter.showTab(locale.runnerTabTerminal());
+        containerPresenter.showTab(locale.runnerTabConsole());
 
         panelWidth = rightPropertiesPanel.getElement().getParentElement().getScrollWidth();
 
-        leftPropertiesPanel.getElement().getParentElement().getStyle().setDisplay(Display.NONE);
-        propertiesPanel.getElement().getFirstChildElement().getNextSiblingElement().getStyle().setWidth(100.1, Unit.PC);
+        Element leftContainer = leftPropertiesPanel.getElement().getParentElement();
 
-        splitter.addStyleName(resources.runnerCss().hideSplitter());
+        changeStyle(leftContainer, resources.runnerCss().displayBlock(), resources.runnerCss().displayNone());
+
+        Element rightContainer = propertiesPanel.getElement().getFirstChildElement().getNextSiblingElement();
+
+        changeStyle(rightContainer, resources.runnerCss().defaultWidth(), resources.runnerCss().highWidth());
+
+        splitter.addStyleName(resources.runnerCss().displayNone());
 
         containerPresenter.go(rightPropertiesPanel);
     }
