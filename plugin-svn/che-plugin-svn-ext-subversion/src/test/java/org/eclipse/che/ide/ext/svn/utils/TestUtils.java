@@ -213,7 +213,7 @@ public class TestUtils {
         wcRoot.deleteOnExit();
 
         // Create the repository
-        final CommandLineResult result = UpstreamUtils.executeCommandLine(null, "svnadmin", new String[]{
+        final CommandLineResult result = UpstreamUtils.executeCommandLine("svnadmin", new String[]{
                 "create",
                 repoRoot.getAbsolutePath()
         }, -1, repoRoot);

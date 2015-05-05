@@ -64,7 +64,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -817,9 +816,7 @@ public class SubversionApi {
             credentialsArgs = null;
         }
 
-        final Map<String, String> env = new HashMap<>();
-        env.put("LANG", "C");
-        result = UpstreamUtils.executeCommandLine(env, "svn", args.toArray(new String[args.size()]),
+        result = UpstreamUtils.executeCommandLine("svn", args.toArray(new String[args.size()]),
                                                   credentialsArgs, -1, projectPath);
 
         if (result.getExitCode() != 0) {

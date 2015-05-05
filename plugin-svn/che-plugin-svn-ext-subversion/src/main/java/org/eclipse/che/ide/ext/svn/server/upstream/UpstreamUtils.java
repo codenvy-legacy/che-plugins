@@ -22,8 +22,6 @@ import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -52,11 +50,11 @@ public class UpstreamUtils {
      *
      * @throws IOException if something goes wrong
      */
-    public static CommandLineResult executeCommandLine(@Nullable final Map<String, String> env, final String cmd,
+    public static CommandLineResult executeCommandLine(final String cmd,
                                                        @Nullable final String[] args,
                                                        final long timeout,
                                                        @Nullable final File workingDirectory) throws IOException {
-        return executeCommandLine(env, cmd, args, null, timeout, workingDirectory);
+        return executeCommandLine(cmd, args, null, timeout, workingDirectory);
     }
 
     /**
@@ -73,15 +71,13 @@ public class UpstreamUtils {
      * 
      * @throws IOException if something goes wrong
      */
-    public static CommandLineResult executeCommandLine(@Nullable final Map<String, String> env, final String cmd,
+    public static CommandLineResult executeCommandLine(final String cmd,
                                                        @Nullable final String[] args,
                                                        @Nullable final String[] redactedArgs,
                                                        final long timeout,
                                                        @Nullable final File workingDirectory)
             throws IOException {
-        final List<String> command = new ArrayList<>();
-
-        command.add(cmd);
+        CommandLine command = new CommandLine(cmd);
 
         if (args != null) {
             for (String arg: args) {
@@ -89,19 +85,20 @@ public class UpstreamUtils {
             }
         }
 
-        final List<String> redactedCommand = new ArrayList<>(command);
         if (redactedArgs != null) {
             for (String arg: redactedArgs) {
-                redactedCommand.add(arg);
+                command.add(arg);
             }
         }
 
-        LOG.debug("Running command: " + Arrays.toString(command.toArray()));
-        final ProcessBuilder processBuilder = new ProcessBuilder(redactedCommand);
-        if (env != null) {
-            processBuilder.environment().putAll(env);
-        }
-        processBuilder.directory(workingDirectory);
+        LOG.debug("Running command: " + command.toString());
+        final ProcessBuilder processBuilder = new ProcessBuilder(command.toShellCommand());
+        Map<String, String> environment = processBuilder.environment();
+
+        environment.put("LANG", "en_US.UTF-8");
+        environment.put("GDM_LANG", "en_US.UTF-8");
+        environment.put("LANGUAGE", "us");
+
         if (workingDirectory != null) {
             processBuilder.directory(workingDirectory);
         }
@@ -127,8 +124,7 @@ public class UpstreamUtils {
             throw new IOException(e);
         }
 
-        final CommandLine commandLine = new CommandLine(command.toArray(new String[command.size()]));
-        return new CommandLineResult(commandLine, process.exitValue(), stdoutConsumer.getOutput(),
+        return new CommandLineResult(command, process.exitValue(), stdoutConsumer.getOutput(),
                                      stderrConsumer.getOutput());
     }
 
