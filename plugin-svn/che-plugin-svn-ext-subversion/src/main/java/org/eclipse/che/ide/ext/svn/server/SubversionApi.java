@@ -59,8 +59,10 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
+
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -646,7 +648,21 @@ public class SubversionApi {
 
         uArgs.add("propset");
         uArgs.add(request.getName());
-        uArgs.add("\"" + request.getValue() + "\"");
+
+        String value = request.getValue();
+        Path valueFile = null;
+        if (value.contains("\n")) {
+            try {
+                valueFile = java.nio.file.Files.createTempFile("svn-propset-value-", null);
+                java.nio.file.Files.write(valueFile, value.getBytes());
+                uArgs.add("-F");
+                uArgs.add(valueFile.toString());
+            } catch (IOException e) {
+                uArgs.add(value);
+            }
+        } else {
+            uArgs.add(value);
+        }
 
         final CommandLineResult result = runCommand(null, uArgs, projectPath, Arrays.asList(request.getPath()));
 
