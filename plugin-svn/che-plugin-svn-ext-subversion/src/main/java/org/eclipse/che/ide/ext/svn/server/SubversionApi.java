@@ -123,7 +123,7 @@ public class SubversionApi {
 
         // Command Arguments
 
-        final CommandLineResult result = runCommand(cliArgs, projectPath, request.getPaths());
+        final CommandLineResult result = runCommand(null, cliArgs, projectPath, request.getPaths());
 
         return DtoFactory.getInstance()
                          .createDto(CLIOutputResponse.class)
@@ -153,7 +153,7 @@ public class SubversionApi {
 
         cliArgs.add("revert");
 
-        final CommandLineResult result = runCommand(cliArgs, projectPath, addWorkingCopyPathIfNecessary(request.getPaths()));
+        final CommandLineResult result = runCommand(null, cliArgs, projectPath, addWorkingCopyPathIfNecessary(request.getPaths()));
 
         return DtoFactory.getInstance()
                          .createDto(CLIOutputResponse.class)
@@ -192,7 +192,7 @@ public class SubversionApi {
         // Command Name
         cliArgs.add("copy");
 
-        final CommandLineResult result = runCommand(cliArgs, projectPath, Arrays.asList(request.getSource(), request.getDestination()));
+        final CommandLineResult result = runCommand(null, cliArgs, projectPath, Arrays.asList(request.getSource(), request.getDestination()));
 
         return DtoFactory.getInstance()
                          .createDto(CLIOutputResponse.class)
@@ -240,9 +240,9 @@ public class SubversionApi {
 
         CommandLineResult result;
         if (credentials == null) {
-            result = runCommand(cliArgs, projectPath, request.getPaths());
+            result = runCommand(null, cliArgs, projectPath, request.getPaths());
         } else {
-            result = runCommand(cliArgs, projectPath, request.getPaths(), credentials);
+            result = runCommand(null, cliArgs, projectPath, request.getPaths(), credentials);
         }
 
         return DtoFactory.getInstance()
@@ -280,7 +280,7 @@ public class SubversionApi {
         cliArgs.add("-m");
         cliArgs.add(request.getMessage());
 
-        final CommandLineResult result = runCommand(cliArgs, projectPath,
+        final CommandLineResult result = runCommand(null, cliArgs, projectPath,
                                                     addWorkingCopyPathIfNecessary(request.getPaths()));
 
         return DtoFactory.getInstance()
@@ -311,7 +311,7 @@ public class SubversionApi {
         // Command Name
         cliArgs.add("remove");
 
-        final CommandLineResult result = runCommand(cliArgs, projectPath, request.getPaths());
+        final CommandLineResult result = runCommand(null, cliArgs, projectPath, request.getPaths());
 
         return DtoFactory.getInstance()
                          .createDto(CLIOutputResponse.class)
@@ -350,7 +350,7 @@ public class SubversionApi {
         // Command Name
         cliArgs.add("status");
 
-        final CommandLineResult result = runCommand(cliArgs, projectPath,
+        final CommandLineResult result = runCommand(null, cliArgs, projectPath,
                                                     addWorkingCopyPathIfNecessary(request.getPaths()));
 
         return DtoFactory.getInstance()
@@ -387,7 +387,7 @@ public class SubversionApi {
         // Command Name
         uArgs.add("update");
 
-        final CommandLineResult result = runCommand(uArgs, projectPath,
+        final CommandLineResult result = runCommand(null, uArgs, projectPath,
                                                     addWorkingCopyPathIfNecessary(request.getPaths()));
 
         return DtoFactory.getInstance()
@@ -416,7 +416,7 @@ public class SubversionApi {
         addOption(uArgs, "--revision", request.getRevision());
         uArgs.add("log");
 
-        final CommandLineResult result = runCommand(uArgs, projectPath, request.getPaths());
+        final CommandLineResult result = runCommand(null, uArgs, projectPath, request.getPaths());
 
         return DtoFactory.getInstance()
                          .createDto(CLIOutputResponse.class)
@@ -438,7 +438,7 @@ public class SubversionApi {
             args.add("unlock");
         }
 
-        final CommandLineResult result = runCommand(args, projectPath, request.getTargets());
+        final CommandLineResult result = runCommand(null, args, projectPath, request.getTargets());
 
         return DtoFactory.getInstance()
                          .createDto(CLIOutputResponse.class)
@@ -466,7 +466,7 @@ public class SubversionApi {
         addOption(uArgs, "--revision", request.getRevision());
         uArgs.add("diff");
 
-        final CommandLineResult result = runCommand(uArgs, projectPath, request.getPaths());
+        final CommandLineResult result = runCommand(null, uArgs, projectPath, request.getPaths());
 
         return DtoFactory.getInstance()
                          .createDto(CLIOutputResponse.class)
@@ -499,7 +499,7 @@ public class SubversionApi {
             addOption(uArgs, "--accept", resolutions.get(path));
             uArgs.add("resolve");
 
-            final CommandLineResult result = runCommand(uArgs, projectPath, Arrays.asList(path));
+            final CommandLineResult result = runCommand(null, uArgs, projectPath, Arrays.asList(path));
 
             CLIOutputResponse outputResponse = DtoFactory.getInstance()
                                                          .createDto(CLIOutputResponse.class)
@@ -548,7 +548,7 @@ public class SubversionApi {
 
         try {
             tempDir = Files.createTempDir();
-            final CommandLineResult result = runCommand(uArgs, project, Arrays.asList(path, tempDir.getAbsolutePath()));
+            final CommandLineResult result = runCommand(null, uArgs, project, Arrays.asList(path, tempDir.getAbsolutePath()));
             if (result.getExitCode() != 0) {
                 LOG.warn("Svn export process finished with exit status {}", result.getExitCode());
                 throw new ServerException("Exporting was failed");
@@ -612,7 +612,7 @@ public class SubversionApi {
         paths.addAll(request.getSource());
         paths.add(request.getDestination());
 
-        final CommandLineResult result = runCommand(cliArgs, projectPath, paths);
+        final CommandLineResult result = runCommand(null, cliArgs, projectPath, paths);
 
         return DtoFactory.getInstance()
                          .createDto(CLIOutputResponse.class)
@@ -648,7 +648,7 @@ public class SubversionApi {
         uArgs.add(request.getName());
         uArgs.add("\"" + request.getValue() + "\"");
 
-        final CommandLineResult result = runCommand(uArgs, projectPath, Arrays.asList(request.getPath()));
+        final CommandLineResult result = runCommand(null, uArgs, projectPath, Arrays.asList(request.getPath()));
 
         return DtoFactory.getInstance()
                          .createDto(CLIOutputResponse.class)
@@ -678,7 +678,7 @@ public class SubversionApi {
         uArgs.add("propdel");
         uArgs.add(request.getName());
 
-        final CommandLineResult result = runCommand(uArgs, projectPath, Arrays.asList(request.getPath()));
+        final CommandLineResult result = runCommand(null, uArgs, projectPath, Arrays.asList(request.getPath()));
 
         return DtoFactory.getInstance()
                          .createDto(CLIOutputResponse.class)
@@ -706,7 +706,7 @@ public class SubversionApi {
         uArgs.add("propget");
         uArgs.add(request.getName());
 
-        final CommandLineResult result = runCommand(uArgs, projectPath, Arrays.asList(request.getPath()));
+        final CommandLineResult result = runCommand(null, uArgs, projectPath, Arrays.asList(request.getPath()));
 
         return DtoFactory.getInstance()
                          .createDto(CLIOutputResponse.class)
@@ -733,7 +733,7 @@ public class SubversionApi {
 
         uArgs.add("proplist");
 
-        final CommandLineResult result = runCommand(uArgs, projectPath, Arrays.asList(request.getPath()));
+        final CommandLineResult result = runCommand(null, uArgs, projectPath, Arrays.asList(request.getPath()));
 
         return DtoFactory.getInstance()
                          .createDto(CLIOutputResponse.class)
@@ -792,12 +792,12 @@ public class SubversionApi {
         return paths;
     }
 
-    private CommandLineResult runCommand(final List<String> args, final File projectPath,
+    private CommandLineResult runCommand(final Map<String, String> env, final List<String> args, final File projectPath,
                                          final List<String> paths) throws IOException, SubversionException {
-        return runCommand(args, projectPath, paths, getCredentialArgs(projectPath.getAbsolutePath()));
+        return runCommand(env, args, projectPath, paths, getCredentialArgs(projectPath.getAbsolutePath()));
     }
 
-    private CommandLineResult runCommand(final List<String> args, final File projectPath,
+    private CommandLineResult runCommand(final Map<String, String> env, final List<String> args, final File projectPath,
                                          final List<String> paths, final String[] credentials) throws IOException, SubversionException {
         final List<String> lines = new ArrayList<>();
         final CommandLineResult result;
@@ -816,7 +816,7 @@ public class SubversionApi {
             credentialsArgs = null;
         }
 
-        result = UpstreamUtils.executeCommandLine("svn", args.toArray(new String[args.size()]),
+        result = UpstreamUtils.executeCommandLine(env, "svn", args.toArray(new String[args.size()]),
                                                   credentialsArgs, -1, projectPath);
 
         if (result.getExitCode() != 0) {
@@ -868,7 +868,7 @@ public class SubversionApi {
 
         final File projectPath = new File(request.getProjectPath());
 
-        final CommandLineResult result = runCommand(cliArgs, projectPath,
+        final CommandLineResult result = runCommand(null, cliArgs, projectPath,
                 addWorkingCopyPathIfNecessary(request.getPaths()));
 
         final InfoResponse response = DtoFactory.getInstance().createDto(InfoResponse.class)
@@ -904,7 +904,7 @@ public class SubversionApi {
         // Command Name
         cliArgs.add("cleanup");
 
-        final CommandLineResult result = runCommand(cliArgs, projectPath, addWorkingCopyPathIfNecessary(request.getPaths()));
+        final CommandLineResult result = runCommand(null, cliArgs, projectPath, addWorkingCopyPathIfNecessary(request.getPaths()));
         return DtoFactory.getInstance()
                          .createDto(CLIOutputResponse.class)
                          .withCommand(result.getCommandLine().toString())

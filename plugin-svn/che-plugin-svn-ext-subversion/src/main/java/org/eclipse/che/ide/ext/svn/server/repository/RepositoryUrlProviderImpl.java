@@ -23,7 +23,7 @@ public class RepositoryUrlProviderImpl implements RepositoryUrlProvider {
     @Override
     public String getRepositoryUrl(final String projectPath) throws IOException {
         final File projectPathFile = new File(projectPath);
-        final CommandLineResult clResult = UpstreamUtils.executeCommandLine("svn", new String[]{"info"},
+        final CommandLineResult clResult = UpstreamUtils.executeCommandLine(null, "svn", new String[]{"info"},
                                                                             null, -1L, projectPathFile);
         return InfoUtils.getRepositoryUrl(clResult.getStdout());
     }

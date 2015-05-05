@@ -50,11 +50,12 @@ public class UpstreamUtils {
      *
      * @throws IOException if something goes wrong
      */
-    public static CommandLineResult executeCommandLine(final String cmd,
+    public static CommandLineResult executeCommandLine(@Nullable final Map<String, String> env,
+                                                       final String cmd,
                                                        @Nullable final String[] args,
                                                        final long timeout,
                                                        @Nullable final File workingDirectory) throws IOException {
-        return executeCommandLine(cmd, args, null, timeout, workingDirectory);
+        return executeCommandLine(env, cmd, args, null, timeout, workingDirectory);
     }
 
     /**
@@ -71,7 +72,8 @@ public class UpstreamUtils {
      * 
      * @throws IOException if something goes wrong
      */
-    public static CommandLineResult executeCommandLine(final String cmd,
+    public static CommandLineResult executeCommandLine(@Nullable final Map<String, String> env,
+                                                       final String cmd,
                                                        @Nullable final String[] args,
                                                        @Nullable final String[] redactedArgs,
                                                        final long timeout,
@@ -85,23 +87,25 @@ public class UpstreamUtils {
             }
         }
 
+        CommandLine redactedCommand = new CommandLine(command);
         if (redactedArgs != null) {
             for (String arg: redactedArgs) {
-                command.add(arg);
+                redactedCommand.add(arg);
             }
         }
 
         LOG.debug("Running command: " + command.toString());
-        final ProcessBuilder processBuilder = new ProcessBuilder(command.toShellCommand());
-        Map<String, String> environment = processBuilder.environment();
+        final ProcessBuilder processBuilder = new ProcessBuilder(redactedCommand.toShellCommand());
 
+        Map<String, String> environment = processBuilder.environment();
+        if (env != null) {
+            environment.putAll(env);
+        }
         environment.put("LANG", "en_US.UTF-8");
         environment.put("GDM_LANG", "en_US.UTF-8");
         environment.put("LANGUAGE", "us");
 
-        if (workingDirectory != null) {
-            processBuilder.directory(workingDirectory);
-        }
+        processBuilder.directory(workingDirectory);
 
         final Process process = processBuilder.start();
 
@@ -127,5 +131,4 @@ public class UpstreamUtils {
         return new CommandLineResult(command, process.exitValue(), stdoutConsumer.getOutput(),
                                      stderrConsumer.getOutput());
     }
-
 }
