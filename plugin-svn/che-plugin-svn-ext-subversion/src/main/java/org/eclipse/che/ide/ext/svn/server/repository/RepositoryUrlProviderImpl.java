@@ -12,8 +12,6 @@ package org.eclipse.che.ide.ext.svn.server.repository;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.eclipse.che.ide.ext.svn.server.upstream.CommandLineResult;
 import org.eclipse.che.ide.ext.svn.server.upstream.UpstreamUtils;
@@ -24,10 +22,8 @@ public class RepositoryUrlProviderImpl implements RepositoryUrlProvider {
 
     @Override
     public String getRepositoryUrl(final String projectPath) throws IOException {
-        final Map<String, String> env = new HashMap<>();
-        env.put("LANG", "C");
         final File projectPathFile = new File(projectPath);
-        final CommandLineResult clResult = UpstreamUtils.executeCommandLine(env, "svn", new String[]{"info"},
+        final CommandLineResult clResult = UpstreamUtils.executeCommandLine(null, "svn", new String[]{"info"},
                                                                             null, -1L, projectPathFile);
         return InfoUtils.getUrl(clResult.getStdout());
     }

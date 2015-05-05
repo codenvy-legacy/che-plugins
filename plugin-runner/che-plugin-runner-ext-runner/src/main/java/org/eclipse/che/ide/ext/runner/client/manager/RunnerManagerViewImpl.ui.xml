@@ -130,9 +130,17 @@
                     </g:FlowPanel>
                 </g:south>
 
-                <!--print panel-->
                 <g:center>
-                    <g:SimplePanel ui:field="rightPanel" addStyleNames="{style.textArea}"/>
+                    <g:SplitLayoutPanel ui:field="propertiesPanel" addStyleNames="{resources.runnerCss.fullSize}">
+                        <!--contains Console and Properties tabs-->
+                        <g:east size="800">
+                            <g:SimplePanel ui:field="rightPropertiesPanel" addStyleNames="{style.textArea}"/>
+                        </g:east>
+                        <!--contains terminal tab-->
+                        <g:center>
+                            <g:SimplePanel ui:field="leftPropertiesPanel" addStyleNames="{style.textArea}"/>
+                        </g:center>
+                    </g:SplitLayoutPanel>
                 </g:center>
             </g:DockLayoutPanel>
         </g:center>

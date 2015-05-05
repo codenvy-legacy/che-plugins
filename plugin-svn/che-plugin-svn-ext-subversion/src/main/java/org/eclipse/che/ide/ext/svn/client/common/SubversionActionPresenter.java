@@ -92,6 +92,10 @@ public class SubversionActionPresenter {
             }
 
             @Override
+            public void onProjectClosing(ProjectActionEvent event) {
+            }
+
+            @Override
             public void onProjectClosed(final ProjectActionEvent event) {
                 isViewClosed = true;
                 console.clear();

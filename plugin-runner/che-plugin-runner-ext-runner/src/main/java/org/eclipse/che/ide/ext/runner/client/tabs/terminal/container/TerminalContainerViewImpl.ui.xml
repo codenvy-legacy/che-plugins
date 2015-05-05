@@ -23,6 +23,10 @@
         .border {
             border: 1px solid #242424;
         }
+
+        .mainBackground {
+            background: #373737;
+        }
     </ui:style>
 
     <g:DockLayoutPanel unit="PX" addStyleNames="{resources.runnerCss.fullSize}">
@@ -35,7 +39,7 @@
         </g:west>
 
         <g:center>
-            <g:FlowPanel ui:field="mainPanel" addStyleNames="{resources.runnerCss.fullSize} {style.border}"/>
+            <g:FlowPanel ui:field="mainPanel" addStyleNames="{resources.runnerCss.fullSize} {style.border} {style.mainBackground}"/>
         </g:center>
     </g:DockLayoutPanel>
 </ui:UiBinder>

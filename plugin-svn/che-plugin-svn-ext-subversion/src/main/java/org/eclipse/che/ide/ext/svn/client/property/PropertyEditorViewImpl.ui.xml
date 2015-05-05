@@ -86,6 +86,18 @@
             </g:DockLayoutPanel>
         </g:Dock>
 
+        <!-- Showing current value of selected property -->
+        <g:Dock direction="NORTH">
+            <g:DockLayoutPanel unit="PX" width="320px" height="35px">
+                <g:west size="120">
+                    <g:HorizontalPanel width="100%" horizontalAlignment="ALIGN_RIGHT"/>
+                </g:west>
+                <g:center>
+                    <g:TextArea ui:field="propertyCurrentValue" width="190px" height="28px" addStyleNames="{style.textArea}"/>
+                </g:center>
+            </g:DockLayoutPanel>
+        </g:Dock>
+
         <!-- Setting new property -->
         <g:Dock direction="NORTH">
             <g:FlowPanel height="30px">

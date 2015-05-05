@@ -14,6 +14,7 @@ import com.google.common.base.Strings;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.uibinder.client.UiBinder;
@@ -36,6 +37,7 @@ import org.eclipse.che.ide.ext.svn.shared.Depth;
 import org.eclipse.che.ide.ui.window.Window;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -43,39 +45,45 @@ import java.util.List;
  * Implementation of {@link org.eclipse.che.ide.ext.svn.client.property.PropertyEditorView}.
  *
  * @author Vladyslav Zhukovskyi
+ * @author Stephane Tournie
  */
 @Singleton
 public class PropertyEditorViewImpl extends Window implements PropertyEditorView {
     interface PropertyEditorViewImplUiBinder extends UiBinder<Widget, PropertyEditorViewImpl> {
     }
 
-    Button btnOk;
-    Button btnCancel;
+    Button                                    btnOk;
+    Button                                    btnCancel;
 
     @UiField(provided = true)
-    SuggestBox propertyList;
+    SuggestBox                                propertyList;
 
     @UiField
-    RadioButton editProperty;
+    RadioButton                               editProperty;
 
     @UiField
-    RadioButton deleteProperty;
+    RadioButton                               deleteProperty;
 
     @UiField
-    TextArea propertyValue;
+    TextArea                                  propertyValue;
 
     @UiField
-    ListBox depth;
+    ListBox                                   depth;
 
     @UiField
-    CheckBox force;
+    CheckBox                                  force;
+
+    @UiField
+    TextArea                                  propertyCurrentValue;
 
     @UiField(provided = true)
-    SubversionExtensionResources             resources;
+    SubversionExtensionResources              resources;
     @UiField(provided = true)
-    SubversionExtensionLocalizationConstants constants;
+    SubversionExtensionLocalizationConstants  constants;
 
     private PropertyEditorView.ActionDelegate delegate;
+
+    private List<String>                      existingProperties;
 
     @Inject
     public PropertyEditorViewImpl(SubversionExtensionResources resources,
@@ -87,6 +95,8 @@ public class PropertyEditorViewImpl extends Window implements PropertyEditorView
 
         this.ensureDebugId("svn-property-edit-window");
         this.setTitle("Properties");
+
+        existingProperties = new ArrayList<String>();
 
         btnCancel = createButton(constants.buttonCancel(), "svn-property-edit-cancel", new ClickHandler() {
             @Override
@@ -145,7 +155,25 @@ public class PropertyEditorViewImpl extends Window implements PropertyEditorView
             /** {@inheritDoc} */
             @Override
             public void onKeyUp(KeyUpEvent event) {
-                btnOk.setEnabled(!Strings.isNullOrEmpty(propertyList.getValue()));
+
+                String propertyListValue = propertyList.getValue();
+
+                int keyCode = event.getNativeKeyCode();
+                if (keyCode >= KeyCodes.KEY_A && keyCode <= KeyCodes.KEY_Z
+                    || keyCode >= KeyCodes.KEY_ZERO && keyCode <= KeyCodes.KEY_NINE
+                    || keyCode >= KeyCodes.KEY_NUM_ZERO && keyCode <= KeyCodes.KEY_NUM_NINE
+                    || keyCode == KeyCodes.KEY_ENTER
+                    || keyCode == KeyCodes.KEY_BACKSPACE) {
+
+                    setPropertyCurrentValue(Arrays.asList(""));
+
+                    if (!Strings.isNullOrEmpty(propertyListValue) && existingProperties.contains(propertyListValue)) {
+
+                        btnOk.setEnabled(editProperty.getValue() && !Strings.isNullOrEmpty(propertyValue.getText())
+                                         || deleteProperty.getValue());
+                        delegate.onPropertyNameChanged(propertyListValue);
+                    }
+                }
             }
         });
 
@@ -154,6 +182,10 @@ public class PropertyEditorViewImpl extends Window implements PropertyEditorView
         for (Depth depth : Depth.values()) {
             this.depth.addItem(depth.getDescription(), depth.getValue());
         }
+
+        propertyCurrentValue.setReadOnly(true);
+        propertyCurrentValue.getElement().setAttribute("placeHolder", "(current value of property)");
+        propertyCurrentValue.getElement().setAttribute("resize", "none");
     }
 
     /** {@inheritDoc} */
@@ -172,6 +204,7 @@ public class PropertyEditorViewImpl extends Window implements PropertyEditorView
     /** {@inheritDoc} */
     @Override
     public void onShow() {
+        propertyCurrentValue.setText(null);
         editProperty.setValue(true);
         propertyValue.setEnabled(true);
         propertyValue.setText(null);
@@ -180,11 +213,14 @@ public class PropertyEditorViewImpl extends Window implements PropertyEditorView
         btnOk.setEnabled(false);
         force.setValue(false);
         depth.setSelectedIndex(0);
+        delegate.obtainExistingPropertiesForPath();
         Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
             @Override
             public void execute() {
-                propertyList.getValueBox().setValue("");
+                String defaultPropertyListValue = "svn:ignore";
+                propertyList.getValueBox().setValue(defaultPropertyListValue);
                 propertyList.setFocus(true);
+                delegate.onPropertyNameChanged(defaultPropertyListValue);
             }
         });
         show();
@@ -231,8 +267,36 @@ public class PropertyEditorViewImpl extends Window implements PropertyEditorView
     public void onModeChanged(ClickEvent event) {
         if (editProperty.getValue()) {
             propertyValue.setEnabled(true);
+            btnOk.setEnabled(!Strings.isNullOrEmpty(propertyList.getValue())
+                             && !Strings.isNullOrEmpty(propertyValue.getText()));
         } else if (deleteProperty.getValue()) {
             propertyValue.setEnabled(false);
+            btnOk.setEnabled(!Strings.isNullOrEmpty(propertyList.getValue()));
+        }
+    }
+
+    @UiHandler("propertyValue")
+    public void onPropertyValueChanged(KeyUpEvent event) {
+        btnOk.setEnabled(!Strings.isNullOrEmpty(propertyList.getValue())
+                         && !Strings.isNullOrEmpty(propertyValue.getText()));
+    }
+
+    @Override
+    public void setPropertyCurrentValue(List<String> values) {
+        String text = "";
+        for (String value : values) {
+            if (value != null && value.length() > 0) {
+                text += value + "\n";
+            }
+        }
+        propertyCurrentValue.setText(text);
+    }
+
+    @Override
+    public void setExistingPropertiesForPath(List<String> properties) {
+        existingProperties.clear();
+        for (String property : properties) {
+            existingProperties.add(property);
         }
     }
 }

@@ -34,6 +34,8 @@ import org.eclipse.che.ide.ext.svn.shared.LockRequest;
 import org.eclipse.che.ide.ext.svn.shared.MergeRequest;
 import org.eclipse.che.ide.ext.svn.shared.MoveRequest;
 import org.eclipse.che.ide.ext.svn.shared.PropertyDeleteRequest;
+import org.eclipse.che.ide.ext.svn.shared.PropertyGetRequest;
+import org.eclipse.che.ide.ext.svn.shared.PropertyListRequest;
 import org.eclipse.che.ide.ext.svn.shared.PropertyRequest;
 import org.eclipse.che.ide.ext.svn.shared.PropertySetRequest;
 import org.eclipse.che.ide.ext.svn.shared.RemoveRequest;
@@ -398,5 +400,24 @@ public class SubversionClientServiceImpl implements SubversionClientService {
                           .withPath(path);
 
         asyncRequestFactory.createPostRequest(baseHttpUrl + "/propdel", request).loader(loader).send(callback);
+    }
+
+    @Override
+    public void propertyGet(String projectPath, String propertyName, String path, AsyncRequestCallback<CLIOutputResponse> callback) {
+        final PropertyRequest request = dtoFactory.createDto(PropertyGetRequest.class)
+                                                  .withProjectPath(projectPath)
+                                                  .withName(propertyName)
+                                                  .withPath(path);
+
+        asyncRequestFactory.createPostRequest(baseHttpUrl + "/propget", request).loader(loader).send(callback);
+    }
+
+    @Override
+    public void propertyList(String projectPath, String path, AsyncRequestCallback<CLIOutputResponse> callback) {
+        final PropertyRequest request = dtoFactory.createDto(PropertyListRequest.class)
+                                                  .withProjectPath(projectPath)
+                                                  .withPath(path);
+
+        asyncRequestFactory.createPostRequest(baseHttpUrl + "/proplist", request).loader(loader).send(callback);
     }
 }

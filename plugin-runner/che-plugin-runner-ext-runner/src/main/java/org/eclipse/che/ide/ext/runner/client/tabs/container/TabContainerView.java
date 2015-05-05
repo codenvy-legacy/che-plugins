@@ -10,10 +10,10 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.runner.client.tabs.container;
 
+import com.google.inject.ImplementedBy;
+
 import org.eclipse.che.ide.api.mvp.View;
 import org.eclipse.che.ide.ext.runner.client.tabs.common.Tab;
-
-import com.google.inject.ImplementedBy;
 
 import javax.annotation.Nonnull;
 import java.util.Map;
@@ -49,6 +49,16 @@ public interface TabContainerView extends View<TabContainerView.ActionDelegate> 
      *         tab that needs to be added
      */
     void addTab(@Nonnull Tab tab);
+
+    /**
+     * Changes visibility of tabs titles.
+     *
+     * @param tabName
+     *         name of tab which need to change
+     * @param isShown
+     *         <code>true</code> shows tabs title, <code>false</code> hides tab titles
+     */
+    void showTabTitle(@Nonnull String tabName, boolean isShown);
 
     /**
      * Select a given tab.

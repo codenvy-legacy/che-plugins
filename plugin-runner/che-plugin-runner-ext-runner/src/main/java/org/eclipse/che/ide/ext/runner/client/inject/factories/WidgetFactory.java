@@ -12,6 +12,8 @@ package org.eclipse.che.ide.ext.runner.client.inject.factories;
 
 import org.eclipse.che.ide.ext.runner.client.manager.button.ButtonWidget;
 import org.eclipse.che.ide.ext.runner.client.manager.info.MoreInfo;
+import org.eclipse.che.ide.ext.runner.client.manager.menu.MenuWidget;
+import org.eclipse.che.ide.ext.runner.client.manager.menu.entry.MenuEntry;
 import org.eclipse.che.ide.ext.runner.client.models.Environment;
 import org.eclipse.che.ide.ext.runner.client.models.Runner;
 import org.eclipse.che.ide.ext.runner.client.tabs.console.button.ConsoleButton;
@@ -167,5 +169,23 @@ public interface WidgetFactory {
      */
     @Nonnull
     PropertyButtonWidget createPropertyButton(@Nonnull String title, @Nonnull Background background);
+
+    /**
+     * Creates menu widget on which we can add different entities to control panel displaying.
+     *
+     * @return an instance of {@link MenuWidget}
+     */
+    @Nonnull
+    MenuWidget createMenuWidget();
+
+    /**
+     * Creates entry widget which will be displayed in {@link MenuWidget}
+     *
+     * @param entryName
+     *         name which need set to entry
+     * @return an instance of {@link MenuEntry}
+     */
+    @Nonnull
+    MenuEntry createMenuEntry(@Nonnull String entryName);
 
 }

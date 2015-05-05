@@ -312,6 +312,31 @@ public interface SubversionClientService {
                      final AsyncRequestCallback<CLIOutputResponse> callback);
 
     /**
+     * Get specified property for a path or a target.
+     *
+     * @param projectPath the project path
+     * @param propertyName the property name
+     * @param path path to which property get
+     * @param callback the callback
+     */
+    void propertyGet(final String projectPath,
+                     final String propertyName,
+                     final String path,
+                     final AsyncRequestCallback<CLIOutputResponse> callback);
+
+    /**
+     * Get properties set for a path or a target.
+     *
+     * @param projectPath the project path
+     * @param propertyName the property name
+     * @param path path to which property get
+     * @param callback the callback
+     */
+    void propertyList(final String projectPath,
+                      final String path,
+                      final AsyncRequestCallback<CLIOutputResponse> callback);
+
+    /**
      * Delete specified property from a path or a target.
      *
      * @param projectPath

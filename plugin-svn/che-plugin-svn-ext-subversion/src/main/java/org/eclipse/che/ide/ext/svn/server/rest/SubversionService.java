@@ -40,6 +40,8 @@ import org.eclipse.che.ide.ext.svn.shared.LockRequest;
 import org.eclipse.che.ide.ext.svn.shared.MergeRequest;
 import org.eclipse.che.ide.ext.svn.shared.MoveRequest;
 import org.eclipse.che.ide.ext.svn.shared.PropertyDeleteRequest;
+import org.eclipse.che.ide.ext.svn.shared.PropertyGetRequest;
+import org.eclipse.che.ide.ext.svn.shared.PropertyListRequest;
 import org.eclipse.che.ide.ext.svn.shared.PropertySetRequest;
 import org.eclipse.che.ide.ext.svn.shared.RemoveRequest;
 import org.eclipse.che.ide.ext.svn.shared.ResolveRequest;
@@ -491,6 +493,48 @@ public class SubversionService extends Service {
     public CLIOutputResponse propdel(final PropertyDeleteRequest request) throws ServerException, IOException {
         request.setProjectPath(getRealPath(request.getProjectPath()));
         return this.subversionApi.propdel(request);
+    }
+
+    /**
+     * Get property for specified path or target.
+     *
+     * @param request
+     *         the property setting request
+     * @return the property setting response
+     * @throws ServerException
+     *         if there is a Subversion issue
+     * @throws IOException
+     *         if there is a problem executing the command
+     */
+    @Path("propget")
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
+    @RolesAllowed("workspace/developer")
+    public CLIOutputResponse propget(final PropertyGetRequest request) throws ServerException, IOException {
+        request.setProjectPath(getRealPath(request.getProjectPath()));
+        return this.subversionApi.propget(request);
+    }
+
+    /**
+     * Get property for specified path or target.
+     *
+     * @param request
+     *         the property setting request
+     * @return the property setting response
+     * @throws ServerException
+     *         if there is a Subversion issue
+     * @throws IOException
+     *         if there is a problem executing the command
+     */
+    @Path("proplist")
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
+    @RolesAllowed("workspace/developer")
+    public CLIOutputResponse proplist(final PropertyListRequest request) throws ServerException, IOException {
+        request.setProjectPath(getRealPath(request.getProjectPath()));
+        return this.subversionApi.proplist(request);
     }
 
     /**

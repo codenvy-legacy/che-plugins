@@ -255,6 +255,10 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
             }
 
             @Override
+            public void onProjectClosing(ProjectActionEvent event) {
+            }
+
+            @Override
             public void onProjectClosed(ProjectActionEvent event) {
                 // application will be stopped after closing a project
                 if (debuggerInfo != null) {

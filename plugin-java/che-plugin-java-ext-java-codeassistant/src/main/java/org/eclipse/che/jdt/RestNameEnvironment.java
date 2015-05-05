@@ -151,9 +151,7 @@ public class RestNameEnvironment {
 
             return processAnswer(answer, javaProject, environment);
         } catch (JavaModelException e) {
-            if (LOG.isDebugEnabled()) {
-                LOG.error("Can't parse class: ", e);
-            }
+            LOG.debug("Can't parse class: ", e);
             throw new WebApplicationException();
         }
     }
@@ -174,10 +172,8 @@ public class RestNameEnvironment {
         try {
             return processAnswer(answer, javaProject, environment);
         } catch (JavaModelException e) {
-            if (LOG.isDebugEnabled()) {
-                LOG.error("Can't parse class: ", e);
-            }
-            throw new WebApplicationException(e);
+           LOG.debug("Can't parse class: ", e);
+           throw new WebApplicationException(e);
         }
     }
 
@@ -308,7 +304,7 @@ public class RestNameEnvironment {
             javaProjectService.getOrCreateJavaProject(wsId, projectPath);
 
         } catch (Throwable debug) {
-            LOG.error("RestNameEnvironment", debug);
+            LOG.warn("RestNameEnvironment", debug);
             throw new WebApplicationException(debug);
         }
     }

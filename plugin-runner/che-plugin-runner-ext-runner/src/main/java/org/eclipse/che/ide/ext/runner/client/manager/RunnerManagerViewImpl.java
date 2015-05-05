@@ -11,7 +11,9 @@
 package org.eclipse.che.ide.ext.runner.client.manager;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.MouseOutEvent;
 import com.google.gwt.event.dom.client.MouseOutHandler;
 import com.google.gwt.event.dom.client.MouseOverEvent;
@@ -37,6 +39,8 @@ import org.eclipse.che.ide.ext.runner.client.RunnerResources;
 import org.eclipse.che.ide.ext.runner.client.inject.factories.WidgetFactory;
 import org.eclipse.che.ide.ext.runner.client.manager.button.ButtonWidget;
 import org.eclipse.che.ide.ext.runner.client.manager.info.MoreInfo;
+import org.eclipse.che.ide.ext.runner.client.manager.menu.MenuWidget;
+import org.eclipse.che.ide.ext.runner.client.manager.menu.entry.MenuEntry;
 import org.eclipse.che.ide.ext.runner.client.models.Runner;
 import org.eclipse.che.ide.ext.runner.client.tabs.container.TabContainer;
 import org.vectomatic.dom.svg.ui.SVGImage;
@@ -60,12 +64,19 @@ public class RunnerManagerViewImpl extends BaseView<RunnerManagerView.ActionDele
     private static final String GWT_POPUP_STANDARD_STYLE = "gwt-PopupPanel";
     private static final String SPLITTER_STYLE_NAME      = "gwt-SplitLayoutPanel-HDragger";
 
-    private static final int SHIFT_LEFT     = 80;
-    private static final int SHIFT_TOP      = 130;
-    private static final int SPLITTER_WIDTH = 2;
+    private static final int SHIFT_LEFT = 80;
+    private static final int SHIFT_TOP  = 130;
+
+    private static final int MENU_SHIFT_LEFT = -120;
+    private static final int MENU_SHIFT_TOP  = 20;
+
+    private static final int MAIN_SPLITTER_WIDTH       = 2;
+    private static final int PROPERTIES_SPLITTER_WIDTH = 5;
 
     @UiField(provided = true)
     SplitLayoutPanel mainPanel;
+    @UiField(provided = true)
+    SplitLayoutPanel propertiesPanel;
 
     @UiField
     SimplePanel leftTabsPanel;
@@ -75,7 +86,9 @@ public class RunnerManagerViewImpl extends BaseView<RunnerManagerView.ActionDele
     @UiField
     FlowPanel   runButtonPanel;
     @UiField
-    SimplePanel rightPanel;
+    SimplePanel rightPropertiesPanel;
+    @UiField
+    SimplePanel leftPropertiesPanel;
 
     //info panel
     @UiField
@@ -98,7 +111,7 @@ public class RunnerManagerViewImpl extends BaseView<RunnerManagerView.ActionDele
 
     private final WidgetFactory widgetFactory;
     private final AppContext    appContext;
-    private final PopupPanel    popupPanel;
+    private final PopupPanel    moreInfoPopup;
     private final MoreInfo      moreInfoWidget;
 
     private ButtonWidget run;
@@ -107,6 +120,8 @@ public class RunnerManagerViewImpl extends BaseView<RunnerManagerView.ActionDele
     private ButtonWidget logs;
 
     private String url;
+    private Widget splitter;
+    private int    panelWidth;
 
     @Inject
     public RunnerManagerViewImpl(PartStackUIResources partStackUIResources,
@@ -114,7 +129,8 @@ public class RunnerManagerViewImpl extends BaseView<RunnerManagerView.ActionDele
                                  RunnerLocalizationConstant locale,
                                  WidgetFactory widgetFactory,
                                  AppContext appContext,
-                                 PopupPanel popupPanel) {
+                                 PopupPanel moreInfoPopup,
+                                 final PopupPanel menuPopup) {
         super(partStackUIResources);
 
         this.appContext = appContext;
@@ -122,7 +138,10 @@ public class RunnerManagerViewImpl extends BaseView<RunnerManagerView.ActionDele
         this.locale = locale;
         this.widgetFactory = widgetFactory;
         this.moreInfoWidget = widgetFactory.createMoreInfo();
-        this.mainPanel = new SplitLayoutPanel(SPLITTER_WIDTH);
+        this.panelWidth = 800;
+
+        this.mainPanel = new SplitLayoutPanel(MAIN_SPLITTER_WIDTH);
+        this.propertiesPanel = new SplitLayoutPanel(PROPERTIES_SPLITTER_WIDTH);
 
         titleLabel.setText(locale.runnersPanelTitle());
         setContentWidget(UI_BINDER.createAndBindUi(this));
@@ -130,9 +149,9 @@ public class RunnerManagerViewImpl extends BaseView<RunnerManagerView.ActionDele
         this.mainPanel.setWidgetMinSize(leftTabsPanel, 185);
         this.debugPanel.setVisible(false);
 
-        this.popupPanel = popupPanel;
-        this.popupPanel.removeStyleName(GWT_POPUP_STANDARD_STYLE);
-        this.popupPanel.add(moreInfoWidget);
+        this.moreInfoPopup = moreInfoPopup;
+        this.moreInfoPopup.removeStyleName(GWT_POPUP_STANDARD_STYLE);
+        this.moreInfoPopup.add(moreInfoWidget);
 
         SVGImage icon = new SVGImage(resources.moreInfo());
         icon.getElement().setAttribute("class", resources.runnerCss().mainButtonIcon());
@@ -140,9 +159,12 @@ public class RunnerManagerViewImpl extends BaseView<RunnerManagerView.ActionDele
 
         addMoreInfoPanelHandler();
 
-        changeSplitterStyle();
+        changeSplitterStyle(mainPanel, resources.runnerCss().splitter());
+        changeSplitterStyle(propertiesPanel, resources.runnerCss().propertiesSplitter());
 
         initializeButtons();
+
+        initializeMenu(menuPopup);
     }
 
     private void addMoreInfoPanelHandler() {
@@ -160,21 +182,23 @@ public class RunnerManagerViewImpl extends BaseView<RunnerManagerView.ActionDele
             public void onMouseOut(MouseOutEvent event) {
                 image.removeStyleName(resources.runnerCss().opacityButton());
 
-                popupPanel.hide();
+                moreInfoPopup.hide();
             }
         }, MouseOutEvent.getType());
     }
 
-    private void changeSplitterStyle() {
-        int widgetCount = mainPanel.getWidgetCount();
+    private void changeSplitterStyle(@Nonnull SplitLayoutPanel panel, @Nonnull String style) {
+        int widgetCount = panel.getWidgetCount();
 
         for (int i = 0; i < widgetCount; i++) {
-            Widget widget = mainPanel.getWidget(i);
+            Widget widget = panel.getWidget(i);
             String styleName = widget.getStyleName();
 
             if (SPLITTER_STYLE_NAME.equals(styleName)) {
+                this.splitter = widget;
+
                 widget.removeStyleName(styleName);
-                widget.addStyleName(resources.runnerCss().splitter());
+                widget.addStyleName(style);
             }
         }
     }
@@ -214,6 +238,49 @@ public class RunnerManagerViewImpl extends BaseView<RunnerManagerView.ActionDele
             }
         };
         logs = createButton(resources.logs(), locale.tooltipLogsButton(), logsDelegate, otherButtonsPanel);
+    }
+
+    private void initializeMenu(@Nonnull final PopupPanel menuPopup) {
+        menuPopup.removeStyleName(GWT_POPUP_STANDARD_STYLE);
+
+        MenuWidget menuWidget = widgetFactory.createMenuWidget();
+        MenuEntry entry = widgetFactory.createMenuEntry(locale.menuToggleSplitter());
+
+        entry.setDelegate(new MenuEntry.ActionDelegate() {
+            @Override
+            public void onEntryClicked(boolean isSplitterShow) {
+                delegate.onToggleSplitterClicked(isSplitterShow);
+
+                menuPopup.hide();
+            }
+        });
+
+        menuWidget.addEntry(entry);
+
+        menuPopup.add(menuWidget);
+
+        ButtonWidget headerMenuBtn = widgetFactory.createButton(locale.tooltipHeaderMenuButton(), resources.menuIcon());
+        headerMenuBtn.setEnable();
+        headerMenuBtn.setDelegate(new ButtonWidget.ActionDelegate() {
+            @Override
+            public void onButtonClicked() {
+                int x = menuPanel.getAbsoluteLeft() + MENU_SHIFT_LEFT;
+                int y = menuPanel.getAbsoluteTop() + MENU_SHIFT_TOP;
+
+                menuPopup.setPopupPosition(x, y);
+
+                menuPopup.show();
+            }
+        });
+
+        addMenuButton(headerMenuBtn);
+
+        menuWidget.getSpan().addDomHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                menuPopup.hide();
+            }
+        }, ClickEvent.getType());
     }
 
     @Nonnull
@@ -310,8 +377,8 @@ public class RunnerManagerViewImpl extends BaseView<RunnerManagerView.ActionDele
         int x = timeout.getAbsoluteLeft() - SHIFT_LEFT;
         int y = timeout.getAbsoluteTop() - SHIFT_TOP;
 
-        popupPanel.setPopupPosition(x, y);
-        popupPanel.show();
+        moreInfoPopup.setPopupPosition(x, y);
+        moreInfoPopup.show();
     }
 
     /** {@inheritDoc} */
@@ -328,8 +395,58 @@ public class RunnerManagerViewImpl extends BaseView<RunnerManagerView.ActionDele
 
     /** {@inheritDoc} */
     @Override
-    public void setRightPanel(@Nonnull TabContainer containerPresenter) {
-        containerPresenter.go(rightPanel);
+    public void setRightPropertiesPanel(@Nonnull TabContainer containerPresenter) {
+        containerPresenter.showTabTitle(locale.runnerTabConsole(), false);
+        containerPresenter.showTabTitle(locale.runnerTabProperties(), false);
+
+        containerPresenter.showTab(locale.runnerTabTerminal());
+
+        containerPresenter.go(rightPropertiesPanel);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void setLeftPropertiesPanel(@Nonnull TabContainer containerPresenter) {
+        containerPresenter.showTab(locale.runnerTabConsole());
+
+        Element leftContainer = leftPropertiesPanel.getElement().getParentElement();
+
+        changeStyle(leftContainer, resources.runnerCss().displayNone(), resources.runnerCss().displayBlock());
+
+        Element rightContainer = propertiesPanel.getElement().getFirstChildElement().getNextSiblingElement();
+
+        changeStyle(rightContainer, resources.runnerCss().highWidth(), resources.runnerCss().defaultWidth());
+
+        splitter.removeStyleName(resources.runnerCss().displayNone());
+
+        containerPresenter.go(leftPropertiesPanel);
+    }
+
+    private void changeStyle(@Nonnull Element element, @Nonnull String styleToRemove, @Nonnull String styleToAdd) {
+        element.removeClassName(styleToRemove);
+        element.addClassName(styleToAdd);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void setGeneralPropertiesPanel(@Nonnull TabContainer containerPresenter) {
+        containerPresenter.showTabTitle(locale.runnerTabConsole(), true);
+        containerPresenter.showTabTitle(locale.runnerTabProperties(), true);
+        containerPresenter.showTab(locale.runnerTabConsole());
+
+        panelWidth = rightPropertiesPanel.getElement().getParentElement().getScrollWidth();
+
+        Element leftContainer = leftPropertiesPanel.getElement().getParentElement();
+
+        changeStyle(leftContainer, resources.runnerCss().displayBlock(), resources.runnerCss().displayNone());
+
+        Element rightContainer = propertiesPanel.getElement().getFirstChildElement().getNextSiblingElement();
+
+        changeStyle(rightContainer, resources.runnerCss().defaultWidth(), resources.runnerCss().highWidth());
+
+        splitter.addStyleName(resources.runnerCss().displayNone());
+
+        containerPresenter.go(rightPropertiesPanel);
     }
 
     /** {@inheritDoc} */

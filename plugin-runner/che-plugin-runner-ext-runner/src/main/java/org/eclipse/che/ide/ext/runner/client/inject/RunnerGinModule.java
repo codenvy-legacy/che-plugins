@@ -27,6 +27,10 @@ import org.eclipse.che.ide.ext.runner.client.manager.button.ButtonWidget;
 import org.eclipse.che.ide.ext.runner.client.manager.button.ButtonWidgetImpl;
 import org.eclipse.che.ide.ext.runner.client.manager.info.MoreInfo;
 import org.eclipse.che.ide.ext.runner.client.manager.info.MoreInfoImpl;
+import org.eclipse.che.ide.ext.runner.client.manager.menu.MenuWidget;
+import org.eclipse.che.ide.ext.runner.client.manager.menu.MenuWidgetImpl;
+import org.eclipse.che.ide.ext.runner.client.manager.menu.entry.MenuEntry;
+import org.eclipse.che.ide.ext.runner.client.manager.menu.entry.MenuEntryWidget;
 import org.eclipse.che.ide.ext.runner.client.manager.preferences.RunnerPreferencesPresenter;
 import org.eclipse.che.ide.ext.runner.client.models.Environment;
 import org.eclipse.che.ide.ext.runner.client.models.EnvironmentImpl;
@@ -50,7 +54,8 @@ import org.eclipse.che.ide.ext.runner.client.tabs.terminal.panel.Terminal;
 import org.eclipse.che.ide.ext.runner.client.tabs.terminal.panel.TerminalImpl;
 import org.eclipse.che.ide.ext.runner.client.util.annotations.EnvironmentProperties;
 import org.eclipse.che.ide.ext.runner.client.util.annotations.LeftPanel;
-import org.eclipse.che.ide.ext.runner.client.util.annotations.RightPanel;
+import org.eclipse.che.ide.ext.runner.client.util.annotations.LeftPropertiesPanel;
+import org.eclipse.che.ide.ext.runner.client.util.annotations.RightPropertiesPanel;
 import org.eclipse.che.ide.ext.runner.client.util.annotations.RunnerProperties;
 
 /**
@@ -66,7 +71,8 @@ public class RunnerGinModule extends AbstractGinModule {
     @Override
     protected void configure() {
         bind(TabContainer.class).annotatedWith(LeftPanel.class).to(TabContainerPresenter.class).in(Singleton.class);
-        bind(TabContainer.class).annotatedWith(RightPanel.class).to(TabContainerPresenter.class).in(Singleton.class);
+        bind(TabContainer.class).annotatedWith(RightPropertiesPanel.class).to(TabContainerPresenter.class).in(Singleton.class);
+        bind(TabContainer.class).annotatedWith(LeftPropertiesPanel.class).to(TabContainerPresenter.class).in(Singleton.class);
 
         install(new GinFactoryModuleBuilder().implement(Runner.class, RunnerImpl.class)
                                              .implement(Environment.class, EnvironmentImpl.class)
@@ -88,6 +94,8 @@ public class RunnerGinModule extends AbstractGinModule {
                                              .implement(PropertiesPanel.class, PropertiesStubPanel.class)
                                              .implement(MoreInfo.class, MoreInfoImpl.class)
                                              .implement(PropertyButtonWidget.class, PropertyButtonWidgetImpl.class)
+                                             .implement(MenuWidget.class, MenuWidgetImpl.class)
+                                             .implement(MenuEntry.class, MenuEntryWidget.class)
                                              .build(WidgetFactory.class));
 
         GinMultibinder<PreferencePagePresenter> prefBinder = GinMultibinder.newSetBinder(binder(), PreferencePagePresenter.class);

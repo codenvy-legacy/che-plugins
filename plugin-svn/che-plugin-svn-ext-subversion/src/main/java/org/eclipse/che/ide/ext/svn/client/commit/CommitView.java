@@ -32,6 +32,9 @@ public interface CommitView extends View<CommitView.ActionDelegate> {
 
         /** Show diff for specified file in new window. */
         void showDiff(String path);
+
+        /** Perform actions when commit mode changed. */
+        void onCommitModeChanged();
     }
 
     /** Get commit message. */

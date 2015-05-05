@@ -13,25 +13,32 @@ package org.eclipse.che.ide.ext.runner.client.state;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
+import org.eclipse.che.ide.ext.runner.client.manager.menu.SplitterState;
+
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.eclipse.che.ide.ext.runner.client.manager.menu.SplitterState.SPLITTER_ON;
 
 /**
  * The manager for panel state. It provides an ability to change 'Multi panel' state.
  *
  * @author Andrey Plotnikov
+ * @author Dmitry Shnurenko
  */
 @Singleton
 public class PanelState {
 
     private final List<StateChangeListener> listeners;
     private       State                     state;
+    private       SplitterState             splitterState;
 
     @Inject
     public PanelState() {
         listeners = new ArrayList<>();
         state = State.RUNNERS;
+        splitterState = SPLITTER_ON;
     }
 
     /** @return current state of the panel */
@@ -49,6 +56,22 @@ public class PanelState {
     public void setState(@Nonnull State state) {
         this.state = state;
         notifyListeners();
+    }
+
+    /**
+     * Sets and stores state of splitter state. Splitter can be in two cases ON and OFF.
+     *
+     * @param splitterState
+     *         state which need set
+     */
+    public void setSplitterState(@Nonnull SplitterState splitterState) {
+        this.splitterState = splitterState;
+    }
+
+    /** Returns splitter state. */
+    @Nonnull
+    public SplitterState getSplitterState() {
+        return splitterState;
     }
 
     /**
