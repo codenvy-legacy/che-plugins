@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.svn.client.property;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.event.shared.EventBus;
@@ -38,6 +41,7 @@ import static org.eclipse.che.ide.api.notification.Notification.Type.INFO;
  * Presenter for the {@link org.eclipse.che.ide.ext.svn.client.property.PropertyEditorView}.
  *
  * @author Vladyslav Zhukovskyi
+ * @author Stephane Tournie
  */
 @Singleton
 public class PropertyEditorPresenter extends SubversionActionPresenter implements PropertyEditorView.ActionDelegate {
@@ -97,16 +101,44 @@ public class PropertyEditorPresenter extends SubversionActionPresenter implement
         }
     }
 
+    @Override
+    public void onPropertyNameChanged(String propertyName) {
+        final String projectPath = getCurrentProjectPath();
+
+        if (projectPath == null) {
+            return;
+        }
+
+        getAndShowPropertyValue(propertyName, projectPath);
+    }
+
     /** {@inheritDoc} */
     @Override
     public void minimize() {
-        //stub
+        // stub
     }
 
     /** {@inheritDoc} */
     @Override
     public void activatePart() {
-        //stub
+        // stub
+    }
+
+    private void getAndShowPropertyValue(String property, String projectPath) {
+        String headPath = getSelectedPaths().get(0);
+        Unmarshallable<CLIOutputResponse> unmarshaller = dtoUnmarshallerFactory.newUnmarshaller(CLIOutputResponse.class);
+        service.propertyGet(projectPath, property, headPath, new AsyncRequestCallback<CLIOutputResponse>(unmarshaller) {
+            @Override
+            protected void onSuccess(CLIOutputResponse result) {
+                List<String> values = result.getOutput();
+                view.setPropertyCurrentValue(values);
+            }
+
+            @Override
+            protected void onFailure(Throwable exception) {
+                notificationManager.showError(exception.getMessage());
+            }
+        });
     }
 
     private void editProperty(String projectPath) {
@@ -174,5 +206,33 @@ public class PropertyEditorPresenter extends SubversionActionPresenter implement
                                        notification.setType(ERROR);
                                    }
                                });
+    }
+
+    @Override
+    public void obtainExistingPropertiesForPath() {
+        final String projectPath = getCurrentProjectPath();
+
+        if (projectPath == null) {
+            return;
+        }
+
+        String headPath = getSelectedPaths().get(0);
+
+        Unmarshallable<CLIOutputResponse> unmarshaller = dtoUnmarshallerFactory.newUnmarshaller(CLIOutputResponse.class);
+        service.propertyList(projectPath, headPath, new AsyncRequestCallback<CLIOutputResponse>(unmarshaller) {
+            @Override
+            protected void onSuccess(CLIOutputResponse result) {
+                List<String> properties = new ArrayList<String>();
+                for (String property : result.getOutput()) {
+                    properties.add(property.trim());
+                }
+                view.setExistingPropertiesForPath(properties);
+            }
+
+            @Override
+            protected void onFailure(Throwable exception) {
+                notificationManager.showError(exception.getMessage());
+            }
+        });
     }
 }
