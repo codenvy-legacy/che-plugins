@@ -10,18 +10,19 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.machine.client.command.configuration.edit;
 
-import elemental.html.TableElement;
-
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.SpanElement;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.KeyUpEvent;
+import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -33,7 +34,6 @@ import org.eclipse.che.ide.ui.list.CategoriesList;
 import org.eclipse.che.ide.ui.list.Category;
 import org.eclipse.che.ide.ui.list.CategoryRenderer;
 import org.eclipse.che.ide.ui.window.Window;
-import org.eclipse.che.ide.util.dom.Elements;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,6 +60,8 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
     Button                        executeButton;
     @UiField
     SimplePanel                   configurations;
+    @UiField
+    TextBox                       commandConfigurationName;
     @UiField
     SimplePanel                   contentPanel;
     @UiField(provided = true)
@@ -100,12 +102,17 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
         this.setWidget(widget);
         this.setTitle(locale.editConfigurationsViewTitle());
 
-        //create list of configurations
-        TableElement tableElement = Elements.createTableElement();
-        tableElement.setAttribute("style", "width: 100%");
         categoriesList = new CategoriesList(resources);
         configurations.add(categoriesList);
+
         createButtons();
+
+        commandConfigurationName.addKeyUpHandler(new KeyUpHandler() {
+            @Override
+            public void onKeyUp(KeyUpEvent keyUpEvent) {
+                delegate.onNameChanged(commandConfigurationName.getText());
+            }
+        });
 
         addButton.addClickHandler(new ClickHandler() {
             @Override
@@ -113,12 +120,14 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
                 delegate.onAddClicked();
             }
         });
+
         removeButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent clickEvent) {
                 delegate.onDeleteClicked();
             }
         });
+
         executeButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent clickEvent) {
@@ -149,9 +158,14 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
     public void show() {
         super.show();
 
-        contentPanel.clear();
+        resetView();
+    }
+
+    private void resetView() {
         removeButton.setEnabled(false);
         executeButton.setEnabled(false);
+        commandConfigurationName.setText("");
+        contentPanel.clear();
     }
 
     /** {@inheritDoc} */
@@ -188,8 +202,8 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
 
     /** {@inheritDoc} */
     @Override
-    public void selectConfiguration(CommandConfiguration configuration) {
-        categoriesList.selectElement(configuration);
+    public void setConfigurationName(String name) {
+        commandConfigurationName.setText(name);
     }
 
     /** {@inheritDoc} */

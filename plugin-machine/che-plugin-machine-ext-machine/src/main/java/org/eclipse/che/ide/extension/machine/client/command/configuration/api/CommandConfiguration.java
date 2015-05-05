@@ -23,6 +23,9 @@ public interface CommandConfiguration {
     @Nonnull
     String getName();
 
+    /** Sets command configuration name. */
+    void setName(@Nonnull String name);
+
     /** Returns command configuration type. */
     @Nonnull
     CommandType getType();

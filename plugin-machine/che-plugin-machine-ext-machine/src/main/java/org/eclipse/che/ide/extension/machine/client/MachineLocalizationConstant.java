@@ -56,11 +56,6 @@ public interface MachineLocalizationConstant extends Messages {
     String clearConsoleControlDescription();
 
 
-    /* Messages */
-    @Key("messages.noMachineIsRunning")
-    String noMachineIsRunning();
-
-
     /* MachineConsoleView */
     @Key("view.machineConsole.title")
     String machineConsoleViewTitle();

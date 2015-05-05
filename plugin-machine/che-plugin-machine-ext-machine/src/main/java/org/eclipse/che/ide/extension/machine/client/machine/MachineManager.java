@@ -31,6 +31,7 @@ import org.eclipse.che.ide.websocket.rest.StringUnmarshallerWS;
 import org.eclipse.che.ide.websocket.rest.SubscriptionHandler;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import static org.eclipse.che.api.machine.shared.dto.MachineStateEvent.EventType.RUNNING;
 
@@ -40,10 +41,10 @@ public class MachineManager {
 
     /** WebSocket channel to receive messages about changing machine state (machine:state:machineID). */
     private static final String MACHINE_STATE_CHANNEL = "machine:state:";
-    private String currentMachineId;
+    private String devMachineId;
 
-    private final AppContext appContext;
-    private final MachineResources machineResources;
+    private final AppContext              appContext;
+    private final MachineResources        machineResources;
     private final MachineServiceClient    machineServiceClient;
     private final DtoUnmarshallerFactory  dtoUnmarshallerFactory;
     private final MessageBus              messageBus;
@@ -64,18 +65,20 @@ public class MachineManager {
         this.machineConsolePresenter = machineConsolePresenter;
     }
 
-    /** Returns ID of the machine where current project is bound. */
-    public String getCurrentMachineId() {
-        return currentMachineId;
+    /** Returns ID of the DEV-machine, where current project is bound. */
+    @Nullable
+    public String getDevMachineId() {
+        return devMachineId;
     }
 
-    public void setCurrentMachineId(String currentMachineId) {
-        this.currentMachineId = currentMachineId;
+    /** Sets ID of the DEV-machine, where current project is bound. */
+    public void setDevMachineId(@Nonnull String currentMachineId) {
+        this.devMachineId = currentMachineId;
     }
 
+    /** Start machine and bind project. */
     public void startMachineAndBindProject(final String projectPath) {
         final String outputChannel = getNewOutputChannel();
-
         subscribeToOutput(outputChannel);
 
         machineServiceClient.createMachineFromRecipe(
@@ -145,11 +148,26 @@ public class MachineManager {
         }
     }
 
+    /** Bind project to machine and set the given machine as DEV-machine. */
     public void bindProject(final String projectPath, final String machineId) {
         machineServiceClient.bindProject(machineId, projectPath, new AsyncRequestCallback<Void>() {
             @Override
             protected void onSuccess(Void result) {
-                setCurrentMachineId(machineId);
+                setDevMachineId(machineId);
+            }
+
+            @Override
+            protected void onFailure(Throwable exception) {
+                Log.error(MachineManager.class, exception);
+            }
+        });
+    }
+
+    public void destroyMachine(final String machineId) {
+        machineServiceClient.destroyMachine(machineId, new AsyncRequestCallback<Void>() {
+            @Override
+            protected void onSuccess(Void result) {
+                Log.info(MachineManager.class, "Machine " + machineId + " stopped");
             }
 
             @Override

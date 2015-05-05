@@ -22,6 +22,7 @@ import org.eclipse.che.ide.extension.machine.client.command.configuration.api.Co
 import org.eclipse.che.ide.extension.machine.client.console.MachineConsolePresenter;
 import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
+import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.util.UUID;
 import org.eclipse.che.ide.util.loging.Log;
 import org.eclipse.che.ide.websocket.MessageBus;
@@ -40,11 +41,12 @@ import java.util.Set;
 @Singleton
 public class CommandConfigurationManager {
 
-    private final Set<CommandType>     commandTypes;
-    private final MachineManager       machineManager;
-    private final MachineServiceClient machineServiceClient;
-    private final MessageBus           messageBus;
-    private final MachineConsolePresenter machineConsole;
+    private final Set<CommandType>          commandTypes;
+    private final MachineManager            machineManager;
+    private final MachineServiceClient      machineServiceClient;
+    private final MessageBus                messageBus;
+    private final MachineConsolePresenter   machineConsole;
+    private final DtoUnmarshallerFactory    dtoUnmarshallerFactory;
     private final Set<CommandConfiguration> commandConfigurations;
 
     @Inject
@@ -52,12 +54,14 @@ public class CommandConfigurationManager {
                                        MachineManager machineManager,
                                        MachineServiceClient machineServiceClient,
                                        MessageBus messageBus,
-                                       MachineConsolePresenter machineConsole) {
+                                       MachineConsolePresenter machineConsole,
+                                       DtoUnmarshallerFactory dtoUnmarshallerFactory) {
         this.commandTypes = commandTypes;
         this.machineManager = machineManager;
         this.machineServiceClient = machineServiceClient;
         this.messageBus = messageBus;
         this.machineConsole = machineConsole;
+        this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
         commandConfigurations = new HashSet<>();
 
         fetchCommandConfigurations();
@@ -96,14 +100,20 @@ public class CommandConfigurationManager {
 
     /** Execute the the given command configuration. */
     public void execute(@Nonnull CommandConfiguration configuration) {
-        final String currentMachineId = machineManager.getCurrentMachineId();
-        final String outputChannel = "process:output:" + UUID.uuid();
+        final String devMachineId = machineManager.getDevMachineId();
+        if (devMachineId == null) {
+            return;
+        }
+
+        final String outputChannel = getNewOutputChannel();
+        subscribeToOutput(outputChannel);
 
         machineServiceClient.executeCommandInMachine(
-                currentMachineId, configuration.getCommand(), outputChannel, new AsyncRequestCallback<ProcessDescriptor>() {
+                devMachineId, configuration.getCommand(), outputChannel,
+                new AsyncRequestCallback<ProcessDescriptor>(dtoUnmarshallerFactory.newUnmarshaller(ProcessDescriptor.class)) {
                     @Override
                     protected void onSuccess(ProcessDescriptor result) {
-                        subscribeToOutput(outputChannel);
+                        Log.info(CommandConfigurationManager.class, "Process with PID" + result.getPid() + " executed");
                     }
 
                     @Override
@@ -111,6 +121,11 @@ public class CommandConfigurationManager {
                         Log.error(CommandConfigurationManager.class, exception);
                     }
                 });
+    }
+
+    @Nonnull
+    private String getNewOutputChannel() {
+        return "process:output:" + UUID.uuid();
     }
 
     private void subscribeToOutput(final String channel) {

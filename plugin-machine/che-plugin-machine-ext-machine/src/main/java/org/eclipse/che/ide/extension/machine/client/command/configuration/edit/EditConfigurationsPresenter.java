@@ -44,12 +44,20 @@ public class EditConfigurationsPresenter implements EditConfigurationsView.Actio
 
     /** {@inheritDoc} */
     @Override
+    public void onNameChanged(String name) {
+        selectedConfiguration.setName(name);
+    }
+
+    /** {@inheritDoc} */
+    @Override
     public void onConfigurationSelected(CommandConfiguration configuration) {
+        selectedConfiguration = configuration;
+
+        view.setConfigurationName(configuration.getName());
+
         final ConfigurationPage configurationPage = configuration.getType().getConfigurationPage();
         configurationPage.reset(configuration);
         configurationPage.go(view.getContentPanel());
-
-        selectedConfiguration = configuration;
     }
 
     /** {@inheritDoc} */

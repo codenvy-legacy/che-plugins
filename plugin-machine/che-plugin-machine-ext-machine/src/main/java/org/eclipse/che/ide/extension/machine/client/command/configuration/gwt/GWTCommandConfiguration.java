@@ -16,14 +16,12 @@ import org.eclipse.che.ide.extension.machine.client.command.configuration.api.Co
 import javax.annotation.Nonnull;
 
 /**
- * //
- *
  * @author Artem Zatsarynnyy
  */
 public class GWTCommandConfiguration implements CommandConfiguration {
 
-    private final String      name;
     private final CommandType type;
+    private       String      name;
     private       String      devModeParameters;
     private       String      vmOptions;
 
@@ -36,6 +34,11 @@ public class GWTCommandConfiguration implements CommandConfiguration {
     @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public void setName(@Nonnull String name) {
+        this.name = name;
     }
 
     @Nonnull

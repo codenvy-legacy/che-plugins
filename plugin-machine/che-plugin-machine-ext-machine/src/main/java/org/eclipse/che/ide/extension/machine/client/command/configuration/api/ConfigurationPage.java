@@ -24,7 +24,7 @@ import javax.annotation.Nonnull;
 public interface ConfigurationPage extends Presenter {
 
     /**
-     * Initializes this page with the given {@code configuration}.
+     * Sets {@code configuration} to edit.
      * <p/>
      * This method is called every time when user selects
      * an appropriate command configuration in 'Command Configuration'
@@ -33,8 +33,8 @@ public interface ConfigurationPage extends Presenter {
     void reset(@Nonnull CommandConfiguration configuration);
 
     /**
-     * This method is called every time when user selects
-     * an appropriate command configuration in 'Command Configuration'.
+     * This method is called every time when user selects an appropriate
+     * command configuration in 'Command Configuration' dialog.
      * <p/>
      * {@inheritDoc}
      */

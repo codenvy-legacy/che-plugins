@@ -13,46 +13,31 @@ package org.eclipse.che.ide.extension.machine.client.actions;
 import com.google.inject.Inject;
 
 import org.eclipse.che.api.analytics.client.logger.AnalyticsEventLogger;
-import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
-import org.eclipse.che.api.machine.shared.dto.MachineDescriptor;
 import org.eclipse.che.ide.api.action.Action;
 import org.eclipse.che.ide.api.action.ActionEvent;
 import org.eclipse.che.ide.api.app.AppContext;
-import org.eclipse.che.ide.api.app.CurrentProject;
-import org.eclipse.che.ide.collections.Array;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
-import org.eclipse.che.ide.rest.AsyncRequestCallback;
-import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
-import org.eclipse.che.ide.ui.dialogs.DialogFactory;
-import org.eclipse.che.ide.util.loging.Log;
+import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
 
 /**
- * Action to destroy all the machines to which current project is bound.
+ * Action to destroy the DEV-machine (to which current project is bound).
  *
  * @author Artem Zatsarynnyy
  */
 public class TerminateMachineAction extends Action {
 
-    private final AppContext                  appContext;
-    private final MachineLocalizationConstant localizationConstant;
-    private final MachineServiceClient        machineServiceClient;
-    private final DialogFactory               dialogFactory;
-    private final DtoUnmarshallerFactory      dtoUnmarshallerFactory;
-    private final AnalyticsEventLogger        eventLogger;
+    private final AppContext           appContext;
+    private final MachineManager       machineManager;
+    private final AnalyticsEventLogger eventLogger;
 
     @Inject
     public TerminateMachineAction(AppContext appContext,
                                   MachineLocalizationConstant localizationConstant,
-                                  MachineServiceClient machineServiceClient,
-                                  DialogFactory dialogFactory,
-                                  DtoUnmarshallerFactory dtoUnmarshallerFactory,
+                                  MachineManager machineManager,
                                   AnalyticsEventLogger eventLogger) {
         super(localizationConstant.terminateMachineControlTitle(), localizationConstant.terminateMachineControlDescription(), null, null);
         this.appContext = appContext;
-        this.localizationConstant = localizationConstant;
-        this.machineServiceClient = machineServiceClient;
-        this.dialogFactory = dialogFactory;
-        this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
+        this.machineManager = machineManager;
         this.eventLogger = eventLogger;
     }
 
@@ -67,44 +52,11 @@ public class TerminateMachineAction extends Action {
     public void actionPerformed(ActionEvent e) {
         eventLogger.log(this);
 
-        final CurrentProject currentProject = appContext.getCurrentProject();
-        if (currentProject == null) {
+        final String devMachineId = machineManager.getDevMachineId();
+        if (devMachineId == null) {
             return;
         }
 
-        machineServiceClient.getMachines(
-                appContext.getWorkspace().getId(),
-                currentProject.getRootProject().getPath(),
-                new AsyncRequestCallback<Array<MachineDescriptor>>(dtoUnmarshallerFactory.newArrayUnmarshaller(MachineDescriptor.class)) {
-                    @Override
-                    protected void onSuccess(Array<MachineDescriptor> result) {
-                        if (result.isEmpty()) {
-                            dialogFactory.createMessageDialog("", localizationConstant.noMachineIsRunning(), null).show();
-                        } else {
-                            for (MachineDescriptor machineDescriptor : result.asIterable()) {
-                                destroyMachine(machineDescriptor.getId());
-                            }
-                        }
-                    }
-
-                    @Override
-                    protected void onFailure(Throwable exception) {
-                        Log.error(TerminateMachineAction.class, exception);
-                    }
-                });
-    }
-
-    private void destroyMachine(final String machineId) {
-        machineServiceClient.destroyMachine(machineId, new AsyncRequestCallback<Void>() {
-            @Override
-            protected void onSuccess(Void result) {
-                Log.info(TerminateMachineAction.class, "Machine " + machineId + " stopped");
-            }
-
-            @Override
-            protected void onFailure(Throwable exception) {
-                Log.error(TerminateMachineAction.class, exception);
-            }
-        });
+        machineManager.destroyMachine(devMachineId);
     }
 }

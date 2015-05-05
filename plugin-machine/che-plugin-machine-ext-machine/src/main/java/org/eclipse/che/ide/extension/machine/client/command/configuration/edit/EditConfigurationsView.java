@@ -38,16 +38,12 @@ public interface EditConfigurationsView extends View<EditConfigurationsView.Acti
     /** Sets available command configurations. */
     void setCommandConfigurations(Map<CommandType, Set<CommandConfiguration>> commandConfigurations);
 
-    /**
-     * Select the given {@code configuration}.
-     *
-     * @param configuration
-     *         configuration to select
-     */
-    void selectConfiguration(CommandConfiguration configuration);
+    void setConfigurationName(String name);
 
     /** Needs for delegate some function into preferences view. */
     interface ActionDelegate {
+
+        void onNameChanged(String name);
 
         /** Called when 'Close' button is clicked. */
         void onCloseClicked();
