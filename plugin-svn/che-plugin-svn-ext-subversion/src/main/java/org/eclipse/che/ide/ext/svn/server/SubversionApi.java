@@ -40,7 +40,10 @@ import org.eclipse.che.ide.ext.svn.shared.CommitRequest;
 import org.eclipse.che.ide.ext.svn.shared.CopyRequest;
 import org.eclipse.che.ide.ext.svn.shared.InfoRequest;
 import org.eclipse.che.ide.ext.svn.shared.InfoResponse;
+import org.eclipse.che.ide.ext.svn.shared.ListResponse;
+import org.eclipse.che.ide.ext.svn.shared.ListRequest;
 import org.eclipse.che.ide.ext.svn.shared.LockRequest;
+import org.eclipse.che.ide.ext.svn.shared.MergeRequest;
 import org.eclipse.che.ide.ext.svn.shared.MoveRequest;
 import org.eclipse.che.ide.ext.svn.shared.PropertyDeleteRequest;
 import org.eclipse.che.ide.ext.svn.shared.PropertySetRequest;
@@ -50,11 +53,13 @@ import org.eclipse.che.ide.ext.svn.shared.RevertRequest;
 import org.eclipse.che.ide.ext.svn.shared.ShowDiffRequest;
 import org.eclipse.che.ide.ext.svn.shared.ShowLogRequest;
 import org.eclipse.che.ide.ext.svn.shared.StatusRequest;
+import org.eclipse.che.ide.ext.svn.shared.SubversionItem;
 import org.eclipse.che.ide.ext.svn.shared.UpdateRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import java.io.File;
@@ -63,7 +68,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -98,31 +103,30 @@ public class SubversionApi {
      */
     public CLIOutputResponse add(final AddRequest request) throws IOException, SubversionException {
         final File projectPath = new File(request.getProjectPath());
-        final List<String> cliArgs = new LinkedList<>();
 
-        addStandardArgs(cliArgs);
+        final List<String> args = defaultArgs();
 
         // Flags
-        addFlag(cliArgs, "--no-ignore", request.isAddIgnored());
-        addFlag(cliArgs, "--parents", request.isAddParents());
+        addFlag(args, "--no-ignore", request.isAddIgnored());
+        addFlag(args, "--parents", request.isAddParents());
 
         if (request.isAutoProps()) {
-            cliArgs.add("--auto-props");
+            args.add("--auto-props");
         }
 
         if (request.isNotAutoProps()) {
-            cliArgs.add("--no-auto-props");
+            args.add("--no-auto-props");
         }
 
         // Options
-        addOption(cliArgs, "--depth", request.getDepth());
+        addOption(args, "--depth", request.getDepth());
 
         // Command Name
-        cliArgs.add("add");
+        args.add("add");
 
         // Command Arguments
 
-        final CommandLineResult result = runCommand(cliArgs, projectPath, request.getPaths());
+        final CommandLineResult result = runCommand(args, projectPath, request.getPaths());
 
         return DtoFactory.getInstance()
                          .createDto(CLIOutputResponse.class)
@@ -145,9 +149,9 @@ public class SubversionApi {
      */
     public CLIOutputResponse revert(RevertRequest request) throws IOException, SubversionException {
         final File projectPath = new File(request.getProjectPath());
-        final List<String> cliArgs = new LinkedList<>();
 
-        addStandardArgs(cliArgs);
+        final List<String> cliArgs = defaultArgs();
+
         addOption(cliArgs, "--depth", request.getDepth());
 
         cliArgs.add("revert");
@@ -180,9 +184,8 @@ public class SubversionApi {
         }
 
         final File projectPath = new File(request.getProjectPath());
-        final List<String> cliArgs = new LinkedList<>();
 
-        addStandardArgs(cliArgs);
+        final List<String> cliArgs = defaultArgs();
 
         if (!Strings.isNullOrEmpty(request.getComment())) {
             addOption(cliArgs, "--message", "\"" + request.getComment() + "\"");
@@ -219,9 +222,8 @@ public class SubversionApi {
     public CLIOutputWithRevisionResponse checkout(final CheckoutRequest request, final String[] credentials)
             throws IOException, SubversionException {
         final File projectPath = new File(request.getProjectPath());
-        final List<String> cliArgs = new LinkedList<>();
 
-        addStandardArgs(cliArgs);
+        final List<String> cliArgs = defaultArgs();
 
         // Flags
         addFlag(cliArgs, "--ignore-externals", request.isIgnoreExternals());
@@ -244,10 +246,11 @@ public class SubversionApi {
             result = runCommand(cliArgs, projectPath, request.getPaths(), credentials);
         }
 
-        return DtoFactory.getInstance()
-                         .createDto(CLIOutputWithRevisionResponse.class)
-                         .withCommand(result.getCommandLine().toString())
-                         .withRevision(SubversionUtils.getCheckoutRevision(result.getStdout()));
+        return DtoFactory.getInstance().createDto(CLIOutputWithRevisionResponse.class)
+                .withCommand(result.getCommandLine().toString())
+                .withOutput(result.getStdout())
+                .withErrOutput(result.getStderr())
+                .withRevision(SubversionUtils.getCheckoutRevision(result.getStdout()));
     }
 
     /**
@@ -264,9 +267,8 @@ public class SubversionApi {
     public CLIOutputWithRevisionResponse commit(final CommitRequest request)
             throws IOException, SubversionException {
         final File projectPath = new File(request.getProjectPath());
-        final List<String> cliArgs = new LinkedList<>();
 
-        addStandardArgs(cliArgs);
+        final List<String> cliArgs = defaultArgs();
 
         // Flags
         addFlag(cliArgs, "--keep-changelists", request.isKeepChangeLists());
@@ -282,11 +284,11 @@ public class SubversionApi {
         final CommandLineResult result = runCommand(cliArgs, projectPath,
                                                     addWorkingCopyPathIfNecessary(request.getPaths()));
 
-        return DtoFactory.getInstance()
-                         .createDto(CLIOutputWithRevisionResponse.class)
-                         .withCommand(result.getCommandLine().toString())
-                         .withRevision(SubversionUtils.getCommitRevision(result.getStdout()))
-                         .withOutput(result.getStdout());
+        return DtoFactory.getInstance().createDto(CLIOutputWithRevisionResponse.class)
+                .withCommand(result.getCommandLine().toString())
+                .withRevision(SubversionUtils.getCommitRevision(result.getStdout()))
+                .withOutput(result.getStdout())
+                .withErrOutput(result.getStderr());
     }
 
     /**
@@ -303,19 +305,18 @@ public class SubversionApi {
     public CLIOutputResponse remove(final RemoveRequest request)
             throws IOException, SubversionException {
         final File projectPath = new File(request.getProjectPath());
-        final List<String> cliArgs = new LinkedList<>();
 
-        addStandardArgs(cliArgs);
+        final List<String> cliArgs = defaultArgs();
 
         // Command Name
         cliArgs.add("remove");
 
         final CommandLineResult result = runCommand(cliArgs, projectPath, request.getPaths());
 
-        return DtoFactory.getInstance()
-                         .createDto(CLIOutputResponse.class)
-                         .withCommand(result.getCommandLine().toString())
-                         .withOutput(result.getStdout());
+        return DtoFactory.getInstance().createDto(CLIOutputResponse.class)
+                .withCommand(result.getCommandLine().toString())
+                .withOutput(result.getStdout())
+                .withErrOutput(result.getStderr());
     }
 
     /**
@@ -331,9 +332,8 @@ public class SubversionApi {
      */
     public CLIOutputResponse status(final StatusRequest request) throws IOException, SubversionException {
         final File projectPath = new File(request.getProjectPath());
-        final List<String> cliArgs = new LinkedList<>();
 
-        addStandardArgs(cliArgs);
+        final List<String> cliArgs = defaultArgs();
 
         // Flags
         addFlag(cliArgs, "--ignore-externals", request.isIgnoreExternals());
@@ -352,10 +352,10 @@ public class SubversionApi {
         final CommandLineResult result = runCommand(cliArgs, projectPath,
                                                     addWorkingCopyPathIfNecessary(request.getPaths()));
 
-        return DtoFactory.getInstance()
-                         .createDto(CLIOutputResponse.class)
-                         .withCommand(result.getCommandLine().toString())
-                         .withOutput(result.getStdout());
+        return DtoFactory.getInstance().createDto(CLIOutputResponse.class)
+                .withCommand(result.getCommandLine().toString())
+                .withOutput(result.getStdout())
+                .withErrOutput(result.getStderr());
     }
 
     /**
@@ -372,9 +372,8 @@ public class SubversionApi {
     public CLIOutputWithRevisionResponse update(final UpdateRequest request)
             throws IOException, SubversionException {
         final File projectPath = new File(request.getProjectPath());
-        final List<String> uArgs = new LinkedList<>();
 
-        addStandardArgs(uArgs);
+        final List<String> uArgs = defaultArgs();
 
         // Flags
         addFlag(uArgs, "--ignore-externals", request.isIgnoreExternals());
@@ -389,11 +388,11 @@ public class SubversionApi {
         final CommandLineResult result = runCommand(uArgs, projectPath,
                                                     addWorkingCopyPathIfNecessary(request.getPaths()));
 
-        return DtoFactory.getInstance()
-                         .createDto(CLIOutputWithRevisionResponse.class)
-                         .withCommand(result.getCommandLine().toString())
-                         .withRevision(SubversionUtils.getUpdateRevision(result.getStdout()))
-                         .withOutput(result.getStdout());
+        return DtoFactory.getInstance().createDto(CLIOutputWithRevisionResponse.class)
+                .withCommand(result.getCommandLine().toString())
+                .withRevision(SubversionUtils.getUpdateRevision(result.getStdout()))
+                .withOutput(result.getStdout())
+                .withErrOutput(result.getStderr());
     }
 
     /**
@@ -409,25 +408,25 @@ public class SubversionApi {
      */
     public CLIOutputResponse showLog(final ShowLogRequest request) throws IOException, SubversionException {
         final File projectPath = new File(request.getProjectPath());
-        final List<String> uArgs = new LinkedList<>();
 
-        addStandardArgs(uArgs);
+        final List<String> uArgs = defaultArgs();
+
         addOption(uArgs, "--revision", request.getRevision());
         uArgs.add("log");
 
         final CommandLineResult result = runCommand(uArgs, projectPath, request.getPaths());
 
-        return DtoFactory.getInstance()
-                         .createDto(CLIOutputResponse.class)
-                         .withCommand(result.getCommandLine().toString())
-                         .withOutput(result.getStdout());
+        return DtoFactory.getInstance().createDto(CLIOutputResponse.class)
+                .withCommand(result.getCommandLine().toString())
+                .withOutput(result.getStdout())
+                .withErrOutput(result.getStderr());
     }
 
     public CLIOutputResponse lockUnlock(final LockRequest request, final boolean lock) throws IOException, SubversionException {
         final File projectPath = new File(request.getProjectPath());
 
-        final List<String> args = new ArrayList<>();
-        addStandardArgs(args);
+        final List<String> args = defaultArgs();
+
         addFlag(args, "--force", request.isForce());
 
         // command
@@ -459,18 +458,40 @@ public class SubversionApi {
      */
     public CLIOutputResponse showDiff(final ShowDiffRequest request) throws IOException, SubversionException {
         final File projectPath = new File(request.getProjectPath());
-        final List<String> uArgs = new LinkedList<>();
 
-        addStandardArgs(uArgs);
+        final List<String> uArgs = defaultArgs();
+
         addOption(uArgs, "--revision", request.getRevision());
         uArgs.add("diff");
 
         final CommandLineResult result = runCommand(uArgs, projectPath, request.getPaths());
 
-        return DtoFactory.getInstance()
-                         .createDto(CLIOutputResponse.class)
-                         .withCommand(result.getCommandLine().toString())
-                         .withOutput(result.getStdout());
+        return DtoFactory.getInstance().createDto(CLIOutputResponse.class)
+                .withCommand(result.getCommandLine().toString())
+                .withOutput(result.getStdout())
+                .withErrOutput(result.getStderr());
+    }
+
+    /**
+     * List remote subversion directory.
+     *
+     * @return the response containing target children
+     */
+    public ListResponse list(final ListRequest request) throws IOException, SubversionException {
+        final File projectPath = new File(request.getProjectPath());
+        final List<String> args = defaultArgs();
+
+        args.add("list");
+
+        List<String> paths = new ArrayList<>();
+        paths.add(request.getTarget());
+
+        final CommandLineResult result = runCommand(args, projectPath, paths);
+
+        return DtoFactory.getInstance().createDto(ListResponse.class)
+                .withCommand(result.getCommandLine().toString())
+                .withOutput(result.getStdout())
+                .withErrorOutput(result.getStderr());
     }
 
     /**
@@ -488,28 +509,26 @@ public class SubversionApi {
         final File projectPath = new File(request.getProjectPath());
 
         Map<String, String> resolutions = request.getConflictResolutions();
+
         List<CLIOutputResponse> results = new ArrayList<>();
-
         for (String path : resolutions.keySet()) {
-            final List<String> uArgs = new LinkedList<>();
+            final List<String> uArgs = defaultArgs();
 
-            addStandardArgs(uArgs);
             addDepth(uArgs, request.getDepth());
             addOption(uArgs, "--accept", resolutions.get(path));
             uArgs.add("resolve");
 
             final CommandLineResult result = runCommand(uArgs, projectPath, Arrays.asList(path));
 
-            CLIOutputResponse outputResponse = DtoFactory.getInstance()
-                                                         .createDto(CLIOutputResponse.class)
-                                                         .withCommand(result.getCommandLine().toString())
-                                                         .withOutput(result.getStdout());
+            CLIOutputResponse outputResponse = DtoFactory.getInstance().createDto(CLIOutputResponse.class)
+                    .withCommand(result.getCommandLine().toString())
+                    .withOutput(result.getStdout())
+                    .withErrOutput(result.getStderr());
             results.add(outputResponse);
         }
 
-        return DtoFactory.getInstance()
-                         .createDto(CLIOutputResponseList.class)
-                         .withCLIOutputResponses(results);
+        return DtoFactory.getInstance().createDto(CLIOutputResponseList.class)
+                .withCLIOutputResponses(results);
     }
 
     /**
@@ -531,9 +550,8 @@ public class SubversionApi {
             throws IOException, ServerException {
 
         final File project = new File(projectPath);
-        final List<String> uArgs = new LinkedList<>();
 
-        addStandardArgs(uArgs);
+        final List<String> uArgs = defaultArgs();
 
         if (!Strings.isNullOrEmpty(revision)) {
             addOption(uArgs, "--revision", revision);
@@ -596,9 +614,8 @@ public class SubversionApi {
         }
 
         final File projectPath = new File(request.getProjectPath());
-        final List<String> cliArgs = new LinkedList<>();
 
-        addStandardArgs(cliArgs);
+        final List<String> cliArgs = defaultArgs();
 
         if (!Strings.isNullOrEmpty(request.getComment())) {
             addOption(cliArgs, "--message", "\"" + request.getComment() + "\"");
@@ -613,11 +630,10 @@ public class SubversionApi {
 
         final CommandLineResult result = runCommand(cliArgs, projectPath, paths);
 
-        return DtoFactory.getInstance()
-                         .createDto(CLIOutputResponse.class)
-                         .withCommand(result.getCommandLine().toString())
-                         .withOutput(result.getStdout())
-                         .withErrOutput(result.getStderr());
+        return DtoFactory.getInstance().createDto(CLIOutputResponse.class)
+                .withCommand(result.getCommandLine().toString())
+                .withOutput(result.getStdout())
+                .withErrOutput(result.getStderr());
     }
 
     /**
@@ -633,9 +649,8 @@ public class SubversionApi {
      */
     public CLIOutputResponse propset(final PropertySetRequest request) throws IOException, ServerException {
         final File projectPath = new File(request.getProjectPath());
-        final List<String> uArgs = new LinkedList<>();
 
-        addStandardArgs(uArgs);
+        final List<String> uArgs = defaultArgs();
 
         if (request.isForce()) {
             uArgs.add("--force");
@@ -649,10 +664,10 @@ public class SubversionApi {
 
         final CommandLineResult result = runCommand(uArgs, projectPath, Arrays.asList(request.getPath()));
 
-        return DtoFactory.getInstance()
-                         .createDto(CLIOutputResponse.class)
-                         .withCommand(result.getCommandLine().toString())
-                         .withOutput(result.getStdout());
+        return DtoFactory.getInstance().createDto(CLIOutputResponse.class)
+                .withCommand(result.getCommandLine().toString())
+                .withOutput(result.getStdout())
+                .withErrOutput(result.getStderr());
     }
 
     /**
@@ -668,9 +683,8 @@ public class SubversionApi {
      */
     public CLIOutputResponse propdel(final PropertyDeleteRequest request) throws IOException, ServerException {
         final File projectPath = new File(request.getProjectPath());
-        final List<String> uArgs = new LinkedList<>();
 
-        addStandardArgs(uArgs);
+        final List<String> uArgs = defaultArgs();
 
         addDepth(uArgs, request.getDepth().getValue());
 
@@ -679,10 +693,10 @@ public class SubversionApi {
 
         final CommandLineResult result = runCommand(uArgs, projectPath, Arrays.asList(request.getPath()));
 
-        return DtoFactory.getInstance()
-                         .createDto(CLIOutputResponse.class)
-                         .withCommand(result.getCommandLine().toString())
-                         .withOutput(result.getStdout());
+        return DtoFactory.getInstance().createDto(CLIOutputResponse.class)
+                .withCommand(result.getCommandLine().toString())
+                .withOutput(result.getStdout())
+                .withErrOutput(result.getStderr());
     }
 
     private static void addDepth(final List<String> args, final String depth) {
@@ -717,10 +731,19 @@ public class SubversionApi {
         }
     }
 
-    private void addStandardArgs(final List<String> args) {
+    /**
+     * Creates a list of arguments containing default values.
+     *
+     * @return list of arguments
+     */
+    private List<String> defaultArgs() {
+        List<String> args = new ArrayList<String>();
+
         args.add("--no-auth-cache");
         args.add("--non-interactive");
         args.add("--trust-server-cert");
+
+        return args;
     }
 
     private List<String> addWorkingCopyPathIfNecessary(List<String> paths) {
@@ -729,7 +752,7 @@ public class SubversionApi {
         }
 
         // If there are no paths, add the working copy root to the list of paths
-        if (paths.size() == 0) {
+        if (paths.isEmpty()) {
             paths.add(".");
         }
 
@@ -807,53 +830,73 @@ public class SubversionApi {
         return this.repositoryUrlProvider.getRepositoryUrl(projectPath);
     }
 
+    /**
+     * Returns information about specified target.
+     *
+     * @param request
+     *          request
+     * @return
+     *          response containing list of subversion items
+     * @throws SubversionException
+     * @throws IOException
+     */
     public InfoResponse info(final InfoRequest request) throws SubversionException, IOException {
-        final List<String> cliArgs = new LinkedList<>();
-        addStandardArgs(cliArgs);
-        cliArgs.add("info");
+        final List<String> args = defaultArgs();
 
-        final File projectPath = new File(request.getProjectPath());
+        if (request.getRevision() != null && !request.getRevision().trim().isEmpty()) {
+            addOption(args, "--revision", request.getRevision());
+        }
 
-        final CommandLineResult result = runCommand(cliArgs, projectPath,
-                addWorkingCopyPathIfNecessary(request.getPaths()));
+        if (true == request.getChildren()) {
+            addOption(args, "--depth", "immediates");
+        }
+
+        args.add("info");
+
+        List<String> paths = new ArrayList<String>();
+        paths.add(request.getTarget());
+        final CommandLineResult result = runCommand(args, new File(request.getProjectPath()),
+                addWorkingCopyPathIfNecessary(paths));
 
         final InfoResponse response = DtoFactory.getInstance().createDto(InfoResponse.class)
                 .withCommand(result.getCommandLine().toString())
-                .withOutput(result.getStdout());
-
-        // Remove "Working Copy Root Path" property from the output
-        for (int i = 0; i < result.getStdout().size(); i++) {
-            String line = result.getStdout().get(i);
-            if (line.startsWith(InfoUtils.KEY_WORKING_COPY_ROOT_PATH + ":")) {
-                result.getStdout().remove(i);
-                break;
-            }
-        }
-
-        /*
-            $ svn --no-auth-cache --non-interactive --trust-server-cert info .
-            Path: .
-            URL: svn://localhost/myproj/trunk
-            Relative URL: ^/trunk
-            Repository Root: svn://localhost/myproj
-            Repository UUID: 5d5b3ac5-18a3-4240-a205-376b3b68caaa
-            Revision: 33
-            Node Kind: directory
-            [ Schedule: normal ]
-            Last Changed Rev: 32
-            Last Changed Date: 2015-04-22 14:20:33 +0300 (Wed, 22 Apr 2015)
-         */
+                .withOutput(result.getStdout())
+                .withErrorOutput(result.getStderr());
 
         if (result.getExitCode() == 0) {
-            response.withPath(InfoUtils.getPath(result.getStdout()))
-                    .withURL(InfoUtils.getUrl(result.getStdout()))
-                    .withRelativeUrl(InfoUtils.getRelativeUrl(result.getStdout()))
-                    .withRepositoryRoot(InfoUtils.getRepositoryRoot(result.getStdout()))
-                    .withRepositoryUUID(InfoUtils.getRepositoryUUID(result.getStdout()))
-                    .withRevision(InfoUtils.getRevision(result.getStdout()))
-                    .withNodeKind(InfoUtils.getNodeKind(result.getStdout()))
-                    .withLastChangedRev(InfoUtils.getLastChangedRev(result.getStdout()))
-                    .withLastChangedDate(InfoUtils.getLastChangedDate(result.getStdout()));
+            List<SubversionItem> items = new ArrayList<SubversionItem>();
+            response.withItems(items);
+
+            Iterator<String> iterator = result.getStdout().iterator();
+            List<String> itemProperties = new ArrayList<String>();
+
+            while (iterator.hasNext()) {
+                String propertyLine = iterator.next();
+
+                if (propertyLine.isEmpty()) {
+                    // create Subversion item filling properties from the list
+                    final SubversionItem item = DtoFactory.getInstance().createDto(SubversionItem.class)
+                            .withPath(InfoUtils.getPath(itemProperties))
+                            .withName(InfoUtils.getName(itemProperties))
+                            .withURL(InfoUtils.getUrl(itemProperties))
+                            .withRelativeURL(InfoUtils.getRelativeUrl(itemProperties))
+                            .withRepositoryRoot(InfoUtils.getRepositoryRoot(itemProperties))
+                            .withRepositoryUUID(InfoUtils.getRepositoryUUID(itemProperties))
+                            .withRevision(InfoUtils.getRevision(itemProperties))
+                            .withNodeKind(InfoUtils.getNodeKind(itemProperties))
+                            .withSchedule(InfoUtils.getSchedule(itemProperties))
+                            .withLastChangedRev(InfoUtils.getLastChangedRev(itemProperties))
+                            .withLastChangedDate(InfoUtils.getLastChangedDate(itemProperties));
+                    items.add(item);
+
+                    // clear item properties
+                    itemProperties.clear();
+                } else {
+                    // add property line to property list
+                    itemProperties.add(propertyLine);
+                }
+            }
+
         } else {
             response.withErrorOutput(result.getStderr());
         }
@@ -861,11 +904,39 @@ public class SubversionApi {
         return response;
     }
 
+    /**
+     * Merges target with specified URL.
+     *
+     * @param request merge request
+     * @return merge response
+     * @throws IOException
+     * @throws SubversionException
+     */
+    public CLIOutputResponse merge(final MergeRequest request) throws IOException, SubversionException {
+        final File projectPath = new File(request.getProjectPath());
+
+        final List<String> cliArgs = defaultArgs();
+
+        // Command Name
+        cliArgs.add("merge");
+
+        cliArgs.add(request.getSourceURL());
+
+        List<String> paths = new ArrayList<String>();
+        paths.add(request.getTarget());
+
+        final CommandLineResult result = runCommand(cliArgs, projectPath, paths);
+
+        return DtoFactory.getInstance().createDto(CLIOutputResponse.class)
+                .withCommand(result.getCommandLine().toString())
+                .withOutput(result.getStdout())
+                .withErrOutput(result.getStderr());
+    }
+
     public CLIOutputResponse cleanup(final CleanupRequest request) throws SubversionException, IOException {
         final File projectPath = new File(request.getProjectPath());
-        final List<String> cliArgs = new ArrayList<>();
 
-        addStandardArgs(cliArgs);
+        final List<String> cliArgs = defaultArgs();
 
         // Command Name
         cliArgs.add("cleanup");
@@ -875,6 +946,6 @@ public class SubversionApi {
                          .createDto(CLIOutputResponse.class)
                          .withCommand(result.getCommandLine().toString())
                          .withOutput(result.getStdout());
-
     }
+
 }

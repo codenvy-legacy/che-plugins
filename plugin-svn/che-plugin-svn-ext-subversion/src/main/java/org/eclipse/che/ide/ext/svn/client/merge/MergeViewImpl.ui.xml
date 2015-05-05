@@ -13,8 +13,7 @@
 <!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
 
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
-             xmlns:g='urn:import:com.google.gwt.user.client.ui'
-             xmlns:f='urn:import:com.google.gwt.user.client.ui'>
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'>
 
     <ui:with field='constants' type='org.eclipse.che.ide.ext.svn.client.SubversionExtensionLocalizationConstants'/>
     <ui:with field='resources' type='org.eclipse.che.ide.ext.svn.client.SubversionExtensionResources'/>
@@ -63,7 +62,6 @@
                     <tr>
                         <td>Target</td>
                         <td><hr/></td>
-                        <td><g:CheckBox text="URL" addStyleNames="{style.block-url-checkbox}" ui:field="targetCheckBox"/></td>
                     </tr>
                 </table>
             </g:HTMLPanel>
@@ -72,13 +70,13 @@
         <!-- Target text field -->
         <g:Dock direction="NORTH">
             <g:DockLayoutPanel unit="PX" width="320px" height="35px">
-                <g:west size="80">
+                <g:west size="50">
                     <g:HorizontalPanel width="100%" horizontalAlignment="ALIGN_RIGHT">
-                        <g:Label ui:field="targetTypeLabel" addStyleNames="{style.margin5}"/>
+                        <g:Label text="Path:" addStyleNames="{style.margin5}"/>
                     </g:HorizontalPanel>
                 </g:west>
                 <g:center>
-                    <g:TextBox width="230px" height="20px" ui:field="targetTextBox"/>
+                    <g:TextBox width="260px" height="20px" ui:field="targetTextBox"/>
                 </g:center>
             </g:DockLayoutPanel>
         </g:Dock>
@@ -98,46 +96,25 @@
 
         <g:Dock direction="NORTH">
             <g:DeckPanel animationEnabled="true" ui:field="deckPanel">
-                <g:DockPanel>
 
+                <g:DockPanel>
                     <g:Dock direction="NORTH">
                         <g:DockLayoutPanel unit="PX" width="320px" height="200px" ui:field="treeContainer"/>
                     </g:Dock>
-
-
                 </g:DockPanel>
 
-
                 <g:DockLayoutPanel unit="PX" width="320px" height="35px">
-                    <g:west size="120">
+                    <g:west size="50">
                         <g:HorizontalPanel width="100%" horizontalAlignment="ALIGN_RIGHT">
-                            <g:Label text="Target url:" addStyleNames="{style.margin5}"/>
+                            <g:Label text="URL:" addStyleNames="{style.margin5}"/>
                         </g:HorizontalPanel>
                     </g:west>
                     <g:center>
-                        <g:TextBox width="186px" height="20px" ui:field="targetUrlTextBox"/>
+                        <g:TextBox width="260px" height="20px" ui:field="sourceUrlTextBox"/>
                     </g:center>
                 </g:DockLayoutPanel>
             </g:DeckPanel>
         </g:Dock>
-
-        <!-- New item name configuration -->
-        <!--g:Dock direction="NORTH">
-            <g:DeckPanel animationEnabled="true" ui:field="commentDeckPanel">
-                <g:DockLayoutPanel unit="PX" width="320px" height="35px">
-                    <g:west size="120">
-                        <g:HorizontalPanel width="100%" horizontalAlignment="ALIGN_RIGHT">
-                            <g:Label text="Comment:" addStyleNames="{style.margin5}"/>
-                        </g:HorizontalPanel>
-                    </g:west>
-                    <g:center>
-                        <g:TextBox width="186px" height="20px" ui:field="commentTextBox"/>
-                    </g:center>
-                </g:DockLayoutPanel>
-
-                <g:DockLayoutPanel unit="PX" width="320px" height="35px" addStyleNames="{style.hidden}"/>
-            </g:DeckPanel>
-        </g:Dock-->
 
     </g:DockPanel>
 </ui:UiBinder>

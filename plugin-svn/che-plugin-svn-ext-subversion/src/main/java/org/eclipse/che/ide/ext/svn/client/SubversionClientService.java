@@ -14,6 +14,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import org.eclipse.che.ide.ext.svn.shared.Depth;
 import org.eclipse.che.ide.ext.svn.shared.InfoResponse;
+import org.eclipse.che.ide.ext.svn.shared.ListResponse;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 
 import javax.validation.constraints.NotNull;
@@ -97,15 +98,51 @@ public interface SubversionClientService {
     void copy(final @NotNull String projectPath, final String source, final String destination, final String comment,
               final AsyncRequestCallback<CLIOutputResponse> callback);
 
-
     /**
-     * Retrieves the information about repository.
+     * Merge specified URL with target.
      *
      * @param projectPath
-     * @param paths
+     *          project path
+     * @param target
+     *          target directory
+     * @param sourceURL
+     *          source URL to merge
+     * @param callback
+     *          callback
      */
-    void info(final @NotNull String projectPath, final List<String> paths, final String revision,
+    void merge(final @NotNull String projectPath, final String target, final String sourceURL,
+               final AsyncRequestCallback<CLIOutputResponse> callback);
+
+    /**
+     * Retrieves the information about repository item.
+     *
+     * @param projectPath
+     *          relative path to the project in local workspace
+     * @param target
+     *          target to operate
+     * @param revision
+     *          revision, use HEAD to specify latest revision
+     * @param children
+     *          whether list children or not
+     * @param callback
+     *          callback
+     */
+    void info(final @NotNull String projectPath, final String target, final String revision, final boolean children,
               final AsyncRequestCallback<InfoResponse> callback);
+
+
+    /**
+     * List server directory.
+     *
+     * @param projectPath
+     *          project path
+     * @param target
+     *          target directory
+     * @param callback
+     *          callback
+     */
+    void list(final @NotNull String projectPath, final String target,
+                     final AsyncRequestCallback<ListResponse> callback);
 
     /**
      * Retrieves the status for the provided paths, or the working copy as a whole.

@@ -140,6 +140,9 @@ public interface SubversionExtensionLocalizationConstants extends Messages {
     @Key("merge.title")
     String mergeTitle();
 
+    @Key("merge.dialog.title")
+    String mergeDialogTitle();
+
     @Key("lock.description")
     String lockDescription();
 

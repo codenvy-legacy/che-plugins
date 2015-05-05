@@ -26,6 +26,7 @@ public final class InfoUtils {
     public static final String KEY_REPOSITORY_UUID = "Repository UUID";
     public static final String KEY_REVISION = "Revision";
     public static final String KEY_NODE_KIND = "Node Kind";
+    public static final String KEY_SCHEDULE = "Schedule";
     public static final String KEY_LAST_CHANGE_AUTHOR = "Last Changed Author";
     public static final String KEY_LAST_CHANGED_REV = "Last Changed Rev";
     public static final String KEY_LAST_CHANGED_DATE = "Last Changed Date";
@@ -88,6 +89,11 @@ public final class InfoUtils {
 
     public static String getNodeKind(final List<String> infoOutput) {
         final Pattern pattern = Pattern.compile(MessageFormat.format(STARTSWITH_PATTERN, KEY_NODE_KIND));
+        return searchPattern(infoOutput, pattern);
+    }
+
+    public static String getSchedule(final List<String> infoOutput) {
+        final Pattern pattern = Pattern.compile(MessageFormat.format(STARTSWITH_PATTERN, KEY_SCHEDULE));
         return searchPattern(infoOutput, pattern);
     }
 

@@ -12,20 +12,33 @@ package org.eclipse.che.ide.ext.svn.client.merge;
 
 import com.google.gwt.user.client.ui.HasValue;
 import org.eclipse.che.ide.api.mvp.View;
+import org.eclipse.che.ide.api.project.tree.TreeNode;
 
 /**
  * An interface representing Merge view.
  */
 public interface MergeView extends View<MergeView.ActionDelegate> {
 
+    /** Delegate to handle user actions */
     interface ActionDelegate {
 
+        /** Handle clicking Merge button. */
         void mergeClicked();
 
+        /** Handle clicking Cancel button. */
         void cancelClicked();
 
-        /** Perform actions when source url check box changed. */
-        void onSourceCheckBoxChanged();
+        /** Perform actions when clicking Source URL check box. */
+        void onSourceCheckBoxClicked();
+
+        /** Perform actions when changing source URL. */
+        void onSourceURLChanged(String sourceURL);
+
+        /** Perform actions after node selection in project explorer. */
+        void onNodeSelected(TreeNode<?> destinationNode);
+
+        /** Perform actions after node expanding in project explorer. */
+        void onNodeExpanded(TreeNode<?> node);
 
     }
 
@@ -39,14 +52,25 @@ public interface MergeView extends View<MergeView.ActionDelegate> {
      */
     void hide();
 
-    /** Returns checkbox indicating type of the target. */
-    HasValue<Boolean> targetCheckBox();
-
-    void setTargetIsURL(boolean targetIsURL);
-
     /** Returns target text box */
     HasValue<String> targetTextBox();
 
-    void enableTargetTextBox(boolean enabled);
+    /** Sets root node to subversion tree. */
+    void setRootNode(TreeNode<?> rootNode);
+
+    /** Renders necessary node in subversion tree. */
+    void render(TreeNode<?> node);
+
+    /** Returns source URL check box. */
+    HasValue<Boolean> sourceCheckBox();
+
+    /** Returns source URL text box. */
+    HasValue<String> sourceURLTextBox();
+
+    /** Enables or disables Merge button. */
+    void enableMergeButton(boolean enable);
+
+    /** Sets an error to display. */
+    void setError(String message);
 
 }

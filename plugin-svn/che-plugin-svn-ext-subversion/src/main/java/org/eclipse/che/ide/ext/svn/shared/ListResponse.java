@@ -13,48 +13,39 @@ package org.eclipse.che.ide.ext.svn.shared;
 import org.eclipse.che.dto.shared.DTO;
 
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @DTO
-public interface InfoRequest {
+public interface ListResponse {
 
     /**************************************************************************
      *
-     *  Project path
+     *  Subversion command
      *
      **************************************************************************/
 
-    String getProjectPath();
+    String getCommand();
 
-    InfoRequest withProjectPath(@NotNull final String projectPath);
+    ListResponse withCommand(@NotNull final String command);
 
     /**************************************************************************
      *
-     *  Target
+     *  Execution output
      *
      **************************************************************************/
 
-    String getTarget();
+    List<String> getOutput();
 
-    InfoRequest withTarget(@NotNull final String target);
+    ListResponse withOutput(@NotNull final List<String> output);
 
     /**************************************************************************
      *
-     *  Revision
+     *  Error output
      *
      **************************************************************************/
 
-    String getRevision();
+    List<String> getErrorOutput();
 
-    InfoRequest withRevision(@NotNull final String revision);
-
-    /**************************************************************************
-     *
-     *  Children
-     *
-     **************************************************************************/
-
-    boolean getChildren();
-
-    InfoRequest withChildren(@NotNull final boolean children);
+    ListResponse withErrorOutput(List<String> errorOutput);
 
 }

@@ -56,7 +56,9 @@ public class SubversionActionPresenter {
             {"D", "rgb(247, 47, 47)"},
             {"+", "chartreuse"},
             {"-", "rgb(247, 47, 47)"},
-            {"@", "cyan"}
+            {"@", "cyan"},
+            {"U", "chartreuse"},
+            {"G", "chartreuse"}
     };
 
     protected final AppContext       appContext;
@@ -224,6 +226,14 @@ public class SubversionActionPresenter {
         console.print(line);
     }
 
+    protected void printErrors(final List<String> errors) {
+        ensureViewOpened();
+
+        for (final String line : errors) {
+            console.print("<span style=\"color:red;\">" + SafeHtmlUtils.htmlEscape(line) + "</span>");
+        }
+    }
+
     /**
      * Colorizes and prints response to the output.
      *
@@ -234,22 +244,21 @@ public class SubversionActionPresenter {
     protected void printResponse(final String command, final List<String> output, final List<String> errors) {
         ensureViewOpened();
 
-        printCommand(command);
+        if (command != null) {
+            printCommand(command);
+        }
 
         if (output != null) {
             for (final String line : output) {
                 boolean found = false;
 
                 if (!line.trim().isEmpty()) {
-                    String prefix = line.substring(0, 1);
-
-                    String file = line.substring(8);
+                    String prefix = line.trim().substring(0, 1);
 
                     for (String[] stcol : STATUS_COLORS) {
                         if (stcol[0].equals(prefix)) {
                             // TODO: Turn the file paths into links (where appropriate)
                             console.print("<span style=\"color:" + stcol[1] + ";\">" + SafeHtmlUtils.htmlEscape(line) + "</span>");
-
                             found = true;
                             break;
                         }

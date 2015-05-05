@@ -15,7 +15,7 @@ import org.eclipse.che.dto.shared.DTO;
 import javax.validation.constraints.NotNull;
 
 @DTO
-public interface InfoRequest {
+public interface MergeRequest {
 
     /**************************************************************************
      *
@@ -25,7 +25,7 @@ public interface InfoRequest {
 
     String getProjectPath();
 
-    InfoRequest withProjectPath(@NotNull final String projectPath);
+    MergeRequest withProjectPath(@NotNull final String projectPath);
 
     /**************************************************************************
      *
@@ -35,26 +35,15 @@ public interface InfoRequest {
 
     String getTarget();
 
-    InfoRequest withTarget(@NotNull final String target);
+    MergeRequest withTarget(@NotNull final String target);
 
     /**************************************************************************
      *
-     *  Revision
+     *  Source
      *
      **************************************************************************/
 
-    String getRevision();
+    String getSourceURL();
 
-    InfoRequest withRevision(@NotNull final String revision);
-
-    /**************************************************************************
-     *
-     *  Children
-     *
-     **************************************************************************/
-
-    boolean getChildren();
-
-    InfoRequest withChildren(@NotNull final boolean children);
-
+    MergeRequest withSourceURL(@NotNull final String sourceURL);
 }
