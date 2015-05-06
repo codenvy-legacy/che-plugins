@@ -764,10 +764,17 @@ public class SubversionApi {
 
         final CommandLineResult result = runCommand(null, uArgs, projectPath, Arrays.asList(request.getPath()));
 
+        List<String> output;
+        if (result.getStdout() != null && result.getStdout().size() > 0) {
+            output = result.getStdout().subList(1, result.getStdout().size());
+        } else {
+            output = result.getStdout();
+        }
+
         return DtoFactory.getInstance()
                          .createDto(CLIOutputResponse.class)
                          .withCommand(result.getCommandLine().toString())
-                         .withOutput(result.getStdout().subList(1, result.getStdout().size()));
+                         .withOutput(output);
     }
 
     private static void addDepth(final List<String> args, final String depth) {
