@@ -124,7 +124,7 @@ public class ChooseRunnerActionTest {
 
         action.addSystemRunners(systemEnvList);
 
-        verify(systemEnv1, times(1)).getName();
+        verify(systemEnv1, times(2)).getName();
         verify(resources, times(1)).scopeSystem();
         verify(listFactory).createElement(TEXT, svgResource, dropDownHeaderWidget);
         verify(runnersList, times(2)).addSeparator();
@@ -145,7 +145,7 @@ public class ChooseRunnerActionTest {
 
         action.addProjectRunners(projectEnvList);
 
-        verify(projectEnv1, times(1)).getName();
+        verify(projectEnv1, times(2)).getName();
         verify(resources, times(1)).scopeProject();
         verify(listFactory).createElement(TEXT, svgResource, dropDownHeaderWidget);
         verify(runnersList, times(2)).addSeparator();
@@ -192,7 +192,7 @@ public class ChooseRunnerActionTest {
 
         action.addProjectRunners(projectEnvList);
 
-        verify(projectEnv1, times(1)).getName();
+        verify(projectEnv1, times(2)).getName();
         verify(resources, times(1)).scopeProject();
         verify(listFactory).createElement(TEXT, svgResource, dropDownHeaderWidget);
         verify(runnersList, times(2)).addSeparator();
@@ -215,7 +215,7 @@ public class ChooseRunnerActionTest {
 
         action.addSystemRunners(systemEnvList);
 
-        verify(systemEnv1, times(1)).getName();
+        verify(systemEnv1, times(2)).getName();
         verify(resources, times(1)).scopeSystem();
         verify(listFactory).createElement(TEXT, svgResource, dropDownHeaderWidget);
         verify(runnersList, times(2)).addSeparator();

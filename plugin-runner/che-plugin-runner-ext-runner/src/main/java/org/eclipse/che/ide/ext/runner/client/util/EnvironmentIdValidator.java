@@ -18,8 +18,8 @@ import javax.annotation.Nonnull;
  * @author Valeriy Svydenko
  */
 public class EnvironmentIdValidator {
-    private static final String URL_REGEX = "\\b(project?|system)://"
-                                            + "[-A-Za-z0-9+&@#/%?=~_|!:,.;]"
+    private static final String URL_REGEX = "\\b(project?|system):/{1,2}"
+                                            + "[-A-Za-z0-9+&@#%?=~_|!:,.;]"
                                             + "*[-A-Za-z0-9+&@#/%=~_|]";
 
     /**

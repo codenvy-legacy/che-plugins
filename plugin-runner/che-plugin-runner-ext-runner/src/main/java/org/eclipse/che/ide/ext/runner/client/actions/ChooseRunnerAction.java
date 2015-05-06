@@ -231,9 +231,11 @@ public class ChooseRunnerAction extends AbstractRunnerActions implements CustomC
         }
 
         String defaultRunner = currentProject.getRunner();
-        if (defaultRunner != null) {
-            defaultRunner = URL.decode(defaultRunner);
+        if (defaultRunner == null) {
+            return null;
         }
+
+        defaultRunner = URL.decode(defaultRunner);
 
         for (Environment e : systemRunners) {
             if (e.getId().equals(defaultRunner)) {
@@ -247,6 +249,6 @@ public class ChooseRunnerAction extends AbstractRunnerActions implements CustomC
             }
         }
 
-        return null;
+        return defaultRunner.substring(defaultRunner.lastIndexOf('/') + 1);
     }
 }
