@@ -30,7 +30,7 @@ public class EnvironmentIdValidatorTest {
 
     @Test
     public void urlShouldBeValid2() throws Exception {
-        assertTrue(EnvironmentIdValidator.isValid("project://la.com"));
+        assertTrue(EnvironmentIdValidator.isValid("project:/la.com"));
     }
 
     @Test
@@ -56,5 +56,10 @@ public class EnvironmentIdValidatorTest {
     @Test
     public void urlShouldNotBeValid3() throws Exception {
         assertFalse(EnvironmentIdValidator.isValid(""));
+    }
+
+    @Test
+    public void urlShouldNotBeValid4() throws Exception {
+        assertFalse(EnvironmentIdValidator.isValid("project:///notvalid"));
     }
 }

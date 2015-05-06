@@ -45,6 +45,7 @@ import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common
  */
 @Singleton
 public class GetProjectEnvironmentsAction extends AbstractRunnerAction {
+    private final static String ENVIRONMENT_PREFIX = "project:/";
 
     private final RunnerUtil                                            runnerUtil;
     private final Provider<TemplatesContainer>                          templatesPanelProvider;
@@ -97,14 +98,7 @@ public class GetProjectEnvironmentsAction extends AbstractRunnerAction {
                         String defaultRunner = currentProject.getRunner();
                         if (defaultRunner != null) {
                             defaultRunner = URL.decode(defaultRunner);
-                        }
-
-                        for (Environment environment : projectEnvironments) {
-                            if (environment.getId().equals(defaultRunner)) {
-                                panel.setDefaultEnvironment(environment);
-
-                                break;
-                            }
+                            setDefaultRunner(defaultRunner, projectEnvironments, panel);
                         }
 
                         chooseRunnerAction.addProjectRunners(projectEnvironments);
@@ -119,5 +113,20 @@ public class GetProjectEnvironmentsAction extends AbstractRunnerAction {
                 .build();
 
         projectService.getRunnerEnvironments(descriptor.getPath(), callback);
+    }
+
+    private void setDefaultRunner(@Nonnull String defaultRunner,
+                                  @Nonnull List<Environment> projectEnvironments,
+                                  @Nonnull TemplatesContainer panel) {
+        if (!defaultRunner.startsWith(ENVIRONMENT_PREFIX)) {
+            return;
+        }
+        for (Environment environment : projectEnvironments) {
+            if (environment.getId().endsWith(defaultRunner.substring(defaultRunner.lastIndexOf('/')))) {
+                panel.setDefaultEnvironment(environment);
+
+                return;
+            }
+        }
     }
 }

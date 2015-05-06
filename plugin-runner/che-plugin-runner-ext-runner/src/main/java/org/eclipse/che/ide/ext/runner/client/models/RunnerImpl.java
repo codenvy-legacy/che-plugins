@@ -121,7 +121,7 @@ public class RunnerImpl implements Runner {
 
         String environmentId = runOptions.getEnvironmentId();
 
-        if (environmentId == null || environmentId.startsWith("project://")) {
+        if (environmentId == null || environmentId.startsWith("project:/")) {
             this.type = util.getType();
         } else {
             this.type = util.getCorrectCategoryName(runOptions.getEnvironmentId());
