@@ -116,7 +116,7 @@ public class RunnerManagerPresenterTest {
     private static final String PROPERTIES     = "properties";
     private static final String STOPPED_RUNNER = "application shut down";
     private static final String APP_URL        = "http://runner1.codenvy.com/";
-    private static final String ENV_ID         = "project://project a";
+    private static final String ENV_ID         = "project:/project a";
     private static final int    RAM_SIZE       = 1000;
     private static final long   PROCESS_ID     = 1234567L;
 
