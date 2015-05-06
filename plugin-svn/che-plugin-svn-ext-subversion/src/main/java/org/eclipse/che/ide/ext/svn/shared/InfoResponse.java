@@ -27,6 +27,8 @@ public interface InfoResponse {
 
     String getCommand();
 
+    void setCommand(@NotNull final String command);
+
     InfoResponse withCommand(@NotNull final String command);
 
     /**************************************************************************
@@ -36,6 +38,8 @@ public interface InfoResponse {
      **************************************************************************/
 
     List<String> getOutput();
+
+    void setOutput(@NotNull final List<String> output);
 
     InfoResponse withOutput(@NotNull final List<String> output);
 
@@ -47,6 +51,8 @@ public interface InfoResponse {
 
     List<String> getErrorOutput();
 
+    void setErrorOutput(List<String> errorOutput);
+
     InfoResponse withErrorOutput(List<String> errorOutput);
 
     /**************************************************************************
@@ -56,6 +62,8 @@ public interface InfoResponse {
      **************************************************************************/
 
     List<SubversionItem> getItems();
+
+    void setItems(List<SubversionItem> items);
 
     InfoResponse withItems(List<SubversionItem> items);
 

@@ -25,6 +25,8 @@ public interface MergeRequest {
 
     String getProjectPath();
 
+    void setProjectPath(@NotNull final String projectPath);
+
     MergeRequest withProjectPath(@NotNull final String projectPath);
 
     /**************************************************************************
@@ -35,6 +37,8 @@ public interface MergeRequest {
 
     String getTarget();
 
+    void setTarget(@NotNull final String target);
+
     MergeRequest withTarget(@NotNull final String target);
 
     /**************************************************************************
@@ -44,6 +48,8 @@ public interface MergeRequest {
      **************************************************************************/
 
     String getSourceURL();
+
+    void setSourceURL(@NotNull final String sourceURL);
 
     MergeRequest withSourceURL(@NotNull final String sourceURL);
 }

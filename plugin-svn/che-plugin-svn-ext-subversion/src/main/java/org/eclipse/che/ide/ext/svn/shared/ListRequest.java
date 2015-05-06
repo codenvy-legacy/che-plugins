@@ -23,6 +23,11 @@ public interface ListRequest {
     String getProjectPath();
 
     /**
+     * @param projectPath
+     */
+    void setProjectPath(@NotNull final String projectPath);
+
+    /**
      * @param projectPath project path
      */
     ListRequest withProjectPath(@NotNull final String projectPath);
@@ -32,6 +37,11 @@ public interface ListRequest {
      * @return target URL to list
      */
     String getTarget();
+
+    /**
+     * @param target
+     */
+    void setTarget(@NotNull final String target);
 
     /**
      * @param target target to list

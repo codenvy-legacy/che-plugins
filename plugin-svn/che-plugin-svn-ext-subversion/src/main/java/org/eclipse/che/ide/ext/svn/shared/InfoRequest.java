@@ -25,6 +25,8 @@ public interface InfoRequest {
 
     String getProjectPath();
 
+    void setProjectPath(@NotNull final String projectPath);
+
     InfoRequest withProjectPath(@NotNull final String projectPath);
 
     /**************************************************************************
@@ -34,6 +36,8 @@ public interface InfoRequest {
      **************************************************************************/
 
     String getTarget();
+
+    void setTarget(@NotNull final String target);
 
     InfoRequest withTarget(@NotNull final String target);
 
@@ -45,6 +49,8 @@ public interface InfoRequest {
 
     String getRevision();
 
+    void setRevision(@NotNull final String revision);
+
     InfoRequest withRevision(@NotNull final String revision);
 
     /**************************************************************************
@@ -54,6 +60,8 @@ public interface InfoRequest {
      **************************************************************************/
 
     boolean getChildren();
+
+    void setChildren(@NotNull final boolean children);
 
     InfoRequest withChildren(@NotNull final boolean children);
 

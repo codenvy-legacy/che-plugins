@@ -26,6 +26,8 @@ public interface ListResponse {
 
     String getCommand();
 
+    void setCommand(@NotNull final String command);
+
     ListResponse withCommand(@NotNull final String command);
 
     /**************************************************************************
@@ -36,6 +38,8 @@ public interface ListResponse {
 
     List<String> getOutput();
 
+    void setOutput(@NotNull final List<String> output);
+
     ListResponse withOutput(@NotNull final List<String> output);
 
     /**************************************************************************
@@ -45,6 +49,8 @@ public interface ListResponse {
      **************************************************************************/
 
     List<String> getErrorOutput();
+
+    void setErrorOutput(List<String> errorOutput);
 
     ListResponse withErrorOutput(List<String> errorOutput);
 
