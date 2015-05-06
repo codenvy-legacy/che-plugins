@@ -16,6 +16,9 @@ import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
 import org.eclipse.che.api.machine.shared.dto.MachineDescriptor;
+import org.eclipse.che.api.promises.client.Operation;
+import org.eclipse.che.api.promises.client.OperationException;
+import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.ide.api.action.ActionManager;
 import org.eclipse.che.ide.api.action.DefaultActionGroup;
 import org.eclipse.che.ide.api.app.AppContext;
@@ -33,10 +36,7 @@ import org.eclipse.che.ide.extension.machine.client.console.ClearConsoleAction;
 import org.eclipse.che.ide.extension.machine.client.console.MachineConsolePresenter;
 import org.eclipse.che.ide.extension.machine.client.console.MachineConsoleToolbar;
 import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
-import org.eclipse.che.ide.rest.AsyncRequestCallback;
-import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.ui.toolbar.ToolbarPresenter;
-import org.eclipse.che.ide.util.loging.Log;
 
 import static org.eclipse.che.ide.api.action.IdeActions.GROUP_CODE;
 import static org.eclipse.che.ide.api.action.IdeActions.GROUP_MAIN_MENU;
@@ -58,7 +58,6 @@ public class MachineExtension {
                             EventBus eventBus,
                             final AppContext appContext,
                             final MachineServiceClient machineServiceClient,
-                            final DtoUnmarshallerFactory dtoUnmarshallerFactory,
                             final MachineManager machineManager,
                             final MachineConsolePresenter machineConsolePresenter) {
 
@@ -70,25 +69,18 @@ public class MachineExtension {
                 final String projectPath = event.getProject().getPath();
 
                 // start machine and bind project
-                machineServiceClient.getMachines(
-                        appContext.getWorkspace().getId(),
-                        projectPath,
-                        new AsyncRequestCallback<Array<MachineDescriptor>>(
-                                dtoUnmarshallerFactory.newArrayUnmarshaller(MachineDescriptor.class)) {
-                            @Override
-                            protected void onSuccess(Array<MachineDescriptor> result) {
-                                if (result.isEmpty()) {
-                                    machineManager.startMachineAndBindProject(projectPath);
-                                } else {
-                                    machineManager.setDevMachineId(result.get(0).getId());
-                                }
-                            }
-
-                            @Override
-                            protected void onFailure(Throwable exception) {
-                                Log.error(MachineExtension.class, exception);
-                            }
-                        });
+                Promise<Array<MachineDescriptor>> machinesPromise = machineServiceClient.getMachines(appContext.getWorkspace().getId(),
+                                                                                                     projectPath);
+                machinesPromise.then(new Operation<Array<MachineDescriptor>>() {
+                    @Override
+                    public void apply(Array<MachineDescriptor> arg) throws OperationException {
+                        if (arg.isEmpty()) {
+                            machineManager.startMachineAndBindProject(projectPath);
+                        } else {
+                            machineManager.setDevMachineId(arg.get(0).getId());
+                        }
+                    }
+                });
             }
 
             @Override

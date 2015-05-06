@@ -18,10 +18,12 @@ import com.google.inject.Singleton;
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
 import org.eclipse.che.api.machine.shared.dto.MachineDescriptor;
 import org.eclipse.che.api.machine.shared.dto.MachineStateEvent;
+import org.eclipse.che.api.promises.client.Operation;
+import org.eclipse.che.api.promises.client.OperationException;
+import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.extension.machine.client.MachineResources;
 import org.eclipse.che.ide.extension.machine.client.console.MachineConsolePresenter;
-import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.util.UUID;
 import org.eclipse.che.ide.util.loging.Log;
@@ -78,26 +80,21 @@ public class MachineManager {
 
     /** Start machine and bind project. */
     public void startMachineAndBindProject(final String projectPath) {
+        final String recipeScript = machineResources.testDockerRecipe().getText();
         final String outputChannel = getNewOutputChannel();
         subscribeToOutput(outputChannel);
 
-        machineServiceClient.createMachineFromRecipe(
-                appContext.getWorkspace().getId(),
-                "docker",
-                "Dockerfile",
-                machineResources.testDockerRecipe().getText(),
-                outputChannel,
-                new AsyncRequestCallback<MachineDescriptor>(dtoUnmarshallerFactory.newUnmarshaller(MachineDescriptor.class)) {
-                    @Override
-                    protected void onSuccess(MachineDescriptor result) {
-                        bindProjectWhenMachineWillRun(projectPath, result.getId());
-                    }
-
-                    @Override
-                    protected void onFailure(Throwable exception) {
-                        Log.error(MachineManager.class, exception);
-                    }
-                });
+        final Promise<MachineDescriptor> machinePromise = machineServiceClient.createMachineFromRecipe(appContext.getWorkspace().getId(),
+                                                                                                       "docker",
+                                                                                                       "Dockerfile",
+                                                                                                       recipeScript,
+                                                                                                       outputChannel);
+        machinePromise.then(new Operation<MachineDescriptor>() {
+            @Override
+            public void apply(MachineDescriptor arg) throws OperationException {
+                bindProjectWhenMachineWillRun(projectPath, arg.getId());
+            }
+        });
     }
 
     @Nonnull
@@ -150,30 +147,15 @@ public class MachineManager {
 
     /** Bind project to machine and set the given machine as DEV-machine. */
     public void bindProject(final String projectPath, final String machineId) {
-        machineServiceClient.bindProject(machineId, projectPath, new AsyncRequestCallback<Void>() {
+        machineServiceClient.bindProject(machineId, projectPath).then(new Operation<Void>() {
             @Override
-            protected void onSuccess(Void result) {
+            public void apply(Void arg) throws OperationException {
                 setDevMachineId(machineId);
-            }
-
-            @Override
-            protected void onFailure(Throwable exception) {
-                Log.error(MachineManager.class, exception);
             }
         });
     }
 
     public void destroyMachine(final String machineId) {
-        machineServiceClient.destroyMachine(machineId, new AsyncRequestCallback<Void>() {
-            @Override
-            protected void onSuccess(Void result) {
-                Log.info(MachineManager.class, "Machine " + machineId + " stopped");
-            }
-
-            @Override
-            protected void onFailure(Throwable exception) {
-                Log.error(MachineManager.class, exception);
-            }
-        });
+        machineServiceClient.destroyMachine(machineId);
     }
 }

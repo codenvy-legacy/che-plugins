@@ -16,11 +16,8 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
-import org.eclipse.che.api.machine.shared.dto.ProcessDescriptor;
 import org.eclipse.che.ide.extension.machine.client.console.MachineConsolePresenter;
 import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
-import org.eclipse.che.ide.rest.AsyncRequestCallback;
-import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.util.UUID;
 import org.eclipse.che.ide.util.loging.Log;
 import org.eclipse.che.ide.websocket.MessageBus;
@@ -37,7 +34,6 @@ import javax.annotation.Nonnull;
  */
 @Singleton
 public class ExecuteCommandPresenter implements ExecuteCommandView.ActionDelegate {
-    private final DtoUnmarshallerFactory  dtoUnmarshallerFactory;
     private final MessageBus              messageBus;
     private final ExecuteCommandView      view;
     private final MachineServiceClient    machineServiceClient;
@@ -45,13 +41,11 @@ public class ExecuteCommandPresenter implements ExecuteCommandView.ActionDelegat
     private final MachineManager          machineManager;
 
     @Inject
-    protected ExecuteCommandPresenter(DtoUnmarshallerFactory dtoUnmarshallerFactory,
-                                      MessageBus messageBus,
+    protected ExecuteCommandPresenter(MessageBus messageBus,
                                       ExecuteCommandView view,
                                       MachineServiceClient machineServiceClient,
                                       MachineConsolePresenter machineConsole,
                                       MachineManager machineManager) {
-        this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
         this.messageBus = messageBus;
         this.view = view;
         this.machineServiceClient = machineServiceClient;
@@ -78,23 +72,10 @@ public class ExecuteCommandPresenter implements ExecuteCommandView.ActionDelegat
         }
     }
 
-    private void executeCommandInMachine(final String command, final String machineId) {
+    private void executeCommandInMachine(String command, String machineId) {
         final String outputChannel = getNewOutputChannel();
         subscribeToOutput(outputChannel);
-
-        machineServiceClient.executeCommandInMachine(
-                machineId, command, outputChannel,
-                new AsyncRequestCallback<ProcessDescriptor>(dtoUnmarshallerFactory.newUnmarshaller(ProcessDescriptor.class)) {
-                    @Override
-                    protected void onSuccess(ProcessDescriptor result) {
-                        Log.info(ExecuteCommandPresenter.class, "Process with PID" + result.getPid() + " executed");
-                    }
-
-                    @Override
-                    protected void onFailure(Throwable exception) {
-                        Log.error(ExecuteCommandPresenter.class, exception);
-                    }
-                });
+        machineServiceClient.executeCommand(machineId, command, outputChannel);
     }
 
     @Nonnull

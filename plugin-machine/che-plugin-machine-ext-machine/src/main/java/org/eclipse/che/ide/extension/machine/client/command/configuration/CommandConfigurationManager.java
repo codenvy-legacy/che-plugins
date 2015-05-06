@@ -16,13 +16,10 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
-import org.eclipse.che.api.machine.shared.dto.ProcessDescriptor;
 import org.eclipse.che.ide.extension.machine.client.command.configuration.api.CommandConfiguration;
 import org.eclipse.che.ide.extension.machine.client.command.configuration.api.CommandType;
 import org.eclipse.che.ide.extension.machine.client.console.MachineConsolePresenter;
 import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
-import org.eclipse.che.ide.rest.AsyncRequestCallback;
-import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.util.UUID;
 import org.eclipse.che.ide.util.loging.Log;
 import org.eclipse.che.ide.websocket.MessageBus;
@@ -46,7 +43,6 @@ public class CommandConfigurationManager {
     private final MachineServiceClient      machineServiceClient;
     private final MessageBus                messageBus;
     private final MachineConsolePresenter   machineConsole;
-    private final DtoUnmarshallerFactory    dtoUnmarshallerFactory;
     private final Set<CommandConfiguration> commandConfigurations;
 
     @Inject
@@ -54,14 +50,12 @@ public class CommandConfigurationManager {
                                        MachineManager machineManager,
                                        MachineServiceClient machineServiceClient,
                                        MessageBus messageBus,
-                                       MachineConsolePresenter machineConsole,
-                                       DtoUnmarshallerFactory dtoUnmarshallerFactory) {
+                                       MachineConsolePresenter machineConsole) {
         this.commandTypes = commandTypes;
         this.machineManager = machineManager;
         this.machineServiceClient = machineServiceClient;
         this.messageBus = messageBus;
         this.machineConsole = machineConsole;
-        this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
         commandConfigurations = new HashSet<>();
 
         fetchCommandConfigurations();
@@ -108,19 +102,7 @@ public class CommandConfigurationManager {
         final String outputChannel = getNewOutputChannel();
         subscribeToOutput(outputChannel);
 
-        machineServiceClient.executeCommandInMachine(
-                devMachineId, configuration.getCommand(), outputChannel,
-                new AsyncRequestCallback<ProcessDescriptor>(dtoUnmarshallerFactory.newUnmarshaller(ProcessDescriptor.class)) {
-                    @Override
-                    protected void onSuccess(ProcessDescriptor result) {
-                        Log.info(CommandConfigurationManager.class, "Process with PID" + result.getPid() + " executed");
-                    }
-
-                    @Override
-                    protected void onFailure(Throwable exception) {
-                        Log.error(CommandConfigurationManager.class, exception);
-                    }
-                });
+        machineServiceClient.executeCommand(devMachineId, configuration.getCommand(), outputChannel);
     }
 
     @Nonnull
