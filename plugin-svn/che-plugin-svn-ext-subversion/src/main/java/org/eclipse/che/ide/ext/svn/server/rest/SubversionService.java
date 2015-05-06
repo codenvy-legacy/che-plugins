@@ -34,7 +34,10 @@ import org.eclipse.che.ide.ext.svn.shared.CommitRequest;
 import org.eclipse.che.ide.ext.svn.shared.CopyRequest;
 import org.eclipse.che.ide.ext.svn.shared.InfoRequest;
 import org.eclipse.che.ide.ext.svn.shared.InfoResponse;
+import org.eclipse.che.ide.ext.svn.shared.ListResponse;
+import org.eclipse.che.ide.ext.svn.shared.ListRequest;
 import org.eclipse.che.ide.ext.svn.shared.LockRequest;
+import org.eclipse.che.ide.ext.svn.shared.MergeRequest;
 import org.eclipse.che.ide.ext.svn.shared.MoveRequest;
 import org.eclipse.che.ide.ext.svn.shared.PropertyDeleteRequest;
 import org.eclipse.che.ide.ext.svn.shared.PropertyGetRequest;
@@ -205,14 +208,40 @@ public class SubversionService extends Service {
         return this.subversionApi.status(request);
     }
 
+    /**
+     * Retrieve information about subversion resource.
+     *
+     * @param request
+     * @return
+     * @throws ServerException
+     * @throws IOException
+     */
     @Path("info")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
     @RolesAllowed("workspace/developer")
     public InfoResponse info(final InfoRequest request) throws ServerException, IOException {
-        request.setProjectPath(getRealPath(request.getProjectPath()));
+        request.withProjectPath(getRealPath(request.getProjectPath()));
         return this.subversionApi.info(request);
+    }
+
+    /**
+     * Merge specified URL with target.
+     *
+     * @param request request
+     * @return merge response
+     * @throws ServerException
+     * @throws IOException
+     */
+    @Path("merge")
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
+    @RolesAllowed("workspace/developer")
+    public CLIOutputResponse merge(final MergeRequest request) throws ServerException, IOException {
+        request.withProjectPath(getRealPath(request.getProjectPath()));
+        return this.subversionApi.merge(request);
     }
 
     /**
@@ -276,6 +305,28 @@ public class SubversionService extends Service {
     public CLIOutputResponse showDiff(final ShowDiffRequest request) throws ServerException, IOException {
         request.setProjectPath(getRealPath(request.getProjectPath()));
         return this.subversionApi.showDiff(request);
+    }
+
+    /**
+     * List remote directory.
+     *
+     * @param request
+     *         a list request
+     * @return children of requested target
+     *
+     * @throws IOException
+     *         if there is a problem executing the command
+     * @throws SubversionException
+     *         if there is a Subversion issue
+     */
+    @Path("list")
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
+    @RolesAllowed("workspace/developer")
+    public ListResponse list(final ListRequest request) throws ServerException, IOException {
+        request.withProjectPath(getRealPath(request.getProjectPath()));
+        return this.subversionApi.list(request);
     }
 
     /**

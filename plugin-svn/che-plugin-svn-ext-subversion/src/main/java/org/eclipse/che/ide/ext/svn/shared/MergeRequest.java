@@ -10,61 +10,46 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.svn.shared;
 
-import java.util.List;
-
 import org.eclipse.che.dto.shared.DTO;
 
 import javax.validation.constraints.NotNull;
 
 @DTO
-public interface InfoResponse {
+public interface MergeRequest {
 
     /**************************************************************************
      *
-     *  Subversion command
+     *  Project path
      *
      **************************************************************************/
 
-    String getCommand();
+    String getProjectPath();
 
-    void setCommand(@NotNull final String command);
+    void setProjectPath(@NotNull final String projectPath);
 
-    InfoResponse withCommand(@NotNull final String command);
+    MergeRequest withProjectPath(@NotNull final String projectPath);
 
     /**************************************************************************
      *
-     *  Execution output
+     *  Target
      *
      **************************************************************************/
 
-    List<String> getOutput();
+    String getTarget();
 
-    void setOutput(@NotNull final List<String> output);
+    void setTarget(@NotNull final String target);
 
-    InfoResponse withOutput(@NotNull final List<String> output);
+    MergeRequest withTarget(@NotNull final String target);
 
     /**************************************************************************
      *
-     *  Error output
+     *  Source
      *
      **************************************************************************/
 
-    List<String> getErrorOutput();
+    String getSourceURL();
 
-    void setErrorOutput(List<String> errorOutput);
+    void setSourceURL(@NotNull final String sourceURL);
 
-    InfoResponse withErrorOutput(List<String> errorOutput);
-
-    /**************************************************************************
-     *
-     *  Item list
-     *
-     **************************************************************************/
-
-    List<SubversionItem> getItems();
-
-    void setItems(List<SubversionItem> items);
-
-    InfoResponse withItems(List<SubversionItem> items);
-
+    MergeRequest withSourceURL(@NotNull final String sourceURL);
 }

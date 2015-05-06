@@ -62,7 +62,6 @@ public class ShowLogsViewImpl extends Window implements ShowLogsView {
         });
         buttonShowLogs.addStyleName(resources.centerPanelCss().blueButton());
         buttonShowLogs.getElement().getStyle().setMarginRight(8, Style.Unit.PX);
-        buttonShowLogs.getElement().getStyle().setOutlineStyle(Style.OutlineStyle.NONE);
         getFooter().add(buttonShowLogs);
 
         buttonCancel = createButton(constants.buttonCancel(), "svn-showlogs-cancel", new ClickHandler() {
@@ -71,7 +70,6 @@ public class ShowLogsViewImpl extends Window implements ShowLogsView {
                 delegate.cancelClicked();
             }
         });
-        buttonCancel.getElement().getStyle().setOutlineStyle(Style.OutlineStyle.NONE);
         getFooter().add(buttonCancel);
     }
 

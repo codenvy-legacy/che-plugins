@@ -25,7 +25,7 @@ public class RepositoryUrlProviderImpl implements RepositoryUrlProvider {
         final File projectPathFile = new File(projectPath);
         final CommandLineResult clResult = UpstreamUtils.executeCommandLine(null, "svn", new String[]{"info"},
                                                                             null, -1L, projectPathFile);
-        return InfoUtils.getRepositoryUrl(clResult.getStdout());
+        return InfoUtils.getUrl(clResult.getStdout());
     }
 
 }

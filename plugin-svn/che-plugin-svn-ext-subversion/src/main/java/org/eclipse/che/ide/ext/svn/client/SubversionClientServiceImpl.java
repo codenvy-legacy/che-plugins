@@ -28,7 +28,10 @@ import org.eclipse.che.ide.ext.svn.shared.CopyRequest;
 import org.eclipse.che.ide.ext.svn.shared.Depth;
 import org.eclipse.che.ide.ext.svn.shared.InfoRequest;
 import org.eclipse.che.ide.ext.svn.shared.InfoResponse;
+import org.eclipse.che.ide.ext.svn.shared.ListRequest;
+import org.eclipse.che.ide.ext.svn.shared.ListResponse;
 import org.eclipse.che.ide.ext.svn.shared.LockRequest;
+import org.eclipse.che.ide.ext.svn.shared.MergeRequest;
 import org.eclipse.che.ide.ext.svn.shared.MoveRequest;
 import org.eclipse.che.ide.ext.svn.shared.PropertyDeleteRequest;
 import org.eclipse.che.ide.ext.svn.shared.PropertyGetRequest;
@@ -112,16 +115,16 @@ public class SubversionClientServiceImpl implements SubversionClientService {
     @Override
     public void copy(@NotNull String projectPath, String source, String destination, String comment,
                      AsyncRequestCallback<CLIOutputResponse> callback) {
-        final CopyRequest request =
-                dtoFactory.createDto(CopyRequest.class)
-                          .withProjectPath(projectPath)
-                          .withSource(source)
-                          .withDestination(destination)
-                          .withComment(comment);
+        final CopyRequest request = dtoFactory.createDto(CopyRequest.class)
+                .withProjectPath(projectPath)
+                .withSource(source)
+                .withDestination(destination)
+                .withComment(comment);
 
         asyncRequestFactory.createPostRequest(baseHttpUrl + "/copy", request).loader(loader).send(callback);
     }
 
+    @Override
     public void remove(@NotNull final String projectPath, final List<String> paths,
                        final AsyncRequestCallback<CLIOutputResponse> callback) {
         final RemoveRequest request =
@@ -133,14 +136,35 @@ public class SubversionClientServiceImpl implements SubversionClientService {
     }
 
     @Override
-    public void info(final @NotNull String projectPath, final List<String> paths, final String revision,
+    public void merge(final @NotNull String projectPath, final String target, final String sourceURL,
+               final AsyncRequestCallback<CLIOutputResponse> callback) {
+        final MergeRequest request = dtoFactory.createDto(MergeRequest.class)
+                .withProjectPath(projectPath)
+                .withTarget(target)
+                .withSourceURL(sourceURL);
+        asyncRequestFactory.createPostRequest(baseHttpUrl + "/merge", request).loader(loader).send(callback);
+    }
+
+    @Override
+    public void info(final @NotNull String projectPath, final String target, final String revision, final boolean children,
                      final AsyncRequestCallback<InfoResponse> callback) {
         final InfoRequest request = dtoFactory.createDto(InfoRequest.class)
                 .withProjectPath(projectPath)
-                .withPaths(paths)
-                .withRevision(revision);
+                .withTarget(target)
+                .withRevision(revision)
+                .withChildren(children);
 
         asyncRequestFactory.createPostRequest(baseHttpUrl + "/info", request).loader(loader).send(callback);
+    }
+
+    @Override
+    public void list(final @NotNull String projectPath, final String target,
+                     final AsyncRequestCallback<ListResponse> callback) {
+        final ListRequest request = dtoFactory.createDto(ListRequest.class)
+                .withProjectPath(projectPath)
+                .withTarget(target);
+
+        asyncRequestFactory.createPostRequest(baseHttpUrl + "/list", request).loader(loader).send(callback);
     }
 
     @Override

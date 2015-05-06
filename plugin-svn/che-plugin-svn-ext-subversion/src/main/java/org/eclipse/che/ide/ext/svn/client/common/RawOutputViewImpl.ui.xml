@@ -16,6 +16,7 @@
     <ui:style>
         .subversionOutputPart {
             -webkit-user-select: initial;
+            -moz-user-select: initial;
             user-select: initial;
         }
     </ui:style>

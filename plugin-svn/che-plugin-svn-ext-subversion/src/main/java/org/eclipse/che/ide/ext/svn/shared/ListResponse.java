@@ -10,14 +10,13 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.svn.shared;
 
-import java.util.List;
-
 import org.eclipse.che.dto.shared.DTO;
 
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @DTO
-public interface InfoResponse {
+public interface ListResponse {
 
     /**************************************************************************
      *
@@ -29,7 +28,7 @@ public interface InfoResponse {
 
     void setCommand(@NotNull final String command);
 
-    InfoResponse withCommand(@NotNull final String command);
+    ListResponse withCommand(@NotNull final String command);
 
     /**************************************************************************
      *
@@ -41,7 +40,7 @@ public interface InfoResponse {
 
     void setOutput(@NotNull final List<String> output);
 
-    InfoResponse withOutput(@NotNull final List<String> output);
+    ListResponse withOutput(@NotNull final List<String> output);
 
     /**************************************************************************
      *
@@ -53,18 +52,6 @@ public interface InfoResponse {
 
     void setErrorOutput(List<String> errorOutput);
 
-    InfoResponse withErrorOutput(List<String> errorOutput);
-
-    /**************************************************************************
-     *
-     *  Item list
-     *
-     **************************************************************************/
-
-    List<SubversionItem> getItems();
-
-    void setItems(List<SubversionItem> items);
-
-    InfoResponse withItems(List<SubversionItem> items);
+    ListResponse withErrorOutput(List<String> errorOutput);
 
 }

@@ -20,6 +20,7 @@ import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.parts.WorkspaceAgent;
 import org.eclipse.che.ide.ext.svn.shared.InfoResponse;
+import org.eclipse.che.ide.ext.svn.shared.SubversionItem;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import com.google.inject.Inject;
@@ -83,12 +84,19 @@ public class ShowLogPresenter extends SubversionActionPresenter {
             return;
         }
 
-        subversionClientService.info(appContext.getCurrentProject().getRootProject().getPath(), getSelectedPaths(), "HEAD",
+        subversionClientService.info(appContext.getCurrentProject().getRootProject().getPath(), getSelectedPaths().get(0), "HEAD", false,
                 new AsyncRequestCallback<InfoResponse>(dtoUnmarshallerFactory.newUnmarshaller(InfoResponse.class)) {
                     @Override
                     protected void onSuccess(InfoResponse result) {
-                        view.setRevisionCount(result.getRevision());
-                        view.rangeFiend().setValue("1:" + result.getRevision());
+                        if (result.getErrorOutput() != null && !result.getErrorOutput().isEmpty()) {
+                            printResponse(null, null, result.getErrorOutput());
+                            notificationManager.showError("Unable to execute subversion command");
+                            return;
+                        }
+
+                        SubversionItem subversionItem = result.getItems().get(0);
+                        view.setRevisionCount(subversionItem.getRevision());
+                        view.rangeFiend().setValue("1:" + subversionItem.getRevision());
                         view.show();
                     }
 
