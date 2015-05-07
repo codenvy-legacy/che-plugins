@@ -267,7 +267,7 @@ public class RunnerManagerPresenterTest {
         when(tabBuilderConsole.build()).thenReturn(consoleTab);
 
         //init terminal tab
-        initTab(tabBuilderTerminal, terminalContainer, VISIBLE, RIGHT, EnumSet.allOf(State.class), TERMINAL);
+        initTab(tabBuilderTerminal, terminalContainer, VISIBLE, RIGHT, EnumSet.of(RUNNERS), TERMINAL);
         when(tabBuilderTerminal.build()).thenReturn(terminalTab);
 
         //init properties tab
@@ -394,7 +394,7 @@ public class RunnerManagerPresenterTest {
 
     @Test
     public void verifyCreationTerminalTab() {
-        verifyInitTab(tabBuilderTerminal, terminalContainer, VISIBLE, RIGHT, EnumSet.allOf(State.class), TERMINAL);
+        verifyInitTab(tabBuilderTerminal, terminalContainer, VISIBLE, RIGHT, EnumSet.of(RUNNERS), TERMINAL);
         verify(locale).runnerTabTerminal();
         verify(rightPropertiesContainer).addTab(terminalTab);
     }

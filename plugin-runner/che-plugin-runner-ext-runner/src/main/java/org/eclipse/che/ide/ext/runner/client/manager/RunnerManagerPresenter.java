@@ -356,7 +356,7 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
                                         .title(locale.runnerTabTerminal())
                                         .visible(VISIBLE)
                                         .selectHandler(terminalHandler)
-                                        .scope(EnumSet.allOf(State.class))
+                                        .scope(EnumSet.of(RUNNERS))
                                         .tabType(RIGHT)
                                         .build();
         if (!Config.isSdkProject()) {
