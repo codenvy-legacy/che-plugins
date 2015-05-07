@@ -16,6 +16,7 @@ import org.eclipse.che.ide.api.mvp.View;
 import org.eclipse.che.ide.extension.machine.client.command.configuration.api.CommandConfiguration;
 import org.eclipse.che.ide.extension.machine.client.command.configuration.api.CommandType;
 
+import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.Set;
 
@@ -32,27 +33,56 @@ public interface EditConfigurationsView extends View<EditConfigurationsView.Acti
     /** Close view. */
     void close();
 
-    /** Returns content panel. */
-    AcceptsOneWidget getContentPanel();
+    /** Returns the component used for command configurations display. */
+    AcceptsOneWidget getCommandConfigurationsDisplayContainer();
+
+    void clearCommandConfigurationsDisplayContainer();
 
     /** Sets available command configurations. */
     void setCommandConfigurations(Map<CommandType, Set<CommandConfiguration>> commandConfigurations);
 
+    /** Sets configuration name. */
     void setConfigurationName(String name);
+
+    /** Sets enabled state of the 'Add' button. */
+    void setAddButtonState(boolean enabled);
+
+    /** Sets enabled state of the 'Remove' button. */
+    void setRemoveButtonState(boolean enabled);
+
+    /** Sets enabled state of the 'Execute' button. */
+    void setExecuteButtonState(boolean enabled);
+
+    /** Returns the selected command type or type of the selected command configuration. */
+    @Nullable
+    CommandType getSelectedCommandType();
+
+    /** Returns the selected command configuration. */
+    @Nullable
+    CommandConfiguration getSelectedConfiguration();
 
     /** Needs for delegate some function into preferences view. */
     interface ActionDelegate {
 
+        /** Called when 'Name' field is changed. */
         void onNameChanged(String name);
 
         /** Called when 'Close' button is clicked. */
         void onCloseClicked();
 
         /**
-         * Called when some configuration is selected.
+         * Called when some command type is selected.
+         *
+         * @param type
+         *         selected command type
+         */
+        void onCommandTypeSelected(CommandType type);
+
+        /**
+         * Called when some command configuration is selected.
          *
          * @param configuration
-         *         selected configuration
+         *         selected command configuration
          */
         void onConfigurationSelected(CommandConfiguration configuration);
 

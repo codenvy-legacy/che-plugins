@@ -20,7 +20,7 @@ import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
 
 /**
- * Action to destroy the DEV-machine (to which current project is bound).
+ * Action to destroy the current machine (to which current project is bound).
  *
  * @author Artem Zatsarynnyy
  */
@@ -52,11 +52,11 @@ public class TerminateMachineAction extends Action {
     public void actionPerformed(ActionEvent e) {
         eventLogger.log(this);
 
-        final String devMachineId = machineManager.getDevMachineId();
-        if (devMachineId == null) {
+        final String currentMachineId = machineManager.getCurrentMachineId();
+        if (currentMachineId == null) {
             return;
         }
 
-        machineManager.destroyMachine(devMachineId);
+        machineManager.destroyMachine(currentMachineId);
     }
 }

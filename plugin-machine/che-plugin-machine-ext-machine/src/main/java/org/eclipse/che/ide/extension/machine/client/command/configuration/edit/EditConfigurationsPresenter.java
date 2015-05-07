@@ -13,9 +13,9 @@ package org.eclipse.che.ide.extension.machine.client.command.configuration.edit;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
+import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandManager;
 import org.eclipse.che.ide.extension.machine.client.command.configuration.api.CommandConfiguration;
 import org.eclipse.che.ide.extension.machine.client.command.configuration.api.CommandType;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandConfigurationManager;
 import org.eclipse.che.ide.extension.machine.client.command.configuration.api.ConfigurationPage;
 
 import java.util.HashMap;
@@ -31,56 +31,71 @@ import java.util.Set;
 @Singleton
 public class EditConfigurationsPresenter implements EditConfigurationsView.ActionDelegate {
 
-    private final CommandConfigurationManager commandConfigurationManager;
-    private final EditConfigurationsView      view;
-    private       CommandConfiguration        selectedConfiguration;
+    private final CommandManager         commandManager;
+    private final EditConfigurationsView view;
 
     @Inject
-    protected EditConfigurationsPresenter(EditConfigurationsView view, CommandConfigurationManager commandConfigurationManager) {
+    protected EditConfigurationsPresenter(EditConfigurationsView view, CommandManager commandManager) {
         this.view = view;
-        this.commandConfigurationManager = commandConfigurationManager;
+        this.commandManager = commandManager;
         this.view.setDelegate(this);
     }
 
-    /** {@inheritDoc} */
     @Override
     public void onNameChanged(String name) {
-        selectedConfiguration.setName(name);
+        final CommandConfiguration selectedConfiguration = view.getSelectedConfiguration();
+        if (selectedConfiguration != null) {
+            selectedConfiguration.setName(name);
+        }
     }
 
-    /** {@inheritDoc} */
+    @Override
+    public void onCommandTypeSelected(CommandType type) {
+        view.setAddButtonState(true);
+        view.setRemoveButtonState(false);
+        view.setExecuteButtonState(false);
+        view.setConfigurationName("");
+        view.clearCommandConfigurationsDisplayContainer();
+    }
+
     @Override
     public void onConfigurationSelected(CommandConfiguration configuration) {
-        selectedConfiguration = configuration;
-
+        view.setAddButtonState(true);
+        view.setRemoveButtonState(true);
+        view.setExecuteButtonState(true);
         view.setConfigurationName(configuration.getName());
 
         final ConfigurationPage configurationPage = configuration.getType().getConfigurationPage();
         configurationPage.reset(configuration);
-        configurationPage.go(view.getContentPanel());
+        configurationPage.go(view.getCommandConfigurationsDisplayContainer());
     }
 
-    /** {@inheritDoc} */
     @Override
     public void onAddClicked() {
-        commandConfigurationManager.createConfiguration(selectedConfiguration.getType());
-        refreshView();
+        final CommandType selectedType = view.getSelectedCommandType();
+        if (selectedType != null) {
+            commandManager.createConfiguration(selectedType);
+            refreshView();
+        }
     }
 
-    /** {@inheritDoc} */
     @Override
     public void onDeleteClicked() {
-        commandConfigurationManager.removeConfiguration(selectedConfiguration);
-        refreshView();
+        final CommandConfiguration selectedConfiguration = view.getSelectedConfiguration();
+        if (selectedConfiguration != null) {
+            commandManager.removeConfiguration(selectedConfiguration);
+            refreshView();
+        }
     }
 
-    /** {@inheritDoc} */
     @Override
     public void onExecuteClicked() {
-        commandConfigurationManager.execute(selectedConfiguration);
+        final CommandConfiguration selectedConfiguration = view.getSelectedConfiguration();
+        if (selectedConfiguration != null) {
+            commandManager.execute(selectedConfiguration);
+        }
     }
 
-    /** {@inheritDoc} */
     @Override
     public void onCloseClicked() {
         view.close();
@@ -93,8 +108,8 @@ public class EditConfigurationsPresenter implements EditConfigurationsView.Actio
     }
 
     private void refreshView() {
-        final Set<CommandType> commandTypes = commandConfigurationManager.getCommandTypes();
-        final Set<CommandConfiguration> commandConfigurations = commandConfigurationManager.getCommandConfigurations();
+        final Set<CommandType> commandTypes = commandManager.getCommandTypes();
+        final Set<CommandConfiguration> commandConfigurations = commandManager.getCommandConfigurations();
 
         final Map<CommandType, Set<CommandConfiguration>> commands = new HashMap<>();
 

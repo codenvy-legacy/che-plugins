@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.machine.client.command.configuration;
 
-import com.google.gwt.json.client.JSONParser;
-import com.google.gwt.json.client.JSONString;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -20,11 +18,11 @@ import org.eclipse.che.ide.extension.machine.client.command.configuration.api.Co
 import org.eclipse.che.ide.extension.machine.client.command.configuration.api.CommandType;
 import org.eclipse.che.ide.extension.machine.client.console.MachineConsolePresenter;
 import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
+import org.eclipse.che.ide.extension.machine.client.OutputMessageUnmarshaller;
 import org.eclipse.che.ide.util.UUID;
 import org.eclipse.che.ide.util.loging.Log;
 import org.eclipse.che.ide.websocket.MessageBus;
 import org.eclipse.che.ide.websocket.WebSocketException;
-import org.eclipse.che.ide.websocket.rest.StringUnmarshallerWS;
 import org.eclipse.che.ide.websocket.rest.SubscriptionHandler;
 
 import javax.annotation.Nonnull;
@@ -33,10 +31,12 @@ import java.util.Iterator;
 import java.util.Set;
 
 /**
+ * Manager for command operations.
+ *
  * @author Artem Zatsarynnyy
  */
 @Singleton
-public class CommandConfigurationManager {
+public class CommandManager {
 
     private final Set<CommandType>          commandTypes;
     private final MachineManager            machineManager;
@@ -46,11 +46,11 @@ public class CommandConfigurationManager {
     private final Set<CommandConfiguration> commandConfigurations;
 
     @Inject
-    public CommandConfigurationManager(Set<CommandType> commandTypes,
-                                       MachineManager machineManager,
-                                       MachineServiceClient machineServiceClient,
-                                       MessageBus messageBus,
-                                       MachineConsolePresenter machineConsole) {
+    public CommandManager(Set<CommandType> commandTypes,
+                          MachineManager machineManager,
+                          MachineServiceClient machineServiceClient,
+                          MessageBus messageBus,
+                          MachineConsolePresenter machineConsole) {
         this.commandTypes = commandTypes;
         this.machineManager = machineManager;
         this.machineServiceClient = machineServiceClient;
@@ -64,8 +64,14 @@ public class CommandConfigurationManager {
     private void fetchCommandConfigurations() {
         // TODO: use Command API
         final Iterator<CommandType> iterator = commandTypes.iterator();
-        commandConfigurations.add(iterator.next().getConfigurationFactory().createConfiguration("GWT Super DevMode"));
-        commandConfigurations.add(iterator.next().getConfigurationFactory().createConfiguration("Maven Build"));
+
+        final CommandType gwtCommandType = iterator.next();
+        commandConfigurations.add(gwtCommandType.getConfigurationFactory().createConfiguration("GWT Super DevMode"));
+
+        final CommandType mavenCommandType = iterator.next();
+        commandConfigurations.add(mavenCommandType.getConfigurationFactory().createConfiguration("Maven Build"));
+        commandConfigurations.add(mavenCommandType.getConfigurationFactory().createConfiguration("Build module 1"));
+        commandConfigurations.add(mavenCommandType.getConfigurationFactory().createConfiguration("Build module 2"));
     }
 
     /** Returns all registered command types. */
@@ -81,7 +87,7 @@ public class CommandConfigurationManager {
     /** Create new command configuration of the specified type. */
     public CommandConfiguration createConfiguration(@Nonnull CommandType type) {
         // TODO: use Command API
-        final CommandConfiguration configuration = type.getConfigurationFactory().createConfiguration("conf name");
+        final CommandConfiguration configuration = type.getConfigurationFactory().createConfiguration(UUID.uuid(5));
         commandConfigurations.add(configuration);
         return configuration;
     }
@@ -94,19 +100,19 @@ public class CommandConfigurationManager {
 
     /** Execute the the given command configuration. */
     public void execute(@Nonnull CommandConfiguration configuration) {
-        final String devMachineId = machineManager.getDevMachineId();
-        if (devMachineId == null) {
+        final String currentMachineId = machineManager.getCurrentMachineId();
+        if (currentMachineId == null) {
             return;
         }
 
-        final String outputChannel = getNewOutputChannel();
+        final String outputChannel = getOutputChannel();
         subscribeToOutput(outputChannel);
 
-        machineServiceClient.executeCommand(devMachineId, configuration.getCommand(), outputChannel);
+        machineServiceClient.executeCommand(currentMachineId, configuration.getCommand(), outputChannel);
     }
 
     @Nonnull
-    private String getNewOutputChannel() {
+    private String getOutputChannel() {
         return "process:output:" + UUID.uuid();
     }
 
@@ -114,20 +120,19 @@ public class CommandConfigurationManager {
         try {
             messageBus.subscribe(
                     channel,
-                    new SubscriptionHandler<String>(new StringUnmarshallerWS()) {
+                    new SubscriptionHandler<String>(new OutputMessageUnmarshaller()) {
                         @Override
                         protected void onMessageReceived(String result) {
-                            final JSONString jsonString = JSONParser.parseStrict(result).isString();
-                            machineConsole.print(jsonString.stringValue());
+                            machineConsole.print(result);
                         }
 
                         @Override
                         protected void onErrorReceived(Throwable exception) {
-                            Log.error(CommandConfigurationManager.class, exception);
+                            Log.error(CommandManager.class, exception);
                         }
                     });
         } catch (WebSocketException e) {
-            Log.error(CommandConfigurationManager.class, e);
+            Log.error(CommandManager.class, e);
         }
     }
 }

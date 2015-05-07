@@ -113,7 +113,7 @@ public class ExecuteCommandViewImpl extends Window implements ExecuteCommandView
 
     /** {@inheritDoc} */
     @Override
-    public void showDialog() {
+    public void show() {
         executeButton.setEnabled(false);
         commandBox.setText("");
         show();

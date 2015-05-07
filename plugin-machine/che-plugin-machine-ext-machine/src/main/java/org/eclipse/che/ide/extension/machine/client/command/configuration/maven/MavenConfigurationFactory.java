@@ -31,7 +31,7 @@ public class MavenConfigurationFactory extends ConfigurationFactory {
     public CommandConfiguration createConfiguration(@Nonnull String name) {
         final MavenCommandConfiguration configuration = new MavenCommandConfiguration(name, getCommandType());
 
-        configuration.setCommandLine("mvn clean install");
+        configuration.setCommandLine("clean install");
 
         return configuration;
     }

@@ -77,7 +77,7 @@ public class MachineExtension {
                         if (arg.isEmpty()) {
                             machineManager.startMachineAndBindProject(projectPath);
                         } else {
-                            machineManager.setDevMachineId(arg.get(0).getId());
+                            machineManager.setCurrentMachineId(arg.get(0).getId());
                         }
                     }
                 });
@@ -85,7 +85,7 @@ public class MachineExtension {
 
             @Override
             public void onProjectClosed(ProjectActionEvent event) {
-                machineManager.setDevMachineId(null);
+                machineManager.setCurrentMachineId(null);
                 machineConsolePresenter.clear();
             }
         });

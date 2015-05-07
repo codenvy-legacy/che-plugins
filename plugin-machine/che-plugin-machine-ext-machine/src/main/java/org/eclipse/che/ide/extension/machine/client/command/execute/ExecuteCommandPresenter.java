@@ -10,19 +10,17 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.machine.client.command.execute;
 
-import com.google.gwt.json.client.JSONParser;
-import com.google.gwt.json.client.JSONString;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
 import org.eclipse.che.ide.extension.machine.client.console.MachineConsolePresenter;
 import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
+import org.eclipse.che.ide.extension.machine.client.OutputMessageUnmarshaller;
 import org.eclipse.che.ide.util.UUID;
 import org.eclipse.che.ide.util.loging.Log;
 import org.eclipse.che.ide.websocket.MessageBus;
 import org.eclipse.che.ide.websocket.WebSocketException;
-import org.eclipse.che.ide.websocket.rest.StringUnmarshallerWS;
 import org.eclipse.che.ide.websocket.rest.SubscriptionHandler;
 
 import javax.annotation.Nonnull;
@@ -54,8 +52,9 @@ public class ExecuteCommandPresenter implements ExecuteCommandView.ActionDelegat
         this.view.setDelegate(this);
     }
 
+    /** Show dialog. */
     public void show() {
-        view.showDialog();
+        view.show();
     }
 
     @Override
@@ -65,21 +64,21 @@ public class ExecuteCommandPresenter implements ExecuteCommandView.ActionDelegat
 
     @Override
     public void onExecuteClicked() {
-        final String devMachineId = machineManager.getDevMachineId();
-        if (devMachineId != null) {
+        final String currentMachineId = machineManager.getCurrentMachineId();
+        if (currentMachineId != null) {
             view.close();
-            executeCommandInMachine(view.getCommand(), devMachineId);
+            executeCommandInMachine(view.getCommand(), currentMachineId);
         }
     }
 
     private void executeCommandInMachine(String command, String machineId) {
-        final String outputChannel = getNewOutputChannel();
+        final String outputChannel = getOutputChannel();
         subscribeToOutput(outputChannel);
         machineServiceClient.executeCommand(machineId, command, outputChannel);
     }
 
     @Nonnull
-    private String getNewOutputChannel() {
+    private String getOutputChannel() {
         return "process:output:" + UUID.uuid();
     }
 
@@ -87,11 +86,10 @@ public class ExecuteCommandPresenter implements ExecuteCommandView.ActionDelegat
         try {
             messageBus.subscribe(
                     channel,
-                    new SubscriptionHandler<String>(new StringUnmarshallerWS()) {
+                    new SubscriptionHandler<String>(new OutputMessageUnmarshaller()) {
                         @Override
                         protected void onMessageReceived(String result) {
-                            final JSONString jsonString = JSONParser.parseStrict(result).isString();
-                            machineConsole.print(jsonString.stringValue());
+                            machineConsole.print(result);
                         }
 
                         @Override

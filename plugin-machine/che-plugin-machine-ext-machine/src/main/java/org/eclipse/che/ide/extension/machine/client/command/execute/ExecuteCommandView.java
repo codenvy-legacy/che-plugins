@@ -33,11 +33,11 @@ public interface ExecuteCommandView extends View<ExecuteCommandView.ActionDelega
      */
     void setCommand(@Nonnull String message);
 
-    /** Close dialog. */
+    /** Close view. */
     void close();
 
-    /** Show dialog. */
-    void showDialog();
+    /** Show view. */
+    void show();
 
     /** Needs for delegate some function into Commit view. */
     interface ActionDelegate {

@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.machine.client.machine;
 
-import com.google.gwt.json.client.JSONParser;
-import com.google.gwt.json.client.JSONString;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -23,13 +21,13 @@ import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.extension.machine.client.MachineResources;
+import org.eclipse.che.ide.extension.machine.client.OutputMessageUnmarshaller;
 import org.eclipse.che.ide.extension.machine.client.console.MachineConsolePresenter;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.util.UUID;
 import org.eclipse.che.ide.util.loging.Log;
 import org.eclipse.che.ide.websocket.MessageBus;
 import org.eclipse.che.ide.websocket.WebSocketException;
-import org.eclipse.che.ide.websocket.rest.StringUnmarshallerWS;
 import org.eclipse.che.ide.websocket.rest.SubscriptionHandler;
 
 import javax.annotation.Nonnull;
@@ -37,13 +35,16 @@ import javax.annotation.Nullable;
 
 import static org.eclipse.che.api.machine.shared.dto.MachineStateEvent.EventType.RUNNING;
 
-/** @author Artem Zatsarynnyy */
+/**
+ * Manager for machine operations.
+ *
+ * @author Artem Zatsarynnyy
+ */
 @Singleton
 public class MachineManager {
 
     /** WebSocket channel to receive messages about changing machine state (machine:state:machineID). */
     private static final String MACHINE_STATE_CHANNEL = "machine:state:";
-    private String devMachineId;
 
     private final AppContext              appContext;
     private final MachineResources        machineResources;
@@ -51,6 +52,8 @@ public class MachineManager {
     private final DtoUnmarshallerFactory  dtoUnmarshallerFactory;
     private final MessageBus              messageBus;
     private final MachineConsolePresenter machineConsolePresenter;
+
+    private String currentMachineId;
 
     @Inject
     public MachineManager(AppContext appContext,
@@ -67,21 +70,21 @@ public class MachineManager {
         this.machineConsolePresenter = machineConsolePresenter;
     }
 
-    /** Returns ID of the DEV-machine, where current project is bound. */
+    /** Returns ID of the current machine, where current project is bound. */
     @Nullable
-    public String getDevMachineId() {
-        return devMachineId;
+    public String getCurrentMachineId() {
+        return currentMachineId;
     }
 
-    /** Sets ID of the DEV-machine, where current project is bound. */
-    public void setDevMachineId(@Nonnull String currentMachineId) {
-        this.devMachineId = currentMachineId;
+    /** Sets ID of the current machine, where current project is bound. */
+    public void setCurrentMachineId(@Nonnull String currentMachineId) {
+        this.currentMachineId = currentMachineId;
     }
 
     /** Start machine and bind project. */
     public void startMachineAndBindProject(final String projectPath) {
         final String recipeScript = machineResources.testDockerRecipe().getText();
-        final String outputChannel = getNewOutputChannel();
+        final String outputChannel = getOutputChannel();
         subscribeToOutput(outputChannel);
 
         final Promise<MachineDescriptor> machinePromise = machineServiceClient.createMachineFromRecipe(appContext.getWorkspace().getId(),
@@ -98,7 +101,7 @@ public class MachineManager {
     }
 
     @Nonnull
-    private String getNewOutputChannel() {
+    private String getOutputChannel() {
         return "machine:output:" + UUID.uuid();
     }
 
@@ -106,11 +109,10 @@ public class MachineManager {
         try {
             messageBus.subscribe(
                     channel,
-                    new SubscriptionHandler<String>(new StringUnmarshallerWS()) {
+                    new SubscriptionHandler<String>(new OutputMessageUnmarshaller()) {
                         @Override
                         protected void onMessageReceived(String result) {
-                            final JSONString jsonString = JSONParser.parseStrict(result).isString();
-                            machineConsolePresenter.print(jsonString.stringValue());
+                            machineConsolePresenter.print(result);
                         }
 
                         @Override
@@ -145,12 +147,12 @@ public class MachineManager {
         }
     }
 
-    /** Bind project to machine and set the given machine as DEV-machine. */
+    /** Bind the project to the machine and set the given machine as current. */
     public void bindProject(final String projectPath, final String machineId) {
         machineServiceClient.bindProject(machineId, projectPath).then(new Operation<Void>() {
             @Override
             public void apply(Void arg) throws OperationException {
-                setDevMachineId(machineId);
+                setCurrentMachineId(machineId);
             }
         });
     }
