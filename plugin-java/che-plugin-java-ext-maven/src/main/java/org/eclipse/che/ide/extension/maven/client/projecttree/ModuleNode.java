@@ -10,21 +10,23 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.maven.client.projecttree;
 
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
+import com.google.web.bindery.event.shared.EventBus;
+
 import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
 import org.eclipse.che.api.project.shared.dto.ItemReference;
 import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
+import org.eclipse.che.ide.api.event.RefreshProjectTreeEvent;
 import org.eclipse.che.ide.api.icon.IconRegistry;
 import org.eclipse.che.ide.api.project.tree.TreeNode;
 import org.eclipse.che.ide.collections.Array;
 import org.eclipse.che.ide.extension.maven.client.event.BeforeModuleOpenEvent;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
-import com.google.web.bindery.event.shared.EventBus;
 
 /**
  * Node that represents module of multi-module project.
@@ -55,6 +57,33 @@ public class ModuleNode extends MavenProjectNode {
             eventBus.fireEvent(new BeforeModuleOpenEvent(this));
         }
         super.getChildren(path, callback);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void rename(final String newName, final RenameCallback callback) {
+        projectServiceClient.rename(getPath(), newName, null, new AsyncRequestCallback<Void>() {
+            @Override
+            protected void onSuccess(Void result) {
+                ModuleNode.super.rename(newName, new RenameCallback() {
+                    @Override
+                    public void onRenamed() {
+                        callback.onRenamed();
+                        eventBus.fireEvent(new RefreshProjectTreeEvent(ModuleNode.this.getParent()));
+                    }
+
+                    @Override
+                    public void onFailure(Throwable caught) {
+                        callback.onFailure(caught);
+                    }
+                });
+            }
+
+            @Override
+            protected void onFailure(Throwable exception) {
+                callback.onFailure(exception);
+            }
+        });
     }
 
     /** {@inheritDoc} */
