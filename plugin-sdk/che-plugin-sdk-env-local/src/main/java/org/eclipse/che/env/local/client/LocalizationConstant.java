@@ -14,18 +14,12 @@ import com.google.gwt.i18n.client.Messages;
 
 /** @author Vitalii Parfonov */
 public interface LocalizationConstant extends Messages {
-
-
-    @Key("che.rootFolder.dialog.title")
-    @DefaultMessage("Need setup root folder location")
-    String rootFolderDialogTitleNeedSetup();
-
-    @Key("che.rootFolder.dialog.title")
-    @DefaultMessage("Change toot folder location")
+    @Key("che.rootFolder.change.dialog.title")
+    @DefaultMessage("Change workspace location")
     String rootFolderDialogTitleChange();
 
     @Key("che.rootFolder.dialog.label")
-    @DefaultMessage("Root folder:")
+    @DefaultMessage("Workspace location:")
     String rootFolderDialogLabel();
 
     @Key("che.projectClosed.title")
@@ -35,7 +29,7 @@ public interface LocalizationConstant extends Messages {
     String cheTabTitle(String projectName);
 
     @Key("action.workspace.location")
-    @DefaultMessage("Root folder")
+    @DefaultMessage("Workspace location")
     String actionWorkspaceLocation();
 
     @Key("action.workspace.location.title")
@@ -43,5 +37,6 @@ public interface LocalizationConstant extends Messages {
                     "Choose a workspace folder to use for this session.")
     String actionWorkspaceLocationTitle();
 
-
+    @Key("workspace.location.description")
+    String workspaceLocationDescription();
 }
