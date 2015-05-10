@@ -12,11 +12,13 @@ package org.eclipse.che.env.local.client;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.google.inject.name.Named;
 
 import org.eclipse.che.ide.MimeType;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.AsyncRequestFactory;
 import org.eclipse.che.ide.rest.HTTPHeader;
+import org.eclipse.che.ide.rest.RestContext;
 
 import java.util.Map;
 
@@ -26,16 +28,19 @@ import java.util.Map;
 @Singleton
 public class WorkspaceToDirectoryMappingServiceClientImpl implements WorkspaceToDirectoryMappingServiceClient {
 
+    private String restContext;
     private final AsyncRequestFactory asyncRequestFactory;
 
     @Inject
-    public WorkspaceToDirectoryMappingServiceClientImpl(AsyncRequestFactory asyncRequestFactory) {
+    public WorkspaceToDirectoryMappingServiceClientImpl(@RestContext String restContext,
+                                                        AsyncRequestFactory asyncRequestFactory) {
+        this.restContext = restContext;
         this.asyncRequestFactory = asyncRequestFactory;
     }
 
     @Override
     public void setMountPath(String workspaceId, String mountPath, AsyncRequestCallback<Map<String, String>> callback) {
-        final String requestUrl = "/api/vfs-directory-mapping/" + workspaceId + "?mountPath=" + mountPath;
+        final String requestUrl = restContext + "/vfs-directory-mapping/" + workspaceId + "?mountPath=" + mountPath;
         asyncRequestFactory.createPostRequest(requestUrl, null)
                            .header(HTTPHeader.ACCEPT, MimeType.APPLICATION_JSON)
                            .send(callback);
@@ -43,7 +48,7 @@ public class WorkspaceToDirectoryMappingServiceClientImpl implements WorkspaceTo
 
     @Override
     public void removeMountPath(String workspaceId, AsyncRequestCallback<Map<String, String>> callback) {
-        final String requestUrl = "/api/vfs-directory-mapping/" + workspaceId;
+        final String requestUrl = restContext + "/vfs-directory-mapping/" + workspaceId;
         asyncRequestFactory.createDeleteRequest(requestUrl)
                            .header(HTTPHeader.ACCEPT, MimeType.APPLICATION_JSON)
                            .send(callback);
@@ -52,7 +57,7 @@ public class WorkspaceToDirectoryMappingServiceClientImpl implements WorkspaceTo
 
     @Override
     public void getDirectoryMapping(AsyncRequestCallback<Map<String, String>> callback) {
-        final String requestUrl = "/api/vfs-directory-mapping";
+        final String requestUrl = restContext + "/vfs-directory-mapping";
         asyncRequestFactory.createGetRequest(requestUrl)
                            .header(HTTPHeader.ACCEPT, MimeType.APPLICATION_JSON)
                            .send(callback);

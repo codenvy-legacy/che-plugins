@@ -40,4 +40,21 @@
         <servlet-name>default</servlet-name>
         <url-pattern>/_app/*</url-pattern>
     </servlet-mapping>
+
+    <listener>
+        <listener-class>org.eclipse.che.inject.CodenvyBootstrap</listener-class>
+    </listener>
+    <filter>
+        <filter-name>guiceFilter</filter-name>
+        <filter-class>com.google.inject.servlet.GuiceFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>guiceFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    <security-role>
+        <description>the user role</description>
+        <role-name>developer</role-name>
+    </security-role>
+
 </web-app>

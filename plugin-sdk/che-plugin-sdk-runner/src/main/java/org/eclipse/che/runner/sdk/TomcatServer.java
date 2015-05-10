@@ -104,12 +104,11 @@ public class TomcatServer implements ApplicationServer {
             tomcatPath = Files.createDirectory(workDir.toPath().resolve("tomcat"));
             ZipUtils.unzip(Utils.getTomcatBinaryDistribution().openStream(), tomcatPath.toFile());
             webappsPath = tomcatPath.resolve("webapps");
-            ZipUtils.unzip(new java.io.File(warToDeploy.getName()), webappsPath.resolve("ws").toFile());
-            generateServerXml(tomcatPath.toFile(), runnerConfiguration);
 
-            // add JAR with extension to 'api' application's 'lib' directory
-            apiAppContextPath = webappsPath.resolve("api");
-            ZipUtils.unzip(new java.io.File(webappsPath.resolve("api.war").toString()), apiAppContextPath.toFile());
+            apiAppContextPath = webappsPath.resolve("che");
+            ZipUtils.unzip(new java.io.File(warToDeploy.getName()), apiAppContextPath.toFile());
+            generateServerXml(tomcatPath.toFile(), runnerConfiguration);
+            //add JAR with extension to 'api' application's 'lib' directory
             IoUtil.copy(extensionJar, apiAppContextPath.resolve("WEB-INF/lib").resolve(extensionJar.getName()).toFile(), null);
         } catch (IOException e) {
             throw new RunnerException(e);

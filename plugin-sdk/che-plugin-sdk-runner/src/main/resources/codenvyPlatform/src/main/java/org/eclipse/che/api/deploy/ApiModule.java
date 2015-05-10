@@ -16,6 +16,8 @@ import org.eclipse.che.api.builder.BuilderService;
 import org.eclipse.che.api.builder.LastInUseBuilderSelectionStrategy;
 import org.eclipse.che.api.builder.internal.BuilderModule;
 import org.eclipse.che.api.builder.internal.SlaveBuilderService;
+import org.eclipse.che.api.project.server.type.BaseProjectType;
+import org.eclipse.che.api.project.server.type.ProjectType;
 import org.eclipse.che.api.runner.LastInUseRunnerSelectionStrategy;
 import org.eclipse.che.api.runner.RunnerAdminService;
 import org.eclipse.che.api.runner.RunnerSelectionStrategy;
@@ -33,13 +35,13 @@ import org.eclipse.che.api.vfs.server.VirtualFileSystemModule;
 import org.eclipse.che.everrest.CodenvyAsynchronousJobPool;
 
 import org.eclipse.che.api.core.rest.CoreRestModule;
-import org.eclipse.che.generator.archetype.ArchetypeGeneratorModule;
 import org.eclipse.che.inject.DynaModule;
 import org.eclipse.che.vfs.impl.fs.LocalFSMountStrategy;
 import org.eclipse.che.vfs.impl.fs.LocalFileSystemRegistryPlugin;
 import org.eclipse.che.vfs.impl.fs.MappedDirectoryLocalFSMountStrategy;
 import org.eclipse.che.vfs.impl.fs.VirtualFileSystemFSModule;
 import com.google.inject.AbstractModule;
+import com.google.inject.multibindings.Multibinder;
 
 import org.eclipse.che.vfs.impl.fs.WorkspaceToDirectoryMappingService;
 import org.everrest.core.impl.async.AsynchronousJobPool;
@@ -73,7 +75,9 @@ public class ApiModule extends AbstractModule {
         bind(AsynchronousJobPool.class).to(CodenvyAsynchronousJobPool.class);
         bind(new PathKey<>(AsynchronousJobService.class, "/async/{ws-id}")).to(AsynchronousJobService.class);
 
-        install(new ArchetypeGeneratorModule());
+        Multibinder<ProjectType> projectTypeMultibinder = Multibinder.newSetBinder(binder(), ProjectType.class);
+        projectTypeMultibinder.addBinding().to(BaseProjectType.class);
+
 
         install(new CoreRestModule());
         install(new AnalyticsModule());

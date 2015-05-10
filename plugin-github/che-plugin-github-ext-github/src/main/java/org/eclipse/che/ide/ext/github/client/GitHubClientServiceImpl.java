@@ -24,6 +24,8 @@ import org.eclipse.che.ide.ext.github.shared.GitHubUser;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.AsyncRequestFactory;
 import org.eclipse.che.ide.rest.AsyncRequestLoader;
+import org.eclipse.che.ide.rest.RestContext;
+
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
@@ -62,7 +64,7 @@ public class GitHubClientServiceImpl implements GitHubClientService {
     private final AsyncRequestFactory asyncRequestFactory;
 
     @Inject
-    protected GitHubClientServiceImpl(@Named("restContext") String baseUrl,
+    protected GitHubClientServiceImpl(@RestContext String baseUrl,
                                       AsyncRequestLoader loader,
                                       AsyncRequestFactory asyncRequestFactory) {
         this.baseUrl = baseUrl + "/github";

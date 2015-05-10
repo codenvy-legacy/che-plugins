@@ -88,14 +88,6 @@
                                     <destFileName>tomcat.zip</destFileName>
                                 </artifactItem>
                                 <artifactItem>
-                                    <groupId>org.eclipse.che.plugin</groupId>
-                                    <artifactId>che-plugin-sdk-api-war</artifactId>
-                                    <type>war</type>
-                                    <version>${project.version}</version>
-                                    <outputDirectory>${project.build.directory}/classes/tomcat-resources/webapps</outputDirectory>
-                                    <destFileName>api.war</destFileName>
-                                </artifactItem>
-                                <artifactItem>
                                     <groupId>org.slf4j</groupId>
                                     <artifactId>slf4j-api</artifactId>
                                     <version>${org.slf4j.version}</version>

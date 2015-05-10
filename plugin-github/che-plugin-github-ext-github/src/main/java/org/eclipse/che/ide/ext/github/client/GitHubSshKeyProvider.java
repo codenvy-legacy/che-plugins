@@ -16,6 +16,7 @@ import org.eclipse.che.ide.commons.exception.UnauthorizedException;
 import org.eclipse.che.ide.ext.ssh.client.SshKeyProvider;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 
+import org.eclipse.che.ide.rest.RestContext;
 import org.eclipse.che.ide.ui.dialogs.ConfirmCallback;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 import org.eclipse.che.security.oauth.JsOAuthWindow;
@@ -49,7 +50,7 @@ public class GitHubSshKeyProvider implements SshKeyProvider, OAuthCallback {
 
     @Inject
     public GitHubSshKeyProvider(GitHubClientService gitHubService,
-                                @Named("restContext") String baseUrl,
+                                @RestContext String baseUrl,
                                 GitHubLocalizationConstant constant,
                                 NotificationManager notificationManager,
                                 DialogFactory dialogFactory) {

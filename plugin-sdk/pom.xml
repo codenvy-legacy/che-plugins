@@ -25,7 +25,6 @@
     <modules>
         <module>che-plugin-sdk-ext-plugins</module>
         <module>che-plugin-sdk-env-local</module>
-        <module>che-plugin-sdk-api-war</module>
         <module>che-plugin-sdk-runner</module>
         <module>che-plugin-sdk-tools</module>
     </modules>

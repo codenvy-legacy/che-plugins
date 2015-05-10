@@ -45,6 +45,7 @@ import org.eclipse.che.ide.ext.java.jdt.text.edits.MultiTextEdit;
 import org.eclipse.che.ide.ext.java.jdt.text.edits.RangeMarker;
 import org.eclipse.che.ide.ext.java.jdt.text.edits.ReplaceEdit;
 import org.eclipse.che.ide.ext.java.jdt.text.edits.TextEdit;
+import org.eclipse.che.ide.rest.RestContext;
 import org.eclipse.che.ide.util.UUID;
 import org.eclipse.che.ide.util.loging.Log;
 import com.google.gwt.core.client.GWT;
@@ -77,7 +78,7 @@ public class JavaParserWorkerImpl implements JavaParserWorker, ProjectActionHand
 
 
     @Inject
-    public JavaParserWorkerImpl(EventBus eventBus, @Named("restContext") String restContext,
+    public JavaParserWorkerImpl(EventBus eventBus, @RestContext String restContext,
                                 @Named("workspaceId") String workspaceId, @Named("javaCA") String javaCAPath) {
         this.restContext = restContext;
         this.workspaceId = workspaceId;
