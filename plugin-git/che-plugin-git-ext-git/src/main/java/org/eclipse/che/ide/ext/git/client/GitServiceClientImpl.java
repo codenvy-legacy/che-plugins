@@ -51,6 +51,7 @@ import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.AsyncRequestFactory;
 import org.eclipse.che.ide.rest.AsyncRequestLoader;
 import org.eclipse.che.ide.rest.HTTPHeader;
+import org.eclipse.che.ide.rest.RestContext;
 import org.eclipse.che.ide.websocket.Message;
 import org.eclipse.che.ide.websocket.MessageBuilder;
 import org.eclipse.che.ide.websocket.MessageBus;
@@ -117,7 +118,7 @@ public class GitServiceClientImpl implements GitServiceClient {
     private final AsyncRequestFactory     asyncRequestFactory;
 
     @Inject
-    protected GitServiceClientImpl(@Named("restContext") String restContext,
+    protected GitServiceClientImpl(@RestContext String restContext,
                                    @Named("workspaceId") String workspaceId,
                                    AsyncRequestLoader loader,
                                    MessageBus wsMessageBus,

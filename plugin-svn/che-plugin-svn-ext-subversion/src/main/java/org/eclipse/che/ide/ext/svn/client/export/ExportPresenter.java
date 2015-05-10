@@ -27,6 +27,7 @@ import org.eclipse.che.ide.api.project.tree.generic.StorableNode;
 import org.eclipse.che.ide.ext.svn.client.SubversionExtensionLocalizationConstants;
 import org.eclipse.che.ide.ext.svn.client.common.RawOutputPresenter;
 import org.eclipse.che.ide.ext.svn.client.common.SubversionActionPresenter;
+import org.eclipse.che.ide.rest.RestContext;
 
 import static org.eclipse.che.ide.api.notification.Notification.Status.PROGRESS;
 
@@ -54,7 +55,7 @@ public class ExportPresenter extends SubversionActionPresenter implements Export
                            ExportView view,
                            NotificationManager notificationManager,
                            SubversionExtensionLocalizationConstants constants,
-                           @Named("restContext") String restContext,
+                           @RestContext String restContext,
                            @Named("workspaceId") String workspaceId) {
         super(appContext, eventBus, console, workspaceAgent, projectExplorerPart);
         this.view = view;

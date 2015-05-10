@@ -45,6 +45,7 @@ import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.AsyncRequestFactory;
 import org.eclipse.che.ide.rest.AsyncRequestLoader;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
+import org.eclipse.che.ide.rest.RestContext;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
@@ -69,7 +70,7 @@ public class SubversionClientServiceImpl implements SubversionClientService {
      * Constructor.
      */
     @Inject
-    public SubversionClientServiceImpl(@Named("restContext") String restContext,
+    public SubversionClientServiceImpl(@RestContext String restContext,
                                        @Named("workspaceId") String workspaceId,
                                        final AsyncRequestFactory asyncRequestFactory,
                                        final DtoFactory dtoFactory,

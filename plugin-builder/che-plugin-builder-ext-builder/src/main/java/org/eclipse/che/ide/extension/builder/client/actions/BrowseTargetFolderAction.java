@@ -15,6 +15,7 @@ import org.eclipse.che.ide.api.action.ActionEvent;
 import org.eclipse.che.ide.api.action.ProjectAction;
 import org.eclipse.che.ide.api.build.BuildContext;
 import org.eclipse.che.ide.extension.builder.client.BuilderLocalizationConstant;
+import org.eclipse.che.ide.rest.RestContext;
 import org.eclipse.che.ide.util.Config;
 
 import com.google.gwt.user.client.Window;
@@ -35,7 +36,7 @@ public class BrowseTargetFolderAction extends ProjectAction {
     private final AnalyticsEventLogger eventLogger;
 
     @Inject
-    public BrowseTargetFolderAction(@Named("restContext") String baseUrl, BuilderLocalizationConstant localizationConstant,
+    public BrowseTargetFolderAction(@RestContext String baseUrl, BuilderLocalizationConstant localizationConstant,
                                     BuildContext buildContext, AnalyticsEventLogger eventLogger) {
         super(localizationConstant.browseTargetFolderActionTitle(), localizationConstant.browseTargetFolderActionDescription(), null);
         this.baseUrl = baseUrl;

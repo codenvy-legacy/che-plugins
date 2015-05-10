@@ -133,7 +133,7 @@ public class SDKRunner extends Runner {
                         new SDKRunnerConfiguration(server, request.getMemorySize(), httpPort, codeServerAddress, codeServerPort, request);
                 configuration.getLinks().add(DtoFactory.getInstance().createDto(Link.class)
                                                        .withRel(Constants.LINK_REL_WEB_URL)
-                                                       .withHref(String.format("http://%s:%d/%s", hostName, httpPort, "ws/default")));
+                                                       .withHref(String.format("http://%s:%d/%s", hostName, httpPort, "che/default")));
                 configuration.getLinks().add(DtoFactory.getInstance().createDto(Link.class)
                                                        .withRel(LINK_REL_CODE_SERVER)
                                                        .withHref(String.format("%s:%d", codeServerAddress, codeServerPort)));

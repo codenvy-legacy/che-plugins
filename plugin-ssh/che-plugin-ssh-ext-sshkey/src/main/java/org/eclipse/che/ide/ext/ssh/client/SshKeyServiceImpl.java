@@ -20,6 +20,8 @@ import org.eclipse.che.ide.ext.ssh.dto.PublicKey;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.AsyncRequestFactory;
 import org.eclipse.che.ide.rest.AsyncRequestLoader;
+import org.eclipse.che.ide.rest.RestContext;
+
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
@@ -41,7 +43,7 @@ public class SshKeyServiceImpl implements SshKeyService {
     private final StringMap<SshKeyProvider> sshKeyProviders;
 
     @Inject
-    protected SshKeyServiceImpl(@Named("restContext") String baseUrl,
+    protected SshKeyServiceImpl(@RestContext String baseUrl,
                                 @Named("workspaceId") String workspaceId,
                                 AsyncRequestLoader loader,
                                 DtoFactory dtoFactory,

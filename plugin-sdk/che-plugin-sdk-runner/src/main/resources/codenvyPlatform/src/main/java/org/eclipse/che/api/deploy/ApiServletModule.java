@@ -33,7 +33,7 @@ public class ApiServletModule extends ServletModule {
         params.put("ws-name", "default");
         params.put("ws-id", "1q2w3e");
         filter("/*").through(SingleEnvironmentFilter.class, params);
-        serve("/ws/*").with(CodenvyEverrestWebSocketServlet.class);
-        serve("/*").with(GuiceEverrestServlet.class);
+        serve("/api/ws/*").with(CodenvyEverrestWebSocketServlet.class);
+        serve("/api/*").with(GuiceEverrestServlet.class);
     }
 }
