@@ -400,7 +400,7 @@ public class ServiceTest {
     private MachineImpl createMachineAndWaitRunningState()
             throws ServerException, NotFoundException, ForbiddenException, InterruptedException {
         final MachineImpl machine = machineManager
-                .create("docker", new RecipeImpl(null, "Dockerfile", "FROM ubuntu\nCMD tail -f /dev/null\n"),
+                .create("docker", new RecipeImpl().withId(null).withType("Dockerfile").withScript("FROM ubuntu\nCMD tail -f /dev/null\n"),
                         "wsId", EnvironmentContext.getCurrent().getUser().getId(), new StdErrLineConsumer());
         while (MachineState.RUNNING != machineManager.getMachine(machine.getId()).getState()) {
             Thread.sleep(500);
