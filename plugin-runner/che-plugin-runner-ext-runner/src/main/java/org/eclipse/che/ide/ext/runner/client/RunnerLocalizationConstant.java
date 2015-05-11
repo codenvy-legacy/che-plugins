@@ -304,4 +304,7 @@ public interface RunnerLocalizationConstant extends Messages {
 
     @Key("menu.toggle.splitter")
     String menuToggleSplitter();
+
+    @Key("message.runner.in.queue")
+    String messageRunnerInQueue();
 }
