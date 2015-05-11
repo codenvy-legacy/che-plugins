@@ -119,6 +119,7 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
     private final GetSystemEnvironmentsAction getSystemEnvironmentsAction;
     private final Map<Runner, RunnerAction>   runnerActions;
     private final Timer                       runnerTimer;
+    private final Timer                       runnerInQueueTimer;
     private final RunnerLocalizationConstant  locale;
     private final HistoryPanel                history;
     private final SelectionManager            selectionManager;
@@ -157,13 +158,13 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
                                   DtoFactory dtoFactory,
                                   ChooseRunnerAction chooseRunnerAction,
                                   EventBus eventBus,
-                                  RunnerLocalizationConstant locale,
+                                  final RunnerLocalizationConstant locale,
                                   @LeftPanel TabContainer leftTabContainer,
                                   @LeftPropertiesPanel TabContainer leftPropertiesContainer,
                                   @RightPropertiesPanel TabContainer rightPropertiesContainer,
                                   PanelState panelState,
                                   Provider<TabBuilder> tabBuilderProvider,
-                                  ConsoleContainer consoleContainer,
+                                  final ConsoleContainer consoleContainer,
                                   TerminalContainer terminalContainer,
                                   PropertiesContainer propertiesContainer,
                                   HistoryPanel history,
@@ -216,6 +217,15 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
                 updateRunnerTimer();
 
                 runnerTimer.schedule(ONE_SEC.getValue());
+            }
+        });
+
+        this.runnerInQueueTimer = timerFactory.newInstance(new TimerFactory.TimerCallBack() {
+            @Override
+            public void onRun() {
+                if (IN_QUEUE.equals(selectedRunner.getStatus())) {
+                    consoleContainer.printInfo(selectedRunner, locale.messageRunnerInQueue());
+                }
             }
         });
 
@@ -594,6 +604,8 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
 
             history.addRunner(runner);
 
+            runnerInQueueTimer.schedule(ONE_SEC.getValue());
+
             CheckRamAndRunAction checkRamAndRunAction = actionFactory.createCheckRamAndRun();
             checkRamAndRunAction.perform(runner);
 
@@ -601,7 +613,6 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
 
             runner.resetCreationTime();
             runnerTimer.schedule(ONE_SEC.getValue());
-
         } else {
             runActionDenyAccessDialog.show();
         }

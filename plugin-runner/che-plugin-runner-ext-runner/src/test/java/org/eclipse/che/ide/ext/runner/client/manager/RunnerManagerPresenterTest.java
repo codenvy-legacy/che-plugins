@@ -63,6 +63,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 
@@ -75,6 +76,8 @@ import java.util.Set;
 
 import static org.eclipse.che.ide.ext.runner.client.manager.menu.SplitterState.SPLITTER_OFF;
 import static org.eclipse.che.ide.ext.runner.client.manager.menu.SplitterState.SPLITTER_ON;
+import static org.eclipse.che.ide.ext.runner.client.models.Runner.Status.IN_PROGRESS;
+import static org.eclipse.che.ide.ext.runner.client.models.Runner.Status.IN_QUEUE;
 import static org.eclipse.che.ide.ext.runner.client.models.Runner.Status.STOPPED;
 import static org.eclipse.che.ide.ext.runner.client.selection.Selection.ENVIRONMENT;
 import static org.eclipse.che.ide.ext.runner.client.selection.Selection.RUNNER;
@@ -225,15 +228,18 @@ public class RunnerManagerPresenterTest {
     @Mock
     private PartPresenter             activePart;
     @Mock
-    private Timer                     timer;
+    private Timer                     runnerTimer;
+    @Mock
+    private Timer                     runnerInQueueTimer;
     @Mock
     private ProjectTypeDefinition     definition;
-
     @Mock
-    private ChooseRunnerAction chooseRunnerAction;
-
+    private ChooseRunnerAction        chooseRunnerAction;
     @Mock
-    private RunnersDescriptor runnersDescriptor;
+    private RunnersDescriptor         runnersDescriptor;
+
+    @Captor
+    private ArgumentCaptor<TimerFactory.TimerCallBack> timerCaptor;
 
     private RunnerManagerPresenter presenter;
 
@@ -274,7 +280,8 @@ public class RunnerManagerPresenterTest {
         initTab(tabBuilderProperties, propertiesContainer, REMOVABLE, RIGHT, EnumSet.allOf(State.class), PROPERTIES);
         when(tabBuilderProperties.build()).thenReturn(propertiesTab);
 
-        when(timerFactory.newInstance(any(TimerFactory.TimerCallBack.class))).thenReturn(timer);
+        when(timerFactory.newInstance(any(TimerFactory.TimerCallBack.class))).thenReturn(runnerTimer)
+                                                                             .thenReturn(runnerInQueueTimer);
 
         presenter = new RunnerManagerPresenter(view,
                                                actionFactory,
@@ -362,7 +369,7 @@ public class RunnerManagerPresenterTest {
     public void constructorOperationsShouldBePerformed() throws Exception {
         verify(view).setDelegate(presenter);
         verify(selectionManager).addListener(presenter);
-        verify(timerFactory).newInstance(any(TimerFactory.TimerCallBack.class));
+        verify(timerFactory, times(2)).newInstance(any(TimerFactory.TimerCallBack.class));
         verify(eventBus).addHandler(ProjectActionEvent.TYPE, presenter);
 
         verify(view).setLeftPanel(leftTabContainer);
@@ -508,14 +515,42 @@ public class RunnerManagerPresenterTest {
     public void verifyTimer() {
         presenter.addRunner(processDescriptor);
 
-        ArgumentCaptor<TimerFactory.TimerCallBack> argumentCaptor = ArgumentCaptor.forClass(TimerFactory.TimerCallBack.class);
-        verify(timerFactory).newInstance(argumentCaptor.capture());
-        argumentCaptor.getValue().onRun();
+        verify(timerFactory, times(2)).newInstance(timerCaptor.capture());
+        timerCaptor.getAllValues().get(0).onRun();
 
         verify(runner, times(2)).getTimeout();
         verify(view, times(2)).updateMoreInfoPopup(runner);
         verify(view, times(2)).setTimeout(TEXT);
-        verify(timer, times(2)).schedule(TimeInterval.ONE_SEC.getValue());
+        verify(runnerTimer, times(2)).schedule(TimeInterval.ONE_SEC.getValue());
+    }
+
+    @Test
+    public void verifyInQueueTimer() {
+        when(locale.messageRunnerInQueue()).thenReturn(TEXT);
+        when(runner.getStatus()).thenReturn(IN_QUEUE);
+
+        presenter.onSelectionChanged(RUNNER);
+
+        verify(timerFactory, times(2)).newInstance(timerCaptor.capture());
+        timerCaptor.getAllValues().get(1).onRun();
+
+        verify(runner, times(2)).getStatus();
+        verify(locale).messageRunnerInQueue();
+        verify(consoleContainer).printInfo(runner, TEXT);
+    }
+
+    @Test
+    public void messageShouldNotBeShownIfRunnerIsNotInQueue() {
+        when(runner.getStatus()).thenReturn(IN_PROGRESS);
+
+        presenter.onSelectionChanged(RUNNER);
+
+        verify(timerFactory, times(2)).newInstance(timerCaptor.capture());
+        timerCaptor.getAllValues().get(1).onRun();
+
+        verify(runner, times(2)).getStatus();
+        verify(locale, never()).messageRunnerInQueue();
+        verify(consoleContainer, never()).printInfo(runner, TEXT);
     }
 
     @Test
@@ -608,7 +643,7 @@ public class RunnerManagerPresenterTest {
 
         verifyRunnerSelected();
 
-        verify(timer).schedule(TimeInterval.ONE_SEC.getValue());
+        verify(runnerTimer).schedule(TimeInterval.ONE_SEC.getValue());
 
         verify(actionFactory).createLaunch();
         verify(launchAction).perform(runner);
@@ -1239,7 +1274,7 @@ public class RunnerManagerPresenterTest {
         verify(getSystemEnvironmentsAction).perform();
         verify(templates).showEnvironments();
 
-        verify(timer).schedule(TimeInterval.ONE_SEC.getValue());
+        verify(runnerTimer).schedule(TimeInterval.ONE_SEC.getValue());
     }
 
     @Test
@@ -1311,7 +1346,7 @@ public class RunnerManagerPresenterTest {
         verify(actionFactory).createCheckRamAndRun();
         verify(checkRamAndRunAction).perform(runner);
         verify(runner).resetCreationTime();
-        verify(timer).schedule(TimeInterval.ONE_SEC.getValue());
+        verify(runnerTimer).schedule(TimeInterval.ONE_SEC.getValue());
     }
 
     @Test(expected = IllegalStateException.class)
@@ -1342,14 +1377,13 @@ public class RunnerManagerPresenterTest {
     public void timerShouldNotUpdateIfRunnerIsNull() {
         when(selectionManager.getRunner()).thenReturn(null);
         presenter.onSelectionChanged(RUNNER);
-        reset(view, timer);
+        reset(view, runnerTimer);
 
-        ArgumentCaptor<TimerFactory.TimerCallBack> argumentCaptor = ArgumentCaptor.forClass(TimerFactory.TimerCallBack.class);
-        verify(timerFactory).newInstance(argumentCaptor.capture());
-        argumentCaptor.getValue().onRun();
+        verify(timerFactory, times(2)).newInstance(timerCaptor.capture());
+        timerCaptor.getAllValues().get(0).onRun();
 
         verifyNoMoreInteractions(view);
-        verify(timer).schedule(TimeInterval.ONE_SEC.getValue());
+        verify(runnerTimer).schedule(TimeInterval.ONE_SEC.getValue());
     }
 
     @Test

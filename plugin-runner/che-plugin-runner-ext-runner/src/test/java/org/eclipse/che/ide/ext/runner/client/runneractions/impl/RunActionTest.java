@@ -48,6 +48,7 @@ import static org.mockito.Mockito.when;
 
 /**
  * @author Alexander Andrienko
+ * @author Dmitry Shnurenko
  */
 @RunWith(GwtMockitoTestRunner.class)
 public class RunActionTest {
@@ -156,9 +157,9 @@ public class RunActionTest {
 
         verify(runner).setProcessDescriptor(descriptor);
         verify(runner).setRAM(MB_500.getValue());
-        verify(runner).setStatus(Runner.Status.IN_PROGRESS);
 
         verify(presenter).addRunnerId(12345678L);
+        verify(presenter).update(runner);
 
         verify(launchAction).perform(runner);
 
