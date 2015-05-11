@@ -42,6 +42,11 @@ public class EditConfigurationsPresenter implements EditConfigurationsView.Actio
     }
 
     @Override
+    public void onCloseClicked() {
+        view.close();
+    }
+
+    @Override
     public void onNameChanged(String name) {
         final CommandConfiguration selectedConfiguration = view.getSelectedConfiguration();
         if (selectedConfiguration != null) {
@@ -94,11 +99,6 @@ public class EditConfigurationsPresenter implements EditConfigurationsView.Actio
         if (selectedConfiguration != null) {
             commandManager.execute(selectedConfiguration);
         }
-    }
-
-    @Override
-    public void onCloseClicked() {
-        view.close();
     }
 
     /** Show dialog. */

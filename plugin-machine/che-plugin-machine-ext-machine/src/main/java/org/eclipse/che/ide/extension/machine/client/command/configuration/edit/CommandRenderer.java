@@ -151,49 +151,49 @@ public class CommandRenderer implements NodeRenderer<CommandDataAdapter.CommandT
         /**
          * Returns the CSS class for command type icon.
          *
-         * @return class name
+         * @return CSS class name
          */
         String commandTypeIcon();
 
         /**
          * Returns the CSS class for command configuration icon.
          *
-         * @return class name
+         * @return CSS class name
          */
         String commandConfigurationIcon();
 
         /**
          * Returns the CSS class for command type label.
          *
-         * @return class name
+         * @return CSS class name
          */
         String commandTypeLabel();
 
         /**
          * Returns the CSS class for command configuration label.
          *
-         * @return class name
+         * @return CSS class name
          */
         String commandConfigurationLabel();
 
         /**
          * Returns the CSS class for tree root.
          *
-         * @return class name
+         * @return CSS class name
          */
         String root();
 
         /**
          * Returns the CSS class for tree icons.
          *
-         * @return class name
+         * @return CSS class name
          */
         String icon();
 
         /**
          * Returns the CSS class for tree labels.
          *
-         * @return class name
+         * @return CSS class name
          */
         String label();
     }

@@ -34,7 +34,7 @@ public class CommandDataAdapter implements NodeDataAdapter<CommandDataAdapter.Co
         if (b.getData() == null) {
             return 1;
         }
-        return a.getId().compareTo(b.getId());
+        return a.getName().compareTo(b.getName());
     }
 
     @Override

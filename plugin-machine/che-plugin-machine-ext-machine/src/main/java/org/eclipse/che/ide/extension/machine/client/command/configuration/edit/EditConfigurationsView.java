@@ -61,14 +61,14 @@ public interface EditConfigurationsView extends View<EditConfigurationsView.Acti
     @Nullable
     CommandConfiguration getSelectedConfiguration();
 
-    /** Needs for delegate some function into preferences view. */
+    /** Action handler for the view actions/controls. */
     interface ActionDelegate {
-
-        /** Called when 'Name' field is changed. */
-        void onNameChanged(String name);
 
         /** Called when 'Close' button is clicked. */
         void onCloseClicked();
+
+        /** Called when 'Name' field is changed. */
+        void onNameChanged(String name);
 
         /**
          * Called when some command type is selected.

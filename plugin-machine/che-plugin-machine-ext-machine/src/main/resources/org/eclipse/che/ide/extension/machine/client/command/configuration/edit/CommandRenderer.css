@@ -16,20 +16,11 @@
     fill: #b4b4b4;
 }
 
-/*.columnIcon {*/
-    /*fill: #dbdbdb;*/
-/*}*/
-
 .commandTypeLabel,
 .commandConfigurationLabel {
     font-weight: bold;
     color: treeTextFolderColor;
 }
-
-/*.columnLabel {*/
-    /*font-weight: normal;*/
-    /*color: treeTextFileColor;*/
-/*}*/
 
 .root {
     display: inline-block;

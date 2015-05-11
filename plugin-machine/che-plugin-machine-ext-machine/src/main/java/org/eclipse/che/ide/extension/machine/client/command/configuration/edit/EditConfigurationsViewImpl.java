@@ -189,6 +189,7 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
     }
 
     private void resetView() {
+        addButton.setEnabled(false);
         removeButton.setEnabled(false);
         executeButton.setEnabled(false);
         commandConfigurationName.setText("");
