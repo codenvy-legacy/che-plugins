@@ -75,7 +75,6 @@ public class WorkspaceLocationViewImpl extends Window implements WorkspaceLocati
     /** Bind handlers. */
     private void bind() {
         Button okButton = createButton("OK", "change-workspace-ok", new ClickHandler() {
-
             @Override
             public void onClick(ClickEvent event) {
                 String wsId = appContext.getWorkspace().getId();

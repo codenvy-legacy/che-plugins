@@ -28,6 +28,7 @@ import java.util.Map;
  */
 @Singleton
 public class WorkspaceLocationPresenter implements WorkspaceLocationView.ActionDelegate {
+    private static final String DEFAULT_NAME = "__default";
 
     private final WorkspaceToDirectoryMappingServiceClient service;
     private final AppContext                               appContext;
@@ -52,9 +53,31 @@ public class WorkspaceLocationPresenter implements WorkspaceLocationView.ActionD
             public void onSuccess(Map<String, String> result) {
                 String wsId = appContext.getWorkspace().getId();
                 if (result != null && !result.isEmpty()) {
-                    workspaceLocation = result.get("__default");
+                    workspaceLocation = result.get(DEFAULT_NAME);
                     if (workspaceLocation == null || workspaceLocation.isEmpty()) {
                         workspaceLocation = result.get(wsId);
+                    }
+                    view.setWorkspaceLocation(workspaceLocation);
+                }
+                view.showDialog();
+            }
+
+            @Override
+            public void onFailure(Throwable exception) {
+                Log.error(WorkspaceLocationPresenter.class, exception.getMessage());
+            }
+        });
+    }
+
+    /** Shows initialization window with workspace location */
+    public void init() {
+        service.getDirectoryMapping(new AsyncRequestCallback<Map<String, String>>(new StringMapUnmarshaller()) {
+            @Override
+            public void onSuccess(Map<String, String> result) {
+                if (result != null && !result.isEmpty()) {
+                    workspaceLocation = result.get(DEFAULT_NAME);
+                    if (workspaceLocation == null || workspaceLocation.isEmpty()) {
+                        return;
                     }
                     view.setWorkspaceLocation(workspaceLocation);
                 }
