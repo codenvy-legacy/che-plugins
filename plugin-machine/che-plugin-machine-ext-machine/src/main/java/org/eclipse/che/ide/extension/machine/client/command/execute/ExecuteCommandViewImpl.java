@@ -116,7 +116,7 @@ public class ExecuteCommandViewImpl extends Window implements ExecuteCommandView
     public void show() {
         executeButton.setEnabled(false);
         commandBox.setText("");
-        show();
+        super.show();
         new Timer() {
             @Override
             public void run() {
