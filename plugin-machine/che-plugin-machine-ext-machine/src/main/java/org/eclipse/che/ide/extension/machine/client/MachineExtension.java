@@ -29,8 +29,10 @@ import org.eclipse.che.ide.api.extension.Extension;
 import org.eclipse.che.ide.api.parts.PartStackType;
 import org.eclipse.che.ide.api.parts.WorkspaceAgent;
 import org.eclipse.che.ide.collections.Array;
+import org.eclipse.che.ide.extension.machine.client.actions.ChooseCommandAction;
 import org.eclipse.che.ide.extension.machine.client.actions.EditConfigurationsAction;
 import org.eclipse.che.ide.extension.machine.client.actions.ExecuteCommandAction;
+import org.eclipse.che.ide.extension.machine.client.actions.RunCommandAction;
 import org.eclipse.che.ide.extension.machine.client.actions.TerminateMachineAction;
 import org.eclipse.che.ide.extension.machine.client.console.ClearConsoleAction;
 import org.eclipse.che.ide.extension.machine.client.console.MachineConsolePresenter;
@@ -40,7 +42,9 @@ import org.eclipse.che.ide.ui.toolbar.ToolbarPresenter;
 
 import static org.eclipse.che.ide.api.action.IdeActions.GROUP_CODE;
 import static org.eclipse.che.ide.api.action.IdeActions.GROUP_MAIN_MENU;
+import static org.eclipse.che.ide.api.action.IdeActions.GROUP_RIGHT_TOOLBAR;
 import static org.eclipse.che.ide.api.constraints.Anchor.AFTER;
+import static org.eclipse.che.ide.api.constraints.Constraints.FIRST;
 
 /**
  * Machine extension entry point.
@@ -52,6 +56,8 @@ import static org.eclipse.che.ide.api.constraints.Anchor.AFTER;
 public class MachineExtension {
 
     public static final String GROUP_MACHINE_CONSOLE_TOOLBAR = "MachineConsoleToolbar";
+    public static final String GROUP_MACHINE_TOOLBAR         = "MachineGroupToolbar";
+    public static final String GROUP_COMMANDS_LIST           = "CommandsListGroup";
 
     @Inject
     public MachineExtension(MachineResources machineResources,
@@ -95,26 +101,43 @@ public class MachineExtension {
     private void prepareActions(MachineLocalizationConstant localizationConstant,
                                 ActionManager actionManager,
                                 ExecuteCommandAction executeCommandAction,
+                                RunCommandAction runCommandAction,
+                                ChooseCommandAction chooseCommandAction,
                                 EditConfigurationsAction editConfigurationsAction,
                                 TerminateMachineAction terminateMachineAction) {
         final DefaultActionGroup mainMenu = (DefaultActionGroup)actionManager.getAction(GROUP_MAIN_MENU);
-
-        final String runGroupId = "run";
         final DefaultActionGroup machinesMenu = new DefaultActionGroup(localizationConstant.mainMenuRunName(), true, actionManager);
-        actionManager.registerAction(runGroupId, machinesMenu);
-
-        mainMenu.add(machinesMenu, new Constraints(AFTER, GROUP_CODE));
 
         // register actions
+        actionManager.registerAction("run", machinesMenu);
         actionManager.registerAction("executeCommand", executeCommandAction);
         actionManager.registerAction("editConfigurations", editConfigurationsAction);
         actionManager.registerAction("stopMachine", terminateMachineAction);
+        actionManager.registerAction("chooseCommand", chooseCommandAction);
+        actionManager.registerAction("runCommand", runCommandAction);
 
         // add actions in main menu
+        mainMenu.add(machinesMenu, new Constraints(AFTER, GROUP_CODE));
         machinesMenu.add(executeCommandAction);
         machinesMenu.add(editConfigurationsAction);
         machinesMenu.addSeparator();
         machinesMenu.add(terminateMachineAction);
+
+        // add actions on main toolbar
+        final DefaultActionGroup rightToolbarGroup = (DefaultActionGroup)actionManager.getAction(GROUP_RIGHT_TOOLBAR);
+        final DefaultActionGroup machineToolbarGroup = new DefaultActionGroup(GROUP_MACHINE_TOOLBAR, false, actionManager);
+        rightToolbarGroup.add(machineToolbarGroup);
+        actionManager.registerAction(GROUP_MACHINE_TOOLBAR, machineToolbarGroup);
+
+        machineToolbarGroup.add(chooseCommandAction);
+        machineToolbarGroup.add(runCommandAction);
+
+
+        // add custom list of environments
+        final DefaultActionGroup commandsList = new DefaultActionGroup(GROUP_COMMANDS_LIST, false, actionManager);
+        actionManager.registerAction(GROUP_COMMANDS_LIST, commandsList);
+        commandsList.add(editConfigurationsAction, FIRST);
+        commandsList.addSeparator();
     }
 
     @Inject

@@ -22,6 +22,9 @@ import org.vectomatic.dom.svg.ui.SVGResource;
  * @author Artem Zatsarynnyy
  */
 public interface MachineResources extends ClientBundle {
+    @Source("images/command.svg")
+    SVGResource command();
+
     @Source("images/console/clear-logs.svg")
     SVGResource clear();
 

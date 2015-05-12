@@ -31,23 +31,35 @@ public interface MachineLocalizationConstant extends Messages {
     @Key("mainMenu.run.name")
     String mainMenuRunName();
 
-    @Key("control.terminateMachine.text")
-    String terminateMachineControlTitle();
-
-    @Key("control.terminateMachine.description")
-    String terminateMachineControlDescription();
-
     @Key("control.executeCommand.text")
     String executeCommandControlTitle();
 
     @Key("control.executeCommand.description")
     String executeCommandControlDescription();
 
+    @Key("control.chooseCommand.text")
+    String chooseCommandControlTitle();
+
+    @Key("control.chooseCommand.description")
+    String chooseCommandControlDescription();
+
+    @Key("control.runCommand.text")
+    String runCommandControlTitle();
+
+    @Key("control.runCommand.description")
+    String runCommandControlDescription();
+
     @Key("control.editConfigurations.text")
     String editConfigurationsControlTitle();
 
     @Key("control.editConfigurations.description")
     String editConfigurationsControlDescription();
+
+    @Key("control.terminateMachine.text")
+    String terminateMachineControlTitle();
+
+    @Key("control.terminateMachine.description")
+    String terminateMachineControlDescription();
 
     @Key("control.clearMachineConsole.text")
     String clearConsoleControlTitle();
