@@ -13,6 +13,7 @@ package org.eclipse.che.ide.ext.runner.client.tabs.terminal.panel;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Frame;
 import com.google.gwt.user.client.ui.Label;
@@ -23,11 +24,14 @@ import org.eclipse.che.ide.ext.runner.client.RunnerLocalizationConstant;
 import org.eclipse.che.ide.ext.runner.client.RunnerResources;
 import org.eclipse.che.ide.ext.runner.client.models.Runner;
 import org.eclipse.che.ide.ext.runner.client.models.Runner.Status;
+import org.eclipse.che.ide.ext.runner.client.util.TimerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.EnumSet;
 import java.util.Set;
+
+import static org.eclipse.che.ide.ext.runner.client.constants.TimeInterval.ONE_SEC;
 
 /**
  * @author Andrey Plotnikov
@@ -42,6 +46,8 @@ public class TerminalImpl extends Composite implements Terminal {
     private static final Set<Status>          LAUNCHING_STATUS = EnumSet.of(Status.IN_PROGRESS, Status.IN_QUEUE);
     private static final Set<Status>          STOPPED_STATUS   = EnumSet.of(Status.FAILED, Status.STOPPED);
 
+    private final Timer setUrlTimer;
+
     @UiField
     Label unavailableLabel;
     @UiField
@@ -55,11 +61,18 @@ public class TerminalImpl extends Composite implements Terminal {
     private String url;
 
     @Inject
-    public TerminalImpl(RunnerResources resources, RunnerLocalizationConstant locale) {
+    public TerminalImpl(RunnerResources resources, RunnerLocalizationConstant locale, TimerFactory timerFactory) {
         this.res = resources;
         this.locale = locale;
 
         initWidget(UI_BINDER.createAndBindUi(this));
+
+        this.setUrlTimer = timerFactory.newInstance(new TimerFactory.TimerCallBack() {
+            @Override
+            public void onRun() {
+                terminal.setUrl(url);
+            }
+        });
     }
 
     /** {@inheritDoc} */
@@ -133,7 +146,7 @@ public class TerminalImpl extends Composite implements Terminal {
         }
 
         url = terminalUrl;
-        terminal.setUrl(terminalUrl);
+        setUrlTimer.schedule(ONE_SEC.getValue());
     }
 
     /** {@inheritDoc} */
