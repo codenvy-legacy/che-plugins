@@ -48,10 +48,10 @@ public abstract class PropertiesPanelPresenter implements PropertiesPanelView.Ac
 
     protected final PropertiesPanelView view;
 
-    protected CurrentProject      currentProject;
-    protected EditorPartPresenter editor;
-    protected int                 undoOperations;
-    private final AppContext      appContext;
+    protected     CurrentProject      currentProject;
+    protected     EditorPartPresenter editor;
+    protected     int                 undoOperations;
+    private final AppContext          appContext;
 
 
     public PropertiesPanelPresenter(@Nonnull PropertiesPanelView view, @Nonnull AppContext appContext) {
@@ -112,7 +112,7 @@ public abstract class PropertiesPanelPresenter implements PropertiesPanelView.Ac
         if (appContext.getWorkspace().getAttributes().containsKey(Constants.RUNNER_LIFETIME)) {
             String value = appContext.getWorkspace().getAttributes().get(Constants.RUNNER_LIFETIME);
             Shutdown shutdown = Shutdown.detect(Integer.parseInt(value));
-            return  shutdown != null ? shutdown : Shutdown.BY_TIMEOUT_4;
+            return shutdown != null ? shutdown : Shutdown.BY_TIMEOUT_4;
         } else {
             return Shutdown.BY_TIMEOUT_4;
         }
@@ -156,6 +156,9 @@ public abstract class PropertiesPanelPresenter implements PropertiesPanelView.Ac
 
         editor.activate();
         editor.onOpen();
+        if (editor.isDirty()) {
+            enableSaveAndCancelButtons();
+        }
     }
 
     /** {@inheritDoc} */
