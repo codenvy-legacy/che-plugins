@@ -19,6 +19,12 @@ import org.eclipse.che.api.project.server.ProjectCreatedEvent;
 import org.eclipse.che.api.vfs.server.observation.CreateEvent;
 import org.eclipse.che.api.vfs.server.observation.VirtualFileEvent;
 import org.eclipse.che.jdt.core.resources.ResourceChangedEvent;
+import org.eclipse.core.filebuffers.FileBuffers;
+import org.eclipse.core.filebuffers.ITextFileBuffer;
+import org.eclipse.core.filebuffers.ITextFileBufferManager;
+import org.eclipse.core.filebuffers.LocationKind;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.che.vfs.impl.fs.LocalFSMountStrategy;
 import org.eclipse.core.runtime.IPath;
@@ -43,8 +49,8 @@ public class ProjectListeners {
     @Inject
     public ProjectListeners(EventService eventService, LocalFSMountStrategy fsMountStrategy) {
         this.fsMountStrategy = fsMountStrategy;
-        eventService.subscribe(new VirtualFileEventSubscriber());
         eventService.subscribe(new ProjectCreated());
+        eventService.subscribe(new VirtualFileEventSubscriber());
 
     }
 
@@ -57,7 +63,7 @@ public class ProjectListeners {
             final String eventPath = event.getPath();
             if(event.getType() == VirtualFileEvent.ChangeType.CREATED) {
                 IPath path = new Path(eventPath);
-                if (path.segmentCount() == 0) {
+                if (path.segmentCount() == 1) {
                     notFullyCreatedProjects.add(eventPath);
                     return;
                 }
@@ -72,6 +78,17 @@ public class ProjectListeners {
             } catch (Throwable t) {
                 //catch all exceptions that may be happened
                 LOG.error("Can't update java model", t);
+            }
+            if(event.getType() == VirtualFileEvent.ChangeType.CONTENT_UPDATED){
+                ITextFileBufferManager manager = FileBuffers.getTextFileBufferManager();
+                ITextFileBuffer fileBuffer = manager.getTextFileBuffer(new Path(eventPath), LocationKind.IFILE);
+                if(fileBuffer != null) {
+                    try {
+                        fileBuffer.revert(new NullProgressMonitor());
+                    } catch (CoreException e) {
+                        LOG.error("Can't read file content: " + eventPath, e);
+                    }
+                }
             }
         }
     }

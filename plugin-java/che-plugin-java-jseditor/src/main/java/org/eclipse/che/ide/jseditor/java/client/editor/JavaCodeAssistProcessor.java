@@ -110,6 +110,18 @@ public class JavaCodeAssistProcessor implements CodeAssistProcessor {
         images.put("localVariable", resources.local_var());
         images.put("package", resources.packageItem());
 
+        images.put("correctionLocal", resources.correction_change()); // ????
+        images.put("correctionChange", resources.correction_change());
+        images.put("correctionAdd", resources.correction_change()); //????
+        images.put("jexception", resources.exceptionProp());
+        images.put("correctionRemove", resources.remove_correction());
+        images.put("correctionCast", resources.correction_cast());
+        images.put("correctionMove", resources.remove_correction()); // ????
+        images.put("correctionDeleteImport", resources.correction_delete_import());
+        images.put("correctionRename", resources.breakpointCurrent()); //????
+        images.put("impObj", resources.add_obj()); //????
+        images.put("toolDelete", resources.delete_obj()); //????
+
 
     }
 

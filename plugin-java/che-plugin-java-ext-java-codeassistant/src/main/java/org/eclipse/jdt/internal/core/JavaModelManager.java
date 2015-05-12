@@ -99,6 +99,19 @@ public class JavaModelManager {
         defaultOptions.put(org.eclipse.jdt.core.JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, org.eclipse.jdt.core.JavaCore.ENABLED);
         defaultOptions.put(CompilerOptions.OPTION_Process_Annotations, org.eclipse.jdt.core.JavaCore.ENABLED);
         defaultOptions.put(CompilerOptions.OPTION_GenerateClassFiles, org.eclipse.jdt.core.JavaCore.ENABLED);
+        defaultOptions.put(JavaCore.CODEASSIST_FIELD_PREFIXES, "");
+        defaultOptions.put(JavaCore.CODEASSIST_FIELD_SUFFIXES, "");
+        defaultOptions.put(JavaCore.CODEASSIST_STATIC_FIELD_PREFIXES, "");
+        defaultOptions.put(JavaCore.CODEASSIST_STATIC_FIELD_SUFFIXES, "");
+        defaultOptions.put(JavaCore.CODEASSIST_ARGUMENT_PREFIXES, "");
+        defaultOptions.put(JavaCore.CODEASSIST_ARGUMENT_SUFFIXES, "");
+        defaultOptions.put(JavaCore.CODEASSIST_LOCAL_PREFIXES, "");
+        defaultOptions.put(JavaCore.CODEASSIST_LOCAL_SUFFIXES, "");
+        defaultOptions.put(JavaCore.CODEASSIST_STATIC_FINAL_FIELD_PREFIXES, "");
+        defaultOptions.put(JavaCore.CODEASSIST_STATIC_FINAL_FIELD_SUFFIXES, "");
+        defaultOptions.put(DefaultCodeFormatterConstants.FORMATTER_TAB_CHAR, JavaCore.SPACE);
+        defaultOptions.put(DefaultCodeFormatterConstants.FORMATTER_TAB_SIZE, "4");
+
 
     }
     public final static  String             TRUE                                        = "true"; //$NON-NLS-1$
@@ -2467,7 +2480,7 @@ public class JavaModelManager {
 //                    }
 //                }
 //            }
-            throw new UnsupportedOperationException();
+//            throw new UnsupportedOperationException();
         }
 
         public synchronized ClasspathChange resetResolvedClasspath() {

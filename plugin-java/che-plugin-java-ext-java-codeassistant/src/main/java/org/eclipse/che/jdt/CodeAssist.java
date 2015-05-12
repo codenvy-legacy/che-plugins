@@ -19,22 +19,34 @@ import com.google.inject.Singleton;
 
 import org.eclipse.che.dto.server.DtoFactory;
 import org.eclipse.che.ide.ext.java.shared.dto.Change;
+import org.eclipse.che.ide.ext.java.shared.dto.Problem;
 import org.eclipse.che.ide.ext.java.shared.dto.ProposalApplyResult;
 import org.eclipse.che.ide.ext.java.shared.dto.ProposalPresentation;
 import org.eclipse.che.ide.ext.java.shared.dto.Proposals;
 import org.eclipse.che.ide.ext.java.shared.dto.Region;
 import org.eclipse.che.jdt.javaeditor.TextViewer;
+import org.eclipse.che.jdt.ui.CheActionAcces;
 import org.eclipse.che.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.che.jface.text.contentassist.ICompletionProposalExtension;
 import org.eclipse.che.jface.text.contentassist.ICompletionProposalExtension2;
 import org.eclipse.che.jface.text.contentassist.ICompletionProposalExtension4;
+import org.eclipse.core.filebuffers.FileBuffers;
+import org.eclipse.core.filebuffers.ITextFileBuffer;
+import org.eclipse.core.filebuffers.ITextFileBufferManager;
+import org.eclipse.core.filebuffers.LocationKind;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.internal.core.DocumentAdapter;
+import org.eclipse.jdt.internal.core.JavaModelStatus;
+import org.eclipse.jdt.internal.ui.text.correction.AssistContext;
+import org.eclipse.jdt.internal.ui.text.correction.JavaCorrectionProcessor;
 import org.eclipse.jdt.internal.ui.text.java.JavaAllCompletionProposalComputer;
 import org.eclipse.jdt.internal.ui.text.java.RelevanceSorter;
 import org.eclipse.jdt.internal.ui.text.java.TemplateCompletionProposalComputer;
@@ -44,6 +56,8 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -56,7 +70,7 @@ import java.util.concurrent.TimeUnit;
  */
 @Singleton
 public class CodeAssist {
-
+    private static final Logger LOG = LoggerFactory.getLogger(CodeAssist.class);
     private final Cache<String, CodeAssistContext> cache;
 
     public CodeAssist() {
@@ -106,11 +120,15 @@ public class CodeAssist {
         List<ICompletionProposal> proposals = new ArrayList<>();
         proposals.addAll(new JavaAllCompletionProposalComputer().computeCompletionProposals(context, null));
         proposals.addAll(new TemplateCompletionProposalComputer().computeCompletionProposals(context, null));
-//        for (IJavaCompletionProposalComputer proposalComputer : computers) {
-//            proposals.addAll(proposalComputer.computeCompletionProposals(context, new NullProgressMonitor()));
-//
-//        }
+
         Collections.sort(proposals, new RelevanceSorter());
+        Proposals result = convertProposals(offset, compilationUnit, viewer, proposals);
+
+        return result;
+    }
+
+    private Proposals convertProposals(int offset, ICompilationUnit compilationUnit, TextViewer viewer,
+                                       List<ICompletionProposal> proposals) {
         Proposals result = DtoFactory.getInstance().createDto(Proposals.class);
         String sessionId = UUID.randomUUID().toString();
         result.setSessionId(sessionId);
@@ -125,6 +143,12 @@ public class CodeAssist {
             presentation.setImage(image);
             if (proposal instanceof ICompletionProposalExtension4) {
                 presentation.setAutoInsertable(((ICompletionProposalExtension4)proposal).isAutoInsertable());
+            }
+            if(proposal instanceof CheActionAcces) {
+                String actionId = ((CheActionAcces)proposal).getActionId();
+                if(actionId != null){
+                    presentation.setActionId(actionId);
+                }
             }
             presentations.add(presentation);
         }
@@ -144,6 +168,40 @@ public class CodeAssist {
         } else {
             throw new IllegalArgumentException("CodeAssist context doesn't exist or time of completion was expired");
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    public Proposals computeAssistProposals(IJavaProject project, String fqn, int offset, List<Problem> problems) throws CoreException {
+        ICompilationUnit compilationUnit = null;
+
+        IType type = project.findType(fqn);
+        if (type == null) {
+            return null;
+        }
+        if (type.isBinary()) {
+            throw new JavaModelException(
+                    new JavaModelStatus(IJavaModelStatusConstants.CORE_EXCEPTION, "Can't calculate Quick Assist on binary file"));
+        } else {
+            compilationUnit = type.getCompilationUnit();
+        }
+
+        IBuffer buffer = compilationUnit.getBuffer();
+
+        ITextFileBufferManager bufferManager = FileBuffers.getTextFileBufferManager();
+        bufferManager.connect(compilationUnit.getPath(), LocationKind.IFILE, new NullProgressMonitor());
+        ITextFileBuffer textFileBuffer = bufferManager.getTextFileBuffer(compilationUnit.getPath(), LocationKind.IFILE);
+        IDocument document =
+                textFileBuffer.getDocument();
+//        if (buffer instanceof org.eclipse.jdt.internal.ui.javaeditor.DocumentAdapter) {
+//            document = ((org.eclipse.jdt.internal.ui.javaeditor.DocumentAdapter)buffer).getDocument();
+//        } else {
+//            document = new DocumentAdapter(buffer);
+//        }
+        TextViewer viewer = new TextViewer(document, new Point(offset, 0));
+        AssistContext context = new AssistContext(compilationUnit, offset, 0);
+        ArrayList proposals = new ArrayList<>();
+        JavaCorrectionProcessor.collectProposals(context, problems, true, true, proposals);
+        return convertProposals(offset, compilationUnit, viewer, proposals);
     }
 
     private class CodeAssistContext {
@@ -166,6 +224,11 @@ public class CodeAssist {
                     cUnit.discardWorkingCopy();
                 } catch (JavaModelException e) {
                     //ignore
+                }
+                try {
+                    FileBuffers.getTextFileBufferManager().disconnect(cUnit.getPath(), LocationKind.IFILE, new NullProgressMonitor());
+                } catch (CoreException e) {
+                    LOG.error("Can't disconnect from file buffer: " + cUnit.getPath(), e);
                 }
             }
         }
@@ -204,11 +267,13 @@ public class CodeAssist {
 
                 ProposalApplyResult result = dtoFactory.createDto(ProposalApplyResult.class);
                 result.setChanges(changes);
-                Region region = dtoFactory.createDto(Region.class);
                 Point selection = p.getSelection(document);
-                region.setOffset(selection.x);
-                region.setLength(selection.y);
-                result.setSelection(region);
+                if (selection != null) {
+                    Region region = dtoFactory.createDto(Region.class);
+                    region.setOffset(selection.x);
+                    region.setLength(selection.y);
+                    result.setSelection(region);
+                }
                 return result;
 
 

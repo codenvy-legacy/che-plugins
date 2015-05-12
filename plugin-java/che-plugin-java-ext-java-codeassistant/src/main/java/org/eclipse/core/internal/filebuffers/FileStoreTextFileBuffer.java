@@ -17,7 +17,6 @@ import org.eclipse.core.filebuffers.LocationKind;
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileInfo;
 import org.eclipse.core.filesystem.IFileStore;
-import org.eclipse.core.resources.IResourceStatus;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -388,7 +387,7 @@ public class FileStoreTextFileBuffer extends FileStoreFileBuffer implements ITex
 				return;
 
 			QualifiedName[] options= new QualifiedName[] { IContentDescription.CHARSET, IContentDescription.BYTE_ORDER_MARK };
-			IContentDescription description= Platform.getContentTypeManager().getDescriptionFor(stream, fFileStore.getName(), options);
+			IContentDescription description=  null;//Platform.getContentTypeManager().getDescriptionFor(stream, fFileStore.getName(), options);
 			if (description != null) {
 				fHasBOM= description.getProperty(IContentDescription.BYTE_ORDER_MARK) != null;
 				if (fEncoding == null)
@@ -396,9 +395,9 @@ public class FileStoreTextFileBuffer extends FileStoreFileBuffer implements ITex
 			}
 		} catch (CoreException e) {
 			// do nothing
-		} catch (IOException e) {
+		} /*catch (IOException e) {
 			// do nothing
-		} finally {
+		}*/ finally {
 			try {
 				if (stream != null)
 					stream.close();
@@ -418,8 +417,8 @@ public class FileStoreTextFileBuffer extends FileStoreFileBuffer implements ITex
 	 * @see org.eclipse.core.internal.filebuffers.FileBuffer#commitFileBufferContent(org.eclipse.core.runtime.IProgressMonitor, boolean)
 	 */
 	protected void commitFileBufferContent(IProgressMonitor monitor, boolean overwrite) throws CoreException {
-		if (!isSynchronized() && !overwrite)
-			throw new CoreException(new Status(IStatus.WARNING, FileBuffersPlugin.PLUGIN_ID, IResourceStatus.OUT_OF_SYNC_LOCAL, FileBuffersMessages.FileBuffer_error_outOfSync, null));
+//		if (!isSynchronized() && !overwrite)
+//			throw new CoreException(new Status(IStatus.WARNING, FileBuffersPlugin.PLUGIN_ID, IResourceStatus.OUT_OF_SYNC_LOCAL, FileBuffersMessages.FileBuffer_error_outOfSync, null));
 
 		String encoding= computeEncoding();
 
@@ -527,24 +526,24 @@ public class FileStoreTextFileBuffer extends FileStoreFileBuffer implements ITex
 		if (fExplicitEncoding != null)
 			return fExplicitEncoding;
 
-		// Probe content
-		Reader reader= new DocumentReader(fDocument);
-		try {
-			QualifiedName[] options= new QualifiedName[] { IContentDescription.CHARSET, IContentDescription.BYTE_ORDER_MARK };
-			IContentDescription description= Platform.getContentTypeManager().getDescriptionFor(reader, fFileStore.getName(), options);
-			if (description != null) {
-				String encoding= description.getCharset();
-				if (encoding != null)
-					return encoding;
-			}
-		} catch (IOException ex) {
-			// Try next strategy
-		} finally {
-			try {
-				reader.close();
-			} catch (IOException x) {
-			}
-		}
+//		// Probe content
+//		Reader reader= new DocumentReader(fDocument);
+//		try {
+//			QualifiedName[] options= new QualifiedName[] { IContentDescription.CHARSET, IContentDescription.BYTE_ORDER_MARK };
+//			IContentDescription description= Platform.getContentTypeManager().getDescriptionFor(reader, fFileStore.getName(), options);
+//			if (description != null) {
+//				String encoding= description.getCharset();
+//				if (encoding != null)
+//					return encoding;
+//			}
+//		} catch (IOException ex) {
+//			// Try next strategy
+//		} finally {
+//			try {
+//				reader.close();
+//			} catch (IOException x) {
+//			}
+//		}
 
 		// Use file's encoding if the file has a BOM
 		if (fHasBOM)

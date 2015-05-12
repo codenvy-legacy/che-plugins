@@ -11,26 +11,38 @@
 package org.eclipse.che.ide.editor.codemirror.client;
 
 
-import static org.eclipse.che.ide.editor.codemirrorjso.client.EventTypes.BEFORE_SELECTION_CHANGE;
-import static org.eclipse.che.ide.editor.codemirrorjso.client.EventTypes.BLUR;
-import static org.eclipse.che.ide.editor.codemirrorjso.client.EventTypes.CHANGE;
-import static org.eclipse.che.ide.editor.codemirrorjso.client.EventTypes.CURSOR_ACTIVITY;
-import static org.eclipse.che.ide.editor.codemirrorjso.client.EventTypes.FOCUS;
-import static org.eclipse.che.ide.editor.codemirrorjso.client.EventTypes.GUTTER_CLICK;
-import static org.eclipse.che.ide.editor.codemirrorjso.client.EventTypes.SCROLL;
-import static org.eclipse.che.ide.editor.codemirrorjso.client.EventTypes.VIEWPORT_CHANGE;
-import static org.eclipse.che.ide.editor.codemirrorjso.client.options.OptionKey.AUTOCLOSE_BRACKETS;
-import static org.eclipse.che.ide.editor.codemirrorjso.client.options.OptionKey.AUTOCLOSE_TAGS;
-import static org.eclipse.che.ide.editor.codemirrorjso.client.options.OptionKey.FOLD_GUTTER;
-import static org.eclipse.che.ide.editor.codemirrorjso.client.options.OptionKey.KEYMAP;
-import static org.eclipse.che.ide.editor.codemirrorjso.client.options.OptionKey.MATCH_BRACKETS;
-import static org.eclipse.che.ide.editor.codemirrorjso.client.options.OptionKey.READONLY;
-import static org.eclipse.che.ide.editor.codemirrorjso.client.options.OptionKey.SHOW_CURSOR_WHEN_SELECTING;
-import static org.eclipse.che.ide.editor.codemirrorjso.client.options.OptionKey.STYLE_ACTIVE_LINE;
+import elemental.dom.DOMTokenList;
+import elemental.events.MouseEvent;
+import elemental.js.events.JsMouseEvent;
+import elemental.js.html.JsDivElement;
 
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.google.gwt.core.client.Callback;
+import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.JsArray;
+import com.google.gwt.core.client.JsArrayMixed;
+import com.google.gwt.core.client.JsArrayString;
+import com.google.gwt.core.shared.GWT;
+import com.google.gwt.dom.client.Document;
+import com.google.gwt.dom.client.Element;
+import com.google.gwt.event.dom.client.BlurEvent;
+import com.google.gwt.event.dom.client.BlurHandler;
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
+import com.google.gwt.event.dom.client.DomEvent;
+import com.google.gwt.event.dom.client.FocusEvent;
+import com.google.gwt.event.dom.client.FocusHandler;
+import com.google.gwt.event.dom.client.HasBlurHandlers;
+import com.google.gwt.event.dom.client.HasChangeHandlers;
+import com.google.gwt.event.dom.client.HasFocusHandlers;
+import com.google.gwt.event.shared.HandlerRegistration;
+import com.google.gwt.uibinder.client.UiBinder;
+import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.HTMLPanel;
+import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.inject.assistedinject.Assisted;
+import com.google.inject.assistedinject.AssistedInject;
+import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.text.Region;
@@ -59,7 +71,6 @@ import org.eclipse.che.ide.editor.codemirrorjso.client.marks.CMTextMarkerOverlay
 import org.eclipse.che.ide.editor.codemirrorjso.client.options.CMEditorOptionsOverlay;
 import org.eclipse.che.ide.editor.codemirrorjso.client.options.CMMatchTagsConfig;
 import org.eclipse.che.ide.editor.codemirrorjso.client.options.OptionKey;
-
 import org.eclipse.che.ide.jseditor.client.codeassist.AdditionalInfoCallback;
 import org.eclipse.che.ide.jseditor.client.codeassist.CompletionProposal;
 import org.eclipse.che.ide.jseditor.client.codeassist.CompletionResources;
@@ -99,38 +110,27 @@ import org.eclipse.che.ide.jseditor.client.texteditor.CompositeEditorWidget;
 import org.eclipse.che.ide.jseditor.client.texteditor.EditorWidget;
 import org.eclipse.che.ide.jseditor.client.texteditor.LineStyler;
 import org.eclipse.che.ide.util.loging.Log;
-import com.google.gwt.core.client.Callback;
-import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.core.client.JsArray;
-import com.google.gwt.core.client.JsArrayMixed;
-import com.google.gwt.core.client.JsArrayString;
-import com.google.gwt.core.shared.GWT;
-import com.google.gwt.dom.client.Document;
-import com.google.gwt.dom.client.Element;
-import com.google.gwt.event.dom.client.BlurEvent;
-import com.google.gwt.event.dom.client.BlurHandler;
-import com.google.gwt.event.dom.client.ChangeEvent;
-import com.google.gwt.event.dom.client.ChangeHandler;
-import com.google.gwt.event.dom.client.DomEvent;
-import com.google.gwt.event.dom.client.FocusEvent;
-import com.google.gwt.event.dom.client.FocusHandler;
-import com.google.gwt.event.dom.client.HasBlurHandlers;
-import com.google.gwt.event.dom.client.HasChangeHandlers;
-import com.google.gwt.event.dom.client.HasFocusHandlers;
-import com.google.gwt.event.shared.HandlerRegistration;
-import com.google.gwt.uibinder.client.UiBinder;
-import com.google.gwt.uibinder.client.UiField;
-import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.HTMLPanel;
-import com.google.gwt.user.client.ui.SimplePanel;
-import com.google.inject.assistedinject.Assisted;
-import com.google.inject.assistedinject.AssistedInject;
-import com.google.web.bindery.event.shared.EventBus;
 
-import elemental.dom.DOMTokenList;
-import elemental.events.MouseEvent;
-import elemental.js.events.JsMouseEvent;
-import elemental.js.html.JsDivElement;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static org.eclipse.che.ide.editor.codemirrorjso.client.EventTypes.BEFORE_SELECTION_CHANGE;
+import static org.eclipse.che.ide.editor.codemirrorjso.client.EventTypes.BLUR;
+import static org.eclipse.che.ide.editor.codemirrorjso.client.EventTypes.CHANGE;
+import static org.eclipse.che.ide.editor.codemirrorjso.client.EventTypes.CURSOR_ACTIVITY;
+import static org.eclipse.che.ide.editor.codemirrorjso.client.EventTypes.FOCUS;
+import static org.eclipse.che.ide.editor.codemirrorjso.client.EventTypes.GUTTER_CLICK;
+import static org.eclipse.che.ide.editor.codemirrorjso.client.EventTypes.SCROLL;
+import static org.eclipse.che.ide.editor.codemirrorjso.client.EventTypes.VIEWPORT_CHANGE;
+import static org.eclipse.che.ide.editor.codemirrorjso.client.options.OptionKey.AUTOCLOSE_BRACKETS;
+import static org.eclipse.che.ide.editor.codemirrorjso.client.options.OptionKey.AUTOCLOSE_TAGS;
+import static org.eclipse.che.ide.editor.codemirrorjso.client.options.OptionKey.FOLD_GUTTER;
+import static org.eclipse.che.ide.editor.codemirrorjso.client.options.OptionKey.KEYMAP;
+import static org.eclipse.che.ide.editor.codemirrorjso.client.options.OptionKey.MATCH_BRACKETS;
+import static org.eclipse.che.ide.editor.codemirrorjso.client.options.OptionKey.READONLY;
+import static org.eclipse.che.ide.editor.codemirrorjso.client.options.OptionKey.SHOW_CURSOR_WHEN_SELECTING;
+import static org.eclipse.che.ide.editor.codemirrorjso.client.options.OptionKey.STYLE_ACTIVE_LINE;
 
 /**
  * The CodeMirror implementation of {@link EditorWidget}.
@@ -269,7 +269,8 @@ public class CodeMirrorEditorWidget extends CompositeEditorWidget implements
 
                                                                                      this.minimap = minimapFactory.createMinimap(
                                                                                              rightGutter.<JsDivElement>cast());
-                                                                                     this.minimap.setDocument(getDocument());
+                                                                                     this.minimap.setEditor(this);
+
 
                                                                                      this.gutter = new CodemirrorGutter(this.codeMirror,
                                                                                                                         this.editorOverlay);

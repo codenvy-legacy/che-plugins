@@ -64,19 +64,4 @@ public class JavadocUrlTest extends BaseTest {
         assertThat(element).isNotNull().isEqualTo(method);
     }
 
-    @Test
-    public void methodHandleUri() throws JavaModelException, URISyntaxException, UnsupportedEncodingException {
-        JavadocFinder finder = new JavadocFinder("test");
-        String javadoc = finder.findJavadoc(project, "java.lang.String", 54634);
-        assertThat(javadoc).isNotNull().contains(
-                "Tests if the substring of this string beginning");
-    }
-
-    @Test
-    public void methodHandleUri2() throws JavaModelException, URISyntaxException, UnsupportedEncodingException {
-        JavadocFinder finder = new JavadocFinder("test");
-        String javadoc = finder.findJavadoc(project, "java.lang.String", 93245);
-        assertThat(javadoc).isNotNull().contains(
-                "Splits this string around matches");
-    }
 }

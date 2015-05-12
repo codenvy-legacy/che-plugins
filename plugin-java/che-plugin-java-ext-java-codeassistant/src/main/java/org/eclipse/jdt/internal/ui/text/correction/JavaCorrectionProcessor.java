@@ -12,6 +12,8 @@
 package org.eclipse.jdt.internal.ui.text.correction;
 
 import org.eclipse.che.ide.ext.java.shared.dto.Problem;
+import org.eclipse.che.jface.text.contentassist.ICompletionProposal;
+import org.eclipse.che.jface.text.quickassist.IQuickAssistInvocationContext;
 import org.eclipse.core.runtime.ISafeRunnable;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
@@ -24,8 +26,6 @@ import org.eclipse.jdt.ui.text.java.IJavaCompletionProposal;
 import org.eclipse.jdt.ui.text.java.IProblemLocation;
 import org.eclipse.jdt.ui.text.java.IQuickAssistProcessor;
 import org.eclipse.jdt.ui.text.java.IQuickFixProcessor;
-import org.eclipse.che.jface.text.contentassist.ICompletionProposal;
-import org.eclipse.che.jface.text.quickassist.IQuickAssistInvocationContext;
 import org.eclipse.jface.text.source.Annotation;
 
 import java.util.ArrayList;

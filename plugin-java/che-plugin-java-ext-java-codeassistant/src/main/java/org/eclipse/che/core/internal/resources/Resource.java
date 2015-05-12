@@ -438,7 +438,8 @@ public abstract class Resource implements IResource, IPathRequestor {
 
     @Override
     public boolean isDerived(int options) {
-        throw new UnsupportedOperationException();
+//        throw new UnsupportedOperationException();
+        return true;
     }
 
     @Override

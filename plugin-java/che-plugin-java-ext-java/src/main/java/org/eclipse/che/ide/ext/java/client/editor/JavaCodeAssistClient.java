@@ -15,12 +15,17 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 
+import org.eclipse.che.ide.collections.Array;
+import org.eclipse.che.ide.collections.Collections;
+import org.eclipse.che.ide.ext.java.shared.dto.Problem;
 import org.eclipse.che.ide.ext.java.shared.dto.ProposalApplyResult;
 import org.eclipse.che.ide.ext.java.shared.dto.Proposals;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.AsyncRequestFactory;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.rest.Unmarshallable;
+
+import java.util.List;
 
 /**
  * @author Evgen Vidolob
@@ -47,6 +52,12 @@ public class JavaCodeAssistClient {
     public void computeProposals(String projectPath, String fqn, int offset, String contents, AsyncRequestCallback<Proposals> callback) {
         String url = javaCAPath + "/code-assist/compute/completion" + "/?projectpath=" + projectPath + "&fqn=" + fqn + "&offset=" + offset;
         asyncRequestFactory.createPostRequest(url, null).data(contents).send(callback);
+    }
+
+    public void computeAssistProposals(String projectPath, String fqn, int offset, List<Problem> problems, AsyncRequestCallback<Proposals> callback) {
+        String url = javaCAPath + "/code-assist/compute/assist" + "/?projectpath=" + projectPath + "&fqn=" + fqn + "&offset=" + offset;
+        Array<Problem> prob = Collections.createArray(problems);
+        asyncRequestFactory.createPostRequest(url, prob).send(callback);
     }
 
 

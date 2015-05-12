@@ -34,4 +34,8 @@ public interface ProposalPresentation {
 
     void setIndex(int index);
 
+    String getActionId();
+
+    void setActionId(String actionId);
+
 }

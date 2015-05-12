@@ -27,9 +27,10 @@ public class JdtGuiceModule extends AbstractModule {
 
     @Override
     protected void configure() {
-        bind(JavaPlugin.class).asEagerSingleton();
         bind(ResourcesPlugin.class).asEagerSingleton();
+        bind(JavaPlugin.class).asEagerSingleton();
         bind(FileBuffersPlugin.class).asEagerSingleton();
+        bind(ProjectListeners.class).asEagerSingleton();
         bind(CodeAssistService.class);
     }
 }

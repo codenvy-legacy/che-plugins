@@ -154,6 +154,12 @@ public class ProblemAnnotation extends Annotation implements JavaAnnotation, Qui
     }
 
     @Override
+    public boolean isError() {
+        String type = getType();
+        return  ERROR_ANNOTATION_TYPE.equals(type);
+    }
+
+    @Override
     public boolean hasOverlay() {
         return false;
     }

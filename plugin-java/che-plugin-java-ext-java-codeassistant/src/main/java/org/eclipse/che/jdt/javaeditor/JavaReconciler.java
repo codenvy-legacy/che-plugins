@@ -18,8 +18,7 @@ import org.eclipse.che.dto.server.DtoFactory;
 import org.eclipse.che.ide.ext.java.shared.dto.HighlightedPosition;
 import org.eclipse.che.ide.ext.java.shared.dto.Problem;
 import org.eclipse.che.ide.ext.java.shared.dto.ReconcileResult;
-import org.eclipse.jdt.internal.core.BufferManager;
-import org.eclipse.jdt.internal.core.ClassFileWorkingCopy;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
@@ -30,6 +29,7 @@ import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.internal.core.ClassFileWorkingCopy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,7 +61,9 @@ public class JavaReconciler {
 
             @Override
             public IBuffer createBuffer(ICompilationUnit workingCopy) {
-                return BufferManager.createBuffer(workingCopy);
+//                return BufferManager.createBuffer(workingCopy);
+//                ?????
+                return new org.eclipse.jdt.internal.ui.javaeditor.DocumentAdapter(workingCopy, (IFile)workingCopy.getResource());
             }
         };
         List<HighlightedPosition> positions = null;
@@ -89,6 +91,8 @@ public class JavaReconciler {
         } finally {
             if(compilationUnit!= null && compilationUnit.isWorkingCopy()){
                 try {
+                    //todo close buffer
+                    compilationUnit.getBuffer().close();
                     compilationUnit.discardWorkingCopy();
                 } catch (JavaModelException e) {
                     //ignore
