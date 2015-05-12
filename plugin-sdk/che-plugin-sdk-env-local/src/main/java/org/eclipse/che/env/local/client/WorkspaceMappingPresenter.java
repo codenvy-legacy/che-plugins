@@ -59,6 +59,7 @@ public class WorkspaceMappingPresenter {
         this.notificationManager = notificationManager;
         this.eventBus = eventBus;
 
+        init();
     }
 
 

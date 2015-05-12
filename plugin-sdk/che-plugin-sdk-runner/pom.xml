@@ -158,10 +158,12 @@
                                 </move>
                                 <!-- Copy pre-configured sh-scripts and configuration files -->
                                 <copy overwrite="true" todir="${project.build.directory}/classes/tomcat-bundle">
+                                    <fileset dir="${project.build.directory}/classes/tomcat-bundle/apache-tomcat-${org.apache.tomcat.version}" />
                                     <fileset dir="${project.build.directory}/classes/tomcat" />
                                 </copy>
                                 <!-- Zip prepared Tomcat binary distribution and remove temporary directory -->
-                                <zip basedir="${project.build.directory}/classes/tomcat-bundle" destfile="${project.build.directory}/classes/tomcat.zip" />
+                                <delete dir="${project.build.directory}/classes/tomcat-bundle/apache-tomcat-${org.apache.tomcat.version}" />
+                                <zip basedir="${project.build.directory}/classes/tomcat-bundle" destfile="${project.build.directory}/classes/sdk-tomcat.zip" />
                                 <delete dir="${project.build.directory}/classes/tomcat-bundle" />
                                 <!-- Prepare Codenvy Platform sources -->
                                 <zip basedir="${project.build.directory}/classes/codenvyPlatform" destfile="${project.build.directory}/classes/CodenvyPlatform.zip" />

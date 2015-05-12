@@ -29,6 +29,12 @@ public interface RunnerLocalizationConstant extends Messages {
     @Key("unknown.error.message")
     String unknownErrorMessage();
 
+    @Key("workspaceGigabyteHoursLimit.error.message")
+    String workspaceGigabyteHoursLimitErrorMessage();
+
+    @Key("accountGigabyteHoursLimit.error.message")
+    String accountGigabyteHoursLimitErrorMessage();
+
     String environmentCooking(@Nonnull String projectName);
 
     String applicationStarting(@Nonnull String projectName);
@@ -53,20 +59,11 @@ public interface RunnerLocalizationConstant extends Messages {
     @Key("runner.label.application.info")
     String runnerLabelApplicationInfo();
 
+    @Key("runner.label.debug.port")
+    String runnerLabelDebugPort();
+
     @Key("runner.label.timeout.info")
     String runnerLabelTimeoutInfo();
-
-    @Key("messages.totalLessRequiredMemory")
-    String messagesTotalLessRequiredMemory(@Nonnegative int totalRAM, @Nonnegative int requestedRAM);
-
-    @Key("messages.availableLessRequiredMemory")
-    String messagesAvailableLessRequiredMemory(@Nonnegative int totalRAM, @Nonnegative int usedRAM, @Nonnegative int requestedRAM);
-
-    @Key("messages.totalLessOverrideMemory")
-    String messagesTotalLessOverrideMemory(@Nonnegative int overrideRAM, @Nonnegative int totalRAM);
-
-    @Key("messages.availableLessOverrideMemory")
-    String messagesAvailableLessOverrideMemory(@Nonnegative int availableRAM);
 
     @Key("messages.overrideMemory")
     String messagesOverrideMemory();
@@ -171,6 +168,9 @@ public interface RunnerLocalizationConstant extends Messages {
     @Key("properties.config")
     String propertiesConfig();
 
+    @Key("properties.open.config")
+    String propertiesOpenConfig();
+
     @Key("properties.name")
     String propertiesName();
 
@@ -259,4 +259,34 @@ public interface RunnerLocalizationConstant extends Messages {
 
     @Key("template.default.project.runner")
     String templateDefaultProjectRunner();
+
+    @Key("messages.availableLessOverrideMemory.title")
+    String messagesAvailableLessOverrideMemoryTitle();
+
+    @Key("messages.availableLessOverrideMemory.content")
+    String messagesAvailableLessOverrideMemoryContent();
+
+    @Key("messages.availableLessOverrideMemory.settingsLink")
+    String messagesAvailableLessOverrideMemorySettingsLink();
+
+    @Key("messages.availableLessOverrideMemory.backToConfig")
+    String messagesAvailableLessOverrideMemoryBackToConfig();
+
+    @Key("workspace.preferences.runners.title")
+    String workspacePreferencesRunnersTitle();
+
+    @Key("workspace.preferences.title")
+    String workspacePreferencesTitle(String workspace);
+
+    @Key("workspace.preferences.runners.shutdown.value.title")
+    String workspacePreferencesRunnersShutdownValueTitle();
+
+    @Key("workspace.preferences.runners.shutdown.set.button")
+    String workspacePreferencesRunnersShutdownSetButton();
+
+    @Key("terminal.not.ready")
+    String terminalNotReady();
+
+    @Key("template.create.new")
+    String templateCreateNew();
 }

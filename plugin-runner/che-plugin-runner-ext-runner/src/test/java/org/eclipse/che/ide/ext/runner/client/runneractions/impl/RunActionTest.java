@@ -18,8 +18,6 @@ import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.api.runner.dto.ApplicationProcessDescriptor;
 import org.eclipse.che.api.runner.dto.RunOptions;
 import org.eclipse.che.api.runner.gwt.client.RunnerServiceClient;
-import org.eclipse.che.ide.api.action.permits.ActionDenyAccessDialog;
-import org.eclipse.che.ide.api.action.permits.ResourcesLockedActionPermit;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.ext.runner.client.RunnerLocalizationConstant;
@@ -40,7 +38,7 @@ import org.mockito.Captor;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 
-import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MB_512;
+import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MB_500;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
@@ -72,7 +70,7 @@ public class RunActionTest {
     @Mock
     private RunnerActionFactory                                          actionFactory;
     @Mock
-    private AnalyticsEventLogger                                          eventLogger;
+    private AnalyticsEventLogger                                         eventLogger;
 
     @Mock
     private Throwable                                                     reason;
@@ -96,10 +94,6 @@ public class RunActionTest {
     private ApplicationProcessDescriptor                                  descriptor;
     @Mock
     private LaunchAction                                                  launchAction;
-    @Mock
-    private ResourcesLockedActionPermit                                   runActionPermit;
-    @Mock
-    private ActionDenyAccessDialog                                        runActionDenyAccessDialog;
     //captors
     @Captor
     private ArgumentCaptor<FailureCallback>                               failedCallBackCaptor;
@@ -111,11 +105,9 @@ public class RunActionTest {
     @Before
     public void setUp() {
         when(actionFactory.createLaunch()).thenReturn(launchAction);
-        when(runActionPermit.isAllowed()).thenReturn(true);
 
         runAction = new RunAction(service, appContext, locale, presenter,
-                                  callbackBuilderProvider, runnerUtil, actionFactory, eventLogger, runActionPermit,
-                                  runActionDenyAccessDialog);
+                                  callbackBuilderProvider, runnerUtil, actionFactory, eventLogger);
 
         //preparing callbacks for server
         when(appContext.getCurrentProject()).thenReturn(project);
@@ -145,7 +137,7 @@ public class RunActionTest {
     @Test
     public void shouldSuccessPerform() {
         //preparing descriptor data
-        when(descriptor.getMemorySize()).thenReturn(MB_512.getValue());
+        when(descriptor.getMemorySize()).thenReturn(MB_500.getValue());
         when(descriptor.getProcessId()).thenReturn(12345678L);
 
         when(runner.getOptions()).thenReturn(runOptions);
@@ -160,7 +152,7 @@ public class RunActionTest {
         successCallback.onSuccess(descriptor);
 
         verify(runner).setProcessDescriptor(descriptor);
-        verify(runner).setRAM(MB_512.getValue());
+        verify(runner).setRAM(MB_500.getValue());
         verify(runner).setStatus(Runner.Status.IN_PROGRESS);
 
         verify(presenter).addRunnerId(12345678L);

@@ -10,10 +10,12 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.runner.client.tabs.properties.panel;
 
+import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwtmockito.GwtMockitoTestRunner;
 
@@ -26,7 +28,6 @@ import org.eclipse.che.ide.ext.runner.client.tabs.properties.button.PropertyButt
 import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Boot;
 import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM;
 import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Shutdown;
-import org.eclipse.che.ide.ui.switcher.Switcher;
 import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,14 +41,14 @@ import java.util.EnumSet;
 import static org.eclipse.che.ide.ext.runner.client.tabs.container.tab.Background.BLUE;
 import static org.eclipse.che.ide.ext.runner.client.tabs.container.tab.Background.GREY;
 import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.DEFAULT;
-import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MB_1024;
-import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MB_128;
-import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MB_512;
-import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MB_8192;
+import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MB_1000;
+import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MB_100;
+import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MB_500;
+import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MB_8000;
 import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope.PROJECT;
 import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope.SYSTEM;
 import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Shutdown.ALWAYS_ON;
-import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Shutdown.BY_TIMEOUT;
+import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Shutdown.BY_TIMEOUT_4;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
@@ -77,8 +78,6 @@ public class PropertiesPanelViewImplTest {
     private RunnerResources            resources;
     @Mock
     private WidgetFactory              widgetFactory;
-    @Mock
-    private Switcher                   switcher;
 
     @Mock
     private PropertyButtonWidget               createButtonWidget;
@@ -94,6 +93,10 @@ public class PropertiesPanelViewImplTest {
     private EditorPartPresenter                editor;
     @Mock
     private ValueChangeEvent<Boolean>          changeEvent;
+    @Mock
+    private Element                            element;
+    @Mock
+    private Style                              style;
 
     @Captor
     private ArgumentCaptor<PropertyButtonWidget.ActionDelegate> captor;
@@ -126,7 +129,7 @@ public class PropertiesPanelViewImplTest {
 
         when(changeEvent.getValue()).thenReturn(true);
 
-        view = new PropertiesPanelViewImpl(locale, resources, widgetFactory, switcher);
+        view = new PropertiesPanelViewImpl(locale, resources, widgetFactory);
         view.setDelegate(delegate);
 
         when(view.name.getText()).thenReturn(TEXT);
@@ -134,13 +137,31 @@ public class PropertiesPanelViewImplTest {
 
     @Test
     public void switcherValueShouldBeChanged() throws Exception {
-        verify(switcher).addValueChangeHandler(valueChangeCaptor.capture());
+        view.changeSwitcherState(true);
 
-        valueChangeCaptor.getValue().onValueChange(changeEvent);
+        verify(view.projectDefault).setValue(true);
+    }
 
-        verify(delegate).onSwitcherChanged(true);
-        verify(changeEvent).getValue();
-        verify(view.switcherPanel).add(switcher);
+    @Test
+    public void incorrectNameShouldBeInput() {
+        when(view.name.getElement()).thenReturn(element);
+        when(element.getStyle()).thenReturn(style);
+
+        view.incorrectName(true);
+
+        verify(saveButtonWidget).setEnable(false);
+        verify(style).setBorderColor("#ffe400");
+    }
+
+    @Test
+    public void correctNameShouldBeInput() {
+        when(view.name.getElement()).thenReturn(element);
+        when(element.getStyle()).thenReturn(style);
+
+        view.incorrectName(false);
+
+        verify(saveButtonWidget).setEnable(true);
+        verify(style).setBorderColor("#191c1e");
     }
 
     @Test
@@ -182,7 +203,7 @@ public class PropertiesPanelViewImplTest {
     }
 
     private void ramItemsShouldBeAdded() {
-        for (Enum item : EnumSet.range(MB_128, MB_8192)) {
+        for (Enum item : EnumSet.range(MB_100, MB_8000)) {
             verify(view.ram).addItem(item.toString().toLowerCase());
         }
     }
@@ -232,9 +253,9 @@ public class PropertiesPanelViewImplTest {
     @Test
     public void ramShouldBeReturned() {
         when(view.ram.getSelectedIndex()).thenReturn(2);
-        when(view.ram.getValue(2)).thenReturn(MB_512.toString());
+        when(view.ram.getValue(2)).thenReturn(MB_500.toString());
 
-        assertThat(view.getRam(), is(MB_512));
+        assertThat(view.getRam(), is(MB_500));
 
         verify(view.ram).getSelectedIndex();
         verify(view.ram).getValue(2);
@@ -242,14 +263,14 @@ public class PropertiesPanelViewImplTest {
 
     @Test
     public void defaultAmountMemoryShouldBeSelected() {
-        when(view.ram.getValue(MB_512.ordinal())).thenReturn("512");
+        when(view.ram.getValue(MB_1000.ordinal())).thenReturn("1000");
         when(view.ram.getItemCount()).thenReturn(RAM.values().length);
 
         view.selectMemory(DEFAULT);
 
         verify(view.ram).getItemCount();
-        verify(view.ram, times(3)).getValue(anyInt());
-        verify(view.ram).setItemSelected(MB_512.ordinal(), true);
+        verify(view.ram, times(4)).getValue(anyInt());
+        verify(view.ram).setItemSelected(MB_1000.ordinal(), true);
     }
 
     @Test
@@ -265,9 +286,9 @@ public class PropertiesPanelViewImplTest {
 
     @Test
     public void amountMemoryShouldBeSelected() {
-        view.selectMemory(MB_1024);
+        view.selectMemory(MB_1000);
 
-        verify(view.ram).setItemSelected(MB_1024.ordinal(), true);
+        verify(view.ram).setItemSelected(MB_1000.ordinal(), true);
     }
 
     @Test
@@ -319,9 +340,9 @@ public class PropertiesPanelViewImplTest {
     @Test
     public void shutDownParameterShouldBeReturned() {
         when(view.shutdown.getSelectedIndex()).thenReturn(1);
-        when(view.shutdown.getValue(1)).thenReturn(BY_TIMEOUT.toString());
+        when(view.shutdown.getValue(1)).thenReturn(BY_TIMEOUT_4.toString());
 
-        assertThat(view.getShutdown(), is(BY_TIMEOUT));
+        assertThat(view.getShutdown(), is(BY_TIMEOUT_4));
     }
 
     @Test
@@ -528,12 +549,8 @@ public class PropertiesPanelViewImplTest {
 
     @Test
     public void elementsShouldBeHideWhenScopeIsProject() throws Exception {
-        when(resources.runnerCss().hideElement()).thenReturn(TEXT);
-
         view.hideSwitcher();
 
-        verify(switcher).addStyleName(TEXT);
-        verify(resources.runnerCss(), times(2)).hideElement();
+        verify(view.projectDefaultPanel).setVisible(false);
     }
-
 }

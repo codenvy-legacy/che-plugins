@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.impl;
 
-import com.google.gwt.http.client.URL;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwtmockito.GwtMockitoTestRunner;
@@ -21,6 +20,7 @@ import org.eclipse.che.api.project.shared.dto.ItemReference;
 import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.api.project.shared.dto.RunnerConfiguration;
 import org.eclipse.che.api.project.shared.dto.RunnersDescriptor;
+import org.eclipse.che.api.workspace.shared.dto.WorkspaceDescriptor;
 import org.eclipse.che.ide.CoreLocalizationConstant;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
@@ -40,6 +40,7 @@ import org.eclipse.che.ide.collections.java.JsonArrayListAdapter;
 import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.ext.runner.client.RunnerLocalizationConstant;
 import org.eclipse.che.ide.ext.runner.client.TestEditor;
+import org.eclipse.che.ide.ext.runner.client.actions.ChooseRunnerAction;
 import org.eclipse.che.ide.ext.runner.client.callbacks.AsyncCallbackBuilder;
 import org.eclipse.che.ide.ext.runner.client.callbacks.FailureCallback;
 import org.eclipse.che.ide.ext.runner.client.callbacks.SuccessCallback;
@@ -77,7 +78,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.eclipse.che.ide.ext.runner.client.models.EnvironmentImpl.ROOT_FOLDER;
-import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MB_512;
+import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MB_1000;
+import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MB_500;
 import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope.PROJECT;
 import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope.SYSTEM;
 import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.impl.PropertiesEnvironmentPanel.ENVIRONMENT_ID_PREFIX;
@@ -86,6 +88,7 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyMap;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isNull;
@@ -129,6 +132,8 @@ public class PropertiesEnvironmentPanelTest {
     @Mock
     private RunnerLocalizationConstant                 locale;
     @Mock
+    private ChooseRunnerAction                         chooseRunnerAction;
+    @Mock
     private GetProjectEnvironmentsAction               projectEnvironmentsAction;
     @Mock
     private NotificationManager                        notificationManager;
@@ -149,6 +154,8 @@ public class PropertiesEnvironmentPanelTest {
 
     @Mock
     private Runner                                     runner;
+    @Mock
+    private WorkspaceDescriptor                        currentWorkspace;
     @Mock
     private CurrentProject                             currentProject;
     @Mock
@@ -239,22 +246,25 @@ public class PropertiesEnvironmentPanelTest {
         runnerConfigs = new HashMap<>();
 
         when(appContext.getCurrentProject()).thenReturn(currentProject);
+        when(appContext.getWorkspace()).thenReturn(currentWorkspace);
+        when(appContext.getWorkspace().getAttributes()).thenReturn(new HashMap<String, String>());
         when(currentProject.getProjectDescription()).thenReturn(projectDescriptor);
         when(projectDescriptor.getRunners()).thenReturn(runnersDescriptor);
         when(runnersDescriptor.getConfigs()).thenReturn(runnerConfigs);
-        when(runner.getRAM()).thenReturn(MB_512.getValue());
+        when(runner.getRAM()).thenReturn(MB_500.getValue());
         when(unmarshallerFactory.newArrayUnmarshaller(ItemReference.class)).thenReturn(unmarshaller);
 
         when(environment.getScope()).thenReturn(SYSTEM);
         when(environment.getPath()).thenReturn(TEXT);
         when(environment.getName()).thenReturn(TEXT);
         when(environment.getType()).thenReturn(TEXT);
-        when(environment.getRam()).thenReturn(MB_512.getValue());
+        when(environment.getRam()).thenReturn(MB_500.getValue());
         when(environment.getId()).thenReturn(TEXT);
 
         when(dtoFactory.createDto(RunnerConfiguration.class)).thenReturn(runnerConfiguration);
         when(runnerConfiguration.withRam(anyInt())).thenReturn(runnerConfiguration);
-        when(runnerConfiguration.getRam()).thenReturn(MB_512.getValue());
+        when(runnerConfiguration.getRam()).thenReturn(MB_500.getValue());
+        when(runnerConfiguration.withVariables(anyMap())).thenReturn(runnerConfiguration);
 
         when(currentProject.getCurrentTree()).thenReturn(treeStructure);
 
@@ -274,6 +284,9 @@ public class PropertiesEnvironmentPanelTest {
         when(fileTypeRegistry.getFileTypeByFile(any(FileNode.class))).thenReturn(fileType);
 
         when(locale.runnerTabTemplates()).thenReturn(TEXT);
+
+        when(itemReference1.getPath()).thenReturn("/this is a path/Dockerfile");
+        when(itemReference2.getPath()).thenReturn("/this is a path/Dockerfile");
 
         when(unmarshallerFactory.newArrayUnmarshaller(ItemReference.class)).thenReturn(unmarshaller);
         when(asyncArrayCallbackBuilder.unmarshaller(unmarshaller)).thenReturn(asyncArrayCallbackBuilder);
@@ -295,6 +308,7 @@ public class PropertiesEnvironmentPanelTest {
                                                    projectService,
                                                    eventBus,
                                                    appContext,
+                                                   chooseRunnerAction,
                                                    dialogFactory,
                                                    locale,
                                                    projectEnvironmentsAction,
@@ -328,11 +342,11 @@ public class PropertiesEnvironmentPanelTest {
 
         verify(environment, times(3)).getId();
         verify(environment).getScope();
-        verify(environment).setRam(MB_512.getValue());
-        verify(view).selectMemory(MB_512);
+        verify(environment).setRam(MB_500.getValue());
+        verify(view).selectMemory(MB_500);
 
         verify(dtoFactory).createDto(RunnerConfiguration.class);
-        verify(runnerConfiguration).withRam(MB_512.getValue());
+        verify(runnerConfiguration).withRam(MB_500.getValue());
 
         verify(asyncCallbackBuilder, times(2)).failure(any(FailureCallback.class));
         verify(asyncCallbackBuilder, times(2)).build();
@@ -385,9 +399,9 @@ public class PropertiesEnvironmentPanelTest {
         verify(view, times(2)).setEnableSaveButton(false);
         verify(view, times(2)).setEnableDeleteButton(false);
 
-        verify(view).selectMemory(MB_512);
+        verify(view).selectMemory(MB_500);
         verify(projectEnvironmentsAction).perform();
-        verify(dtoFactory, never()).createDto(RunnerConfiguration.class);
+        verify(dtoFactory).createDto(RunnerConfiguration.class);
     }
 
     @Test
@@ -469,7 +483,7 @@ public class PropertiesEnvironmentPanelTest {
     @Test
     public void saveButtonShouldBeClickedWhenEditorIsNotDirty() throws Exception {
         when(editorProvider.getEditor()).thenReturn(editor);
-        when(view.getRam()).thenReturn(MB_512);
+        when(view.getRam()).thenReturn(MB_500);
         when(view.getName()).thenReturn(TEXT);
         when(environment.getName()).thenReturn(TEXT2);
         when(projectDescriptor.getPath()).thenReturn(TEXT);
@@ -492,7 +506,7 @@ public class PropertiesEnvironmentPanelTest {
         verify(editor).isDirty();
 
         verify(dtoFactory).createDto(RunnerConfiguration.class);
-        verify(runnerConfiguration).withRam(MB_512.getValue());
+        verify(runnerConfiguration).withRam(MB_500.getValue());
 
         verify(projectService, times(2)).updateProject(anyString(),
                                                        eq(projectDescriptor),
@@ -510,7 +524,7 @@ public class PropertiesEnvironmentPanelTest {
     @Test
     public void saveButtonShouldBeClickedButRenameFileFailed() throws Exception {
         when(editorProvider.getEditor()).thenReturn(editor);
-        when(view.getRam()).thenReturn(MB_512);
+        when(view.getRam()).thenReturn(MB_500);
         when(view.getName()).thenReturn(TEXT);
         when(environment.getName()).thenReturn(TEXT2);
         when(exception.getMessage()).thenReturn(TEXT);
@@ -536,7 +550,7 @@ public class PropertiesEnvironmentPanelTest {
     @Test
     public void saveButtonShouldBeClickedWhenEditorIsDirty() throws Exception {
         when(editorProvider.getEditor()).thenReturn(editor);
-        when(view.getRam()).thenReturn(MB_512);
+        when(view.getRam()).thenReturn(MB_500);
         when(view.getName()).thenReturn(TEXT);
         when(environment.getName()).thenReturn(TEXT2);
         when(editor.isDirty()).thenReturn(true);
@@ -584,7 +598,7 @@ public class PropertiesEnvironmentPanelTest {
         verify(view).setEnableCancelButton(false);
 
         verify(dtoFactory).createDto(RunnerConfiguration.class);
-        verify(runnerConfiguration).withRam(MB_512.getValue());
+        verify(runnerConfiguration).withRam(MB_500.getValue());
 
         assertThat(runnerConfigs.containsKey(ENVIRONMENT_ID_PREFIX + TEXT), is(true));
     }
@@ -592,7 +606,7 @@ public class PropertiesEnvironmentPanelTest {
     @Test
     public void updateProjectShouldBeSuccessfulWhenClickOnSaveButton() throws Exception {
         reset(view);
-        when(view.getRam()).thenReturn(MB_512);
+        when(view.getRam()).thenReturn(MB_500);
 
         presenter.onSaveButtonClicked();
 
@@ -611,7 +625,7 @@ public class PropertiesEnvironmentPanelTest {
     @Test
     public void saveButtonShouldBeClickedButSaveEditorFailed() throws Exception {
         when(editorProvider.getEditor()).thenReturn(editor);
-        when(view.getRam()).thenReturn(MB_512);
+        when(view.getRam()).thenReturn(MB_500);
         when(view.getName()).thenReturn(TEXT);
         when(environment.getName()).thenReturn(TEXT2);
         when(editor.isDirty()).thenReturn(true);
@@ -655,6 +669,60 @@ public class PropertiesEnvironmentPanelTest {
         verify(exception).getMessage();
 
         verify(editor).doSave(Matchers.<AsyncCallback<EditorInput>>anyObject());
+    }
+
+    @Test
+    public void defaultRunnerShouldBeRenamedWhenClickOnSaveButton() {
+        reset(projectDescriptor);
+        when(projectDescriptor.getRunners()).thenReturn(runnersDescriptor);
+        when(environment.getId()).thenReturn(TEXT);
+        when(currentProject.getRunner()).thenReturn(TEXT);
+        when(environment.getName()).thenReturn(TEXT);
+        when(view.getName()).thenReturn(TEXT2);
+
+        presenter.onSaveButtonClicked();
+
+        verify(voidAsyncCallbackBuilder).success(voidArgumentCaptor.capture());
+        voidArgumentCaptor.getValue().onSuccess(null);
+
+        verify(projectDescriptor).getRunners();
+        verify(runnersDescriptor).setDefault(anyString());
+    }
+
+    @Test
+    public void defaultRunnerShouldNotBeRenamedWhenDefaultRunnerIsNull() {
+        reset(projectDescriptor);
+        when(projectDescriptor.getRunners()).thenReturn(runnersDescriptor);
+        when(environment.getId()).thenReturn(TEXT);
+        when(currentProject.getRunner()).thenReturn(null);
+        when(environment.getName()).thenReturn(TEXT);
+        when(view.getName()).thenReturn(TEXT2);
+
+        presenter.onSaveButtonClicked();
+
+        verify(voidAsyncCallbackBuilder).success(voidArgumentCaptor.capture());
+        voidArgumentCaptor.getValue().onSuccess(null);
+
+        verify(projectDescriptor, never()).getRunners();
+        verify(runnersDescriptor, never()).setDefault(anyString());
+    }
+
+    @Test
+    public void defaultRunnerShouldNotBeRenamedWhenRenameNotDefaultRunner() {
+        reset(projectDescriptor);
+        when(projectDescriptor.getRunners()).thenReturn(runnersDescriptor);
+        when(environment.getId()).thenReturn(TEXT2);
+        when(currentProject.getRunner()).thenReturn(TEXT);
+        when(environment.getName()).thenReturn(TEXT);
+        when(view.getName()).thenReturn(TEXT2);
+
+        presenter.onSaveButtonClicked();
+
+        verify(voidAsyncCallbackBuilder).success(voidArgumentCaptor.capture());
+        voidArgumentCaptor.getValue().onSuccess(null);
+
+        verify(projectDescriptor, never()).getRunners();
+        verify(runnersDescriptor, never()).setDefault(anyString());
     }
 
     @Test
@@ -738,6 +806,26 @@ public class PropertiesEnvironmentPanelTest {
         verify(notificationManager).showError(TEXT);
     }
 
+    @Test
+    public void stubShouldBeShownWhenDeleteDefaultRunner() {
+        when(environment.getScope()).thenReturn(PROJECT);
+        when(currentProject.getRunner()).thenReturn(TEXT);
+        when(environment.getId()).thenReturn(TEXT);
+        ArgumentCaptor<ConfirmCallback> argumentCaptor = ArgumentCaptor.forClass(ConfirmCallback.class);
+
+        presenter.onDeleteButtonClicked();
+
+        verify(dialogFactory).createConfirmDialog(eq(TEXT), eq(TEXT), argumentCaptor.capture(), isNull(CancelCallback.class));
+        verify(confirmDialog).show();
+        argumentCaptor.getValue().accepted();
+
+        verify(voidAsyncCallbackBuilder).success(voidArgumentCaptor.capture());
+        voidArgumentCaptor.getValue().onSuccess(null);
+
+        verify(templatesContainer).setDefaultEnvironment(null);
+        verify(chooseRunnerAction).setEmptyDefaultRunner();
+    }
+
     private void verifyUpdateProject() {
         verify(projectService).updateProject(anyString(),
                                              eq(projectDescriptor),
@@ -759,10 +847,11 @@ public class PropertiesEnvironmentPanelTest {
         verify(view).setEnableCancelButton(false);
         verify(view).setEnableDeleteButton(false);
 
+        verify(view).incorrectName(false);
         verify(environment).getId();
-        verify(environment).setRam(MB_512.getValue());
+        verify(environment).setRam(MB_1000.getValue());
         verify(view).setName(TEXT);
-        verify(view).selectMemory(MB_512);
+        verify(view).selectMemory(MB_1000);
         verify(environment, times(3)).getScope();
         verify(view).selectScope(SYSTEM);
     }
@@ -778,11 +867,12 @@ public class PropertiesEnvironmentPanelTest {
         verify(view).setEnableCancelButton(false);
         verify(view).setEnableDeleteButton(true);
 
+        verify(view).incorrectName(false);
         verify(environment).getName();
         verify(environment).getId();
-        verify(environment).setRam(MB_512.getValue());
+        verify(environment).setRam(MB_1000.getValue());
         verify(view).setName(TEXT);
-        verify(view).selectMemory(MB_512);
+        verify(view).selectMemory(MB_1000);
         verify(environment, times(3)).getScope();
         verify(view).selectScope(PROJECT);
     }
@@ -792,7 +882,7 @@ public class PropertiesEnvironmentPanelTest {
         reset(appContext, view);
         when(environment.getScope()).thenReturn(SYSTEM);
         when(environment.getName()).thenReturn(TEXT);
-        when(environment.getRam()).thenReturn(MB_512.getValue());
+        when(environment.getRam()).thenReturn(MB_500.getValue());
         when(environment.getPath()).thenReturn(TEXT);
         when(appContext.getCurrentProject()).thenReturn(currentProject);
         when(environment.getScope()).thenReturn(PROJECT);
@@ -805,6 +895,7 @@ public class PropertiesEnvironmentPanelTest {
                                                    projectService,
                                                    eventBus,
                                                    appContext,
+                                                   chooseRunnerAction,
                                                    dialogFactory,
                                                    locale,
                                                    projectEnvironmentsAction,
@@ -892,7 +983,7 @@ public class PropertiesEnvironmentPanelTest {
         reset(editorProvider, view, environment);
         when(environment.getScope()).thenReturn(SYSTEM);
         when(environment.getName()).thenReturn(TEXT);
-        when(environment.getRam()).thenReturn(MB_512.getValue());
+        when(environment.getRam()).thenReturn(MB_500.getValue());
 
         EditorPartPresenter editor2 = mock(TestEditor.class);
         when(editor2.getEditorInput()).thenReturn(editorInput);
@@ -912,6 +1003,7 @@ public class PropertiesEnvironmentPanelTest {
                                                    projectService,
                                                    eventBus,
                                                    appContext,
+                                                   chooseRunnerAction,
                                                    dialogFactory,
                                                    locale,
                                                    projectEnvironmentsAction,
@@ -935,9 +1027,9 @@ public class PropertiesEnvironmentPanelTest {
         verify(handlesUndoRedo, times(3)).undoable();
 
         verify(environment).getId();
-        verify(environment).setRam(MB_512.getValue());
+        verify(environment).setRam(MB_1000.getValue());
         verify(view).setName(TEXT);
-        verify(view).selectMemory(MB_512);
+        verify(view).selectMemory(MB_1000);
         verify(environment, times(3)).getScope();
         verify(view).selectScope(SYSTEM);
     }
@@ -962,11 +1054,11 @@ public class PropertiesEnvironmentPanelTest {
         verify(view).setEnableSaveButton(false);
         verify(view).setEnableDeleteButton(false);
 
-        verify(environment, times(4)).getId();
+        verify(environment, times(5)).getId();
         verify(environment).getName();
-        verify(environment).setRam(MB_512.getValue());
+        verify(environment).setRam(MB_500.getValue());
 
-        verify(view).selectMemory(MB_512);
+        verify(view).selectMemory(MB_500);
         verify(view).setName(TEXT);
         verify(view).setType(TEXT);
         verify(view).selectScope(SYSTEM);
@@ -990,11 +1082,11 @@ public class PropertiesEnvironmentPanelTest {
         verify(view).setEnableSaveButton(false);
         verify(view).setEnableDeleteButton(false);
 
-        verify(environment, times(3)).getId();
+        verify(environment, times(4)).getId();
         verify(environment).getName();
-        verify(environment).setRam(MB_512.getValue());
+        verify(environment).setRam(MB_500.getValue());
 
-        verify(view).selectMemory(MB_512);
+        verify(view).selectMemory(MB_500);
         verify(view).setName(TEXT);
         verify(view).setType(TEXT);
         verify(view).selectScope(SYSTEM);
@@ -1005,16 +1097,40 @@ public class PropertiesEnvironmentPanelTest {
 
     @Test
     public void configurationShouldBeChanged() throws Exception {
-        when(view.getRam()).thenReturn(MB_512);
+        when(view.getRam()).thenReturn(MB_500);
+        when(view.getName()).thenReturn(TEXT);
         when(environment.getScope()).thenReturn(PROJECT);
 
         presenter.onConfigurationChanged();
 
-        verify(environment).setRam(512);
+        verify(environment).setRam(500);
         verify(environment, times(2)).getScope();
         verify(view).getRam();
         verify(view).setEnableSaveButton(true);
         verify(view).setEnableCancelButton(true);
+    }
+
+    @Test
+    public void nameShouldBeIncorrect() {
+        when(view.getName()).thenReturn("asd+/");
+
+        presenter.onConfigurationChanged();
+
+        verify(view).incorrectName(false);
+        verify(view).incorrectName(true);
+        verify(view, never()).getRam();
+    }
+
+    @Test
+    public void nameShouldBeCorrect() {
+        when(view.getRam()).thenReturn(MB_500);
+        when(view.getName()).thenReturn(TEXT);
+        when(environment.getScope()).thenReturn(PROJECT);
+
+        presenter.onConfigurationChanged();
+
+        verify(view).incorrectName(false);
+        verify(view, never()).incorrectName(true);
     }
 
     @Test
@@ -1033,6 +1149,7 @@ public class PropertiesEnvironmentPanelTest {
         presenter.onSwitcherChanged(false);
 
         verify(templatesContainer).setDefaultEnvironment(null);
+        verify(chooseRunnerAction).setEmptyDefaultRunner();
     }
 
     @Test

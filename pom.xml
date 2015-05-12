@@ -26,7 +26,9 @@
     <modules>
         <!--<module>plugin-builder</module>-->
         <!--<module>plugin-runner</module>-->
+        <module>plugin-docker</module>
         <module>plugin-web</module>
+        <module>plugin-machine</module>
         <!--<module>plugin-java</module>-->
         <module>plugin-sdk</module>
         <module>plugin-codemirror</module>

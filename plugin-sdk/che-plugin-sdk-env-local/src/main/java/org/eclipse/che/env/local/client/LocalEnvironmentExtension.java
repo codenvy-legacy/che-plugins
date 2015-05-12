@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.che.env.local.client;
 
-import com.google.gwt.user.client.Window;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
