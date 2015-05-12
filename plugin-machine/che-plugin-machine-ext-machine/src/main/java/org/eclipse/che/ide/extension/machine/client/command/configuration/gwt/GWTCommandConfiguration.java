@@ -48,7 +48,7 @@ public class GWTCommandConfiguration implements CommandConfiguration {
     }
 
     @Override
-    public String getCommand() {
+    public String toCommandLine() {
         return "java -version";
     }
 

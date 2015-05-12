@@ -108,7 +108,7 @@ public class CommandManager {
         final String outputChannel = getOutputChannel();
         subscribeToOutput(outputChannel);
 
-        machineServiceClient.executeCommand(currentMachineId, configuration.getCommand(), outputChannel);
+        machineServiceClient.executeCommand(currentMachineId, configuration.toCommandLine(), outputChannel);
     }
 
     @Nonnull

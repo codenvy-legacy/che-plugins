@@ -58,7 +58,6 @@ public class EditConfigurationsPresenter implements EditConfigurationsView.Actio
     public void onCommandTypeSelected(CommandType type) {
         view.setAddButtonState(true);
         view.setRemoveButtonState(false);
-        view.setExecuteButtonState(false);
         view.setConfigurationName("");
         view.clearCommandConfigurationsDisplayContainer();
     }
@@ -67,7 +66,6 @@ public class EditConfigurationsPresenter implements EditConfigurationsView.Actio
     public void onConfigurationSelected(CommandConfiguration configuration) {
         view.setAddButtonState(true);
         view.setRemoveButtonState(true);
-        view.setExecuteButtonState(true);
         view.setConfigurationName(configuration.getName());
 
         final ConfigurationPage configurationPage = configuration.getType().getConfigurationPage();
@@ -90,14 +88,6 @@ public class EditConfigurationsPresenter implements EditConfigurationsView.Actio
         if (selectedConfiguration != null) {
             commandManager.removeConfiguration(selectedConfiguration);
             refreshView();
-        }
-    }
-
-    @Override
-    public void onExecuteClicked() {
-        final CommandConfiguration selectedConfiguration = view.getSelectedConfiguration();
-        if (selectedConfiguration != null) {
-            commandManager.execute(selectedConfiguration);
         }
     }
 

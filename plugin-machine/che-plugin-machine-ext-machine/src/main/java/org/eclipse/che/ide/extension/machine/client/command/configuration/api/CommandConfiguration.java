@@ -31,5 +31,5 @@ public interface CommandConfiguration {
     CommandType getType();
 
     /** Returns command line to execute in machine. */
-    String getCommand();
+    String toCommandLine();
 }

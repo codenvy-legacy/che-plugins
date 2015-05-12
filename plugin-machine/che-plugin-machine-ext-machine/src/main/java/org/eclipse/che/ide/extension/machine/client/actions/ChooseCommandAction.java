@@ -20,7 +20,6 @@ import org.eclipse.che.ide.api.action.ActionManager;
 import org.eclipse.che.ide.api.action.CustomComponentAction;
 import org.eclipse.che.ide.api.action.DefaultActionGroup;
 import org.eclipse.che.ide.api.action.Presentation;
-import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.MachineResources;
 import org.eclipse.che.ide.extension.machine.client.command.configuration.api.CommandConfiguration;
@@ -29,6 +28,7 @@ import org.eclipse.che.ide.ui.dropdown.DropDownListFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -44,7 +44,6 @@ public class ChooseCommandAction extends Action implements CustomComponentAction
 
     public static final String GROUP_COMMANDS = "CommandsGroup";
 
-    private final AppContext           appContext;
     private final DropDownHeaderWidget dropDownHeaderWidget;
     private final DropDownListFactory  configRunnerFactory;
     private final MachineResources     resources;
@@ -56,12 +55,10 @@ public class ChooseCommandAction extends Action implements CustomComponentAction
     @Inject
     public ChooseCommandAction(MachineResources resources,
                                MachineLocalizationConstant locale,
-                               AppContext appContext,
                                ActionManager actionManager,
                                DropDownListFactory dropDownListFactory) {
         super(locale.chooseCommandControlTitle(), locale.chooseCommandControlDescription(), null);
 
-        this.appContext = appContext;
         this.dropDownHeaderWidget = dropDownListFactory.createList(GROUP_COMMANDS_LIST);
         this.resources = resources;
         this.actionManager = actionManager;
@@ -85,13 +82,13 @@ public class ChooseCommandAction extends Action implements CustomComponentAction
     }
 
     /**
-     * Adds command configurations to the list.
+     * Sets command configurations to the list.
      *
      * @param commandConfigurations
-     *         list of command configurations
+     *         collection of command configurations to set
      */
-    public void addProjectRunners(@Nonnull List<CommandConfiguration> commandConfigurations) {
-        DefaultActionGroup commandsList = (DefaultActionGroup)actionManager.getAction(GROUP_COMMANDS_LIST);
+    public void setProjectRunners(@Nonnull Collection<CommandConfiguration> commandConfigurations) {
+        final DefaultActionGroup commandsList = (DefaultActionGroup)actionManager.getAction(GROUP_COMMANDS_LIST);
 
         commands.clear();
 
@@ -102,9 +99,7 @@ public class ChooseCommandAction extends Action implements CustomComponentAction
             projectActions.add(configRunnerFactory.createElement(configuration.getName(), resources.command(), dropDownHeaderWidget));
         }
 
-        commandsList.addSeparator();
         commandsList.addAll(projectActions);
-        commandsList.addSeparator();
 
         commands.addAll(commandConfigurations);
 
@@ -112,8 +107,8 @@ public class ChooseCommandAction extends Action implements CustomComponentAction
     }
 
     private void clearRunnerActions(@Nonnull DefaultActionGroup runnersList) {
-        for (Action a : projectActions.getChildActionsOrStubs()) {
-            runnersList.remove(a);
+        for (Action action : projectActions.getChildActionsOrStubs()) {
+            runnersList.remove(action);
         }
     }
 

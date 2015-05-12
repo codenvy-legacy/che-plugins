@@ -47,7 +47,7 @@ public class MavenCommandConfiguration implements CommandConfiguration {
     }
 
     @Override
-    public String getCommand() {
+    public String toCommandLine() {
         return "uname";
     }
 

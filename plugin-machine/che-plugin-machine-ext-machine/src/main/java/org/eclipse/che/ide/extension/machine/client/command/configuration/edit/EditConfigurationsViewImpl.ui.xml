@@ -35,7 +35,6 @@
                     <g:FlowPanel>
                         <g:Button ui:field="addButton" text="Add"/>
                         <g:Button ui:field="removeButton" text="Remove"/>
-                        <g:Button ui:field="executeButton" text="Execute"/>
                     </g:FlowPanel>
                 </g:north>
                 <g:center>

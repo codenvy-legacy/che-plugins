@@ -18,7 +18,9 @@ import org.eclipse.che.ide.api.action.Action;
 import org.eclipse.che.ide.api.action.ActionEvent;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
-import org.eclipse.che.ide.extension.machine.client.command.execute.ExecuteCommandPresenter;
+import org.eclipse.che.ide.extension.machine.client.MachineResources;
+import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandManager;
+import org.eclipse.che.ide.extension.machine.client.command.configuration.api.CommandConfiguration;
 
 /**
  * Action to execute command selected from command list.
@@ -27,18 +29,22 @@ import org.eclipse.che.ide.extension.machine.client.command.execute.ExecuteComma
  */
 @Singleton
 public class RunCommandAction extends Action {
-    private final AppContext                  appContext;
-    private final ExecuteCommandPresenter     presenter;
-    private final AnalyticsEventLogger        eventLogger;
+    private final AppContext              appContext;
+    private final ChooseCommandAction     chooseCommandAction;
+    private final CommandManager          commandManager;
+    private final AnalyticsEventLogger eventLogger;
 
     @Inject
-    public RunCommandAction(ExecuteCommandPresenter presenter,
-                            MachineLocalizationConstant localizationConstant,
+    public RunCommandAction(MachineLocalizationConstant localizationConstant,
+                            MachineResources resources,
                             AppContext appContext,
+                            ChooseCommandAction chooseCommandAction,
+                            CommandManager commandManager,
                             AnalyticsEventLogger eventLogger) {
-        super(localizationConstant.runCommandControlTitle(), localizationConstant.runCommandControlDescription(), null);
-        this.presenter = presenter;
+        super(localizationConstant.runCommandControlTitle(), localizationConstant.runCommandControlDescription(), null, resources.run());
         this.appContext = appContext;
+        this.chooseCommandAction = chooseCommandAction;
+        this.commandManager = commandManager;
         this.eventLogger = eventLogger;
     }
 
@@ -52,6 +58,10 @@ public class RunCommandAction extends Action {
     @Override
     public void actionPerformed(ActionEvent e) {
         eventLogger.log(this);
-        presenter.show();
+
+        final CommandConfiguration commandConfiguration = chooseCommandAction.selectEnvironment();
+        if (commandConfiguration != null) {
+            commandManager.execute(commandConfiguration);
+        }
     }
 }

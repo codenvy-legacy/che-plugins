@@ -25,6 +25,9 @@ public interface MachineResources extends ClientBundle {
     @Source("images/command.svg")
     SVGResource command();
 
+    @Source("images/run.svg")
+    SVGResource run();
+
     @Source("images/console/clear-logs.svg")
     SVGResource clear();
 

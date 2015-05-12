@@ -62,8 +62,6 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
     @UiField
     Button                                   removeButton;
     @UiField
-    Button                                   executeButton;
-    @UiField
     TextBox                                  commandConfigurationName;
     @UiField
     SimplePanel                              contentPanel;
@@ -109,13 +107,6 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
             }
         });
         removeButton.setEnabled(false);
-
-        executeButton.addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent clickEvent) {
-                delegate.onExecuteClicked();
-            }
-        });
 
         tree.setTreeEventHandler(new Tree.Listener<CommandDataAdapter.CommandTreeNode>() {
             @Override
@@ -191,7 +182,6 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
     private void resetView() {
         addButton.setEnabled(false);
         removeButton.setEnabled(false);
-        executeButton.setEnabled(false);
         commandConfigurationName.setText("");
         contentPanel.clear();
     }
@@ -245,11 +235,6 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
     @Override
     public void setRemoveButtonState(boolean enabled) {
         removeButton.setEnabled(enabled);
-    }
-
-    @Override
-    public void setExecuteButtonState(boolean enabled) {
-        executeButton.setEnabled(enabled);
     }
 
     @Nullable

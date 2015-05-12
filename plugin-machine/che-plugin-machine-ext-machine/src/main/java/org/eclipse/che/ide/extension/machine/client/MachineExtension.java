@@ -34,6 +34,7 @@ import org.eclipse.che.ide.extension.machine.client.actions.EditConfigurationsAc
 import org.eclipse.che.ide.extension.machine.client.actions.ExecuteCommandAction;
 import org.eclipse.che.ide.extension.machine.client.actions.RunCommandAction;
 import org.eclipse.che.ide.extension.machine.client.actions.TerminateMachineAction;
+import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandManager;
 import org.eclipse.che.ide.extension.machine.client.console.ClearConsoleAction;
 import org.eclipse.che.ide.extension.machine.client.console.MachineConsolePresenter;
 import org.eclipse.che.ide.extension.machine.client.console.MachineConsoleToolbar;
@@ -60,18 +61,22 @@ public class MachineExtension {
     public static final String GROUP_COMMANDS_LIST           = "CommandsListGroup";
 
     @Inject
-    public MachineExtension(MachineResources machineResources,
-                            EventBus eventBus,
+    public MachineExtension(final MachineResources machineResources,
+                            final EventBus eventBus,
                             final AppContext appContext,
                             final MachineServiceClient machineServiceClient,
                             final MachineManager machineManager,
-                            final MachineConsolePresenter machineConsolePresenter) {
+                            final CommandManager commandManager,
+                            final MachineConsolePresenter machineConsolePresenter,
+                            final ChooseCommandAction chooseCommandAction) {
 
         machineResources.machine().ensureInjected();
 
         eventBus.addHandler(ProjectActionEvent.TYPE, new ProjectActionHandler() {
             @Override
             public void onProjectOpened(ProjectActionEvent event) {
+                chooseCommandAction.setProjectRunners(commandManager.getCommandConfigurations());
+
                 final String projectPath = event.getProject().getPath();
 
                 // start machine and bind project
@@ -131,7 +136,6 @@ public class MachineExtension {
 
         machineToolbarGroup.add(chooseCommandAction);
         machineToolbarGroup.add(runCommandAction);
-
 
         // add custom list of environments
         final DefaultActionGroup commandsList = new DefaultActionGroup(GROUP_COMMANDS_LIST, false, actionManager);
