@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.runner.client.tabs.terminal.container;
 
-import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.gwt.user.client.ui.IsWidget;
@@ -31,12 +30,12 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 
 import static org.eclipse.che.ide.ext.runner.client.models.Runner.Status.RUNNING;
 import static org.eclipse.che.ide.ext.runner.client.models.Runner.Status.STOPPED;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -53,9 +52,9 @@ import static org.mockito.Mockito.when;
 @RunWith(GwtMockitoTestRunner.class)
 public class TerminalContainerPresenterTest {
     @Captor
-    private ArgumentCaptor<RunnerApplicationStatusEventHandler> statusEventHandlerArgumentCaptor;
+    private ArgumentCaptor<RunnerApplicationStatusEventHandler> appEventHandlerCaptor;
     @Captor
-    private ArgumentCaptor<ScheduledCommand>                    scheduledCommandArgumentCaptor;
+    private ArgumentCaptor<ScheduledCommand>                    scheduledCommandCaptor;
 
     //variables for constructor
     @Mock
@@ -83,9 +82,9 @@ public class TerminalContainerPresenterTest {
 
     @Test
     public void terminalIsNotRefreshedIfItIsNull() throws Exception {
-        verify(eventBus).addHandler((Event.Type<RunnerApplicationStatusEventHandler>)any(), statusEventHandlerArgumentCaptor.capture());
+        verify(eventBus).addHandler(Matchers.<Event.Type<RunnerApplicationStatusEventHandler>>anyObject(), appEventHandlerCaptor.capture());
 
-        RunnerApplicationStatusEventHandler handlerValue = statusEventHandlerArgumentCaptor.getValue();
+        RunnerApplicationStatusEventHandler handlerValue = appEventHandlerCaptor.getValue();
         handlerValue.onRunnerStatusChanged(runner);
 
         verify(terminal, never()).setVisible(anyBoolean());
@@ -99,9 +98,9 @@ public class TerminalContainerPresenterTest {
 
         when(selectionManager.getRunner()).thenReturn(null);
 
-        verify(eventBus).addHandler((Event.Type<RunnerApplicationStatusEventHandler>)any(), statusEventHandlerArgumentCaptor.capture());
+        verify(eventBus).addHandler(Matchers.<Event.Type<RunnerApplicationStatusEventHandler>>anyObject(), appEventHandlerCaptor.capture());
 
-        RunnerApplicationStatusEventHandler handlerValue = statusEventHandlerArgumentCaptor.getValue();
+        RunnerApplicationStatusEventHandler handlerValue = appEventHandlerCaptor.getValue();
         handlerValue.onRunnerStatusChanged(runner);
 
         verify(terminal, never()).setVisible(anyBoolean());
@@ -117,9 +116,9 @@ public class TerminalContainerPresenterTest {
 
         when(selectionManager.getRunner()).thenReturn(selectedRunner);
 
-        verify(eventBus).addHandler((Event.Type<RunnerApplicationStatusEventHandler>)any(), statusEventHandlerArgumentCaptor.capture());
+        verify(eventBus).addHandler(Matchers.<Event.Type<RunnerApplicationStatusEventHandler>>anyObject(), appEventHandlerCaptor.capture());
 
-        RunnerApplicationStatusEventHandler handlerValue = statusEventHandlerArgumentCaptor.getValue();
+        RunnerApplicationStatusEventHandler handlerValue = appEventHandlerCaptor.getValue();
         handlerValue.onRunnerStatusChanged(runner);
 
         verify(terminal, never()).setVisible(anyBoolean());
@@ -129,20 +128,20 @@ public class TerminalContainerPresenterTest {
 
     @Test
     public void terminalShouldBeVisibleIfStatusOfRunnerIsRunning() throws Exception {
+        when(runner.isAlive()).thenReturn(true);
         presenter.onSelectionChanged(Selection.RUNNER);
+        reset(terminal);
 
         when(selectionManager.getRunner()).thenReturn(runner);
         when(runner.getStatus()).thenReturn(RUNNING);
 
-        verify(eventBus).addHandler((Event.Type<RunnerApplicationStatusEventHandler>)any(), statusEventHandlerArgumentCaptor.capture());
+        verify(eventBus).addHandler(Matchers.<Event.Type<RunnerApplicationStatusEventHandler>>anyObject(), appEventHandlerCaptor.capture());
 
-        RunnerApplicationStatusEventHandler handlerValue = statusEventHandlerArgumentCaptor.getValue();
+        RunnerApplicationStatusEventHandler handlerValue = appEventHandlerCaptor.getValue();
         handlerValue.onRunnerStatusChanged(runner);
 
-        verify(Scheduler.get()).scheduleDeferred(scheduledCommandArgumentCaptor.capture());
-        ScheduledCommand schedulerValue = scheduledCommandArgumentCaptor.getValue();
-        schedulerValue.execute();
-
+        verify(terminal).setVisible(true);
+        verify(terminal).setUnavailableLabelVisible(true);
         verify(terminal).setUrl(runner);
     }
 
@@ -153,9 +152,9 @@ public class TerminalContainerPresenterTest {
         when(selectionManager.getRunner()).thenReturn(runner);
         when(runner.getStatus()).thenReturn(STOPPED);
 
-        verify(eventBus).addHandler((Event.Type<RunnerApplicationStatusEventHandler>)any(), statusEventHandlerArgumentCaptor.capture());
+        verify(eventBus).addHandler(Matchers.<Event.Type<RunnerApplicationStatusEventHandler>>anyObject(), appEventHandlerCaptor.capture());
 
-        RunnerApplicationStatusEventHandler handlerValue = statusEventHandlerArgumentCaptor.getValue();
+        RunnerApplicationStatusEventHandler handlerValue = appEventHandlerCaptor.getValue();
         handlerValue.onRunnerStatusChanged(runner);
 
         verify(terminal, never()).setUrl(runner);
@@ -219,7 +218,7 @@ public class TerminalContainerPresenterTest {
         verify(selectionManager, times(2)).getRunner();
 
         verify(terminal).setVisible(false);
-        verify(terminal, times(2)).setUnavailableLabelVisible(false);
+        verify(terminal).setUnavailableLabelVisible(false);
         verify(runner).isAlive();
         verify(terminal).setVisible(true);
     }
@@ -235,10 +234,8 @@ public class TerminalContainerPresenterTest {
         verify(selectionManager, times(2)).getRunner();
 
         verify(terminal, times(2)).setVisible(false);
-        verify(terminal).setUnavailableLabelVisible(false);
+        verify(terminal, times(2)).setUnavailableLabelVisible(false);
         verify(runner).isAlive();
-
-        verify(terminal).setUnavailableLabelVisible(true);
     }
 
     @Test

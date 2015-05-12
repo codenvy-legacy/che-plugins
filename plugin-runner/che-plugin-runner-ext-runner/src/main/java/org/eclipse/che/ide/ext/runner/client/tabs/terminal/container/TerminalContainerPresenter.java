@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.runner.client.tabs.terminal.container;
 
-import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.inject.Inject;
@@ -84,12 +83,9 @@ public class TerminalContainerPresenter implements TerminalContainer,
                                     final boolean isRunner = RUNNING.equals(runner.getStatus());
 
                                     if (isRunner) {
-                                        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-                                            @Override
-                                            public void execute() {
-                                                terminal.setUrl(runner);
-                                            }
-                                        });
+                                        showTerminal(runner);
+
+                                        terminal.setUrl(runner);
                                     }
                                 }
                             }
@@ -127,7 +123,7 @@ public class TerminalContainerPresenter implements TerminalContainer,
             boolean isAnyAppRun = runner.isAlive();
 
             terminal.setVisible(isAnyAppRun);
-            terminal.setUnavailableLabelVisible(!isAnyAppRun);
+            terminal.setUnavailableLabelVisible(isAnyAppRun);
         }
     }
 
