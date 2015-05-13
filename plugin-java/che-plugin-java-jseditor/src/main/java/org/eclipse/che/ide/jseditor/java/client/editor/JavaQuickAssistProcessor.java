@@ -137,28 +137,6 @@ public class JavaQuickAssistProcessor implements QuickAssistProcessor {
                                 final TextEditor textEditor,
                                 final int offset,
                                 final List<Problem> annotations) {
-//        final JsoArray<ProblemLocationMessage> problems = JsoArray.create();
-//        // collect problem locations and corrections from marker annotations
-//        if (annotations != null) {
-//            for (final Entry<Annotation, Position> entry : annotations.entrySet()) {
-//                final Annotation annotation = entry.getKey();
-//                if (annotation instanceof JavaAnnotation) {
-//                    final ProblemLocationMessage problemLocation = getProblemLocation((JavaAnnotation)annotation, entry.getValue());
-//                    if (problemLocation != null) {
-//                        problems.add(problemLocation);
-//                    }
-//                }
-//            }
-//        }
-//        worker.computeQAProposals(textEditor.getDocument().getContents(), range.getStartOffset(), range.getLength(),
-//                                  false, problems, textEditor.getEditorInput().getFile().getPath(),
-//                                  new JavaParserWorker.WorkerCallback<WorkerProposal>() {
-//                                      @Override
-//                                      public void onResult(final Array<WorkerProposal> problems) {
-//                                          final List<CompletionProposal> proposals = buildProposals(problems);
-//                                          callback.proposalComputed(proposals);
-//                                      }
-//                                  });
         final VirtualFile file = textEditor.getEditorInput().getFile();
         final String projectPath = file.getProject().getPath();
         String fqn = JavaSourceFolderUtil.getFQNForFile(file);
@@ -176,48 +154,6 @@ public class JavaQuickAssistProcessor implements QuickAssistProcessor {
             }
         });
     }
-
-//    private static ProblemLocationMessage getProblemLocation(final JavaAnnotation javaAnnotation, final Position position) {
-//        final int problemId = javaAnnotation.getId();
-//        if (problemId != -1 && position != null) {
-//            final MessagesImpls.ProblemLocationMessageImpl problemLocations = MessagesImpls.ProblemLocationMessageImpl.make();
-//
-//            problemLocations.setOffset(position.getOffset()).setLength(position.getLength());
-//            problemLocations.setIsError(ProblemAnnotation.ERROR_ANNOTATION_TYPE.equals(javaAnnotation.getType()));
-//
-//            final String markerType = javaAnnotation.getMarkerType();
-//            if (markerType != null) {
-//                problemLocations.setMarkerType(markerType);
-//            } else {
-//                problemLocations.setMarkerType(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER);
-//            }
-//
-//            problemLocations.setProblemId(javaAnnotation.getId());
-//
-//            if (javaAnnotation.getArguments() != null) {
-//                problemLocations.setProblemArguments(JsoArray.from(javaAnnotation.getArguments()));
-//            } else {
-//                problemLocations.setProblemArguments(null);
-//            }
-//
-//            return problemLocations;
-//        } else {
-//            return null;
-//        }
-//    }
-
-//    private List<CompletionProposal> buildProposals(final Array<WorkerProposal> problems) {
-//        final List<CompletionProposal> proposals = new ArrayList<>();
-//        for (final WorkerProposal problem : problems.asIterable()) {
-//            final String style = JavaCodeAssistProcessor.insertStyle(javaResources, problem.displayText());
-//            final Icon icon = new Icon("", JavaCodeAssistProcessor.getImage(javaResources, problem.image()));
-//            final CompletionProposal proposal = new JavaCompletionProposal(problem.id(), style, icon,
-//                                                                           worker, respons.getSessionId());
-//            proposals.add(proposal);
-//        }
-//        return proposals;
-//    }
-
 
     private int collectQuickFixableAnnotations(final LinearRange lineRange,
                                                Document document, final Map<Annotation, Position> annotations,

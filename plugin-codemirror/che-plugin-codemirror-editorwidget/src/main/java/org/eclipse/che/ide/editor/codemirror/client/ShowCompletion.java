@@ -23,6 +23,7 @@ import elemental.util.Timer;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArrayMixed;
 
+import org.eclipse.che.ide.api.texteditor.HandlesUndoRedo;
 import org.eclipse.che.ide.editor.codemirrorjso.client.CMEditorOverlay;
 import org.eclipse.che.ide.editor.codemirrorjso.client.CMKeymapOverlay;
 import org.eclipse.che.ide.editor.codemirrorjso.client.CMPositionOverlay;
@@ -199,34 +200,34 @@ public final class ShowCompletion {
     }
 
     public void showCompletionProposals() {
-         if (! editorWidget.getEditorOverlay().hasShowHint()) {
-             // no support for hints
-             return;
-         }
-         final CMHintFunctionOverlay hintAuto = CMHintFunctionOverlay.createFromName(editorWidget.getCodeMirror(), "auto");
-         final CMHintResultsOverlay result = hintAuto.apply(editorWidget.getEditorOverlay());
-         if (result != null) {
-             final List<String> proposals = new ArrayList<>();
-             final JsArrayMixed list = result.getList();
-             int nonStrings = 0;
-             //jsarray aren't iterable
-             for (int i = 0; i < list.length(); i++) {
-                 if (result.isString(i)) {
-                     proposals.add(result.getCompletionItemAsString(i));
-                 } else {
-                     nonStrings++;
-                 }
-             }
-             LOG.info("CM Completion returned " + list.length() + " items, of which " + nonStrings + " were not strings.");
-    
-             showCompletionProposals(proposals, result.getFrom(), result.getTo());
-         }
+        if (!editorWidget.getEditorOverlay().hasShowHint()) {
+            // no support for hints
+            return;
+        }
+        final CMHintFunctionOverlay hintAuto = CMHintFunctionOverlay.createFromName(editorWidget.getCodeMirror(), "auto");
+        final CMHintResultsOverlay result = hintAuto.apply(editorWidget.getEditorOverlay());
+        if (result != null) {
+            final List<String> proposals = new ArrayList<>();
+            final JsArrayMixed list = result.getList();
+            int nonStrings = 0;
+            //jsarray aren't iterable
+            for (int i = 0; i < list.length(); i++) {
+                if (result.isString(i)) {
+                    proposals.add(result.getCompletionItemAsString(i));
+                } else {
+                    nonStrings++;
+                }
+            }
+            LOG.info("CM Completion returned " + list.length() + " items, of which " + nonStrings + " were not strings.");
+
+            showCompletionProposals(proposals, result.getFrom(), result.getTo());
+        }
     }
 
     private void showCompletionProposals(final List<String> proposals,
                                          final CMPositionOverlay from,
                                          final CMPositionOverlay to) {
-        if (! editorWidget.getEditorOverlay().hasShowHint() || proposals == null || proposals.isEmpty()) {
+        if (!editorWidget.getEditorOverlay().hasShowHint() || proposals == null || proposals.isEmpty()) {
             // no support for hints or no proposals
             return;
         }
@@ -240,7 +241,7 @@ public final class ShowCompletion {
                                                  final CMHintOptionsOverlay options) {
                 final CMHintResultsOverlay result = CMHintResultsOverlay.create();
                 final JsArrayMixed list = result.getList();
-                for (final String proposal: proposals) {
+                for (final String proposal : proposals) {
 
 
                     final CMCompletionObjectOverlay completionObject = JavaScriptObject.createObject().cast();
@@ -273,17 +274,28 @@ public final class ShowCompletion {
 
                     @Override
                     public void onCompletion(final Completion completion) {
-                        EmbeddedDocument document = editorWidget.getDocument();
-                        // apply the completion
-                        completion.apply(document);
-                        // set the selection
-                        final LinearRange selection = completion.getSelection(document);
-                        if (selection != null) {
-                            editorWidget.getDocument().setSelectedRange(selection, true);
+                        HandlesUndoRedo undoRedo = editorWidget.getUndoRedo();
+                        try {
+                            if(undoRedo != null){
+                                undoRedo.beginCompoundChange();
+                            }
+
+                            EmbeddedDocument document = editorWidget.getDocument();
+                            // apply the completion
+                            completion.apply(document);
+                            // set the selection
+                            final LinearRange selection = completion.getSelection(document);
+                            if (selection != null) {
+                                editorWidget.getDocument().setSelectedRange(selection, true);
+                            }
+                        } finally {
+                            if (undoRedo != null) {
+                                undoRedo.endCompoundChange();
+                            }
                         }
                     }
                 };
-                if( proposal instanceof CompletionProposalExtension){
+                if (proposal instanceof CompletionProposalExtension) {
                     ((CompletionProposalExtension)proposal).getCompletion(insert, callback);
                     insert = true; // default
                 } else {
@@ -303,7 +315,7 @@ public final class ShowCompletion {
                 final SpanElement icon = Elements.createSpanElement(completionCss.proposalIcon());
                 final SpanElement label = Elements.createSpanElement(completionCss.proposalLabel());
                 final SpanElement group = Elements.createSpanElement(completionCss.proposalGroup());
-                if (proposal.getIcon() != null && proposal.getIcon().getSVGImage() != null){
+                if (proposal.getIcon() != null && proposal.getIcon().getSVGImage() != null) {
                     icon.appendChild((Node)proposal.getIcon().getSVGImage().getElement());
                 } else if (proposal.getIcon() != null && proposal.getIcon().getImage() != null) {
                     icon.appendChild((Node)proposal.getIcon().getImage().getElement());
@@ -331,7 +343,7 @@ public final class ShowCompletion {
     }
 
     private void setupShowAdditionalInfo(final CMHintResultsOverlay data,
-                                                final AdditionalInfoCallback additionalInfoCallback) {
+                                         final AdditionalInfoCallback additionalInfoCallback) {
 
         if (additionalInfoCallback != null) {
             final CodeMirrorOverlay codeMirror = editorWidget.getCodeMirror();
@@ -345,7 +357,7 @@ public final class ShowCompletion {
                     final JsElement itemElement = param.getObject(1);
                     final ClientRect itemRect = itemElement.getBoundingClientRect();
                     Element popup = itemElement;
-                    while (popup.getParentElement() != null && ! popup.getParentElement().equals(bodyElement)) {
+                    while (popup.getParentElement() != null && !popup.getParentElement().equals(bodyElement)) {
                         popup = popup.getParentElement();
                     }
                     final ClientRect popupRect = popup.getBoundingClientRect();
