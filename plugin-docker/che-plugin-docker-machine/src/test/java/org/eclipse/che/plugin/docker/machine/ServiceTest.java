@@ -112,16 +112,6 @@ public class ServiceTest {
 
         docker = new DockerConnector(authConfigs);
 
-        memberDao = mock(MemberDao.class);
-
-        snapshotStorage = mock(SnapshotStorage.class);
-
-        dockerNodeFactory = mock(DockerNodeFactory.class);
-
-        dockerNode = mock(DockerNode.class);
-
-        eventService = mock(EventService.class);
-
         machineRegistry = new MachineRegistry();
 
         assertTrue(pull("registry", "latest", null));
@@ -143,6 +133,16 @@ public class ServiceTest {
 
     @BeforeMethod
     public void setUp() throws Exception {
+        memberDao = mock(MemberDao.class);
+
+        snapshotStorage = mock(SnapshotStorage.class);
+
+        dockerNodeFactory = mock(DockerNodeFactory.class);
+
+        dockerNode = mock(DockerNode.class);
+
+        eventService = mock(EventService.class);
+
         dockerImageProvider = new DockerImageProvider(docker, "localhost:5000", dockerNodeFactory);
 
         machineManager = new MachineManager(snapshotStorage,
@@ -186,6 +186,10 @@ public class ServiceTest {
 
         when(dockerNodeFactory.createNode(anyString())).thenReturn(dockerNode);
         when(dockerNode.getProjectsFolder()).thenReturn(System.getProperty("user.dir"));
+        when(memberDao.getWorkspaceMember("wsId", USER)).thenReturn(new Member()
+                                                                            .withWorkspaceId("wsId")
+                                                                            .withUserId(USER)
+                                                                            .withRoles(Collections.singletonList("workspace/developer")));
     }
 
     @AfterMethod
@@ -197,11 +201,6 @@ public class ServiceTest {
 
     @Test
     public void createFromRecipeTest() throws Exception {
-        when(memberDao.getWorkspaceMember("wsId", USER)).thenReturn(new Member()
-                                                                            .withWorkspaceId("wsId")
-                                                                            .withUserId(USER)
-                                                                            .withRoles(Collections.singletonList("workspace/developer")));
-
         final MachineDescriptor machine = machineService.createMachineFromRecipe(
                 dtoFactory.createDto(CreateMachineFromRecipe.class)
                           .withType("docker")
@@ -224,10 +223,6 @@ public class ServiceTest {
         when(snapshot.getWorkspaceId()).thenReturn("wsId");
         when(snapshot.getImageKey()).thenReturn(pushedImage);
         when(snapshot.getOwner()).thenReturn(USER);
-        when(memberDao.getWorkspaceMember("wsId", USER)).thenReturn(new Member()
-                                                                            .withWorkspaceId("wsId")
-                                                                            .withUserId(USER)
-                                                                            .withRoles(Collections.singletonList("workspace/developer")));
 
         final MachineDescriptor machine = machineService
                 .createMachineFromSnapshot(dtoFactory.createDto(CreateMachineFromSnapshot.class).withSnapshotId(SNAPSHOT_ID));
