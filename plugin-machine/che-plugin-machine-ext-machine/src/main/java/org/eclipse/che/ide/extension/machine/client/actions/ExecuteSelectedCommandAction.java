@@ -23,25 +23,28 @@ import org.eclipse.che.ide.extension.machine.client.command.configuration.Comman
 import org.eclipse.che.ide.extension.machine.client.command.configuration.api.CommandConfiguration;
 
 /**
- * Action to execute command selected from command list.
+ * Action to execute command which is selected in command list.
  *
  * @author Artem Zatsarynnyy
  */
 @Singleton
-public class RunCommandAction extends Action {
-    private final AppContext              appContext;
-    private final ChooseCommandAction     chooseCommandAction;
-    private final CommandManager          commandManager;
+public class ExecuteSelectedCommandAction extends Action {
+    private final AppContext           appContext;
+    private final ChooseCommandAction  chooseCommandAction;
+    private final CommandManager       commandManager;
     private final AnalyticsEventLogger eventLogger;
 
     @Inject
-    public RunCommandAction(MachineLocalizationConstant localizationConstant,
-                            MachineResources resources,
-                            AppContext appContext,
-                            ChooseCommandAction chooseCommandAction,
-                            CommandManager commandManager,
-                            AnalyticsEventLogger eventLogger) {
-        super(localizationConstant.runCommandControlTitle(), localizationConstant.runCommandControlDescription(), null, resources.run());
+    public ExecuteSelectedCommandAction(MachineLocalizationConstant localizationConstant,
+                                        MachineResources resources,
+                                        AppContext appContext,
+                                        ChooseCommandAction chooseCommandAction,
+                                        CommandManager commandManager,
+                                        AnalyticsEventLogger eventLogger) {
+        super(localizationConstant.executeSelectedCommandControlTitle(),
+              localizationConstant.executeSelectedCommandControlDescription(),
+              null,
+              resources.execute());
         this.appContext = appContext;
         this.chooseCommandAction = chooseCommandAction;
         this.commandManager = commandManager;

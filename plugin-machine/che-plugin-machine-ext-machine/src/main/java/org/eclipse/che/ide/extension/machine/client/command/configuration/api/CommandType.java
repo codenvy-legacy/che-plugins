@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.machine.client.command.configuration.api;
 
+import org.vectomatic.dom.svg.ui.SVGResource;
+
 import javax.annotation.Nonnull;
 
 /**
@@ -23,9 +25,13 @@ public interface CommandType {
     @Nonnull
     String getId();
 
-    /** Returns name of this command type. */
+    /** Returns the display name of the command type. */
     @Nonnull
     String getDisplayName();
+
+    /** Returns the icon used to represent the command type. */
+    @Nonnull
+    SVGResource getIcon();
 
     /** Returns the {@link ConfigurationPage} that allows to configure specific command parameters. */
     @Nonnull

@@ -31,12 +31,12 @@ import org.eclipse.che.ide.ui.window.Window;
 import javax.annotation.Nonnull;
 
 /**
- * The implementation of {@link ExecuteCommandView}.
+ * The implementation of {@link ExecuteArbitraryCommandView}.
  *
  * @author Artem Zatsarynnyy
  */
 @Singleton
-public class ExecuteCommandViewImpl extends Window implements ExecuteCommandView {
+public class ExecuteArbitraryCommandViewImpl extends Window implements ExecuteArbitraryCommandView {
 
     private static final ExecuteCommandViewImplUiBinder UI_BINDER = GWT.create(ExecuteCommandViewImplUiBinder.class);
 
@@ -51,7 +51,7 @@ public class ExecuteCommandViewImpl extends Window implements ExecuteCommandView
     private Button         executeButton;
 
     @Inject
-    protected ExecuteCommandViewImpl(MachineResources resources, MachineLocalizationConstant locale) {
+    protected ExecuteArbitraryCommandViewImpl(MachineResources resources, MachineLocalizationConstant locale) {
         this.machineResources = resources;
         this.locale = locale;
 
@@ -136,6 +136,6 @@ public class ExecuteCommandViewImpl extends Window implements ExecuteCommandView
     protected void onClose() {
     }
 
-    interface ExecuteCommandViewImplUiBinder extends UiBinder<Widget, ExecuteCommandViewImpl> {
+    interface ExecuteCommandViewImplUiBinder extends UiBinder<Widget, ExecuteArbitraryCommandViewImpl> {
     }
 }

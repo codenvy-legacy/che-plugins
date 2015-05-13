@@ -64,8 +64,11 @@ public interface EditConfigurationsView extends View<EditConfigurationsView.Acti
         /** Called when 'Close' button is clicked. */
         void onCloseClicked();
 
-        /** Called when 'Name' field is changed. */
-        void onNameChanged(String name);
+        /** Called when 'Add' button is clicked. */
+        void onAddClicked();
+
+        /** Called when 'Delete' button is clicked. */
+        void onDeleteClicked();
 
         /**
          * Called when some command type is selected.
@@ -83,10 +86,7 @@ public interface EditConfigurationsView extends View<EditConfigurationsView.Acti
          */
         void onConfigurationSelected(CommandConfiguration configuration);
 
-        /** Called when 'Add' button is clicked. */
-        void onAddClicked();
-
-        /** Called when 'Delete' button is clicked. */
-        void onDeleteClicked();
+        /** Called when 'Name' field is changed. */
+        void onNameChanged(String name);
     }
 }

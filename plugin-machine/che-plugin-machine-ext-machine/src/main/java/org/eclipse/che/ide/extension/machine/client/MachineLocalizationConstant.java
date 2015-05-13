@@ -31,11 +31,11 @@ public interface MachineLocalizationConstant extends Messages {
     @Key("mainMenu.run.name")
     String mainMenuRunName();
 
-    @Key("control.executeCommand.text")
-    String executeCommandControlTitle();
+    @Key("control.executeArbitraryCommand.text")
+    String executeArbitraryCommandControlTitle();
 
-    @Key("control.executeCommand.description")
-    String executeCommandControlDescription();
+    @Key("control.executeArbitraryCommand.description")
+    String executeArbitraryCommandControlDescription();
 
     @Key("control.chooseCommand.text")
     String chooseCommandControlTitle();
@@ -43,11 +43,11 @@ public interface MachineLocalizationConstant extends Messages {
     @Key("control.chooseCommand.description")
     String chooseCommandControlDescription();
 
-    @Key("control.runCommand.text")
-    String runCommandControlTitle();
+    @Key("control.runSelectedCommand.text")
+    String executeSelectedCommandControlTitle();
 
-    @Key("control.runCommand.description")
-    String runCommandControlDescription();
+    @Key("control.runSelectedCommand.description")
+    String executeSelectedCommandControlDescription();
 
     @Key("control.editConfigurations.text")
     String editConfigurationsControlTitle();
@@ -76,7 +76,7 @@ public interface MachineLocalizationConstant extends Messages {
     String machineConsoleViewTooltip();
 
 
-    /* ExecuteCommandView */
+    /* ExecuteArbitraryCommandView */
     @Key("view.executeCommand.title")
     String executeCommandViewTitle();
 

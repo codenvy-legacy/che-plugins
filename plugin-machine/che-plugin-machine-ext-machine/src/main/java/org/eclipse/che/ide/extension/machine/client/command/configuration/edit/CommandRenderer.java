@@ -36,12 +36,10 @@ public class CommandRenderer implements NodeRenderer<CommandDataAdapter.CommandT
 
     /** The tree CSS resource. */
     private final Css       css;
-    private final Resources resources;
 
     @Inject
     public CommandRenderer(final Resources resources) {
         this.css = resources.getCss();
-        this.resources = resources;
 
         resources.getCss().ensureInjected();
     }
@@ -58,13 +56,17 @@ public class CommandRenderer implements NodeRenderer<CommandDataAdapter.CommandT
         SVGResource iconResource = null;
 
         if (data.getData() instanceof CommandType) {
+            final CommandType type = (CommandType)data.getData();
+
             iconClassName = css.commandTypeIcon();
             labelClassName = css.commandTypeLabel();
-            iconResource = resources.commandType();
+            iconResource = type.getIcon();
         } else if (data.getData() instanceof CommandConfiguration) {
+            final CommandConfiguration conf = (CommandConfiguration)data.getData();
+
             iconClassName = css.commandConfigurationIcon();
             labelClassName = css.commandConfigurationLabel();
-            iconResource = resources.commandConfiguration();
+            iconResource = conf.getType().getIcon();
         }
 
         return renderNodeContents(css, data.getName(), iconClassName, true, labelClassName, iconResource);
@@ -75,16 +77,19 @@ public class CommandRenderer implements NodeRenderer<CommandDataAdapter.CommandT
         SVGResource iconResource = null;
         String itemTypeClass = null;
         if (treeNode.getData() instanceof CommandType) {
-            iconResource = resources.commandType();
+            final CommandType type = (CommandType)treeNode.getData();
+
+            iconResource = type.getIcon();
             itemTypeClass = css.commandTypeIcon();
         } else if (treeNode.getData() instanceof CommandConfiguration) {
-            iconResource = resources.commandConfiguration();
+            final CommandConfiguration conf = (CommandConfiguration)treeNode.getData();
+
+            iconResource = conf.getType().getIcon();
             itemTypeClass = css.commandConfigurationIcon();
         }
 
         if (iconResource != null) {
             final JsSVGSVGElement jsIconElement = generateSvgIconElement(iconResource, css.icon(), itemTypeClass);
-
             final Element icon = treeNode.getNodeLabel().getFirstElementChild();
             treeNode.getNodeLabel().replaceChild(jsIconElement, icon);
         }
@@ -204,13 +209,5 @@ public class CommandRenderer implements NodeRenderer<CommandDataAdapter.CommandT
         /** Returns the CSS resource for the commands tree. */
         @Source({"CommandRenderer.css", "org/eclipse/che/ide/ui/constants.css", "org/eclipse/che/ide/api/ui/style.css"})
         CommandRenderer.Css getCss();
-
-        /** Returns the icon for command type nodes. */
-        @Source("commandType.svg")
-        SVGResource commandType();
-
-        /** Returns the icon for command configuration nodes. */
-        @Source("commandConfiguration.svg")
-        SVGResource commandConfiguration();
     }
 }

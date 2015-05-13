@@ -15,11 +15,11 @@ import org.eclipse.che.ide.api.mvp.View;
 import javax.annotation.Nonnull;
 
 /**
- * The view of {@link ExecuteCommandPresenter}.
+ * The view of {@link ExecuteArbitraryCommandPresenter}.
  *
  * @author Artem Zatsarynnyy
  */
-public interface ExecuteCommandView extends View<ExecuteCommandView.ActionDelegate> {
+public interface ExecuteArbitraryCommandView extends View<ExecuteArbitraryCommandView.ActionDelegate> {
 
     /** @return entered command */
     @Nonnull
