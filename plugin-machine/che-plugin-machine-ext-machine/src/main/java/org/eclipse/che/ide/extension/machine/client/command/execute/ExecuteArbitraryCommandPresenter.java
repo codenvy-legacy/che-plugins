@@ -26,24 +26,24 @@ import org.eclipse.che.ide.websocket.rest.SubscriptionHandler;
 import javax.annotation.Nonnull;
 
 /**
- * Presenter for executing command in machine.
+ * Presenter for executing arbitrary command in machine.
  *
  * @author Artem Zatsarynnyy
  */
 @Singleton
-public class ExecuteCommandPresenter implements ExecuteCommandView.ActionDelegate {
-    private final MessageBus              messageBus;
-    private final ExecuteCommandView      view;
-    private final MachineServiceClient    machineServiceClient;
-    private final MachineConsolePresenter machineConsole;
-    private final MachineManager          machineManager;
+public class ExecuteArbitraryCommandPresenter implements ExecuteArbitraryCommandView.ActionDelegate {
+    private final MessageBus                  messageBus;
+    private final ExecuteArbitraryCommandView view;
+    private final MachineServiceClient        machineServiceClient;
+    private final MachineConsolePresenter     machineConsole;
+    private final MachineManager              machineManager;
 
     @Inject
-    protected ExecuteCommandPresenter(MessageBus messageBus,
-                                      ExecuteCommandView view,
-                                      MachineServiceClient machineServiceClient,
-                                      MachineConsolePresenter machineConsole,
-                                      MachineManager machineManager) {
+    protected ExecuteArbitraryCommandPresenter(MessageBus messageBus,
+                                               ExecuteArbitraryCommandView view,
+                                               MachineServiceClient machineServiceClient,
+                                               MachineConsolePresenter machineConsole,
+                                               MachineManager machineManager) {
         this.messageBus = messageBus;
         this.view = view;
         this.machineServiceClient = machineServiceClient;
@@ -94,11 +94,11 @@ public class ExecuteCommandPresenter implements ExecuteCommandView.ActionDelegat
 
                         @Override
                         protected void onErrorReceived(Throwable exception) {
-                            Log.error(ExecuteCommandPresenter.class, exception);
+                            Log.error(ExecuteArbitraryCommandPresenter.class, exception);
                         }
                     });
         } catch (WebSocketException e) {
-            Log.error(ExecuteCommandPresenter.class, e);
+            Log.error(ExecuteArbitraryCommandPresenter.class, e);
         }
     }
 }

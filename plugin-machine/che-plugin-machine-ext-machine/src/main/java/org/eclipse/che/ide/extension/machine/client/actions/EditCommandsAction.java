@@ -24,16 +24,16 @@ import org.eclipse.che.ide.extension.machine.client.command.configuration.edit.E
  * @author Artem Zatsarynnyy
  */
 @Singleton
-public class EditConfigurationsAction extends Action {
+public class EditCommandsAction extends Action {
     private final AppContext                  appContext;
     private final EditConfigurationsPresenter presenter;
     private final AnalyticsEventLogger        eventLogger;
 
     @Inject
-    public EditConfigurationsAction(EditConfigurationsPresenter presenter,
-                                    MachineLocalizationConstant localizationConstant,
-                                    AppContext appContext,
-                                    AnalyticsEventLogger eventLogger) {
+    public EditCommandsAction(EditConfigurationsPresenter presenter,
+                              MachineLocalizationConstant localizationConstant,
+                              AppContext appContext,
+                              AnalyticsEventLogger eventLogger) {
         super(localizationConstant.editConfigurationsControlTitle(), localizationConstant.editConfigurationsControlDescription(), null);
         this.presenter = presenter;
         this.appContext = appContext;

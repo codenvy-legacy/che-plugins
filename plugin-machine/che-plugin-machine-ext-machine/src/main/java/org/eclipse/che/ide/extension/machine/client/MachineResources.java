@@ -22,17 +22,21 @@ import org.vectomatic.dom.svg.ui.SVGResource;
  * @author Artem Zatsarynnyy
  */
 public interface MachineResources extends ClientBundle {
-    @Source("images/command.svg")
-    SVGResource command();
 
-    @Source("images/run.svg")
-    SVGResource run();
+    @Source("images/execute.svg")
+    SVGResource execute();
 
     @Source("images/console/clear-logs.svg")
     SVGResource clear();
 
     @Source("test-docker-recipe.txt")
     TextResource testDockerRecipe();
+
+    @Source("command/configuration/gwt/gwt-command-type.svg")
+    SVGResource gwtCommandType();
+
+    @Source("command/configuration/maven/maven-command-type.svg")
+    SVGResource mavenCommandType();
 
     @Source({"machine.css", "org/eclipse/che/ide/api/ui/style.css"})
     Css machine();

@@ -18,25 +18,27 @@ import org.eclipse.che.ide.api.action.Action;
 import org.eclipse.che.ide.api.action.ActionEvent;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
-import org.eclipse.che.ide.extension.machine.client.command.execute.ExecuteCommandPresenter;
+import org.eclipse.che.ide.extension.machine.client.command.execute.ExecuteArbitraryCommandPresenter;
 
 /**
- * Action to execute command in machine.
+ * Action to execute arbitrary command in machine.
  *
  * @author Artem Zatsarynnyy
  */
 @Singleton
-public class ExecuteCommandAction extends Action {
-    private final AppContext                  appContext;
-    private final ExecuteCommandPresenter     presenter;
-    private final AnalyticsEventLogger        eventLogger;
+public class ExecuteArbitraryCommandAction extends Action {
+    private final AppContext                       appContext;
+    private final ExecuteArbitraryCommandPresenter presenter;
+    private final AnalyticsEventLogger             eventLogger;
 
     @Inject
-    public ExecuteCommandAction(ExecuteCommandPresenter presenter,
-                                MachineLocalizationConstant localizationConstant,
-                                AppContext appContext,
-                                AnalyticsEventLogger eventLogger) {
-        super(localizationConstant.executeCommandControlTitle(), localizationConstant.executeCommandControlDescription(), null);
+    public ExecuteArbitraryCommandAction(ExecuteArbitraryCommandPresenter presenter,
+                                         MachineLocalizationConstant localizationConstant,
+                                         AppContext appContext,
+                                         AnalyticsEventLogger eventLogger) {
+        super(localizationConstant.executeArbitraryCommandControlTitle(),
+              localizationConstant.executeArbitraryCommandControlDescription(),
+              null);
         this.presenter = presenter;
         this.appContext = appContext;
         this.eventLogger = eventLogger;

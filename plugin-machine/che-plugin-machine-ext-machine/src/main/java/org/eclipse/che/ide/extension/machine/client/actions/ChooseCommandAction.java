@@ -21,7 +21,6 @@ import org.eclipse.che.ide.api.action.CustomComponentAction;
 import org.eclipse.che.ide.api.action.DefaultActionGroup;
 import org.eclipse.che.ide.api.action.Presentation;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
-import org.eclipse.che.ide.extension.machine.client.MachineResources;
 import org.eclipse.che.ide.extension.machine.client.command.configuration.api.CommandConfiguration;
 import org.eclipse.che.ide.ui.dropdown.DropDownHeaderWidget;
 import org.eclipse.che.ide.ui.dropdown.DropDownListFactory;
@@ -46,21 +45,18 @@ public class ChooseCommandAction extends Action implements CustomComponentAction
 
     private final DropDownHeaderWidget dropDownHeaderWidget;
     private final DropDownListFactory  configRunnerFactory;
-    private final MachineResources     resources;
     private final ActionManager        actionManager;
 
     private List<CommandConfiguration> commands;
     private DefaultActionGroup         projectActions;
 
     @Inject
-    public ChooseCommandAction(MachineResources resources,
-                               MachineLocalizationConstant locale,
+    public ChooseCommandAction(MachineLocalizationConstant locale,
                                ActionManager actionManager,
                                DropDownListFactory dropDownListFactory) {
         super(locale.chooseCommandControlTitle(), locale.chooseCommandControlDescription(), null);
 
         this.dropDownHeaderWidget = dropDownListFactory.createList(GROUP_COMMANDS_LIST);
-        this.resources = resources;
         this.actionManager = actionManager;
         this.configRunnerFactory = dropDownListFactory;
 
@@ -70,12 +66,10 @@ public class ChooseCommandAction extends Action implements CustomComponentAction
         actionManager.registerAction(GROUP_COMMANDS, projectActions);
     }
 
-    /** {@inheritDoc} */
     @Override
     public void actionPerformed(ActionEvent e) {
     }
 
-    /** {@inheritDoc} */
     @Override
     public Widget createCustomComponent(Presentation presentation) {
         return (Widget)dropDownHeaderWidget;
@@ -96,7 +90,9 @@ public class ChooseCommandAction extends Action implements CustomComponentAction
         projectActions.removeAll();
 
         for (CommandConfiguration configuration : commandConfigurations) {
-            projectActions.add(configRunnerFactory.createElement(configuration.getName(), resources.command(), dropDownHeaderWidget));
+            projectActions.add(configRunnerFactory.createElement(configuration.getName(),
+                                                                 configuration.getType().getIcon(),
+                                                                 dropDownHeaderWidget));
         }
 
         commandsList.addAll(projectActions);
@@ -115,16 +111,16 @@ public class ChooseCommandAction extends Action implements CustomComponentAction
     /** @return selected environment. */
     @Nullable
     public CommandConfiguration selectEnvironment() {
-        //Method returns null if list of environments is empty. And app will be run with default runner.
+        // Method returns null if list of environments is empty. And app will be run with default runner.
         if (commands.isEmpty()) {
             return null;
         }
 
-        final String selectedEnvironmentName = dropDownHeaderWidget.getSelectedElementName();
+        final String selectedCommandName = dropDownHeaderWidget.getSelectedElementName();
 
-        for (CommandConfiguration environment : commands) {
-            if (environment.getName().equals(selectedEnvironmentName)) {
-                return environment;
+        for (CommandConfiguration configuration : commands) {
+            if (configuration.getName().equals(selectedCommandName)) {
+                return configuration;
             }
         }
 
@@ -137,7 +133,7 @@ public class ChooseCommandAction extends Action implements CustomComponentAction
             setEmptyDefaultRunner();
         } else {
             final CommandConfiguration command = commands.get(0);
-            dropDownHeaderWidget.selectElement(resources.command(), command.getName());
+            dropDownHeaderWidget.selectElement(command.getType().getIcon(), command.getName());
         }
     }
 

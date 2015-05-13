@@ -47,10 +47,20 @@ public class EditConfigurationsPresenter implements EditConfigurationsView.Actio
     }
 
     @Override
-    public void onNameChanged(String name) {
+    public void onAddClicked() {
+        final CommandType selectedType = view.getSelectedCommandType();
+        if (selectedType != null) {
+            commandManager.createConfiguration(selectedType);
+            refreshView();
+        }
+    }
+
+    @Override
+    public void onDeleteClicked() {
         final CommandConfiguration selectedConfiguration = view.getSelectedConfiguration();
         if (selectedConfiguration != null) {
-            selectedConfiguration.setName(name);
+            commandManager.removeConfiguration(selectedConfiguration);
+            refreshView();
         }
     }
 
@@ -68,26 +78,16 @@ public class EditConfigurationsPresenter implements EditConfigurationsView.Actio
         view.setRemoveButtonState(true);
         view.setConfigurationName(configuration.getName());
 
-        final ConfigurationPage configurationPage = configuration.getType().getConfigurationPage();
-        configurationPage.reset(configuration);
-        configurationPage.go(view.getCommandConfigurationsDisplayContainer());
+        final ConfigurationPage page = configuration.getType().getConfigurationPage();
+        page.reset(configuration);
+        page.go(view.getCommandConfigurationsDisplayContainer());
     }
 
     @Override
-    public void onAddClicked() {
-        final CommandType selectedType = view.getSelectedCommandType();
-        if (selectedType != null) {
-            commandManager.createConfiguration(selectedType);
-            refreshView();
-        }
-    }
-
-    @Override
-    public void onDeleteClicked() {
+    public void onNameChanged(String name) {
         final CommandConfiguration selectedConfiguration = view.getSelectedConfiguration();
         if (selectedConfiguration != null) {
-            commandManager.removeConfiguration(selectedConfiguration);
-            refreshView();
+            selectedConfiguration.setName(name);
         }
     }
 

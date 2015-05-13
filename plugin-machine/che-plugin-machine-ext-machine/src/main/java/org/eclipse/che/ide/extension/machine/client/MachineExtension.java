@@ -30,9 +30,9 @@ import org.eclipse.che.ide.api.parts.PartStackType;
 import org.eclipse.che.ide.api.parts.WorkspaceAgent;
 import org.eclipse.che.ide.collections.Array;
 import org.eclipse.che.ide.extension.machine.client.actions.ChooseCommandAction;
-import org.eclipse.che.ide.extension.machine.client.actions.EditConfigurationsAction;
-import org.eclipse.che.ide.extension.machine.client.actions.ExecuteCommandAction;
-import org.eclipse.che.ide.extension.machine.client.actions.RunCommandAction;
+import org.eclipse.che.ide.extension.machine.client.actions.EditCommandsAction;
+import org.eclipse.che.ide.extension.machine.client.actions.ExecuteArbitraryCommandAction;
+import org.eclipse.che.ide.extension.machine.client.actions.ExecuteSelectedCommandAction;
 import org.eclipse.che.ide.extension.machine.client.actions.TerminateMachineAction;
 import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandManager;
 import org.eclipse.che.ide.extension.machine.client.console.ClearConsoleAction;
@@ -105,43 +105,42 @@ public class MachineExtension {
     @Inject
     private void prepareActions(MachineLocalizationConstant localizationConstant,
                                 ActionManager actionManager,
-                                ExecuteCommandAction executeCommandAction,
-                                RunCommandAction runCommandAction,
+                                ExecuteArbitraryCommandAction executeArbitraryCommandAction,
+                                ExecuteSelectedCommandAction executeSelectedCommandAction,
                                 ChooseCommandAction chooseCommandAction,
-                                EditConfigurationsAction editConfigurationsAction,
+                                EditCommandsAction editCommandsAction,
                                 TerminateMachineAction terminateMachineAction) {
         final DefaultActionGroup mainMenu = (DefaultActionGroup)actionManager.getAction(GROUP_MAIN_MENU);
-        final DefaultActionGroup machinesMenu = new DefaultActionGroup(localizationConstant.mainMenuRunName(), true, actionManager);
+        final DefaultActionGroup runMenu = new DefaultActionGroup(localizationConstant.mainMenuRunName(), true, actionManager);
 
         // register actions
-        actionManager.registerAction("run", machinesMenu);
-        actionManager.registerAction("executeCommand", executeCommandAction);
-        actionManager.registerAction("editConfigurations", editConfigurationsAction);
-        actionManager.registerAction("stopMachine", terminateMachineAction);
+        actionManager.registerAction("run", runMenu);
+        actionManager.registerAction("executeArbitraryCommand", executeArbitraryCommandAction);
+        actionManager.registerAction("editCommands", editCommandsAction);
+        actionManager.registerAction("terminateMachine", terminateMachineAction);
         actionManager.registerAction("chooseCommand", chooseCommandAction);
-        actionManager.registerAction("runCommand", runCommandAction);
+        actionManager.registerAction("executeSelectedCommand", executeSelectedCommandAction);
 
         // add actions in main menu
-        mainMenu.add(machinesMenu, new Constraints(AFTER, GROUP_CODE));
-        machinesMenu.add(executeCommandAction);
-        machinesMenu.add(editConfigurationsAction);
-        machinesMenu.addSeparator();
-        machinesMenu.add(terminateMachineAction);
+        mainMenu.add(runMenu, new Constraints(AFTER, GROUP_CODE));
+        runMenu.add(executeArbitraryCommandAction);
+        runMenu.add(editCommandsAction);
+        runMenu.addSeparator();
+        runMenu.add(terminateMachineAction);
 
-        // add actions on main toolbar
+        // add actions on right toolbar
         final DefaultActionGroup rightToolbarGroup = (DefaultActionGroup)actionManager.getAction(GROUP_RIGHT_TOOLBAR);
         final DefaultActionGroup machineToolbarGroup = new DefaultActionGroup(GROUP_MACHINE_TOOLBAR, false, actionManager);
-        rightToolbarGroup.add(machineToolbarGroup);
         actionManager.registerAction(GROUP_MACHINE_TOOLBAR, machineToolbarGroup);
-
+        rightToolbarGroup.add(machineToolbarGroup);
         machineToolbarGroup.add(chooseCommandAction);
-        machineToolbarGroup.add(runCommandAction);
+        machineToolbarGroup.add(executeSelectedCommandAction);
 
-        // add custom list of environments
-        final DefaultActionGroup commandsList = new DefaultActionGroup(GROUP_COMMANDS_LIST, false, actionManager);
-        actionManager.registerAction(GROUP_COMMANDS_LIST, commandsList);
-        commandsList.add(editConfigurationsAction, FIRST);
-        commandsList.addSeparator();
+        // add group for command list
+        final DefaultActionGroup commandList = new DefaultActionGroup(GROUP_COMMANDS_LIST, false, actionManager);
+        actionManager.registerAction(GROUP_COMMANDS_LIST, commandList);
+        commandList.add(editCommandsAction, FIRST);
+        commandList.addSeparator();
     }
 
     @Inject
