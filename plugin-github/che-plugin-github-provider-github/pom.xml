@@ -29,7 +29,7 @@
         <dependency>
             <groupId>org.eclipse.che.plugin</groupId>
             <artifactId>che-plugin-github-oauth2</artifactId>
-            <version>${che.core.version}</version>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 </project>
