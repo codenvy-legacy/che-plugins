@@ -13,8 +13,8 @@ package org.eclipse.che.ide.extension.machine.client.command.configuration.edit;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 
 import org.eclipse.che.ide.api.mvp.View;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.api.CommandConfiguration;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.api.CommandType;
+import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandConfiguration;
+import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandType;
 
 import javax.annotation.Nullable;
 import java.util.Map;

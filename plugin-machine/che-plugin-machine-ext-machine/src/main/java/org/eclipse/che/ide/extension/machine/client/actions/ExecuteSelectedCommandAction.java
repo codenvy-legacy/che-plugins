@@ -20,7 +20,7 @@ import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.MachineResources;
 import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandManager;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.api.CommandConfiguration;
+import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandConfiguration;
 
 /**
  * Action to execute command which is selected in command list.

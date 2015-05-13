@@ -8,7 +8,7 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.ide.extension.machine.client.command.configuration.api;
+package org.eclipse.che.ide.extension.machine.client.command.configuration;
 
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 
@@ -19,18 +19,20 @@ import javax.annotation.Nonnull;
 /**
  * Page allows to configure specific command parameters.
  *
+ * @param <T>
+ *         type of the command configuration which this page edits
  * @author Artem Zatsarynnyy
  */
-public interface ConfigurationPage extends Presenter {
+public interface ConfigurationPage<T extends CommandConfiguration> extends Presenter {
 
     /**
-     * Sets {@code configuration} to edit.
+     * Resets the page from the given {@code configuration}.
      * <p/>
      * This method is called every time when user selects
      * an appropriate command configuration in 'Command Configuration'
      * dialog and before actual displaying this page.
      */
-    void reset(@Nonnull CommandConfiguration configuration);
+    void resetFrom(@Nonnull T configuration);
 
     /**
      * This method is called every time when user selects an appropriate

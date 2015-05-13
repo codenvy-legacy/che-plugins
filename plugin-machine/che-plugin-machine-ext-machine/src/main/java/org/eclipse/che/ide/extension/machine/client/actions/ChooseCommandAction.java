@@ -21,7 +21,7 @@ import org.eclipse.che.ide.api.action.CustomComponentAction;
 import org.eclipse.che.ide.api.action.DefaultActionGroup;
 import org.eclipse.che.ide.api.action.Presentation;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.api.CommandConfiguration;
+import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandConfiguration;
 import org.eclipse.che.ide.ui.dropdown.DropDownHeaderWidget;
 import org.eclipse.che.ide.ui.dropdown.DropDownListFactory;
 
@@ -34,7 +34,7 @@ import java.util.List;
 import static org.eclipse.che.ide.extension.machine.client.MachineExtension.GROUP_COMMANDS_LIST;
 
 /**
- * Action which allows user select command from all commands.
+ * Action that allows user to select command from list of all commands.
  *
  * @author Artem Zatsarynnyy
  */

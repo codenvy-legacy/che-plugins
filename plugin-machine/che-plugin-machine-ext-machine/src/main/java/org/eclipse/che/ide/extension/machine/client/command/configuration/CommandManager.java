@@ -14,8 +14,6 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.api.CommandConfiguration;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.api.CommandType;
 import org.eclipse.che.ide.extension.machine.client.console.MachineConsolePresenter;
 import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
 import org.eclipse.che.ide.extension.machine.client.OutputMessageUnmarshaller;

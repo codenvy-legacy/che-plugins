@@ -14,9 +14,9 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import org.eclipse.che.ide.extension.machine.client.MachineResources;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.api.CommandType;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.api.ConfigurationFactory;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.api.ConfigurationPage;
+import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandType;
+import org.eclipse.che.ide.extension.machine.client.command.configuration.ConfigurationFactory;
+import org.eclipse.che.ide.extension.machine.client.command.configuration.ConfigurationPage;
 import org.vectomatic.dom.svg.ui.SVGResource;
 
 import javax.annotation.Nonnull;
@@ -29,8 +29,8 @@ import javax.annotation.Nonnull;
 @Singleton
 public class GWTCommandType implements CommandType {
 
-    private static final String ID           = "mvn";
-    private static final String DISPLAY_NAME = "Maven";
+    private static final String ID           = "gwt";
+    private static final String DISPLAY_NAME = "GWT";
 
     private final GWTPagePresenter        page;
     private final MachineResources        resources;
@@ -63,13 +63,13 @@ public class GWTCommandType implements CommandType {
 
     @Nonnull
     @Override
-    public ConfigurationPage getConfigurationPage() {
+    public ConfigurationPage<GWTCommandConfiguration> getConfigurationPage() {
         return page;
     }
 
     @Nonnull
     @Override
-    public ConfigurationFactory getConfigurationFactory() {
+    public ConfigurationFactory<GWTCommandConfiguration> getConfigurationFactory() {
         return configurationFactory;
     }
 }

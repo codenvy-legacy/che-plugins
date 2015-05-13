@@ -30,8 +30,8 @@ import com.google.inject.Singleton;
 
 import org.eclipse.che.ide.collections.Array;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.api.CommandConfiguration;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.api.CommandType;
+import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandConfiguration;
+import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandType;
 import org.eclipse.che.ide.ui.tree.Tree;
 import org.eclipse.che.ide.ui.tree.TreeNodeElement;
 import org.eclipse.che.ide.ui.window.Window;
