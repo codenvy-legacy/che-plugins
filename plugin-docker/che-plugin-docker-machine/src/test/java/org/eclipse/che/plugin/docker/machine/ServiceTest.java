@@ -20,7 +20,7 @@ import org.eclipse.che.api.machine.server.MachineImpl;
 import org.eclipse.che.api.machine.server.MachineManager;
 import org.eclipse.che.api.machine.server.MachineRegistry;
 import org.eclipse.che.api.machine.server.MachineService;
-import org.eclipse.che.api.machine.server.RecipeImpl;
+import org.eclipse.che.api.machine.server.recipe.RecipeImpl;
 import org.eclipse.che.api.machine.server.SnapshotImpl;
 import org.eclipse.che.api.machine.server.SnapshotStorage;
 import org.eclipse.che.api.machine.server.spi.ImageProvider;

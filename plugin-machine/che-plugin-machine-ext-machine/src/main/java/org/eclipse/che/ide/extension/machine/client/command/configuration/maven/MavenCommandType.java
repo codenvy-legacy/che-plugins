@@ -14,9 +14,9 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import org.eclipse.che.ide.extension.machine.client.MachineResources;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.api.CommandType;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.api.ConfigurationFactory;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.api.ConfigurationPage;
+import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandType;
+import org.eclipse.che.ide.extension.machine.client.command.configuration.ConfigurationFactory;
+import org.eclipse.che.ide.extension.machine.client.command.configuration.ConfigurationPage;
 import org.vectomatic.dom.svg.ui.SVGResource;
 
 import javax.annotation.Nonnull;
@@ -63,13 +63,13 @@ public class MavenCommandType implements CommandType {
 
     @Nonnull
     @Override
-    public ConfigurationPage getConfigurationPage() {
+    public ConfigurationPage<MavenCommandConfiguration> getConfigurationPage() {
         return page;
     }
 
     @Nonnull
     @Override
-    public ConfigurationFactory getConfigurationFactory() {
+    public ConfigurationFactory<MavenCommandConfiguration> getConfigurationFactory() {
         return configurationFactory;
     }
 }

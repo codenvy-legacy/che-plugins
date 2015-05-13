@@ -8,16 +8,18 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.ide.extension.machine.client.command.configuration.api;
+package org.eclipse.che.ide.extension.machine.client.command.configuration;
 
 import javax.annotation.Nonnull;
 
 /**
  * Factory for {@link CommandConfiguration} instances.
  *
+ * @param <T>
+ *         type of the command configuration which this factory produces
  * @author Artem Zatsarynnyy
  */
-public abstract class ConfigurationFactory {
+public abstract class ConfigurationFactory<T extends CommandConfiguration> {
 
     private final CommandType commandType;
 
@@ -38,5 +40,5 @@ public abstract class ConfigurationFactory {
     }
 
     /** Creates a new command configuration with the given name. */
-    public abstract CommandConfiguration createConfiguration(@Nonnull String name);
+    public abstract T createConfiguration(@Nonnull String name);
 }

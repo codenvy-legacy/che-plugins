@@ -8,7 +8,7 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.ide.extension.machine.client.command.configuration.api;
+package org.eclipse.che.ide.extension.machine.client.command.configuration;
 
 import org.vectomatic.dom.svg.ui.SVGResource;
 
@@ -35,9 +35,9 @@ public interface CommandType {
 
     /** Returns the {@link ConfigurationPage} that allows to configure specific command parameters. */
     @Nonnull
-    ConfigurationPage getConfigurationPage();
+    ConfigurationPage<? extends CommandConfiguration> getConfigurationPage();
 
     /** Returns factory for {@link CommandConfiguration} instances. */
     @Nonnull
-    ConfigurationFactory getConfigurationFactory();
+    ConfigurationFactory<? extends CommandConfiguration> getConfigurationFactory();
 }

@@ -18,8 +18,8 @@ import com.google.gwt.resources.client.CssResource;
 import com.google.inject.Inject;
 
 import org.eclipse.che.ide.api.parts.PartStackUIResources;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.api.CommandConfiguration;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.api.CommandType;
+import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandConfiguration;
+import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandType;
 import org.eclipse.che.ide.ui.tree.NodeRenderer;
 import org.eclipse.che.ide.ui.tree.Tree;
 import org.eclipse.che.ide.ui.tree.TreeNodeElement;

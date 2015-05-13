@@ -10,9 +10,8 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.machine.client.command.configuration.maven;
 
-import org.eclipse.che.ide.extension.machine.client.command.configuration.api.CommandConfiguration;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.api.CommandType;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.api.ConfigurationFactory;
+import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandType;
+import org.eclipse.che.ide.extension.machine.client.command.configuration.ConfigurationFactory;
 
 import javax.annotation.Nonnull;
 
@@ -21,14 +20,14 @@ import javax.annotation.Nonnull;
  *
  * @author Artem Zatsarynnyy
  */
-public class MavenConfigurationFactory extends ConfigurationFactory {
+public class MavenConfigurationFactory extends ConfigurationFactory<MavenCommandConfiguration> {
 
     protected MavenConfigurationFactory(CommandType commandType) {
         super(commandType);
     }
 
     @Override
-    public CommandConfiguration createConfiguration(@Nonnull String name) {
+    public MavenCommandConfiguration createConfiguration(@Nonnull String name) {
         final MavenCommandConfiguration configuration = new MavenCommandConfiguration(name, getCommandType());
 
         configuration.setCommandLine("clean install");

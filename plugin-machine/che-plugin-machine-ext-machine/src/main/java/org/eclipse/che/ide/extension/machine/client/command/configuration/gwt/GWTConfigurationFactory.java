@@ -10,10 +10,8 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.machine.client.command.configuration.gwt;
 
-import org.eclipse.che.ide.extension.machine.client.command.configuration.api.CommandConfiguration;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.api.CommandType;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.api.ConfigurationFactory;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.maven.MavenCommandConfiguration;
+import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandType;
+import org.eclipse.che.ide.extension.machine.client.command.configuration.ConfigurationFactory;
 
 import javax.annotation.Nonnull;
 
@@ -22,14 +20,14 @@ import javax.annotation.Nonnull;
  *
  * @author Artem Zatsarynnyy
  */
-public class GWTConfigurationFactory extends ConfigurationFactory {
+public class GWTConfigurationFactory extends ConfigurationFactory<GWTCommandConfiguration> {
 
     protected GWTConfigurationFactory(CommandType commandType) {
         super(commandType);
     }
 
     @Override
-    public CommandConfiguration createConfiguration(@Nonnull String name) {
+    public GWTCommandConfiguration createConfiguration(@Nonnull String name) {
         final GWTCommandConfiguration configuration = new GWTCommandConfiguration(name, getCommandType());
 
         configuration.setDevModeParameters("-noincremental -nostartServer -port 8080");

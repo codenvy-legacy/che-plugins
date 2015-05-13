@@ -10,8 +10,8 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.machine.client.command.configuration.maven;
 
-import org.eclipse.che.ide.extension.machine.client.command.configuration.api.CommandConfiguration;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.api.CommandType;
+import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandConfiguration;
+import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandType;
 
 import javax.annotation.Nonnull;
 

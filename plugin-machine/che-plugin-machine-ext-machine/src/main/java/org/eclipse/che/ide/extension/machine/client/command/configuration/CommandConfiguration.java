@@ -8,7 +8,7 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.ide.extension.machine.client.command.configuration.api;
+package org.eclipse.che.ide.extension.machine.client.command.configuration;
 
 import javax.annotation.Nonnull;
 

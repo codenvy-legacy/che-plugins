@@ -14,18 +14,19 @@ import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import org.eclipse.che.ide.extension.machine.client.command.configuration.api.CommandConfiguration;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.api.ConfigurationPage;
+import org.eclipse.che.ide.extension.machine.client.command.configuration.ConfigurationPage;
 
 import javax.annotation.Nonnull;
 
 /**
+ * Page allows to configure Maven-command parameters.
+ *
  * @author Artem Zatsarynnyy
  */
 @Singleton
-public class MavenPagePresenter implements MavenPageView.ActionDelegate, ConfigurationPage {
+public class MavenPagePresenter implements MavenPageView.ActionDelegate, ConfigurationPage<MavenCommandConfiguration> {
 
-    private final MavenPageView        view;
+    private final MavenPageView             view;
     private       MavenCommandConfiguration configuration;
 
     @Inject
@@ -35,11 +36,8 @@ public class MavenPagePresenter implements MavenPageView.ActionDelegate, Configu
     }
 
     @Override
-    public void reset(@Nonnull CommandConfiguration configuration) {
-        if (!(configuration instanceof MavenCommandConfiguration)) {
-            throw new IllegalArgumentException("Configuration should be MavenCommandConfiguration instance only.");
-        }
-        this.configuration = (MavenCommandConfiguration)configuration;
+    public void resetFrom(@Nonnull MavenCommandConfiguration configuration) {
+        this.configuration = configuration;
     }
 
     @Override
