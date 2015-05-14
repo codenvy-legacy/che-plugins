@@ -11,25 +11,30 @@
 package org.eclipse.che.ide.ext.runner.client.tabs.terminal.panel;
 
 import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.Timer;
 import com.google.gwtmockito.GwtMockitoTestRunner;
 
 import org.eclipse.che.ide.ext.runner.client.RunnerLocalizationConstant;
+import org.eclipse.che.ide.ext.runner.client.RunnerResources;
 import org.eclipse.che.ide.ext.runner.client.models.Runner;
+import org.eclipse.che.ide.ext.runner.client.util.TimerFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 
+import static org.eclipse.che.ide.ext.runner.client.constants.TimeInterval.ONE_SEC;
 import static org.eclipse.che.ide.ext.runner.client.models.Runner.Status.DONE;
 import static org.eclipse.che.ide.ext.runner.client.models.Runner.Status.FAILED;
 import static org.eclipse.che.ide.ext.runner.client.models.Runner.Status.IN_PROGRESS;
 import static org.eclipse.che.ide.ext.runner.client.models.Runner.Status.IN_QUEUE;
 import static org.eclipse.che.ide.ext.runner.client.models.Runner.Status.STOPPED;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -49,14 +54,40 @@ public class TerminalImplTest {
     private Element                    element;
     @Mock
     private RunnerLocalizationConstant locale;
-    @InjectMocks
-    private TerminalImpl               terminal;
+    @Mock
+    private RunnerResources            resources;
+    @Mock
+    private TimerFactory               timerFactory;
+    @Mock
+    private Timer                      timer;
+
+    @Captor
+    private ArgumentCaptor<TimerFactory.TimerCallBack> timerCaptor;
+
+    private TerminalImpl terminal;
 
     @Before
     public void setUp() throws Exception {
         when(locale.terminalNotReady()).thenReturn(SOME_TEXT);
         when(locale.runnerNotReady()).thenReturn(SOME_TEXT);
+        when(timerFactory.newInstance(Matchers.<TimerFactory.TimerCallBack>anyObject())).thenReturn(timer);
+
+        terminal = new TerminalImpl(resources, locale, timerFactory);
+
         when(terminal.terminal.getElement()).thenReturn(element);
+    }
+
+    @Test
+    public void constructorShouldBeVerified() throws Exception {
+        when(runner.getTerminalURL()).thenReturn(SOME_TEXT);
+
+        terminal.update(runner);
+        reset(terminal.terminal);
+
+        verify(timerFactory).newInstance(timerCaptor.capture());
+        timerCaptor.getValue().onRun();
+
+        verify(terminal.terminal).setUrl(SOME_TEXT);
     }
 
     @Test
@@ -105,7 +136,7 @@ public class TerminalImplTest {
         verifyShowStub();
     }
 
-    private void verifyShowStub(){
+    private void verifyShowStub() {
         verify(terminal.unavailableLabel).setText(SOME_TEXT);
         verify(terminal.unavailableLabel).setVisible(true);
         verify(terminal.terminal).setVisible(false);
@@ -174,7 +205,7 @@ public class TerminalImplTest {
 
         terminal.setUrl(runner);
 
-        verify(terminal.terminal).setUrl(eq(SOME_TEXT));
+        verify(timer).schedule(ONE_SEC.getValue());
     }
 
     @Test
@@ -197,6 +228,6 @@ public class TerminalImplTest {
 
         terminal.setUrl(runner);
 
-        verify(terminal.terminal, times(1)).setUrl(anyString());
+        verify(timer).schedule(ONE_SEC.getValue());
     }
 }

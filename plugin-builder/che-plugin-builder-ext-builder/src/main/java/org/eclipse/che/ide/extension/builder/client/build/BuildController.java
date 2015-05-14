@@ -17,7 +17,6 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.google.inject.name.Named;
 import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.api.builder.BuildStatus;
@@ -446,6 +445,9 @@ public class BuildController implements Notification.OpenNotificationHandler {
         if (waitingTimeLimit != null) {
             double terminationTime = NumberFormat.getDecimalFormat().parse(waitingTimeLimit.getValue());
             final double terminationTimeout = terminationTime - System.currentTimeMillis();
+            if (terminationTimeout < 0) {
+                return null;
+            }
             final String value = StringUtils.timeMlsToHumanReadable((long)terminationTimeout);
             return dtoFactory.createDto(BuilderMetric.class).withDescription(waitingTimeLimit.getDescription())
                              .withName(waitingTimeLimit.getName())

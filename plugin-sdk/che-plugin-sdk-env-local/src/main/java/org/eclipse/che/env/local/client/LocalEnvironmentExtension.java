@@ -33,6 +33,6 @@ public class LocalEnvironmentExtension {
         DefaultActionGroup fileGroup = (DefaultActionGroup)actionManager.getAction(IdeActions.GROUP_FILE);
         actionManager.registerAction("showWorkspaceMappingDirAction", action);
         fileGroup.add(action);
-        presenter.show();
+        presenter.init();
     }
 }
