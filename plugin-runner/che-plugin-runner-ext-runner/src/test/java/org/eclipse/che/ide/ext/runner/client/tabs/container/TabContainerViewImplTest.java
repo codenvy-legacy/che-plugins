@@ -202,6 +202,7 @@ public class TabContainerViewImplTest {
         Map<String, Boolean> tabVisibilities = new HashMap<>();
         tabVisibilities.put(TITLE1, true);
         tabVisibilities.put("not existed title", true);
+        tabVisibilities.put(TITLE2, true);
 
         addThreeTabs();
 

@@ -115,11 +115,7 @@ public class TabContainerViewImpl extends Composite implements TabContainerView 
             String title = entry.getKey();
             TabWidget tabWidget = titles.get(title);
 
-            if (tabWidget == null) {
-                return;
-            }
-
-            if (entry.getValue()) {
+            if (tabWidget != null && entry.getValue()) {
                 tabs.add(tabWidget);
             }
         }
