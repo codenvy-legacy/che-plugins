@@ -207,12 +207,9 @@ public class LockUnlockPresenter extends SubversionActionPresenter {
         return new AsyncRequestCallback<CLIOutputResponse>(unmarshaller) {
             @Override
             protected void onSuccess(final CLIOutputResponse result) {
-                final List<String> commandList = new ArrayList<>();
-                commandList.add(result.getCommand());
-                print(commandList);
-                print(result.getOutput());
-                printAndSpace(result.getErrOutput());
+                printResponse(result.getCommand(), result.getOutput(), result.getErrOutput());
             }
+
             @Override
             protected void onFailure(final Throwable exception) {
                 handleError(exception);
@@ -230,4 +227,5 @@ public class LockUnlockPresenter extends SubversionActionPresenter {
         final Notification notification = new Notification(errorMessage, ERROR);
         this.notificationManager.showNotification(notification);
     }
+
 }

@@ -137,9 +137,9 @@ public class ResolvePresenter extends SubversionActionPresenter implements Resol
                     @Override
                     public void onSuccess(CLIOutputResponseList result) {
                         for (CLIOutputResponse outputResponse : result.getCLIOutputResponses()) {
-                            printCommand(outputResponse.getCommand());
-                            printAndSpace(outputResponse.getOutput());
+                            printResponse(outputResponse.getCommand(), outputResponse.getOutput(), outputResponse.getErrOutput());
                         }
+
                         updateProjectExplorer();
                     }
 

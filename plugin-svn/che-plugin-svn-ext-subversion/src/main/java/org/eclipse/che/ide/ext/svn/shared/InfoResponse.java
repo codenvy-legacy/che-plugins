@@ -49,11 +49,11 @@ public interface InfoResponse {
      *
      **************************************************************************/
 
-    List<String> getErrorOutput();
+    List<String> getErrOutput();
 
-    void setErrorOutput(List<String> errorOutput);
+    void setErrOutput(@NotNull final List<String> errors);
 
-    InfoResponse withErrorOutput(List<String> errorOutput);
+    InfoResponse withErrOutput(@NotNull final List<String> errors);
 
     /**************************************************************************
      *

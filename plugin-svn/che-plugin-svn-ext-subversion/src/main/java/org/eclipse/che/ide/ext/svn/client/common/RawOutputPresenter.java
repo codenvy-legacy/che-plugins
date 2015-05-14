@@ -31,24 +31,25 @@ import javax.validation.constraints.NotNull;
 @Singleton
 public class RawOutputPresenter extends BasePresenter implements RawOutputView.ActionDelegate {
 
+    private final SubversionExtensionLocalizationConstants constants;
+
     private final RawOutputView view;
-    private final String title;
 
     /**
      * Constructor.
      */
     @Inject
     public RawOutputPresenter(final SubversionExtensionLocalizationConstants constants, final RawOutputView view) {
-        this.title = constants.subversionLabel();
+        this.constants = constants;
         this.view = view;
 
-        this.view.setTitle(title);
-        this.view.setDelegate(this);
+        view.setTitle(getTitle());
+        view.setDelegate(this);
     }
 
     @Override
-    public void onClearClicked() {
-        clear();
+    public String getTitle() {
+        return constants.subversionLabel();
     }
 
     @Override
@@ -65,22 +66,32 @@ public class RawOutputPresenter extends BasePresenter implements RawOutputView.A
         }, WorkBenchPartControllerImpl.DURATION);
     }
 
-    public void print(@NotNull final String text) {
-        final String[] lines = text.split("\n");
-
-        for (final String line : lines) {
-            view.print(line.isEmpty() ? " " : line);
+    /**
+     * Prints text to subversion output.
+     *
+     * @param multilineText multiline text to print
+     */
+    public void print(@NotNull final String multilineText) {
+        if (multilineText != null) {
+            for (final String line : multilineText.split("\n")) {
+                view.print(line);
+            }
         }
 
         performPostOutputActions();
     }
 
+    /**
+     * Clears output.
+     */
     public void clear() {
         view.clear();
     }
 
     @Override
-    public String getTitle() { return title; }
+    public void onClearClicked() {
+        clear();
+    }
 
     @Nullable
     @Override

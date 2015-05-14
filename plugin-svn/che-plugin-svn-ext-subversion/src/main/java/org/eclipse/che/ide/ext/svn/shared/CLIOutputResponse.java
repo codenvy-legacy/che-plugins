@@ -71,4 +71,5 @@ public interface CLIOutputResponse {
      * @return the response
      */
     CLIOutputResponse withErrOutput(@NotNull final List<String> errors);
+
 }

@@ -105,11 +105,15 @@ public class MergePresenter extends SubversionActionPresenter implements MergeVi
                 new AsyncRequestCallback<InfoResponse>(dtoUnmarshallerFactory.newUnmarshaller(InfoResponse.class)) {
                     @Override
                     protected void onSuccess(InfoResponse result) {
-                        if (result.getErrorOutput() != null && !result.getErrorOutput().isEmpty()) {
-                            printResponse(null, null, result.getErrorOutput());
+                        if (result.getErrOutput() != null && !result.getErrOutput().isEmpty()) {
+                            printError(result.getErrOutput());
+                            print();
+
                             notificationManager.showError("Unable to execute subversion command");
                             return;
                         }
+
+                        printResponse(result.getCommand(), result.getOutput(), result.getErrOutput());
 
                         mergeTarget = result.getItems().get(0);
                         view.targetTextBox().setValue(mergeTarget.getRelativeURL());
@@ -120,8 +124,10 @@ public class MergePresenter extends SubversionActionPresenter implements MergeVi
                                 new AsyncRequestCallback<InfoResponse>(dtoUnmarshallerFactory.newUnmarshaller(InfoResponse.class)) {
                                     @Override
                                     protected void onSuccess(InfoResponse result) {
-                                        if (result.getErrorOutput() != null && !result.getErrorOutput().isEmpty()) {
-                                            printResponse(null, null, result.getErrorOutput());
+                                        if (result.getErrOutput() != null && !result.getErrOutput().isEmpty()) {
+                                            printError(result.getErrOutput());
+                                            print();
+
                                             notificationManager.showError("Unable to execute subversion command");
                                             return;
                                         }
@@ -173,8 +179,7 @@ public class MergePresenter extends SubversionActionPresenter implements MergeVi
 
                     @Override
                     protected void onSuccess(CLIOutputResponse result) {
-                        printCommand(result.getCommand());
-                        printAndSpace(result.getOutput());
+                        printResponse(result.getCommand(), result.getOutput(), result.getErrOutput());
                     }
 
                     @Override
@@ -250,8 +255,10 @@ public class MergePresenter extends SubversionActionPresenter implements MergeVi
                         new AsyncRequestCallback<InfoResponse>(dtoUnmarshallerFactory.newUnmarshaller(InfoResponse.class)) {
                             @Override
                             protected void onSuccess(final InfoResponse result) {
-                                if (result.getErrorOutput() != null && !result.getErrorOutput().isEmpty()) {
-                                    printResponse(null, null, result.getErrorOutput());
+                                if (result.getErrOutput() != null && !result.getErrOutput().isEmpty()) {
+                                    printError(result.getErrOutput());
+                                    print();
+
                                     notificationManager.showError("Unable to execute subversion command");
                                     return;
                                 }

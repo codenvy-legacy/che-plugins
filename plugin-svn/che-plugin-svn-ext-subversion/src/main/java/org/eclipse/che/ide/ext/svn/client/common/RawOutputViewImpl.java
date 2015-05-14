@@ -20,7 +20,6 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
@@ -37,11 +36,13 @@ public class RawOutputViewImpl extends BaseView<RawOutputView.ActionDelegate> im
 
     private static RawOutputViewImplUiBinder uiBinder = GWT.create(RawOutputViewImplUiBinder.class);
 
+    private final Resources coreResources;
+
     @UiField
     ScrollPanel scrollPanel;
 
     @UiField
-    FlowPanel outputArea;
+    FlowPanel lines;
 
     /**
      * Constructor.
@@ -49,10 +50,17 @@ public class RawOutputViewImpl extends BaseView<RawOutputView.ActionDelegate> im
     @Inject
     public RawOutputViewImpl(final PartStackUIResources resources, final Resources coreResources) {
         super(resources);
+        this.coreResources = coreResources;
+        minimizeButton.ensureDebugId("console-minimizeBut");
 
         setContentWidget(uiBinder.createAndBindUi(this));
 
+        addClearButton();
+    }
+
+    private void addClearButton() {
         final ToolButton clearButton = new ToolButton(new SVGImage(coreResources.clear()));
+        addMenuButton(clearButton);
 
         clearButton.addClickHandler(new ClickHandler() {
             @Override
@@ -62,32 +70,30 @@ public class RawOutputViewImpl extends BaseView<RawOutputView.ActionDelegate> im
         });
         clearButton.ensureDebugId("console-clear");
 
-        minimizeButton.ensureDebugId("console-minimizeBut");
 
-        FlowPanel f = new FlowPanel();
-        f.setWidth("100%");
-        f.setHeight("18px");
-        f.getElement().getStyle().setBackgroundColor(org.eclipse.che.ide.api.theme.Style.getPartBackground());
 
-        toolBar.addSouth(f, 18);
-        setToolbarHeight(22+18);
-
-        f.getElement().getStyle().setProperty("borderTop", "#333 1px solid");
-        //org.eclipse.che.ide.api.theme.Style.getOutputFontColor();
-        f.add(clearButton);
+//        FlowPanel f = new FlowPanel();
+//        f.setWidth("100%");
+//        f.setHeight("18px");
+//        f.getElement().getStyle().setBackgroundColor(org.eclipse.che.ide.api.theme.Style.getPartBackground());
+//
+//        toolBar.addSouth(f, 18);
+//        setToolbarHeight(22+18);
+//
+//        f.getElement().getStyle().setProperty("borderTop", "#333 1px solid");
+//        f.add(clearButton);
     }
 
     @Override
-    public void print(String text) {
-        HTML html = new HTML();
-        html.setHTML("<pre style='margin:0px; font-size: 11px;'>" + text + "</pre>");
-        html.getElement().setAttribute("style", "padding-left: 2px;");
-        outputArea.add(html);
+    public void print(String safeText) {
+        FlowPanel line = new FlowPanel();
+        line.getElement().setInnerHTML("<pre>" + (safeText == null || safeText.isEmpty() ? " " : safeText) + "</pre>");
+        lines.add(line);
     }
 
     @Override
     public void clear() {
-        outputArea.clear();
+        lines.clear();
     }
 
     @Override

@@ -222,8 +222,10 @@ public class PropertyEditorPresenter extends SubversionActionPresenter implement
         service.propertyList(projectPath, headPath, new AsyncRequestCallback<CLIOutputResponse>(unmarshaller) {
             @Override
             protected void onSuccess(CLIOutputResponse result) {
+                printResponse(result.getCommand(), result.getOutput(), result.getErrOutput());
+
                 List<String> properties = new ArrayList<String>();
-                for (String property : result.getOutput()) {
+                for (String property : (List<String>)result.getOutput()) {
                     properties.add(property.trim());
                 }
                 view.setExistingPropertiesForPath(properties);

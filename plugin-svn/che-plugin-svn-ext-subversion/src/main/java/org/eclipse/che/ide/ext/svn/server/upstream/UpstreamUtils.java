@@ -94,7 +94,7 @@ public class UpstreamUtils {
             }
         }
 
-        LOG.debug("Running command: " + command.toString());
+        LOG.debug("Running command: '" + command.toString() + "'");
         final ProcessBuilder processBuilder = new ProcessBuilder(redactedCommand.toShellCommand());
 
         Map<String, String> environment = processBuilder.environment();

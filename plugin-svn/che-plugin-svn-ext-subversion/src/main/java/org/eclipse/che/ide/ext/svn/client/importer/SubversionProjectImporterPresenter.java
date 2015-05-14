@@ -111,6 +111,25 @@ public class SubversionProjectImporterPresenter extends AbstractWizardPage<Impor
     }
 
     private String getUrl(String url, String relPath) {
-        return (url.endsWith("/") ? url.substring(0, url.length() - 1) : url) + (relPath.startsWith("/") ? relPath : relPath.concat("/"));
+        url = url.trim();
+        while (url.endsWith("/")) {
+            url = url.substring(0, url.length() - 1);
+        }
+
+        relPath = relPath.trim();
+        while (relPath.startsWith("/")) {
+            relPath = relPath.substring(1);
+        }
+
+        while (relPath.endsWith("/")) {
+            relPath = relPath.substring(0, relPath.length() - 1);
+        }
+
+        if (relPath.isEmpty()) {
+            return url;
+        }
+
+        return url + "/" + relPath;
     }
+
 }

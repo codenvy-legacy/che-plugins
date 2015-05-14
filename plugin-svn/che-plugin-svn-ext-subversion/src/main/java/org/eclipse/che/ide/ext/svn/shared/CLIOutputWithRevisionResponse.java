@@ -61,16 +61,16 @@ public interface CLIOutputWithRevisionResponse {
     List<String> getErrOutput();
 
     /**
-     * @param output the update error output to set
+     * @param errors the update error output to set
      */
-    void setErrOutput(@NotNull final List<String> error);
+    void setErrOutput(@NotNull final List<String> errors);
 
     /**
-     * @param output the update error output to use
+     * @param errors the update error output to use
      *
      * @return the response
      */
-    CLIOutputWithRevisionResponse withErrOutput(@NotNull final List<String> error);
+    CLIOutputWithRevisionResponse withErrOutput(@NotNull final List<String> errors);
 
     /**
      * @return the actual revision checked out

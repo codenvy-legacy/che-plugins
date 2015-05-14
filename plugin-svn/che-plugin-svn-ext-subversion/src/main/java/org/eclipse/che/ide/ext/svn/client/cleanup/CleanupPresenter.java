@@ -82,7 +82,6 @@ public class CleanupPresenter extends SubversionActionPresenter {
                 new AsyncRequestCallback<CLIOutputResponse>(dtoUnmarshallerFactory.newUnmarshaller(CLIOutputResponse.class)) {
             @Override
             protected void onSuccess(final CLIOutputResponse result) {
-
                 printResponse(result.getCommand(), result.getOutput(), result.getErrOutput());
 
                 final Notification notification = new Notification(constants.cleanupSuccessful(), INFO);

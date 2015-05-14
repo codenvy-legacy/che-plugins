@@ -21,7 +21,6 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.event.shared.EventBus;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.che.ide.ext.svn.client.SubversionClientService;
@@ -84,7 +83,6 @@ public class AddPresenter extends SubversionActionPresenter {
                     new AsyncRequestCallback<CLIOutputResponse>(dtoUnmarshallerFactory.newUnmarshaller(CLIOutputResponse.class)) {
                         @Override
                         protected void onSuccess(final CLIOutputResponse response) {
-
                             printResponse(response.getCommand(), response.getOutput(), response.getErrOutput());
 
                             if (response.getErrOutput() == null || response.getErrOutput().size() == 0) {

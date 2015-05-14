@@ -12,6 +12,7 @@ package org.eclipse.che.ide.ext.svn.client.commit;
 
 import static org.eclipse.che.ide.api.notification.Notification.Type.ERROR;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -27,7 +28,6 @@ import org.eclipse.che.ide.ext.svn.client.commit.CommitView.ActionDelegate;
 import org.eclipse.che.ide.ext.svn.client.commit.diff.DiffViewerPresenter;
 import org.eclipse.che.ide.ext.svn.client.common.RawOutputPresenter;
 import org.eclipse.che.ide.ext.svn.client.common.SubversionActionPresenter;
-import org.eclipse.che.ide.ext.svn.shared.CLIOutputParser;
 import org.eclipse.che.ide.ext.svn.shared.CLIOutputResponse;
 import org.eclipse.che.ide.ext.svn.shared.CLIOutputWithRevisionResponse;
 
@@ -96,25 +96,30 @@ public class CommitPresenter extends SubversionActionPresenter implements Action
     private void loadAllChanges() {
         Unmarshallable<CLIOutputResponse> unmarshaller = dtoUnmarshallerFactory.newUnmarshaller(CLIOutputResponse.class);
         subversionService.status(getCurrentProjectPath(), Collections.<String>emptyList(), null, false, false, false, true, false, null,
-                                 new AsyncRequestCallback<CLIOutputResponse>(unmarshaller) {
-                                     @Override
-                                     protected void onSuccess(CLIOutputResponse response) {
-                                         List<StatusItem> statusItems = parseChangesList(response);
-                                         view.setChangesList(statusItems);
-                                         view.onShow();
+                new AsyncRequestCallback<CLIOutputResponse>(unmarshaller) {
+                    @Override
+                    protected void onSuccess(CLIOutputResponse response) {
+                        List<StatusItem> statusItems = parseChangesList(response);
+                        view.setChangesList(statusItems);
+                        view.onShow();
 
-                                         cache.put(Changes.ALL, statusItems);
-                                     }
+                        cache.put(Changes.ALL, statusItems);
+                    }
 
-                                     @Override
-                                     protected void onFailure(Throwable exception) {
-                                         Log.error(CommitPresenter.class, exception);
-                                     }
-                                 });
+                    @Override
+                    protected void onFailure(Throwable exception) {
+                        Log.error(CommitPresenter.class, exception);
+                    }
+                });
     }
 
     private  List<StatusItem> parseChangesList(CLIOutputResponse response) {
-        return CLIOutputParser.parseFilesStatus(response.getOutput());
+        final List<StatusItem> statusItems = new ArrayList<>();
+        for (final String line : (List<String>)response.getOutput()) {
+            statusItems.add(new StatusItem(line));
+        }
+
+        return statusItems;
     }
 
     private void loadSelectionChanges() {

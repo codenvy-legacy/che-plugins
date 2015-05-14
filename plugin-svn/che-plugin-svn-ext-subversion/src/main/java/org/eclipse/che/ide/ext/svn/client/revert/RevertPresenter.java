@@ -96,15 +96,9 @@ public class RevertPresenter extends SubversionActionPresenter {
 
                                                    @Override
                                                    protected void onSuccess(CLIOutputResponse result) {
+                                                       printResponse(result.getCommand(), result.getOutput(), result.getErrOutput());
 
-                                                       printCommand(result.getCommand());
-
-                                                       print(result.getOutput());
-
-                                                       List<String> errOutput = result.getErrOutput();
-                                                       printAndSpace(errOutput);
-
-                                                       if (errOutput == null || errOutput.size() == 0) {                                                           
+                                                       if (result.getErrOutput() == null || result.getErrOutput().isEmpty()) {
                                                            notification.setMessage(constants.revertSuccessful());
                                                            notification.setStatus(FINISHED);
                                                            notification.setType(INFO);

@@ -39,33 +39,34 @@ import org.eclipse.che.ide.api.project.tree.generic.StorableNode;
 import org.eclipse.che.ide.api.selection.Selection;
 
 import com.google.web.bindery.event.shared.EventBus;
-import org.eclipse.che.ide.ext.svn.shared.CLIOutputResponse;
 
 /**
  * Presenter to be extended by all {@link SubversionAction} presenters.
  */
 public class SubversionActionPresenter {
 
-    static final String[][] STATUS_COLORS = {
-            {"M", "rgb(247, 47, 47)"},
-            {"!", "grey"},
-            {"?", "lightskyblue"},
-            {"A", "chartreuse"},
-            {"X", "yellow"},
-            {"C", "yellow"},
-            {"D", "rgb(247, 47, 47)"},
-            {"+", "chartreuse"},
-            {"-", "rgb(247, 47, 47)"},
-            {"@", "cyan"},
-            {"U", "chartreuse"},
-            {"G", "chartreuse"}
+    static final String[][] LINE_STYLES = {
+            {"$", "font-weight:bold; font-style:italic;"},
+            {"M", "color:rgb(247, 47, 47);"},
+            {"!", "color:grey;"},
+            {"?", "color:lightskyblue;"},
+            {"A", "color:chartreuse;"},
+            {"X", "color:yellow;"},
+            {"C", "color:yellow;"},
+            {"D", "color:rgb(247, 47, 47);"},
+            {"+", "color:chartreuse;"},
+            {"-", "color:rgb(247, 47, 47);"},
+            {"@", "color:cyan;"},
+            {"U", "color:chartreuse;"},
+            {"G", "color:chartreuse;"}
     };
 
     protected final AppContext       appContext;
     protected final EventBus         eventBus;
     protected final WorkspaceAgent   workspaceAgent;
     private final RawOutputPresenter console;
-    private boolean                  isViewClosed;
+
+    private boolean                  viewOpened;
 
     private final ProjectExplorerPart projectExplorerPart;
 
@@ -81,8 +82,6 @@ public class SubversionActionPresenter {
         this.workspaceAgent = workspaceAgent;
         this.console = console;
 
-        isViewClosed = true;
-
         this.eventBus = eventBus;
         this.projectExplorerPart = projectExplorerPart;
 
@@ -97,9 +96,9 @@ public class SubversionActionPresenter {
 
             @Override
             public void onProjectClosed(final ProjectActionEvent event) {
-                isViewClosed = true;
                 console.clear();
                 workspaceAgent.hidePart(console);
+                viewOpened = false;
             }
 
         });
@@ -197,101 +196,12 @@ public class SubversionActionPresenter {
      * Ensures view is opened.
      */
     protected void ensureViewOpened() {
-        if (isViewClosed) {
-            workspaceAgent.openPart(console, PartStackType.INFORMATION);
-            isViewClosed = false;
-        }
-    }
-
-    /**
-     * Print the update output.
-     *
-     * @param lines text to be printed
-     */
-    protected void print(final List<String> lines) {
-        ensureViewOpened();
-
-        for (final String line : lines) {
-            console.print(line);
-        }
-    }
-
-    /**
-     * Prints command line.
-     *
-     * @param command command line
-     */
-    protected void printCommand(String command) {
-        ensureViewOpened();
-
-        command = "$ " + command.substring(1, command.length() - 1);
-        String line = "<span style=\"font-weight: bold; font-style: italic;\">" + command + "</span>";
-
-        console.print(line);
-    }
-
-    protected void printErrors(final List<String> errors) {
-        ensureViewOpened();
-
-        for (final String line : errors) {
-            console.print("<span style=\"color:red;\">" + SafeHtmlUtils.htmlEscape(line) + "</span>");
-        }
-    }
-
-    /**
-     * Colorizes and prints response to the output.
-     *
-     * @param command
-     * @param output
-     * @param errors
-     */
-    protected void printResponse(final String command, final List<String> output, final List<String> errors) {
-        ensureViewOpened();
-
-        if (command != null) {
-            printCommand(command);
+        if (viewOpened) {
+            return;
         }
 
-        if (output != null) {
-            for (final String line : output) {
-                boolean found = false;
-
-                if (!line.trim().isEmpty()) {
-                    String prefix = line.trim().substring(0, 1);
-
-                    for (String[] stcol : STATUS_COLORS) {
-                        if (stcol[0].equals(prefix)) {
-                            // TODO: Turn the file paths into links (where appropriate)
-                            console.print("<span style=\"color:" + stcol[1] + ";\">" + SafeHtmlUtils.htmlEscape(line) + "</span>");
-                            found = true;
-                            break;
-                        }
-                    }
-                }
-
-                if (!found) {
-                    console.print(SafeHtmlUtils.htmlEscape(line));
-                }
-            }
-        }
-
-        if (errors != null) {
-            for (final String line : errors) {
-                console.print("<span style=\"color:red;\">" + SafeHtmlUtils.htmlEscape(line) + "</span>");
-            }
-        }
-
-        console.print("");
-    }
-
-    /**
-     * Print the update output & a blank line after.
-     *
-     * @param output text to be printed
-     */
-    protected void printAndSpace(final List<String> output) {
-        print(output);
-        console.print("");
+        workspaceAgent.openPart(console, PartStackType.INFORMATION);
+        viewOpened = true;
     }
 
     /**
@@ -315,6 +225,121 @@ public class SubversionActionPresenter {
             }
         }
 
+    }
+
+    /**
+     * Prints empty line.
+     */
+    protected void print() {
+        console.print("");
+    }
+
+    /**
+     * Prints line as plain text.
+     *
+     * @param line line to print
+     */
+    protected void print(final String line) {
+        ensureViewOpened();
+        console.print(SafeHtmlUtils.htmlEscape(line != null ? line : ""));
+    }
+
+    /**
+     * Prints lines as plain text.
+     *
+     * @param lines lines to print
+     */
+    protected void print(final List<String> lines) {
+        if (lines != null) {
+            for (final String line : lines) {
+                print(line);
+            }
+        }
+    }
+
+    /**
+     * Prints colored line.
+     *
+     * @param line line to print
+     */
+    protected void printColored(final String line) {
+        ensureViewOpened();
+
+        if (line == null) {
+            print();
+            return;
+        }
+
+        if (!line.trim().isEmpty()) {
+            String prefix = line.trim().substring(0, 1);
+            for (String[] style : LINE_STYLES) {
+                if (style[0].equals(prefix)) {
+                    console.print("<span style=\"" + style[1] +  "\">" + SafeHtmlUtils.htmlEscape(line) + "</span>");
+                    return;
+                }
+            }
+        }
+
+        // Print line as plain text if appropriate style is not found
+        console.print(SafeHtmlUtils.htmlEscape(line));
+    }
+
+    /**
+     * Prints colored lines.
+     *
+     * @param lines lines to print
+     */
+    protected void printColored(final List<String> lines) {
+        if (lines != null) {
+            for (final String line : lines) {
+                printColored(line);
+            }
+        }
+    }
+
+    /**
+     * Prints error.
+     *
+     * @param line error line to print
+     */
+    protected void printError(final String line) {
+        ensureViewOpened();
+
+        if (line == null) {
+            print();
+        } else {
+            console.print("<span style=\"color:red;\">" + SafeHtmlUtils.htmlEscape(line) + "</span>");
+        }
+    }
+
+    /**
+     * Prints error.
+     *
+     * @param lines error lines to print
+     */
+    protected void printError(final List<String> lines) {
+        if (lines != null) {
+            for (final String line : lines) {
+                printError(line);
+            }
+        }
+    }
+
+    /**
+     * Print command execution result in colors.
+     *
+     * @param command
+     * @param output
+     * @param errOutput
+     */
+    protected void printResponse(String command, List<String> output, List<String> errOutput) {
+        if (command != null) {
+            printColored("$ " + command);
+        }
+
+        printColored(output);
+        printColored(errOutput);
+        print();
     }
 
 }

@@ -200,7 +200,6 @@ public class CopyPresenter extends SubversionActionPresenter implements CopyView
 
             @Override
             public void onSuccess(TreeNode<?> result) {
-//                eventBus.fireEvent(new RefreshProjectTreeEvent(result, true));
                 updateProjectExplorer();
             }
         });

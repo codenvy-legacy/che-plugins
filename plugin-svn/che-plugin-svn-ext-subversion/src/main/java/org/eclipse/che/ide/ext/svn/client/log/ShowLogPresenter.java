@@ -88,8 +88,10 @@ public class ShowLogPresenter extends SubversionActionPresenter {
                 new AsyncRequestCallback<InfoResponse>(dtoUnmarshallerFactory.newUnmarshaller(InfoResponse.class)) {
                     @Override
                     protected void onSuccess(InfoResponse result) {
-                        if (result.getErrorOutput() != null && !result.getErrorOutput().isEmpty()) {
-                            printResponse(null, null, result.getErrorOutput());
+                        if (result.getErrOutput() != null && !result.getErrOutput().isEmpty()) {
+                            printError(result.getErrOutput());
+                            print();
+
                             notificationManager.showError("Unable to execute subversion command");
                             return;
                         }
@@ -118,8 +120,14 @@ public class ShowLogPresenter extends SubversionActionPresenter {
                 new AsyncRequestCallback<CLIOutputResponse>(dtoUnmarshallerFactory.newUnmarshaller(CLIOutputResponse.class)) {
                     @Override
                     protected void onSuccess(CLIOutputResponse result) {
-                        printCommand(result.getCommand());
-                        printAndSpace(result.getOutput());
+                        if (result.getErrOutput() != null && !result.getErrOutput().isEmpty()) {
+                            printResponse(result.getCommand(), null, result.getErrOutput());
+                            return;
+                        }
+
+                        printColored("$ " + result.getCommand());
+                        print(result.getOutput());
+                        print();
                     }
 
                     @Override
