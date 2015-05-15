@@ -54,12 +54,8 @@ public class CredentialsLoader {
      *         when it is not possible to store credentials
      */
     public UserCredential getUserCredential(String url) throws GitException {
-        if (url == null) {
-            return null;
-        }
-
         for (CredentialsProvider cp : credentialsProviders.values()) {
-            if (cp.canProvideCredentials(url)) {
+            if (url != null && cp.canProvideCredentials(url)) {
                 UserCredential commandCredentials = cp.getUserCredential();
                 if (commandCredentials != null && !commandCredentials.getProviderId().equals(cp.getId())) {
                     throw new GitException(
@@ -69,6 +65,7 @@ public class CredentialsLoader {
                 return commandCredentials;
             }
         }
+
         return null;
     }
 
