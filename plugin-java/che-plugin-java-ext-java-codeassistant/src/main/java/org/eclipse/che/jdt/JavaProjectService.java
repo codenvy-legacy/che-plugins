@@ -129,7 +129,7 @@ public class JavaProjectService {
             try {
                 javaProject.close();
             } catch (JavaModelException e) {
-                LOG.error("Error when trying close project.", e);
+                LOG.warn("Error when trying close project.", e);
             }
         }
         deleteDependencyDirectory(wsId, projectPath);
@@ -183,7 +183,7 @@ public class JavaProjectService {
                                             new ResourceChangedEvent(fsMountStrategy.getMountPath(eventWorkspace), event));
                                     javaProject.creteNewNameEnvironment();
                                 } catch (ServerException e) {
-                                    LOG.error("Can't update java model", e);
+                                    LOG.warn("Can't update java model", e);
                                 }
                             }
                             break;
@@ -192,7 +192,7 @@ public class JavaProjectService {
                 }
             } catch (Throwable t) {
                 //catch all exceptions that may be happened
-                LOG.error("Can't update java model", t);
+                LOG.warn("Can't update java model", t);
             }
         }
     }
