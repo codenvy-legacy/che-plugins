@@ -651,7 +651,7 @@ public class NativeGitConnection implements GitConnection {
     private void executeRemoteCommand(GitCommand<?> command, String url) throws GitException, UnauthorizedException {
         //first time execute without of credentials
         try {
-            command.execute();
+            withCredentials(command, url).execute();
         } catch (GitException gitEx) {
             if (!isOperationNeedAuth(gitEx.getMessage())) {
                 throw gitEx;
