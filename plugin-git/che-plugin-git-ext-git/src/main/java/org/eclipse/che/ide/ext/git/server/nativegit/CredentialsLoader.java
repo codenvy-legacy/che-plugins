@@ -12,7 +12,6 @@ package org.eclipse.che.ide.ext.git.server.nativegit;
 
 import org.eclipse.che.ide.ext.git.server.GitException;
 import org.eclipse.che.ide.ext.git.shared.GitUser;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,9 +54,8 @@ public class CredentialsLoader {
      *         when it is not possible to store credentials
      */
     public UserCredential getUserCredential(String url) throws GitException {
-
         for (CredentialsProvider cp : credentialsProviders.values()) {
-            if (cp.canProvideCredentials(url)) {
+            if (url != null && cp.canProvideCredentials(url)) {
                 UserCredential commandCredentials = cp.getUserCredential();
                 if (commandCredentials != null && !commandCredentials.getProviderId().equals(cp.getId())) {
                     throw new GitException(
@@ -67,6 +65,7 @@ public class CredentialsLoader {
                 return commandCredentials;
             }
         }
+
         return null;
     }
 
