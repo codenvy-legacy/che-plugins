@@ -10,9 +10,10 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.runner.client.tabs.history;
 
+import com.google.inject.ImplementedBy;
+
 import org.eclipse.che.ide.ext.runner.client.models.Runner;
 import org.eclipse.che.ide.ext.runner.client.tabs.common.TabPresenter;
-import com.google.inject.ImplementedBy;
 
 import javax.annotation.Nonnull;
 
@@ -47,6 +48,15 @@ public interface HistoryPanel extends TabPresenter {
      *         runner which was selected
      */
     void selectRunner(@Nonnull Runner runner);
+
+    /**
+     * Checks if runner exist on the Runners tab
+     *
+     * @param runner
+     *         the runner which need to check
+     * @return true if the runner exist else false
+     */
+    boolean isRunnerExist(@Nonnull Runner runner);
 
     /** Clears runner widgets. */
     void clear();

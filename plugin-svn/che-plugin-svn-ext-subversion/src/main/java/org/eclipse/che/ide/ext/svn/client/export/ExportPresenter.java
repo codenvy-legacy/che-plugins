@@ -88,7 +88,7 @@ public class ExportPresenter extends SubversionActionPresenter implements Export
         }
 
         final String exportPath =
-                MoreObjects.firstNonNull(Strings.emptyToNull(relPath(projectPath, ((StorableNode)selectedNode).getPath())), projectPath);
+                MoreObjects.firstNonNull(Strings.emptyToNull(relPath(projectPath, ((StorableNode)selectedNode).getPath())), ".");
         final String revision = view.isRevisionSpecified() ? view.getRevision() : null;
 
         final Notification notification = new Notification(constants.exportStarted(exportPath), PROGRESS);

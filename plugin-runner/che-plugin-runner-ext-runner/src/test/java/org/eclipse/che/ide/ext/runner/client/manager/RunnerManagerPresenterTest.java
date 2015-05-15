@@ -44,7 +44,6 @@ import org.eclipse.che.ide.ext.runner.client.runneractions.impl.GetRunningProces
 import org.eclipse.che.ide.ext.runner.client.runneractions.impl.StopAction;
 import org.eclipse.che.ide.ext.runner.client.runneractions.impl.environments.GetSystemEnvironmentsAction;
 import org.eclipse.che.ide.ext.runner.client.runneractions.impl.launch.LaunchAction;
-import org.eclipse.che.ide.ext.runner.client.selection.Selection;
 import org.eclipse.che.ide.ext.runner.client.selection.SelectionManager;
 import org.eclipse.che.ide.ext.runner.client.state.PanelState;
 import org.eclipse.che.ide.ext.runner.client.state.State;
@@ -64,6 +63,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 
 import java.util.Arrays;
@@ -73,7 +74,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import static org.eclipse.che.ide.ext.runner.client.manager.menu.SplitterState.SPLITTER_OFF;
+import static org.eclipse.che.ide.ext.runner.client.manager.menu.SplitterState.SPLITTER_ON;
+import static org.eclipse.che.ide.ext.runner.client.models.Runner.Status.IN_PROGRESS;
+import static org.eclipse.che.ide.ext.runner.client.models.Runner.Status.IN_QUEUE;
 import static org.eclipse.che.ide.ext.runner.client.models.Runner.Status.STOPPED;
+import static org.eclipse.che.ide.ext.runner.client.selection.Selection.ENVIRONMENT;
 import static org.eclipse.che.ide.ext.runner.client.selection.Selection.RUNNER;
 import static org.eclipse.che.ide.ext.runner.client.state.State.RUNNERS;
 import static org.eclipse.che.ide.ext.runner.client.state.State.TEMPLATE;
@@ -82,11 +88,13 @@ import static org.eclipse.che.ide.ext.runner.client.tabs.common.Tab.VisibleState
 import static org.eclipse.che.ide.ext.runner.client.tabs.container.tab.TabType.LEFT;
 import static org.eclipse.che.ide.ext.runner.client.tabs.container.tab.TabType.RIGHT;
 import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.DEFAULT;
+import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope.PROJECT;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isNull;
@@ -115,7 +123,8 @@ public class RunnerManagerPresenterTest {
     private static final String PROPERTIES     = "properties";
     private static final String STOPPED_RUNNER = "application shut down";
     private static final String APP_URL        = "http://runner1.codenvy.com/";
-    private static final int    RAM_SIZE       = 1024;
+    private static final String ENV_ID         = "project:/project a";
+    private static final int    RAM_SIZE       = 1000;
     private static final long   PROCESS_ID     = 1234567L;
 
     //mocks for constructor
@@ -136,7 +145,9 @@ public class RunnerManagerPresenterTest {
     @Mock
     private TabContainer                 leftTabContainer;
     @Mock
-    private TabContainer                 rightTabContainer;
+    private TabContainer                 rightPropertiesContainer;
+    @Mock
+    private TabContainer                 leftPropertiesContainer;
     @Mock
     private PanelState                   panelState;
     @Mock
@@ -217,15 +228,18 @@ public class RunnerManagerPresenterTest {
     @Mock
     private PartPresenter             activePart;
     @Mock
-    private Timer                     timer;
+    private Timer                     runnerTimer;
+    @Mock
+    private Timer                     runnerInQueueTimer;
     @Mock
     private ProjectTypeDefinition     definition;
-
     @Mock
-    private ChooseRunnerAction chooseRunnerAction;
-
+    private ChooseRunnerAction        chooseRunnerAction;
     @Mock
-    private RunnersDescriptor runnersDescriptor;
+    private RunnersDescriptor         runnersDescriptor;
+
+    @Captor
+    private ArgumentCaptor<TimerFactory.TimerCallBack> timerCaptor;
 
     private RunnerManagerPresenter presenter;
 
@@ -237,11 +251,15 @@ public class RunnerManagerPresenterTest {
         when(locale.runnerTabTerminal()).thenReturn(TERMINAL);
         when(locale.runnerTabProperties()).thenReturn(PROPERTIES);
 
+        when(consoleTab.getTitle()).thenReturn(CONSOLE);
+        when(propertiesTab.getTitle()).thenReturn(PROPERTIES);
+
+        //order of return mocks must match of order of initialize mocks
         when(tabBuilderProvider.get()).thenReturn(tabBuilderHistory)
                                       .thenReturn(tabBuilderTemplate)
                                       .thenReturn(tabBuilderConsole)
-                                      .thenReturn(tabBuilderTerminal)
-                                      .thenReturn(tabBuilderProperties);
+                                      .thenReturn(tabBuilderProperties)
+                                      .thenReturn(tabBuilderTerminal);
         //init new historyTab
         initTab(tabBuilderHistory, history, REMOVABLE, LEFT, EnumSet.allOf(State.class), HISTORY_TAB);
         when(tabBuilderHistory.build()).thenReturn(historyTab);
@@ -262,7 +280,8 @@ public class RunnerManagerPresenterTest {
         initTab(tabBuilderProperties, propertiesContainer, REMOVABLE, RIGHT, EnumSet.allOf(State.class), PROPERTIES);
         when(tabBuilderProperties.build()).thenReturn(propertiesTab);
 
-        when(timerFactory.newInstance(any(TimerFactory.TimerCallBack.class))).thenReturn(timer);
+        when(timerFactory.newInstance(any(TimerFactory.TimerCallBack.class))).thenReturn(runnerTimer)
+                                                                             .thenReturn(runnerInQueueTimer);
 
         presenter = new RunnerManagerPresenter(view,
                                                actionFactory,
@@ -273,7 +292,8 @@ public class RunnerManagerPresenterTest {
                                                eventBus,
                                                locale,
                                                leftTabContainer,
-                                               rightTabContainer,
+                                               leftPropertiesContainer,
+                                               rightPropertiesContainer,
                                                panelState,
                                                tabBuilderProvider,
                                                consoleContainer,
@@ -309,12 +329,13 @@ public class RunnerManagerPresenterTest {
         when(appContext.getCurrentProject()).thenReturn(currentProject);
         when(currentProject.getProjectDescription()).thenReturn(descriptor);
         when(descriptor.getRunners()).thenReturn(runnersDescriptor);
+        when(runnersDescriptor.getDefault()).thenReturn(ENV_ID);
         when(descriptor.getType()).thenReturn(TEXT);
         when(definition.getRunnerCategories()).thenReturn(Arrays.asList(TEXT));
         when(currentProject.getAttributeValue("runner:skipBuild")).thenReturn("true");
         when(runOptions.withSkipBuild(true)).thenReturn(runOptions);
-        when(runOptions.withMemorySize(DEFAULT.getValue())).thenReturn(runOptions);
         when(runOptions.withOptions(any(Map.class))).thenReturn(runOptions);
+        when(runOptions.withMemorySize(anyInt())).thenReturn(runOptions);
         when(runOptions.withEnvironmentId(anyString())).thenReturn(runOptions);
 
         when(actionFactory.createCheckRamAndRun()).thenReturn(checkRamAndRunAction);
@@ -325,6 +346,7 @@ public class RunnerManagerPresenterTest {
         when(actionFactory.createGetRunningProcess()).thenReturn(getRunningProcessAction);
         when(runner.getTimeout()).thenReturn(TEXT);
         when(panelState.getState()).thenReturn(RUNNERS);
+        when(history.isRunnerExist(runner)).thenReturn(true);
 
         when(runnerUtil.hasRunPermission()).thenReturn(true);
     }
@@ -347,11 +369,12 @@ public class RunnerManagerPresenterTest {
     public void constructorOperationsShouldBePerformed() throws Exception {
         verify(view).setDelegate(presenter);
         verify(selectionManager).addListener(presenter);
-        verify(timerFactory).newInstance(any(TimerFactory.TimerCallBack.class));
+        verify(timerFactory, times(2)).newInstance(any(TimerFactory.TimerCallBack.class));
         verify(eventBus).addHandler(ProjectActionEvent.TYPE, presenter);
 
         verify(view).setLeftPanel(leftTabContainer);
-        verify(view).setRightPanel(rightTabContainer);
+        verify(panelState).setSplitterState(SPLITTER_OFF);
+        verify(view).setGeneralPropertiesPanel(rightPropertiesContainer);
     }
 
     @Test
@@ -372,7 +395,7 @@ public class RunnerManagerPresenterTest {
     public void verifyCreationConsoleTab() {
         verifyInitTab(tabBuilderConsole, consoleContainer, REMOVABLE, RIGHT, EnumSet.of(RUNNERS), CONSOLE);
         verify(locale).runnerTabConsole();
-        verify(rightTabContainer).addTab(consoleTab);
+        verify(leftPropertiesContainer).addTab(consoleTab);
 
     }
 
@@ -380,14 +403,17 @@ public class RunnerManagerPresenterTest {
     public void verifyCreationTerminalTab() {
         verifyInitTab(tabBuilderTerminal, terminalContainer, VISIBLE, RIGHT, EnumSet.of(RUNNERS), TERMINAL);
         verify(locale).runnerTabTerminal();
-        verify(rightTabContainer).addTab(terminalTab);
+        verify(rightPropertiesContainer).addTab(terminalTab);
     }
 
     @Test
     public void verifyCreationPropertiesTab() {
         verifyInitTab(tabBuilderProperties, propertiesContainer, REMOVABLE, RIGHT, EnumSet.allOf(State.class), PROPERTIES);
         verify(locale).runnerTabProperties();
-        verify(rightTabContainer).addTab(propertiesTab);
+        verify(leftPropertiesContainer).addTab(propertiesTab);
+
+        verify(rightPropertiesContainer).showTabTitle(CONSOLE, false);
+        verify(rightPropertiesContainer).showTabTitle(PROPERTIES, false);
     }
 
     private void verifyInitTab(TabBuilder tabBuilder,
@@ -463,17 +489,68 @@ public class RunnerManagerPresenterTest {
     }
 
     @Test
+    public void projectScopeShouldBeSetAfterReloadProjectWithProjectScopeRunner() {
+        when(processDescriptor.getEnvironmentId()).thenReturn("project://");
+
+        presenter.addRunner(processDescriptor);
+
+        verify(runner).setScope(PROJECT);
+    }
+
+    @Test
+    public void projectScopeShouldBeSetWhenRunProjectEnvironment() {
+        when(panelState.getState()).thenReturn(TEMPLATE);
+        when(runnerEnvironment.getScope()).thenReturn(PROJECT);
+        when(selectionManager.getEnvironment()).thenReturn(runnerEnvironment);
+        when(modelsFactory.createRunner(eq(runOptions), anyString())).thenReturn(runner);
+
+        presenter.onSelectionChanged(ENVIRONMENT);
+
+        presenter.onRunButtonClicked();
+
+        verify(runner).setScope(PROJECT);
+    }
+
+    @Test
     public void verifyTimer() {
         presenter.addRunner(processDescriptor);
 
-        ArgumentCaptor<TimerFactory.TimerCallBack> argumentCaptor = ArgumentCaptor.forClass(TimerFactory.TimerCallBack.class);
-        verify(timerFactory).newInstance(argumentCaptor.capture());
-        argumentCaptor.getValue().onRun();
+        verify(timerFactory, times(2)).newInstance(timerCaptor.capture());
+        timerCaptor.getAllValues().get(0).onRun();
 
         verify(runner, times(2)).getTimeout();
         verify(view, times(2)).updateMoreInfoPopup(runner);
         verify(view, times(2)).setTimeout(TEXT);
-        verify(timer, times(2)).schedule(TimeInterval.ONE_SEC.getValue());
+        verify(runnerTimer, times(2)).schedule(TimeInterval.ONE_SEC.getValue());
+    }
+
+    @Test
+    public void verifyInQueueTimer() {
+        when(locale.messageRunnerInQueue()).thenReturn(TEXT);
+        when(runner.getStatus()).thenReturn(IN_QUEUE);
+
+        presenter.onSelectionChanged(RUNNER);
+
+        verify(timerFactory, times(2)).newInstance(timerCaptor.capture());
+        timerCaptor.getAllValues().get(1).onRun();
+
+        verify(runner, times(2)).getStatus();
+        verify(locale).messageRunnerInQueue();
+        verify(consoleContainer).printInfo(runner, TEXT);
+    }
+
+    @Test
+    public void messageShouldNotBeShownIfRunnerIsNotInQueue() {
+        when(runner.getStatus()).thenReturn(IN_PROGRESS);
+
+        presenter.onSelectionChanged(RUNNER);
+
+        verify(timerFactory, times(2)).newInstance(timerCaptor.capture());
+        timerCaptor.getAllValues().get(1).onRun();
+
+        verify(runner, times(2)).getStatus();
+        verify(locale, never()).messageRunnerInQueue();
+        verify(consoleContainer, never()).printInfo(runner, TEXT);
     }
 
     @Test
@@ -492,7 +569,7 @@ public class RunnerManagerPresenterTest {
         verifyTabSelectHandler(tabBuilderTerminal);
         verify(locale, times(2)).runnerTabTerminal();
         verify(runner).setActiveTab(TERMINAL);
-        verify(terminalContainer).update(runner);
+        verify(terminalContainer, times(2)).update(runner);
     }
 
     @Test
@@ -566,7 +643,7 @@ public class RunnerManagerPresenterTest {
 
         verifyRunnerSelected();
 
-        verify(timer).schedule(TimeInterval.ONE_SEC.getValue());
+        verify(runnerTimer).schedule(TimeInterval.ONE_SEC.getValue());
 
         verify(actionFactory).createLaunch();
         verify(launchAction).perform(runner);
@@ -609,6 +686,7 @@ public class RunnerManagerPresenterTest {
     public void runnerWhichIsAlreadyExistWithStatusInProgressShouldBeUpdated() {
         presenter.addRunner(processDescriptor);
         reset(history, terminalContainer, view);
+        when(history.isRunnerExist(runner)).thenReturn(true);
 
         presenter.update(runner);
 
@@ -622,6 +700,7 @@ public class RunnerManagerPresenterTest {
         presenter.addRunner(processDescriptor);
         reset(history, terminalContainer, view);
         when(runner.getStatus()).thenReturn(Runner.Status.IN_QUEUE);
+        when(history.isRunnerExist(runner)).thenReturn(true);
 
         presenter.update(runner);
 
@@ -634,6 +713,7 @@ public class RunnerManagerPresenterTest {
         presenter.addRunner(processDescriptor);
         reset(history, terminalContainer, view);
         when(runner.getStatus()).thenReturn(STOPPED);
+        when(history.isRunnerExist(runner)).thenReturn(true);
 
         presenter.update(runner);
 
@@ -647,6 +727,7 @@ public class RunnerManagerPresenterTest {
         presenter.addRunner(processDescriptor);
         reset(history, terminalContainer, view);
         when(runner.getStatus()).thenReturn(Runner.Status.FAILED);
+        when(history.isRunnerExist(runner)).thenReturn(true);
 
         presenter.update(runner);
 
@@ -659,6 +740,7 @@ public class RunnerManagerPresenterTest {
         presenter.addRunner(processDescriptor);
         reset(history, terminalContainer, view);
         when(runner.getStatus()).thenReturn(Runner.Status.DONE);
+        when(history.isRunnerExist(runner)).thenReturn(true);
 
         presenter.update(runner);
 
@@ -672,6 +754,7 @@ public class RunnerManagerPresenterTest {
         reset(history, terminalContainer, view);
         when(runner.getStatus()).thenReturn(Runner.Status.DONE);
         when(runner.getApplicationURL()).thenReturn(null);
+        when(history.isRunnerExist(runner)).thenReturn(true);
 
         presenter.update(runner);
 
@@ -684,6 +767,7 @@ public class RunnerManagerPresenterTest {
         presenter.addRunner(processDescriptor);
         reset(history, terminalContainer, view);
         when(runner.getStatus()).thenReturn(Runner.Status.TIMEOUT);
+        when(history.isRunnerExist(runner)).thenReturn(true);
 
         presenter.update(runner);
 
@@ -709,6 +793,7 @@ public class RunnerManagerPresenterTest {
         when(runner.getStatus()).thenReturn(Runner.Status.DONE);
         when(runner.getDescriptor()).thenReturn(processDescriptor);
         when(processDescriptor.getDebugPort()).thenReturn(debugPort);
+        when(history.isRunnerExist(runner)).thenReturn(true);
 
         presenter.update(runner);
 
@@ -749,6 +834,7 @@ public class RunnerManagerPresenterTest {
         when(runnerEnvironment.getId()).thenReturn("myEnvId");
         Map<String, String> options = Collections.emptyMap();
         when(runnerEnvironment.getOptions()).thenReturn(options);
+        when(runnerEnvironment.getRam()).thenReturn(2);
 
         // click on Run
         presenter.onRunButtonClicked();
@@ -818,7 +904,7 @@ public class RunnerManagerPresenterTest {
         verify(dtoFactory, times(2)).createDto(RunOptions.class);
         verify(runOptions).withSkipBuild(true);
         verify(runOptions).withMemorySize(RAM_SIZE);
-        verify(runOptions).withEnvironmentId(TEXT);
+        verify(runOptions).withEnvironmentId(anyString());
         verify(modelsFactory).createRunner(runOptions);
 
         //verify launch runner
@@ -832,7 +918,6 @@ public class RunnerManagerPresenterTest {
 
     @Test
     public void defaultRunnerShouldBeLaunchedIfThisRunnerWasSelect() {
-        RunOptions defaultRunOptions = mock(RunOptions.class);
         RunnerConfiguration runnerConfiguration = mock(RunnerConfiguration.class);
         Map<String, RunnerConfiguration> configs = new HashMap<>();
         configs.put(TEXT, runnerConfiguration);
@@ -841,11 +926,15 @@ public class RunnerManagerPresenterTest {
         when(runnersDescriptor.getDefault()).thenReturn(TEXT);
         when(runnersDescriptor.getConfigs()).thenReturn(configs);
         when(runnerConfiguration.getRam()).thenReturn(RAM_SIZE);
-        when(runOptions.withMemorySize(RAM_SIZE)).thenReturn(defaultRunOptions);
-        when(modelsFactory.createRunner(defaultRunOptions)).thenReturn(runner);
+        when(runOptions.withMemorySize(RAM_SIZE)).thenReturn(runOptions);
         when(runActionPermit.isAllowed()).thenReturn(true);
         when(chooseRunnerAction.selectEnvironment()).thenReturn(runnerEnvironment);
         when(runnerEnvironment.getId()).thenReturn(TEXT);
+        Map<String, String> options = Collections.emptyMap();
+        when(runnerEnvironment.getOptions()).thenReturn(options);
+        when(runnerEnvironment.getRam()).thenReturn(2);
+        when(runnerEnvironment.getName()).thenReturn(TEXT);
+        when(modelsFactory.createRunner(runOptions, TEXT)).thenReturn(runner);
 
         presenter.addRunner(processDescriptor);
         reset(view, history);
@@ -862,8 +951,7 @@ public class RunnerManagerPresenterTest {
         verify(dtoFactory, times(2)).createDto(RunOptions.class);
         verify(runOptions).withSkipBuild(true);
         verify(runOptions).withMemorySize(RAM_SIZE);
-        verify(runOptions).withEnvironmentId(TEXT);
-        verify(modelsFactory).createRunner(runOptions);
+        verify(modelsFactory, times(1)).createRunner(runOptions);
 
         //verify launch runner
         verify(panelState, times(2)).setState(RUNNERS);
@@ -907,7 +995,7 @@ public class RunnerManagerPresenterTest {
         when(panelState.getState()).thenReturn(TEMPLATE);
         when(runActionPermit.isAllowed()).thenReturn(true);
 
-        presenter.onSelectionChanged(Selection.ENVIRONMENT);
+        presenter.onSelectionChanged(ENVIRONMENT);
 
         presenter.onRunButtonClicked();
 
@@ -934,6 +1022,7 @@ public class RunnerManagerPresenterTest {
         when(runActionPermit.isAllowed()).thenReturn(true);
         presenter.addRunner(processDescriptor);
         reset(view, history);
+        when(history.isRunnerExist(runner)).thenReturn(true);
 
         presenter.launchRunner(runOptions);
         presenter.onRerunButtonClicked();
@@ -985,7 +1074,7 @@ public class RunnerManagerPresenterTest {
 
         presenter.addRunner(processDescriptor);
         reset(view, history);
-        presenter.onSelectionChanged(Selection.ENVIRONMENT);
+        presenter.onSelectionChanged(ENVIRONMENT);
 
         presenter.onRunButtonClicked();
 
@@ -1129,12 +1218,12 @@ public class RunnerManagerPresenterTest {
     @Test
     public void selectionShouldNotBeChangedWhenSelectionIsRunnerAndRunnerIsNull() {
         when(selectionManager.getRunner()).thenReturn(null);
-        reset(history, rightTabContainer, view);
+        reset(history, rightPropertiesContainer, view);
 
         presenter.onSelectionChanged(RUNNER);
 
         verify(selectionManager).getRunner();
-        verifyNoMoreInteractions(history, rightTabContainer, view);
+        verifyNoMoreInteractions(history, rightPropertiesContainer, view);
     }
 
     @Test
@@ -1148,7 +1237,7 @@ public class RunnerManagerPresenterTest {
 
     @Test
     public void selectionShouldBeChangedWhenSelectionIsEnvironmentAndRunnerEnvironmentIsNull() {
-        presenter.onSelectionChanged(Selection.ENVIRONMENT);
+        presenter.onSelectionChanged(ENVIRONMENT);
 
         verify(selectionManager).getEnvironment();
         verifyNoMoreInteractions(templates);
@@ -1157,7 +1246,7 @@ public class RunnerManagerPresenterTest {
     @Test
     public void selectionShouldBeChangedWhenSelectionIsEnvironment() {
         when(selectionManager.getEnvironment()).thenReturn(runnerEnvironment);
-        presenter.onSelectionChanged(Selection.ENVIRONMENT);
+        presenter.onSelectionChanged(ENVIRONMENT);
 
         verify(selectionManager).getEnvironment();
         verify(templates).select(runnerEnvironment);
@@ -1185,7 +1274,7 @@ public class RunnerManagerPresenterTest {
         verify(getSystemEnvironmentsAction).perform();
         verify(templates).showEnvironments();
 
-        verify(timer).schedule(TimeInterval.ONE_SEC.getValue());
+        verify(runnerTimer).schedule(TimeInterval.ONE_SEC.getValue());
     }
 
     @Test
@@ -1257,7 +1346,7 @@ public class RunnerManagerPresenterTest {
         verify(actionFactory).createCheckRamAndRun();
         verify(checkRamAndRunAction).perform(runner);
         verify(runner).resetCreationTime();
-        verify(timer).schedule(TimeInterval.ONE_SEC.getValue());
+        verify(runnerTimer).schedule(TimeInterval.ONE_SEC.getValue());
     }
 
     @Test(expected = IllegalStateException.class)
@@ -1270,7 +1359,7 @@ public class RunnerManagerPresenterTest {
 
     private void verifyRunnerSelected() {
         verify(history).selectRunner(runner);
-        verify(rightTabContainer).showTab(TEXT);
+        verify(terminalContainer).update(runner);
 
         //update
         verify(history).update(runner);
@@ -1288,14 +1377,13 @@ public class RunnerManagerPresenterTest {
     public void timerShouldNotUpdateIfRunnerIsNull() {
         when(selectionManager.getRunner()).thenReturn(null);
         presenter.onSelectionChanged(RUNNER);
-        reset(view, timer);
+        reset(view, runnerTimer);
 
-        ArgumentCaptor<TimerFactory.TimerCallBack> argumentCaptor = ArgumentCaptor.forClass(TimerFactory.TimerCallBack.class);
-        verify(timerFactory).newInstance(argumentCaptor.capture());
-        argumentCaptor.getValue().onRun();
+        verify(timerFactory, times(2)).newInstance(timerCaptor.capture());
+        timerCaptor.getAllValues().get(0).onRun();
 
         verifyNoMoreInteractions(view);
-        verify(timer).schedule(TimeInterval.ONE_SEC.getValue());
+        verify(runnerTimer).schedule(TimeInterval.ONE_SEC.getValue());
     }
 
     @Test
@@ -1318,6 +1406,50 @@ public class RunnerManagerPresenterTest {
         presenter.onLogsButtonClicked();
 
         verify(view).showLog(TEXT);
+    }
+
+    @Test
+    public void splitterShouldBeShownWhenPanelStateIsHistory() throws Exception {
+        reset(leftPropertiesContainer, view, panelState);
+
+        presenter.onToggleSplitterClicked(true);
+
+        verify(terminalTab).setScopes(EnumSet.allOf(State.class));
+
+        verify(panelState).setSplitterState(SPLITTER_ON);
+
+        verify(view).setLeftPropertiesPanel(leftPropertiesContainer);
+        verify(view).setRightPropertiesPanel(rightPropertiesContainer);
+
+        verify(panelState, never()).setSplitterState(SPLITTER_OFF);
+        verify(view, never()).setGeneralPropertiesPanel(Matchers.<TabContainer>anyObject());
+
+        verify(panelState, never()).setState(TEMPLATE);
+        verify(leftTabContainer, never()).showTab(TEMPLATES);
+    }
+
+    @Test
+    public void splitterShouldNotBeShownAndPanelStateIsTemplate() throws Exception {
+        verifyTabSelectHandler(tabBuilderTemplate);
+        reset(leftPropertiesContainer, view, panelState);
+
+        when(panelState.getSplitterState()).thenReturn(SPLITTER_OFF);
+
+        presenter.onToggleSplitterClicked(false);
+
+        verify(terminalTab).setScopes(EnumSet.of(RUNNERS));
+
+        verify(panelState, never()).setSplitterState(SPLITTER_ON);
+        verify(view, never()).setLeftPropertiesPanel(leftPropertiesContainer);
+        verify(view, never()).setRightPropertiesPanel(rightPropertiesContainer);
+
+        verify(panelState).setSplitterState(SPLITTER_OFF);
+
+        verify(view).setGeneralPropertiesPanel(rightPropertiesContainer);
+
+        verify(panelState).setState(TEMPLATE);
+        verify(leftTabContainer).showTab(TEMPLATES);
+        verify(rightPropertiesContainer).showTab(PROPERTIES);
     }
 
 }

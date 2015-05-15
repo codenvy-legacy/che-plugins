@@ -13,6 +13,7 @@ package org.eclipse.che.ide.ext.git.server.nativegit.commands;
 import org.eclipse.che.ide.ext.git.server.GitException;
 
 import java.io.File;
+import java.util.regex.Pattern;
 
 /**
  * Used for branches renaming
@@ -21,8 +22,11 @@ import java.io.File;
  */
 public class BranchRenameCommand extends GitCommand<Void> {
 
+    private static final Pattern checkoutErrorPattern = Pattern.compile(".*fatal: A branch named '.*' already exists.*");
+
     private String oldName;
     private String newName;
+    private String remote;
 
     public BranchRenameCommand(File repository) {
         super(repository);
@@ -35,10 +39,56 @@ public class BranchRenameCommand extends GitCommand<Void> {
             throw new GitException("Old name or new name was not set.");
         }
         reset();
+
+        if (remote == null) {
+            renameLocalBranch();
+        } else {
+            renameRemoteBranch();
+        }
+        return null;
+    }
+
+    private void renameLocalBranch() throws GitException {
         commandLine.add("branch");
         commandLine.add("-m", oldName, newName);
         start();
-        return null;
+    }
+
+    private void renameRemoteBranch() throws GitException {
+        //checkout
+        try {
+            String branchName = remote + "/" + oldName;
+            commandLine.add("checkout");
+            commandLine.add("-t");
+            commandLine.add(branchName);
+            start();
+        } catch (GitException e) {
+            String errorMessage = e.getMessage();
+            if (!checkoutErrorPattern.matcher(errorMessage).find()) {
+                throw new GitException(errorMessage);
+            }
+            //local branch already exist - so ignore and try perform the next step
+        }
+
+        //rename the local branch
+        reset();
+        commandLine.add("branch");
+        commandLine.add("-m", oldName, newName);
+        start();
+
+        //push the new local branch
+        reset();
+        commandLine.add("push");
+        commandLine.add(remote);
+        commandLine.add(newName);
+        start();
+
+        //delete the old remote branch
+        reset();
+        commandLine.add("push");
+        commandLine.add(remote);
+        commandLine.add(":" + oldName);
+        start();
     }
 
     /**
@@ -51,6 +101,16 @@ public class BranchRenameCommand extends GitCommand<Void> {
     public BranchRenameCommand setNames(String oldName, String newName) {
         this.oldName = oldName;
         this.newName = newName;
+        return this;
+    }
+
+    /**
+     * @param remoteName
+     *         remote name
+     * @return BranchDeleteCommand with established remote name
+     */
+    public BranchRenameCommand setRemote(String remoteName) {
+        this.remote = remoteName;
         return this;
     }
 }

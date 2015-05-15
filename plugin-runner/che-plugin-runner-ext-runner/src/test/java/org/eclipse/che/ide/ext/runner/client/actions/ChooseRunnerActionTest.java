@@ -124,12 +124,11 @@ public class ChooseRunnerActionTest {
 
         action.addSystemRunners(systemEnvList);
 
-        verify(systemEnv1, times(4)).getName();
-        verify(resources, times(2)).scopeSystem();
+        verify(systemEnv1, times(2)).getName();
+        verify(resources, times(1)).scopeSystem();
         verify(listFactory).createElement(TEXT, svgResource, dropDownHeaderWidget);
         verify(runnersList, times(2)).addSeparator();
         verify(runnersList, times(2)).addAll(Matchers.<ActionGroup>any());
-        verify(dropDownHeaderWidget).selectElement(resources.scopeProject(), TEXT);
 
         action.addProjectRunners(projectEnvList);
 
@@ -146,12 +145,11 @@ public class ChooseRunnerActionTest {
 
         action.addProjectRunners(projectEnvList);
 
-        verify(projectEnv1, times(4)).getName();
-        verify(resources, times(2)).scopeProject();
+        verify(projectEnv1, times(2)).getName();
+        verify(resources, times(1)).scopeProject();
         verify(listFactory).createElement(TEXT, svgResource, dropDownHeaderWidget);
         verify(runnersList, times(2)).addSeparator();
         verify(runnersList, times(2)).addAll(Matchers.<ActionGroup>any());
-        verify(dropDownHeaderWidget).selectElement(resources.scopeProject(), TEXT);
 
         action.addSystemRunners(systemEnvList);
 
@@ -194,12 +192,11 @@ public class ChooseRunnerActionTest {
 
         action.addProjectRunners(projectEnvList);
 
-        verify(projectEnv1, times(4)).getName();
-        verify(resources, times(2)).scopeProject();
+        verify(projectEnv1, times(2)).getName();
+        verify(resources, times(1)).scopeProject();
         verify(listFactory).createElement(TEXT, svgResource, dropDownHeaderWidget);
         verify(runnersList, times(2)).addSeparator();
         verify(runnersList, times(2)).addAll(Matchers.<ActionGroup>any());
-        verify(dropDownHeaderWidget).selectElement(resources.scopeProject(), TEXT);
 
         when(dropDownHeaderWidget.getSelectedElementName()).thenReturn(TEXT);
 
@@ -218,12 +215,11 @@ public class ChooseRunnerActionTest {
 
         action.addSystemRunners(systemEnvList);
 
-        verify(systemEnv1, times(4)).getName();
-        verify(resources, times(2)).scopeSystem();
+        verify(systemEnv1, times(2)).getName();
+        verify(resources, times(1)).scopeSystem();
         verify(listFactory).createElement(TEXT, svgResource, dropDownHeaderWidget);
         verify(runnersList, times(2)).addSeparator();
         verify(runnersList, times(2)).addAll(Matchers.<ActionGroup>any());
-        verify(dropDownHeaderWidget).selectElement(resources.scopeProject(), TEXT);
 
         when(dropDownHeaderWidget.getSelectedElementName()).thenReturn(TEXT);
 

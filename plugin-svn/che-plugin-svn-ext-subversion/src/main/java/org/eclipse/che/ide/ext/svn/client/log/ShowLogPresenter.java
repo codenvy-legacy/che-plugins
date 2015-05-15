@@ -20,13 +20,14 @@ import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.parts.WorkspaceAgent;
 import org.eclipse.che.ide.ext.svn.shared.InfoResponse;
+import org.eclipse.che.ide.ext.svn.shared.SubversionItem;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 
 /**
- * Shows logs for specified period.
+ * Manages the displaying commit log messages for specified period.
  */
 public class ShowLogPresenter extends SubversionActionPresenter {
 
@@ -37,6 +38,9 @@ public class ShowLogPresenter extends SubversionActionPresenter {
 
     private final ShowLogsView            view;
 
+    /**
+     * Creates an instance of this presenter.
+     */
     @Inject
     protected ShowLogPresenter(final AppContext appContext,
                                final DtoUnmarshallerFactory dtoUnmarshallerFactory,
@@ -72,20 +76,27 @@ public class ShowLogPresenter extends SubversionActionPresenter {
         });
     }
 
+    /**
+     * Fetches the count of revisions and opens the popup.
+     */
     public void showLog() {
         if (appContext.getCurrentProject() == null) {
             return;
         }
 
-        subversionClientService.info(appContext.getCurrentProject().getRootProject().getPath(), getSelectedPaths(), "HEAD",
+        subversionClientService.info(appContext.getCurrentProject().getRootProject().getPath(), getSelectedPaths().get(0), "HEAD", false,
                 new AsyncRequestCallback<InfoResponse>(dtoUnmarshallerFactory.newUnmarshaller(InfoResponse.class)) {
                     @Override
                     protected void onSuccess(InfoResponse result) {
-                        printCommand(result.getCommand());
-                        printAndSpace(result.getOutput());
+                        if (result.getErrorOutput() != null && !result.getErrorOutput().isEmpty()) {
+                            printResponse(null, null, result.getErrorOutput());
+                            notificationManager.showError("Unable to execute subversion command");
+                            return;
+                        }
 
-                        view.setRevisionCount(result.getRevision());
-                        view.rangeFiend().setValue("1:" + result.getRevision());
+                        SubversionItem subversionItem = result.getItems().get(0);
+                        view.setRevisionCount(subversionItem.getRevision());
+                        view.rangeFiend().setValue("1:" + subversionItem.getRevision());
                         view.show();
                     }
 
@@ -97,6 +108,11 @@ public class ShowLogPresenter extends SubversionActionPresenter {
 
     }
 
+    /**
+     * Fetches and displays commit log messages for specified range.
+     *
+     * @param range range to be logged
+     */
     private void showLogs(String range) {
         subversionClientService.showLog(appContext.getCurrentProject().getRootProject().getPath(), getSelectedPaths(), range,
                 new AsyncRequestCallback<CLIOutputResponse>(dtoUnmarshallerFactory.newUnmarshaller(CLIOutputResponse.class)) {

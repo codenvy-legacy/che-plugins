@@ -43,7 +43,7 @@
         <dependency>
             <groupId>org.eclipse.che.plugin</groupId>
             <artifactId>che-plugin-java-maven-tools</artifactId>
-            <version>${che.plugins.version}</version>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
     <build>
@@ -133,7 +133,7 @@
                         <configuration>
                             <tasks>
                                 <!-- Unzip Tomcat package -->
-                                <mkdir dir="${project.build.directory}/classes/tomcat-bundle"/>
+                                <mkdir dir="${project.build.directory}/classes/tomcat-bundle" />
                                 <unzip dest="${project.build.directory}/classes/tomcat-bundle" src="${project.build.directory}/classes/tomcat.zip">
                                     <patternset>
                                         <exclude name="**/ROOT/**" />

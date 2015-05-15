@@ -74,9 +74,9 @@ import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common
 public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
 
     private static       RegExp FILE_NAME             = RegExp.compile("^[A-Za-z0-9_\\s-\\.]+$");
-    private static final String CONFIGURATION_TYPE    = "configuration.type";
+    private static final String CONFIGURATION_TYPE    = "configurationType";
     private static final String DOCKER_SCRIPT_NAME    = "/Dockerfile";
-    public static final  String ENVIRONMENT_ID_PREFIX = "project://";
+    public static final  String ENVIRONMENT_ID_PREFIX = "project:/";
 
     private final Environment                                environment;
     private final DtoFactory                                 dtoFactory;
@@ -350,10 +350,9 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
     }
 
     private String generateEnvironmentId(@Nonnull String environmentName) {
-
         String newName = URL.encode(ENVIRONMENT_ID_PREFIX + environmentName);
         // with GWT mocks, native methods can be empty
-        if ("".equals(newName)) {
+        if (newName.isEmpty()) {
             return ENVIRONMENT_ID_PREFIX + environmentName;
         }
         return newName;
@@ -387,6 +386,7 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
         final String newEnvironmentName = view.getName();
         final String environmentName = environment.getName();
         final String environmentId = environment.getId();
+        final String encodedEnvironmentId = URL.encode(environmentId);
 
         final String pathToProject = projectDescriptor.getPath();
         final String path = pathToProject + ROOT_FOLDER + environmentName;
@@ -395,9 +395,8 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
                 .success(new SuccessCallback<Void>() {
                     @Override
                     public void onSuccess(Void result) {
-                        RunnerConfiguration config = runnerConfigs.get(environmentId);
-
-                        runnerConfigs.remove(environmentId);
+                        RunnerConfiguration config = runnerConfigs.get(encodedEnvironmentId);
+                        runnerConfigs.remove(encodedEnvironmentId);
 
                         runnerConfigs.put(generateEnvironmentId(newEnvironmentName), config);
 
@@ -450,7 +449,7 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
         variables.put(CONFIGURATION_TYPE, environment.getType());
         RunnerConfiguration config = dtoFactory.createDto(RunnerConfiguration.class).withRam(environment.getRam()).withVariables(variables);
 
-        runnerConfigs.put(environmentId, config);
+        runnerConfigs.put(encodedEnvironmentId, config);
 
         updateProject();
 
@@ -572,10 +571,11 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
         view.setEnableDeleteButton(PROJECT.equals(scope));
 
         String environmentName = environment.getName();
+        String environmentId = URL.encode(environment.getId());
 
-        boolean isConfigExist = runnerConfigs.containsKey(environment.getId());
+        boolean isConfigExist = runnerConfigs.containsKey(environmentId);
 
-        RAM ram = RAM.detect(isConfigExist && !isParameterChanged ? getRam(environment.getId()) : environment.getRam());
+        RAM ram = RAM.detect(isConfigExist && !isParameterChanged ? getRam(environmentId) : environment.getRam());
 
         this.environment.setRam(ram.getValue());
 

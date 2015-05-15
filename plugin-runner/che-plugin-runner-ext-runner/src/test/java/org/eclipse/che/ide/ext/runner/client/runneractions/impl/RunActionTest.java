@@ -48,11 +48,13 @@ import static org.mockito.Mockito.when;
 
 /**
  * @author Alexander Andrienko
+ * @author Dmitry Shnurenko
  */
 @RunWith(GwtMockitoTestRunner.class)
 public class RunActionTest {
     private static final String PATH_TO_PROJECT = "somePath";
     private static final String PROJECT_NAME    = "projectName";
+    private static final String ENV_ID          = "project://project a";
 
     /*constructor variables*/
     @Mock
@@ -120,6 +122,8 @@ public class RunActionTest {
         //preparing project data
         when(project.getProjectDescription()).thenReturn(projectDescriptor);
         when(projectDescriptor.getPath()).thenReturn(PATH_TO_PROJECT);
+        when(runner.getOptions()).thenReturn(runOptions);
+        when(runOptions.getEnvironmentId()).thenReturn(ENV_ID);
     }
 
     @Test
@@ -153,9 +157,9 @@ public class RunActionTest {
 
         verify(runner).setProcessDescriptor(descriptor);
         verify(runner).setRAM(MB_500.getValue());
-        verify(runner).setStatus(Runner.Status.IN_PROGRESS);
 
         verify(presenter).addRunnerId(12345678L);
+        verify(presenter).update(runner);
 
         verify(launchAction).perform(runner);
 

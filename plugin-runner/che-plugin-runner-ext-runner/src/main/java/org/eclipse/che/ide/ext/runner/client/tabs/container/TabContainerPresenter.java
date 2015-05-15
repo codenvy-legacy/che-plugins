@@ -10,15 +10,20 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.runner.client.tabs.container;
 
+import com.google.gwt.user.client.ui.AcceptsOneWidget;
+import com.google.inject.Inject;
+
+import org.eclipse.che.ide.ext.runner.client.RunnerLocalizationConstant;
 import org.eclipse.che.ide.ext.runner.client.state.PanelState;
 import org.eclipse.che.ide.ext.runner.client.state.State;
 import org.eclipse.che.ide.ext.runner.client.tabs.common.Tab;
-import com.google.gwt.user.client.ui.AcceptsOneWidget;
-import com.google.inject.Inject;
 
 import javax.annotation.Nonnull;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import static org.eclipse.che.ide.ext.runner.client.manager.menu.SplitterState.SPLITTER_OFF;
+import static org.eclipse.che.ide.ext.runner.client.tabs.container.PanelLocation.RIGHT_PROPERTIES;
 
 /**
  * @author Andrey Plotnikov
@@ -26,18 +31,21 @@ import java.util.Map;
  */
 public class TabContainerPresenter implements TabContainer, TabContainerView.ActionDelegate, PanelState.StateChangeListener {
 
-    private final TabContainerView     view;
-    private final PanelState           panelState;
-    private final Map<String, Tab>     tabs;
-    private final Map<String, Boolean> tabVisibilities;
+    private final TabContainerView           view;
+    private final PanelState                 panelState;
+    private final Map<String, Tab>           tabs;
+    private final Map<String, Boolean>       tabVisibilities;
+    private final RunnerLocalizationConstant locale;
 
-    private boolean isFirst;
+    private PanelLocation panelLocation;
+    private boolean       isFirst;
 
     @Inject
-    public TabContainerPresenter(TabContainerView view, PanelState panelState) {
+    public TabContainerPresenter(TabContainerView view, PanelState panelState, RunnerLocalizationConstant locale) {
         this.view = view;
         this.view.setDelegate(this);
         this.panelState = panelState;
+        this.locale = locale;
 
         tabs = new LinkedHashMap<>();
         tabVisibilities = new LinkedHashMap<>();
@@ -70,7 +78,7 @@ public class TabContainerPresenter implements TabContainer, TabContainerView.Act
 
         view.addTab(tab);
 
-        if (isFirst) {
+        if (isFirst || locale.runnerTabTerminal().equals(title)) {
             view.showTab(tab);
             view.selectTab(tab);
 
@@ -79,6 +87,18 @@ public class TabContainerPresenter implements TabContainer, TabContainerView.Act
 
         tabs.put(title, tab);
         tabVisibilities.put(title, true);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void showTabTitle(@Nonnull String tabName, boolean isShown) {
+        view.showTabTitle(tabName, isShown);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void setLocation(@Nonnull PanelLocation panelLocation) {
+        this.panelLocation = panelLocation;
     }
 
     /** {@inheritDoc} */
@@ -100,9 +120,12 @@ public class TabContainerPresenter implements TabContainer, TabContainerView.Act
         State state = panelState.getState();
         Tab firsVisibleTab = null;
 
+        boolean isRightPropertiesPanel = RIGHT_PROPERTIES.equals(panelLocation);
+        boolean isSplitterOff = SPLITTER_OFF.equals(panelState.getSplitterState());
+
         for (Tab tab : tabs.values()) {
             boolean visible = tab.isAvailableScope(state);
-            if (visible && firsVisibleTab == null) {
+            if (visible && firsVisibleTab == null && (!isRightPropertiesPanel || isSplitterOff)) {
                 firsVisibleTab = tab;
             }
             tabVisibilities.put(tab.getTitle(), visible);

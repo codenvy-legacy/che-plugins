@@ -95,6 +95,11 @@ public class MachineExtension {
             }
 
             @Override
+            public void onProjectClosing(ProjectActionEvent event) {
+                //nothing to do for now
+            }
+
+            @Override
             public void onProjectClosed(ProjectActionEvent event) {
                 machineManager.setCurrentMachineId(null);
                 machineConsolePresenter.clear();

@@ -12,9 +12,10 @@ package org.eclipse.che.ide.ext.svn.client.commit;
 
 import static org.eclipse.che.ide.api.notification.Notification.Type.ERROR;
 
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
@@ -22,27 +23,49 @@ import javax.inject.Inject;
 import org.eclipse.che.ide.api.parts.ProjectExplorerPart;
 import org.eclipse.che.ide.ext.svn.client.SubversionClientService;
 import org.eclipse.che.ide.ext.svn.client.SubversionExtensionLocalizationConstants;
-import org.eclipse.che.ide.ext.svn.client.commit.CommitView.CommitViewDelegate;
+import org.eclipse.che.ide.ext.svn.client.commit.CommitView.ActionDelegate;
+import org.eclipse.che.ide.ext.svn.client.commit.diff.DiffViewerPresenter;
 import org.eclipse.che.ide.ext.svn.client.common.RawOutputPresenter;
 import org.eclipse.che.ide.ext.svn.client.common.SubversionActionPresenter;
+import org.eclipse.che.ide.ext.svn.shared.CLIOutputParser;
+import org.eclipse.che.ide.ext.svn.shared.CLIOutputResponse;
 import org.eclipse.che.ide.ext.svn.shared.CLIOutputWithRevisionResponse;
 
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.parts.WorkspaceAgent;
+import org.eclipse.che.ide.ext.svn.shared.StatusItem;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.rest.Unmarshallable;
+import org.eclipse.che.ide.util.loging.Log;
+
+import com.google.common.base.Joiner;
+import com.google.inject.Singleton;
 import com.google.web.bindery.event.shared.EventBus;
 
-public class CommitPresenter extends SubversionActionPresenter implements CommitViewDelegate {
+/**
+ * Presenter for the {@link org.eclipse.che.ide.ext.svn.client.commit.CommitView}.
+ *
+ * @author Vladyslav Zhukovskyi
+ */
+@Singleton
+public class CommitPresenter extends SubversionActionPresenter implements ActionDelegate {
 
-    private final SubversionClientService subversionService;
-    private final CommitView view;
-    private final DtoUnmarshallerFactory dtoUnmarshallerFactory;
-    private final NotificationManager notificationManager;
+    private final SubversionClientService                  subversionService;
+    private final CommitView                               view;
+    private       DiffViewerPresenter                      diffViewerPresenter;
+    private final DtoUnmarshallerFactory                   dtoUnmarshallerFactory;
+    private final NotificationManager                      notificationManager;
     private final SubversionExtensionLocalizationConstants constants;
+
+    private enum Changes {
+        ALL,
+        SELECTION
+    }
+
+    private Map<Changes, List<StatusItem>> cache = new HashMap<>();
 
     @Inject
     public CommitPresenter(final AppContext appContext,
@@ -54,10 +77,12 @@ public class CommitPresenter extends SubversionActionPresenter implements Commit
                            final SubversionExtensionLocalizationConstants constants,
                            final SubversionClientService subversionService,
                            final WorkspaceAgent workspaceAgent,
-                           final ProjectExplorerPart projectExplorerPart) {
+                           final ProjectExplorerPart projectExplorerPart,
+                           final DiffViewerPresenter diffViewerPresenter) {
         super(appContext, eventBus, console, workspaceAgent, projectExplorerPart);
         this.subversionService = subversionService;
         this.view = view;
+        this.diffViewerPresenter = diffViewerPresenter;
         this.view.setDelegate(this);
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
         this.notificationManager = notificationManager;
@@ -65,39 +90,104 @@ public class CommitPresenter extends SubversionActionPresenter implements Commit
     }
 
     public void show() {
-        final String projectPath = getCurrentProjectPath();
-        if (projectPath != null) {
-            this.view.setMessage("");
-            this.view.setEnableCommitButton(false);
-            this.view.setCommitSelection(false);
-            this.view.setKeepLocksState(false);
+        loadAllChanges();
+    }
 
-            this.view.showDialog();
+    private void loadAllChanges() {
+        Unmarshallable<CLIOutputResponse> unmarshaller = dtoUnmarshallerFactory.newUnmarshaller(CLIOutputResponse.class);
+        subversionService.status(getCurrentProjectPath(), Collections.<String>emptyList(), null, false, false, false, true, false, null,
+                                 new AsyncRequestCallback<CLIOutputResponse>(unmarshaller) {
+                                     @Override
+                                     protected void onSuccess(CLIOutputResponse response) {
+                                         List<StatusItem> statusItems = parseChangesList(response);
+                                         view.setChangesList(statusItems);
+                                         view.onShow();
+
+                                         cache.put(Changes.ALL, statusItems);
+                                     }
+
+                                     @Override
+                                     protected void onFailure(Throwable exception) {
+                                         Log.error(CommitPresenter.class, exception);
+                                     }
+                                 });
+    }
+
+    private  List<StatusItem> parseChangesList(CLIOutputResponse response) {
+        return CLIOutputParser.parseFilesStatus(response.getOutput());
+    }
+
+    private void loadSelectionChanges() {
+        Unmarshallable<CLIOutputResponse> unmarshaller = dtoUnmarshallerFactory.newUnmarshaller(CLIOutputResponse.class);
+        subversionService.status(getCurrentProjectPath(), getSelectedPaths(), null, false, false, false, true, false, null,
+                                 new AsyncRequestCallback<CLIOutputResponse>(unmarshaller) {
+                                     @Override
+                                     protected void onSuccess(CLIOutputResponse response) {
+                                         List<StatusItem> statusItems = parseChangesList(response);
+                                         view.setChangesList(statusItems);
+
+                                         cache.put(Changes.SELECTION, statusItems);
+                                     }
+
+                                     @Override
+                                     protected void onFailure(Throwable exception) {
+                                         Log.error(CommitPresenter.class, exception);
+                                     }
+                                 });
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void onCommitModeChanged() {
+        if (view.isCommitAllSelected()) {
+            view.setChangesList(cache.get(Changes.ALL));
+        } else if (view.isCommitSelectionSelected()) {
+            if (cache.containsKey(Changes.SELECTION)) {
+                view.setChangesList(cache.get(Changes.SELECTION));
+                return;
+            }
+
+            loadSelectionChanges();
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public void onCancelClicked() {
-        this.view.close();
+        cache.clear();
+        view.onClose();
     }
 
+    /** {@inheritDoc} */
     @Override
     public void onCommitClicked() {
         final String message = view.getMessage();
-        final boolean keepLocks = view.getKeepLocksState();
-        final boolean selectionFlag = this.view.isCommitSelection();
+        final boolean keepLocks = view.isKeepLocksStateSelected();
 
-        if (selectionFlag) {
+        if (view.isCommitSelectionSelected()) {
             commitSelection(message, keepLocks);
-        } else {
+        } else if (view.isCommitAllSelected()) {
             commitAll(message, keepLocks);
         }
     }
 
+    /** {@inheritDoc} */
     @Override
-    public void onValueChanged() {
-        final String message = view.getMessage();
-        this.view.setEnableCommitButton(!message.isEmpty());
+    public void showDiff(String path) {
+        this.subversionService.showDiff(getCurrentProjectPath(), Collections.singletonList(path), "HEAD",
+                                        new AsyncRequestCallback<CLIOutputResponse>(
+                                                dtoUnmarshallerFactory.newUnmarshaller(CLIOutputResponse.class)) {
+                                            @Override
+                                            protected void onSuccess(CLIOutputResponse result) {
+                                                String content = Joiner.on('\n').join(result.getOutput());
+                                                diffViewerPresenter.showDiff(content);
+                                            }
+
+                                            @Override
+                                            protected void onFailure(Throwable exception) {
+                                                notificationManager.showError(exception.getMessage());
+                                            }
+                                        });
     }
 
     private void commitSelection(final String message, final boolean keepLocks) {
@@ -113,18 +203,18 @@ public class CommitPresenter extends SubversionActionPresenter implements Commit
         this.subversionService.commit(getCurrentProjectPath(), paths, message, false, keepLocks,
                                       new AsyncRequestCallback<CLIOutputWithRevisionResponse>(
                                               dtoUnmarshallerFactory.newUnmarshaller(CLIOutputWithRevisionResponse.class)) {
-                           @Override
-                           protected void onSuccess(final CLIOutputWithRevisionResponse result) {
-                               printResponse(result.getCommand(), result.getOutput(), result.getErrOutput());
-                           }
+                                          @Override
+                                          protected void onSuccess(final CLIOutputWithRevisionResponse result) {
+                                              printResponse(result.getCommand(), result.getOutput(), result.getErrOutput());
+                                          }
 
-                           @Override
-                           protected void onFailure(final Throwable exception) {
-                               handleError(exception);
-                           }
-                       }
-               );
-        this.view.close();
+                                          @Override
+                                          protected void onFailure(final Throwable exception) {
+                                              handleError(exception);
+                                          }
+                                      }
+                                     );
+        view.onClose();
     }
 
     private void handleError(@Nonnull final Throwable e) {

@@ -16,11 +16,13 @@ import static org.eclipse.che.ide.ext.runner.client.TestUtil.getContentByPath;
 import static org.eclipse.che.ide.ext.runner.client.tabs.console.panel.MessageType.DOCKER;
 import static org.eclipse.che.ide.ext.runner.client.tabs.console.panel.MessageType.ERROR;
 import static org.eclipse.che.ide.ext.runner.client.tabs.console.panel.MessageType.INFO;
+import static org.eclipse.che.ide.ext.runner.client.tabs.console.panel.MessageType.UNDEFINED;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
 /**
  * @author Andrey Plotnikov
+ * @author Dmitry Shnurenko
  */
 public class MessageBuilderTest {
 
@@ -74,6 +76,16 @@ public class MessageBuilderTest {
                                              .asString();
 
         assertThat(content, equalTo(getContentByPath(getClass(), "MessageWithoutTypeAndContent.txt")));
+    }
+
+    @Test
+    public void messageShouldBeGeneratedWhenTypeUndefined() throws Exception {
+        String content = new MessageBuilder().type(UNDEFINED)
+                                             .message(SOME_TEXT)
+                                             .build()
+                                             .asString();
+
+        assertThat(content, equalTo(getContentByPath(getClass(), "MessageWithContent.txt")));
     }
 
 }

@@ -68,6 +68,15 @@ public interface SubversionExtensionLocalizationConstants extends Messages {
     @Key("commit.title")
     String commitTitle();
 
+    @Key("commit.placeholder")
+    String commitPlaceholder();
+
+    @Key("commit.message.empty")
+    String commitMessageEmpty();
+
+    @Key("commit.diff.unavailable")
+    String commitDiffUnavailable();
+
     @Key("copy.description")
     String copyDescription();
 
@@ -130,6 +139,9 @@ public interface SubversionExtensionLocalizationConstants extends Messages {
 
     @Key("merge.title")
     String mergeTitle();
+
+    @Key("merge.dialog.title")
+    String mergeDialogTitle();
 
     @Key("lock.description")
     String lockDescription();
@@ -276,6 +288,9 @@ public interface SubversionExtensionLocalizationConstants extends Messages {
 
     @Key("button.commit")
     String buttonCommit();
+
+    @Key("button.merge")
+    String buttonMerge();
 
     @Key("button.resolve")
     String buttonResolve();

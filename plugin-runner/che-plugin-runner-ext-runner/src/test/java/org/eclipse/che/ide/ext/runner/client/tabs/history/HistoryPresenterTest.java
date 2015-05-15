@@ -15,6 +15,7 @@ import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwtmockito.GwtMockitoTestRunner;
 
 import org.eclipse.che.ide.ext.runner.client.inject.factories.WidgetFactory;
+import org.eclipse.che.ide.ext.runner.client.manager.RunnerManagerView;
 import org.eclipse.che.ide.ext.runner.client.models.Runner;
 import org.eclipse.che.ide.ext.runner.client.selection.SelectionManager;
 import org.eclipse.che.ide.ext.runner.client.tabs.console.container.ConsoleContainer;
@@ -27,7 +28,9 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
@@ -52,6 +55,8 @@ public class HistoryPresenterTest {
     private ConsoleContainer  consolePresenter;
     @Mock
     private TerminalContainer terminalContainer;
+    @Mock
+    private RunnerManagerView runnerManagerView;
 
     @Mock
     private RunnerWidget runnerWidget;
@@ -137,6 +142,20 @@ public class HistoryPresenterTest {
     }
 
     @Test
+    public void historyShouldContainsRunner() throws Exception {
+        historyPresenter.addRunner(runner);
+
+        assertTrue(historyPresenter.isRunnerExist(runner));
+    }
+
+    @Test
+    public void historyShouldNotContainsRunner() throws Exception {
+        historyPresenter.addRunner(runner);
+
+        assertFalse(historyPresenter.isRunnerExist(runner2));
+    }
+
+    @Test
     public void viewShouldBeReturned() {
         assertThat(historyPresenter.getView(), CoreMatchers.<IsWidget>is(view));
     }
@@ -189,6 +208,7 @@ public class HistoryPresenterTest {
         historyPresenter.onRunnerCleanBtnClicked(runner);
 
         verify(terminalContainer).reset();
+        verify(runnerManagerView).setEnableReRunButton(false);
         verify(selectionManager, never()).getRunner();
     }
 

@@ -108,6 +108,11 @@ public class HistoryPresenter extends BasePresenter implements HistoryView.Actio
             }
 
             @Override
+            public void onProjectClosing(ProjectActionEvent event) {
+
+            }
+
+            @Override
             public void onProjectClosed(ProjectActionEvent event) {
                 isViewClosed = true;
                 workspaceAgent.hidePart(HistoryPresenter.this);

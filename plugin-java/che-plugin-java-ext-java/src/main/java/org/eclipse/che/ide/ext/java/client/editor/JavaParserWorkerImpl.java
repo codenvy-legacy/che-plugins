@@ -419,6 +419,10 @@ public class JavaParserWorkerImpl implements JavaParserWorker, ProjectActionHand
     }
 
     @Override
+    public void onProjectClosing(ProjectActionEvent event) {
+    }
+
+    @Override
     public void onProjectClosed(ProjectActionEvent event) {
         if (worker != null) {
             worker.terminate();

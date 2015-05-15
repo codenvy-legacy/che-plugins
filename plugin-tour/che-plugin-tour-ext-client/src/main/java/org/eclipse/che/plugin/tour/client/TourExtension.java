@@ -103,6 +103,11 @@ public class TourExtension implements GuidedTourLifeCycle {
             }
 
             @Override
+            public void onProjectClosing(ProjectActionEvent event) {
+
+            }
+
+            @Override
             public void onProjectClosed(ProjectActionEvent projectActionEvent) {
 
             }

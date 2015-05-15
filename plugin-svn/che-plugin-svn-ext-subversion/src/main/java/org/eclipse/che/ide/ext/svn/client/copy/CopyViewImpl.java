@@ -282,7 +282,7 @@ public class CopyViewImpl extends Window implements CopyView {
         delegate.onTargetCheckBoxChanged();
 
         new SlideAnimation().showWidget(commentDeckPanel.getWidget(targetCheckBox.getValue() ? 1 : 0),
-                                        commentDeckPanel.getWidget(targetCheckBox.getValue() ? 0 : 1));
+                commentDeckPanel.getWidget(targetCheckBox.getValue() ? 0 : 1));
 
     }
 
@@ -348,13 +348,7 @@ public class CopyViewImpl extends Window implements CopyView {
 
     /** {@inheritDoc} */
     @Override
-    public void onClose() {
-        hide();
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void onShow() {
+    public void show() {
         new SlideAnimation().showWidget(null, deckPanel.getWidget(0));
         new SlideAnimation().showWidget(commentDeckPanel.getWidget(0), commentDeckPanel.getWidget(1));
 
@@ -365,7 +359,7 @@ public class CopyViewImpl extends Window implements CopyView {
         targetUrlTextBox.setText(null);
         targetUrlTextBox.getElement().setAttribute(PLACEHOLDER, PLACEHOLDER_DUMMY);
 
-        show();
+        super.show();
     }
 
     /** {@inheritDoc} */

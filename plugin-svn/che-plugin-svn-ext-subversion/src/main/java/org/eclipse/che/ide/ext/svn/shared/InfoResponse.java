@@ -19,63 +19,52 @@ import javax.validation.constraints.NotNull;
 @DTO
 public interface InfoResponse {
 
-    /**
-     * @return the executed command
-     */
+    /**************************************************************************
+     *
+     *  Subversion command
+     *
+     **************************************************************************/
+
     String getCommand();
 
-    /**
-     * @param command the executed command
-     */
     void setCommand(@NotNull final String command);
 
-    /**
-     * @param command the executed command
-     *
-     * @return the response
-     */
     InfoResponse withCommand(@NotNull final String command);
 
-    /**
-     * @return the update output
-     */
+    /**************************************************************************
+     *
+     *  Execution output
+     *
+     **************************************************************************/
+
     List<String> getOutput();
 
-    /**
-     * @param output the update output to set
-     */
     void setOutput(@NotNull final List<String> output);
 
-    /**
-     * @param output the update output to use
-     *
-     * @return the response
-     */
     InfoResponse withOutput(@NotNull final List<String> output);
 
-    String getRepositoryUrl();
-
-    InfoResponse withRepositoryUrl(String repositoryUrl);
-
-
-    String getRepositoryRoot();
-
-    InfoResponse withRepositoryRoot(String repositoryRootUrl);
-
-
-    String getRevision();
-
-    InfoResponse withRevision(String revision);
-
-
-    int getExitCode();
-
-    InfoResponse withExitCode(int exitCode);
-
+    /**************************************************************************
+     *
+     *  Error output
+     *
+     **************************************************************************/
 
     List<String> getErrorOutput();
 
-    InfoResponse withErrorOutput(List<String> stderr);
+    void setErrorOutput(List<String> errorOutput);
 
+    InfoResponse withErrorOutput(List<String> errorOutput);
+
+    /**************************************************************************
+     *
+     *  Item list
+     *
+     **************************************************************************/
+
+    List<SubversionItem> getItems();
+
+    void setItems(List<SubversionItem> items);
+
+    InfoResponse withItems(List<SubversionItem> items);
 
 }

@@ -18,16 +18,21 @@ import java.util.regex.Pattern;
 
 public final class InfoUtils {
 
-    private static final String KEY_PATH = "Path";
-    private static final String KEY_NAME = "Name";
-    private static final String KEY_URL = "URL";
-    private static final String KEY_REPOSITORY_ROOT = "Repository Root";
-    private static final String KEY_REPOSITORY_UUID = "Repository UUID";
-    private static final String KEY_REVISION = "Revision";
-    private static final String KEY_NODE_KIND = "Node Kind";
-    private static final String KEY_LAST_CHANGE_AUTHOR = "Last Changed Author";
-    private static final String KEY_LAST_CHANGE_REVISION = "Last Changed Rev";
-    private static final String KEY_LAST_CHANGE_DATE = "Last Changed Date";
+    public static final String KEY_PATH = "Path";
+    public static final String KEY_NAME = "Name";
+    public static final String KEY_URL = "URL";
+    public static final String KEY_RELATIVE_URL = "Relative URL";
+    public static final String KEY_REPOSITORY_ROOT = "Repository Root";
+    public static final String KEY_REPOSITORY_UUID = "Repository UUID";
+    public static final String KEY_REVISION = "Revision";
+    public static final String KEY_NODE_KIND = "Node Kind";
+    public static final String KEY_SCHEDULE = "Schedule";
+    public static final String KEY_LAST_CHANGE_AUTHOR = "Last Changed Author";
+    public static final String KEY_LAST_CHANGED_REV = "Last Changed Rev";
+    public static final String KEY_LAST_CHANGED_DATE = "Last Changed Date";
+
+    /** The absolute path to the project on the server and must be hidden for the user. */
+    public static final String KEY_WORKING_COPY_ROOT_PATH = "Working Copy Root Path";
 
     private static final String STARTSWITH_PATTERN = "^{0}: (.*)$";
 
@@ -57,12 +62,17 @@ public final class InfoUtils {
         return searchPattern(infoOutput, pattern);
     }
 
-    public static String getRepositoryUrl(final List<String> infoOutput) {
+    public static String getUrl(final List<String> infoOutput) {
         final Pattern pattern = Pattern.compile(MessageFormat.format(STARTSWITH_PATTERN, KEY_URL));
         return searchPattern(infoOutput, pattern);
     }
 
-    public static String getRepositoryRootUrl(final List<String> infoOutput) {
+    public static String getRelativeUrl(final List<String> infoOutput) {
+        final Pattern pattern = Pattern.compile(MessageFormat.format(STARTSWITH_PATTERN, KEY_RELATIVE_URL));
+        return searchPattern(infoOutput, pattern);
+    }
+
+    public static String getRepositoryRoot(final List<String> infoOutput) {
         final Pattern pattern = Pattern.compile(MessageFormat.format(STARTSWITH_PATTERN, KEY_REPOSITORY_ROOT));
         return searchPattern(infoOutput, pattern);
     }
@@ -82,18 +92,23 @@ public final class InfoUtils {
         return searchPattern(infoOutput, pattern);
     }
 
+    public static String getSchedule(final List<String> infoOutput) {
+        final Pattern pattern = Pattern.compile(MessageFormat.format(STARTSWITH_PATTERN, KEY_SCHEDULE));
+        return searchPattern(infoOutput, pattern);
+    }
+
     public static String getLastChangeAuthor(final List<String> infoOutput) {
         final Pattern pattern = Pattern.compile(MessageFormat.format(STARTSWITH_PATTERN, KEY_LAST_CHANGE_AUTHOR));
         return searchPattern(infoOutput, pattern);
     }
 
-    public static String getLastChangeRevision(final List<String> infoOutput) {
-        final Pattern pattern = Pattern.compile(MessageFormat.format(STARTSWITH_PATTERN, KEY_LAST_CHANGE_REVISION));
+    public static String getLastChangedRev(final List<String> infoOutput) {
+        final Pattern pattern = Pattern.compile(MessageFormat.format(STARTSWITH_PATTERN, KEY_LAST_CHANGED_REV));
         return searchPattern(infoOutput, pattern);
     }
 
-    public static String getLastChangeDate(final List<String> infoOutput) {
-        final Pattern pattern = Pattern.compile(MessageFormat.format(STARTSWITH_PATTERN, KEY_LAST_CHANGE_DATE));
+    public static String getLastChangedDate(final List<String> infoOutput) {
+        final Pattern pattern = Pattern.compile(MessageFormat.format(STARTSWITH_PATTERN, KEY_LAST_CHANGED_DATE));
         return searchPattern(infoOutput, pattern);
     }
 

@@ -45,6 +45,7 @@ import org.eclipse.che.ide.util.Config;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.EnumSet;
+import java.util.Map;
 import java.util.Set;
 
 import static org.eclipse.che.ide.ext.runner.client.tabs.container.tab.Background.BLUE;
@@ -65,6 +66,8 @@ public class PropertiesPanelViewImpl extends Composite implements PropertiesPane
     }
 
     private static final PropertiesPanelViewImplUiBinder UI_BINDER = GWT.create(PropertiesPanelViewImplUiBinder.class);
+
+    public static final String PORT_STUB = " ------------- ";
 
     @UiField
     Label     configLink;
@@ -98,6 +101,10 @@ public class PropertiesPanelViewImpl extends Composite implements PropertiesPane
     SimpleLayoutPanel editorPanel;
     @UiField
     Label             dockerLabel;
+    @UiField
+    FlowPanel         portMappingHeader;
+    @UiField
+    FlowPanel         portsPanel;
 
     @UiField(provided = true)
     final RunnerLocalizationConstant locale;
@@ -184,6 +191,7 @@ public class PropertiesPanelViewImpl extends Composite implements PropertiesPane
             editorPanel.setVisible(false);
             dockerLabel.setVisible(false);
         }
+        portMappingHeader.setVisible(false);
     }
 
     private void prepareField(@Nonnull ListBox field, @Nonnull Set<? extends Enum> items) {
@@ -281,6 +289,23 @@ public class PropertiesPanelViewImpl extends Composite implements PropertiesPane
     @Override
     public void setType(@Nonnull String type) {
         this.type.setText(type);
+    }
+
+    @Override
+    public void setPorts(Map<String, String> ports) {
+        if (ports == null) {
+            portMappingHeader.setVisible(false);
+            portsPanel.clear();
+            return;
+        }
+
+        portMappingHeader.setVisible(true);
+        for (Map.Entry<String, String> entry : ports.entrySet()) {
+            FlowPanel port = new FlowPanel();
+            Label portLabel = new Label(entry.getKey() + PORT_STUB + entry.getValue());
+            port.add(portLabel);
+            portsPanel.add(port);
+        }
     }
 
     /** {@inheritDoc} */

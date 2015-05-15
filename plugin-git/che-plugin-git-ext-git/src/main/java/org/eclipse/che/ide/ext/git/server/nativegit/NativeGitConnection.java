@@ -24,6 +24,7 @@ import org.eclipse.che.ide.ext.git.server.nativegit.commands.BranchCheckoutComma
 import org.eclipse.che.ide.ext.git.server.nativegit.commands.BranchCreateCommand;
 import org.eclipse.che.ide.ext.git.server.nativegit.commands.BranchDeleteCommand;
 import org.eclipse.che.ide.ext.git.server.nativegit.commands.BranchListCommand;
+import org.eclipse.che.ide.ext.git.server.nativegit.commands.BranchRenameCommand;
 import org.eclipse.che.ide.ext.git.server.nativegit.commands.CloneCommand;
 import org.eclipse.che.ide.ext.git.server.nativegit.commands.CommitCommand;
 import org.eclipse.che.ide.ext.git.server.nativegit.commands.EmptyGitCommand;
@@ -230,8 +231,39 @@ public class NativeGitConnection implements GitConnection {
     }
 
     @Override
-    public void branchRename(String oldName, String newName) throws GitException {
-        nativeGit.createBranchRenameCommand().setNames(oldName, newName).execute();
+    public void branchRename(String oldName, String newName) throws GitException, UnauthorizedException {
+        String branchName = getBranchRef(oldName);
+        String remoteName = null;
+        String remoteUri = null;
+        BranchRenameCommand branchRenameCommand = null;
+
+        if (branchName.startsWith("refs/remotes/")) {
+            remoteName = parseRemoteName(branchName);
+
+            try {
+                remoteUri = nativeGit.createRemoteListCommand()
+                                     .setRemoteName(remoteName)
+                                     .execute()
+                                     .get(0)
+                                     .getUrl();
+            } catch (GitException ignored) {
+                remoteUri = remoteName;
+            }
+            if (Util.isSSH(remoteUri)) {
+                branchRenameCommand = nativeGit.createBranchRenameCommand(keysManager.writeKeyFile(remoteUri).getAbsolutePath());
+            }
+        }
+
+        if (branchRenameCommand == null) {
+            branchRenameCommand = nativeGit.createBranchRenameCommand();
+        }
+
+        branchName = remoteName != null ? parseBranchName(branchName) : oldName;
+
+        branchRenameCommand.setNames(branchName, newName);
+        branchRenameCommand.setRemote(remoteName);
+
+        executeRemoteCommand(branchRenameCommand, remoteUri);
     }
 
     @Override
