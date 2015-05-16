@@ -10,9 +10,11 @@
  *******************************************************************************/
 package org.eclipse.che.plugin.docker.machine.local;
 
+import org.eclipse.che.api.core.ServerException;
 import org.eclipse.che.plugin.docker.machine.DockerNode;
 import org.eclipse.che.plugin.docker.machine.DockerNodeFactory;
 import com.google.inject.assistedinject.Assisted;
+
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -30,11 +32,13 @@ public class LocalDockerNodeFactory implements DockerNodeFactory {
     private final LocalDockerNode node;
 
     @Inject
-    public LocalDockerNodeFactory(@Named("machine.docker.local.projects") String projectsFolder) throws IOException {
+    public LocalDockerNodeFactory(@Named("vfs.local.fs_root_dir") String wsDir) throws IOException, ServerException {
         try {
-            this.node = new LocalDockerNode(projectsFolder);
+
+           this.node = new LocalDockerNode(wsDir);
+
         } catch (IOException e) {
-            throw new IOException(e.getMessage()+" "+"Check machine.docker.local.projects configuration property.");
+            throw new IOException(e.getMessage()+" "+"Check vfs.local.fs_root_dir configuration property.");
         }
     }
 
