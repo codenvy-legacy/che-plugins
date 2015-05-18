@@ -567,9 +567,9 @@ public class RunnerManagerPresenterTest {
         presenter.addRunner(processDescriptor);
 
         verifyTabSelectHandler(tabBuilderTerminal);
-        verify(locale, times(2)).runnerTabTerminal();
+        verify(locale, times(3)).runnerTabTerminal();
         verify(runner).setActiveTab(TERMINAL);
-        verify(terminalContainer, times(2)).update(runner);
+        verify(terminalContainer, times(1)).update(runner);
     }
 
     @Test
@@ -1359,7 +1359,7 @@ public class RunnerManagerPresenterTest {
 
     private void verifyRunnerSelected() {
         verify(history).selectRunner(runner);
-        verify(terminalContainer).update(runner);
+        //verify(terminalContainer).update(runner);
 
         //update
         verify(history).update(runner);

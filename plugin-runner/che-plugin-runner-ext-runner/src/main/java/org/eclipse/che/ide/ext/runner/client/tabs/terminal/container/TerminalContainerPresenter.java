@@ -83,7 +83,8 @@ public class TerminalContainerPresenter implements TerminalContainer,
                                     final boolean isRunner = RUNNING.equals(runner.getStatus());
 
                                     if (isRunner) {
-                                        showTerminal(runner);
+                                        terminal.setVisible(true);
+                                        terminal.setUnavailableLabelVisible(true);
 
                                         terminal.setUrl(runner);
                                     }

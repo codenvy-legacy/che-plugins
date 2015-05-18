@@ -791,9 +791,15 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
             return;
         }
 
+        if (SPLITTER_OFF.equals(panelState.getSplitterState())) {
+            rightPropertiesContainer.showTab(selectedRunner.getActiveTab());
+        }
+
         history.selectRunner(selectedRunner);
 
-        terminalContainer.update(selectedRunner);
+        if (locale.runnerTabTerminal().equals(selectedRunner.getActiveTab()) || SPLITTER_ON.equals(panelState.getSplitterState())) {
+            terminalContainer.update(selectedRunner);
+        }
 
         update(selectedRunner);
 
