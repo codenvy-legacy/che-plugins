@@ -33,7 +33,9 @@ import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.ui.dialogs.CancelCallback;
 import org.eclipse.che.ide.ui.dialogs.ConfirmCallback;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
+import org.eclipse.che.ide.ui.dialogs.InputCallback;
 import org.eclipse.che.ide.ui.dialogs.confirm.ConfirmDialog;
+import org.eclipse.che.ide.ui.dialogs.input.InputDialog;
 import org.eclipse.che.ide.ui.dialogs.message.MessageDialog;
 import org.eclipse.che.test.GwtReflectionUtils;
 import org.junit.Test;
@@ -81,6 +83,9 @@ public class SshKeyManagerPresenterTest {
 
     @Captor
     private ArgumentCaptor<CancelCallback> cancelCallbackCaptor;
+
+    @Captor
+    private ArgumentCaptor<InputCallback> inputCallbackCaptor;
 
     @Mock
     private AppContext              appContext;
@@ -256,7 +261,7 @@ public class SshKeyManagerPresenterTest {
         KeyItem keyItem = mock(KeyItem.class);
         SafeHtml safeHtml = mock(SafeHtml.class);
         ConfirmDialog confirmDialog = mock(ConfirmDialog.class);
-        Array<KeyItem> keyItemArray = new JsonArrayListAdapter<KeyItem>(new ArrayList<KeyItem>());
+        Array<KeyItem> keyItemArray = new JsonArrayListAdapter<>(new ArrayList<KeyItem>());
         when(keyItem.getHost()).thenReturn(GITHUB_HOST);
         when(constant.deleteSshKeyQuestion(anyString())).thenReturn(safeHtml);
         when(safeHtml.asString()).thenReturn("");
@@ -289,7 +294,7 @@ public class SshKeyManagerPresenterTest {
         KeyItem keyItem = mock(KeyItem.class);
         SafeHtml safeHtml = mock(SafeHtml.class);
         ConfirmDialog confirmDialog = mock(ConfirmDialog.class);
-        Array<KeyItem> keyItemArray = new JsonArrayListAdapter<KeyItem>(new ArrayList<KeyItem>());
+        Array<KeyItem> keyItemArray = new JsonArrayListAdapter<>(new ArrayList<KeyItem>());
         when(keyItem.getHost()).thenReturn(GITHUB_HOST);
         when(constant.deleteSshKeyQuestion(anyString())).thenReturn(safeHtml);
         when(safeHtml.asString()).thenReturn("");
@@ -321,7 +326,7 @@ public class SshKeyManagerPresenterTest {
 
     @Test
     public void testShouldRefreshKeysAfterSuccessfulUploadKey() {
-        Array<KeyItem> keyItemArray = new JsonArrayListAdapter<KeyItem>(new ArrayList<KeyItem>());
+        Array<KeyItem> keyItemArray = new JsonArrayListAdapter<>(new ArrayList<KeyItem>());
 
         presenter.onUploadClicked();
 
@@ -339,7 +344,7 @@ public class SshKeyManagerPresenterTest {
 
     @Test
     public void testFailedRefreshKeysAfterSuccessfulUploadKey() {
-        Array<KeyItem> keyItemArray = new JsonArrayListAdapter<KeyItem>(new ArrayList<KeyItem>());
+        Array<KeyItem> keyItemArray = new JsonArrayListAdapter<>(new ArrayList<KeyItem>());
 
         presenter.onUploadClicked();
 
@@ -354,6 +359,86 @@ public class SshKeyManagerPresenterTest {
         verify(loader).hide(anyString());
         verify(view, never()).setKeys(eq(keyItemArray));
         verify(eventBus).fireEvent(Matchers.<ExceptionThrownEvent>anyObject());
+    }
+
+    @Test
+    public void testOnGenerateClickedWhenUserConfirmGenerateKey() {
+        InputDialog inputDialog = mock(InputDialog.class);
+        when(dialogFactory.createInputDialog(anyString(), anyString(), (InputCallback)anyObject(), (CancelCallback)anyObject()))
+                .thenReturn(inputDialog);
+
+        presenter.onGenerateClicked();
+
+        verify(dialogFactory).createInputDialog(anyString(), anyString(), inputCallbackCaptor.capture(), (CancelCallback)anyObject());
+        InputCallback inputCallback = inputCallbackCaptor.getValue();
+        inputCallback.accepted(GITHUB_HOST);
+
+        verify(service).generateKey(eq(GITHUB_HOST), (AsyncRequestCallback<Void>)anyObject());
+    }
+
+    @Test
+    public void testOnGenerateClickedWhenUserCancelGenerateKey() {
+        InputDialog inputDialog = mock(InputDialog.class);
+        when(dialogFactory.createInputDialog(anyString(), anyString(), (InputCallback)anyObject(), (CancelCallback)anyObject()))
+                .thenReturn(inputDialog);
+
+        presenter.onGenerateClicked();
+
+        verify(dialogFactory).createInputDialog(anyString(), anyString(), (InputCallback)anyObject(), cancelCallbackCaptor.capture());
+        CancelCallback cancelCallback = cancelCallbackCaptor.getValue();
+        cancelCallback.cancelled();
+
+        verify(service, never()).generateKey(eq(GITHUB_HOST), (AsyncRequestCallback<Void>)anyObject());
+    }
+
+    @Test
+    public void testOnGenerateClickedWhenGenerateKeyIsFailed() {
+        InputDialog inputDialog = mock(InputDialog.class);
+        when(dialogFactory.createInputDialog(anyString(), anyString(), (InputCallback)anyObject(), (CancelCallback)anyObject()))
+                .thenReturn(inputDialog);
+
+        presenter.onGenerateClicked();
+
+        verify(dialogFactory).createInputDialog(anyString(), anyString(),
+                                                inputCallbackCaptor.capture(), cancelCallbackCaptor.capture());
+        InputCallback inputCallback = inputCallbackCaptor.getValue();
+        inputCallback.accepted(GITHUB_HOST);
+
+        verify(service).generateKey(eq(GITHUB_HOST), asyncRequestCallbackCaptor.capture());
+        AsyncRequestCallback asyncRequestCallback = asyncRequestCallbackCaptor.getValue();
+        GwtReflectionUtils.callOnFailure(asyncRequestCallback, new Exception(""));
+
+        verify(service, never()).getAllKeys((AsyncRequestCallback<Array<KeyItem>>)anyObject());
+        verify(view, never()).setKeys((Array<KeyItem>)anyObject());
+        verify(eventBus).fireEvent(Matchers.<ExceptionThrownEvent>anyObject());
+        verify(notificationManager).showError(anyString());
+    }
+
+    @Test
+    public void testShouldRefreshKeysAfterSuccessfulGenerateKey() {
+        Array<KeyItem> keyItemArray = new JsonArrayListAdapter<>(new ArrayList<KeyItem>());
+        InputDialog inputDialog = mock(InputDialog.class);
+        when(dialogFactory.createInputDialog(anyString(), anyString(), (InputCallback)anyObject(), (CancelCallback)anyObject()))
+                .thenReturn(inputDialog);
+
+        presenter.onGenerateClicked();
+
+        verify(dialogFactory).createInputDialog(anyString(), anyString(),
+                                                inputCallbackCaptor.capture(), cancelCallbackCaptor.capture());
+        InputCallback inputCallback = inputCallbackCaptor.getValue();
+        inputCallback.accepted(GITHUB_HOST);
+
+        verify(service).generateKey(eq(GITHUB_HOST), asyncRequestCallbackCaptor.capture());
+        AsyncRequestCallback asyncRequestCallback = asyncRequestCallbackCaptor.getValue();
+        GwtReflectionUtils.callOnSuccess(asyncRequestCallback, (Void)null);
+
+
+        verify(service).getAllKeys(getAllKeysCallbackCaptor.capture());
+        AsyncRequestCallback<Array<KeyItem>> getAllKeysCallback = getAllKeysCallbackCaptor.getValue();
+        GwtReflectionUtils.callOnSuccess(getAllKeysCallback, keyItemArray);
+
+        verify(loader).hide(anyString());
+        verify(view).setKeys(eq(keyItemArray));
     }
 
 }
