@@ -19,35 +19,35 @@ import org.eclipse.che.ide.api.action.ActionEvent;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.MachineResources;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandManager;
 import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandConfiguration;
+import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
 
 /**
- * Action to execute command which is selected in command list.
+ * Action to execute command which is selected in drop-down command list.
  *
  * @author Artem Zatsarynnyy
  */
 @Singleton
 public class ExecuteSelectedCommandAction extends Action {
     private final AppContext           appContext;
-    private final ChooseCommandAction  chooseCommandAction;
-    private final CommandManager       commandManager;
+    private final SelectCommandAction  selectCommandAction;
+    private final MachineManager       machineManager;
     private final AnalyticsEventLogger eventLogger;
 
     @Inject
     public ExecuteSelectedCommandAction(MachineLocalizationConstant localizationConstant,
                                         MachineResources resources,
                                         AppContext appContext,
-                                        ChooseCommandAction chooseCommandAction,
-                                        CommandManager commandManager,
+                                        SelectCommandAction selectCommandAction,
+                                        MachineManager machineManager,
                                         AnalyticsEventLogger eventLogger) {
         super(localizationConstant.executeSelectedCommandControlTitle(),
               localizationConstant.executeSelectedCommandControlDescription(),
               null,
               resources.execute());
         this.appContext = appContext;
-        this.chooseCommandAction = chooseCommandAction;
-        this.commandManager = commandManager;
+        this.selectCommandAction = selectCommandAction;
+        this.machineManager = machineManager;
         this.eventLogger = eventLogger;
     }
 
@@ -62,9 +62,9 @@ public class ExecuteSelectedCommandAction extends Action {
     public void actionPerformed(ActionEvent e) {
         eventLogger.log(this);
 
-        final CommandConfiguration commandConfiguration = chooseCommandAction.selectEnvironment();
+        final CommandConfiguration commandConfiguration = selectCommandAction.getSelectedCommand();
         if (commandConfiguration != null) {
-            commandManager.execute(commandConfiguration);
+            machineManager.execute(commandConfiguration);
         }
     }
 }

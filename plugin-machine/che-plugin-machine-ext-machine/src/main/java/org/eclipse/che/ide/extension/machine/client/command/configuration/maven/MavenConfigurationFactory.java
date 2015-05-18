@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.machine.client.command.configuration.maven;
 
+import org.eclipse.che.api.machine.shared.dto.CommandDescriptor;
 import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandType;
 import org.eclipse.che.ide.extension.machine.client.command.configuration.ConfigurationFactory;
 
@@ -26,12 +27,28 @@ public class MavenConfigurationFactory extends ConfigurationFactory<MavenCommand
         super(commandType);
     }
 
+    @Nonnull
     @Override
-    public MavenCommandConfiguration createConfiguration(@Nonnull String name) {
+    public MavenCommandConfiguration createFromTemplate(@Nonnull String name) {
         final MavenCommandConfiguration configuration = new MavenCommandConfiguration(name, getCommandType());
-
         configuration.setCommandLine("clean install");
-
         return configuration;
+    }
+
+    @Nonnull
+    @Override
+    public MavenCommandConfiguration createFromCommandDescriptor(@Nonnull CommandDescriptor descriptor) {
+        if (!isMavenCommand(descriptor.getCommandLine())) {
+            throw new IllegalArgumentException("Not a valid Maven command: " + descriptor.getCommandLine());
+        }
+
+        final MavenCommandConfiguration configuration = new MavenCommandConfiguration(descriptor.getName(), getCommandType());
+        configuration.setId(descriptor.getId());
+        configuration.setCommandLine(descriptor.getCommandLine().replaceFirst("mvn ", ""));
+        return configuration;
+    }
+
+    private static boolean isMavenCommand(String commandLine) {
+        return commandLine.startsWith("mvn ");
     }
 }

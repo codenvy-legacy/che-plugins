@@ -14,12 +14,15 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import org.eclipse.che.ide.extension.machine.client.MachineResources;
+import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandConfiguration;
 import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandType;
 import org.eclipse.che.ide.extension.machine.client.command.configuration.ConfigurationFactory;
 import org.eclipse.che.ide.extension.machine.client.command.configuration.ConfigurationPage;
 import org.vectomatic.dom.svg.ui.SVGResource;
 
 import javax.annotation.Nonnull;
+import java.util.Collection;
+import java.util.LinkedList;
 
 /**
  * Maven command type.
@@ -32,15 +35,17 @@ public class MavenCommandType implements CommandType {
     private static final String ID           = "mvn";
     private static final String DISPLAY_NAME = "Maven";
 
-    private final MavenPagePresenter        page;
     private final MachineResources          resources;
     private final MavenConfigurationFactory configurationFactory;
 
+    private final Collection<ConfigurationPage<? extends CommandConfiguration>> pages;
+
     @Inject
-    public MavenCommandType(MavenPagePresenter page, MachineResources resources) {
-        this.page = page;
+    public MavenCommandType(MachineResources resources, MavenPagePresenter page) {
         this.resources = resources;
-        this.configurationFactory = new MavenConfigurationFactory(this);
+        configurationFactory = new MavenConfigurationFactory(this);
+        pages = new LinkedList<>();
+        pages.add(page);
     }
 
     @Nonnull
@@ -63,8 +68,8 @@ public class MavenCommandType implements CommandType {
 
     @Nonnull
     @Override
-    public ConfigurationPage<MavenCommandConfiguration> getConfigurationPage() {
-        return page;
+    public Collection<ConfigurationPage<? extends CommandConfiguration>> getConfigurationPages() {
+        return pages;
     }
 
     @Nonnull

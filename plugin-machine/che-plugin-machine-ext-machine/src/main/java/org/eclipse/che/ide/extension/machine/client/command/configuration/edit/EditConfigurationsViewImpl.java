@@ -32,6 +32,7 @@ import org.eclipse.che.ide.collections.Array;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandConfiguration;
 import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandType;
+import org.eclipse.che.ide.extension.machine.client.command.configuration.edit.CommandDataAdapter.CommandTreeNode;
 import org.eclipse.che.ide.ui.tree.Tree;
 import org.eclipse.che.ide.ui.tree.TreeNodeElement;
 import org.eclipse.che.ide.ui.window.Window;
@@ -39,9 +40,8 @@ import org.eclipse.che.ide.util.input.SignalEvent;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * The implementation of {@link EditConfigurationsView}.
@@ -56,17 +56,21 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
     private final MachineLocalizationConstant locale;
 
     @UiField(provided = true)
-    Tree<CommandDataAdapter.CommandTreeNode> tree;
+    Tree<CommandTreeNode>         tree;
     @UiField
-    Button                                   addButton;
+    Button                        addButton;
     @UiField
-    Button                                   removeButton;
+    Button                        removeButton;
     @UiField
-    TextBox                                  commandConfigurationName;
+    TextBox                       configurationName;
     @UiField
-    SimplePanel                              contentPanel;
+    Button                        saveButton;
+    @UiField
+    SimplePanel                   hintPanel;
+    @UiField
+    SimplePanel                   contentPanel;
     @UiField(provided = true)
-    org.eclipse.che.ide.Resources            resources;
+    org.eclipse.che.ide.Resources resources;
 
     private ActionDelegate delegate;
 
@@ -85,10 +89,10 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
 
         createButtons();
 
-        commandConfigurationName.addKeyUpHandler(new KeyUpHandler() {
+        configurationName.addKeyUpHandler(new KeyUpHandler() {
             @Override
             public void onKeyUp(KeyUpEvent keyUpEvent) {
-                delegate.onNameChanged(commandConfigurationName.getText());
+                delegate.onNameChanged(configurationName.getText());
             }
         });
 
@@ -108,33 +112,40 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
         });
         removeButton.setEnabled(false);
 
-        tree.setTreeEventHandler(new Tree.Listener<CommandDataAdapter.CommandTreeNode>() {
+        saveButton.addClickHandler(new ClickHandler() {
             @Override
-            public void onNodeAction(TreeNodeElement<CommandDataAdapter.CommandTreeNode> node) {
+            public void onClick(ClickEvent clickEvent) {
+                delegate.onSaveClicked();
+            }
+        });
+
+        tree.setTreeEventHandler(new Tree.Listener<CommandTreeNode>() {
+            @Override
+            public void onNodeAction(TreeNodeElement<CommandTreeNode> node) {
             }
 
             @Override
-            public void onNodeClosed(TreeNodeElement<CommandDataAdapter.CommandTreeNode> node) {
+            public void onNodeClosed(TreeNodeElement<CommandTreeNode> node) {
             }
 
             @Override
-            public void onNodeContextMenu(int mouseX, int mouseY, TreeNodeElement<CommandDataAdapter.CommandTreeNode> node) {
+            public void onNodeContextMenu(int mouseX, int mouseY, TreeNodeElement<CommandTreeNode> node) {
             }
 
             @Override
-            public void onNodeDragStart(TreeNodeElement<CommandDataAdapter.CommandTreeNode> node, MouseEvent event) {
+            public void onNodeDragStart(TreeNodeElement<CommandTreeNode> node, MouseEvent event) {
             }
 
             @Override
-            public void onNodeDragDrop(TreeNodeElement<CommandDataAdapter.CommandTreeNode> node, MouseEvent event) {
+            public void onNodeDragDrop(TreeNodeElement<CommandTreeNode> node, MouseEvent event) {
             }
 
             @Override
-            public void onNodeExpanded(TreeNodeElement<CommandDataAdapter.CommandTreeNode> node) {
+            public void onNodeExpanded(TreeNodeElement<CommandTreeNode> node) {
             }
 
             @Override
-            public void onNodeSelected(TreeNodeElement<CommandDataAdapter.CommandTreeNode> node, SignalEvent event) {
+            public void onNodeSelected(TreeNodeElement<CommandTreeNode> node, SignalEvent event) {
                 if (node.getData().getData() instanceof CommandType) {
                     delegate.onCommandTypeSelected((CommandType)node.getData().getData());
                 } else if (node.getData().getData() instanceof CommandConfiguration) {
@@ -152,6 +163,11 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
 
             @Override
             public void onKeyboard(KeyboardEvent event) {
+                if (event.getKeyCode() == KeyboardEvent.KeyCode.INSERT) {
+                    delegate.onAddClicked();
+                } else if (event.getKeyCode() == KeyboardEvent.KeyCode.DELETE) {
+                    delegate.onDeleteClicked();
+                }
             }
         });
     }
@@ -182,7 +198,10 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
     private void resetView() {
         addButton.setEnabled(false);
         removeButton.setEnabled(false);
-        commandConfigurationName.setText("");
+        configurationName.setText("");
+
+        hintPanel.setVisible(false);
+//        contentPanel.setVisible(false);
         contentPanel.clear();
     }
 
@@ -202,18 +221,20 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
     }
 
     @Override
-    public void setCommandConfigurations(Map<CommandType, Set<CommandConfiguration>> commandConfigurations) {
-        List<CommandDataAdapter.CommandTreeNode> rootChildren = new ArrayList<>();
-        final CommandDataAdapter.CommandTreeNode rootNode = new CommandDataAdapter.CommandTreeNode(null, "ROOT", rootChildren);
+    public void setData(Collection<CommandType> commandTypes, Collection<CommandConfiguration> commandConfigurations) {
+        List<CommandTreeNode> rootChildren = new ArrayList<>();
+        final CommandTreeNode rootNode = new CommandTreeNode(null, "ROOT", rootChildren);
 
-        for (CommandType type : commandConfigurations.keySet()) {
-            List<CommandDataAdapter.CommandTreeNode> typeChildren = new ArrayList<>();
-            final CommandDataAdapter.CommandTreeNode typeNode = new CommandDataAdapter.CommandTreeNode(rootNode, type, typeChildren);
+        for (CommandType type : commandTypes) {
+            List<CommandTreeNode> typeChildren = new ArrayList<>();
+            final CommandTreeNode typeNode = new CommandTreeNode(rootNode, type, typeChildren);
             rootChildren.add(typeNode);
 
-            for (CommandConfiguration configuration : commandConfigurations.get(type)) {
-                final CommandDataAdapter.CommandTreeNode confNode = new CommandDataAdapter.CommandTreeNode(typeNode, configuration, null);
-                typeChildren.add(confNode);
+            for (CommandConfiguration configuration : commandConfigurations) {
+                if (type.getId().equals(configuration.getType().getId())) {
+                    final CommandTreeNode confNode = new CommandTreeNode(typeNode, configuration, null);
+                    typeChildren.add(confNode);
+                }
             }
         }
 
@@ -224,7 +245,7 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
 
     @Override
     public void setConfigurationName(String name) {
-        commandConfigurationName.setText(name);
+        configurationName.setText(name);
     }
 
     @Override
@@ -240,9 +261,9 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
     @Nullable
     @Override
     public CommandType getSelectedCommandType() {
-        final Array<CommandDataAdapter.CommandTreeNode> selectedNodes = tree.getSelectionModel().getSelectedNodes();
+        final Array<CommandTreeNode> selectedNodes = tree.getSelectionModel().getSelectedNodes();
         if (!selectedNodes.isEmpty()) {
-            final CommandDataAdapter.CommandTreeNode node = selectedNodes.get(0);
+            final CommandTreeNode node = selectedNodes.get(0);
             if (node.getData() instanceof CommandType) {
                 return (CommandType)node.getData();
             } else if (node.getData() instanceof CommandConfiguration) {
@@ -255,9 +276,9 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
     @Nullable
     @Override
     public CommandConfiguration getSelectedConfiguration() {
-        final Array<CommandDataAdapter.CommandTreeNode> selectedNodes = tree.getSelectionModel().getSelectedNodes();
+        final Array<CommandTreeNode> selectedNodes = tree.getSelectionModel().getSelectedNodes();
         if (!selectedNodes.isEmpty()) {
-            final CommandDataAdapter.CommandTreeNode node = selectedNodes.get(0);
+            final CommandTreeNode node = selectedNodes.get(0);
             if (node.getData() instanceof CommandConfiguration) {
                 return (CommandConfiguration)node.getData();
             }

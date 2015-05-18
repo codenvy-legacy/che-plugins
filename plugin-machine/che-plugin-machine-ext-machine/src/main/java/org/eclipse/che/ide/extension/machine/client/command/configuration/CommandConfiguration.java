@@ -19,6 +19,13 @@ import javax.annotation.Nonnull;
  */
 public interface CommandConfiguration {
 
+    /** Returns unique identifier for this command configuration. */
+    @Nonnull
+    String getId();
+
+    /** Sets command configuration ID. */
+    void setId(@Nonnull String id);
+
     /** Returns command configuration name. */
     @Nonnull
     String getName();

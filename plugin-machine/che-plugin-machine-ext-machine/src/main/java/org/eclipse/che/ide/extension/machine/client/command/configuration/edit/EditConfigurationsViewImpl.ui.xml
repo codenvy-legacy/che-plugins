@@ -20,17 +20,25 @@
             margin: 6px;
         }
 
-        .namePanel {
+        .rightPanel {
             margin-top: 5px;
         }
 
         .label {
             float: left;
         }
+
+        .border {
+            border: 1px solid rgba(0, 0, 0, 0.2);
+        }
+
+        .saveButton {
+            margin-left: 10px;
+        }
     </ui:style>
     <g:DockLayoutPanel unit="PX" width="800px" height="400px" addStyleNames="{style.emptyBorder}">
         <g:west size="200.0">
-            <g:DockLayoutPanel addStyleNames="{style.emptyBorder}">
+            <g:DockLayoutPanel addStyleNames="{style.emptyBorder} {style.border}">
                 <g:north size="20">
                     <g:FlowPanel>
                         <g:Button ui:field="addButton" text="Add"/>
@@ -43,10 +51,14 @@
             </g:DockLayoutPanel>
         </g:west>
         <g:center>
-            <g:FlowPanel addStyleNames="{style.namePanel}">
+            <g:FlowPanel addStyleNames="{style.rightPanel}">
                 <g:Label width="50px" text="Name:" styleName="{style.label}"/>
-                <g:TextBox height="14px" ui:field="commandConfigurationName"/>
-                <g:SimplePanel width="100%" height="100%" ui:field="contentPanel"/>
+                <g:TextBox width="480px" height="14px" ui:field="configurationName"/>
+                <g:Button ui:field="saveButton" text="Save" addStyleNames="{style.saveButton}"/>
+                <g:SimplePanel width="100%" height="100%" ui:field="hintPanel">
+                    <g:Label text="Press the 'Add' button to create a new command"/>
+                </g:SimplePanel>
+                <g:SimplePanel width="100%" height="100%" ui:field="contentPanel" addStyleNames="{style.border}"/>
             </g:FlowPanel>
         </g:center>
     </g:DockLayoutPanel>

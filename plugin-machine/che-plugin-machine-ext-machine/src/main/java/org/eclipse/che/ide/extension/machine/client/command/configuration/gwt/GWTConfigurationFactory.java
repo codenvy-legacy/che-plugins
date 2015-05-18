@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.machine.client.command.configuration.gwt;
 
+import org.eclipse.che.api.machine.shared.dto.CommandDescriptor;
 import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandType;
 import org.eclipse.che.ide.extension.machine.client.command.configuration.ConfigurationFactory;
 
@@ -26,13 +27,21 @@ public class GWTConfigurationFactory extends ConfigurationFactory<GWTCommandConf
         super(commandType);
     }
 
+    @Nonnull
     @Override
-    public GWTCommandConfiguration createConfiguration(@Nonnull String name) {
+    public GWTCommandConfiguration createFromTemplate(@Nonnull String name) {
         final GWTCommandConfiguration configuration = new GWTCommandConfiguration(name, getCommandType());
-
         configuration.setDevModeParameters("-noincremental -nostartServer -port 8080");
         configuration.setVmOptions("-Xss512m -Xmx2048m -XX:MaxPermSize=1024m");
+        return configuration;
+    }
 
+    @Nonnull
+    @Override
+    public GWTCommandConfiguration createFromCommandDescriptor(@Nonnull CommandDescriptor descriptor) {
+        final GWTCommandConfiguration configuration = new GWTCommandConfiguration(descriptor.getName(), getCommandType());
+        configuration.setId(descriptor.getId());
+        configuration.setDevModeParameters(descriptor.getCommandLine());
         return configuration;
     }
 }

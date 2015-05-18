@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.machine.client.command.configuration;
 
+import org.eclipse.che.api.machine.shared.dto.CommandDescriptor;
+
 import javax.annotation.Nonnull;
 
 /**
@@ -39,6 +41,23 @@ public abstract class ConfigurationFactory<T extends CommandConfiguration> {
         return commandType;
     }
 
-    /** Creates a new command configuration with the given name. */
-    public abstract T createConfiguration(@Nonnull String name);
+    /**
+     * Creates a new command configuration from template.
+     *
+     * @param name
+     *         new configuration name
+     */
+    @Nonnull
+    public abstract T createFromTemplate(@Nonnull String name);
+
+    /**
+     * Creates a new command configuration based on the given {@link CommandDescriptor}.
+     *
+     * @param descriptor
+     *         command descriptor
+     * @throws IllegalArgumentException
+     *         if <code>descriptor</code> represents not a valid command.
+     */
+    @Nonnull
+    public abstract T createFromCommandDescriptor(@Nonnull CommandDescriptor descriptor);
 }

@@ -17,6 +17,7 @@ import org.eclipse.che.ide.extension.machine.client.command.configuration.Comman
 import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandType;
 
 import javax.annotation.Nullable;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
@@ -38,8 +39,8 @@ public interface EditConfigurationsView extends View<EditConfigurationsView.Acti
 
     void clearCommandConfigurationsDisplayContainer();
 
-    /** Sets available command configurations. */
-    void setCommandConfigurations(Map<CommandType, Set<CommandConfiguration>> commandConfigurations);
+    /** Sets command types and command configurations to show. */
+    void setData(Collection<CommandType> commandTypes, Collection<CommandConfiguration> commandConfigurations);
 
     /** Sets configuration name. */
     void setConfigurationName(String name);
@@ -88,5 +89,8 @@ public interface EditConfigurationsView extends View<EditConfigurationsView.Acti
 
         /** Called when 'Name' field is changed. */
         void onNameChanged(String name);
+
+        /** Called when 'Save' button is clicked. */
+        void onSaveClicked();
     }
 }

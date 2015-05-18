@@ -14,12 +14,15 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import org.eclipse.che.ide.extension.machine.client.MachineResources;
+import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandConfiguration;
 import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandType;
 import org.eclipse.che.ide.extension.machine.client.command.configuration.ConfigurationFactory;
 import org.eclipse.che.ide.extension.machine.client.command.configuration.ConfigurationPage;
 import org.vectomatic.dom.svg.ui.SVGResource;
 
 import javax.annotation.Nonnull;
+import java.util.Collection;
+import java.util.LinkedList;
 
 /**
  * GWT command type.
@@ -32,15 +35,17 @@ public class GWTCommandType implements CommandType {
     private static final String ID           = "gwt";
     private static final String DISPLAY_NAME = "GWT";
 
-    private final GWTPagePresenter        page;
     private final MachineResources        resources;
     private final GWTConfigurationFactory configurationFactory;
 
+    private final Collection<ConfigurationPage<? extends CommandConfiguration>> pages;
+
     @Inject
-    public GWTCommandType(GWTPagePresenter page, MachineResources resources) {
-        this.page = page;
+    public GWTCommandType(MachineResources resources, GWTPagePresenter page) {
         this.resources = resources;
-        this.configurationFactory = new GWTConfigurationFactory(this);
+        configurationFactory = new GWTConfigurationFactory(this);
+        pages = new LinkedList<>();
+        pages.add(page);
     }
 
     @Nonnull
@@ -63,8 +68,8 @@ public class GWTCommandType implements CommandType {
 
     @Nonnull
     @Override
-    public ConfigurationPage<GWTCommandConfiguration> getConfigurationPage() {
-        return page;
+    public Collection<ConfigurationPage<? extends CommandConfiguration>> getConfigurationPages() {
+        return pages;
     }
 
     @Nonnull

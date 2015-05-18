@@ -37,11 +37,11 @@ public interface MachineLocalizationConstant extends Messages {
     @Key("control.executeArbitraryCommand.description")
     String executeArbitraryCommandControlDescription();
 
-    @Key("control.chooseCommand.text")
-    String chooseCommandControlTitle();
+    @Key("control.selectCommand.text")
+    String selectCommandControlTitle();
 
-    @Key("control.chooseCommand.description")
-    String chooseCommandControlDescription();
+    @Key("control.selectCommand.description")
+    String selectCommandControlDescription();
 
     @Key("control.runSelectedCommand.text")
     String executeSelectedCommandControlTitle();

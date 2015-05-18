@@ -13,6 +13,7 @@ package org.eclipse.che.ide.extension.machine.client.command.configuration;
 import org.vectomatic.dom.svg.ui.SVGResource;
 
 import javax.annotation.Nonnull;
+import java.util.Collection;
 
 /**
  * The type of a command.
@@ -33,9 +34,9 @@ public interface CommandType {
     @Nonnull
     SVGResource getIcon();
 
-    /** Returns the {@link ConfigurationPage} that allows to configure specific command parameters. */
+    /** Returns the {@link ConfigurationPage}s that allow to configure specific command parameters. */
     @Nonnull
-    ConfigurationPage<? extends CommandConfiguration> getConfigurationPage();
+    Collection<ConfigurationPage<? extends CommandConfiguration>> getConfigurationPages();
 
     /** Returns factory for {@link CommandConfiguration} instances. */
     @Nonnull

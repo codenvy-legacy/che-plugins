@@ -22,11 +22,23 @@ public class MavenCommandConfiguration implements CommandConfiguration {
 
     private final CommandType type;
     private       String      name;
+    private       String      id;
     private       String      commandLine;
 
     public MavenCommandConfiguration(String name, CommandType type) {
         this.name = name;
         this.type = type;
+    }
+
+    @Nonnull
+    @Override
+    public String getId() {
+        return id;
+    }
+
+    @Override
+    public void setId(@Nonnull String id) {
+        this.id = id;
     }
 
     @Nonnull

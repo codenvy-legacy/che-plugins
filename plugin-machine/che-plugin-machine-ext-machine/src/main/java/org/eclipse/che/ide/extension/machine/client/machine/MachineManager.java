@@ -22,6 +22,7 @@ import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.extension.machine.client.MachineResources;
 import org.eclipse.che.ide.extension.machine.client.OutputMessageUnmarshaller;
+import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandConfiguration;
 import org.eclipse.che.ide.extension.machine.client.console.MachineConsolePresenter;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.util.UUID;
@@ -84,7 +85,7 @@ public class MachineManager {
     /** Start machine and bind project. */
     public void startMachineAndBindProject(final String projectPath) {
         final String recipeScript = machineResources.testDockerRecipe().getText();
-        final String outputChannel = getOutputChannel();
+        final String outputChannel = getMachineOutputChannel();
         subscribeToOutput(outputChannel);
 
         final Promise<MachineDescriptor> machinePromise = machineServiceClient.createMachineFromRecipe(appContext.getWorkspace().getId(),
@@ -101,7 +102,7 @@ public class MachineManager {
     }
 
     @Nonnull
-    private String getOutputChannel() {
+    private String getMachineOutputChannel() {
         return "machine:output:" + UUID.uuid();
     }
 
@@ -159,5 +160,23 @@ public class MachineManager {
 
     public void destroyMachine(final String machineId) {
         machineServiceClient.destroyMachine(machineId);
+    }
+
+    /** Execute the the given command configuration on current machine. */
+    public void execute(@Nonnull CommandConfiguration configuration) {
+        final String currentMachineId = getCurrentMachineId();
+        if (currentMachineId == null) {
+            return;
+        }
+
+        final String outputChannel = getProcessOutputChannel();
+        subscribeToOutput(outputChannel);
+
+        machineServiceClient.executeCommand(currentMachineId, configuration.toCommandLine(), outputChannel);
+    }
+
+    @Nonnull
+    private String getProcessOutputChannel() {
+        return "process:output:" + UUID.uuid();
     }
 }
