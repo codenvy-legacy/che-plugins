@@ -19,7 +19,7 @@ import org.eclipse.che.ide.extension.machine.client.command.configuration.Config
 import javax.annotation.Nonnull;
 
 /**
- * Page allows to configure Maven-command parameters.
+ * Page allows to configure Maven command parameters.
  *
  * @author Artem Zatsarynnyy
  */

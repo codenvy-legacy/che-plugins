@@ -15,13 +15,13 @@ import com.google.gwt.inject.client.multibindings.GinMultibinder;
 import com.google.inject.Singleton;
 
 import org.eclipse.che.ide.api.extension.ExtensionGinModule;
-import org.eclipse.che.ide.extension.machine.client.command.execute.ExecuteArbitraryCommandView;
-import org.eclipse.che.ide.extension.machine.client.command.execute.ExecuteArbitraryCommandViewImpl;
 import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandType;
+import org.eclipse.che.ide.extension.machine.client.command.configuration.arbitrary.ArbitraryCommandType;
 import org.eclipse.che.ide.extension.machine.client.command.configuration.edit.EditConfigurationsView;
 import org.eclipse.che.ide.extension.machine.client.command.configuration.edit.EditConfigurationsViewImpl;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.gwt.GWTCommandType;
 import org.eclipse.che.ide.extension.machine.client.command.configuration.maven.MavenCommandType;
+import org.eclipse.che.ide.extension.machine.client.command.execute.ExecuteArbitraryCommandView;
+import org.eclipse.che.ide.extension.machine.client.command.execute.ExecuteArbitraryCommandViewImpl;
 import org.eclipse.che.ide.extension.machine.client.console.MachineConsoleToolbar;
 import org.eclipse.che.ide.extension.machine.client.console.MachineConsoleView;
 import org.eclipse.che.ide.extension.machine.client.console.MachineConsoleViewImpl;
@@ -41,7 +41,7 @@ public class MachineGinModule extends AbstractGinModule {
         bind(EditConfigurationsView.class).to(EditConfigurationsViewImpl.class).in(Singleton.class);
 
         GinMultibinder<CommandType> commandTypeMultibinder = GinMultibinder.newSetBinder(binder(), CommandType.class);
-        commandTypeMultibinder.addBinding().to(GWTCommandType.class);
+        commandTypeMultibinder.addBinding().to(ArbitraryCommandType.class);
         commandTypeMultibinder.addBinding().to(MavenCommandType.class);
     }
 }

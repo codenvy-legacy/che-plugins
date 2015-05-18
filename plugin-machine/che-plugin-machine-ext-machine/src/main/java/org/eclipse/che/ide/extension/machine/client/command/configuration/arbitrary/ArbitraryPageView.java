@@ -8,7 +8,7 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.ide.extension.machine.client.command.configuration.gwt;
+package org.eclipse.che.ide.extension.machine.client.command.configuration.arbitrary;
 
 import com.google.inject.ImplementedBy;
 
@@ -17,21 +17,15 @@ import org.eclipse.che.ide.api.mvp.View;
 /**
  * @author Artem Zatsarynnyy
  */
-@ImplementedBy(GWTPageViewImpl.class)
-public interface GWTPageView extends View<GWTPageView.ActionDelegate> {
+@ImplementedBy(ArbitraryPageViewImpl.class)
+public interface ArbitraryPageView extends View<ArbitraryPageView.ActionDelegate> {
 
-    String getDevModeParameters();
+    String getCommandLine();
 
-    void setDevModeParameters(String parameters);
-
-    String getVmOptionsField();
-
-    void setVmOptionsField(String vmOptions);
+    void setCommandLine(String commandLine);
 
     interface ActionDelegate {
 
-        void onDevModeParametersChanged(String devModeParameters);
-
-        void onVmOptionsChanged(String vmOptions);
+        void onCommandLineChanged(String commandLine);
     }
 }

@@ -8,7 +8,7 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.ide.extension.machine.client.command.configuration.gwt;
+package org.eclipse.che.ide.extension.machine.client.command.configuration.arbitrary;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -25,25 +25,25 @@ import java.util.Collection;
 import java.util.LinkedList;
 
 /**
- * GWT command type.
+ * Arbitrary command type.
  *
  * @author Artem Zatsarynnyy
  */
 @Singleton
-public class GWTCommandType implements CommandType {
+public class ArbitraryCommandType implements CommandType {
 
-    private static final String ID           = "gwt";
-    private static final String DISPLAY_NAME = "GWT";
+    private static final String ID           = "arbitrary";
+    private static final String DISPLAY_NAME = "Arbitrary command";
 
-    private final MachineResources        resources;
-    private final GWTConfigurationFactory configurationFactory;
+    private final MachineResources              resources;
+    private final ArbitraryConfigurationFactory configurationFactory;
 
     private final Collection<ConfigurationPage<? extends CommandConfiguration>> pages;
 
     @Inject
-    public GWTCommandType(MachineResources resources, GWTPagePresenter page) {
+    public ArbitraryCommandType(MachineResources resources, ArbitraryPagePresenter page) {
         this.resources = resources;
-        configurationFactory = new GWTConfigurationFactory(this);
+        configurationFactory = new ArbitraryConfigurationFactory(this);
         pages = new LinkedList<>();
         pages.add(page);
     }
@@ -63,7 +63,7 @@ public class GWTCommandType implements CommandType {
     @Nonnull
     @Override
     public SVGResource getIcon() {
-        return resources.gwtCommandType();
+        return resources.mavenCommandType();
     }
 
     @Nonnull
@@ -74,7 +74,7 @@ public class GWTCommandType implements CommandType {
 
     @Nonnull
     @Override
-    public ConfigurationFactory<GWTCommandConfiguration> getConfigurationFactory() {
+    public ConfigurationFactory<ArbitraryCommandConfiguration> getConfigurationFactory() {
         return configurationFactory;
     }
 }

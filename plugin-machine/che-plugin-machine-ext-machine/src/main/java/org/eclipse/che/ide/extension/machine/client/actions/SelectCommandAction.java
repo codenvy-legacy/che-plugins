@@ -202,7 +202,7 @@ public class SelectCommandAction extends Action implements CustomComponentAction
         }
     }
 
-    /** Clears the selected element in the 'Choose Command' menu. */
+    /** Clears the selected element in the 'Select Command' menu. */
     private void setEmptyCommand() {
         dropDownHeaderWidget.selectElement(null, "");
     }

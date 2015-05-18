@@ -8,7 +8,7 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.ide.extension.machine.client.command.configuration.gwt;
+package org.eclipse.che.ide.extension.machine.client.command.configuration.arbitrary;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.KeyUpEvent;
@@ -16,28 +16,26 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
-import com.google.gwt.user.client.ui.TextBox;
+import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.Widget;
 
 /**
  * @author Artem Zatsarynnyy
  */
-public class GWTPageViewImpl implements GWTPageView {
+public class ArbitraryPageViewImpl implements ArbitraryPageView {
 
-    private static final GWTPageViewImplUiBinder UI_BINDER = GWT.create(GWTPageViewImplUiBinder.class);
+    private static final MavenPageViewImplUiBinder UI_BINDER = GWT.create(MavenPageViewImplUiBinder.class);
+
     private final DockLayoutPanel rootElement;
 
     @UiField
-    TextBox devModeParametersField;
-    @UiField
-    TextBox vmOptionsField;
+    TextArea commandLine;
 
     private ActionDelegate delegate;
 
-    public GWTPageViewImpl() {
+    public ArbitraryPageViewImpl() {
         rootElement = UI_BINDER.createAndBindUi(this);
-
-        devModeParametersField.setFocus(true);
+        commandLine.setFocus(true);
     }
 
     @Override
@@ -51,35 +49,20 @@ public class GWTPageViewImpl implements GWTPageView {
     }
 
     @Override
-    public String getDevModeParameters() {
-        return devModeParametersField.getText();
+    public String getCommandLine() {
+        return commandLine.getText();
     }
 
     @Override
-    public void setDevModeParameters(String value) {
-        devModeParametersField.setText(value);
+    public void setCommandLine(String commandLine) {
+        this.commandLine.setText(commandLine);
     }
 
-    @Override
-    public String getVmOptionsField() {
-        return vmOptionsField.getText();
+    @UiHandler({"commandLine"})
+    void onKeyUp(KeyUpEvent event) {
+        delegate.onCommandLineChanged(getCommandLine());
     }
 
-    @Override
-    public void setVmOptionsField(String vmOptions) {
-        vmOptionsField.setText(vmOptions);
-    }
-
-    @UiHandler({"devModeParametersField"})
-    void onKeyUpInDevModeParametersField(KeyUpEvent event) {
-        delegate.onDevModeParametersChanged(getDevModeParameters());
-    }
-
-    @UiHandler({"vmOptionsField"})
-    void onKeyUpInVmOptionsField(KeyUpEvent event) {
-        delegate.onVmOptionsChanged(getVmOptionsField());
-    }
-
-    interface GWTPageViewImplUiBinder extends UiBinder<DockLayoutPanel, GWTPageViewImpl> {
+    interface MavenPageViewImplUiBinder extends UiBinder<DockLayoutPanel, ArbitraryPageViewImpl> {
     }
 }

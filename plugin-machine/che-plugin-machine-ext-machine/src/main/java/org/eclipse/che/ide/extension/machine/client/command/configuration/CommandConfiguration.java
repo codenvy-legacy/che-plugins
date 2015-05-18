@@ -38,5 +38,6 @@ public interface CommandConfiguration {
     CommandType getType();
 
     /** Returns command line to execute in machine. */
+    @Nonnull
     String toCommandLine();
 }

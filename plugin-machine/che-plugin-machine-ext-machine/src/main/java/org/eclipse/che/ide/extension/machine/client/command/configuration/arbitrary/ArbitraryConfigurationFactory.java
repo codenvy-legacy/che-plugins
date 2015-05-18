@@ -8,7 +8,7 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.ide.extension.machine.client.command.configuration.gwt;
+package org.eclipse.che.ide.extension.machine.client.command.configuration.arbitrary;
 
 import org.eclipse.che.api.machine.shared.dto.CommandDescriptor;
 import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandType;
@@ -17,31 +17,28 @@ import org.eclipse.che.ide.extension.machine.client.command.configuration.Config
 import javax.annotation.Nonnull;
 
 /**
- * Factory for {@link GWTCommandConfiguration} instances.
+ * Factory for {@link ArbitraryCommandConfiguration} instances.
  *
  * @author Artem Zatsarynnyy
  */
-public class GWTConfigurationFactory extends ConfigurationFactory<GWTCommandConfiguration> {
+public class ArbitraryConfigurationFactory extends ConfigurationFactory<ArbitraryCommandConfiguration> {
 
-    protected GWTConfigurationFactory(CommandType commandType) {
+    protected ArbitraryConfigurationFactory(CommandType commandType) {
         super(commandType);
     }
 
     @Nonnull
     @Override
-    public GWTCommandConfiguration createFromTemplate(@Nonnull String name) {
-        final GWTCommandConfiguration configuration = new GWTCommandConfiguration(name, getCommandType());
-        configuration.setDevModeParameters("-noincremental -nostartServer -port 8080");
-        configuration.setVmOptions("-Xss512m -Xmx2048m -XX:MaxPermSize=1024m");
-        return configuration;
+    public ArbitraryCommandConfiguration createFromTemplate(@Nonnull String name) {
+        return new ArbitraryCommandConfiguration(name, getCommandType());
     }
 
     @Nonnull
     @Override
-    public GWTCommandConfiguration createFromCommandDescriptor(@Nonnull CommandDescriptor descriptor) {
-        final GWTCommandConfiguration configuration = new GWTCommandConfiguration(descriptor.getName(), getCommandType());
+    public ArbitraryCommandConfiguration createFromCommandDescriptor(@Nonnull CommandDescriptor descriptor) {
+        final ArbitraryCommandConfiguration configuration = new ArbitraryCommandConfiguration(descriptor.getName(), getCommandType());
         configuration.setId(descriptor.getId());
-        configuration.setDevModeParameters(descriptor.getCommandLine());
+        configuration.setCommandLine(descriptor.getCommandLine());
         return configuration;
     }
 }

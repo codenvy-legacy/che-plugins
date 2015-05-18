@@ -58,6 +58,7 @@ public class MavenCommandConfiguration implements CommandConfiguration {
         return type;
     }
 
+    @Nonnull
     @Override
     public String toCommandLine() {
         return "mvn " + getCommandLine();

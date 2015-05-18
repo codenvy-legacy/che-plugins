@@ -8,7 +8,7 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.ide.extension.machine.client.command.configuration.gwt;
+package org.eclipse.che.ide.extension.machine.client.command.configuration.arbitrary;
 
 import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandConfiguration;
 import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandType;
@@ -18,17 +18,17 @@ import javax.annotation.Nonnull;
 /**
  * @author Artem Zatsarynnyy
  */
-public class GWTCommandConfiguration implements CommandConfiguration {
+public class ArbitraryCommandConfiguration implements CommandConfiguration {
 
     private final CommandType type;
     private       String      name;
     private       String      id;
-    private       String      devModeParameters;
-    private       String      vmOptions;
+    private       String      commandLine;
 
-    public GWTCommandConfiguration(String name, CommandType type) {
+    public ArbitraryCommandConfiguration(String name, CommandType type) {
         this.name = name;
         this.type = type;
+        commandLine = "";
     }
 
     @Nonnull
@@ -59,24 +59,17 @@ public class GWTCommandConfiguration implements CommandConfiguration {
         return type;
     }
 
+    @Nonnull
     @Override
     public String toCommandLine() {
-        return "java -version";
+        return getCommandLine();
     }
 
-    public String getDevModeParameters() {
-        return devModeParameters;
+    public String getCommandLine() {
+        return commandLine;
     }
 
-    public void setDevModeParameters(String devModeParameters) {
-        this.devModeParameters = devModeParameters;
-    }
-
-    public String getVmOptions() {
-        return vmOptions;
-    }
-
-    public void setVmOptions(String vmOptions) {
-        this.vmOptions = vmOptions;
+    public void setCommandLine(String commandLine) {
+        this.commandLine = commandLine;
     }
 }
