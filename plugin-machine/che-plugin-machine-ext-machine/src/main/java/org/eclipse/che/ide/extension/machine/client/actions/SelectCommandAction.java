@@ -150,6 +150,10 @@ public class SelectCommandAction extends Action implements CustomComponentAction
     }
 
     @Override
+    public void onProjectClosing(ProjectActionEvent event) {
+    }
+
+    @Override
     public void onProjectClosed(ProjectActionEvent event) {
         setCommandConfigurations(Collections.<CommandConfiguration>emptyList());
     }
