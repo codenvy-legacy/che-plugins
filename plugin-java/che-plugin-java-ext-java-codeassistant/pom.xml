@@ -47,11 +47,11 @@
             <artifactId>org.eclipse.equinox.common</artifactId>
             <version>${org.eclipse.equinox.common.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.eclipse.che.core</groupId>
-            <artifactId>che-core-api-builder</artifactId>
-            <version>${che.core.version}</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.eclipse.che.core</groupId>-->
+            <!--<artifactId>che-core-api-builder</artifactId>-->
+            <!--<version>${che.core.version}</version>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>org.eclipse.che.core</groupId>
             <artifactId>che-core-vfs-impl</artifactId>

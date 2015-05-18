@@ -25,16 +25,16 @@
     <modules>
         <module>che-plugin-java-jdt-core-repack</module>
         <module>che-plugin-java-maven-tools</module>
-        <module>che-plugin-java-ext-ant</module>
-        <module>che-plugin-java-ant-tools</module>
-        <module>che-plugin-java-builder-maven</module>
-        <module>che-plugin-java-builder-ant</module>
-        <module>che-plugin-java-runner-webapps</module>
+        <!--<module>che-plugin-java-ext-ant</module>-->
+        <!--<module>che-plugin-java-ant-tools</module>-->
+        <!--<module>che-plugin-java-builder-maven</module>-->
+        <!--<module>che-plugin-java-builder-ant</module>-->
+        <!--<module>che-plugin-java-runner-webapps</module>-->
         <module>che-plugin-java-generator-archetype</module>
         <module>che-plugin-java-ext-maven</module>
         <module>che-plugin-java-ext-java</module>
         <module>che-plugin-java-ext-java-codeassistant</module>
-        <module>che-plugin-java-ext-debugger-java</module>
+        <!--<module>che-plugin-java-ext-debugger-java</module>-->
         <module>che-plugin-java-jseditor</module>
     </modules>
     <build>

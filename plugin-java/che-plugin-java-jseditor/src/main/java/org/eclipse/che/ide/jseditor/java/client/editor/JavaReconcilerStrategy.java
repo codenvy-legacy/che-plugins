@@ -13,7 +13,6 @@ package org.eclipse.che.ide.jseditor.java.client.editor;
 import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
 
-import org.eclipse.che.ide.api.build.BuildContext;
 import org.eclipse.che.ide.api.editor.EditorWithErrors;
 import org.eclipse.che.ide.api.project.tree.VirtualFile;
 import org.eclipse.che.ide.api.text.Region;
@@ -38,7 +37,6 @@ import java.util.List;
 public class JavaReconcilerStrategy implements ReconcilingStrategy {
 
 
-    private final BuildContext                   buildContext;
     private final EmbeddedTextEditorPresenter<?> editor;
     private final OutlineModel              outlineModel;
     private final JavaCodeAssistProcessor   codeAssistProcessor;
@@ -56,12 +54,10 @@ public class JavaReconcilerStrategy implements ReconcilingStrategy {
                                   @Assisted final OutlineModel outlineModel,
                                   @Assisted final JavaCodeAssistProcessor codeAssistProcessor,
                                   @Assisted final AnnotationModel annotationModel,
-                                  final BuildContext buildContext,
                                   final JavaReconcileClient client,
                                   final EditorResources editorResources,
                                   final SemanticHighlightRenderer highlighter) {
         this.editor = editor;
-        this.buildContext = buildContext;
         this.client = client;
         this.outlineModel = outlineModel;
         this.codeAssistProcessor = codeAssistProcessor;
@@ -86,9 +82,9 @@ public class JavaReconcilerStrategy implements ReconcilingStrategy {
     }
 
     public void parse() {
-        if (this.buildContext.isBuilding()) {
-            return;
-        }
+//        if (this.buildContext.isBuilding()) {
+//            return;
+//        }
         if (first) {
             codeAssistProcessor.disableCodeAssistant();
             first = false;

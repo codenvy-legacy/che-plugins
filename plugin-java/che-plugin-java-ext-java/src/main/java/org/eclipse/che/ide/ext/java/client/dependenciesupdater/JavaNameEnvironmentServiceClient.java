@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.java.client.dependenciesupdater;
 
-import org.eclipse.che.api.builder.dto.BuildTaskDescriptor;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 
 /**
@@ -31,15 +30,15 @@ public interface JavaNameEnvironmentServiceClient {
      */
     void updateDependencies(String projectPath, boolean force, AsyncRequestCallback<Boolean> callback);
 
-    /**
-     * Update project dependencies and wait for ending.
-     *
-     * @param projectPath
-     *         path to the project to update its dependencies
-     * @param buildTaskDescriptor
-     *         {@link BuildTaskDescriptor}
-     * @param callback
-     *         the callback to use for the response
-     */
-    void updateDependenciesAndWait(String projectPath, BuildTaskDescriptor buildTaskDescriptor, AsyncRequestCallback<Void> callback);
+//    /**
+//     * Update project dependencies and wait for ending.
+//     *
+//     * @param projectPath
+//     *         path to the project to update its dependencies
+//     * @param buildTaskDescriptor
+//     *         {@link BuildTaskDescriptor}
+//     * @param callback
+//     *         the callback to use for the response
+//     */
+//    void updateDependenciesAndWait(String projectPath, BuildTaskDescriptor buildTaskDescriptor, AsyncRequestCallback<Void> callback);
 }

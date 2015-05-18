@@ -38,7 +38,6 @@ import org.eclipse.che.ide.util.loging.Log;
 @Singleton
 public class OpenDeclarationFinder {
 
-    private final JavaParserWorker       worker;
     private final EditorAgent            editorAgent;
     private final JavaNavigationService  service;
     private       DtoUnmarshallerFactory factory;
@@ -46,9 +45,8 @@ public class OpenDeclarationFinder {
     private       AppContext             context;
 
     @Inject
-    public OpenDeclarationFinder(JavaParserWorker worker, EditorAgent editorAgent, JavaNavigationService service,
+    public OpenDeclarationFinder(EditorAgent editorAgent, JavaNavigationService service,
                                  DtoUnmarshallerFactory factory, JavaNavigationService navigationService, AppContext context) {
-        this.worker = worker;
         this.editorAgent = editorAgent;
         this.service = service;
         this.factory = factory;

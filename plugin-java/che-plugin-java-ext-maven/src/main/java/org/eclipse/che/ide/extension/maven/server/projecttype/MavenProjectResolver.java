@@ -20,7 +20,6 @@ import org.eclipse.che.api.project.server.ProjectConfig;
 import org.eclipse.che.api.project.server.ProjectManager;
 import org.eclipse.che.api.project.server.VirtualFileEntry;
 import org.eclipse.che.api.project.server.type.AttributeValue;
-import org.eclipse.che.api.project.shared.Builders;
 import org.eclipse.che.ide.maven.tools.Model;
 
 import java.io.ByteArrayInputStream;
@@ -81,8 +80,6 @@ public class MavenProjectResolver {
 
     private static ProjectConfig createProjectConfig(FolderEntry folderEntry)
             throws ServerException, ForbiddenException, IOException {
-        Builders builders = new Builders();
-        builders.setDefault("maven");
 
         VirtualFileEntry pom = folderEntry.getChild("pom.xml");
         Model model = Model.readFrom(pom.getVirtualFile());
@@ -93,7 +90,7 @@ public class MavenProjectResolver {
         attributes.put(VERSION, new AttributeValue(model.getVersion()));
         attributes.put(PACKAGING, new AttributeValue(model.getPackaging()));
 
-        return new ProjectConfig("Maven", MAVEN_ID, attributes, null, builders, null);
+        return new ProjectConfig("Maven", MAVEN_ID, attributes, null, null);
     }
 
     private static void createProjectsOnModules(Model model, Project parentProject, String ws, ProjectManager projectManager)

@@ -13,7 +13,6 @@ package org.eclipse.jdt.internal.core;
 
 import org.eclipse.che.api.project.server.Constants;
 import org.eclipse.che.api.project.server.ProjectJson;
-import org.eclipse.che.api.project.shared.Builders;
 import org.eclipse.che.core.internal.resources.ResourcesPlugin;
 import org.eclipse.che.core.resources.ProjectScope;
 import org.eclipse.che.ide.ant.tools.AntUtils;
@@ -229,45 +228,45 @@ public class JavaProject extends Openable implements IJavaProject, SuffixConstan
         return firstOutputLocation.equals(secondOutputLocation);
     }
 
-    private void addSources(File projectDir, List<IClasspathEntry> paths) throws IOException {
-        File codenvy = new File(projectDir, Constants.CODENVY_PROJECT_FILE_RELATIVE_PATH);
-        List<File> sources = new LinkedList<>();
-
-        final ProjectJson projectJson;
-        try (FileInputStream in = new FileInputStream(codenvy)) {
-            projectJson = ProjectJson.load(in);
-        }
-
-        Builders defBuilder = projectJson.getBuilders();
-
-        if (defBuilder != null) {
-            if ("maven".equals(defBuilder.getDefault())) {
-                File pom = new File(projectDir, "pom.xml");
-                if (pom.exists()) {
-                    for (String src : MavenUtils.getSourceDirectories(pom)) {
-                        sources.add(new File(projectDir, src));
-                    }
-                }
-            } else if ("ant".equals(defBuilder.getDefault())) {
-                File build = new File(projectDir, "build.xml");
-                if (build.exists()) {
-                    for (String src : AntUtils.getSourceDirectories(build)) {
-                        sources.add(new File(projectDir, src));
-                    }
-                }
-            }
-        }
-
-        if (sources.isEmpty()) {
-            sources.add(projectDir);
-        }
-
-        for (File source : sources) {
-            if (source.exists()) {
-                paths.add(JavaCore.newSourceEntry(new Path(source.getAbsolutePath())));
-            }
-        }
-    }
+//    private void addSources(File projectDir, List<IClasspathEntry> paths) throws IOException {
+//        File codenvy = new File(projectDir, Constants.CODENVY_PROJECT_FILE_RELATIVE_PATH);
+//        List<File> sources = new LinkedList<>();
+//
+//        final ProjectJson projectJson;
+//        try (FileInputStream in = new FileInputStream(codenvy)) {
+//            projectJson = ProjectJson.load(in);
+//        }
+//
+////        Builders defBuilder = projectJson.getBuilders();
+//
+//        if (defBuilder != null) {
+//            if ("maven".equals(defBuilder.getDefault())) {
+//                File pom = new File(projectDir, "pom.xml");
+//                if (pom.exists()) {
+//                    for (String src : MavenUtils.getSourceDirectories(pom)) {
+//                        sources.add(new File(projectDir, src));
+//                    }
+//                }
+//            } else if ("ant".equals(defBuilder.getDefault())) {
+//                File build = new File(projectDir, "build.xml");
+//                if (build.exists()) {
+//                    for (String src : AntUtils.getSourceDirectories(build)) {
+//                        sources.add(new File(projectDir, src));
+//                    }
+//                }
+//            }
+//        }
+//
+//        if (sources.isEmpty()) {
+//            sources.add(projectDir);
+//        }
+//
+//        for (File source : sources) {
+//            if (source.exists()) {
+//                paths.add(JavaCore.newSourceEntry(new Path(source.getAbsolutePath())));
+//            }
+//        }
+//    }
 
     /**
      * Computes the package fragment roots identified by the given entry.

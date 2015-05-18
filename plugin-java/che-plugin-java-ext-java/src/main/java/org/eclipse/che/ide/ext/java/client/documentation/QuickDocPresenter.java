@@ -17,7 +17,6 @@ import com.google.inject.name.Named;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.editor.EditorPartPresenter;
-import org.eclipse.che.ide.ext.java.client.editor.JavaParserWorker;
 import org.eclipse.che.ide.ext.java.client.projecttree.JavaSourceFolderUtil;
 import org.eclipse.che.ide.jseditor.client.position.PositionConverter;
 import org.eclipse.che.ide.jseditor.client.texteditor.EmbeddedTextEditorPresenter;
@@ -34,16 +33,13 @@ public class QuickDocPresenter implements QuickDocumentation, QuickDocView.Actio
     private AppContext   appContext;
     private String       caContext;
     private EditorAgent  editorAgent;
-    private JavaParserWorker worker;
 
     @Inject
-    public QuickDocPresenter(QuickDocView view, AppContext appContext, @Named("javaCA") String caContext, EditorAgent editorAgent,
-                             JavaParserWorker worker) {
+    public QuickDocPresenter(QuickDocView view, AppContext appContext, @Named("javaCA") String caContext, EditorAgent editorAgent) {
         this.view = view;
         this.appContext = appContext;
         this.caContext = caContext;
         this.editorAgent = editorAgent;
-        this.worker = worker;
     }
 
     @Override

@@ -12,7 +12,7 @@
 package org.eclipse.che.ide.ext.java;
 
 
-import org.eclipse.che.ide.ext.java.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.che.ide.ext.java.shared.dto.HighlightedPosition;
 import org.eclipse.che.ide.ext.java.shared.dto.ReconcileResult;
 import org.eclipse.che.jdt.javaeditor.JavaReconciler;

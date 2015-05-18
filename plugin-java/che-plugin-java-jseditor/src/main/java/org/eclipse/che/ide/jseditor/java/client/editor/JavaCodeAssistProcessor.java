@@ -15,7 +15,6 @@ import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
 
 import org.eclipse.che.api.analytics.client.logger.AnalyticsEventLogger;
-import org.eclipse.che.ide.api.build.BuildContext;
 import org.eclipse.che.ide.api.editor.EditorPartPresenter;
 import org.eclipse.che.ide.api.icon.Icon;
 import org.eclipse.che.ide.api.project.tree.VirtualFile;
@@ -42,7 +41,6 @@ public class JavaCodeAssistProcessor implements CodeAssistProcessor {
 
     private static Map<String, ImageResource> images;
 
-    private final BuildContext           buildContext;
     private final EditorPartPresenter    editor;
     private       JavaCodeAssistClient   client;
     private final JavaResources          javaResources;
@@ -54,12 +52,10 @@ public class JavaCodeAssistProcessor implements CodeAssistProcessor {
 
     @AssistedInject
     public JavaCodeAssistProcessor(@Assisted final EditorPartPresenter editor,
-                                   final BuildContext buildContext,
                                    final JavaCodeAssistClient client,
                                    final JavaResources javaResources,
                                    DtoUnmarshallerFactory unmarshallerFactory,
                                    final AnalyticsEventLogger eventLogger) {
-        this.buildContext = buildContext;
         this.editor = editor;
         this.client = client;
         this.javaResources = javaResources;
@@ -145,11 +141,11 @@ public class JavaCodeAssistProcessor implements CodeAssistProcessor {
     @Override
     public void computeCompletionProposals(final TextEditor textEditor, final int offset,
                                            final CodeAssistCallback callback) {
-        if (buildContext.isBuilding()) {
-            errorMessage = "Code Assistant currently unavailable due to project build.";
-        } else {
-            errorMessage = null;
-        }
+//        if (buildContext.isBuilding()) {
+//            errorMessage = "Code Assistant currently unavailable due to project build.";
+//        } else {
+//            errorMessage = null;
+//        }
         if (errorMessage != null) {
             return;
         }

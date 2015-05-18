@@ -28,7 +28,7 @@
         <!--<module>plugin-runner</module>-->
         <module>plugin-web</module>
         <module>plugin-machine</module>
-        <!--<module>plugin-java</module>-->
+        <module>plugin-java</module>
         <module>plugin-sdk</module>
         <module>plugin-codemirror</module>
         <module>plugin-orion</module>

@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.java.client.editor;
 
-import org.eclipse.che.ide.ext.java.jdt.core.compiler.CategorizedProblem;
-import org.eclipse.che.ide.ext.java.jdt.core.dom.CompilationUnit;
 
 import java.util.Iterator;
 

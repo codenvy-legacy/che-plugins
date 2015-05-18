@@ -14,7 +14,6 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 
-import org.eclipse.che.api.builder.dto.BuildTaskDescriptor;
 import org.eclipse.che.ide.ext.java.client.JavaExtension;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.AsyncRequestFactory;
@@ -49,14 +48,14 @@ public class JavaNameEnvironmentServiceClientImpl implements JavaNameEnvironment
                            .header(ACCEPT, APPLICATION_JSON)
                            .send(callback);
     }
-
-    /** {@inheritDoc} */
-    @Override
-    public void updateDependenciesAndWait(String projectPath,
-                                          BuildTaskDescriptor buildTaskDescriptor,
-                                          AsyncRequestCallback<Void> callback) {
-        final String requestUrl = SERVICE_PATH + UPDATE_DEPENDENCIES_AND_WAIT + "?projectpath=" + projectPath;
-        asyncRequestFactory.createPostRequest(requestUrl, buildTaskDescriptor, true)
-                           .send(callback);
-    }
+//
+//    /** {@inheritDoc} */
+//    @Override
+//    public void updateDependenciesAndWait(String projectPath,
+//                                          BuildTaskDescriptor buildTaskDescriptor,
+//                                          AsyncRequestCallback<Void> callback) {
+//        final String requestUrl = SERVICE_PATH + UPDATE_DEPENDENCIES_AND_WAIT + "?projectpath=" + projectPath;
+//        asyncRequestFactory.createPostRequest(requestUrl, buildTaskDescriptor, true)
+//                           .send(callback);
+//    }
 }

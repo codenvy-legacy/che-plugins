@@ -17,8 +17,6 @@ import com.google.gwt.user.client.ui.Image;
 
 import org.eclipse.che.ide.api.text.annotation.Annotation;
 import org.eclipse.che.ide.ext.java.client.JavaResources;
-import org.eclipse.che.ide.ext.java.jdt.core.compiler.CategorizedProblem;
-import org.eclipse.che.ide.ext.java.jdt.core.compiler.IProblem;
 import org.eclipse.che.ide.ext.java.shared.dto.Problem;
 import org.eclipse.che.ide.runtime.Assert;
 import org.eclipse.che.ide.util.dom.Elements;
@@ -197,9 +195,9 @@ public class ProblemAnnotation extends Annotation implements JavaAnnotation, Qui
 
     @Override
     public String getMarkerType() {
-        if (fProblem instanceof CategorizedProblem) {
-            return ((CategorizedProblem)fProblem).getMarkerType();
-        }
+//        if (fProblem instanceof CategorizedProblem) {
+//            return ((CategorizedProblem)fProblem).getMarkerType();
+//        }
         return null;
     }
 

@@ -15,10 +15,10 @@ import com.google.inject.Singleton;
 import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
-import org.eclipse.che.api.project.shared.dto.BuildersDescriptor;
 import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.ide.api.action.ActionManager;
 import org.eclipse.che.ide.api.action.DefaultActionGroup;
+import org.eclipse.che.ide.api.action.IdeActions;
 import org.eclipse.che.ide.api.constraints.Anchor;
 import org.eclipse.che.ide.api.constraints.Constraints;
 import org.eclipse.che.ide.api.event.FileEvent;
@@ -36,7 +36,6 @@ import org.eclipse.che.ide.collections.Array;
 import org.eclipse.che.ide.collections.Collections;
 import org.eclipse.che.ide.ext.java.client.dependenciesupdater.DependenciesUpdater;
 import org.eclipse.che.ide.extension.maven.client.actions.CreateMavenModuleAction;
-import org.eclipse.che.ide.extension.maven.client.actions.CustomBuildAction;
 import org.eclipse.che.ide.extension.maven.client.actions.UpdateDependencyAction;
 import org.eclipse.che.ide.extension.maven.client.event.BeforeModuleOpenEvent;
 import org.eclipse.che.ide.extension.maven.client.event.BeforeModuleOpenHandler;
@@ -50,7 +49,6 @@ import org.eclipse.che.ide.util.loging.Log;
 import java.util.List;
 import java.util.Map;
 
-import static org.eclipse.che.ide.api.action.IdeActions.GROUP_BUILD;
 import static org.eclipse.che.ide.api.action.IdeActions.GROUP_BUILD_CONTEXT_MENU;
 import static org.eclipse.che.ide.api.action.IdeActions.GROUP_FILE_NEW;
 
@@ -143,18 +141,15 @@ public class MavenExtension {
 
     @Inject
     private void prepareActions(ActionManager actionManager,
-                                CustomBuildAction customBuildAction,
                                 UpdateDependencyAction updateDependencyAction,
                                 MavenLocalizationConstant mavenLocalizationConstants,
                                 CreateMavenModuleAction createMavenModuleAction) {
         // register actions
-        actionManager.registerAction(mavenLocalizationConstants.buildProjectControlId(), customBuildAction);
         actionManager.registerAction("updateDependency", updateDependencyAction);
         actionManager.registerAction("createMavenModule", createMavenModuleAction);
 
         // add actions in main menu
-        DefaultActionGroup buildMenuActionGroup = (DefaultActionGroup)actionManager.getAction(GROUP_BUILD);
-        buildMenuActionGroup.add(customBuildAction);
+        DefaultActionGroup buildMenuActionGroup = (DefaultActionGroup)actionManager.getAction(IdeActions.GROUP_CODE);
         buildMenuActionGroup.add(updateDependencyAction);
 
         DefaultActionGroup newGroup = (DefaultActionGroup)actionManager.getAction(GROUP_FILE_NEW);
@@ -175,8 +170,8 @@ public class MavenExtension {
 
     private boolean isValidForResolveDependencies(ProjectDescriptor project) {
         Map<String, List<String>> attr = project.getAttributes();
-        BuildersDescriptor builders = project.getBuilders();
-        return builders != null && "maven".equals(builders.getDefault()) &&
+//        BuildersDescriptor builders = project.getBuilders();
+        return /*builders != null && "maven".equals(builders.getDefault()) &&*/
                !(attr.containsKey(MavenAttributes.PACKAGING) && "pom".equals(attr.get(MavenAttributes.PACKAGING).get(0)));
     }
 }
