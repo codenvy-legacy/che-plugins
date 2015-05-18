@@ -8,6 +8,7 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
+
 package org.eclipse.che.ide.editor.orion.client;
 
 import com.google.gwt.core.client.JavaScriptObject;

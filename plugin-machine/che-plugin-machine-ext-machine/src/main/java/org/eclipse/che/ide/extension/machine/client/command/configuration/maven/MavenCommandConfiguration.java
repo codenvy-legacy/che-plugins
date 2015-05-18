@@ -10,20 +10,18 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.machine.client.command.configuration.maven;
 
-import org.eclipse.che.ide.extension.machine.client.command.configuration.api.CommandConfiguration;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.api.CommandType;
+import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandConfiguration;
+import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandType;
 
 import javax.annotation.Nonnull;
 
 /**
- * //
- *
  * @author Artem Zatsarynnyy
  */
 public class MavenCommandConfiguration implements CommandConfiguration {
 
-    private final String      name;
     private final CommandType type;
+    private       String      name;
     private       String      commandLine;
 
     public MavenCommandConfiguration(String name, CommandType type) {
@@ -37,6 +35,11 @@ public class MavenCommandConfiguration implements CommandConfiguration {
         return name;
     }
 
+    @Override
+    public void setName(@Nonnull String name) {
+        this.name = name;
+    }
+
     @Nonnull
     @Override
     public CommandType getType() {
@@ -44,8 +47,8 @@ public class MavenCommandConfiguration implements CommandConfiguration {
     }
 
     @Override
-    public String getCommand() {
-        return "uname";
+    public String toCommandLine() {
+        return "mvn " + getCommandLine();
     }
 
     public String getCommandLine() {

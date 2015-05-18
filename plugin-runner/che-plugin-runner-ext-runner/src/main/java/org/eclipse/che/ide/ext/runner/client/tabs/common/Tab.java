@@ -26,15 +26,17 @@ import static org.eclipse.che.ide.ext.runner.client.tabs.common.Tab.VisibleState
  *
  * @author Andrey Plotnikov
  * @author Valeriy Svydenko
+ * @author Dmitry Shnurenko
  */
 public class Tab {
 
     private final String           title;
-    private final TabPresenter     tabPresenter;
-    private final Set<State>       scopes;
     private final TabSelectHandler handler;
     private final TabType          tabType;
     private final VisibleState     visibleState;
+
+    private TabPresenter tabPresenter;
+    private Set<State>   scopes;
 
     public Tab(@Nonnull String title,
                @Nonnull TabPresenter tabPresenter,
@@ -60,6 +62,11 @@ public class Tab {
     @Nonnull
     public TabPresenter getTab() {
         return tabPresenter;
+    }
+
+    /** Sets scopes to current type. */
+    public void setScopes(@Nonnull Set<State> scopes) {
+        this.scopes = scopes;
     }
 
     /**

@@ -16,6 +16,9 @@ import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
 import org.eclipse.che.api.machine.shared.dto.MachineDescriptor;
+import org.eclipse.che.api.promises.client.Operation;
+import org.eclipse.che.api.promises.client.OperationException;
+import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.ide.api.action.ActionManager;
 import org.eclipse.che.ide.api.action.DefaultActionGroup;
 import org.eclipse.che.ide.api.app.AppContext;
@@ -26,21 +29,23 @@ import org.eclipse.che.ide.api.extension.Extension;
 import org.eclipse.che.ide.api.parts.PartStackType;
 import org.eclipse.che.ide.api.parts.WorkspaceAgent;
 import org.eclipse.che.ide.collections.Array;
-import org.eclipse.che.ide.extension.machine.client.actions.EditConfigurationsAction;
-import org.eclipse.che.ide.extension.machine.client.actions.ExecuteCommandAction;
+import org.eclipse.che.ide.extension.machine.client.actions.ChooseCommandAction;
+import org.eclipse.che.ide.extension.machine.client.actions.EditCommandsAction;
+import org.eclipse.che.ide.extension.machine.client.actions.ExecuteArbitraryCommandAction;
+import org.eclipse.che.ide.extension.machine.client.actions.ExecuteSelectedCommandAction;
 import org.eclipse.che.ide.extension.machine.client.actions.TerminateMachineAction;
+import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandManager;
 import org.eclipse.che.ide.extension.machine.client.console.ClearConsoleAction;
 import org.eclipse.che.ide.extension.machine.client.console.MachineConsolePresenter;
 import org.eclipse.che.ide.extension.machine.client.console.MachineConsoleToolbar;
 import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
-import org.eclipse.che.ide.rest.AsyncRequestCallback;
-import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.ui.toolbar.ToolbarPresenter;
-import org.eclipse.che.ide.util.loging.Log;
 
 import static org.eclipse.che.ide.api.action.IdeActions.GROUP_CODE;
 import static org.eclipse.che.ide.api.action.IdeActions.GROUP_MAIN_MENU;
+import static org.eclipse.che.ide.api.action.IdeActions.GROUP_RIGHT_TOOLBAR;
 import static org.eclipse.che.ide.api.constraints.Anchor.AFTER;
+import static org.eclipse.che.ide.api.constraints.Constraints.FIRST;
 
 /**
  * Machine extension entry point.
@@ -52,45 +57,51 @@ import static org.eclipse.che.ide.api.constraints.Anchor.AFTER;
 public class MachineExtension {
 
     public static final String GROUP_MACHINE_CONSOLE_TOOLBAR = "MachineConsoleToolbar";
+    public static final String GROUP_MACHINE_TOOLBAR         = "MachineGroupToolbar";
+    public static final String GROUP_COMMANDS_LIST           = "CommandsListGroup";
 
     @Inject
-    public MachineExtension(MachineResources machineResources,
-                            EventBus eventBus,
+    public MachineExtension(final MachineResources machineResources,
+                            final EventBus eventBus,
                             final AppContext appContext,
                             final MachineServiceClient machineServiceClient,
-                            final DtoUnmarshallerFactory dtoUnmarshallerFactory,
                             final MachineManager machineManager,
-                            final MachineConsolePresenter machineConsolePresenter) {
+                            final CommandManager commandManager,
+                            final MachineConsolePresenter machineConsolePresenter,
+                            final ChooseCommandAction chooseCommandAction) {
 
         machineResources.machine().ensureInjected();
 
         eventBus.addHandler(ProjectActionEvent.TYPE, new ProjectActionHandler() {
             @Override
             public void onProjectOpened(ProjectActionEvent event) {
+                chooseCommandAction.setProjectRunners(commandManager.getCommandConfigurations());
+
                 final String projectPath = event.getProject().getPath();
 
                 // start machine and bind project
-                machineServiceClient.getMachines(
-                        appContext.getWorkspace().getId(),
-                        projectPath,
-                        new AsyncRequestCallback<Array<MachineDescriptor>>(
-                                dtoUnmarshallerFactory.newArrayUnmarshaller(MachineDescriptor.class)) {
-                            @Override
-                            protected void onSuccess(Array<MachineDescriptor> result) {
-                                if (result.isEmpty()) {
-                                    machineManager.startMachineAndBindProject(projectPath);
-                                }
-                            }
+                Promise<Array<MachineDescriptor>> machinesPromise = machineServiceClient.getMachines(appContext.getWorkspace().getId(),
+                                                                                                     projectPath);
+                machinesPromise.then(new Operation<Array<MachineDescriptor>>() {
+                    @Override
+                    public void apply(Array<MachineDescriptor> arg) throws OperationException {
+                        if (arg.isEmpty()) {
+                            machineManager.startMachineAndBindProject(projectPath);
+                        } else {
+                            machineManager.setCurrentMachineId(arg.get(0).getId());
+                        }
+                    }
+                });
+            }
 
-                            @Override
-                            protected void onFailure(Throwable exception) {
-                                Log.error(MachineExtension.class, exception);
-                            }
-                        });
+            @Override
+            public void onProjectClosing(ProjectActionEvent event) {
+                //nothing to do for now
             }
 
             @Override
             public void onProjectClosed(ProjectActionEvent event) {
+                machineManager.setCurrentMachineId(null);
                 machineConsolePresenter.clear();
             }
         });
@@ -99,27 +110,42 @@ public class MachineExtension {
     @Inject
     private void prepareActions(MachineLocalizationConstant localizationConstant,
                                 ActionManager actionManager,
-                                ExecuteCommandAction executeCommandAction,
-                                EditConfigurationsAction editConfigurationsAction,
+                                ExecuteArbitraryCommandAction executeArbitraryCommandAction,
+                                ExecuteSelectedCommandAction executeSelectedCommandAction,
+                                ChooseCommandAction chooseCommandAction,
+                                EditCommandsAction editCommandsAction,
                                 TerminateMachineAction terminateMachineAction) {
         final DefaultActionGroup mainMenu = (DefaultActionGroup)actionManager.getAction(GROUP_MAIN_MENU);
-
-        final String runGroupId = "run";
-        final DefaultActionGroup machinesMenu = new DefaultActionGroup(localizationConstant.mainMenuRunName(), true, actionManager);
-        actionManager.registerAction(runGroupId, machinesMenu);
-
-        mainMenu.add(machinesMenu, new Constraints(AFTER, GROUP_CODE));
+        final DefaultActionGroup runMenu = new DefaultActionGroup(localizationConstant.mainMenuRunName(), true, actionManager);
 
         // register actions
-        actionManager.registerAction("executeCommand", executeCommandAction);
-        actionManager.registerAction("editConfigurations", editConfigurationsAction);
-        actionManager.registerAction("stopMachine", terminateMachineAction);
+        actionManager.registerAction("run", runMenu);
+        actionManager.registerAction("executeArbitraryCommand", executeArbitraryCommandAction);
+        actionManager.registerAction("editCommands", editCommandsAction);
+        actionManager.registerAction("terminateMachine", terminateMachineAction);
+        actionManager.registerAction("chooseCommand", chooseCommandAction);
+        actionManager.registerAction("executeSelectedCommand", executeSelectedCommandAction);
 
         // add actions in main menu
-        machinesMenu.add(executeCommandAction);
-//        machinesMenu.add(editConfigurationsAction);
-        machinesMenu.addSeparator();
-        machinesMenu.add(terminateMachineAction);
+        mainMenu.add(runMenu, new Constraints(AFTER, GROUP_CODE));
+        runMenu.add(executeArbitraryCommandAction);
+        runMenu.add(editCommandsAction);
+        runMenu.addSeparator();
+        runMenu.add(terminateMachineAction);
+
+        // add actions on right toolbar
+        final DefaultActionGroup rightToolbarGroup = (DefaultActionGroup)actionManager.getAction(GROUP_RIGHT_TOOLBAR);
+        final DefaultActionGroup machineToolbarGroup = new DefaultActionGroup(GROUP_MACHINE_TOOLBAR, false, actionManager);
+        actionManager.registerAction(GROUP_MACHINE_TOOLBAR, machineToolbarGroup);
+        rightToolbarGroup.add(machineToolbarGroup);
+        machineToolbarGroup.add(chooseCommandAction);
+        machineToolbarGroup.add(executeSelectedCommandAction);
+
+        // add group for command list
+        final DefaultActionGroup commandList = new DefaultActionGroup(GROUP_COMMANDS_LIST, false, actionManager);
+        actionManager.registerAction(GROUP_COMMANDS_LIST, commandList);
+        commandList.add(editCommandsAction, FIRST);
+        commandList.addSeparator();
     }
 
     @Inject

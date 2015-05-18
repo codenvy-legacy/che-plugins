@@ -21,7 +21,7 @@
         }
     </ui:style>
 
-    <g:DockLayoutPanel ui:field="PX" addStyleNames="{resources.runnerCss.fullSize}">
+    <g:DockLayoutPanel addStyleNames="{resources.runnerCss.fullSize}">
         <g:north size="25">
             <g:FlowPanel ui:field="tabs" addStyleNames="{resources.runnerCss.fullSize} {style.tabs}"/>
         </g:north>

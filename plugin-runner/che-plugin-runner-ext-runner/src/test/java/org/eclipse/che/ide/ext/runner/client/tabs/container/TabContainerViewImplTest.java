@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 
 import java.util.HashMap;
@@ -161,6 +162,26 @@ public class TabContainerViewImplTest {
     }
 
     @Test
+    public void tabShouldNotBeShownWhenTabWidgetIsNull() {
+        Map<String, Boolean> tabVisibilities = new HashMap<>();
+        tabVisibilities.put(TITLE1, true);
+        tabVisibilities.put(TITLE2, false);
+
+        tabContainerView.setVisibleTitle(tabVisibilities);
+
+        verify(tabContainerView.tabs, never()).add(Matchers.<TabWidget>anyObject());
+    }
+
+    @Test
+    public void tabTitleShouldBeShown() {
+        tabContainerView.addTab(tab1);
+
+        tabContainerView.showTabTitle(TITLE1, true);
+
+        verify(tabWidget1).setVisible(true);
+    }
+
+    @Test
     public void shouldVisibleTwoTitle() {
         Map<String, Boolean> tabVisibilities = new HashMap<>();
         tabVisibilities.put(TITLE1, true);
@@ -181,6 +202,7 @@ public class TabContainerViewImplTest {
         Map<String, Boolean> tabVisibilities = new HashMap<>();
         tabVisibilities.put(TITLE1, true);
         tabVisibilities.put("not existed title", true);
+        tabVisibilities.put(TITLE2, true);
 
         addThreeTabs();
 

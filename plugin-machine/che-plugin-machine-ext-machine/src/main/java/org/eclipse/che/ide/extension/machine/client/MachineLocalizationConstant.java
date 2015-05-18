@@ -20,31 +20,34 @@ import com.google.gwt.i18n.client.Messages;
 public interface MachineLocalizationConstant extends Messages {
 
     /* Buttons */
-    @Key("button.ok")
-    String okButton();
-
     @Key("button.execute")
     String executeButton();
 
-    @Key("button.cancel")
-    String cancelButton();
+    @Key("button.close")
+    String closeButton();
 
 
     /* Actions */
     @Key("mainMenu.run.name")
     String mainMenuRunName();
 
-    @Key("control.terminateMachine.text")
-    String terminateMachineControlTitle();
+    @Key("control.executeArbitraryCommand.text")
+    String executeArbitraryCommandControlTitle();
 
-    @Key("control.terminateMachine.description")
-    String terminateMachineControlDescription();
+    @Key("control.executeArbitraryCommand.description")
+    String executeArbitraryCommandControlDescription();
 
-    @Key("control.executeCommand.text")
-    String executeCommandControlTitle();
+    @Key("control.chooseCommand.text")
+    String chooseCommandControlTitle();
 
-    @Key("control.executeCommand.description")
-    String executeCommandControlDescription();
+    @Key("control.chooseCommand.description")
+    String chooseCommandControlDescription();
+
+    @Key("control.runSelectedCommand.text")
+    String executeSelectedCommandControlTitle();
+
+    @Key("control.runSelectedCommand.description")
+    String executeSelectedCommandControlDescription();
 
     @Key("control.editConfigurations.text")
     String editConfigurationsControlTitle();
@@ -52,16 +55,17 @@ public interface MachineLocalizationConstant extends Messages {
     @Key("control.editConfigurations.description")
     String editConfigurationsControlDescription();
 
+    @Key("control.terminateMachine.text")
+    String terminateMachineControlTitle();
+
+    @Key("control.terminateMachine.description")
+    String terminateMachineControlDescription();
+
     @Key("control.clearMachineConsole.text")
     String clearConsoleControlTitle();
 
     @Key("control.clearMachineConsole.description")
     String clearConsoleControlDescription();
-
-
-    /* Messages */
-    @Key("messages.noMachineIsRunning")
-    String noMachineIsRunning();
 
 
     /* MachineConsoleView */
@@ -72,7 +76,7 @@ public interface MachineLocalizationConstant extends Messages {
     String machineConsoleViewTooltip();
 
 
-    /* ExecuteCommandView */
+    /* ExecuteArbitraryCommandView */
     @Key("view.executeCommand.title")
     String executeCommandViewTitle();
 

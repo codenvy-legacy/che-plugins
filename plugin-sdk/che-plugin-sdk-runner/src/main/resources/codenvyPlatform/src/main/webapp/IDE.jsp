@@ -31,6 +31,8 @@
 
         window.IDE.config = {
 
+            "restContext": "/che/api",
+
             "workspaceName": "<%= pageContext.getServletContext().getInitParameter("ws-name") %>",
 
             "workspaceId": "<%= pageContext.getServletContext().getInitParameter("ws-id") %>",
@@ -41,9 +43,9 @@
 
             "hiddenFiles": ".*",
 
-            "facebookLikeURL": "/ws/_app/facebook-like.html",
+            "facebookLikeURL": "/che/_app/facebook-like.html",
 
-            "googleLikeURL": "/ws/_app/google-like.html"
+            "googleLikeURL": "/che/_app/google-like.html"
 
         };
 
@@ -71,8 +73,8 @@
 
     </script>
 
-    <script type="text/javascript" src="/ws/_app/greetings/greetings.js"></script>
-    <script type="text/javascript" language="javascript" src="/ws/_app/browserNotSupported.js"></script>
-    <script type="text/javascript" language="javascript" src="/ws/_app/_app.nocache.js"></script>
+    <script type="text/javascript" src="/che/_app/greetings/greetings.js"></script>
+    <script type="text/javascript" language="javascript" src="/che/_app/browserNotSupported.js"></script>
+    <script type="text/javascript" language="javascript" src="/che/_app/_app.nocache.js"></script>
 </head>
 </html>

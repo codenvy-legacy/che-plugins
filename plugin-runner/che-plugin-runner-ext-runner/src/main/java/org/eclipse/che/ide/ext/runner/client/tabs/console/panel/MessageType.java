@@ -16,6 +16,7 @@ import javax.annotation.Nonnull;
  * The enum contains all available list of message's type of console.
  *
  * @author Andrey Plotnikov
+ * @author Dmitry Shnurenko
  */
 public enum MessageType {
     DOCKER("[DOCKER]", "#00B7EC"),
@@ -23,7 +24,8 @@ public enum MessageType {
     WARNING("[WARNING]", "#FFBA00"),
     ERROR("[ERROR]", "#F62217"),
     STDOUT("[STDOUT]", "lightgreen"),
-    STDERR("[STDERR]", "#F62217");
+    STDERR("[STDERR]", "#F62217"),
+    UNDEFINED("", "");
 
     private final String prefix;
     private final String color;
@@ -60,7 +62,7 @@ public enum MessageType {
             }
         }
 
-        throw new IllegalStateException("You tried to detect unknown message. Please, check your message. Your message: " + content);
+        return UNDEFINED;
     }
 
 }

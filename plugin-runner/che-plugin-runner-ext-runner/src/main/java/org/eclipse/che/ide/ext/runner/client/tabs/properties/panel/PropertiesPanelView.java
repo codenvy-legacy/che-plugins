@@ -21,6 +21,7 @@ import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Shutdo
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Map;
 
 /**
  * The visual part of Properties panel that has an ability to show configuration of a runner.
@@ -86,6 +87,14 @@ public interface PropertiesPanelView extends View<PropertiesPanelView.ActionDele
      *         content that needs to be set
      */
     void setType(@Nonnull String type);
+
+    /**
+     * Display port mapping.
+     *
+     * @param ports
+     *         private ports are used as keys and public ports as values in received {@code Map}.
+     */
+    void setPorts(Map<String, String> ports);
 
     /** @return chosen value of Boot field */
     @Nonnull

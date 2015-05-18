@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.svn.client.action;
 
+import org.eclipse.che.ide.api.action.ActionEvent;
+import org.eclipse.che.ide.api.project.tree.TreeNode;
+import org.eclipse.che.ide.api.project.tree.generic.StorableNode;
 import org.eclipse.che.ide.ext.svn.client.SubversionExtensionLocalizationConstants;
 import org.eclipse.che.ide.ext.svn.client.SubversionExtensionResources;
 
@@ -18,12 +21,15 @@ import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.selection.SelectionAgent;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.eclipse.che.ide.ext.svn.client.merge.MergePresenter;
 
 /**
  * Extension of {@link SubversionAction} for implementing the "svn merge" command.
  */
 @Singleton
 public class MergeAction extends SubversionAction {
+
+    private final MergePresenter presenter;
 
     /**
      * Constructor.
@@ -33,9 +39,23 @@ public class MergeAction extends SubversionAction {
                        final AppContext appContext,
                        final SelectionAgent selectionAgent,
                        final SubversionExtensionLocalizationConstants constants,
-                       final SubversionExtensionResources resources) {
+                       final SubversionExtensionResources resources,
+                       final MergePresenter presenter) {
         super(constants.mergeTitle(), constants.mergeDescription(), resources.merge(), eventLogger, appContext,
               constants, resources, selectionAgent);
+
+        this.presenter = presenter;
+    }
+
+    @Override
+    protected boolean isSelectionRequired() {
+        return true;
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent actionEvent) {
+        eventLogger.log(this, "IDE: Subversion 'Merge' action performed");
+        presenter.merge();
     }
 
 }

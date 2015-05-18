@@ -63,12 +63,12 @@
         <dependency>
             <groupId>org.eclipse.che.plugin</groupId>
             <artifactId>che-plugin-git-ext-git</artifactId>
-            <version>${che.plugins.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.plugin</groupId>
             <artifactId>che-plugin-ssh-ext-sshkey</artifactId>
-            <version>${che.plugins.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.kohsuke</groupId>
@@ -215,7 +215,7 @@
                     <dependency>
                         <groupId>org.eclipse.che.plugin</groupId>
                         <artifactId>che-plugin-github-ext-github</artifactId>
-                        <version>${che.plugins.version}</version>
+                        <version>${project.version}</version>
                     </dependency>
                     <!--
                         Other dependencies if DTOs from current project need them.

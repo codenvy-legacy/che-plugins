@@ -72,7 +72,7 @@
         <dependency>
             <groupId>org.eclipse.che.plugin</groupId>
             <artifactId>che-plugin-datasource-server</artifactId>
-            <version>${che.plugins.version}</version>
+            <version>${project.version}</version>
             <exclusions>
                 <exclusion>
                     <artifactId>che-core-client-gwt-vfs</artifactId>

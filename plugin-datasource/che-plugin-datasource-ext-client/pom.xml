@@ -44,22 +44,22 @@
         <dependency>
             <groupId>org.eclipse.che.plugin</groupId>
             <artifactId>che-plugin-datasource-ext-client-store</artifactId>
-            <version>${che.plugins.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.plugin</groupId>
             <artifactId>che-plugin-datasource-ext-client-widget</artifactId>
-            <version>${che.plugins.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.plugin</groupId>
             <artifactId>che-plugin-datasource-ext-shared</artifactId>
-            <version>${che.plugins.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.plugin</groupId>
             <artifactId>che-plugin-runner-ext-runner</artifactId>
-            <version>${che.plugins.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.gwt.gwtmockito</groupId>

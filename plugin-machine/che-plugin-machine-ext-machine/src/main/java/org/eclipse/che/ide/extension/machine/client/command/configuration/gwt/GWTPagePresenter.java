@@ -14,16 +14,17 @@ import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import org.eclipse.che.ide.extension.machine.client.command.configuration.api.CommandConfiguration;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.api.ConfigurationPage;
+import org.eclipse.che.ide.extension.machine.client.command.configuration.ConfigurationPage;
 
 import javax.annotation.Nonnull;
 
 /**
+ * Page allows to configure GWT-command parameters.
+ *
  * @author Artem Zatsarynnyy
  */
 @Singleton
-public class GWTPagePresenter implements GWTPageView.ActionDelegate, ConfigurationPage {
+public class GWTPagePresenter implements GWTPageView.ActionDelegate, ConfigurationPage<GWTCommandConfiguration> {
 
     private final GWTPageView             view;
     private       GWTCommandConfiguration configuration;
@@ -35,8 +36,8 @@ public class GWTPagePresenter implements GWTPageView.ActionDelegate, Configurati
     }
 
     @Override
-    public void reset(@Nonnull CommandConfiguration configuration) {
-        this.configuration = (GWTCommandConfiguration)configuration;
+    public void resetFrom(@Nonnull GWTCommandConfiguration configuration) {
+        this.configuration = configuration;
     }
 
     @Override

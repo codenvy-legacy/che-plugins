@@ -10,8 +10,14 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.svn.client.inject;
 
+import org.eclipse.che.ide.ext.svn.client.commit.diff.DiffViewerView;
+import org.eclipse.che.ide.ext.svn.client.commit.diff.DiffViewerViewImpl;
+import org.eclipse.che.ide.ext.svn.client.importer.SubversionProjectImporterView;
+import org.eclipse.che.ide.ext.svn.client.importer.SubversionProjectImporterViewImpl;
 import org.eclipse.che.ide.ext.svn.client.log.ShowLogsView;
 import org.eclipse.che.ide.ext.svn.client.log.ShowLogsViewImpl;
+import org.eclipse.che.ide.ext.svn.client.merge.MergeView;
+import org.eclipse.che.ide.ext.svn.client.merge.MergeViewImpl;
 import org.eclipse.che.ide.ext.svn.client.move.MoveView;
 import org.eclipse.che.ide.ext.svn.client.move.MoveViewImpl;
 import org.eclipse.che.ide.ext.svn.client.property.PropertyEditorView;
@@ -68,10 +74,13 @@ public class SubversionGinModule extends AbstractGinModule {
         GinMultibinder.newSetBinder(binder(), ImportWizardRegistrar.class).addBinding()
                       .to(SubversionImportWizardRegistrar.class);
 
+        bind(SubversionProjectImporterView.class).to(SubversionProjectImporterViewImpl.class).in(Singleton.class);
+
         bind(RawOutputView.class).to(RawOutputViewImpl.class).in(Singleton.class);
         bind(UpdateToRevisionView.class).to(UpdateToRevisionViewImpl.class).in(Singleton.class);
         bind(ResolveView.class).to(ResolveViewImpl.class).in(Singleton.class);
         bind(CopyView.class).to(CopyViewImpl.class).in(Singleton.class);
+        bind(MergeView.class).to(MergeViewImpl.class).in(Singleton.class);
         bind(MoveView.class).to(MoveViewImpl.class).in(Singleton.class);
         bind(ExportView.class).to(ExportViewImpl.class).in(Singleton.class);
         bind(ShowLogsView.class).to(ShowLogsViewImpl.class).in(Singleton.class);
@@ -80,7 +89,8 @@ public class SubversionGinModule extends AbstractGinModule {
         install(new GinFactoryModuleBuilder().build(FilteredNodeFactory.class));
         GinMultibinder.newSetBinder(binder(), TreeStructureProvider.class).addBinding().to(FilteredTreeStructureProvider.class);
 
-        bind(CommitView.class).to(CommitViewImpl.class);
+        bind(CommitView.class).to(CommitViewImpl.class).in(Singleton.class);
+        bind(DiffViewerView.class).to(DiffViewerViewImpl.class).in(Singleton.class);
 
         bind(AskCredentialsPresenter.class);
         bind(AskCredentialsView.class).to(AskCredentialsViewImpl.class);

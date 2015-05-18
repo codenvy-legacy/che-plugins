@@ -13,56 +13,56 @@ package org.eclipse.che.ide.ext.svn.shared;
 import org.eclipse.che.dto.shared.DTO;
 
 import javax.validation.constraints.NotNull;
-import java.util.List;
 
 @DTO
 public interface InfoRequest {
 
-    /**
-     * @return the project path the request is associated with.
-     */
+    /**************************************************************************
+     *
+     *  Project path
+     *
+     **************************************************************************/
+
     String getProjectPath();
 
-    /**
-     * @param projectPath the project path to set
-     */
     void setProjectPath(@NotNull final String projectPath);
 
-    /**
-     * @param projectPath the project path to use
-     */
     InfoRequest withProjectPath(@NotNull final String projectPath);
 
-    /**
-     * @return the paths the request is associated with
-     */
-    List<String> getPaths();
+    /**************************************************************************
+     *
+     *  Target
+     *
+     **************************************************************************/
 
-    /**
-     * @param paths the paths to set
-     */
-    void setPaths(@NotNull final List<String> paths);
+    String getTarget();
 
-    /**
-     * @param paths the paths to use
-     */
-    InfoRequest withPaths(@NotNull final List<String> paths);
+    void setTarget(@NotNull final String target);
 
-    /**
-     * @return the revision to update to
-     */
+    InfoRequest withTarget(@NotNull final String target);
+
+    /**************************************************************************
+     *
+     *  Revision
+     *
+     **************************************************************************/
+
     String getRevision();
 
-    /**
-     * @param revision the revision to set
-     */
     void setRevision(@NotNull final String revision);
 
-    /**
-     * @param revision the revision
-     *
-     * @return the request
-     */
     InfoRequest withRevision(@NotNull final String revision);
+
+    /**************************************************************************
+     *
+     *  Children
+     *
+     **************************************************************************/
+
+    boolean getChildren();
+
+    void setChildren(@NotNull final boolean children);
+
+    InfoRequest withChildren(@NotNull final boolean children);
 
 }

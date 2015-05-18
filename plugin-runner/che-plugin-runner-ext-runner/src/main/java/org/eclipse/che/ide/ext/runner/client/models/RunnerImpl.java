@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.runner.client.models;
 
-import com.google.gwt.http.client.URL;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.inject.assistedinject.Assisted;
@@ -122,7 +121,7 @@ public class RunnerImpl implements Runner {
 
         String environmentId = runOptions.getEnvironmentId();
 
-        if (environmentId == null || environmentId.startsWith("project://")) {
+        if (environmentId == null || environmentId.startsWith("project:/")) {
             this.type = util.getType();
         } else {
             this.type = util.getCorrectCategoryName(runOptions.getEnvironmentId());
@@ -130,7 +129,7 @@ public class RunnerImpl implements Runner {
 
         // the environment ID in runOptions should be an URL
         if (environmentId != null) {
-            runOptions.setEnvironmentId(URL.encode(environmentId));
+            runOptions.setEnvironmentId(environmentId);
         }
 
     }

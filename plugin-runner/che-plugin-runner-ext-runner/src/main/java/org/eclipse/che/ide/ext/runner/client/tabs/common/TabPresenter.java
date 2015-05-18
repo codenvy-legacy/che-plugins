@@ -10,8 +10,9 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.runner.client.tabs.common;
 
-import org.eclipse.che.ide.api.mvp.Presenter;
 import com.google.gwt.user.client.ui.IsWidget;
+
+import org.eclipse.che.ide.api.mvp.Presenter;
 
 import javax.annotation.Nonnull;
 

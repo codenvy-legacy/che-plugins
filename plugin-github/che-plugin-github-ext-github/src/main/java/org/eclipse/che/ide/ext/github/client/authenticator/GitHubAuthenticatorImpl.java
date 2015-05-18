@@ -23,6 +23,7 @@ import org.eclipse.che.ide.ext.ssh.client.SshKeyService;
 import org.eclipse.che.ide.ext.ssh.dto.KeyItem;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
+import org.eclipse.che.ide.rest.RestContext;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 import org.eclipse.che.ide.util.loging.Log;
 import org.eclipse.che.security.oauth.JsOAuthWindow;
@@ -54,7 +55,7 @@ public class GitHubAuthenticatorImpl implements GitHubAuthenticator, OAuthCallba
                                    GitHubAuthenticatorView view,
                                    DialogFactory dialogFactory,
                                    GitHubLocalizationConstant locale,
-                                   @Named("restContext") String baseUrl,
+                                   @RestContext String baseUrl,
                                    DtoUnmarshallerFactory dtoUnmarshallerFactory,
                                    NotificationManager notificationManager,
                                    AppContext appContext) {

@@ -10,6 +10,10 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.runner.client.runneractions.impl;
 
+import com.google.gwt.http.client.URL;
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+
 import org.eclipse.che.api.analytics.client.logger.AnalyticsEventLogger;
 import org.eclipse.che.api.runner.dto.ApplicationProcessDescriptor;
 import org.eclipse.che.api.runner.gwt.client.RunnerServiceClient;
@@ -24,11 +28,9 @@ import org.eclipse.che.ide.ext.runner.client.manager.RunnerManagerPresenter;
 import org.eclipse.che.ide.ext.runner.client.models.Runner;
 import org.eclipse.che.ide.ext.runner.client.runneractions.AbstractRunnerAction;
 import org.eclipse.che.ide.ext.runner.client.runneractions.impl.launch.LaunchAction;
+import org.eclipse.che.ide.ext.runner.client.util.EnvironmentIdValidator;
 import org.eclipse.che.ide.ext.runner.client.util.RunnerUtil;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
-
-import com.google.inject.Inject;
-import com.google.inject.Provider;
 
 import javax.annotation.Nonnull;
 
@@ -92,9 +94,10 @@ public class RunAction extends AbstractRunnerAction {
                     public void onSuccess(ApplicationProcessDescriptor descriptor) {
                         runner.setProcessDescriptor(descriptor);
                         runner.setRAM(descriptor.getMemorySize());
-                        runner.setStatus(Runner.Status.IN_PROGRESS);
 
                         presenter.addRunnerId(descriptor.getProcessId());
+
+                        presenter.update(runner);
 
                         launchAction.perform(runner);
                     }
@@ -112,6 +115,11 @@ public class RunAction extends AbstractRunnerAction {
                     }
                 })
                 .build();
+
+        String encodedEnvironmentId = runner.getOptions().getEnvironmentId();
+        if (encodedEnvironmentId != null && !EnvironmentIdValidator.isValid(encodedEnvironmentId)) {
+            runner.getOptions().setEnvironmentId(URL.encode(encodedEnvironmentId));
+        }
 
         service.run(project.getProjectDescription().getPath(), runner.getOptions(), callback);
     }

@@ -13,10 +13,10 @@ package org.eclipse.che.ide.extension.machine.client.command.configuration.edit;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 
 import org.eclipse.che.ide.api.mvp.View;
-import org.eclipse.che.ide.api.preferences.PreferencePagePresenter;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.api.CommandConfiguration;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.api.CommandType;
+import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandConfiguration;
+import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandType;
 
+import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.Set;
 
@@ -27,63 +27,66 @@ import java.util.Set;
  */
 public interface EditConfigurationsView extends View<EditConfigurationsView.ActionDelegate> {
 
-    /**
-     * Select the pointed preference.
-     *
-     * @param preference
-     *         preference to select.
-     */
-    void selectPreference(PreferencePagePresenter preference);
-
     /** Show view. */
     void show();
 
     /** Close view. */
     void close();
 
-    /**
-     * Returns content panel.
-     *
-     * @return
-     */
-    AcceptsOneWidget getContentPanel();
+    /** Returns the component used for command configurations display. */
+    AcceptsOneWidget getCommandConfigurationsDisplayContainer();
 
-    /**
-     * Enables or disables Save button.
-     *
-     * @param enabled
-     *         <code>true</code> to enable the button, <code>false</code>
-     *         to disable it
-     */
-    void enableSaveButton(boolean enabled);
+    void clearCommandConfigurationsDisplayContainer();
 
-    /**
-     * Sets available preferences.
-     *
-     * @param preferences
-     */
-    void setCommandTypes(Map<CommandType, Set<CommandConfiguration>> preferences);
+    /** Sets available command configurations. */
+    void setCommandConfigurations(Map<CommandType, Set<CommandConfiguration>> commandConfigurations);
 
-    /** Needs for delegate some function into preferences view. */
+    /** Sets configuration name. */
+    void setConfigurationName(String name);
+
+    /** Sets enabled state of the 'Add' button. */
+    void setAddButtonState(boolean enabled);
+
+    /** Sets enabled state of the 'Remove' button. */
+    void setRemoveButtonState(boolean enabled);
+
+    /** Returns the selected command type or type of the selected command configuration. */
+    @Nullable
+    CommandType getSelectedCommandType();
+
+    /** Returns the selected command configuration. */
+    @Nullable
+    CommandConfiguration getSelectedConfiguration();
+
+    /** Action handler for the view actions/controls. */
     interface ActionDelegate {
-        /**
-         * Performs actions when user click Save button.
-         * Actually when button is pressed, preferences must be stored on the server.
-         */
-        void onSaveClicked();
 
-        /**
-         * Performs any actions appropriate in response to the user
-         * having pressed the Close button
-         */
+        /** Called when 'Close' button is clicked. */
         void onCloseClicked();
 
+        /** Called when 'Add' button is clicked. */
+        void onAddClicked();
+
+        /** Called when 'Delete' button is clicked. */
+        void onDeleteClicked();
+
         /**
-         * Performs any actions appropriate in response to select some preference.
+         * Called when some command type is selected.
          *
-         * @param preference
-         *         selected preference
+         * @param type
+         *         selected command type
          */
-        void onConfigurationSelected(CommandConfiguration preference);
+        void onCommandTypeSelected(CommandType type);
+
+        /**
+         * Called when some command configuration is selected.
+         *
+         * @param configuration
+         *         selected command configuration
+         */
+        void onConfigurationSelected(CommandConfiguration configuration);
+
+        /** Called when 'Name' field is changed. */
+        void onNameChanged(String name);
     }
 }

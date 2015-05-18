@@ -129,7 +129,7 @@ public class JavaProjectService {
             try {
                 javaProject.close();
             } catch (JavaModelException e) {
-                LOG.error("Error when trying close project.", e);
+                LOG.warn("Error when trying close project.", e);
             }
         }
         deleteDependencyDirectory(wsId, projectPath);

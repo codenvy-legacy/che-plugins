@@ -250,6 +250,7 @@ public class PropertiesPanelPresenterTest {
     @Test
     public void presenterShouldGoneContainerWhenEditorNotNull() {
         AcceptsOneWidget container = mock(AcceptsOneWidget.class);
+        when(editor.isDirty()).thenReturn(true);
 
         presenter.initializeEditor(file, editorProvider, fileTypeRegistry);
         presenter.go(container);
@@ -257,6 +258,8 @@ public class PropertiesPanelPresenterTest {
         verify(container).setWidget(view);
         verify(editor).activate();
         verify(editor).onOpen();
+        verify(view).setEnableSaveButton(true);
+        verify(view).setEnableCancelButton(true);
     }
 
     @Test(expected = UnsupportedOperationException.class)

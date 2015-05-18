@@ -1045,7 +1045,6 @@ public class PropertiesEnvironmentPanelTest {
         presenter.update(environment);
 
         verifyUpdateEnvironment();
-        verify(runnerConfiguration).getRam();
         verify(view).changeSwitcherState(false);
     }
 
@@ -1054,7 +1053,7 @@ public class PropertiesEnvironmentPanelTest {
         verify(view).setEnableSaveButton(false);
         verify(view).setEnableDeleteButton(false);
 
-        verify(environment, times(5)).getId();
+        verify(environment, times(4)).getId();
         verify(environment).getName();
         verify(environment).setRam(MB_500.getValue());
 
@@ -1062,7 +1061,6 @@ public class PropertiesEnvironmentPanelTest {
         verify(view).setName(TEXT);
         verify(view).setType(TEXT);
         verify(view).selectScope(SYSTEM);
-        verify(runnerConfiguration).getRam();
     }
 
     @Test

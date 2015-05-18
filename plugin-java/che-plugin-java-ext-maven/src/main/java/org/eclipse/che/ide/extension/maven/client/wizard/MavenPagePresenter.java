@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.maven.client.wizard;
 
+import org.eclipse.che.api.core.rest.shared.dto.ServiceError;
 import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
 import org.eclipse.che.api.project.shared.dto.GeneratorDescription;
 import org.eclipse.che.api.project.shared.dto.ImportProject;
@@ -20,6 +21,7 @@ import org.eclipse.che.ide.extension.maven.client.MavenArchetype;
 import org.eclipse.che.ide.extension.maven.client.MavenExtension;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.StringMapListUnmarshaller;
+import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 import org.eclipse.che.ide.util.loging.Log;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.inject.Inject;
@@ -65,17 +67,20 @@ public class MavenPagePresenter extends AbstractWizardPage<ImportProject> implem
     protected final EventBus             eventBus;
     private final   ProjectServiceClient projectServiceClient;
     private final   DtoFactory           dtoFactory;
+    private DialogFactory dialogFactory;
 
     @Inject
     public MavenPagePresenter(MavenPageView view,
                               EventBus eventBus,
                               ProjectServiceClient projectServiceClient,
-                              DtoFactory dtoFactory) {
+                              DtoFactory dtoFactory,
+                              DialogFactory dialogFactory) {
         super();
         this.view = view;
         this.eventBus = eventBus;
         this.projectServiceClient = projectServiceClient;
         this.dtoFactory = dtoFactory;
+        this.dialogFactory = dialogFactory;
         view.setDelegate(this);
     }
 
@@ -132,6 +137,8 @@ public class MavenPagePresenter extends AbstractWizardPage<ImportProject> implem
 
                     @Override
                     protected void onFailure(Throwable exception) {
+                        final String message = dtoFactory.createDtoFromJson(exception.getMessage(), ServiceError.class).getMessage();
+                        dialogFactory.createMessageDialog("Not valid Maven project", message, null).show();
                         Log.error(MavenPagePresenter.class, exception);
                     }
                 });

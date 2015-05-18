@@ -189,7 +189,9 @@ public class GitHubDTOFactory {
         if (ghPullRequest.getMergedBy() != null) {
             dtoPullRequest.setMergedBy(createUser(ghPullRequest.getMergedBy()));
         }
-        dtoPullRequest.setMergeable(ghPullRequest.getMergeable());
+        if (ghPullRequest.getMergeable() !=null) {
+            dtoPullRequest.setMergeable(ghPullRequest.getMergeable());
+        }
 
         return dtoPullRequest;
     }

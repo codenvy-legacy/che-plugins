@@ -62,7 +62,9 @@ import org.eclipse.che.ide.ext.java.jdi.shared.StackFrameDump;
 import org.eclipse.che.ide.ext.java.jdi.shared.StepEvent;
 import org.eclipse.che.ide.ext.java.jdi.shared.Value;
 import org.eclipse.che.ide.ext.java.jdi.shared.Variable;
+import org.eclipse.che.ide.ext.runner.client.actions.ChooseRunnerAction;
 import org.eclipse.che.ide.ext.runner.client.manager.RunnerManager;
+import org.eclipse.che.ide.ext.runner.client.models.Environment;
 import org.eclipse.che.ide.ext.runner.client.models.Runner;
 import org.eclipse.che.ide.ext.runner.client.runneractions.impl.launch.common.RunnerApplicationStatusEvent;
 import org.eclipse.che.ide.ext.runner.client.runneractions.impl.launch.common.RunnerApplicationStatusEventHandler;
@@ -132,6 +134,7 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
     private       List<DebuggerVariable>                 variables;
     private       Location                               executionPoint;
     private       Runner                                 runner;
+    private final ChooseRunnerAction                     chooseRunnerAction;
 
     private String host;
     private int    port;
@@ -153,13 +156,15 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
                              final RunnerManager runnerManager,
                              final DtoFactory dtoFactory,
                              DtoUnmarshallerFactory dtoUnmarshallerFactory,
-                             final AppContext appContext) {
+                             final AppContext appContext,
+                             ChooseRunnerAction chooseRunnerAction) {
         this.view = view;
         this.eventBus = eventBus;
         this.runnerManager = runnerManager;
         this.dtoFactory = dtoFactory;
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
         this.appContext = appContext;
+        this.chooseRunnerAction = chooseRunnerAction;
         this.view.setDelegate(this);
         this.view.setTitle(TITLE);
         this.service = service;
@@ -247,6 +252,10 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
                 List<String> sources = attributes.get(key);
 
                 srcFolder = sources == null ? "src/main/java" : sources.get(0);
+            }
+
+            @Override
+            public void onProjectClosing(ProjectActionEvent event) {
             }
 
             @Override
@@ -688,10 +697,29 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
 
     /** Debug active project. */
     public void debug() {
+        CurrentProject currentProject = appContext.getCurrentProject();
+        if (currentProject == null) {
+            return;
+        }
+        runner = runnerManager.launchRunner(getRunOptions(currentProject));
+    }
+
+    private RunOptions getRunOptions(CurrentProject currentProject) {
         RunOptions runOptions = dtoFactory.createDto(RunOptions.class);
         runOptions.setInDebugMode(true);
 
-        runner = runnerManager.launchRunner(runOptions);
+        Environment environment = chooseRunnerAction.selectEnvironment();
+        if (environment != null) {
+            return runOptions.withOptions(environment.getOptions())
+                             .withEnvironmentId(environment.getId())
+                             .withMemorySize(environment.getRam());
+        }
+
+        String defaultRunner = currentProject.getRunner();
+        if (defaultRunner == null) {
+            notificationManager.showError(constant.debuggerRunnerNotSpecified());
+        }
+        return runOptions;
     }
 
     /**

@@ -13,8 +13,6 @@ package org.eclipse.che.ide.ext.github.shared;
 import org.eclipse.che.dto.shared.DTO;
 
 /**
- * GitHub SSH key, taken from API v3.
- *
  * @author Vladyslav Zhukovskii
  */
 @DTO

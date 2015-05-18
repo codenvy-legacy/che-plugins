@@ -43,7 +43,7 @@
         <dependency>
             <groupId>org.eclipse.che.plugin</groupId>
             <artifactId>che-plugin-java-maven-tools</artifactId>
-            <version>${che.plugins.version}</version>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
     <build>
@@ -86,14 +86,6 @@
                                     <version>${org.apache.tomcat.version}</version>
                                     <outputDirectory>${project.build.directory}/classes</outputDirectory>
                                     <destFileName>tomcat.zip</destFileName>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>org.eclipse.che.plugin</groupId>
-                                    <artifactId>che-plugin-sdk-api-war</artifactId>
-                                    <type>war</type>
-                                    <version>${project.version}</version>
-                                    <outputDirectory>${project.build.directory}/classes/tomcat-resources/webapps</outputDirectory>
-                                    <destFileName>api.war</destFileName>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>org.slf4j</groupId>
@@ -141,7 +133,7 @@
                         <configuration>
                             <tasks>
                                 <!-- Unzip Tomcat package -->
-                                <mkdir dir="${project.build.directory}/classes/tomcat-bundle"/>
+                                <mkdir dir="${project.build.directory}/classes/tomcat-bundle" />
                                 <unzip dest="${project.build.directory}/classes/tomcat-bundle" src="${project.build.directory}/classes/tomcat.zip">
                                     <patternset>
                                         <exclude name="**/ROOT/**" />

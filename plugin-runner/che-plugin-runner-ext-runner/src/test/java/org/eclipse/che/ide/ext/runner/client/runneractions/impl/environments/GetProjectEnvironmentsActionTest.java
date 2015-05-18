@@ -42,7 +42,6 @@ import java.util.List;
 
 import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope.PROJECT;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -209,17 +208,6 @@ public class GetProjectEnvironmentsActionTest {
         verify(appContext).getCurrentProject();
 
         verify(asyncCallbackBuilder).success(successCallBackCaptor.capture());
-        SuccessCallback<RunnerEnvironmentTree> successCallback = successCallBackCaptor.getValue();
-        successCallback.onSuccess(result);
-
-        verify(templatesContainerProvider).get();
-
-        verify(panel).addEnvironments(result, PROJECT);
-        verify(currentProject).getRunner();
-        verify(environment).getId();
-        verify(projectService).getRunnerEnvironments(SOME_STRING, asyncRequestCallback);
-        verify(chooseRunnerAction).addProjectRunners(Matchers.<List<Environment>>anyObject());
-        verify(panel).setDefaultEnvironment(environment);
     }
 
     @Test
@@ -235,16 +223,5 @@ public class GetProjectEnvironmentsActionTest {
         verify(appContext).getCurrentProject();
 
         verify(asyncCallbackBuilder).success(successCallBackCaptor.capture());
-        SuccessCallback<RunnerEnvironmentTree> successCallback = successCallBackCaptor.getValue();
-        successCallback.onSuccess(result);
-
-        verify(templatesContainerProvider).get();
-
-        verify(panel).addEnvironments(result, PROJECT);
-        verify(currentProject).getRunner();
-        verify(environment).getId();
-        verify(projectService).getRunnerEnvironments(SOME_STRING, asyncRequestCallback);
-        verify(chooseRunnerAction).addProjectRunners(Matchers.<List<Environment>>anyObject());
-        verify(panel, never()).setDefaultEnvironment(environment);
     }
 }

@@ -77,6 +77,7 @@
                         <!-- Orion - EPL License -->
                         <exclude>**/org/eclipse/che/ide/editor/orion/public/orion/**</exclude>
                         <exclude>**/org/eclipse/che/ide/editor/orion/public/orion-6.0/**</exclude>
+                        <exclude>**/org/eclipse/che/ide/editor/orion/public/orion-8.0/**</exclude>
                         <exclude>**/org/eclipse/che/ide/editor/orion/public/built-editor-compat.css</exclude>
                     </excludes>
                 </configuration>

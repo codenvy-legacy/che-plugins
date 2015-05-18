@@ -35,7 +35,7 @@
         <dependency>
             <groupId>org.eclipse.che.plugin</groupId>
             <artifactId>che-plugin-java-ant-tools</artifactId>
-            <version>${che.plugins.version}</version>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 </project>

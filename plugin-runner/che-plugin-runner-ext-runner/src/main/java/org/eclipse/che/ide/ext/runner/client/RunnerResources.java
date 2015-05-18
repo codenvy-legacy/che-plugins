@@ -70,6 +70,12 @@ public interface RunnerResources extends ClientBundle {
     @Source("images/console/wrap-text.svg")
     SVGResource wrapText();
 
+    @Source("images/mainwidget/expand.svg")
+    SVGResource selectedMenuEntry();
+
+    @Source("images/mainwidget/menu.svg")
+    SVGResource menuIcon();
+
     @Source("images/console/erase.svg")
     SVGResource erase();
 
@@ -139,6 +145,16 @@ public interface RunnerResources extends ClientBundle {
         String itemIcon();
 
         String defaultRunnerStub();
+
+        String propertiesSplitter();
+
+        String displayNone();
+
+        String displayBlock();
+
+        String highWidth();
+
+        String defaultWidth();
     }
 
 }

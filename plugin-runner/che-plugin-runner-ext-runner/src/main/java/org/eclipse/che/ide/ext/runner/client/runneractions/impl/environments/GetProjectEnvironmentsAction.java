@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.runner.client.runneractions.impl.environments;
 
+import com.google.gwt.http.client.URL;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
@@ -28,7 +29,6 @@ import org.eclipse.che.ide.ext.runner.client.callbacks.SuccessCallback;
 import org.eclipse.che.ide.ext.runner.client.models.Environment;
 import org.eclipse.che.ide.ext.runner.client.runneractions.AbstractRunnerAction;
 import org.eclipse.che.ide.ext.runner.client.tabs.templates.TemplatesContainer;
-import org.eclipse.che.ide.ext.runner.client.util.GetEnvironmentsUtil;
 import org.eclipse.che.ide.ext.runner.client.util.RunnerUtil;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 
@@ -45,6 +45,7 @@ import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common
  */
 @Singleton
 public class GetProjectEnvironmentsAction extends AbstractRunnerAction {
+    private final static String ENVIRONMENT_PREFIX = "project:/";
 
     private final RunnerUtil                                            runnerUtil;
     private final Provider<TemplatesContainer>                          templatesPanelProvider;
@@ -95,13 +96,9 @@ public class GetProjectEnvironmentsAction extends AbstractRunnerAction {
                         List<Environment> projectEnvironments = panel.addEnvironments(result, PROJECT);
 
                         String defaultRunner = currentProject.getRunner();
-
-                        for (Environment environment : projectEnvironments) {
-                            if (environment.getId().equals(defaultRunner)) {
-                                panel.setDefaultEnvironment(environment);
-
-                                break;
-                            }
+                        if (defaultRunner != null) {
+                            defaultRunner = URL.decode(defaultRunner);
+                            setDefaultRunner(defaultRunner, projectEnvironments, panel);
                         }
 
                         chooseRunnerAction.addProjectRunners(projectEnvironments);
@@ -116,5 +113,20 @@ public class GetProjectEnvironmentsAction extends AbstractRunnerAction {
                 .build();
 
         projectService.getRunnerEnvironments(descriptor.getPath(), callback);
+    }
+
+    private void setDefaultRunner(@Nonnull String defaultRunner,
+                                  @Nonnull List<Environment> projectEnvironments,
+                                  @Nonnull TemplatesContainer panel) {
+        if (!defaultRunner.startsWith(ENVIRONMENT_PREFIX)) {
+            return;
+        }
+        for (Environment environment : projectEnvironments) {
+            if (environment.getId().endsWith(defaultRunner.substring(defaultRunner.lastIndexOf('/')))) {
+                panel.setDefaultEnvironment(environment);
+
+                return;
+            }
+        }
     }
 }

@@ -58,7 +58,7 @@
     <g:DockLayoutPanel unit="PX" addStyleNames="{style.runnerSize}">
         <g:west size="20">
             <g:SimpleLayoutPanel ui:field="imagePanel" addStyleNames="{style.imagePanel}">
-                <g:SimpleLayoutPanel ui:field="image" addStyleNames="{style.svgImage}"/>
+                <g:SimpleLayoutPanel ui:field="image" addStyleNames="{style.svgImage}" debugId="statusImage"/>
             </g:SimpleLayoutPanel>
         </g:west>
 

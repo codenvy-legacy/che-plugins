@@ -17,7 +17,6 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.google.inject.name.Named;
 import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.api.builder.BuildStatus;
@@ -44,6 +43,7 @@ import org.eclipse.che.ide.extension.builder.client.console.BuilderConsolePresen
 import org.eclipse.che.ide.json.JsonHelper;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
+import org.eclipse.che.ide.rest.RestContext;
 import org.eclipse.che.ide.ui.dialogs.CancelCallback;
 import org.eclipse.che.ide.ui.dialogs.ConfirmCallback;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
@@ -100,7 +100,7 @@ public class BuildController implements Notification.OpenNotificationHandler {
     private final String builderURL;
 
     @Inject
-    protected BuildController(@Named("restContext") String restContext,
+    protected BuildController(@RestContext String restContext,
                               EventBus eventBus,
                               WorkspaceAgent workspaceAgent,
                               AppContext appContext,
@@ -131,6 +131,10 @@ public class BuildController implements Notification.OpenNotificationHandler {
         eventBus.addHandler(ProjectActionEvent.TYPE, new ProjectActionHandler() {
             @Override
             public void onProjectOpened(ProjectActionEvent event) {
+            }
+
+            @Override
+            public void onProjectClosing(ProjectActionEvent event) {
             }
 
             @Override
@@ -441,6 +445,9 @@ public class BuildController implements Notification.OpenNotificationHandler {
         if (waitingTimeLimit != null) {
             double terminationTime = NumberFormat.getDecimalFormat().parse(waitingTimeLimit.getValue());
             final double terminationTimeout = terminationTime - System.currentTimeMillis();
+            if (terminationTimeout < 0) {
+                return null;
+            }
             final String value = StringUtils.timeMlsToHumanReadable((long)terminationTimeout);
             return dtoFactory.createDto(BuilderMetric.class).withDescription(waitingTimeLimit.getDescription())
                              .withName(waitingTimeLimit.getName())

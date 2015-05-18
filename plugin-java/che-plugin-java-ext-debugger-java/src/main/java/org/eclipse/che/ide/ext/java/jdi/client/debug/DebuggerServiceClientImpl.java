@@ -25,6 +25,7 @@ import org.eclipse.che.ide.ext.java.jdi.shared.Variable;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.AsyncRequestFactory;
 import org.eclipse.che.ide.rest.AsyncRequestLoader;
+import org.eclipse.che.ide.rest.RestContext;
 import org.eclipse.che.ide.ui.loader.EmptyLoader;
 
 import javax.annotation.Nonnull;
@@ -47,7 +48,7 @@ public class DebuggerServiceClientImpl implements DebuggerServiceClient {
     private final JavaRuntimeLocalizationConstant localizationConstant;
 
     @Inject
-    protected DebuggerServiceClientImpl(@Named("restContext") String baseUrl,
+    protected DebuggerServiceClientImpl(@RestContext String baseUrl,
                                         @Named("workspaceId") String workspaceId,
                                         AsyncRequestLoader loader,
                                         AsyncRequestFactory asyncRequestFactory,

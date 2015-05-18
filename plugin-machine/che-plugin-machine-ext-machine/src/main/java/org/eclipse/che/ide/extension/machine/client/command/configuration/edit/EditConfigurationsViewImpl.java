@@ -10,32 +10,34 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.machine.client.command.configuration.edit;
 
-import elemental.html.TableElement;
+import elemental.events.KeyboardEvent;
+import elemental.events.MouseEvent;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.dom.client.Document;
-import com.google.gwt.dom.client.SpanElement;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.KeyUpEvent;
+import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import org.eclipse.che.ide.api.preferences.PreferencePagePresenter;
+import org.eclipse.che.ide.collections.Array;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.api.CommandConfiguration;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.api.CommandType;
-import org.eclipse.che.ide.ui.list.CategoriesList;
-import org.eclipse.che.ide.ui.list.Category;
-import org.eclipse.che.ide.ui.list.CategoryRenderer;
+import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandConfiguration;
+import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandType;
+import org.eclipse.che.ide.ui.tree.Tree;
+import org.eclipse.che.ide.ui.tree.TreeNodeElement;
 import org.eclipse.che.ide.ui.window.Window;
-import org.eclipse.che.ide.util.dom.Elements;
+import org.eclipse.che.ide.util.input.SignalEvent;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -51,133 +53,220 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
 
     private static final EditConfigurationsViewImplUiBinder UI_BINDER = GWT.create(EditConfigurationsViewImplUiBinder.class);
 
-    private final CategoriesList list;
-    Button btnClose;
-    Button btnSave;
-    @UiField
-    SimplePanel                   configurations;
-    @UiField
-    SimplePanel                   contentPanel;
-    @UiField(provided = true)
-    org.eclipse.che.ide.Resources resources;
-    private final CategoryRenderer<CommandConfiguration> preferencesPageRenderer =
-            new CategoryRenderer<CommandConfiguration>() {
-                @Override
-                public void renderElement(com.google.gwt.dom.client.Element element, CommandConfiguration preference) {
-                    element.setInnerText(preference.getName());
-                }
-
-                @Override
-                public SpanElement renderCategory(Category<CommandConfiguration> category) {
-                    SpanElement spanElement = Document.get().createSpanElement();
-                    spanElement.setClassName(resources.defaultCategoriesListCss().headerText());
-                    spanElement.setInnerText(category.getTitle());
-                    return spanElement;
-                }
-            };
     private final MachineLocalizationConstant locale;
-    private ActionDelegate           delegate;
-    private final Category.CategoryEventDelegate<CommandConfiguration> preferencesPageDelegate =
-            new Category.CategoryEventDelegate<CommandConfiguration>() {
-                @Override
-                public void onListItemClicked(com.google.gwt.dom.client.Element listItemBase, CommandConfiguration itemData) {
-                    delegate.onConfigurationSelected(itemData);
-                }
-            };
+
+    @UiField(provided = true)
+    Tree<CommandDataAdapter.CommandTreeNode> tree;
+    @UiField
+    Button                                   addButton;
+    @UiField
+    Button                                   removeButton;
+    @UiField
+    TextBox                                  commandConfigurationName;
+    @UiField
+    SimplePanel                              contentPanel;
+    @UiField(provided = true)
+    org.eclipse.che.ide.Resources            resources;
+
+    private ActionDelegate delegate;
 
     @Inject
-    protected EditConfigurationsViewImpl(org.eclipse.che.ide.Resources resources, MachineLocalizationConstant locale) {
+    protected EditConfigurationsViewImpl(org.eclipse.che.ide.Resources resources,
+                                         MachineLocalizationConstant locale,
+                                         CommandDataAdapter dataAdapter,
+                                         CommandRenderer renderer) {
+        this.tree = Tree.create(resources, dataAdapter, renderer);
         this.resources = resources;
         this.locale = locale;
 
-        Widget widget = UI_BINDER.createAndBindUi(this);
-
-        this.setTitle(locale.editConfigurationsViewTitle());
+        final Widget widget = UI_BINDER.createAndBindUi(this);
         this.setWidget(widget);
+        this.setTitle(locale.editConfigurationsViewTitle());
 
-        //create list of configurations
-        TableElement tableElement = Elements.createTableElement();
-        tableElement.setAttribute("style", "width: 100%");
-        list = new CategoriesList(resources);
-        configurations.add(list);
         createButtons();
+
+        commandConfigurationName.addKeyUpHandler(new KeyUpHandler() {
+            @Override
+            public void onKeyUp(KeyUpEvent keyUpEvent) {
+                delegate.onNameChanged(commandConfigurationName.getText());
+            }
+        });
+
+        addButton.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent clickEvent) {
+                delegate.onAddClicked();
+            }
+        });
+        addButton.setEnabled(false);
+
+        removeButton.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent clickEvent) {
+                delegate.onDeleteClicked();
+            }
+        });
+        removeButton.setEnabled(false);
+
+        tree.setTreeEventHandler(new Tree.Listener<CommandDataAdapter.CommandTreeNode>() {
+            @Override
+            public void onNodeAction(TreeNodeElement<CommandDataAdapter.CommandTreeNode> node) {
+            }
+
+            @Override
+            public void onNodeClosed(TreeNodeElement<CommandDataAdapter.CommandTreeNode> node) {
+            }
+
+            @Override
+            public void onNodeContextMenu(int mouseX, int mouseY, TreeNodeElement<CommandDataAdapter.CommandTreeNode> node) {
+            }
+
+            @Override
+            public void onNodeDragStart(TreeNodeElement<CommandDataAdapter.CommandTreeNode> node, MouseEvent event) {
+            }
+
+            @Override
+            public void onNodeDragDrop(TreeNodeElement<CommandDataAdapter.CommandTreeNode> node, MouseEvent event) {
+            }
+
+            @Override
+            public void onNodeExpanded(TreeNodeElement<CommandDataAdapter.CommandTreeNode> node) {
+            }
+
+            @Override
+            public void onNodeSelected(TreeNodeElement<CommandDataAdapter.CommandTreeNode> node, SignalEvent event) {
+                if (node.getData().getData() instanceof CommandType) {
+                    delegate.onCommandTypeSelected((CommandType)node.getData().getData());
+                } else if (node.getData().getData() instanceof CommandConfiguration) {
+                    delegate.onConfigurationSelected((CommandConfiguration)node.getData().getData());
+                }
+            }
+
+            @Override
+            public void onRootContextMenu(int mouseX, int mouseY) {
+            }
+
+            @Override
+            public void onRootDragDrop(MouseEvent event) {
+            }
+
+            @Override
+            public void onKeyboard(KeyboardEvent event) {
+            }
+        });
     }
 
     private void createButtons() {
-        btnSave = createButton(locale.okButton(), "window-edit-configurations-storeChanges", new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                delegate.onSaveClicked();
-            }
-        });
-        btnSave.addStyleName(resources.wizardCss().button());
-        btnSave.addStyleName(resources.wizardCss().rightButton());
-        btnSave.addStyleName(resources.wizardCss().buttonPrimary());
-        getFooter().add(btnSave);
-
-        btnClose = createButton(locale.cancelButton(), "window-edit-configurations-cancel", new ClickHandler() {
+        final Button closeButton = createButton(locale.closeButton(), "window-edit-configurations-close", new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 delegate.onCloseClicked();
             }
         });
-        btnClose.addStyleName(resources.wizardCss().button());
-        getFooter().add(btnClose);
+        closeButton.addStyleName(resources.wizardCss().button());
+        getFooter().add(closeButton);
     }
 
-    /** {@inheritDoc} */
     @Override
     public void setDelegate(ActionDelegate delegate) {
         this.delegate = delegate;
     }
 
-    /** {@inheritDoc} */
+    @Override
+    public void show() {
+        super.show();
+
+        resetView();
+    }
+
+    private void resetView() {
+        addButton.setEnabled(false);
+        removeButton.setEnabled(false);
+        commandConfigurationName.setText("");
+        contentPanel.clear();
+    }
+
     @Override
     public void close() {
         this.hide();
     }
 
-    /** {@inheritDoc} */
     @Override
-    public void show() {
-        super.show();
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public AcceptsOneWidget getContentPanel() {
+    public AcceptsOneWidget getCommandConfigurationsDisplayContainer() {
         return contentPanel;
     }
 
-    /** {@inheritDoc} */
     @Override
-    public void enableSaveButton(boolean enabled) {
-        btnSave.setEnabled(enabled);
+    public void clearCommandConfigurationsDisplayContainer() {
+        contentPanel.clear();
     }
 
-    /** {@inheritDoc} */
     @Override
-    public void setCommandTypes(Map<CommandType, Set<CommandConfiguration>> preferences) {
-        List<Category<?>> categoriesList = new ArrayList<>();
-        for (CommandType s : preferences.keySet()) {
-            Category<CommandConfiguration> category = new Category<>(s.getDisplayName(),
-                                                                     preferencesPageRenderer,
-                                                                     preferences.get(s),
-                                                                     preferencesPageDelegate);
-            categoriesList.add(category);
+    public void setCommandConfigurations(Map<CommandType, Set<CommandConfiguration>> commandConfigurations) {
+        List<CommandDataAdapter.CommandTreeNode> rootChildren = new ArrayList<>();
+        final CommandDataAdapter.CommandTreeNode rootNode = new CommandDataAdapter.CommandTreeNode(null, "ROOT", rootChildren);
+
+        for (CommandType type : commandConfigurations.keySet()) {
+            List<CommandDataAdapter.CommandTreeNode> typeChildren = new ArrayList<>();
+            final CommandDataAdapter.CommandTreeNode typeNode = new CommandDataAdapter.CommandTreeNode(rootNode, type, typeChildren);
+            rootChildren.add(typeNode);
+
+            for (CommandConfiguration configuration : commandConfigurations.get(type)) {
+                final CommandDataAdapter.CommandTreeNode confNode = new CommandDataAdapter.CommandTreeNode(typeNode, configuration, null);
+                typeChildren.add(confNode);
+            }
         }
-        list.render(categoriesList);
+
+        tree.asWidget().setVisible(true);
+        tree.getModel().setRoot(rootNode);
+        tree.renderTree(1);
     }
 
-    /** {@inheritDoc} */
+    @Override
+    public void setConfigurationName(String name) {
+        commandConfigurationName.setText(name);
+    }
+
+    @Override
+    public void setAddButtonState(boolean enabled) {
+        addButton.setEnabled(enabled);
+    }
+
+    @Override
+    public void setRemoveButtonState(boolean enabled) {
+        removeButton.setEnabled(enabled);
+    }
+
+    @Nullable
+    @Override
+    public CommandType getSelectedCommandType() {
+        final Array<CommandDataAdapter.CommandTreeNode> selectedNodes = tree.getSelectionModel().getSelectedNodes();
+        if (!selectedNodes.isEmpty()) {
+            final CommandDataAdapter.CommandTreeNode node = selectedNodes.get(0);
+            if (node.getData() instanceof CommandType) {
+                return (CommandType)node.getData();
+            } else if (node.getData() instanceof CommandConfiguration) {
+                return ((CommandConfiguration)node.getData()).getType();
+            }
+        }
+        return null;
+    }
+
+    @Nullable
+    @Override
+    public CommandConfiguration getSelectedConfiguration() {
+        final Array<CommandDataAdapter.CommandTreeNode> selectedNodes = tree.getSelectionModel().getSelectedNodes();
+        if (!selectedNodes.isEmpty()) {
+            final CommandDataAdapter.CommandTreeNode node = selectedNodes.get(0);
+            if (node.getData() instanceof CommandConfiguration) {
+                return (CommandConfiguration)node.getData();
+            }
+        }
+        return null;
+    }
+
     @Override
     protected void onClose() {
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void selectPreference(PreferencePagePresenter preference) {
-        list.selectElement(preference);
     }
 
     interface EditConfigurationsViewImplUiBinder extends UiBinder<Widget, EditConfigurationsViewImpl> {
