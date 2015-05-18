@@ -61,7 +61,7 @@ public class CredentialsLoader {
                     throw new GitException(
                             "Provider " + cp.getId() + " returned credential with wrong id " + commandCredentials.getProviderId());
                 }
-                LOG.info("Url {} user {}", url, commandCredentials);
+                LOG.debug("Url {} user {}", url, commandCredentials);
                 return commandCredentials;
             }
         }
@@ -80,7 +80,7 @@ public class CredentialsLoader {
             throw new GitException("Provider " + providerId + " are not found");
         }
         GitUser user = provider.getUser();
-        LOG.info("Provider {} user {}", providerId, user);
+        LOG.debug("Provider {} user {}", providerId, user);
         return user;
     }
 
