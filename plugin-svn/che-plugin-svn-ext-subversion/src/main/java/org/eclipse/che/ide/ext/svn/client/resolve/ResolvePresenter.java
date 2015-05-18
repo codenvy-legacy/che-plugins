@@ -67,7 +67,7 @@ public class ResolvePresenter extends SubversionActionPresenter implements Resol
         this.view.setDelegate(this);
     }
 
-    public void showConflictsDialog() {
+    public void fetchConflictsList(final AsyncCallback<List<String>> callback) {
         CurrentProject currentProject = appContext.getCurrentProject();
         if (currentProject == null) {
             return;
@@ -80,8 +80,8 @@ public class ResolvePresenter extends SubversionActionPresenter implements Resol
 
         subversionClientService.showConflicts(project.getPath(), getSelectedPaths(), new AsyncCallback<List<String>>() {
             @Override
-            public void onSuccess(List<String> result) {
-                onConflictsListObtained(result);
+            public void onSuccess(List<String> conflictsList) {
+                callback.onSuccess(conflictsList);
             }
 
             @Override
@@ -91,7 +91,7 @@ public class ResolvePresenter extends SubversionActionPresenter implements Resol
         });
     }
 
-    protected void onConflictsListObtained(List<String> conflictsList) {
+    public void showConflictsDialog(List<String> conflictsList) {
         if (conflictsList.size() > 0) {
             for (String file : conflictsList) {
                 view.addConflictingFile(file);
@@ -100,11 +100,11 @@ public class ResolvePresenter extends SubversionActionPresenter implements Resol
             view.showDialog();
         } else {
             dialogFactory.createMessageDialog(constants.resolveNoConflictTitle(), constants.resolveNoConflictContent(),
-                    new ConfirmCallback() {
-                        @Override
-                        public void accepted() {
-                        }
-                    }).show();
+                                              new ConfirmCallback() {
+                                                  @Override
+                                                  public void accepted() {
+                                                  }
+                                              }).show();
         }
     }
 

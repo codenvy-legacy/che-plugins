@@ -51,6 +51,7 @@ import org.eclipse.che.ide.rest.AsyncRequestFactory;
 import org.eclipse.che.ide.rest.AsyncRequestLoader;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.rest.RestContext;
+import org.eclipse.che.ide.rest.Unmarshallable;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
@@ -117,10 +118,10 @@ public class SubversionClientServiceImpl implements SubversionClientService {
     public void copy(@NotNull String projectPath, String source, String destination, String comment,
                      AsyncRequestCallback<CLIOutputResponse> callback) {
         final CopyRequest request = dtoFactory.createDto(CopyRequest.class)
-                .withProjectPath(projectPath)
-                .withSource(source)
-                .withDestination(destination)
-                .withComment(comment);
+                                              .withProjectPath(projectPath)
+                                              .withSource(source)
+                                              .withDestination(destination)
+                                              .withComment(comment);
 
         asyncRequestFactory.createPostRequest(baseHttpUrl + "/copy", request).loader(loader).send(callback);
     }
@@ -138,11 +139,11 @@ public class SubversionClientServiceImpl implements SubversionClientService {
 
     @Override
     public void merge(final @NotNull String projectPath, final String target, final String sourceURL,
-               final AsyncRequestCallback<CLIOutputResponse> callback) {
+                      final AsyncRequestCallback<CLIOutputResponse> callback) {
         final MergeRequest request = dtoFactory.createDto(MergeRequest.class)
-                .withProjectPath(projectPath)
-                .withTarget(target)
-                .withSourceURL(sourceURL);
+                                               .withProjectPath(projectPath)
+                                               .withTarget(target)
+                                               .withSourceURL(sourceURL);
         asyncRequestFactory.createPostRequest(baseHttpUrl + "/merge", request).loader(loader).send(callback);
     }
 
@@ -150,10 +151,10 @@ public class SubversionClientServiceImpl implements SubversionClientService {
     public void info(final @NotNull String projectPath, final String target, final String revision, final boolean children,
                      final AsyncRequestCallback<InfoResponse> callback) {
         final InfoRequest request = dtoFactory.createDto(InfoRequest.class)
-                .withProjectPath(projectPath)
-                .withTarget(target)
-                .withRevision(revision)
-                .withChildren(children);
+                                              .withProjectPath(projectPath)
+                                              .withTarget(target)
+                                              .withRevision(revision)
+                                              .withChildren(children);
 
         asyncRequestFactory.createPostRequest(baseHttpUrl + "/info", request).loader(loader).send(callback);
     }
@@ -162,8 +163,8 @@ public class SubversionClientServiceImpl implements SubversionClientService {
     public void list(final @NotNull String projectPath, final String target,
                      final AsyncRequestCallback<ListResponse> callback) {
         final ListRequest request = dtoFactory.createDto(ListRequest.class)
-                .withProjectPath(projectPath)
-                .withTarget(target);
+                                              .withProjectPath(projectPath)
+                                              .withTarget(target);
 
         asyncRequestFactory.createPostRequest(baseHttpUrl + "/list", request).loader(loader).send(callback);
     }
@@ -282,34 +283,42 @@ public class SubversionClientServiceImpl implements SubversionClientService {
 
     @Override
     public void showConflicts(final String projectPath, final List<String> paths, final AsyncCallback<List<String>> callback) {
-        status(projectPath, paths, "infinity",
-               false, // @param ignoreExternals whether or not to ignore externals (--ignore-externals)
-               false, // @param showIgnored whether or not to show ignored paths (--no-ignored)
-               false, // @param showUpdates whether or not to show repository updates (--show-updates)
-               false, // @param showUnversioned whether or not to show unversioned paths (--quiet)
-               false, // @param verbose whether or not to be verbose (--verbose)
-               Collections.<String>emptyList(),
+        final Unmarshallable<CLIOutputResponse> unmarshaller = dtoUnmarshallerFactory.newUnmarshaller(CLIOutputResponse.class);
 
-               new AsyncRequestCallback<CLIOutputResponse>(dtoUnmarshallerFactory.newUnmarshaller(CLIOutputResponse.class)) {
-                   @Override
-                   protected void onSuccess(CLIOutputResponse result) {
-                       if (result != null) {
-                           List<String> conflictsList = parseConflictsList(result.getOutput());
-                           callback.onSuccess(conflictsList);
-                       } else {
-                           callback.onFailure(new Exception("showConflicts : no SvnResponse."));
-                       }
-                   }
+        final StatusRequest request =
+                dtoFactory.createDto(StatusRequest.class)
+                          .withVerbose(false)
+                          .withChangeLists(Collections.<String>emptyList())
+                          .withDepth(Depth.FULLY_RECURSIVE.getValue())
+                          .withIgnoreExternals(false)
+                          .withPaths(paths)
+                          .withProjectPath(projectPath)
+                          .withShowIgnored(false)
+                          .withShowUnversioned(false)
+                          .withShowUpdates(false);
 
-                   @Override
-                   protected void onFailure(Throwable exception) {
-                       callback.onFailure(exception);
-                   }
-               });
+        //don't add loader to async request factory, this method calls only when menu item updates.
+        asyncRequestFactory.createPostRequest(baseHttpUrl + "/status", request)
+                           .send(new AsyncRequestCallback<CLIOutputResponse>(unmarshaller) {
+                               @Override
+                               protected void onSuccess(CLIOutputResponse result) {
+                                   if (result != null) {
+                                       List<String> conflictsList = parseConflictsList(result.getOutput());
+                                       callback.onSuccess(conflictsList);
+                                   } else {
+                                       callback.onFailure(new Exception("showConflicts : no SvnResponse."));
+                                   }
+                               }
+
+                               @Override
+                               protected void onFailure(Throwable exception) {
+                                   callback.onFailure(exception);
+                               }
+                           });
     }
 
     protected List<String> parseConflictsList(List<String> output) {
-        List<String> conflictsList = new ArrayList<String>();
+        List<String> conflictsList = new ArrayList<>();
         for (String line : output) {
             if (line.startsWith("C ")) {
                 int lastSpaceIndex = line.lastIndexOf(' ');
@@ -331,7 +340,8 @@ public class SubversionClientServiceImpl implements SubversionClientService {
                                                  .withConflictResolutions(resolutions)
                                                  .withDepth(depth);
         asyncRequestFactory.createPostRequest(url, request).loader(loader)
-                           .send(new AsyncRequestCallback<CLIOutputResponseList>(dtoUnmarshallerFactory.newUnmarshaller(CLIOutputResponseList.class)) {
+                           .send(new AsyncRequestCallback<CLIOutputResponseList>(
+                                   dtoUnmarshallerFactory.newUnmarshaller(CLIOutputResponseList.class)) {
 
                                @Override
                                protected void onSuccess(CLIOutputResponseList result) {
