@@ -86,7 +86,7 @@ public class DockerImage implements Image {
             docker.startContainer(containerId,
                                   new HostConfig().withPublishAllPorts(true)
                                                   .withBinds(String.format("%s:%s", hostProjectsFolder, "/projects"),
-                                                             "/usr/local/codenvy/terminal:/usr/local/codenvy/terminal:ro"),
+                                                             "/usr/local/codenvy/terminal:/usr/local/codenvy/terminal"),//TODO add :ro
                                   new LogMessagePrinter(outputConsumer));
             LOG.debug("Container {} has been started successfully", containerId);
 
