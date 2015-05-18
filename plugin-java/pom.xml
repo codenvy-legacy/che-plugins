@@ -33,7 +33,7 @@
         <module>che-plugin-java-generator-archetype</module>
         <module>che-plugin-java-ext-maven</module>
         <module>che-plugin-java-ext-java</module>
-        <module>che-plugin-java-ext-java-codeassistant</module>
+        <!--<module>che-plugin-java-ext-java-codeassistant</module>-->
         <!--<module>che-plugin-java-ext-debugger-java</module>-->
         <module>che-plugin-java-jseditor</module>
     </modules>

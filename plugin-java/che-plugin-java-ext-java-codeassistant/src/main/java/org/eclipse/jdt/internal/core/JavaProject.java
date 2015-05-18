@@ -15,7 +15,6 @@ import org.eclipse.che.api.project.server.Constants;
 import org.eclipse.che.api.project.server.ProjectJson;
 import org.eclipse.che.core.internal.resources.ResourcesPlugin;
 import org.eclipse.che.core.resources.ProjectScope;
-import org.eclipse.che.ide.ant.tools.AntUtils;
 import org.eclipse.che.ide.maven.tools.MavenUtils;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
