@@ -93,6 +93,12 @@
             <groupId>org.eclipse.che.plugin</groupId>
             <artifactId>che-plugin-java-jdt-core-repack</artifactId>
             <version>${che.plugins.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>org.eclipse.jdt.core</artifactId>
+                    <groupId>org.eclipse.tycho</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.plugin</groupId>
@@ -103,6 +109,11 @@
             <groupId>org.eclipse.core</groupId>
             <artifactId>contenttype</artifactId>
             <version>${org.eclipse.core.contenttype.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.ltk.core</groupId>
+            <artifactId>refactoring</artifactId>
+            <version>3.6.101.v20140817-1500</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.text</groupId>
@@ -206,10 +217,22 @@
                         <exclude>**/readableNames</exclude>
                         <exclude>**/projects/**</exclude>
                         <exclude>**/org/eclipse/che/jdt/javadoc/**</exclude>
+                        <exclude>**/org/eclipse/jdt/**</exclude>
+                        <exclude>**/org/eclipse/swt/**</exclude>
+                        <exclude>**/org/eclipse/che/jface/**</exclude>
+                        <exclude>**/org/eclipse/che/jdt/internal/codeassist/**</exclude>
+                        <exclude>**/org/eclipse/ui/**</exclude>
+                        <exclude>**/org/eclipse/core/**</exclude>
+                        <exclude>**/org/eclipse/search/**</exclude>
+                        <exclude>**/org/eclipse/jface/**</exclude>
+                        <exclude>**/templates/**</exclude>
                         <exclude>**/org/eclipse/che/jdt/core/**</exclude>
                         <exclude>**/org/eclipse/che/jdt/dom/**</exclude>
                         <exclude>**/org/eclipse/che/jdt/corext/util/**</exclude>
                         <exclude>**/org/eclipse/che/jdt/util/**</exclude>
+                        <exclude>**/org/eclipse/che/core/**</exclude>
+                        <exclude>**/org/eclipse/che/ltk/**</exclude>
+                        <exclude>**/org/eclipse/che/jdt/**</exclude>
                         <exclude>**/org/eclipse/che/jdt/internal/core/**</exclude>
                         <exclude>**/org/eclipse/che/jdt/core/launching/IVMInstallType.java</exclude>
                         <exclude>**/org/eclipse/che/jdt/core/launching/JREContainer.java</exclude>
@@ -243,6 +266,7 @@
                         <exclude>**/org/eclipse/che/jdt/internal/core/search/TypeNameRequestorWrapper.java</exclude>
                         <exclude>**/org/eclipse/che/jdt/internal/core/util/**</exclude>
                         <exclude>**/org/eclipse/che/jdt/internal/core/ClasspathEntry.java</exclude>
+                        <exclude>**/org/eclipse/che/text/test/Accessor.java</exclude>
                         <exclude>**/org/eclipse/che/jdt/internal/corext/CorextMessages.properties</exclude>
                     </excludes>
                 </configuration>

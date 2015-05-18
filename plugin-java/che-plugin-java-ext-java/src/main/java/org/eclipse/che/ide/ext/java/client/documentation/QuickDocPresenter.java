@@ -10,18 +10,18 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.java.client.documentation;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+import com.google.inject.name.Named;
+
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.editor.EditorPartPresenter;
 import org.eclipse.che.ide.ext.java.client.editor.JavaParserWorker;
-import org.eclipse.che.ide.ext.java.messages.JavadocHandleComputed;
+import org.eclipse.che.ide.ext.java.client.projecttree.JavaSourceFolderUtil;
 import org.eclipse.che.ide.jseditor.client.position.PositionConverter;
 import org.eclipse.che.ide.jseditor.client.texteditor.EmbeddedTextEditorPresenter;
 import org.eclipse.che.ide.util.loging.Log;
-import com.google.gwt.http.client.URL;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
-import com.google.inject.name.Named;
 
 /**
  * @author Evgen Vidolob
@@ -61,17 +61,8 @@ public class QuickDocPresenter implements QuickDocumentation, QuickDocView.Actio
         EmbeddedTextEditorPresenter editor = ((EmbeddedTextEditorPresenter)activeEditor);
         int offset = editor.getCursorOffset();
         final PositionConverter.PixelCoordinates coordinates = editor.getPositionConverter().offsetToPixel(offset);
-
-        worker.computeJavadocHandle(offset, editor.getEditorInput().getFile().getPath(), new JavaParserWorker.Callback<JavadocHandleComputed>() {
-            @Override
-            public void onCallback(JavadocHandleComputed result) {
-                if (result != null) {
-                    String key = URL.encodeQueryString(result.getKey());
-                    view.show(caContext + "/javadoc/" + appContext.getWorkspace().getId() + "/find?fqn=" + key + "&projectpath=" +
-                              appContext.getCurrentProject().getProjectDescription().getPath(), coordinates.getX(), coordinates.getY() + 16);
-                }
-            }
-        });
+        view.show(caContext + "/javadoc/" + appContext.getWorkspace().getId() + "/find?fqn=" + JavaSourceFolderUtil.getFQNForFile(editor.getEditorInput().getFile()) + "&projectpath=" +
+                  appContext.getCurrentProject().getProjectDescription().getPath() + "&offset=" + offset, coordinates.getX(), coordinates.getY() + 16);
     }
 
     @Override

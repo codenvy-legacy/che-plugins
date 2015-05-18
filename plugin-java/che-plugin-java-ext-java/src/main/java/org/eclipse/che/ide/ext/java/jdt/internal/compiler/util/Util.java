@@ -138,18 +138,19 @@ public class Util implements SuffixConstants {
      * @since 3.1
      */
     public static final char C_CAPTURE = '!';
-
-    public interface Displayable {
-        String displayString(Object o);
-    }
-
     public final static String UTF_8 = "UTF-8"; //$NON-NLS-1$
-
     public static final String LINE_SEPARATOR = "\n";//$NON-NLS-1$
-
     public static final String EMPTY_STRING = new String(CharOperation.NO_CHAR);
-
     public static final int[] EMPTY_INT_ARRAY = new int[0];
+
+    public static char[][] toArrays(Collection<String> strings) {
+        char[][] arr = new char[strings.size()][];
+        int i = 0;
+        for (String str : strings) {
+            arr[i++] = str.toCharArray();
+        }
+        return arr;
+    }
 
     // /**
     // * Build all the directories and subdirectories corresponding to the packages names
@@ -275,16 +276,6 @@ public class Util implements SuffixConstants {
     //
     // }
 
-
-    public static char[][] toArrays(Collection<String> strings) {
-        char[][] arr = new char[strings.size()][];
-        int i=0;
-        for(String str : strings) {
-            arr[i++] = str.toCharArray();
-        }
-        return arr;
-    }
-
     /** Returns the outer most enclosing type's visibility for the given TypeDeclaration and visibility based on compiler options. */
     public static int computeOuterMostVisibility(TypeDeclaration typeDeclaration, int visibility) {
         while (typeDeclaration != null) {
@@ -306,6 +297,49 @@ public class Util implements SuffixConstants {
             typeDeclaration = typeDeclaration.enclosingType;
         }
         return visibility;
+    }
+
+    /**
+     * Returns a one line summary for an exception (extracted from its stacktrace: name + first frame)
+     *
+     * @param exception
+     * @return one line summary for an exception
+     */
+    public static String getExceptionSummary(Throwable exception) {
+        // StringWriter stringWriter = new StringWriter();
+        // exception.printStackTrace(new PrintWriter(stringWriter));
+        // StringBuffer buffer = exception.p stringWriter.getBuffer();
+        StringBuffer exceptionBuffer = new StringBuffer(50);
+        exceptionBuffer.append(exception.toString());
+        // TODO find way to use printStackTrace to fill buffer
+
+        // only keep leading frame portion of the trace (i.e. line no. 2 from the stacktrace)
+        // lookupLine2 : for (int i = 0, lineSep = 0, max = buffer.length(), line2Start = 0; i < max; i++)
+        // {
+        // switch (buffer.charAt(i))
+        // {
+        // case '\n' :
+        // case '\r' :
+        // if (line2Start > 0)
+        // {
+        // exceptionBuffer.append(' ').append(buffer.substring(line2Start, i));
+        // break lookupLine2;
+        // }
+        // lineSep++;
+        // break;
+        // case ' ' :
+        // case '\t' :
+        // break;
+        // default :
+        // if (lineSep > 0)
+        // {
+        // line2Start = i;
+        // lineSep = 0;
+        // }
+        // break;
+        // }
+        // }
+        return exceptionBuffer.toString();
     }
 
     // /**
@@ -522,49 +556,6 @@ public class Util implements SuffixConstants {
     // }
     //
 
-    /**
-     * Returns a one line summary for an exception (extracted from its stacktrace: name + first frame)
-     *
-     * @param exception
-     * @return one line summary for an exception
-     */
-    public static String getExceptionSummary(Throwable exception) {
-        // StringWriter stringWriter = new StringWriter();
-        // exception.printStackTrace(new PrintWriter(stringWriter));
-        // StringBuffer buffer = exception.p stringWriter.getBuffer();
-        StringBuffer exceptionBuffer = new StringBuffer(50);
-        exceptionBuffer.append(exception.toString());
-        // TODO find way to use printStackTrace to fill buffer
-
-        // only keep leading frame portion of the trace (i.e. line no. 2 from the stacktrace)
-        // lookupLine2 : for (int i = 0, lineSep = 0, max = buffer.length(), line2Start = 0; i < max; i++)
-        // {
-        // switch (buffer.charAt(i))
-        // {
-        // case '\n' :
-        // case '\r' :
-        // if (line2Start > 0)
-        // {
-        // exceptionBuffer.append(' ').append(buffer.substring(line2Start, i));
-        // break lookupLine2;
-        // }
-        // lineSep++;
-        // break;
-        // case ' ' :
-        // case '\t' :
-        // break;
-        // default :
-        // if (lineSep > 0)
-        // {
-        // line2Start = i;
-        // lineSep = 0;
-        // }
-        // break;
-        // }
-        // }
-        return exceptionBuffer.toString();
-    }
-
     //
     public static int getLineNumber(int position, int[] lineEnds, int g, int d) {
         if (lineEnds == null)
@@ -623,6 +614,21 @@ public class Util implements SuffixConstants {
         return result;
     }
 
+    /** Returns true iff str.toLowerCase().endsWith(".class") implementation is not creating extra strings. */
+    public final static boolean isClassFileName(char[] name) {
+        int nameLength = name == null ? 0 : name.length;
+        int suffixLength = SUFFIX_CLASS.length;
+        if (nameLength < suffixLength)
+            return false;
+
+        for (int i = 0, offset = nameLength - suffixLength; i < suffixLength; i++) {
+            char c = name[offset + i];
+            if (c != SUFFIX_class[i] && c != SUFFIX_CLASS[i])
+                return false;
+        }
+        return true;
+    }
+
     // /**
     // * Returns whether the given name is potentially a zip archive file name
     // * (it has a file extension and it is not ".java" nor ".class")
@@ -655,21 +661,6 @@ public class Util implements SuffixConstants {
     // }
     // return true; // it is neither a ".java" file nor a ".class" file, so this is a potential archive name
     // }
-
-    /** Returns true iff str.toLowerCase().endsWith(".class") implementation is not creating extra strings. */
-    public final static boolean isClassFileName(char[] name) {
-        int nameLength = name == null ? 0 : name.length;
-        int suffixLength = SUFFIX_CLASS.length;
-        if (nameLength < suffixLength)
-            return false;
-
-        for (int i = 0, offset = nameLength - suffixLength; i < suffixLength; i++) {
-            char c = name[offset + i];
-            if (c != SUFFIX_class[i] && c != SUFFIX_CLASS[i])
-                return false;
-        }
-        return true;
-    }
 
     /** Returns true iff str.toLowerCase().endsWith(".class") implementation is not creating extra strings. */
     public final static boolean isClassFileName(String name) {
@@ -879,6 +870,74 @@ public class Util implements SuffixConstants {
         return buffer.toString();
     }
 
+    public static void collectRunningVMBootclasspath(List bootclasspaths) {
+        // /* no bootclasspath specified
+        // * we can try to retrieve the default librairies of the VM used to run
+        // * the batch compiler
+        // */
+        //      String javaversion = System.getProperty("java.version");//$NON-NLS-1$
+        //      if (javaversion != null && javaversion.equalsIgnoreCase("1.1.8")) { //$NON-NLS-1$
+        // throw new IllegalStateException();
+        // }
+        //
+        // /*
+        // * Handle >= JDK 1.2.2 settings: retrieve the bootclasspath
+        // */
+        // // check bootclasspath properties for Sun, JRockit and Harmony VMs
+        //      String bootclasspathProperty = System.getProperty("sun.boot.class.path"); //$NON-NLS-1$
+        // if ((bootclasspathProperty == null) || (bootclasspathProperty.length() == 0)) {
+        // // IBM J9 VMs
+        //         bootclasspathProperty = System.getProperty("vm.boot.class.path"); //$NON-NLS-1$
+        // if ((bootclasspathProperty == null) || (bootclasspathProperty.length() == 0)) {
+        // // Harmony using IBM VME
+        //            bootclasspathProperty = System.getProperty("org.apache.harmony.boot.class.path"); //$NON-NLS-1$
+        // }
+        // }
+        // if ((bootclasspathProperty != null) && (bootclasspathProperty.length() != 0)) {
+        // StringTokenizer tokenizer = new StringTokenizer(bootclasspathProperty, File.pathSeparator);
+        // String token;
+        // while (tokenizer.hasMoreTokens()) {
+        // token = tokenizer.nextToken();
+        // FileSystem.Classpath currentClasspath = FileSystem.getClasspath(token, null, null);
+        // if (currentClasspath != null) {
+        // bootclasspaths.add(currentClasspath);
+        // }
+        // }
+        // } else {
+        // // try to get all jars inside the lib folder of the java home
+        // final File javaHome = getJavaHome();
+        // if (javaHome != null) {
+        // File[] directoriesToCheck = null;
+        //            if (System.getProperty("os.name").startsWith("Mac")) {//$NON-NLS-1$//$NON-NLS-2$
+        // directoriesToCheck = new File[] {
+        //                  new File(javaHome, "../Classes"), //$NON-NLS-1$
+        // };
+        // } else {
+        // // fall back to try to retrieve them out of the lib directory
+        // directoriesToCheck = new File[] {
+        //                  new File(javaHome, "lib") //$NON-NLS-1$
+        // };
+        // }
+        // File[][] systemLibrariesJars = Main.getLibrariesFiles(directoriesToCheck);
+        // if (systemLibrariesJars != null) {
+        // for (int i = 0, max = systemLibrariesJars.length; i < max; i++) {
+        // File[] current = systemLibrariesJars[i];
+        // if (current != null) {
+        // for (int j = 0, max2 = current.length; j < max2; j++) {
+        // FileSystem.Classpath classpath =
+        // FileSystem.getClasspath(current[j].getAbsolutePath(),
+        // null, false, null, null);
+        // if (classpath != null) {
+        // bootclasspaths.add(classpath);
+        // }
+        // }
+        // }
+        // }
+        // }
+        // }
+        // }
+    }
+
     // /**
     // * outputPath is formed like:
     // * c:\temp\ the last character is a file separator
@@ -999,74 +1058,6 @@ public class Util implements SuffixConstants {
     // }
     // return null;
     // }
-
-    public static void collectRunningVMBootclasspath(List bootclasspaths) {
-        // /* no bootclasspath specified
-        // * we can try to retrieve the default librairies of the VM used to run
-        // * the batch compiler
-        // */
-        //      String javaversion = System.getProperty("java.version");//$NON-NLS-1$
-        //      if (javaversion != null && javaversion.equalsIgnoreCase("1.1.8")) { //$NON-NLS-1$
-        // throw new IllegalStateException();
-        // }
-        //
-        // /*
-        // * Handle >= JDK 1.2.2 settings: retrieve the bootclasspath
-        // */
-        // // check bootclasspath properties for Sun, JRockit and Harmony VMs
-        //      String bootclasspathProperty = System.getProperty("sun.boot.class.path"); //$NON-NLS-1$
-        // if ((bootclasspathProperty == null) || (bootclasspathProperty.length() == 0)) {
-        // // IBM J9 VMs
-        //         bootclasspathProperty = System.getProperty("vm.boot.class.path"); //$NON-NLS-1$
-        // if ((bootclasspathProperty == null) || (bootclasspathProperty.length() == 0)) {
-        // // Harmony using IBM VME
-        //            bootclasspathProperty = System.getProperty("org.apache.harmony.boot.class.path"); //$NON-NLS-1$
-        // }
-        // }
-        // if ((bootclasspathProperty != null) && (bootclasspathProperty.length() != 0)) {
-        // StringTokenizer tokenizer = new StringTokenizer(bootclasspathProperty, File.pathSeparator);
-        // String token;
-        // while (tokenizer.hasMoreTokens()) {
-        // token = tokenizer.nextToken();
-        // FileSystem.Classpath currentClasspath = FileSystem.getClasspath(token, null, null);
-        // if (currentClasspath != null) {
-        // bootclasspaths.add(currentClasspath);
-        // }
-        // }
-        // } else {
-        // // try to get all jars inside the lib folder of the java home
-        // final File javaHome = getJavaHome();
-        // if (javaHome != null) {
-        // File[] directoriesToCheck = null;
-        //            if (System.getProperty("os.name").startsWith("Mac")) {//$NON-NLS-1$//$NON-NLS-2$
-        // directoriesToCheck = new File[] {
-        //                  new File(javaHome, "../Classes"), //$NON-NLS-1$
-        // };
-        // } else {
-        // // fall back to try to retrieve them out of the lib directory
-        // directoriesToCheck = new File[] {
-        //                  new File(javaHome, "lib") //$NON-NLS-1$
-        // };
-        // }
-        // File[][] systemLibrariesJars = Main.getLibrariesFiles(directoriesToCheck);
-        // if (systemLibrariesJars != null) {
-        // for (int i = 0, max = systemLibrariesJars.length; i < max; i++) {
-        // File[] current = systemLibrariesJars[i];
-        // if (current != null) {
-        // for (int j = 0, max2 = current.length; j < max2; j++) {
-        // FileSystem.Classpath classpath =
-        // FileSystem.getClasspath(current[j].getAbsolutePath(),
-        // null, false, null, null);
-        // if (classpath != null) {
-        // bootclasspaths.add(classpath);
-        // }
-        // }
-        // }
-        // }
-        // }
-        // }
-        // }
-    }
 
     public static int getParameterCount(char[] methodSignature) {
         try {
@@ -1505,5 +1496,9 @@ public class Util implements SuffixConstants {
             default:
                 return scanTypeSignature(string, start);
         }
+    }
+
+    public interface Displayable {
+        String displayString(Object o);
     }
 }

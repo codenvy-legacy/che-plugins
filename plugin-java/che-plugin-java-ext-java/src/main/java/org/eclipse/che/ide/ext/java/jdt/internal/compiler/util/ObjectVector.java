@@ -68,7 +68,7 @@ public final class ObjectVector {
 
     /** Identity check */
     public boolean containsIdentical(Object element) {
-        for (Object obj: objects)
+        for (Object obj : objects)
             if (element == obj)
                 return true;
         return false;

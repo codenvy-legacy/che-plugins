@@ -14,7 +14,11 @@ import org.eclipse.che.api.project.shared.dto.BuildersDescriptor;
 import org.eclipse.che.api.project.shared.dto.ItemReference;
 import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.ide.api.project.tree.TreeNode;
+import org.eclipse.che.ide.api.project.tree.VirtualFile;
 import org.eclipse.che.ide.api.project.tree.generic.ProjectNode;
+import org.eclipse.che.ide.ext.java.client.projecttree.nodes.JarClassNode;
+import org.eclipse.che.ide.ext.java.client.projecttree.nodes.PackageNode;
+import org.eclipse.che.ide.ext.java.client.projecttree.nodes.SourceFileNode;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -72,5 +76,23 @@ public class JavaSourceFolderUtil {
         }
 
         return mySourceFolders;
+    }
+
+    public static String getFQNForFile(VirtualFile file){
+        String packageName = "";
+        if (file instanceof SourceFileNode) {
+            if (((SourceFileNode)file).getParent() instanceof PackageNode) {
+                packageName = ((PackageNode)((SourceFileNode)file).getParent()).getQualifiedName();
+            }
+            if(!packageName.isEmpty()){
+                packageName = packageName + ".";
+            }
+           return packageName + file.getName().substring(0, file.getName().lastIndexOf('.'));
+        }
+
+        if(file instanceof JarClassNode){
+            return file.getPath();
+        }
+        return file.getName().substring(0, file.getName().lastIndexOf('.'));
     }
 }

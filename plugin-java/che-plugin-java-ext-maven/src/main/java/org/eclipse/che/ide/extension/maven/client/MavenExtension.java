@@ -10,6 +10,10 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.maven.client;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+import com.google.web.bindery.event.shared.EventBus;
+
 import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
 import org.eclipse.che.api.project.shared.dto.BuildersDescriptor;
 import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
@@ -43,10 +47,6 @@ import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.rest.Unmarshallable;
 import org.eclipse.che.ide.util.loging.Log;
 
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
-import com.google.web.bindery.event.shared.EventBus;
-
 import java.util.List;
 import java.util.Map;
 
@@ -75,9 +75,7 @@ public class MavenExtension {
         archetypes =
                 Collections.createArray(new MavenArchetype("org.apache.maven.archetypes", "maven-archetype-quickstart", "RELEASE", null),
                                         new MavenArchetype("org.apache.maven.archetypes", "maven-archetype-webapp", "RELEASE", null),
-                                        new MavenArchetype("org.apache.openejb.maven", "tomee-webapp-archetype", "1.7.1", null),
-                                        new MavenArchetype("org.apache.cxf.archetype", "cxf-jaxws-javafirst", "RELEASE", null),
-                                        new MavenArchetype("org.apache.cxf.archetype", "cxf-jaxrs-service", "RELEASE", null));
+                                        new MavenArchetype("org.apache.openejb.maven", "tomee-webapp-archetype", "1.7.1", null));
     }
 
     public static Array<MavenArchetype> getAvailableArchetypes() {

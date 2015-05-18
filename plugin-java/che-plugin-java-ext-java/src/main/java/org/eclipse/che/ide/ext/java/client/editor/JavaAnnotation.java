@@ -105,6 +105,14 @@ public interface JavaAnnotation {
     boolean isProblem();
 
     /**
+     * Tells whether this annotation is a error
+     * annotation.
+     *
+     * @return <code>true</code> if it is a error annotation
+     */
+    boolean isError();
+
+    /**
      * Returns the problem arguments or <code>null</code> if no problem arguments can be evaluated.
      *
      * @return returns the problem arguments or <code>null</code> if no problem

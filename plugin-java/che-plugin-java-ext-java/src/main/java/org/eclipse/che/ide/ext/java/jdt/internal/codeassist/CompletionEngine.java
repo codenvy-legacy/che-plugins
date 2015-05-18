@@ -66,60 +66,7 @@ import org.eclipse.che.ide.ext.java.jdt.internal.compiler.ClassFileConstants;
 import org.eclipse.che.ide.ext.java.jdt.internal.compiler.CompilationResult;
 import org.eclipse.che.ide.ext.java.jdt.internal.compiler.DefaultErrorHandlingPolicies;
 import org.eclipse.che.ide.ext.java.jdt.internal.compiler.ExtraFlags;
-import org.eclipse.che.ide.ext.java.jdt.internal.compiler.ast.ASTNode;
-import org.eclipse.che.ide.ext.java.jdt.internal.compiler.ast.AbstractMethodDeclaration;
-import org.eclipse.che.ide.ext.java.jdt.internal.compiler.ast.AbstractVariableDeclaration;
-import org.eclipse.che.ide.ext.java.jdt.internal.compiler.ast.AllocationExpression;
-import org.eclipse.che.ide.ext.java.jdt.internal.compiler.ast.Annotation;
-import org.eclipse.che.ide.ext.java.jdt.internal.compiler.ast.Argument;
-import org.eclipse.che.ide.ext.java.jdt.internal.compiler.ast.ArrayInitializer;
-import org.eclipse.che.ide.ext.java.jdt.internal.compiler.ast.ArrayReference;
-import org.eclipse.che.ide.ext.java.jdt.internal.compiler.ast.AssertStatement;
-import org.eclipse.che.ide.ext.java.jdt.internal.compiler.ast.Assignment;
-import org.eclipse.che.ide.ext.java.jdt.internal.compiler.ast.BinaryExpression;
-import org.eclipse.che.ide.ext.java.jdt.internal.compiler.ast.CaseStatement;
-import org.eclipse.che.ide.ext.java.jdt.internal.compiler.ast.CastExpression;
-import org.eclipse.che.ide.ext.java.jdt.internal.compiler.ast.CompilationUnitDeclaration;
-import org.eclipse.che.ide.ext.java.jdt.internal.compiler.ast.ConditionalExpression;
-import org.eclipse.che.ide.ext.java.jdt.internal.compiler.ast.ConstructorDeclaration;
-import org.eclipse.che.ide.ext.java.jdt.internal.compiler.ast.Expression;
-import org.eclipse.che.ide.ext.java.jdt.internal.compiler.ast.FieldDeclaration;
-import org.eclipse.che.ide.ext.java.jdt.internal.compiler.ast.FieldReference;
-import org.eclipse.che.ide.ext.java.jdt.internal.compiler.ast.ForStatement;
-import org.eclipse.che.ide.ext.java.jdt.internal.compiler.ast.IfStatement;
-import org.eclipse.che.ide.ext.java.jdt.internal.compiler.ast.ImportReference;
-import org.eclipse.che.ide.ext.java.jdt.internal.compiler.ast.Initializer;
-import org.eclipse.che.ide.ext.java.jdt.internal.compiler.ast.InstanceOfExpression;
-import org.eclipse.che.ide.ext.java.jdt.internal.compiler.ast.Javadoc;
-import org.eclipse.che.ide.ext.java.jdt.internal.compiler.ast.JavadocImplicitTypeReference;
-import org.eclipse.che.ide.ext.java.jdt.internal.compiler.ast.JavadocQualifiedTypeReference;
-import org.eclipse.che.ide.ext.java.jdt.internal.compiler.ast.JavadocSingleTypeReference;
-import org.eclipse.che.ide.ext.java.jdt.internal.compiler.ast.LocalDeclaration;
-import org.eclipse.che.ide.ext.java.jdt.internal.compiler.ast.MemberValuePair;
-import org.eclipse.che.ide.ext.java.jdt.internal.compiler.ast.MessageSend;
-import org.eclipse.che.ide.ext.java.jdt.internal.compiler.ast.MethodDeclaration;
-import org.eclipse.che.ide.ext.java.jdt.internal.compiler.ast.NameReference;
-import org.eclipse.che.ide.ext.java.jdt.internal.compiler.ast.NormalAnnotation;
-import org.eclipse.che.ide.ext.java.jdt.internal.compiler.ast.OperatorExpression;
-import org.eclipse.che.ide.ext.java.jdt.internal.compiler.ast.OperatorIds;
-import org.eclipse.che.ide.ext.java.jdt.internal.compiler.ast.ParameterizedQualifiedTypeReference;
-import org.eclipse.che.ide.ext.java.jdt.internal.compiler.ast.ParameterizedSingleTypeReference;
-import org.eclipse.che.ide.ext.java.jdt.internal.compiler.ast.QualifiedNameReference;
-import org.eclipse.che.ide.ext.java.jdt.internal.compiler.ast.QualifiedTypeReference;
-import org.eclipse.che.ide.ext.java.jdt.internal.compiler.ast.ReturnStatement;
-import org.eclipse.che.ide.ext.java.jdt.internal.compiler.ast.SingleNameReference;
-import org.eclipse.che.ide.ext.java.jdt.internal.compiler.ast.SingleTypeReference;
-import org.eclipse.che.ide.ext.java.jdt.internal.compiler.ast.SuperReference;
-import org.eclipse.che.ide.ext.java.jdt.internal.compiler.ast.SwitchStatement;
-import org.eclipse.che.ide.ext.java.jdt.internal.compiler.ast.ThisReference;
-import org.eclipse.che.ide.ext.java.jdt.internal.compiler.ast.TryStatement;
-import org.eclipse.che.ide.ext.java.jdt.internal.compiler.ast.TypeDeclaration;
-import org.eclipse.che.ide.ext.java.jdt.internal.compiler.ast.TypeParameter;
-import org.eclipse.che.ide.ext.java.jdt.internal.compiler.ast.TypeReference;
-import org.eclipse.che.ide.ext.java.jdt.internal.compiler.ast.UnaryExpression;
-import org.eclipse.che.ide.ext.java.jdt.internal.compiler.ast.UnionTypeReference;
-import org.eclipse.che.ide.ext.java.jdt.internal.compiler.ast.WhileStatement;
-import org.eclipse.che.ide.ext.java.jdt.internal.compiler.ast.Wildcard;
+import org.eclipse.che.ide.ext.java.jdt.internal.compiler.ast.*;
 import org.eclipse.che.ide.ext.java.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.che.ide.ext.java.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.che.ide.ext.java.jdt.internal.compiler.env.INameEnvironment;
@@ -172,7 +119,6 @@ import org.eclipse.che.ide.ext.java.jdt.internal.core.INamingRequestor;
 import org.eclipse.che.ide.ext.java.jdt.internal.core.InternalNamingConventions;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Map;
 
 /**
@@ -182,174 +128,191 @@ import java.util.Map;
 public final class CompletionEngine extends Engine implements ISearchRequestor, TypeConstants, TerminalTokens,
                                                               RelevanceConstants, SuffixConstants {
 
-    private static class AcceptedConstructor {
-        public int modifiers;
-
-        public char[] simpleTypeName;
-
-        public int parameterCount;
-
-        public char[] signature;
-
-        public char[][] parameterTypes;
-
-        public char[][] parameterNames;
-
-        public int typeModifiers;
-
-        public char[] packageName;
-
-        public int extraFlags;
-
-        // public int accessibility;
-
-        public boolean proposeType = false;
-
-        public boolean proposeConstructor = false;
-
-        public char[] fullyQualifiedName = null;
-
-        public boolean mustBeQualified = false;
-
-        public AcceptedConstructor(int modifiers, char[] simpleTypeName, int parameterCount, char[] signature,
-                                   char[][] parameterTypes, char[][] parameterNames, int typeModifiers, char[] packageName,
-                                   int extraFlags) {
-            this.modifiers = modifiers;
-            this.simpleTypeName = simpleTypeName;
-            this.parameterCount = parameterCount;
-            this.signature = signature;
-            this.parameterTypes = parameterTypes;
-            this.parameterNames = parameterNames;
-            this.typeModifiers = typeModifiers;
-            this.packageName = packageName;
-            this.extraFlags = extraFlags;
-            // this.accessibility = accessibility;
+    // temporary constants to quickly disabled polish features if necessary
+    public final static boolean NO_TYPE_COMPLETION_ON_EMPTY_TOKEN = false;
+    /*
+    * static final char[][] mainDeclarations = new char[][] { "package".toCharArray(), "import".toCharArray(),
+    * "abstract".toCharArray(), "final".toCharArray(), "public".toCharArray(), "class".toCharArray(), "interface".toCharArray()};
+    * static final char[][] modifiers = // may want field, method, type & member type modifiers new char[][] {
+    * "abstract".toCharArray(), "final".toCharArray(), "native".toCharArray(), "public".toCharArray(), "protected".toCharArray(),
+    * "private".toCharArray(), "static".toCharArray(), "strictfp".toCharArray(), "synchronized".toCharArray(),
+    * "transient".toCharArray(), "volatile".toCharArray()};
+    */
+    static final BaseTypeBinding[] BASE_TYPES = {TypeBinding.BOOLEAN, TypeBinding.BYTE, TypeBinding.CHAR,
+                                                 TypeBinding.DOUBLE, TypeBinding.FLOAT, TypeBinding.INT, TypeBinding.LONG,
+                                                 TypeBinding.SHORT, TypeBinding.VOID};
+    static final int BASE_TYPES_LENGTH = BASE_TYPES.length;
+    static final char[][] BASE_TYPE_NAMES = new char[BASE_TYPES_LENGTH][];
+    static final int BASE_TYPES_WITHOUT_VOID_LENGTH = BASE_TYPES.length - 1;
+    static final char[][] BASE_TYPE_NAMES_WITHOUT_VOID = new char[BASE_TYPES_WITHOUT_VOID_LENGTH][];
+    static {
+        for (int i = 0; i < BASE_TYPES_LENGTH; i++) {
+            BASE_TYPE_NAMES[i] = BASE_TYPES[i].simpleName;
         }
-
-        public String toString() {
-            StringBuffer buffer = new StringBuffer();
-            buffer.append('{');
-            buffer.append(this.packageName);
-            buffer.append(',');
-            buffer.append(this.simpleTypeName);
-            buffer.append('}');
-            return buffer.toString();
+        for (int i = 0; i < BASE_TYPES_WITHOUT_VOID_LENGTH; i++) {
+            BASE_TYPE_NAMES_WITHOUT_VOID[i] = BASE_TYPES[i].simpleName;
         }
     }
-
-    private static class AcceptedType {
-        public char[] packageName;
-
-        public char[] simpleTypeName;
-
-        public char[][] enclosingTypeNames;
-
-        public int modifiers;
-
-        public boolean mustBeQualified = false;
-
-        public char[] fullyQualifiedName = null;
-
-        public char[] qualifiedTypeName = null;
-
-        public AcceptedType(char[] packageName, char[] simpleTypeName, char[][] enclosingTypeNames, int modifiers) {
-            this.packageName = packageName;
-            this.simpleTypeName = simpleTypeName;
-            this.enclosingTypeNames = enclosingTypeNames;
-            this.modifiers = modifiers;
+    static final char[] classField = "class".toCharArray(); //$NON-NLS-1$
+    static final char[] lengthField = "length".toCharArray(); //$NON-NLS-1$
+    static final char[] cloneMethod = "clone".toCharArray(); //$NON-NLS-1$
+    static final char[] THIS = "this".toCharArray(); //$NON-NLS-1$
+    static final char[] THROWS = "throws".toCharArray(); //$NON-NLS-1$
+    private static final char[] KNOWN_TYPE_WITH_UNKNOWN_CONSTRUCTORS = new char[]{};
+    private static final char[] KNOWN_TYPE_WITH_KNOWN_CONSTRUCTORS = new char[]{};
+    private static final char[] ARG = "arg".toCharArray(); //$NON-NLS-1$
+    private static final char[] ARG0 = "arg0".toCharArray(); //$NON-NLS-1$
+    private static final char[] ARG1 = "arg1".toCharArray(); //$NON-NLS-1$
+    private static final char[] ARG2 = "arg2".toCharArray(); //$NON-NLS-1$
+    private static final char[] ARG3 = "arg3".toCharArray(); //$NON-NLS-1$
+    private static final char[][] ARGS1 = new char[][]{ARG0};
+    private static final char[][] ARGS2 = new char[][]{ARG0, ARG1};
+    private static final char[][] ARGS3 = new char[][]{ARG0, ARG1, ARG2};
+    private static final char[][] ARGS4 = new char[][]{ARG0, ARG1, ARG2, ARG3};
+    private final static char[] ERROR_PATTERN = "*error*".toCharArray(); //$NON-NLS-1$
+    private final static char[] EXCEPTION_PATTERN = "*exception*".toCharArray(); //$NON-NLS-1$
+    private final static char[] SEMICOLON = new char[]{';'};
+    private final static char[] CLASS = "Class".toCharArray(); //$NON-NLS-1$
+    private final static char[] VOID = "void".toCharArray(); //$NON-NLS-1$
+    private final static char[] INT = "int".toCharArray(); //$NON-NLS-1$
+    private final static char[] INT_SIGNATURE = new char[]{Signature.C_INT};
+    private final static char[] VALUE = "value".toCharArray(); //$NON-NLS-1$
+    private final static char[] EXTENDS = "extends".toCharArray(); //$NON-NLS-1$
+    private final static char[] SUPER = "super".toCharArray(); //$NON-NLS-1$
+    private final static char[] DEFAULT_CONSTRUCTOR_SIGNATURE = "()V".toCharArray(); //$NON-NLS-1$
+    private final static char[] DOT = ".".toCharArray(); //$NON-NLS-1$
+    private final static char[] VARARGS = "...".toCharArray(); //$NON-NLS-1$
+    private final static char[] IMPORT = "import".toCharArray(); //$NON-NLS-1$
+    private final static char[] STATIC = "static".toCharArray(); //$NON-NLS-1$
+    private final static char[] ON_DEMAND = ".*".toCharArray(); //$NON-NLS-1$
+    private final static char[] IMPORT_END = ";\n".toCharArray(); //$NON-NLS-1$
+    private final static char[] JAVA_LANG_OBJECT_SIGNATURE = createTypeSignature(
+            CharOperation.concatWith(JAVA_LANG, '.'), OBJECT);
+    private final static char[] JAVA_LANG_NAME = CharOperation.concatWith(JAVA_LANG, '.');
+    private final static int NONE = 0;
+    private final static int SUPERTYPE = 1;
+    private final static int SUBTYPE = 2;
+    private final static char[] DOT_ENUM = ".enum".toCharArray(); //$NON-NLS-1$
+    public static boolean PERF = false;
+    static InvocationSite FakeInvocationSite = new InvocationSite() {
+        public TypeBinding[] genericTypeArguments() {
+            return null;
         }
 
-        public String toString() {
-            StringBuffer buffer = new StringBuffer();
-            buffer.append('{');
-            buffer.append(this.packageName);
-            buffer.append(',');
-            buffer.append(this.simpleTypeName);
-            buffer.append(',');
-            buffer.append(CharOperation.concatWith(this.enclosingTypeNames, '.'));
-            buffer.append('}');
-            return buffer.toString();
-        }
-    }
-
-    public class CompletionProblemFactory extends DefaultProblemFactory {
-        private int lastErrorStart;
-
-        private boolean checkProblems = false;
-
-        public boolean hasForbiddenProblems = false;
-
-        public boolean hasAllowedProblems = false;
-
-        public CompletionProblemFactory() {
-            super();
+        public boolean isSuperAccess() {
+            return false;
         }
 
-        private CategorizedProblem checkProblem(CategorizedProblem pb, char[] originatingFileName, int severity, int start) {
-            int id = pb.getID();
-            if (CompletionEngine.this.actualCompletionPosition > start
-                && this.lastErrorStart < start
-                && pb.isError()
-                && (id & IProblem.Syntax) == 0
-                && (CompletionEngine.this.fileName == null || CharOperation.equals(CompletionEngine.this.fileName,
-                                                                                   originatingFileName))) {
-
-                CompletionEngine.this.problem = pb;
-                this.lastErrorStart = start;
-            }
-            if (this.checkProblems && !this.hasForbiddenProblems) {
-                switch (id) {
-                    case IProblem.UsingDeprecatedType:
-                        this.hasForbiddenProblems = CompletionEngine.this.options.checkDeprecation;
-                        break;
-                    case IProblem.NotVisibleType:
-                        this.hasForbiddenProblems = CompletionEngine.this.options.checkVisibility;
-                        break;
-                    case IProblem.ForbiddenReference:
-                        this.hasForbiddenProblems = CompletionEngine.this.options.checkForbiddenReference;
-                        break;
-                    case IProblem.DiscouragedReference:
-                        this.hasForbiddenProblems = CompletionEngine.this.options.checkDiscouragedReference;
-                        break;
-                    default:
-                        if ((severity & ProblemSeverities.Optional) != 0) {
-                            this.hasAllowedProblems = true;
-                        } else {
-                            this.hasForbiddenProblems = true;
-                        }
-
-                        break;
-                }
-            }
-
-            return pb;
+        public boolean isTypeAccess() {
+            return false;
         }
 
-        public CategorizedProblem createProblem(char[] originatingFileName, int problemId, String[] problemArguments,
-                                                int elaborationId, String[] messageArguments, int severity, int start, int end,
-                                                int lineNumber,
-                                                int columnNumber) {
-            return checkProblem(super.createProblem(originatingFileName, problemId, problemArguments, elaborationId,
-                                                    messageArguments, severity, start, end, lineNumber, columnNumber), originatingFileName,
-                                severity, start);
+        public void setActualReceiverType(ReferenceBinding receiverType) {/* empty */
         }
 
-        public CategorizedProblem createProblem(char[] originatingFileName, int problemId, String[] problemArguments,
-                                                String[] messageArguments, int severity, int start, int end, int lineNumber,
-                                                int columnNumber) {
-            return checkProblem(super.createProblem(originatingFileName, problemId, problemArguments, messageArguments,
-                                                    severity, start, end, lineNumber, columnNumber), originatingFileName, severity, start);
+        public void setDepth(int depth) {/* empty */
         }
 
-        public void startCheckingProblems() {
-            this.checkProblems = true;
-            this.hasForbiddenProblems = false;
-            this.hasAllowedProblems = false;
+        public void setFieldIndex(int depth) {/* empty */
         }
 
-        public void stopCheckingProblems() {
-            this.checkProblems = false;
+        public int sourceEnd() {
+            return 0;
         }
+
+        public int sourceStart() {
+            return 0;
+        }
+
+        public TypeBinding expectedType() {
+            return null;
+        }
+    };
+    public HashtableOfObject typeCache;
+    public int openedBinaryTypes; // used during InternalCompletionProposal#findConstructorParameterNames()
+    int expectedTypesPtr = -1;
+    TypeBinding[] expectedTypes = new TypeBinding[1];
+    int expectedTypesFilter;
+    boolean hasJavaLangObjectAsExpectedType = false;
+    boolean hasExpectedArrayTypes = false;
+    boolean hasComputedExpectedArrayTypes = false;
+    int uninterestingBindingsPtr = -1;
+    Binding[] uninterestingBindings = new Binding[1];
+    int forbbidenBindingsPtr = -1;
+    Binding[] forbbidenBindings = new Binding[1];
+    int uninterestingBindingsFilter; // only set when completing on an exception type
+    ImportBinding[] favoriteReferenceBindings;
+    boolean assistNodeIsClass;
+    boolean assistNodeIsEnum;
+    boolean assistNodeIsException;
+    boolean assistNodeIsInterface;
+    boolean assistNodeIsAnnotation;
+    boolean assistNodeIsConstructor;
+    boolean assistNodeIsSuperType;
+    boolean assistNodeIsExtendedType;
+    boolean assistNodeIsInterfaceExcludingAnnotation; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=310423
+    int assistNodeInJavadoc = 0;
+    boolean assistNodeCanBeSingleMemberAnnotation = false;
+    boolean assistNodeIsInsideCase = false; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=195346
+    boolean assistNodeIsString = false; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=343476
+    long targetedElement;
+    // IJavaProject javaProject;
+    // ITypeRoot typeRoot;
+    CompletionParser parser;
+    CompletionRequestor requestor;
+    CompletionProblemFactory problemFactory;
+    ProblemReporter problemReporter;
+    // private JavaSearchNameEnvironment noCacheNameEnvironment;
+    char[] source;
+    char[] completionToken;
+    char[] qualifiedCompletionToken;
+    boolean resolvingImports = false;
+    boolean resolvingStaticImports = false;
+    boolean insideQualifiedReference = false;
+    boolean noProposal = true;
+    CategorizedProblem problem = null;
+    char[] fileName = null;
+    int startPosition, actualCompletionPosition, endPosition, offset;
+    int tokenStart, tokenEnd;
+    int javadocTagPosition; // Position of previous tag while completing in javadoc
+    HashtableOfObject knownPkgs = new HashtableOfObject(10);
+    HashtableOfObject knownTypes = new HashtableOfObject(10);
+    private ObjectVector acceptedTypes;
+    private ObjectVector acceptedConstructors;
+    private INameEnvironment noCacheNameEnvironment;
+
+    /**
+     * The CompletionEngine is responsible for computing source completions.
+     * <p/>
+     * It requires a searchable name environment, which supports some specific search APIs, and a requestor to feed back the
+     * results to a UI.
+     *
+     * @param nameEnvironment
+     *         org.eclipse.jdt.internal.codeassist.ISearchableNameEnvironment used to resolve type/package
+     *         references and search for types/packages based on partial names.
+     * @param requestor
+     *         org.eclipse.jdt.internal.codeassist.ICompletionRequestor since the engine might produce answers of various
+     *         forms, the engine is associated with a requestor able to accept all possible completions.
+     * @param settings
+     *         java.util.Map set of options used to configure the code assist engine.
+     */
+    public CompletionEngine(INameEnvironment nameEnvironment, CompletionRequestor requestor, Map<String, String> settings)
+    // IJavaProject javaProject,)
+    {
+        super(settings);
+        // this.javaProject = javaProject;
+        this.requestor = requestor;
+        this.nameEnvironment = nameEnvironment;
+        this.typeCache = new HashtableOfObject(5);
+        this.openedBinaryTypes = 0;
+
+        this.problemFactory = new CompletionProblemFactory();
+        this.problemReporter =
+                new ProblemReporter(DefaultErrorHandlingPolicies.proceedWithAllProblems(), this.compilerOptions,
+                                    this.problemFactory);
+        this.lookupEnvironment = new LookupEnvironment(this, this.compilerOptions, this.problemReporter, nameEnvironment);
+        requestor.setLookupEnvironment(lookupEnvironment);
+        this.parser = new CompletionParser(this.problemReporter, this.requestor.isExtendedContextRequired());
     }
 
     public static char[] createBindingKey(char[] packageName, char[] typeName) {
@@ -508,289 +471,6 @@ public final class CompletionEngine extends Engine implements ISearchRequestor, 
             }
         }
         return false;
-    }
-
-    public HashtableOfObject typeCache;
-
-    public int openedBinaryTypes; // used during InternalCompletionProposal#findConstructorParameterNames()
-
-    public static boolean PERF = false;
-
-    private static final char[] KNOWN_TYPE_WITH_UNKNOWN_CONSTRUCTORS = new char[]{};
-
-    private static final char[] KNOWN_TYPE_WITH_KNOWN_CONSTRUCTORS = new char[]{};
-
-    private static final char[] ARG = "arg".toCharArray(); //$NON-NLS-1$
-
-    private static final char[] ARG0 = "arg0".toCharArray(); //$NON-NLS-1$
-
-    private static final char[] ARG1 = "arg1".toCharArray(); //$NON-NLS-1$
-
-    private static final char[] ARG2 = "arg2".toCharArray(); //$NON-NLS-1$
-
-    private static final char[] ARG3 = "arg3".toCharArray(); //$NON-NLS-1$
-
-    private static final char[][] ARGS1 = new char[][]{ARG0};
-
-    private static final char[][] ARGS2 = new char[][]{ARG0, ARG1};
-
-    private static final char[][] ARGS3 = new char[][]{ARG0, ARG1, ARG2};
-
-    private static final char[][] ARGS4 = new char[][]{ARG0, ARG1, ARG2, ARG3};
-
-    // temporary constants to quickly disabled polish features if necessary
-    public final static boolean NO_TYPE_COMPLETION_ON_EMPTY_TOKEN = false;
-
-    private final static char[] ERROR_PATTERN = "*error*".toCharArray(); //$NON-NLS-1$
-
-    private final static char[] EXCEPTION_PATTERN = "*exception*".toCharArray(); //$NON-NLS-1$
-
-    private final static char[] SEMICOLON = new char[]{';'};
-
-    private final static char[] CLASS = "Class".toCharArray(); //$NON-NLS-1$
-
-    private final static char[] VOID = "void".toCharArray(); //$NON-NLS-1$
-
-    private final static char[] INT = "int".toCharArray(); //$NON-NLS-1$
-
-    private final static char[] INT_SIGNATURE = new char[]{Signature.C_INT};
-
-    private final static char[] VALUE = "value".toCharArray(); //$NON-NLS-1$
-
-    private final static char[] EXTENDS = "extends".toCharArray(); //$NON-NLS-1$
-
-    private final static char[] SUPER = "super".toCharArray(); //$NON-NLS-1$
-
-    private final static char[] DEFAULT_CONSTRUCTOR_SIGNATURE = "()V".toCharArray(); //$NON-NLS-1$
-
-    private final static char[] DOT = ".".toCharArray(); //$NON-NLS-1$
-
-    private final static char[] VARARGS = "...".toCharArray(); //$NON-NLS-1$
-
-    private final static char[] IMPORT = "import".toCharArray(); //$NON-NLS-1$
-
-    private final static char[] STATIC = "static".toCharArray(); //$NON-NLS-1$
-
-    private final static char[] ON_DEMAND = ".*".toCharArray(); //$NON-NLS-1$
-
-    private final static char[] IMPORT_END = ";\n".toCharArray(); //$NON-NLS-1$
-
-    private final static char[] JAVA_LANG_OBJECT_SIGNATURE = createTypeSignature(
-            CharOperation.concatWith(JAVA_LANG, '.'), OBJECT);
-
-    private final static char[] JAVA_LANG_NAME = CharOperation.concatWith(JAVA_LANG, '.');
-
-    private final static int NONE = 0;
-
-    private final static int SUPERTYPE = 1;
-
-    private final static int SUBTYPE = 2;
-
-    private final static char[] DOT_ENUM = ".enum".toCharArray(); //$NON-NLS-1$
-
-    int expectedTypesPtr = -1;
-
-    TypeBinding[] expectedTypes = new TypeBinding[1];
-
-    int expectedTypesFilter;
-
-    boolean hasJavaLangObjectAsExpectedType = false;
-
-    boolean hasExpectedArrayTypes = false;
-
-    boolean hasComputedExpectedArrayTypes = false;
-
-    int uninterestingBindingsPtr = -1;
-
-    Binding[] uninterestingBindings = new Binding[1];
-
-    int forbbidenBindingsPtr = -1;
-
-    Binding[] forbbidenBindings = new Binding[1];
-
-    int uninterestingBindingsFilter; // only set when completing on an exception type
-
-    ImportBinding[] favoriteReferenceBindings;
-
-    boolean assistNodeIsClass;
-
-    boolean assistNodeIsEnum;
-
-    boolean assistNodeIsException;
-
-    boolean assistNodeIsInterface;
-
-    boolean assistNodeIsAnnotation;
-
-    boolean assistNodeIsConstructor;
-
-    boolean assistNodeIsSuperType;
-
-    boolean assistNodeIsExtendedType;
-
-    boolean assistNodeIsInterfaceExcludingAnnotation; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=310423
-
-    int assistNodeInJavadoc = 0;
-
-    boolean assistNodeCanBeSingleMemberAnnotation = false;
-
-    boolean assistNodeIsInsideCase = false; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=195346
-
-    boolean assistNodeIsString = false; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=343476
-
-    long targetedElement;
-
-    // IJavaProject javaProject;
-    // ITypeRoot typeRoot;
-    CompletionParser parser;
-
-    CompletionRequestor requestor;
-
-    CompletionProblemFactory problemFactory;
-
-    ProblemReporter problemReporter;
-
-    // private JavaSearchNameEnvironment noCacheNameEnvironment;
-    char[] source;
-
-    char[] completionToken;
-
-    char[] qualifiedCompletionToken;
-
-    boolean resolvingImports = false;
-
-    boolean resolvingStaticImports = false;
-
-    boolean insideQualifiedReference = false;
-
-    boolean noProposal = true;
-
-    CategorizedProblem problem = null;
-
-    char[] fileName = null;
-
-    int startPosition, actualCompletionPosition, endPosition, offset;
-
-    int tokenStart, tokenEnd;
-
-    int javadocTagPosition; // Position of previous tag while completing in javadoc
-
-    HashtableOfObject knownPkgs = new HashtableOfObject(10);
-
-    HashtableOfObject knownTypes = new HashtableOfObject(10);
-
-    /*
-    * static final char[][] mainDeclarations = new char[][] { "package".toCharArray(), "import".toCharArray(),
-    * "abstract".toCharArray(), "final".toCharArray(), "public".toCharArray(), "class".toCharArray(), "interface".toCharArray()};
-    * static final char[][] modifiers = // may want field, method, type & member type modifiers new char[][] {
-    * "abstract".toCharArray(), "final".toCharArray(), "native".toCharArray(), "public".toCharArray(), "protected".toCharArray(),
-    * "private".toCharArray(), "static".toCharArray(), "strictfp".toCharArray(), "synchronized".toCharArray(),
-    * "transient".toCharArray(), "volatile".toCharArray()};
-    */
-    static final BaseTypeBinding[] BASE_TYPES = {TypeBinding.BOOLEAN, TypeBinding.BYTE, TypeBinding.CHAR,
-                                                 TypeBinding.DOUBLE, TypeBinding.FLOAT, TypeBinding.INT, TypeBinding.LONG,
-                                                 TypeBinding.SHORT, TypeBinding.VOID};
-
-    static final int BASE_TYPES_LENGTH = BASE_TYPES.length;
-
-    static final char[][] BASE_TYPE_NAMES = new char[BASE_TYPES_LENGTH][];
-
-    static final int BASE_TYPES_WITHOUT_VOID_LENGTH = BASE_TYPES.length - 1;
-
-    static final char[][] BASE_TYPE_NAMES_WITHOUT_VOID = new char[BASE_TYPES_WITHOUT_VOID_LENGTH][];
-
-    static {
-        for (int i = 0; i < BASE_TYPES_LENGTH; i++) {
-            BASE_TYPE_NAMES[i] = BASE_TYPES[i].simpleName;
-        }
-        for (int i = 0; i < BASE_TYPES_WITHOUT_VOID_LENGTH; i++) {
-            BASE_TYPE_NAMES_WITHOUT_VOID[i] = BASE_TYPES[i].simpleName;
-        }
-    }
-
-    static final char[] classField = "class".toCharArray(); //$NON-NLS-1$
-
-    static final char[] lengthField = "length".toCharArray(); //$NON-NLS-1$
-
-    static final char[] cloneMethod = "clone".toCharArray(); //$NON-NLS-1$
-
-    static final char[] THIS = "this".toCharArray(); //$NON-NLS-1$
-
-    static final char[] THROWS = "throws".toCharArray(); //$NON-NLS-1$
-
-    static InvocationSite FakeInvocationSite = new InvocationSite() {
-        public TypeBinding[] genericTypeArguments() {
-            return null;
-        }
-
-        public boolean isSuperAccess() {
-            return false;
-        }
-
-        public boolean isTypeAccess() {
-            return false;
-        }
-
-        public void setActualReceiverType(ReferenceBinding receiverType) {/* empty */
-        }
-
-        public void setDepth(int depth) {/* empty */
-        }
-
-        public void setFieldIndex(int depth) {/* empty */
-        }
-
-        public int sourceEnd() {
-            return 0;
-        }
-
-        public int sourceStart() {
-            return 0;
-        }
-
-        public TypeBinding expectedType() {
-            return null;
-        }
-    };
-
-    private ObjectVector acceptedTypes;
-
-    private ObjectVector acceptedConstructors;
-
-    private INameEnvironment noCacheNameEnvironment;
-
-    /**
-     * The CompletionEngine is responsible for computing source completions.
-     * <p/>
-     * It requires a searchable name environment, which supports some specific search APIs, and a requestor to feed back the
-     * results to a UI.
-     *
-     * @param nameEnvironment
-     *         org.eclipse.jdt.internal.codeassist.ISearchableNameEnvironment used to resolve type/package
-     *         references and search for types/packages based on partial names.
-     * @param requestor
-     *         org.eclipse.jdt.internal.codeassist.ICompletionRequestor since the engine might produce answers of various
-     *         forms, the engine is associated with a requestor able to accept all possible completions.
-     * @param settings
-     *         java.util.Map set of options used to configure the code assist engine.
-     */
-    public CompletionEngine(INameEnvironment nameEnvironment, CompletionRequestor requestor, Map<String, String> settings)
-    // IJavaProject javaProject,)
-    {
-        super(settings);
-        // this.javaProject = javaProject;
-        this.requestor = requestor;
-        this.nameEnvironment = nameEnvironment;
-        this.typeCache = new HashtableOfObject(5);
-        this.openedBinaryTypes = 0;
-
-        this.problemFactory = new CompletionProblemFactory();
-        this.problemReporter =
-                new ProblemReporter(DefaultErrorHandlingPolicies.proceedWithAllProblems(), this.compilerOptions,
-                                    this.problemFactory);
-        this.lookupEnvironment = new LookupEnvironment(this, this.compilerOptions, this.problemReporter, nameEnvironment);
-        requestor.setLookupEnvironment(lookupEnvironment);
-        this.parser = new CompletionParser(this.problemReporter, this.requestor.isExtendedContextRequired());
     }
 
     public void accept(ICompilationUnit sourceUnit, AccessRestriction accessRestriction) {
@@ -1113,9 +793,6 @@ public final class CompletionEngine extends Engine implements ISearchRequestor, 
             this.acceptedTypes = null; // reset
         }
     }
-
-
-
 
     /**
      * One result of the search consists of a new package.
@@ -1583,7 +1260,6 @@ public final class CompletionEngine extends Engine implements ISearchRequestor, 
         }
     }
 
-
     private boolean complete(ASTNode astNode, ASTNode astNodeParent, ASTNode enclosingNode,
                              CompilationUnitDeclaration compilationUnitDeclaration, Binding qualifiedBinding, Scope scope,
                              boolean insideTypeAnnotation) {
@@ -1840,6 +1516,33 @@ public final class CompletionEngine extends Engine implements ISearchRequestor, 
         }
     }
 
+    private void completionOnBranchStatementLabel(ASTNode astNode) {
+        if (!this.requestor.isIgnored(CompletionProposal.LABEL_REF)) {
+            CompletionOnBranchStatementLabel label = (CompletionOnBranchStatementLabel)astNode;
+            this.completionToken = label.label;
+            findLabels(this.completionToken, label.possibleLabels);
+        }
+    }
+
+    private void completionOnClassLiteralAccess(ASTNode astNode, Binding qualifiedBinding, Scope scope) {
+        if (!this.requestor.isIgnored(CompletionProposal.FIELD_REF)) {
+            CompletionOnClassLiteralAccess access = (CompletionOnClassLiteralAccess)astNode;
+            setSourceAndTokenRange(access.classStart, access.sourceEnd);
+            this.completionToken = access.completionIdentifier;
+            findClassField(this.completionToken, (TypeBinding)qualifiedBinding, scope, null, null, null, false);
+        }
+    }
+
+    private void completionOnExplicitConstructorCall(ASTNode astNode, Binding qualifiedBinding, Scope scope) {
+        if (!this.requestor.isIgnored(CompletionProposal.METHOD_REF)) {
+            setSourceAndTokenRange(astNode.sourceStart, astNode.sourceEnd, false);
+            CompletionOnExplicitConstructorCall constructorCall = (CompletionOnExplicitConstructorCall)astNode;
+            TypeBinding[] argTypes = computeTypes(constructorCall.arguments);
+            findConstructors((ReferenceBinding)qualifiedBinding, argTypes, scope, constructorCall, false, null, null,
+                             null, false);
+        }
+    }
+
     // public void complete(IType type, char[] snippet, int position, char[][] localVariableTypeNames, char[][] localVariableNames,
     // int[] localVariableModifiers, boolean isStatic){
     // if(this.requestor != null){
@@ -1972,33 +1675,6 @@ public final class CompletionEngine extends Engine implements ISearchRequestor, 
     // this.requestor.endReporting();
     // }
     // }
-
-    private void completionOnBranchStatementLabel(ASTNode astNode) {
-        if (!this.requestor.isIgnored(CompletionProposal.LABEL_REF)) {
-            CompletionOnBranchStatementLabel label = (CompletionOnBranchStatementLabel)astNode;
-            this.completionToken = label.label;
-            findLabels(this.completionToken, label.possibleLabels);
-        }
-    }
-
-    private void completionOnClassLiteralAccess(ASTNode astNode, Binding qualifiedBinding, Scope scope) {
-        if (!this.requestor.isIgnored(CompletionProposal.FIELD_REF)) {
-            CompletionOnClassLiteralAccess access = (CompletionOnClassLiteralAccess)astNode;
-            setSourceAndTokenRange(access.classStart, access.sourceEnd);
-            this.completionToken = access.completionIdentifier;
-            findClassField(this.completionToken, (TypeBinding)qualifiedBinding, scope, null, null, null, false);
-        }
-    }
-
-    private void completionOnExplicitConstructorCall(ASTNode astNode, Binding qualifiedBinding, Scope scope) {
-        if (!this.requestor.isIgnored(CompletionProposal.METHOD_REF)) {
-            setSourceAndTokenRange(astNode.sourceStart, astNode.sourceEnd, false);
-            CompletionOnExplicitConstructorCall constructorCall = (CompletionOnExplicitConstructorCall)astNode;
-            TypeBinding[] argTypes = computeTypes(constructorCall.arguments);
-            findConstructors((ReferenceBinding)qualifiedBinding, argTypes, scope, constructorCall, false, null, null,
-                             null, false);
-        }
-    }
 
     private void completionOnFieldName(ASTNode astNode, Scope scope) {
         if (!this.requestor.isIgnored(CompletionProposal.VARIABLE_DECLARATION)) {
@@ -3762,15 +3438,6 @@ public final class CompletionEngine extends Engine implements ISearchRequestor, 
         return 0;
     }
 
-    // int computeRelevanceForRestrictions(int accessRuleKind)
-    // {
-    // if (accessRuleKind == IAccessRule.K_ACCESSIBLE)
-    // {
-    // return R_NON_RESTRICTED;
-    // }
-    // return 0;
-    // }
-
     private int computeRelevanceForStatic(boolean onlyStatic, boolean isStatic) {
         if (this.insideQualifiedReference && !onlyStatic && !isStatic) {
             return R_NON_STATIC;
@@ -3812,6 +3479,15 @@ public final class CompletionEngine extends Engine implements ISearchRequestor, 
         }
         return 0;
     }
+
+    // int computeRelevanceForRestrictions(int accessRuleKind)
+    // {
+    // if (accessRuleKind == IAccessRule.K_ACCESSIBLE)
+    // {
+    // return R_NON_RESTRICTED;
+    // }
+    // return 0;
+    // }
 
     private TypeBinding[] computeTypes(Expression[] arguments) {
         if (arguments == null)
@@ -6052,55 +5728,6 @@ public final class CompletionEngine extends Engine implements ISearchRequestor, 
         }
     }
 
-    // protected void findFieldsAndMethodsFromAnotherReceiver(char[] token, TypeReference receiverType, Scope scope,
-    // ObjectVector fieldsFound, ObjectVector methodsFound, InvocationSite invocationSite, Scope invocationScope,
-    // boolean implicitCall, boolean superCall, Binding[] missingElements, int[] missingElementsStarts,
-    // int[] missingElementsEnds, boolean missingElementsHaveProblems, char[][] receiverName, int receiverStart,
-    // int receiverEnd)
-    // {
-    //
-    // if (receiverType.resolvedType == null)
-    // return;
-    //
-    // TypeBinding receiverTypeBinding = receiverType.resolvedType;
-    // char[] castedReceiver = null;
-    //
-    // char[] castedTypeChars = CharOperation.concatWith(receiverType.getTypeName(), '.');
-    // if (this.source != null)
-    // {
-    // int memberRefStart = this.startPosition;
-    //
-    // char[] receiverChars = CharOperation.subarray(this.source, receiverStart, receiverEnd);
-    // char[] dotChars = CharOperation.subarray(this.source, receiverEnd, memberRefStart);
-    //
-    // castedReceiver =
-    // CharOperation.concat(
-    // CharOperation.concat('(',
-    // CharOperation.concat(CharOperation.concat('(', castedTypeChars, ')'), receiverChars), ')'), dotChars);
-    // }
-    // else
-    // {
-    // castedReceiver =
-    // CharOperation.concat(
-    // CharOperation.concat(
-    // '(',
-    // CharOperation.concat(CharOperation.concat('(', castedTypeChars, ')'),
-    // CharOperation.concatWith(receiverName, '.')), ')'), DOT);
-    // }
-    //
-    // if (castedReceiver == null)
-    // return;
-    //
-    // int oldStartPosition = this.startPosition;
-    // this.startPosition = receiverStart;
-    //
-    // findFieldsAndMethods(token, receiverTypeBinding, scope, fieldsFound, methodsFound, invocationSite,
-    // invocationScope, implicitCall, superCall, missingElements, missingElementsStarts, missingElementsEnds,
-    // missingElementsHaveProblems, castedReceiver, receiverStart, receiverEnd);
-    //
-    // this.startPosition = oldStartPosition;
-    // }
-
     private void findFieldsAndMethodsFromCastedReceiver(ASTNode enclosingNode, Binding qualifiedBinding, Scope scope,
                                                         ObjectVector fieldsFound, ObjectVector methodsFound, InvocationSite invocationSite,
                                                         Scope invocationScope,
@@ -6323,6 +5950,55 @@ public final class CompletionEngine extends Engine implements ISearchRequestor, 
         }
         return foundSomeFields;
     }
+
+    // protected void findFieldsAndMethodsFromAnotherReceiver(char[] token, TypeReference receiverType, Scope scope,
+    // ObjectVector fieldsFound, ObjectVector methodsFound, InvocationSite invocationSite, Scope invocationScope,
+    // boolean implicitCall, boolean superCall, Binding[] missingElements, int[] missingElementsStarts,
+    // int[] missingElementsEnds, boolean missingElementsHaveProblems, char[][] receiverName, int receiverStart,
+    // int receiverEnd)
+    // {
+    //
+    // if (receiverType.resolvedType == null)
+    // return;
+    //
+    // TypeBinding receiverTypeBinding = receiverType.resolvedType;
+    // char[] castedReceiver = null;
+    //
+    // char[] castedTypeChars = CharOperation.concatWith(receiverType.getTypeName(), '.');
+    // if (this.source != null)
+    // {
+    // int memberRefStart = this.startPosition;
+    //
+    // char[] receiverChars = CharOperation.subarray(this.source, receiverStart, receiverEnd);
+    // char[] dotChars = CharOperation.subarray(this.source, receiverEnd, memberRefStart);
+    //
+    // castedReceiver =
+    // CharOperation.concat(
+    // CharOperation.concat('(',
+    // CharOperation.concat(CharOperation.concat('(', castedTypeChars, ')'), receiverChars), ')'), dotChars);
+    // }
+    // else
+    // {
+    // castedReceiver =
+    // CharOperation.concat(
+    // CharOperation.concat(
+    // '(',
+    // CharOperation.concat(CharOperation.concat('(', castedTypeChars, ')'),
+    // CharOperation.concatWith(receiverName, '.')), ')'), DOT);
+    // }
+    //
+    // if (castedReceiver == null)
+    // return;
+    //
+    // int oldStartPosition = this.startPosition;
+    // this.startPosition = receiverStart;
+    //
+    // findFieldsAndMethods(token, receiverTypeBinding, scope, fieldsFound, methodsFound, invocationSite,
+    // invocationScope, implicitCall, superCall, missingElements, missingElementsStarts, missingElementsEnds,
+    // missingElementsHaveProblems, castedReceiver, receiverStart, receiverEnd);
+    //
+    // this.startPosition = oldStartPosition;
+    // }
 
     private void findFieldsAndMethodsFromMissingReturnType(char[] token, TypeBinding[] arguments, Scope scope,
                                                            InvocationSite invocationSite, boolean insideTypeAnnotation) {
@@ -11027,5 +10703,172 @@ public final class CompletionEngine extends Engine implements ISearchRequestor, 
         if (foundConflicts)
             return substituedParameterNames;
         return null;
+    }
+
+    private static class AcceptedConstructor {
+        public int modifiers;
+
+        public char[] simpleTypeName;
+
+        public int parameterCount;
+
+        public char[] signature;
+
+        public char[][] parameterTypes;
+
+        public char[][] parameterNames;
+
+        public int typeModifiers;
+
+        public char[] packageName;
+
+        public int extraFlags;
+
+        // public int accessibility;
+
+        public boolean proposeType = false;
+
+        public boolean proposeConstructor = false;
+
+        public char[] fullyQualifiedName = null;
+
+        public boolean mustBeQualified = false;
+
+        public AcceptedConstructor(int modifiers, char[] simpleTypeName, int parameterCount, char[] signature,
+                                   char[][] parameterTypes, char[][] parameterNames, int typeModifiers, char[] packageName,
+                                   int extraFlags) {
+            this.modifiers = modifiers;
+            this.simpleTypeName = simpleTypeName;
+            this.parameterCount = parameterCount;
+            this.signature = signature;
+            this.parameterTypes = parameterTypes;
+            this.parameterNames = parameterNames;
+            this.typeModifiers = typeModifiers;
+            this.packageName = packageName;
+            this.extraFlags = extraFlags;
+            // this.accessibility = accessibility;
+        }
+
+        public String toString() {
+            StringBuffer buffer = new StringBuffer();
+            buffer.append('{');
+            buffer.append(this.packageName);
+            buffer.append(',');
+            buffer.append(this.simpleTypeName);
+            buffer.append('}');
+            return buffer.toString();
+        }
+    }
+
+    private static class AcceptedType {
+        public char[] packageName;
+
+        public char[] simpleTypeName;
+
+        public char[][] enclosingTypeNames;
+
+        public int modifiers;
+
+        public boolean mustBeQualified = false;
+
+        public char[] fullyQualifiedName = null;
+
+        public char[] qualifiedTypeName = null;
+
+        public AcceptedType(char[] packageName, char[] simpleTypeName, char[][] enclosingTypeNames, int modifiers) {
+            this.packageName = packageName;
+            this.simpleTypeName = simpleTypeName;
+            this.enclosingTypeNames = enclosingTypeNames;
+            this.modifiers = modifiers;
+        }
+
+        public String toString() {
+            StringBuffer buffer = new StringBuffer();
+            buffer.append('{');
+            buffer.append(this.packageName);
+            buffer.append(',');
+            buffer.append(this.simpleTypeName);
+            buffer.append(',');
+            buffer.append(CharOperation.concatWith(this.enclosingTypeNames, '.'));
+            buffer.append('}');
+            return buffer.toString();
+        }
+    }
+
+    public class CompletionProblemFactory extends DefaultProblemFactory {
+        public boolean hasForbiddenProblems = false;
+        public boolean hasAllowedProblems = false;
+        private int lastErrorStart;
+        private boolean checkProblems = false;
+
+        public CompletionProblemFactory() {
+            super();
+        }
+
+        private CategorizedProblem checkProblem(CategorizedProblem pb, char[] originatingFileName, int severity, int start) {
+            int id = pb.getID();
+            if (CompletionEngine.this.actualCompletionPosition > start
+                && this.lastErrorStart < start
+                && pb.isError()
+                && (id & IProblem.Syntax) == 0
+                && (CompletionEngine.this.fileName == null || CharOperation.equals(CompletionEngine.this.fileName,
+                                                                                   originatingFileName))) {
+
+                CompletionEngine.this.problem = pb;
+                this.lastErrorStart = start;
+            }
+            if (this.checkProblems && !this.hasForbiddenProblems) {
+                switch (id) {
+                    case IProblem.UsingDeprecatedType:
+                        this.hasForbiddenProblems = CompletionEngine.this.options.checkDeprecation;
+                        break;
+                    case IProblem.NotVisibleType:
+                        this.hasForbiddenProblems = CompletionEngine.this.options.checkVisibility;
+                        break;
+                    case IProblem.ForbiddenReference:
+                        this.hasForbiddenProblems = CompletionEngine.this.options.checkForbiddenReference;
+                        break;
+                    case IProblem.DiscouragedReference:
+                        this.hasForbiddenProblems = CompletionEngine.this.options.checkDiscouragedReference;
+                        break;
+                    default:
+                        if ((severity & ProblemSeverities.Optional) != 0) {
+                            this.hasAllowedProblems = true;
+                        } else {
+                            this.hasForbiddenProblems = true;
+                        }
+
+                        break;
+                }
+            }
+
+            return pb;
+        }
+
+        public CategorizedProblem createProblem(char[] originatingFileName, int problemId, String[] problemArguments,
+                                                int elaborationId, String[] messageArguments, int severity, int start, int end,
+                                                int lineNumber,
+                                                int columnNumber) {
+            return checkProblem(super.createProblem(originatingFileName, problemId, problemArguments, elaborationId,
+                                                    messageArguments, severity, start, end, lineNumber, columnNumber), originatingFileName,
+                                severity, start);
+        }
+
+        public CategorizedProblem createProblem(char[] originatingFileName, int problemId, String[] problemArguments,
+                                                String[] messageArguments, int severity, int start, int end, int lineNumber,
+                                                int columnNumber) {
+            return checkProblem(super.createProblem(originatingFileName, problemId, problemArguments, messageArguments,
+                                                    severity, start, end, lineNumber, columnNumber), originatingFileName, severity, start);
+        }
+
+        public void startCheckingProblems() {
+            this.checkProblems = true;
+            this.hasForbiddenProblems = false;
+            this.hasAllowedProblems = false;
+        }
+
+        public void stopCheckingProblems() {
+            this.checkProblems = false;
+        }
     }
 }

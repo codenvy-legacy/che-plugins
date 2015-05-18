@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.che.ide.editor.orion.client;
 
+import com.google.gwt.core.client.JavaScriptObject;
+
 import org.eclipse.che.ide.api.texteditor.HandlesUndoRedo;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionUndoStackOverlay;
 
@@ -43,5 +45,15 @@ class OrionUndoRedo implements HandlesUndoRedo {
     @Override
     public void undo() {
         this.undoStack.undo();
+    }
+
+    @Override
+    public void beginCompoundChange() {
+        this.undoStack.startCompoundChange(JavaScriptObject.createObject());
+    }
+
+    @Override
+    public void endCompoundChange() {
+        this.undoStack.endCompoundChange();
     }
 }
