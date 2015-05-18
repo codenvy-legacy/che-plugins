@@ -70,6 +70,11 @@
             <artifactId>che-plugin-java-maven-tools</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.eclipse.che.plugin</groupId>
+            <artifactId>che-plugin-machine-ext-machine</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <!--<dependency>-->
             <!--<groupId>org.eclipse.che.plugin</groupId>-->
             <!--<artifactId>che-plugin-runner-ext-runner</artifactId>-->

@@ -14,16 +14,12 @@ import com.google.inject.Inject;
 
 import org.eclipse.che.api.project.server.type.ProjectType;
 import org.eclipse.che.ide.ext.java.shared.Constants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author gazarenkov
  * @author Dmitry Shnurenko
  */
 public class JavaProjectType extends ProjectType {
-    private static final Logger LOG = LoggerFactory.getLogger(JavaProjectType.class);
-
     @Inject
     public JavaProjectType() {
         super("java", "Java", true, false);
@@ -31,6 +27,4 @@ public class JavaProjectType extends ProjectType {
         addConstantDefinition(Constants.LANGUAGE_VERSION, "language version", "1.6");
 //        addRunnerCategories(Arrays.asList(JAVA.toString()));
     }
-
 }
-
