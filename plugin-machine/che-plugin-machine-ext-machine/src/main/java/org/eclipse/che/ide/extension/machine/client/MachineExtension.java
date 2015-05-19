@@ -71,9 +71,8 @@ public class MachineExtension {
         eventBus.addHandler(ProjectActionEvent.TYPE, new ProjectActionHandler() {
             @Override
             public void onProjectOpened(ProjectActionEvent event) {
-                final String projectPath = event.getProject().getPath();
-
                 // start machine and bind project
+                final String projectPath = event.getProject().getPath();
                 Promise<Array<MachineDescriptor>> machinesPromise = machineServiceClient.getMachines(appContext.getWorkspace().getId(),
                                                                                                      projectPath);
                 machinesPromise.then(new Operation<Array<MachineDescriptor>>() {
@@ -90,7 +89,6 @@ public class MachineExtension {
 
             @Override
             public void onProjectClosing(ProjectActionEvent event) {
-                //nothing to do for now
             }
 
             @Override

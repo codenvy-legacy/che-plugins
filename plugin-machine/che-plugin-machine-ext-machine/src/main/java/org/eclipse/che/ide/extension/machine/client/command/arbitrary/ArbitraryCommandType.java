@@ -77,4 +77,10 @@ public class ArbitraryCommandType implements CommandType {
     public ConfigurationFactory<ArbitraryCommandConfiguration> getConfigurationFactory() {
         return configurationFactory;
     }
+
+    @Nonnull
+    @Override
+    public String getCommandTemplate() {
+        return "";
+    }
 }

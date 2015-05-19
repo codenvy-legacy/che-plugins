@@ -32,8 +32,9 @@ import java.util.LinkedList;
 @Singleton
 public class MavenCommandType implements CommandType {
 
-    private static final String ID           = "mvn";
-    private static final String DISPLAY_NAME = "Maven";
+    private static final String ID               = "mvn";
+    private static final String DISPLAY_NAME     = "Maven";
+    private static final String COMMAND_TEMPLATE = "mvn clean install";
 
     private final MavenResources            resources;
     private final MavenConfigurationFactory configurationFactory;
@@ -76,5 +77,11 @@ public class MavenCommandType implements CommandType {
     @Override
     public ConfigurationFactory<MavenCommandConfiguration> getConfigurationFactory() {
         return configurationFactory;
+    }
+
+    @Nonnull
+    @Override
+    public String getCommandTemplate() {
+        return COMMAND_TEMPLATE;
     }
 }

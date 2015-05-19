@@ -16,49 +16,17 @@ import org.eclipse.che.ide.extension.machine.client.command.CommandType;
 import javax.annotation.Nonnull;
 
 /**
+ * Represents Maven command.
+ *
  * @author Artem Zatsarynnyy
  */
-public class MavenCommandConfiguration implements CommandConfiguration {
+public class MavenCommandConfiguration extends CommandConfiguration {
 
-    private final CommandType type;
-    private       String      name;
-    private       String      id;
-    private       String      commandLine;
+    private String commandLine;
 
-    public MavenCommandConfiguration(String name, CommandType type, String id) {
-        this.name = name;
-        this.type = type;
-        this.id = id;
+    protected MavenCommandConfiguration(String id, CommandType type, String name) {
+        super(id, type, name);
         commandLine = "";
-    }
-
-    @Nonnull
-    @Override
-    public String getId() {
-        return id;
-    }
-
-    @Nonnull
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public void setName(@Nonnull String name) {
-        this.name = name;
-    }
-
-    @Nonnull
-    @Override
-    public CommandType getType() {
-        return type;
-    }
-
-    @Nonnull
-    @Override
-    public String toCommandLine() {
-        return "mvn " + getCommandLine();
     }
 
     public String getCommandLine() {
@@ -67,5 +35,11 @@ public class MavenCommandConfiguration implements CommandConfiguration {
 
     public void setCommandLine(String commandLine) {
         this.commandLine = commandLine;
+    }
+
+    @Nonnull
+    @Override
+    public String toCommandLine() {
+        return "mvn " + getCommandLine();
     }
 }

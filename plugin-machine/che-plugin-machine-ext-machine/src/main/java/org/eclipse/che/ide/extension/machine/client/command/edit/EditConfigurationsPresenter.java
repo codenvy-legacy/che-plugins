@@ -71,10 +71,8 @@ public class EditConfigurationsPresenter implements EditConfigurationsView.Actio
             return;
         }
 
-        final CommandConfiguration configuration = selectedType.getConfigurationFactory().createFromTemplate("Command-" + UUID.uuid(2));
-
-        final Promise<CommandDescriptor> commandPromise = commandServiceClient.createCommand(configuration.getName(),
-                                                                                             configuration.toCommandLine(),
+        final Promise<CommandDescriptor> commandPromise = commandServiceClient.createCommand("Command-" + UUID.uuid(2),
+                                                                                             selectedType.getCommandTemplate(),
                                                                                              selectedType.getId());
         commandPromise.then(new Operation<CommandDescriptor>() {
             @Override

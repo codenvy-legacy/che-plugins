@@ -13,7 +13,6 @@ package org.eclipse.che.ide.extension.machine.client.command.arbitrary;
 import org.eclipse.che.api.machine.shared.dto.CommandDescriptor;
 import org.eclipse.che.ide.extension.machine.client.command.CommandType;
 import org.eclipse.che.ide.extension.machine.client.command.ConfigurationFactory;
-import org.eclipse.che.ide.util.UUID;
 
 import javax.annotation.Nonnull;
 
@@ -24,22 +23,16 @@ import javax.annotation.Nonnull;
  */
 public class ArbitraryConfigurationFactory extends ConfigurationFactory<ArbitraryCommandConfiguration> {
 
-    protected ArbitraryConfigurationFactory(CommandType commandType) {
+    protected ArbitraryConfigurationFactory(@Nonnull CommandType commandType) {
         super(commandType);
     }
 
     @Nonnull
     @Override
-    public ArbitraryCommandConfiguration createFromTemplate(@Nonnull String name) {
-        return new ArbitraryCommandConfiguration(name, getCommandType(), UUID.uuid(3));
-    }
-
-    @Nonnull
-    @Override
     public ArbitraryCommandConfiguration createFromCommandDescriptor(@Nonnull CommandDescriptor descriptor) {
-        final ArbitraryCommandConfiguration configuration = new ArbitraryCommandConfiguration(descriptor.getName(),
+        final ArbitraryCommandConfiguration configuration = new ArbitraryCommandConfiguration(descriptor.getId(),
                                                                                               getCommandType(),
-                                                                                              UUID.uuid(3));
+                                                                                              descriptor.getName());
         configuration.setCommandLine(descriptor.getCommandLine());
         return configuration;
     }

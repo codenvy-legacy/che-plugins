@@ -31,7 +31,7 @@ public abstract class ConfigurationFactory<T extends CommandConfiguration> {
      * @param commandType
      *         type of the command configuration which this factory should create
      */
-    protected ConfigurationFactory(CommandType commandType) {
+    protected ConfigurationFactory(@Nonnull CommandType commandType) {
         this.commandType = commandType;
     }
 
@@ -40,15 +40,6 @@ public abstract class ConfigurationFactory<T extends CommandConfiguration> {
     public CommandType getCommandType() {
         return commandType;
     }
-
-    /**
-     * Creates a new command configuration from template.
-     *
-     * @param name
-     *         new configuration name
-     */
-    @Nonnull
-    public abstract T createFromTemplate(@Nonnull String name);
 
     /**
      * Creates a new command configuration based on the given {@link CommandDescriptor}.

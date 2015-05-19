@@ -35,7 +35,7 @@ import org.vectomatic.dom.svg.ui.SVGResource;
 public class CommandRenderer implements NodeRenderer<CommandDataAdapter.CommandTreeNode> {
 
     /** The tree CSS resource. */
-    private final Css       css;
+    private final Css css;
 
     @Inject
     public CommandRenderer(final Resources resources) {
@@ -74,15 +74,16 @@ public class CommandRenderer implements NodeRenderer<CommandDataAdapter.CommandT
 
     @Override
     public void updateNodeContents(final TreeNodeElement<CommandDataAdapter.CommandTreeNode> treeNode) {
+        final CommandDataAdapter.CommandTreeNode node = treeNode.getData();
         SVGResource iconResource = null;
         String itemTypeClass = null;
-        if (treeNode.getData() instanceof CommandType) {
-            final CommandType type = (CommandType)treeNode.getData();
+        if (node.getData() instanceof CommandType) {
+            final CommandType type = (CommandType)node.getData();
 
             iconResource = type.getIcon();
             itemTypeClass = css.commandTypeIcon();
-        } else if (treeNode.getData() instanceof CommandConfiguration) {
-            final CommandConfiguration conf = (CommandConfiguration)treeNode.getData();
+        } else if (node.getData() instanceof CommandConfiguration) {
+            final CommandConfiguration conf = (CommandConfiguration)node.getData();
 
             iconResource = conf.getType().getIcon();
             itemTypeClass = css.commandConfigurationIcon();

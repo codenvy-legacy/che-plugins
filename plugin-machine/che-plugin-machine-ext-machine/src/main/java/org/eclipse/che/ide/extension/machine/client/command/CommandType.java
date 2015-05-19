@@ -41,4 +41,8 @@ public interface CommandType {
     /** Returns factory for {@link CommandConfiguration} instances. */
     @Nonnull
     ConfigurationFactory<? extends CommandConfiguration> getConfigurationFactory();
+
+    /** Returns template for this command type. */
+    @Nonnull
+    String getCommandTemplate();
 }
