@@ -23,6 +23,11 @@
     outline: none;
 }
 
+.commandStub {
+    margin-top: 3px;
+    margin-left: 6px;
+}
+
 .console pre {
     font-family: "Droid Sans Mono", monospace;
     font-size: 11px;

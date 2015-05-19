@@ -84,4 +84,7 @@ public interface MachineLocalizationConstant extends Messages {
     /* EditConfigurationsView */
     @Key("view.editConfigurations.title")
     String editConfigurationsViewTitle();
+
+    @Key("view.edit.configure.stub")
+    String viewEditConfigureStub();
 }

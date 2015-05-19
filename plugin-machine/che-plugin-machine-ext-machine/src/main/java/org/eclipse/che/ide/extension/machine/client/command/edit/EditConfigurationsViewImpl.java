@@ -22,6 +22,8 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
@@ -30,6 +32,7 @@ import com.google.inject.Singleton;
 
 import org.eclipse.che.ide.collections.Array;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
+import org.eclipse.che.ide.extension.machine.client.MachineResources;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
 import org.eclipse.che.ide.extension.machine.client.command.CommandType;
 import org.eclipse.che.ide.extension.machine.client.command.edit.CommandDataAdapter.CommandTreeNode;
@@ -38,6 +41,7 @@ import org.eclipse.che.ide.ui.tree.TreeNodeElement;
 import org.eclipse.che.ide.ui.window.Window;
 import org.eclipse.che.ide.util.input.SignalEvent;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -54,38 +58,41 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
     private static final EditConfigurationsViewImplUiBinder UI_BINDER = GWT.create(EditConfigurationsViewImplUiBinder.class);
 
     private final MachineLocalizationConstant locale;
+    private final Label                       stubLabel;
 
     @UiField(provided = true)
-    Tree<CommandTreeNode>         tree;
+    Tree<CommandTreeNode> tree;
     @UiField
-    Button                        addButton;
+    Button                addButton;
     @UiField
-    Button                        removeButton;
+    Button                removeButton;
     @UiField
-    TextBox                       configurationName;
+    TextBox               configurationName;
     @UiField
-    Button                        saveButton;
+    Button                saveButton;
     @UiField
-    SimplePanel                   contentPanel;
-    @UiField(provided = true)
-    org.eclipse.che.ide.Resources resources;
+    SimplePanel           contentPanel;
+    @UiField
+    FlowPanel             savePanel;
 
     private ActionDelegate delegate;
 
     @Inject
     protected EditConfigurationsViewImpl(org.eclipse.che.ide.Resources resources,
+                                         MachineResources machineResources,
                                          MachineLocalizationConstant locale,
                                          CommandDataAdapter dataAdapter,
                                          CommandRenderer renderer) {
         this.tree = Tree.create(resources, dataAdapter, renderer);
-        this.resources = resources;
         this.locale = locale;
+        this.stubLabel = new Label(locale.viewEditConfigureStub());
+        this.stubLabel.addStyleName(machineResources.machine().commandStub());
 
-        final Widget widget = UI_BINDER.createAndBindUi(this);
-        this.setWidget(widget);
-        this.setTitle(locale.editConfigurationsViewTitle());
+        setWidget(UI_BINDER.createAndBindUi(this));
 
-        createButtons();
+        setTitle(locale.editConfigurationsViewTitle());
+
+        createCloseBtn(resources);
 
         configurationName.addKeyUpHandler(new KeyUpHandler() {
             @Override
@@ -144,10 +151,16 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
 
             @Override
             public void onNodeSelected(TreeNodeElement<CommandTreeNode> node, SignalEvent event) {
-                if (node.getData().getData() instanceof CommandType) {
-                    delegate.onCommandTypeSelected((CommandType)node.getData().getData());
-                } else if (node.getData().getData() instanceof CommandConfiguration) {
-                    delegate.onConfigurationSelected((CommandConfiguration)node.getData().getData());
+                Object selectedNode = node.getData().getData();
+
+                if (selectedNode instanceof CommandType) {
+                    delegate.onCommandTypeSelected((CommandType)selectedNode);
+
+                    setStub(true);
+                } else if (selectedNode instanceof CommandConfiguration) {
+                    delegate.onConfigurationSelected((CommandConfiguration)selectedNode);
+
+                    setStub(false);
                 }
             }
 
@@ -161,16 +174,30 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
 
             @Override
             public void onKeyboard(KeyboardEvent event) {
-                if (event.getKeyCode() == KeyboardEvent.KeyCode.INSERT) {
-                    delegate.onAddClicked();
-                } else if (event.getKeyCode() == KeyboardEvent.KeyCode.DELETE) {
-                    delegate.onDeleteClicked();
+                switch (event.getKeyCode()) {
+                    case KeyboardEvent.KeyCode.INSERT:
+                        delegate.onAddClicked();
+                        break;
+                    case KeyboardEvent.KeyCode.DELETE:
+                        delegate.onDeleteClicked();
+                        break;
+                    default:
                 }
             }
         });
     }
 
-    private void createButtons() {
+    private void setStub(boolean isStubSet) {
+        savePanel.setVisible(!isStubSet);
+
+        if (isStubSet) {
+            contentPanel.setWidget(stubLabel);
+        } else {
+            contentPanel.remove(stubLabel);
+        }
+    }
+
+    private void createCloseBtn(@Nonnull org.eclipse.che.ide.Resources resources) {
         final Button closeButton = createButton(locale.closeButton(), "window-edit-configurations-close", new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
@@ -194,7 +221,7 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
     }
 
     private void resetView() {
-        addButton.setEnabled(false);
+        addButton.setEnabled(true);
         removeButton.setEnabled(false);
         configurationName.setText("");
 
@@ -237,6 +264,16 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
         tree.asWidget().setVisible(true);
         tree.getModel().setRoot(rootNode);
         tree.renderTree(1);
+
+        tree.getSelectionModel().selectSingleNode(getFirstNode(rootNode));
+
+        setStub(true);
+    }
+
+    private CommandTreeNode getFirstNode(@Nonnull CommandTreeNode rootNode) {
+        Collection<CommandTreeNode> childNodes = rootNode.getChildren();
+
+        return childNodes.iterator().next();
     }
 
     @Override
@@ -260,10 +297,13 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
         final Array<CommandTreeNode> selectedNodes = tree.getSelectionModel().getSelectedNodes();
         if (!selectedNodes.isEmpty()) {
             final CommandTreeNode node = selectedNodes.get(0);
-            if (node.getData() instanceof CommandType) {
-                return (CommandType)node.getData();
-            } else if (node.getData() instanceof CommandConfiguration) {
-                return ((CommandConfiguration)node.getData()).getType();
+
+            Object data = node.getData();
+
+            if (data instanceof CommandType) {
+                return (CommandType)data;
+            } else if (data instanceof CommandConfiguration) {
+                return ((CommandConfiguration)data).getType();
             }
         }
         return null;

@@ -43,5 +43,7 @@ public interface MachineResources extends ClientBundle {
 
         @ClassName("console-toolbar")
         String consoleToolbar();
+
+        String commandStub();
     }
 }
