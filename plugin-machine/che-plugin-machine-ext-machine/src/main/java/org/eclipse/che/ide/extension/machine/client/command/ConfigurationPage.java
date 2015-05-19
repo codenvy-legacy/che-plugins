@@ -8,7 +8,7 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.ide.extension.machine.client.command.configuration;
+package org.eclipse.che.ide.extension.machine.client.command;
 
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 
@@ -20,7 +20,7 @@ import javax.annotation.Nonnull;
  * Page allows to configure specific command parameters.
  *
  * @param <T>
- *         type of the command configuration which this page edits
+ *         type of the command configuration which this page should edit
  * @author Artem Zatsarynnyy
  */
 public interface ConfigurationPage<T extends CommandConfiguration> extends Presenter {

@@ -30,10 +30,10 @@ import org.eclipse.che.ide.api.action.Presentation;
 import org.eclipse.che.ide.api.event.ProjectActionEvent;
 import org.eclipse.che.ide.api.event.ProjectActionHandler;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandConfiguration;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandType;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandTypeRegistry;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.edit.EditConfigurationsPresenter;
+import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
+import org.eclipse.che.ide.extension.machine.client.command.CommandType;
+import org.eclipse.che.ide.extension.machine.client.command.CommandTypeRegistry;
+import org.eclipse.che.ide.extension.machine.client.command.edit.EditConfigurationsPresenter;
 import org.eclipse.che.ide.ui.dropdown.DropDownHeaderWidget;
 import org.eclipse.che.ide.ui.dropdown.DropDownListFactory;
 

@@ -8,18 +8,16 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.ide.extension.machine.client.command.configuration.edit;
+package org.eclipse.che.ide.extension.machine.client.command.edit;
 
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 
 import org.eclipse.che.ide.api.mvp.View;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandConfiguration;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandType;
+import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
+import org.eclipse.che.ide.extension.machine.client.command.CommandType;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * The view of {@link EditConfigurationsPresenter}.
@@ -87,7 +85,7 @@ public interface EditConfigurationsView extends View<EditConfigurationsView.Acti
          */
         void onConfigurationSelected(CommandConfiguration configuration);
 
-        /** Called when 'Name' field is changed. */
+        /** Called when configuration name is changed. */
         void onNameChanged(String name);
 
         /** Called when 'Save' button is clicked. */

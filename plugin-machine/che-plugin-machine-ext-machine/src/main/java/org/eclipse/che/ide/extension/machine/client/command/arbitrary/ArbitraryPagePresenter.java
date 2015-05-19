@@ -8,18 +8,18 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.ide.extension.machine.client.command.configuration.arbitrary;
+package org.eclipse.che.ide.extension.machine.client.command.arbitrary;
 
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import org.eclipse.che.ide.extension.machine.client.command.configuration.ConfigurationPage;
+import org.eclipse.che.ide.extension.machine.client.command.ConfigurationPage;
 
 import javax.annotation.Nonnull;
 
 /**
- * Page allows to configure arbitrary command parameters.
+ * Page allows to edit arbitrary command.
  *
  * @author Artem Zatsarynnyy
  */

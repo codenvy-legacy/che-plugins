@@ -32,11 +32,8 @@ public interface MachineResources extends ClientBundle {
     @Source("test-docker-recipe.txt")
     TextResource testDockerRecipe();
 
-    @Source("command/configuration/gwt/gwt-command-type.svg")
-    SVGResource gwtCommandType();
-
-    @Source("command/configuration/maven/maven-command-type.svg")
-    SVGResource mavenCommandType();
+    @Source("command/arbitrary/arbitrary-command-type.svg")
+    SVGResource arbitraryCommandType();
 
     @Source({"machine.css", "org/eclipse/che/ide/api/ui/style.css"})
     Css machine();

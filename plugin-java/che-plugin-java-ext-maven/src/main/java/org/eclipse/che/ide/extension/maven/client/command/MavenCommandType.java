@@ -13,11 +13,11 @@ package org.eclipse.che.ide.extension.maven.client.command;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import org.eclipse.che.ide.extension.machine.client.MachineResources;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandConfiguration;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandType;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.ConfigurationFactory;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.ConfigurationPage;
+import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
+import org.eclipse.che.ide.extension.machine.client.command.CommandType;
+import org.eclipse.che.ide.extension.machine.client.command.ConfigurationFactory;
+import org.eclipse.che.ide.extension.machine.client.command.ConfigurationPage;
+import org.eclipse.che.ide.extension.maven.client.MavenResources;
 import org.vectomatic.dom.svg.ui.SVGResource;
 
 import javax.annotation.Nonnull;
@@ -35,13 +35,13 @@ public class MavenCommandType implements CommandType {
     private static final String ID           = "mvn";
     private static final String DISPLAY_NAME = "Maven";
 
-    private final MachineResources          resources;
+    private final MavenResources            resources;
     private final MavenConfigurationFactory configurationFactory;
 
     private final Collection<ConfigurationPage<? extends CommandConfiguration>> pages;
 
     @Inject
-    public MavenCommandType(MachineResources resources, MavenPagePresenter page) {
+    public MavenCommandType(MavenResources resources, MavenPagePresenter page) {
         this.resources = resources;
         configurationFactory = new MavenConfigurationFactory(this);
         pages = new LinkedList<>();

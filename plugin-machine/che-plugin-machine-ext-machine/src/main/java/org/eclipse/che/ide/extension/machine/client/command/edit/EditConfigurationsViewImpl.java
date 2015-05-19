@@ -8,7 +8,7 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.ide.extension.machine.client.command.configuration.edit;
+package org.eclipse.che.ide.extension.machine.client.command.edit;
 
 import elemental.events.KeyboardEvent;
 import elemental.events.MouseEvent;
@@ -30,9 +30,9 @@ import com.google.inject.Singleton;
 
 import org.eclipse.che.ide.collections.Array;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandConfiguration;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandType;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.edit.CommandDataAdapter.CommandTreeNode;
+import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
+import org.eclipse.che.ide.extension.machine.client.command.CommandType;
+import org.eclipse.che.ide.extension.machine.client.command.edit.CommandDataAdapter.CommandTreeNode;
 import org.eclipse.che.ide.ui.tree.Tree;
 import org.eclipse.che.ide.ui.tree.TreeNodeElement;
 import org.eclipse.che.ide.ui.window.Window;

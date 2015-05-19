@@ -8,16 +8,16 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.ide.extension.machine.client.command.configuration.arbitrary;
+package org.eclipse.che.ide.extension.machine.client.command.arbitrary;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import org.eclipse.che.ide.extension.machine.client.MachineResources;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandConfiguration;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandType;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.ConfigurationFactory;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.ConfigurationPage;
+import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
+import org.eclipse.che.ide.extension.machine.client.command.CommandType;
+import org.eclipse.che.ide.extension.machine.client.command.ConfigurationFactory;
+import org.eclipse.che.ide.extension.machine.client.command.ConfigurationPage;
 import org.vectomatic.dom.svg.ui.SVGResource;
 
 import javax.annotation.Nonnull;
@@ -63,7 +63,7 @@ public class ArbitraryCommandType implements CommandType {
     @Nonnull
     @Override
     public SVGResource getIcon() {
-        return resources.mavenCommandType();
+        return resources.arbitraryCommandType();
     }
 
     @Nonnull

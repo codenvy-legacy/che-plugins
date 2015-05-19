@@ -20,6 +20,8 @@ import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
 
 /**
+ * The implementation of {@link MavenPageView}.
+ *
  * @author Artem Zatsarynnyy
  */
 public class MavenPageViewImpl implements MavenPageView {

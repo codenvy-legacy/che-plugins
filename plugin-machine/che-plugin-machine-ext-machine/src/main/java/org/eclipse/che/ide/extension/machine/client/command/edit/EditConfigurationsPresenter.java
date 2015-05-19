@@ -8,7 +8,7 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.ide.extension.machine.client.command.configuration.edit;
+package org.eclipse.che.ide.extension.machine.client.command.edit;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -20,10 +20,10 @@ import org.eclipse.che.api.promises.client.FunctionException;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.Promise;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandConfiguration;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandType;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandTypeRegistry;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.ConfigurationPage;
+import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
+import org.eclipse.che.ide.extension.machine.client.command.CommandType;
+import org.eclipse.che.ide.extension.machine.client.command.CommandTypeRegistry;
+import org.eclipse.che.ide.extension.machine.client.command.ConfigurationPage;
 import org.eclipse.che.ide.util.UUID;
 
 import java.util.ArrayList;

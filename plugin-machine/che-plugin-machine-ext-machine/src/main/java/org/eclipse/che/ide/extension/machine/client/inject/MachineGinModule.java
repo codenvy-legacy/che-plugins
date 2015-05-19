@@ -15,10 +15,10 @@ import com.google.gwt.inject.client.multibindings.GinMultibinder;
 import com.google.inject.Singleton;
 
 import org.eclipse.che.ide.api.extension.ExtensionGinModule;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandType;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.arbitrary.ArbitraryCommandType;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.edit.EditConfigurationsView;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.edit.EditConfigurationsViewImpl;
+import org.eclipse.che.ide.extension.machine.client.command.CommandType;
+import org.eclipse.che.ide.extension.machine.client.command.arbitrary.ArbitraryCommandType;
+import org.eclipse.che.ide.extension.machine.client.command.edit.EditConfigurationsView;
+import org.eclipse.che.ide.extension.machine.client.command.edit.EditConfigurationsViewImpl;
 import org.eclipse.che.ide.extension.machine.client.command.execute.ExecuteArbitraryCommandView;
 import org.eclipse.che.ide.extension.machine.client.command.execute.ExecuteArbitraryCommandViewImpl;
 import org.eclipse.che.ide.extension.machine.client.console.MachineConsoleToolbar;

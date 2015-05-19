@@ -8,7 +8,7 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.ide.extension.machine.client.command.configuration.arbitrary;
+package org.eclipse.che.ide.extension.machine.client.command.arbitrary;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.KeyUpEvent;
@@ -20,6 +20,8 @@ import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.Widget;
 
 /**
+ * The implementation of {@link ArbitraryPageView}.
+ *
  * @author Artem Zatsarynnyy
  */
 public class ArbitraryPageViewImpl implements ArbitraryPageView {

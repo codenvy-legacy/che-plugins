@@ -14,7 +14,7 @@ import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import org.eclipse.che.ide.extension.machine.client.command.configuration.ConfigurationPage;
+import org.eclipse.che.ide.extension.machine.client.command.ConfigurationPage;
 
 import javax.annotation.Nonnull;
 

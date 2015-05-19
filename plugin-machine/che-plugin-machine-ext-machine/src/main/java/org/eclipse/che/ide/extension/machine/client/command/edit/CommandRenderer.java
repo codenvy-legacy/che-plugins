@@ -8,7 +8,7 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.ide.extension.machine.client.command.configuration.edit;
+package org.eclipse.che.ide.extension.machine.client.command.edit;
 
 import elemental.dom.Element;
 import elemental.html.SpanElement;
@@ -18,8 +18,8 @@ import com.google.gwt.resources.client.CssResource;
 import com.google.inject.Inject;
 
 import org.eclipse.che.ide.api.parts.PartStackUIResources;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandConfiguration;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandType;
+import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
+import org.eclipse.che.ide.extension.machine.client.command.CommandType;
 import org.eclipse.che.ide.ui.tree.NodeRenderer;
 import org.eclipse.che.ide.ui.tree.Tree;
 import org.eclipse.che.ide.ui.tree.TreeNodeElement;
@@ -207,7 +207,8 @@ public class CommandRenderer implements NodeRenderer<CommandDataAdapter.CommandT
     public interface Resources extends Tree.Resources, PartStackUIResources {
 
         /** Returns the CSS resource for the commands tree. */
-        @Source({"CommandRenderer.css", "org/eclipse/che/ide/ui/constants.css", "org/eclipse/che/ide/api/ui/style.css"})
+        @Source({
+                "CommandRenderer.css", "org/eclipse/che/ide/ui/constants.css", "org/eclipse/che/ide/api/ui/style.css"})
         CommandRenderer.Css getCss();
     }
 }

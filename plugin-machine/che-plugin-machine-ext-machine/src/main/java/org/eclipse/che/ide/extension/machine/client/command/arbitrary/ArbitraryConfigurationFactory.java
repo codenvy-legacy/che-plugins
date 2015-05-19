@@ -8,11 +8,12 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.ide.extension.machine.client.command.configuration.arbitrary;
+package org.eclipse.che.ide.extension.machine.client.command.arbitrary;
 
 import org.eclipse.che.api.machine.shared.dto.CommandDescriptor;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandType;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.ConfigurationFactory;
+import org.eclipse.che.ide.extension.machine.client.command.CommandType;
+import org.eclipse.che.ide.extension.machine.client.command.ConfigurationFactory;
+import org.eclipse.che.ide.util.UUID;
 
 import javax.annotation.Nonnull;
 
@@ -30,14 +31,15 @@ public class ArbitraryConfigurationFactory extends ConfigurationFactory<Arbitrar
     @Nonnull
     @Override
     public ArbitraryCommandConfiguration createFromTemplate(@Nonnull String name) {
-        return new ArbitraryCommandConfiguration(name, getCommandType());
+        return new ArbitraryCommandConfiguration(name, getCommandType(), UUID.uuid(3));
     }
 
     @Nonnull
     @Override
     public ArbitraryCommandConfiguration createFromCommandDescriptor(@Nonnull CommandDescriptor descriptor) {
-        final ArbitraryCommandConfiguration configuration = new ArbitraryCommandConfiguration(descriptor.getName(), getCommandType());
-        configuration.setId(descriptor.getId());
+        final ArbitraryCommandConfiguration configuration = new ArbitraryCommandConfiguration(descriptor.getName(),
+                                                                                              getCommandType(),
+                                                                                              UUID.uuid(3));
         configuration.setCommandLine(descriptor.getCommandLine());
         return configuration;
     }

@@ -15,17 +15,23 @@ import com.google.inject.ImplementedBy;
 import org.eclipse.che.ide.api.mvp.View;
 
 /**
+ * The view of {@link MavenPagePresenter}.
+ *
  * @author Artem Zatsarynnyy
  */
 @ImplementedBy(MavenPageViewImpl.class)
 public interface MavenPageView extends View<MavenPageView.ActionDelegate> {
 
+    /** Returns command line. */
     String getCommandLine();
 
+    /** Sets command line. */
     void setCommandLine(String commandLine);
 
+    /** Action handler for the view actions/controls. */
     interface ActionDelegate {
 
+        /** Called when command line is changed. */
         void onCommandLineChanged(String commandLine);
     }
 }

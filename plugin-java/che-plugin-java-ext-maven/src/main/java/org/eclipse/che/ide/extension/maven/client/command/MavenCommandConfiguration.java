@@ -10,8 +10,8 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.maven.client.command;
 
-import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandConfiguration;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandType;
+import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
+import org.eclipse.che.ide.extension.machine.client.command.CommandType;
 
 import javax.annotation.Nonnull;
 
@@ -25,20 +25,17 @@ public class MavenCommandConfiguration implements CommandConfiguration {
     private       String      id;
     private       String      commandLine;
 
-    public MavenCommandConfiguration(String name, CommandType type) {
+    public MavenCommandConfiguration(String name, CommandType type, String id) {
         this.name = name;
         this.type = type;
+        this.id = id;
+        commandLine = "";
     }
 
     @Nonnull
     @Override
     public String getId() {
         return id;
-    }
-
-    @Override
-    public void setId(@Nonnull String id) {
-        this.id = id;
     }
 
     @Nonnull
