@@ -66,8 +66,6 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
     @UiField
     Button                        saveButton;
     @UiField
-    SimplePanel                   hintPanel;
-    @UiField
     SimplePanel                   contentPanel;
     @UiField(provided = true)
     org.eclipse.che.ide.Resources resources;
@@ -200,8 +198,6 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
         removeButton.setEnabled(false);
         configurationName.setText("");
 
-        hintPanel.setVisible(false);
-//        contentPanel.setVisible(false);
         contentPanel.clear();
     }
 
