@@ -10,10 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.svn.server.upstream;
 
-import org.eclipse.che.api.core.util.CancellableProcessWrapper;
-import org.eclipse.che.api.core.util.CommandLine;
-import org.eclipse.che.api.core.util.ProcessUtil;
-import org.eclipse.che.api.core.util.Watchdog;
+import org.eclipse.che.api.core.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,6 +64,30 @@ public class UpstreamUtils {
      * @param redactedArgs additional command arguments that will not be shown in result
      * @param timeout the optional timeout in milliseconds
      * @param workingDirectory the optional working directory
+     *
+     * @return the command line result
+     *
+     * @throws IOException if something goes wrong
+     */
+    public static CommandLineResult executeCommandLine(@Nullable final Map<String, String> env,
+                                                       final String cmd,
+                                                       @Nullable final String[] args,
+                                                       @Nullable final String[] redactedArgs,
+                                                       final long timeout,
+                                                       @Nullable final File workingDirectory)  throws IOException {
+        return executeCommandLine(env, cmd, args, null, timeout, workingDirectory, null);
+    }
+
+    /**
+     * Executes a command line executable based on the arguments specified.
+     *
+     * @param env the optional environment variables
+     * @param cmd the command to run
+     * @param args the optional command arguments
+     * @param redactedArgs additional command arguments that will not be shown in result
+     * @param timeout the optional timeout in milliseconds
+     * @param workingDirectory the optional working directory
+     * @param lineConsumerFactory the optional std output line consumer factory
      * 
      * @return the command line result
      * 
@@ -77,7 +98,8 @@ public class UpstreamUtils {
                                                        @Nullable final String[] args,
                                                        @Nullable final String[] redactedArgs,
                                                        final long timeout,
-                                                       @Nullable final File workingDirectory)
+                                                       @Nullable final File workingDirectory,
+                                                       @Nullable LineConsumerFactory lineConsumerFactory)
             throws IOException {
         CommandLine command = new CommandLine(cmd);
 
@@ -107,6 +129,14 @@ public class UpstreamUtils {
 
         processBuilder.directory(workingDirectory);
 
+        LineConsumer lineConsumer = LineConsumer.DEV_NULL;
+        if (lineConsumerFactory != null) {
+            lineConsumer = lineConsumerFactory.newLineConsumer();
+        }
+
+        final CommandLineOutputProcessor stdOutConsumer = new CommandLineOutputProcessor(new ArrayList<String>());
+        final CommandLineOutputProcessor stdErrConsumer = new CommandLineOutputProcessor(new ArrayList<String>());
+
         final Process process = processBuilder.start();
 
         final Watchdog watcher;
@@ -117,18 +147,13 @@ public class UpstreamUtils {
             watcher.start(new CancellableProcessWrapper(process));
         }
 
-        final CommandLineOutputProcessor stdoutConsumer = new CommandLineOutputProcessor(new ArrayList<String>());
-        final CommandLineOutputProcessor stderrConsumer = new CommandLineOutputProcessor(new ArrayList<String>());
-
-        ProcessUtil.process(process, stdoutConsumer, stderrConsumer);
-
-        try {
+        try (LineConsumer consumer = new CompositeLineConsumer(lineConsumer, stdOutConsumer)) {
+            ProcessUtil.process(process, consumer, stdErrConsumer);
             process.waitFor();
         } catch (InterruptedException e) {
             throw new IOException(e);
         }
 
-        return new CommandLineResult(command, process.exitValue(), stdoutConsumer.getOutput(),
-                                     stderrConsumer.getOutput());
+        return new CommandLineResult(command, process.exitValue(), stdOutConsumer.getOutput(), stdErrConsumer.getOutput());
     }
 }
