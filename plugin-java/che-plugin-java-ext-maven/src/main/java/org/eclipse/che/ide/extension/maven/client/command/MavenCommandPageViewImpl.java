@@ -18,24 +18,32 @@ import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.inject.Inject;
+
+import org.eclipse.che.ide.extension.maven.client.MavenLocalizationConstant;
 
 /**
- * The implementation of {@link MavenPageView}.
+ * The implementation of {@link MavenCommandPageView}.
  *
  * @author Artem Zatsarynnyy
  */
-public class MavenPageViewImpl implements MavenPageView {
+public class MavenCommandPageViewImpl implements MavenCommandPageView {
 
     private static final MavenPageViewImplUiBinder UI_BINDER = GWT.create(MavenPageViewImplUiBinder.class);
 
     private final DockLayoutPanel rootElement;
 
     @UiField
-    TextBox commandLine;
+    TextBox                   commandLine;
+    @UiField(provided = true)
+    MavenLocalizationConstant locale;
 
     private ActionDelegate delegate;
 
-    public MavenPageViewImpl() {
+    @Inject
+    public MavenCommandPageViewImpl(MavenLocalizationConstant locale) {
+        this.locale = locale;
+
         rootElement = UI_BINDER.createAndBindUi(this);
         commandLine.setFocus(true);
     }
@@ -65,6 +73,6 @@ public class MavenPageViewImpl implements MavenPageView {
         delegate.onCommandLineChanged(getCommandLine());
     }
 
-    interface MavenPageViewImplUiBinder extends UiBinder<DockLayoutPanel, MavenPageViewImpl> {
+    interface MavenPageViewImplUiBinder extends UiBinder<DockLayoutPanel, MavenCommandPageViewImpl> {
     }
 }

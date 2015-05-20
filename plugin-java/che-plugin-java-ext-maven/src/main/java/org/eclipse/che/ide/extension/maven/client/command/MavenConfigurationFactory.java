@@ -27,6 +27,10 @@ public class MavenConfigurationFactory extends ConfigurationFactory<MavenCommand
         super(commandType);
     }
 
+    private static boolean isMavenCommand(String commandLine) {
+        return commandLine.startsWith("mvn ");
+    }
+
     @Nonnull
     @Override
     public MavenCommandConfiguration createFromCommandDescriptor(@Nonnull CommandDescriptor descriptor) {
@@ -39,9 +43,5 @@ public class MavenConfigurationFactory extends ConfigurationFactory<MavenCommand
                                                                                       descriptor.getName());
         configuration.setCommandLine(descriptor.getCommandLine().replaceFirst("mvn ", ""));
         return configuration;
-    }
-
-    private static boolean isMavenCommand(String commandLine) {
-        return commandLine.startsWith("mvn ");
     }
 }

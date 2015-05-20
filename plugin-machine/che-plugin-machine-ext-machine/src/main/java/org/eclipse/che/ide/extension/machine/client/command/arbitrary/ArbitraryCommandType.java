@@ -33,7 +33,7 @@ import java.util.LinkedList;
 public class ArbitraryCommandType implements CommandType {
 
     private static final String ID           = "arbitrary";
-    private static final String DISPLAY_NAME = "Arbitrary command";
+    private static final String DISPLAY_NAME = "Arbitrary Command";
 
     private final MachineResources              resources;
     private final ArbitraryConfigurationFactory configurationFactory;

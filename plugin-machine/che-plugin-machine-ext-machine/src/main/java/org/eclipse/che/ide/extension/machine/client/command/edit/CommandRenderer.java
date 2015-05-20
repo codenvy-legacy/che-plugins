@@ -114,11 +114,11 @@ public class CommandRenderer implements NodeRenderer<CommandDataAdapter.CommandT
      * @return the HTML element for the tree node
      */
     private static SpanElement renderNodeContents(final Css css,
-                                                 final String contents,
-                                                 final String iconClassName,
-                                                 final boolean renderIcon,
-                                                 final String labelClassName,
-                                                 final SVGResource iconResource) {
+                                                  final String contents,
+                                                  final String iconClassName,
+                                                  final boolean renderIcon,
+                                                  final String labelClassName,
+                                                  final SVGResource iconResource) {
         SpanElement root = Elements.createSpanElement(css.root());
         if (renderIcon) {
             JsSVGSVGElement jsIconElement = generateSvgIconElement(iconResource, css.icon(), iconClassName);
@@ -151,56 +151,28 @@ public class CommandRenderer implements NodeRenderer<CommandDataAdapter.CommandT
         return iconElement.cast();
     }
 
-    /** The CSSResource interface for the command tree. */
+    /** The CssResource interface for the command tree. */
     public interface Css extends CssResource {
 
-        /**
-         * Returns the CSS class for command type icon.
-         *
-         * @return CSS class name
-         */
+        /** Returns the CSS class name for command type icon. */
         String commandTypeIcon();
 
-        /**
-         * Returns the CSS class for command configuration icon.
-         *
-         * @return CSS class name
-         */
+        /** Returns the CSS class name for command configuration icon. */
         String commandConfigurationIcon();
 
-        /**
-         * Returns the CSS class for command type label.
-         *
-         * @return CSS class name
-         */
+        /** Returns the CSS class name for command type label. */
         String commandTypeLabel();
 
-        /**
-         * Returns the CSS class for command configuration label.
-         *
-         * @return CSS class name
-         */
+        /** Returns the CSS class name for command configuration label. */
         String commandConfigurationLabel();
 
-        /**
-         * Returns the CSS class for tree root.
-         *
-         * @return CSS class name
-         */
+        /** Returns the CSS class name for tree root. */
         String root();
 
-        /**
-         * Returns the CSS class for tree icons.
-         *
-         * @return CSS class name
-         */
+        /** Returns the CSS class name for tree icons. */
         String icon();
 
-        /**
-         * Returns the CSS class for tree labels.
-         *
-         * @return CSS class name
-         */
+        /** Returns the CSS class name for tree labels. */
         String label();
     }
 
@@ -208,8 +180,7 @@ public class CommandRenderer implements NodeRenderer<CommandDataAdapter.CommandT
     public interface Resources extends Tree.Resources, PartStackUIResources {
 
         /** Returns the CSS resource for the commands tree. */
-        @Source({
-                "CommandRenderer.css", "org/eclipse/che/ide/ui/constants.css", "org/eclipse/che/ide/api/ui/style.css"})
+        @Source({"CommandRenderer.css", "org/eclipse/che/ide/ui/constants.css", "org/eclipse/che/ide/api/ui/style.css"})
         CommandRenderer.Css getCss();
     }
 }

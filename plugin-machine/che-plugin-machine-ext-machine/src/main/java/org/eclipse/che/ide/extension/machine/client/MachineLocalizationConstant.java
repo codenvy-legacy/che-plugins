@@ -85,6 +85,24 @@ public interface MachineLocalizationConstant extends Messages {
     @Key("view.editConfigurations.title")
     String editConfigurationsViewTitle();
 
-    @Key("view.edit.configure.stub")
-    String viewEditConfigureStub();
+    @Key("view.editConfigurations.hint")
+    String editConfigurationsViewHint();
+
+    @Key("view.editConfigurations.name.text")
+    String editConfigurationsViewNameText();
+
+    @Key("view.editConfigurations.save.text")
+    String editConfigurationsViewSaveText();
+
+    @Key("view.editConfigurations.add.text")
+    String editConfigurationsViewAddText();
+
+    @Key("view.editConfigurations.add.title")
+    String editConfigurationsViewAddTitle();
+
+    @Key("view.editConfigurations.remove.text")
+    String editConfigurationsViewRemoveText();
+
+    @Key("view.editConfigurations.remove.title")
+    String editConfigurationsViewRemoveTitle();
 }

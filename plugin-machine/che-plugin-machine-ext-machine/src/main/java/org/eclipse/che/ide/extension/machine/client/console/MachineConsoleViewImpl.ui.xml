@@ -17,10 +17,10 @@
 
     <g:DockLayoutPanel unit="PX" width="100%" height="100%">
         <g:north size="18">
-            <g:SimplePanel height="18" ui:field="toolbarPanel" addStyleNames="{resources.machine.consoleToolbar}"/>
+            <g:SimplePanel height="18" ui:field="toolbarPanel" addStyleNames="{resources.getCss.consoleToolbar}"/>
         </g:north>
         <g:center>
-            <g:ScrollPanel ui:field="scrollPanel" debugId="machineConsolePart" addStyleNames="{resources.machine.console}">
+            <g:ScrollPanel ui:field="scrollPanel" debugId="machineConsolePart" addStyleNames="{resources.getCss.console}">
                 <g:FlowPanel width="100%" height="100%" ui:field="consoleArea"/>
             </g:ScrollPanel>
         </g:center>

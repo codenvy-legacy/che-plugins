@@ -57,23 +57,24 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
 
     private static final EditConfigurationsViewImplUiBinder UI_BINDER = GWT.create(EditConfigurationsViewImplUiBinder.class);
 
-    private final MachineLocalizationConstant locale;
-    private final Label                       stubLabel;
+    private final Label hintLabel;
 
     @UiField(provided = true)
-    Tree<CommandTreeNode> tree;
+    MachineLocalizationConstant locale;
+    @UiField(provided = true)
+    Tree<CommandTreeNode>       tree;
     @UiField
-    Button                addButton;
+    Button                      addButton;
     @UiField
-    Button                removeButton;
+    Button                      removeButton;
     @UiField
-    TextBox               configurationName;
+    TextBox                     configurationName;
     @UiField
-    Button                saveButton;
+    Button                      saveButton;
     @UiField
-    SimplePanel           contentPanel;
+    SimplePanel                 contentPanel;
     @UiField
-    FlowPanel             savePanel;
+    FlowPanel                   savePanel;
 
     private ActionDelegate delegate;
 
@@ -83,10 +84,10 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
                                          MachineLocalizationConstant locale,
                                          CommandDataAdapter dataAdapter,
                                          CommandRenderer renderer) {
-        this.tree = Tree.create(resources, dataAdapter, renderer);
         this.locale = locale;
-        this.stubLabel = new Label(locale.viewEditConfigureStub());
-        this.stubLabel.addStyleName(machineResources.machine().commandStub());
+        tree = Tree.create(resources, dataAdapter, renderer);
+        hintLabel = new Label(locale.editConfigurationsViewHint());
+        hintLabel.addStyleName(machineResources.getCss().commandHint());
 
         setWidget(UI_BINDER.createAndBindUi(this));
 
@@ -151,16 +152,16 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
 
             @Override
             public void onNodeSelected(TreeNodeElement<CommandTreeNode> node, SignalEvent event) {
-                Object selectedNode = node.getData().getData();
+                final Object selectedNode = node.getData().getData();
 
                 if (selectedNode instanceof CommandType) {
                     delegate.onCommandTypeSelected((CommandType)selectedNode);
 
-                    setStub(true);
+                    setHint(true);
                 } else if (selectedNode instanceof CommandConfiguration) {
                     delegate.onConfigurationSelected((CommandConfiguration)selectedNode);
 
-                    setStub(false);
+                    setHint(false);
                 }
             }
 
@@ -182,18 +183,19 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
                         delegate.onDeleteClicked();
                         break;
                     default:
+                        break;
                 }
             }
         });
     }
 
-    private void setStub(boolean isStubSet) {
-        savePanel.setVisible(!isStubSet);
+    private void setHint(boolean show) {
+        savePanel.setVisible(!show);
 
-        if (isStubSet) {
-            contentPanel.setWidget(stubLabel);
+        if (show) {
+            contentPanel.setWidget(hintLabel);
         } else {
-            contentPanel.remove(stubLabel);
+            contentPanel.remove(hintLabel);
         }
     }
 
@@ -267,7 +269,7 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
 
         tree.getSelectionModel().selectSingleNode(getFirstNode(rootNode));
 
-        setStub(true);
+        setHint(true);
     }
 
     private CommandTreeNode getFirstNode(@Nonnull CommandTreeNode rootNode) {

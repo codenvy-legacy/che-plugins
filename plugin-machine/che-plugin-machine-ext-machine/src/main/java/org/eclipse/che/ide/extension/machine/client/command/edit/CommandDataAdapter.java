@@ -119,7 +119,7 @@ public class CommandDataAdapter implements NodeDataAdapter<CommandDataAdapter.Co
                 id = ((CommandType)data).getId();
                 name = ((CommandType)data).getDisplayName();
             } else if (data instanceof CommandConfiguration) {
-                id = ((CommandConfiguration)data).getName();
+                id = ((CommandConfiguration)data).getId();
                 name = ((CommandConfiguration)data).getName();
             } else {
                 id = "ROOT";

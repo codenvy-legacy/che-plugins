@@ -42,7 +42,7 @@ public class MavenCommandType implements CommandType {
     private final Collection<ConfigurationPage<? extends CommandConfiguration>> pages;
 
     @Inject
-    public MavenCommandType(MavenResources resources, MavenPagePresenter page) {
+    public MavenCommandType(MavenResources resources, MavenCommandPagePresenter page) {
         this.resources = resources;
         configurationFactory = new MavenConfigurationFactory(this);
         pages = new LinkedList<>();

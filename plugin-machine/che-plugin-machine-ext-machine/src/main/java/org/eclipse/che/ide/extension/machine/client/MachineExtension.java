@@ -66,7 +66,7 @@ public class MachineExtension {
                             final MachineServiceClient machineServiceClient,
                             final MachineManager machineManager,
                             final MachineConsolePresenter machineConsolePresenter) {
-        machineResources.machine().ensureInjected();
+        machineResources.getCss().ensureInjected();
 
         eventBus.addHandler(ProjectActionEvent.TYPE, new ProjectActionHandler() {
             @Override

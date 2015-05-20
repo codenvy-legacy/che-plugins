@@ -16,9 +16,12 @@
     fill: #b4b4b4;
 }
 
-.commandTypeLabel,
-.commandConfigurationLabel {
+.commandTypeLabel {
     font-weight: bold;
+    color: treeTextFolderColor;
+}
+
+.commandConfigurationLabel {
     color: treeTextFolderColor;
 }
 

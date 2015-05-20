@@ -24,13 +24,13 @@ import javax.annotation.Nonnull;
  * @author Artem Zatsarynnyy
  */
 @Singleton
-public class MavenPagePresenter implements MavenPageView.ActionDelegate, ConfigurationPage<MavenCommandConfiguration> {
+public class MavenCommandPagePresenter implements MavenCommandPageView.ActionDelegate, ConfigurationPage<MavenCommandConfiguration> {
 
-    private final MavenPageView             view;
+    private final MavenCommandPageView      view;
     private       MavenCommandConfiguration configuration;
 
     @Inject
-    public MavenPagePresenter(MavenPageView view) {
+    public MavenCommandPagePresenter(MavenCommandPageView view) {
         this.view = view;
         view.setDelegate(this);
     }
