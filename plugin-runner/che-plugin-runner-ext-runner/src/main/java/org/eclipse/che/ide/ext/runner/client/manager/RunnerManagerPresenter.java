@@ -788,8 +788,13 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
     private void runnerSelected() {
         selectedRunner = selectionManager.getRunner();
         if (selectedRunner == null) {
+            showNoRunnerMessage(true);
+
+            propertiesContainer.reset();
             return;
         }
+
+        showNoRunnerMessage(false);
 
         if (SPLITTER_OFF.equals(panelState.getSplitterState())) {
             rightPropertiesContainer.showTab(selectedRunner.getActiveTab());
@@ -804,6 +809,12 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
         update(selectedRunner);
 
         updateRunnerTimer();
+    }
+
+    private void showNoRunnerMessage(boolean isVisible) {
+        terminalContainer.setVisibleNoRunnerLabel(isVisible);
+        consoleContainer.setVisibleNoRunnerLabel(isVisible);
+        propertiesContainer.setVisibleNoRunnerLabel(isVisible);
     }
 
     private void environmentSelected() {

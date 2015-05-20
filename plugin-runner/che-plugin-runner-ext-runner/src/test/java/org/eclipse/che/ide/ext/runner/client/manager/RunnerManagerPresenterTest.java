@@ -601,7 +601,6 @@ public class RunnerManagerPresenterTest {
 
         verifyTabSelectHandler(tabBuilderProperties);
         verify(propertiesContainer).show(isNull(Environment.class));
-        verifyNoMoreInteractions(propertiesContainer, locale);
     }
 
     private void verifyTabSelectHandler(TabBuilder tabBuilder) {
@@ -1223,6 +1222,11 @@ public class RunnerManagerPresenterTest {
         presenter.onSelectionChanged(RUNNER);
 
         verify(selectionManager).getRunner();
+
+        verify(terminalContainer).setVisibleNoRunnerLabel(true);
+        verify(consoleContainer).setVisibleNoRunnerLabel(true);
+        verify(propertiesContainer).setVisibleNoRunnerLabel(true);
+
         verifyNoMoreInteractions(history, rightPropertiesContainer, view);
     }
 
@@ -1359,7 +1363,10 @@ public class RunnerManagerPresenterTest {
 
     private void verifyRunnerSelected() {
         verify(history).selectRunner(runner);
-        //verify(terminalContainer).update(runner);
+
+        verify(terminalContainer).setVisibleNoRunnerLabel(false);
+        verify(consoleContainer).setVisibleNoRunnerLabel(false);
+        verify(propertiesContainer).setVisibleNoRunnerLabel(false);
 
         //update
         verify(history).update(runner);

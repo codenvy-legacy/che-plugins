@@ -176,4 +176,10 @@ public class ConsoleContainerPresenter implements ConsoleContainer,
         view.removeWidget(console);
         consoles.remove(runner);
     }
+
+    /** {@inheritDoc} */
+    @Override
+    public void setVisibleNoRunnerLabel(boolean visible) {
+        view.setVisibleNoRunnerLabel(visible);
+    }
 }

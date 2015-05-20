@@ -284,4 +284,11 @@ public class TerminalContainerPresenterTest {
 
         verify(view).removeWidget(terminal);
     }
+
+    @Test
+    public void dummyContentShouldBeShowed() throws Exception {
+        presenter.setVisibleNoRunnerLabel(true);
+
+        verify(view).setVisibleNoRunnerLabel(true);
+    }
 }
