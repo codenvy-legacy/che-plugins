@@ -35,14 +35,14 @@ import com.google.web.bindery.event.shared.EventBus;
 
 public class ResolvePresenter extends SubversionActionPresenter implements ResolveView.ActionDelegate {
 
-    private final AppContext              appContext;
-    private final NotificationManager     notificationManager;
-    private final DialogFactory           dialogFactory;
+    private final AppContext                               appContext;
+    private final NotificationManager                      notificationManager;
+    private final DialogFactory                            dialogFactory;
     private final SubversionExtensionLocalizationConstants constants;
-    private final SubversionClientService subversionClientService;
-    private final ResolveView             view;
+    private final SubversionClientService                  subversionClientService;
+    private final ResolveView                              view;
 
-    private List<String>                  conflictsPaths;
+    private List<String> conflictsPaths;
 
     @Inject
     protected ResolvePresenter(final EventBus eventBus,
@@ -67,7 +67,7 @@ public class ResolvePresenter extends SubversionActionPresenter implements Resol
         this.view.setDelegate(this);
     }
 
-    public void fetchConflictsList(final AsyncCallback<List<String>> callback) {
+    public void fetchConflictsList(boolean forCurrentSelection, final AsyncCallback<List<String>> callback) {
         CurrentProject currentProject = appContext.getCurrentProject();
         if (currentProject == null) {
             return;
@@ -78,17 +78,19 @@ public class ResolvePresenter extends SubversionActionPresenter implements Resol
             return;
         }
 
-        subversionClientService.showConflicts(project.getPath(), getSelectedPaths(), new AsyncCallback<List<String>>() {
-            @Override
-            public void onSuccess(List<String> conflictsList) {
-                callback.onSuccess(conflictsList);
-            }
+        subversionClientService.showConflicts(project.getPath(),
+                                              forCurrentSelection ? getSelectedPaths() : null,
+                                              new AsyncCallback<List<String>>() {
+                                                  @Override
+                                                  public void onSuccess(List<String> conflictsList) {
+                                                      callback.onSuccess(conflictsList);
+                                                  }
 
-            @Override
-            public void onFailure(Throwable exception) {
-                notificationManager.showError(exception.getMessage());
-            }
-        });
+                                                  @Override
+                                                  public void onFailure(Throwable exception) {
+                                                      notificationManager.showError(exception.getMessage());
+                                                  }
+                                              });
     }
 
     public void showConflictsDialog(List<String> conflictsList) {
@@ -133,21 +135,21 @@ public class ResolvePresenter extends SubversionActionPresenter implements Resol
         }
 
         subversionClientService.resolve(project.getPath(), filesConflictResolutionActions, "infinity",
-                new AsyncCallback<CLIOutputResponseList>() {
-                    @Override
-                    public void onSuccess(CLIOutputResponseList result) {
-                        for (CLIOutputResponse outputResponse : result.getCLIOutputResponses()) {
-                            printCommand(outputResponse.getCommand());
-                            printAndSpace(outputResponse.getOutput());
-                        }
-                        updateProjectExplorer();
-                    }
+                                        new AsyncCallback<CLIOutputResponseList>() {
+                                            @Override
+                                            public void onSuccess(CLIOutputResponseList result) {
+                                                for (CLIOutputResponse outputResponse : result.getCLIOutputResponses()) {
+                                                    printCommand(outputResponse.getCommand());
+                                                    printAndSpace(outputResponse.getOutput());
+                                                }
+                                                updateProjectExplorer();
+                                            }
 
-                    @Override
-                    public void onFailure(Throwable exception) {
-                        notificationManager.showError(exception.getMessage());
-                    }
-                });
+                                            @Override
+                                            public void onFailure(Throwable exception) {
+                                                notificationManager.showError(exception.getMessage());
+                                            }
+                                        });
         view.close();
         conflictsPaths.clear();
     }

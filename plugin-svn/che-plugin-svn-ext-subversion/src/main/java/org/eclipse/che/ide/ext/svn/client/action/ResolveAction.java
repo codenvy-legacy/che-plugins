@@ -22,11 +22,16 @@ import org.eclipse.che.ide.api.event.ProjectActionEvent;
 import org.eclipse.che.ide.api.event.ProjectActionHandler;
 import org.eclipse.che.ide.api.event.SelectionChangedEvent;
 import org.eclipse.che.ide.api.event.SelectionChangedHandler;
+import org.eclipse.che.ide.api.project.tree.generic.StorableNode;
+import org.eclipse.che.ide.api.selection.Selection;
 import org.eclipse.che.ide.api.selection.SelectionAgent;
 import org.eclipse.che.ide.ext.svn.client.SubversionExtensionLocalizationConstants;
 import org.eclipse.che.ide.ext.svn.client.SubversionExtensionResources;
 import org.eclipse.che.ide.ext.svn.client.resolve.ResolvePresenter;
+import org.eclipse.che.ide.ext.svn.client.update.SubversionProjectUpdatedEvent;
+import org.eclipse.che.ide.ext.svn.client.update.SubversionProjectUpdatedHandler;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
 /**
@@ -35,7 +40,8 @@ import java.util.List;
  * @author vzhukovskii@codenvy.com
  */
 @Singleton
-public class ResolveAction extends SubversionAction implements SelectionChangedHandler, ProjectActionHandler {
+public class ResolveAction extends SubversionAction implements SelectionChangedHandler, ProjectActionHandler,
+                                                               SubversionProjectUpdatedHandler {
 
     private final ResolvePresenter presenter;
 
@@ -56,6 +62,7 @@ public class ResolveAction extends SubversionAction implements SelectionChangedH
 
         eventBus.addHandler(SelectionChangedEvent.TYPE, this);
         eventBus.addHandler(ProjectActionEvent.TYPE, this);
+        eventBus.addHandler(SubversionProjectUpdatedEvent.TYPE, this);
     }
 
     /** {@inheritDoc} */
@@ -67,31 +74,46 @@ public class ResolveAction extends SubversionAction implements SelectionChangedH
     /** {@inheritDoc} */
     @Override
     public void updateProjectAction(final ActionEvent e) {
+        super.updateProjectAction(e);
+
         e.getPresentation().setEnabled(enable);
-        e.getPresentation().setVisible(true);
     }
 
     /** {@inheritDoc} */
     @Override
     public void onSelectionChanged(SelectionChangedEvent event) {
-        presenter.fetchConflictsList(new AsyncCallback<List<String>>() {
-            @Override
-            public void onFailure(Throwable caught) {
-                enable = false;
-            }
+        enable = false;
 
-            @Override
-            public void onSuccess(List<String> result) {
-                conflictsList = result;
-                enable = conflictsList.size() > 0;
+        StorableNode selectedNode = getStorableNodeFromSelection(event.getSelection());
+
+        if (selectedNode == null || conflictsList == null) {
+            return;
+        }
+
+        for (String conflictPath : conflictsList) {
+            final String absPath = (appContext.getCurrentProject().getProjectDescription().getPath() + "/" + conflictPath.trim());
+
+            if (absPath.startsWith(selectedNode.getPath())) {
+                enable = true;
+                break;
             }
-        });
+        }
+
+    }
+
+    @Nullable
+    private StorableNode getStorableNodeFromSelection(Selection<?> selection) {
+        if (selection == null) {
+            return null;
+        }
+
+        return selection.getHeadElement() instanceof StorableNode ? (StorableNode)selection.getHeadElement() : null;
     }
 
     /** {@inheritDoc} */
     @Override
     public void onProjectOpened(ProjectActionEvent event) {
-        onSelectionChanged(null);
+        fetchConflicts();
     }
 
     /** {@inheritDoc} */
@@ -103,7 +125,25 @@ public class ResolveAction extends SubversionAction implements SelectionChangedH
     /** {@inheritDoc} */
     @Override
     public void onProjectClosed(ProjectActionEvent event) {
-        enable = false;
         conflictsList = null;
+    }
+
+    @Override
+    public void onProjectUpdated(SubversionProjectUpdatedEvent event) {
+        fetchConflicts();
+    }
+
+    private void fetchConflicts() {
+        presenter.fetchConflictsList(false, new AsyncCallback<List<String>>() {
+            @Override
+            public void onFailure(Throwable caught) {
+                enable = false;
+            }
+
+            @Override
+            public void onSuccess(List<String> result) {
+                conflictsList = result;
+            }
+        });
     }
 }
