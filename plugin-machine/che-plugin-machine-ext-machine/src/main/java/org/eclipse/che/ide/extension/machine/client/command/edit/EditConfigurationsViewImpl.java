@@ -93,7 +93,7 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
 
         setTitle(locale.editConfigurationsViewTitle());
 
-        createCloseBtn(resources);
+        createFooterButtons(resources);
 
         configurationName.addKeyUpHandler(new KeyUpHandler() {
             @Override
@@ -199,7 +199,7 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
         }
     }
 
-    private void createCloseBtn(@Nonnull org.eclipse.che.ide.Resources resources) {
+    private void createFooterButtons(@Nonnull org.eclipse.che.ide.Resources resources) {
         final Button closeButton = createButton(locale.closeButton(), "window-edit-configurations-close", new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {

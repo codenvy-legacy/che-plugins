@@ -19,7 +19,6 @@ import org.eclipse.che.api.machine.shared.dto.MachineStateEvent;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.Promise;
-import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.extension.machine.client.MachineResources;
 import org.eclipse.che.ide.extension.machine.client.OutputMessageUnmarshaller;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
@@ -47,7 +46,6 @@ public class MachineManager {
     /** WebSocket channel to receive messages about changing machine state (machine:state:machineID). */
     private static final String MACHINE_STATE_CHANNEL = "machine:state:";
 
-    private final AppContext              appContext;
     private final MachineResources        machineResources;
     private final MachineServiceClient    machineServiceClient;
     private final DtoUnmarshallerFactory  dtoUnmarshallerFactory;
@@ -57,13 +55,11 @@ public class MachineManager {
     private String currentMachineId;
 
     @Inject
-    public MachineManager(AppContext appContext,
-                          MachineResources machineResources,
+    public MachineManager(MachineResources machineResources,
                           MachineServiceClient machineServiceClient,
                           DtoUnmarshallerFactory dtoUnmarshallerFactory,
                           MessageBus messageBus,
                           MachineConsolePresenter machineConsolePresenter) {
-        this.appContext = appContext;
         this.machineResources = machineResources;
         this.machineServiceClient = machineServiceClient;
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
@@ -88,8 +84,7 @@ public class MachineManager {
         final String outputChannel = getMachineOutputChannel();
         subscribeToOutput(outputChannel);
 
-        final Promise<MachineDescriptor> machinePromise = machineServiceClient.createMachineFromRecipe(appContext.getWorkspace().getId(),
-                                                                                                       "docker",
+        final Promise<MachineDescriptor> machinePromise = machineServiceClient.createMachineFromRecipe("docker",
                                                                                                        "Dockerfile",
                                                                                                        recipeScript,
                                                                                                        outputChannel);

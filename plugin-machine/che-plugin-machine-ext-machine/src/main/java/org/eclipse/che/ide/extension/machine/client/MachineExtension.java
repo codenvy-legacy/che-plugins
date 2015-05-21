@@ -21,7 +21,6 @@ import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.ide.api.action.ActionManager;
 import org.eclipse.che.ide.api.action.DefaultActionGroup;
-import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.constraints.Constraints;
 import org.eclipse.che.ide.api.event.ProjectActionEvent;
 import org.eclipse.che.ide.api.event.ProjectActionHandler;
@@ -29,10 +28,10 @@ import org.eclipse.che.ide.api.extension.Extension;
 import org.eclipse.che.ide.api.parts.PartStackType;
 import org.eclipse.che.ide.api.parts.WorkspaceAgent;
 import org.eclipse.che.ide.collections.Array;
-import org.eclipse.che.ide.extension.machine.client.actions.SelectCommandAction;
 import org.eclipse.che.ide.extension.machine.client.actions.EditCommandsAction;
 import org.eclipse.che.ide.extension.machine.client.actions.ExecuteArbitraryCommandAction;
 import org.eclipse.che.ide.extension.machine.client.actions.ExecuteSelectedCommandAction;
+import org.eclipse.che.ide.extension.machine.client.actions.SelectCommandAction;
 import org.eclipse.che.ide.extension.machine.client.actions.TerminateMachineAction;
 import org.eclipse.che.ide.extension.machine.client.console.ClearConsoleAction;
 import org.eclipse.che.ide.extension.machine.client.console.MachineConsolePresenter;
@@ -62,7 +61,6 @@ public class MachineExtension {
     @Inject
     public MachineExtension(final MachineResources machineResources,
                             final EventBus eventBus,
-                            final AppContext appContext,
                             final MachineServiceClient machineServiceClient,
                             final MachineManager machineManager,
                             final MachineConsolePresenter machineConsolePresenter) {
@@ -73,8 +71,7 @@ public class MachineExtension {
             public void onProjectOpened(ProjectActionEvent event) {
                 // start machine and bind project
                 final String projectPath = event.getProject().getPath();
-                Promise<Array<MachineDescriptor>> machinesPromise = machineServiceClient.getMachines(appContext.getWorkspace().getId(),
-                                                                                                     projectPath);
+                Promise<Array<MachineDescriptor>> machinesPromise = machineServiceClient.getMachines(projectPath);
                 machinesPromise.then(new Operation<Array<MachineDescriptor>>() {
                     @Override
                     public void apply(Array<MachineDescriptor> arg) throws OperationException {
