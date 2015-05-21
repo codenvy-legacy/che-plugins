@@ -51,6 +51,11 @@ public class LocalDockerNode implements DockerNode {
     }
 
     @Override
+    public void bindWorkspace(String workspaceId) throws MachineException {
+
+    }
+
+    @Override
     public String getProjectsFolder() {
         return folder.getAbsolutePath();
     }
