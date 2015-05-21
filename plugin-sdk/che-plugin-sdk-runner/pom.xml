@@ -61,7 +61,7 @@
                         <configuration>
                             <file>${project.build.directory}/classes/codenvyPlatform/pom.xml</file>
                             <token>$current_version$</token>
-                            <value>${project.version}</value>
+                            <value>${che.sdk.version}</value>
                             <regex>false</regex>
                         </configuration>
                     </execution>
