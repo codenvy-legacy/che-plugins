@@ -1,3 +1,14 @@
+/*******************************************************************************
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ *     Matt Chapman, mpchapman@gmail.com - 89977 Make JDT .java agnostic
+ *******************************************************************************/
 package org.eclipse.che.jdt.util;
 
 import org.eclipse.core.runtime.IPath;
@@ -13,7 +24,9 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
 
 /**
- * @author Evgen Vidolob
+ * Utility methods for the Java Model.
+ *
+ * @see JDTUIHelperClasses
  */
 public class JavaModelUtil {
     /**
