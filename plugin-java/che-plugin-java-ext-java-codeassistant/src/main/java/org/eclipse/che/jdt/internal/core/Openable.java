@@ -35,9 +35,6 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * @author Evgen Vidolob
- */
 public abstract class Openable extends JavaElement implements IOpenable, IBufferChangedListener {
     protected Openable(JavaElement parent, JavaModelManager manager) {
         super(parent, manager);

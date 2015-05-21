@@ -62,9 +62,6 @@ import java.util.WeakHashMap;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
-/**
- * @author Evgen Vidolob
- */
 public class JavaModelManager {
 
     private final static String             INDEXED_SECONDARY_TYPES        = "#@*_indexing secondary cache_*@#"; //$NON-NLS-1$

@@ -33,9 +33,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Map;
 
-/**
- * @author Evgen Vidolob
- */
 public class PackageFragmentRoot extends Openable implements IPackageFragmentRoot {
 
     /*

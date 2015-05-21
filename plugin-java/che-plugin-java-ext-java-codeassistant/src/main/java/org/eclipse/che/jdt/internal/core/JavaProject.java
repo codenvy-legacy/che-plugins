@@ -61,9 +61,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-/**
- * @author Evgen Vidolob
- */
 public class JavaProject extends Openable implements IJavaProject {
 
     /**

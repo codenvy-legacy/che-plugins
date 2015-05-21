@@ -30,9 +30,6 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.file.Files;
 
-/**
- * @author Evgen Vidolob
- */
 public class Util {
 
     /** Logger. */
