@@ -73,38 +73,38 @@ public class MavenExtension {
         return archetypes;
     }
 
-//    @Inject
-//    private void bindEvents(final EventBus eventBus,
-//                            final DependenciesUpdater dependenciesUpdater,
-//                            final ProjectServiceClient projectServiceClient,
-//                            final DtoUnmarshallerFactory dtoUnmarshallerFactory) {
-//        eventBus.addHandler(BeforeModuleOpenEvent.TYPE, new BeforeModuleOpenHandler() {
-//            @Override
-//            public void onBeforeModuleOpen(BeforeModuleOpenEvent event) {
-//                if (isValidForResolveDependencies(event.getModule().getProject().getData())) {
-//                    dependenciesUpdater.updateDependencies(event.getModule().getData(), false);
-//                }
-//            }
-//        });
-//
-//        eventBus.addHandler(ProjectActionEvent.TYPE, new ProjectActionHandler() {
-//            @Override
-//            public void onProjectOpened(ProjectActionEvent event) {
-//                ProjectDescriptor project = event.getProject();
-//                if (isValidForResolveDependencies(project)) {
-//                    dependenciesUpdater.updateDependencies(project, false);
-//                }
-//            }
-//
-//            @Override
-//            public void onProjectClosing(ProjectActionEvent event) {
-//            }
-//
-//            @Override
-//            public void onProjectClosed(ProjectActionEvent event) {
-//            }
-//        });
-//    }
+    @Inject
+    private void bindEvents(final EventBus eventBus,
+                            final DependenciesUpdater dependenciesUpdater,
+                            final ProjectServiceClient projectServiceClient,
+                            final DtoUnmarshallerFactory dtoUnmarshallerFactory) {
+        eventBus.addHandler(BeforeModuleOpenEvent.TYPE, new BeforeModuleOpenHandler() {
+            @Override
+            public void onBeforeModuleOpen(BeforeModuleOpenEvent event) {
+                if (isValidForResolveDependencies(event.getModule().getProject().getData())) {
+                    dependenciesUpdater.updateDependencies(event.getModule().getData(), false);
+                }
+            }
+        });
+
+        eventBus.addHandler(ProjectActionEvent.TYPE, new ProjectActionHandler() {
+            @Override
+            public void onProjectOpened(ProjectActionEvent event) {
+                ProjectDescriptor project = event.getProject();
+                if (isValidForResolveDependencies(project)) {
+                    dependenciesUpdater.updateDependencies(project, false);
+                }
+            }
+
+            @Override
+            public void onProjectClosing(ProjectActionEvent event) {
+            }
+
+            @Override
+            public void onProjectClosed(ProjectActionEvent event) {
+            }
+        });
+    }
 
     @Inject
     private void prepareActions(ActionManager actionManager,
