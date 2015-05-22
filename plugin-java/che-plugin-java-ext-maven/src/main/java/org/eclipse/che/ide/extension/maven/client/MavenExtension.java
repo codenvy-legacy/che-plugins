@@ -21,16 +21,12 @@ import org.eclipse.che.ide.api.action.DefaultActionGroup;
 import org.eclipse.che.ide.api.action.IdeActions;
 import org.eclipse.che.ide.api.constraints.Anchor;
 import org.eclipse.che.ide.api.constraints.Constraints;
-import org.eclipse.che.ide.api.event.FileEvent;
-import org.eclipse.che.ide.api.event.FileEventHandler;
 import org.eclipse.che.ide.api.event.ProjectActionEvent;
 import org.eclipse.che.ide.api.event.ProjectActionHandler;
-import org.eclipse.che.ide.api.event.RefreshProjectTreeEvent;
 import org.eclipse.che.ide.api.extension.Extension;
 import org.eclipse.che.ide.api.icon.Icon;
 import org.eclipse.che.ide.api.icon.IconRegistry;
 import org.eclipse.che.ide.api.project.tree.TreeStructureProviderRegistry;
-import org.eclipse.che.ide.api.project.tree.generic.ProjectNode;
 import org.eclipse.che.ide.api.project.type.wizard.PreSelectedProjectTypeManager;
 import org.eclipse.che.ide.collections.Array;
 import org.eclipse.che.ide.collections.Collections;
@@ -41,10 +37,7 @@ import org.eclipse.che.ide.extension.maven.client.event.BeforeModuleOpenEvent;
 import org.eclipse.che.ide.extension.maven.client.event.BeforeModuleOpenHandler;
 import org.eclipse.che.ide.extension.maven.client.projecttree.MavenProjectTreeStructureProvider;
 import org.eclipse.che.ide.extension.maven.shared.MavenAttributes;
-import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
-import org.eclipse.che.ide.rest.Unmarshallable;
-import org.eclipse.che.ide.util.loging.Log;
 
 import java.util.List;
 import java.util.Map;
@@ -80,38 +73,38 @@ public class MavenExtension {
         return archetypes;
     }
 
-//    @Inject
-//    private void bindEvents(final EventBus eventBus,
-//                            final DependenciesUpdater dependenciesUpdater,
-//                            final ProjectServiceClient projectServiceClient,
-//                            final DtoUnmarshallerFactory dtoUnmarshallerFactory) {
-//        eventBus.addHandler(BeforeModuleOpenEvent.TYPE, new BeforeModuleOpenHandler() {
-//            @Override
-//            public void onBeforeModuleOpen(BeforeModuleOpenEvent event) {
-//                if (isValidForResolveDependencies(event.getModule().getProject().getData())) {
-//                    dependenciesUpdater.updateDependencies(event.getModule().getData(), false);
-//                }
-//            }
-//        });
-//
-//        eventBus.addHandler(ProjectActionEvent.TYPE, new ProjectActionHandler() {
-//            @Override
-//            public void onProjectOpened(ProjectActionEvent event) {
-//                ProjectDescriptor project = event.getProject();
-//                if (isValidForResolveDependencies(project)) {
-//                    dependenciesUpdater.updateDependencies(project, false);
-//                }
-//            }
-//
-//            @Override
-//            public void onProjectClosing(ProjectActionEvent event) {
-//            }
-//
-//            @Override
-//            public void onProjectClosed(ProjectActionEvent event) {
-//            }
-//        });
-//    }
+    @Inject
+    private void bindEvents(final EventBus eventBus,
+                            final DependenciesUpdater dependenciesUpdater,
+                            final ProjectServiceClient projectServiceClient,
+                            final DtoUnmarshallerFactory dtoUnmarshallerFactory) {
+        eventBus.addHandler(BeforeModuleOpenEvent.TYPE, new BeforeModuleOpenHandler() {
+            @Override
+            public void onBeforeModuleOpen(BeforeModuleOpenEvent event) {
+                if (isValidForResolveDependencies(event.getModule().getProject().getData())) {
+                    dependenciesUpdater.updateDependencies(event.getModule().getData(), false);
+                }
+            }
+        });
+
+        eventBus.addHandler(ProjectActionEvent.TYPE, new ProjectActionHandler() {
+            @Override
+            public void onProjectOpened(ProjectActionEvent event) {
+                ProjectDescriptor project = event.getProject();
+                if (isValidForResolveDependencies(project)) {
+                    dependenciesUpdater.updateDependencies(project, false);
+                }
+            }
+
+            @Override
+            public void onProjectClosing(ProjectActionEvent event) {
+            }
+
+            @Override
+            public void onProjectClosed(ProjectActionEvent event) {
+            }
+        });
+    }
 
     @Inject
     private void prepareActions(ActionManager actionManager,
