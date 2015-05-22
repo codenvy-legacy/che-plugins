@@ -11,11 +11,8 @@
 
 package org.eclipse.jdt.internal.core;
 
-import org.eclipse.che.api.project.server.Constants;
-import org.eclipse.che.api.project.server.ProjectJson;
 import org.eclipse.che.core.internal.resources.ResourcesPlugin;
 import org.eclipse.che.core.resources.ProjectScope;
-import org.eclipse.che.ide.maven.tools.MavenUtils;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -68,7 +65,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
@@ -80,7 +76,6 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 

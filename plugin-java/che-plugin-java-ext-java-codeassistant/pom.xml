@@ -48,9 +48,9 @@
             <version>${org.eclipse.equinox.common.version}</version>
         </dependency>
         <!--<dependency>-->
-            <!--<groupId>org.eclipse.che.core</groupId>-->
-            <!--<artifactId>che-core-api-builder</artifactId>-->
-            <!--<version>${che.core.version}</version>-->
+        <!--<groupId>org.eclipse.che.core</groupId>-->
+        <!--<artifactId>che-core-api-builder</artifactId>-->
+        <!--<version>${che.core.version}</version>-->
         <!--</dependency>-->
         <dependency>
             <groupId>org.eclipse.che.core</groupId>
@@ -58,9 +58,9 @@
             <version>${che.core.version}</version>
         </dependency>
         <!--<dependency>-->
-            <!--<groupId>org.eclipse.che.plugin</groupId>-->
-            <!--<artifactId>che-plugin-java-ant-tools</artifactId>-->
-            <!--<version>${project.version}</version>-->
+        <!--<groupId>org.eclipse.che.plugin</groupId>-->
+        <!--<artifactId>che-plugin-java-ant-tools</artifactId>-->
+        <!--<version>${project.version}</version>-->
         <!--</dependency>-->
         <dependency>
             <groupId>org.eclipse.che.plugin</groupId>
@@ -106,14 +106,24 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.eclipse.che.plugin</groupId>
+            <artifactId>org.eclipse.core.filebuffers</artifactId>
+            <version>${version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.che.plugin</groupId>
+            <artifactId>org.eclipse.core.filesystem</artifactId>
+            <version>${version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.che.plugin</groupId>
+            <artifactId>org.eclipse.ltk.core.refactoring</artifactId>
+            <version>${version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.eclipse.core</groupId>
             <artifactId>contenttype</artifactId>
             <version>${org.eclipse.core.contenttype.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.ltk.core</groupId>
-            <artifactId>refactoring</artifactId>
-            <version>3.6.101.v20140817-1500</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.text</groupId>
