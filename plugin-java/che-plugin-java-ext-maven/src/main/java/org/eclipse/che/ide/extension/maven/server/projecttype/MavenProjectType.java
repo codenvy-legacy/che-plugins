@@ -15,8 +15,6 @@ import com.google.inject.Inject;
 import org.eclipse.che.api.project.server.type.ProjectType;
 import org.eclipse.che.ide.ext.java.server.projecttype.JavaProjectType;
 import org.eclipse.che.ide.extension.maven.shared.MavenAttributes;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.inject.Singleton;
 
@@ -26,13 +24,11 @@ import javax.inject.Singleton;
  */
 @Singleton
 public class MavenProjectType extends ProjectType {
-    private static final Logger LOG = LoggerFactory.getLogger(MavenProjectType.class);
 
     @Inject
-    public MavenProjectType(MavenValueProviderFactory mavenValueProviderFactory,
-                            JavaProjectType javaProjectType) {
-
+    public MavenProjectType(MavenValueProviderFactory mavenValueProviderFactory, JavaProjectType javaProjectType) {
         super(MavenAttributes.MAVEN_ID, MavenAttributes.MAVEN_NAME, true, false);
+
         addVariableDefinition(MavenAttributes.GROUP_ID, "", false, mavenValueProviderFactory);
         addVariableDefinition(MavenAttributes.ARTIFACT_ID, "", true, mavenValueProviderFactory);
         addVariableDefinition(MavenAttributes.VERSION, "", false, mavenValueProviderFactory);
@@ -45,5 +41,4 @@ public class MavenProjectType extends ProjectType {
 
         addParent(javaProjectType);
     }
-
 }

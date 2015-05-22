@@ -15,33 +15,33 @@ import com.google.gwt.inject.client.multibindings.GinMultibinder;
 import com.google.inject.Singleton;
 
 import org.eclipse.che.ide.api.extension.ExtensionGinModule;
+import org.eclipse.che.ide.extension.machine.client.command.CommandType;
+import org.eclipse.che.ide.extension.machine.client.command.arbitrary.ArbitraryCommandType;
+import org.eclipse.che.ide.extension.machine.client.command.edit.EditConfigurationsView;
+import org.eclipse.che.ide.extension.machine.client.command.edit.EditConfigurationsViewImpl;
 import org.eclipse.che.ide.extension.machine.client.command.execute.ExecuteArbitraryCommandView;
 import org.eclipse.che.ide.extension.machine.client.command.execute.ExecuteArbitraryCommandViewImpl;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandType;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.edit.EditConfigurationsView;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.edit.EditConfigurationsViewImpl;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.gwt.GWTCommandType;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.maven.MavenCommandType;
 import org.eclipse.che.ide.extension.machine.client.console.MachineConsoleToolbar;
 import org.eclipse.che.ide.extension.machine.client.console.MachineConsoleView;
 import org.eclipse.che.ide.extension.machine.client.console.MachineConsoleViewImpl;
 import org.eclipse.che.ide.ui.toolbar.ToolbarPresenter;
 
-/** @author Artem Zatsarynnyy */
+/**
+ * GIN module for Machine extension.
+ *
+ * @author Artem Zatsarynnyy
+ */
 @ExtensionGinModule
 public class MachineGinModule extends AbstractGinModule {
 
     /** {@inheritDoc} */
     @Override
     protected void configure() {
-        bind(MachineConsoleView.class).to(MachineConsoleViewImpl.class).in(Singleton.class);
         bind(ToolbarPresenter.class).annotatedWith(MachineConsoleToolbar.class).to(ToolbarPresenter.class).in(Singleton.class);
-
+        bind(MachineConsoleView.class).to(MachineConsoleViewImpl.class).in(Singleton.class);
         bind(ExecuteArbitraryCommandView.class).to(ExecuteArbitraryCommandViewImpl.class).in(Singleton.class);
         bind(EditConfigurationsView.class).to(EditConfigurationsViewImpl.class).in(Singleton.class);
 
-        GinMultibinder<CommandType> commandTypeMultibinder = GinMultibinder.newSetBinder(binder(), CommandType.class);
-        commandTypeMultibinder.addBinding().to(GWTCommandType.class);
-        commandTypeMultibinder.addBinding().to(MavenCommandType.class);
+        GinMultibinder.newSetBinder(binder(), CommandType.class).addBinding().to(ArbitraryCommandType.class);
     }
 }

@@ -19,9 +19,9 @@ import org.eclipse.che.api.machine.shared.dto.MachineStateEvent;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.Promise;
-import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.extension.machine.client.MachineResources;
 import org.eclipse.che.ide.extension.machine.client.OutputMessageUnmarshaller;
+import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
 import org.eclipse.che.ide.extension.machine.client.console.MachineConsolePresenter;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.util.UUID;
@@ -46,7 +46,6 @@ public class MachineManager {
     /** WebSocket channel to receive messages about changing machine state (machine:state:machineID). */
     private static final String MACHINE_STATE_CHANNEL = "machine:state:";
 
-    private final AppContext              appContext;
     private final MachineResources        machineResources;
     private final MachineServiceClient    machineServiceClient;
     private final DtoUnmarshallerFactory  dtoUnmarshallerFactory;
@@ -56,13 +55,11 @@ public class MachineManager {
     private String currentMachineId;
 
     @Inject
-    public MachineManager(AppContext appContext,
-                          MachineResources machineResources,
+    public MachineManager(MachineResources machineResources,
                           MachineServiceClient machineServiceClient,
                           DtoUnmarshallerFactory dtoUnmarshallerFactory,
                           MessageBus messageBus,
                           MachineConsolePresenter machineConsolePresenter) {
-        this.appContext = appContext;
         this.machineResources = machineResources;
         this.machineServiceClient = machineServiceClient;
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
@@ -84,11 +81,10 @@ public class MachineManager {
     /** Start machine and bind project. */
     public void startMachineAndBindProject(final String projectPath) {
         final String recipeScript = machineResources.testDockerRecipe().getText();
-        final String outputChannel = getOutputChannel();
+        final String outputChannel = getMachineOutputChannel();
         subscribeToOutput(outputChannel);
 
-        final Promise<MachineDescriptor> machinePromise = machineServiceClient.createMachineFromRecipe(appContext.getWorkspace().getId(),
-                                                                                                       "docker",
+        final Promise<MachineDescriptor> machinePromise = machineServiceClient.createMachineFromRecipe("docker",
                                                                                                        "Dockerfile",
                                                                                                        recipeScript,
                                                                                                        outputChannel);
@@ -101,7 +97,7 @@ public class MachineManager {
     }
 
     @Nonnull
-    private String getOutputChannel() {
+    private String getMachineOutputChannel() {
         return "machine:output:" + UUID.uuid();
     }
 
@@ -159,5 +155,23 @@ public class MachineManager {
 
     public void destroyMachine(final String machineId) {
         machineServiceClient.destroyMachine(machineId);
+    }
+
+    /** Execute the the given command configuration on current machine. */
+    public void execute(@Nonnull CommandConfiguration configuration) {
+        final String currentMachineId = getCurrentMachineId();
+        if (currentMachineId == null) {
+            return;
+        }
+
+        final String outputChannel = getProcessOutputChannel();
+        subscribeToOutput(outputChannel);
+
+        machineServiceClient.executeCommand(currentMachineId, configuration.toCommandLine(), outputChannel);
+    }
+
+    @Nonnull
+    private String getProcessOutputChannel() {
+        return "process:output:" + UUID.uuid();
     }
 }

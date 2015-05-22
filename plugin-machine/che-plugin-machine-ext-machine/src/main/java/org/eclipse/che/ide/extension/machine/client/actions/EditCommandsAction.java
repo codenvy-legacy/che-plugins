@@ -18,7 +18,7 @@ import org.eclipse.che.ide.api.action.Action;
 import org.eclipse.che.ide.api.action.ActionEvent;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.edit.EditConfigurationsPresenter;
+import org.eclipse.che.ide.extension.machine.client.command.edit.EditConfigurationsPresenter;
 
 /**
  * @author Artem Zatsarynnyy

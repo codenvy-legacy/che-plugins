@@ -17,34 +17,43 @@ import com.google.gwt.resources.client.TextResource;
 import org.vectomatic.dom.svg.ui.SVGResource;
 
 /**
- * Client resources.
+ * The resource interface for the Machine extension.
  *
  * @author Artem Zatsarynnyy
  */
 public interface MachineResources extends ClientBundle {
 
-    @Source("images/execute.svg")
-    SVGResource execute();
-
-    @Source("images/console/clear-logs.svg")
-    SVGResource clear();
-
+    /** Returns the test Docker recipe. */
     @Source("test-docker-recipe.txt")
     TextResource testDockerRecipe();
 
-    @Source("command/configuration/gwt/gwt-command-type.svg")
-    SVGResource gwtCommandType();
+    /** Returns the icon for clear console button. */
+    @Source("images/console/clear-logs.svg")
+    SVGResource clear();
 
-    @Source("command/configuration/maven/maven-command-type.svg")
-    SVGResource mavenCommandType();
+    /** Returns the icon for 'Execute Selected Command' action. */
+    @Source("images/execute.svg")
+    SVGResource execute();
 
+    /** Returns the icon for 'Arbitrary' command type. */
+    @Source("command/arbitrary/arbitrary-command-type.svg")
+    SVGResource arbitraryCommandType();
+
+    /** Returns the CSS resource for the Machine extension. */
     @Source({"machine.css", "org/eclipse/che/ide/api/ui/style.css"})
-    Css machine();
+    Css getCss();
 
+    /** The CssResource interface for the Machine extension. */
     interface Css extends CssResource {
+
+        /** Returns the CSS class name for 'Machine' console panel. */
         String console();
 
+        /** Returns the CSS class name for 'Machine' console toolbar. */
         @ClassName("console-toolbar")
         String consoleToolbar();
+
+        /** Returns the CSS class name for hint label in 'Edit Commands' dialog. */
+        String commandHint();
     }
 }

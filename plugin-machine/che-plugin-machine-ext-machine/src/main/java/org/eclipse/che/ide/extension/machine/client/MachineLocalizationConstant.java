@@ -37,11 +37,11 @@ public interface MachineLocalizationConstant extends Messages {
     @Key("control.executeArbitraryCommand.description")
     String executeArbitraryCommandControlDescription();
 
-    @Key("control.chooseCommand.text")
-    String chooseCommandControlTitle();
+    @Key("control.selectCommand.text")
+    String selectCommandControlTitle();
 
-    @Key("control.chooseCommand.description")
-    String chooseCommandControlDescription();
+    @Key("control.selectCommand.description")
+    String selectCommandControlDescription();
 
     @Key("control.runSelectedCommand.text")
     String executeSelectedCommandControlTitle();
@@ -84,4 +84,25 @@ public interface MachineLocalizationConstant extends Messages {
     /* EditConfigurationsView */
     @Key("view.editConfigurations.title")
     String editConfigurationsViewTitle();
+
+    @Key("view.editConfigurations.hint")
+    String editConfigurationsViewHint();
+
+    @Key("view.editConfigurations.name.text")
+    String editConfigurationsViewNameText();
+
+    @Key("view.editConfigurations.save.text")
+    String editConfigurationsViewSaveText();
+
+    @Key("view.editConfigurations.add.text")
+    String editConfigurationsViewAddText();
+
+    @Key("view.editConfigurations.add.title")
+    String editConfigurationsViewAddTitle();
+
+    @Key("view.editConfigurations.remove.text")
+    String editConfigurationsViewRemoveText();
+
+    @Key("view.editConfigurations.remove.title")
+    String editConfigurationsViewRemoveTitle();
 }

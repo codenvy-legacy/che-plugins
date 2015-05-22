@@ -13,29 +13,20 @@ package org.eclipse.che.ide.extension.maven.client;
 import com.google.gwt.i18n.client.Messages;
 
 /**
- * Localization constants. Interface to represent the constants contained in resource bundle:
- * 'MavenLocalizationConstant.properties'.
+ * Represents the localization constants contained in resource bundle: 'MavenLocalizationConstant.properties'.
  *
  * @author Artem Zatsarynnyy
  */
 public interface MavenLocalizationConstant extends Messages {
+
     /* Actions */
-    @Key("control.customBuildProject.id")
-    String buildProjectControlId();
 
-    @Key("control.customBuildProject.text")
-    String buildProjectControlTitle();
+    @Key("action.createMavenModule.text")
+    String actionCreateMavenModuleText();
 
-    @Key("control.customBuildProject.description")
-    String buildProjectControlDescription();
+    @Key("action.createMavenModule.description")
+    String actionCreateMavenModuleDescription();
 
-    @Key("button.cancel")
-    @DefaultMessage("Cancel")
-    String buttonCancel();
-
-    @Key("maven.build.skipTest")
-    @DefaultMessage("Skip Test (-Dmaven.test.skip)")
-    String skipTest();
 
     @Key("maven.build.updateSnapshot")
     @DefaultMessage("Update Snapshot (-U,--update-snapshots)")
@@ -46,25 +37,8 @@ public interface MavenLocalizationConstant extends Messages {
                     "and snapshots on remote repositories")
     String updateSnapshotDesc();
 
-    @Key("maven.build.start")
-    @DefaultMessage("Start build")
-    String startBuild();
 
-    @Key("maven.builder.title")
-    @DefaultMessage("Maven Builder")
-    String mavenBuilder();
-
-    @Key("maven.builder.offline-mode")
-    @DefaultMessage("Work Offline (-o,--offline)")
-    String offlineMode();
-
-
-    @Key("messages.parsing.file")
-    String parsingFile();
-
-    @Key("action.CreateMavenModule.text")
-    String actionCreateMavenModuleText();
-
-    @Key("action.CreateMavenModule.description")
-    String actionCreateMavenModuleDescription();
+    /* MavenCommandPageView */
+    @Key("view.mavenCommandPage.commandLine.text")
+    String mavenCommandPageViewCommandLineText();
 }

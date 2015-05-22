@@ -21,7 +21,6 @@ import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.ide.api.action.ActionManager;
 import org.eclipse.che.ide.api.action.DefaultActionGroup;
-import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.constraints.Constraints;
 import org.eclipse.che.ide.api.event.ProjectActionEvent;
 import org.eclipse.che.ide.api.event.ProjectActionHandler;
@@ -29,12 +28,11 @@ import org.eclipse.che.ide.api.extension.Extension;
 import org.eclipse.che.ide.api.parts.PartStackType;
 import org.eclipse.che.ide.api.parts.WorkspaceAgent;
 import org.eclipse.che.ide.collections.Array;
-import org.eclipse.che.ide.extension.machine.client.actions.ChooseCommandAction;
 import org.eclipse.che.ide.extension.machine.client.actions.EditCommandsAction;
 import org.eclipse.che.ide.extension.machine.client.actions.ExecuteArbitraryCommandAction;
 import org.eclipse.che.ide.extension.machine.client.actions.ExecuteSelectedCommandAction;
+import org.eclipse.che.ide.extension.machine.client.actions.SelectCommandAction;
 import org.eclipse.che.ide.extension.machine.client.actions.TerminateMachineAction;
-import org.eclipse.che.ide.extension.machine.client.command.configuration.CommandManager;
 import org.eclipse.che.ide.extension.machine.client.console.ClearConsoleAction;
 import org.eclipse.che.ide.extension.machine.client.console.MachineConsolePresenter;
 import org.eclipse.che.ide.extension.machine.client.console.MachineConsoleToolbar;
@@ -63,25 +61,17 @@ public class MachineExtension {
     @Inject
     public MachineExtension(final MachineResources machineResources,
                             final EventBus eventBus,
-                            final AppContext appContext,
                             final MachineServiceClient machineServiceClient,
                             final MachineManager machineManager,
-                            final CommandManager commandManager,
-                            final MachineConsolePresenter machineConsolePresenter,
-                            final ChooseCommandAction chooseCommandAction) {
-
-        machineResources.machine().ensureInjected();
+                            final MachineConsolePresenter machineConsolePresenter) {
+        machineResources.getCss().ensureInjected();
 
         eventBus.addHandler(ProjectActionEvent.TYPE, new ProjectActionHandler() {
             @Override
             public void onProjectOpened(ProjectActionEvent event) {
-                chooseCommandAction.setProjectRunners(commandManager.getCommandConfigurations());
-
-                final String projectPath = event.getProject().getPath();
-
                 // start machine and bind project
-                Promise<Array<MachineDescriptor>> machinesPromise = machineServiceClient.getMachines(appContext.getWorkspace().getId(),
-                                                                                                     projectPath);
+                final String projectPath = event.getProject().getPath();
+                Promise<Array<MachineDescriptor>> machinesPromise = machineServiceClient.getMachines(projectPath);
                 machinesPromise.then(new Operation<Array<MachineDescriptor>>() {
                     @Override
                     public void apply(Array<MachineDescriptor> arg) throws OperationException {
@@ -96,7 +86,6 @@ public class MachineExtension {
 
             @Override
             public void onProjectClosing(ProjectActionEvent event) {
-                //nothing to do for now
             }
 
             @Override
@@ -112,7 +101,7 @@ public class MachineExtension {
                                 ActionManager actionManager,
                                 ExecuteArbitraryCommandAction executeArbitraryCommandAction,
                                 ExecuteSelectedCommandAction executeSelectedCommandAction,
-                                ChooseCommandAction chooseCommandAction,
+                                SelectCommandAction selectCommandAction,
                                 EditCommandsAction editCommandsAction,
                                 TerminateMachineAction terminateMachineAction) {
         final DefaultActionGroup mainMenu = (DefaultActionGroup)actionManager.getAction(GROUP_MAIN_MENU);
@@ -123,7 +112,7 @@ public class MachineExtension {
         actionManager.registerAction("executeArbitraryCommand", executeArbitraryCommandAction);
         actionManager.registerAction("editCommands", editCommandsAction);
         actionManager.registerAction("terminateMachine", terminateMachineAction);
-        actionManager.registerAction("chooseCommand", chooseCommandAction);
+        actionManager.registerAction("selectCommandAction", selectCommandAction);
         actionManager.registerAction("executeSelectedCommand", executeSelectedCommandAction);
 
         // add actions in main menu
@@ -138,7 +127,7 @@ public class MachineExtension {
         final DefaultActionGroup machineToolbarGroup = new DefaultActionGroup(GROUP_MACHINE_TOOLBAR, false, actionManager);
         actionManager.registerAction(GROUP_MACHINE_TOOLBAR, machineToolbarGroup);
         rightToolbarGroup.add(machineToolbarGroup);
-        machineToolbarGroup.add(chooseCommandAction);
+        machineToolbarGroup.add(selectCommandAction);
         machineToolbarGroup.add(executeSelectedCommandAction);
 
         // add group for command list
