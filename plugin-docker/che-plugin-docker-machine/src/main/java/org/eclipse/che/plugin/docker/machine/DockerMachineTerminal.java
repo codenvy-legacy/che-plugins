@@ -56,22 +56,24 @@ public class DockerMachineTerminal {
         eventService.subscribe(new EventSubscriber<MachineStateEvent>() {
             @Override
             public void onEvent(MachineStateEvent event) {
-                try {
-                    final MachineImpl machine = machineManager.getMachine(event.getMachineId());
-                    final String containerId = machine.getMetadata().getProperties().get("id");
+                if (event.getEventType() == MachineStateEvent.EventType.RUNNING) {
+                    try {
+                        final MachineImpl machine = machineManager.getMachine(event.getMachineId());
+                        final String containerId = machine.getMetadata().getProperties().get("id");
 
-                    final Exec exec = docker.createExec(containerId, true, "/bin/bash", "-c",
-                                                        "/usr/local/codenvy/terminal/terminal -addr :4300 -cmd /bin/sh -static /usr/local/codenvy/terminal/");
-                    docker.startExec(exec.getId(), new LogMessageProcessor() {
-                        @Override
-                        public void process(LogMessage logMessage) {
-                            // TODO log to machines logs
-                            LOG.error(String.format("Terminal error in container %s. %s", containerId, logMessage.getContent()));
-                        }
-                    });
-                    // TODO Add link to machine
-                } catch (IOException | MachineException | NotFoundException e) {
-                    LOG.error(e.getLocalizedMessage(), e);
+                        final Exec exec = docker.createExec(containerId, true, "/bin/bash", "-c",
+                                                            "/usr/local/codenvy/terminal/terminal -addr :4300 -cmd /bin/sh -static /usr/local/codenvy/terminal/");
+                        docker.startExec(exec.getId(), new LogMessageProcessor() {
+                            @Override
+                            public void process(LogMessage logMessage) {
+                                // TODO log to machines logs
+                                LOG.error(String.format("Terminal error in container %s. %s", containerId, logMessage.getContent()));
+                            }
+                        });
+                        // TODO Add link to machine
+                    } catch (IOException | MachineException | NotFoundException e) {
+                        LOG.error(e.getLocalizedMessage(), e);
+                    }
                 }
             }
         });
