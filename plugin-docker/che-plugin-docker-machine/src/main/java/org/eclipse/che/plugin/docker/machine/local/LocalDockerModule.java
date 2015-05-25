@@ -14,6 +14,8 @@ import org.eclipse.che.plugin.docker.machine.DockerInstanceProvider;
 import org.eclipse.che.plugin.docker.machine.DockerNodeFactory;
 import com.google.inject.AbstractModule;
 import com.google.inject.multibindings.Multibinder;
+import com.google.inject.name.Names;
+
 import org.eclipse.che.api.machine.server.MachineService;
 import org.eclipse.che.api.machine.server.SnapshotStorage;
 import org.eclipse.che.api.machine.server.spi.InstanceProvider;
@@ -34,5 +36,10 @@ public class LocalDockerModule extends AbstractModule {
         bind(MachineService.class);
         Multibinder.newSetBinder(binder(), InstanceProvider.class).addBinding().to(DockerInstanceProvider.class);
 
+        Multibinder<String> exposedPortsMultibinder =
+                Multibinder.newSetBinder(binder(), String.class, Names.named("machine.docker.system_exposed_ports"));
+
+        Multibinder<String> volumesMultibinder =
+                Multibinder.newSetBinder(binder(), String.class, Names.named("machine.docker.system_volumes"));
     }
 }
