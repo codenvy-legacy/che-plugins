@@ -143,7 +143,11 @@ public class ServiceTest {
 
         eventService = mock(EventService.class);
 
-        dockerInstanceProvider = new DockerInstanceProvider(docker, "localhost:5000", dockerNodeFactory);
+        dockerInstanceProvider = new DockerInstanceProvider(docker,
+                                                            "localhost:5000",
+                                                            dockerNodeFactory,
+                                                            new HashSet<String>(),
+                                                            new HashSet<String>());
 
         machineManager = new MachineManager(snapshotStorage,
                                             Collections.singleton(dockerInstanceProvider),

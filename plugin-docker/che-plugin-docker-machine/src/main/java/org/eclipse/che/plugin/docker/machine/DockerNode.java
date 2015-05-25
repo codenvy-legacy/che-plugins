@@ -49,10 +49,14 @@ public interface DockerNode {
      * Bind the whole workspace with specified id.<br>
      * Project can't be bound/unbound if workspace is bound already, and vice versa.
      *
-     * @param workspaceId id of workspace to bind
-     * @throws MachineException if error occurs on binding
+     * @param workspaceId
+     *         id of workspace to bind
+     * @param hostProjectsFolder
+     *         folder on the docker host where workspace should be bound
+     * @throws MachineException
+     *         if error occurs on binding
      */
-    void bindWorkspace(String workspaceId) throws MachineException;
+    void bindWorkspace(String workspaceId, String hostProjectsFolder) throws MachineException;
 
     /**
      * Get path of folder on docker node that will contain bound projects

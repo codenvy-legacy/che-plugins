@@ -14,9 +14,6 @@ import org.eclipse.che.plugin.docker.client.DockerConnector;
 import org.eclipse.che.plugin.docker.client.DockerFileException;
 import org.eclipse.che.plugin.docker.client.Dockerfile;
 import org.eclipse.che.plugin.docker.client.DockerfileParser;
-import org.eclipse.che.plugin.docker.client.Exec;
-import org.eclipse.che.plugin.docker.client.LogMessage;
-import org.eclipse.che.plugin.docker.client.LogMessageProcessor;
 import org.eclipse.che.plugin.docker.client.ProgressLineFormatterImpl;
 import org.eclipse.che.plugin.docker.client.ProgressMonitor;
 import org.eclipse.che.plugin.docker.client.json.ContainerConfig;
@@ -46,10 +43,13 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -66,14 +66,20 @@ public class DockerInstanceProvider implements InstanceProvider {
     private final String            registry;
     private final DockerNodeFactory dockerNodeFactory;
     private final Set<String>       supportedRecipeTypes;
+    private final Set<String>       systemExposedPorts;
+    private final Set<String>       systemVolumes;
 
     @Inject
     public DockerInstanceProvider(DockerConnector docker,
                                   @Named("machine.docker.registry") String registry,
-                                  DockerNodeFactory dockerNodeFactory) {
+                                  DockerNodeFactory dockerNodeFactory,
+                                  @Named("machine.docker.system_exposed_ports") Set<String> systemExposedPorts,
+                                  @Named("machine.docker.system_volumes") Set<String> systemVolumes) {
         this.docker = docker;
         this.registry = registry;
         this.dockerNodeFactory = dockerNodeFactory;
+        this.systemExposedPorts = systemExposedPorts;
+        this.systemVolumes = systemVolumes;
         final Set<String> recipeTypes = new LinkedHashSet<>(2);
         recipeTypes.add("Dockerfile");
         supportedRecipeTypes = Collections.unmodifiableSet(recipeTypes);
@@ -232,10 +238,14 @@ public class DockerInstanceProvider implements InstanceProvider {
     private DockerInstance createInstance(String imageId, LineConsumer outputConsumer, String workspaceId, boolean bindWorkspace)
             throws MachineException {
         try {
+            Map<String, Map<String, String>> portsToExpose = new HashMap<>();
+            for (String systemExposedPort : systemExposedPorts) {
+                portsToExpose.put(systemExposedPort, Collections.<String, String>emptyMap());
+            }
+
             final ContainerConfig config = new ContainerConfig().withImage(imageId)
                                                                 .withMemorySwap(-1)
-                                                                .withExposedPorts(Collections.singletonMap("4300", Collections
-                                                                        .<String, String>emptyMap()));
+                                                                .withExposedPorts(portsToExpose);
 
             LOG.debug("Creating container from image {}", imageId);
 
@@ -247,37 +257,23 @@ public class DockerInstanceProvider implements InstanceProvider {
             String hostProjectsFolder = node.getProjectsFolder();
 
             if (bindWorkspace) {
-                node.bindWorkspace(workspaceId);
+                node.bindWorkspace(workspaceId, hostProjectsFolder);
             }
+
+            final ArrayList<String> volumes = new ArrayList<>(systemVolumes.size() + 1);
+            volumes.addAll(systemVolumes);
+            volumes.add(String.format("%s:%s", hostProjectsFolder, "/projects"));
 
             LOG.debug("Starting container {}", containerId);
             docker.startContainer(containerId,
                                   new HostConfig().withPublishAllPorts(true)
-                                                  .withBinds(String.format("%s:%s", hostProjectsFolder, "/projects"),
-                                                             "/usr/local/codenvy/terminal:/usr/local/codenvy/terminal"),//TODO add :ro
+                                                  .withBinds(volumes.toArray(new String[volumes.size()])),
                                   new LogMessagePrinter(outputConsumer));
             LOG.debug("Container {} has been started successfully", containerId);
-
-            startTerminal(containerId);
 
             return new DockerInstance(docker, registry, containerId, outputConsumer, node);
         } catch (IOException e) {
             throw new MachineException(e);
-        }
-    }
-
-    private void startTerminal(final String container) {
-        try {
-            final Exec exec = docker.createExec(container, true, "/bin/bash", "-c",
-                                                "/usr/local/codenvy/terminal/terminal -addr :4300 -cmd /bin/sh -static /usr/local/codenvy/terminal/");
-            docker.startExec(exec.getId(), new LogMessageProcessor() {
-                @Override
-                public void process(LogMessage logMessage) {
-                    LOG.error(String.format("Terminal error in container %s. %s", container, logMessage.getContent()));
-                }
-            });
-        } catch (IOException e) {
-            LOG.error(e.getLocalizedMessage(), e);
         }
     }
 }
