@@ -10,6 +10,16 @@
  *******************************************************************************/
 package org.eclipse.che.plugin.docker.machine;
 
+import org.eclipse.che.api.core.NotFoundException;
+import org.eclipse.che.api.core.util.LineConsumer;
+import org.eclipse.che.api.core.util.ValueHolder;
+import org.eclipse.che.api.machine.server.MachineException;
+import org.eclipse.che.api.machine.server.spi.Instance;
+import org.eclipse.che.api.machine.server.spi.InstanceKey;
+import org.eclipse.che.api.machine.server.spi.InstanceMetadata;
+import org.eclipse.che.api.machine.server.spi.InstanceProcess;
+import org.eclipse.che.api.machine.shared.ProjectBinding;
+import org.eclipse.che.commons.lang.NameGenerator;
 import org.eclipse.che.plugin.docker.client.DockerConnector;
 import org.eclipse.che.plugin.docker.client.Exec;
 import org.eclipse.che.plugin.docker.client.LogMessage;
@@ -18,17 +28,6 @@ import org.eclipse.che.plugin.docker.client.ProgressLineFormatterImpl;
 import org.eclipse.che.plugin.docker.client.ProgressMonitor;
 import org.eclipse.che.plugin.docker.client.json.ContainerInfo;
 import org.eclipse.che.plugin.docker.client.json.ProgressStatus;
-
-import org.eclipse.che.api.core.NotFoundException;
-import org.eclipse.che.api.core.util.LineConsumer;
-import org.eclipse.che.api.core.util.ValueHolder;
-import org.eclipse.che.api.machine.server.MachineException;
-import org.eclipse.che.api.machine.server.spi.InstanceKey;
-import org.eclipse.che.api.machine.server.spi.Instance;
-import org.eclipse.che.api.machine.server.spi.InstanceMetadata;
-import org.eclipse.che.api.machine.server.spi.InstanceProcess;
-import org.eclipse.che.api.machine.shared.ProjectBinding;
-import org.eclipse.che.commons.lang.NameGenerator;
 
 import java.io.IOException;
 import java.util.LinkedList;
@@ -53,17 +52,23 @@ public class DockerInstance implements Instance {
     private final LineConsumer    outputConsumer;
     private final String          registry;
     private final DockerNode      node;
+    private final String          workspaceId;
+    private final boolean         workspaceIsBound;
 
     DockerInstance(DockerConnector docker,
                    String registry,
                    String container,
                    LineConsumer outputConsumer,
-                   DockerNode node) {
+                   DockerNode node,
+                   String workspaceId,
+                   boolean workspaceIsBound) {
         this.container = container;
         this.docker = docker;
         this.outputConsumer = outputConsumer;
         this.registry = registry;
         this.node = node;
+        this.workspaceId = workspaceId;
+        this.workspaceIsBound = workspaceIsBound;
     }
 
     @Override
@@ -169,7 +174,12 @@ public class DockerInstance implements Instance {
     @Override
     public void destroy() throws MachineException {
         try {
+            if (workspaceIsBound) {
+                node.unbindWorkspace(workspaceId, node.getProjectsFolder());
+            }
+
             docker.killContainer(container);
+
             docker.removeContainer(container, true, true);
         } catch (IOException e) {
             throw new MachineException(e.getLocalizedMessage());

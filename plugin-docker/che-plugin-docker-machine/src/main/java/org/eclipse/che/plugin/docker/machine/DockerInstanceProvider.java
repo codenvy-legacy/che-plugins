@@ -126,13 +126,6 @@ public class DockerInstanceProvider implements InstanceProvider {
             final String dockerImage = docker.buildImage(null, progressMonitor, files.toArray(new File[files.size()]));
 
             return createInstance(dockerImage, creationLogsOutput, workspaceId, bindWorkspace);
-
-            /*// don't need repository, registry, tag for now
-            return new DockerImage(docker,
-                                   registry,
-                                   dockerNodeFactory,
-                                   new DockerInstanceSnapshotKey(null, null, dockerImage, null),
-                                   creationLogsOutput);*/
         } catch (IOException | InterruptedException e) {
             throw new MachineException(e.getMessage(), e);
         } finally {
@@ -168,16 +161,6 @@ public class DockerInstanceProvider implements InstanceProvider {
             });
 
             return createInstance(imageId, creationLogsOutput, workspaceId, bindWorkspace);
-
-            /*return new DockerImage(docker,
-                                   registry,
-                                   dockerNodeFactory,
-                                   new DockerInstanceSnapshotKey(repository,
-                                                      dockerInstanceKey.getTag(),
-                                                                         imageId,
-                                                      dockerInstanceKey.getRegistry()),
-
-                                   creationLogsOutput);*/
         } catch (IOException | InterruptedException e) {
             throw new MachineException(e.getLocalizedMessage(), e);
         }
@@ -271,7 +254,7 @@ public class DockerInstanceProvider implements InstanceProvider {
                                   new LogMessagePrinter(outputConsumer));
             LOG.debug("Container {} has been started successfully", containerId);
 
-            return new DockerInstance(docker, registry, containerId, outputConsumer, node);
+            return new DockerInstance(docker, registry, containerId, outputConsumer, node, workspaceId, bindWorkspace);
         } catch (IOException e) {
             throw new MachineException(e);
         }

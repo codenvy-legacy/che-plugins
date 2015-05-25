@@ -59,6 +59,19 @@ public interface DockerNode {
     void bindWorkspace(String workspaceId, String hostProjectsFolder) throws MachineException;
 
     /**
+     * Unbind the workspace with specified id.<br>
+     * Project can't be bound/unbound if workspace is bound already, and vice versa.
+     *
+     * @param workspaceId
+     *         id of workspace to unbind
+     * @param hostProjectsFolder
+     *         folder on the docker host where workspace was bound
+     * @throws MachineException
+     *         if error occurs on binding
+     */
+    void unbindWorkspace(String workspaceId, String hostProjectsFolder) throws MachineException;
+
+    /**
      * Get path of folder on docker node that will contain bound projects
      */
     String getProjectsFolder();
