@@ -265,7 +265,7 @@ public class ServiceTest {
         assertEquals(MachineState.DESTROYING, machine.getState());
 
         int counter = 0;
-        while (++counter < 10) {
+        while (++counter < 1000) {
             try {
                 machineManager.getMachine(machine.getId());
             } catch (NotFoundException e) {
