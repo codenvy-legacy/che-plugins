@@ -8,7 +8,7 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.ide.extension.machine.client.console;
+package org.eclipse.che.ide.extension.machine.client.machine.console;
 
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 
@@ -38,10 +38,10 @@ public interface MachineConsoleView extends View<MachineConsoleView.ActionDelega
     void print(String message);
 
     /**
-     * Set title of console part.
+     * Set view's title.
      *
      * @param title
-     *         new title for console
+     *         new title
      */
     void setTitle(String title);
 

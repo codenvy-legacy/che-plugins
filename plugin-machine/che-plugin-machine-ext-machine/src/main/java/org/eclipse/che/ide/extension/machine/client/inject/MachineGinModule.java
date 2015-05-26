@@ -11,19 +11,27 @@
 package org.eclipse.che.ide.extension.machine.client.inject;
 
 import com.google.gwt.inject.client.AbstractGinModule;
+import com.google.gwt.inject.client.assistedinject.GinFactoryModuleBuilder;
 import com.google.gwt.inject.client.multibindings.GinMultibinder;
 import com.google.inject.Singleton;
 
 import org.eclipse.che.ide.api.extension.ExtensionGinModule;
 import org.eclipse.che.ide.extension.machine.client.command.CommandType;
 import org.eclipse.che.ide.extension.machine.client.command.arbitrary.ArbitraryCommandType;
+import org.eclipse.che.ide.extension.machine.client.outputspanel.console.OutputConsole;
+import org.eclipse.che.ide.extension.machine.client.outputspanel.console.CommandConsoleFactory;
+import org.eclipse.che.ide.extension.machine.client.outputspanel.console.CommandOutputConsole;
+import org.eclipse.che.ide.extension.machine.client.outputspanel.console.OutputConsoleView;
+import org.eclipse.che.ide.extension.machine.client.outputspanel.console.CommandOutputConsoleView;
 import org.eclipse.che.ide.extension.machine.client.command.edit.EditConfigurationsView;
 import org.eclipse.che.ide.extension.machine.client.command.edit.EditConfigurationsViewImpl;
 import org.eclipse.che.ide.extension.machine.client.command.execute.ExecuteArbitraryCommandView;
 import org.eclipse.che.ide.extension.machine.client.command.execute.ExecuteArbitraryCommandViewImpl;
-import org.eclipse.che.ide.extension.machine.client.console.MachineConsoleToolbar;
-import org.eclipse.che.ide.extension.machine.client.console.MachineConsoleView;
-import org.eclipse.che.ide.extension.machine.client.console.MachineConsoleViewImpl;
+import org.eclipse.che.ide.extension.machine.client.machine.console.MachineConsoleToolbar;
+import org.eclipse.che.ide.extension.machine.client.machine.console.MachineConsoleView;
+import org.eclipse.che.ide.extension.machine.client.machine.console.MachineConsoleViewImpl;
+import org.eclipse.che.ide.extension.machine.client.outputspanel.OutputsContainerView;
+import org.eclipse.che.ide.extension.machine.client.outputspanel.OutputsContainerViewImpl;
 import org.eclipse.che.ide.ui.toolbar.ToolbarPresenter;
 
 /**
@@ -39,6 +47,12 @@ public class MachineGinModule extends AbstractGinModule {
     protected void configure() {
         bind(ToolbarPresenter.class).annotatedWith(MachineConsoleToolbar.class).to(ToolbarPresenter.class).in(Singleton.class);
         bind(MachineConsoleView.class).to(MachineConsoleViewImpl.class).in(Singleton.class);
+
+        bind(OutputConsoleView.class).to(CommandOutputConsoleView.class);
+        install(new GinFactoryModuleBuilder().implement(OutputConsole.class, CommandOutputConsole.class)
+                                             .build(CommandConsoleFactory.class));
+
+        bind(OutputsContainerView.class).to(OutputsContainerViewImpl.class).in(Singleton.class);
         bind(ExecuteArbitraryCommandView.class).to(ExecuteArbitraryCommandViewImpl.class).in(Singleton.class);
         bind(EditConfigurationsView.class).to(EditConfigurationsViewImpl.class).in(Singleton.class);
 

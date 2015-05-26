@@ -22,7 +22,10 @@ import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.ide.extension.machine.client.MachineResources;
 import org.eclipse.che.ide.extension.machine.client.OutputMessageUnmarshaller;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
-import org.eclipse.che.ide.extension.machine.client.console.MachineConsolePresenter;
+import org.eclipse.che.ide.extension.machine.client.outputspanel.console.OutputConsole;
+import org.eclipse.che.ide.extension.machine.client.outputspanel.console.CommandConsoleFactory;
+import org.eclipse.che.ide.extension.machine.client.machine.console.MachineConsolePresenter;
+import org.eclipse.che.ide.extension.machine.client.outputspanel.OutputsContainerPresenter;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.util.UUID;
 import org.eclipse.che.ide.util.loging.Log;
@@ -46,11 +49,13 @@ public class MachineManager {
     /** WebSocket channel to receive messages about changing machine state (machine:state:machineID). */
     private static final String MACHINE_STATE_CHANNEL = "machine:state:";
 
-    private final MachineResources        machineResources;
-    private final MachineServiceClient    machineServiceClient;
-    private final DtoUnmarshallerFactory  dtoUnmarshallerFactory;
-    private final MessageBus              messageBus;
-    private final MachineConsolePresenter machineConsolePresenter;
+    private final MachineResources          machineResources;
+    private final MachineServiceClient      machineServiceClient;
+    private final DtoUnmarshallerFactory    dtoUnmarshallerFactory;
+    private final MessageBus                messageBus;
+    private final MachineConsolePresenter   machineConsolePresenter;
+    private final OutputsContainerPresenter outputsContainerPresenter;
+    private final CommandConsoleFactory     commandConsoleFactory;
 
     private String currentMachineId;
 
@@ -59,12 +64,16 @@ public class MachineManager {
                           MachineServiceClient machineServiceClient,
                           DtoUnmarshallerFactory dtoUnmarshallerFactory,
                           MessageBus messageBus,
-                          MachineConsolePresenter machineConsolePresenter) {
+                          MachineConsolePresenter machineConsolePresenter,
+                          OutputsContainerPresenter outputsContainerPresenter,
+                          CommandConsoleFactory commandConsoleFactory) {
         this.machineResources = machineResources;
         this.machineServiceClient = machineServiceClient;
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
         this.messageBus = messageBus;
         this.machineConsolePresenter = machineConsolePresenter;
+        this.outputsContainerPresenter = outputsContainerPresenter;
+        this.commandConsoleFactory = commandConsoleFactory;
     }
 
     /** Returns ID of the current machine, where current project is bound. */
@@ -165,7 +174,10 @@ public class MachineManager {
         }
 
         final String outputChannel = getProcessOutputChannel();
-        subscribeToOutput(outputChannel);
+
+        final OutputConsole console = commandConsoleFactory.create(configuration);
+        console.attachToOutput(outputChannel);
+        outputsContainerPresenter.addConsole(console);
 
         machineServiceClient.executeCommand(currentMachineId, configuration.toCommandLine(), outputChannel);
     }

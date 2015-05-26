@@ -76,6 +76,14 @@ public interface MachineLocalizationConstant extends Messages {
     String machineConsoleViewTooltip();
 
 
+    /* OutputsContainerView */
+    @Key("view.outputsConsole.title")
+    String outputsConsoleViewTitle();
+
+    @Key("view.outputsConsole.tooltip")
+    String outputsConsoleViewTooltip();
+
+
     /* ExecuteArbitraryCommandView */
     @Key("view.executeCommand.title")
     String executeCommandViewTitle();

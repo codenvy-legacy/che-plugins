@@ -23,7 +23,7 @@ import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration
 import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
 
 /**
- * Action to execute command which is selected in drop-down command list.
+ * Action to execute command which is selected in drop-down list.
  *
  * @author Artem Zatsarynnyy
  */

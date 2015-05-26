@@ -17,23 +17,24 @@ import org.eclipse.che.ide.websocket.Message;
 import org.eclipse.che.ide.websocket.rest.Unmarshallable;
 
 /**
- * Unmarshaller for websocket messages from Machine API.
+ * Unmarshaller for websocket messages from machine.
  *
  * @author Artem Zatsarynnyy
  */
 public class OutputMessageUnmarshaller implements Unmarshallable<String> {
-    private String builder;
+    private String payload;
 
-    /** {@inheritDoc} */
     @Override
     public void unmarshal(Message message) {
         final JSONString jsonString = JSONParser.parseStrict(message.getBody()).isString();
-        builder = jsonString.stringValue();
+        payload = jsonString.stringValue();
+        if (payload.startsWith("[STDOUT]") || payload.startsWith("[STDERR]")) {
+            payload = payload.substring(9);
+        }
     }
 
-    /** {@inheritDoc} */
     @Override
     public String getPayload() {
-        return builder;
+        return payload;
     }
 }

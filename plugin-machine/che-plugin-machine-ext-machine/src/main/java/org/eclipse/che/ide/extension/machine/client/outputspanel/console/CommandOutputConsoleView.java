@@ -8,83 +8,63 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.ide.extension.machine.client.console;
+package org.eclipse.che.ide.extension.machine.client.outputspanel.console;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
-import com.google.gwt.dom.client.Style.Overflow;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.safehtml.shared.SimpleHtmlSanitizer;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
-import com.google.gwt.user.client.ui.AcceptsOneWidget;
+import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.ScrollPanel;
-import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
-
-import org.eclipse.che.ide.api.parts.PartStackUIResources;
-import org.eclipse.che.ide.api.parts.base.BaseView;
 
 /**
- * Implementation of {@link MachineConsoleView}.
+ * View for {@link CommandOutputConsole}.
  *
  * @author Artem Zatsarynnyy
  */
-@Singleton
-public class MachineConsoleViewImpl extends BaseView<MachineConsoleView.ActionDelegate> implements MachineConsoleView {
+public class CommandOutputConsoleView extends Composite implements OutputConsoleView {
+
+    private static final CommandOutputConsoleViewUiBinder UI_BINDER = GWT.create(CommandOutputConsoleViewUiBinder.class);
 
     private static final String PRE_STYLE = "style='margin:0px;'";
 
-    @UiField
-    SimplePanel toolbarPanel;
+    private ActionDelegate delegate;
+
     @UiField
     ScrollPanel scrollPanel;
     @UiField
     FlowPanel   consoleArea;
 
     @Inject
-    public MachineConsoleViewImpl(PartStackUIResources resources, BuilderConsoleViewImplUiBinder uiBinder) {
-        super(resources);
-
-        setContentWidget(uiBinder.createAndBindUi(this));
-
-        minimizeButton.ensureDebugId("machine-console-minimizeButton");
-
-        // this hack used for adding box shadow effect to toolbar
-        toolbarPanel.getElement().getParentElement().getStyle().setOverflow(Overflow.VISIBLE);
-        toolbarPanel.getElement().getParentElement().getStyle().setZIndex(1);
-
-        scrollPanel.getElement().setTabIndex(0);
+    public CommandOutputConsoleView() {
+        initWidget(UI_BINDER.createAndBindUi(this));
     }
 
-    /** {@inheritDoc} */
     @Override
-    public AcceptsOneWidget getToolbarPanel() {
-        return toolbarPanel;
+    public void setDelegate(ActionDelegate delegate) {
+        this.delegate = delegate;
     }
 
-    /** {@inheritDoc} */
+    @Override
+    public void printCommandLine(String commandLine) {
+        final HTML html = new HTML(buildSafeHtmlMessage(commandLine));
+        html.getElement().getStyle().setPaddingLeft(2, Style.Unit.PX);
+        html.getElement().getStyle().setColor("gray");
+        consoleArea.add(html);
+    }
+
     @Override
     public void print(String message) {
         final HTML html = new HTML(buildSafeHtmlMessage(message));
         html.getElement().getStyle().setPaddingLeft(2, Style.Unit.PX);
         consoleArea.add(html);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void clear() {
-        consoleArea.clear();
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void scrollBottom() {
-        scrollPanel.getElement().setScrollTop(scrollPanel.getElement().getScrollHeight());
     }
 
     /** Return sanitized message (with all restricted HTML-tags escaped) in {@link SafeHtml}. */
@@ -96,11 +76,12 @@ public class MachineConsoleViewImpl extends BaseView<MachineConsoleView.ActionDe
                 .toSafeHtml();
     }
 
+    /** {@inheritDoc} */
     @Override
-    protected void focusView() {
-        scrollPanel.getElement().focus();
+    public void scrollBottom() {
+        scrollPanel.getElement().setScrollTop(scrollPanel.getElement().getScrollHeight());
     }
 
-    interface BuilderConsoleViewImplUiBinder extends UiBinder<Widget, MachineConsoleViewImpl> {
+    interface CommandOutputConsoleViewUiBinder extends UiBinder<Widget, CommandOutputConsoleView> {
     }
 }

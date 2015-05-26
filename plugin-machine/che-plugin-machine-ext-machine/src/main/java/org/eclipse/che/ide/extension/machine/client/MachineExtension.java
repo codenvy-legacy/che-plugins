@@ -33,10 +33,11 @@ import org.eclipse.che.ide.extension.machine.client.actions.ExecuteArbitraryComm
 import org.eclipse.che.ide.extension.machine.client.actions.ExecuteSelectedCommandAction;
 import org.eclipse.che.ide.extension.machine.client.actions.SelectCommandAction;
 import org.eclipse.che.ide.extension.machine.client.actions.TerminateMachineAction;
-import org.eclipse.che.ide.extension.machine.client.console.ClearConsoleAction;
-import org.eclipse.che.ide.extension.machine.client.console.MachineConsolePresenter;
-import org.eclipse.che.ide.extension.machine.client.console.MachineConsoleToolbar;
 import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
+import org.eclipse.che.ide.extension.machine.client.machine.console.ClearConsoleAction;
+import org.eclipse.che.ide.extension.machine.client.machine.console.MachineConsolePresenter;
+import org.eclipse.che.ide.extension.machine.client.machine.console.MachineConsoleToolbar;
+import org.eclipse.che.ide.extension.machine.client.outputspanel.OutputsContainerPresenter;
 import org.eclipse.che.ide.ui.toolbar.ToolbarPresenter;
 
 import static org.eclipse.che.ide.api.action.IdeActions.GROUP_CODE;
@@ -138,11 +139,11 @@ public class MachineExtension {
     }
 
     @Inject
-    private void prepareMachineConsole(ActionManager actionManager,
-                                       ClearConsoleAction clearConsoleAction,
-                                       WorkspaceAgent workspaceAgent,
-                                       MachineConsolePresenter machineConsolePresenter,
-                                       @MachineConsoleToolbar ToolbarPresenter machineConsoleToolbar) {
+    private void setUpMachineConsole(ActionManager actionManager,
+                                     ClearConsoleAction clearConsoleAction,
+                                     WorkspaceAgent workspaceAgent,
+                                     MachineConsolePresenter machineConsolePresenter,
+                                     @MachineConsoleToolbar ToolbarPresenter machineConsoleToolbar) {
         workspaceAgent.openPart(machineConsolePresenter, PartStackType.INFORMATION);
 
         // add toolbar to Machine console
@@ -150,5 +151,11 @@ public class MachineExtension {
         consoleToolbarActionGroup.add(clearConsoleAction);
         consoleToolbarActionGroup.addSeparator();
         machineConsoleToolbar.bindMainGroup(consoleToolbarActionGroup);
+    }
+
+    @Inject
+    private void setUpOutputsConsole(WorkspaceAgent workspaceAgent,
+                                     OutputsContainerPresenter outputsContainerPresenter) {
+        workspaceAgent.openPart(outputsContainerPresenter, PartStackType.INFORMATION);
     }
 }

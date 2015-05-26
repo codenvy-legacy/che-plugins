@@ -8,24 +8,20 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.ide.extension.machine.client.console;
+package org.eclipse.che.ide.extension.machine.client.outputspanel.console;
 
-import com.google.inject.BindingAnnotation;
-
-import org.eclipse.che.ide.ui.toolbar.Toolbar;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import org.eclipse.che.ide.api.mvp.Presenter;
 
 /**
- * Used to bind Builder {@link Toolbar}.
+ * Console for output.
  *
  * @author Artem Zatsarynnyy
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.FIELD, ElementType.PARAMETER, ElementType.METHOD, ElementType.TYPE})
-@BindingAnnotation
-public @interface MachineConsoleToolbar {
+public interface OutputConsole extends Presenter {
+
+    /** Return title for the console. */
+    String getTitle();
+
+    /** Attach console to the output that received from the given {@code outputChannel}. */
+    void attachToOutput(String outputChannel);
 }
