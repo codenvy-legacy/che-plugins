@@ -143,7 +143,11 @@ public class ServiceTest {
 
         eventService = mock(EventService.class);
 
-        dockerInstanceProvider = new DockerInstanceProvider(docker, "localhost:5000", dockerNodeFactory);
+        dockerInstanceProvider = new DockerInstanceProvider(docker,
+                                                            "localhost:5000",
+                                                            dockerNodeFactory,
+                                                            new HashSet<String>(),
+                                                            new HashSet<String>());
 
         machineManager = new MachineManager(snapshotStorage,
                                             Collections.singleton(dockerInstanceProvider),
@@ -261,7 +265,7 @@ public class ServiceTest {
         assertEquals(MachineState.DESTROYING, machine.getState());
 
         int counter = 0;
-        while (++counter < 10) {
+        while (++counter < 1000) {
             try {
                 machineManager.getMachine(machine.getId());
             } catch (NotFoundException e) {

@@ -11,14 +11,9 @@
 package org.eclipse.che.plugin.docker.machine.local;
 
 import org.eclipse.che.plugin.docker.machine.DockerNode;
-import org.eclipse.che.plugin.docker.machine.DockerNodeFactory;
-import com.google.inject.assistedinject.Assisted;
 import org.eclipse.che.api.machine.server.MachineException;
 import org.eclipse.che.api.machine.shared.ProjectBinding;
 
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
 
@@ -51,7 +46,12 @@ public class LocalDockerNode implements DockerNode {
     }
 
     @Override
-    public void bindWorkspace(String workspaceId) throws MachineException {
+    public void bindWorkspace(String workspaceId, String hostProjectsFolder) throws MachineException {
+
+    }
+
+    @Override
+    public void unbindWorkspace(String workspaceId, String hostProjectsFolder) throws MachineException {
 
     }
 

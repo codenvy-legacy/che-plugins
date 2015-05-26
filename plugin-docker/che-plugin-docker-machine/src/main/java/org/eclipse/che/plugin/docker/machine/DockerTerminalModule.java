@@ -8,38 +8,31 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.plugin.docker.machine.local;
+package org.eclipse.che.plugin.docker.machine;
 
-import org.eclipse.che.plugin.docker.machine.DockerInstanceProvider;
-import org.eclipse.che.plugin.docker.machine.DockerNodeFactory;
 import com.google.inject.AbstractModule;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
 
-import org.eclipse.che.api.machine.server.MachineService;
-import org.eclipse.che.api.machine.server.SnapshotStorage;
-import org.eclipse.che.api.machine.server.spi.InstanceProvider;
-
 /**
- * The Module for Local Docker components
- * Note that LocalDockerNodeFactory requires machine.docker.local.project parameter pointed to
- * directory containing workspace projects tree
+ * Guice module for terminal feature in docker machines
  *
- * @author gazarenkov
+ * @author Alexander Garagatyi
  */
-public class LocalDockerModule extends AbstractModule {
-
+// Not a DynaModule, install manually
+public class DockerTerminalModule extends AbstractModule {
     @Override
     protected void configure() {
-        bind(SnapshotStorage.class).to(DummySnapshotStorage.class);
-        bind(DockerNodeFactory.class).to(LocalDockerNodeFactory.class);
-        bind(MachineService.class);
-        Multibinder.newSetBinder(binder(), InstanceProvider.class).addBinding().to(DockerInstanceProvider.class);
+        bind(DockerMachineTerminal.class).asEagerSingleton();
 
         Multibinder<String> exposedPortsMultibinder =
                 Multibinder.newSetBinder(binder(), String.class, Names.named("machine.docker.system_exposed_ports"));
+        exposedPortsMultibinder.addBinding().toInstance("4300");
 
         Multibinder<String> volumesMultibinder =
                 Multibinder.newSetBinder(binder(), String.class, Names.named("machine.docker.system_volumes"));
+        // :ro removed because of bug in a docker 1.6:L
+        //TODO add :ro when bug is fixed or rework terminal binding mechanism to provide copy of the terminal to each machine
+        volumesMultibinder.addBinding().toInstance("/usr/local/codenvy/terminal:/usr/local/codenvy/terminal");
     }
 }
