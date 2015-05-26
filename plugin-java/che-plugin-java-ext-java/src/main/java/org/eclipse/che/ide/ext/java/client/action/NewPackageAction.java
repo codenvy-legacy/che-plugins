@@ -165,6 +165,12 @@ public class NewPackageAction extends AbstractNewResourceAction {
                     public String getMessage() {
                         return e.getMessage();
                     }
+
+                    @Nullable
+                    @Override
+                    public String getCorrectedValue() {
+                        return null;
+                    }
                 };
             }
             return null;
