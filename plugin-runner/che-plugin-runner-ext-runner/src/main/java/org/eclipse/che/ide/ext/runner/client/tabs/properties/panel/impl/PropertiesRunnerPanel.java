@@ -27,7 +27,6 @@ import org.eclipse.che.ide.ext.runner.client.runneractions.impl.launch.common.Ru
 import org.eclipse.che.ide.ext.runner.client.tabs.container.TabContainer;
 import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.PropertiesPanelPresenter;
 import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.PropertiesPanelView;
-import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM;
 import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.docker.DockerFile;
 import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.docker.DockerFileFactory;
 import org.eclipse.che.ide.ext.runner.client.util.TimerFactory;
@@ -84,7 +83,7 @@ public class PropertiesRunnerPanel extends PropertiesPanelPresenter {
 
                 DockerFile file = dockerFileFactory.newInstance(dockerUrl);
                 initializeEditor(file, editorProvider, fileTypeRegistry);
-                view.selectMemory(RAM.detect(runner.getRAM()));
+                view.selectMemory(runner.getRAM());
             }
         });
         timer.schedule(ONE_SEC.getValue());
@@ -100,7 +99,8 @@ public class PropertiesRunnerPanel extends PropertiesPanelPresenter {
         this.view.setVisibleCancelButton(false);
 
         this.view.selectShutdown(getTimeout());
-        this.view.selectMemory(RAM.detect(runner.getRAM()));
+        this.view.addRamValue(runner.getRAM());
+        this.view.selectMemory(runner.getRAM());
         this.view.hideSwitcher();
 
         configureStatusRunEventHandler();
