@@ -45,6 +45,10 @@ public class OrionKeyModeOverlay extends JavaScriptObject {
         return new orionViModuleObject.VIMode(textView);
     }-*/;
 
+    public final static native OrionKeyModeOverlay getCheCodeAssistMode(JavaScriptObject cheCodeAssistModule,OrionTextViewOverlay textView) /*-{
+        return new cheCodeAssistModule.CheContentAssist(textView);
+    }-*/;
+
     public final static native OrionKeyModeOverlay getDefaultKeyMode(OrionTextViewOverlay textView) /*-{
         var keyModes = textView.getKeyModes();
         return keyModes[0];

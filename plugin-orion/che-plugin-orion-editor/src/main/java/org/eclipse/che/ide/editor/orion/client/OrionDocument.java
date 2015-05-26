@@ -14,6 +14,7 @@ import com.google.web.bindery.event.shared.HandlerRegistration;
 
 import org.eclipse.che.ide.api.text.Region;
 import org.eclipse.che.ide.editor.orion.client.jso.ModelChangedEventOverlay;
+import org.eclipse.che.ide.editor.orion.client.jso.OrionEditorOverlay;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionPixelPositionOverlay;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionSelectionOverlay;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionTextViewOverlay;
@@ -39,11 +40,13 @@ public class OrionDocument extends AbstractEmbeddedDocument {
     private final OrionPositionConverter positionConverter;
 
     private final HasCursorActivityHandlers  hasCursorActivityHandlers;
+    private OrionEditorOverlay editorOverlay;
 
     public OrionDocument(final OrionTextViewOverlay textViewOverlay,
-                         final HasCursorActivityHandlers hasCursorActivityHandlers) {
+                         final HasCursorActivityHandlers hasCursorActivityHandlers, OrionEditorOverlay editorOverlay) {
         this.textViewOverlay = textViewOverlay;
         this.hasCursorActivityHandlers = hasCursorActivityHandlers;
+        this.editorOverlay = editorOverlay;
         this.positionConverter = new OrionPositionConverter();
         textViewOverlay.addEventListener("ModelChanged", new OrionTextViewOverlay.EventHandler<ModelChangedEventOverlay>() {
             @Override
@@ -60,10 +63,10 @@ public class OrionDocument extends AbstractEmbeddedDocument {
         int removedCharCount = param.removedCharCount();
         int length = 0;
 
-        if(addedCharCount != 0) {
-           //adding
+        if (addedCharCount != 0) {
+            //adding
             length = addedCharCount;
-        } else if(removedCharCount != 0) {
+        } else if (removedCharCount != 0) {
             //deleting
             //TODO there may be bug
             length = removedCharCount;
@@ -74,13 +77,14 @@ public class OrionDocument extends AbstractEmbeddedDocument {
         final DocumentChangeEvent event = new DocumentChangeEvent(this, startOffset, length, text);
         getDocEventBus().fireEvent(event);
     }
+
     @Override
     public TextPosition getPositionFromIndex(final int index) {
-        final int line = this.textViewOverlay.getModel().getLineAtOffset(index);
+        final int line = this.editorOverlay.getModel().getLineAtOffset(index);
         if (line == -1) {
             return null;
         }
-        final int lineStart = this.textViewOverlay.getModel().getLineStart(line);
+        final int lineStart = this.editorOverlay.getModel().getLineStart(line);
         if (lineStart == -1) {
             return null;
         }
@@ -93,13 +97,13 @@ public class OrionDocument extends AbstractEmbeddedDocument {
 
     @Override
     public int getIndexFromPosition(final TextPosition position) {
-        final int lineStart = this.textViewOverlay.getModel().getLineStart(position.getLine());
+        final int lineStart = this.editorOverlay.getModel().getLineStart(position.getLine());
         if (lineStart == -1) {
             return -1;
         }
 
         final int result = lineStart + position.getCharacter();
-        final int lineEnd = this.textViewOverlay.getModel().getLineEnd(position.getLine());
+        final int lineEnd = this.editorOverlay.getModel().getLineEnd(position.getLine());
 
         if (lineEnd < result) {
             return -1;
@@ -135,19 +139,19 @@ public class OrionDocument extends AbstractEmbeddedDocument {
 
     @Override
     public String getContents() {
-        return this.textViewOverlay.getModel().getText();
+        return editorOverlay.getText();
     }
 
     @Override
     public String getContentRange(final int offset, final int length) {
-        return this.textViewOverlay.getModel().getText(offset, offset + length);
+        return this.editorOverlay.getModel().getText(offset, offset + length);
     }
 
     @Override
     public String getContentRange(final TextRange range) {
         final int startOffset = getIndexFromPosition(range.getFrom());
         final int endOffset = getIndexFromPosition(range.getTo());
-        return this.textViewOverlay.getModel().getText(startOffset, endOffset);
+        return this.editorOverlay.getModel().getText(startOffset, endOffset);
     }
 
     public PositionConverter getPositionConverter() {
@@ -164,7 +168,9 @@ public class OrionDocument extends AbstractEmbeddedDocument {
 
         @Override
         public PixelCoordinates offsetToPixel(int textOffset) {
-            final OrionPixelPositionOverlay location = textViewOverlay.getLocationAtOffset(textOffset);
+            OrionPixelPositionOverlay location = textViewOverlay.getLocationAtOffset(textOffset);
+            location.setY(location.getY() + textViewOverlay.getLineHeight());
+            location = textViewOverlay.convert(location, "document", "page");
             return new PixelCoordinates(location.getX(), location.getY());
         }
 
@@ -182,7 +188,7 @@ public class OrionDocument extends AbstractEmbeddedDocument {
     }
 
     public void replace(final Region region, final String text) {
-        this.textViewOverlay.getModel().setText(text, region.getOffset(), region.getLength());
+        this.textViewOverlay.setText(text, region.getOffset(), region.getOffset() + region.getLength());
     }
 
     public int getContentsCharCount() {

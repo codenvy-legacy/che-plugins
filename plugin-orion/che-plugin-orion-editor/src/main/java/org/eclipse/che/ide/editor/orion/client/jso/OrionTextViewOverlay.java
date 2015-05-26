@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.che.ide.editor.orion.client.jso;
 
+import elemental.dom.Element;
+
 import com.google.gwt.core.client.JavaScriptObject;
 
 import org.eclipse.che.ide.editor.orion.client.Action;
@@ -21,6 +23,10 @@ public class OrionTextViewOverlay extends JavaScriptObject {
 
     public final native OrionTextViewOptionsOverlay getOptions() /*-{
         return this.getOptions();
+    }-*/;
+
+    public final native Element getParent() /*-{
+        return this.getOption("parent");
     }-*/;
 
     public final native void setOptions(final OrionTextViewOptionsOverlay newValue) /*-{
@@ -45,6 +51,10 @@ public class OrionTextViewOverlay extends JavaScriptObject {
 
     public final native OrionTextModelOverlay getModel() /*-{
         return this.getModel();
+    }-*/;
+
+    public final native String getText() /*-{
+        return this.getText();
     }-*/;
 
     // selection
@@ -131,6 +141,7 @@ public class OrionTextViewOverlay extends JavaScriptObject {
     public final native void setAction(String actionId, Action action) /*-{
         this.setAction(actionId, function() {
             action.@org.eclipse.che.ide.editor.orion.client.Action::onAction()();
+            return true;
         });
     }-*/;
 
@@ -138,6 +149,10 @@ public class OrionTextViewOverlay extends JavaScriptObject {
         this.setAction(actionId, function() {
             action.@org.eclipse.che.ide.editor.orion.client.Action::onAction()();
         }, description);
+    }-*/;
+
+    public final native void setKeyBinding(OrionKeyStrokeOverlay keyBinding, String actionId) /*-{
+        this.setKeyBinding(keyBinding, actionId);
     }-*/;
 
     public final native void update() /*-{
@@ -157,9 +172,14 @@ public class OrionTextViewOverlay extends JavaScriptObject {
     }-*/;
 
     public final native <T extends OrionEventOverlay> void addEventListener(String eventType, EventHandler<T> handler, boolean useCapture) /*-{
-        this.addEventListener(eventType, function(param) {
+        var func = function (param) {
             handler.@org.eclipse.che.ide.editor.orion.client.jso.OrionTextViewOverlay.EventHandler::onEvent(*)(param);
-        }, useCapture);
+        }
+        if(this.handels === undefined){
+            this.handels = {};
+        }
+        this.handels[handler] = func;
+        this.addEventListener(eventType, func , useCapture);
     }-*/;
 
     public final void addEventListener(String type, EventHandlerNoParameter handler) {
@@ -221,6 +241,26 @@ public class OrionTextViewOverlay extends JavaScriptObject {
     }-*/;
 
     /**
+     * Converts the given rectangle from one coordinate spaces to another.
+     * The supported coordinate spaces are:
+     * "document" - relative to document, the origin is the top-left corner of first line
+     * "page" - relative to html page that contains the text view
+     * All methods in the view that take or return a position are in the document coordinate space.
+     * @return the pixel location
+     */
+    public final native OrionPixelPositionOverlay convert(OrionPixelPositionOverlay rect, String from, String to) /*-{
+        return this.convert(rect, from, to);
+    }-*/;
+
+    /**
+     *  Returns the default line height
+     * @return
+     */
+    public final native int getLineHeight() /*-{
+        return this.getLineHeight();
+    }-*/;
+
+    /**
      * Returns the character offset nearest to the given pixel location. The pixel location is relative to the document. 
      * @param x the horizontal pixel coordinate
      * @param y the vertical pixel coordinate
@@ -230,4 +270,17 @@ public class OrionTextViewOverlay extends JavaScriptObject {
         return this.getOffsetAtLocation(x, y);
     }-*/;
 
+
+    /**
+     * Replaces the text in the given range with the given text.
+     *  The character at the end offset is not replaced.
+     */
+    public final native void setText(String text, int start, int end) /*-{
+        this.setText(text, start, end);
+    }-*/;
+
+
+    public final native <T extends OrionEventOverlay> void removeEventListener(String eventType, EventHandler<T> handler,boolean useCapture) /*-{
+        this.removeEventListener(eventType, this.handels[handler], useCapture)
+    }-*/;
 }

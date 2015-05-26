@@ -10,15 +10,23 @@
  *******************************************************************************/
 package org.eclipse.che.ide.editor.orion.client;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.inject.Inject;
+import com.google.gwt.core.client.Callback;
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.JavaScriptException;
+import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.JsArrayString;
+import com.google.gwt.core.client.RunAsyncCallback;
+import com.google.gwt.dom.client.Document;
+import com.google.gwt.dom.client.LinkElement;
+import com.google.gwt.dom.client.Node;
+import com.google.inject.Provider;
+import com.google.inject.Singleton;
 
 import org.eclipse.che.ide.api.extension.Extension;
 import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.api.notification.Notification.Type;
 import org.eclipse.che.ide.api.notification.NotificationManager;
+import org.eclipse.che.ide.editor.orion.client.jso.OrionKeyBindingModule;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionTextThemeOverlay;
 import org.eclipse.che.ide.editor.orion.client.style.OrionResource;
 import org.eclipse.che.ide.jseditor.client.defaulteditor.EditorBuilder;
@@ -33,18 +41,14 @@ import org.eclipse.che.ide.jseditor.client.texteditor.AbstractEditorModule.Initi
 import org.eclipse.che.ide.jseditor.client.texteditor.ConfigurableTextEditor;
 import org.eclipse.che.ide.jseditor.client.texteditor.EmbeddedTextEditorPresenter;
 import org.eclipse.che.ide.util.loging.Log;
-import com.google.gwt.core.client.Callback;
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.core.client.JavaScriptException;
-import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.core.client.JsArrayString;
-import com.google.gwt.core.client.RunAsyncCallback;
-import com.google.gwt.dom.client.Document;
-import com.google.gwt.dom.client.LinkElement;
-import com.google.gwt.dom.client.Node;
+
+import javax.inject.Inject;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Extension(title = "Orion Editor", version = "1.1.0")
-public class OrionEditorExtension {
+@Singleton
+public class OrionEditorExtension implements Provider<OrionKeyBindingModule>{
 
     /** The logger. */
     private static final Logger LOG = Logger.getLogger(OrionEditorExtension.class.getSimpleName());
@@ -63,6 +67,8 @@ public class OrionEditorExtension {
     private final OrionResource          orionResource;
 
     private boolean initFailedWarnedOnce = false;
+
+    private OrionKeyBindingModule keyBindingModule;
 
 
     @Inject
@@ -106,6 +112,7 @@ public class OrionEditorExtension {
         // styler scripts are loaded on-demand by orion
         final String[] scripts = new String[]{
                 "orion-8.0/built-editor-amd",
+                "orion/CheContentAssistMode",
                 "orion/emacs",
                 "orion/vi",
         };
@@ -149,7 +156,7 @@ public class OrionEditorExtension {
     /**
      * Attach an element to document head.
      *
-     * @param scriptElement the element to attach
+     * @param element the element to attach
      */
     private static native void nativeAttachToHead(Node element) /*-{
         $doc.getElementsByTagName("head")[0].appendChild(element);
@@ -166,11 +173,15 @@ public class OrionEditorExtension {
 
             @Override
             public void onSuccess(final JavaScriptObject[] result) {
+                //use 4th element as keybinding module
+                keyBindingModule = result[3].cast();
+
                 endConfiguration(callback);
+
             }
         },
-         new String[]{"orion/editor/edit", "orion/editor/emacs", "orion/editor/vi", "orion/keyBinding"},
-         new String[]{"OrionEditor", "OrionEmacs", "OrionVi", "OrionKeyBinding"});
+         new String[]{"orion/editor/edit", "orion/editor/emacs", "orion/editor/vi", "orion/keyBinding","che/editor/contentAssist"},
+         new String[]{"OrionEditor", "OrionEmacs", "OrionVi", "OrionKeyBinding", "CheContentAssistMode"});
     }
 
     private void endConfiguration(final InitializerCallback callback) {
@@ -207,5 +218,10 @@ public class OrionEditorExtension {
         this.notificationManager.showNotification(new Notification("Orion editor is not available", Type.WARNING));
         LOG.log(Level.SEVERE, errorMessage + " - ", e);
         callback.onFailure(e);
+    }
+
+    @Override
+    public OrionKeyBindingModule get() {
+        return keyBindingModule;
     }
 }

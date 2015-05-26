@@ -10,12 +10,23 @@
  *******************************************************************************/
 package org.eclipse.che.ide.editor.codemirror.client;
 
+import com.google.inject.assistedinject.Assisted;
+import com.google.inject.assistedinject.AssistedInject;
+import com.google.web.bindery.event.shared.EventBus;
+
 import org.eclipse.che.ide.Resources;
 import org.eclipse.che.ide.api.parts.WorkspaceAgent;
 import org.eclipse.che.ide.debug.BreakpointManager;
 import org.eclipse.che.ide.jseditor.client.JsEditorConstants;
+import org.eclipse.che.ide.jseditor.client.annotation.AnnotationModel;
+import org.eclipse.che.ide.jseditor.client.annotation.AnnotationModelEvent;
+import org.eclipse.che.ide.jseditor.client.annotation.ClearAnnotationModelEvent;
+import org.eclipse.che.ide.jseditor.client.annotation.HasAnnotationRendering;
+import org.eclipse.che.ide.jseditor.client.annotation.InlineAnnotationRenderer;
+import org.eclipse.che.ide.jseditor.client.annotation.MinimapAnnotationRenderer;
 import org.eclipse.che.ide.jseditor.client.codeassist.CodeAssistantFactory;
 import org.eclipse.che.ide.jseditor.client.debug.BreakpointRendererFactory;
+import org.eclipse.che.ide.jseditor.client.document.DocumentHandle;
 import org.eclipse.che.ide.jseditor.client.document.DocumentStorage;
 import org.eclipse.che.ide.jseditor.client.filetype.FileTypeIdentifier;
 import org.eclipse.che.ide.jseditor.client.gutter.Gutter;
@@ -29,16 +40,14 @@ import org.eclipse.che.ide.jseditor.client.texteditor.EditorWidgetFactory;
 import org.eclipse.che.ide.jseditor.client.texteditor.EmbeddedTextEditorPartView;
 import org.eclipse.che.ide.jseditor.client.texteditor.EmbeddedTextEditorPresenter;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
-import com.google.inject.assistedinject.Assisted;
-import com.google.inject.assistedinject.AssistedInject;
-import com.google.web.bindery.event.shared.EventBus;
 
 /**
  * {@link EmbeddedTextEditorPresenter} using codemirror.
  * This class is only defined to allow the Gin binding to be performed.
  */
 public class CodeMirrorEditorPresenter extends EmbeddedTextEditorPresenter<CodeMirrorEditorWidget> implements HasMinimap,
-                                                                                                              HasGutter {
+                                                                                                              HasGutter,
+                                                                                                              HasAnnotationRendering {
 
     @AssistedInject
     public CodeMirrorEditorPresenter(final CodeAssistantFactory codeAssistantFactory,
@@ -77,5 +86,34 @@ public class CodeMirrorEditorPresenter extends EmbeddedTextEditorPresenter<CodeM
         } else {
             throw new IllegalStateException("incorrect editor state");
         }
+    }
+
+    @Override
+    public void configure(AnnotationModel model, DocumentHandle documentHandle) {
+        // gutter renderer
+//        if (textEditor instanceof HasGutter && ((HasGutter)this.textEditor).getGutter() != null) {
+//            final GutterAnnotationRenderer annotationRenderer = new GutterAnnotationRenderer();
+//            annotationRenderer.setDocument(documentHandle.getDocument());
+//            annotationRenderer.setHasGutter(((HasGutter)this.textEditor).getGutter());
+//            documentHandle.getDocEventBus().addHandler(AnnotationModelEvent.TYPE, annotationRenderer);
+//            documentHandle.getDocEventBus().addHandler(ClearAnnotationModelEvent.TYPE, annotationRenderer);
+//        }
+
+        // inline renderer
+        final InlineAnnotationRenderer inlineAnnotationRenderer = new InlineAnnotationRenderer();
+        inlineAnnotationRenderer.setDocument(documentHandle.getDocument());
+        inlineAnnotationRenderer.setHasTextMarkers(getHasTextMarkers());
+        documentHandle.getDocEventBus().addHandler(AnnotationModelEvent.TYPE, inlineAnnotationRenderer);
+        documentHandle.getDocEventBus().addHandler(ClearAnnotationModelEvent.TYPE, inlineAnnotationRenderer);
+
+        // minimap renderer
+//        if (this.textEditor instanceof HasMinimap && ((HasMinimap)this.textEditor).getMinimap() != null) {
+            final MinimapAnnotationRenderer minimapAnnotationRenderer = new MinimapAnnotationRenderer();
+            minimapAnnotationRenderer.setDocument(documentHandle.getDocument());
+            minimapAnnotationRenderer.setMinimap(getMinimap());
+            documentHandle.getDocEventBus().addHandler(AnnotationModelEvent.TYPE, minimapAnnotationRenderer);
+            documentHandle.getDocEventBus().addHandler(ClearAnnotationModelEvent.TYPE, minimapAnnotationRenderer);
+//        }
+
     }
 }

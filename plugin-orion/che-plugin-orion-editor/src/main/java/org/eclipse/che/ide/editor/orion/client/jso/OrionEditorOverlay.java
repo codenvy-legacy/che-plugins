@@ -11,6 +11,7 @@
 package org.eclipse.che.ide.editor.orion.client.jso;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.JsArray;
 import com.google.gwt.dom.client.Element;
 
 public class OrionEditorOverlay extends JavaScriptObject {
@@ -139,6 +140,19 @@ public class OrionEditorOverlay extends JavaScriptObject {
 
     public final native void setZoomRulerVisible(boolean visible) /*-{
         this.setZoomRulerVisible(visible);
+    }-*/;
+
+    public final native void showProblems(JsArray<OrionProblemOverlay> problems) /*-{
+        this.showProblems(problems);
+    }-*/;
+
+
+    /**
+     * Returns the annotation styler of the editor.
+     * @return
+     */
+    public final native AnnotationStylerOverlay getAnnotationStyler() /*-{
+        return this.getAnnotationStyler();
     }-*/;
 
 }

@@ -21,13 +21,13 @@ public class OrionKeyStrokeOverlay extends JavaScriptObject {
      * Constructs a new key stroke with the given key code, modifiers and event type.
      * 
      * @param keyCode the key code.
-     * @param mod1 the primary modifier (usually Command on Mac and Control on other platforms).
-     * @param mod2 the secondary modifier (usually Shift).
-     * @param mod3 the third modifier (usually Alt).
-     * @param mod4 the fourth modifier (usually Control on the Mac).
+     * @param modifier1 the primary modifier (usually Command on Mac and Control on other platforms).
+     * @param modifier2 the secondary modifier (usually Shift).
+     * @param modifier3 the third modifier (usually Alt).
+     * @param modifier4 the fourth modifier (usually Control on the Mac).
      * @param type the type of event that the keybinding matches; either "keydown" or "keypress".
      */
-    public static final native OrionKeyStrokeOverlay create(String keyCode,
+    public static final native OrionKeyStrokeOverlay create(int keyCode,
                                                             boolean modifier1,
                                                             boolean modifier2,
                                                             boolean modifier3,

@@ -10,46 +10,85 @@
  *******************************************************************************/
 package org.eclipse.che.ide.editor.orion.client;
 
+import com.google.inject.assistedinject.Assisted;
+import com.google.inject.assistedinject.AssistedInject;
+import com.google.web.bindery.event.shared.EventBus;
+
 import org.eclipse.che.ide.Resources;
 import org.eclipse.che.ide.api.parts.WorkspaceAgent;
 import org.eclipse.che.ide.debug.BreakpointManager;
 import org.eclipse.che.ide.jseditor.client.JsEditorConstants;
+import org.eclipse.che.ide.jseditor.client.annotation.AnnotationModel;
+import org.eclipse.che.ide.jseditor.client.annotation.AnnotationModelEvent;
+import org.eclipse.che.ide.jseditor.client.annotation.AnnotationModelHandler;
+import org.eclipse.che.ide.jseditor.client.annotation.ClearAnnotationModelEvent;
+import org.eclipse.che.ide.jseditor.client.annotation.ClearAnnotationModelHandler;
+import org.eclipse.che.ide.jseditor.client.annotation.HasAnnotationRendering;
 import org.eclipse.che.ide.jseditor.client.codeassist.CodeAssistantFactory;
 import org.eclipse.che.ide.jseditor.client.debug.BreakpointRendererFactory;
+import org.eclipse.che.ide.jseditor.client.document.DocumentHandle;
 import org.eclipse.che.ide.jseditor.client.document.DocumentStorage;
 import org.eclipse.che.ide.jseditor.client.filetype.FileTypeIdentifier;
 import org.eclipse.che.ide.jseditor.client.quickfix.QuickAssistantFactory;
 import org.eclipse.che.ide.jseditor.client.texteditor.EditorModule;
+import org.eclipse.che.ide.jseditor.client.texteditor.EditorWidget;
 import org.eclipse.che.ide.jseditor.client.texteditor.EditorWidgetFactory;
 import org.eclipse.che.ide.jseditor.client.texteditor.EmbeddedTextEditorPartView;
 import org.eclipse.che.ide.jseditor.client.texteditor.EmbeddedTextEditorPresenter;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
-import com.google.inject.assistedinject.Assisted;
-import com.google.inject.assistedinject.AssistedInject;
-import com.google.web.bindery.event.shared.EventBus;
 
 /**
  * {@link EmbeddedTextEditorPresenter} using orion.
  * This class is only defined to allow the Gin binding to be performed.
  */
-public class OrionEditorPresenter extends EmbeddedTextEditorPresenter<OrionEditorWidget> {
+public class OrionEditorPresenter extends EmbeddedTextEditorPresenter<OrionEditorWidget> implements HasAnnotationRendering {
+
+    private final AnnotationRendering rendering = new AnnotationRendering();
 
     @AssistedInject
     public OrionEditorPresenter(final CodeAssistantFactory codeAssistantFactory,
-                                     final BreakpointManager breakpointManager,
-                                     final BreakpointRendererFactory breakpointRendererFactory,
-                                     final DialogFactory dialogFactory,
-                                     final DocumentStorage documentStorage,
-                                     final JsEditorConstants constant,
-                                     @Assisted final EditorWidgetFactory<OrionEditorWidget> editorWigetFactory,
-                                     final EditorModule<OrionEditorWidget> editorModule,
-                                     final EmbeddedTextEditorPartView editorView,
-                                     final EventBus eventBus,
-                                     final FileTypeIdentifier fileTypeIdentifier,
-                                     final QuickAssistantFactory quickAssistantFactory,
-                                     final Resources resources,
-                                     final WorkspaceAgent workspaceAgent) {
-        super(codeAssistantFactory, breakpointManager, breakpointRendererFactory, dialogFactory, documentStorage, constant, editorWigetFactory,
+                                final BreakpointManager breakpointManager,
+                                final BreakpointRendererFactory breakpointRendererFactory,
+                                final DialogFactory dialogFactory,
+                                final DocumentStorage documentStorage,
+                                final JsEditorConstants constant,
+                                @Assisted final EditorWidgetFactory<OrionEditorWidget> editorWigetFactory,
+                                final EditorModule<OrionEditorWidget> editorModule,
+                                final EmbeddedTextEditorPartView editorView,
+                                final EventBus eventBus,
+                                final FileTypeIdentifier fileTypeIdentifier,
+                                final QuickAssistantFactory quickAssistantFactory,
+                                final Resources resources,
+                                final WorkspaceAgent workspaceAgent) {
+        super(codeAssistantFactory, breakpointManager, breakpointRendererFactory, dialogFactory, documentStorage, constant,
+              editorWigetFactory,
               editorModule, editorView, eventBus, fileTypeIdentifier, quickAssistantFactory, resources, workspaceAgent);
+    }
+
+    @Override
+    public void configure(AnnotationModel model, DocumentHandle document) {
+        document.getDocEventBus().addHandler(AnnotationModelEvent.TYPE, rendering);
+        document.getDocEventBus().addHandler(ClearAnnotationModelEvent.TYPE, rendering);
+    }
+
+    private class AnnotationRendering implements AnnotationModelHandler, ClearAnnotationModelHandler {
+
+        @Override
+        public void onAnnotationModel(AnnotationModelEvent event) {
+            EditorWidget editorWidget = getEditorWidget();
+            if(editorWidget != null){
+                OrionEditorWidget orion = ((OrionEditorWidget)editorWidget);
+                orion.showErrors(event);
+            }
+        }
+
+        @Override
+        public void onClearModel(ClearAnnotationModelEvent event) {
+            EditorWidget editorWidget = getEditorWidget();
+            if(editorWidget != null){
+                OrionEditorWidget orion = ((OrionEditorWidget)editorWidget);
+                orion.clearErrors();
+            }
+        }
     }
 }

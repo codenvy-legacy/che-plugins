@@ -52,6 +52,9 @@ public class OrionModelChangedEventOverlay extends OrionEventOverlay {
         return this.removedLineCount;
     }-*/;
 
+    public final native String getText() /*-{
+        return this.text;
+    }-*/;
     /**
      * Returns the start of the change in the text.
      *

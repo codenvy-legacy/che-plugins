@@ -65,7 +65,9 @@ public class SemanticHighlightRenderer {
             final TextPosition to = this.document.getPositionFromIndex(position.getOffset() + position.getLength());
             HasTextMarkers.MarkerRegistration registration =
                     editor.addMarker(new TextRange(from, to), styleMap.get(position.getType()));
-            markers.add(registration);
+            if(registration != null) {
+                markers.add(registration);
+            }
         }
     }
 }

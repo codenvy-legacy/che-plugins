@@ -11,17 +11,21 @@
 package org.eclipse.che.ide.editor.orion.client.inject;
 
 
+import com.google.gwt.inject.client.AbstractGinModule;
+import com.google.gwt.inject.client.assistedinject.GinFactoryModuleBuilder;
+import com.google.inject.TypeLiteral;
+
 import org.eclipse.che.ide.api.extension.ExtensionGinModule;
+import org.eclipse.che.ide.editor.orion.client.ContentAssistWidgetFactory;
+import org.eclipse.che.ide.editor.orion.client.OrionEditorExtension;
 import org.eclipse.che.ide.editor.orion.client.OrionEditorModule;
 import org.eclipse.che.ide.editor.orion.client.OrionEditorPresenter;
 import org.eclipse.che.ide.editor.orion.client.OrionEditorWidget;
+import org.eclipse.che.ide.editor.orion.client.jso.OrionKeyBindingModule;
 import org.eclipse.che.ide.jseditor.client.texteditor.EditorModule;
 import org.eclipse.che.ide.jseditor.client.texteditor.EditorWidgetFactory;
 import org.eclipse.che.ide.jseditor.client.texteditor.EmbeddedTextEditorPresenter;
 import org.eclipse.che.ide.jseditor.client.texteditor.EmbeddedTextEditorPresenterFactory;
-import com.google.gwt.inject.client.AbstractGinModule;
-import com.google.gwt.inject.client.assistedinject.GinFactoryModuleBuilder;
-import com.google.inject.TypeLiteral;
 
 @ExtensionGinModule
 public class OrionEditorGinModule extends AbstractGinModule {
@@ -31,10 +35,14 @@ public class OrionEditorGinModule extends AbstractGinModule {
         // Bind the Orion EditorWidget factory
         install(new GinFactoryModuleBuilder().build(new TypeLiteral<EditorWidgetFactory<OrionEditorWidget>>() {}));
         bind(new TypeLiteral<EditorModule<OrionEditorWidget>>() {}).to(OrionEditorModule.class);
+        bind(OrionKeyBindingModule.class).toProvider(OrionEditorExtension.class);
+        install(new GinFactoryModuleBuilder().build(ContentAssistWidgetFactory.class));
 
 
         install(new GinFactoryModuleBuilder()
-            .implement(new TypeLiteral<EmbeddedTextEditorPresenter<OrionEditorWidget>>() {}, OrionEditorPresenter.class)
-            .build(new TypeLiteral<EmbeddedTextEditorPresenterFactory<OrionEditorWidget>>() {}));
+                        .implement(new TypeLiteral<EmbeddedTextEditorPresenter<OrionEditorWidget>>() {
+                        }, OrionEditorPresenter.class)
+                        .build(new TypeLiteral<EmbeddedTextEditorPresenterFactory<OrionEditorWidget>>() {
+                        }));
     }
 }
