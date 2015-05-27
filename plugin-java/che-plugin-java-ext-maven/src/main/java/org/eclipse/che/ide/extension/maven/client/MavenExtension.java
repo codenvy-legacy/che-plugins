@@ -120,13 +120,13 @@ public class MavenExtension {
                                 MavenLocalizationConstant mavenLocalizationConstants,
                                 CreateMavenModuleAction createMavenModuleAction) {
         // register actions
-        actionManager.registerAction(mavenLocalizationConstants.buildProjectControlId(), customBuildAction);
+        // actionManager.registerAction(mavenLocalizationConstants.buildProjectControlId(), customBuildAction);
         actionManager.registerAction("updateDependency", updateDependencyAction);
         actionManager.registerAction("createMavenModule", createMavenModuleAction);
 
         // add actions in main menu
         DefaultActionGroup buildMenuActionGroup = (DefaultActionGroup)actionManager.getAction(GROUP_BUILD);
-        buildMenuActionGroup.add(customBuildAction);
+        // buildMenuActionGroup.add(customBuildAction);
         buildMenuActionGroup.add(updateDependencyAction);
 
         DefaultActionGroup newGroup = (DefaultActionGroup)actionManager.getAction(GROUP_FILE_NEW);
