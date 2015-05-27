@@ -20,6 +20,7 @@ import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.ide.api.notification.NotificationManager;
+import org.eclipse.che.ide.api.parts.WorkspaceAgent;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.MachineResources;
 import org.eclipse.che.ide.extension.machine.client.OutputMessageUnmarshaller;
@@ -60,6 +61,7 @@ public class MachineManager {
     private final CommandConsoleFactory       commandConsoleFactory;
     private final NotificationManager         notificationManager;
     private final MachineLocalizationConstant localizationConstant;
+    private final WorkspaceAgent              workspaceAgent;
 
     private String currentMachineId;
 
@@ -72,7 +74,8 @@ public class MachineManager {
                           OutputsContainerPresenter outputsContainerPresenter,
                           CommandConsoleFactory commandConsoleFactory,
                           NotificationManager notificationManager,
-                          MachineLocalizationConstant localizationConstant) {
+                          MachineLocalizationConstant localizationConstant,
+                          WorkspaceAgent workspaceAgent) {
         this.machineResources = machineResources;
         this.machineServiceClient = machineServiceClient;
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
@@ -82,6 +85,7 @@ public class MachineManager {
         this.commandConsoleFactory = commandConsoleFactory;
         this.notificationManager = notificationManager;
         this.localizationConstant = localizationConstant;
+        this.workspaceAgent = workspaceAgent;
     }
 
     /** Returns ID of the current machine, where current project is bound. */
@@ -98,7 +102,7 @@ public class MachineManager {
     /** Start machine and bind project. */
     public void startMachineAndBindProject(final String projectPath) {
         final String recipeScript = machineResources.testDockerRecipe().getText();
-        final String outputChannel = getMachineOutputChannel();
+        final String outputChannel = "machine:output:" + UUID.uuid();
         subscribeToOutput(outputChannel);
 
         final Promise<MachineDescriptor> machinePromise = machineServiceClient.createMachineFromRecipe("docker",
@@ -111,11 +115,6 @@ public class MachineManager {
                 bindProjectWhenMachineWillRun(projectPath, arg.getId());
             }
         });
-    }
-
-    @Nonnull
-    private String getMachineOutputChannel() {
-        return "machine:output:" + UUID.uuid();
     }
 
     private void subscribeToOutput(final String channel) {
@@ -196,6 +195,7 @@ public class MachineManager {
         final OutputConsole console = commandConsoleFactory.create(configuration);
         console.attachToOutput(outputChannel);
         outputsContainerPresenter.addConsole(console);
+        workspaceAgent.setActivePart(outputsContainerPresenter);
 
         machineServiceClient.executeCommand(currentMachineId, configuration.toCommandLine(), outputChannel);
     }
