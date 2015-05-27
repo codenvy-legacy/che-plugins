@@ -27,6 +27,7 @@ import com.google.inject.Singleton;
 
 import org.eclipse.che.ide.api.parts.PartStackUIResources;
 import org.eclipse.che.ide.api.parts.base.BaseView;
+import org.eclipse.che.ide.extension.machine.client.MachineResources;
 import org.vectomatic.dom.svg.ui.SVGImage;
 
 /**
@@ -37,16 +38,16 @@ import org.vectomatic.dom.svg.ui.SVGImage;
 @Singleton
 public class OutputsContainerViewImpl extends BaseView<OutputsContainerView.ActionDelegate> implements OutputsContainerView {
 
-    private final PartStackUIResources partStackUIResources;
+    @UiField
+    MachineResources resources;
     @UiField
     FlowPanel       tabsPanel;
     @UiField
     DeckLayoutPanel contentPanel;
 
     @Inject
-    public OutputsContainerViewImpl(PartStackUIResources resources, OutputsContainerViewImplUiBinder uiBinder) {
-        super(resources);
-        this.partStackUIResources = resources;
+    public OutputsContainerViewImpl(PartStackUIResources partStackUIResources, OutputsContainerViewImplUiBinder uiBinder) {
+        super(partStackUIResources);
 
         setContentWidget(uiBinder.createAndBindUi(this));
 
@@ -77,13 +78,19 @@ public class OutputsContainerViewImpl extends BaseView<OutputsContainerView.Acti
         for (int i = 0; i < tabsPanel.getWidgetCount(); i++) {
             final Widget widget = tabsPanel.getWidget(i);
             if (i == index) {
-                widget.addStyleName(partStackUIResources.partStackCss().idePartStackToolTabSelected());
+                widget.addStyleName(resources.getCss().outputsContainerConsoleTabSelected());
             } else {
-                widget.removeStyleName(partStackUIResources.partStackCss().idePartStackToolTabSelected());
+                widget.removeStyleName(resources.getCss().outputsContainerConsoleTabSelected());
             }
         }
 
         contentPanel.showWidget(index);
+    }
+
+    @Override
+    public void closeAllConsoles() {
+        tabsPanel.clear();
+        contentPanel.clear();
     }
 
     @Override
@@ -104,14 +111,14 @@ public class OutputsContainerViewImpl extends BaseView<OutputsContainerView.Acti
             tabPanel.ensureDebugId("outputs-container-tabButton");
             initWidget(tabPanel);
 
-            this.setStyleName(partStackUIResources.partStackCss().idePartStackToolTab());
+            setStyleName(resources.getCss().outputsContainerConsoleTab());
 
             if (icon != null) {
                 tabPanel.add(icon);
             }
 
             tabTitleLabel = new InlineLabel(title);
-            tabTitleLabel.addStyleName(partStackUIResources.partStackCss().idePartStackTabLabel());
+            tabTitleLabel.addStyleName(resources.getCss().outputsContainerConsoleTabLabel());
             tabPanel.add(tabTitleLabel);
         }
 
@@ -122,7 +129,7 @@ public class OutputsContainerViewImpl extends BaseView<OutputsContainerView.Acti
         @Override
         protected void onLoad() {
             super.onLoad();
-            tabPanel.addStyleName(partStackUIResources.partStackCss().idePartStackTabBelow());
+            tabPanel.addStyleName(resources.getCss().outputsContainerConsoleTabPanel());
         }
     }
 }

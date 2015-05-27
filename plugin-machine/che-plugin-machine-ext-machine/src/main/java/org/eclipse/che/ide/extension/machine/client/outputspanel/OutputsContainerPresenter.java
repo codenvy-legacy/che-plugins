@@ -15,7 +15,10 @@ import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.google.web.bindery.event.shared.EventBus;
 
+import org.eclipse.che.ide.api.event.ProjectActionEvent;
+import org.eclipse.che.ide.api.event.ProjectActionHandler;
 import org.eclipse.che.ide.api.mvp.View;
 import org.eclipse.che.ide.api.parts.HasView;
 import org.eclipse.che.ide.api.parts.base.BasePresenter;
@@ -30,17 +33,19 @@ import javax.annotation.Nonnull;
  * @author Artem Zatsarynnyy
  */
 @Singleton
-public class OutputsContainerPresenter extends BasePresenter implements OutputsContainerView.ActionDelegate, HasView {
+public class OutputsContainerPresenter extends BasePresenter implements OutputsContainerView.ActionDelegate, HasView, ProjectActionHandler {
 
     private final MachineLocalizationConstant localizationConstant;
     private final OutputsContainerView        view;
 
     @Inject
-    public OutputsContainerPresenter(OutputsContainerView view, MachineLocalizationConstant localizationConstant) {
+    public OutputsContainerPresenter(OutputsContainerView view, MachineLocalizationConstant localizationConstant, EventBus eventBus) {
         this.view = view;
         this.localizationConstant = localizationConstant;
         this.view.setTitle(localizationConstant.outputsConsoleViewTitle());
         this.view.setDelegate(this);
+
+        eventBus.addHandler(ProjectActionEvent.TYPE, this);
     }
 
     /** Add {@code console} to the container. */
@@ -82,5 +87,18 @@ public class OutputsContainerPresenter extends BasePresenter implements OutputsC
     @Override
     public void onConsoleSelected(int index) {
         view.showConsole(index);
+    }
+
+    @Override
+    public void onProjectOpened(ProjectActionEvent event) {
+    }
+
+    @Override
+    public void onProjectClosing(ProjectActionEvent event) {
+    }
+
+    @Override
+    public void onProjectClosed(ProjectActionEvent event) {
+        view.closeAllConsoles();
     }
 }

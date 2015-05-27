@@ -68,6 +68,11 @@ public interface MachineLocalizationConstant extends Messages {
     String clearConsoleControlDescription();
 
 
+    /* Messages */
+    @Key("messages.noDevMachine")
+    String noDevMachine();
+
+
     /* MachineConsoleView */
     @Key("view.machineConsole.title")
     String machineConsoleViewTitle();

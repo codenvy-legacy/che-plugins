@@ -20,7 +20,7 @@
             <g:SimplePanel height="18" ui:field="toolbarPanel" addStyleNames="{resources.getCss.consoleToolbar}"/>
         </g:north>
         <g:center>
-            <g:ScrollPanel ui:field="scrollPanel" debugId="machineConsolePart" addStyleNames="{resources.getCss.console}">
+            <g:ScrollPanel ui:field="scrollPanel" debugId="machineConsolePart" addStyleNames="{resources.getCss.machineConsole}">
                 <g:FlowPanel width="100%" height="100%" ui:field="consoleArea"/>
             </g:ScrollPanel>
         </g:center>

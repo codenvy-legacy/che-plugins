@@ -20,6 +20,7 @@ import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.ide.api.notification.NotificationManager;
+import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.MachineResources;
 import org.eclipse.che.ide.extension.machine.client.OutputMessageUnmarshaller;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
@@ -50,14 +51,15 @@ public class MachineManager {
     /** WebSocket channel to receive messages about changing machine state (machine:state:machineID). */
     private static final String MACHINE_STATE_CHANNEL = "machine:state:";
 
-    private final MachineResources          machineResources;
-    private final MachineServiceClient      machineServiceClient;
-    private final DtoUnmarshallerFactory    dtoUnmarshallerFactory;
-    private final MessageBus                messageBus;
-    private final MachineConsolePresenter   machineConsolePresenter;
-    private final OutputsContainerPresenter outputsContainerPresenter;
-    private final CommandConsoleFactory     commandConsoleFactory;
-    private final NotificationManager notificationManager;
+    private final MachineResources            machineResources;
+    private final MachineServiceClient        machineServiceClient;
+    private final DtoUnmarshallerFactory      dtoUnmarshallerFactory;
+    private final MessageBus                  messageBus;
+    private final MachineConsolePresenter     machineConsolePresenter;
+    private final OutputsContainerPresenter   outputsContainerPresenter;
+    private final CommandConsoleFactory       commandConsoleFactory;
+    private final NotificationManager         notificationManager;
+    private final MachineLocalizationConstant localizationConstant;
 
     private String currentMachineId;
 
@@ -69,7 +71,8 @@ public class MachineManager {
                           MachineConsolePresenter machineConsolePresenter,
                           OutputsContainerPresenter outputsContainerPresenter,
                           CommandConsoleFactory commandConsoleFactory,
-                          NotificationManager notificationManager) {
+                          NotificationManager notificationManager,
+                          MachineLocalizationConstant localizationConstant) {
         this.machineResources = machineResources;
         this.machineServiceClient = machineServiceClient;
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
@@ -78,6 +81,7 @@ public class MachineManager {
         this.outputsContainerPresenter = outputsContainerPresenter;
         this.commandConsoleFactory = commandConsoleFactory;
         this.notificationManager = notificationManager;
+        this.localizationConstant = localizationConstant;
     }
 
     /** Returns ID of the current machine, where current project is bound. */
@@ -183,7 +187,7 @@ public class MachineManager {
     public void execute(@Nonnull CommandConfiguration configuration) {
         final String currentMachineId = getCurrentMachineId();
         if (currentMachineId == null) {
-            notificationManager.showWarning("No current machine.");
+            notificationManager.showWarning(localizationConstant.noDevMachine());
             return;
         }
 

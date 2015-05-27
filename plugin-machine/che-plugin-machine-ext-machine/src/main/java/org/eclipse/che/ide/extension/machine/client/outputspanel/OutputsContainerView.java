@@ -27,6 +27,8 @@ public interface OutputsContainerView extends View<OutputsContainerView.ActionDe
     /** Show console by the given index. */
     void showConsole(int index);
 
+    void closeAllConsoles();
+
     /**
      * Set view's title.
      *
