@@ -15,6 +15,7 @@ import org.eclipse.che.api.core.ServerException;
 import org.eclipse.che.api.core.util.CommandLine;
 import org.eclipse.che.api.core.util.LineConsumer;
 import org.eclipse.che.api.core.util.ProcessUtil;
+import org.eclipse.che.api.core.util.SystemInfo;
 import org.eclipse.che.api.vfs.server.VirtualFile;
 
 import javax.inject.Inject;
@@ -156,9 +157,12 @@ public class MavenUtils {
      * @return Maven home directory
      */
     public static java.io.File getMavenHome() {
-        final String m2HomeEnv = System.getenv("M2_HOME");
+        String m2HomeEnv = System.getenv("M2_HOME");
         if (m2HomeEnv == null) {
             return null;
+        }
+        if (SystemInfo.isWindows() && m2HomeEnv.contains(" ")) {
+            m2HomeEnv = "\"" + m2HomeEnv + "\"";
         }
         final java.io.File m2Home = new java.io.File(m2HomeEnv);
         return m2Home.exists() ? m2Home : null;
