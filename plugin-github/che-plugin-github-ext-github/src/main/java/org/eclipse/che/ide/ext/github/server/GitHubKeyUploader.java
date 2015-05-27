@@ -131,9 +131,8 @@ public class GitHubKeyUploader extends SshKeyUploader {
                 if (conn.getHeaderFields().containsKey("Link")) {
                     String strForParsing = conn.getHeaderFields().get("Link").get(0);
                     int indexNext = strForParsing.indexOf("rel=\"next\"");
-                    int indexPrev = strForParsing.indexOf("rel=\"prev\"");
 
-                    if (indexNext != -1 && indexPrev == -1) {
+                    if (indexNext != -1) {
                         String nextSubStr = strForParsing.substring(0, indexNext);
                         String nextPageLink = nextSubStr.substring(nextSubStr.indexOf("<") + 1, nextSubStr.indexOf(">"));
 
