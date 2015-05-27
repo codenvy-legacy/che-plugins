@@ -19,13 +19,14 @@ import org.eclipse.che.api.machine.shared.dto.MachineStateEvent;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.Promise;
+import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.extension.machine.client.MachineResources;
 import org.eclipse.che.ide.extension.machine.client.OutputMessageUnmarshaller;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
-import org.eclipse.che.ide.extension.machine.client.outputspanel.console.OutputConsole;
-import org.eclipse.che.ide.extension.machine.client.outputspanel.console.CommandConsoleFactory;
 import org.eclipse.che.ide.extension.machine.client.machine.console.MachineConsolePresenter;
 import org.eclipse.che.ide.extension.machine.client.outputspanel.OutputsContainerPresenter;
+import org.eclipse.che.ide.extension.machine.client.outputspanel.console.CommandConsoleFactory;
+import org.eclipse.che.ide.extension.machine.client.outputspanel.console.OutputConsole;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.util.UUID;
 import org.eclipse.che.ide.util.loging.Log;
@@ -56,6 +57,7 @@ public class MachineManager {
     private final MachineConsolePresenter   machineConsolePresenter;
     private final OutputsContainerPresenter outputsContainerPresenter;
     private final CommandConsoleFactory     commandConsoleFactory;
+    private final NotificationManager notificationManager;
 
     private String currentMachineId;
 
@@ -66,7 +68,8 @@ public class MachineManager {
                           MessageBus messageBus,
                           MachineConsolePresenter machineConsolePresenter,
                           OutputsContainerPresenter outputsContainerPresenter,
-                          CommandConsoleFactory commandConsoleFactory) {
+                          CommandConsoleFactory commandConsoleFactory,
+                          NotificationManager notificationManager) {
         this.machineResources = machineResources;
         this.machineServiceClient = machineServiceClient;
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
@@ -74,6 +77,7 @@ public class MachineManager {
         this.machineConsolePresenter = machineConsolePresenter;
         this.outputsContainerPresenter = outputsContainerPresenter;
         this.commandConsoleFactory = commandConsoleFactory;
+        this.notificationManager = notificationManager;
     }
 
     /** Returns ID of the current machine, where current project is bound. */
@@ -83,7 +87,7 @@ public class MachineManager {
     }
 
     /** Sets ID of the current machine, where current project is bound. */
-    public void setCurrentMachineId(@Nonnull String currentMachineId) {
+    public void setCurrentMachineId(String currentMachineId) {
         this.currentMachineId = currentMachineId;
     }
 
@@ -122,11 +126,12 @@ public class MachineManager {
 
                         @Override
                         protected void onErrorReceived(Throwable exception) {
-                            Log.error(MachineManager.class, exception);
+                            notificationManager.showError(exception.getMessage());
                         }
                     });
         } catch (WebSocketException e) {
             Log.error(MachineManager.class, e);
+            notificationManager.showError(e.getMessage());
         }
     }
 
@@ -144,11 +149,12 @@ public class MachineManager {
 
                         @Override
                         protected void onErrorReceived(Throwable exception) {
-                            Log.error(MachineManager.class, exception);
+                            notificationManager.showError(exception.getMessage());
                         }
                     });
         } catch (WebSocketException e) {
             Log.error(MachineManager.class, e);
+            notificationManager.showError(e.getMessage());
         }
     }
 
@@ -163,27 +169,30 @@ public class MachineManager {
     }
 
     public void destroyMachine(final String machineId) {
-        machineServiceClient.destroyMachine(machineId);
+        machineServiceClient.destroyMachine(machineId).then(new Operation<Void>() {
+            @Override
+            public void apply(Void arg) throws OperationException {
+                if (getCurrentMachineId() != null && machineId.equals(getCurrentMachineId())) {
+                    setCurrentMachineId(null);
+                }
+            }
+        });
     }
 
     /** Execute the the given command configuration on current machine. */
     public void execute(@Nonnull CommandConfiguration configuration) {
         final String currentMachineId = getCurrentMachineId();
         if (currentMachineId == null) {
+            notificationManager.showWarning("No current machine.");
             return;
         }
 
-        final String outputChannel = getProcessOutputChannel();
+        final String outputChannel = "process:output:" + UUID.uuid();
 
         final OutputConsole console = commandConsoleFactory.create(configuration);
         console.attachToOutput(outputChannel);
         outputsContainerPresenter.addConsole(console);
 
         machineServiceClient.executeCommand(currentMachineId, configuration.toCommandLine(), outputChannel);
-    }
-
-    @Nonnull
-    private String getProcessOutputChannel() {
-        return "process:output:" + UUID.uuid();
     }
 }
