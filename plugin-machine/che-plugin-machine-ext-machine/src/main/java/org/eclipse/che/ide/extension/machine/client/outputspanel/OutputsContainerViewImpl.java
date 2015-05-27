@@ -59,7 +59,7 @@ public class OutputsContainerViewImpl extends BaseView<OutputsContainerView.Acti
 
     @Override
     public void addConsole(String title, IsWidget widget) {
-        final TabButton tabButton = new TabButton(null, title, title);
+        final TabButton tabButton = new TabButton(null, title);
         tabButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent clickEvent) {
@@ -99,9 +99,8 @@ public class OutputsContainerViewImpl extends BaseView<OutputsContainerView.Acti
         FlowPanel   tabPanel;
         InlineLabel tabTitleLabel;
 
-        TabButton(SVGImage icon, String title, String toolTip) {
+        TabButton(SVGImage icon, String title) {
             tabPanel = new FlowPanel();
-            tabPanel.setTitle(toolTip);
             tabPanel.ensureDebugId("outputs-container-tabButton");
             initWidget(tabPanel);
 
