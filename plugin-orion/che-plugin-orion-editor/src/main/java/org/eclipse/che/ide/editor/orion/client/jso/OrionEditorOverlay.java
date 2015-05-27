@@ -155,4 +155,11 @@ public class OrionEditorOverlay extends JavaScriptObject {
         return this.getAnnotationStyler();
     }-*/;
 
+    /**
+     * Returns the editor linked mode.
+     * @return
+     */
+    public final native OrionLinkedModeOverlay getLinkedMode() /*-{
+        return this.getLinkedMode();
+    }-*/;
 }

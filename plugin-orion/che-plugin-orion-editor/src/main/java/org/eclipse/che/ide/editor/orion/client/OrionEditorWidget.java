@@ -70,6 +70,7 @@ import org.eclipse.che.ide.jseditor.client.keymap.Keybinding;
 import org.eclipse.che.ide.jseditor.client.keymap.Keymap;
 import org.eclipse.che.ide.jseditor.client.keymap.KeymapChangeEvent;
 import org.eclipse.che.ide.jseditor.client.keymap.KeymapChangeHandler;
+import org.eclipse.che.ide.jseditor.client.link.LinkedMode;
 import org.eclipse.che.ide.jseditor.client.position.PositionConverter;
 import org.eclipse.che.ide.jseditor.client.prefmodel.KeymapPrefReader;
 import org.eclipse.che.ide.jseditor.client.requirejs.ModuleHolder;
@@ -585,6 +586,10 @@ public class OrionEditorWidget extends CompositeEditorWidget implements HasChang
 
     public OrionTextViewOverlay getTextView() {
         return editorOverlay.getTextView();
+    }
+
+    public LinkedMode getLinkedMode() {
+        return editorOverlay.getLinkedMode();
     }
 
     /**

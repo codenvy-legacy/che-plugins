@@ -17,6 +17,9 @@ import com.google.web.bindery.event.shared.EventBus;
 import org.eclipse.che.ide.Resources;
 import org.eclipse.che.ide.api.parts.WorkspaceAgent;
 import org.eclipse.che.ide.debug.BreakpointManager;
+import org.eclipse.che.ide.editor.orion.client.jso.OrionLinkedModelDataOverlay;
+import org.eclipse.che.ide.editor.orion.client.jso.OrionLinkedModelGroupOverlay;
+import org.eclipse.che.ide.editor.orion.client.jso.OrionLinkedModelOverlay;
 import org.eclipse.che.ide.jseditor.client.JsEditorConstants;
 import org.eclipse.che.ide.jseditor.client.annotation.AnnotationModel;
 import org.eclipse.che.ide.jseditor.client.annotation.AnnotationModelEvent;
@@ -29,6 +32,11 @@ import org.eclipse.che.ide.jseditor.client.debug.BreakpointRendererFactory;
 import org.eclipse.che.ide.jseditor.client.document.DocumentHandle;
 import org.eclipse.che.ide.jseditor.client.document.DocumentStorage;
 import org.eclipse.che.ide.jseditor.client.filetype.FileTypeIdentifier;
+import org.eclipse.che.ide.jseditor.client.link.HasLinkedMode;
+import org.eclipse.che.ide.jseditor.client.link.LinkedMode;
+import org.eclipse.che.ide.jseditor.client.link.LinkedModel;
+import org.eclipse.che.ide.jseditor.client.link.LinkedModelData;
+import org.eclipse.che.ide.jseditor.client.link.LinkedModelGroup;
 import org.eclipse.che.ide.jseditor.client.quickfix.QuickAssistantFactory;
 import org.eclipse.che.ide.jseditor.client.texteditor.EditorModule;
 import org.eclipse.che.ide.jseditor.client.texteditor.EditorWidget;
@@ -41,7 +49,7 @@ import org.eclipse.che.ide.ui.dialogs.DialogFactory;
  * {@link EmbeddedTextEditorPresenter} using orion.
  * This class is only defined to allow the Gin binding to be performed.
  */
-public class OrionEditorPresenter extends EmbeddedTextEditorPresenter<OrionEditorWidget> implements HasAnnotationRendering {
+public class OrionEditorPresenter extends EmbeddedTextEditorPresenter<OrionEditorWidget> implements HasAnnotationRendering, HasLinkedMode {
 
     private final AnnotationRendering rendering = new AnnotationRendering();
 
@@ -69,6 +77,31 @@ public class OrionEditorPresenter extends EmbeddedTextEditorPresenter<OrionEdito
     public void configure(AnnotationModel model, DocumentHandle document) {
         document.getDocEventBus().addHandler(AnnotationModelEvent.TYPE, rendering);
         document.getDocEventBus().addHandler(ClearAnnotationModelEvent.TYPE, rendering);
+    }
+
+    @Override
+    public LinkedMode getLinkedMode() {
+        EditorWidget editorWidget = getEditorWidget();
+        if(editorWidget != null){
+            OrionEditorWidget orion = ((OrionEditorWidget)editorWidget);
+            return orion.getLinkedMode();
+        }
+        return null;
+    }
+
+    @Override
+    public LinkedModel createLinkedModel() {
+        return OrionLinkedModelOverlay.create();
+    }
+
+    @Override
+    public LinkedModelGroup createLinkedGroup() {
+        return OrionLinkedModelGroupOverlay.create();
+    }
+
+    @Override
+    public LinkedModelData createLinkedModelData() {
+        return OrionLinkedModelDataOverlay.create();
     }
 
     private class AnnotationRendering implements AnnotationModelHandler, ClearAnnotationModelHandler {
