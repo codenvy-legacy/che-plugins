@@ -27,7 +27,6 @@ import org.eclipse.che.ide.api.event.ProjectActionHandler;
 import org.eclipse.che.ide.api.extension.Extension;
 import org.eclipse.che.ide.api.parts.PartStackType;
 import org.eclipse.che.ide.api.parts.WorkspaceAgent;
-import org.eclipse.che.ide.collections.Array;
 import org.eclipse.che.ide.extension.machine.client.actions.EditCommandsAction;
 import org.eclipse.che.ide.extension.machine.client.actions.ExecuteArbitraryCommandAction;
 import org.eclipse.che.ide.extension.machine.client.actions.ExecuteSelectedCommandAction;
@@ -39,6 +38,8 @@ import org.eclipse.che.ide.extension.machine.client.machine.console.MachineConso
 import org.eclipse.che.ide.extension.machine.client.machine.console.MachineConsoleToolbar;
 import org.eclipse.che.ide.extension.machine.client.outputspanel.OutputsContainerPresenter;
 import org.eclipse.che.ide.ui.toolbar.ToolbarPresenter;
+
+import java.util.List;
 
 import static org.eclipse.che.ide.api.action.IdeActions.GROUP_CODE;
 import static org.eclipse.che.ide.api.action.IdeActions.GROUP_MAIN_MENU;
@@ -72,10 +73,10 @@ public class MachineExtension {
             public void onProjectOpened(ProjectActionEvent event) {
                 // start machine and bind project
                 final String projectPath = event.getProject().getPath();
-                Promise<Array<MachineDescriptor>> machinesPromise = machineServiceClient.getMachines(projectPath);
-                machinesPromise.then(new Operation<Array<MachineDescriptor>>() {
+                Promise<List<MachineDescriptor>> machinesPromise = machineServiceClient.getMachines(projectPath);
+                machinesPromise.then(new Operation<List<MachineDescriptor>>() {
                     @Override
-                    public void apply(Array<MachineDescriptor> arg) throws OperationException {
+                    public void apply(List<MachineDescriptor> arg) throws OperationException {
                         if (arg.isEmpty()) {
                             machineManager.startMachineAndBindProject(projectPath);
                         } else {

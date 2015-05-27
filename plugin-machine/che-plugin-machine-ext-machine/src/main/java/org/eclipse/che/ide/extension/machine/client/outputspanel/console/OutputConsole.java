@@ -22,6 +22,6 @@ public interface OutputConsole extends Presenter {
     /** Return title for the console. */
     String getTitle();
 
-    /** Attach console to the output that received from the given {@code outputChannel}. */
+    /** Attach console to the given WebSocket output channel. */
     void attachToOutput(String outputChannel);
 }
