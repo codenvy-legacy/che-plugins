@@ -51,6 +51,7 @@ import static org.eclipse.che.ide.api.constraints.Constraints.FIRST;
  * Machine extension entry point.
  *
  * @author Artem Zatsarynnyy
+ * @author Dmitry Shnurenko
  */
 @Singleton
 @Extension(title = "Machine", version = "1.0.0")
@@ -142,10 +143,7 @@ public class MachineExtension {
     @Inject
     private void setUpMachineConsole(ActionManager actionManager,
                                      ClearConsoleAction clearConsoleAction,
-                                     WorkspaceAgent workspaceAgent,
-                                     MachineConsolePresenter machineConsolePresenter,
                                      @MachineConsoleToolbar ToolbarPresenter machineConsoleToolbar) {
-        workspaceAgent.openPart(machineConsolePresenter, PartStackType.INFORMATION);
 
         // add toolbar to Machine console
         final DefaultActionGroup consoleToolbarActionGroup = new DefaultActionGroup(GROUP_MACHINE_CONSOLE_TOOLBAR, false, actionManager);

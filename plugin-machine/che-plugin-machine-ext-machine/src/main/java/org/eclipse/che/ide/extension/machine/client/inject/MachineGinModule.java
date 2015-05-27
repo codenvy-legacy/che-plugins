@@ -18,11 +18,6 @@ import com.google.inject.Singleton;
 import org.eclipse.che.ide.api.extension.ExtensionGinModule;
 import org.eclipse.che.ide.extension.machine.client.command.CommandType;
 import org.eclipse.che.ide.extension.machine.client.command.arbitrary.ArbitraryCommandType;
-import org.eclipse.che.ide.extension.machine.client.outputspanel.console.OutputConsole;
-import org.eclipse.che.ide.extension.machine.client.outputspanel.console.CommandConsoleFactory;
-import org.eclipse.che.ide.extension.machine.client.outputspanel.console.CommandOutputConsole;
-import org.eclipse.che.ide.extension.machine.client.outputspanel.console.OutputConsoleView;
-import org.eclipse.che.ide.extension.machine.client.outputspanel.console.CommandOutputConsoleView;
 import org.eclipse.che.ide.extension.machine.client.command.edit.EditConfigurationsView;
 import org.eclipse.che.ide.extension.machine.client.command.edit.EditConfigurationsViewImpl;
 import org.eclipse.che.ide.extension.machine.client.command.execute.ExecuteArbitraryCommandView;
@@ -32,7 +27,14 @@ import org.eclipse.che.ide.extension.machine.client.machine.console.MachineConso
 import org.eclipse.che.ide.extension.machine.client.machine.console.MachineConsoleViewImpl;
 import org.eclipse.che.ide.extension.machine.client.outputspanel.OutputsContainerView;
 import org.eclipse.che.ide.extension.machine.client.outputspanel.OutputsContainerViewImpl;
+import org.eclipse.che.ide.extension.machine.client.outputspanel.console.CommandConsoleFactory;
+import org.eclipse.che.ide.extension.machine.client.outputspanel.console.CommandOutputConsole;
+import org.eclipse.che.ide.extension.machine.client.outputspanel.console.CommandOutputConsoleView;
+import org.eclipse.che.ide.extension.machine.client.outputspanel.console.OutputConsole;
+import org.eclipse.che.ide.extension.machine.client.outputspanel.console.OutputConsoleView;
+import org.eclipse.che.ide.extension.machine.client.perspective.MachinePerspective;
 import org.eclipse.che.ide.ui.toolbar.ToolbarPresenter;
+import org.eclipse.che.ide.workspace.perspectives.general.Perspective;
 
 /**
  * GIN module for Machine extension.
@@ -45,6 +47,8 @@ public class MachineGinModule extends AbstractGinModule {
     /** {@inheritDoc} */
     @Override
     protected void configure() {
+        GinMultibinder.newSetBinder(binder(), Perspective.class).addBinding().to(MachinePerspective.class);
+
         bind(ToolbarPresenter.class).annotatedWith(MachineConsoleToolbar.class).to(ToolbarPresenter.class).in(Singleton.class);
         bind(MachineConsoleView.class).to(MachineConsoleViewImpl.class).in(Singleton.class);
 
