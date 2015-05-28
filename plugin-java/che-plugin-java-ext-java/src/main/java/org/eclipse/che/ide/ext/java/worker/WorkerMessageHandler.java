@@ -284,7 +284,6 @@ public class WorkerMessageHandler implements MessageHandler, MessageFilter.Messa
         options.put(AssistOptions.OPTION_PerformVisibilityCheck, AssistOptions.ENABLED);
         options.put(AssistOptions.OPTION_PerformDeprecationCheck, AssistOptions.DISABLED);
         options.put(AssistOptions.OPTION_PerformDiscouragedReferenceCheck, AssistOptions.ENABLED);
-        options.put(CompilerOptions.OPTION_ReportUnusedImport, JavaCore.IGNORE);
 
     }
 
