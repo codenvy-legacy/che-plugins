@@ -126,6 +126,7 @@
         .switcher {
             float: left;
             margin-left: 24px;
+            margin-top: -3px;
         }
 
         .portsPanel {
