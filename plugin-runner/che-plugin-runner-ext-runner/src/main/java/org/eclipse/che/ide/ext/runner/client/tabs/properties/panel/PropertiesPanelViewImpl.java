@@ -42,6 +42,7 @@ import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Shutdo
 import org.eclipse.che.ide.ui.switcher.Switcher;
 import org.eclipse.che.ide.util.Config;
 
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.EnumSet;
@@ -67,7 +68,7 @@ public class PropertiesPanelViewImpl extends Composite implements PropertiesPane
 
     private static final PropertiesPanelViewImplUiBinder UI_BINDER = GWT.create(PropertiesPanelViewImplUiBinder.class);
 
-    public static final String PORT_STUB = " ------------- ";
+    public static final String PORT_STUB = " ------------> ";
 
     @UiField
     Label     configLink;
@@ -249,7 +250,33 @@ public class PropertiesPanelViewImpl extends Composite implements PropertiesPane
         }
     }
 
+    /** {@inheritDoc} */
+    @Override
+    public void addRamValue(@Nonnegative int value) {
+        for (int i = 0; i < ram.getItemCount(); i++) {
+            if (ram.getValue(i).equals(value + " mb")) {
+                return;
+            }
+        }
+        ram.addItem(String.valueOf(value) + " mb");
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void selectMemory(@Nonnegative int size) {
+        for (int i = 0; i < ram.getItemCount(); i++) {
+            if (ram.getValue(i).equals(size + " mb")) {
+                ram.setItemSelected(i, true);
+
+                return;
+            }
+        }
+
+        selectDefaultMemory(Integer.toString(DEFAULT.getValue()));
+    }
+
     private void selectDefaultMemory(@Nonnull String size) {
+        size = size + " mb";
         int amountItems = ram.getItemCount();
         for (int index = 0; index < amountItems; index++) {
             if (size.equals(ram.getValue(index))) {
@@ -302,7 +329,7 @@ public class PropertiesPanelViewImpl extends Composite implements PropertiesPane
         portMappingHeader.setVisible(true);
         for (Map.Entry<String, String> entry : ports.entrySet()) {
             FlowPanel port = new FlowPanel();
-            Label portLabel = new Label(entry.getKey() + PORT_STUB + entry.getValue());
+            Label portLabel = new Label(entry.getValue() + PORT_STUB + entry.getKey());
             port.add(portLabel);
             portsPanel.add(port);
         }

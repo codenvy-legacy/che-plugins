@@ -19,6 +19,7 @@ import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM;
 import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope;
 import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Shutdown;
 
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Map;
@@ -55,6 +56,22 @@ public interface PropertiesPanelView extends View<PropertiesPanelView.ActionDele
      *         value that needs to be chosen
      */
     void selectMemory(@Nonnull RAM size);
+
+    /**
+     * Select a given value into RAM field.
+     *
+     * @param size
+     *         value that needs to be chosen
+     */
+    void selectMemory(@Nonnegative int size);
+
+    /**
+     * Add new value into the RAM list.
+     *
+     * @param value
+     *         value that needs to be add
+     */
+    void addRamValue(@Nonnegative int value);
 
     /** @return chosen value of Scope field */
     @Nonnull

@@ -109,7 +109,7 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
                                                                      SelectionManager.SelectionChangeListener {
     public static final String TIMER_STUB = "--:--:--";
 
-    private static final String PROJECT_PREFIX = "project://";
+    private static final String PROJECT_PREFIX = "project:/";
 
     private final RunnerManagerView           view;
     private final DtoFactory                  dtoFactory;
@@ -562,14 +562,26 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
         Environment environment = chooseRunnerAction.selectEnvironment();
         if (environment != null) {
             if (defaultRunner != null && defaultRunner.equals(environment.getId())) {
-                return launchRunner(modelsFactory.createRunner(runOptions));
+                Runner runner = modelsFactory.createRunner(runOptions);
+                if (defaultRunner.startsWith(PROJECT_PREFIX)) {
+                    runner.setScope(PROJECT);
+                }
+                return launchRunner(runner);
             }
             runOptions = runOptions.withOptions(environment.getOptions())
                                    .withMemorySize(environment.getRam())
                                    .withEnvironmentId(environment.getId());
-            return launchRunner(modelsFactory.createRunner(runOptions, environment.getName()));
+            Runner runner = modelsFactory.createRunner(runOptions, environment.getName());
+            if (environment.getId().startsWith(PROJECT_PREFIX)) {
+                runner.setScope(PROJECT);
+            }
+            return launchRunner(runner);
         }
 
+        Runner runner = modelsFactory.createRunner(runOptions);
+        if (defaultRunner != null && defaultRunner.startsWith(PROJECT_PREFIX)) {
+            runner.setScope(PROJECT);
+        }
         return launchRunner(modelsFactory.createRunner(runOptions));
     }
 

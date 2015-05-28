@@ -236,7 +236,7 @@ public class PropertiesPanelPresenterTest {
         verify(view).setName(runner1.getTitle());
         verify(view).setType(runner1.getType());
         verify(runner1).getRAM();
-        verify(view).selectMemory(MB_500);
+        verify(view).selectMemory(500);
         verify(view).selectScope(runner1.getScope());
     }
 

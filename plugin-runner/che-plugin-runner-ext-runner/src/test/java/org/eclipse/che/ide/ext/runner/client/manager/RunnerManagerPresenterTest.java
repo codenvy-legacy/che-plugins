@@ -862,7 +862,7 @@ public class RunnerManagerPresenterTest {
         verify(dtoFactory, times(2)).createDto(RunOptions.class);
         verify(runOptions).withSkipBuild(true);
         verify(runOptions).withMemorySize(DEFAULT.getValue());
-        verify(modelsFactory, times(2)).createRunner(runOptions);
+        verify(modelsFactory, times(3)).createRunner(runOptions);
 
         //verify launch runner
         verify(panelState, times(2)).setState(RUNNERS);
@@ -1341,7 +1341,7 @@ public class RunnerManagerPresenterTest {
         verify(dtoFactory).createDto(RunOptions.class);
         verify(runOptions).withSkipBuild(true);
         verify(runOptions).withMemorySize(DEFAULT.getValue());
-        verify(modelsFactory).createRunner(runOptions);
+        verify(modelsFactory,times(2)).createRunner(runOptions);
 
         //verify launch runner
         verify(panelState).setState(RUNNERS);
