@@ -13,6 +13,7 @@ package org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.docke
 import org.eclipse.che.api.core.rest.shared.dto.Link;
 import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
 import org.eclipse.che.api.project.shared.dto.ItemReference;
+import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.project.tree.TreeStructure;
 import org.eclipse.che.ide.api.project.tree.generic.FileNode;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
@@ -43,8 +44,9 @@ public class DockerFile extends FileNode {
                       @Nonnull ProjectServiceClient projectServiceClient,
                       @Nonnull DtoUnmarshallerFactory dtoUnmarshallerFactory,
                       @Nonnull ItemReference data,
-                      @Nonnull TreeStructure treeStructure) {
-        super(null, data, treeStructure, eventBus, projectServiceClient, dtoUnmarshallerFactory);
+                      @Nonnull TreeStructure treeStructure,
+                      @Nonnull EditorAgent editorAgent) {
+        super(null, data, treeStructure, eventBus, projectServiceClient, dtoUnmarshallerFactory, editorAgent);
     }
 
     /** {@inheritDoc} */

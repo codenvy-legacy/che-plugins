@@ -12,6 +12,7 @@ package org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common;
 
 import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
 import org.eclipse.che.api.project.shared.dto.ItemReference;
+import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.project.tree.TreeNode;
 import org.eclipse.che.ide.api.project.tree.TreeStructure;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
@@ -48,6 +49,8 @@ public class EnvironmentScriptTest {
     private ProjectServiceClient   projectServiceClient;
     @Mock
     private DtoUnmarshallerFactory dtoUnmarshallerFactory;
+    @Mock
+    private EditorAgent editorAgent;
 
     private EnvironmentScript environmentScript;
 
@@ -59,7 +62,8 @@ public class EnvironmentScriptTest {
                                                   eventBus,
                                                   projectServiceClient,
                                                   dtoUnmarshallerFactory,
-                                                  ENVIRONMENT_NAME);
+                                                  ENVIRONMENT_NAME,
+                                                  editorAgent);
         when(data.getName()).thenReturn(TEXT);
     }
 
