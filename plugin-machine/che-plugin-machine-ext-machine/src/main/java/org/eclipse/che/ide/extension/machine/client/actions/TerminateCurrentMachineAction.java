@@ -24,17 +24,17 @@ import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
  *
  * @author Artem Zatsarynnyy
  */
-public class TerminateMachineAction extends Action {
+public class TerminateCurrentMachineAction extends Action {
 
     private final AppContext           appContext;
     private final MachineManager       machineManager;
     private final AnalyticsEventLogger eventLogger;
 
     @Inject
-    public TerminateMachineAction(AppContext appContext,
-                                  MachineLocalizationConstant localizationConstant,
-                                  MachineManager machineManager,
-                                  AnalyticsEventLogger eventLogger) {
+    public TerminateCurrentMachineAction(AppContext appContext,
+                                         MachineLocalizationConstant localizationConstant,
+                                         MachineManager machineManager,
+                                         AnalyticsEventLogger eventLogger) {
         super(localizationConstant.terminateMachineControlTitle(), localizationConstant.terminateMachineControlDescription(), null, null);
         this.appContext = appContext;
         this.machineManager = machineManager;
@@ -45,6 +45,7 @@ public class TerminateMachineAction extends Action {
     @Override
     public void update(ActionEvent e) {
         e.getPresentation().setVisible(appContext.getCurrentProject() != null);
+        e.getPresentation().setEnabled(machineManager.getCurrentMachineId() != null);
     }
 
     /** {@inheritDoc} */

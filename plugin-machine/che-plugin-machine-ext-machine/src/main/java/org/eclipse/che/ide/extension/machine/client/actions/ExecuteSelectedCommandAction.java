@@ -21,6 +21,7 @@ import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.MachineResources;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
 import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
+import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 
 /**
  * Action to execute command which is selected in drop-down list.
@@ -29,15 +30,18 @@ import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
  */
 @Singleton
 public class ExecuteSelectedCommandAction extends Action {
-    private final AppContext           appContext;
-    private final SelectCommandAction  selectCommandAction;
-    private final MachineManager       machineManager;
-    private final AnalyticsEventLogger eventLogger;
+    private final AppContext                  appContext;
+    private final DialogFactory               dialogFactory;
+    private final SelectCommandAction         selectCommandAction;
+    private final MachineLocalizationConstant localizationConstant;
+    private final MachineManager              machineManager;
+    private final AnalyticsEventLogger        eventLogger;
 
     @Inject
     public ExecuteSelectedCommandAction(MachineLocalizationConstant localizationConstant,
                                         MachineResources resources,
                                         AppContext appContext,
+                                        DialogFactory dialogFactory,
                                         SelectCommandAction selectCommandAction,
                                         MachineManager machineManager,
                                         AnalyticsEventLogger eventLogger) {
@@ -45,7 +49,9 @@ public class ExecuteSelectedCommandAction extends Action {
               localizationConstant.executeSelectedCommandControlDescription(),
               null,
               resources.execute());
+        this.localizationConstant = localizationConstant;
         this.appContext = appContext;
+        this.dialogFactory = dialogFactory;
         this.selectCommandAction = selectCommandAction;
         this.machineManager = machineManager;
         this.eventLogger = eventLogger;
@@ -62,9 +68,13 @@ public class ExecuteSelectedCommandAction extends Action {
     public void actionPerformed(ActionEvent e) {
         eventLogger.log(this);
 
-        final CommandConfiguration commandConfiguration = selectCommandAction.getSelectedCommand();
-        if (commandConfiguration != null) {
-            machineManager.execute(commandConfiguration);
+        if (machineManager.getCurrentMachineId() != null) {
+            final CommandConfiguration commandConfiguration = selectCommandAction.getSelectedCommand();
+            if (commandConfiguration != null) {
+                machineManager.execute(commandConfiguration);
+            }
+        } else {
+            dialogFactory.createMessageDialog("", localizationConstant.noCurrentMachine(), null).show();
         }
     }
 }

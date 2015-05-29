@@ -14,9 +14,11 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
-import org.eclipse.che.ide.extension.machine.client.machine.console.MachineConsolePresenter;
-import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
+import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.OutputMessageUnmarshaller;
+import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
+import org.eclipse.che.ide.extension.machine.client.machine.console.MachineConsolePresenter;
+import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 import org.eclipse.che.ide.util.UUID;
 import org.eclipse.che.ide.util.loging.Log;
 import org.eclipse.che.ide.websocket.MessageBus;
@@ -37,18 +39,24 @@ public class ExecuteArbitraryCommandPresenter implements ExecuteArbitraryCommand
     private final MachineServiceClient        machineServiceClient;
     private final MachineConsolePresenter     machineConsole;
     private final MachineManager              machineManager;
+    private final DialogFactory               dialogFactory;
+    private final MachineLocalizationConstant localizationConstant;
 
     @Inject
     protected ExecuteArbitraryCommandPresenter(MessageBus messageBus,
                                                ExecuteArbitraryCommandView view,
                                                MachineServiceClient machineServiceClient,
                                                MachineConsolePresenter machineConsole,
-                                               MachineManager machineManager) {
+                                               MachineManager machineManager,
+                                               DialogFactory dialogFactory,
+                                               MachineLocalizationConstant localizationConstant) {
         this.messageBus = messageBus;
         this.view = view;
         this.machineServiceClient = machineServiceClient;
         this.machineConsole = machineConsole;
         this.machineManager = machineManager;
+        this.dialogFactory = dialogFactory;
+        this.localizationConstant = localizationConstant;
         this.view.setDelegate(this);
     }
 
@@ -64,10 +72,13 @@ public class ExecuteArbitraryCommandPresenter implements ExecuteArbitraryCommand
 
     @Override
     public void onExecuteClicked() {
+        view.close();
+
         final String currentMachineId = machineManager.getCurrentMachineId();
         if (currentMachineId != null) {
-            view.close();
             executeCommandInMachine(view.getCommand(), currentMachineId);
+        } else {
+            dialogFactory.createMessageDialog("", localizationConstant.noCurrentMachine(), null).show();
         }
     }
 

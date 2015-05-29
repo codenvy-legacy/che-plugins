@@ -31,6 +31,7 @@ import org.eclipse.che.ide.websocket.rest.SubscriptionHandler;
 import org.eclipse.che.ide.websocket.rest.Unmarshallable;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import static org.eclipse.che.api.machine.shared.MachineState.CREATING;
 import static org.eclipse.che.api.machine.shared.MachineState.DESTROYING;
@@ -76,6 +77,18 @@ class MachineStateNotifier {
      *         ID of the machine to track
      */
     void trackMachine(@Nonnull final String machineId) {
+        trackMachine(machineId, null);
+    }
+
+    /**
+     * Start tracking machine state and notify about state changing.
+     *
+     * @param machineId
+     *         ID of the machine to track
+     * @param runningListener
+     *         listener that will be notified when machine is running
+     */
+    void trackMachine(@Nonnull final String machineId, @Nullable final RunningListener runningListener) {
         final String wsChannel = MACHINE_STATE_WS_CHANNEL + machineId;
         final Notification notification = new Notification("", INFO, true);
 
@@ -86,6 +99,9 @@ class MachineStateNotifier {
                 switch (result.getEventType()) {
                     case RUNNING:
                         unsubscribe(wsChannel, this);
+                        if (runningListener != null) {
+                            runningListener.onRunning();
+                        }
                         notification.setMessage(localizationConstant.notificationMachineIsRunning(result.getMachineId()));
                         notification.setStatus(FINISHED);
                         notification.setType(INFO);
@@ -140,5 +156,9 @@ class MachineStateNotifier {
         } catch (WebSocketException e) {
             Log.error(getClass(), e);
         }
+    }
+
+    interface RunningListener {
+        void onRunning();
     }
 }
