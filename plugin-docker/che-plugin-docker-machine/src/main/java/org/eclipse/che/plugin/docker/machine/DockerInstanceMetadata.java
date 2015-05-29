@@ -12,8 +12,8 @@ package org.eclipse.che.plugin.docker.machine;
 
 import com.google.inject.assistedinject.Assisted;
 
-import org.eclipse.che.api.machine.server.MachineException;
-import org.eclipse.che.api.machine.server.ServerImpl;
+import org.eclipse.che.api.machine.server.exception.MachineException;
+import org.eclipse.che.api.machine.server.impl.ServerImpl;
 import org.eclipse.che.api.machine.server.spi.InstanceMetadata;
 import org.eclipse.che.api.machine.shared.Server;
 import org.eclipse.che.plugin.docker.client.DockerConnector;

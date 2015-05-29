@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.plugin.docker.machine;
 
-import org.eclipse.che.api.machine.server.MachineException;
+import org.eclipse.che.api.machine.server.exception.MachineException;
 import org.eclipse.che.api.machine.shared.ProjectBinding;
 
 /**

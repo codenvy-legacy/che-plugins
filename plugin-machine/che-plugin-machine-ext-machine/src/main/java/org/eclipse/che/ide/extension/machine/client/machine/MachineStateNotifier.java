@@ -16,7 +16,7 @@ import com.google.inject.Singleton;
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
 import org.eclipse.che.api.machine.shared.MachineState;
 import org.eclipse.che.api.machine.shared.dto.MachineDescriptor;
-import org.eclipse.che.api.machine.shared.dto.MachineStateEvent;
+import org.eclipse.che.api.machine.shared.dto.event.MachineStateEvent;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.ide.api.notification.Notification;

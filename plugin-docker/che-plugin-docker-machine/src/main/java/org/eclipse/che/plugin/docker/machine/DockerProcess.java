@@ -21,7 +21,7 @@ import org.eclipse.che.api.core.ConflictException;
 import org.eclipse.che.api.core.util.LineConsumer;
 import org.eclipse.che.api.core.util.ListLineConsumer;
 import org.eclipse.che.api.core.util.ValueHolder;
-import org.eclipse.che.api.machine.server.MachineException;
+import org.eclipse.che.api.machine.server.exception.MachineException;
 import org.eclipse.che.api.machine.server.spi.InstanceProcess;
 
 import javax.inject.Inject;

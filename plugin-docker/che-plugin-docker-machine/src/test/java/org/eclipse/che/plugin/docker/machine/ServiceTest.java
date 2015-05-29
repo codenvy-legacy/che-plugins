@@ -16,13 +16,13 @@ import org.eclipse.che.api.core.ServerException;
 import org.eclipse.che.api.core.notification.EventService;
 import org.eclipse.che.api.core.util.LineConsumer;
 import org.eclipse.che.api.core.util.ValueHolder;
-import org.eclipse.che.api.machine.server.MachineImpl;
+import org.eclipse.che.api.machine.server.impl.MachineImpl;
 import org.eclipse.che.api.machine.server.MachineManager;
 import org.eclipse.che.api.machine.server.MachineRegistry;
 import org.eclipse.che.api.machine.server.MachineService;
 import org.eclipse.che.api.machine.server.recipe.RecipeImpl;
-import org.eclipse.che.api.machine.server.SnapshotImpl;
-import org.eclipse.che.api.machine.server.SnapshotStorage;
+import org.eclipse.che.api.machine.server.impl.SnapshotImpl;
+import org.eclipse.che.api.machine.server.dao.SnapshotDao;
 import org.eclipse.che.api.machine.server.spi.InstanceProvider;
 import org.eclipse.che.api.machine.shared.MachineState;
 import org.eclipse.che.api.machine.shared.dto.CommandDescriptor;
@@ -30,7 +30,7 @@ import org.eclipse.che.api.machine.shared.dto.CreateMachineFromRecipe;
 import org.eclipse.che.api.machine.shared.dto.CreateMachineFromSnapshot;
 import org.eclipse.che.api.machine.shared.dto.MachineDescriptor;
 import org.eclipse.che.api.machine.shared.dto.ProcessDescriptor;
-import org.eclipse.che.api.machine.shared.dto.RecipeDescriptor;
+import org.eclipse.che.api.machine.shared.dto.recipe.RecipeDescriptor;
 import org.eclipse.che.plugin.docker.client.AuthConfig;
 import org.eclipse.che.plugin.docker.client.AuthConfigs;
 import org.eclipse.che.plugin.docker.client.DockerConnector;
@@ -90,7 +90,7 @@ public class ServiceTest {
     // used in methods {@link createMachineFromSnapshotTest} and {@link removeSnapshotTest}
     private DockerInstanceKey pushedImage;
 
-    private SnapshotStorage      snapshotStorage;
+    private SnapshotDao          snapshotDao;
     private MemberDao            memberDao;
     private DockerMachineFactory dockerFactory;
     private DockerNode           dockerNode;
@@ -135,7 +135,7 @@ public class ServiceTest {
     public void setUp() throws Exception {
         memberDao = mock(MemberDao.class);
 
-        snapshotStorage = mock(SnapshotStorage.class);
+        snapshotDao = mock(SnapshotDao.class);
 
         dockerFactory = mock(DockerMachineFactory.class);
 
@@ -148,7 +148,7 @@ public class ServiceTest {
                                                             new HashSet<String>(),
                                                             new HashSet<String>());
 
-        machineManager = new MachineManager(snapshotStorage,
+        machineManager = new MachineManager(snapshotDao,
                                             Collections.singleton(dockerInstanceProvider),
                                             machineRegistry,
                                             "/tmp",
@@ -221,7 +221,7 @@ public class ServiceTest {
         docker.removeImage(pushedImage.getImageId(), true);
 
         SnapshotImpl snapshot = mock(SnapshotImpl.class);
-        when(snapshotStorage.getSnapshot(SNAPSHOT_ID)).thenReturn(snapshot);
+        when(snapshotDao.getSnapshot(SNAPSHOT_ID)).thenReturn(snapshot);
         when(snapshot.getType()).thenReturn("docker");
         when(snapshot.getWorkspaceId()).thenReturn("wsId");
         when(snapshot.getInstanceKey()).thenReturn(pushedImage);
@@ -303,14 +303,14 @@ public class ServiceTest {
     @Test(dependsOnMethods = {"saveSnapshotTest", "createMachineFromSnapshotTest"}, enabled = false)// TODO
     public void removeSnapshotTest() throws Exception {
         SnapshotImpl snapshot = mock(SnapshotImpl.class);
-        when(snapshotStorage.getSnapshot(SNAPSHOT_ID)).thenReturn(snapshot);
+        when(snapshotDao.getSnapshot(SNAPSHOT_ID)).thenReturn(snapshot);
         when(snapshot.getType()).thenReturn("docker");
         when(snapshot.getOwner()).thenReturn(USER);
         when(snapshot.getInstanceKey()).thenReturn(pushedImage);
 
         machineService.removeSnapshot(SNAPSHOT_ID);
 
-        verify(snapshotStorage).removeSnapshot(SNAPSHOT_ID);
+        verify(snapshotDao).removeSnapshot(SNAPSHOT_ID);
 
         try {
             final boolean isPullSuccessful = pull(pushedImage.getRepository(), pushedImage.getTag(), pushedImage.getRegistry());

@@ -15,7 +15,7 @@ import com.google.inject.assistedinject.Assisted;
 import org.eclipse.che.api.core.NotFoundException;
 import org.eclipse.che.api.core.util.LineConsumer;
 import org.eclipse.che.api.core.util.ValueHolder;
-import org.eclipse.che.api.machine.server.MachineException;
+import org.eclipse.che.api.machine.server.exception.MachineException;
 import org.eclipse.che.api.machine.server.spi.Instance;
 import org.eclipse.che.api.machine.server.spi.InstanceKey;
 import org.eclipse.che.api.machine.server.spi.InstanceMetadata;

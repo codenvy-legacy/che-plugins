@@ -23,7 +23,7 @@ import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
 
 import org.eclipse.che.api.machine.server.MachineService;
-import org.eclipse.che.api.machine.server.SnapshotStorage;
+import org.eclipse.che.api.machine.server.dao.SnapshotDao;
 import org.eclipse.che.api.machine.server.spi.InstanceProvider;
 import org.eclipse.che.plugin.docker.machine.DockerNode;
 import org.eclipse.che.plugin.docker.machine.DockerProcess;
@@ -39,7 +39,7 @@ public class LocalDockerModule extends AbstractModule {
 
     @Override
     protected void configure() {
-        bind(SnapshotStorage.class).to(DummySnapshotStorage.class);
+        bind(SnapshotDao.class).to(DummySnapshotDao.class);
         bind(MachineService.class);
 
         Multibinder<String> exposedPortsMultibinder =

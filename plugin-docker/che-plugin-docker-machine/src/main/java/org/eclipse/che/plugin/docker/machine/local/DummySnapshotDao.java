@@ -12,8 +12,8 @@ package org.eclipse.che.plugin.docker.machine.local;
 
 import org.eclipse.che.api.core.NotFoundException;
 import org.eclipse.che.api.core.ServerException;
-import org.eclipse.che.api.machine.server.SnapshotImpl;
-import org.eclipse.che.api.machine.server.SnapshotStorage;
+import org.eclipse.che.api.machine.server.impl.SnapshotImpl;
+import org.eclipse.che.api.machine.server.dao.SnapshotDao;
 import org.eclipse.che.api.machine.shared.ProjectBinding;
 
 import javax.inject.Singleton;
@@ -25,7 +25,7 @@ import java.util.List;
  * @author gazarenkov
  */
 @Singleton
-public class DummySnapshotStorage implements SnapshotStorage {
+public class DummySnapshotDao implements SnapshotDao {
 
     @Override
     public SnapshotImpl getSnapshot(String snapshotId) throws NotFoundException, ServerException {
