@@ -62,6 +62,7 @@ public class MachineManager {
     private final NotificationManager         notificationManager;
     private final MachineLocalizationConstant localizationConstant;
     private final WorkspaceAgent              workspaceAgent;
+    private final MachineStateNotifier machineStateNotifier;
 
     private String currentMachineId;
 
@@ -75,7 +76,8 @@ public class MachineManager {
                           CommandConsoleFactory commandConsoleFactory,
                           NotificationManager notificationManager,
                           MachineLocalizationConstant localizationConstant,
-                          WorkspaceAgent workspaceAgent) {
+                          WorkspaceAgent workspaceAgent,
+                          MachineStateNotifier machineStateNotifier) {
         this.machineResources = machineResources;
         this.machineServiceClient = machineServiceClient;
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
@@ -86,6 +88,7 @@ public class MachineManager {
         this.notificationManager = notificationManager;
         this.localizationConstant = localizationConstant;
         this.workspaceAgent = workspaceAgent;
+        this.machineStateNotifier = machineStateNotifier;
     }
 
     /** Returns ID of the current machine, where current project is bound. */
@@ -97,6 +100,23 @@ public class MachineManager {
     /** Sets ID of the current machine, where current project is bound. */
     public void setCurrentMachineId(String currentMachineId) {
         this.currentMachineId = currentMachineId;
+    }
+
+    public void startMachine() {
+        final String recipeScript = machineResources.testDockerRecipe().getText();
+        final String outputChannel = "machine:output:" + UUID.uuid();
+        subscribeToOutput(outputChannel);
+
+        final Promise<MachineDescriptor> machinePromise = machineServiceClient.createMachineFromRecipe("docker",
+                                                                                                       "Dockerfile",
+                                                                                                       recipeScript,
+                                                                                                       outputChannel);
+        machinePromise.then(new Operation<MachineDescriptor>() {
+            @Override
+            public void apply(MachineDescriptor arg) throws OperationException {
+                machineStateNotifier.trackMachine(arg.getId());
+            }
+        });
     }
 
     /** Start machine and bind project. */
@@ -112,6 +132,7 @@ public class MachineManager {
         machinePromise.then(new Operation<MachineDescriptor>() {
             @Override
             public void apply(MachineDescriptor arg) throws OperationException {
+                machineStateNotifier.trackMachine(arg.getId());
                 bindProjectWhenMachineWillRun(projectPath, arg.getId());
             }
         });
@@ -175,6 +196,7 @@ public class MachineManager {
         machineServiceClient.destroyMachine(machineId).then(new Operation<Void>() {
             @Override
             public void apply(Void arg) throws OperationException {
+                machineStateNotifier.trackMachine(machineId);
                 if (getCurrentMachineId() != null && machineId.equals(getCurrentMachineId())) {
                     setCurrentMachineId(null);
                 }

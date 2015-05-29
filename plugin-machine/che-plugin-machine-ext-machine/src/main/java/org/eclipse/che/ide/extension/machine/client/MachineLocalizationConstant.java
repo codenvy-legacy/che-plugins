@@ -73,6 +73,20 @@ public interface MachineLocalizationConstant extends Messages {
     String noDevMachine();
 
 
+    /* MachineStateNotifier */
+    @Key("notification.creatingMachine")
+    String notificationCreatingMachine(String machine);
+
+    @Key("notification.machineIsRunning")
+    String notificationMachineIsRunning(String machine);
+
+    @Key("notification.destroyingMachine")
+    String notificationDestroyingMachine(String machine);
+
+    @Key("notification.machineDestroyed")
+    String notificationMachineDestroyed(String machine);
+
+
     /* MachineConsoleView */
     @Key("view.machineConsole.title")
     String machineConsoleViewTitle();
