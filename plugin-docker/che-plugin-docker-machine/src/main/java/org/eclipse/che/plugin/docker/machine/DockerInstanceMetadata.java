@@ -10,24 +10,52 @@
  *******************************************************************************/
 package org.eclipse.che.plugin.docker.machine;
 
-import org.eclipse.che.api.machine.server.spi.InstanceMetadata;
-import org.eclipse.che.plugin.docker.client.json.ContainerInfo;
+import com.google.inject.assistedinject.Assisted;
 
+import org.eclipse.che.api.machine.server.MachineException;
+import org.eclipse.che.api.machine.server.ServerImpl;
+import org.eclipse.che.api.machine.server.spi.InstanceMetadata;
+import org.eclipse.che.api.machine.shared.Server;
+import org.eclipse.che.plugin.docker.client.DockerConnector;
+import org.eclipse.che.plugin.docker.client.json.ContainerInfo;
+import org.eclipse.che.plugin.docker.client.json.PortBinding;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
  * Docker implemantation of {@link InstanceMetadata}
  *
  * @author andrew00x
+ * @author Alexander Garagatyi
  */
 public class DockerInstanceMetadata implements InstanceMetadata {
 
     private final ContainerInfo info;
+    private final String        hostAddress;
 
-    public DockerInstanceMetadata(ContainerInfo info) {
-        this.info = info;
+    @Inject
+    public DockerInstanceMetadata(DockerConnector docker,
+                                  @Named("api.endpoint") String apiEndpoint,
+                                  @Assisted String container) throws MachineException {
+        try {
+            info = docker.inspectContainer(container);
+
+            hostAddress = new URI(apiEndpoint).getHost();
+        } catch (IOException e) {
+            throw new MachineException(e.getLocalizedMessage(), e);
+        } catch (URISyntaxException e) {
+            throw new MachineException("Configuration error. Property 'api.endpoint is not valid URI. '" + e.getLocalizedMessage());
+        }
+
     }
 
     @Override
@@ -49,7 +77,7 @@ public class DockerInstanceMetadata implements InstanceMetadata {
         md.put("resolvConfPath", info.getResolvConfPath());
         md.put("sysInitPath", info.getSysInitPath());
         md.put("args", Arrays.toString(info.getArgs()));
-        md.put("volumes",String.valueOf(info.getVolumes()));
+        md.put("volumes", String.valueOf(info.getVolumes()));
         md.put("config.domainName", info.getConfig().getDomainName());
         md.put("config.hostname", info.getConfig().getHostname());
         md.put("config.image", info.getConfig().getImage());
@@ -57,10 +85,10 @@ public class DockerInstanceMetadata implements InstanceMetadata {
         md.put("config.workingDir", info.getConfig().getWorkingDir());
         md.put("config.cmd", Arrays.toString(info.getConfig().getCmd()));
         md.put("config.volumes", String.valueOf(info.getConfig().getVolumes()));
-        md.put("config.cpuset",info.getConfig().getCpuset());
-        md.put("config.entrypoint",info.getConfig().getEntrypoint());
+        md.put("config.cpuset", info.getConfig().getCpuset());
+        md.put("config.entrypoint", info.getConfig().getEntrypoint());
         md.put("config.exposedPorts", String.valueOf(info.getConfig().getExposedPorts()));
-        md.put("config.macAddress",info.getConfig().getMacAddress());
+        md.put("config.macAddress", info.getConfig().getMacAddress());
         md.put("config.securityOpts", Arrays.toString(info.getConfig().getSecurityOpts()));
         md.put("config.cpuShares", Integer.toString(info.getConfig().getCpuShares()));
         md.put("config.env", Arrays.toString(info.getConfig().getEnv()));
@@ -94,5 +122,23 @@ public class DockerInstanceMetadata implements InstanceMetadata {
     @Override
     public String toJson() {
         return info.toString();
+    }
+
+    @Override
+    public Map<String, Server> getServers() {
+        final HashMap<String, Server> exposedPorts = new HashMap<>();
+        for (Map.Entry<String, List<PortBinding>> portEntry : info.getNetworkSettings().getPorts().entrySet()) {
+            // in form 1234/tcp or 1234
+            final String portProtocol = portEntry.getKey();
+            // we are assigning ports automatically, so have 1 to 1 binding (at least per protocol)
+            final PortBinding portBinding = portEntry.getValue().get(0);
+            if (portProtocol.endsWith("/udp")) {
+                exposedPorts.put(portProtocol, new ServerImpl(hostAddress + ":" + portBinding.getHostPort()));
+            } else {
+                // cut off /tcp if it presents
+                exposedPorts.put(portProtocol.split("/", 2)[0], new ServerImpl(hostAddress + ":" + portBinding.getHostPort()));
+            }
+        }
+        return exposedPorts;
     }
 }

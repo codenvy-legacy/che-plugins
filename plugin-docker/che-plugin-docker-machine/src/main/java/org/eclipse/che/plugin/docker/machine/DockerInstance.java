@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.che.plugin.docker.machine;
 
+import com.google.inject.assistedinject.Assisted;
+
 import org.eclipse.che.api.core.NotFoundException;
 import org.eclipse.che.api.core.util.LineConsumer;
 import org.eclipse.che.api.core.util.ValueHolder;
@@ -26,9 +28,10 @@ import org.eclipse.che.plugin.docker.client.LogMessage;
 import org.eclipse.che.plugin.docker.client.LogMessageProcessor;
 import org.eclipse.che.plugin.docker.client.ProgressLineFormatterImpl;
 import org.eclipse.che.plugin.docker.client.ProgressMonitor;
-import org.eclipse.che.plugin.docker.client.json.ContainerInfo;
 import org.eclipse.che.plugin.docker.client.json.ProgressStatus;
 
+import javax.inject.Inject;
+import javax.inject.Named;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
@@ -47,21 +50,25 @@ public class DockerInstance implements Instance {
     private static final String        PID_FILE_TEMPLATE     = "/tmp/docker-exec-%s.pid";
     private static final Pattern       PID_FILE_PATH_PATTERN = Pattern.compile(String.format(PID_FILE_TEMPLATE, "([0-9]+)"));
 
-    private final String          container;
-    private final DockerConnector docker;
-    private final LineConsumer    outputConsumer;
-    private final String          registry;
-    private final DockerNode      node;
-    private final String          workspaceId;
-    private final boolean         workspaceIsBound;
+    private final DockerMachineFactory dockerMachineFactory;
+    private final String               container;
+    private final DockerConnector      docker;
+    private final LineConsumer         outputConsumer;
+    private final String               registry;
+    private final DockerNode           node;
+    private final String               workspaceId;
+    private final boolean              workspaceIsBound;
 
-    DockerInstance(DockerConnector docker,
-                   String registry,
-                   String container,
-                   LineConsumer outputConsumer,
-                   DockerNode node,
-                   String workspaceId,
-                   boolean workspaceIsBound) {
+    @Inject
+    public DockerInstance(DockerConnector docker,
+                          @Named("machine.docker.registry") String registry,
+                          DockerMachineFactory dockerMachineFactory,
+                          @Assisted("container") String container,
+                          @Assisted DockerNode node,
+                          @Assisted("workspace") String workspaceId,
+                          @Assisted boolean workspaceIsBound,
+                          @Assisted LineConsumer outputConsumer) {
+        this.dockerMachineFactory = dockerMachineFactory;
         this.container = container;
         this.docker = docker;
         this.outputConsumer = outputConsumer;
@@ -73,12 +80,7 @@ public class DockerInstance implements Instance {
 
     @Override
     public InstanceMetadata getMetadata() throws MachineException {
-        try {
-            ContainerInfo info = docker.inspectContainer(container);
-            return new DockerInstanceMetadata(info);
-        } catch (IOException e) {
-            throw new MachineException(e);
-        }
+        return dockerMachineFactory.createInstanceMetadata(container);
     }
 
     @Override
@@ -86,12 +88,15 @@ public class DockerInstance implements Instance {
         final String findPidFilesCmd = String.format("[ -r %1$s ] && echo '%1$s'", String.format(PID_FILE_TEMPLATE, pid));
         try {
             final Exec exec = docker.createExec(container, false, "/bin/bash", "-c", findPidFilesCmd);
-            final ValueHolder<DockerProcess> dockerProcess = new ValueHolder<>();
+            final ValueHolder<InstanceProcess> dockerProcess = new ValueHolder<>();
             docker.startExec(exec.getId(), new LogMessageProcessor() {
                 @Override
                 public void process(LogMessage logMessage) {
                     final String pidFilePath = logMessage.getContent();
-                    dockerProcess.set(new DockerProcess(docker, container, pidFilePath, pid));
+                    try {
+                        dockerProcess.set(dockerMachineFactory.createProcess(container, null, pidFilePath, pid));
+                    } catch (MachineException ignore) {
+                    }
                 }
             });
 
@@ -117,8 +122,8 @@ public class DockerInstance implements Instance {
                     final Matcher matcher = PID_FILE_PATH_PATTERN.matcher(pidFilePath);
                     if (matcher.matches()) {
                         try {
-                            processes.add(new DockerProcess(docker, container, pidFilePath, Integer.parseInt(matcher.group(1))));
-                        } catch (NumberFormatException ignore) {
+                            processes.add(dockerMachineFactory.createProcess(container, null, pidFilePath, Integer.parseInt(matcher.group(1))));
+                        } catch (NumberFormatException | MachineException ignore) {
                         }
                     }
                 }
@@ -132,7 +137,7 @@ public class DockerInstance implements Instance {
     @Override
     public InstanceProcess createProcess(String commandLine) throws MachineException {
         final Integer pid = pidSequence.getAndIncrement();
-        return new DockerProcess(docker, container, commandLine, String.format(PID_FILE_TEMPLATE, pid), pid);
+        return dockerMachineFactory.createProcess(container, commandLine, String.format(PID_FILE_TEMPLATE, pid), pid);
     }
 
     @Override

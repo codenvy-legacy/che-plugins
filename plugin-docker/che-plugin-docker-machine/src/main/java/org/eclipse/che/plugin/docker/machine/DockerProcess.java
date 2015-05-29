@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.che.plugin.docker.machine;
 
+import com.google.inject.assistedinject.Assisted;
+
 import org.eclipse.che.plugin.docker.client.DockerConnector;
 import org.eclipse.che.plugin.docker.client.Exec;
 import org.eclipse.che.plugin.docker.client.LogMessage;
@@ -22,6 +24,7 @@ import org.eclipse.che.api.core.util.ValueHolder;
 import org.eclipse.che.api.machine.server.MachineException;
 import org.eclipse.che.api.machine.server.spi.InstanceProcess;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -40,15 +43,12 @@ public class DockerProcess implements InstanceProcess {
     private boolean started;
     private String  command;
 
-    DockerProcess(DockerConnector docker, String container, String pidFilePath, int pid) {
-        this.docker = docker;
-        this.container = container;
-        this.pidFilePath = pidFilePath;
-        this.started = true;
-        this.pid = pid;
-    }
-
-    DockerProcess(DockerConnector docker, String container, String command, String pidFilePath, int pid) {
+    @Inject
+    public DockerProcess(DockerConnector docker,
+                         @Assisted("container") String container,
+                         @Assisted("command") String command,
+                         @Assisted("pid_file_path") String pidFilePath,
+                         @Assisted int pid) {
         this.docker = docker;
         this.container = container;
         this.command = command;

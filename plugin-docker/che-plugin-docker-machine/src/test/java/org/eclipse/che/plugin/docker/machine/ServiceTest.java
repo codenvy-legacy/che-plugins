@@ -90,18 +90,18 @@ public class ServiceTest {
     // used in methods {@link createMachineFromSnapshotTest} and {@link removeSnapshotTest}
     private DockerInstanceKey pushedImage;
 
-    private SnapshotStorage   snapshotStorage;
-    private MemberDao         memberDao;
-    private DockerNodeFactory dockerNodeFactory;
-    private DockerNode        dockerNode;
-    private MachineRegistry   machineRegistry;
-    private DockerConnector   docker;
-    private InstanceProvider  dockerInstanceProvider;
-    private MachineManager    machineManager;
-    private MachineService    machineService;
-    private String            registryContainerId;
-    private AuthConfigs       authConfigs;
-    private EventService      eventService;
+    private SnapshotStorage      snapshotStorage;
+    private MemberDao            memberDao;
+    private DockerMachineFactory dockerFactory;
+    private DockerNode           dockerNode;
+    private MachineRegistry      machineRegistry;
+    private DockerConnector      docker;
+    private InstanceProvider     dockerInstanceProvider;
+    private MachineManager       machineManager;
+    private MachineService       machineService;
+    private String               registryContainerId;
+    private AuthConfigs          authConfigs;
+    private EventService         eventService;
 
     private DtoFactory dtoFactory = DtoFactory.getInstance();
 
@@ -137,15 +137,14 @@ public class ServiceTest {
 
         snapshotStorage = mock(SnapshotStorage.class);
 
-        dockerNodeFactory = mock(DockerNodeFactory.class);
+        dockerFactory = mock(DockerMachineFactory.class);
 
         dockerNode = mock(DockerNode.class);
 
         eventService = mock(EventService.class);
 
         dockerInstanceProvider = new DockerInstanceProvider(docker,
-                                                            "localhost:5000",
-                                                            dockerNodeFactory,
+                                                            dockerFactory,
                                                             new HashSet<String>(),
                                                             new HashSet<String>());
 
@@ -188,7 +187,7 @@ public class ServiceTest {
             }
         });
 
-        when(dockerNodeFactory.createNode(anyString())).thenReturn(dockerNode);
+        when(dockerFactory.createNode(anyString())).thenReturn(dockerNode);
         when(dockerNode.getProjectsFolder()).thenReturn(System.getProperty("user.dir"));
         when(memberDao.getWorkspaceMember("wsId", USER)).thenReturn(new Member()
                                                                             .withWorkspaceId("wsId")
