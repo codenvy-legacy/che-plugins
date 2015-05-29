@@ -65,6 +65,22 @@ public class EditConfigurationsPresenter implements EditConfigurationsView.Actio
     }
 
     @Override
+    public void onApplyClicked() {
+        final CommandConfiguration selectedConfiguration = view.getSelectedConfiguration();
+        if (selectedConfiguration != null) {
+            commandServiceClient.updateCommand(selectedConfiguration.getId(),
+                                               selectedConfiguration.getName(),
+                                               selectedConfiguration.toCommandLine()).then(new Operation<CommandDescriptor>() {
+                @Override
+                public void apply(CommandDescriptor arg) throws OperationException {
+                    fireConfigurationsChanged();
+                    refreshView();
+                }
+            });
+        }
+    }
+
+    @Override
     public void onAddClicked() {
         final CommandType selectedType = view.getSelectedCommandType();
         if (selectedType == null) {
@@ -126,22 +142,6 @@ public class EditConfigurationsPresenter implements EditConfigurationsView.Actio
         final CommandConfiguration selectedConfiguration = view.getSelectedConfiguration();
         if (selectedConfiguration != null) {
             selectedConfiguration.setName(name);
-        }
-    }
-
-    @Override
-    public void onSaveClicked() {
-        final CommandConfiguration selectedConfiguration = view.getSelectedConfiguration();
-        if (selectedConfiguration != null) {
-            commandServiceClient.updateCommand(selectedConfiguration.getId(),
-                                               selectedConfiguration.getName(),
-                                               selectedConfiguration.toCommandLine()).then(new Operation<CommandDescriptor>() {
-                @Override
-                public void apply(CommandDescriptor arg) throws OperationException {
-                    fireConfigurationsChanged();
-                    refreshView();
-                }
-            });
         }
     }
 

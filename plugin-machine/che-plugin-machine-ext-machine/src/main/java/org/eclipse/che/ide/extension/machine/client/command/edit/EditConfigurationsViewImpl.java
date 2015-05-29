@@ -70,8 +70,6 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
     @UiField
     TextBox                     configurationName;
     @UiField
-    Button                      saveButton;
-    @UiField
     SimplePanel                 contentPanel;
     @UiField
     FlowPanel                   savePanel;
@@ -117,13 +115,6 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
             }
         });
         removeButton.setEnabled(false);
-
-        saveButton.addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent clickEvent) {
-                delegate.onSaveClicked();
-            }
-        });
 
         tree.setTreeEventHandler(new Tree.Listener<CommandTreeNode>() {
             @Override
@@ -206,8 +197,16 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
                 delegate.onCloseClicked();
             }
         });
+        final Button applyButton = createButton(locale.applyButton(), "window-edit-configurations-apply", new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                delegate.onApplyClicked();
+            }
+        });
         closeButton.addStyleName(resources.wizardCss().button());
+        applyButton.addStyleName(resources.wizardCss().button());
         getFooter().add(closeButton);
+        getFooter().add(applyButton);
     }
 
     @Override

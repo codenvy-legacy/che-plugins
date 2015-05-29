@@ -63,6 +63,9 @@ public interface EditConfigurationsView extends View<EditConfigurationsView.Acti
         /** Called when 'Close' button is clicked. */
         void onCloseClicked();
 
+        /** Called when 'Apply' button is clicked. */
+        void onApplyClicked();
+
         /** Called when 'Add' button is clicked. */
         void onAddClicked();
 
@@ -87,8 +90,5 @@ public interface EditConfigurationsView extends View<EditConfigurationsView.Acti
 
         /** Called when configuration name is changed. */
         void onNameChanged(String name);
-
-        /** Called when 'Save' button is clicked. */
-        void onSaveClicked();
     }
 }
