@@ -185,7 +185,7 @@ public class StatusTest extends BaseTest {
         final Status status = getConnection().status(SHORT);
 
         assertEquals(status.getMissing(), asList("a"));
-        assertTrue(status.getAdded().isEmpty());
+        assertEquals(status.getAdded(), asList("a"));
         assertTrue(status.getChanged().isEmpty());
         assertTrue(status.getConflicting().isEmpty());
         assertTrue(status.getRemoved().isEmpty());
@@ -206,11 +206,11 @@ public class StatusTest extends BaseTest {
 
         final Status status = getConnection().status(SHORT);
 
-        assertEquals(status.getRemoved(), asList("a"));
+        assertTrue(status.getRemoved().isEmpty());
         assertTrue(status.getAdded().isEmpty());
         assertTrue(status.getChanged().isEmpty());
         assertTrue(status.getConflicting().isEmpty());
-        assertTrue(status.getMissing().isEmpty());
+        assertEquals(status.getMissing(), asList("a"));
         assertTrue(status.getUntracked().isEmpty());
         assertTrue(status.getUntrackedFolders().isEmpty());
     }
