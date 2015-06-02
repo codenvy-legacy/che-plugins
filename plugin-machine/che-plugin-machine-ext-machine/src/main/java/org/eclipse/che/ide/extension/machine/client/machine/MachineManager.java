@@ -92,15 +92,16 @@ public class MachineManager implements ProjectActionHandler {
 
     @Override
     public void onProjectOpened(ProjectActionEvent event) {
-        final String projectPath = event.getProject().getPath();
-        machineServiceClient.getMachines(projectPath).then(new Operation<List<MachineDescriptor>>() {
+        machineServiceClient.getMachines(null).then(new Operation<List<MachineDescriptor>>() {
             @Override
             public void apply(List<MachineDescriptor> arg) throws OperationException {
-                if (arg.isEmpty()) {
-                    startMachine(true);
-                } else {
-                    currentMachineId = arg.get(0).getId();
+                for (MachineDescriptor machineDescriptor : arg) {
+                    if (machineDescriptor.isWorkspaceBound()) {
+                        currentMachineId = machineDescriptor.getId();
+                        return;
+                    }
                 }
+                startMachine(true);
             }
         });
     }
@@ -115,8 +116,8 @@ public class MachineManager implements ProjectActionHandler {
         machineConsolePresenter.clear();
     }
 
-    /** Start machine and set it as current machine if {@code asCurrent} is {@code true}. */
-    public void startMachine(final boolean asCurrent) {
+    /** Start machine and bind workspace to created machine if {@code bindWorkspace} is {@code true}. */
+    public void startMachine(final boolean bindWorkspace) {
         final String recipeScript = machineResources.testDockerRecipe().getText();
         final String outputChannel = "machine:output:" + UUID.uuid();
         subscribeToOutput(outputChannel);
@@ -124,20 +125,12 @@ public class MachineManager implements ProjectActionHandler {
         final Promise<MachineDescriptor> machinePromise = machineServiceClient.createMachineFromRecipe("docker",
                                                                                                        "Dockerfile",
                                                                                                        recipeScript,
+                                                                                                       bindWorkspace,
                                                                                                        outputChannel);
         machinePromise.then(new Operation<MachineDescriptor>() {
             @Override
             public void apply(final MachineDescriptor arg) throws OperationException {
-                MachineStateNotifier.RunningListener runningListener = null;
-                if (asCurrent) {
-                    runningListener = new MachineStateNotifier.RunningListener() {
-                        @Override
-                        public void onRunning() {
-                            setCurrentMachineId(arg.getId());
-                        }
-                    };
-                }
-                machineStateNotifier.trackMachine(arg.getId(), runningListener);
+                machineStateNotifier.trackMachine(arg.getId());
             }
         });
     }
