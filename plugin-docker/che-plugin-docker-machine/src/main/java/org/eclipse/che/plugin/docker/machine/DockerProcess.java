@@ -24,6 +24,7 @@ import org.eclipse.che.api.core.util.ValueHolder;
 import org.eclipse.che.api.machine.server.exception.MachineException;
 import org.eclipse.che.api.machine.server.spi.InstanceProcess;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.util.Arrays;
@@ -46,7 +47,7 @@ public class DockerProcess implements InstanceProcess {
     @Inject
     public DockerProcess(DockerConnector docker,
                          @Assisted("container") String container,
-                         @Assisted("command") String command,
+                         @Assisted("command") @Nullable String command,
                          @Assisted("pid_file_path") String pidFilePath,
                          @Assisted int pid) {
         this.docker = docker;
