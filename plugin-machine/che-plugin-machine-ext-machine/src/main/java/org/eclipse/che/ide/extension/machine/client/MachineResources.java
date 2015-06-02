@@ -20,6 +20,7 @@ import org.vectomatic.dom.svg.ui.SVGResource;
  * The resource interface for the Machine extension.
  *
  * @author Artem Zatsarynnyy
+ * @author Dmitry Shnurenko
  */
 public interface MachineResources extends ClientBundle {
 
@@ -70,5 +71,13 @@ public interface MachineResources extends ClientBundle {
 
         /** Returns the CSS class name for text label of tab button in 'Outputs' console. */
         String outputsContainerConsoleTabLabel();
+
+        String activeTab();
+
+        String disableTab();
+
+        String activeTabText();
+
+        String fullSize();
     }
 }

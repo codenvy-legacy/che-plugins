@@ -111,7 +111,7 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
         removeButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent clickEvent) {
-                delegate.onDeleteClicked();
+                delegate.onRemoveClicked();
             }
         });
         removeButton.setEnabled(false);
@@ -171,7 +171,7 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
                         delegate.onAddClicked();
                         break;
                     case KeyboardEvent.KeyCode.DELETE:
-                        delegate.onDeleteClicked();
+                        delegate.onRemoveClicked();
                         break;
                     default:
                         break;
@@ -191,10 +191,10 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
     }
 
     private void createFooterButtons(@Nonnull org.eclipse.che.ide.Resources resources) {
-        final Button closeButton = createButton(locale.closeButton(), "window-edit-configurations-close", new ClickHandler() {
+        final Button okButton = createButton(locale.okButton(), "window-edit-configurations-ok", new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                delegate.onCloseClicked();
+                delegate.onOkClicked();
             }
         });
         final Button applyButton = createButton(locale.applyButton(), "window-edit-configurations-apply", new ClickHandler() {
@@ -203,10 +203,20 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
                 delegate.onApplyClicked();
             }
         });
-        closeButton.addStyleName(resources.wizardCss().button());
-        applyButton.addStyleName(resources.wizardCss().button());
-        getFooter().add(closeButton);
+        final Button cancelButton = createButton(locale.cancelButton(), "window-edit-configurations-cancel", new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                delegate.onCancelClicked();
+            }
+        });
+
+        okButton.addStyleName(resources.wizardCss().buttonPrimary());
+        applyButton.addStyleName(resources.wizardCss().buttonSuccess());
+        cancelButton.addStyleName(resources.wizardCss().button());
+
+        getFooter().add(okButton);
         getFooter().add(applyButton);
+        getFooter().add(cancelButton);
     }
 
     @Override

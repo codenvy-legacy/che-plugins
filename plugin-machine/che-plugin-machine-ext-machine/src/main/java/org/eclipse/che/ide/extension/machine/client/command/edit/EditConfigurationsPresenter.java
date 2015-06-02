@@ -60,8 +60,19 @@ public class EditConfigurationsPresenter implements EditConfigurationsView.Actio
     }
 
     @Override
-    public void onCloseClicked() {
-        view.close();
+    public void onOkClicked() {
+        final CommandConfiguration selectedConfiguration = view.getSelectedConfiguration();
+        if (selectedConfiguration != null) {
+            commandServiceClient.updateCommand(selectedConfiguration.getId(),
+                                               selectedConfiguration.getName(),
+                                               selectedConfiguration.toCommandLine()).then(new Operation<CommandDescriptor>() {
+                @Override
+                public void apply(CommandDescriptor arg) throws OperationException {
+                    view.close();
+                    fireConfigurationsChanged();
+                }
+            });
+        }
     }
 
     @Override
@@ -81,15 +92,21 @@ public class EditConfigurationsPresenter implements EditConfigurationsView.Actio
     }
 
     @Override
+    public void onCancelClicked() {
+        view.close();
+    }
+
+    @Override
     public void onAddClicked() {
         final CommandType selectedType = view.getSelectedCommandType();
         if (selectedType == null) {
             return;
         }
 
-        final Promise<CommandDescriptor> commandPromise = commandServiceClient.createCommand("Command-" + UUID.uuid(2),
-                                                                                             selectedType.getCommandTemplate(),
-                                                                                             selectedType.getId());
+        final Promise<CommandDescriptor> commandPromise =
+                commandServiceClient.createCommand(selectedType.getDisplayName() + '-' + UUID.uuid(2, 10),
+                                                   selectedType.getCommandTemplate(),
+                                                   selectedType.getId());
         commandPromise.then(new Operation<CommandDescriptor>() {
             @Override
             public void apply(CommandDescriptor arg) throws OperationException {
@@ -100,7 +117,7 @@ public class EditConfigurationsPresenter implements EditConfigurationsView.Actio
     }
 
     @Override
-    public void onDeleteClicked() {
+    public void onRemoveClicked() {
         final CommandConfiguration selectedConfiguration = view.getSelectedConfiguration();
         if (selectedConfiguration != null) {
             commandServiceClient.removeCommand(selectedConfiguration.getId()).then(new Operation<Void>() {
@@ -189,6 +206,7 @@ public class EditConfigurationsPresenter implements EditConfigurationsView.Actio
         listeners.remove(listener);
     }
 
+    /** Listener that will be called when command configurations changed. */
     public interface ConfigurationsChangedListener {
         void onConfigurationsChanged();
     }

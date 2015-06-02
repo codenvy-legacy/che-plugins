@@ -61,7 +61,7 @@ public class ExecuteArbitraryCommandViewImpl extends Window implements ExecuteAr
     }
 
     private void createButtons() {
-        final Button closeButton = createButton(locale.closeButton(), "view-executeCommand-close", new ClickHandler() {
+        final Button closeButton = createButton(locale.cancelButton(), "view-executeCommand-close", new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 delegate.onCancelClicked();

@@ -11,6 +11,11 @@
 @eval backgroundColor org.eclipse.che.ide.api.theme.Style.getPartBackground();
 @eval outputFontColor org.eclipse.che.ide.api.theme.Style.getOutputFontColor();
 
+.fullSize {
+    width: 100% !important;
+    height: 100% !important;
+}
+
 .machineConsole, .commandConsole {
     background-color: backgroundColor;
     -moz-user-select: text;
@@ -106,4 +111,19 @@
     position: relative;
     top: 2px;
     white-space: nowrap;
+}
+
+.activeTab {
+    border-left: 1px solid #000000;
+    border-top: 1px solid #000000;
+    border-right: 1px solid #000000;
+    box-shadow: inset 0 1px 0 0 #4d4d4d, 0 2px 0 0 #474747;
+}
+
+.activeTabText {
+    color: #ffffff;
+}
+
+.disableTab {
+    color: #929292;
 }
