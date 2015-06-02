@@ -60,17 +60,20 @@ public interface EditConfigurationsView extends View<EditConfigurationsView.Acti
     /** Action handler for the view actions/controls. */
     interface ActionDelegate {
 
-        /** Called when 'Close' button is clicked. */
-        void onCloseClicked();
+        /** Called when 'Ok' button is clicked. */
+        void onOkClicked();
 
         /** Called when 'Apply' button is clicked. */
         void onApplyClicked();
 
+        /** Called when 'Cancel' button is clicked. */
+        void onCancelClicked();
+
         /** Called when 'Add' button is clicked. */
         void onAddClicked();
 
-        /** Called when 'Delete' button is clicked. */
-        void onDeleteClicked();
+        /** Called when 'Remove' button is clicked. */
+        void onRemoveClicked();
 
         /**
          * Called when some command type is selected.

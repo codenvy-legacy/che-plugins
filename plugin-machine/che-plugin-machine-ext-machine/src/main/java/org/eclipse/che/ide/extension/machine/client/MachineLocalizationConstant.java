@@ -23,11 +23,14 @@ public interface MachineLocalizationConstant extends Messages {
     @Key("button.execute")
     String executeButton();
 
-    @Key("button.close")
-    String closeButton();
-
     @Key("button.apply")
     String applyButton();
+
+    @Key("button.ok")
+    String okButton();
+
+    @Key("button.cancel")
+    String cancelButton();
 
 
     /* Actions */
