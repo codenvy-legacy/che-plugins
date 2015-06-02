@@ -8,7 +8,7 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.info;
+package org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.appliance;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.uibinder.client.UiBinder;
@@ -32,24 +32,24 @@ import java.util.List;
  *
  * @author Dmitry Shnurenko
  */
-public class InfoContainerViewImpl extends Composite implements InfoContainerView, PartStackView {
-    interface MachineInfoContainerUiBinder extends UiBinder<Widget, InfoContainerViewImpl> {
+public class MachineApplianceViewImpl extends Composite implements MachineApplianceView, PartStackView {
+    interface MachineInfoContainerUiBinder extends UiBinder<Widget, MachineApplianceViewImpl> {
     }
 
     private final static MachineInfoContainerUiBinder UI_BINDER = GWT.create(MachineInfoContainerUiBinder.class);
 
     @UiField
-    SimplePanel infoContainer;
+    SimplePanel container;
 
     @Inject
-    public InfoContainerViewImpl() {
+    public MachineApplianceViewImpl() {
         initWidget(UI_BINDER.createAndBindUi(this));
     }
 
     /** {@inheritDoc} */
     @Override
     public void addContainer(@Nonnull TabContainerView tabContainer) {
-        this.infoContainer.setWidget(tabContainer);
+        this.container.setWidget(tabContainer);
     }
 
     /** {@inheritDoc} */

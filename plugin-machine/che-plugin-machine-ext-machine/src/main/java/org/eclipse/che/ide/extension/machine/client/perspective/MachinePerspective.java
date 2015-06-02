@@ -16,7 +16,7 @@ import com.google.inject.Singleton;
 
 import org.eclipse.che.ide.api.parts.PartStack;
 import org.eclipse.che.ide.extension.machine.client.machine.console.MachineConsolePresenter;
-import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.info.InfoContainerPresenter;
+import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.appliance.MachineAppliancePresenter;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.panel.MachinePanelPresenter;
 import org.eclipse.che.ide.workspace.PartStackPresenterFactory;
 import org.eclipse.che.ide.workspace.PartStackViewFactory;
@@ -49,7 +49,7 @@ public class MachinePerspective extends AbstractPerspective {
                               PartStackPresenterFactory stackPresenterFactory,
                               MachineConsolePresenter console,
                               MachinePanelPresenter machinePanel,
-                              InfoContainerPresenter infoContainer) {
+                              MachineAppliancePresenter infoContainer) {
         super(view, stackPresenterFactory, partViewFactory, controllerFactory);
 
         this.machinePanel = machinePanel;

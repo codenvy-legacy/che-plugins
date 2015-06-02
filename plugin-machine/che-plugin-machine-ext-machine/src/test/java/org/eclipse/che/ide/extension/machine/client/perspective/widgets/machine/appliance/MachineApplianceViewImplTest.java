@@ -8,7 +8,7 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.info;
+package org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.appliance;
 
 import com.google.gwtmockito.GwtMockitoTestRunner;
 
@@ -24,19 +24,19 @@ import static org.mockito.Mockito.verify;
  * @author Dmitry Shnurenko
  */
 @RunWith(GwtMockitoTestRunner.class)
-public class InfoContainerViewImplTest {
+public class MachineApplianceViewImplTest {
 
     //additional mock
     @Mock
     private TabContainerView tabContainerView;
 
     @InjectMocks
-    private InfoContainerViewImpl view;
+    private MachineApplianceViewImpl view;
 
     @Test
     public void tabContainerShouldBeAdded() {
         view.addContainer(tabContainerView);
 
-        verify(view.infoContainer).setWidget(tabContainerView);
+        verify(view.container).setWidget(tabContainerView);
     }
 }

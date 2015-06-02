@@ -8,7 +8,7 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.info.processes;
+package org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.appliance.processes;
 
 import com.google.inject.ImplementedBy;
 

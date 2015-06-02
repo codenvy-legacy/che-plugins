@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.machine.client.machine;
 
-import com.google.inject.Inject;
-
 import org.eclipse.che.api.machine.shared.MachineState;
 import org.eclipse.che.api.machine.shared.dto.MachineDescriptor;
 
@@ -25,10 +23,6 @@ import java.util.Objects;
 public class Machine {
 
     private MachineDescriptor descriptor;
-
-    @Inject
-    public Machine() {
-    }
 
     /** @return id of current machine */
     public String getId() {

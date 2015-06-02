@@ -8,7 +8,7 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.info;
+package org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.appliance;
 
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.web.bindery.event.shared.EventBus;
@@ -17,8 +17,8 @@ import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.EntityFactory;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.WidgetsFactory;
 import org.eclipse.che.ide.extension.machine.client.machine.Machine;
-import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.info.processes.ProcessesPresenter;
-import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.info.terminal.TerminalPresenter;
+import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.appliance.processes.ProcessesPresenter;
+import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.appliance.terminal.TerminalPresenter;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.Tab;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.container.TabContainerPresenter;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.container.TabContainerView;
@@ -41,7 +41,7 @@ import static org.mockito.Mockito.when;
  * @author Dmitry Shnurenko
  */
 @RunWith(MockitoJUnitRunner.class)
-public class InfoContainerPresenterTest {
+public class MachineAppliancePresenterTest {
 
     private final static String SOME_TEXT = "someText";
 
@@ -51,7 +51,7 @@ public class InfoContainerPresenterTest {
     @Mock
     private PartStackEventHandler       partStackEventHandler;
     @Mock
-    private InfoContainerView           view;
+    private MachineApplianceView        view;
     @Mock
     private MachineLocalizationConstant locale;
     @Mock
@@ -79,7 +79,7 @@ public class InfoContainerPresenterTest {
     @Mock
     private AcceptsOneWidget container;
 
-    private InfoContainerPresenter presenter;
+    private MachineAppliancePresenter presenter;
 
     @Before
     public void setUp() {
@@ -92,15 +92,15 @@ public class InfoContainerPresenterTest {
         when(entityFactory.createTab(Matchers.<TabHeader>anyObject(), eq(processesPresenter))).thenReturn(processTab);
         when(entityFactory.createTab(Matchers.<TabHeader>anyObject(), eq(terminalPresenter))).thenReturn(terminalTab);
 
-        presenter = new InfoContainerPresenter(eventBus,
-                                               partStackEventHandler,
-                                               view,
-                                               locale,
-                                               widgetsFactory,
-                                               entityFactory,
-                                               processesPresenter,
-                                               terminalPresenter,
-                                               tabContainer);
+        presenter = new MachineAppliancePresenter(eventBus,
+                                                  partStackEventHandler,
+                                                  view,
+                                                  locale,
+                                                  widgetsFactory,
+                                                  entityFactory,
+                                                  processesPresenter,
+                                                  terminalPresenter,
+                                                  tabContainer);
     }
 
     @Test

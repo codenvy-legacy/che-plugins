@@ -24,7 +24,7 @@ import org.eclipse.che.ide.extension.machine.client.inject.factories.EntityFacto
 import org.eclipse.che.ide.extension.machine.client.inject.factories.WidgetsFactory;
 import org.eclipse.che.ide.extension.machine.client.machine.Machine;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.MachineWidget;
-import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.info.InfoContainerPresenter;
+import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.appliance.MachineAppliancePresenter;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -60,7 +60,7 @@ public class MachinePanelPresenterTest {
     @Mock
     private MachineLocalizationConstant locale;
     @Mock
-    private InfoContainerPresenter      infoContainer;
+    private MachineAppliancePresenter   infoContainer;
 
     //additional mocks
     @Mock

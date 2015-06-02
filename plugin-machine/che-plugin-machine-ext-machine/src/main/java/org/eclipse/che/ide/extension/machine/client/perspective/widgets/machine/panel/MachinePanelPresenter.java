@@ -25,7 +25,7 @@ import org.eclipse.che.ide.extension.machine.client.inject.factories.EntityFacto
 import org.eclipse.che.ide.extension.machine.client.inject.factories.WidgetsFactory;
 import org.eclipse.che.ide.extension.machine.client.machine.Machine;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.MachineWidget;
-import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.info.InfoContainerPresenter;
+import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.appliance.MachineAppliancePresenter;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -43,7 +43,7 @@ public class MachinePanelPresenter extends BasePresenter implements MachineWidge
     private final EntityFactory               entityFactory;
     private final WidgetsFactory              widgetsFactory;
     private final MachineLocalizationConstant locale;
-    private final InfoContainerPresenter      infoContainer;
+    private final MachineAppliancePresenter   infoContainer;
 
     @Inject
     public MachinePanelPresenter(MachinePanel view,
@@ -51,7 +51,7 @@ public class MachinePanelPresenter extends BasePresenter implements MachineWidge
                                  EntityFactory entityFactory,
                                  WidgetsFactory widgetsFactory,
                                  MachineLocalizationConstant locale,
-                                 InfoContainerPresenter infoContainer) {
+                                 MachineAppliancePresenter infoContainer) {
         this.view = view;
         this.service = service;
         this.entityFactory = entityFactory;

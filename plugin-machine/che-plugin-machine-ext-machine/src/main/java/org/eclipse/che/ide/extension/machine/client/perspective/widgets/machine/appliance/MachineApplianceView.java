@@ -8,7 +8,7 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.info;
+package org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.appliance;
 
 import com.google.inject.ImplementedBy;
 
@@ -22,8 +22,8 @@ import javax.annotation.Nonnull;
  *
  * @author Dmitry Shnurenko
  */
-@ImplementedBy(InfoContainerViewImpl.class)
-public interface InfoContainerView extends PartStackView {
+@ImplementedBy(MachineApplianceViewImpl.class)
+public interface MachineApplianceView extends PartStackView {
 
     /**
      * Adds tab container to main view.
