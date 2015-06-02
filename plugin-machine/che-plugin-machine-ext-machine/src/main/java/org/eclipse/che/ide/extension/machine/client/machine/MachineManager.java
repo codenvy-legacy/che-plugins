@@ -130,6 +130,7 @@ public class MachineManager implements ProjectActionHandler {
         machinePromise.then(new Operation<MachineDescriptor>() {
             @Override
             public void apply(final MachineDescriptor arg) throws OperationException {
+                currentMachineId = arg.getId();
                 machineStateNotifier.trackMachine(arg.getId());
             }
         });
