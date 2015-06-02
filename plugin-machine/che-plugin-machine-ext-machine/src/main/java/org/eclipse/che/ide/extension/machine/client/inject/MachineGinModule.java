@@ -22,6 +22,8 @@ import org.eclipse.che.ide.extension.machine.client.command.edit.EditConfigurati
 import org.eclipse.che.ide.extension.machine.client.command.edit.EditConfigurationsViewImpl;
 import org.eclipse.che.ide.extension.machine.client.command.execute.ExecuteArbitraryCommandView;
 import org.eclipse.che.ide.extension.machine.client.command.execute.ExecuteArbitraryCommandViewImpl;
+import org.eclipse.che.ide.extension.machine.client.inject.factories.EntityFactory;
+import org.eclipse.che.ide.extension.machine.client.inject.factories.WidgetsFactory;
 import org.eclipse.che.ide.extension.machine.client.machine.console.MachineConsoleToolbar;
 import org.eclipse.che.ide.extension.machine.client.machine.console.MachineConsoleView;
 import org.eclipse.che.ide.extension.machine.client.machine.console.MachineConsoleViewImpl;
@@ -33,6 +35,12 @@ import org.eclipse.che.ide.extension.machine.client.outputspanel.console.Command
 import org.eclipse.che.ide.extension.machine.client.outputspanel.console.OutputConsole;
 import org.eclipse.che.ide.extension.machine.client.outputspanel.console.OutputConsoleView;
 import org.eclipse.che.ide.extension.machine.client.perspective.MachinePerspective;
+import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.MachineWidget;
+import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.MachineWidgetImpl;
+import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.Tab;
+import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.TabImpl;
+import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.header.TabHeader;
+import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.header.TabHeaderImpl;
 import org.eclipse.che.ide.ui.toolbar.ToolbarPresenter;
 import org.eclipse.che.ide.workspace.perspectives.general.Perspective;
 
@@ -40,6 +48,7 @@ import org.eclipse.che.ide.workspace.perspectives.general.Perspective;
  * GIN module for Machine extension.
  *
  * @author Artem Zatsarynnyy
+ * @author Dmitry Shnurenko
  */
 @ExtensionGinModule
 public class MachineGinModule extends AbstractGinModule {
@@ -61,5 +70,9 @@ public class MachineGinModule extends AbstractGinModule {
         bind(EditConfigurationsView.class).to(EditConfigurationsViewImpl.class).in(Singleton.class);
 
         GinMultibinder.newSetBinder(binder(), CommandType.class).addBinding().to(ArbitraryCommandType.class);
+
+        install(new GinFactoryModuleBuilder().implement(MachineWidget.class, MachineWidgetImpl.class)
+                                             .implement(TabHeader.class, TabHeaderImpl.class).build(WidgetsFactory.class));
+        install(new GinFactoryModuleBuilder().implement(Tab.class, TabImpl.class).build(EntityFactory.class));
     }
 }

@@ -18,6 +18,8 @@ import com.google.gwtmockito.GwtMockitoTestRunner;
 
 import org.eclipse.che.ide.api.parts.PartStackView;
 import org.eclipse.che.ide.extension.machine.client.machine.console.MachineConsolePresenter;
+import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.appliance.MachineAppliancePresenter;
+import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.panel.MachinePanelPresenter;
 import org.eclipse.che.ide.part.PartStackPresenter;
 import org.eclipse.che.ide.workspace.PartStackPresenterFactory;
 import org.eclipse.che.ide.workspace.PartStackViewFactory;
@@ -55,6 +57,10 @@ public class MachinePerspectiveTest {
     private PartStackPresenterFactory  stackPresenterFactory;
     @Mock
     private MachineConsolePresenter    console;
+    @Mock
+    private MachinePanelPresenter      machinePanel;
+    @Mock
+    private MachineAppliancePresenter  infoContainer;
 
     //additional mocks
     @Mock
@@ -95,7 +101,13 @@ public class MachinePerspectiveTest {
         when(stackPresenterFactory.create(Matchers.<PartStackView>anyObject(),
                                           Matchers.<WorkBenchPartController>anyObject())).thenReturn(partStackPresenter);
 
-        perspective = new MachinePerspective(view, partViewFactory, controllerFactory, stackPresenterFactory, console);
+        perspective = new MachinePerspective(view,
+                                             partViewFactory,
+                                             controllerFactory,
+                                             stackPresenterFactory,
+                                             console,
+                                             machinePanel,
+                                             infoContainer);
     }
 
     @Test
@@ -115,7 +127,9 @@ public class MachinePerspectiveTest {
         perspective.go(container);
 
         verify(view, times(2)).getInformationPanel();
-        verify(partStackPresenter).go(simplePanel);
+        verify(view, times(2)).getNavigationPanel();
+        verify(view).getEditorPanel();
+        verify(partStackPresenter, times(2)).go(simplePanel);
         verify(container).setWidget(view);
     }
 }
