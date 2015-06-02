@@ -16,7 +16,6 @@ import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.Element;
-import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwtmockito.GwtMockitoTestRunner;
@@ -45,8 +44,8 @@ import java.util.Map;
 import static org.eclipse.che.ide.ext.runner.client.tabs.container.tab.Background.BLUE;
 import static org.eclipse.che.ide.ext.runner.client.tabs.container.tab.Background.GREY;
 import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.DEFAULT;
-import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MB_1000;
 import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MB_100;
+import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MB_1000;
 import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MB_500;
 import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MB_8000;
 import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope.PROJECT;
@@ -270,7 +269,7 @@ public class PropertiesPanelViewImplTest {
 
     @Test
     public void defaultAmountMemoryShouldBeSelected() {
-        when(view.ram.getValue(MB_1000.ordinal())).thenReturn("1000");
+        when(view.ram.getValue(MB_1000.ordinal())).thenReturn("1000 mb");
         when(view.ram.getItemCount()).thenReturn(RAM.values().length);
 
         view.selectMemory(DEFAULT);

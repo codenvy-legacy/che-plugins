@@ -12,9 +12,12 @@ package org.eclipse.che.env.local.client.lacation;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.http.client.URL;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.TextBox;
@@ -50,6 +53,8 @@ public class WorkspaceLocationViewImpl extends Window implements WorkspaceLocati
     @UiField
     TextBox workspaceLocation;
 
+    private Button okButton;
+
     interface WorkspaceLocationViewImplUiBinder extends UiBinder<DockLayoutPanel, WorkspaceLocationViewImpl> {
     }
 
@@ -74,7 +79,7 @@ public class WorkspaceLocationViewImpl extends Window implements WorkspaceLocati
 
     /** Bind handlers. */
     private void bind() {
-        Button okButton = createButton("OK", "change-workspace-ok", new ClickHandler() {
+        okButton = createButton("OK", "change-workspace-ok", new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 String wsId = appContext.getWorkspace().getId();
@@ -134,5 +139,12 @@ public class WorkspaceLocationViewImpl extends Window implements WorkspaceLocati
     public void closeDialog() {
         this.hide();
         this.onClose();
+    }
+
+    @UiHandler("workspaceLocation")
+    public void onWorkspaceLocationKeyEvent(KeyDownEvent event) {
+        if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
+            okButton.click();
+        }
     }
 }

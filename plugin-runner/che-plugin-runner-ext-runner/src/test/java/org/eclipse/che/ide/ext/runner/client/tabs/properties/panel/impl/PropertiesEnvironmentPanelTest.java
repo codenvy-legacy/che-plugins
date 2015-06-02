@@ -984,6 +984,7 @@ public class PropertiesEnvironmentPanelTest {
         when(environment.getScope()).thenReturn(SYSTEM);
         when(environment.getName()).thenReturn(TEXT);
         when(environment.getRam()).thenReturn(MB_500.getValue());
+        when(environment.getId()).thenReturn(TEXT);
 
         EditorPartPresenter editor2 = mock(TestEditor.class);
         when(editor2.getEditorInput()).thenReturn(editorInput);

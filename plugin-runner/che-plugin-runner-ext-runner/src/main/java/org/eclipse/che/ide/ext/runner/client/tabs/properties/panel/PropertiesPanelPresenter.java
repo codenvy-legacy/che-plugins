@@ -26,7 +26,6 @@ import org.eclipse.che.ide.api.project.tree.generic.FileNode;
 import org.eclipse.che.ide.api.texteditor.HasReadOnlyProperty;
 import org.eclipse.che.ide.ext.runner.client.models.Environment;
 import org.eclipse.che.ide.ext.runner.client.models.Runner;
-import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM;
 import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Shutdown;
 import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.docker.DockerFileEditorInput;
 import org.eclipse.che.ide.util.loging.Log;
@@ -166,7 +165,7 @@ public abstract class PropertiesPanelPresenter implements PropertiesPanelView.Ac
     public void update(@Nonnull Runner runner) {
         view.setName(runner.getTitle());
         view.setType(runner.getType());
-        view.selectMemory(RAM.detect(runner.getRAM()));
+        view.selectMemory(runner.getRAM());
         view.selectScope(runner.getScope());
     }
 

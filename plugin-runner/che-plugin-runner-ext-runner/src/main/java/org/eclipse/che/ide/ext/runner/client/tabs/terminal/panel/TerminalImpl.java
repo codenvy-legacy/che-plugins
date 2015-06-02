@@ -24,6 +24,7 @@ import org.eclipse.che.ide.ext.runner.client.RunnerLocalizationConstant;
 import org.eclipse.che.ide.ext.runner.client.RunnerResources;
 import org.eclipse.che.ide.ext.runner.client.models.Runner;
 import org.eclipse.che.ide.ext.runner.client.models.Runner.Status;
+import org.eclipse.che.ide.ext.runner.client.selection.SelectionManager;
 import org.eclipse.che.ide.ext.runner.client.util.TimerFactory;
 
 import javax.annotation.Nonnull;
@@ -32,6 +33,8 @@ import java.util.EnumSet;
 import java.util.Set;
 
 import static org.eclipse.che.ide.ext.runner.client.constants.TimeInterval.ONE_SEC;
+import static org.eclipse.che.ide.ext.runner.client.models.Runner.Status.DONE;
+import static org.eclipse.che.ide.ext.runner.client.models.Runner.Status.RUNNING;
 
 /**
  * @author Andrey Plotnikov
@@ -58,12 +61,18 @@ public class TerminalImpl extends Composite implements Terminal {
     @UiField(provided = true)
     final RunnerLocalizationConstant locale;
 
-    private String url;
+    private String  url;
+    private boolean isFirstActivated;
 
     @Inject
-    public TerminalImpl(RunnerResources resources, RunnerLocalizationConstant locale, TimerFactory timerFactory) {
+    public TerminalImpl(RunnerResources resources,
+                        final SelectionManager selectionManager,
+                        final RunnerLocalizationConstant locale,
+                        TimerFactory timerFactory) {
         this.res = resources;
         this.locale = locale;
+
+        isFirstActivated = true;
 
         initWidget(UI_BINDER.createAndBindUi(this));
 
@@ -71,6 +80,10 @@ public class TerminalImpl extends Composite implements Terminal {
             @Override
             public void onRun() {
                 terminal.setUrl(url);
+                Runner selectedRunner = selectionManager.getRunner();
+                if (selectedRunner != null && locale.runnerTabTerminal().equals(selectedRunner.getActiveTab())) {
+                    isFirstActivated = false;
+                }
             }
         });
     }
@@ -92,6 +105,9 @@ public class TerminalImpl extends Composite implements Terminal {
 
         String newTerminalUrl = runner.getTerminalURL();
         if (LAUNCHING_STATUS.contains(runner.getStatus()) || url != null && url.equals(newTerminalUrl)) {
+            if (isFirstActivated && (DONE.equals(runner.getStatus()) || RUNNING.equals(runner.getStatus()))) {
+                updateTerminalContent(url);
+            }
             return;
         }
 
@@ -108,6 +124,7 @@ public class TerminalImpl extends Composite implements Terminal {
     private void updateTerminalContent(@Nullable String url) {
         if (url != null) {
             terminal.setUrl(url);
+            isFirstActivated = false;
         } else {
             removeUrl();
 

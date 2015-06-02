@@ -28,7 +28,6 @@ import org.eclipse.che.ide.ext.runner.client.constants.TimeInterval;
 import org.eclipse.che.ide.ext.runner.client.models.Runner;
 import org.eclipse.che.ide.ext.runner.client.tabs.container.TabContainer;
 import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.PropertiesPanelView;
-import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM;
 import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope;
 import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.docker.DockerFile;
 import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.docker.DockerFileEditorInput;
@@ -46,6 +45,7 @@ import java.util.HashMap;
 import static org.eclipse.che.ide.ext.runner.client.constants.TimeInterval.ONE_SEC;
 import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MB_500;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -141,8 +141,8 @@ public class PropertiesRunnerPanelTest {
         verify(editor).addPropertyListener(any(PropertyListener.class));
         verify(editor).init(any(DockerFileEditorInput.class));
 
-        verify(runner, times(2)).getRAM();
-        verify(view).selectMemory(MB_500);
+        verify(runner, times(3)).getRAM();
+        verify(view).selectMemory(0);
 
         verify(timer).schedule(ONE_SEC.getValue());
 
@@ -177,7 +177,7 @@ public class PropertiesRunnerPanelTest {
         verify(view).setVisibleDeleteButton(false);
         verify(view).setVisibleCancelButton(false);
 
-        verify(runner).getRAM();
-        verify(view).selectMemory(any(RAM.class));
+        verify(runner,times(2)).getRAM();
+        verify(view).selectMemory(anyInt());
     }
 }

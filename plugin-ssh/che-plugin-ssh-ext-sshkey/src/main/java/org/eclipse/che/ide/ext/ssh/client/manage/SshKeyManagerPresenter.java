@@ -28,8 +28,9 @@ import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.ui.dialogs.CancelCallback;
 import org.eclipse.che.ide.ui.dialogs.ConfirmCallback;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
+import org.eclipse.che.ide.ui.dialogs.InputCallback;
+
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.inject.Inject;
@@ -152,21 +153,35 @@ public class SshKeyManagerPresenter extends AbstractPreferencePagePresenter impl
     /** {@inheritDoc} */
     @Override
     public void onGenerateClicked() {
-        String host = Window.prompt(constant.hostNameField(), "");
-        if (!host.isEmpty()) {
-            service.generateKey(host, new AsyncRequestCallback<Void>() {
-                @Override
-                protected void onSuccess(Void result) {
-                    refreshKeys();
-                }
+        dialogFactory.createInputDialog(constant.generateSshKeyTitle(),
+                                        constant.generateSshKeyHostname(),
+                                        getInputHostNameCallback(),
+                                        getCancelCallback())
+                     .show();
+    }
 
-                @Override
-                protected void onFailure(Throwable exception) {
-                    notificationManager.showError(SafeHtmlUtils.fromString(exception.getMessage()).asString());
-                    eventBus.fireEvent(new ExceptionThrownEvent(exception));
-                }
-            });
-        }
+    private InputCallback getInputHostNameCallback() {
+        return new InputCallback() {
+            @Override
+            public void accepted(String host) {
+                generateKey(host);
+            }
+        };
+    }
+
+    private void generateKey(String host) {
+        service.generateKey(host, new AsyncRequestCallback<Void>() {
+            @Override
+            protected void onSuccess(Void result) {
+                refreshKeys();
+            }
+
+            @Override
+            protected void onFailure(Throwable exception) {
+                notificationManager.showError(SafeHtmlUtils.fromString(exception.getMessage()).asString());
+                eventBus.fireEvent(new ExceptionThrownEvent(exception));
+            }
+        });
     }
 
     /** {@inheritDoc} */
