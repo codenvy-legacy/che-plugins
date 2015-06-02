@@ -121,9 +121,6 @@ public interface MachineLocalizationConstant extends Messages {
     @Key("view.editConfigurations.name.text")
     String editConfigurationsViewNameText();
 
-    @Key("view.editConfigurations.save.text")
-    String editConfigurationsViewSaveText();
-
     @Key("view.editConfigurations.add.text")
     String editConfigurationsViewAddText();
 
@@ -135,4 +132,31 @@ public interface MachineLocalizationConstant extends Messages {
 
     @Key("view.editConfigurations.remove.title")
     String editConfigurationsViewRemoveTitle();
+
+    @Key("process.active")
+    String processActive();
+
+    @Key("process.stopped")
+    String processStopped();
+
+    @Key("process.table.name")
+    String processTableName();
+
+    @Key("process.table.protocol")
+    String processTableProtocol();
+
+    @Key("process.table.port")
+    String processTablePort();
+
+    @Key("process.table.time")
+    String processTableTime();
+
+    @Key("process.table.active")
+    String processTableActive();
+
+    @Key("tab.processes")
+    String tabProcesses();
+
+    @Key("tab.terminal")
+    String tabTerminal();
 }

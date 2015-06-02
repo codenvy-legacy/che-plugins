@@ -16,6 +16,8 @@ import com.google.inject.Singleton;
 
 import org.eclipse.che.ide.api.parts.PartStack;
 import org.eclipse.che.ide.extension.machine.client.machine.console.MachineConsolePresenter;
+import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.info.InfoContainerPresenter;
+import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.panel.MachinePanelPresenter;
 import org.eclipse.che.ide.workspace.PartStackPresenterFactory;
 import org.eclipse.che.ide.workspace.PartStackViewFactory;
 import org.eclipse.che.ide.workspace.WorkBenchControllerFactory;
@@ -25,7 +27,9 @@ import org.eclipse.che.ide.workspace.perspectives.general.PerspectiveViewImpl;
 
 import javax.annotation.Nonnull;
 
+import static org.eclipse.che.ide.api.parts.PartStackType.EDITING;
 import static org.eclipse.che.ide.api.parts.PartStackType.INFORMATION;
+import static org.eclipse.che.ide.api.parts.PartStackType.NAVIGATION;
 import static org.eclipse.che.ide.workspace.perspectives.general.Perspective.Type.MACHINE;
 
 /**
@@ -36,15 +40,27 @@ import static org.eclipse.che.ide.workspace.perspectives.general.Perspective.Typ
 @Singleton
 public class MachinePerspective extends AbstractPerspective {
 
+    private final MachinePanelPresenter machinePanel;
+
     @Inject
     public MachinePerspective(PerspectiveViewImpl view,
                               PartStackViewFactory partViewFactory,
                               WorkBenchControllerFactory controllerFactory,
                               PartStackPresenterFactory stackPresenterFactory,
-                              MachineConsolePresenter console) {
+                              MachineConsolePresenter console,
+                              MachinePanelPresenter machinePanel,
+                              InfoContainerPresenter infoContainer) {
         super(view, stackPresenterFactory, partViewFactory, controllerFactory);
 
+        this.machinePanel = machinePanel;
+
+        //central panel
+        partStacks.put(EDITING, infoContainer);
+
         openPart(console, INFORMATION);
+        openPart(machinePanel, NAVIGATION);
+
+        setActivePart(machinePanel);
     }
 
     /** {@inheritDoc} */
@@ -57,13 +73,19 @@ public class MachinePerspective extends AbstractPerspective {
     /** {@inheritDoc} */
     @Override
     public void go(@Nonnull AcceptsOneWidget container) {
-        PartStack information = getPartStack(INFORMATION);
+        machinePanel.getMachines();
 
-        if (information == null) {
+        PartStack information = getPartStack(INFORMATION);
+        PartStack navigation = getPartStack(NAVIGATION);
+        PartStack editing = getPartStack(EDITING);
+
+        if (information == null || navigation == null || editing == null) {
             return;
         }
 
         information.go(view.getInformationPanel());
+        navigation.go(view.getNavigationPanel());
+        editing.go(view.getEditorPanel());
 
         container.setWidget(view);
     }
