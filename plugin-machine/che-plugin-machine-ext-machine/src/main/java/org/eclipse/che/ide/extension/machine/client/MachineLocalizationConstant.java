@@ -75,9 +75,6 @@ public interface MachineLocalizationConstant extends Messages {
     @Key("messages.noCurrentMachine")
     String noCurrentMachine();
 
-    @Key("messages.currentMachineChanged")
-    String currentMachineChanged(String machineId);
-
 
     /* MachineStateNotifier */
     @Key("notification.creatingMachine")

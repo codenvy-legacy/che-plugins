@@ -18,8 +18,6 @@ import org.eclipse.che.api.machine.shared.dto.MachineDescriptor;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.Promise;
-import org.eclipse.che.ide.api.app.AppContext;
-import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.event.ProjectActionEvent;
 import org.eclipse.che.ide.api.event.ProjectActionHandler;
 import org.eclipse.che.ide.api.notification.NotificationManager;
@@ -40,7 +38,6 @@ import org.eclipse.che.ide.websocket.rest.SubscriptionHandler;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
 import java.util.List;
 
 /**
@@ -61,7 +58,6 @@ public class MachineManager implements ProjectActionHandler {
     private final MachineLocalizationConstant localizationConstant;
     private final WorkspaceAgent              workspaceAgent;
     private final MachineStateNotifier        machineStateNotifier;
-    private final AppContext                  appContext;
 
     private String currentMachineId;
 
@@ -75,8 +71,7 @@ public class MachineManager implements ProjectActionHandler {
                           NotificationManager notificationManager,
                           MachineLocalizationConstant localizationConstant,
                           WorkspaceAgent workspaceAgent,
-                          MachineStateNotifier machineStateNotifier,
-                          AppContext appContext) {
+                          MachineStateNotifier machineStateNotifier) {
         this.machineResources = machineResources;
         this.machineServiceClient = machineServiceClient;
         this.messageBus = messageBus;
@@ -87,7 +82,6 @@ public class MachineManager implements ProjectActionHandler {
         this.localizationConstant = localizationConstant;
         this.workspaceAgent = workspaceAgent;
         this.machineStateNotifier = machineStateNotifier;
-        this.appContext = appContext;
     }
 
     @Override
@@ -130,8 +124,16 @@ public class MachineManager implements ProjectActionHandler {
         machinePromise.then(new Operation<MachineDescriptor>() {
             @Override
             public void apply(final MachineDescriptor arg) throws OperationException {
-                currentMachineId = arg.getId();
-                machineStateNotifier.trackMachine(arg.getId());
+                MachineStateNotifier.RunningListener runningListener = null;
+                if (bindWorkspace) {
+                    runningListener = new MachineStateNotifier.RunningListener() {
+                        @Override
+                        public void onRunning() {
+                            currentMachineId = arg.getId();
+                        }
+                    };
+                }
+                machineStateNotifier.trackMachine(arg.getId(), runningListener);
             }
         });
     }
@@ -148,25 +150,10 @@ public class MachineManager implements ProjectActionHandler {
         });
     }
 
-    /** Returns ID of the current machine (where current project is bound). */
+    /** Returns ID of the current machine (where workspace or current project is bound). */
     @Nullable
     public String getCurrentMachineId() {
         return currentMachineId;
-    }
-
-    /** Sets ID of the current machine (where current project should be bound). */
-    public void setCurrentMachineId(@Nonnull final String machineId) {
-        final CurrentProject currentProject = appContext.getCurrentProject();
-        if (currentProject == null) {
-            return;
-        }
-        machineServiceClient.bindProject(machineId, currentProject.getRootProject().getPath()).then(new Operation<Void>() {
-            @Override
-            public void apply(Void arg) throws OperationException {
-                currentMachineId = machineId;
-                notificationManager.showInfo(localizationConstant.currentMachineChanged(currentMachineId));
-            }
-        });
     }
 
     private void subscribeToOutput(final String channel) {
