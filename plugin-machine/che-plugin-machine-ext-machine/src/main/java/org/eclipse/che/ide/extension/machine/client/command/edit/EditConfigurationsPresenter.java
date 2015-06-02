@@ -68,8 +68,8 @@ public class EditConfigurationsPresenter implements EditConfigurationsView.Actio
                                                selectedConfiguration.toCommandLine()).then(new Operation<CommandDescriptor>() {
                 @Override
                 public void apply(CommandDescriptor arg) throws OperationException {
+                    view.close();
                     fireConfigurationsChanged();
-                    refreshView();
                 }
             });
         }
