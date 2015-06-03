@@ -26,8 +26,13 @@ import org.eclipse.che.ide.ext.runner.client.tabs.terminal.container.TerminalCon
 
 import javax.annotation.Nonnull;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
+
+import static org.eclipse.che.ide.ext.runner.client.models.Runner.Status.FAILED;
+import static org.eclipse.che.ide.ext.runner.client.models.Runner.Status.STOPPED;
 
 /**
  * The class contains business logic which allows add or change state of runners and performs some logic in respond on user's actions.
@@ -35,7 +40,7 @@ import java.util.Map;
  * @author Dmitry Shnurenko
  */
 @Singleton
-public class HistoryPresenter implements HistoryPanel, RunnerWidget.ActionDelegate {
+public class HistoryPresenter implements HistoryPanel, RunnerWidget.ActionDelegate, HistoryView.ActionDelegate {
 
     private final HistoryView               view;
     private final WidgetFactory             widgetFactory;
@@ -53,6 +58,7 @@ public class HistoryPresenter implements HistoryPanel, RunnerWidget.ActionDelega
                             ConsoleContainer consolePresenter,
                             TerminalContainer terminalContainer) {
         this.view = view;
+        this.view.setDelegate(this);
         this.consolePresenter = consolePresenter;
         this.terminalContainer = terminalContainer;
 
@@ -139,7 +145,7 @@ public class HistoryPresenter implements HistoryPanel, RunnerWidget.ActionDelega
 
     /** {@inheritDoc} */
     @Override
-    public void onRunnerCleanBtnClicked(@Nonnull Runner runner) {
+    public void removeRunnerWidget(@Nonnull Runner runner) {
         RunnerWidget widget = runnerWidgets.get(runner);
 
         view.removeRunner(widget);
@@ -169,6 +175,17 @@ public class HistoryPresenter implements HistoryPanel, RunnerWidget.ActionDelega
             selectionManager.setRunner(runner);
 
             selectRunner(runner);
+        }
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void cleanInactiveRunners() {
+        Set<Runner> runners = new HashSet<>(runnerWidgets.keySet());
+        for (Runner runner : runners) {
+            if (STOPPED.equals(runner.getStatus()) || FAILED.equals(runner.getStatus())) {
+                removeRunnerWidget(runner);
+            }
         }
     }
 }

@@ -310,4 +310,7 @@ public interface RunnerLocalizationConstant extends Messages {
 
     @Key("no.active.runner")
     String noActiveRunner();
+
+    @Key("clear.inactives")
+    String clearInactives();
 }

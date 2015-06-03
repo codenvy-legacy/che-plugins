@@ -28,6 +28,8 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 
+import static org.eclipse.che.ide.ext.runner.client.models.Runner.Status.RUNNING;
+import static org.eclipse.che.ide.ext.runner.client.models.Runner.Status.STOPPED;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -194,7 +196,23 @@ public class HistoryPresenterTest {
         historyPresenter.addRunner(runner);
         historyPresenter.addRunner(testRunner);
 
-        historyPresenter.onRunnerCleanBtnClicked(runner);
+        historyPresenter.removeRunnerWidget(runner);
+
+        verify(view).removeRunner(runnerWidget);
+        verify(consolePresenter).deleteConsoleByRunner(runner);
+        verify(selectionManager).getRunner();
+    }
+
+    @Test
+    public void inactiveRunnersShouldBeRemoved() throws Exception {
+        Runner testRunner = mock(Runner.class);
+        historyPresenter.addRunner(runner);
+        historyPresenter.addRunner(testRunner);
+
+        when(runner.getStatus()).thenReturn(STOPPED);
+        when(testRunner.getStatus()).thenReturn(RUNNING);
+
+        historyPresenter.cleanInactiveRunners();
 
         verify(view).removeRunner(runnerWidget);
         verify(consolePresenter).deleteConsoleByRunner(runner);
@@ -205,7 +223,7 @@ public class HistoryPresenterTest {
     public void terminalContainerShouldBeResetWhenHistoryPanelIsEmpty() {
         historyPresenter.addRunner(runner);
 
-        historyPresenter.onRunnerCleanBtnClicked(runner);
+        historyPresenter.removeRunnerWidget(runner);
 
         verify(terminalContainer).reset();
         verify(runnerManagerView).setEnableReRunButton(false);
@@ -219,7 +237,7 @@ public class HistoryPresenterTest {
         historyPresenter.addRunner(runner);
         historyPresenter.addRunner(runner2);
 
-        historyPresenter.onRunnerCleanBtnClicked(runner2);
+        historyPresenter.removeRunnerWidget(runner2);
 
         verify(view).removeRunner(runnerWidget2);
         verify(consolePresenter).deleteConsoleByRunner(runner2);
@@ -237,7 +255,7 @@ public class HistoryPresenterTest {
         reset(selectionManager, runnerWidget);
         when(selectionManager.getRunner()).thenReturn(runner);
 
-        historyPresenter.onRunnerCleanBtnClicked(runner2);
+        historyPresenter.removeRunnerWidget(runner2);
 
         verify(view).removeRunner(runnerWidget2);
         verify(consolePresenter).deleteConsoleByRunner(runner2);
