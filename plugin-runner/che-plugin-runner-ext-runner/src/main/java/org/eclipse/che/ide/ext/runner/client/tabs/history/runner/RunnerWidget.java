@@ -102,7 +102,7 @@ public class RunnerWidget implements RunnerItems<Runner> {
             @Override
             public void onClick(ClickEvent clickEvent) {
                 if (FAILED.equals(runnerStatus) || STOPPED.equals(runnerStatus)) {
-                    delegate.onRunnerCleanBtnClicked(runner);
+                    delegate.removeRunnerWidget(runner);
                 }
             }
         }, ClickEvent.getType());
@@ -187,6 +187,6 @@ public class RunnerWidget implements RunnerItems<Runner> {
 
     public interface ActionDelegate {
         /** Performs some actions in respond to user's actions. */
-        void onRunnerCleanBtnClicked(@Nonnull Runner runner);
+        void removeRunnerWidget(@Nonnull Runner runner);
     }
 }
