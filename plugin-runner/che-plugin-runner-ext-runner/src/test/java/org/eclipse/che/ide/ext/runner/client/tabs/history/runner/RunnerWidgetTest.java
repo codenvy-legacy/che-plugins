@@ -200,7 +200,7 @@ public class RunnerWidgetTest {
 
         clickCaptor.getValue().onClick(clickEvent);
 
-        verify(delegate).onRunnerCleanBtnClicked(runner);
+        verify(delegate).removeRunnerWidget(runner);
     }
 
     @Test
@@ -220,7 +220,7 @@ public class RunnerWidgetTest {
 
         clickCaptor.getValue().onClick(clickEvent);
 
-        verify(delegate, never()).onRunnerCleanBtnClicked(runner);
+        verify(delegate, never()).removeRunnerWidget(runner);
     }
 
     @Test

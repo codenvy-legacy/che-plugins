@@ -298,4 +298,7 @@ public interface RunnerLocalizationConstant extends Messages {
 
     @Key("template.create.new")
     String templateCreateNew();
+
+    @Key("clear.inactives")
+    String clearInactives();
 }

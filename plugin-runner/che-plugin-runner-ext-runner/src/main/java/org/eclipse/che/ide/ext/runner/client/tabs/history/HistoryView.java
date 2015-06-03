@@ -10,9 +10,9 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.runner.client.tabs.history;
 
-import com.google.gwt.user.client.ui.IsWidget;
 import com.google.inject.ImplementedBy;
 
+import org.eclipse.che.ide.api.mvp.View;
 import org.eclipse.che.ide.ext.runner.client.tabs.history.runner.RunnerWidget;
 
 import javax.annotation.Nonnull;
@@ -21,9 +21,10 @@ import javax.annotation.Nonnull;
  * Provides methods which allow change history panel.
  *
  * @author Dmitry Shnurenko
+ * @author Valeriy Svydenko
  */
 @ImplementedBy(HistoryViewImpl.class)
-public interface HistoryView extends IsWidget {
+public interface HistoryView extends View<HistoryView.ActionDelegate> {
 
     /**
      * Adds runner on panel and update runner's state.
@@ -51,4 +52,9 @@ public interface HistoryView extends IsWidget {
 
     /** Clears runner widgets. */
     void clear();
+
+    interface ActionDelegate {
+        /** Cleans all inactive runners. */
+        void cleanInactiveRunners();
+    }
 }
