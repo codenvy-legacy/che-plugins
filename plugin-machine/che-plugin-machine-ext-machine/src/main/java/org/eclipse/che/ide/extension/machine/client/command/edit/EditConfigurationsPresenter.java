@@ -29,6 +29,7 @@ import org.eclipse.che.ide.ui.dialogs.ConfirmCallback;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 import org.eclipse.che.ide.util.UUID;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -94,7 +95,7 @@ public class EditConfigurationsPresenter implements EditConfigurationsView.Actio
                 @Override
                 public void apply(CommandDescriptor arg) throws OperationException {
                     fireConfigurationsChanged();
-                    refreshView();
+                    refreshView(null);
                 }
             });
         }
@@ -120,7 +121,7 @@ public class EditConfigurationsPresenter implements EditConfigurationsView.Actio
             @Override
             public void apply(CommandDescriptor arg) throws OperationException {
                 fireConfigurationsChanged();
-                refreshView();
+                refreshView(arg.getId());
             }
         });
     }
@@ -136,7 +137,7 @@ public class EditConfigurationsPresenter implements EditConfigurationsView.Actio
                         @Override
                         public void apply(Void arg) throws OperationException {
                             fireConfigurationsChanged();
-                            refreshView();
+                            refreshView(null);
                         }
                     });
                 }
@@ -167,8 +168,10 @@ public class EditConfigurationsPresenter implements EditConfigurationsView.Actio
 
         final Collection<ConfigurationPage<? extends CommandConfiguration>> pages = configuration.getType().getConfigurationPages();
         for (ConfigurationPage<? extends CommandConfiguration> page : pages) {
-            ((ConfigurationPage<CommandConfiguration>)page).resetFrom(configuration);
-            page.go(view.getCommandConfigurationsDisplayContainer());
+            final ConfigurationPage<CommandConfiguration> p = ((ConfigurationPage<CommandConfiguration>)page);
+//            p.setListener(this);
+            p.resetFrom(configuration);
+            p.go(view.getCommandConfigurationsDisplayContainer());
             // TODO: for now show only first page but need to show all pages
             break;
         }
@@ -184,11 +187,11 @@ public class EditConfigurationsPresenter implements EditConfigurationsView.Actio
 
     /** Show dialog. */
     public void show() {
-        refreshView();
+        refreshView(null);
         view.show();
     }
 
-    private void refreshView() {
+    private void refreshView(@Nullable final String commandToSelect) {
         commandServiceClient.getCommands().then(new Function<List<CommandDescriptor>, List<CommandConfiguration>>() {
             @Override
             public List<CommandConfiguration> apply(List<CommandDescriptor> arg) throws FunctionException {
@@ -208,6 +211,9 @@ public class EditConfigurationsPresenter implements EditConfigurationsView.Actio
             @Override
             public void apply(List<CommandConfiguration> commandConfigurations) throws OperationException {
                 view.setData(commandTypeRegistry.getCommandTypes(), commandConfigurations);
+                if (commandToSelect != null) {
+                    view.selectCommand(commandToSelect);
+                }
             }
         });
     }

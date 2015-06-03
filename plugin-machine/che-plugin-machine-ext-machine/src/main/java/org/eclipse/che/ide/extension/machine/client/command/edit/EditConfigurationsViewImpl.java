@@ -320,6 +320,21 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
         return null;
     }
 
+    @Override
+    public void selectCommand(String commandId) {
+        for (TreeNodeElement<CommandTreeNode> nodeElement : tree.getVisibleTreeNodes().asIterable()) {
+            final CommandTreeNode treeNode = nodeElement.getData();
+            if (commandId.equals(treeNode.getId())) {
+                tree.getSelectionModel().selectSingleNode(treeNode);
+                if (treeNode.getData() instanceof CommandConfiguration) {
+                    delegate.onConfigurationSelected((CommandConfiguration)treeNode.getData());
+                    setHint(false);
+                }
+                break;
+            }
+        }
+    }
+
     @Nullable
     @Override
     public CommandConfiguration getSelectedConfiguration() {

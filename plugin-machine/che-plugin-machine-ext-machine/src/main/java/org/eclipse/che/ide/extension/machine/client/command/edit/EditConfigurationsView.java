@@ -53,6 +53,9 @@ public interface EditConfigurationsView extends View<EditConfigurationsView.Acti
     @Nullable
     CommandType getSelectedCommandType();
 
+    /** Select command with the given ID. */
+    void selectCommand(String commandId);
+
     /** Returns the selected command configuration. */
     @Nullable
     CommandConfiguration getSelectedConfiguration();
