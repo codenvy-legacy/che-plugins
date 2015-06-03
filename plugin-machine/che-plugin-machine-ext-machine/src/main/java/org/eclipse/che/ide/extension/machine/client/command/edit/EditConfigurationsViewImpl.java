@@ -75,6 +75,8 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
     FlowPanel                   savePanel;
 
     private ActionDelegate delegate;
+    private Button         okButton;
+    private Button         applyButton;
 
     @Inject
     protected EditConfigurationsViewImpl(org.eclipse.che.ide.Resources resources,
@@ -191,13 +193,13 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
     }
 
     private void createFooterButtons(@Nonnull org.eclipse.che.ide.Resources resources) {
-        final Button okButton = createButton(locale.okButton(), "window-edit-configurations-ok", new ClickHandler() {
+        okButton = createButton(locale.okButton(), "window-edit-configurations-ok", new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 delegate.onOkClicked();
             }
         });
-        final Button applyButton = createButton(locale.applyButton(), "window-edit-configurations-apply", new ClickHandler() {
+        applyButton = createButton(locale.applyButton(), "window-edit-configurations-apply", new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 delegate.onApplyClicked();
@@ -300,6 +302,16 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
     @Override
     public void setRemoveButtonState(boolean enabled) {
         removeButton.setEnabled(enabled);
+    }
+
+    @Override
+    public void setApplyButtonState(boolean enabled) {
+        applyButton.setEnabled(enabled);
+    }
+
+    @Override
+    public void setOkButtonState(boolean enabled) {
+        okButton.setEnabled(enabled);
     }
 
     @Nullable

@@ -49,6 +49,12 @@ public interface EditConfigurationsView extends View<EditConfigurationsView.Acti
     /** Sets enabled state of the 'Remove' button. */
     void setRemoveButtonState(boolean enabled);
 
+    /** Sets enabled state of the 'Apply' button. */
+    void setApplyButtonState(boolean enabled);
+
+    /** Sets enabled state of the 'OK' button. */
+    void setOkButtonState(boolean enabled);
+
     /** Returns the selected command type or type of the selected command configuration. */
     @Nullable
     CommandType getSelectedCommandType();

@@ -28,11 +28,17 @@ public class ArbitraryPagePresenter implements ArbitraryPageView.ActionDelegate,
 
     private final ArbitraryPageView             view;
     private       ArbitraryCommandConfiguration configuration;
+    private       DirtyStateListener            listener;
 
     @Inject
     public ArbitraryPagePresenter(ArbitraryPageView view) {
         this.view = view;
         view.setDelegate(this);
+    }
+
+    @Override
+    public void setListener(@Nonnull DirtyStateListener listener) {
+        this.listener = listener;
     }
 
     @Override
@@ -50,5 +56,6 @@ public class ArbitraryPagePresenter implements ArbitraryPageView.ActionDelegate,
     @Override
     public void onCommandLineChanged(String commandLine) {
         configuration.setCommandLine(commandLine);
+        listener.onDirtyStateChanged();
     }
 }

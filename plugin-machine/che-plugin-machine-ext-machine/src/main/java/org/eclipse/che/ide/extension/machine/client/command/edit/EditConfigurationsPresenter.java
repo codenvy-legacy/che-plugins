@@ -94,8 +94,11 @@ public class EditConfigurationsPresenter implements EditConfigurationsView.Actio
                                                selectedConfiguration.toCommandLine()).then(new Operation<CommandDescriptor>() {
                 @Override
                 public void apply(CommandDescriptor arg) throws OperationException {
+                    view.setApplyButtonState(false);
+                    view.setOkButtonState(false);
+
                     fireConfigurationsChanged();
-                    refreshView(null);
+                    refreshView(arg.getId());
                 }
             });
         }
@@ -169,7 +172,13 @@ public class EditConfigurationsPresenter implements EditConfigurationsView.Actio
         final Collection<ConfigurationPage<? extends CommandConfiguration>> pages = configuration.getType().getConfigurationPages();
         for (ConfigurationPage<? extends CommandConfiguration> page : pages) {
             final ConfigurationPage<CommandConfiguration> p = ((ConfigurationPage<CommandConfiguration>)page);
-//            p.setListener(this);
+            p.setListener(new ConfigurationPage.DirtyStateListener() {
+                @Override
+                public void onDirtyStateChanged() {
+                    view.setApplyButtonState(true);
+                    view.setOkButtonState(true);
+                }
+            });
             p.resetFrom(configuration);
             p.go(view.getCommandConfigurationsDisplayContainer());
             // TODO: for now show only first page but need to show all pages
@@ -182,11 +191,16 @@ public class EditConfigurationsPresenter implements EditConfigurationsView.Actio
         final CommandConfiguration selectedConfiguration = view.getSelectedConfiguration();
         if (selectedConfiguration != null) {
             selectedConfiguration.setName(name);
+
+            view.setApplyButtonState(true);
+            view.setOkButtonState(true);
         }
     }
 
     /** Show dialog. */
     public void show() {
+        view.setApplyButtonState(false);
+        view.setOkButtonState(false);
         refreshView(null);
         view.show();
     }
