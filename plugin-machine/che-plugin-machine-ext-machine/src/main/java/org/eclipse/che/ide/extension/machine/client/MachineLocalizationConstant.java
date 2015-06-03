@@ -136,6 +136,9 @@ public interface MachineLocalizationConstant extends Messages {
     @Key("view.editConfigurations.remove.title")
     String editConfigurationsViewRemoveTitle();
 
+    @Key("view.editConfigurations.remove.confirmation")
+    String editConfigurationsViewRemoveConfirmation(String commandName);
+
     @Key("process.active")
     String processActive();
 

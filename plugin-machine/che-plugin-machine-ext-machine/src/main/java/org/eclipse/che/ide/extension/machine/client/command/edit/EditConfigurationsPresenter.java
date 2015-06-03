@@ -20,10 +20,13 @@ import org.eclipse.che.api.promises.client.FunctionException;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.Promise;
+import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
 import org.eclipse.che.ide.extension.machine.client.command.CommandType;
 import org.eclipse.che.ide.extension.machine.client.command.CommandTypeRegistry;
 import org.eclipse.che.ide.extension.machine.client.command.ConfigurationPage;
+import org.eclipse.che.ide.ui.dialogs.ConfirmCallback;
+import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 import org.eclipse.che.ide.util.UUID;
 
 import java.util.ArrayList;
@@ -40,19 +43,25 @@ import java.util.Set;
 @Singleton
 public class EditConfigurationsPresenter implements EditConfigurationsView.ActionDelegate {
 
-    private final EditConfigurationsView view;
-    private final CommandServiceClient   commandServiceClient;
-    private final CommandTypeRegistry    commandTypeRegistry;
+    private final EditConfigurationsView      view;
+    private final CommandServiceClient        commandServiceClient;
+    private final CommandTypeRegistry         commandTypeRegistry;
+    private final DialogFactory               dialogFactory;
+    private final MachineLocalizationConstant localizationConstant;
 
     private final Set<ConfigurationsChangedListener> listeners;
 
     @Inject
     protected EditConfigurationsPresenter(EditConfigurationsView view,
                                           CommandServiceClient commandServiceClient,
-                                          CommandTypeRegistry commandTypeRegistry) {
+                                          CommandTypeRegistry commandTypeRegistry,
+                                          DialogFactory dialogFactory,
+                                          MachineLocalizationConstant localizationConstant) {
         this.view = view;
         this.commandServiceClient = commandServiceClient;
         this.commandTypeRegistry = commandTypeRegistry;
+        this.dialogFactory = dialogFactory;
+        this.localizationConstant = localizationConstant;
 
         listeners = new HashSet<>();
 
@@ -120,13 +129,24 @@ public class EditConfigurationsPresenter implements EditConfigurationsView.Actio
     public void onRemoveClicked() {
         final CommandConfiguration selectedConfiguration = view.getSelectedConfiguration();
         if (selectedConfiguration != null) {
-            commandServiceClient.removeCommand(selectedConfiguration.getId()).then(new Operation<Void>() {
+            final ConfirmCallback confirmCallback = new ConfirmCallback() {
                 @Override
-                public void apply(Void arg) throws OperationException {
-                    fireConfigurationsChanged();
-                    refreshView();
+                public void accepted() {
+                    commandServiceClient.removeCommand(selectedConfiguration.getId()).then(new Operation<Void>() {
+                        @Override
+                        public void apply(Void arg) throws OperationException {
+                            fireConfigurationsChanged();
+                            refreshView();
+                        }
+                    });
                 }
-            });
+            };
+
+            dialogFactory.createConfirmDialog(
+                    "",
+                    localizationConstant.editConfigurationsViewRemoveConfirmation(selectedConfiguration.getName()),
+                    confirmCallback,
+                    null).show();
         }
     }
 
