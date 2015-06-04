@@ -49,9 +49,18 @@ public interface EditConfigurationsView extends View<EditConfigurationsView.Acti
     /** Sets enabled state of the 'Remove' button. */
     void setRemoveButtonState(boolean enabled);
 
+    /** Sets enabled state of the 'Apply' button. */
+    void setApplyButtonState(boolean enabled);
+
+    /** Sets enabled state of the 'OK' button. */
+    void setOkButtonState(boolean enabled);
+
     /** Returns the selected command type or type of the selected command configuration. */
     @Nullable
     CommandType getSelectedCommandType();
+
+    /** Select command with the given ID. */
+    void selectCommand(String commandId);
 
     /** Returns the selected command configuration. */
     @Nullable
@@ -60,14 +69,20 @@ public interface EditConfigurationsView extends View<EditConfigurationsView.Acti
     /** Action handler for the view actions/controls. */
     interface ActionDelegate {
 
-        /** Called when 'Close' button is clicked. */
-        void onCloseClicked();
+        /** Called when 'Ok' button is clicked. */
+        void onOkClicked();
+
+        /** Called when 'Apply' button is clicked. */
+        void onApplyClicked();
+
+        /** Called when 'Cancel' button is clicked. */
+        void onCancelClicked();
 
         /** Called when 'Add' button is clicked. */
         void onAddClicked();
 
-        /** Called when 'Delete' button is clicked. */
-        void onDeleteClicked();
+        /** Called when 'Remove' button is clicked. */
+        void onRemoveClicked();
 
         /**
          * Called when some command type is selected.
@@ -87,8 +102,5 @@ public interface EditConfigurationsView extends View<EditConfigurationsView.Acti
 
         /** Called when configuration name is changed. */
         void onNameChanged(String name);
-
-        /** Called when 'Save' button is clicked. */
-        void onSaveClicked();
     }
 }

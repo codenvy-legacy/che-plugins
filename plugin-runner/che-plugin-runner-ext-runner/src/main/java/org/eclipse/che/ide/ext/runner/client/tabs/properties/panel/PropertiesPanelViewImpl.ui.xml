@@ -59,6 +59,30 @@
             padding-left: 3px;
         }
 
+        .textBoxSettingField[disabled] {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            border: none;
+            box-shadow: none;
+            background-color: inherit;
+            margin-right: 42px;
+            padding-left: 3px;
+        }
+
+        .textBoxSettingField {
+            float: right;
+            font-weight: inherit;
+            width: 150px;
+            border: 1px solid #191c1e;
+            border-radius: 2px;
+            margin-right: 35px;
+            padding-left: 7px;
+            padding-top: 2px;
+            background-color: #373737;
+            box-shadow: 0 1px 0 0 rgba(223, 223, 223, 0.4);
+        }
+
         .listBoxStyle[disabled] {
             margin-right: 40px !important;
         }
@@ -95,81 +119,84 @@
             color: #0090e4 !important;
             width: 160px;
             float: right;
-            margin-right: 36px;
+            margin-right: 34px;
             margin-top: 3px;
         }
 
         .switcher {
             float: left;
             margin-left: 24px;
+            margin-top: -3px;
         }
+
         .portsPanel {
             float: left;
-            margin-left: 127px;
+            margin-left: 120px;
             padding-left: 3px;
         }
     </ui:style>
 
     <g:DockLayoutPanel ui:field="propertiesPanel" unit="PX" addStyleNames="{resources.runnerCss.fullSize} {style.mainPanel}">
         <g:west size="300">
-                <g:FlowPanel>
-                    <g:FlowPanel addStyleNames="{style.settingsPanel}">
-                        <g:FlowPanel addStyleNames="{style.itemPanel}" ui:field="configLinkPanel">
-                            <g:Label text="{locale.propertiesConfig}" addStyleNames="{style.label} {resources.runnerCss.propertiesFont}"/>
-                            <g:Label text="{locale.propertiesOpenConfig}" ui:field="configLink" addStyleNames="{style.linkLabel} {resources.runnerCss.propertiesFont}"/>
-                        </g:FlowPanel>
+            <g:FlowPanel>
+                <g:FlowPanel addStyleNames="{style.settingsPanel}">
+                    <g:FlowPanel addStyleNames="{style.itemPanel}" ui:field="configLinkPanel">
+                        <g:Label text="{locale.propertiesConfig}" addStyleNames="{style.label} {resources.runnerCss.propertiesFont}"/>
+                        <g:Label text="{locale.propertiesOpenConfig}" ui:field="configLink"
+                                 addStyleNames="{style.linkLabel} {resources.runnerCss.propertiesFont}"/>
+                    </g:FlowPanel>
 
-                        <g:FlowPanel addStyleNames="{style.itemPanel}">
-                            <g:Label text="{locale.propertiesName}" addStyleNames="{style.label} {resources.runnerCss.propertiesFont}"/>
-                            <g:TextBox ui:field="name" addStyleNames="{style.settingField} {resources.runnerCss.propertiesFont}"/>
-                        </g:FlowPanel>
+                    <g:FlowPanel addStyleNames="{style.itemPanel}">
+                        <g:Label text="{locale.propertiesName}" addStyleNames="{style.label} {resources.runnerCss.propertiesFont}"/>
+                        <g:TextBox ui:field="name" addStyleNames="{style.textBoxSettingField} {resources.runnerCss.propertiesFont}"/>
+                    </g:FlowPanel>
 
-                        <g:FlowPanel addStyleNames="{style.itemPanel}">
-                            <g:Label text="{locale.propertiesType}" addStyleNames="{style.label} {resources.runnerCss.propertiesFont}"/>
-                            <g:TextBox ui:field="type" enabled="false" addStyleNames="{style.settingField}
+                    <g:FlowPanel addStyleNames="{style.itemPanel}">
+                        <g:Label text="{locale.propertiesType}" addStyleNames="{style.label} {resources.runnerCss.propertiesFont}"/>
+                        <g:TextBox ui:field="type" enabled="false" addStyleNames="{style.textBoxSettingField}
                                                                                       {resources.runnerCss.propertiesFont}"/>
-                        </g:FlowPanel>
+                    </g:FlowPanel>
 
-                        <g:FlowPanel addStyleNames="{style.itemPanel}">
-                            <g:Label text="{locale.propertiesRam}" addStyleNames="{style.label} {resources.runnerCss.propertiesFont}"/>
-                            <g:ListBox ui:field="ram" addStyleNames="{style.settingField}
+                    <g:FlowPanel addStyleNames="{style.itemPanel}">
+                        <g:Label text="{locale.propertiesRam}" addStyleNames="{style.label} {resources.runnerCss.propertiesFont}"/>
+                        <g:ListBox ui:field="ram" addStyleNames="{style.settingField}
                                                              {style.listBoxStyle}
                                                              {resources.runnerCss.propertiesFont}"/>
-                        </g:FlowPanel>
+                    </g:FlowPanel>
 
-                        <g:FlowPanel addStyleNames="{style.itemPanel}">
-                            <g:Label text="{locale.propertiesBoot}" addStyleNames="{style.label} {resources.runnerCss.propertiesFont}"/>
-                            <g:ListBox ui:field="boot" addStyleNames="{style.settingField}
+                    <g:FlowPanel addStyleNames="{style.itemPanel}">
+                        <g:Label text="{locale.propertiesBoot}" addStyleNames="{style.label} {resources.runnerCss.propertiesFont}"/>
+                        <g:ListBox ui:field="boot" addStyleNames="{style.settingField}
                                                               {style.listBoxStyle}
                                                               {resources.runnerCss.propertiesFont}"/>
-                        </g:FlowPanel>
+                    </g:FlowPanel>
 
-                        <g:FlowPanel addStyleNames="{style.itemPanel}">
-                            <g:Label text="{locale.propertiesShutdown}" addStyleNames="{style.label} {resources.runnerCss.propertiesFont}"/>
-                            <g:ListBox ui:field="shutdown" addStyleNames="{style.settingField}
+                    <g:FlowPanel addStyleNames="{style.itemPanel}">
+                        <g:Label text="{locale.propertiesShutdown}" addStyleNames="{style.label} {resources.runnerCss.propertiesFont}"/>
+                        <g:ListBox ui:field="shutdown" addStyleNames="{style.settingField}
                                                                   {style.listBoxStyle}
                                                                   {resources.runnerCss.propertiesFont}"/>
-                        </g:FlowPanel>
+                    </g:FlowPanel>
 
-                        <g:FlowPanel addStyleNames="{style.itemPanel}">
-                            <g:Label text="{locale.propertiesScope}" addStyleNames="{style.label} {resources.runnerCss.propertiesFont}"/>
-                            <g:ListBox ui:field="scope" addStyleNames="{style.settingField}
+                    <g:FlowPanel addStyleNames="{style.itemPanel}">
+                        <g:Label text="{locale.propertiesScope}" addStyleNames="{style.label} {resources.runnerCss.propertiesFont}"/>
+                        <g:ListBox ui:field="scope" addStyleNames="{style.settingField}
                                                                {style.listBoxStyle}
                                                                {resources.runnerCss.propertiesFont}"/>
-                        </g:FlowPanel>
-                        <g:FlowPanel ui:field="projectDefaultPanel" addStyleNames="{style.itemPanel}">
-                            <g:Label text="{locale.templateDefaultRunner}" addStyleNames="{style.label} {resources.runnerCss.propertiesFont}"/>
-                            <e:Switcher ui:field="projectDefault" addStyleNames="{style.switcher}"/>
-                        </g:FlowPanel>
-                        <g:FlowPanel ui:field="portMappingHeader">
-                            <g:Label text="{locale.propertiesPortMapping}" addStyleNames="{resources.runnerCss.propertiesFont} {style.label}"
-                                    width="93px"/>
-                            <g:Label text="{locale.propertiesPortOpened}" addStyleNames="{resources.runnerCss.propertiesFont} {style.label}"
-                                     width="70px"/>
-                            <g:Label text="{locale.propertiesPortMappedTo}" addStyleNames="{resources.runnerCss.propertiesFont} {style.label}"/>
-                        </g:FlowPanel>
-                        <g:FlowPanel ui:field="portsPanel" addStyleNames="{resources.runnerCss.fontSizeTen} {style.label} {style.portsPanel}"/>
                     </g:FlowPanel>
+                    <g:FlowPanel ui:field="projectDefaultPanel" addStyleNames="{style.itemPanel}">
+                        <g:Label text="{locale.templateDefaultRunner}" addStyleNames="{style.label} {resources.runnerCss.propertiesFont}"/>
+                        <e:Switcher ui:field="projectDefault" addStyleNames="{style.switcher}"/>
+                    </g:FlowPanel>
+                    <g:FlowPanel ui:field="portMappingHeader">
+                        <g:Label text="{locale.propertiesPortMapping}" addStyleNames="{resources.runnerCss.propertiesFont} {style.label}"
+                                 width="93px"/>
+                        <g:Label text="{locale.propertiesPortMappedTo}" addStyleNames="{resources.runnerCss.propertiesFont} {style.label}"
+                                 width="72px"/>
+                        <g:Label text="{locale.propertiesPortOpened}" addStyleNames="{resources.runnerCss.propertiesFont} {style.label}"/>
+                    </g:FlowPanel>
+                    <g:FlowPanel ui:field="portsPanel" addStyleNames="{resources.runnerCss.fontSizeTen} {style.label} {style.portsPanel}"/>
+                </g:FlowPanel>
             </g:FlowPanel>
         </g:west>
 

@@ -20,6 +20,7 @@ import org.vectomatic.dom.svg.ui.SVGResource;
  * The resource interface for the Machine extension.
  *
  * @author Artem Zatsarynnyy
+ * @author Dmitry Shnurenko
  */
 public interface MachineResources extends ClientBundle {
 
@@ -47,13 +48,36 @@ public interface MachineResources extends ClientBundle {
     interface Css extends CssResource {
 
         /** Returns the CSS class name for 'Machine' console panel. */
-        String console();
+        String machineConsole();
 
         /** Returns the CSS class name for 'Machine' console toolbar. */
-        @ClassName("console-toolbar")
         String consoleToolbar();
+
+        String commandConsole();
+
+        /** Returns the CSS class name for tab-panel in 'Outputs' console. */
+        String outputsConsoleTabsPanel();
 
         /** Returns the CSS class name for hint label in 'Edit Commands' dialog. */
         String commandHint();
+
+        /** Returns the CSS class name for tab button in 'Outputs' console. */
+        String outputsContainerConsoleTab();
+
+        /** Returns the CSS class name for selected tab button in 'Outputs' console. */
+        String outputsContainerConsoleTabSelected();
+
+        String outputsContainerConsoleTabPanel();
+
+        /** Returns the CSS class name for text label of tab button in 'Outputs' console. */
+        String outputsContainerConsoleTabLabel();
+
+        String activeTab();
+
+        String disableTab();
+
+        String activeTabText();
+
+        String fullSize();
     }
 }

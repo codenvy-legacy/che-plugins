@@ -28,11 +28,17 @@ public class MavenCommandPagePresenter implements MavenCommandPageView.ActionDel
 
     private final MavenCommandPageView      view;
     private       MavenCommandConfiguration configuration;
+    private       DirtyStateListener        listener;
 
     @Inject
     public MavenCommandPagePresenter(MavenCommandPageView view) {
         this.view = view;
         view.setDelegate(this);
+    }
+
+    @Override
+    public void setListener(@Nonnull DirtyStateListener listener) {
+        this.listener = listener;
     }
 
     @Override
@@ -50,5 +56,6 @@ public class MavenCommandPagePresenter implements MavenCommandPageView.ActionDel
     @Override
     public void onCommandLineChanged(String commandLine) {
         configuration.setCommandLine(commandLine);
+        listener.onDirtyStateChanged();
     }
 }

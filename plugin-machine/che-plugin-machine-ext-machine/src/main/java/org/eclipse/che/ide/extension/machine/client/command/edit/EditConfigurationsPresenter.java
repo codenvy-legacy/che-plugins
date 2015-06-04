@@ -20,12 +20,16 @@ import org.eclipse.che.api.promises.client.FunctionException;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.Promise;
+import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
 import org.eclipse.che.ide.extension.machine.client.command.CommandType;
 import org.eclipse.che.ide.extension.machine.client.command.CommandTypeRegistry;
 import org.eclipse.che.ide.extension.machine.client.command.ConfigurationPage;
+import org.eclipse.che.ide.ui.dialogs.ConfirmCallback;
+import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 import org.eclipse.che.ide.util.UUID;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -40,19 +44,25 @@ import java.util.Set;
 @Singleton
 public class EditConfigurationsPresenter implements EditConfigurationsView.ActionDelegate {
 
-    private final EditConfigurationsView view;
-    private final CommandServiceClient   commandServiceClient;
-    private final CommandTypeRegistry    commandTypeRegistry;
+    private final EditConfigurationsView      view;
+    private final CommandServiceClient        commandServiceClient;
+    private final CommandTypeRegistry         commandTypeRegistry;
+    private final DialogFactory               dialogFactory;
+    private final MachineLocalizationConstant localizationConstant;
 
     private final Set<ConfigurationsChangedListener> listeners;
 
     @Inject
     protected EditConfigurationsPresenter(EditConfigurationsView view,
                                           CommandServiceClient commandServiceClient,
-                                          CommandTypeRegistry commandTypeRegistry) {
+                                          CommandTypeRegistry commandTypeRegistry,
+                                          DialogFactory dialogFactory,
+                                          MachineLocalizationConstant localizationConstant) {
         this.view = view;
         this.commandServiceClient = commandServiceClient;
         this.commandTypeRegistry = commandTypeRegistry;
+        this.dialogFactory = dialogFactory;
+        this.localizationConstant = localizationConstant;
 
         listeners = new HashSet<>();
 
@@ -60,7 +70,42 @@ public class EditConfigurationsPresenter implements EditConfigurationsView.Actio
     }
 
     @Override
-    public void onCloseClicked() {
+    public void onOkClicked() {
+        final CommandConfiguration selectedConfiguration = view.getSelectedConfiguration();
+        if (selectedConfiguration != null) {
+            commandServiceClient.updateCommand(selectedConfiguration.getId(),
+                                               selectedConfiguration.getName(),
+                                               selectedConfiguration.toCommandLine()).then(new Operation<CommandDescriptor>() {
+                @Override
+                public void apply(CommandDescriptor arg) throws OperationException {
+                    view.close();
+                    fireConfigurationsChanged();
+                }
+            });
+        }
+    }
+
+    @Override
+    public void onApplyClicked() {
+        final CommandConfiguration selectedConfiguration = view.getSelectedConfiguration();
+        if (selectedConfiguration != null) {
+            commandServiceClient.updateCommand(selectedConfiguration.getId(),
+                                               selectedConfiguration.getName(),
+                                               selectedConfiguration.toCommandLine()).then(new Operation<CommandDescriptor>() {
+                @Override
+                public void apply(CommandDescriptor arg) throws OperationException {
+                    view.setApplyButtonState(false);
+                    view.setOkButtonState(false);
+
+                    fireConfigurationsChanged();
+                    refreshView(arg.getId());
+                }
+            });
+        }
+    }
+
+    @Override
+    public void onCancelClicked() {
         view.close();
     }
 
@@ -71,29 +116,41 @@ public class EditConfigurationsPresenter implements EditConfigurationsView.Actio
             return;
         }
 
-        final Promise<CommandDescriptor> commandPromise = commandServiceClient.createCommand("Command-" + UUID.uuid(2),
-                                                                                             selectedType.getCommandTemplate(),
-                                                                                             selectedType.getId());
+        final Promise<CommandDescriptor> commandPromise =
+                commandServiceClient.createCommand(selectedType.getDisplayName() + '-' + UUID.uuid(2, 10),
+                                                   selectedType.getCommandTemplate(),
+                                                   selectedType.getId());
         commandPromise.then(new Operation<CommandDescriptor>() {
             @Override
             public void apply(CommandDescriptor arg) throws OperationException {
                 fireConfigurationsChanged();
-                refreshView();
+                refreshView(arg.getId());
             }
         });
     }
 
     @Override
-    public void onDeleteClicked() {
+    public void onRemoveClicked() {
         final CommandConfiguration selectedConfiguration = view.getSelectedConfiguration();
         if (selectedConfiguration != null) {
-            commandServiceClient.removeCommand(selectedConfiguration.getId()).then(new Operation<Void>() {
+            final ConfirmCallback confirmCallback = new ConfirmCallback() {
                 @Override
-                public void apply(Void arg) throws OperationException {
-                    fireConfigurationsChanged();
-                    refreshView();
+                public void accepted() {
+                    commandServiceClient.removeCommand(selectedConfiguration.getId()).then(new Operation<Void>() {
+                        @Override
+                        public void apply(Void arg) throws OperationException {
+                            fireConfigurationsChanged();
+                            refreshView(null);
+                        }
+                    });
                 }
-            });
+            };
+
+            dialogFactory.createConfirmDialog(
+                    "",
+                    localizationConstant.editConfigurationsViewRemoveConfirmation(selectedConfiguration.getName()),
+                    confirmCallback,
+                    null).show();
         }
     }
 
@@ -114,8 +171,16 @@ public class EditConfigurationsPresenter implements EditConfigurationsView.Actio
 
         final Collection<ConfigurationPage<? extends CommandConfiguration>> pages = configuration.getType().getConfigurationPages();
         for (ConfigurationPage<? extends CommandConfiguration> page : pages) {
-            ((ConfigurationPage<CommandConfiguration>)page).resetFrom(configuration);
-            page.go(view.getCommandConfigurationsDisplayContainer());
+            final ConfigurationPage<CommandConfiguration> p = ((ConfigurationPage<CommandConfiguration>)page);
+            p.setListener(new ConfigurationPage.DirtyStateListener() {
+                @Override
+                public void onDirtyStateChanged() {
+                    view.setApplyButtonState(true);
+                    view.setOkButtonState(true);
+                }
+            });
+            p.resetFrom(configuration);
+            p.go(view.getCommandConfigurationsDisplayContainer());
             // TODO: for now show only first page but need to show all pages
             break;
         }
@@ -126,32 +191,21 @@ public class EditConfigurationsPresenter implements EditConfigurationsView.Actio
         final CommandConfiguration selectedConfiguration = view.getSelectedConfiguration();
         if (selectedConfiguration != null) {
             selectedConfiguration.setName(name);
-        }
-    }
 
-    @Override
-    public void onSaveClicked() {
-        final CommandConfiguration selectedConfiguration = view.getSelectedConfiguration();
-        if (selectedConfiguration != null) {
-            commandServiceClient.updateCommand(selectedConfiguration.getId(),
-                                               selectedConfiguration.getName(),
-                                               selectedConfiguration.toCommandLine()).then(new Operation<CommandDescriptor>() {
-                @Override
-                public void apply(CommandDescriptor arg) throws OperationException {
-                    fireConfigurationsChanged();
-                    refreshView();
-                }
-            });
+            view.setApplyButtonState(true);
+            view.setOkButtonState(true);
         }
     }
 
     /** Show dialog. */
     public void show() {
-        refreshView();
+        view.setApplyButtonState(false);
+        view.setOkButtonState(false);
+        refreshView(null);
         view.show();
     }
 
-    private void refreshView() {
+    private void refreshView(@Nullable final String commandToSelect) {
         commandServiceClient.getCommands().then(new Function<List<CommandDescriptor>, List<CommandConfiguration>>() {
             @Override
             public List<CommandConfiguration> apply(List<CommandDescriptor> arg) throws FunctionException {
@@ -171,6 +225,9 @@ public class EditConfigurationsPresenter implements EditConfigurationsView.Actio
             @Override
             public void apply(List<CommandConfiguration> commandConfigurations) throws OperationException {
                 view.setData(commandTypeRegistry.getCommandTypes(), commandConfigurations);
+                if (commandToSelect != null) {
+                    view.selectCommand(commandToSelect);
+                }
             }
         });
     }
@@ -189,6 +246,7 @@ public class EditConfigurationsPresenter implements EditConfigurationsView.Actio
         listeners.remove(listener);
     }
 
+    /** Listener that will be called when command configurations changed. */
     public interface ConfigurationsChangedListener {
         void onConfigurationsChanged();
     }

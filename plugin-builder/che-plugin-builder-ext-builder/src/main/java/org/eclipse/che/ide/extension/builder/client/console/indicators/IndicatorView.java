@@ -8,15 +8,18 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
+
 package org.eclipse.che.ide.extension.builder.client.console.indicators;
 
 import org.eclipse.che.ide.api.action.Presentation;
 import org.eclipse.che.ide.api.action.PropertyChangeEvent;
 import org.eclipse.che.ide.api.action.PropertyChangeListener;
 import org.eclipse.che.ide.extension.builder.client.BuilderResources;
+
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.Frame;
 import com.google.gwt.user.client.ui.InlineLabel;
 
 /**
@@ -32,6 +35,7 @@ public class IndicatorView extends Composite {
     private       Anchor           dataAnchor;
     private       InlineLabel      dataLabel;
     private       PropertyListener propertyListener;
+    private final static String TARGET = "download-frame";
 
     public IndicatorView(String caption, boolean isURL, int width, Presentation presentation, BuilderResources resources) {
         this.isURL = isURL;
@@ -45,6 +49,12 @@ public class IndicatorView extends Composite {
             dataAnchor = new Anchor();
             dataAnchor.setStyleName(resources.builder().dataLabel());
             panel.add(dataAnchor);
+            //Add iframe for avoid opening a new window when downloading the built artifacts
+            Frame frame = new Frame();
+            frame.getElement().setAttribute("name", TARGET);
+            frame.setSize("0px", "0px");
+            frame.setVisible(false);
+            panel.add(frame);
         } else {
             dataLabel = new InlineLabel();
             dataLabel.setStyleName(resources.builder().dataLabel());
@@ -86,7 +96,7 @@ public class IndicatorView extends Composite {
                 dataAnchor.setText(value);
             }
             dataAnchor.setHref(value);
-            dataAnchor.setTarget("_blank");
+            dataAnchor.setTarget(TARGET);
         } else {
             dataLabel.setText(value);
         }

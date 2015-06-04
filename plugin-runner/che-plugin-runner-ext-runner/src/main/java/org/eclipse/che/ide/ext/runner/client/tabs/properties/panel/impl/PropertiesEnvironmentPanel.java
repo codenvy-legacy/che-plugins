@@ -65,6 +65,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.eclipse.che.ide.ext.runner.client.models.EnvironmentImpl.ROOT_FOLDER;
+import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.DEFAULT;
 import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope.PROJECT;
 
 /**
@@ -178,9 +179,17 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
 
     @Nonnegative
     private int getRam(@Nonnull String environmentId) {
-        boolean isConfigExist = runnerConfigs.containsKey(environmentId);
+        boolean isConfigExist = runnerConfigs.containsKey(environmentId) || runnerConfigs.containsKey(URL.encode(environmentId));
 
-        return isConfigExist ? runnerConfigs.get(environmentId).getRam() : RAM.DEFAULT.getValue();
+        if (!isConfigExist) {
+            return DEFAULT.getValue();
+        }
+
+        if (runnerConfigs.get(environmentId) != null) {
+            return runnerConfigs.get(environmentId).getRam();
+        } else {
+            return runnerConfigs.get(URL.encode(environmentId)).getRam();
+        }
     }
 
     /**
@@ -577,10 +586,16 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
 
         RAM ram = RAM.detect(isConfigExist && !isParameterChanged ? getRam(environmentId) : environment.getRam());
 
-        this.environment.setRam(ram.getValue());
+        if (DEFAULT.getValue() != currentRam && DEFAULT.equals(ram)) {
+            view.addRamValue(currentRam);
+            view.selectMemory(currentRam);
+            this.environment.setRam(currentRam);
+        } else {
+            this.environment.setRam(ram.getValue());
+            view.selectMemory(ram);
+        }
 
         view.selectShutdown(getTimeout());
-        view.selectMemory(ram);
         view.setName(environmentName);
         String type = getType(environment);
         view.setType(type);

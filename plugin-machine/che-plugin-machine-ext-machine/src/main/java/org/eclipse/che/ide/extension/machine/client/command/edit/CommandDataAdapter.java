@@ -139,7 +139,7 @@ public class CommandDataAdapter implements NodeDataAdapter<CommandDataAdapter.Co
             return children;
         }
 
-        private String getId() {
+        public String getId() {
             return id;
         }
 

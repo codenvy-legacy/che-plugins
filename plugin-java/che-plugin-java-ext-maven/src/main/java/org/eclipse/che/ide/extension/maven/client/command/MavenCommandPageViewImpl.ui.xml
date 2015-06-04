@@ -52,7 +52,7 @@
                 </g:west>
                 <g:center>
                     <g:FlowPanel addStyleNames="{style.spaceRight}">
-                        <g:TextBox width="410px" ui:field="commandLine" debugId="mavenPageView-commandLine" addStyleNames="{style.commandLineField}"/>
+                        <g:TextBox width="450px" ui:field="commandLine" debugId="mavenPageView-commandLine" addStyleNames="{style.commandLineField}"/>
                     </g:FlowPanel>
                 </g:center>
             </g:DockLayoutPanel>

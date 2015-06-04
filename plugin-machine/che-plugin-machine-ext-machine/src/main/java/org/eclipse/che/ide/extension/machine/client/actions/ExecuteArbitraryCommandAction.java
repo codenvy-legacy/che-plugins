@@ -19,6 +19,8 @@ import org.eclipse.che.ide.api.action.ActionEvent;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.command.execute.ExecuteArbitraryCommandPresenter;
+import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
+import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 
 /**
  * Action to execute arbitrary command in machine.
@@ -27,12 +29,17 @@ import org.eclipse.che.ide.extension.machine.client.command.execute.ExecuteArbit
  */
 @Singleton
 public class ExecuteArbitraryCommandAction extends Action {
+    private final MachineManager                   machineManager;
+    private final DialogFactory                    dialogFactory;
+    private final MachineLocalizationConstant      localizationConstant;
     private final AppContext                       appContext;
     private final ExecuteArbitraryCommandPresenter presenter;
     private final AnalyticsEventLogger             eventLogger;
 
     @Inject
     public ExecuteArbitraryCommandAction(ExecuteArbitraryCommandPresenter presenter,
+                                         MachineManager machineManager,
+                                         DialogFactory dialogFactory,
                                          MachineLocalizationConstant localizationConstant,
                                          AppContext appContext,
                                          AnalyticsEventLogger eventLogger) {
@@ -40,6 +47,9 @@ public class ExecuteArbitraryCommandAction extends Action {
               localizationConstant.executeArbitraryCommandControlDescription(),
               null);
         this.presenter = presenter;
+        this.machineManager = machineManager;
+        this.dialogFactory = dialogFactory;
+        this.localizationConstant = localizationConstant;
         this.appContext = appContext;
         this.eventLogger = eventLogger;
     }
@@ -54,6 +64,11 @@ public class ExecuteArbitraryCommandAction extends Action {
     @Override
     public void actionPerformed(ActionEvent e) {
         eventLogger.log(this);
-        presenter.show();
+
+        if (machineManager.getCurrentMachineId() != null) {
+            presenter.show();
+        } else {
+            dialogFactory.createMessageDialog("", localizationConstant.noCurrentMachine(), null).show();
+        }
     }
 }

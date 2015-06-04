@@ -32,8 +32,9 @@ import java.util.LinkedList;
 @Singleton
 public class ArbitraryCommandType implements CommandType {
 
-    private static final String ID           = "arbitrary";
-    private static final String DISPLAY_NAME = "Arbitrary Command";
+    private static final String ID               = "arbitrary";
+    private static final String DISPLAY_NAME     = "Arbitrary";
+    private static final String COMMAND_TEMPLATE = "echo \"hello\"";
 
     private final MachineResources              resources;
     private final ArbitraryConfigurationFactory configurationFactory;
@@ -81,6 +82,6 @@ public class ArbitraryCommandType implements CommandType {
     @Nonnull
     @Override
     public String getCommandTemplate() {
-        return "";
+        return COMMAND_TEMPLATE;
     }
 }

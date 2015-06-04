@@ -81,8 +81,8 @@ public class ArchetypeGenerator {
             throw new IllegalStateException(String.format("Unable to create directory %s", projectsFolder.getAbsolutePath()));
         }
 
-        executor = Executors.newCachedThreadPool(new ThreadFactoryBuilder().setNameFormat("ArchetypeGenerator-").setDaemon(true).build());
-        scheduler = Executors.newSingleThreadScheduledExecutor(new ThreadFactoryBuilder().setNameFormat("ArchetypeGeneratorSchedulerPool-")
+        executor = Executors.newCachedThreadPool(new ThreadFactoryBuilder().setNameFormat("ArchetypeGenerator-[%d]").setDaemon(true).build());
+        scheduler = Executors.newSingleThreadScheduledExecutor(new ThreadFactoryBuilder().setNameFormat("ArchetypeGeneratorSchedulerPool-%d")
                                                                                          .setDaemon(true).build());
         scheduler.scheduleAtFixedRate(new Runnable() {
             public void run() {

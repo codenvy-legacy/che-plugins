@@ -17,6 +17,7 @@ import com.google.gwtmockito.GwtMockitoTestRunner;
 import org.eclipse.che.ide.ext.runner.client.RunnerLocalizationConstant;
 import org.eclipse.che.ide.ext.runner.client.RunnerResources;
 import org.eclipse.che.ide.ext.runner.client.models.Runner;
+import org.eclipse.che.ide.ext.runner.client.selection.SelectionManager;
 import org.eclipse.che.ide.ext.runner.client.util.TimerFactory;
 import org.junit.Before;
 import org.junit.Test;
@@ -59,6 +60,8 @@ public class TerminalImplTest {
     @Mock
     private TimerFactory               timerFactory;
     @Mock
+    private SelectionManager           selectionManager;
+    @Mock
     private Timer                      timer;
 
     @Captor
@@ -72,7 +75,7 @@ public class TerminalImplTest {
         when(locale.runnerNotReady()).thenReturn(SOME_TEXT);
         when(timerFactory.newInstance(Matchers.<TimerFactory.TimerCallBack>anyObject())).thenReturn(timer);
 
-        terminal = new TerminalImpl(resources, locale, timerFactory);
+        terminal = new TerminalImpl(resources, selectionManager, locale, timerFactory);
 
         when(terminal.terminal.getElement()).thenReturn(element);
     }

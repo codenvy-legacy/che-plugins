@@ -70,13 +70,13 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
     @UiField
     TextBox                     configurationName;
     @UiField
-    Button                      saveButton;
-    @UiField
     SimplePanel                 contentPanel;
     @UiField
     FlowPanel                   savePanel;
 
     private ActionDelegate delegate;
+    private Button         okButton;
+    private Button         applyButton;
 
     @Inject
     protected EditConfigurationsViewImpl(org.eclipse.che.ide.Resources resources,
@@ -113,17 +113,10 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
         removeButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent clickEvent) {
-                delegate.onDeleteClicked();
+                delegate.onRemoveClicked();
             }
         });
         removeButton.setEnabled(false);
-
-        saveButton.addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent clickEvent) {
-                delegate.onSaveClicked();
-            }
-        });
 
         tree.setTreeEventHandler(new Tree.Listener<CommandTreeNode>() {
             @Override
@@ -180,7 +173,7 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
                         delegate.onAddClicked();
                         break;
                     case KeyboardEvent.KeyCode.DELETE:
-                        delegate.onDeleteClicked();
+                        delegate.onRemoveClicked();
                         break;
                     default:
                         break;
@@ -200,14 +193,32 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
     }
 
     private void createFooterButtons(@Nonnull org.eclipse.che.ide.Resources resources) {
-        final Button closeButton = createButton(locale.closeButton(), "window-edit-configurations-close", new ClickHandler() {
+        okButton = createButton(locale.okButton(), "window-edit-configurations-ok", new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                delegate.onCloseClicked();
+                delegate.onOkClicked();
             }
         });
-        closeButton.addStyleName(resources.wizardCss().button());
-        getFooter().add(closeButton);
+        applyButton = createButton(locale.applyButton(), "window-edit-configurations-apply", new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                delegate.onApplyClicked();
+            }
+        });
+        final Button cancelButton = createButton(locale.cancelButton(), "window-edit-configurations-cancel", new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                delegate.onCancelClicked();
+            }
+        });
+
+        okButton.addStyleName(resources.wizardCss().buttonPrimary());
+        applyButton.addStyleName(resources.wizardCss().buttonSuccess());
+        cancelButton.addStyleName(resources.wizardCss().button());
+
+        getFooter().add(okButton);
+        getFooter().add(applyButton);
+        getFooter().add(cancelButton);
     }
 
     @Override
@@ -293,6 +304,16 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
         removeButton.setEnabled(enabled);
     }
 
+    @Override
+    public void setApplyButtonState(boolean enabled) {
+        applyButton.setEnabled(enabled);
+    }
+
+    @Override
+    public void setOkButtonState(boolean enabled) {
+        okButton.setEnabled(enabled);
+    }
+
     @Nullable
     @Override
     public CommandType getSelectedCommandType() {
@@ -309,6 +330,21 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
             }
         }
         return null;
+    }
+
+    @Override
+    public void selectCommand(String commandId) {
+        for (TreeNodeElement<CommandTreeNode> nodeElement : tree.getVisibleTreeNodes().asIterable()) {
+            final CommandTreeNode treeNode = nodeElement.getData();
+            if (commandId.equals(treeNode.getId())) {
+                tree.getSelectionModel().selectSingleNode(treeNode);
+                if (treeNode.getData() instanceof CommandConfiguration) {
+                    delegate.onConfigurationSelected((CommandConfiguration)treeNode.getData());
+                    setHint(false);
+                }
+                break;
+            }
+        }
     }
 
     @Nullable

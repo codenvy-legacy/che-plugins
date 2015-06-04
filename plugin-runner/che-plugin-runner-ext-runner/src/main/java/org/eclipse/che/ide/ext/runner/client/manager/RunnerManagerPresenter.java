@@ -109,7 +109,7 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
                                                                      SelectionManager.SelectionChangeListener {
     public static final String TIMER_STUB = "--:--:--";
 
-    private static final String PROJECT_PREFIX = "project://";
+    private static final String PROJECT_PREFIX = "project:/";
 
     private final RunnerManagerView           view;
     private final DtoFactory                  dtoFactory;
@@ -562,14 +562,26 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
         Environment environment = chooseRunnerAction.selectEnvironment();
         if (environment != null) {
             if (defaultRunner != null && defaultRunner.equals(environment.getId())) {
-                return launchRunner(modelsFactory.createRunner(runOptions));
+                Runner runner = modelsFactory.createRunner(runOptions);
+                if (defaultRunner.startsWith(PROJECT_PREFIX)) {
+                    runner.setScope(PROJECT);
+                }
+                return launchRunner(runner);
             }
             runOptions = runOptions.withOptions(environment.getOptions())
                                    .withMemorySize(environment.getRam())
                                    .withEnvironmentId(environment.getId());
-            return launchRunner(modelsFactory.createRunner(runOptions, environment.getName()));
+            Runner runner = modelsFactory.createRunner(runOptions, environment.getName());
+            if (environment.getId().startsWith(PROJECT_PREFIX)) {
+                runner.setScope(PROJECT);
+            }
+            return launchRunner(runner);
         }
 
+        Runner runner = modelsFactory.createRunner(runOptions);
+        if (defaultRunner != null && defaultRunner.startsWith(PROJECT_PREFIX)) {
+            runner.setScope(PROJECT);
+        }
         return launchRunner(modelsFactory.createRunner(runOptions));
     }
 
@@ -788,16 +800,33 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
     private void runnerSelected() {
         selectedRunner = selectionManager.getRunner();
         if (selectedRunner == null) {
+            showNoRunnerMessage(true);
+
+            propertiesContainer.reset();
             return;
+        }
+
+        showNoRunnerMessage(false);
+
+        if (SPLITTER_OFF.equals(panelState.getSplitterState())) {
+            rightPropertiesContainer.showTab(selectedRunner.getActiveTab());
         }
 
         history.selectRunner(selectedRunner);
 
-        terminalContainer.update(selectedRunner);
+        if (locale.runnerTabTerminal().equals(selectedRunner.getActiveTab()) || SPLITTER_ON.equals(panelState.getSplitterState())) {
+            terminalContainer.update(selectedRunner);
+        }
 
         update(selectedRunner);
 
         updateRunnerTimer();
+    }
+
+    private void showNoRunnerMessage(boolean isVisible) {
+        terminalContainer.setVisibleNoRunnerLabel(isVisible);
+        consoleContainer.setVisibleNoRunnerLabel(isVisible);
+        propertiesContainer.setVisibleNoRunnerLabel(isVisible);
     }
 
     private void environmentSelected() {

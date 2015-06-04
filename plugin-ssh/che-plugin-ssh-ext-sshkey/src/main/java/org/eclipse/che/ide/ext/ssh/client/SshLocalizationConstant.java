@@ -35,6 +35,12 @@ public interface SshLocalizationConstant extends Messages {
     @Key("fileNameFieldTitle")
     String fileNameFieldTitle();
 
+    @Key("generate.sshKey.title")
+    String generateSshKeyTitle();
+
+    @Key("generate.sshKey.hostname")
+    String generateSshKeyHostname();
+
     @Key("uploadSshKeyViewTitle")
     String uploadSshKeyViewTitle();
 
@@ -55,9 +61,6 @@ public interface SshLocalizationConstant extends Messages {
 
     @Key("public.sshkey.field")
     String publicSshKeyField();
-
-    @Key("hostname.field")
-    String hostNameField();
 
     @Key("delete.sshkey.question")
     SafeHtml deleteSshKeyQuestion(String host);

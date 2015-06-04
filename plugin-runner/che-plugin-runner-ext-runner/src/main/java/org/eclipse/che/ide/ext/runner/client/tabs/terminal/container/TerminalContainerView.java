@@ -49,6 +49,15 @@ public interface TerminalContainerView extends View<TerminalContainerView.Action
      */
     void setVisible(boolean visible);
 
+
+    /**
+     * Changes visibility of the no runner label.
+     *
+     * @param visible
+     *         visible state that needs to be applied
+     */
+    void setVisibleNoRunnerLabel(boolean visible);
+
     interface ActionDelegate {
     }
 

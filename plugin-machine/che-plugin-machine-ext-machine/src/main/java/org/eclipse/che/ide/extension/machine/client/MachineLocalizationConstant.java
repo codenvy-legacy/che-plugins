@@ -23,8 +23,14 @@ public interface MachineLocalizationConstant extends Messages {
     @Key("button.execute")
     String executeButton();
 
-    @Key("button.close")
-    String closeButton();
+    @Key("button.apply")
+    String applyButton();
+
+    @Key("button.ok")
+    String okButton();
+
+    @Key("button.cancel")
+    String cancelButton();
 
 
     /* Actions */
@@ -68,12 +74,39 @@ public interface MachineLocalizationConstant extends Messages {
     String clearConsoleControlDescription();
 
 
+    /* Messages */
+    @Key("messages.noCurrentMachine")
+    String noCurrentMachine();
+
+
+    /* MachineStateNotifier */
+    @Key("notification.creatingMachine")
+    String notificationCreatingMachine(String machineId);
+
+    @Key("notification.machineIsRunning")
+    String notificationMachineIsRunning(String machineId);
+
+    @Key("notification.destroyingMachine")
+    String notificationDestroyingMachine(String machineId);
+
+    @Key("notification.machineDestroyed")
+    String notificationMachineDestroyed(String machineId);
+
+
     /* MachineConsoleView */
     @Key("view.machineConsole.title")
     String machineConsoleViewTitle();
 
     @Key("view.machineConsole.tooltip")
     String machineConsoleViewTooltip();
+
+
+    /* OutputsContainerView */
+    @Key("view.outputsConsole.title")
+    String outputsConsoleViewTitle();
+
+    @Key("view.outputsConsole.tooltip")
+    String outputsConsoleViewTooltip();
 
 
     /* ExecuteArbitraryCommandView */
@@ -91,9 +124,6 @@ public interface MachineLocalizationConstant extends Messages {
     @Key("view.editConfigurations.name.text")
     String editConfigurationsViewNameText();
 
-    @Key("view.editConfigurations.save.text")
-    String editConfigurationsViewSaveText();
-
     @Key("view.editConfigurations.add.text")
     String editConfigurationsViewAddText();
 
@@ -105,4 +135,34 @@ public interface MachineLocalizationConstant extends Messages {
 
     @Key("view.editConfigurations.remove.title")
     String editConfigurationsViewRemoveTitle();
+
+    @Key("view.editConfigurations.remove.confirmation")
+    String editConfigurationsViewRemoveConfirmation(String commandName);
+
+    @Key("process.active")
+    String processActive();
+
+    @Key("process.stopped")
+    String processStopped();
+
+    @Key("process.table.name")
+    String processTableName();
+
+    @Key("process.table.protocol")
+    String processTableProtocol();
+
+    @Key("process.table.port")
+    String processTablePort();
+
+    @Key("process.table.time")
+    String processTableTime();
+
+    @Key("process.table.active")
+    String processTableActive();
+
+    @Key("tab.processes")
+    String tabProcesses();
+
+    @Key("tab.terminal")
+    String tabTerminal();
 }

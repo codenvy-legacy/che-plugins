@@ -10,6 +10,18 @@
  *******************************************************************************/
 package org.eclipse.che.plugin.docker.machine;
 
+import org.eclipse.che.api.core.NotFoundException;
+import org.eclipse.che.api.core.util.FileCleaner;
+import org.eclipse.che.api.core.util.LineConsumer;
+import org.eclipse.che.api.machine.server.exception.InvalidInstanceSnapshotException;
+import org.eclipse.che.api.machine.server.exception.InvalidRecipeException;
+import org.eclipse.che.api.machine.server.exception.MachineException;
+import org.eclipse.che.api.machine.server.exception.UnsupportedRecipeException;
+import org.eclipse.che.api.machine.server.spi.Instance;
+import org.eclipse.che.api.machine.server.spi.InstanceKey;
+import org.eclipse.che.api.machine.server.spi.InstanceProvider;
+import org.eclipse.che.api.machine.shared.recipe.Recipe;
+import org.eclipse.che.commons.lang.IoUtil;
 import org.eclipse.che.plugin.docker.client.DockerConnector;
 import org.eclipse.che.plugin.docker.client.DockerFileException;
 import org.eclipse.che.plugin.docker.client.Dockerfile;
@@ -19,24 +31,11 @@ import org.eclipse.che.plugin.docker.client.ProgressMonitor;
 import org.eclipse.che.plugin.docker.client.json.ContainerConfig;
 import org.eclipse.che.plugin.docker.client.json.HostConfig;
 import org.eclipse.che.plugin.docker.client.json.ProgressStatus;
-
-import org.eclipse.che.api.core.NotFoundException;
-import org.eclipse.che.api.core.util.FileCleaner;
-import org.eclipse.che.api.core.util.LineConsumer;
-import org.eclipse.che.api.machine.server.InvalidInstanceSnapshotException;
-import org.eclipse.che.api.machine.server.InvalidRecipeException;
-import org.eclipse.che.api.machine.server.MachineException;
-import org.eclipse.che.api.machine.server.UnsupportedRecipeException;
-import org.eclipse.che.api.machine.server.spi.InstanceKey;
-import org.eclipse.che.api.machine.server.spi.InstanceProvider;
-import org.eclipse.che.api.machine.shared.Recipe;
-import org.eclipse.che.commons.lang.IoUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -58,26 +57,22 @@ import java.util.Set;
  * @author andrew00x
  * @author Alexander Garagatyi
  */
-@Singleton
 public class DockerInstanceProvider implements InstanceProvider {
     private static final Logger LOG = LoggerFactory.getLogger(DockerInstanceProvider.class);
 
-    private final DockerConnector   docker;
-    private final String            registry;
-    private final DockerNodeFactory dockerNodeFactory;
-    private final Set<String>       supportedRecipeTypes;
-    private final Set<String>       systemExposedPorts;
-    private final Set<String>       systemVolumes;
+    private final DockerConnector      docker;
+    private final Set<String>          supportedRecipeTypes;
+    private final DockerMachineFactory dockerMachineFactory;
+    private final Set<String>          systemExposedPorts;
+    private final Set<String>          systemVolumes;
 
     @Inject
     public DockerInstanceProvider(DockerConnector docker,
-                                  @Named("machine.docker.registry") String registry,
-                                  DockerNodeFactory dockerNodeFactory,
+                                  DockerMachineFactory dockerMachineFactory,
                                   @Named("machine.docker.system_exposed_ports") Set<String> systemExposedPorts,
                                   @Named("machine.docker.system_volumes") Set<String> systemVolumes) {
         this.docker = docker;
-        this.registry = registry;
-        this.dockerNodeFactory = dockerNodeFactory;
+        this.dockerMachineFactory = dockerMachineFactory;
         this.systemExposedPorts = systemExposedPorts;
         this.systemVolumes = systemVolumes;
         final Set<String> recipeTypes = new LinkedHashSet<>(2);
@@ -96,7 +91,7 @@ public class DockerInstanceProvider implements InstanceProvider {
     }
 
     @Override
-    public DockerInstance createInstance(Recipe recipe, final LineConsumer creationLogsOutput, String workspaceId, boolean bindWorkspace)
+    public Instance createInstance(Recipe recipe, final LineConsumer creationLogsOutput, String workspaceId, boolean bindWorkspace)
             throws UnsupportedRecipeException, InvalidRecipeException, MachineException {
         final Dockerfile dockerfile = getDockerFile(recipe);
         if (dockerfile.getImages().isEmpty()) {
@@ -136,7 +131,7 @@ public class DockerInstanceProvider implements InstanceProvider {
     }
 
     @Override
-    public DockerInstance createInstance(final InstanceKey instanceKey,
+    public Instance createInstance(final InstanceKey instanceKey,
                                          final LineConsumer creationLogsOutput,
                                          final String workspaceId,
                                          final boolean bindWorkspace)
@@ -218,7 +213,7 @@ public class DockerInstanceProvider implements InstanceProvider {
                                          "no Dockerfile found in the list of files attached to this builder.");
     }
 
-    private DockerInstance createInstance(String imageId, LineConsumer outputConsumer, String workspaceId, boolean bindWorkspace)
+    private Instance createInstance(String imageId, LineConsumer outputConsumer, String workspaceId, boolean bindWorkspace)
             throws MachineException {
         try {
             Map<String, Map<String, String>> portsToExpose = new HashMap<>();
@@ -236,7 +231,7 @@ public class DockerInstanceProvider implements InstanceProvider {
 
             LOG.debug("Container {} has been created successfully", containerId);
 
-            final DockerNode node = dockerNodeFactory.createNode(containerId);
+            final DockerNode node = dockerMachineFactory.createNode(containerId);
             String hostProjectsFolder = node.getProjectsFolder();
 
             if (bindWorkspace) {
@@ -254,7 +249,7 @@ public class DockerInstanceProvider implements InstanceProvider {
                                   new LogMessagePrinter(outputConsumer));
             LOG.debug("Container {} has been started successfully", containerId);
 
-            return new DockerInstance(docker, registry, containerId, outputConsumer, node, workspaceId, bindWorkspace);
+            return dockerMachineFactory.createInstance(containerId, node, workspaceId, bindWorkspace, outputConsumer);
         } catch (IOException e) {
             throw new MachineException(e);
         }

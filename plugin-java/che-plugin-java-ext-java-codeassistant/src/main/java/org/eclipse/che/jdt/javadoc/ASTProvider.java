@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ *******************************************************************************/
 package org.eclipse.che.jdt.javadoc;
 
 import org.eclipse.che.jdt.dom.ASTNodes;
@@ -16,7 +26,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author Evgen Vidolob
+ * Provides a shared AST for clients. The shared AST is
+ * the AST of the active Java editor's input element.
+ *
+ * @since 3.0
  */
 public class ASTProvider {
     public static final  int     SHARED_AST_LEVEL              = AST.JLS8;

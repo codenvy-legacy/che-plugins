@@ -90,7 +90,7 @@ public class ArchetypeGenerationStrategy implements GeneratorStrategy {
 
     @PostConstruct
     void start() {
-        executor = Executors.newCachedThreadPool(new ThreadFactoryBuilder().setNameFormat("-ProjectGenerator-maven-archetype-")
+        executor = Executors.newCachedThreadPool(new ThreadFactoryBuilder().setNameFormat("-ProjectGenerator-maven-archetype-%d")
                                                                            .setDaemon(true).build());
     }
 

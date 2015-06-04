@@ -25,6 +25,8 @@ import javax.annotation.Nonnull;
  */
 public interface ConfigurationPage<T extends CommandConfiguration> extends Presenter {
 
+    void setListener(@Nonnull DirtyStateListener listener);
+
     /**
      * Resets the page from the given {@code configuration}.
      * <p/>
@@ -42,4 +44,9 @@ public interface ConfigurationPage<T extends CommandConfiguration> extends Prese
      */
     @Override
     void go(final AcceptsOneWidget container);
+
+    /** Listener that will be called when any modifications on page. */
+    interface DirtyStateListener {
+        void onDirtyStateChanged();
+    }
 }

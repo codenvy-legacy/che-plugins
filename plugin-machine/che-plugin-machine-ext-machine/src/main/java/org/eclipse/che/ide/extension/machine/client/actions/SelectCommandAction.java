@@ -40,8 +40,8 @@ import org.eclipse.che.ide.ui.dropdown.DropDownListFactory;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -57,10 +57,11 @@ public class SelectCommandAction extends Action implements CustomComponentAction
                                                            ProjectActionHandler,
                                                            EditConfigurationsPresenter.ConfigurationsChangedListener {
 
-    public static final String GROUP_COMMANDS = "CommandsGroup";
+    public static final  String                           GROUP_COMMANDS     = "CommandsGroup";
+    private static final Comparator<CommandConfiguration> commandsComparator = new CommandsComparator();
 
     private final DropDownHeaderWidget dropDownHeaderWidget;
-    private final DropDownListFactory  configRunnerFactory;
+    private final DropDownListFactory  dropDownListFactory;
     private final ActionManager        actionManager;
     private final CommandServiceClient commandServiceClient;
     private final CommandTypeRegistry  commandTypeRegistry;
@@ -81,7 +82,7 @@ public class SelectCommandAction extends Action implements CustomComponentAction
         this.commandServiceClient = commandServiceClient;
         this.commandTypeRegistry = commandTypeRegistry;
 
-        this.configRunnerFactory = dropDownListFactory;
+        this.dropDownListFactory = dropDownListFactory;
         this.dropDownHeaderWidget = dropDownListFactory.createList(GROUP_COMMANDS_LIST);
 
         commands = new LinkedList<>();
@@ -164,7 +165,7 @@ public class SelectCommandAction extends Action implements CustomComponentAction
      * @param commandConfigurations
      *         collection of command configurations to set
      */
-    private void setCommandConfigurations(@Nonnull Collection<CommandConfiguration> commandConfigurations) {
+    private void setCommandConfigurations(@Nonnull List<CommandConfiguration> commandConfigurations) {
         final DefaultActionGroup commandsList = (DefaultActionGroup)actionManager.getAction(GROUP_COMMANDS_LIST);
 
         commands.clear();
@@ -172,10 +173,16 @@ public class SelectCommandAction extends Action implements CustomComponentAction
         clearCommandActions(commandsList);
         commandActions.removeAll();
 
+        Collections.sort(commandConfigurations, commandsComparator);
+        CommandConfiguration prevCommand = null;
         for (CommandConfiguration configuration : commandConfigurations) {
-            commandActions.add(configRunnerFactory.createElement(configuration.getName(),
+            if (prevCommand != null && !configuration.getType().getId().equals(prevCommand.getType().getId())) {
+                commandActions.addSeparator();
+            }
+            commandActions.add(dropDownListFactory.createElement(configuration.getName(),
                                                                  configuration.getType().getIcon(),
                                                                  dropDownHeaderWidget));
+            prevCommand = configuration;
         }
 
         commandsList.addAll(commandActions);
@@ -210,5 +217,12 @@ public class SelectCommandAction extends Action implements CustomComponentAction
     @Override
     public void onConfigurationsChanged() {
         loadCommands();
+    }
+
+    private static class CommandsComparator implements Comparator<CommandConfiguration> {
+        @Override
+        public int compare(CommandConfiguration o1, CommandConfiguration o2) {
+            return o1.getType().getId().compareTo(o2.getType().getId());
+        }
     }
 }
