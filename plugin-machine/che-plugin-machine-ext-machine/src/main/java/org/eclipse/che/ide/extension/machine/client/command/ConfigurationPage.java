@@ -25,8 +25,6 @@ import javax.annotation.Nonnull;
  */
 public interface ConfigurationPage<T extends CommandConfiguration> extends Presenter {
 
-    void setListener(@Nonnull DirtyStateListener listener);
-
     /**
      * Resets the page from the given {@code configuration}.
      * <p/>
@@ -45,7 +43,22 @@ public interface ConfigurationPage<T extends CommandConfiguration> extends Prese
     @Override
     void go(final AcceptsOneWidget container);
 
-    /** Listener that will be called when any modifications on page. */
+    /**
+     * Returns whether this page is changed or not.
+     *
+     * @return {@code true} if page is changed, and {@code false} - otherwise
+     */
+    boolean isDirty();
+
+    /**
+     * Sets {@link DirtyStateListener} that should be called every time when any modifications on the page has performed.
+     * <p/>
+     * This method is called every time when user selects an appropriate
+     * command configuration in 'Command Configuration' dialog.
+     */
+    void setDirtyStateListener(@Nonnull DirtyStateListener listener);
+
+    /** Listener that should be called when any modifications on page. */
     interface DirtyStateListener {
         void onDirtyStateChanged();
     }

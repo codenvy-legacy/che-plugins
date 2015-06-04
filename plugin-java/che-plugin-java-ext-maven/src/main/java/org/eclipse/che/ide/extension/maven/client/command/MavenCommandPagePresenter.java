@@ -26,9 +26,11 @@ import javax.annotation.Nonnull;
 @Singleton
 public class MavenCommandPagePresenter implements MavenCommandPageView.ActionDelegate, ConfigurationPage<MavenCommandConfiguration> {
 
-    private final MavenCommandPageView      view;
-    private       MavenCommandConfiguration configuration;
-    private       DirtyStateListener        listener;
+    private final MavenCommandPageView view;
+
+    private MavenCommandConfiguration editedConfiguration;
+    private String                    originCommandLine;
+    private DirtyStateListener        listener;
 
     @Inject
     public MavenCommandPagePresenter(MavenCommandPageView view) {
@@ -37,25 +39,31 @@ public class MavenCommandPagePresenter implements MavenCommandPageView.ActionDel
     }
 
     @Override
-    public void setListener(@Nonnull DirtyStateListener listener) {
-        this.listener = listener;
-    }
-
-    @Override
     public void resetFrom(@Nonnull MavenCommandConfiguration configuration) {
-        this.configuration = configuration;
+        editedConfiguration = configuration;
+        originCommandLine = configuration.getCommandLine();
     }
 
     @Override
     public void go(AcceptsOneWidget container) {
         container.setWidget(view);
 
-        view.setCommandLine(configuration.getCommandLine());
+        view.setCommandLine(editedConfiguration.getCommandLine());
+    }
+
+    @Override
+    public boolean isDirty() {
+        return !originCommandLine.equals(editedConfiguration.getCommandLine());
+    }
+
+    @Override
+    public void setDirtyStateListener(@Nonnull DirtyStateListener listener) {
+        this.listener = listener;
     }
 
     @Override
     public void onCommandLineChanged(String commandLine) {
-        configuration.setCommandLine(commandLine);
+        editedConfiguration.setCommandLine(commandLine);
         listener.onDirtyStateChanged();
     }
 }

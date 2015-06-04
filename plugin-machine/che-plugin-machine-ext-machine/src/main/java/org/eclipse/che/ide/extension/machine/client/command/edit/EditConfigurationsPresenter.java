@@ -25,8 +25,11 @@ import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration
 import org.eclipse.che.ide.extension.machine.client.command.CommandType;
 import org.eclipse.che.ide.extension.machine.client.command.CommandTypeRegistry;
 import org.eclipse.che.ide.extension.machine.client.command.ConfigurationPage;
+import org.eclipse.che.ide.extension.machine.client.command.ConfigurationPage.DirtyStateListener;
 import org.eclipse.che.ide.ui.dialogs.ConfirmCallback;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
+import org.eclipse.che.ide.ui.dialogs.choice.ChoiceDialog;
+import org.eclipse.che.ide.ui.dialogs.confirm.ConfirmDialog;
 import org.eclipse.che.ide.util.UUID;
 
 import javax.annotation.Nullable;
@@ -50,7 +53,9 @@ public class EditConfigurationsPresenter implements EditConfigurationsView.Actio
     private final DialogFactory               dialogFactory;
     private final MachineLocalizationConstant localizationConstant;
 
-    private final Set<ConfigurationsChangedListener> listeners;
+    private final Set<ConfigurationsChangedListener> configurationsChangedListeners;
+
+    private ConfigurationPage<CommandConfiguration> currentPage;
 
     @Inject
     protected EditConfigurationsPresenter(EditConfigurationsView view,
@@ -64,7 +69,7 @@ public class EditConfigurationsPresenter implements EditConfigurationsView.Actio
         this.dialogFactory = dialogFactory;
         this.localizationConstant = localizationConstant;
 
-        listeners = new HashSet<>();
+        configurationsChangedListeners = new HashSet<>();
 
         this.view.setDelegate(this);
     }
@@ -105,7 +110,7 @@ public class EditConfigurationsPresenter implements EditConfigurationsView.Actio
     }
 
     @Override
-    public void onCancelClicked() {
+    public void onCloseClicked() {
         view.close();
     }
 
@@ -116,10 +121,40 @@ public class EditConfigurationsPresenter implements EditConfigurationsView.Actio
             return;
         }
 
-        final Promise<CommandDescriptor> commandPromise =
-                commandServiceClient.createCommand(selectedType.getDisplayName() + '-' + UUID.uuid(2, 10),
-                                                   selectedType.getCommandTemplate(),
-                                                   selectedType.getId());
+        final ConfirmCallback saveCallback = new ConfirmCallback() {
+            @Override
+            public void accepted() {
+                onApplyClicked();
+                createCommand(selectedType);
+            }
+        };
+        final ConfirmCallback discardCallback = new ConfirmCallback() {
+            @Override
+            public void accepted() {
+                createCommand(selectedType);
+            }
+        };
+
+        final CommandConfiguration selectedConfiguration = view.getSelectedConfiguration();
+        if (currentPage != null && currentPage.isDirty() && selectedConfiguration != null) {
+            final ChoiceDialog dialog = dialogFactory.createChoiceDialog(
+                    localizationConstant.editConfigurationsViewSaveChangesTitle(),
+                    localizationConstant.editConfigurationsViewSaveChangesText(selectedConfiguration.getName()),
+                    localizationConstant.editConfigurationsViewSaveChangesSave(),
+                    localizationConstant.editConfigurationsViewSaveChangesDiscard(),
+                    saveCallback,
+                    discardCallback);
+            dialog.show();
+        } else {
+            createCommand(selectedType);
+        }
+    }
+
+    private void createCommand(CommandType type) {
+        final String name = type.getDisplayName() + " (" + UUID.uuid(2, 10) + ')';
+        final Promise<CommandDescriptor> commandPromise = commandServiceClient.createCommand(name,
+                                                                                             type.getCommandTemplate(),
+                                                                                             type.getId());
         commandPromise.then(new Operation<CommandDescriptor>() {
             @Override
             public void apply(CommandDescriptor arg) throws OperationException {
@@ -146,16 +181,19 @@ public class EditConfigurationsPresenter implements EditConfigurationsView.Actio
                 }
             };
 
-            dialogFactory.createConfirmDialog(
+            final ConfirmDialog confirmDialog = dialogFactory.createConfirmDialog(
                     "",
                     localizationConstant.editConfigurationsViewRemoveConfirmation(selectedConfiguration.getName()),
                     confirmCallback,
-                    null).show();
+                    null);
+            confirmDialog.show();
         }
     }
 
     @Override
     public void onCommandTypeSelected(CommandType type) {
+        currentPage = null;
+
         view.setAddButtonState(true);
         view.setRemoveButtonState(false);
         view.setConfigurationName("");
@@ -172,7 +210,10 @@ public class EditConfigurationsPresenter implements EditConfigurationsView.Actio
         final Collection<ConfigurationPage<? extends CommandConfiguration>> pages = configuration.getType().getConfigurationPages();
         for (ConfigurationPage<? extends CommandConfiguration> page : pages) {
             final ConfigurationPage<CommandConfiguration> p = ((ConfigurationPage<CommandConfiguration>)page);
-            p.setListener(new ConfigurationPage.DirtyStateListener() {
+
+            currentPage = p;
+
+            p.setDirtyStateListener(new DirtyStateListener() {
                 @Override
                 public void onDirtyStateChanged() {
                     view.setApplyButtonState(true);
@@ -181,6 +222,7 @@ public class EditConfigurationsPresenter implements EditConfigurationsView.Actio
             });
             p.resetFrom(configuration);
             p.go(view.getCommandConfigurationsDisplayContainer());
+
             // TODO: for now show only first page but need to show all pages
             break;
         }
@@ -199,6 +241,7 @@ public class EditConfigurationsPresenter implements EditConfigurationsView.Actio
 
     /** Show dialog. */
     public void show() {
+        view.setRemoveButtonState(false);
         view.setApplyButtonState(false);
         view.setOkButtonState(false);
         refreshView(null);
@@ -225,6 +268,7 @@ public class EditConfigurationsPresenter implements EditConfigurationsView.Actio
             @Override
             public void apply(List<CommandConfiguration> commandConfigurations) throws OperationException {
                 view.setData(commandTypeRegistry.getCommandTypes(), commandConfigurations);
+                view.setRemoveButtonState(false);
                 if (commandToSelect != null) {
                     view.selectCommand(commandToSelect);
                 }
@@ -233,17 +277,17 @@ public class EditConfigurationsPresenter implements EditConfigurationsView.Actio
     }
 
     private void fireConfigurationsChanged() {
-        for (ConfigurationsChangedListener listener : listeners) {
+        for (ConfigurationsChangedListener listener : configurationsChangedListeners) {
             listener.onConfigurationsChanged();
         }
     }
 
     public void addConfigurationsChangedListener(ConfigurationsChangedListener listener) {
-        listeners.add(listener);
+        configurationsChangedListeners.add(listener);
     }
 
     public void removeConfigurationsChangedListener(ConfigurationsChangedListener listener) {
-        listeners.remove(listener);
+        configurationsChangedListeners.remove(listener);
     }
 
     /** Listener that will be called when command configurations changed. */

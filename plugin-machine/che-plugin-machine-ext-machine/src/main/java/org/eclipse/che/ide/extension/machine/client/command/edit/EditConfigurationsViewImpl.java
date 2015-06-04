@@ -116,7 +116,6 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
                 delegate.onRemoveClicked();
             }
         });
-        removeButton.setEnabled(false);
 
         tree.setTreeEventHandler(new Tree.Listener<CommandTreeNode>() {
             @Override
@@ -205,20 +204,20 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
                 delegate.onApplyClicked();
             }
         });
-        final Button cancelButton = createButton(locale.cancelButton(), "window-edit-configurations-cancel", new ClickHandler() {
+        final Button closeButton = createButton(locale.closeButton(), "window-edit-configurations-close", new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                delegate.onCancelClicked();
+                delegate.onCloseClicked();
             }
         });
 
         okButton.addStyleName(resources.wizardCss().buttonPrimary());
         applyButton.addStyleName(resources.wizardCss().buttonSuccess());
-        cancelButton.addStyleName(resources.wizardCss().button());
+        closeButton.addStyleName(resources.wizardCss().button());
 
         getFooter().add(okButton);
         getFooter().add(applyButton);
-        getFooter().add(cancelButton);
+        getFooter().add(closeButton);
     }
 
     @Override

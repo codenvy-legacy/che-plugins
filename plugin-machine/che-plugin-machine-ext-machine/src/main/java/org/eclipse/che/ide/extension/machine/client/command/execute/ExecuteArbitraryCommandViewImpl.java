@@ -19,7 +19,7 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.TextBox;
+import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -45,7 +45,7 @@ public class ExecuteArbitraryCommandViewImpl extends Window implements ExecuteAr
     @UiField(provided = true)
     final MachineLocalizationConstant locale;
     @UiField
-    TextBox commandBox;
+    TextArea commandBox;
 
     private ActionDelegate delegate;
     private Button         executeButton;
@@ -101,14 +101,6 @@ public class ExecuteArbitraryCommandViewImpl extends Window implements ExecuteAr
     @UiHandler("commandBox")
     void onKeyUp(KeyUpEvent event) {
         executeButton.setEnabled(!commandBox.getText().isEmpty());
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    protected void onEnterClicked() {
-        if (!commandBox.getText().isEmpty()) {
-            delegate.onExecuteClicked();
-        }
     }
 
     /** {@inheritDoc} */

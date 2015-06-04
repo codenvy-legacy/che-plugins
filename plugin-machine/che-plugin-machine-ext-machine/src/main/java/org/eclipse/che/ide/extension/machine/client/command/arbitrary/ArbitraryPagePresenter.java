@@ -26,9 +26,11 @@ import javax.annotation.Nonnull;
 @Singleton
 public class ArbitraryPagePresenter implements ArbitraryPageView.ActionDelegate, ConfigurationPage<ArbitraryCommandConfiguration> {
 
-    private final ArbitraryPageView             view;
-    private       ArbitraryCommandConfiguration configuration;
-    private       DirtyStateListener            listener;
+    private final ArbitraryPageView view;
+
+    private ArbitraryCommandConfiguration editedConfiguration;
+    private String                        originCommandLine;
+    private DirtyStateListener            listener;
 
     @Inject
     public ArbitraryPagePresenter(ArbitraryPageView view) {
@@ -37,25 +39,31 @@ public class ArbitraryPagePresenter implements ArbitraryPageView.ActionDelegate,
     }
 
     @Override
-    public void setListener(@Nonnull DirtyStateListener listener) {
-        this.listener = listener;
-    }
-
-    @Override
     public void resetFrom(@Nonnull ArbitraryCommandConfiguration configuration) {
-        this.configuration = configuration;
+        editedConfiguration = configuration;
+        originCommandLine = configuration.getCommandLine();
     }
 
     @Override
     public void go(AcceptsOneWidget container) {
         container.setWidget(view);
 
-        view.setCommandLine(configuration.getCommandLine());
+        view.setCommandLine(editedConfiguration.getCommandLine());
+    }
+
+    @Override
+    public boolean isDirty() {
+        return !originCommandLine.equals(editedConfiguration.getCommandLine());
+    }
+
+    @Override
+    public void setDirtyStateListener(@Nonnull DirtyStateListener listener) {
+        this.listener = listener;
     }
 
     @Override
     public void onCommandLineChanged(String commandLine) {
-        configuration.setCommandLine(commandLine);
+        editedConfiguration.setCommandLine(commandLine);
         listener.onDirtyStateChanged();
     }
 }

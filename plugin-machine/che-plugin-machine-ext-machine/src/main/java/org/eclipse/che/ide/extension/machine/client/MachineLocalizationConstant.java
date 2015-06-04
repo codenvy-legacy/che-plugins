@@ -13,7 +13,7 @@ package org.eclipse.che.ide.extension.machine.client;
 import com.google.gwt.i18n.client.Messages;
 
 /**
- * Represents the localization constants contained in resource bundle: 'MachineLocalizationConstant.properties'.
+ * I18n constants for the Machine extension.
  *
  * @author Artem Zatsarynnyy
  */
@@ -31,6 +31,9 @@ public interface MachineLocalizationConstant extends Messages {
 
     @Key("button.cancel")
     String cancelButton();
+
+    @Key("button.close")
+    String closeButton();
 
 
     /* Actions */
@@ -138,6 +141,19 @@ public interface MachineLocalizationConstant extends Messages {
 
     @Key("view.editConfigurations.remove.confirmation")
     String editConfigurationsViewRemoveConfirmation(String commandName);
+
+    @Key("view.editConfigurations.saveChanges.title")
+    String editConfigurationsViewSaveChangesTitle();
+
+    @Key("view.editConfigurations.saveChanges.text")
+    String editConfigurationsViewSaveChangesText(String commandName);
+
+    @Key("view.editConfigurations.saveChanges.save")
+    String editConfigurationsViewSaveChangesSave();
+
+    @Key("view.editConfigurations.saveChanges.discard")
+    String editConfigurationsViewSaveChangesDiscard();
+
 
     @Key("process.active")
     String processActive();

@@ -75,8 +75,8 @@ public interface EditConfigurationsView extends View<EditConfigurationsView.Acti
         /** Called when 'Apply' button is clicked. */
         void onApplyClicked();
 
-        /** Called when 'Cancel' button is clicked. */
-        void onCancelClicked();
+        /** Called when 'Close' button is clicked. */
+        void onCloseClicked();
 
         /** Called when 'Add' button is clicked. */
         void onAddClicked();
