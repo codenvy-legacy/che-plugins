@@ -10,6 +10,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.ui.text.java;
 
+import org.eclipse.che.ide.ext.java.shared.dto.LinkedModeModel;
+import org.eclipse.che.jdt.javaeditor.HasLinkedModel;
+import org.eclipse.che.jface.text.contentassist.IContextInformation;
+import org.eclipse.che.jface.text.contentassist.IContextInformationExtension;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -21,8 +25,8 @@ import org.eclipse.jdt.core.ITypeHierarchy;
 import org.eclipse.jdt.core.ITypeParameter;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
-import org.eclipse.jdt.core.dom.CheASTParser;
 import org.eclipse.jdt.core.dom.ASTRequestor;
+import org.eclipse.jdt.core.dom.CheASTParser;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.internal.corext.dom.Bindings;
@@ -34,16 +38,9 @@ import org.eclipse.jdt.ui.text.java.JavaContentAssistInvocationContext;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension;
-import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.Region;
-import org.eclipse.che.jface.text.contentassist.IContextInformation;
-import org.eclipse.che.jface.text.contentassist.IContextInformationExtension;
-import org.eclipse.jface.text.link.ILinkedModeListener;
-import org.eclipse.jface.text.link.LinkedModeModel;
-import org.eclipse.jface.text.link.LinkedPosition;
-import org.eclipse.jface.text.link.LinkedPositionGroup;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 
@@ -52,6 +49,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import static org.eclipse.che.ide.ext.java.server.dto.DtoServerImpls.LinkedModeModelImpl;
+import static org.eclipse.che.ide.ext.java.server.dto.DtoServerImpls.LinkedPositionGroupImpl;
+import static org.eclipse.che.ide.ext.java.server.dto.DtoServerImpls.RegionImpl;
+
 
 /**
  * Proposal for generic types.
@@ -59,104 +60,107 @@ import java.util.Map;
  * Only used when compliance is set to 5.0 or higher.
  * </p>
  */
-public class LazyGenericTypeProposal extends LazyJavaTypeCompletionProposal {
+public class LazyGenericTypeProposal extends LazyJavaTypeCompletionProposal implements HasLinkedModel {
 	/** Triggers for types. Do not modify. */
 	private final static char[] GENERIC_TYPE_TRIGGERS= new char[] { '.', '\t', '[', '(', '<', ' ' };
+    private LinkedModeModelImpl linkedModel;
 
-	/**
-	 * Short-lived context information object for generic types. Currently, these
-	 * are only created after inserting a type proposal, as core doesn't give us
-	 * the correct type proposal from within SomeType<|>.
-	 */
-	private static class ContextInformation implements IContextInformation, IContextInformationExtension {
-		private final String fInformationDisplayString;
-		private final String fContextDisplayString;
-		private final Image fImage;
-		private final int fPosition;
 
-		ContextInformation(LazyGenericTypeProposal proposal) {
-			// don't cache the proposal as content assistant
-			// might hang on to the context info
-			fContextDisplayString= proposal.getDisplayString();
-			fInformationDisplayString= computeContextString(proposal);
-			fImage= proposal.getImage();
-			fPosition= proposal.getReplacementOffset() + proposal.getReplacementString().indexOf('<') + 1;
-		}
+    /**
+     * Short-lived context information object for generic types. Currently, these
+     * are only created after inserting a type proposal, as core doesn't give us
+     * the correct type proposal from within SomeType<|>.
+     */
+    private static class ContextInformation implements IContextInformation, IContextInformationExtension {
+        private final String fInformationDisplayString;
+        private final String fContextDisplayString;
+        private final Image  fImage;
+        private final int    fPosition;
 
-		/*
-		 * @see org.eclipse.jface.text.contentassist.IContextInformation#getContextDisplayString()
-		 */
-		public String getContextDisplayString() {
-			return fContextDisplayString;
-		}
+        ContextInformation(LazyGenericTypeProposal proposal) {
+            // don't cache the proposal as content assistant
+            // might hang on to the context info
+            fContextDisplayString = proposal.getDisplayString();
+            fInformationDisplayString = computeContextString(proposal);
+            fImage = proposal.getImage();
+            fPosition = proposal.getReplacementOffset() + proposal.getReplacementString().indexOf('<') + 1;
+        }
 
-		/*
-		 * @see org.eclipse.jface.text.contentassist.IContextInformation#getImage()
-		 */
-		public Image getImage() {
-			return fImage;
-		}
+        /*
+         * @see org.eclipse.jface.text.contentassist.IContextInformation#getContextDisplayString()
+         */
+        public String getContextDisplayString() {
+            return fContextDisplayString;
+        }
 
-		/*
-		 * @see org.eclipse.jface.text.contentassist.IContextInformation#getInformationDisplayString()
-		 */
-		public String getInformationDisplayString() {
-			return fInformationDisplayString;
-		}
+        /*
+         * @see org.eclipse.jface.text.contentassist.IContextInformation#getImage()
+         */
+        public Image getImage() {
+            return fImage;
+        }
 
-		private String computeContextString(LazyGenericTypeProposal proposal) {
-			try {
-				TypeArgumentProposal[] proposals= proposal.computeTypeArgumentProposals();
-				if (proposals.length == 0)
-					return null;
+        /*
+         * @see org.eclipse.jface.text.contentassist.IContextInformation#getInformationDisplayString()
+         */
+        public String getInformationDisplayString() {
+            return fInformationDisplayString;
+        }
 
-				StringBuffer buf= new StringBuffer();
-				for (int i= 0; i < proposals.length; i++) {
-					buf.append(proposals[i].getDisplayName());
-					if (i < proposals.length - 1)
-						buf.append(", "); //$NON-NLS-1$
-				}
-				return Strings.markJavaElementLabelLTR(buf.toString());
+        private String computeContextString(LazyGenericTypeProposal proposal) {
+            try {
+                TypeArgumentProposal[] proposals = proposal.computeTypeArgumentProposals();
+                if (proposals.length == 0)
+                    return null;
 
-			} catch (JavaModelException e) {
-				return null;
-			}
-		}
+                StringBuffer buf = new StringBuffer();
+                for (int i = 0; i < proposals.length; i++) {
+                    buf.append(proposals[i].getDisplayName());
+                    if (i < proposals.length - 1)
+                        buf.append(", "); //$NON-NLS-1$
+                }
+                return Strings.markJavaElementLabelLTR(buf.toString());
 
-		/*
-		 * @see org.eclipse.jface.text.contentassist.IContextInformationExtension#getContextInformationPosition()
-		 */
-		public int getContextInformationPosition() {
-			return fPosition;
-		}
+            } catch (JavaModelException e) {
+                return null;
+            }
+        }
 
-		/*
-		 * @see java.lang.Object#equals(java.lang.Object)
-		 */
-		@Override
-		public boolean equals(Object obj) {
-			if (obj instanceof ContextInformation) {
-				ContextInformation ci= (ContextInformation) obj;
-				return getContextInformationPosition() == ci.getContextInformationPosition() && getInformationDisplayString().equals(ci.getInformationDisplayString());
-			}
-			return false;
-		}
+        /*
+         * @see org.eclipse.jface.text.contentassist.IContextInformationExtension#getContextInformationPosition()
+         */
+        public int getContextInformationPosition() {
+            return fPosition;
+        }
 
-		/*
-		 * @see java.lang.Object#hashCode()
-		 * @since 3.1
-		 */
-		@Override
-		public int hashCode() {
-			int low= fContextDisplayString != null ? fContextDisplayString.hashCode() : 0;
-			return fPosition << 24 | fInformationDisplayString.hashCode() << 16 | low;
-		}
+        /*
+         * @see java.lang.Object#equals(java.lang.Object)
+         */
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof ContextInformation) {
+                ContextInformation ci = (ContextInformation)obj;
+                return getContextInformationPosition() == ci.getContextInformationPosition() &&
+                       getInformationDisplayString().equals(ci.getInformationDisplayString());
+            }
+            return false;
+        }
 
-	}
+        /*
+         * @see java.lang.Object#hashCode()
+         * @since 3.1
+         */
+        @Override
+        public int hashCode() {
+            int low = fContextDisplayString != null ? fContextDisplayString.hashCode() : 0;
+            return fPosition << 24 | fInformationDisplayString.hashCode() << 16 | low;
+        }
 
-	private static final class TypeArgumentProposal {
-		private final boolean fIsAmbiguous;
-		private final String fProposal;
+    }
+
+    private static final class TypeArgumentProposal {
+        private final boolean fIsAmbiguous;
+        private final String fProposal;
 		private final String fTypeDisplayName;
 
 		TypeArgumentProposal(String proposal, boolean ambiguous, String typeDisplayName) {
@@ -710,21 +714,28 @@ public class LazyGenericTypeProposal extends LazyJavaTypeCompletionProposal {
 		String replacementString= getReplacementString();
 
 		try {
-			LinkedModeModel model= new LinkedModeModel();
+			LinkedModeModelImpl model= new LinkedModeModelImpl();
 			for (int i= 0; i != offsets.length; i++) {
 				if (typeArgumentProposals[i].isAmbiguous()) {
-					LinkedPositionGroup group= new LinkedPositionGroup();
-					group.addPosition(new LinkedPosition(document, replacementOffset + offsets[i], lengths[i]));
-					model.addGroup(group);
+					LinkedPositionGroupImpl group= new LinkedPositionGroupImpl();
+                    RegionImpl region = new RegionImpl();
+                    region.setOffset(replacementOffset + offsets[i]);
+                    region.setLength(lengths[i]);
+					group.addPositions(region);
+					model.addGroups(group);
 				}
 			}
 			if (withParentheses) {
-				LinkedPositionGroup group= new LinkedPositionGroup();
-				group.addPosition(new LinkedPosition(document, replacementOffset + getCursorPosition(), 0));
-				model.addGroup(group);
+				LinkedPositionGroupImpl group= new LinkedPositionGroupImpl();
+                RegionImpl region = new RegionImpl();
+                region.setOffset(replacementOffset + getCursorPosition());
+                region.setLength(0);
+                group.addPositions(region);
+				model.addGroups(group);
 			}
-
-			model.forceInstall();
+            model.setEscapePosition(replacementOffset + replacementString.length());
+            this.linkedModel = model;
+//			model.forceInstall();
 //			JavaEditor editor= getJavaEditor();
 //			if (editor != null) {
 //				model.addLinkingListener(new EditorHighlightingSynchronizer(editor));
@@ -749,34 +760,34 @@ public class LazyGenericTypeProposal extends LazyJavaTypeCompletionProposal {
 				secondBracketPosition= new Position(secondBracketOffset, 0);
 				document.addPosition(secondBracketPosition);
 
-				model.addLinkingListener(new ILinkedModeListener() {
-					public void left(LinkedModeModel environment, int flags) {
-						try {
-							if (getTextViewer().getSelectedRange().y > 1 || flags != ILinkedModeListener.EXTERNAL_MODIFICATION)
-								return;
-							((IDocumentExtension) document).registerPostNotificationReplace(null, new IDocumentExtension.IReplace() {
-								public void perform(IDocument d, IDocumentListener owner) {
-									try {
-										if ((firstBracketPosition.length == 0 || firstBracketPosition.isDeleted) && !secondBracketPosition.isDeleted) {
-											d.replace(firstBracketPosition.offset, secondBracketPosition.offset - firstBracketPosition.offset, ""); //$NON-NLS-1$
-										}
-									} catch (BadLocationException e) {
-										JavaPlugin.log(e);
-									}
-								}
-							});
-						} finally {
-							document.removePosition(firstBracketPosition);
-							document.removePosition(secondBracketPosition);
-						}
-					}
-
-					public void suspend(LinkedModeModel environment) {
-					}
-
-					public void resume(LinkedModeModel environment, int flags) {
-					}
-				});
+//				model.addLinkingListener(new ILinkedModeListener() {
+//					public void left(LinkedModeModel environment, int flags) {
+//						try {
+//							if (getTextViewer().getSelectedRange().y > 1 || flags != ILinkedModeListener.EXTERNAL_MODIFICATION)
+//								return;
+//							((IDocumentExtension) document).registerPostNotificationReplace(null, new IDocumentExtension.IReplace() {
+//								public void perform(IDocument d, IDocumentListener owner) {
+//									try {
+//										if ((firstBracketPosition.length == 0 || firstBracketPosition.isDeleted) && !secondBracketPosition.isDeleted) {
+//											d.replace(firstBracketPosition.offset, secondBracketPosition.offset - firstBracketPosition.offset, ""); //$NON-NLS-1$
+//										}
+//									} catch (BadLocationException e) {
+//										JavaPlugin.log(e);
+//									}
+//								}
+//							});
+//						} finally {
+//							document.removePosition(firstBracketPosition);
+//							document.removePosition(secondBracketPosition);
+//						}
+//					}
+//
+//					public void suspend(LinkedModeModel environment) {
+//					}
+//
+//					public void resume(LinkedModeModel environment, int flags) {
+//					}
+//				});
 			}
 
 //			LinkedModeUI ui= new EditorLinkedModeUI(model, getTextViewer());
@@ -894,4 +905,8 @@ public class LazyGenericTypeProposal extends LazyJavaTypeCompletionProposal {
 		return fCanUseDiamond;
 	}
 
+    @Override
+    public LinkedModeModel getLinkedModel() {
+        return linkedModel;
+    }
 }

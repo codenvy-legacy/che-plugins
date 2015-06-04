@@ -927,18 +927,17 @@ public class JavaModelManager {
     }
 
     public void removePerProjectInfo(JavaProject javaProject, boolean removeExtJarInfo) {
-        //todo
-//        synchronized(this.perProjectInfos) { // use the perProjectInfo collection as its own lock
-//            IProject project = javaProject.getProject();
-//            PerProjectInfo info= (PerProjectInfo) this.perProjectInfos.get(project);
-//            if (info != null) {
-//                this.perProjectInfos.remove(project);
+        synchronized(this.perProjectInfos) { // use the perProjectInfo collection as its own lock
+            IProject project = javaProject.getProject();
+            PerProjectInfo info= (PerProjectInfo) this.perProjectInfos.get(project);
+            if (info != null) {
+                this.perProjectInfos.remove(project);
 //                if (removeExtJarInfo) {
 //                    info.forgetExternalTimestampsAndIndexes();
 //                }
-//            }
-//        }
-//        resetClasspathListCache();
+            }
+        }
+        resetClasspathListCache();
     }
 
     /*

@@ -455,6 +455,10 @@ public class ChePreferences implements IEclipsePreferences {
         try {
             File file = new File(location);
             if(!file.exists()){
+                File parentFile = file.getParentFile();
+                if(!parentFile.exists()){
+                    parentFile.mkdirs();
+                }
                 file.createNewFile();
             }
             output = new SafeFileOutputStream(file);

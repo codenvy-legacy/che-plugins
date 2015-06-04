@@ -10,15 +10,25 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.ui.text.correction.proposals;
 
+import org.eclipse.che.ide.ext.java.shared.dto.LinkedModeModel;
+import org.eclipse.che.jdt.javaeditor.HasLinkedModel;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ITrackedNodePosition;
 import org.eclipse.jdt.internal.corext.fix.LinkedProposalModel;
+import org.eclipse.jdt.internal.corext.fix.LinkedProposalPositionGroup;
 import org.eclipse.jdt.ui.text.java.correction.ASTRewriteCorrectionProposal;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.swt.graphics.Image;
+
+import java.util.Iterator;
+
+import static org.eclipse.che.ide.ext.java.server.dto.DtoServerImpls.LinkedDataImpl;
+import static org.eclipse.che.ide.ext.java.server.dto.DtoServerImpls.LinkedModeModelImpl;
+import static org.eclipse.che.ide.ext.java.server.dto.DtoServerImpls.LinkedPositionGroupImpl;
+import static org.eclipse.che.ide.ext.java.server.dto.DtoServerImpls.RegionImpl;
 
 
 /**
@@ -29,63 +39,64 @@ import org.eclipse.swt.graphics.Image;
  * applied.
  * @since 3.0
  */
-public class LinkedCorrectionProposal extends ASTRewriteCorrectionProposal {
+public class LinkedCorrectionProposal extends ASTRewriteCorrectionProposal implements HasLinkedModel {
 
 	private LinkedProposalModel fLinkedProposalModel;
+    private LinkedModeModelImpl linkedModel;
 
-	/**
-	 * Constructs a linked correction proposal.
-	 * @param name The display name of the proposal.
-	 * @param cu The compilation unit that is modified.
-	 * @param rewrite The AST rewrite that is invoked when the proposal is applied
-	 *  <code>null</code> can be passed if {@link #getRewrite()} is overridden.
-	 * @param relevance The relevance of this proposal.
-	 * @param image The image that is displayed for this proposal or <code>null</code> if no
-	 * image is desired.
-	 */
-	public LinkedCorrectionProposal(String name, ICompilationUnit cu, ASTRewrite rewrite, int relevance, Image image) {
-		super(name, cu, rewrite, relevance, image);
-		fLinkedProposalModel= null;
-	}
+    /**
+     * Constructs a linked correction proposal.
+     * @param name The display name of the proposal.
+     * @param cu The compilation unit that is modified.
+     * @param rewrite The AST rewrite that is invoked when the proposal is applied
+     *  <code>null</code> can be passed if {@link #getRewrite()} is overridden.
+     * @param relevance The relevance of this proposal.
+     * @param image The image that is displayed for this proposal or <code>null</code> if no
+     * image is desired.
+     */
+    public LinkedCorrectionProposal(String name, ICompilationUnit cu, ASTRewrite rewrite, int relevance, Image image) {
+        super(name, cu, rewrite, relevance, image);
+        fLinkedProposalModel = null;
+    }
 
-	protected LinkedProposalModel getLinkedProposalModel() {
-		if (fLinkedProposalModel == null) {
-			fLinkedProposalModel= new LinkedProposalModel();
-		}
-		return fLinkedProposalModel;
-	}
+    protected LinkedProposalModel getLinkedProposalModel() {
+        if (fLinkedProposalModel == null) {
+            fLinkedProposalModel = new LinkedProposalModel();
+        }
+        return fLinkedProposalModel;
+    }
 
-	public void setLinkedProposalModel(LinkedProposalModel model) {
-		fLinkedProposalModel= model;
-	}
+    public void setLinkedProposalModel(LinkedProposalModel model) {
+        fLinkedProposalModel = model;
+    }
 
-	/**
-	 * Adds a linked position to be shown when the proposal is applied. All positions with the
-	 * same group id are linked.
-	 * @param position The position to add.
-	 * @param isFirst If set, the proposal is jumped to first.
-	 * @param groupID The id of the group the proposal belongs to. All proposals in the same group
-	 * are linked.
-	 */
-	public void addLinkedPosition(ITrackedNodePosition position, boolean isFirst, String groupID) {
-		getLinkedProposalModel().getPositionGroup(groupID, true).addPosition(position, isFirst);
-	}
+    /**
+     * Adds a linked position to be shown when the proposal is applied. All positions with the
+     * same group id are linked.
+     * @param position The position to add.
+     * @param isFirst If set, the proposal is jumped to first.
+     * @param groupID The id of the group the proposal belongs to. All proposals in the same group
+     * are linked.
+     */
+    public void addLinkedPosition(ITrackedNodePosition position, boolean isFirst, String groupID) {
+        getLinkedProposalModel().getPositionGroup(groupID, true).addPosition(position, isFirst);
+    }
 
-	/**
-	 * Adds a linked position to be shown when the proposal is applied. All positions with the
-	 * same group id are linked.
-	 * @param position The position to add.
-	 * @param sequenceRank The sequence rank, see TODO.
-	 * @param groupID The id of the group the proposal belongs to. All proposals in the same group
-	 * are linked.
-	 */
-	public void addLinkedPosition(ITrackedNodePosition position, int sequenceRank, String groupID) {
-		getLinkedProposalModel().getPositionGroup(groupID, true).addPosition(position, sequenceRank);
-	}
-	
-	/**
-	 * Sets the end position of the linked mode to the end of the passed range.
-	 * @param position The position that describes the end position of the linked mode.
+    /**
+     * Adds a linked position to be shown when the proposal is applied. All positions with the
+     * same group id are linked.
+     * @param position The position to add.
+     * @param sequenceRank The sequence rank, see TODO.
+     * @param groupID The id of the group the proposal belongs to. All proposals in the same group
+     * are linked.
+     */
+    public void addLinkedPosition(ITrackedNodePosition position, int sequenceRank, String groupID) {
+        getLinkedProposalModel().getPositionGroup(groupID, true).addPosition(position, sequenceRank);
+    }
+
+    /**
+     * Sets the end position of the linked mode to the end of the passed range.
+     * @param position The position that describes the end position of the linked mode.
 	 */
 	public void setEndPosition(ITrackedNodePosition position) {
 		getLinkedProposalModel().setEndPosition(position);
@@ -135,12 +146,69 @@ public class LinkedCorrectionProposal extends ASTRewriteCorrectionProposal {
 //				return;
 //			}
 //
-//			if (fLinkedProposalModel != null) {
-//				if (fLinkedProposalModel.hasLinkedPositions() && part instanceof JavaEditor) {
-//					// enter linked mode
+			if (fLinkedProposalModel != null) {
+				if (fLinkedProposalModel.hasLinkedPositions()) {
+                    // enter linked mode
 //					ITextViewer viewer= ((JavaEditor) part).getViewer();
 //					new LinkedProposalModelPresenter().enterLinkedMode(viewer, part, didOpenEditor(), fLinkedProposalModel);
-//				} else if (part instanceof ITextEditor) {
+                    boolean added= false;
+                    LinkedModeModelImpl model = new LinkedModeModelImpl();
+                    Iterator<LinkedProposalPositionGroup> iterator = fLinkedProposalModel.getPositionGroupIterator();
+                    while (iterator.hasNext()) {
+                        LinkedProposalPositionGroup curr = iterator.next();
+
+                        LinkedPositionGroupImpl group = new LinkedPositionGroupImpl();
+
+                        LinkedProposalPositionGroup.PositionInformation[] positions = curr.getPositions();
+                        if (positions.length > 0) {
+                            LinkedProposalPositionGroup.Proposal[] linkedModeProposals = curr.getProposals();
+                            if (linkedModeProposals.length <= 1) {
+                                for (int i = 0; i < positions.length; i++) {
+                                    LinkedProposalPositionGroup.PositionInformation pos = positions[i];
+                                    if (pos.getOffset() != -1) {
+                                        RegionImpl position = new RegionImpl();
+                                        position.setOffset(pos.getOffset());
+                                        position.setLength(pos.getLength());
+//                                        group.addPositions(
+//                                                new LinkedPosition(document, pos.getOffset(), pos.getLength(), pos.getSequenceRank()));
+                                        group.addPositions(position);
+                                    }
+                                }
+                            } else {
+//                                LinkedPositionProposalImpl[] proposalImpls= new LinkedPositionProposalImpl[linkedModeProposals.length];
+                                LinkedDataImpl data = new LinkedDataImpl();
+                                for (int i = 0; i < linkedModeProposals.length; i++) {
+//                                    proposalImpls[i] = new LinkedPositionProposalImpl(linkedModeProposals[i], model);
+                                     data.addValues(linkedModeProposals[i].getDisplayString());
+                                }
+                                group.setData(data);
+                                for (int i = 0; i < positions.length; i++) {
+                                    LinkedProposalPositionGroup.PositionInformation pos = positions[i];
+                                    if (pos.getOffset() != -1) {
+//                                        group.addPosition(
+//                                                new ProposalPosition(document, pos.getOffset(), pos.getLength(), pos.getSequenceRank(),
+//                                                                     proposalImpls));
+                                        RegionImpl position = new RegionImpl();
+                                        position.setOffset(pos.getOffset());
+                                        position.setLength(pos.getLength());
+                                        group.addPositions(position);
+                                    }
+                                }
+                            }
+                            model.addGroups(group);
+                            added = true;
+                        }
+
+                    }
+                    if(added){
+                        LinkedProposalPositionGroup.PositionInformation endPosition= fLinkedProposalModel.getEndPosition();
+                        if (endPosition != null && endPosition.getOffset() != -1) {
+                            model.setEscapePosition(endPosition.getOffset() + endPosition.getLength());
+                        }
+                        this.linkedModel = model;
+                    }
+                }
+//				else if (part instanceof ITextEditor) {
 //					LinkedProposalPositionGroup.PositionInformation endPosition= fLinkedProposalModel.getEndPosition();
 //					if (endPosition != null) {
 //						// select a result
@@ -148,9 +216,14 @@ public class LinkedCorrectionProposal extends ASTRewriteCorrectionProposal {
 //						((ITextEditor) part).selectAndReveal(pos, 0);
 //					}
 //				}
-//			}
+			}
 //		} catch (BadLocationException e) {
 //			throw new CoreException(JavaUIStatus.createError(IStatus.ERROR, e));
 //		}
+	}
+
+	@Override
+	public LinkedModeModel getLinkedModel() {
+		return linkedModel;
 	}
 }

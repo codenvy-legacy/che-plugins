@@ -8,28 +8,15 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.ide.ext.java.shared.dto;
 
-import org.eclipse.che.dto.shared.DTO;
+package org.eclipse.che.jdt.javaeditor;
 
-import java.util.List;
+import org.eclipse.che.ide.ext.java.shared.dto.LinkedModeModel;
 
 /**
  * @author Evgen Vidolob
  */
-@DTO
-public interface ProposalApplyResult {
+public interface HasLinkedModel {
 
-    List<Change> getChanges();
-
-    void setChanges(List<Change> changes);
-
-    Region getSelection();
-
-    void setSelection(Region region);
-
-    LinkedModeModel getLinkedModeModel();
-
-    void setLinkedModeModel(LinkedModeModel model);
-
+    LinkedModeModel getLinkedModel();
 }

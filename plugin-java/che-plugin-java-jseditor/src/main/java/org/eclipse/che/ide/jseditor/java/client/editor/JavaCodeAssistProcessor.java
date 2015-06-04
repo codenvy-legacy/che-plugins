@@ -26,6 +26,7 @@ import org.eclipse.che.ide.ext.java.shared.dto.Proposals;
 import org.eclipse.che.ide.jseditor.client.codeassist.CodeAssistCallback;
 import org.eclipse.che.ide.jseditor.client.codeassist.CodeAssistProcessor;
 import org.eclipse.che.ide.jseditor.client.codeassist.CompletionProposal;
+import org.eclipse.che.ide.jseditor.client.link.HasLinkedMode;
 import org.eclipse.che.ide.jseditor.client.texteditor.TextEditor;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
@@ -118,6 +119,8 @@ public class JavaCodeAssistProcessor implements CodeAssistProcessor {
         images.put("impObj", resources.add_obj()); //????
         images.put("toolDelete", resources.delete_obj()); //????
 
+        images.put("linkedRename", resources.linkedRename());
+
 
     }
 
@@ -171,13 +174,14 @@ public class JavaCodeAssistProcessor implements CodeAssistProcessor {
     private void showProposals(final CodeAssistCallback callback, final Proposals respons) {
         List<ProposalPresentation> presentations = respons.getProposals();
         final List<CompletionProposal> proposals = new ArrayList<>(presentations.size());
+        HasLinkedMode linkedEditor = editor instanceof HasLinkedMode ? (HasLinkedMode)editor : null;
         for (final ProposalPresentation proposal : presentations) {
             final CompletionProposal completionProposal =
                                                           new JavaCompletionProposal(
                                                                                      proposal.getIndex(),
                                                                                      insertStyle(javaResources, proposal.getDisplayString()),
                                                                                      new Icon("", getImage(javaResources, proposal.getImage())),
-                                                                                     client, respons.getSessionId());
+                                                                                     client, respons.getSessionId(), linkedEditor);
             proposals.add(completionProposal);
         }
 

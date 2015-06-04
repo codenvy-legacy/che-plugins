@@ -117,9 +117,9 @@ public class ChangeCorrectionProposal
 		try {
 			change = getChange();
 			if (change != null) {
-				if (document != null) {
-					LinkedModeModel.closeAllModels(document);
-				}
+//				if (document != null) {
+//					LinkedModeModel.closeAllModels(document);
+//				}
 //				if (activeEditor != null) {
 //					rewriteTarget = (IRewriteTarget)activeEditor.getAdapter(IRewriteTarget.class);
 //					if (rewriteTarget != null) {

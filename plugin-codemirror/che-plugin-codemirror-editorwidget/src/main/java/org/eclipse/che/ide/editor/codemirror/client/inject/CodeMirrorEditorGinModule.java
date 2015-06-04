@@ -18,7 +18,6 @@ import com.google.inject.TypeLiteral;
 
 import org.eclipse.che.ide.api.extension.ExtensionGinModule;
 import org.eclipse.che.ide.api.notification.NotificationManager;
-import org.eclipse.che.ide.editor.codemirror.client.CodeMirrorEditorExtension;
 import org.eclipse.che.ide.editor.codemirror.client.CodeMirrorEditorModule;
 import org.eclipse.che.ide.editor.codemirror.client.CodeMirrorEditorPresenter;
 import org.eclipse.che.ide.editor.codemirror.client.CodeMirrorEditorWidget;
@@ -51,12 +50,6 @@ public class CodeMirrorEditorGinModule extends AbstractGinModule {
         bind(MinimapFactory.class);
     }
 
-    @Provides
-    @Singleton
-    @Named(JsEditorExtension.DEFAULT_EDITOR_TYPE_INJECT_NAME)
-    protected String defaultEditorTypeKey() {
-        return CodeMirrorEditorExtension.CODEMIRROR_EDITOR_KEY;
-    }
 
     @Provides
     @Singleton

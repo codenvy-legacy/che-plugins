@@ -8,6 +8,7 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
+
 package org.eclipse.che.ide.ext.java.shared.dto;
 
 import org.eclipse.che.dto.shared.DTO;
@@ -18,18 +19,8 @@ import java.util.List;
  * @author Evgen Vidolob
  */
 @DTO
-public interface ProposalApplyResult {
+public interface LinkedData {
+    void setValues(List<String> values);
 
-    List<Change> getChanges();
-
-    void setChanges(List<Change> changes);
-
-    Region getSelection();
-
-    void setSelection(Region region);
-
-    LinkedModeModel getLinkedModeModel();
-
-    void setLinkedModeModel(LinkedModeModel model);
-
+    List<String> getValues();
 }

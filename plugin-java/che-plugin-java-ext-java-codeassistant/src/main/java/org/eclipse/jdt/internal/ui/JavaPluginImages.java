@@ -62,7 +62,7 @@ public class JavaPluginImages {
 
     public static final ImageDescriptor DESC_OBJS_LOCAL_VARIABLE          = new ImageDescriptor("localVariable");
     public static final ImageDescriptor DESC_OBJS_PACKDECL                = new ImageDescriptor("packageDeclaration");
-    public static final ImageDescriptor IMG_OBJS_PACKDECL                = new ImageDescriptor("packageDeclaration");
+    public static final ImageDescriptor IMG_OBJS_PACKDECL                 = new ImageDescriptor("packageDeclaration");
     public static final ImageDescriptor DESC_OBJS_IMPDECL                 = new ImageDescriptor("importDeclaration");
     public static final ImageDescriptor DESC_OBJS_IMPCONT                 = new ImageDescriptor("importContainer");
     public static final ImageDescriptor DESC_OBJS_EXTJAR                  = new ImageDescriptor("extJar");
@@ -91,6 +91,7 @@ public class JavaPluginImages {
     public static final ImageDescriptor IMG_CORRECTION_DELETE_IMPORT = new ImageDescriptor("correctionDeleteImport");
     public static final ImageDescriptor IMG_CORRECTION_RENAME        = new ImageDescriptor("correctionRename");
     public static final ImageDescriptor IMG_OBJS_IMPDECL             = new ImageDescriptor("impObj");
+    public static final ImageDescriptor IMG_CORRECTION_LINKED_RENAME = new ImageDescriptor("linkedRename");
 
     public static final ImageDescriptor IMG_TOOL_DELETE = new ImageDescriptor("toolDelete");
 

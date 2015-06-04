@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.ui.text.java;
 
+import org.eclipse.che.jdt.javaeditor.HasLinkedModel;
+import org.eclipse.che.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.core.CompletionContext;
 import org.eclipse.jdt.core.CompletionProposal;
@@ -20,50 +22,53 @@ import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.internal.corext.template.java.SignatureUtil;
 import org.eclipse.jdt.internal.ui.JavaPlugin;
 import org.eclipse.jdt.ui.text.java.JavaContentAssistInvocationContext;
-import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.BadPositionCategoryException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IPositionUpdater;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.Region;
-import org.eclipse.che.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.link.ILinkedModeListener;
 import org.eclipse.jface.text.link.InclusivePositionUpdater;
 import org.eclipse.jface.text.link.LinkedModeModel;
-import org.eclipse.jface.text.link.LinkedPosition;
-import org.eclipse.jface.text.link.LinkedPositionGroup;
-import org.eclipse.che.jface.text.link.ProposalPosition;
 import org.eclipse.swt.graphics.Point;
+
+import static org.eclipse.che.ide.ext.java.server.dto.DtoServerImpls.LinkedDataImpl;
+import static org.eclipse.che.ide.ext.java.server.dto.DtoServerImpls.LinkedModeModelImpl;
+import static org.eclipse.che.ide.ext.java.server.dto.DtoServerImpls.LinkedPositionGroupImpl;
+import static org.eclipse.che.ide.ext.java.server.dto.DtoServerImpls.RegionImpl;
 
 
 /**
  * This is a {@link org.eclipse.jdt.internal.ui.text.java.JavaCompletionProposal} which includes templates
  * that represent the best guess completion for each parameter of a method.
  */
-public class ParameterGuessingProposal extends JavaMethodCompletionProposal {
+public class ParameterGuessingProposal extends JavaMethodCompletionProposal implements HasLinkedModel {
 
-	/**
-	 * Creates a {@link ParameterGuessingProposal} or <code>null</code> if the core context isn't available or extended.
-	 *
-	 * @param proposal the original completion proposal
-	 * @param context the currrent context
-	 * @param fillBestGuess if set, the best guess will be filled in
-	 *
-	 * @return a proposal or <code>null</code>
-	 */
-	public static ParameterGuessingProposal createProposal(CompletionProposal proposal, JavaContentAssistInvocationContext context, boolean fillBestGuess) {
-		CompletionContext coreContext= context.getCoreContext();
- 		if (coreContext != null && coreContext.isExtended()) {
-			return new ParameterGuessingProposal(proposal, context, coreContext, fillBestGuess);
- 		}
- 		return null;
-	}
+    private LinkedModeModelImpl linkedModel;
+
+    /**
+     * Creates a {@link ParameterGuessingProposal} or <code>null</code> if the core context isn't available or extended.
+     *
+     * @param proposal the original completion proposal
+     * @param context the currrent context
+     * @param fillBestGuess if set, the best guess will be filled in
+     *
+     * @return a proposal or <code>null</code>
+     */
+    public static ParameterGuessingProposal createProposal(CompletionProposal proposal, JavaContentAssistInvocationContext context,
+                                                           boolean fillBestGuess) {
+        CompletionContext coreContext = context.getCoreContext();
+        if (coreContext != null && coreContext.isExtended()) {
+            return new ParameterGuessingProposal(proposal, context, coreContext, fillBestGuess);
+        }
+        return null;
+    }
 
 
     /** Tells whether this class is in debug mode. */
     private static final boolean DEBUG = "true".equalsIgnoreCase(Platform.getDebugOption("org.eclipse.jdt.ui/debug/ResultCollector"));
-            //$NON-NLS-1$//$NON-NLS-2$
+    //$NON-NLS-1$//$NON-NLS-2$
 
     private ICompletionProposal[][] fChoices; // initialized by guessParameters()
     private Position[]              fPositions; // initialized by guessParameters()
@@ -102,33 +107,47 @@ public class ParameterGuessingProposal extends JavaMethodCompletionProposal {
      */
     @Override
     public void apply(final IDocument document, char trigger, int offset) {
-        try {
-            super.apply(document, trigger, offset);
+        super.apply(document, trigger, offset);
 
-            int baseOffset = getReplacementOffset();
-            String replacement = getReplacementString();
+        int baseOffset = getReplacementOffset();
+        String replacement = getReplacementString();
 
-            if (fPositions != null && getTextViewer() != null) {
+        if (fPositions != null && getTextViewer() != null) {
 
-                LinkedModeModel model = new LinkedModeModel();
+            LinkedModeModelImpl model = new LinkedModeModelImpl();
 
-                for (int i = 0; i < fPositions.length; i++) {
-                    LinkedPositionGroup group = new LinkedPositionGroup();
-                    int positionOffset = fPositions[i].getOffset();
-                    int positionLength = fPositions[i].getLength();
+            for (int i = 0; i < fPositions.length; i++) {
+                LinkedPositionGroupImpl group = new LinkedPositionGroupImpl();
+                int positionOffset = fPositions[i].getOffset();
+                int positionLength = fPositions[i].getLength();
 
-                    if (fChoices[i].length < 2) {
-                        group.addPosition(new LinkedPosition(document, positionOffset, positionLength, LinkedPositionGroup.NO_STOP));
-                    } else {
-                        ensurePositionCategoryInstalled(document, model);
-                        document.addPosition(getCategory(), fPositions[i]);
-                        group.addPosition(
-                                new ProposalPosition(document, positionOffset, positionLength, LinkedPositionGroup.NO_STOP, fChoices[i]));
+                if (fChoices[i].length < 2) {
+                    RegionImpl region = new RegionImpl();
+                    region.setOffset(positionOffset);
+                    region.setLength(positionLength);
+//                        group.addPositions(new LinkedPosition(document, positionOffset, positionLength, LinkedPositionGroup.NO_STOP));
+                    group.addPositions(region);
+                } else {
+//                        ensurePositionCategoryInstalled(document, model);
+//                        document.addPosition(getCategory(), fPositions[i]);
+                    RegionImpl region = new RegionImpl();
+                    region.setOffset(positionOffset);
+                    region.setLength(positionLength);
+//                        group.addPositions(
+//                                new ProposalPosition(document, positionOffset, positionLength, LinkedPositionGroup.NO_STOP, fChoices[i]));
+                    group.addPositions(region);
+                    LinkedDataImpl data = new LinkedDataImpl();
+                    for (ICompletionProposal proposal : fChoices[i]) {
+                        data.addValues(proposal.getDisplayString());
                     }
-                    model.addGroup(group);
+                    group.setData(data);
                 }
+                model.addGroups(group);
+            }
+            model.setEscapePosition(baseOffset + replacement.length());
+            this.linkedModel = model;
 
-                model.forceInstall();
+//                model.forceInstall();
 //                JavaEditor editor = getJavaEditor();
 //                if (editor != null) {
 //                    model.addLinkingListener(new EditorHighlightingSynchronizer(editor));
@@ -172,22 +191,13 @@ public class ParameterGuessingProposal extends JavaMethodCompletionProposal {
 //				ui.setCyclingMode(LinkedModeUI.CYCLE_WHEN_NO_PARENT);
 //				ui.setDoContextInfo(true);
 //				ui.enter();
-				fSelectedRegion=  new Region(baseOffset + replacement.length(), 0);
+            fSelectedRegion=  new Region(baseOffset + replacement.length(), 0);
 
-			} else {
-				fSelectedRegion= new Region(baseOffset + replacement.length(), 0);
-			}
+        } else {
+            fSelectedRegion= new Region(baseOffset + replacement.length(), 0);
+        }
 
-		} catch (BadLocationException e) {
-			ensurePositionCategoryRemoved(document);
-			JavaPlugin.log(e);
-			openErrorDialog(e);
-		} catch (BadPositionCategoryException e) {
-			ensurePositionCategoryRemoved(document);
-			JavaPlugin.log(e);
-			openErrorDialog(e);
-		}
-	}
+    }
 
 	/*
 	 * @see org.eclipse.jdt.internal.ui.text.java.JavaMethodCompletionProposal#needsLinkedMode()
@@ -397,4 +407,8 @@ public class ParameterGuessingProposal extends JavaMethodCompletionProposal {
 		return "ParameterGuessingProposal_" + toString(); //$NON-NLS-1$
 	}
 
+	@Override
+	public org.eclipse.che.ide.ext.java.shared.dto.LinkedModeModel getLinkedModel() {
+		return linkedModel;
+	}
 }

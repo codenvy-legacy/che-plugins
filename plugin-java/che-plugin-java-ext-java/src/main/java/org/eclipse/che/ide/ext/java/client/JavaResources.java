@@ -225,4 +225,7 @@ public interface JavaResources extends ClientBundle {
 
     @Source("svg/class.svg")
     SVGResource javaClassIcon();
+
+    @Source("internal/text/correction/proposals/correction_linked_rename.gif")
+    ImageResource  linkedRename();
 }

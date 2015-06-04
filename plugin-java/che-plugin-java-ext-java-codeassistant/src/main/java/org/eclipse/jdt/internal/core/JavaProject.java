@@ -1521,10 +1521,10 @@ public class JavaProject extends Openable implements IJavaProject, SuffixConstan
 //        return null;
 //    }
 
-    @Override
-    public boolean exists() {
-        return false;
-    }
+//    @Override
+//    public boolean exists() {
+//        return false;
+//    }
 
     @Override
     public String getAttachedJavadoc(IProgressMonitor monitor) throws JavaModelException {
@@ -1751,7 +1751,14 @@ public class JavaProject extends Openable implements IJavaProject, SuffixConstan
 
     @Override
     protected IStatus validateExistence(IResource underlyingResource) {
+        if ((!((IProject)underlyingResource).getFolder(".codenvy").exists())) {
+            return newDoesNotExistStatus();
+        }
         return JavaModelStatus.VERIFIED_OK;
+    }
+
+    protected JavaModelStatus newDoesNotExistStatus() {
+        return new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, this);
     }
 
 //    /**

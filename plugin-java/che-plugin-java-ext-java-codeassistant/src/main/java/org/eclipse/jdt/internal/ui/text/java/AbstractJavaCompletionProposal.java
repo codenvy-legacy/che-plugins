@@ -385,10 +385,10 @@ public abstract class AbstractJavaCompletionProposal implements IJavaCompletionP
     protected LazyJavaCompletionProposal createRequiredTypeCompletionProposal(CompletionProposal completionProposal,
                                                                               JavaContentAssistInvocationContext invocationContext) {
 //        if (PreferenceConstants.getPreferenceStore().getBoolean(PreferenceConstants.CODEASSIST_FILL_ARGUMENT_NAMES))
-//            return (LazyJavaCompletionProposal)new FillArgumentNamesCompletionProposalCollector(invocationContext)
-//                    .createJavaCompletionProposal(completionProposal);
+            return (LazyJavaCompletionProposal)new FillArgumentNamesCompletionProposalCollector(invocationContext)
+                    .createJavaCompletionProposal(completionProposal);
 //        else
-            return new LazyJavaTypeCompletionProposal(completionProposal, invocationContext);
+//            return new LazyJavaTypeCompletionProposal(completionProposal, invocationContext);
     }
 
     private boolean isSmartTrigger(char trigger) {

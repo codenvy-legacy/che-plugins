@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.ui.text.java;
 
+import org.eclipse.che.jdt.javaeditor.HasLinkedModel;
 import org.eclipse.jdt.core.CompletionProposal;
 import org.eclipse.jdt.internal.ui.JavaPlugin;
 import org.eclipse.jdt.ui.text.java.JavaContentAssistInvocationContext;
@@ -17,19 +18,21 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.Region;
-import org.eclipse.jface.text.link.LinkedModeModel;
-import org.eclipse.jface.text.link.LinkedPosition;
-import org.eclipse.jface.text.link.LinkedPositionGroup;
 import org.eclipse.swt.graphics.Point;
+
+import static org.eclipse.che.ide.ext.java.server.dto.DtoServerImpls.LinkedModeModelImpl;
+import static org.eclipse.che.ide.ext.java.server.dto.DtoServerImpls.LinkedPositionGroupImpl;
+import static org.eclipse.che.ide.ext.java.server.dto.DtoServerImpls.RegionImpl;
 
 /**
  * A method proposal with filled in argument names.
  */
-public class FilledArgumentNamesMethodProposal extends JavaMethodCompletionProposal {
+public class FilledArgumentNamesMethodProposal extends JavaMethodCompletionProposal implements HasLinkedModel {
 
     private IRegion fSelectedRegion; // initialized by apply()
     private int[]   fArgumentOffsets;
     private int[]   fArgumentLengths;
+    private LinkedModeModelImpl linkedModel;
 
     public FilledArgumentNamesMethodProposal(CompletionProposal proposal, JavaContentAssistInvocationContext context) {
         super(proposal, context);
@@ -45,16 +48,19 @@ public class FilledArgumentNamesMethodProposal extends JavaMethodCompletionPropo
         String replacement = getReplacementString();
 
         if (fArgumentOffsets != null && getTextViewer() != null) {
-            try {
-                LinkedModeModel model = new LinkedModeModel();
-                for (int i = 0; i != fArgumentOffsets.length; i++) {
-                    LinkedPositionGroup group = new LinkedPositionGroup();
-                    group.addPosition(new LinkedPosition(document, baseOffset + fArgumentOffsets[i], fArgumentLengths[i],
-                                                         LinkedPositionGroup.NO_STOP));
-                    model.addGroup(group);
-                }
+            LinkedModeModelImpl model = new LinkedModeModelImpl();
+            for (int i = 0; i != fArgumentOffsets.length; i++) {
+                LinkedPositionGroupImpl group = new LinkedPositionGroupImpl();
+                RegionImpl region = new RegionImpl();
+                region.setLength(fArgumentLengths[i]);
+                region.setOffset(baseOffset + fArgumentOffsets[i]);
+                group.addPositions(region);
+                model.addGroups(group);
+            }
+            model.setEscapePosition( baseOffset + replacement.length());
+            this.linkedModel = model;
 
-                model.forceInstall();
+//                model.forceInstall();
 //                JavaEditor editor = getJavaEditor();
 //                if (editor != null) {
 //                    model.addLinkingListener(new EditorHighlightingSynchronizer(editor));
@@ -67,12 +73,8 @@ public class FilledArgumentNamesMethodProposal extends JavaMethodCompletionPropo
 //                ui.setCyclingMode(LinkedModeUI.CYCLE_WHEN_NO_PARENT);
 //                ui.enter();
 
-                fSelectedRegion =  new Region(baseOffset + replacement.length(), 0);
+            fSelectedRegion =  new Region(baseOffset + replacement.length(), 0);
 
-            } catch (BadLocationException e) {
-                JavaPlugin.log(e);
-                openErrorDialog(e);
-            }
         } else {
             fSelectedRegion = new Region(baseOffset + replacement.length(), 0);
         }
@@ -166,4 +168,8 @@ public class FilledArgumentNamesMethodProposal extends JavaMethodCompletionPropo
 		JavaPlugin.log(e);
 	}
 
+	@Override
+	public org.eclipse.che.ide.ext.java.shared.dto.LinkedModeModel getLinkedModel() {
+		return linkedModel;
+	}
 }

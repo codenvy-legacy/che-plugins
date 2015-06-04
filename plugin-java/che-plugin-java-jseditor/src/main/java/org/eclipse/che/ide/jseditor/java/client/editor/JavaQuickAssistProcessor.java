@@ -27,6 +27,7 @@ import org.eclipse.che.ide.jseditor.client.annotation.QueryAnnotationsEvent;
 import org.eclipse.che.ide.jseditor.client.codeassist.CodeAssistCallback;
 import org.eclipse.che.ide.jseditor.client.codeassist.CompletionProposal;
 import org.eclipse.che.ide.jseditor.client.document.Document;
+import org.eclipse.che.ide.jseditor.client.link.HasLinkedMode;
 import org.eclipse.che.ide.jseditor.client.quickfix.QuickAssistInvocationContext;
 import org.eclipse.che.ide.jseditor.client.quickfix.QuickAssistProcessor;
 import org.eclipse.che.ide.jseditor.client.text.LinearRange;
@@ -110,9 +111,10 @@ public class JavaQuickAssistProcessor implements QuickAssistProcessor {
 
     }
 
-    private void showProposals(final CodeAssistCallback callback, final Proposals responds) {
+    private void showProposals(final CodeAssistCallback callback, final Proposals responds, TextEditor editor) {
         List<ProposalPresentation> presentations = responds.getProposals();
         final List<CompletionProposal> proposals = new ArrayList<>(presentations.size());
+        HasLinkedMode linkedEditor = editor instanceof HasLinkedMode ? (HasLinkedMode)editor : null;
         for (ProposalPresentation proposal : presentations) {
             CompletionProposal completionProposal;
             if (proposal.getActionId() != null) {
@@ -125,7 +127,7 @@ public class JavaQuickAssistProcessor implements QuickAssistProcessor {
                         proposal.getIndex(),
                         JavaCodeAssistProcessor.insertStyle(javaResources, proposal.getDisplayString()),
                         new Icon("", JavaCodeAssistProcessor.getImage(javaResources, proposal.getImage())),
-                        client, responds.getSessionId());
+                        client, responds.getSessionId(), linkedEditor);
             }
             proposals.add(completionProposal);
         }
@@ -144,7 +146,7 @@ public class JavaQuickAssistProcessor implements QuickAssistProcessor {
         client.computeAssistProposals(projectPath, fqn, offset, annotations, new AsyncRequestCallback<Proposals>(unmarshaller) {
             @Override
             protected void onSuccess(Proposals proposals) {
-                showProposals(callback, proposals);
+                showProposals(callback, proposals, textEditor);
             }
 
             @Override

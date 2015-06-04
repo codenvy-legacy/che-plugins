@@ -237,7 +237,8 @@ public class JavadocContentAccess2 {
 //		}
 //		buf.append("</div>"); //$NON-NLS-1$
 //		return buf;
-        throw new UnsupportedOperationException();
+//        throw new UnsupportedOperationException();
+        return new StringBuffer("createSuperMethodReferences is not supported");
     }
 
 //    private static String createMethodInTypeLinks(IMethod overridden) {

@@ -36,10 +36,9 @@ public final class FillArgumentNamesCompletionProposalCollector extends Completi
 		super(context.getCompilationUnit(), true);
 		setInvocationContext(context);
 //		IPreferenceStore preferenceStore= JavaPlugin.getDefault().getPreferenceStore();
-        //TODO
-		fIsGuessArguments=  false; //preferenceStore.getBoolean(PreferenceConstants.CODEASSIST_GUESS_METHOD_ARGUMENTS);
+		fIsGuessArguments=  true; //preferenceStore.getBoolean(PreferenceConstants.CODEASSIST_GUESS_METHOD_ARGUMENTS);
 //		if (preferenceStore.getBoolean(PreferenceConstants.CODEASSIST_FILL_ARGUMENT_NAMES)) {
-//			setRequireExtendedContext(true);
+			setRequireExtendedContext(true);
 //		}
 	}
 

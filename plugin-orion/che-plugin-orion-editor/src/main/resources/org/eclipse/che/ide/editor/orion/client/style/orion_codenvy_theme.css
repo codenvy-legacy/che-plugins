@@ -147,3 +147,9 @@
 .orionCodenvy .textviewRightRuler{
     border-left: 1px solid tabBorder;
 }
+.orionCodenvy .annotationRange.currentLinkedGroup {
+    background-color: #000099;
+}
+.orionCodenvy .annotationRange.selectedLinkedGroup {
+    background-color: #000099;
+}

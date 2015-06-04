@@ -10,6 +10,17 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.ui.text.template.contentassist;
 
+import org.eclipse.che.ide.ext.java.shared.dto.LinkedModeModel;
+import org.eclipse.che.jdt.javaeditor.HasLinkedModel;
+import org.eclipse.che.jface.text.ITextViewer;
+import org.eclipse.che.jface.text.contentassist.ICompletionProposal;
+import org.eclipse.che.jface.text.contentassist.ICompletionProposalExtension2;
+import org.eclipse.che.jface.text.contentassist.ICompletionProposalExtension3;
+import org.eclipse.che.jface.text.contentassist.ICompletionProposalExtension4;
+import org.eclipse.che.jface.text.contentassist.ICompletionProposalExtension6;
+import org.eclipse.che.jface.text.contentassist.IContextInformation;
+import org.eclipse.che.jface.text.link.ProposalPosition;
+import org.eclipse.che.jface.text.source.LineRange;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.jdt.internal.corext.template.java.CompilationUnitContext;
 import org.eclipse.jdt.internal.corext.template.java.JavaDocContext;
@@ -23,21 +34,9 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
-import org.eclipse.che.jface.text.ITextViewer;
 import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.Region;
-import org.eclipse.che.jface.text.contentassist.ICompletionProposal;
-import org.eclipse.che.jface.text.contentassist.ICompletionProposalExtension2;
-import org.eclipse.che.jface.text.contentassist.ICompletionProposalExtension3;
-import org.eclipse.che.jface.text.contentassist.ICompletionProposalExtension4;
-import org.eclipse.che.jface.text.contentassist.ICompletionProposalExtension6;
-import org.eclipse.che.jface.text.contentassist.IContextInformation;
-import org.eclipse.jface.text.link.ILinkedModeListener;
-import org.eclipse.jface.text.link.LinkedModeModel;
 import org.eclipse.jface.text.link.LinkedPosition;
-import org.eclipse.jface.text.link.LinkedPositionGroup;
-import org.eclipse.che.jface.text.link.ProposalPosition;
-import org.eclipse.che.jface.text.source.LineRange;
 import org.eclipse.jface.text.templates.DocumentTemplateContext;
 import org.eclipse.jface.text.templates.GlobalTemplateVariables;
 import org.eclipse.jface.text.templates.Template;
@@ -50,11 +49,16 @@ import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 
+import static org.eclipse.che.ide.ext.java.server.dto.DtoServerImpls.LinkedDataImpl;
+import static org.eclipse.che.ide.ext.java.server.dto.DtoServerImpls.LinkedModeModelImpl;
+import static org.eclipse.che.ide.ext.java.server.dto.DtoServerImpls.LinkedPositionGroupImpl;
+import static org.eclipse.che.ide.ext.java.server.dto.DtoServerImpls.RegionImpl;
+
 /**
  * A template proposal.
  */
 public class TemplateProposal implements IJavaCompletionProposal, ICompletionProposalExtension2, ICompletionProposalExtension3,
-										 ICompletionProposalExtension4, ICompletionProposalExtension6 {
+										 ICompletionProposalExtension4, ICompletionProposalExtension6, HasLinkedModel {
 
 	private final Template        fTemplate;
 	private final TemplateContext fContext;
@@ -65,137 +69,138 @@ public class TemplateProposal implements IJavaCompletionProposal, ICompletionPro
 	private IRegion                  fSelectedRegion; // initialized by apply()
 	private StyledString             fDisplayString;
 	private InclusivePositionUpdater fUpdater;
+    private LinkedModeModel linkedModeModel;
 
-	/**
-	 * Creates a template proposal with a template and its context.
-	 *
-	 * @param template  the template
-	 * @param context   the context in which the template was requested.
-	 * @param region    the region this proposal is applied to
-	 * @param image     the icon of the proposal.
-	 */
-	public TemplateProposal(Template template, TemplateContext context, IRegion region, Image image) {
-		Assert.isNotNull(template);
-		Assert.isNotNull(context);
-		Assert.isNotNull(region);
+    /**
+     * Creates a template proposal with a template and its context.
+     *
+     * @param template  the template
+     * @param context   the context in which the template was requested.
+     * @param region    the region this proposal is applied to
+     * @param image     the icon of the proposal.
+     */
+    public TemplateProposal(Template template, TemplateContext context, IRegion region, Image image) {
+        Assert.isNotNull(template);
+        Assert.isNotNull(context);
+        Assert.isNotNull(region);
 
-		fTemplate = template;
-		fContext = context;
-		fImage = image;
-		fRegion = region;
+        fTemplate = template;
+        fContext = context;
+        fImage = image;
+        fRegion = region;
 
-		fDisplayString = null;
+        fDisplayString = null;
 
-		fRelevance = computeRelevance();
-	}
+        fRelevance = computeRelevance();
+    }
 
-	/**
-	 * Computes the relevance to match the relevance values generated by the
-	 * core content assistant.
-	 *
-	 * @return a sensible relevance value.
-	 */
-	private int computeRelevance() {
-		// see org.eclipse.jdt.internal.codeassist.RelevanceConstants
-		final int R_DEFAULT = 0;
-		final int R_INTERESTING = 5;
-		final int R_CASE = 10;
-		final int R_NON_RESTRICTED = 3;
-		final int R_EXACT_NAME = 4;
-		final int R_INLINE_TAG = 31;
+    /**
+     * Computes the relevance to match the relevance values generated by the
+     * core content assistant.
+     *
+     * @return a sensible relevance value.
+     */
+    private int computeRelevance() {
+        // see org.eclipse.jdt.internal.codeassist.RelevanceConstants
+        final int R_DEFAULT = 0;
+        final int R_INTERESTING = 5;
+        final int R_CASE = 10;
+        final int R_NON_RESTRICTED = 3;
+        final int R_EXACT_NAME = 4;
+        final int R_INLINE_TAG = 31;
 
-		int base = R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED;
+        int base = R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED;
 
-		try {
-			if (fContext instanceof DocumentTemplateContext) {
-				DocumentTemplateContext templateContext = (DocumentTemplateContext)fContext;
-				IDocument document = templateContext.getDocument();
+        try {
+            if (fContext instanceof DocumentTemplateContext) {
+                DocumentTemplateContext templateContext = (DocumentTemplateContext)fContext;
+                IDocument document = templateContext.getDocument();
 
-				String content = document.get(fRegion.getOffset(), fRegion.getLength());
-				if (content.length() > 0 && fTemplate.getName().startsWith(content))
-					base += R_CASE;
-				if (fTemplate.getName().equalsIgnoreCase(content))
-					base += R_EXACT_NAME;
-				if (fContext instanceof JavaDocContext)
-					base += R_INLINE_TAG;
-			}
-		} catch (BadLocationException e) {
-			// ignore - not a case sensitive match then
-		}
+                String content = document.get(fRegion.getOffset(), fRegion.getLength());
+                if (content.length() > 0 && fTemplate.getName().startsWith(content))
+                    base += R_CASE;
+                if (fTemplate.getName().equalsIgnoreCase(content))
+                    base += R_EXACT_NAME;
+                if (fContext instanceof JavaDocContext)
+                    base += R_INLINE_TAG;
+            }
+        } catch (BadLocationException e) {
+            // ignore - not a case sensitive match then
+        }
 
-		// see CompletionProposalCollector.computeRelevance
-		// just under keywords, but better than packages
-		final int TEMPLATE_RELEVANCE = 1;
-		return base * 16 + TEMPLATE_RELEVANCE;
-	}
+        // see CompletionProposalCollector.computeRelevance
+        // just under keywords, but better than packages
+        final int TEMPLATE_RELEVANCE = 1;
+        return base * 16 + TEMPLATE_RELEVANCE;
+    }
 
-	/**
-	 * Returns the template of this proposal.
-	 *
-	 * @return the template of this proposal
-	 * @since 3.1
-	 */
-	public final Template getTemplate() {
-		return fTemplate;
-	}
+    /**
+     * Returns the template of this proposal.
+     *
+     * @return the template of this proposal
+     * @since 3.1
+     */
+    public final Template getTemplate() {
+        return fTemplate;
+    }
 
-	/**
-	 * Returns the context in which the template was requested.
-	 *
-	 * @return the context in which the template was requested
-	 * @since 3.1
-	 */
-	protected final TemplateContext getContext() {
-		return fContext;
-	}
+    /**
+     * Returns the context in which the template was requested.
+     *
+     * @return the context in which the template was requested
+     * @since 3.1
+     */
+    protected final TemplateContext getContext() {
+        return fContext;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 *
-	 * @deprecated This method is no longer called by the framework and clients should overwrite
-	 *             {@link #apply(ITextViewer, char, int, int)} instead
-	 */
-	public final void apply(IDocument document) {
-		// not called anymore
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * @deprecated This method is no longer called by the framework and clients should overwrite
+     *             {@link #apply(ITextViewer, char, int, int)} instead
+     */
+    public final void apply(IDocument document) {
+        // not called anymore
+    }
 
-	/*
-	 * @see org.eclipse.jface.text.contentassist.ICompletionProposalExtension2#apply(org.eclipse.jface.text.ITextViewer, char, int, int)
-	 */
-	public void apply(ITextViewer viewer, char trigger, int stateMask, int offset) {
+    /*
+     * @see org.eclipse.jface.text.contentassist.ICompletionProposalExtension2#apply(org.eclipse.jface.text.ITextViewer, char, int, int)
+     */
+    public void apply(ITextViewer viewer, char trigger, int stateMask, int offset) {
 
-		IDocument document = viewer.getDocument();
-		try {
-			fContext.setReadOnly(false);
-			int start;
-			TemplateBuffer templateBuffer;
-			try {
-				beginCompoundChange(viewer);
+        IDocument document = viewer.getDocument();
+        try {
+            fContext.setReadOnly(false);
+            int start;
+            TemplateBuffer templateBuffer;
+            try {
+                beginCompoundChange(viewer);
 
-				int oldReplaceOffset = getReplaceOffset();
-				try {
-					// this may already modify the document (e.g. add imports)
-					templateBuffer = fContext.evaluate(fTemplate);
-				} catch (TemplateException e1) {
-					fSelectedRegion = fRegion;
-					return;
-				}
+                int oldReplaceOffset = getReplaceOffset();
+                try {
+                    // this may already modify the document (e.g. add imports)
+                    templateBuffer = fContext.evaluate(fTemplate);
+                } catch (TemplateException e1) {
+                    fSelectedRegion = fRegion;
+                    return;
+                }
 
-				start = getReplaceOffset();
-				int shift = start - oldReplaceOffset;
-				int end = Math.max(getReplaceEndOffset(), offset + shift);
+                start = getReplaceOffset();
+                int shift = start - oldReplaceOffset;
+                int end = Math.max(getReplaceEndOffset(), offset + shift);
 
-				// insert template string
-				if (end > document.getLength())
-					end = offset;
-				String templateString = templateBuffer.getString();
-				document.replace(start, end - start, templateString);
-			} finally {
-				endCompoundChange(viewer);
-			}
+                // insert template string
+                if (end > document.getLength())
+                    end = offset;
+                String templateString = templateBuffer.getString();
+                document.replace(start, end - start, templateString);
+            } finally {
+                endCompoundChange(viewer);
+            }
 
-			// translate positions
-			LinkedModeModel model = new LinkedModeModel();
+            // translate positions
+            LinkedModeModelImpl model = new LinkedModeModelImpl();
 			TemplateVariable[] variables = templateBuffer.getVariables();
 
 			MultiVariableGuess guess= fContext instanceof CompilationUnitContext ? ((CompilationUnitContext) fContext).getMultiVariableGuess() : null;
@@ -207,7 +212,7 @@ public class TemplateProposal implements IJavaCompletionProposal, ICompletionPro
 				if (variable.isUnambiguous())
 					continue;
 
-				LinkedPositionGroup group= new LinkedPositionGroup();
+				LinkedPositionGroupImpl group= new LinkedPositionGroupImpl();
 
 				int[] offsets= variable.getOffsets();
 				int length= variable.getLength();
@@ -220,9 +225,9 @@ public class TemplateProposal implements IJavaCompletionProposal, ICompletionPro
 					String[] values= variable.getValues();
 					ICompletionProposal[] proposals= new ICompletionProposal[values.length];
 					for (int j= 0; j < values.length; j++) {
-						ensurePositionCategoryInstalled(document, model);
+//						ensurePositionCategoryInstalled(document, model);
 						Position pos= new Position(offsets[0] + start, length);
-						document.addPosition(getCategory(), pos);
+//						document.addPosition(getCategory(), pos);
 						proposals[j]= new PositionBasedCompletionProposal(values[j], pos, length);
 					}
 
@@ -233,17 +238,42 @@ public class TemplateProposal implements IJavaCompletionProposal, ICompletionPro
 				}
 
 				for (int j= 0; j != offsets.length; j++)
-					if (j == 0)
-						group.addPosition(first);
-					else
-						group.addPosition(new LinkedPosition(document, offsets[j] + start, length));
+					if (j == 0) {
+                        if(first instanceof ProposalPosition){
+                            RegionImpl region = new RegionImpl();
+                            region.setLength(first.getLength());
+                            region.setOffset(first.getOffset());
+                            LinkedDataImpl data = new LinkedDataImpl();
+                            ICompletionProposal[] choices = ((ProposalPosition)first).getChoices();
+                            if(choices != null) {
+                                for (ICompletionProposal choice : choices) {
+                                    data.addValues(choice.getDisplayString());
+                                }
+                                group.setData(data);
+                            }
+                            group.addPositions(region);
+                        } else {
+                            RegionImpl region = new RegionImpl();
+                            region.setLength(first.getLength());
+                            region.setOffset(first.getOffset());
+                            group.addPositions(region);
+                        }
+                    }
+					else {
+                        RegionImpl region = new RegionImpl();
+                        region.setLength(length);
+                        region.setOffset(offsets[j] + start);
+                        group.addPositions(region);
+                    }
 
-				model.addGroup(group);
+				model.addGroups(group);
 				hasPositions= true;
 			}
 
 			if (hasPositions) {
-				model.forceInstall();
+				model.setEscapePosition(getCaretOffset(templateBuffer) + start);
+                this.linkedModeModel = model;
+//				model.forceInstall();
 //				JavaEditor editor= getJavaEditor();
 //				if (editor != null) {
 //					model.addLinkingListener(new EditorHighlightingSynchronizer(editor));
@@ -262,13 +292,9 @@ public class TemplateProposal implements IJavaCompletionProposal, ICompletionPro
 			JavaPlugin.log(e);
 //			openErrorDialog(viewer.getTextWidget().getShell(), e);
 			fSelectedRegion= fRegion;
-		} catch (BadPositionCategoryException e) {
-			JavaPlugin.log(e);
-//			openErrorDialog(viewer.getTextWidget().getShell(), e);
-			fSelectedRegion= fRegion;
 		}
 
-	}
+    }
 
 	private void endCompoundChange(ITextViewer viewer) {
 //		if (viewer instanceof ITextViewerExtension) {
@@ -300,26 +326,26 @@ public class TemplateProposal implements IJavaCompletionProposal, ICompletionPro
 //			return null;
 //	}
 
-	private void ensurePositionCategoryInstalled(final IDocument document, LinkedModeModel model) {
-		if (!document.containsPositionCategory(getCategory())) {
-			document.addPositionCategory(getCategory());
-			fUpdater= new InclusivePositionUpdater(getCategory());
-			document.addPositionUpdater(fUpdater);
-
-			model.addLinkingListener(new ILinkedModeListener() {
-
-				/*
-				 * @see org.eclipse.jface.text.link.ILinkedModeListener#left(org.eclipse.jface.text.link.LinkedModeModel, int)
-				 */
-				public void left(LinkedModeModel environment, int flags) {
-					ensurePositionCategoryRemoved(document);
-				}
-
-				public void suspend(LinkedModeModel environment) {}
-				public void resume(LinkedModeModel environment, int flags) {}
-			});
-		}
-	}
+//	private void ensurePositionCategoryInstalled(final IDocument document, LinkedModeModel model) {
+//		if (!document.containsPositionCategory(getCategory())) {
+//			document.addPositionCategory(getCategory());
+//			fUpdater= new InclusivePositionUpdater(getCategory());
+//			document.addPositionUpdater(fUpdater);
+//
+//			model.addLinkingListener(new ILinkedModeListener() {
+//
+//				/*
+//				 * @see org.eclipse.jface.text.link.ILinkedModeListener#left(org.eclipse.jface.text.link.LinkedModeModel, int)
+//				 */
+//				public void left(LinkedModeModel environment, int flags) {
+//					ensurePositionCategoryRemoved(document);
+//				}
+//
+//				public void suspend(LinkedModeModel environment) {}
+//				public void resume(LinkedModeModel environment, int flags) {}
+//			});
+//		}
+//	}
 
 	private void ensurePositionCategoryRemoved(IDocument document) {
 		if (document.containsPositionCategory(getCategory())) {
@@ -567,4 +593,9 @@ public class TemplateProposal implements IJavaCompletionProposal, ICompletionPro
 			   "fDisplayString=" + getDisplayString() +
 			   '}';
 	}
+
+    @Override
+    public LinkedModeModel getLinkedModel() {
+        return linkedModeModel;
+    }
 }

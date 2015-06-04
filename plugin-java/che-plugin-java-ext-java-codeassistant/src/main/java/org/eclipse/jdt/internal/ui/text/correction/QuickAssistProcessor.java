@@ -16,8 +16,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.ui.text.correction;
 
-import org.eclipse.jdt.core.dom.rewrite.ImportRewrite;
-import org.eclipse.jdt.core.dom.rewrite.ImportRewrite.ImportRewriteContext;
 import org.eclipse.che.jdt.util.JavaModelUtil;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -34,6 +32,8 @@ import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.dom.PrefixExpression.Operator;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
+import org.eclipse.jdt.core.dom.rewrite.ImportRewrite;
+import org.eclipse.jdt.core.dom.rewrite.ImportRewrite.ImportRewriteContext;
 import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
 import org.eclipse.jdt.internal.corext.codemanipulation.ContextSensitiveImportRewriteContext;
 import org.eclipse.jdt.internal.corext.codemanipulation.StubUtility;
@@ -75,6 +75,7 @@ import org.eclipse.jdt.internal.ui.text.correction.proposals.AssignToVariableAss
 import org.eclipse.jdt.internal.ui.text.correction.proposals.FixCorrectionProposal;
 import org.eclipse.jdt.internal.ui.text.correction.proposals.GenerateForLoopAssistProposal;
 import org.eclipse.jdt.internal.ui.text.correction.proposals.LinkedCorrectionProposal;
+import org.eclipse.jdt.internal.ui.text.correction.proposals.LinkedNamesAssistProposal;
 import org.eclipse.jdt.internal.ui.text.correction.proposals.NewDefiningMethodProposal;
 import org.eclipse.jdt.internal.ui.text.correction.proposals.RefactoringCorrectionProposal;
 import org.eclipse.jdt.internal.ui.viewsupport.BasicElementLabels;
@@ -1778,13 +1779,12 @@ public class QuickAssistProcessor implements IQuickAssistProcessor {
 			return true;
 		}
 
-		//TODO rename
-//		LinkedNamesAssistProposal proposal= new LinkedNamesAssistProposal(context, name);
-//		if (locations.length != 0) {
-//			proposal.setRelevance(IProposalRelevance.LINKED_NAMES_ASSIST_ERROR);
-//		}
-//
-//		resultingCollections.add(proposal);
+		LinkedNamesAssistProposal proposal= new LinkedNamesAssistProposal(context, name);
+		if (locations.length != 0) {
+			proposal.setRelevance(IProposalRelevance.LINKED_NAMES_ASSIST_ERROR);
+		}
+
+		resultingCollections.add(proposal);
 		return true;
 	}
 

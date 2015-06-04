@@ -33,6 +33,8 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.ui.JavaPlugin;
 import org.eclipse.jdt.internal.ui.util.CoreUtility;
 
@@ -279,7 +281,11 @@ public class JavaProjectHelper {
 	public static void delete(final IJavaElement elem) throws CoreException {
 //		if (ASSERT_NO_MIXED_LINE_DELIMIERS)
 //			MixedLineDelimiterDetector.assertNoMixedLineDelimiters(elem);
-
+		if(elem instanceof JavaProject) {
+            ((JavaProject)elem).close();
+			JavaModelManager.getJavaModelManager().removePerProjectInfo((JavaProject)elem, true);
+		}
+        JavaModelManager.getJavaModelManager().resetTemporaryCache();
 		IWorkspaceRunnable runnable= new IWorkspaceRunnable() {
 			public void run(IProgressMonitor monitor) throws CoreException {
 //				performDummySearch();
@@ -360,9 +366,9 @@ public class JavaProjectHelper {
 
 				IResource[] resources= jproject.getProject().members();
 				for (int i= 0; i < resources.length; i++) {
-					if (!resources[i].getName().startsWith(".")) {
+//					if (!resources[i].getName().startsWith(".")) {
 						delete(resources[i]);
-					}
+//					}
 				}
 			}
 		};

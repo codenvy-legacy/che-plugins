@@ -13,6 +13,8 @@ package org.eclipse.che.ide.editor.orion.client.inject;
 
 import com.google.gwt.inject.client.AbstractGinModule;
 import com.google.gwt.inject.client.assistedinject.GinFactoryModuleBuilder;
+import com.google.inject.Provides;
+import com.google.inject.Singleton;
 import com.google.inject.TypeLiteral;
 
 import org.eclipse.che.ide.api.extension.ExtensionGinModule;
@@ -22,10 +24,13 @@ import org.eclipse.che.ide.editor.orion.client.OrionEditorModule;
 import org.eclipse.che.ide.editor.orion.client.OrionEditorPresenter;
 import org.eclipse.che.ide.editor.orion.client.OrionEditorWidget;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionKeyBindingModule;
+import org.eclipse.che.ide.jseditor.client.JsEditorExtension;
 import org.eclipse.che.ide.jseditor.client.texteditor.EditorModule;
 import org.eclipse.che.ide.jseditor.client.texteditor.EditorWidgetFactory;
 import org.eclipse.che.ide.jseditor.client.texteditor.EmbeddedTextEditorPresenter;
 import org.eclipse.che.ide.jseditor.client.texteditor.EmbeddedTextEditorPresenterFactory;
+
+import javax.inject.Named;
 
 @ExtensionGinModule
 public class OrionEditorGinModule extends AbstractGinModule {
@@ -44,5 +49,12 @@ public class OrionEditorGinModule extends AbstractGinModule {
                         }, OrionEditorPresenter.class)
                         .build(new TypeLiteral<EmbeddedTextEditorPresenterFactory<OrionEditorWidget>>() {
                         }));
+    }
+
+    @Provides
+    @Singleton
+    @Named(JsEditorExtension.DEFAULT_EDITOR_TYPE_INJECT_NAME)
+    protected String defaultEditorTypeKey() {
+        return OrionEditorExtension.ORION_EDITOR_KEY;
     }
 }

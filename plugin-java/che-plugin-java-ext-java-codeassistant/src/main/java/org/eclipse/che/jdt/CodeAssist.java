@@ -24,6 +24,7 @@ import org.eclipse.che.ide.ext.java.shared.dto.ProposalApplyResult;
 import org.eclipse.che.ide.ext.java.shared.dto.ProposalPresentation;
 import org.eclipse.che.ide.ext.java.shared.dto.Proposals;
 import org.eclipse.che.ide.ext.java.shared.dto.Region;
+import org.eclipse.che.jdt.javaeditor.HasLinkedModel;
 import org.eclipse.che.jdt.javaeditor.TextViewer;
 import org.eclipse.che.jdt.ui.CheActionAcces;
 import org.eclipse.che.jface.text.contentassist.ICompletionProposal;
@@ -273,6 +274,9 @@ public class CodeAssist {
                     region.setOffset(selection.x);
                     region.setLength(selection.y);
                     result.setSelection(region);
+                }
+                if(p instanceof HasLinkedModel){
+                    result.setLinkedModeModel(((HasLinkedModel)p).getLinkedModel());
                 }
                 return result;
 
