@@ -10,15 +10,24 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.runner.client.tabs.history;
 
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Element;
 import com.google.gwtmockito.GwtMockitoTestRunner;
 
+import org.eclipse.che.ide.ext.runner.client.RunnerResources;
+import org.eclipse.che.ide.ext.runner.client.tabs.history.HistoryView.ActionDelegate;
 import org.eclipse.che.ide.ext.runner.client.tabs.history.runner.RunnerWidget;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
+import org.vectomatic.dom.svg.OMSVGSVGElement;
+import org.vectomatic.dom.svg.ui.SVGResource;
 
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -31,8 +40,40 @@ import static org.mockito.Mockito.when;
 public class HistoryViewImplTest {
     @Mock
     private RunnerWidget    runnerWidget;
-    @InjectMocks
+    @Mock
+    private ActionDelegate  delegate;
+    @Mock
+    private RunnerResources resources;
+    @Mock
+    private SVGResource     svgResource;
+    @Mock
+    private ClickEvent      clickEvent;
+    @Mock
+    private OMSVGSVGElement omsvgaElement;
+
+    @Captor
+    private ArgumentCaptor<ClickHandler> clickHandlerArgumentCaptor;
+
     private HistoryViewImpl historyView;
+
+    @Before
+    public void setUp() throws Exception {
+        when(resources.erase()).thenReturn(svgResource);
+        when(svgResource.getSvg()).thenReturn(omsvgaElement);
+
+        historyView = new HistoryViewImpl(resources);
+
+        historyView.setDelegate(delegate);
+    }
+
+    @Test
+    public void onClickHandlerShouldBeFired() throws Exception {
+        verify(historyView.clearAll).addDomHandler(clickHandlerArgumentCaptor.capture(), eq(ClickEvent.getType()));
+
+        clickHandlerArgumentCaptor.getValue().onClick(clickEvent);
+
+        verify(delegate).cleanInactiveRunners();
+    }
 
     @Test
     public void runnerWidgetShouldBeAdded() {

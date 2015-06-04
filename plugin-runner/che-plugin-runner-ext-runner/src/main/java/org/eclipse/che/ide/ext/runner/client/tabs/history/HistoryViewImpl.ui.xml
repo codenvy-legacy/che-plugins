@@ -15,6 +15,8 @@
 
     <ui:with field="resources" type="org.eclipse.che.ide.ext.runner.client.RunnerResources"/>
 
+    <ui:with field="locale" type="org.eclipse.che.ide.ext.runner.client.RunnerLocalizationConstant"/>
+
     <ui:style>
         .container {
             margin-left: 2px;
@@ -44,8 +46,57 @@
         .bottomSeparator {
             top: -6px;
         }
+
+        .button:active {
+            text-align: center;
+            background: #256c9f !important;
+            opacity: 0.4;
+            height: 12px;
+        }
+
+        .button {
+            background-color: #474747;
+            width: 90px;
+            height: 12px;
+            cursor: pointer;
+            box-shadow: 0 0 0 1px #191c1e;
+            text-align: center;
+            margin-left: auto;
+            margin-right: auto;
+            margin-top: 5px;
+            padding-bottom: 4px;
+            padding-top: 1px;
+        }
+
+        .buttonLabel {
+            text-shadow: 0 1px 0 rgba(0, 0, 0, 0.5);
+            font-family: "Helvetica Neue", Regular, sans-serif;
+            font-size: 10px;
+            padding-top: 2px;
+            margin-right: 3px;
+        }
+
+        .imageContainer {
+            float: left;
+            width: 11px;
+            height: 11px;
+            padding-left: 7px;
+        }
+
+        .broomImage svg {
+            width: 11px;
+            height: 11px;
+            fill: #dbdbdb;
+        }
     </ui:style>
     <g:FlowPanel addStyleNames="{style.container} {resources.runnerCss.fullSize}">
+        <g:FlowPanel ui:field="clearAll" addStyleNames="{style.button}">
+            <g:SimpleLayoutPanel addStyleNames="{style.imageContainer}">
+                <g:SimpleLayoutPanel ui:field="broomImage" addStyleNames="{style.broomImage}"/>
+            </g:SimpleLayoutPanel>
+            <g:Label text="{locale.clearInactives}" addStyleNames="{style.buttonLabel}"/>
+        </g:FlowPanel>
+
         <g:SimplePanel addStyleNames="{style.generalSeparator} {style.topSeparator}"/>
 
         <g:ScrollPanel ui:field="scrollPanel" addStyleNames="{style.scroll} {resources.runnerCss.fullSize}">
