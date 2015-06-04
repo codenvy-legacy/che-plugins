@@ -24,6 +24,7 @@ import org.eclipse.che.ide.api.parts.WorkspaceAgent;
 import org.eclipse.che.ide.extension.machine.client.actions.EditCommandsAction;
 import org.eclipse.che.ide.extension.machine.client.actions.ExecuteArbitraryCommandAction;
 import org.eclipse.che.ide.extension.machine.client.actions.ExecuteSelectedCommandAction;
+import org.eclipse.che.ide.extension.machine.client.actions.MachinePerspectiveAction;
 import org.eclipse.che.ide.extension.machine.client.actions.SelectCommandAction;
 import org.eclipse.che.ide.extension.machine.client.actions.TerminateCurrentMachineAction;
 import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
@@ -65,7 +66,8 @@ public class MachineExtension {
                                 ExecuteSelectedCommandAction executeSelectedCommandAction,
                                 SelectCommandAction selectCommandAction,
                                 EditCommandsAction editCommandsAction,
-                                TerminateCurrentMachineAction terminateCurrentMachineAction) {
+                                TerminateCurrentMachineAction terminateCurrentMachineAction,
+                                MachinePerspectiveAction machinePerspectiveAction) {
         final DefaultActionGroup mainMenu = (DefaultActionGroup)actionManager.getAction(GROUP_MAIN_MENU);
         final DefaultActionGroup runMenu = new DefaultActionGroup(localizationConstant.mainMenuRunName(), true, actionManager);
 
@@ -88,6 +90,7 @@ public class MachineExtension {
         final DefaultActionGroup rightToolbarGroup = (DefaultActionGroup)actionManager.getAction(GROUP_RIGHT_TOOLBAR);
         final DefaultActionGroup machineToolbarGroup = new DefaultActionGroup(GROUP_MACHINE_TOOLBAR, false, actionManager);
         actionManager.registerAction(GROUP_MACHINE_TOOLBAR, machineToolbarGroup);
+        rightToolbarGroup.add(machinePerspectiveAction);
         rightToolbarGroup.add(machineToolbarGroup);
         machineToolbarGroup.add(selectCommandAction);
         machineToolbarGroup.add(executeSelectedCommandAction);

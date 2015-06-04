@@ -12,10 +12,14 @@ package org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.uibinder.client.UiBinder;
+import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.Frame;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+
+import org.eclipse.che.ide.extension.machine.client.machine.Machine;
 
 import javax.annotation.Nonnull;
 
@@ -31,7 +35,8 @@ public class TerminalViewImpl extends Composite implements TerminalView {
 
     private final static TerminalViewImplUiBinder UI_BINDER = GWT.create(TerminalViewImplUiBinder.class);
 
-    private ActionDelegate delegate;
+    @UiField
+    Frame terminal;
 
     @Inject
     public TerminalViewImpl() {
@@ -40,8 +45,7 @@ public class TerminalViewImpl extends Composite implements TerminalView {
 
     /** {@inheritDoc} */
     @Override
-    public void setDelegate(@Nonnull ActionDelegate delegate) {
-        this.delegate = delegate;
+    public void updateTerminal(@Nonnull Machine machine) {
+        terminal.setUrl(machine.getTerminalUrl());
     }
-
 }

@@ -16,16 +16,16 @@
         .mainPanel {
             width: 100%;
             height: 50px;
-            background: #505050;
+            background: #3D3D3D;
             cursor: pointer;
         }
 
         .mainPanel:hover {
-            background: #454545;
+            background: #4d7191;
         }
 
         .mainPanel:active {
-            background: #4d7191;
+            opacity: 0.4;
         }
 
         .name {

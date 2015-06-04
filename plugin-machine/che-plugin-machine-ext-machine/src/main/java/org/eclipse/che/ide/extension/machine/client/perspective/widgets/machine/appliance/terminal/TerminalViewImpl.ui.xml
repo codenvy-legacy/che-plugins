@@ -14,16 +14,23 @@
              xmlns:g='urn:import:com.google.gwt.user.client.ui'>
 
     <ui:style>
-        .main {
-            text-align: center;
+        .fullSize {
+            width: 100%;
+            height: 100%;
         }
 
-        .label {
-            margin-top: 100px;
+        .terminalFrame {
+            position: absolute;
+            left: 0;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            border: 0;
+            overflow: hidden;
         }
     </ui:style>
 
-    <g:SimplePanel addStyleNames="{style.main}">
-        <g:Label text="Terminal content" addStyleNames="{style.label}"/>
-    </g:SimplePanel>
+    <g:FlowPanel>
+        <g:Frame ui:field="terminal" debugId="FrameTerminal" addStyleNames="{style.fullSize} {style.terminalFrame}"/>
+    </g:FlowPanel>
 </ui:UiBinder>

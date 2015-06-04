@@ -12,6 +12,7 @@ package org.eclipse.che.ide.extension.machine.client.inject;
 
 import com.google.gwt.inject.client.AbstractGinModule;
 import com.google.gwt.inject.client.assistedinject.GinFactoryModuleBuilder;
+import com.google.gwt.inject.client.multibindings.GinMapBinder;
 import com.google.gwt.inject.client.multibindings.GinMultibinder;
 import com.google.inject.Singleton;
 
@@ -44,6 +45,8 @@ import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.head
 import org.eclipse.che.ide.ui.toolbar.ToolbarPresenter;
 import org.eclipse.che.ide.workspace.perspectives.general.Perspective;
 
+import static org.eclipse.che.ide.extension.machine.client.perspective.MachinePerspective.MACHINE_PERSPECTIVE_ID;
+
 /**
  * GIN module for Machine extension.
  *
@@ -56,7 +59,8 @@ public class MachineGinModule extends AbstractGinModule {
     /** {@inheritDoc} */
     @Override
     protected void configure() {
-        GinMultibinder.newSetBinder(binder(), Perspective.class).addBinding().to(MachinePerspective.class);
+        GinMapBinder<String, Perspective> mapBinder = GinMapBinder.newMapBinder(binder(), String.class, Perspective.class);
+        mapBinder.addBinding(MACHINE_PERSPECTIVE_ID).to(MachinePerspective.class);
 
         bind(ToolbarPresenter.class).annotatedWith(MachineConsoleToolbar.class).to(ToolbarPresenter.class).in(Singleton.class);
         bind(MachineConsoleView.class).to(MachineConsoleViewImpl.class).in(Singleton.class);

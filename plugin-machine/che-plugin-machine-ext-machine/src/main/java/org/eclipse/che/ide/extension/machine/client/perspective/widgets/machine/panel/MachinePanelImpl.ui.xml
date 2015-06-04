@@ -13,5 +13,25 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
              xmlns:g='urn:import:com.google.gwt.user.client.ui'>
 
-    <g:FlowPanel ui:field="machines"/>
+    <ui:style>
+        .buttonPanel {
+            margin-right: 20px;
+        }
+
+        .button {
+            margin-right: 12px;
+            margin-top: 3px;
+        }
+    </ui:style>
+    <g:DockLayoutPanel>
+        <g:north size="30">
+            <g:FlowPanel addStyleNames="{style.buttonPanel}">
+                <g:Button ui:field="createMachine" text="Create Machine" addStyleNames="{style.button}"/>
+                <g:Button ui:field="destroyMachine" text="Destroy Machine" addStyleNames="{style.button}"/>
+            </g:FlowPanel>
+        </g:north>
+        <g:center>
+            <g:FlowPanel ui:field="machines"/>
+        </g:center>
+    </g:DockLayoutPanel>
 </ui:UiBinder>

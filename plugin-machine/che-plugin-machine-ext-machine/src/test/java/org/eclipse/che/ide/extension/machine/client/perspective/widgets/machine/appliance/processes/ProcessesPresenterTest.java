@@ -68,7 +68,7 @@ public class ProcessesPresenterTest {
     public void processesShouldBeGot() throws Exception {
         when(service.getProcesses(MACHINE_ID)).thenReturn(processPromise);
 
-        presenter.getProcesses(MACHINE_ID);
+        presenter.showProcesses(MACHINE_ID);
 
         verify(service).getProcesses(MACHINE_ID);
 

@@ -128,11 +128,12 @@ public class MachineAppliancePresenterTest {
         reset(tabContainer);
         when(machine.getId()).thenReturn(SOME_TEXT);
 
-        presenter.showInfo(machine);
+        presenter.showAppliance(machine);
 
         verify(machine).getId();
         verify(tabContainer).showTab(processTab);
-        verify(processesPresenter).getProcesses(SOME_TEXT);
+        verify(processesPresenter).showProcesses(SOME_TEXT);
+        verify(terminalPresenter).updateTerminal(machine);
     }
 
     @Test

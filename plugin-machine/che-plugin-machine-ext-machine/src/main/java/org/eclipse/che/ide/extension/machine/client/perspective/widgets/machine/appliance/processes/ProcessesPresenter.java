@@ -50,7 +50,7 @@ public class ProcessesPresenter implements TabPresenter, ProcessesView.ActionDel
      * @param machineId
      *         machine identifier for which need get processes
      */
-    public void getProcesses(@Nonnull String machineId) {
+    public void showProcesses(@Nonnull String machineId) {
         Promise<List<ProcessDescriptor>> processesPromise = service.getProcesses(machineId);
 
         processesPromise.then(new Operation<List<ProcessDescriptor>>() {

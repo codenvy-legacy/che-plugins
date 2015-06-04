@@ -22,7 +22,6 @@ import org.eclipse.che.ide.workspace.PartStackPresenterFactory;
 import org.eclipse.che.ide.workspace.PartStackViewFactory;
 import org.eclipse.che.ide.workspace.WorkBenchControllerFactory;
 import org.eclipse.che.ide.workspace.perspectives.general.AbstractPerspective;
-import org.eclipse.che.ide.workspace.perspectives.general.Perspective;
 import org.eclipse.che.ide.workspace.perspectives.general.PerspectiveViewImpl;
 
 import javax.annotation.Nonnull;
@@ -30,7 +29,6 @@ import javax.annotation.Nonnull;
 import static org.eclipse.che.ide.api.parts.PartStackType.EDITING;
 import static org.eclipse.che.ide.api.parts.PartStackType.INFORMATION;
 import static org.eclipse.che.ide.api.parts.PartStackType.NAVIGATION;
-import static org.eclipse.che.ide.workspace.perspectives.general.Perspective.Type.MACHINE;
 
 /**
  * Special view perspective which defines how must main window be displayed when we choose machine perspective.
@@ -39,6 +37,8 @@ import static org.eclipse.che.ide.workspace.perspectives.general.Perspective.Typ
  */
 @Singleton
 public class MachinePerspective extends AbstractPerspective {
+
+    public final static String MACHINE_PERSPECTIVE_ID = "Machine Perspective";
 
     private final MachinePanelPresenter machinePanel;
 
@@ -65,15 +65,8 @@ public class MachinePerspective extends AbstractPerspective {
 
     /** {@inheritDoc} */
     @Override
-    @Nonnull
-    public Perspective.Type getType() {
-        return MACHINE;
-    }
-
-    /** {@inheritDoc} */
-    @Override
     public void go(@Nonnull AcceptsOneWidget container) {
-        machinePanel.getMachines();
+        machinePanel.showMachines();
 
         PartStack information = getPartStack(INFORMATION);
         PartStack navigation = getPartStack(NAVIGATION);

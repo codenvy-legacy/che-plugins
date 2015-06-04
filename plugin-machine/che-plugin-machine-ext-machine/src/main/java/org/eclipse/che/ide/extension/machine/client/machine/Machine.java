@@ -12,6 +12,7 @@ package org.eclipse.che.ide.extension.machine.client.machine;
 
 import org.eclipse.che.api.machine.shared.MachineState;
 import org.eclipse.che.api.machine.shared.dto.MachineDescriptor;
+import org.eclipse.che.api.machine.shared.dto.ServerDescriptor;
 
 import java.util.Objects;
 
@@ -21,6 +22,8 @@ import java.util.Objects;
  * @author Dmitry Shnurenko
  */
 public class Machine {
+
+    public static final String TERMINAL_URL_KEY = "4300";
 
     private MachineDescriptor descriptor;
 
@@ -39,6 +42,17 @@ public class Machine {
         return descriptor.getType();
     }
 
+    /** @return special url which references on terminal content. */
+    public String getTerminalUrl() {
+        ServerDescriptor serverDescriptor = descriptor.getServers().get(TERMINAL_URL_KEY);
+
+        if (serverDescriptor == null) {
+            return "";
+        }
+
+        return "http://" + serverDescriptor.getAddress();
+    }
+
     /**
      * Sets descriptor to current machine.
      *
@@ -50,9 +64,9 @@ public class Machine {
     }
 
     @Override
-    public boolean equals(Object o) {
-        return this == o || !(o == null || getClass() != o.getClass()) && Objects.equals(descriptor.getId(), ((Machine)o).getId());
-
+    public boolean equals(Object machine) {
+        return this == machine || !(machine == null || getClass() != machine.getClass()) && Objects.equals(descriptor.getId(),
+                                                                                                           ((Machine)machine).getId());
     }
 
     @Override

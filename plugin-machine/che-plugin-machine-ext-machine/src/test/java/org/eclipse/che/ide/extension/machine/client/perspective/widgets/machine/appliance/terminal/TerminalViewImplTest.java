@@ -10,34 +10,38 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.appliance.terminal;
 
-import com.google.gwt.user.client.ui.IsWidget;
-import com.google.inject.ImplementedBy;
+import com.google.gwtmockito.GwtMockitoTestRunner;
 
 import org.eclipse.che.ide.extension.machine.client.machine.Machine;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 
-import javax.annotation.Nonnull;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
- * The interface defines methods to control displaying of terminal.
- *
  * @author Dmitry Shnurenko
  */
-@ImplementedBy(TerminalViewImpl.class)
-public interface TerminalView extends IsWidget {
+@RunWith(GwtMockitoTestRunner.class)
+public class TerminalViewImplTest {
 
-    /**
-     * Change visibility state of panel.
-     *
-     * @param visible
-     *         <code>true</code> panel is visible,<code>false</code> panel is not visible
-     */
-    void setVisible(boolean visible);
+    private static final String SOME_TEXT = "someText";
 
-    /**
-     * updates Terminal for current machine
-     *
-     * @param machine
-     *         machine for which need update terminal
-     */
-    void updateTerminal(@Nonnull Machine machine);
+    @Mock
+    private Machine machine;
+
+    @InjectMocks
+    private TerminalViewImpl view;
+
+    @Test
+    public void terminalShouldBeUpdated() {
+        when(machine.getTerminalUrl()).thenReturn(SOME_TEXT);
+
+        view.updateTerminal(machine);
+
+        verify(machine).getTerminalUrl();
+        verify(view.terminal).setUrl(SOME_TEXT);
+    }
 }

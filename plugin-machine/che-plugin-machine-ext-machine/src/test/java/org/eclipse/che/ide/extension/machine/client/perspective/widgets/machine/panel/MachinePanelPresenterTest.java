@@ -94,7 +94,7 @@ public class MachinePanelPresenterTest {
 
     @Test
     public void machinesShouldBeReturnedAndWidgetShouldBeCreated() throws Exception {
-        presenter.getMachines();
+        presenter.showMachines();
 
         verify(service).getMachines(null);
 
@@ -117,7 +117,7 @@ public class MachinePanelPresenterTest {
     public void onMachineShouldBeClicked() {
         presenter.onMachineClicked(machine);
 
-        verify(infoContainer).showInfo(machine);
+        verify(infoContainer).showAppliance(machine);
     }
 
     @Test

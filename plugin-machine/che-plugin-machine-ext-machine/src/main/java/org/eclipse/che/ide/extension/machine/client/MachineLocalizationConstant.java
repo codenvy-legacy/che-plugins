@@ -165,4 +165,10 @@ public interface MachineLocalizationConstant extends Messages {
 
     @Key("tab.terminal")
     String tabTerminal();
+
+    @Key("machine.perspective.action.description")
+    String perspectiveActionDescription();
+
+    @Key("machine.perspective.action.tooltip")
+    String perspectiveActionTooltip();
 }

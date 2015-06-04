@@ -41,8 +41,8 @@ public class MachineAppliancePresenter extends PartStackPresenter {
     private final MachineApplianceView  view;
     private final TabContainerPresenter tabContainer;
     private final ProcessesPresenter    processesPresenter;
-
-    private Tab processesTab;
+    private final TerminalPresenter     terminalPresenter;
+    private final Tab                   processesTab;
 
     @Inject
     public MachineAppliancePresenter(EventBus eventBus,
@@ -58,6 +58,7 @@ public class MachineAppliancePresenter extends PartStackPresenter {
         this.view = view;
         this.tabContainer = tabContainer;
         this.processesPresenter = processesPresenter;
+        this.terminalPresenter = terminalPresenter;
 
         TabHeader processesHeader = widgetsFactory.createTabHeader(locale.tabProcesses());
         processesTab = entityFactory.createTab(processesHeader, processesPresenter);
@@ -79,10 +80,11 @@ public class MachineAppliancePresenter extends PartStackPresenter {
      * @param machine
      *         machine for which need show info
      */
-    public void showInfo(@Nonnull Machine machine) {
+    public void showAppliance(@Nonnull Machine machine) {
         tabContainer.showTab(processesTab);
 
-        processesPresenter.getProcesses(machine.getId());
+        terminalPresenter.updateTerminal(machine);
+        processesPresenter.showProcesses(machine.getId());
     }
 
     /** {@inheritDoc} */

@@ -11,8 +11,11 @@
 package org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.panel;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.uibinder.client.UiHandler;
+import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
@@ -30,7 +33,7 @@ import javax.annotation.Nonnull;
  * @author Dmitry Shnurenko
  */
 @Singleton
-public class MachinePanelImpl extends BaseView implements MachinePanel {
+public class MachinePanelImpl extends BaseView<MachinePanel.ActionDelegate> implements MachinePanel {
     interface MachinePanelImplUiBinder extends UiBinder<Widget, MachinePanelImpl> {
     }
 
@@ -38,6 +41,11 @@ public class MachinePanelImpl extends BaseView implements MachinePanel {
 
     @UiField
     FlowPanel machines;
+
+    @UiField
+    Button createMachine;
+    @UiField
+    Button destroyMachine;
 
     @Inject
     public MachinePanelImpl(PartStackUIResources resources) {
@@ -56,6 +64,16 @@ public class MachinePanelImpl extends BaseView implements MachinePanel {
     @Override
     public void clear() {
         machines.clear();
+    }
+
+    @UiHandler("createMachine")
+    public void onCreateMachineClicked(@SuppressWarnings("UnusedParameters") ClickEvent event) {
+        delegate.onCreateMachineButtonClicked();
+    }
+
+    @UiHandler("destroyMachine")
+    public void onDestroyMachineClicked(@SuppressWarnings("UnusedParameters") ClickEvent event) {
+        delegate.onDestroyMachineButtonClicked();
     }
 
 }

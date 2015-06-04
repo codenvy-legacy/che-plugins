@@ -10,9 +10,10 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.panel;
 
-import com.google.gwt.user.client.ui.IsWidget;
 import com.google.inject.ImplementedBy;
 
+import org.eclipse.che.ide.api.mvp.View;
+import org.eclipse.che.ide.api.parts.base.BaseActionDelegate;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.MachineWidget;
 
 import javax.annotation.Nonnull;
@@ -23,7 +24,7 @@ import javax.annotation.Nonnull;
  * @author Dmitry Shnurenko
  */
 @ImplementedBy(MachinePanelImpl.class)
-public interface MachinePanel extends IsWidget {
+public interface MachinePanel extends View<MachinePanel.ActionDelegate> {
 
     /**
      * Adds machine widget in special place on view.
@@ -35,4 +36,12 @@ public interface MachinePanel extends IsWidget {
 
     /** Clears machine panel. */
     void clear();
+
+    interface ActionDelegate extends BaseActionDelegate {
+        /** Performs some actions when user click on Create machine button. */
+        void onCreateMachineButtonClicked();
+
+        /** Performs some actions when user click on Delete machine button. */
+        void onDestroyMachineButtonClicked();
+    }
 }

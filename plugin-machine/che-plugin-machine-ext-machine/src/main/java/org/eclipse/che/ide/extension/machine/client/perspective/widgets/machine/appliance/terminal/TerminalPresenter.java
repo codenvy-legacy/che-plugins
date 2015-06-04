@@ -15,7 +15,10 @@ import com.google.gwt.user.client.ui.IsWidget;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
+import org.eclipse.che.ide.extension.machine.client.machine.Machine;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.content.TabPresenter;
+
+import javax.annotation.Nonnull;
 
 /**
  * The class defines methods which contains business logic to control machine's terminal.
@@ -23,14 +26,23 @@ import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.cont
  * @author Dmitry Shnurenko
  */
 @Singleton
-public class TerminalPresenter implements TabPresenter, TerminalView.ActionDelegate {
+public class TerminalPresenter implements TabPresenter {
 
     private final TerminalView view;
 
     @Inject
     public TerminalPresenter(TerminalView view) {
         this.view = view;
-        this.view.setDelegate(this);
+    }
+
+    /**
+     * Calls special method on view which resets new url to display terminal.
+     *
+     * @param machine
+     *         machine for which need update terminal
+     */
+    public void updateTerminal(@Nonnull Machine machine) {
+        view.updateTerminal(machine);
     }
 
     /** {@inheritDoc} */

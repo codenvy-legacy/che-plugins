@@ -36,14 +36,14 @@ import java.util.List;
  *
  * @author Dmitry Shnurenko
  */
-public class MachinePanelPresenter extends BasePresenter implements MachineWidget.ActionDelegate {
+public class MachinePanelPresenter extends BasePresenter implements MachinePanel.ActionDelegate, MachineWidget.ActionDelegate {
 
     private final MachinePanel                view;
     private final MachineServiceClient        service;
     private final EntityFactory               entityFactory;
     private final WidgetsFactory              widgetsFactory;
     private final MachineLocalizationConstant locale;
-    private final MachineAppliancePresenter   infoContainer;
+    private final MachineAppliancePresenter   appliance;
 
     @Inject
     public MachinePanelPresenter(MachinePanel view,
@@ -51,17 +51,17 @@ public class MachinePanelPresenter extends BasePresenter implements MachineWidge
                                  EntityFactory entityFactory,
                                  WidgetsFactory widgetsFactory,
                                  MachineLocalizationConstant locale,
-                                 MachineAppliancePresenter infoContainer) {
+                                 MachineAppliancePresenter appliance) {
         this.view = view;
         this.service = service;
         this.entityFactory = entityFactory;
         this.widgetsFactory = widgetsFactory;
         this.locale = locale;
-        this.infoContainer = infoContainer;
+        this.appliance = appliance;
     }
 
     /** Gets all machines and adds them to special place on view. */
-    public void getMachines() {
+    public void showMachines() {
         Promise<List<MachineDescriptor>> machinesPromise = service.getMachines(null);
 
         machinesPromise.then(new Operation<List<MachineDescriptor>>() {
@@ -90,8 +90,18 @@ public class MachinePanelPresenter extends BasePresenter implements MachineWidge
 
     /** {@inheritDoc} */
     @Override
+    public void onCreateMachineButtonClicked() {
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void onDestroyMachineButtonClicked() {
+    }
+
+    /** {@inheritDoc} */
+    @Override
     public void onMachineClicked(@Nonnull Machine machine) {
-        infoContainer.showInfo(machine);
+        appliance.showAppliance(machine);
     }
 
     /** {@inheritDoc} */
@@ -120,5 +130,4 @@ public class MachinePanelPresenter extends BasePresenter implements MachineWidge
     public void go(AcceptsOneWidget container) {
         container.setWidget(view);
     }
-
 }
