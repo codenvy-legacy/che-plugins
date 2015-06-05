@@ -100,4 +100,11 @@ public class MachineTest {
 
         assertThat(url, equalTo(""));
     }
+
+    @Test
+    public void boundedStateShouldBeReturned() {
+        machine.isWorkspaceBound();
+
+        verify(descriptor).isWorkspaceBound();
+    }
 }

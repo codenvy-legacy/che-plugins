@@ -13,14 +13,18 @@ package org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwtmockito.GwtMockitoTestRunner;
 
+import org.eclipse.che.ide.extension.machine.client.MachineResources;
 import org.eclipse.che.ide.extension.machine.client.machine.Machine;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.MachineWidget.ActionDelegate;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.vectomatic.dom.svg.OMSVGSVGElement;
+import org.vectomatic.dom.svg.ui.SVGResource;
 
+import static org.mockito.Answers.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -34,28 +38,69 @@ public class MachineWidgetImplTest {
 
     //additional mocks
     @Mock
-    private Machine        machine;
+    private Machine         machine;
     @Mock
-    private ClickEvent     clickEvent;
+    private ClickEvent      clickEvent;
     @Mock
-    private ActionDelegate delegate;
+    private ActionDelegate  delegate;
+    @Mock
+    private SVGResource     svgResource;
+    @Mock
+    private OMSVGSVGElement icon;
 
-    @InjectMocks
+    //constructor mock
+    @Mock(answer = RETURNS_DEEP_STUBS)
+    private MachineResources resources;
+
     private MachineWidgetImpl view;
 
     @Before
     public void setUp() {
+        when(resources.tick()).thenReturn(svgResource);
+        when(svgResource.getSvg()).thenReturn(icon);
         when(machine.getId()).thenReturn(SOME_TEXT);
 
+        view = new MachineWidgetImpl(resources);
         view.setDelegate(delegate);
+    }
+
+    @Test
+    public void constructorShouldBeVerified() {
+        verify(resources).tick();
     }
 
     @Test
     public void machineShouldBeUpdated() {
         view.update(machine);
 
+        verify(view.rightIcon, never()).getElement();
         verify(machine).getId();
         verify(view.name).setText(SOME_TEXT);
+    }
+
+    @Test
+    public void rightIconShouldBeShown() {
+        when(machine.isWorkspaceBound()).thenReturn(true);
+
+        view.update(machine);
+
+        verify(machine).isWorkspaceBound();
+        verify(view.rightIcon).getElement();
+        verify(view.name).setText(SOME_TEXT);
+    }
+
+    @Test
+    public void widgetShouldBeSelected() {
+        view.select();
+
+        verify(resources.getCss()).selectMachine();
+    }
+
+    @Test
+    public void widgetShouldBeUnSelected() {
+        view.unSelect();
+
+        verify(resources.getCss()).selectMachine();
     }
 
     @Test

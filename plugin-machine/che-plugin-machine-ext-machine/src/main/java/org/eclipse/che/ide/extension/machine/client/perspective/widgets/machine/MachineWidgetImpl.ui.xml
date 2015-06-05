@@ -12,6 +12,8 @@
 -->
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
              xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+    <ui:with field="resources" type="org.eclipse.che.ide.extension.machine.client.MachineResources"/>
+
     <ui:style>
         .mainPanel {
             width: 100%;
@@ -31,16 +33,23 @@
         .name {
             margin-top: 15px;
         }
+
+        .rightIconPanel {
+            margin-top: 16px;
+            margin-left: 12px;
+        }
     </ui:style>
 
 
     <g:DockLayoutPanel addStyleNames="{style.mainPanel}">
         <g:east size="50">
-            <g:SimplePanel ui:field="leftIcon"/>
+            <g:FlowPanel addStyleNames="{style.rightIconPanel}">
+                <g:SimplePanel ui:field="rightIcon"/>
+            </g:FlowPanel>
         </g:east>
 
         <g:west size="50">
-            <g:SimplePanel ui:field="rightIcon"/>
+            <g:SimplePanel ui:field="leftIcon"/>
         </g:west>
 
         <g:center>

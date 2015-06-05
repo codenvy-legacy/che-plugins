@@ -21,7 +21,9 @@ import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 
+import org.eclipse.che.ide.extension.machine.client.MachineResources;
 import org.eclipse.che.ide.extension.machine.client.machine.Machine;
+import org.vectomatic.dom.svg.ui.SVGImage;
 
 import javax.annotation.Nonnull;
 
@@ -36,6 +38,11 @@ public class MachineWidgetImpl extends Composite implements MachineWidget, Click
 
     private static final MachineWidgetImplUiBinder UI_BINDER = GWT.create(MachineWidgetImplUiBinder.class);
 
+    private final SVGImage tickIcon;
+
+    @UiField(provided = true)
+    final MachineResources resources;
+
     @UiField
     SimplePanel leftIcon;
     @UiField
@@ -47,8 +54,12 @@ public class MachineWidgetImpl extends Composite implements MachineWidget, Click
     private Machine        machine;
 
     @Inject
-    public MachineWidgetImpl() {
+    public MachineWidgetImpl(MachineResources resources) {
+        this.resources = resources;
+
         initWidget(UI_BINDER.createAndBindUi(this));
+
+        tickIcon = new SVGImage(resources.tick());
 
         addDomHandler(this, ClickEvent.getType());
     }
@@ -58,7 +69,23 @@ public class MachineWidgetImpl extends Composite implements MachineWidget, Click
     public void update(@Nonnull Machine machine) {
         this.machine = machine;
 
+        if (machine.isWorkspaceBound()) {
+            rightIcon.getElement().setInnerHTML(tickIcon.toString());
+        }
+
         name.setText(machine.getId());
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void select() {
+        addStyleName(resources.getCss().selectMachine());
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void unSelect() {
+        removeStyleName(resources.getCss().selectMachine());
     }
 
     /** {@inheritDoc} */

@@ -31,6 +31,12 @@ public interface MachineWidget extends IsWidget {
      */
     void update(@Nonnull Machine machine);
 
+    /** Adds special css styles which defines that machine is selected. */
+    void select();
+
+    /** Removes special css styles which defines that machine is unselected. */
+    void unSelect();
+
     /**
      * Sets special delegate to control by widget in response on user's actions.
      *

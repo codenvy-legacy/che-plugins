@@ -12,6 +12,7 @@ package org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine
 
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
+import com.google.inject.Provider;
 
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
 import org.eclipse.che.api.machine.shared.dto.MachineDescriptor;
@@ -23,6 +24,7 @@ import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.EntityFactory;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.WidgetsFactory;
 import org.eclipse.che.ide.extension.machine.client.machine.Machine;
+import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.MachineWidget;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.appliance.MachineAppliancePresenter;
 import org.junit.Before;
@@ -39,6 +41,7 @@ import java.util.List;
 
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -48,9 +51,11 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class MachinePanelPresenterTest {
 
+    private static final String SOME_TEXT = "someText";
+
     //constructor mocks
     @Mock
-    private MachinePanel                view;
+    private MachinePanelView            view;
     @Mock
     private MachineServiceClient        service;
     @Mock
@@ -61,6 +66,10 @@ public class MachinePanelPresenterTest {
     private MachineLocalizationConstant locale;
     @Mock
     private MachineAppliancePresenter   infoContainer;
+    @Mock
+    private Provider<MachineManager>    managerProvider;
+    @Mock
+    private MachineManager              machineManager;
 
     //additional mocks
     @Mock
@@ -70,11 +79,17 @@ public class MachinePanelPresenterTest {
     @Mock
     private ProjectDescriptor                projectDescriptor;
     @Mock
-    private MachineDescriptor                machineDescriptor;
+    private MachineDescriptor                machineDescriptor1;
     @Mock
-    private Machine                          machine;
+    private MachineDescriptor                machineDescriptor2;
     @Mock
-    private MachineWidget                    machineWidget;
+    private Machine                          machine1;
+    @Mock
+    private Machine                          machine2;
+    @Mock
+    private MachineWidget                    machineWidget1;
+    @Mock
+    private MachineWidget                    machineWidget2;
     @Mock
     private AcceptsOneWidget                 container;
 
@@ -86,8 +101,10 @@ public class MachinePanelPresenterTest {
 
     @Before
     public void setUp() {
-        when(entityFactory.createMachine()).thenReturn(machine);
-        when(widgetsFactory.createMachineWidget()).thenReturn(machineWidget);
+        when(managerProvider.get()).thenReturn(machineManager);
+
+        when(entityFactory.createMachine()).thenReturn(machine1).thenReturn(machine2);
+        when(widgetsFactory.createMachineWidget()).thenReturn(machineWidget1).thenReturn(machineWidget2);
 
         when(service.getMachines(null)).thenReturn(machinePromise);
     }
@@ -99,25 +116,70 @@ public class MachinePanelPresenterTest {
         verify(service).getMachines(null);
 
         verify(machinePromise).then(operationCaptor.capture());
-        operationCaptor.getValue().apply(Arrays.asList(machineDescriptor));
+        operationCaptor.getValue().apply(Arrays.asList(machineDescriptor1));
 
         verify(view).clear();
 
         verify(entityFactory).createMachine();
-        verify(machine).setDescriptor(machineDescriptor);
+        verify(machine1).setDescriptor(machineDescriptor1);
 
         verify(widgetsFactory).createMachineWidget();
-        verify(machineWidget).setDelegate(presenter);
-        verify(machineWidget).update(machine);
+        verify(machineWidget1).setDelegate(presenter);
+        verify(machineWidget1).update(machine1);
 
-        verify(view).add(machineWidget);
+        verify(view).add(machineWidget1);
     }
 
     @Test
-    public void onMachineShouldBeClicked() {
-        presenter.onMachineClicked(machine);
+    public void onMachineShouldBeClicked() throws Exception {
+        callShowMachines();
 
-        verify(infoContainer).showAppliance(machine);
+        presenter.onMachineClicked(machine1);
+
+        verify(machineWidget1).unSelect();
+        verify(machineWidget2).unSelect();
+
+        verify(machineWidget1).select();
+
+        verify(infoContainer).showAppliance(machine1);
+    }
+
+    private void callShowMachines() throws Exception {
+        presenter.showMachines();
+        verify(machinePromise).then(operationCaptor.capture());
+        operationCaptor.getValue().apply(Arrays.asList(machineDescriptor1, machineDescriptor2));
+    }
+
+    @Test
+    public void boundedMachineShouldBeSelected() throws Exception {
+        when(machine1.isWorkspaceBound()).thenReturn(true);
+
+        callShowMachines();
+
+        verify(machineWidget1).select();
+        verify(machineWidget2, never()).select();
+    }
+
+    @Test
+    public void machineShouldBeCreated() {
+        presenter.onCreateMachineButtonClicked();
+
+        verify(managerProvider).get();
+        verify(machineManager).startMachine(false);
+    }
+
+    @Test
+    public void machineShouldBeDestroyed() throws Exception {
+        callShowMachines();
+        when(machine1.getId()).thenReturn(SOME_TEXT);
+        presenter.onMachineClicked(machine1);
+
+        presenter.onDestroyMachineButtonClicked();
+
+        verify(managerProvider).get();
+        verify(machine1).getId();
+
+        verify(machineManager).destroyMachine(SOME_TEXT);
     }
 
     @Test

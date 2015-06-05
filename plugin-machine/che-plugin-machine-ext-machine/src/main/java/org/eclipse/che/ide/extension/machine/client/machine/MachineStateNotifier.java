@@ -22,6 +22,7 @@ import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
+import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.panel.MachinePanelPresenter;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.util.loging.Log;
 import org.eclipse.che.ide.websocket.MessageBus;
@@ -49,25 +50,28 @@ import static org.eclipse.che.ide.api.notification.Notification.Type.INFO;
 class MachineStateNotifier {
 
     /** WebSocket channel to receive messages about changing machine state. */
-    private static final String MACHINE_STATE_WS_CHANNEL = "machine:state:";
+    public static final String MACHINE_STATE_WS_CHANNEL = "machine:state:";
 
     private final MessageBus                  messageBus;
     private final DtoUnmarshallerFactory      dtoUnmarshallerFactory;
     private final NotificationManager         notificationManager;
-    private final MachineServiceClient        machineServiceClient;
-    private final MachineLocalizationConstant localizationConstant;
+    private final MachineServiceClient        service;
+    private final MachineLocalizationConstant locale;
+    private final MachinePanelPresenter       machinePanelPresenter;
 
     @Inject
     MachineStateNotifier(MessageBus messageBus,
                          DtoUnmarshallerFactory dtoUnmarshallerFactory,
                          NotificationManager notificationManager,
-                         MachineServiceClient machineServiceClient,
-                         MachineLocalizationConstant localizationConstant) {
+                         MachineServiceClient service,
+                         MachineLocalizationConstant locale,
+                         MachinePanelPresenter machinePanelPresenter) {
         this.messageBus = messageBus;
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
         this.notificationManager = notificationManager;
-        this.machineServiceClient = machineServiceClient;
-        this.localizationConstant = localizationConstant;
+        this.service = service;
+        this.locale = locale;
+        this.machinePanelPresenter = machinePanelPresenter;
     }
 
     /**
@@ -102,15 +106,19 @@ class MachineStateNotifier {
                         if (runningListener != null) {
                             runningListener.onRunning();
                         }
-                        notification.setMessage(localizationConstant.notificationMachineIsRunning(result.getMachineId()));
+                        notification.setMessage(locale.notificationMachineIsRunning(result.getMachineId()));
                         notification.setStatus(FINISHED);
                         notification.setType(INFO);
+
+                        machinePanelPresenter.showMachines();
                         break;
                     case DESTROYED:
                         unsubscribe(wsChannel, this);
-                        notification.setMessage(localizationConstant.notificationMachineDestroyed(result.getMachineId()));
+                        notification.setMessage(locale.notificationMachineDestroyed(result.getMachineId()));
                         notification.setStatus(FINISHED);
                         notification.setType(INFO);
+
+                        machinePanelPresenter.showMachines();
                         break;
                     case ERROR:
                         unsubscribe(wsChannel, this);
@@ -130,13 +138,13 @@ class MachineStateNotifier {
             }
         };
 
-        machineServiceClient.getMachine(machineId).then(new Operation<MachineDescriptor>() {
+        service.getMachine(machineId).then(new Operation<MachineDescriptor>() {
             @Override
             public void apply(MachineDescriptor arg) throws OperationException {
                 final MachineState state = arg.getState();
                 if (state == CREATING || state == DESTROYING) {
-                    notification.setMessage(state == CREATING ? localizationConstant.notificationCreatingMachine(machineId)
-                                                              : localizationConstant.notificationDestroyingMachine(machineId));
+                    notification.setMessage(state == CREATING ? locale.notificationCreatingMachine(machineId)
+                                                              : locale.notificationDestroyingMachine(machineId));
                     notification.setStatus(PROGRESS);
                     notificationManager.showNotification(notification);
 

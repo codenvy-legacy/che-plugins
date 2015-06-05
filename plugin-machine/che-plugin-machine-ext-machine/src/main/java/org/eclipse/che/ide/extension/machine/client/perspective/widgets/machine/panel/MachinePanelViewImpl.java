@@ -33,8 +33,8 @@ import javax.annotation.Nonnull;
  * @author Dmitry Shnurenko
  */
 @Singleton
-public class MachinePanelImpl extends BaseView<MachinePanel.ActionDelegate> implements MachinePanel {
-    interface MachinePanelImplUiBinder extends UiBinder<Widget, MachinePanelImpl> {
+public class MachinePanelViewImpl extends BaseView<MachinePanelView.ActionDelegate> implements MachinePanelView {
+    interface MachinePanelImplUiBinder extends UiBinder<Widget, MachinePanelViewImpl> {
     }
 
     private static final MachinePanelImplUiBinder UI_BINDER = GWT.create(MachinePanelImplUiBinder.class);
@@ -48,7 +48,7 @@ public class MachinePanelImpl extends BaseView<MachinePanel.ActionDelegate> impl
     Button destroyMachine;
 
     @Inject
-    public MachinePanelImpl(PartStackUIResources resources) {
+    public MachinePanelViewImpl(PartStackUIResources resources) {
         super(resources);
 
         setContentWidget(UI_BINDER.createAndBindUi(this));

@@ -13,6 +13,8 @@ package org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
+import com.google.inject.Singleton;
 
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
 import org.eclipse.che.api.machine.shared.dto.MachineDescriptor;
@@ -24,40 +26,54 @@ import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.EntityFactory;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.WidgetsFactory;
 import org.eclipse.che.ide.extension.machine.client.machine.Machine;
+import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.MachineWidget;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.appliance.MachineAppliancePresenter;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * The class contains business logic to control displaying of machines on special view.
  *
  * @author Dmitry Shnurenko
  */
-public class MachinePanelPresenter extends BasePresenter implements MachinePanel.ActionDelegate, MachineWidget.ActionDelegate {
+@Singleton
+public class MachinePanelPresenter extends BasePresenter implements MachinePanelView.ActionDelegate, MachineWidget.ActionDelegate {
 
-    private final MachinePanel                view;
+    private final MachinePanelView            view;
     private final MachineServiceClient        service;
     private final EntityFactory               entityFactory;
     private final WidgetsFactory              widgetsFactory;
     private final MachineLocalizationConstant locale;
     private final MachineAppliancePresenter   appliance;
+    private final Provider<MachineManager>    managerProvider;
+    private final Map<Machine, MachineWidget> widgets;
+
+    private Machine selectedMachine;
 
     @Inject
-    public MachinePanelPresenter(MachinePanel view,
+    public MachinePanelPresenter(MachinePanelView view,
                                  MachineServiceClient service,
                                  EntityFactory entityFactory,
                                  WidgetsFactory widgetsFactory,
                                  MachineLocalizationConstant locale,
-                                 MachineAppliancePresenter appliance) {
+                                 MachineAppliancePresenter appliance,
+                                 Provider<MachineManager> managerProvider) {
         this.view = view;
+        this.view.setDelegate(this);
+
         this.service = service;
         this.entityFactory = entityFactory;
         this.widgetsFactory = widgetsFactory;
         this.locale = locale;
         this.appliance = appliance;
+        this.managerProvider = managerProvider;
+
+        this.widgets = new HashMap<>();
     }
 
     /** Gets all machines and adds them to special place on view. */
@@ -67,11 +83,12 @@ public class MachinePanelPresenter extends BasePresenter implements MachinePanel
         machinesPromise.then(new Operation<List<MachineDescriptor>>() {
             @Override
             public void apply(List<MachineDescriptor> machines) throws OperationException {
-                for (MachineDescriptor descriptor : machines) {
-                    view.clear();
+                view.clear();
 
+                for (MachineDescriptor descriptor : machines) {
                     createAndAddWidget(descriptor);
                 }
+
             }
         });
     }
@@ -85,22 +102,43 @@ public class MachinePanelPresenter extends BasePresenter implements MachinePanel
 
         widget.update(machine);
 
+        widgets.put(machine, widget);
+
         view.add(widget);
+
+        if (machine.isWorkspaceBound()) {
+            onMachineClicked(machine);
+        }
     }
 
     /** {@inheritDoc} */
     @Override
     public void onCreateMachineButtonClicked() {
+        MachineManager manager = managerProvider.get();
+        manager.startMachine(false);
     }
 
     /** {@inheritDoc} */
     @Override
     public void onDestroyMachineButtonClicked() {
+        widgets.remove(selectedMachine);
+
+        MachineManager manager = managerProvider.get();
+        manager.destroyMachine(selectedMachine.getId());
     }
 
     /** {@inheritDoc} */
     @Override
     public void onMachineClicked(@Nonnull Machine machine) {
+        selectedMachine = machine;
+
+        for (MachineWidget widget : widgets.values()) {
+            widget.unSelect();
+        }
+
+        MachineWidget selectedWidget = widgets.get(machine);
+        selectedWidget.select();
+
         appliance.showAppliance(machine);
     }
 

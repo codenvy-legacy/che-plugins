@@ -23,8 +23,8 @@ import javax.annotation.Nonnull;
  *
  * @author Dmitry Shnurenko
  */
-@ImplementedBy(MachinePanelImpl.class)
-public interface MachinePanel extends View<MachinePanel.ActionDelegate> {
+@ImplementedBy(MachinePanelViewImpl.class)
+public interface MachinePanelView extends View<MachinePanelView.ActionDelegate> {
 
     /**
      * Adds machine widget in special place on view.

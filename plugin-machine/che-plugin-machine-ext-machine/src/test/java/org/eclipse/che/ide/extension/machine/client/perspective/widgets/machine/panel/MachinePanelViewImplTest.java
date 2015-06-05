@@ -27,7 +27,7 @@ import static org.mockito.Mockito.when;
  * @author Dmitry Shnurenko
  */
 @RunWith(GwtMockitoTestRunner.class)
-public class MachinePanelImplTest {
+public class MachinePanelViewImplTest {
 
     private static final String SOME_TEXT = "someText";
 
@@ -37,14 +37,14 @@ public class MachinePanelImplTest {
     @Mock
     private MachineWidget machineWidget;
 
-    private MachinePanelImpl view;
+    private MachinePanelViewImpl view;
 
     @Before
     public void setUp() {
         when(resources.partStackCss().ideBasePartToolbar()).thenReturn(SOME_TEXT);
         when(resources.partStackCss().ideBasePartTitleLabel()).thenReturn(SOME_TEXT);
 
-        view = new MachinePanelImpl(resources);
+        view = new MachinePanelViewImpl(resources);
     }
 
     @Test

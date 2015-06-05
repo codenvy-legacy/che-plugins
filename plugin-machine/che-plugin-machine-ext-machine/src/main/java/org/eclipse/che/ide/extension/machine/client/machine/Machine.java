@@ -63,6 +63,15 @@ public class Machine {
         this.descriptor = descriptor;
     }
 
+    /**
+     * Returns boolean which defines bounding workspace to current machine
+     *
+     * @return <code>true</code> machine is bounded to workspace,<code>false</code> machine isn't bounded to workspace
+     */
+    public boolean isWorkspaceBound() {
+        return descriptor.isWorkspaceBound();
+    }
+
     @Override
     public boolean equals(Object machine) {
         return this == machine || !(machine == null || getClass() != machine.getClass()) && Objects.equals(descriptor.getId(),

@@ -40,6 +40,9 @@ public interface MachineResources extends ClientBundle {
     @Source("command/arbitrary/arbitrary-command-type.svg")
     SVGResource arbitraryCommandType();
 
+    @Source("images/tick.svg")
+    SVGResource tick();
+
     /** Returns the CSS resource for the Machine extension. */
     @Source({"machine.css", "org/eclipse/che/ide/api/ui/style.css"})
     Css getCss();
@@ -79,5 +82,7 @@ public interface MachineResources extends ClientBundle {
         String activeTabText();
 
         String fullSize();
+
+        String selectMachine();
     }
 }
