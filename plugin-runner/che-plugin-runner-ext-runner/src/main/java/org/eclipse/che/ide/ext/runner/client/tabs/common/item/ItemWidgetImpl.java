@@ -121,8 +121,9 @@ public class ItemWidgetImpl extends Composite implements ItemWidget, ClickHandle
     /** {@inheritDoc} */
     @Override
     public void setImage(@Nonnull SVGImage svgImageResource) {
-        svgImage.getElement().setInnerHTML(svgImageResource.toString());
-        svgImage.addStyleName(resources.runnerCss().itemIcon());
+        svgImage.clear();
+        svgImage.add(svgImageResource);
+        svgImage.getElement().getStyle().setZIndex(-1);
 
         image.setWidget(svgImage);
     }

@@ -91,7 +91,7 @@ public class ConsoleButtonImpl extends Composite implements ConsoleButton, Click
             icon.addClassNameBaseVal(runnerCss.whiteColor());
         }
 
-        image.getElement().setInnerHTML(icon.toString());
+        image.getElement().appendChild(icon.getSvgElement().getElement());
     }
 
     /** {@inheritDoc} */

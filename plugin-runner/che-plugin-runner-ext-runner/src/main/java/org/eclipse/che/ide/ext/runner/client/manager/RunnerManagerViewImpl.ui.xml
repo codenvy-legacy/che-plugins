@@ -74,6 +74,11 @@
             margin-right: 6px;
         }
 
+        .moreIcon svg {
+            width: 12px;
+            height: 12px;
+        }
+
         .runnersContainer {
             background: #313131;
             box-shadow: inset -1px 0 0 0 #4d4d4d, inset -2px 0 0 0 #000000;

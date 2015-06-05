@@ -120,7 +120,6 @@ public class ItemWidgetImplTest {
 
         itemWidget.setImage(svgImageResource);
 
-        verify(resources.runnerCss()).itemIcon();
         verify(itemWidget.image).setWidget(any(SVGImage.class));
     }
 
