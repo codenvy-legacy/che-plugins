@@ -24,6 +24,7 @@ import org.eclipse.che.api.workspace.shared.dto.WorkspaceDescriptor;
 import org.eclipse.che.ide.CoreLocalizationConstant;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
+import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.editor.EditorInput;
 import org.eclipse.che.ide.api.editor.EditorPartPresenter;
 import org.eclipse.che.ide.api.editor.EditorProvider;
@@ -151,6 +152,8 @@ public class PropertiesEnvironmentPanelTest {
     private Environment                                environment;
     @Mock
     private TemplatesContainer                         templatesContainer;
+    @Mock
+    private EditorAgent                                editorAgent;
 
     @Mock
     private Runner                                     runner;
@@ -319,6 +322,7 @@ public class PropertiesEnvironmentPanelTest {
                                                    voidAsyncCallbackBuilder,
                                                    asyncDescriptorCallbackBuilder,
                                                    templatesContainer,
+                                                   editorAgent,
                                                    environment);
 
         when(locale.removeEnvironment()).thenReturn(TEXT);
@@ -906,6 +910,7 @@ public class PropertiesEnvironmentPanelTest {
                                                    voidAsyncCallbackBuilder,
                                                    asyncDescriptorCallbackBuilder,
                                                    templatesContainer,
+                                                   editorAgent,
                                                    environment);
 
         verify(appContext).getCurrentProject();
@@ -1015,6 +1020,7 @@ public class PropertiesEnvironmentPanelTest {
                                                    voidAsyncCallbackBuilder,
                                                    asyncDescriptorCallbackBuilder,
                                                    templatesContainer,
+                                                   editorAgent,
                                                    environment);
 
         presenter.onCancelButtonClicked();
