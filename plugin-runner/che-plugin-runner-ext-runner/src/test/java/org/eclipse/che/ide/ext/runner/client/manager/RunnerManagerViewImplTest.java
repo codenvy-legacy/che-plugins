@@ -165,7 +165,7 @@ public class RunnerManagerViewImplTest {
         MouseOutHandler mouseOutHandler = mouseOutHandlerCaptor.getValue();
         mouseOutHandler.onMouseOut(mock(MouseOutEvent.class));
 
-        verify(resources, times(3)).runnerCss();
+        verify(resources, times(2)).runnerCss();
         verify(runnerCss, times(2)).opacityButton();
         verify(view.image).removeStyleName(TEXT);
         verify(popupPanel).hide();

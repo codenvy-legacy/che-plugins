@@ -25,7 +25,6 @@ import com.google.inject.Singleton;
 
 import org.eclipse.che.ide.ext.runner.client.RunnerResources;
 import org.eclipse.che.ide.ext.runner.client.tabs.history.runner.RunnerWidget;
-import org.vectomatic.dom.svg.ui.SVGImage;
 
 import javax.annotation.Nonnull;
 
@@ -58,8 +57,7 @@ public class HistoryViewImpl extends Composite implements HistoryView {
     public HistoryViewImpl(RunnerResources resources) {
         initWidget(UI_BINDER.createAndBindUi(this));
 
-        SVGImage image = new SVGImage(resources.erase());
-        broomImage.getElement().setInnerHTML(image.toString());
+        broomImage.getElement().appendChild(resources.erase().getSvg().getElement());
 
         clearAll.addDomHandler(new ClickHandler() {
             @Override

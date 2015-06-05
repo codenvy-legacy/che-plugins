@@ -30,6 +30,11 @@
         .buttonImage:active {
             opacity: 0.4;
         }
+
+        .buttonImage svg {
+            width: 12px;
+            height: 12px;
+        }
     </ui:style>
 
     <g:FlowPanel addStyleNames="{style.outerPanel}">

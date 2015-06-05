@@ -56,7 +56,7 @@
 
         .button {
             background-color: #474747;
-            width: 90px;
+            width: 96px;
             height: 12px;
             cursor: pointer;
             box-shadow: 0 0 0 1px #191c1e;

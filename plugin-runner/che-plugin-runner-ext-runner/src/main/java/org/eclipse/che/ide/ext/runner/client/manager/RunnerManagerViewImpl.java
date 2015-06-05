@@ -39,7 +39,6 @@ import org.eclipse.che.ide.ext.runner.client.manager.button.ButtonWidget;
 import org.eclipse.che.ide.ext.runner.client.manager.info.MoreInfo;
 import org.eclipse.che.ide.ext.runner.client.models.Runner;
 import org.eclipse.che.ide.ext.runner.client.tabs.container.TabContainer;
-import org.vectomatic.dom.svg.ui.SVGImage;
 import org.vectomatic.dom.svg.ui.SVGResource;
 
 import javax.annotation.Nonnull;
@@ -134,9 +133,7 @@ public class RunnerManagerViewImpl extends BaseView<RunnerManagerView.ActionDele
         this.popupPanel.removeStyleName(GWT_POPUP_STANDARD_STYLE);
         this.popupPanel.add(moreInfoWidget);
 
-        SVGImage icon = new SVGImage(resources.moreInfo());
-        icon.getElement().setAttribute("class", resources.runnerCss().mainButtonIcon());
-        image.getElement().setInnerHTML(icon.toString());
+        image.getElement().appendChild(resources.moreInfo().getSvg().getElement());
 
         addMoreInfoPanelHandler();
 
