@@ -48,6 +48,14 @@
             z-index: 0;
         }
 
+        .svgImage svg {
+            position: absolute;
+            padding-top: 10px;
+            padding-left: 6px;
+            width: 14px;
+            height: 14px;
+        }
+
         .imagePanel {
             position: absolute;
             width: 20px;

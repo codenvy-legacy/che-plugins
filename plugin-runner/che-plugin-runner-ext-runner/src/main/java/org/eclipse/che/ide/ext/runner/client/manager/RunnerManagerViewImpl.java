@@ -43,7 +43,6 @@ import org.eclipse.che.ide.ext.runner.client.manager.menu.MenuWidget;
 import org.eclipse.che.ide.ext.runner.client.manager.menu.entry.MenuEntry;
 import org.eclipse.che.ide.ext.runner.client.models.Runner;
 import org.eclipse.che.ide.ext.runner.client.tabs.container.TabContainer;
-import org.vectomatic.dom.svg.ui.SVGImage;
 import org.vectomatic.dom.svg.ui.SVGResource;
 
 import javax.annotation.Nonnull;
@@ -153,9 +152,7 @@ public class RunnerManagerViewImpl extends BaseView<RunnerManagerView.ActionDele
         this.moreInfoPopup.removeStyleName(GWT_POPUP_STANDARD_STYLE);
         this.moreInfoPopup.add(moreInfoWidget);
 
-        SVGImage icon = new SVGImage(resources.moreInfo());
-        icon.getElement().setAttribute("class", resources.runnerCss().mainButtonIcon());
-        image.getElement().setInnerHTML(icon.toString());
+        image.getElement().appendChild(resources.moreInfo().getSvg().getElement());
 
         addMoreInfoPanelHandler();
 
