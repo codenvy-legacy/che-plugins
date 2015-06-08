@@ -31,14 +31,14 @@
             <version>${javax.validation.version}</version>
         </dependency>
         <!--<dependency>-->
-            <!--<groupId>org.eclipse.che.core</groupId>-->
-            <!--<artifactId>che-core-api-builder</artifactId>-->
-            <!--<version>${che.core.version}</version>-->
+        <!--<groupId>org.eclipse.che.core</groupId>-->
+        <!--<artifactId>che-core-api-builder</artifactId>-->
+        <!--<version>${che.core.version}</version>-->
         <!--</dependency>-->
         <!--<dependency>-->
-            <!--<groupId>org.eclipse.che.core</groupId>-->
-            <!--<artifactId>che-core-client-gwt-builder</artifactId>-->
-            <!--<version>${che.core.version}</version>-->
+        <!--<groupId>org.eclipse.che.core</groupId>-->
+        <!--<artifactId>che-core-client-gwt-builder</artifactId>-->
+        <!--<version>${che.core.version}</version>-->
         <!--</dependency>-->
         <dependency>
             <groupId>org.eclipse.che.core</groupId>
@@ -51,13 +51,18 @@
             <version>${che.core.version}</version>
         </dependency>
         <!--<dependency>-->
-            <!--<groupId>org.eclipse.che.plugin</groupId>-->
-            <!--<artifactId>che-plugin-builder-ext-builder</artifactId>-->
-            <!--<version>${che.plugins.version}</version>-->
+        <!--<groupId>org.eclipse.che.plugin</groupId>-->
+        <!--<artifactId>che-plugin-builder-ext-builder</artifactId>-->
+        <!--<version>${che.plugins.version}</version>-->
         <!--</dependency>-->
         <dependency>
             <groupId>org.eclipse.che.plugin</groupId>
-            <artifactId>che-plugin-java-ext-java</artifactId>
+            <artifactId>che-plugin-java-ext-client</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.che.plugin</groupId>
+            <artifactId>che-plugin-java-ext-server</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -76,9 +81,9 @@
             <version>${project.version}</version>
         </dependency>
         <!--<dependency>-->
-            <!--<groupId>org.eclipse.che.plugin</groupId>-->
-            <!--<artifactId>che-plugin-runner-ext-runner</artifactId>-->
-            <!--<version>${che.plugins.version}</version>-->
+        <!--<groupId>org.eclipse.che.plugin</groupId>-->
+        <!--<artifactId>che-plugin-runner-ext-runner</artifactId>-->
+        <!--<version>${che.plugins.version}</version>-->
         <!--</dependency>-->
         <dependency>
             <groupId>com.google.gwt</groupId>
@@ -93,10 +98,10 @@
             <scope>test</scope>
         </dependency>
         <!--<dependency>-->
-            <!--<groupId>com.googlecode.gwt-test-utils</groupId>-->
-            <!--<artifactId>gwt-test-utils</artifactId>-->
-            <!--<version>${com.googlecode.gwt-test-utils.version}</version>-->
-            <!--<scope>test</scope>-->
+        <!--<groupId>com.googlecode.gwt-test-utils</groupId>-->
+        <!--<artifactId>gwt-test-utils</artifactId>-->
+        <!--<version>${com.googlecode.gwt-test-utils.version}</version>-->
+        <!--<scope>test</scope>-->
         <!--</dependency>-->
         <dependency>
             <groupId>javax.validation</groupId>

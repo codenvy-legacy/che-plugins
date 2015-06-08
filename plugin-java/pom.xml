@@ -24,6 +24,7 @@
     <name>Che Plugin :: Java :: Parent</name>
     <modules>
         <module>che-plugin-java-jdt-core-repack</module>
+        <module>che-plugin-java-ext-shared</module>
         <module>che-plugin-java-maven-tools</module>
         <!--<module>che-plugin-java-ext-ant</module>-->
         <!--<module>che-plugin-java-ant-tools</module>-->
@@ -31,14 +32,12 @@
         <!--<module>che-plugin-java-builder-ant</module>-->
         <!--<module>che-plugin-java-runner-webapps</module>-->
         <module>che-plugin-java-generator-archetype</module>
+        <module>che-plugin-java-ext-server</module>
         <module>che-plugin-java-ext-maven</module>
 
-        <module>org-eclipse-core-filesystem</module>
-        <module>org-eclipse-core-filebuffers</module>
-        <module>org-eclipse-ltk-core-refactoring</module>
 
-        <module>che-plugin-java-ext-java</module>
-        <module>che-plugin-java-ext-java-codeassistant</module>
+        <module>che-plugin-java-ext-client</module>
+        <module>che-plugin-java-ext-jdt</module>
         <!--<module>che-plugin-java-ext-debugger-java</module>-->
         <module>che-plugin-java-jseditor</module>
     </modules>
