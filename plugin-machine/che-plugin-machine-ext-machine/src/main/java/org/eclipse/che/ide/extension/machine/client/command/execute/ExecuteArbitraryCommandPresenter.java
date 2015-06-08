@@ -25,8 +25,6 @@ import org.eclipse.che.ide.websocket.MessageBus;
 import org.eclipse.che.ide.websocket.WebSocketException;
 import org.eclipse.che.ide.websocket.rest.SubscriptionHandler;
 
-import javax.annotation.Nonnull;
-
 /**
  * Presenter for executing arbitrary command in machine.
  *
@@ -83,14 +81,9 @@ public class ExecuteArbitraryCommandPresenter implements ExecuteArbitraryCommand
     }
 
     private void executeCommandInMachine(String command, String machineId) {
-        final String outputChannel = getOutputChannel();
+        final String outputChannel = "process:output:" + UUID.uuid();
         subscribeToOutput(outputChannel);
         machineServiceClient.executeCommand(machineId, command, outputChannel);
-    }
-
-    @Nonnull
-    private String getOutputChannel() {
-        return "process:output:" + UUID.uuid();
     }
 
     private void subscribeToOutput(final String channel) {

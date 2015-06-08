@@ -31,7 +31,7 @@ public interface MavenCommandPageView extends View<MavenCommandPageView.ActionDe
     /** Action handler for the view actions/controls. */
     interface ActionDelegate {
 
-        /** Called when command line is changed. */
-        void onCommandLineChanged(String commandLine);
+        /** Called when command line has been changed. */
+        void onCommandLineChanged();
     }
 }

@@ -20,6 +20,7 @@ import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.FlowPanel;
@@ -98,7 +99,14 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
         configurationName.addKeyUpHandler(new KeyUpHandler() {
             @Override
             public void onKeyUp(KeyUpEvent keyUpEvent) {
-                delegate.onNameChanged(configurationName.getText());
+                // configurationName value may not be updated immediately after keyUp
+                // therefore use the timer with delay=0
+                new Timer() {
+                    @Override
+                    public void run() {
+                        delegate.onNameChanged();
+                    }
+                }.schedule(0);
             }
         });
 
@@ -228,15 +236,7 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
     @Override
     public void show() {
         super.show();
-
-        resetView();
-    }
-
-    private void resetView() {
-        addButton.setEnabled(true);
-        removeButton.setEnabled(false);
         configurationName.setText("");
-
         contentPanel.clear();
     }
 
@@ -275,17 +275,33 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
 
         tree.asWidget().setVisible(true);
         tree.getModel().setRoot(rootNode);
-        tree.renderTree(1);
+        tree.renderTree(-1);
 
-        tree.getSelectionModel().selectSingleNode(getFirstNode(rootNode));
+        final CommandTreeNode firstNode = getFirstNode(rootNode);
+        if (firstNode != null) {
+            selectNode(firstNode);
+        }
+    }
 
-        setHint(true);
+    private void selectNode(CommandTreeNode node) {
+        tree.getSelectionModel().selectSingleNode(node);
+        if (node.getData() instanceof CommandType) {
+            delegate.onCommandTypeSelected((CommandType)node.getData());
+            setHint(true);
+        } else if (node.getData() instanceof CommandConfiguration) {
+            delegate.onConfigurationSelected((CommandConfiguration)node.getData());
+            setHint(false);
+        }
     }
 
     private CommandTreeNode getFirstNode(@Nonnull CommandTreeNode rootNode) {
-        Collection<CommandTreeNode> childNodes = rootNode.getChildren();
+        final Collection<CommandTreeNode> childNodes = rootNode.getChildren();
+        return childNodes.isEmpty() ? null : childNodes.iterator().next();
+    }
 
-        return childNodes.iterator().next();
+    @Override
+    public String getConfigurationName() {
+        return configurationName.getText();
     }
 
     @Override
@@ -336,11 +352,7 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
         for (TreeNodeElement<CommandTreeNode> nodeElement : tree.getVisibleTreeNodes().asIterable()) {
             final CommandTreeNode treeNode = nodeElement.getData();
             if (commandId.equals(treeNode.getId())) {
-                tree.getSelectionModel().selectSingleNode(treeNode);
-                if (treeNode.getData() instanceof CommandConfiguration) {
-                    delegate.onConfigurationSelected((CommandConfiguration)treeNode.getData());
-                    setHint(false);
-                }
+                selectNode(treeNode);
                 break;
             }
         }

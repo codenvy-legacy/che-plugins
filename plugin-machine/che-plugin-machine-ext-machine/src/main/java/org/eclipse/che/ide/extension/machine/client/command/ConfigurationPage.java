@@ -26,7 +26,8 @@ import javax.annotation.Nonnull;
 public interface ConfigurationPage<T extends CommandConfiguration> extends Presenter {
 
     /**
-     * Resets the page from the given {@code configuration}.
+     * Resets the page from the given {@code configuration}
+     * which this page should edit.
      * <p/>
      * This method is called every time when user selects
      * an appropriate command configuration in 'Command Configuration'
@@ -51,10 +52,8 @@ public interface ConfigurationPage<T extends CommandConfiguration> extends Prese
     boolean isDirty();
 
     /**
-     * Sets {@link DirtyStateListener} that should be called every time when any modifications on the page has performed.
-     * <p/>
-     * This method is called every time when user selects an appropriate
-     * command configuration in 'Command Configuration' dialog.
+     * Sets {@link DirtyStateListener} that should be called
+     * every time when any modifications on the page has been performed.
      */
     void setDirtyStateListener(@Nonnull DirtyStateListener listener);
 

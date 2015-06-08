@@ -20,6 +20,7 @@ import org.eclipse.che.api.promises.client.FunctionException;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.Promise;
+import org.eclipse.che.api.promises.client.PromiseError;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
 import org.eclipse.che.ide.extension.machine.client.command.CommandType;
@@ -55,7 +56,11 @@ public class EditConfigurationsPresenter implements EditConfigurationsView.Actio
 
     private final Set<ConfigurationsChangedListener> configurationsChangedListeners;
 
-    private ConfigurationPage<CommandConfiguration> currentPage;
+    private ConfigurationPage<CommandConfiguration> editedPage;
+    /** Command that being edited. */
+    private CommandConfiguration                    editedCommand;
+    /** Name of the edited command before editing. */
+    private String                                  editedCommandOriginName;
 
     @Inject
     protected EditConfigurationsPresenter(EditConfigurationsView view,
@@ -64,14 +69,13 @@ public class EditConfigurationsPresenter implements EditConfigurationsView.Actio
                                           DialogFactory dialogFactory,
                                           MachineLocalizationConstant localizationConstant) {
         this.view = view;
+        this.view.setDelegate(this);
         this.commandServiceClient = commandServiceClient;
         this.commandTypeRegistry = commandTypeRegistry;
         this.dialogFactory = dialogFactory;
         this.localizationConstant = localizationConstant;
 
         configurationsChangedListeners = new HashSet<>();
-
-        this.view.setDelegate(this);
     }
 
     @Override
@@ -99,11 +103,8 @@ public class EditConfigurationsPresenter implements EditConfigurationsView.Actio
                                                selectedConfiguration.toCommandLine()).then(new Operation<CommandDescriptor>() {
                 @Override
                 public void apply(CommandDescriptor arg) throws OperationException {
-                    view.setApplyButtonState(false);
-                    view.setOkButtonState(false);
-
+                    fetchCommands(arg.getId());
                     fireConfigurationsChanged();
-                    refreshView(arg.getId());
                 }
             });
         }
@@ -121,13 +122,25 @@ public class EditConfigurationsPresenter implements EditConfigurationsView.Actio
             return;
         }
 
+        if (!isViewModified()) {
+            createCommand(selectedType);
+            return;
+        }
+
         final ConfirmCallback saveCallback = new ConfirmCallback() {
             @Override
             public void accepted() {
-                onApplyClicked();
-                createCommand(selectedType);
+                commandServiceClient.updateCommand(editedCommand.getId(),
+                                                   editedCommand.getName(),
+                                                   editedCommand.toCommandLine()).then(new Operation<CommandDescriptor>() {
+                    @Override
+                    public void apply(CommandDescriptor arg) throws OperationException {
+                        createCommand(selectedType);
+                    }
+                });
             }
         };
+
         final ConfirmCallback discardCallback = new ConfirmCallback() {
             @Override
             public void accepted() {
@@ -135,19 +148,14 @@ public class EditConfigurationsPresenter implements EditConfigurationsView.Actio
             }
         };
 
-        final CommandConfiguration selectedConfiguration = view.getSelectedConfiguration();
-        if (currentPage != null && currentPage.isDirty() && selectedConfiguration != null) {
-            final ChoiceDialog dialog = dialogFactory.createChoiceDialog(
-                    localizationConstant.editConfigurationsViewSaveChangesTitle(),
-                    localizationConstant.editConfigurationsViewSaveChangesText(selectedConfiguration.getName()),
-                    localizationConstant.editConfigurationsViewSaveChangesSave(),
-                    localizationConstant.editConfigurationsViewSaveChangesDiscard(),
-                    saveCallback,
-                    discardCallback);
-            dialog.show();
-        } else {
-            createCommand(selectedType);
-        }
+        final ChoiceDialog dialog = dialogFactory.createChoiceDialog(
+                localizationConstant.editConfigurationsSaveChangesTitle(),
+                localizationConstant.editConfigurationsSaveChangesConfirmation(editedCommand.getName()),
+                localizationConstant.editConfigurationsSaveChangesSave(),
+                localizationConstant.editConfigurationsSaveChangesDiscard(),
+                saveCallback,
+                discardCallback);
+        dialog.show();
     }
 
     private void createCommand(CommandType type) {
@@ -158,8 +166,8 @@ public class EditConfigurationsPresenter implements EditConfigurationsView.Actio
         commandPromise.then(new Operation<CommandDescriptor>() {
             @Override
             public void apply(CommandDescriptor arg) throws OperationException {
+                fetchCommands(arg.getId());
                 fireConfigurationsChanged();
-                refreshView(arg.getId());
             }
         });
     }
@@ -167,42 +175,128 @@ public class EditConfigurationsPresenter implements EditConfigurationsView.Actio
     @Override
     public void onRemoveClicked() {
         final CommandConfiguration selectedConfiguration = view.getSelectedConfiguration();
-        if (selectedConfiguration != null) {
-            final ConfirmCallback confirmCallback = new ConfirmCallback() {
-                @Override
-                public void accepted() {
-                    commandServiceClient.removeCommand(selectedConfiguration.getId()).then(new Operation<Void>() {
-                        @Override
-                        public void apply(Void arg) throws OperationException {
-                            fireConfigurationsChanged();
-                            refreshView(null);
-                        }
-                    });
-                }
-            };
-
-            final ConfirmDialog confirmDialog = dialogFactory.createConfirmDialog(
-                    "",
-                    localizationConstant.editConfigurationsViewRemoveConfirmation(selectedConfiguration.getName()),
-                    confirmCallback,
-                    null);
-            confirmDialog.show();
+        if (selectedConfiguration == null) {
+            return;
         }
+
+        final ConfirmCallback confirmCallback = new ConfirmCallback() {
+            @Override
+            public void accepted() {
+                commandServiceClient.removeCommand(selectedConfiguration.getId()).then(new Operation<Void>() {
+                    @Override
+                    public void apply(Void arg) throws OperationException {
+                        fetchCommands(null);
+                        fireConfigurationsChanged();
+                    }
+                });
+            }
+        };
+
+        final ConfirmDialog confirmDialog = dialogFactory.createConfirmDialog(
+                "",
+                localizationConstant.editConfigurationsRemoveConfirmation(selectedConfiguration.getName()),
+                confirmCallback,
+                null);
+        confirmDialog.show();
     }
 
     @Override
     public void onCommandTypeSelected(CommandType type) {
-        currentPage = null;
-
         view.setAddButtonState(true);
         view.setRemoveButtonState(false);
+
+        if (!isViewModified()) {
+            resetEditedCommand();
+            return;
+        }
+
+        final ConfirmCallback saveCallback = new ConfirmCallback() {
+            @Override
+            public void accepted() {
+                commandServiceClient.updateCommand(editedCommand.getId(),
+                                                   editedCommand.getName(),
+                                                   editedCommand.toCommandLine()).then(new Operation<CommandDescriptor>() {
+                    @Override
+                    public void apply(CommandDescriptor arg) throws OperationException {
+                        fetchCommands(null);
+                        fireConfigurationsChanged();
+                    }
+                });
+            }
+        };
+
+        final ConfirmCallback discardCallback = new ConfirmCallback() {
+            @Override
+            public void accepted() {
+                fetchCommands(null);
+            }
+        };
+
+        final ChoiceDialog dialog = dialogFactory.createChoiceDialog(
+                localizationConstant.editConfigurationsSaveChangesTitle(),
+                localizationConstant.editConfigurationsSaveChangesConfirmation(editedCommand.getName()),
+                localizationConstant.editConfigurationsSaveChangesSave(),
+                localizationConstant.editConfigurationsSaveChangesDiscard(),
+                saveCallback,
+                discardCallback);
+        dialog.show();
+    }
+
+    private void resetEditedCommand() {
+        editedCommand = null;
+        editedCommandOriginName = null;
+        editedPage = null;
+
         view.setConfigurationName("");
         view.clearCommandConfigurationsDisplayContainer();
     }
 
     @SuppressWarnings({"unchecked"})
     @Override
-    public void onConfigurationSelected(CommandConfiguration configuration) {
+    public void onConfigurationSelected(final CommandConfiguration configuration) {
+        if (!isViewModified()) {
+            handleCommandSelection(configuration);
+            return;
+        }
+
+        final ConfirmCallback saveCallback = new ConfirmCallback() {
+            @Override
+            public void accepted() {
+                commandServiceClient.updateCommand(editedCommand.getId(),
+                                                   editedCommand.getName(),
+                                                   editedCommand.toCommandLine()).then(new Operation<CommandDescriptor>() {
+                    @Override
+                    public void apply(CommandDescriptor arg) throws OperationException {
+                        fetchCommands(configuration.getId());
+                        fireConfigurationsChanged();
+                        handleCommandSelection(configuration);
+                    }
+                });
+            }
+        };
+
+        final ConfirmCallback discardCallback = new ConfirmCallback() {
+            @Override
+            public void accepted() {
+                fetchCommands(configuration.getId());
+                handleCommandSelection(configuration);
+            }
+        };
+
+        final ChoiceDialog dialog = dialogFactory.createChoiceDialog(
+                localizationConstant.editConfigurationsSaveChangesTitle(),
+                localizationConstant.editConfigurationsSaveChangesConfirmation(editedCommand.getName()),
+                localizationConstant.editConfigurationsSaveChangesSave(),
+                localizationConstant.editConfigurationsSaveChangesDiscard(),
+                saveCallback,
+                discardCallback);
+        dialog.show();
+    }
+
+    private void handleCommandSelection(CommandConfiguration configuration) {
+        editedCommand = configuration;
+        editedCommandOriginName = configuration.getName();
+
         view.setAddButtonState(true);
         view.setRemoveButtonState(true);
         view.setConfigurationName(configuration.getName());
@@ -211,7 +305,7 @@ public class EditConfigurationsPresenter implements EditConfigurationsView.Actio
         for (ConfigurationPage<? extends CommandConfiguration> page : pages) {
             final ConfigurationPage<CommandConfiguration> p = ((ConfigurationPage<CommandConfiguration>)page);
 
-            currentPage = p;
+            editedPage = p;
 
             p.setDirtyStateListener(new DirtyStateListener() {
                 @Override
@@ -226,13 +320,15 @@ public class EditConfigurationsPresenter implements EditConfigurationsView.Actio
             // TODO: for now show only first page but need to show all pages
             break;
         }
+
+        // TODO: check dirty state and save prev command
     }
 
     @Override
-    public void onNameChanged(String name) {
+    public void onNameChanged() {
         final CommandConfiguration selectedConfiguration = view.getSelectedConfiguration();
         if (selectedConfiguration != null) {
-            selectedConfiguration.setName(name);
+            selectedConfiguration.setName(view.getConfigurationName());
 
             view.setApplyButtonState(true);
             view.setOkButtonState(true);
@@ -241,14 +337,23 @@ public class EditConfigurationsPresenter implements EditConfigurationsView.Actio
 
     /** Show dialog. */
     public void show() {
-        view.setRemoveButtonState(false);
-        view.setApplyButtonState(false);
-        view.setOkButtonState(false);
-        refreshView(null);
+        fetchCommands(null);
         view.show();
     }
 
-    private void refreshView(@Nullable final String commandToSelect) {
+    /**
+     * Fetch commands from server and update view.
+     *
+     * @param commandToSelect
+     *         ID of the command to select
+     */
+    private void fetchCommands(@Nullable final String commandToSelect) {
+        resetEditedCommand();
+        view.setAddButtonState(false);
+        view.setRemoveButtonState(false);
+        view.setApplyButtonState(false);
+        view.setOkButtonState(false);
+
         commandServiceClient.getCommands().then(new Function<List<CommandDescriptor>, List<CommandConfiguration>>() {
             @Override
             public List<CommandConfiguration> apply(List<CommandDescriptor> arg) throws FunctionException {
@@ -268,12 +373,24 @@ public class EditConfigurationsPresenter implements EditConfigurationsView.Actio
             @Override
             public void apply(List<CommandConfiguration> commandConfigurations) throws OperationException {
                 view.setData(commandTypeRegistry.getCommandTypes(), commandConfigurations);
-                view.setRemoveButtonState(false);
+
                 if (commandToSelect != null) {
                     view.selectCommand(commandToSelect);
                 }
             }
+        }).catchError(new Operation<PromiseError>() {
+            @Override
+            public void apply(PromiseError arg) throws OperationException {
+                dialogFactory.createMessageDialog("Error", arg.toString(), null).show();
+            }
         });
+    }
+
+    private boolean isViewModified() {
+        if (editedCommand == null || editedPage == null) {
+            return false;
+        }
+        return editedPage.isDirty() || !editedCommandOriginName.equals(view.getConfigurationName());
     }
 
     private void fireConfigurationsChanged() {

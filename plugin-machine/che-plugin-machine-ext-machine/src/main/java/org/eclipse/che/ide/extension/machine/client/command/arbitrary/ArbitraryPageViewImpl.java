@@ -15,6 +15,7 @@ import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.Widget;
@@ -37,7 +38,6 @@ public class ArbitraryPageViewImpl implements ArbitraryPageView {
 
     public ArbitraryPageViewImpl() {
         rootElement = UI_BINDER.createAndBindUi(this);
-        commandLine.setFocus(true);
     }
 
     @Override
@@ -52,17 +52,24 @@ public class ArbitraryPageViewImpl implements ArbitraryPageView {
 
     @Override
     public String getCommandLine() {
-        return commandLine.getText();
+        return commandLine.getValue();
     }
 
     @Override
     public void setCommandLine(String commandLine) {
-        this.commandLine.setText(commandLine);
+        this.commandLine.setValue(commandLine);
     }
 
     @UiHandler({"commandLine"})
     void onKeyUp(KeyUpEvent event) {
-        delegate.onCommandLineChanged(getCommandLine());
+        // commandLine value may not be updated immediately after keyUp
+        // therefore use the timer with delay=0
+        new Timer() {
+            @Override
+            public void run() {
+                delegate.onCommandLineChanged();
+            }
+        }.schedule(0);
     }
 
     interface MavenPageViewImplUiBinder extends UiBinder<DockLayoutPanel, ArbitraryPageViewImpl> {
