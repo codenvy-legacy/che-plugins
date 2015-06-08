@@ -15,12 +15,10 @@ import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.editor.EditorPartPresenter;
-import org.eclipse.che.ide.api.event.FileEvent;
-import org.eclipse.che.ide.api.event.RefreshProjectTreeEvent;
+import org.eclipse.che.ide.api.event.OpenProjectEvent;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.parts.PartStackType;
 import org.eclipse.che.ide.api.parts.WorkspaceAgent;
-import org.eclipse.che.ide.api.project.tree.VirtualFile;
 import org.eclipse.che.ide.collections.Array;
 import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.ext.git.client.GitLocalizationConstant;
@@ -210,7 +208,10 @@ public class BranchPresenter implements BranchView.ActionDelegate {
             @Override
             protected void onSuccess(String result) {
                 getBranches();
-                refreshProject(openedEditors);
+                String projectPath = project.getRootProject().getPath();
+                //In this case we can have unconfigured state of the project,
+                //so we must repeat the logic which is performed when we open a project
+                eventBus.fireEvent(new OpenProjectEvent(projectPath));
             }
 
             @Override
@@ -239,20 +240,6 @@ public class BranchPresenter implements BranchView.ActionDelegate {
         String[] lines = message.split("\n");
         for (String line : lines) {
             gitConsole.printError(line);
-        }
-    }
-
-    /**
-     * Refresh project.
-     *
-     * @param openedEditors
-     *         editors that corresponds to open files
-     */
-    private void refreshProject(final List<EditorPartPresenter> openedEditors) {
-        eventBus.fireEvent(new RefreshProjectTreeEvent());
-        for (EditorPartPresenter partPresenter : openedEditors) {
-            final VirtualFile file = partPresenter.getEditorInput().getFile();
-            eventBus.fireEvent(new FileEvent(file, FileEvent.FileOperation.CLOSE));
         }
     }
 

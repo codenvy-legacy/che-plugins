@@ -14,6 +14,7 @@ import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.editor.EditorInput;
 import org.eclipse.che.ide.api.editor.EditorPartPresenter;
+import org.eclipse.che.ide.api.event.OpenProjectEvent;
 import org.eclipse.che.ide.api.parts.WorkspaceAgent;
 import org.eclipse.che.ide.api.project.tree.generic.FileNode;
 import org.eclipse.che.ide.collections.Array;
@@ -27,7 +28,6 @@ import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.ui.dialogs.CancelCallback;
 import org.eclipse.che.ide.ui.dialogs.ConfirmCallback;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
-import com.google.gwt.event.shared.GwtEvent;
 import com.google.web.bindery.event.shared.Event;
 
 import org.eclipse.che.ide.ui.dialogs.InputCallback;
@@ -309,9 +309,9 @@ public class BranchPresenterTest extends BaseTest {
                                        (AsyncRequestCallback<String>)anyObject());
         verify(service, times(2)).branchList(eq(rootProjectDescriptor), eq(LIST_ALL), (AsyncRequestCallback<Array<Branch>>)anyObject());
         verify(appContext).getCurrentProject();
-        verify(partPresenter).getEditorInput();
         verify(notificationManager, never()).showError(anyString());
         verify(constant, never()).branchCheckoutFailed();
+        verify(eventBus).fireEvent(Matchers.<Event<OpenProjectEvent>>anyObject());
     }
 
     @Test
@@ -330,8 +330,7 @@ public class BranchPresenterTest extends BaseTest {
         verify(selectedBranch).isRemote();
         verify(service, times(2)).branchList(eq(rootProjectDescriptor), eq(LIST_ALL), (AsyncRequestCallback<Array<Branch>>)anyObject());
         verify(appContext).getCurrentProject();
-        verify(partPresenter).getEditorInput();
-        verify(eventBus, times(2)).fireEvent(Matchers.<Event<GwtEvent>>anyObject());
+        verify(eventBus).fireEvent(Matchers.<Event<OpenProjectEvent>>anyObject());
     }
 
     @Test
