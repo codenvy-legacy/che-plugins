@@ -46,7 +46,7 @@ public class CreateMavenModuleAction extends ProjectAction {
 
     @Override
     public void updateProjectAction(ActionEvent e) {
-        e.getPresentation().setVisible(true);
+        e.getPresentation().setVisible(appContext.getCurrentProject().getRootProject().getType().equals("maven"));
         e.getPresentation().setEnabled("pom".equals(appContext.getCurrentProject().getAttributeValue(MavenAttributes.PACKAGING)));
     }
 }
