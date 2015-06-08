@@ -151,43 +151,4 @@
             </plugin>
         </plugins>
     </build>
-    <profiles>
-        <profile>
-            <id>skipPatchWindows</id>
-            <activation>
-                <os>
-                    <family>!windows</family>
-                </os>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <!-- Apply patches -->
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-patch-plugin</artifactId>
-                        <version>1.1.1</version>
-                        <executions>
-                            <execution>
-                                <id>bugfix-patches</id>
-                                <phase>generate-resources</phase>
-                                <goals>
-                                    <goal>apply</goal>
-                                </goals>
-                                <configuration>
-                                    <patchDirectory>${patches.location}</patchDirectory>
-                                    <patches>
-                                        <patch>4.12-slash-IDEX-1961.diff</patch>
-                                    </patches>
-                                    <optimizations>false</optimizations>
-                                    <strictPatching>true</strictPatching>
-                                    <strip>1</strip>
-                                    <targetDirectory>${codemirror.extract.location}</targetDirectory>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 </project>
