@@ -37,10 +37,20 @@ public interface EditConfigurationsView extends View<EditConfigurationsView.Acti
 
     void clearCommandConfigurationsDisplayContainer();
 
-    /** Sets command types and command configurations to show. */
+    /**
+     * Sets command types and command configurations to display.
+     *
+     * @param commandTypes
+     *         available types of commands
+     * @param commandConfigurations
+     *         existed commands
+     */
     void setData(Collection<CommandType> commandTypes, Collection<CommandConfiguration> commandConfigurations);
 
-    /** Sets configuration name. */
+    /** Returns command name. */
+    String getConfigurationName();
+
+    /** Sets command name. */
     void setConfigurationName(String name);
 
     /** Sets enabled state of the 'Add' button. */
@@ -101,6 +111,6 @@ public interface EditConfigurationsView extends View<EditConfigurationsView.Acti
         void onConfigurationSelected(CommandConfiguration configuration);
 
         /** Called when configuration name is changed. */
-        void onNameChanged(String name);
+        void onNameChanged();
     }
 }

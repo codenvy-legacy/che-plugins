@@ -62,8 +62,8 @@ public class MavenCommandPagePresenter implements MavenCommandPageView.ActionDel
     }
 
     @Override
-    public void onCommandLineChanged(String commandLine) {
-        editedConfiguration.setCommandLine(commandLine);
+    public void onCommandLineChanged() {
+        editedConfiguration.setCommandLine(view.getCommandLine());
         listener.onDirtyStateChanged();
     }
 }
