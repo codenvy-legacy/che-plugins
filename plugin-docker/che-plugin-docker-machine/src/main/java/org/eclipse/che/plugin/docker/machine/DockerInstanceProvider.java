@@ -16,6 +16,7 @@ import org.eclipse.che.api.core.util.LineConsumer;
 import org.eclipse.che.api.machine.server.exception.InvalidInstanceSnapshotException;
 import org.eclipse.che.api.machine.server.exception.InvalidRecipeException;
 import org.eclipse.che.api.machine.server.exception.MachineException;
+import org.eclipse.che.api.machine.server.exception.SnapshotException;
 import org.eclipse.che.api.machine.server.exception.UnsupportedRecipeException;
 import org.eclipse.che.api.machine.server.spi.Instance;
 import org.eclipse.che.api.machine.server.spi.InstanceKey;
@@ -162,14 +163,14 @@ public class DockerInstanceProvider implements InstanceProvider {
     }
 
     @Override
-    public void removeInstanceSnapshot(InstanceKey instanceKey) throws MachineException {
+    public void removeInstanceSnapshot(InstanceKey instanceKey) throws SnapshotException {
         // use registry API directly because docker doesn't have such API yet
         // https://github.com/docker/docker-registry/issues/45
         final DockerInstanceKey dockerInstanceKey = new DockerInstanceKey(instanceKey);
         String registry = dockerInstanceKey.getRegistry();
         String repository = dockerInstanceKey.getRepository();
         if (registry == null || repository == null) {
-            throw new MachineException("Snapshot removing failed. Snapshot attributes are not valid");
+            throw new SnapshotException("Snapshot removing failed. Snapshot attributes are not valid");
         }
 
         StringBuilder sb = new StringBuilder("http://");// TODO make possible to use https here
@@ -190,7 +191,7 @@ public class DockerInstanceProvider implements InstanceProvider {
                         in = conn.getInputStream();
                     }
                     LOG.error(IoUtil.readAndCloseQuietly(in));
-                    throw new MachineException("Internal server error occurs. Can't remove snapshot");
+                    throw new SnapshotException("Internal server error occurs. Can't remove snapshot");
                 }
             } finally {
                 conn.disconnect();

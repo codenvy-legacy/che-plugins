@@ -16,21 +16,26 @@ import org.eclipse.che.api.core.ServerException;
 import org.eclipse.che.api.core.notification.EventService;
 import org.eclipse.che.api.core.util.LineConsumer;
 import org.eclipse.che.api.core.util.ValueHolder;
-import org.eclipse.che.api.machine.server.impl.MachineImpl;
+import org.eclipse.che.api.machine.server.MachineInstanceProviders;
 import org.eclipse.che.api.machine.server.MachineManager;
 import org.eclipse.che.api.machine.server.MachineRegistry;
 import org.eclipse.che.api.machine.server.MachineService;
-import org.eclipse.che.api.machine.server.recipe.RecipeImpl;
-import org.eclipse.che.api.machine.server.impl.SnapshotImpl;
 import org.eclipse.che.api.machine.server.dao.SnapshotDao;
+import org.eclipse.che.api.machine.server.impl.MachineImpl;
+import org.eclipse.che.api.machine.server.impl.SnapshotImpl;
 import org.eclipse.che.api.machine.server.spi.InstanceProvider;
 import org.eclipse.che.api.machine.shared.MachineState;
 import org.eclipse.che.api.machine.shared.dto.CommandDescriptor;
-import org.eclipse.che.api.machine.shared.dto.CreateMachineFromRecipe;
-import org.eclipse.che.api.machine.shared.dto.CreateMachineFromSnapshot;
 import org.eclipse.che.api.machine.shared.dto.MachineDescriptor;
+import org.eclipse.che.api.machine.shared.dto.MachineFromRecipeMetadata;
+import org.eclipse.che.api.machine.shared.dto.MachineFromSnapshotMetadata;
 import org.eclipse.che.api.machine.shared.dto.ProcessDescriptor;
 import org.eclipse.che.api.machine.shared.dto.recipe.RecipeDescriptor;
+import org.eclipse.che.api.workspace.server.dao.Member;
+import org.eclipse.che.api.workspace.server.dao.MemberDao;
+import org.eclipse.che.commons.env.EnvironmentContext;
+import org.eclipse.che.commons.user.User;
+import org.eclipse.che.dto.server.DtoFactory;
 import org.eclipse.che.plugin.docker.client.AuthConfig;
 import org.eclipse.che.plugin.docker.client.AuthConfigs;
 import org.eclipse.che.plugin.docker.client.DockerConnector;
@@ -40,12 +45,6 @@ import org.eclipse.che.plugin.docker.client.json.ContainerConfig;
 import org.eclipse.che.plugin.docker.client.json.HostConfig;
 import org.eclipse.che.plugin.docker.client.json.PortBinding;
 import org.eclipse.che.plugin.docker.client.json.ProgressStatus;
-
-import org.eclipse.che.api.workspace.server.dao.Member;
-import org.eclipse.che.api.workspace.server.dao.MemberDao;
-import org.eclipse.che.commons.env.EnvironmentContext;
-import org.eclipse.che.commons.user.User;
-import org.eclipse.che.dto.server.DtoFactory;
 import org.mockito.testng.MockitoTestNGListener;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
@@ -77,6 +76,7 @@ import static org.testng.Assert.fail;
 // TODO check removeSnapshotTest with https and password
 // TODO bind, unbind
 // TODO should we check result of tests with native calls?
+
 /**
  * @author Alexander Garagatyi
  */
@@ -90,18 +90,18 @@ public class ServiceTest {
     // used in methods {@link createMachineFromSnapshotTest} and {@link removeSnapshotTest}
     private DockerInstanceKey pushedImage;
 
-    private SnapshotDao          snapshotDao;
-    private MemberDao            memberDao;
-    private DockerMachineFactory dockerFactory;
-    private DockerNode           dockerNode;
-    private MachineRegistry      machineRegistry;
-    private DockerConnector      docker;
-    private InstanceProvider     dockerInstanceProvider;
-    private MachineManager       machineManager;
-    private MachineService       machineService;
-    private String               registryContainerId;
-    private AuthConfigs          authConfigs;
-    private EventService         eventService;
+    private SnapshotDao              snapshotDao;
+    private MemberDao                memberDao;
+    private DockerMachineFactory     dockerFactory;
+    private DockerNode               dockerNode;
+    private MachineRegistry          machineRegistry;
+    private DockerConnector          docker;
+    private InstanceProvider         dockerInstanceProvider;
+    private MachineManager           machineManager;
+    private MachineService           machineService;
+    private String                   registryContainerId;
+    private AuthConfigs              authConfigs;
+    private EventService             eventService;
 
     private DtoFactory dtoFactory = DtoFactory.getInstance();
 
@@ -143,20 +143,22 @@ public class ServiceTest {
 
         eventService = mock(EventService.class);
 
+
         dockerInstanceProvider = new DockerInstanceProvider(docker,
                                                             dockerFactory,
                                                             new HashSet<String>(),
                                                             new HashSet<String>());
 
         machineManager = new MachineManager(snapshotDao,
-                                            Collections.singleton(dockerInstanceProvider),
                                             machineRegistry,
+                                            new MachineInstanceProviders(Collections.singleton(dockerInstanceProvider)),
                                             "/tmp",
                                             eventService);
 
-        Field field = MachineService.class.getDeclaredField("defaultLineConsumer");
-        field.setAccessible(true);
-        field.set(null, lineConsumer);
+        // fixme
+//        Field field = MachineService.class.getDeclaredField("defaultLineConsumer");
+//        field.setAccessible(true);
+//        field.set(null, lineConsumer);
 
         machineService = spy(new MachineService(machineManager, memberDao));
 
@@ -205,7 +207,7 @@ public class ServiceTest {
     @Test
     public void createFromRecipeTest() throws Exception {
         final MachineDescriptor machine = machineService.createMachineFromRecipe(
-                dtoFactory.createDto(CreateMachineFromRecipe.class)
+                dtoFactory.createDto(MachineFromRecipeMetadata.class)
                           .withType("docker")
                           .withWorkspaceId("wsId")
                           .withRecipeDescriptor(dtoFactory.createDto(RecipeDescriptor.class)
@@ -228,7 +230,7 @@ public class ServiceTest {
         when(snapshot.getOwner()).thenReturn(USER);
 
         final MachineDescriptor machine = machineService
-                .createMachineFromSnapshot(dtoFactory.createDto(CreateMachineFromSnapshot.class).withSnapshotId(SNAPSHOT_ID));
+                .createMachineFromSnapshot(dtoFactory.createDto(MachineFromSnapshotMetadata.class).withSnapshotId(SNAPSHOT_ID));
 
         waitMachineIsRunning(machine.getId());
     }
@@ -281,7 +283,7 @@ public class ServiceTest {
 
         // use machine manager instead of machine service because it returns future with snapshot
         // that allows check operation result
-        final SnapshotImpl snapshot = machineManager.save(machine.getId(), USER, "label","test description");
+        final SnapshotImpl snapshot = machineManager.save(machine.getId(), USER, "label", "test description");
 
         for (int i = 0; snapshot.getInstanceKey() == null && i < 10; ++i) {
             Thread.sleep(500);
@@ -397,15 +399,17 @@ public class ServiceTest {
 
     private MachineImpl createMachineAndWaitRunningState()
             throws ServerException, NotFoundException, ForbiddenException, InterruptedException {
-        final MachineImpl machine = machineManager.create("docker",
-                                                          new RecipeImpl().withId(null)
-                                                                          .withType("Dockerfile")
-                                                                          .withScript("FROM ubuntu\nCMD tail -f /dev/null\n"),
-                                                          "wsId",
-                                                          EnvironmentContext.getCurrent().getUser().getId(),
-                                                          new StdErrLineConsumer(),
-                                                          false,
-                                                          "displayName");
+        final MachineImpl machine = machineManager.create(dtoFactory.createDto(MachineFromRecipeMetadata.class)
+                                                                    .withWorkspaceId("wsId")
+                                                                    .withType("docker")
+                                                                    .withRecipeDescriptor(dtoFactory.createDto(RecipeDescriptor.class)
+                                                                                                    .withType("Dockerfile")
+                                                                                                    .withScript(
+                                                                                                            "FROM ubuntu\nCMD tail -f /dev/null\n"))
+                                                                    .withBindWorkspace(false)
+                                                                    .withDisplayName("displayName")
+                                                                    .withOutputChannel("blah")
+                                                          );
         while (MachineState.RUNNING != machineManager.getMachine(machine.getId()).getState()) {
             Thread.sleep(500);
         }
