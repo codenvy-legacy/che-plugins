@@ -404,7 +404,8 @@ public class ServiceTest {
                                                           "wsId",
                                                           EnvironmentContext.getCurrent().getUser().getId(),
                                                           new StdErrLineConsumer(),
-                                                          false);
+                                                          false,
+                                                          "displayName");
         while (MachineState.RUNNING != machineManager.getMachine(machine.getId()).getState()) {
             Thread.sleep(500);
         }
