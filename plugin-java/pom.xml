@@ -39,7 +39,6 @@
         <module>che-plugin-java-ext-client</module>
         <module>che-plugin-java-ext-jdt</module>
         <!--<module>che-plugin-java-ext-debugger-java</module>-->
-        <module>che-plugin-java-jseditor</module>
     </modules>
     <build>
         <pluginManagement>
