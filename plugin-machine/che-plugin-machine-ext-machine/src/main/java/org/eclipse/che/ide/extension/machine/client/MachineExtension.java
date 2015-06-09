@@ -26,7 +26,6 @@ import org.eclipse.che.ide.extension.machine.client.actions.ExecuteArbitraryComm
 import org.eclipse.che.ide.extension.machine.client.actions.ExecuteSelectedCommandAction;
 import org.eclipse.che.ide.extension.machine.client.actions.MachinePerspectiveAction;
 import org.eclipse.che.ide.extension.machine.client.actions.SelectCommandAction;
-import org.eclipse.che.ide.extension.machine.client.actions.TerminateCurrentMachineAction;
 import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
 import org.eclipse.che.ide.extension.machine.client.machine.console.ClearConsoleAction;
 import org.eclipse.che.ide.extension.machine.client.machine.console.MachineConsoleToolbar;
@@ -66,7 +65,6 @@ public class MachineExtension {
                                 ExecuteSelectedCommandAction executeSelectedCommandAction,
                                 SelectCommandAction selectCommandAction,
                                 EditCommandsAction editCommandsAction,
-                                TerminateCurrentMachineAction terminateCurrentMachineAction,
                                 MachinePerspectiveAction machinePerspectiveAction) {
         final DefaultActionGroup mainMenu = (DefaultActionGroup)actionManager.getAction(GROUP_MAIN_MENU);
         final DefaultActionGroup runMenu = new DefaultActionGroup(localizationConstant.mainMenuRunName(), true, actionManager);
@@ -75,7 +73,6 @@ public class MachineExtension {
         actionManager.registerAction("run", runMenu);
         actionManager.registerAction("executeArbitraryCommand", executeArbitraryCommandAction);
         actionManager.registerAction("editCommands", editCommandsAction);
-        actionManager.registerAction("terminateMachine", terminateCurrentMachineAction);
         actionManager.registerAction("selectCommandAction", selectCommandAction);
         actionManager.registerAction("executeSelectedCommand", executeSelectedCommandAction);
 
@@ -83,8 +80,6 @@ public class MachineExtension {
         mainMenu.add(runMenu, new Constraints(AFTER, GROUP_CODE));
         runMenu.add(executeArbitraryCommandAction);
         runMenu.add(editCommandsAction);
-        runMenu.addSeparator();
-        runMenu.add(terminateCurrentMachineAction);
 
         // add actions on right toolbar
         final DefaultActionGroup rightToolbarGroup = (DefaultActionGroup)actionManager.getAction(GROUP_RIGHT_TOOLBAR);

@@ -27,12 +27,17 @@ import org.eclipse.che.ide.extension.machine.client.machine.Machine;
 import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.MachineWidget;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.appliance.MachineAppliancePresenter;
+import org.eclipse.che.ide.ui.dialogs.CancelCallback;
+import org.eclipse.che.ide.ui.dialogs.DialogFactory;
+import org.eclipse.che.ide.ui.dialogs.InputCallback;
+import org.eclipse.che.ide.ui.dialogs.input.InputDialog;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -41,6 +46,11 @@ import java.util.List;
 
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -70,6 +80,8 @@ public class MachinePanelPresenterTest {
     private Provider<MachineManager>    managerProvider;
     @Mock
     private MachineManager              machineManager;
+    @Mock
+    private DialogFactory               dialogFactory;
 
     //additional mocks
     @Mock
@@ -95,6 +107,8 @@ public class MachinePanelPresenterTest {
 
     @Captor
     private ArgumentCaptor<Operation<List<MachineDescriptor>>> operationCaptor;
+    @Captor
+    private ArgumentCaptor<InputCallback>                      inputCallbackCaptor;
 
     @InjectMocks
     private MachinePanelPresenter presenter;
@@ -162,10 +176,32 @@ public class MachinePanelPresenterTest {
 
     @Test
     public void machineShouldBeCreated() {
+        String machineName = "machine name";
+        InputDialog inputDialog = mock(InputDialog.class);
+        when(dialogFactory.createInputDialog(anyString(),
+                                             anyString(),
+                                             anyString(),
+                                             anyInt(),
+                                             anyInt(),
+                                             any(InputCallback.class),
+                                             any(CancelCallback.class))).thenReturn(inputDialog);
+
         presenter.onCreateMachineButtonClicked();
 
+        verify(dialogFactory).createInputDialog(anyString(),
+                                                anyString(),
+                                                anyString(),
+                                                anyInt(),
+                                                anyInt(),
+                                                inputCallbackCaptor.capture(),
+                                                Matchers.<CancelCallback>any());
+        verify(inputDialog).show();
+
+        InputCallback inputCallback = inputCallbackCaptor.getValue();
+        inputCallback.accepted(machineName);
+
         verify(managerProvider).get();
-        verify(machineManager).startMachine(false);
+        verify(machineManager).startMachine(eq(false), eq(machineName));
     }
 
     @Test

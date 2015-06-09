@@ -29,12 +29,17 @@ import org.eclipse.che.ide.extension.machine.client.machine.Machine;
 import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.MachineWidget;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.appliance.MachineAppliancePresenter;
+import org.eclipse.che.ide.ui.dialogs.DialogFactory;
+import org.eclipse.che.ide.ui.dialogs.InputCallback;
+import org.eclipse.che.ide.ui.dialogs.input.InputDialog;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * The class contains business logic to control displaying of machines on special view.
@@ -51,6 +56,7 @@ public class MachinePanelPresenter extends BasePresenter implements MachinePanel
     private final MachineLocalizationConstant locale;
     private final MachineAppliancePresenter   appliance;
     private final Provider<MachineManager>    managerProvider;
+    private final DialogFactory               dialogFactory;
     private final Map<Machine, MachineWidget> widgets;
 
     private Machine selectedMachine;
@@ -62,7 +68,8 @@ public class MachinePanelPresenter extends BasePresenter implements MachinePanel
                                  WidgetsFactory widgetsFactory,
                                  MachineLocalizationConstant locale,
                                  MachineAppliancePresenter appliance,
-                                 Provider<MachineManager> managerProvider) {
+                                 Provider<MachineManager> managerProvider,
+                                 DialogFactory dialogFactory) {
         this.view = view;
         this.view.setDelegate(this);
 
@@ -72,6 +79,7 @@ public class MachinePanelPresenter extends BasePresenter implements MachinePanel
         this.locale = locale;
         this.appliance = appliance;
         this.managerProvider = managerProvider;
+        this.dialogFactory = dialogFactory;
 
         this.widgets = new HashMap<>();
     }
@@ -114,8 +122,33 @@ public class MachinePanelPresenter extends BasePresenter implements MachinePanel
     /** {@inheritDoc} */
     @Override
     public void onCreateMachineButtonClicked() {
-        MachineManager manager = managerProvider.get();
-        manager.startMachine(false);
+        final InputCallback inputCallback = new InputCallback() {
+            @Override
+            public void accepted(String value) {
+                MachineManager manager = managerProvider.get();
+                manager.startMachine(false, value);
+            }
+        };
+
+        final String defaultName = generateDefaultName();
+        final InputDialog dialog = dialogFactory.createInputDialog(locale.machineCreateTitle(), locale.machineCreateMessage(),
+                                                                   defaultName, 0, defaultName.length(), inputCallback, null);
+        dialog.show();
+    }
+
+    private String generateDefaultName() {
+        final Set<String> machineNames = new HashSet<>();
+        for (Machine machine : widgets.keySet()) {
+            machineNames.add(machine.getDisplayName());
+        }
+
+        int index = 1;
+        String name = "Machine (" + index + ')';
+        while (machineNames.contains(name)) {
+            name = "Machine (" + ++index + ')';
+        }
+
+        return name;
     }
 
     /** {@inheritDoc} */

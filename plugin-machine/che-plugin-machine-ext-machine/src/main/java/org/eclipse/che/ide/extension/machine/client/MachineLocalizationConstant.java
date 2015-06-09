@@ -64,12 +64,6 @@ public interface MachineLocalizationConstant extends Messages {
     @Key("control.editConfigurations.description")
     String editConfigurationsControlDescription();
 
-    @Key("control.terminateMachine.text")
-    String terminateMachineControlTitle();
-
-    @Key("control.terminateMachine.description")
-    String terminateMachineControlDescription();
-
     @Key("control.clearMachineConsole.text")
     String clearConsoleControlTitle();
 
@@ -80,6 +74,12 @@ public interface MachineLocalizationConstant extends Messages {
     /* Messages */
     @Key("messages.noCurrentMachine")
     String noCurrentMachine();
+
+    @Key("machine.create.title")
+    String machineCreateTitle();
+
+    @Key("machine.create.message")
+    String machineCreateMessage();
 
 
     /* MachineStateNotifier */
@@ -157,9 +157,6 @@ public interface MachineLocalizationConstant extends Messages {
 
     @Key("process.active")
     String processActive();
-
-    @Key("process.stopped")
-    String processStopped();
 
     @Key("process.table.name")
     String processTableName();

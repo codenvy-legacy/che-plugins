@@ -58,6 +58,13 @@ public class MachineTest {
     }
 
     @Test
+    public void displayNameShouldBeReturned() {
+        machine.getDisplayName();
+
+        verify(descriptor).getDisplayName();
+    }
+
+    @Test
     public void idShouldBeReturned() {
         machine.getId();
 

@@ -72,9 +72,9 @@ public class ExecuteArbitraryCommandPresenter implements ExecuteArbitraryCommand
     public void onExecuteClicked() {
         view.close();
 
-        final String currentMachineId = machineManager.getCurrentMachineId();
-        if (currentMachineId != null) {
-            executeCommandInMachine(view.getCommand(), currentMachineId);
+        final String devMachineId = machineManager.getDeveloperMachineId();
+        if (devMachineId != null) {
+            executeCommandInMachine(view.getCommand(), devMachineId);
         } else {
             dialogFactory.createMessageDialog("", localizationConstant.noCurrentMachine(), null).show();
         }

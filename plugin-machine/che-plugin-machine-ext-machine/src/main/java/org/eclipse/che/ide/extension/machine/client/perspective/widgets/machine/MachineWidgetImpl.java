@@ -73,7 +73,8 @@ public class MachineWidgetImpl extends Composite implements MachineWidget, Click
             rightIcon.getElement().setInnerHTML(tickIcon.toString());
         }
 
-        name.setText(machine.getId());
+        final String displayName = machine.getDisplayName();
+        name.setText(displayName == null ? machine.getId() : displayName);
     }
 
     /** {@inheritDoc} */

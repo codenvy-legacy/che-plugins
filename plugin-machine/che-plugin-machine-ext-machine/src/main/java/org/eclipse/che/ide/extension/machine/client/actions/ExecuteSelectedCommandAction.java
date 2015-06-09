@@ -68,7 +68,7 @@ public class ExecuteSelectedCommandAction extends Action {
     public void actionPerformed(ActionEvent e) {
         eventLogger.log(this);
 
-        if (machineManager.getCurrentMachineId() != null) {
+        if (machineManager.getDeveloperMachineId() != null) {
             final CommandConfiguration commandConfiguration = selectCommandAction.getSelectedCommand();
             if (commandConfiguration != null) {
                 machineManager.execute(commandConfiguration);

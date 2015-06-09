@@ -59,7 +59,8 @@ public class MachineManager implements ProjectActionHandler {
     private final WorkspaceAgent              workspaceAgent;
     private final MachineStateNotifier        machineStateNotifier;
 
-    private String currentMachineId;
+    /** Stores ID of the developer machine (where workspace or current project is bound). */
+    private String devMachineId;
 
     @Inject
     public MachineManager(MachineResources machineResources,
@@ -91,11 +92,11 @@ public class MachineManager implements ProjectActionHandler {
             public void apply(List<MachineDescriptor> arg) throws OperationException {
                 for (MachineDescriptor machineDescriptor : arg) {
                     if (machineDescriptor.isWorkspaceBound()) {
-                        currentMachineId = machineDescriptor.getId();
+                        devMachineId = machineDescriptor.getId();
                         return;
                     }
                 }
-                startMachine(true);
+                startMachine(true, "Dev");
             }
         });
     }
@@ -106,12 +107,12 @@ public class MachineManager implements ProjectActionHandler {
 
     @Override
     public void onProjectClosed(ProjectActionEvent event) {
-        currentMachineId = null;
+        devMachineId = null;
         machineConsolePresenter.clear();
     }
 
     /** Start machine and bind workspace to created machine if {@code bindWorkspace} is {@code true}. */
-    public void startMachine(final boolean bindWorkspace) {
+    public void startMachine(final boolean bindWorkspace, @Nullable String displayName) {
         final String recipeScript = machineResources.testDockerRecipe().getText();
         final String outputChannel = "machine:output:" + UUID.uuid();
         subscribeToOutput(outputChannel);
@@ -119,6 +120,7 @@ public class MachineManager implements ProjectActionHandler {
         final Promise<MachineDescriptor> machinePromise = machineServiceClient.createMachineFromRecipe("docker",
                                                                                                        "Dockerfile",
                                                                                                        recipeScript,
+                                                                                                       displayName,
                                                                                                        bindWorkspace,
                                                                                                        outputChannel);
         machinePromise.then(new Operation<MachineDescriptor>() {
@@ -129,7 +131,7 @@ public class MachineManager implements ProjectActionHandler {
                     runningListener = new MachineStateNotifier.RunningListener() {
                         @Override
                         public void onRunning() {
-                            currentMachineId = arg.getId();
+                            devMachineId = arg.getId();
                         }
                     };
                 }
@@ -143,17 +145,17 @@ public class MachineManager implements ProjectActionHandler {
             @Override
             public void apply(Void arg) throws OperationException {
                 machineStateNotifier.trackMachine(machineId);
-                if (getCurrentMachineId() != null && machineId.equals(getCurrentMachineId())) {
-                    currentMachineId = null;
+                if (devMachineId != null && machineId.equals(devMachineId)) {
+                    devMachineId = null;
                 }
             }
         });
     }
 
-    /** Returns ID of the current machine (where workspace or current project is bound). */
+    /** Returns ID of the developer machine (where workspace or current project is bound). */
     @Nullable
-    public String getCurrentMachineId() {
-        return currentMachineId;
+    public String getDeveloperMachineId() {
+        return devMachineId;
     }
 
     private void subscribeToOutput(final String channel) {
@@ -179,8 +181,7 @@ public class MachineManager implements ProjectActionHandler {
 
     /** Execute the the given command configuration on current machine. */
     public void execute(@Nonnull CommandConfiguration configuration) {
-        final String currentMachineId = getCurrentMachineId();
-        if (currentMachineId == null) {
+        if (devMachineId == null) {
             notificationManager.showWarning(localizationConstant.noCurrentMachine());
             return;
         }
@@ -192,6 +193,6 @@ public class MachineManager implements ProjectActionHandler {
         outputsContainerPresenter.addConsole(console);
         workspaceAgent.setActivePart(outputsContainerPresenter);
 
-        machineServiceClient.executeCommand(currentMachineId, configuration.toCommandLine(), outputChannel);
+        machineServiceClient.executeCommand(devMachineId, configuration.toCommandLine(), outputChannel);
     }
 }

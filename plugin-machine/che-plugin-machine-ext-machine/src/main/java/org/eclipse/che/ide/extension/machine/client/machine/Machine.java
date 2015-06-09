@@ -32,6 +32,11 @@ public class Machine {
         return descriptor.getId();
     }
 
+    /** @return current machine's display name */
+    public String getDisplayName() {
+        return descriptor.getDisplayName();
+    }
+
     /** @return state of current machine */
     public MachineState getState() {
         return descriptor.getState();

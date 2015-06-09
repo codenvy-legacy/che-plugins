@@ -98,6 +98,7 @@ public class MachineStateNotifierTest {
     @Test
     public void machineShouldBeTrackedWhenMachineStateIsCreating() throws Exception {
         when(descriptor.getState()).thenReturn(CREATING);
+        when(descriptor.getDisplayName()).thenReturn(SOME_TEXT);
         stateNotifier.trackMachine(SOME_TEXT);
 
         verify(machinePromise).then(operationCaptor.capture());
@@ -118,6 +119,7 @@ public class MachineStateNotifierTest {
     @Test
     public void machineShouldBeTrackedWhenMachineStateIsDestroying() throws Exception {
         when(descriptor.getState()).thenReturn(DESTROYING);
+        when(descriptor.getDisplayName()).thenReturn(SOME_TEXT);
         stateNotifier.trackMachine(SOME_TEXT);
 
         verify(machinePromise).then(operationCaptor.capture());

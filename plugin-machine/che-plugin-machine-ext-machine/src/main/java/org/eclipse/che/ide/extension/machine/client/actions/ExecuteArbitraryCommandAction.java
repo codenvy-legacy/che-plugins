@@ -65,7 +65,7 @@ public class ExecuteArbitraryCommandAction extends Action {
     public void actionPerformed(ActionEvent e) {
         eventLogger.log(this);
 
-        if (machineManager.getCurrentMachineId() != null) {
+        if (machineManager.getDeveloperMachineId() != null) {
             presenter.show();
         } else {
             dialogFactory.createMessageDialog("", localizationConstant.noCurrentMachine(), null).show();

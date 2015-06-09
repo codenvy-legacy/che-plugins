@@ -143,8 +143,8 @@ class MachineStateNotifier {
             public void apply(MachineDescriptor arg) throws OperationException {
                 final MachineState state = arg.getState();
                 if (state == CREATING || state == DESTROYING) {
-                    notification.setMessage(state == CREATING ? locale.notificationCreatingMachine(machineId)
-                                                              : locale.notificationDestroyingMachine(machineId));
+                    notification.setMessage(state == CREATING ? locale.notificationCreatingMachine(arg.getDisplayName())
+                                                              : locale.notificationDestroyingMachine(arg.getDisplayName()));
                     notification.setStatus(PROGRESS);
                     notificationManager.showNotification(notification);
 

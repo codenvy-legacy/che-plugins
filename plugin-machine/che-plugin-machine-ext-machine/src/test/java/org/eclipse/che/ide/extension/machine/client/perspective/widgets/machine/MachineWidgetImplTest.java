@@ -71,6 +71,17 @@ public class MachineWidgetImplTest {
 
     @Test
     public void machineShouldBeUpdated() {
+        when(machine.getDisplayName()).thenReturn(SOME_TEXT);
+
+        view.update(machine);
+
+        verify(view.rightIcon, never()).getElement();
+        verify(machine).getDisplayName();
+        verify(view.name).setText(SOME_TEXT);
+    }
+
+    @Test
+    public void machineShouldBeUpdatedWhenNoDisplayName() {
         view.update(machine);
 
         verify(view.rightIcon, never()).getElement();
