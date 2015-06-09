@@ -11,7 +11,7 @@
 package org.eclipse.che.plugin.docker.machine.local;
 
 import org.eclipse.che.api.core.NotFoundException;
-import org.eclipse.che.api.core.ServerException;
+import org.eclipse.che.api.machine.server.exception.SnapshotException;
 import org.eclipse.che.api.machine.server.impl.SnapshotImpl;
 import org.eclipse.che.api.machine.server.dao.SnapshotDao;
 import org.eclipse.che.api.machine.shared.ProjectBinding;
@@ -28,22 +28,22 @@ import java.util.List;
 public class DummySnapshotDao implements SnapshotDao {
 
     @Override
-    public SnapshotImpl getSnapshot(String snapshotId) throws NotFoundException, ServerException {
-        throw new ServerException("Not available for dummy implementation");
+    public SnapshotImpl getSnapshot(String snapshotId) throws NotFoundException, SnapshotException {
+        throw new SnapshotException ("Not available for dummy implementation");
     }
 
     @Override
-    public void saveSnapshot(SnapshotImpl snapshot) throws ServerException {
-        throw new ServerException("Not available for dummy implementation");
+    public void saveSnapshot(SnapshotImpl snapshot) throws SnapshotException  {
+        throw new SnapshotException ("Not available for dummy implementation");
     }
 
     @Override
-    public List<SnapshotImpl> findSnapshots(String owner, String workspaceId, ProjectBinding project) throws ServerException {
-        throw new ServerException("Not available for dummy implementation");
+    public List<SnapshotImpl> findSnapshots(String owner, String workspaceId, ProjectBinding project) throws SnapshotException  {
+        throw new SnapshotException ("Not available for dummy implementation");
     }
 
     @Override
-    public void removeSnapshot(String snapshotId) throws NotFoundException, ServerException {
-        throw new ServerException("Not available for dummy implementation");
+    public void removeSnapshot(String snapshotId) throws NotFoundException, SnapshotException  {
+        throw new SnapshotException ("Not available for dummy implementation");
     }
 }

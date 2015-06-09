@@ -164,7 +164,7 @@ public class MavenProjectNode extends JavaProjectNode {
         } else if ("folder".equals(item.getType())) {
             return getTreeStructure().newJavaFolderNode(MavenProjectNode.this, item);
         } else {
-            return super.createChildNode(item);
+            return super.createChildNode(item, modules);
         }
     }
 

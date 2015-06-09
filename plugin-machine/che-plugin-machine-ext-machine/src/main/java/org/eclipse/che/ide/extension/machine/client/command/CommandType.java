@@ -42,7 +42,7 @@ public interface CommandType {
     @Nonnull
     ConfigurationFactory<? extends CommandConfiguration> getConfigurationFactory();
 
-    /** Returns template for this command type. */
+    /** Returns command template that will be used for newly created command. */
     @Nonnull
     String getCommandTemplate();
 }

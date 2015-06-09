@@ -22,11 +22,21 @@ import javax.annotation.Nonnull;
  */
 public class MavenCommandConfiguration extends CommandConfiguration {
 
+    private String workingDirectory;
     private String commandLine;
 
     protected MavenCommandConfiguration(String id, CommandType type, String name) {
         super(id, type, name);
+        workingDirectory = "";
         commandLine = "";
+    }
+
+    public String getWorkingDirectory() {
+        return workingDirectory;
+    }
+
+    public void setWorkingDirectory(String workingDirectory) {
+        this.workingDirectory = workingDirectory;
     }
 
     public String getCommandLine() {
@@ -40,6 +50,13 @@ public class MavenCommandConfiguration extends CommandConfiguration {
     @Nonnull
     @Override
     public String toCommandLine() {
-        return "mvn " + getCommandLine();
+        final StringBuilder cmd = new StringBuilder("mvn");
+        if (!workingDirectory.isEmpty()) {
+            cmd.append(" -f ").append(workingDirectory);
+        }
+        if (!commandLine.isEmpty()) {
+            cmd.append(' ').append(commandLine);
+        }
+        return cmd.toString();
     }
 }

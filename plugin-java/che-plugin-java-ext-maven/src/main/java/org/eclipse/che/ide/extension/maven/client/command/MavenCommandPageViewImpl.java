@@ -35,6 +35,8 @@ public class MavenCommandPageViewImpl implements MavenCommandPageView {
     private final DockLayoutPanel rootElement;
 
     @UiField
+    TextBox                   workingDirectory;
+    @UiField
     TextBox                   commandLine;
     @UiField(provided = true)
     MavenLocalizationConstant locale;
@@ -59,6 +61,16 @@ public class MavenCommandPageViewImpl implements MavenCommandPageView {
     }
 
     @Override
+    public String getWorkingDirectory() {
+        return workingDirectory.getValue();
+    }
+
+    @Override
+    public void setWorkingDirectory(String workingDirectory) {
+        this.workingDirectory.setValue(workingDirectory);
+    }
+
+    @Override
     public String getCommandLine() {
         return commandLine.getValue();
     }
@@ -68,8 +80,20 @@ public class MavenCommandPageViewImpl implements MavenCommandPageView {
         this.commandLine.setValue(commandLine);
     }
 
+    @UiHandler({"workingDirectory"})
+    void onWorkingDirectoryChanged(KeyUpEvent event) {
+        // commandLine value may not be updated immediately after keyUp
+        // therefore use the timer with delay=0
+        new Timer() {
+            @Override
+            public void run() {
+                delegate.onWorkingDirectoryChanged();
+            }
+        }.schedule(0);
+    }
+
     @UiHandler({"commandLine"})
-    void onKeyUp(KeyUpEvent event) {
+    void onCommandLineChanged(KeyUpEvent event) {
         // commandLine value may not be updated immediately after keyUp
         // therefore use the timer with delay=0
         new Timer() {

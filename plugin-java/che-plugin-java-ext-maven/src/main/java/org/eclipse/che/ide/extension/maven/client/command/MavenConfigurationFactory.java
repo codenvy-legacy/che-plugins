@@ -28,7 +28,7 @@ public class MavenConfigurationFactory extends ConfigurationFactory<MavenCommand
     }
 
     private static boolean isMavenCommand(String commandLine) {
-        return commandLine.startsWith("mvn ");
+        return commandLine.startsWith("mvn");
     }
 
     @Nonnull
@@ -41,7 +41,21 @@ public class MavenConfigurationFactory extends ConfigurationFactory<MavenCommand
         final MavenCommandConfiguration configuration = new MavenCommandConfiguration(descriptor.getId(),
                                                                                       getCommandType(),
                                                                                       descriptor.getName());
-        configuration.setCommandLine(descriptor.getCommandLine().replaceFirst("mvn ", ""));
+
+        final CommandLine cmd = new CommandLine(descriptor.getCommandLine());
+
+        if (cmd.hasArgument("-f")) {
+            final int index = cmd.indexOf("-f");
+            final String workDir = cmd.getArgument(index + 1);
+            configuration.setWorkingDirectory(workDir);
+
+            cmd.removeArgument("-f");
+            cmd.removeArgument(workDir);
+        }
+
+        cmd.removeArgument("mvn");
+        configuration.setCommandLine(cmd.toString());
+
         return configuration;
     }
 }
