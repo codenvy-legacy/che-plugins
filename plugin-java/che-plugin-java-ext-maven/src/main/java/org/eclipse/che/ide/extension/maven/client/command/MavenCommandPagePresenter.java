@@ -29,6 +29,9 @@ public class MavenCommandPagePresenter implements MavenCommandPageView.ActionDel
     private final MavenCommandPageView view;
 
     private MavenCommandConfiguration editedConfiguration;
+    /** Working directory value before any editing. */
+    private String                    originWorkingDirectory;
+    /** Command line value before any editing. */
     private String                    originCommandLine;
     private DirtyStateListener        listener;
 
@@ -41,6 +44,7 @@ public class MavenCommandPagePresenter implements MavenCommandPageView.ActionDel
     @Override
     public void resetFrom(@Nonnull MavenCommandConfiguration configuration) {
         editedConfiguration = configuration;
+        originWorkingDirectory = configuration.getWorkingDirectory();
         originCommandLine = configuration.getCommandLine();
     }
 
@@ -48,17 +52,25 @@ public class MavenCommandPagePresenter implements MavenCommandPageView.ActionDel
     public void go(AcceptsOneWidget container) {
         container.setWidget(view);
 
+        view.setWorkingDirectory(editedConfiguration.getWorkingDirectory());
         view.setCommandLine(editedConfiguration.getCommandLine());
     }
 
     @Override
     public boolean isDirty() {
-        return !originCommandLine.equals(editedConfiguration.getCommandLine());
+        return !(originWorkingDirectory.equals(editedConfiguration.getWorkingDirectory()) &&
+                 originCommandLine.equals(editedConfiguration.getCommandLine()));
     }
 
     @Override
     public void setDirtyStateListener(@Nonnull DirtyStateListener listener) {
         this.listener = listener;
+    }
+
+    @Override
+    public void onWorkingDirectoryChanged() {
+        editedConfiguration.setWorkingDirectory(view.getWorkingDirectory());
+        listener.onDirtyStateChanged();
     }
 
     @Override

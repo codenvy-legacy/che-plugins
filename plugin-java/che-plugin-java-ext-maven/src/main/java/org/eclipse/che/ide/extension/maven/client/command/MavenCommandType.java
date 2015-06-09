@@ -13,6 +13,8 @@ package org.eclipse.che.ide.extension.maven.client.command;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
+import org.eclipse.che.ide.api.app.AppContext;
+import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
 import org.eclipse.che.ide.extension.machine.client.command.CommandType;
 import org.eclipse.che.ide.extension.machine.client.command.ConfigurationFactory;
@@ -37,13 +39,15 @@ public class MavenCommandType implements CommandType {
     private static final String COMMAND_TEMPLATE = "mvn clean install";
 
     private final MavenResources            resources;
+    private final AppContext                appContext;
     private final MavenConfigurationFactory configurationFactory;
 
     private final Collection<ConfigurationPage<? extends CommandConfiguration>> pages;
 
     @Inject
-    public MavenCommandType(MavenResources resources, MavenCommandPagePresenter page) {
+    public MavenCommandType(MavenResources resources, MavenCommandPagePresenter page, AppContext appContext) {
         this.resources = resources;
+        this.appContext = appContext;
         configurationFactory = new MavenConfigurationFactory(this);
         pages = new LinkedList<>();
         pages.add(page);
@@ -82,6 +86,10 @@ public class MavenCommandType implements CommandType {
     @Nonnull
     @Override
     public String getCommandTemplate() {
+        final CurrentProject currentProject = appContext.getCurrentProject();
+        if (currentProject != null) {
+            return COMMAND_TEMPLATE + " -f " + currentProject.getRootProject().getName();
+        }
         return COMMAND_TEMPLATE;
     }
 }

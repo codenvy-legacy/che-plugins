@@ -22,7 +22,7 @@
             box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.19) inset, 0px 1px 0px 0px rgba(223, 223, 223, 0.4);
             font-size: 12px;
             padding-left: 8px;
-            width: 550px;
+            width: 558px;
             height: 250px;
             resize: none;
         }

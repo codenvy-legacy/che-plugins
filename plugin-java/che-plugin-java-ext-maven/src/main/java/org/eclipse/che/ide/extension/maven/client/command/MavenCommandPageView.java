@@ -22,6 +22,12 @@ import org.eclipse.che.ide.api.mvp.View;
 @ImplementedBy(MavenCommandPageViewImpl.class)
 public interface MavenCommandPageView extends View<MavenCommandPageView.ActionDelegate> {
 
+    /** Returns working directory. */
+    String getWorkingDirectory();
+
+    /** Sets working directory. */
+    void setWorkingDirectory(String workingDirectory);
+
     /** Returns command line. */
     String getCommandLine();
 
@@ -30,6 +36,9 @@ public interface MavenCommandPageView extends View<MavenCommandPageView.ActionDe
 
     /** Action handler for the view actions/controls. */
     interface ActionDelegate {
+
+        /** Called when working directory has been changed. */
+        void onWorkingDirectoryChanged();
 
         /** Called when command line has been changed. */
         void onCommandLineChanged();
