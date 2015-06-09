@@ -18,6 +18,7 @@ import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope;
 import org.eclipse.che.ide.ext.runner.client.tabs.templates.environment.EnvironmentWidget;
 import org.eclipse.che.ide.ext.runner.client.tabs.templates.filterwidget.FilterWidget;
 
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
@@ -82,12 +83,20 @@ public interface TemplatesView extends View<TemplatesView.ActionDelegate> {
      */
     void showDefaultEnvironmentInfo(@Nonnull Environment defaultEnvironment);
 
+    /**
+     * Scroll to top of the selected environment.
+     *
+     * @param index
+     *         index of selected environment
+     */
+    void scrollTop(@Nonnegative int index);
+
     interface ActionDelegate {
 
         /** Performs some actions when user over mouse on default runner. */
         void onDefaultRunnerMouseOver();
 
-        /**Creates new environment from scratch.*/
+        /** Creates new environment from scratch. */
         void createNewEnvironment();
     }
 }

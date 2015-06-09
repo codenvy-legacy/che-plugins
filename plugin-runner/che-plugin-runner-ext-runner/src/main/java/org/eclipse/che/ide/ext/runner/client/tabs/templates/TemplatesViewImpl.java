@@ -24,6 +24,7 @@ import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.PopupPanel;
+import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.SimpleLayoutPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -68,6 +69,7 @@ public class TemplatesViewImpl extends Composite implements TemplatesView {
 
     private static final int TOP_SHIFT  = 90;
     private static final int LEFT_SHIFT = 175;
+    private static final int ENVIRONMENT_WIDGET_HEIGHT = 35;
 
     @UiField
     FlowPanel         environmentsPanel;
@@ -78,9 +80,11 @@ public class TemplatesViewImpl extends Composite implements TemplatesView {
     @UiField
     FlowPanel         createNewButton;
     @UiField
-    DockLayoutPanel templatesPanel;
+    DockLayoutPanel   templatesPanel;
     @UiField
-    FlowPanel       defaultRunnerPanel;
+    FlowPanel         defaultRunnerPanel;
+    @UiField
+    ScrollPanel       environmentContainer;
 
     @UiField(provided = true)
     final RunnerResources            resources;
@@ -222,6 +226,12 @@ public class TemplatesViewImpl extends Composite implements TemplatesView {
         for (Environment environment : environmentWidgets.keySet()) {
             environmentWidgets.get(environment).update(environment);
         }
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void scrollTop(int index) {
+        environmentContainer.getElement().setScrollTop(index * ENVIRONMENT_WIDGET_HEIGHT);
     }
 
     /** {@inheritDoc} */

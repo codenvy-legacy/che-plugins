@@ -64,6 +64,7 @@ import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isNull;
@@ -286,6 +287,7 @@ public class TemplatesPresenterTest {
         verify(panelState).getState();
         verify(runnerUtil).hasRunPermission();
         verify(runnerManagerView).setEnableRunButton(true);
+        verify(view,times(2)).scrollTop(anyInt());
     }
 
     @Test
