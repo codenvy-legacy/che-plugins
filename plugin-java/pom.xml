@@ -23,7 +23,6 @@
     <packaging>pom</packaging>
     <name>Che Plugin :: Java :: Parent</name>
     <modules>
-        <module>che-plugin-java-jdt-core-repack</module>
         <module>che-plugin-java-ext-shared</module>
         <module>che-plugin-java-maven-tools</module>
         <!--<module>che-plugin-java-ext-ant</module>-->
