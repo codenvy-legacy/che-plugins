@@ -61,6 +61,16 @@ public class SystemInfo {
     // ]
     // So seems two-dimensional array is simplest solution for model.
     private String[][] driverStatus;
+    private int        nCPU;
+    private long       memTotal;
+    private String     name;
+    private String     iD;
+    private String     systemTime;
+    private String[]   labels;
+    private String     dockerRootDir;
+    private String     httpProxy;
+    private String     httpsProxy;
+    private String     noProxy;
 
     public int getContainers() {
         return containers;
@@ -259,34 +269,85 @@ public class SystemInfo {
         return Size.parseSize(str);
     }
 
-// Don't need this for now.
-/*
-    public String dataFilePath() {
-        return getStatusField("Data file");
+    public int getnCPU() {
+        return nCPU;
     }
 
-    public String metadataFilePath() {
-        return getStatusField("Metadata file");
+    public void setnCPU(int nCPU) {
+        this.nCPU = nCPU;
     }
 
-    public String pollName() {
-        return getStatusField("Pool Name");
+    public long getMemTotal() {
+        return memTotal;
     }
 
-    public long poolBlockSize() {
-        final String str = getStatusField("Pool Blocksize");
-        if (str == null) {
-            return -1;
-        }
-        return parseAndConvertToBytes(str);
+    public void setMemTotal(long memTotal) {
+        this.memTotal = memTotal;
     }
 
-    public String libraryVersion() {
-        return getStatusField("Library Version");
+    public String getName() {
+        return name;
     }
-*/
 
-    // ---------------------------------------------------------------------------
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getiD() {
+        return iD;
+    }
+
+    public void setiD(String iD) {
+        this.iD = iD;
+    }
+
+    public String getSystemTime() {
+        return systemTime;
+    }
+
+    public void setSystemTime(String systemTime) {
+        this.systemTime = systemTime;
+    }
+
+    public String[] getLabels() {
+        return labels;
+    }
+
+    public void setLabels(String[] labels) {
+        this.labels = labels;
+    }
+
+    public String getDockerRootDir() {
+        return dockerRootDir;
+    }
+
+    public void setDockerRootDir(String dockerRootDir) {
+        this.dockerRootDir = dockerRootDir;
+    }
+
+    public String getHttpProxy() {
+        return httpProxy;
+    }
+
+    public void setHttpProxy(String httpProxy) {
+        this.httpProxy = httpProxy;
+    }
+
+    public String getHttpsProxy() {
+        return httpsProxy;
+    }
+
+    public void setHttpsProxy(String httpsProxy) {
+        this.httpsProxy = httpsProxy;
+    }
+
+    public String getNoProxy() {
+        return noProxy;
+    }
+
+    public void setNoProxy(String noProxy) {
+        this.noProxy = noProxy;
+    }
 
     @Override
     public String toString() {
@@ -308,6 +369,16 @@ public class SystemInfo {
                ", operatingSystem='" + operatingSystem + '\'' +
                ", swapLimit=" + swapLimit +
                ", driverStatus=" + Arrays.toString(driverStatus) +
+               ", nCPU=" + nCPU +
+               ", memTotal=" + memTotal +
+               ", name='" + name + '\'' +
+               ", iD='" + iD + '\'' +
+               ", systemTime='" + systemTime + '\'' +
+               ", labels=" + Arrays.toString(labels) +
+               ", dockerRootDir='" + dockerRootDir + '\'' +
+               ", httpProxy='" + httpProxy + '\'' +
+               ", httpsProxy='" + httpsProxy + '\'' +
+               ", noProxy='" + noProxy + '\'' +
                '}';
     }
 }

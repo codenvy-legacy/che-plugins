@@ -18,9 +18,11 @@ public class ContainerState {
     // Date format: yyyy-MM-dd'T'HH:mm:ss.SSSSSSXXX
     private String  startedAt;
     private String  finishedAt;
-    private boolean ghost;
     private boolean paused;
     private boolean restarting;
+    private boolean dead;
+    private boolean oOMKilled;
+    private String  error;
 
     public boolean isRunning() {
         return running;
@@ -54,14 +56,6 @@ public class ContainerState {
         this.startedAt = startedAt;
     }
 
-    public boolean isGhost() {
-        return ghost;
-    }
-
-    public void setGhost(boolean ghost) {
-        this.ghost = ghost;
-    }
-
     public String getFinishedAt() {
         return finishedAt;
     }
@@ -86,6 +80,30 @@ public class ContainerState {
         this.restarting = restarting;
     }
 
+    public boolean isDead() {
+        return dead;
+    }
+
+    public void setDead(boolean dead) {
+        this.dead = dead;
+    }
+
+    public boolean isOOMKilled() {
+        return oOMKilled;
+    }
+
+    public void setOOMKilled(boolean OOMKilled) {
+        this.oOMKilled = OOMKilled;
+    }
+
+    public String getError() {
+        return error;
+    }
+
+    public void setError(String error) {
+        this.error = error;
+    }
+
     @Override
     public String toString() {
         return "ContainerState{" +
@@ -93,10 +111,12 @@ public class ContainerState {
                ", pid=" + pid +
                ", exitCode=" + exitCode +
                ", startedAt='" + startedAt + '\'' +
-               ", ghost=" + ghost +
-               ", finishedAt=" + finishedAt + '\'' +
+               ", finishedAt='" + finishedAt + '\'' +
                ", paused=" + paused +
                ", restarting=" + restarting +
+               ", dead=" + dead +
+               ", oOMKilled=" + oOMKilled +
+               ", error='" + error + '\'' +
                '}';
     }
 }

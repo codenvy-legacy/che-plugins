@@ -38,9 +38,12 @@ public class ImageConfig {
     // From docker code:
     // We will receive port specs in the format of ip:public:private/proto
     private String[]                 portSpecs;
-    boolean stdinOnce;
-    private boolean tty;
-    private String  user;
+    private boolean                  stdinOnce;
+    private boolean                  tty;
+    private String                   user;
+    private String                   macAddress;
+
+    private Map<String, String> labels     = new HashMap<>();
     private Map<String, Volume> volumes    = new HashMap<>();
     private String              workingDir = "";
 
@@ -228,6 +231,22 @@ public class ImageConfig {
         this.workingDir = workingDir;
     }
 
+    public String getMacAddress() {
+        return macAddress;
+    }
+
+    public void setMacAddress(String macAddress) {
+        this.macAddress = macAddress;
+    }
+
+    public Map<String, String> getLabels() {
+        return labels;
+    }
+
+    public void setLabels(Map<String, String> labels) {
+        this.labels = labels;
+    }
+
     @Override
     public String toString() {
         return "ImageConfig{" +
@@ -252,9 +271,10 @@ public class ImageConfig {
                ", stdinOnce=" + stdinOnce +
                ", tty=" + tty +
                ", user='" + user + '\'' +
+               ", macAddress='" + macAddress + '\'' +
+               ", labels=" + labels +
                ", volumes=" + volumes +
                ", workingDir='" + workingDir + '\'' +
                '}';
     }
-
 }

@@ -75,9 +75,10 @@ public class DockerInstanceMetadata implements InstanceMetadata {
         md.put("processLabel", info.getProcessLabel());
         md.put("volumesRW", String.valueOf(info.getVolumesRW()));
         md.put("resolvConfPath", info.getResolvConfPath());
-        md.put("sysInitPath", info.getSysInitPath());
         md.put("args", Arrays.toString(info.getArgs()));
         md.put("volumes", String.valueOf(info.getVolumes()));
+        md.put("restartCount", String.valueOf(info.getRestartCount()));
+        md.put("logPath", String.valueOf(info.getLogPath()));
         md.put("config.domainName", info.getConfig().getDomainName());
         md.put("config.hostname", info.getConfig().getHostname());
         md.put("config.image", info.getConfig().getImage());
@@ -101,14 +102,17 @@ public class DockerInstanceMetadata implements InstanceMetadata {
         md.put("config.openStdin", Boolean.toString(info.getConfig().isOpenStdin()));
         md.put("config.stdinOnce", Boolean.toString(info.getConfig().isStdinOnce()));
         md.put("config.tty", Boolean.toString(info.getConfig().isTty()));
+        md.put("config.labels", String.valueOf(info.getConfig().getLabels()));
         md.put("state.startedAt", info.getState().getStartedAt());
         md.put("state.exitCode", Integer.toString(info.getState().getExitCode()));
         md.put("state.pid", Integer.toString(info.getState().getPid()));
-        md.put("state.ghost", Boolean.toString(info.getState().isGhost()));
         md.put("state.running", Boolean.toString(info.getState().isRunning()));
         md.put("state.finishedAt", info.getState().getFinishedAt());
         md.put("state.paused", Boolean.toString(info.getState().isPaused()));
         md.put("state.restarting", Boolean.toString(info.getState().isRestarting()));
+        md.put("state.dead", String.valueOf(info.getState().isDead()));
+        md.put("state.OOMKilled", String.valueOf(info.getState().isOOMKilled()));
+        md.put("state.error", info.getState().getError());
         md.put("network.bridge", info.getNetworkSettings().getBridge());
         md.put("network.gateway", info.getNetworkSettings().getGateway());
         md.put("network.ipAddress", info.getNetworkSettings().getIpAddress());
@@ -116,6 +120,35 @@ public class DockerInstanceMetadata implements InstanceMetadata {
         md.put("network.portMappings", Arrays.toString(info.getNetworkSettings().getPortMapping()));
         md.put("network.macAddress", info.getNetworkSettings().getMacAddress());
         md.put("network.ports", String.valueOf(info.getNetworkSettings().getPorts()));
+        md.put("network.linkLocalIPv6PrefixLen", String.valueOf(info.getNetworkSettings().getLinkLocalIPv6PrefixLen()));
+        md.put("network.globalIPv6Address", info.getNetworkSettings().getGlobalIPv6Address());
+        md.put("network.globalIPv6PrefixLen", String.valueOf(info.getNetworkSettings().getGlobalIPv6PrefixLen()));
+        md.put("network.iPv6Gateway", info.getNetworkSettings().getiPv6Gateway());
+        md.put("network.linkLocalIPv6Address", info.getNetworkSettings().getLinkLocalIPv6Address());
+        md.put("hostConfig.cgroupParent", info.getHostConfig().getCgroupParent());
+        md.put("hostConfig.containerIDFile", info.getHostConfig().getContainerIDFile());
+        md.put("hostConfig.cpusetCpus", info.getHostConfig().getCpusetCpus());
+        md.put("hostConfig.ipcMode", info.getHostConfig().getIpcMode());
+        md.put("hostConfig.memory", info.getHostConfig().getMemory());
+        md.put("hostConfig.networkMode", info.getHostConfig().getNetworkMode());
+        md.put("hostConfig.pidMode", info.getHostConfig().getPidMode());
+        md.put("hostConfig.binds", Arrays.toString(info.getHostConfig().getBinds()));
+        md.put("hostConfig.capAdd", Arrays.toString(info.getHostConfig().getCapAdd()));
+        md.put("hostConfig.capDrop", Arrays.toString(info.getHostConfig().getCapDrop()));
+        md.put("hostConfig.cpuShares", String.valueOf(info.getHostConfig().getCpuShares()));
+        md.put("hostConfig.devices", Arrays.toString(info.getHostConfig().getDevices()));
+        md.put("hostConfig.dns", Arrays.toString(info.getHostConfig().getDns()));
+        md.put("hostConfig.dnsSearch", Arrays.toString(info.getHostConfig().getDnsSearch()));
+        md.put("hostConfig.extraHosts", Arrays.toString(info.getHostConfig().getExtraHosts()));
+        md.put("hostConfig.links", Arrays.toString(info.getHostConfig().getLinks()));
+        md.put("hostConfig.logConfig", String.valueOf(info.getHostConfig().getLogConfig()));
+        md.put("hostConfig.lxcConf", Arrays.toString(info.getHostConfig().getLxcConf()));
+        md.put("hostConfig.memorySwap", String.valueOf(info.getHostConfig().getMemorySwap()));
+        md.put("hostConfig.portBindings", String.valueOf(info.getHostConfig().getPortBindings()));
+        md.put("hostConfig.restartPolicy", String.valueOf(info.getHostConfig().getRestartPolicy()));
+        md.put("hostConfig.ulimits", Arrays.toString(info.getHostConfig().getUlimits()));
+        md.put("hostConfig.volumesFrom", Arrays.toString(info.getHostConfig().getVolumesFrom()));
+
         return md;
     }
 
@@ -132,11 +165,12 @@ public class DockerInstanceMetadata implements InstanceMetadata {
             final String portProtocol = portEntry.getKey();
             // we are assigning ports automatically, so have 1 to 1 binding (at least per protocol)
             final PortBinding portBinding = portEntry.getValue().get(0);
+            final ServerImpl server = new ServerImpl();
             if (portProtocol.endsWith("/udp")) {
-                exposedPorts.put(portProtocol, new ServerImpl(hostAddress + ":" + portBinding.getHostPort()));
+                exposedPorts.put(portProtocol, server.setAddress(hostAddress + ":" + portBinding.getHostPort()));
             } else {
                 // cut off /tcp if it presents
-                exposedPorts.put(portProtocol.split("/", 2)[0], new ServerImpl(hostAddress + ":" + portBinding.getHostPort()));
+                exposedPorts.put(portProtocol.split("/", 2)[0], server.setAddress(hostAddress + ":" + portBinding.getHostPort()));
             }
         }
         return exposedPorts;
