@@ -177,11 +177,13 @@ public class NativeGitConnection implements GitConnection {
                     command.setRemote(true);
                 }
             } catch (GitException ignored) {
-                command.setCreateNew(true);
-                command.setStartPoint(request.getStartPoint());
+                //ignored
             }
         }
-        command.setBranchName(request.getName()).execute();
+        command.setBranchName(request.getName())
+               .setStartPoint(request.getStartPoint())
+               .setCreateNew(request.isCreateNew())
+               .execute();
     }
 
     @Override
