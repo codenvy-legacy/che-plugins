@@ -201,7 +201,7 @@ public class MachinePanelPresenterTest {
         inputCallback.accepted(machineName);
 
         verify(managerProvider).get();
-        verify(machineManager).startMachine(eq(false), eq(machineName));
+        verify(machineManager).startMachine(eq(true), eq(machineName));
     }
 
     @Test

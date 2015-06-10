@@ -126,13 +126,18 @@ public class MachinePanelPresenter extends BasePresenter implements MachinePanel
             @Override
             public void accepted(String value) {
                 MachineManager manager = managerProvider.get();
-                manager.startMachine(false, value);
+                manager.startMachine(true, value);
             }
         };
 
         final String defaultName = generateDefaultName();
-        final InputDialog dialog = dialogFactory.createInputDialog(locale.machineCreateTitle(), locale.machineCreateMessage(),
-                                                                   defaultName, 0, defaultName.length(), inputCallback, null);
+        final InputDialog dialog = dialogFactory.createInputDialog(locale.machineCreateTitle(),
+                                                                   locale.machineCreateMessage(),
+                                                                   defaultName,
+                                                                   0,
+                                                                   defaultName.length(),
+                                                                   inputCallback,
+                                                                   null);
         dialog.show();
     }
 
