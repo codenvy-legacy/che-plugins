@@ -38,11 +38,15 @@ public class BranchCheckoutCommand extends GitCommand<Void> {
         }
         reset();
         commandLine.add("checkout");
-        if (createNew) {
-            commandLine.add("-b");
-        }
         if (isRemote) {
             commandLine.add("-t");
+            commandLine.add(branchName);
+            start();
+            return null;
+        }
+
+        if (createNew) {
+            commandLine.add("-b");
         }
         commandLine.add(branchName);
         if (startPoint != null) {

@@ -145,12 +145,16 @@ public interface GitServiceClient {
      * @param name
      *         branch's name
      * @param startPoint
-     *         if {@code createNew} is <code>true</code> then the name of a commit at which to start the new branch
+     *         if {@code createNew} is <code>true</code> then create a new branch {@code name} referencing {@code startPoint}, and check it
+     *         out.
+     *         Note: {@code startPoint} may be specified any way you like, including using a remote branch name or a name of a commit at
+     *         which to start the new branch.
+     *         For example, if {@code startPoint} is 'origin/branch' then will create branch 'name' and track 'origin/branch'.
      * @param createNew
      *         if <code>true</code> then create a new branch
      * @param callback
      */
-    void branchCheckout(@Nonnull ProjectDescriptor project, @Nonnull String name, @Nonnull String startPoint,
+    void branchCheckout(@Nonnull ProjectDescriptor project, @Nonnull String name, @Nullable String startPoint,
                         boolean createNew, @Nonnull AsyncRequestCallback<String> callback);
 
     /**

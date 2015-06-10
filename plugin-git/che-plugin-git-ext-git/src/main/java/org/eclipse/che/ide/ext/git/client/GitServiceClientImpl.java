@@ -326,11 +326,12 @@ public class GitServiceClientImpl implements GitServiceClient {
 
     /** {@inheritDoc} */
     @Override
-    public void branchCheckout(@Nonnull ProjectDescriptor project, @Nonnull String name, @Nonnull String startPoint,
+    public void branchCheckout(@Nonnull ProjectDescriptor project, @Nonnull String name, @Nullable String startPoint,
                                boolean createNew, @Nonnull AsyncRequestCallback<String> callback) {
-        BranchCheckoutRequest branchCheckoutRequest =
-                dtoFactory.createDto(BranchCheckoutRequest.class).withName(name).withStartPoint(startPoint)
-                          .withCreateNew(createNew);
+        BranchCheckoutRequest branchCheckoutRequest = dtoFactory.createDto(BranchCheckoutRequest.class)
+                                                                .withName(name)
+                                                                .withStartPoint(startPoint)
+                                                                .withCreateNew(createNew);
         String url = baseHttpUrl + BRANCH_CHECKOUT + "?projectPath=" + project.getPath();
         asyncRequestFactory.createPostRequest(url, branchCheckoutRequest).loader(loader).send(callback);
     }
