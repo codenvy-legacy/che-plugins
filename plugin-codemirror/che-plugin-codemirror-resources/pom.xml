@@ -11,13 +11,12 @@
       Codenvy, S.A. - initial API and implementation
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>che-plugin-codemirror-parent</artifactId>
         <groupId>org.eclipse.che.plugin</groupId>
-        <version>3.9.4-SNAPSHOT</version>
+        <version>3.9.4</version>
     </parent>
     <artifactId>che-plugin-codemirror-resources</artifactId>
     <packaging>jar</packaging>
@@ -121,10 +120,9 @@
                         </goals>
                         <configuration>
                             <target>
-                                <mkdir dir="${codemirror.extract.location}/"/>
+                                <mkdir dir="${codemirror.extract.location}/" />
                                 <move todir="${codemirror.extract.location}/">
-                                    <fileset
-                                            dir="${codemirror.unpack.location}/META-INF/resources/webjars/codemirror/${codemirror.upstream.version}/"/>
+                                    <fileset dir="${codemirror.unpack.location}/META-INF/resources/webjars/codemirror/${codemirror.upstream.version}/" />
                                 </move>
                             </target>
                         </configuration>
