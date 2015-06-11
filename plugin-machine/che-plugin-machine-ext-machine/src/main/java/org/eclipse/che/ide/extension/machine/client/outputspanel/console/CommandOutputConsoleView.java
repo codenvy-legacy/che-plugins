@@ -42,6 +42,9 @@ public class CommandOutputConsoleView extends Composite implements OutputConsole
     @UiField
     FlowPanel   consoleArea;
 
+    /** If true - next printed line should replace the previous one. */
+    private boolean carriageReturn;
+
     @Inject
     public CommandOutputConsoleView() {
         initWidget(UI_BINDER.createAndBindUi(this));
@@ -61,9 +64,16 @@ public class CommandOutputConsoleView extends Composite implements OutputConsole
     }
 
     @Override
-    public void print(String message) {
+    public void print(String message, boolean cr) {
         final HTML html = new HTML(buildSafeHtmlMessage(message));
         html.getElement().getStyle().setPaddingLeft(2, Style.Unit.PX);
+
+        if (carriageReturn) {
+            consoleArea.remove(consoleArea.getWidgetCount() - 1);
+            carriageReturn = false;
+        }
+
+        carriageReturn = cr;
         consoleArea.add(html);
     }
 

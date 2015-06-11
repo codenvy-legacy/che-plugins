@@ -65,7 +65,7 @@ public class CommandOutputConsole implements OutputConsole, OutputConsoleView.Ac
             messageBus.subscribe(outputChannel, new SubscriptionHandler<String>(new OutputMessageUnmarshaller()) {
                 @Override
                 protected void onMessageReceived(String result) {
-                    view.print(result);
+                    view.print(result, result.endsWith("\r"));
                     view.scrollBottom();
                 }
 

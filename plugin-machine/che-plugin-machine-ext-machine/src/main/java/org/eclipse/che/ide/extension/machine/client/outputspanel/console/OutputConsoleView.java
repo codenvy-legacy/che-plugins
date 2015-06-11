@@ -22,8 +22,16 @@ public interface OutputConsoleView extends View<OutputConsoleView.ActionDelegate
     /** Print the command line to the console. */
     void printCommandLine(String commandLine);
 
-    /** Print the {@code message} to the console. */
-    void print(String message);
+    /**
+     * Print the message.
+     *
+     * @param message
+     *         text to print
+     * @param cr
+     *         if {@code true} - next message should replace the current one,
+     *         if {@code false} - next message will be printed in a new line
+     */
+    void print(String message, boolean cr);
 
     /** Scrolls console to bottom. */
     void scrollBottom();
