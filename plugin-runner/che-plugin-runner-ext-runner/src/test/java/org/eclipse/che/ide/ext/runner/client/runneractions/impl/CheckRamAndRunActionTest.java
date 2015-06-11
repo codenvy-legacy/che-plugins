@@ -28,6 +28,7 @@ import org.eclipse.che.ide.ext.runner.client.inject.factories.RunnerActionFactor
 import org.eclipse.che.ide.ext.runner.client.manager.RunnerManagerPresenter;
 import org.eclipse.che.ide.ext.runner.client.models.Runner;
 import org.eclipse.che.ide.ext.runner.client.tabs.console.container.ConsoleContainer;
+import org.eclipse.che.ide.ext.runner.client.tabs.container.TabContainer;
 import org.eclipse.che.ide.ext.runner.client.util.RunnerUtil;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.ui.dialogs.CancelCallback;
@@ -81,6 +82,8 @@ public class CheckRamAndRunActionTest {
     @Mock
     private AppContext                                          appContext;
     @Mock
+    private RunnerLocalizationConstant                          locale;
+    @Mock
     private DialogFactory                                       dialogFactory;
     @Mock
     private ConsoleContainer                                    consoleContainer;
@@ -92,6 +95,8 @@ public class CheckRamAndRunActionTest {
     private RunnerUtil                                          runnerUtil;
     @Mock
     private RunnerActionFactory                                 actionFactory;
+    @Mock
+    private TabContainer                                        tabContainer;
     @Mock
     private RunnerManagerPresenter                              managerPresenter;
 
@@ -145,6 +150,8 @@ public class CheckRamAndRunActionTest {
         checkRamAndRunAction =
                 new CheckRamAndRunAction(service,
                                          appContext,
+                                         tabContainer,
+                                         locale,
                                          dialogFactory,
                                          consoleContainer,
                                          callbackBuilderProvider,
@@ -376,7 +383,8 @@ public class CheckRamAndRunActionTest {
         when(constant.messagesAvailableLessOverrideMemoryTitle()).thenReturn(SOME_TXT);
         when(constant.messagesAvailableLessOverrideMemorySettingsLink()).thenReturn(SOME_TXT);
         when(constant.messagesAvailableLessOverrideMemoryBackToConfig()).thenReturn(SOME_TXT);
-        when(dialogFactory.createChoiceDialog(anyString(), anyString(), anyString(), anyString(), any(ConfirmCallback.class), any(ConfirmCallback.class)))
+        when(dialogFactory.createChoiceDialog(anyString(), anyString(), anyString(), anyString(), any(ConfirmCallback.class),
+                                              any(ConfirmCallback.class)))
                 .thenReturn(choiceDialog);
 
         //total memory
@@ -427,7 +435,8 @@ public class CheckRamAndRunActionTest {
         when(constant.messagesAvailableLessOverrideMemoryTitle()).thenReturn(SOME_TXT);
         when(constant.messagesAvailableLessOverrideMemorySettingsLink()).thenReturn(SOME_TXT);
         when(constant.messagesAvailableLessOverrideMemoryBackToConfig()).thenReturn(SOME_TXT);
-        when(dialogFactory.createChoiceDialog(anyString(), anyString(), anyString(), anyString(), any(ConfirmCallback.class), any(ConfirmCallback.class)))
+        when(dialogFactory.createChoiceDialog(anyString(), anyString(), anyString(), anyString(), any(ConfirmCallback.class),
+                                              any(ConfirmCallback.class)))
                 .thenReturn(choiceDialog);
 
         //total memory
@@ -478,7 +487,8 @@ public class CheckRamAndRunActionTest {
         when(constant.messagesAvailableLessOverrideMemoryTitle()).thenReturn(SOME_TXT);
         when(constant.messagesAvailableLessOverrideMemorySettingsLink()).thenReturn(SOME_TXT);
         when(constant.messagesAvailableLessOverrideMemoryBackToConfig()).thenReturn(SOME_TXT);
-        when(dialogFactory.createChoiceDialog(anyString(), anyString(), anyString(), anyString(), any(ConfirmCallback.class), any(ConfirmCallback.class)))
+        when(dialogFactory.createChoiceDialog(anyString(), anyString(), anyString(), anyString(), any(ConfirmCallback.class),
+                                              any(ConfirmCallback.class)))
                 .thenReturn(choiceDialog);
 
         //total memory
@@ -647,7 +657,8 @@ public class CheckRamAndRunActionTest {
         when(constant.messagesAvailableLessOverrideMemoryTitle()).thenReturn(SOME_TXT);
         when(constant.messagesAvailableLessOverrideMemorySettingsLink()).thenReturn(SOME_TXT);
         when(constant.messagesAvailableLessOverrideMemoryBackToConfig()).thenReturn(SOME_TXT);
-        when(dialogFactory.createChoiceDialog(anyString(), anyString(), anyString(), anyString(), any(ConfirmCallback.class), any(ConfirmCallback.class)))
+        when(dialogFactory.createChoiceDialog(anyString(), anyString(), anyString(), anyString(), any(ConfirmCallback.class),
+                                              any(ConfirmCallback.class)))
                 .thenReturn(choiceDialog);
 
         //total memory
