@@ -57,7 +57,7 @@ public class QuickDocPresenter implements QuickDocumentation, QuickDocView.Actio
         EmbeddedTextEditorPresenter editor = ((EmbeddedTextEditorPresenter)activeEditor);
         int offset = editor.getCursorOffset();
         final PositionConverter.PixelCoordinates coordinates = editor.getPositionConverter().offsetToPixel(offset);
-        view.show(caContext + "/javadoc/" + appContext.getWorkspace().getId() + "/find?fqn=" + JavaSourceFolderUtil.getFQNForFile(editor.getEditorInput().getFile()) + "&projectpath=" +
+        view.show(caContext + "/jdt/javadoc/" + appContext.getWorkspace().getId() + "/find?fqn=" + JavaSourceFolderUtil.getFQNForFile(editor.getEditorInput().getFile()) + "&projectpath=" +
                   appContext.getCurrentProject().getProjectDescription().getPath() + "&offset=" + offset, coordinates.getX(), coordinates.getY() + 16);
     }
 

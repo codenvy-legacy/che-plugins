@@ -12,10 +12,15 @@
 package org.eclipse.che.jdt;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.Provides;
+import com.google.inject.Singleton;
+import com.google.inject.name.Named;
 
 import org.eclipse.che.core.internal.resources.ResourcesPlugin;
 import org.eclipse.che.inject.DynaModule;
 import org.eclipse.che.jdt.rest.CodeAssistService;
+import org.eclipse.che.jdt.rest.JavaClasspathService;
+import org.eclipse.che.jdt.rest.JavaReconcileService;
 import org.eclipse.core.internal.filebuffers.FileBuffersPlugin;
 import org.eclipse.jdt.internal.ui.JavaPlugin;
 
@@ -25,12 +30,42 @@ import org.eclipse.jdt.internal.ui.JavaPlugin;
 @DynaModule
 public class JdtGuiceModule extends AbstractModule {
 
+    private static final String CHE = "/.che";
+
     @Override
     protected void configure() {
+        bind(JavadocService.class);
+        bind(JavaNavigationService.class);
+        bind(JavaReconcileService.class);
+        bind(JavaClasspathService.class);
+        bind(CodeAssistService.class);
         bind(ResourcesPlugin.class).asEagerSingleton();
         bind(JavaPlugin.class).asEagerSingleton();
         bind(FileBuffersPlugin.class).asEagerSingleton();
-        bind(ProjectListeners.class).asEagerSingleton();
-        bind(CodeAssistService.class);
+//        bind(ProjectListeners.class).asEagerSingleton();
     }
+
+    @Provides
+    @Named("che.workspace.path")
+    @Singleton
+    protected String provideWorkspace() {
+        return "/projects";
+    }
+
+    @Provides
+    @Named("che.jdt.settings.dir")
+    @Singleton
+    protected String provideSettings(@Named("che.workspace.path")String wsPath){
+        return wsPath + CHE + "/settings";
+    }
+
+    @Provides
+    @Named("che.jdt.workspace.index.dir")
+    @Singleton
+    protected String provideIndex(@Named("che.workspace.path")String wsPath){
+        return wsPath + CHE + "/index";
+    }
+
+
+
 }

@@ -31,12 +31,9 @@ import java.util.List;
 /**
  * @author Evgen Vidolob
  */
-@Path("navigation/{ws-id}")
+@Path("jdt/navigation")
 public class JavaNavigationService {
     JavaModel MODEL = JavaModelManager.getJavaModelManager().getJavaModel();
-
-    @PathParam("ws-id")
-    private String wsId;
 
     @Inject
     private JavaNavigation navigation;

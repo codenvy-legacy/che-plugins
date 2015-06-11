@@ -50,19 +50,19 @@ public class JavaCodeAssistClient {
     }
 
     public void computeProposals(String projectPath, String fqn, int offset, String contents, AsyncRequestCallback<Proposals> callback) {
-        String url = javaCAPath + "/code-assist/compute/completion" + "/?projectpath=" + projectPath + "&fqn=" + fqn + "&offset=" + offset;
+        String url = javaCAPath + "/jdt/code-assist/compute/completion" + "/?projectpath=" + projectPath + "&fqn=" + fqn + "&offset=" + offset;
         asyncRequestFactory.createPostRequest(url, null).data(contents).send(callback);
     }
 
     public void computeAssistProposals(String projectPath, String fqn, int offset, List<Problem> problems, AsyncRequestCallback<Proposals> callback) {
-        String url = javaCAPath + "/code-assist/compute/assist" + "/?projectpath=" + projectPath + "&fqn=" + fqn + "&offset=" + offset;
+        String url = javaCAPath + "/jdt/code-assist/compute/assist" + "/?projectpath=" + projectPath + "&fqn=" + fqn + "&offset=" + offset;
         Array<Problem> prob = Collections.createArray(problems);
         asyncRequestFactory.createPostRequest(url, prob).send(callback);
     }
 
 
     public void applyProposal(String sessionId, int index, boolean insert, final AsyncCallback<ProposalApplyResult> callback) {
-        String url = javaCAPath + "/code-assist/apply/completion/?sessionid=" + sessionId+ "&index=" + index + "&insert=" + insert;
+        String url = javaCAPath + "/jdt/code-assist/apply/completion/?sessionid=" + sessionId+ "&index=" + index + "&insert=" + insert;
         Unmarshallable<ProposalApplyResult> unmarshaller =
                 unmarshallerFactory.newUnmarshaller(ProposalApplyResult.class);
         asyncRequestFactory.createGetRequest(url).send(new AsyncRequestCallback<ProposalApplyResult>(unmarshaller) {

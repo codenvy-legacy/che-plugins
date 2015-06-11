@@ -35,7 +35,7 @@ import java.util.List;
 /**
  * @author Evgen Vidolob
  */
-@Path("code-assist")
+@Path("jdt/code-assist")
 public class CodeAssistService {
 
     private static final JavaModel model = JavaModelManager.getJavaModelManager().getJavaModel();

@@ -26,12 +26,9 @@ import javax.ws.rs.core.UriInfo;
 /**
  * @author Evgen Vidolob
  */
-@Path("javadoc/{ws-id}")
+@Path("jdt/javadoc")
 public class JavadocService {
 
-
-    @PathParam("ws-id")
-    private String wsId;
 
     @Path("find")
     @GET
@@ -53,7 +50,7 @@ public class JavadocService {
     }
 
     private String getUrlPart(String projectPath, UriBuilder uriBuilder) {
-        return uriBuilder.clone().path(JavadocService.class).path(JavadocService.class, "get").build(wsId).toString() + "?projectpath=" + projectPath + "&handle=";
+        return uriBuilder.clone().path(JavadocService.class).path(JavadocService.class, "get").build().toString() + "?projectpath=" + projectPath + "&handle=";
     }
 
 }

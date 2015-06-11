@@ -39,7 +39,7 @@ public class ResourcesPlugin {
     private static String pluginId;
 
     @Inject
-    public ResourcesPlugin(@Named("che.jdt.workspace.index.dir") String indexPath, @Named("vfs.local.fs_root_dir") String workspacePath) {
+    public ResourcesPlugin(@Named("che.jdt.workspace.index.dir") String indexPath, @Named("che.workspace.path") String workspacePath) {
         ResourcesPlugin.indexPath = indexPath;
         ResourcesPlugin.workspacePath = workspacePath;
     }

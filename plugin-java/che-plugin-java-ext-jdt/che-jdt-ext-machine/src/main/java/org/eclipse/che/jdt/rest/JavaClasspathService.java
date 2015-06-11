@@ -40,7 +40,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author Evgen Vidolob
  */
-@Path("classpath")
+@Path("jdt/classpath")
 public class JavaClasspathService {
     private static final IClasspathEntry[] EMPTY = new IClasspathEntry[0];
     private static final JavaModel         model = JavaModelManager.getJavaModelManager().getJavaModel();

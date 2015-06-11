@@ -28,16 +28,13 @@ import javax.ws.rs.QueryParam;
 /**
  * @author Evgen Vidolob
  */
-@Path("reconcile/{ws-id}")
+@Path("jdt/reconcile")
 public class JavaReconcileService {
 
     private static final JavaModel model = JavaModelManager.getJavaModelManager().getJavaModel();
 
     @Inject
     private JavaReconciler reconciler;
-
-    @PathParam("ws-id")
-    private String wsId;
 
     @GET
     @Produces("application/json")
