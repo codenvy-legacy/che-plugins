@@ -76,7 +76,7 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
     FlowPanel                   savePanel;
 
     private ActionDelegate delegate;
-    private Button         okButton;
+    private Button         cancelButton;
     private Button         applyButton;
 
     @Inject
@@ -200,7 +200,7 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
     }
 
     private void createFooterButtons(@Nonnull org.eclipse.che.ide.Resources resources) {
-        okButton = createButton(locale.okButton(), "window-edit-configurations-ok", new ClickHandler() {
+        final Button okButton = createButton(locale.okButton(), "window-edit-configurations-ok", new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 delegate.onOkClicked();
@@ -212,20 +212,20 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
                 delegate.onApplyClicked();
             }
         });
-        final Button closeButton = createButton(locale.closeButton(), "window-edit-configurations-close", new ClickHandler() {
+        cancelButton = createButton(locale.cancelButton(), "window-edit-configurations-cancel", new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                delegate.onCloseClicked();
+                delegate.onCancelClicked();
             }
         });
 
         okButton.addStyleName(resources.wizardCss().buttonPrimary());
         applyButton.addStyleName(resources.wizardCss().buttonSuccess());
-        closeButton.addStyleName(resources.wizardCss().button());
+        cancelButton.addStyleName(resources.wizardCss().button());
 
         getFooter().add(okButton);
         getFooter().add(applyButton);
-        getFooter().add(closeButton);
+        getFooter().add(cancelButton);
     }
 
     @Override
@@ -320,13 +320,13 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
     }
 
     @Override
-    public void setApplyButtonState(boolean enabled) {
-        applyButton.setEnabled(enabled);
+    public void setCancelButtonState(boolean enabled) {
+        cancelButton.setEnabled(enabled);
     }
 
     @Override
-    public void setOkButtonState(boolean enabled) {
-        okButton.setEnabled(enabled);
+    public void setApplyButtonState(boolean enabled) {
+        applyButton.setEnabled(enabled);
     }
 
     @Nullable

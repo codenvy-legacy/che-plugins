@@ -32,9 +32,6 @@ public interface MachineLocalizationConstant extends Messages {
     @Key("button.cancel")
     String cancelButton();
 
-    @Key("button.close")
-    String closeButton();
-
 
     /* Actions */
     @Key("mainMenu.run.name")

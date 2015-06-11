@@ -81,17 +81,20 @@ public class EditConfigurationsPresenter implements EditConfigurationsView.Actio
     @Override
     public void onOkClicked() {
         final CommandConfiguration selectedConfiguration = view.getSelectedConfiguration();
-        if (selectedConfiguration != null) {
-            commandServiceClient.updateCommand(selectedConfiguration.getId(),
-                                               selectedConfiguration.getName(),
-                                               selectedConfiguration.toCommandLine()).then(new Operation<CommandDescriptor>() {
-                @Override
-                public void apply(CommandDescriptor arg) throws OperationException {
-                    view.close();
-                    fireConfigurationsChanged();
-                }
-            });
+        if (!isViewModified() || selectedConfiguration == null) {
+            view.close();
+            return;
         }
+
+        commandServiceClient.updateCommand(selectedConfiguration.getId(),
+                                           selectedConfiguration.getName(),
+                                           selectedConfiguration.toCommandLine()).then(new Operation<CommandDescriptor>() {
+            @Override
+            public void apply(CommandDescriptor arg) throws OperationException {
+                view.close();
+                fireConfigurationsChanged();
+            }
+        });
     }
 
     @Override
@@ -111,7 +114,7 @@ public class EditConfigurationsPresenter implements EditConfigurationsView.Actio
     }
 
     @Override
-    public void onCloseClicked() {
+    public void onCancelClicked() {
         view.close();
     }
 
@@ -310,8 +313,8 @@ public class EditConfigurationsPresenter implements EditConfigurationsView.Actio
             p.setDirtyStateListener(new DirtyStateListener() {
                 @Override
                 public void onDirtyStateChanged() {
-                    view.setApplyButtonState(true);
-                    view.setOkButtonState(true);
+                    view.setCancelButtonState(isViewModified());
+                    view.setApplyButtonState(isViewModified());
                 }
             });
             p.resetFrom(configuration);
@@ -330,8 +333,8 @@ public class EditConfigurationsPresenter implements EditConfigurationsView.Actio
         if (selectedConfiguration != null) {
             selectedConfiguration.setName(view.getConfigurationName());
 
-            view.setApplyButtonState(true);
-            view.setOkButtonState(true);
+            view.setCancelButtonState(isViewModified());
+            view.setApplyButtonState(isViewModified());
         }
     }
 
@@ -351,8 +354,8 @@ public class EditConfigurationsPresenter implements EditConfigurationsView.Actio
         resetEditedCommand();
         view.setAddButtonState(false);
         view.setRemoveButtonState(false);
+        view.setCancelButtonState(false);
         view.setApplyButtonState(false);
-        view.setOkButtonState(false);
 
         commandServiceClient.getCommands().then(new Function<List<CommandDescriptor>, List<CommandConfiguration>>() {
             @Override
