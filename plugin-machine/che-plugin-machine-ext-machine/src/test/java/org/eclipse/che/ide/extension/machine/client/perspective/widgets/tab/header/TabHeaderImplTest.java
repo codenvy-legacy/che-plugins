@@ -21,6 +21,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -58,9 +60,19 @@ public class TabHeaderImplTest {
 
     @Test
     public void onTabShouldBeClicked() {
+        when(header.tabName.getText()).thenReturn(SOME_TEXT);
+
         header.onClick(event);
 
-        verify(delegate).onTabClicked(header);
+        verify(header.tabName).getText();
+        verify(delegate).onTabClicked(SOME_TEXT);
+    }
+
+    @Test
+    public void nameShouldBeReturned() {
+        String name = header.getName();
+
+        assertThat(name, equalTo(SOME_TEXT));
     }
 
     @Test

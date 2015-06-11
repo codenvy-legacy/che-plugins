@@ -30,6 +30,8 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class TabContainerPresenterTest {
+
+    private final static String SOME_TEXT = "someText";
     //constructor mocks
     @Mock
     private TabContainerView view;
@@ -82,32 +84,32 @@ public class TabContainerPresenterTest {
 
     @Test
     public void onTabShouldBeClicked() {
+        when(header.getName()).thenReturn(SOME_TEXT);
+
         presenter.addTab(tab);
         presenter.addTab(tab1);
 
-        presenter.onTabClicked(header);
+        presenter.onTabClicked(SOME_TEXT);
 
         verifyDisplayingTab();
     }
 
     private void verifyDisplayingTab() {
-        verify(header).setDisable();
+        verify(header).setEnable();
         verify(header1).setDisable();
 
-        verify(header).setEnable();
-
-        verify(content).setVisible(false);
-        verify(content1).setVisible(false);
-
         verify(content).setVisible(true);
+        verify(content1).setVisible(false);
     }
 
     @Test
     public void tabShouldBeShown() {
+        when(header.getName()).thenReturn(SOME_TEXT);
+
         presenter.addTab(tab);
         presenter.addTab(tab1);
 
-        presenter.showTab(tab);
+        presenter.showTab(SOME_TEXT);
 
         verifyDisplayingTab();
     }

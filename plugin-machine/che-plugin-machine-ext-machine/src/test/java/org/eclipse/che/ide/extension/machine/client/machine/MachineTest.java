@@ -12,6 +12,7 @@ package org.eclipse.che.ide.extension.machine.client.machine;
 
 import org.eclipse.che.api.machine.shared.dto.MachineDescriptor;
 import org.eclipse.che.api.machine.shared.dto.ServerDescriptor;
+import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,9 +39,11 @@ public class MachineTest {
     private final static String SOME_TEXT = "someText";
 
     @Mock
-    private MachineDescriptor descriptor;
+    private MachineDescriptor           descriptor;
     @Mock
-    private ServerDescriptor  serverDescriptor;
+    private ServerDescriptor            serverDescriptor;
+    @Mock
+    private MachineLocalizationConstant locale;
 
     private Map<String, ServerDescriptor> servers;
 
@@ -55,6 +58,30 @@ public class MachineTest {
         when(descriptor.getServers()).thenReturn(servers);
 
         machine.setDescriptor(descriptor);
+    }
+
+    @Test
+    public void constructorShouldBeVerified() {
+        verify(locale).tabInfo();
+    }
+
+    @Test
+    public void defaultActiveTabShouldBeReturned() {
+        when(locale.tabInfo()).thenReturn(SOME_TEXT);
+        machine = new Machine(locale);
+
+        String tabName = machine.getActiveTabName();
+
+        assertThat(tabName, equalTo(SOME_TEXT));
+    }
+
+    @Test
+    public void activeTabNameShouldBeSet() {
+        machine.setActiveTabName(SOME_TEXT);
+
+        String tabName = machine.getActiveTabName();
+
+        assertThat(tabName, equalTo(SOME_TEXT));
     }
 
     @Test

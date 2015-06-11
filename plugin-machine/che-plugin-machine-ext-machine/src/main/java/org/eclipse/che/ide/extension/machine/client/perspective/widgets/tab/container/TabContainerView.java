@@ -40,4 +40,9 @@ public interface TabContainerView extends IsWidget {
      *         content which need add
      */
     void addContent(@Nonnull TabPresenter content);
+
+    interface TabSelectHandler {
+        /** Performs some actions when user clicks on tab. */
+        void onTabSelected();
+    }
 }

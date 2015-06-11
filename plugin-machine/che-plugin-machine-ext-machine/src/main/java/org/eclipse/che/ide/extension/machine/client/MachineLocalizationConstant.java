@@ -181,4 +181,37 @@ public interface MachineLocalizationConstant extends Messages {
 
     @Key("machine.perspective.action.tooltip")
     String perspectiveActionTooltip();
+
+    @Key("tab.info")
+    String tabInfo();
+
+    @Key("info.name")
+    String infoName();
+
+    @Key("info.machine.id")
+    String infoMachineId();
+
+    @Key("info.owner")
+    String infoOwner();
+
+    @Key("info.state")
+    String infoState();
+
+    @Key("info.type")
+    String infoType();
+
+    @Key("info.ws.bound")
+    String infoWsBound();
+
+    @Key("info.ws.id")
+    String infoWsId();
+
+    @Key("info.server.name")
+    String infoServerName();
+
+    @Key("info.server.address")
+    String infoServerAddress();
+
+    @Key("tab.server")
+    String tabServer();
 }

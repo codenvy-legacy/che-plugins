@@ -18,8 +18,8 @@ import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.cont
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.header.TabHeader;
 
 import javax.annotation.Nonnull;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The class provides methods which contains business logic to add and control tabs.
@@ -29,14 +29,14 @@ import java.util.Map;
 @Singleton
 public class TabContainerPresenter implements TabHeader.ActionDelegate {
 
-    private final Map<TabHeader, TabPresenter> tabs;
-    private final TabContainerView             view;
+    private final List<Tab>        tabs;
+    private final TabContainerView view;
 
     @Inject
     public TabContainerPresenter(TabContainerView view) {
         this.view = view;
 
-        this.tabs = new HashMap<>();
+        this.tabs = new ArrayList<>();
     }
 
     /** @return view which associated with current tab. */
@@ -56,7 +56,7 @@ public class TabContainerPresenter implements TabHeader.ActionDelegate {
 
         TabPresenter content = tab.getContent();
 
-        tabs.put(header, content);
+        tabs.add(tab);
 
         view.addHeader(header);
         view.addContent(content);
@@ -65,28 +65,32 @@ public class TabContainerPresenter implements TabHeader.ActionDelegate {
     /**
      * Shows content of clicked tab.
      *
-     * @param tab
-     *         tab which need show
+     * @param tabName
+     *         name of tab which need show
      */
-    public void showTab(@Nonnull Tab tab) {
-        onTabClicked(tab.getHeader());
+    public void showTab(@Nonnull String tabName) {
+        onTabClicked(tabName);
     }
 
     /** {@inheritDoc} */
     @Override
-    public void onTabClicked(@Nonnull TabHeader tabHeader) {
-        for (TabHeader header : tabs.keySet()) {
+    public void onTabClicked(@Nonnull String tabName) {
+        for (Tab tab : tabs) {
+            TabHeader header = tab.getHeader();
+            TabPresenter content = tab.getContent();
+
+            if (tabName.equals(header.getName())) {
+                header.setEnable();
+
+                content.setVisible(true);
+
+                tab.performHandler();
+
+                continue;
+            }
+
             header.setDisable();
+            content.setVisible(false);
         }
-
-        tabHeader.setEnable();
-
-        for (TabPresenter presenter : tabs.values()) {
-            presenter.setVisible(false);
-        }
-
-        TabPresenter content = tabs.get(tabHeader);
-
-        content.setVisible(true);
     }
 }
