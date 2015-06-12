@@ -19,6 +19,7 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DeckLayoutPanel;
 import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.InlineLabel;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Widget;
@@ -88,7 +89,13 @@ public class OutputsContainerViewImpl extends BaseView<OutputsContainerView.Acti
     }
 
     @Override
-    public void closeAllConsoles() {
+    public void removeConsole(int index) {
+        tabsPanel.remove(index);
+        contentPanel.remove(index);
+    }
+
+    @Override
+    public void removeAllConsoles() {
         tabsPanel.clear();
         contentPanel.clear();
     }
@@ -105,6 +112,7 @@ public class OutputsContainerViewImpl extends BaseView<OutputsContainerView.Acti
 
         FlowPanel   tabPanel;
         InlineLabel tabTitleLabel;
+        Image       image;
 
         TabButton(SVGImage icon, String title) {
             tabPanel = new FlowPanel();
@@ -120,6 +128,17 @@ public class OutputsContainerViewImpl extends BaseView<OutputsContainerView.Acti
             tabTitleLabel = new InlineLabel(title);
             tabTitleLabel.addStyleName(resources.getCss().outputsContainerConsoleTabLabel());
             tabPanel.add(tabTitleLabel);
+
+            image = new Image(resources.close());
+            image.setStyleName(resources.getCss().outputsContainerConsoleTabCloseButton());
+            tabPanel.add(image);
+
+            image.addClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    delegate.onConsoleClosed(tabsPanel.getWidgetIndex(TabButton.this));
+                }
+            });
         }
 
         HandlerRegistration addClickHandler(ClickHandler handler) {

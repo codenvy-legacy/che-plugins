@@ -49,7 +49,6 @@
 .outputsContainerConsoleTab {
     border-right: 1px solid tabBorder;
     cursor: pointer;
-    cursor: hand;
     height: 17px;
     font-size: 11px;
     display: inline-block;
@@ -57,12 +56,6 @@
 
 .outputsContainerConsoleTab:hover {
     color: buttonHoverTextColor;
-}
-
-.outputsContainerConsoleTab:hover:before {
-    position: absolute;
-    height: 0;
-    content: "";
 }
 
 .outputsContainerConsoleTabSelected {
@@ -79,19 +72,9 @@
     border-right: 1px solid tabBorder;
     box-shadow: 1px 0 0 0 tabBorderShadow;
     cursor: pointer;
-    cursor: hand;
     position: relative;
     top: -2px;
     padding-left: 15px;
-    padding-right: 15px;
-}
-
-.outputsContainerConsoleTabPanel.outputsContainerConsoleTab:hover:before {
-    top: 0;
-    left: 0;
-    width: 100%;
-    border-bottom: 16px solid #7d7d7d;
-    border-top: 1px solid #7d7d7d;
 }
 
 .outputsContainerConsoleTabPanel.outputsContainerConsoleTabSelected:before {
@@ -111,6 +94,14 @@
     position: relative;
     top: 2px;
     white-space: nowrap;
+}
+
+.outputsContainerConsoleTabCloseButton {
+    cursor: pointer;
+    opacity: 0.5;
+    vertical-align: middle;
+    padding: 5px 10px;
+    float: right;
 }
 
 .activeTab {

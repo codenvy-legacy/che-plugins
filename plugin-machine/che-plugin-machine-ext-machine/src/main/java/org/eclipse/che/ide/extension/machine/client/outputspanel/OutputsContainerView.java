@@ -22,12 +22,17 @@ import org.eclipse.che.ide.api.parts.base.BaseActionDelegate;
  */
 public interface OutputsContainerView extends View<OutputsContainerView.ActionDelegate> {
 
+    /** Add console widget with the specified title. */
     void addConsole(String title, IsWidget widget);
 
     /** Show console by the given index. */
     void showConsole(int index);
 
-    void closeAllConsoles();
+    /** Remove console by the given index. */
+    void removeConsole(int index);
+
+    /** Remove all consoles. */
+    void removeAllConsoles();
 
     /**
      * Set view's title.
@@ -39,7 +44,10 @@ public interface OutputsContainerView extends View<OutputsContainerView.ActionDe
 
     interface ActionDelegate extends BaseActionDelegate {
 
-        /** Called when console with the given {@code index} is selected. */
+        /** Called when console with the given {@code index} has been selected. */
         void onConsoleSelected(int index);
+
+        /** Called when console with the given {@code index} has been closed. */
+        void onConsoleClosed(int index);
     }
 }

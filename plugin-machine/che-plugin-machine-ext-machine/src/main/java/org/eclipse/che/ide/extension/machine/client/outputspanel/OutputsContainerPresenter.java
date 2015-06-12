@@ -90,6 +90,14 @@ public class OutputsContainerPresenter extends BasePresenter implements OutputsC
     }
 
     @Override
+    public void onConsoleClosed(int index) {
+        view.removeConsole(index);
+        if (index > 0) {
+            view.showConsole(index - 1);
+        }
+    }
+
+    @Override
     public void onProjectOpened(ProjectActionEvent event) {
     }
 
@@ -99,6 +107,6 @@ public class OutputsContainerPresenter extends BasePresenter implements OutputsC
 
     @Override
     public void onProjectClosed(ProjectActionEvent event) {
-        view.closeAllConsoles();
+        view.removeAllConsoles();
     }
 }
