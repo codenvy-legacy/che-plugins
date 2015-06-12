@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.runner.client.tabs.templates;
 
+import com.google.gwt.http.client.URL;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.inject.Inject;
@@ -39,6 +40,7 @@ import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.PropertiesPan
 import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope;
 import org.eclipse.che.ide.ext.runner.client.tabs.templates.environment.EnvironmentWidget;
 import org.eclipse.che.ide.ext.runner.client.tabs.templates.filterwidget.FilterWidget;
+import org.eclipse.che.ide.ext.runner.client.util.EnvironmentIdValidator;
 import org.eclipse.che.ide.ext.runner.client.util.GetEnvironmentsUtil;
 import org.eclipse.che.ide.ext.runner.client.util.NameGenerator;
 import org.eclipse.che.ide.ext.runner.client.util.RunnerUtil;
@@ -350,6 +352,9 @@ public class TemplatesPresenter implements TemplatesContainer, FilterWidget.Acti
         String defaultRunner = currentProject.getRunner();
 
         String environmentId = environment.getId();
+        if (!EnvironmentIdValidator.isValid(environmentId))  {
+            environmentId = URL.encode(environmentId);
+        }
 
         if (!environmentId.equals(defaultRunner)) {
             descriptor.getRunners().setDefault(environmentId);

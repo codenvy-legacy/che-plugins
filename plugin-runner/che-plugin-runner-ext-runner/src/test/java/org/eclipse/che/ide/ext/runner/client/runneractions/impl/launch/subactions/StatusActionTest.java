@@ -32,14 +32,11 @@ import org.eclipse.che.ide.ext.runner.client.models.Runner;
 import org.eclipse.che.ide.ext.runner.client.runneractions.impl.GetLogsAction;
 import org.eclipse.che.ide.ext.runner.client.runneractions.impl.launch.common.RunnerApplicationStatusEvent;
 import org.eclipse.che.ide.ext.runner.client.tabs.console.container.ConsoleContainer;
+import org.eclipse.che.ide.ext.runner.client.tabs.terminal.container.TerminalContainer;
 import org.eclipse.che.ide.ext.runner.client.util.RunnerUtil;
 import org.eclipse.che.ide.ext.runner.client.util.WebSocketUtil;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.websocket.rest.SubscriptionHandler;
-import com.google.gwt.http.client.Response;
-import com.google.gwtmockito.GwtMockitoTestRunner;
-import com.google.web.bindery.event.shared.EventBus;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -73,24 +70,26 @@ public class StatusActionTest {
 
     //variables for constructor
     @Mock
-    private DtoUnmarshallerFactory      dtoUnmarshallerFactory;
+    private DtoUnmarshallerFactory     dtoUnmarshallerFactory;
     @Mock
-    private DtoFactory                  dtoFactory;
+    private DtoFactory                 dtoFactory;
     @Mock
-    private WebSocketUtil               webSocketUtil;
+    private WebSocketUtil              webSocketUtil;
     @Mock
-    private AppContext                  appContext;
+    private AppContext                 appContext;
     @Mock
-    private EventBus                    eventBus;
+    private EventBus                   eventBus;
     @Mock
-    private RunnerLocalizationConstant  locale;
+    private RunnerLocalizationConstant locale;
     @Mock
-    private RunnerManagerPresenter      presenter;
+    private RunnerManagerPresenter     presenter;
     @Mock
-    private RunnerUtil                  runnerUtil;
+    private RunnerUtil                 runnerUtil;
     @Mock
-    private ConsoleContainer            consoleContainer;
-    
+    private ConsoleContainer           consoleContainer;
+    @Mock
+    private TerminalContainer          terminalContainer;
+
     @Mock
     private RunnerActionFactory         actionFactory;
     @Mock
@@ -133,6 +132,7 @@ public class StatusActionTest {
 
         statusAction = new StatusAction(dtoUnmarshallerFactory,
                                         dtoFactory,
+                                        terminalContainer,
                                         webSocketUtil,
                                         appContext,
                                         eventBus,
@@ -268,7 +268,7 @@ public class StatusActionTest {
         verify(descriptor).getStatus();
 
         verify(runner).setStatus(Runner.Status.STOPPED);
-       
+
         verify(project).setIsRunningEnabled(true);
 
         verify(project).getProjectDescription();

@@ -31,6 +31,7 @@ import org.eclipse.che.ide.ext.runner.client.runneractions.RunnerAction;
 import org.eclipse.che.ide.ext.runner.client.runneractions.impl.GetLogsAction;
 import org.eclipse.che.ide.ext.runner.client.runneractions.impl.launch.common.RunnerApplicationStatusEvent;
 import org.eclipse.che.ide.ext.runner.client.tabs.console.container.ConsoleContainer;
+import org.eclipse.che.ide.ext.runner.client.tabs.terminal.container.TerminalContainer;
 import org.eclipse.che.ide.ext.runner.client.util.RunnerUtil;
 import org.eclipse.che.ide.ext.runner.client.util.WebSocketUtil;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
@@ -65,6 +66,7 @@ public class StatusAction extends AbstractRunnerAction {
     private final Notification                notification;
     private final ConsoleContainer            consoleContainer;
     private final ResourcesLockedActionPermit resourcesLockedActionPermit;
+    private final TerminalContainer terminalContainer;
 
     private SubscriptionHandler<ApplicationProcessDescriptor> runnerStatusHandler;
     private String                                            webSocketChannel;
@@ -74,6 +76,7 @@ public class StatusAction extends AbstractRunnerAction {
     @Inject
     public StatusAction(DtoUnmarshallerFactory dtoUnmarshallerFactory,
                         DtoFactory dtoFactory,
+                        TerminalContainer terminalContainer,
                         WebSocketUtil webSocketUtil,
                         AppContext appContext,
                         EventBus eventBus,
@@ -89,6 +92,7 @@ public class StatusAction extends AbstractRunnerAction {
         this.webSocketUtil = webSocketUtil;
         this.appContext = appContext;
         this.eventBus = eventBus;
+        this.terminalContainer = terminalContainer;
         this.locale = locale;
         this.presenter = presenter;
         this.consoleContainer = consoleContainer;
@@ -182,6 +186,8 @@ public class StatusAction extends AbstractRunnerAction {
     }
 
     private void processStoppedMessage() {
+        terminalContainer.removeTerminalUrl(runner);
+
         if (resourcesLockedActionPermit.isAccountLocked()) {
             consoleContainer.printError(runner, locale.accountGigabyteHoursLimitErrorMessage());
         } else if (resourcesLockedActionPermit.isWorkspaceLocked()) {
