@@ -29,6 +29,10 @@ public interface TabHeader extends IsWidget {
     /** Sets tab disable. */
     void setDisable();
 
+    /** @return name of tab. */
+    @Nonnull
+    String getName();
+
     /**
      * Sets special delegate which will contain business logic to response on user's actions.
      *
@@ -41,9 +45,9 @@ public interface TabHeader extends IsWidget {
         /**
          * Performs some actions when user click on tab.
          *
-         * @param tabHeader
-         *         header of tab on which was clicked
+         * @param tabName
+         *         name of tab on which was clicked
          */
-        void onTabClicked(@Nonnull TabHeader tabHeader);
+        void onTabClicked(@Nonnull String tabName);
     }
 }

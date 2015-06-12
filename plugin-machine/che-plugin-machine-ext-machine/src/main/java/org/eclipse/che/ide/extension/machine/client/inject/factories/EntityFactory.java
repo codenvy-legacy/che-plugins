@@ -10,12 +10,17 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.machine.client.inject.factories;
 
+import com.google.inject.assistedinject.Assisted;
+
 import org.eclipse.che.ide.extension.machine.client.machine.Machine;
+import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.appliance.server.Server;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.Tab;
+import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.container.TabContainerView.TabSelectHandler;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.content.TabPresenter;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.header.TabHeader;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Special factory for creating entities.
@@ -40,5 +45,16 @@ public interface EntityFactory {
      *         content of tab
      * @return an instance of {@link Tab}
      */
-    Tab createTab(@Nonnull TabHeader tabHeader, @Nonnull TabPresenter tabPresenter);
+    Tab createTab(@Nonnull TabHeader tabHeader, @Nonnull TabPresenter tabPresenter, @Nullable TabSelectHandler handler);
+
+    /**
+     * Creates server entity with special parameters.
+     *
+     * @param name
+     *         server name
+     * @param address
+     *         server address
+     * @return an instance of {@link Server}
+     */
+    Server createServer(@Assisted("name") String name, @Assisted("address") String address);
 }

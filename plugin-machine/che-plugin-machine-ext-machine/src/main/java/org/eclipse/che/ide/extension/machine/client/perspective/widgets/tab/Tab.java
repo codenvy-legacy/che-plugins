@@ -30,4 +30,7 @@ public interface Tab {
     @Nonnull
     TabPresenter getContent();
 
+    /** Performs handler when user clicks on tab. */
+    void performHandler();
+
 }

@@ -1,0 +1,84 @@
+/*******************************************************************************
+ * Copyright (c) 2012-2015 Codenvy, S.A.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *   Codenvy, S.A. - initial API and implementation
+ *******************************************************************************/
+package org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.appliance.sufficientinfo;
+
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.uibinder.client.UiBinder;
+import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.Widget;
+import com.google.inject.Inject;
+
+import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
+import org.eclipse.che.ide.extension.machine.client.machine.Machine;
+
+import javax.annotation.Nonnull;
+
+/**
+ * The class contains methods which allow change view representation of machine's information.
+ *
+ * @author Dmitry Shnurenko
+ */
+public class MachineInfoViewImpl extends Composite implements MachineInfoView {
+    interface MachineInfoViewImplUiBinder extends UiBinder<Widget, MachineInfoViewImpl> {
+    }
+
+    private final static MachineInfoViewImplUiBinder UI_BINDER = GWT.create(MachineInfoViewImplUiBinder.class);
+
+    @UiField(provided = true)
+    final MachineLocalizationConstant locale;
+
+    @UiField
+    Label name;
+    @UiField
+    Label machineId;
+    @UiField
+    Label owner;
+    @UiField
+    Label state;
+    @UiField
+    Label type;
+    @UiField
+    Label workspaceBound;
+    @UiField
+    Label workspaceId;
+
+    @Inject
+    public MachineInfoViewImpl(MachineLocalizationConstant locale) {
+        this.locale = locale;
+
+        initWidget(UI_BINDER.createAndBindUi(this));
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void updateInfo(@Nonnull Machine machine) {
+        name.setText(machine.getDisplayName());
+        machineId.setText(machine.getId());
+        state.setText(String.valueOf(machine.getState()));
+        type.setText(machine.getType());
+        workspaceBound.setText(String.valueOf(machine.isWorkspaceBound()));
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void setOwner(@Nonnull String ownerName) {
+        owner.setText(ownerName);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void setWorkspaceName(@Nonnull String workspaceName) {
+        workspaceId.setText(workspaceName);
+    }
+
+}

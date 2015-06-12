@@ -19,14 +19,18 @@ import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.EntityFactory;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.WidgetsFactory;
 import org.eclipse.che.ide.extension.machine.client.machine.Machine;
-import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.appliance.processes.ProcessesPresenter;
+import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.appliance.server.ServerPresenter;
+import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.appliance.sufficientinfo.MachineInfoPresenter;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.appliance.terminal.TerminalPresenter;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.Tab;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.container.TabContainerPresenter;
+import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.container.TabContainerView.TabSelectHandler;
+import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.content.TabPresenter;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.header.TabHeader;
 import org.eclipse.che.ide.part.PartStackPresenter;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * The class is a container for tab panels which display additional information about machine and adds ability to control machine's
@@ -40,38 +44,71 @@ public class MachineAppliancePresenter extends PartStackPresenter {
 
     private final MachineApplianceView  view;
     private final TabContainerPresenter tabContainer;
-    private final ProcessesPresenter    processesPresenter;
     private final TerminalPresenter     terminalPresenter;
-    private final Tab                   processesTab;
+    private final MachineInfoPresenter  infoPresenter;
+    private final ServerPresenter       serverPresenter;
+    private final WidgetsFactory        widgetsFactory;
+    private final EntityFactory         entityFactory;
+
+    private Machine selectedMachine;
 
     @Inject
     public MachineAppliancePresenter(EventBus eventBus,
                                      PartStackEventHandler partStackEventHandler,
                                      MachineApplianceView view,
-                                     MachineLocalizationConstant locale,
+                                     final MachineLocalizationConstant locale,
                                      WidgetsFactory widgetsFactory,
                                      EntityFactory entityFactory,
-                                     ProcessesPresenter processesPresenter,
                                      TerminalPresenter terminalPresenter,
+                                     MachineInfoPresenter infoPresenter,
+                                     ServerPresenter serverPresenter,
                                      TabContainerPresenter tabContainer) {
         super(eventBus, partStackEventHandler, view, null);
+
         this.view = view;
         this.tabContainer = tabContainer;
-        this.processesPresenter = processesPresenter;
         this.terminalPresenter = terminalPresenter;
+        this.infoPresenter = infoPresenter;
+        this.serverPresenter = serverPresenter;
+        this.widgetsFactory = widgetsFactory;
+        this.entityFactory = entityFactory;
 
-        TabHeader processesHeader = widgetsFactory.createTabHeader(locale.tabProcesses());
-        processesTab = entityFactory.createTab(processesHeader, processesPresenter);
+        final String terminalTabName = locale.tabTerminal();
+        final String infoTabName = locale.tabInfo();
+        final String serverTabName = locale.tabServer();
 
-        TabHeader terminalHeader = widgetsFactory.createTabHeader(locale.tabTerminal());
-        Tab terminalTab = entityFactory.createTab(terminalHeader, terminalPresenter);
+        TabSelectHandler terminalHandler = new TabSelectHandler() {
+            @Override
+            public void onTabSelected() {
+                selectedMachine.setActiveTabName(terminalTabName);
+            }
+        };
+        createAndAddTab(terminalTabName, terminalPresenter, terminalHandler);
 
-        tabContainer.addTab(terminalTab);
-        tabContainer.addTab(processesTab);
+        TabSelectHandler infoHandler = new TabSelectHandler() {
+            @Override
+            public void onTabSelected() {
+                selectedMachine.setActiveTabName(infoTabName);
+            }
+        };
+        createAndAddTab(infoTabName, infoPresenter, infoHandler);
 
-        tabContainer.showTab(processesTab);
+        TabSelectHandler serverHandler = new TabSelectHandler() {
+            @Override
+            public void onTabSelected() {
+                selectedMachine.setActiveTabName(serverTabName);
+            }
+        };
+        createAndAddTab(serverTabName, serverPresenter, serverHandler);
 
         this.view.addContainer(tabContainer.getView());
+    }
+
+    private void createAndAddTab(@Nonnull String tabName, @Nonnull TabPresenter content, @Nullable TabSelectHandler handler) {
+        TabHeader header = widgetsFactory.createTabHeader(tabName);
+        Tab tab = entityFactory.createTab(header, content, handler);
+
+        tabContainer.addTab(tab);
     }
 
     /**
@@ -81,10 +118,13 @@ public class MachineAppliancePresenter extends PartStackPresenter {
      *         machine for which need show info
      */
     public void showAppliance(@Nonnull Machine machine) {
-        tabContainer.showTab(processesTab);
+        selectedMachine = machine;
+
+        tabContainer.showTab(machine.getActiveTabName());
 
         terminalPresenter.updateTerminal(machine);
-        processesPresenter.showProcesses(machine.getId());
+        infoPresenter.update(machine);
+        serverPresenter.updateInfo(machine);
     }
 
     /** {@inheritDoc} */

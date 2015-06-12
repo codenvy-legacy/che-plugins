@@ -39,6 +39,7 @@ public class TabHeaderImpl extends Composite implements TabHeader, ClickHandler 
     private final static TabHeaderImplUiBinder UI_BINDER = GWT.create(TabHeaderImplUiBinder.class);
 
     private final MachineResources resources;
+    private final String           name;
 
     @UiField
     Label tabName;
@@ -51,6 +52,7 @@ public class TabHeaderImpl extends Composite implements TabHeader, ClickHandler 
 
         initWidget(UI_BINDER.createAndBindUi(this));
 
+        this.name = tabName;
         this.tabName.setText(tabName);
 
         addDomHandler(this, ClickEvent.getType());
@@ -59,7 +61,7 @@ public class TabHeaderImpl extends Composite implements TabHeader, ClickHandler 
     /** {@inheritDoc} */
     @Override
     public void onClick(ClickEvent event) {
-        delegate.onTabClicked(this);
+        delegate.onTabClicked(tabName.getText());
     }
 
     /** {@inheritDoc} */
@@ -82,5 +84,12 @@ public class TabHeaderImpl extends Composite implements TabHeader, ClickHandler 
         removeStyleName(resources.getCss().activeTab());
         removeStyleName(resources.getCss().activeTabText());
         addStyleName(resources.getCss().disableTab());
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    @Nonnull
+    public String getName() {
+        return name;
     }
 }

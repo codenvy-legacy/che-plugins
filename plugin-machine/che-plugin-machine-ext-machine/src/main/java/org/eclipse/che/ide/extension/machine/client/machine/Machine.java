@@ -10,10 +10,14 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.machine.client.machine;
 
+import com.google.inject.Inject;
+
 import org.eclipse.che.api.machine.shared.MachineState;
 import org.eclipse.che.api.machine.shared.dto.MachineDescriptor;
 import org.eclipse.che.api.machine.shared.dto.ServerDescriptor;
+import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -26,6 +30,12 @@ public class Machine {
     public static final String TERMINAL_URL_KEY = "4300";
 
     private MachineDescriptor descriptor;
+    private String            activeTabName;
+
+    @Inject
+    public Machine(MachineLocalizationConstant locale) {
+        this.activeTabName = locale.tabInfo();
+    }
 
     /** @return id of current machine */
     public String getId() {
@@ -56,6 +66,32 @@ public class Machine {
         }
 
         return "http://" + serverDescriptor.getAddress();
+    }
+
+    /** @return active tab name for current machine */
+    public String getActiveTabName() {
+        return activeTabName;
+    }
+
+    /**
+     * Sets active tab name for current machine.
+     *
+     * @param activeTabName
+     *         tab name which need set
+     */
+    public void setActiveTabName(String activeTabName) {
+        this.activeTabName = activeTabName;
+    }
+
+
+    /** @return workspace id for current machine */
+    public String getWorkspaceId() {
+        return descriptor.getWorkspaceId();
+    }
+
+    /** @return servers for current machine */
+    public Map<String, ServerDescriptor> getServers() {
+        return descriptor.getServers();
     }
 
     /**
