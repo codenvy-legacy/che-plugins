@@ -18,6 +18,7 @@ import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.editor.EditorPartPresenter;
 import org.eclipse.che.ide.ext.java.client.projecttree.JavaSourceFolderUtil;
+import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
 import org.eclipse.che.ide.jseditor.client.position.PositionConverter;
 import org.eclipse.che.ide.jseditor.client.texteditor.EmbeddedTextEditorPresenter;
 import org.eclipse.che.ide.util.loging.Log;
@@ -33,13 +34,16 @@ public class QuickDocPresenter implements QuickDocumentation, QuickDocView.Actio
     private AppContext   appContext;
     private String       caContext;
     private EditorAgent  editorAgent;
+    private MachineManager machineManager;
 
     @Inject
-    public QuickDocPresenter(QuickDocView view, AppContext appContext, @Named("javaCA") String caContext, EditorAgent editorAgent) {
+    public QuickDocPresenter(QuickDocView view, AppContext appContext, @Named("cheExtensionPath") String caContext, EditorAgent editorAgent,
+                             MachineManager machineManager) {
         this.view = view;
         this.appContext = appContext;
         this.caContext = caContext;
         this.editorAgent = editorAgent;
+        this.machineManager = machineManager;
     }
 
     @Override
@@ -57,8 +61,10 @@ public class QuickDocPresenter implements QuickDocumentation, QuickDocView.Actio
         EmbeddedTextEditorPresenter editor = ((EmbeddedTextEditorPresenter)activeEditor);
         int offset = editor.getCursorOffset();
         final PositionConverter.PixelCoordinates coordinates = editor.getPositionConverter().offsetToPixel(offset);
-        view.show(caContext + "/jdt/javadoc/" + appContext.getWorkspace().getId() + "/find?fqn=" + JavaSourceFolderUtil.getFQNForFile(editor.getEditorInput().getFile()) + "&projectpath=" +
-                  appContext.getCurrentProject().getProjectDescription().getPath() + "&offset=" + offset, coordinates.getX(), coordinates.getY() + 16);
+        view.show(caContext +"/"+machineManager.getDeveloperMachineId() +"/jdt/javadoc/" + appContext.getWorkspace().getId() + "/find?fqn=" +
+                  JavaSourceFolderUtil.getFQNForFile(editor.getEditorInput().getFile()) + "&projectpath=" +
+                  appContext.getCurrentProject().getProjectDescription().getPath() + "&offset=" + offset, coordinates.getX(),
+                  coordinates.getY() + 16);
     }
 
     @Override

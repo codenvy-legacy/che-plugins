@@ -19,7 +19,6 @@ import com.google.inject.name.Named;
 import org.eclipse.che.ide.MimeType;
 import org.eclipse.che.ide.api.extension.ExtensionGinModule;
 import org.eclipse.che.ide.api.filetypes.FileType;
-import org.eclipse.che.ide.ext.java.client.JavaExtension;
 import org.eclipse.che.ide.ext.java.client.JavaResources;
 import org.eclipse.che.ide.ext.java.client.dependenciesupdater.JavaNameEnvironmentServiceClient;
 import org.eclipse.che.ide.ext.java.client.dependenciesupdater.JavaNameEnvironmentServiceClientImpl;
@@ -49,13 +48,6 @@ public class JavaGinModule extends AbstractGinModule {
         bind(JavaNameEnvironmentServiceClient.class).to(JavaNameEnvironmentServiceClientImpl.class);
 
         install(new GinFactoryModuleBuilder().build(JavaNodeFactory.class));
-    }
-
-    @Provides
-    @Named("javaCA")
-    @Singleton
-    protected String getJavaCAPath() {
-        return JavaExtension.getJavaCAPath();
     }
 
     @Provides

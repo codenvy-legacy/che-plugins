@@ -55,14 +55,6 @@ public class JavaExtension {
     public JavaExtension() {
     }
 
-    public static native String getJavaCAPath() /*-{
-        try {
-            return $wnd.IDE.config.javaCodeAssistant;
-        } catch (e) {
-            return null;
-        }
-
-    }-*/;
 
     @Inject
     private void prepareActions(JavaLocalizationConstant localizationConstant,

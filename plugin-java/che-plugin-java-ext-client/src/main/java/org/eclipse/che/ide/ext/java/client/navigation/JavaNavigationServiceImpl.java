@@ -18,6 +18,7 @@ import org.eclipse.che.ide.collections.Array;
 import org.eclipse.che.ide.ext.java.shared.Jar;
 import org.eclipse.che.ide.ext.java.shared.JarEntry;
 import org.eclipse.che.ide.ext.java.shared.OpenDeclarationDescriptor;
+import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.AsyncRequestFactory;
 
@@ -28,49 +29,57 @@ import org.eclipse.che.ide.rest.AsyncRequestFactory;
 public class JavaNavigationServiceImpl implements JavaNavigationService {
 
     private final String              restContext;
-    private final String              workspaceId;
     private       AsyncRequestFactory requestFactory;
+    private MachineManager machineManager;
 
     @Inject
-    public JavaNavigationServiceImpl(@Named("javaCA") String restContext,
-                                     @Named("workspaceId") String workspaceId,
-                                     AsyncRequestFactory asyncRequestFactory) {
+    public JavaNavigationServiceImpl(@Named("cheExtensionPath") String restContext,
+                                     AsyncRequestFactory asyncRequestFactory,
+                                     MachineManager machineManager) {
         this.restContext = restContext;
-        this.workspaceId = workspaceId;
         this.requestFactory = asyncRequestFactory;
+        this.machineManager = machineManager;
     }
 
     @Override
     public void findDeclaration(String projectPath, String fqn, int offset, AsyncRequestCallback<OpenDeclarationDescriptor> callback) {
         String url =
-                restContext + "/navigation/" + workspaceId + "/find-declaration?projectpath=" + projectPath + "&fqn=" + fqn + "&offset=" + offset;
+                getContext() + "/jdt/navigation/find-declaration?projectpath=" + projectPath + "&fqn=" + fqn + "&offset=" +
+                offset;
         requestFactory.createGetRequest(url).send(callback);
     }
 
-    public void getExternalLibraries(String projectPath, AsyncRequestCallback<Array<Jar>> callback){
+    private String getContext() {
+        if(machineManager.getDeveloperMachineId() == null) {
+            throw new IllegalStateException("Developer machine ID is null. Can't create request URL");
+        }
+        return restContext + "/" + machineManager.getDeveloperMachineId();
+    }
+
+    public void getExternalLibraries(String projectPath, AsyncRequestCallback<Array<Jar>> callback) {
         String url =
-                restContext + "/navigation/" + workspaceId + "/libraries?projectpath=" + projectPath;
+                getContext() +"/jdt/navigation/libraries?projectpath=" + projectPath;
         requestFactory.createGetRequest(url).send(callback);
     }
 
     @Override
     public void getLibraryChildren(String projectPath, int libId, AsyncRequestCallback<Array<JarEntry>> callback) {
         String url =
-                restContext + "/navigation/" + workspaceId + "/lib/children?projectpath=" + projectPath + "&root=" + libId;
+                getContext() +"/jdt/navigation/lib/children?projectpath=" + projectPath + "&root=" + libId;
         requestFactory.createGetRequest(url).send(callback);
     }
 
     @Override
     public void getChildren(String projectPath, int libId, String path, AsyncRequestCallback<Array<JarEntry>> callback) {
         String url =
-                restContext + "/navigation/" + workspaceId + "/children?projectpath=" + projectPath + "&root=" + libId + "&path=" + path;
+                getContext() +"/jdt/navigation/children?projectpath=" + projectPath + "&root=" + libId + "&path=" + path;
         requestFactory.createGetRequest(url).send(callback);
     }
 
     @Override
     public void getEntry(String projectPath, int libId, String path, AsyncRequestCallback<JarEntry> callback) {
         String url =
-                restContext + "/navigation/" + workspaceId + "/entry?projectpath=" + projectPath + "&root=" + libId + "&path=" + path;
+                getContext() +"/jdt/navigation/entry?projectpath=" + projectPath + "&root=" + libId + "&path=" + path;
         requestFactory.createGetRequest(url).send(callback);
     }
 
@@ -83,6 +92,6 @@ public class JavaNavigationServiceImpl implements JavaNavigationService {
 
     @Override
     public String getContentUrl(String projectPath, int libId, String path) {
-        return restContext + "/navigation/" + workspaceId + "/content?projectpath=" + projectPath + "&root=" + libId + "&path=" + path;
+        return  getContext() +"/jdt/navigation/content?projectpath=" + projectPath + "&root=" + libId + "&path=" + path;
     }
 }

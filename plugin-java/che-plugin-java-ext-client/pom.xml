@@ -93,6 +93,11 @@
             <artifactId>che-plugin-java-ext-shared</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.eclipse.che.plugin</groupId>
+            <artifactId>che-plugin-machine-ext-machine</artifactId>
+            <version>${che.plugins.version}</version>
+        </dependency>
         <!--<dependency>-->
         <!--<groupId>org.eclipse.che.plugin</groupId>-->
         <!--<artifactId>che-plugin-builder-ext-builder</artifactId>-->

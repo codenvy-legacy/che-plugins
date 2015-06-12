@@ -14,7 +14,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 
-import org.eclipse.che.ide.ext.java.client.JavaExtension;
+import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.AsyncRequestFactory;
 
@@ -29,33 +29,25 @@ import static org.eclipse.che.ide.rest.HTTPHeader.ACCEPT;
 @Singleton
 public class JavaNameEnvironmentServiceClientImpl implements JavaNameEnvironmentServiceClient {
     private final AsyncRequestFactory asyncRequestFactory;
+    private       String         extPath;
+    private       MachineManager machineManager;
 
     private final String UPDATE_DEPENDENCIES          = "/update";
-    private final String UPDATE_DEPENDENCIES_AND_WAIT = "/update-dependencies-wait-build-end";
-    private final String SERVICE_PATH;
 
     @Inject
-    protected JavaNameEnvironmentServiceClientImpl(@Named("workspaceId") String workspaceId, AsyncRequestFactory asyncRequestFactory) {
+    protected JavaNameEnvironmentServiceClientImpl(AsyncRequestFactory asyncRequestFactory, @Named("cheExtensionPath") String extPath,
+                                                   MachineManager machineManager) {
         this.asyncRequestFactory = asyncRequestFactory;
-        SERVICE_PATH = JavaExtension.getJavaCAPath() + "/classpath";
+        this.extPath = extPath;
+        this.machineManager = machineManager;
     }
 
     /** {@inheritDoc} */
     @Override
     public void updateDependencies(String projectPath, boolean force, AsyncRequestCallback<Boolean> callback) {
-        final String requestUrl = SERVICE_PATH + UPDATE_DEPENDENCIES + "?projectpath=" + projectPath;
+        final String requestUrl = extPath +"/" +machineManager.getDeveloperMachineId() + UPDATE_DEPENDENCIES + "?projectpath=" + projectPath;
         asyncRequestFactory.createGetRequest(requestUrl)
                            .header(ACCEPT, APPLICATION_JSON)
                            .send(callback);
     }
-//
-//    /** {@inheritDoc} */
-//    @Override
-//    public void updateDependenciesAndWait(String projectPath,
-//                                          BuildTaskDescriptor buildTaskDescriptor,
-//                                          AsyncRequestCallback<Void> callback) {
-//        final String requestUrl = SERVICE_PATH + UPDATE_DEPENDENCIES_AND_WAIT + "?projectpath=" + projectPath;
-//        asyncRequestFactory.createPostRequest(requestUrl, buildTaskDescriptor, true)
-//                           .send(callback);
-//    }
 }

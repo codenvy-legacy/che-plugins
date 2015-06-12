@@ -20,6 +20,7 @@ import org.eclipse.che.ide.collections.Collections;
 import org.eclipse.che.ide.ext.java.shared.dto.Problem;
 import org.eclipse.che.ide.ext.java.shared.dto.ProposalApplyResult;
 import org.eclipse.che.ide.ext.java.shared.dto.Proposals;
+import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.AsyncRequestFactory;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
@@ -33,36 +34,40 @@ import java.util.List;
 @Singleton
 public class JavaCodeAssistClient {
 
-    private final String                 workspaceId;
-    private final String                 javaCAPath;
+    private final String                 machineExtpath;
     private       DtoUnmarshallerFactory unmarshallerFactory;
-    private final AsyncRequestFactory asyncRequestFactory;
+    private final MachineManager         machineManager;
+    private final AsyncRequestFactory    asyncRequestFactory;
 
     @Inject
-    public JavaCodeAssistClient(@Named("workspaceId") String workspaceId,
-                                @Named("javaCA") String javaCAPath,
+    public JavaCodeAssistClient(@Named("cheExtensionPath") String machineExtpath,
                                 DtoUnmarshallerFactory unmarshallerFactory,
+                                MachineManager machineManager,
                                 AsyncRequestFactory asyncRequestFactory) {
-        this.workspaceId = workspaceId;
-        this.javaCAPath = javaCAPath;
+        this.machineExtpath = machineExtpath;
         this.unmarshallerFactory = unmarshallerFactory;
+        this.machineManager = machineManager;
         this.asyncRequestFactory = asyncRequestFactory;
     }
 
     public void computeProposals(String projectPath, String fqn, int offset, String contents, AsyncRequestCallback<Proposals> callback) {
-        String url = javaCAPath + "/jdt/code-assist/compute/completion" + "/?projectpath=" + projectPath + "&fqn=" + fqn + "&offset=" + offset;
+        String url =
+                machineExtpath + "/" + machineManager.getDeveloperMachineId() + "/jdt/code-assist/compute/completion" + "/?projectpath=" +
+                projectPath + "&fqn=" + fqn + "&offset=" + offset;
         asyncRequestFactory.createPostRequest(url, null).data(contents).send(callback);
     }
 
-    public void computeAssistProposals(String projectPath, String fqn, int offset, List<Problem> problems, AsyncRequestCallback<Proposals> callback) {
-        String url = javaCAPath + "/jdt/code-assist/compute/assist" + "/?projectpath=" + projectPath + "&fqn=" + fqn + "&offset=" + offset;
+    public void computeAssistProposals(String projectPath, String fqn, int offset, List<Problem> problems,
+                                       AsyncRequestCallback<Proposals> callback) {
+        String url = machineExtpath + "/" + machineManager.getDeveloperMachineId() + "/jdt/code-assist/compute/assist" + "/?projectpath=" +
+                     projectPath + "&fqn=" + fqn + "&offset=" + offset;
         Array<Problem> prob = Collections.createArray(problems);
         asyncRequestFactory.createPostRequest(url, prob).send(callback);
     }
 
 
     public void applyProposal(String sessionId, int index, boolean insert, final AsyncCallback<ProposalApplyResult> callback) {
-        String url = javaCAPath + "/jdt/code-assist/apply/completion/?sessionid=" + sessionId+ "&index=" + index + "&insert=" + insert;
+        String url = machineExtpath +"/" +machineManager.getDeveloperMachineId() +"/jdt/code-assist/apply/completion/?sessionid=" + sessionId + "&index=" + index + "&insert=" + insert;
         Unmarshallable<ProposalApplyResult> unmarshaller =
                 unmarshallerFactory.newUnmarshaller(ProposalApplyResult.class);
         asyncRequestFactory.createGetRequest(url).send(new AsyncRequestCallback<ProposalApplyResult>(unmarshaller) {
