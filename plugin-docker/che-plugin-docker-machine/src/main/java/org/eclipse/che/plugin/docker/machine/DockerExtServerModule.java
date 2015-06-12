@@ -15,27 +15,26 @@ import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
 
 /**
- * Guice module for terminal feature in docker machines
+ * Guice module for extension servers feature in docker machines
  *
  * @author Alexander Garagatyi
  */
 // Not a DynaModule, install manually
-public class DockerTerminalModule extends AbstractModule {
+public class DockerExtServerModule extends AbstractModule {
     @Override
     protected void configure() {
-        bind(DockerMachineTerminalLauncher.class).asEagerSingleton();
+        bind(DockerMachineExtServerLauncher.class).asEagerSingleton();
 
         Multibinder<ServerConf> machineServers = Multibinder.newSetBinder(binder(), ServerConf.class);
-        machineServers.addBinding().toInstance(new ServerConf("terminal", "4411", "http"));
+        machineServers.addBinding().toInstance(new ServerConf("extensions", "4401", "http"));
 
+        bindConstant().annotatedWith(Names.named(DockerMachineExtServerLauncher.START_EXT_SERVER_COMMAND))
+                      .to("mkdir -p ~/che && unzip /mnt/che/ext-server.zip -d ~/che/ext-server && ~/che/ext-server/bin/catalina.sh start");
+
+        // :ro removed because of bug in a docker 1.6:L
+        //TODO add :ro when bug is fixed or rework ext server binding mechanism to provide copy of the ext server zip to each machine
         Multibinder<String> volumesMultibinder =
                 Multibinder.newSetBinder(binder(), String.class, Names.named("machine.docker.system_volumes"));
-        // :ro removed because of bug in a docker 1.6:L
-        //TODO add :ro when bug is fixed or rework terminal binding mechanism to provide copy of the terminal to each machine
-        volumesMultibinder.addBinding().toInstance("/usr/local/che/terminal.zip:/mnt/che/terminal.zip");
-
-        bindConstant().annotatedWith(Names.named(DockerMachineTerminalLauncher.START_TERMINAL_COMMAND))
-                      .to("mkdir -p ~/che && unzip /mnt/che/terminal.zip -d ~/che/terminal && " +
-                          "~/che/terminal/terminal -addr :4411 -cmd /bin/sh -static ~/che/terminal/");
+        volumesMultibinder.addBinding().toProvider(DockerExtServerBindingProvider.class);
     }
 }

@@ -30,6 +30,8 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Docker implementation of {@link InstanceMetadata}
@@ -78,6 +80,9 @@ public class DockerInstanceMetadata implements InstanceMetadata {
      * Parses {link ContainerInfo} from docker to Che metadata
      */
     public static class DockerInstanceMetadataParser {
+        protected static final Pattern SERVICE_LABEL_PATTERN =
+                Pattern.compile("che:server:(?<port>[0-9]+(/tcp|/udp)?):(?<servprop>ref|protocol)");
+
         private final ContainerInfo info;
         private final String        hostAddress;
 
@@ -184,7 +189,32 @@ public class DockerInstanceMetadata implements InstanceMetadata {
         }
 
         public Map<String, Server> getServers() {
-            final HashMap<String, Server> exposedPorts = new HashMap<>();
+            final HashMap<String, Server> servers = getServersWithFilledPorts();
+            addRefAndUrlToServerFromLabels(servers);
+            return servers;
+        }
+
+        private void addRefAndUrlToServerFromLabels(final HashMap<String, Server> servers) {
+            for (Map.Entry<String, String> label : info.getConfig().getLabels().entrySet()) {
+                final Matcher matcher = SERVICE_LABEL_PATTERN.matcher(label.getKey());
+                if (matcher.matches()) {
+                    final String port = matcher.group("port");
+                    if (servers.containsKey(port)) {
+                        final ServerImpl server = (ServerImpl)servers.get(port);
+                        if ("ref".equals(matcher.group("servprop"))) {
+                            server.setRef(label.getValue());
+                        } else {
+                            // value is protocol
+                            server.setUrl(label.getValue() + "://" + server.getAddress());
+                        }
+                    }
+                }
+            }
+        }
+
+        private HashMap<String, Server> getServersWithFilledPorts() {
+            final HashMap<String, Server> servers = new LinkedHashMap<>();
+
             for (Map.Entry<String, List<PortBinding>> portEntry : info.getNetworkSettings().getPorts().entrySet()) {
                 // in form 1234/tcp or 1234
                 String portOrPortUdp = portEntry.getKey();
@@ -195,9 +225,10 @@ public class DockerInstanceMetadata implements InstanceMetadata {
                 }
                 final PortBinding portBinding = portEntry.getValue().get(0);
                 final ServerImpl server = new ServerImpl();
-                exposedPorts.put(portOrPortUdp, server.setAddress(hostAddress + ":" + portBinding.getHostPort()));
+                servers.put(portOrPortUdp, server.setAddress(hostAddress + ":" + portBinding.getHostPort()));
             }
-            return exposedPorts;
+
+            return servers;
         }
     }
 }

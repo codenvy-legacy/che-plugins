@@ -14,7 +14,7 @@ package org.eclipse.che.plugin.docker.client;
  * @author andrew00x
  */
 public class LogMessage {
-    enum Type {
+    public enum Type {
         STDIN,
         STDOUT,
         STDERR,

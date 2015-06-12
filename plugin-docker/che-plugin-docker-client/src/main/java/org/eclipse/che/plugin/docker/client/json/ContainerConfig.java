@@ -365,6 +365,11 @@ public class ContainerConfig {
         this.labels = labels;
     }
 
+    public ContainerConfig withLabels(Map<String, String> labels) {
+        this.labels = labels;
+        return this;
+    }
+
     @Override
     public String toString() {
         return "ContainerConfig{" +

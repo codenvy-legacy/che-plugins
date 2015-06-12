@@ -146,7 +146,7 @@ public class ServiceTest {
 
         dockerInstanceProvider = new DockerInstanceProvider(docker,
                                                             dockerFactory,
-                                                            new HashSet<String>(),
+                                                            new HashSet<ServerConf>(),
                                                             new HashSet<String>());
 
         machineManager = new MachineManager(snapshotDao,

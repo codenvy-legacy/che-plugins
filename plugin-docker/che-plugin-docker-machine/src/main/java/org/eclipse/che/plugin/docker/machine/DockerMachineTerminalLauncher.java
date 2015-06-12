@@ -13,9 +13,9 @@ package org.eclipse.che.plugin.docker.machine;
 import org.eclipse.che.api.core.NotFoundException;
 import org.eclipse.che.api.core.notification.EventService;
 import org.eclipse.che.api.core.notification.EventSubscriber;
+import org.eclipse.che.api.machine.server.MachineManager;
 import org.eclipse.che.api.machine.server.exception.MachineException;
 import org.eclipse.che.api.machine.server.impl.MachineImpl;
-import org.eclipse.che.api.machine.server.MachineManager;
 import org.eclipse.che.api.machine.shared.dto.event.MachineStateEvent;
 import org.eclipse.che.plugin.docker.client.DockerConnector;
 import org.eclipse.che.plugin.docker.client.Exec;
@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Singleton;
 import java.io.IOException;
 
@@ -35,20 +36,25 @@ import java.io.IOException;
  * @author Alexander Garagatyi
  */
 @Singleton // must be eager
-public class DockerMachineTerminal {
-    private static final Logger LOG = LoggerFactory.getLogger(DockerMachineTerminal.class);
+public class DockerMachineTerminalLauncher {
+    public static final String START_TERMINAL_COMMAND = "machine.server.terminal.run_command";
+
+    private static final Logger LOG = LoggerFactory.getLogger(DockerMachineTerminalLauncher.class);
 
     private final EventService    eventService;
     private final DockerConnector docker;
     private final MachineManager  machineManager;
+    private final String          terminalStartCommand;
 
     @Inject
-    public DockerMachineTerminal(EventService eventService,
-                                 DockerConnector docker,
-                                 MachineManager machineManager) {
+    public DockerMachineTerminalLauncher(EventService eventService,
+                                         DockerConnector docker,
+                                         MachineManager machineManager,
+                                         @Named(START_TERMINAL_COMMAND) String terminalStartCommand) {
         this.eventService = eventService;
         this.docker = docker;
         this.machineManager = machineManager;
+        this.terminalStartCommand = terminalStartCommand;
     }
 
     @PostConstruct
@@ -56,23 +62,27 @@ public class DockerMachineTerminal {
         eventService.subscribe(new EventSubscriber<MachineStateEvent>() {
             @Override
             public void onEvent(MachineStateEvent event) {
+                // TODO launch it on dev machines only???
                 if (event.getEventType() == MachineStateEvent.EventType.RUNNING) {
                     try {
                         final MachineImpl machine = machineManager.getMachine(event.getMachineId());
                         final String containerId = machine.getMetadata().getProperties().get("id");
 
-                        final Exec exec = docker.createExec(containerId, true, "/bin/bash", "-c",
-                                                            "/usr/local/codenvy/terminal/terminal -addr :4300 -cmd /bin/sh -static /usr/local/codenvy/terminal/");
+                        final Exec exec = docker.createExec(containerId, true, "/bin/bash", "-c", terminalStartCommand);
                         docker.startExec(exec.getId(), new LogMessageProcessor() {
                             @Override
                             public void process(LogMessage logMessage) {
-                                // TODO log to machines logs
-                                LOG.error(String.format("Terminal error in container %s. %s", containerId, logMessage.getContent()));
+                                if (logMessage.getType() == LogMessage.Type.STDERR) {
+                                    try {
+                                        machine.getMachineLogsOutput().writeLine("Terminal error. %s" + logMessage.getContent());
+                                    } catch (IOException ignore) {
+                                    }
+                                }
                             }
                         });
-                        // TODO Add link to machine
                     } catch (IOException | MachineException | NotFoundException e) {
                         LOG.error(e.getLocalizedMessage(), e);
+                        // TODO send event that terminal is unavailable
                     }
                 }
             }

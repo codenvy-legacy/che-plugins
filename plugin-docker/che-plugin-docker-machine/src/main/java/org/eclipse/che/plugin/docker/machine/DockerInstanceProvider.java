@@ -46,7 +46,6 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -61,24 +60,31 @@ import java.util.Set;
 public class DockerInstanceProvider implements InstanceProvider {
     private static final Logger LOG = LoggerFactory.getLogger(DockerInstanceProvider.class);
 
-    private final DockerConnector      docker;
-    private final Set<String>          supportedRecipeTypes;
-    private final DockerMachineFactory dockerMachineFactory;
-    private final Set<String>          systemExposedPorts;
-    private final Set<String>          systemVolumes;
+    private final DockerConnector                  docker;
+    private final Set<String>                      supportedRecipeTypes;
+    private final DockerMachineFactory             dockerMachineFactory;
+    private final Map<String, String>              containerLabels;
+    private final Map<String, Map<String, String>> portsToExpose;
+    private final Set<String>                      systemVolumes;
 
     @Inject
     public DockerInstanceProvider(DockerConnector docker,
                                   DockerMachineFactory dockerMachineFactory,
-                                  @Named("machine.docker.system_exposed_ports") Set<String> systemExposedPorts,
+                                  Set<ServerConf> machineServers,
                                   @Named("machine.docker.system_volumes") Set<String> systemVolumes) {
         this.docker = docker;
         this.dockerMachineFactory = dockerMachineFactory;
-        this.systemExposedPorts = systemExposedPorts;
         this.systemVolumes = systemVolumes;
-        final Set<String> recipeTypes = new LinkedHashSet<>(2);
-        recipeTypes.add("Dockerfile");
-        supportedRecipeTypes = Collections.unmodifiableSet(recipeTypes);
+        this.supportedRecipeTypes = Collections.unmodifiableSet(Collections.singleton("Dockerfile"));
+
+
+        this.portsToExpose = new HashMap<>();
+        this.containerLabels = new HashMap<>();
+        for (ServerConf serverConf : machineServers) {
+            portsToExpose.put(serverConf.getPort(), Collections.<String, String>emptyMap());
+            containerLabels.put("che:server:" + serverConf.getPort() + ":ref", serverConf.getRef());
+            containerLabels.put("che:server:" + serverConf.getPort() + ":protocol", serverConf.getProtocol());
+        }
     }
 
     @Override
@@ -133,9 +139,9 @@ public class DockerInstanceProvider implements InstanceProvider {
 
     @Override
     public Instance createInstance(final InstanceKey instanceKey,
-                                         final LineConsumer creationLogsOutput,
-                                         final String workspaceId,
-                                         final boolean bindWorkspace)
+                                   final LineConsumer creationLogsOutput,
+                                   final String workspaceId,
+                                   final boolean bindWorkspace)
             throws NotFoundException, InvalidInstanceSnapshotException, MachineException {
         final DockerInstanceKey dockerInstanceKey = new DockerInstanceKey(instanceKey);
         final String repository = dockerInstanceKey.getRepository();
@@ -217,13 +223,9 @@ public class DockerInstanceProvider implements InstanceProvider {
     private Instance createInstance(String imageId, LineConsumer outputConsumer, String workspaceId, boolean bindWorkspace)
             throws MachineException {
         try {
-            Map<String, Map<String, String>> portsToExpose = new HashMap<>();
-            for (String systemExposedPort : systemExposedPorts) {
-                portsToExpose.put(systemExposedPort, Collections.<String, String>emptyMap());
-            }
-
             final ContainerConfig config = new ContainerConfig().withImage(imageId)
                                                                 .withMemorySwap(-1)
+                                                                .withLabels(containerLabels)
                                                                 .withExposedPorts(portsToExpose);
 
             LOG.debug("Creating container from image {}", imageId);
