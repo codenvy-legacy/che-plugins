@@ -15,6 +15,7 @@ import org.eclipse.che.ide.api.constraints.Constraints;
 import org.eclipse.che.ide.api.action.DefaultActionGroup;
 import org.eclipse.che.ide.api.extension.Extension;
 import org.eclipse.che.ide.ext.git.client.action.AddToIndexAction;
+import org.eclipse.che.ide.ext.git.client.action.CheckoutReferenceAction;
 import org.eclipse.che.ide.ext.git.client.action.CommitAction;
 import org.eclipse.che.ide.ext.git.client.action.DeleteRepositoryAction;
 import org.eclipse.che.ide.ext.git.client.action.FetchAction;
@@ -59,6 +60,7 @@ public class GitExtension {
                         ResetToCommitAction resetToCommitAction,
                         RemoveFromIndexAction removeFromIndexAction,
                         CommitAction commitAction,
+                        CheckoutReferenceAction checkoutReferenceAction,
                         ShowBranchesAction showBranchesAction,
                         ShowMergeAction showMergeAction,
                         ResetFilesAction resetFilesAction,
@@ -109,6 +111,8 @@ public class GitExtension {
         commandGroup.add(commitAction);
         actionManager.registerAction("gitBranches", showBranchesAction);
         commandGroup.add(showBranchesAction);
+        actionManager.registerAction("gitCheckoutReference", checkoutReferenceAction);
+        commandGroup.add(checkoutReferenceAction);
         actionManager.registerAction("gitMerge", showMergeAction);
         commandGroup.add(showMergeAction);
         DefaultActionGroup remoteGroup = new DefaultActionGroup(constant.remotesControlTitle(), true, actionManager);

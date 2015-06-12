@@ -94,6 +94,9 @@ public interface GitResources extends ClientBundle {
     @Source("controls/pull.svg")
     SVGResource pull();
 
+    @Source("controls/checkoutReference.svg")
+    SVGResource checkoutReference();
+
     @Source("history/arrows.png")
     ImageResource arrows();
 
