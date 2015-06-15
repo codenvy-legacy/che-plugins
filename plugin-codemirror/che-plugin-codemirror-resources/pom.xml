@@ -11,7 +11,8 @@
       Codenvy, S.A. - initial API and implementation
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>che-plugin-codemirror-parent</artifactId>
@@ -23,7 +24,9 @@
     <name>Che Plugin :: CodeMirror :: Resources</name>
     <properties>
         <codemirror.extract.location>${project.build.directory}/codemirror-extract</codemirror.extract.location>
-        <codemirror.final.location>${project.build.directory}/codemirror/org/eclipse/che/ide/editor/codemirror/resources/public/codemirror-${codemirror.upstream.version}-${codemirror.plugin.revision}</codemirror.final.location>
+        <codemirror.final.location>
+            ${project.build.directory}/codemirror/org/eclipse/che/ide/editor/codemirror/resources/public/codemirror-${codemirror.upstream.version}-${codemirror.plugin.revision}
+        </codemirror.final.location>
         <!-- appended to the upstream version to allow plugin updates with resources changes for the same codemirror
              upstream version.
              _Should be rare_ mostly when changing minification parameters without changing codemirror version so
@@ -118,36 +121,12 @@
                         </goals>
                         <configuration>
                             <target>
-                                <mkdir dir="${codemirror.extract.location}/" />
+                                <mkdir dir="${codemirror.extract.location}/"/>
                                 <move todir="${codemirror.extract.location}/">
-                                    <fileset dir="${codemirror.unpack.location}/META-INF/resources/webjars/codemirror/${codemirror.upstream.version}/" />
+                                    <fileset
+                                            dir="${codemirror.unpack.location}/META-INF/resources/webjars/codemirror/${codemirror.upstream.version}/"/>
                                 </move>
                             </target>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <!-- Apply patches -->
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-patch-plugin</artifactId>
-                <version>1.1.1</version>
-                <executions>
-                    <execution>
-                        <id>bugfix-patches</id>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>apply</goal>
-                        </goals>
-                        <configuration>
-                            <patchDirectory>${patches.location}</patchDirectory>
-                            <patches>
-                                <patch>4.12-slash-IDEX-1961.diff</patch>
-                            </patches>
-                            <optimizations>false</optimizations>
-                            <strictPatching>true</strictPatching>
-                            <strip>1</strip>
-                            <targetDirectory>${codemirror.extract.location}</targetDirectory>
                         </configuration>
                     </execution>
                 </executions>

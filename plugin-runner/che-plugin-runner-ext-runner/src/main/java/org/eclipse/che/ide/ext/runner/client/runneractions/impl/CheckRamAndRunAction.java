@@ -30,7 +30,9 @@ import org.eclipse.che.ide.ext.runner.client.manager.RunnerManagerPresenter;
 import org.eclipse.che.ide.ext.runner.client.models.Runner;
 import org.eclipse.che.ide.ext.runner.client.runneractions.AbstractRunnerAction;
 import org.eclipse.che.ide.ext.runner.client.tabs.console.container.ConsoleContainer;
+import org.eclipse.che.ide.ext.runner.client.tabs.container.TabContainer;
 import org.eclipse.che.ide.ext.runner.client.util.RunnerUtil;
+import org.eclipse.che.ide.ext.runner.client.util.annotations.LeftPanel;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.ui.dialogs.ConfirmCallback;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
@@ -63,6 +65,8 @@ public class CheckRamAndRunAction extends AbstractRunnerAction {
     private final RunAction                                           runAction;
     private final RunnerManagerPresenter                              managerPresenter;
     private final ConsoleContainer                                    consoleContainer;
+    private final TabContainer                                        tabContainer;
+    private final RunnerLocalizationConstant                          locale;
 
     private RunnerConfiguration runnerConfiguration;
     private CurrentProject      project;
@@ -71,6 +75,8 @@ public class CheckRamAndRunAction extends AbstractRunnerAction {
     @Inject
     public CheckRamAndRunAction(RunnerServiceClient service,
                                 AppContext appContext,
+                                @LeftPanel TabContainer tabContainer,
+                                RunnerLocalizationConstant locale,
                                 DialogFactory dialogFactory,
                                 ConsoleContainer consoleContainer,
                                 Provider<AsyncCallbackBuilder<ResourcesDescriptor>> callbackBuilderProvider,
@@ -87,6 +93,8 @@ public class CheckRamAndRunAction extends AbstractRunnerAction {
         this.dialogFactory = dialogFactory;
         this.consoleContainer = consoleContainer;
         this.managerPresenter = managerPresenter;
+        this.tabContainer = tabContainer;
+        this.locale = locale;
 
         addAction(runAction);
     }
@@ -223,14 +231,22 @@ public class CheckRamAndRunAction extends AbstractRunnerAction {
                                        @Nonnegative final int requiredMemory) {
         int availableMemory = totalMemory - usedMemory;
         if (availableMemory < requiredMemory) {
-            dialogFactory.createChoiceDialog(constant.messagesAvailableLessOverrideMemoryTitle(), constant.messagesAvailableLessOverrideMemoryContent(),
-                    constant.messagesAvailableLessOverrideMemorySettingsLink(), constant.messagesAvailableLessOverrideMemoryBackToConfig(),
-                    new ConfirmCallback() {
-                        @Override
-                        public void accepted() {
-                            Window.open("/dashboard/#/organizations", "_blank", null);
-                        }
-                    }, null).show();
+            dialogFactory.createChoiceDialog(constant.messagesAvailableLessOverrideMemoryTitle(),
+                                             constant.messagesAvailableLessOverrideMemoryContent(),
+                                             constant.messagesAvailableLessOverrideMemorySettingsLink(),
+                                             constant.messagesAvailableLessOverrideMemoryBackToConfig(),
+                                             new ConfirmCallback() {
+                                                 @Override
+                                                 public void accepted() {
+                                                     Window.open("/dashboard/#/organizations", "_blank", null);
+                                                 }
+                                             },
+                                             new ConfirmCallback() {
+                                                 @Override
+                                                 public void accepted() {
+                                                     showConfigTab();
+                                                 }
+                                             }).show();
             return false;
         }
 
@@ -242,14 +258,22 @@ public class CheckRamAndRunAction extends AbstractRunnerAction {
                                             @Nonnegative final int overrideMemory) {
         int availableMemory = totalMemory - usedMemory;
         if (availableMemory < overrideMemory) {
-            dialogFactory.createChoiceDialog(constant.messagesAvailableLessOverrideMemoryTitle(), constant.messagesAvailableLessOverrideMemoryContent(),
-                    constant.messagesAvailableLessOverrideMemorySettingsLink(), constant.messagesAvailableLessOverrideMemoryBackToConfig(),
-                    new ConfirmCallback() {
-                        @Override
-                        public void accepted() {
-                            Window.open("/dashboard/#/organizations", "_blank", null);
-                        }
-                    }, null).show();
+            dialogFactory.createChoiceDialog(constant.messagesAvailableLessOverrideMemoryTitle(),
+                                             constant.messagesAvailableLessOverrideMemoryContent(),
+                                             constant.messagesAvailableLessOverrideMemorySettingsLink(),
+                                             constant.messagesAvailableLessOverrideMemoryBackToConfig(),
+                                             new ConfirmCallback() {
+                                                 @Override
+                                                 public void accepted() {
+                                                     Window.open("/dashboard/#/organizations", "_blank", null);
+                                                 }
+                                             },
+                                             new ConfirmCallback() {
+                                                 @Override
+                                                 public void accepted() {
+                                                     showConfigTab();
+                                                 }
+                                             }).show();
             return false;
         }
 
@@ -258,6 +282,11 @@ public class CheckRamAndRunAction extends AbstractRunnerAction {
         }
 
         return true;
+    }
+
+    private void showConfigTab() {
+        managerPresenter.setActive();
+        tabContainer.showTab(locale.runnerTabTemplates());
     }
 
 }

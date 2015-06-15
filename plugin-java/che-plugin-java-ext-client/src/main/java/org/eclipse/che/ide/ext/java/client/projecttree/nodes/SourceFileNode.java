@@ -12,6 +12,7 @@ package org.eclipse.che.ide.ext.java.client.projecttree.nodes;
 
 import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
 import org.eclipse.che.api.project.shared.dto.ItemReference;
+import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.event.RefreshProjectTreeEvent;
 import org.eclipse.che.ide.api.project.tree.TreeNode;
 import org.eclipse.che.ide.api.project.tree.generic.FileNode;
@@ -37,8 +38,9 @@ public class SourceFileNode extends FileNode {
                           @Assisted JavaTreeStructure treeStructure,
                           EventBus eventBus,
                           ProjectServiceClient projectServiceClient,
-                          DtoUnmarshallerFactory dtoUnmarshallerFactory) {
-        super(parent, data, treeStructure, eventBus, projectServiceClient, dtoUnmarshallerFactory);
+                          DtoUnmarshallerFactory dtoUnmarshallerFactory,
+                          EditorAgent editorAgent) {
+        super(parent, data, treeStructure, eventBus, projectServiceClient, dtoUnmarshallerFactory, editorAgent);
     }
 
     @Nonnull

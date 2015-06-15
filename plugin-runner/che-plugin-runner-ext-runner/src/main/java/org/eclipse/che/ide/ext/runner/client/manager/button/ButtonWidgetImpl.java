@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.runner.client.manager.button;
 
-import org.eclipse.che.ide.ext.runner.client.RunnerResources;
-import org.eclipse.che.ide.ext.runner.client.manager.tooltip.TooltipWidget;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -27,7 +25,8 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
-import org.vectomatic.dom.svg.ui.SVGImage;
+import org.eclipse.che.ide.ext.runner.client.RunnerResources;
+import org.eclipse.che.ide.ext.runner.client.manager.tooltip.TooltipWidget;
 import org.vectomatic.dom.svg.ui.SVGResource;
 
 import javax.annotation.Nonnull;
@@ -67,10 +66,7 @@ public class ButtonWidgetImpl extends Composite implements ButtonWidget, ClickHa
 
         initWidget(UI_BINDER.createAndBindUi(this));
 
-        SVGImage icon = new SVGImage(image);
-        icon.getElement().setAttribute("class", resources.runnerCss().mainButtonIcon());
-
-        this.image.getElement().setInnerHTML(icon.toString());
+        this.image.getElement().appendChild(image.getSvg().getElement());
 
         addDomHandler(this, ClickEvent.getType());
         addDomHandler(this, MouseOutEvent.getType());

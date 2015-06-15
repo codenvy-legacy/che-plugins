@@ -23,10 +23,14 @@ import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.event.RefreshProjectTreeEvent;
 import org.eclipse.che.ide.api.icon.IconRegistry;
 import org.eclipse.che.ide.api.project.tree.TreeNode;
+import org.eclipse.che.ide.api.project.tree.generic.ItemNode;
+import org.eclipse.che.ide.api.project.tree.generic.StorableNode;
 import org.eclipse.che.ide.collections.Array;
 import org.eclipse.che.ide.extension.maven.client.event.BeforeModuleOpenEvent;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
+import org.eclipse.che.ide.rest.Unmarshallable;
+import org.eclipse.che.ide.util.loging.Log;
 
 /**
  * Node that represents module of multi-module project.
@@ -65,16 +69,39 @@ public class ModuleNode extends MavenProjectNode {
         projectServiceClient.rename(getPath(), newName, null, new AsyncRequestCallback<Void>() {
             @Override
             protected void onSuccess(Void result) {
-                ModuleNode.super.rename(newName, new RenameCallback() {
+                final String parentPath = ((StorableNode)getParent()).getPath();
+                Unmarshallable<Array<ProjectDescriptor>> unmarshaller = dtoUnmarshallerFactory.newArrayUnmarshaller(ProjectDescriptor.class);
+
+                projectServiceClient.getModules(parentPath, new AsyncRequestCallback<Array<ProjectDescriptor>>(unmarshaller) {
                     @Override
-                    public void onRenamed() {
-                        callback.onRenamed();
-                        eventBus.fireEvent(new RefreshProjectTreeEvent(ModuleNode.this.getParent()));
+                    protected void onSuccess(Array<ProjectDescriptor> items) {
+                        for (ProjectDescriptor item : items.asIterable()) {
+                            if (newName.equals(item.getName())) {
+                                Log.info(getClass(), item.getPath() + " path");
+                                setData(item);
+                                break;
+                            }
+                        }
+
+                        updateModule(ModuleNode.this);
+
+                        ModuleNode.super.rename(newName, new RenameCallback() {
+                            @Override
+                            public void onRenamed() {
+                                callback.onRenamed();
+                                eventBus.fireEvent(new RefreshProjectTreeEvent(ModuleNode.this.getParent()));
+                            }
+
+                            @Override
+                            public void onFailure(Throwable caught) {
+                                callback.onFailure(caught);
+                            }
+                        });
                     }
 
                     @Override
-                    public void onFailure(Throwable caught) {
-                        callback.onFailure(caught);
+                    protected void onFailure(Throwable exception) {
+                        callback.onFailure(exception);
                     }
                 });
             }
@@ -82,6 +109,63 @@ public class ModuleNode extends MavenProjectNode {
             @Override
             protected void onFailure(Throwable exception) {
                 callback.onFailure(exception);
+            }
+        });
+    }
+
+    private void updateModule(final TreeNode treeNode) {
+        String path = ((StorableNode)treeNode).getPath();
+
+        Unmarshallable<Array<ItemReference>> unmarshaller = dtoUnmarshallerFactory.newArrayUnmarshaller(ItemReference.class);
+
+        projectServiceClient.getChildren(path, new AsyncRequestCallback<Array<ItemReference>>(unmarshaller) {
+            @Override
+            protected void onSuccess(Array<ItemReference> result) {
+                for (final TreeNode<?> node : getChildren().asIterable()) {
+                    if (node instanceof ItemNode) {
+                        ItemNode itemNode = (ItemNode)node;
+                        for (ItemReference itemReference : result.asIterable()) {
+                            if (itemReference.getName().equals(itemNode.getName())) {
+                                String oldPath = itemNode.getPath();
+
+                                itemNode.setData(itemReference);
+                                itemNode.onNodeRenamed(oldPath);
+                            }
+                        }
+                    }
+                }
+            }
+
+            @Override
+            protected void onFailure(Throwable exception) {
+
+            }
+        });
+
+
+        Unmarshallable<Array<ProjectDescriptor>> unmarshaller2 = dtoUnmarshallerFactory.newArrayUnmarshaller(ProjectDescriptor.class);
+
+        projectServiceClient.getModules(path, new AsyncRequestCallback<Array<ProjectDescriptor>>(unmarshaller2) {
+            @Override
+            protected void onSuccess(Array<ProjectDescriptor> result) {
+                for (final TreeNode<?> node : ((ModuleNode)treeNode).getChildren().asIterable()) {
+                    if (node instanceof ModuleNode) {
+                        ModuleNode moduleNode = (ModuleNode)node;
+                        for (ProjectDescriptor descriptor: result.asIterable()) {
+                            if (descriptor.getName().equals(moduleNode.getName())) {
+                                moduleNode.setData(descriptor);
+
+                                updateModule(moduleNode);
+                            }
+                        }
+                    }
+
+                }
+            }
+
+            @Override
+            protected void onFailure(Throwable exception) {
+
             }
         });
     }

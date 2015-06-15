@@ -218,6 +218,7 @@ public class TemplatesPresenter implements TemplatesContainer, FilterWidget.Acti
             if (!previousProjectEnvironments.contains(environment)) {
                 select(environment);
                 selectionManager.setEnvironment(environment);
+                view.scrollTop(currentProjectEnvironments.indexOf(environment));
             }
         }
     }

@@ -40,7 +40,6 @@ import org.eclipse.che.commons.lang.Pair;
 import org.eclipse.che.commons.lang.ZipUtils;
 import org.eclipse.che.dto.server.DtoFactory;
 
-import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
@@ -70,13 +69,11 @@ public class GruntRunner extends Runner {
     private final String              hostName;
     private final CustomPortService   portService;
     private final ProjectEventService projectEventService;
-    private final String              baseBuilderApiUrl;
     private final DownloadPlugin      downloadPlugin;
 
     @Inject
     public GruntRunner(@Named(Constants.DEPLOY_DIRECTORY) java.io.File deployDirectoryRoot,
                        @Named(Constants.APP_CLEANUP_TIME) int cleanupDelay,
-                       @Nullable @Named("builder.base_api_url") String baseBuilderApiUrl,
                        @Named("runner.javascript_grunt.host_name") String hostName,
                        ResourceAllocators allocators,
                        CustomPortService portService,
@@ -86,7 +83,6 @@ public class GruntRunner extends Runner {
         this.hostName = hostName;
         this.portService = portService;
         this.projectEventService = projectEventService;
-        this.baseBuilderApiUrl = baseBuilderApiUrl;
         this.downloadPlugin = new HttpDownloadPlugin();
 
     }
@@ -241,13 +237,7 @@ public class GruntRunner extends Runner {
     }
 
     private RemoteServiceDescriptor getBuilderServiceDescriptor(String workspace, String runnerURL) {
-
-        UriBuilder baseBuilderUriBuilder;
-        if (baseBuilderApiUrl == null || baseBuilderApiUrl.isEmpty()) {
-            baseBuilderUriBuilder = UriBuilder.fromUri(runnerURL.substring(0, runnerURL.indexOf("/project")));
-        } else {
-            baseBuilderUriBuilder = UriBuilder.fromUri(baseBuilderApiUrl);
-        }
+        UriBuilder baseBuilderUriBuilder = UriBuilder.fromUri(runnerURL.substring(0, runnerURL.indexOf("/project")));
         final String builderUrl = baseBuilderUriBuilder.path(BuilderService.class).build(workspace).toString();
         return new RemoteServiceDescriptor(builderUrl);
     }

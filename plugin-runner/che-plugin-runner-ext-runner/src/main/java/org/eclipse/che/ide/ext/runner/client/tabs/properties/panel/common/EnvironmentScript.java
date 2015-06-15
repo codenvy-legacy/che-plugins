@@ -12,6 +12,7 @@ package org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common;
 
 import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
 import org.eclipse.che.api.project.shared.dto.ItemReference;
+import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.project.tree.TreeNode;
 import org.eclipse.che.ide.api.project.tree.TreeStructure;
 import org.eclipse.che.ide.api.project.tree.generic.FileNode;
@@ -36,9 +37,10 @@ public class EnvironmentScript extends FileNode {
                              EventBus eventBus,
                              ProjectServiceClient projectServiceClient,
                              DtoUnmarshallerFactory dtoUnmarshallerFactory,
-                             String environmentName) {
+                             String environmentName,
+                             EditorAgent editorAgent) {
 
-        super(parent, data, treeStructure, eventBus, projectServiceClient, dtoUnmarshallerFactory);
+        super(parent, data, treeStructure, eventBus, projectServiceClient, dtoUnmarshallerFactory, editorAgent);
 
         this.environmentName = environmentName;
     }

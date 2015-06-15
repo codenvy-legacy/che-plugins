@@ -23,6 +23,7 @@ import org.eclipse.che.api.project.shared.dto.ItemReference;
 import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.api.project.shared.dto.RunnerConfiguration;
 import org.eclipse.che.ide.api.app.AppContext;
+import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.editor.EditorInput;
 import org.eclipse.che.ide.api.editor.EditorProvider;
 import org.eclipse.che.ide.api.filetypes.FileTypeRegistry;
@@ -98,6 +99,7 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
     private final ChooseRunnerAction                         chooseRunnerAction;
     private final List<RemovePanelListener>                  listeners;
     private final TemplatesContainer                         templatesContainer;
+    private final EditorAgent                                editorAgent;
 
     private ProjectDescriptor                projectDescriptor;
     private Map<String, RunnerConfiguration> runnerConfigs;
@@ -124,6 +126,7 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
                                       AsyncCallbackBuilder<Void> voidAsyncCallbackBuilder,
                                       AsyncCallbackBuilder<ProjectDescriptor> asyncDescriptorCallbackBuilder,
                                       TemplatesContainer templatesContainer,
+                                      EditorAgent editorAgent,
                                       @Assisted @Nonnull final Environment environment) {
         super(view, appContext);
         this.dtoFactory = dtoFactory;
@@ -143,6 +146,7 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
         this.voidAsyncCallbackBuilder = voidAsyncCallbackBuilder;
         this.asyncDescriptorCallbackBuilder = asyncDescriptorCallbackBuilder;
         this.templatesContainer = templatesContainer;
+        this.editorAgent = editorAgent;
 
         this.dialogFactory = dialogFactory;
 
@@ -232,7 +236,8 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
                                                                                            eventBus,
                                                                                            projectService,
                                                                                            unmarshallerFactory,
-                                                                                           environment.getName());
+                                                                                           environment.getName(),
+                                                                                           editorAgent);
 
                                                      initializeEditor(file, editorProvider, fileTypeRegistry);
                                                  }
