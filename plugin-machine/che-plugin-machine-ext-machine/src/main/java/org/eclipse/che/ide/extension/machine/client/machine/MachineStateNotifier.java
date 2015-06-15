@@ -12,6 +12,7 @@ package org.eclipse.che.ide.extension.machine.client.machine;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
 import org.eclipse.che.api.machine.shared.MachineState;
@@ -53,6 +54,7 @@ class MachineStateNotifier {
     public static final String MACHINE_STATE_WS_CHANNEL = "machine:state:";
 
     private final MessageBus                  messageBus;
+    private final EventBus                    eventBus;
     private final DtoUnmarshallerFactory      dtoUnmarshallerFactory;
     private final NotificationManager         notificationManager;
     private final MachineServiceClient        service;
@@ -61,12 +63,14 @@ class MachineStateNotifier {
 
     @Inject
     MachineStateNotifier(MessageBus messageBus,
+                         EventBus eventBus,
                          DtoUnmarshallerFactory dtoUnmarshallerFactory,
                          NotificationManager notificationManager,
                          MachineServiceClient service,
                          MachineLocalizationConstant locale,
                          MachinePanelPresenter machinePanelPresenter) {
         this.messageBus = messageBus;
+        this.eventBus = eventBus;
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
         this.notificationManager = notificationManager;
         this.service = service;
@@ -106,19 +110,30 @@ class MachineStateNotifier {
                         if (runningListener != null) {
                             runningListener.onRunning();
                         }
+
                         notification.setMessage(locale.notificationMachineIsRunning(result.getMachineId()));
                         notification.setStatus(FINISHED);
                         notification.setType(INFO);
 
                         machinePanelPresenter.showMachines();
+
+                        eventBus.fireEvent(org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateEvent
+                                                   .createMachineRunningEvent(result.getMachineId()));
+
                         break;
                     case DESTROYED:
                         unsubscribe(wsChannel, this);
+
                         notification.setMessage(locale.notificationMachineDestroyed(result.getMachineId()));
                         notification.setStatus(FINISHED);
                         notification.setType(INFO);
 
                         machinePanelPresenter.showMachines();
+
+                        eventBus.fireEvent(
+                                org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateEvent.createMachineDestroyedEvent(
+                                        result.getMachineId()));
+
                         break;
                     case ERROR:
                         unsubscribe(wsChannel, this);
