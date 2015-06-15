@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.maven.client;
 
+import com.google.gwt.user.client.Timer;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.event.shared.EventBus;
@@ -31,6 +32,8 @@ import org.eclipse.che.ide.api.project.type.wizard.PreSelectedProjectTypeManager
 import org.eclipse.che.ide.collections.Array;
 import org.eclipse.che.ide.collections.Collections;
 import org.eclipse.che.ide.ext.java.client.dependenciesupdater.DependenciesUpdater;
+import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateEvent;
+import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateHandler;
 import org.eclipse.che.ide.extension.maven.client.actions.CreateMavenModuleAction;
 import org.eclipse.che.ide.extension.maven.client.actions.UpdateDependencyAction;
 import org.eclipse.che.ide.extension.maven.client.event.BeforeModuleOpenEvent;
@@ -54,6 +57,7 @@ import static org.eclipse.che.ide.api.action.IdeActions.GROUP_FILE_NEW;
 @Extension(title = "Maven", version = "3.0.0")
 public class MavenExtension {
     private static Array<MavenArchetype> archetypes;
+    private ProjectDescriptor project;
 
     @Inject
     public MavenExtension(TreeStructureProviderRegistry treeStructureProviderRegistry,
@@ -90,10 +94,7 @@ public class MavenExtension {
         eventBus.addHandler(ProjectActionEvent.TYPE, new ProjectActionHandler() {
             @Override
             public void onProjectOpened(ProjectActionEvent event) {
-                ProjectDescriptor project = event.getProject();
-                if (isValidForResolveDependencies(project)) {
-                    dependenciesUpdater.updateDependencies(project, false);
-                }
+                project = event.getProject();
             }
 
             @Override
@@ -102,6 +103,27 @@ public class MavenExtension {
 
             @Override
             public void onProjectClosed(ProjectActionEvent event) {
+            }
+        });
+
+        eventBus.addHandler(MachineStateEvent.TYPE, new MachineStateHandler() {
+            @Override
+            public void onMachineRunning(MachineStateEvent event) {
+                if(project != null) {
+                    if (isValidForResolveDependencies(project)) {
+                        new Timer() {
+                            @Override
+                            public void run() {
+                              dependenciesUpdater.updateDependencies(project, false);
+                            }
+                        }.schedule(5000);
+                    }
+                }
+            }
+
+            @Override
+            public void onMachineDestroyed(MachineStateEvent event) {
+
             }
         });
     }

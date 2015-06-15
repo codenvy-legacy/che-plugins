@@ -32,7 +32,7 @@ public class JavaNameEnvironmentServiceClientImpl implements JavaNameEnvironment
     private       String         extPath;
     private       MachineManager machineManager;
 
-    private final String UPDATE_DEPENDENCIES          = "/update";
+    private final String UPDATE_DEPENDENCIES          = "/jdt/classpath/update";
 
     @Inject
     protected JavaNameEnvironmentServiceClientImpl(AsyncRequestFactory asyncRequestFactory, @Named("cheExtensionPath") String extPath,
