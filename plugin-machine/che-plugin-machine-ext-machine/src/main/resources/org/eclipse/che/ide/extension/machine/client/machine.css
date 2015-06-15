@@ -71,25 +71,18 @@
 .outputsContainerConsoleTabPanel {
     border-right: 1px solid tabBorder;
     box-shadow: 1px 0 0 0 tabBorderShadow;
-    cursor: pointer;
     position: relative;
     top: -2px;
     padding-left: 15px;
 }
 
 .outputsContainerConsoleTabPanel.outputsContainerConsoleTabSelected:before {
-    top: 0;
     left: 0;
-    margin-left: 0;
     width: 100%;
     border-top: 1px solid #47afdd !important;
-    border-bottom: 16px solid #454545;
 }
 
 .outputsContainerConsoleTabLabel {
-    /* margin between text and image */
-    margin-right: 4px;
-    margin-left: 4px;
     text-shadow: 0 1px 0 buttonTextShadow;
     position: relative;
     top: 2px;
@@ -99,7 +92,6 @@
 .outputsContainerConsoleTabCloseButton {
     cursor: pointer;
     opacity: 0.5;
-    vertical-align: middle;
     padding: 5px 10px;
     float: right;
 }
