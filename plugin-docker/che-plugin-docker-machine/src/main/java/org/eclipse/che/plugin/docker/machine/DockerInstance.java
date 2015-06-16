@@ -94,7 +94,7 @@ public class DockerInstance implements Instance {
                 public void process(LogMessage logMessage) {
                     final String pidFilePath = logMessage.getContent();
                     try {
-                        dockerProcess.set(dockerMachineFactory.createProcess(container, null, pidFilePath, pid));
+                        dockerProcess.set(dockerMachineFactory.createProcess(container, null, pidFilePath, pid, true));
                     } catch (MachineException ignore) {
                     }
                 }
@@ -122,7 +122,8 @@ public class DockerInstance implements Instance {
                     final Matcher matcher = PID_FILE_PATH_PATTERN.matcher(pidFilePath);
                     if (matcher.matches()) {
                         try {
-                            processes.add(dockerMachineFactory.createProcess(container, null, pidFilePath, Integer.parseInt(matcher.group(1))));
+                            processes.add(dockerMachineFactory
+                                                  .createProcess(container, null, pidFilePath, Integer.parseInt(matcher.group(1)), true));
                         } catch (NumberFormatException | MachineException ignore) {
                         }
                     }
@@ -137,7 +138,7 @@ public class DockerInstance implements Instance {
     @Override
     public InstanceProcess createProcess(String commandLine) throws MachineException {
         final Integer pid = pidSequence.getAndIncrement();
-        return dockerMachineFactory.createProcess(container, commandLine, String.format(PID_FILE_TEMPLATE, pid), pid);
+        return dockerMachineFactory.createProcess(container, commandLine, String.format(PID_FILE_TEMPLATE, pid), pid, false);
     }
 
     @Override
