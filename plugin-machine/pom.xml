@@ -23,6 +23,6 @@
     <packaging>pom</packaging>
     <name>Che Plugin :: Machine :: Parent</name>
     <modules>
-        <module>che-plugin-machine-ext-machine</module>
+        <module>che-plugin-machine-ext-client</module>
     </modules>
 </project>

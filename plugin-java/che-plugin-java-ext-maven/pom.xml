@@ -77,7 +77,7 @@
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.plugin</groupId>
-            <artifactId>che-plugin-machine-ext-machine</artifactId>
+            <artifactId>che-plugin-machine-ext-client</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!--<dependency>-->
