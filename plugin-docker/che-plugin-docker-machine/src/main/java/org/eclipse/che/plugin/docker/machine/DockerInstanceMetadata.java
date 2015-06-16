@@ -45,19 +45,22 @@ public class DockerInstanceMetadata implements InstanceMetadata {
 
     @Inject
     public DockerInstanceMetadata(DockerConnector docker,
-                                  @Named("api.endpoint") String apiEndpoint,
-                                  @Assisted String container) throws MachineException {
+//                                  @Named("api.endpoint") String apiEndpoint,
+                                  @Assisted String container,
+                                  DockerMachineFactory factory) throws MachineException {
         try {
             final ContainerInfo containerInfo = docker.inspectContainer(container);
 
-            final String host = new URI(apiEndpoint).getHost();
+            //final String host = new URI(apiEndpoint).getHost();
+            final String host = factory.createNode(container).getHost();
 
             metadataParser = new DockerInstanceMetadataParser(containerInfo, host);
         } catch (IOException e) {
             throw new MachineException(e.getLocalizedMessage(), e);
-        } catch (URISyntaxException e) {
-            throw new MachineException("Configuration error. Property 'api.endpoint is not valid URI. '" + e.getLocalizedMessage());
         }
+//        catch (URISyntaxException e) {
+//            throw new MachineException("Configuration error. Property 'api.endpoint is not valid URI. '" + e.getLocalizedMessage());
+//        }
 
     }
 

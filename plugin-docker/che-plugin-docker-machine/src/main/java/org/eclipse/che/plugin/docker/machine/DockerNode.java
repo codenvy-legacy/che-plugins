@@ -75,4 +75,7 @@ public interface DockerNode {
      * Get path of folder on docker node that will contain bound projects
      */
     String getProjectsFolder();
+
+
+    String getHost();
 }
