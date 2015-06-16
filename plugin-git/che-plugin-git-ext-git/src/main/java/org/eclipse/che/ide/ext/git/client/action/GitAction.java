@@ -11,29 +11,31 @@
 package org.eclipse.che.ide.ext.git.client.action;
 
 import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
+import org.eclipse.che.ide.api.action.AbstractPerspectiveAction;
 import org.eclipse.che.ide.api.action.ActionEvent;
-import org.eclipse.che.ide.api.action.ProjectAction;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
-import org.eclipse.che.ide.api.project.tree.generic.StorableNode;
-import org.eclipse.che.ide.api.selection.Selection;
 import org.eclipse.che.ide.api.selection.SelectionAgent;
-
 import org.vectomatic.dom.svg.ui.SVGResource;
 
+import javax.annotation.Nonnull;
+import java.util.Arrays;
 import java.util.List;
+
+import static org.eclipse.che.ide.workspace.perspectives.project.ProjectPerspective.PROJECT_PERSPECTIVE_ID;
 
 /**
  * @author Roman Nikitenko
+ * @author Dmitry Shnurenko
  */
-public abstract class GitAction extends ProjectAction {
+public abstract class GitAction extends AbstractPerspectiveAction {
 
     protected final AppContext     appContext;
     protected       SelectionAgent selectionAgent;
 
     public GitAction(String text, String description, SVGResource svgIcon, AppContext appContext,
                      SelectionAgent selectionAgent) {
-        super(text, description, svgIcon);
+        super(Arrays.asList(PROJECT_PERSPECTIVE_ID), text, description, null, svgIcon);
         this.appContext = appContext;
         this.selectionAgent = selectionAgent;
     }
@@ -52,18 +54,13 @@ public abstract class GitAction extends ProjectAction {
         return isGitRepository;
     }
 
-    protected boolean isItemSelected() {
-        Selection<?> selection = selectionAgent.getSelection();
-        return selection != null && selection.getFirstElement() != null && selection.getFirstElement() instanceof StorableNode;
-    }
-
     protected CurrentProject getActiveProject() {
         return appContext.getCurrentProject();
     }
 
     @Override
-    protected void updateProjectAction(ActionEvent e) {
-        e.getPresentation().setVisible(getActiveProject() != null);
-        e.getPresentation().setEnabled(isGitRepository());
+    public void updatePerspective(@Nonnull ActionEvent event) {
+        event.getPresentation().setVisible(getActiveProject() != null);
+        event.getPresentation().setEnabled(isGitRepository());
     }
 }
