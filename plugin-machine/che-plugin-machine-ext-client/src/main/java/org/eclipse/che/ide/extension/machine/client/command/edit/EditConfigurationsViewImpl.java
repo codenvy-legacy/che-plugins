@@ -220,8 +220,6 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
         });
 
         okButton.addStyleName(resources.centerPanelCss().blueButton());
-//        applyButton.addStyleName(resources.wizardCss().buttonSuccess());
-//        cancelButton.addStyleName(resources.wizardCss().button());
 
         getFooter().add(okButton);
         getFooter().add(applyButton);

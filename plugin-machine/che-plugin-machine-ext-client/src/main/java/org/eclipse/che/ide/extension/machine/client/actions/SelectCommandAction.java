@@ -21,6 +21,7 @@ import org.eclipse.che.api.promises.client.Function;
 import org.eclipse.che.api.promises.client.FunctionException;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
+import org.eclipse.che.ide.api.action.AbstractPerspectiveAction;
 import org.eclipse.che.ide.api.action.Action;
 import org.eclipse.che.ide.api.action.ActionEvent;
 import org.eclipse.che.ide.api.action.ActionManager;
@@ -46,6 +47,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static org.eclipse.che.ide.extension.machine.client.MachineExtension.GROUP_COMMANDS_LIST;
+import static org.eclipse.che.ide.workspace.perspectives.project.ProjectPerspective.PROJECT_PERSPECTIVE_ID;
 
 /**
  * Action that allows user to select command from list of all commands.
@@ -53,9 +55,9 @@ import static org.eclipse.che.ide.extension.machine.client.MachineExtension.GROU
  * @author Artem Zatsarynnyy
  */
 @Singleton
-public class SelectCommandAction extends Action implements CustomComponentAction,
-                                                           ProjectActionHandler,
-                                                           EditConfigurationsPresenter.ConfigurationsChangedListener {
+public class SelectCommandAction extends AbstractPerspectiveAction implements CustomComponentAction,
+                                                                              ProjectActionHandler,
+                                                                              EditConfigurationsPresenter.ConfigurationsChangedListener {
 
     public static final  String                           GROUP_COMMANDS     = "CommandsGroup";
     private static final Comparator<CommandConfiguration> commandsComparator = new CommandsComparator();
@@ -77,7 +79,11 @@ public class SelectCommandAction extends Action implements CustomComponentAction
                                CommandServiceClient commandServiceClient,
                                CommandTypeRegistry commandTypeRegistry,
                                EditConfigurationsPresenter editConfigurationsPresenter) {
-        super(locale.selectCommandControlTitle(), locale.selectCommandControlDescription(), null);
+        super(Collections.singletonList(PROJECT_PERSPECTIVE_ID),
+              locale.selectCommandControlTitle(),
+              locale.selectCommandControlDescription(),
+              null,
+              null);
         this.actionManager = actionManager;
         this.commandServiceClient = commandServiceClient;
         this.commandTypeRegistry = commandTypeRegistry;
@@ -92,6 +98,10 @@ public class SelectCommandAction extends Action implements CustomComponentAction
 
         commandActions = new DefaultActionGroup(GROUP_COMMANDS, false, actionManager);
         actionManager.registerAction(GROUP_COMMANDS, commandActions);
+    }
+
+    @Override
+    public void updateInPerspective(@Nonnull ActionEvent event) {
     }
 
     @Override
