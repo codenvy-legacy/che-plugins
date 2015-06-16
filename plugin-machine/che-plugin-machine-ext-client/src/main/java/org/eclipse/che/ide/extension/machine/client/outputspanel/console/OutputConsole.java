@@ -26,6 +26,12 @@ public interface OutputConsole extends Presenter {
     /** Return title for the console. */
     String getTitle();
 
-    /** Attach console to the given WebSocket output channel. */
-    void attachToOutput(String outputChannel);
+    /** Start listening to the output on the given WebSocket channel. */
+    void listenToOutput(String wsChannel);
+
+    /** Set ID of the process launched by the command. */
+    void attachToProcess(int pid);
+
+    /** Checks whether the console is finished outputting or not. In other words - whether the process is alive or not. */
+    boolean isFinished();
 }
