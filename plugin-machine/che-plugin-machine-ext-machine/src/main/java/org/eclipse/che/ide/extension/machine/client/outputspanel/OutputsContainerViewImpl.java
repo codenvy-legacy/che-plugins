@@ -42,9 +42,9 @@ public class OutputsContainerViewImpl extends BaseView<OutputsContainerView.Acti
     @UiField
     MachineResources resources;
     @UiField
-    FlowPanel       tabsPanel;
+    FlowPanel        tabsPanel;
     @UiField
-    DeckLayoutPanel contentPanel;
+    DeckLayoutPanel  contentPanel;
 
     @Inject
     public OutputsContainerViewImpl(PartStackUIResources partStackUIResources, OutputsContainerViewImplUiBinder uiBinder) {
@@ -61,6 +61,17 @@ public class OutputsContainerViewImpl extends BaseView<OutputsContainerView.Acti
 
     @Override
     public void addConsole(String title, IsWidget widget) {
+        tabsPanel.add(createTabButton(title));
+        contentPanel.add(widget);
+    }
+
+    @Override
+    public void insertConsole(String title, IsWidget widget, int position) {
+        tabsPanel.insert(createTabButton(title), position);
+        contentPanel.insert(widget, position);
+    }
+
+    private TabButton createTabButton(String title) {
         final TabButton tabButton = new TabButton(null, title);
         tabButton.addClickHandler(new ClickHandler() {
             @Override
@@ -68,10 +79,7 @@ public class OutputsContainerViewImpl extends BaseView<OutputsContainerView.Acti
                 delegate.onConsoleSelected(tabsPanel.getWidgetIndex(tabButton));
             }
         });
-        tabsPanel.add(tabButton);
-
-        contentPanel.add(widget);
-        showConsole(contentPanel.getWidgetCount() - 1);
+        return tabButton;
     }
 
     @Override
@@ -136,7 +144,7 @@ public class OutputsContainerViewImpl extends BaseView<OutputsContainerView.Acti
             image.addClickHandler(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
-                    delegate.onConsoleClosed(tabsPanel.getWidgetIndex(TabButton.this));
+                    delegate.onConsoleClose(tabsPanel.getWidgetIndex(TabButton.this));
                 }
             });
         }

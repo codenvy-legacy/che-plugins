@@ -26,6 +26,8 @@ import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.outputspanel.console.OutputConsole;
 
 import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Container for the output consoles.
@@ -38,6 +40,8 @@ public class OutputsContainerPresenter extends BasePresenter implements OutputsC
     private final MachineLocalizationConstant localizationConstant;
     private final OutputsContainerView        view;
 
+    private final List<OutputConsole> consoles;
+
     @Inject
     public OutputsContainerPresenter(OutputsContainerView view, MachineLocalizationConstant localizationConstant, EventBus eventBus) {
         this.view = view;
@@ -45,17 +49,49 @@ public class OutputsContainerPresenter extends BasePresenter implements OutputsC
         this.view.setTitle(localizationConstant.outputsConsoleViewTitle());
         this.view.setDelegate(this);
 
+        consoles = new ArrayList<>();
+
         eventBus.addHandler(ProjectActionEvent.TYPE, this);
     }
 
     /** Add {@code console} to the container. */
     public void addConsole(final OutputConsole console) {
-        console.go(new AcceptsOneWidget() {
-            @Override
-            public void setWidget(IsWidget w) {
-                view.addConsole(console.getTitle(), w);
+        // check whether console for an appropriate command is already opened
+        OutputConsole existingOutputConsole = null;
+        for (final OutputConsole outputConsole : consoles) {
+            if (console.getCommand().getId().equals(outputConsole.getCommand().getId())) {
+                existingOutputConsole = outputConsole;
+                break;
             }
-        });
+        }
+
+        if (existingOutputConsole == null) {
+            console.go(new AcceptsOneWidget() {
+                @Override
+                public void setWidget(IsWidget widget) {
+                    consoles.add(console);
+                    view.addConsole(console.getTitle(), widget);
+                    view.showConsole(consoles.size() - 1);
+                }
+            });
+        } else {
+            // replace existing console with new one
+            final int existingConsoleIndex = consoles.indexOf(existingOutputConsole);
+            console.go(new AcceptsOneWidget() {
+                @Override
+                public void setWidget(IsWidget widget) {
+                    // add new console in place of existing one
+                    consoles.add(existingConsoleIndex, console);
+                    view.insertConsole(console.getTitle(), widget, existingConsoleIndex);
+
+                    // remove existing console
+                    consoles.remove(existingConsoleIndex + 1);
+                    view.removeConsole(existingConsoleIndex + 1);
+
+                    view.showConsole(existingConsoleIndex);
+                }
+            });
+        }
     }
 
     @Override
@@ -90,7 +126,9 @@ public class OutputsContainerPresenter extends BasePresenter implements OutputsC
     }
 
     @Override
-    public void onConsoleClosed(int index) {
+    public void onConsoleClose(int index) {
+        consoles.remove(index);
+
         view.removeConsole(index);
         if (index > 0) {
             view.showConsole(index - 1);
@@ -107,6 +145,7 @@ public class OutputsContainerPresenter extends BasePresenter implements OutputsC
 
     @Override
     public void onProjectClosed(ProjectActionEvent event) {
+        consoles.clear();
         view.removeAllConsoles();
     }
 }

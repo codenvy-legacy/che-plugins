@@ -86,6 +86,7 @@ public class MachineExtension {
         final DefaultActionGroup machineToolbarGroup = new DefaultActionGroup(GROUP_MACHINE_TOOLBAR, false, actionManager);
         actionManager.registerAction(GROUP_MACHINE_TOOLBAR, machineToolbarGroup);
         rightToolbarGroup.add(machinePerspectiveAction);
+        rightToolbarGroup.addSeparator();
         rightToolbarGroup.add(machineToolbarGroup);
         machineToolbarGroup.add(selectCommandAction);
         machineToolbarGroup.add(executeSelectedCommandAction);

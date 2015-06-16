@@ -68,7 +68,7 @@ public class ExecuteArbitraryCommandAction extends Action {
         if (machineManager.getDeveloperMachineId() != null) {
             presenter.show();
         } else {
-            dialogFactory.createMessageDialog("", localizationConstant.noCurrentMachine(), null).show();
+            dialogFactory.createMessageDialog("", localizationConstant.noDevMachine(), null).show();
         }
     }
 }

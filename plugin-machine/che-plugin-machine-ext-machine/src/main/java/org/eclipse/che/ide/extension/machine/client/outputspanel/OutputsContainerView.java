@@ -25,6 +25,9 @@ public interface OutputsContainerView extends View<OutputsContainerView.ActionDe
     /** Add console widget with the specified title. */
     void addConsole(String title, IsWidget widget);
 
+    /** Add console widget with the specified title in the specified place. */
+    void insertConsole(String title, IsWidget widget, int position);
+
     /** Show console by the given index. */
     void showConsole(int index);
 
@@ -47,7 +50,7 @@ public interface OutputsContainerView extends View<OutputsContainerView.ActionDe
         /** Called when console with the given {@code index} has been selected. */
         void onConsoleSelected(int index);
 
-        /** Called when console with the given {@code index} has been closed. */
-        void onConsoleClosed(int index);
+        /** Called when console with the given {@code index} going to close. */
+        void onConsoleClose(int index);
     }
 }

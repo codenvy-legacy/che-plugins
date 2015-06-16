@@ -69,8 +69,8 @@ public interface MachineLocalizationConstant extends Messages {
 
 
     /* Messages */
-    @Key("messages.noCurrentMachine")
-    String noCurrentMachine();
+    @Key("messages.noDevMachine")
+    String noDevMachine();
 
     @Key("machine.create.title")
     String machineCreateTitle();

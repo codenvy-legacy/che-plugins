@@ -28,9 +28,9 @@ import org.eclipse.che.ide.websocket.rest.SubscriptionHandler;
  */
 public class CommandOutputConsole implements OutputConsole, OutputConsoleView.ActionDelegate {
 
-    private final OutputConsoleView   view;
-    private final MessageBus          messageBus;
-    private final NotificationManager notificationManager;
+    private final OutputConsoleView    view;
+    private final MessageBus           messageBus;
+    private final NotificationManager  notificationManager;
     private final CommandConfiguration commandConfiguration;
 
     @Inject
@@ -50,6 +50,11 @@ public class CommandOutputConsole implements OutputConsole, OutputConsoleView.Ac
     @Override
     public void go(AcceptsOneWidget container) {
         container.setWidget(view);
+    }
+
+    @Override
+    public CommandConfiguration getCommand() {
+        return commandConfiguration;
     }
 
     @Override

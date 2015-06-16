@@ -74,7 +74,7 @@ public class ExecuteSelectedCommandAction extends Action {
                 machineManager.execute(commandConfiguration);
             }
         } else {
-            dialogFactory.createMessageDialog("", localizationConstant.noCurrentMachine(), null).show();
+            dialogFactory.createMessageDialog("", localizationConstant.noDevMachine(), null).show();
         }
     }
 }

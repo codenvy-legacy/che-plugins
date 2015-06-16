@@ -179,10 +179,10 @@ public class MachineManager implements ProjectActionHandler {
         }
     }
 
-    /** Execute the the given command configuration on current machine. */
+    /** Execute the the given command configuration on the developer machine. */
     public void execute(@Nonnull CommandConfiguration configuration) {
         if (devMachineId == null) {
-            notificationManager.showWarning(localizationConstant.noCurrentMachine());
+            notificationManager.showWarning(localizationConstant.noDevMachine());
             return;
         }
 

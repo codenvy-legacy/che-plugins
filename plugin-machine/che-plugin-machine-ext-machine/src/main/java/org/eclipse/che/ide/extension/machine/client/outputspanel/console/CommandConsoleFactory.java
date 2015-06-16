@@ -15,5 +15,6 @@ import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration
 /** @author Artem Zatsarynnyy */
 public interface CommandConsoleFactory {
 
+    /** Create {@link OutputConsole} for the given {@code commandConfiguration}. */
     OutputConsole create(CommandConfiguration commandConfiguration);
 }

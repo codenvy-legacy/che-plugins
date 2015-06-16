@@ -11,13 +11,17 @@
 package org.eclipse.che.ide.extension.machine.client.outputspanel.console;
 
 import org.eclipse.che.ide.api.mvp.Presenter;
+import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
 
 /**
- * Console for output.
+ * Describes requirements for the console for command output.
  *
  * @author Artem Zatsarynnyy
  */
 public interface OutputConsole extends Presenter {
+
+    /** Return command configuration which output this console shows. */
+    CommandConfiguration getCommand();
 
     /** Return title for the console. */
     String getTitle();

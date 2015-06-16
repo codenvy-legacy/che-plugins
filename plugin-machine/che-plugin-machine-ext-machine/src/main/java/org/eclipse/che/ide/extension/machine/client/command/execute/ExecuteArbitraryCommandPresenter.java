@@ -76,7 +76,7 @@ public class ExecuteArbitraryCommandPresenter implements ExecuteArbitraryCommand
         if (devMachineId != null) {
             executeCommandInMachine(view.getCommand(), devMachineId);
         } else {
-            dialogFactory.createMessageDialog("", localizationConstant.noCurrentMachine(), null).show();
+            dialogFactory.createMessageDialog("", localizationConstant.noDevMachine(), null).show();
         }
     }
 

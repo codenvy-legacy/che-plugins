@@ -86,7 +86,6 @@ public class CommandOutputConsoleView extends Composite implements OutputConsole
                 .toSafeHtml();
     }
 
-    /** {@inheritDoc} */
     @Override
     public void scrollBottom() {
         scrollPanel.getElement().setScrollTop(scrollPanel.getElement().getScrollHeight());
