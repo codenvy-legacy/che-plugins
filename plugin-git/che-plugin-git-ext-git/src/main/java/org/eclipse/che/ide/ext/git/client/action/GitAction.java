@@ -59,7 +59,7 @@ public abstract class GitAction extends AbstractPerspectiveAction {
     }
 
     @Override
-    public void updatePerspective(@Nonnull ActionEvent event) {
+    public void updateInPerspective(@Nonnull ActionEvent event) {
         event.getPresentation().setVisible(getActiveProject() != null);
         event.getPresentation().setEnabled(isGitRepository());
     }

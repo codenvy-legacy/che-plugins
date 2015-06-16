@@ -56,7 +56,7 @@ public class UpdateDependencyAction extends AbstractPerspectiveAction {
 
     /** {@inheritDoc} */
     @Override
-    public void updatePerspective(@Nonnull ActionEvent event) {
+    public void updateInPerspective(@Nonnull ActionEvent event) {
         //TODO only maven
         event.getPresentation().setEnabledAndVisible(true);
     }

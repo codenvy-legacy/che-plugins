@@ -67,7 +67,7 @@ public class InitRepositoryAction extends GitAction {
     }
 
     @Override
-    public void updatePerspective(@Nonnull ActionEvent event) {
+    public void updateInPerspective(@Nonnull ActionEvent event) {
         event.getPresentation().setVisible(getActiveProject() != null);
         event.getPresentation().setEnabled(!isGitRepository());
     }
