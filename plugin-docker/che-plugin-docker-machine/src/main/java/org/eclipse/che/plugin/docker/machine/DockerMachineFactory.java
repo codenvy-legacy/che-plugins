@@ -31,7 +31,8 @@ public interface DockerMachineFactory {
     InstanceProcess createProcess(@Assisted("container") String container,
                                   @Assisted("command") @Nullable String command,
                                   @Assisted("pid_file_path") String pidFilePath,
-                                  @Assisted int pid) throws MachineException;
+                                  @Assisted int pid,
+                                  @Assisted boolean isStarted) throws MachineException;
 
     Instance createInstance(@Assisted("container") String containerId,
                             @Assisted DockerNode node,

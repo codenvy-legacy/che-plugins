@@ -49,12 +49,13 @@ public class DockerProcess implements InstanceProcess {
                          @Assisted("container") String container,
                          @Assisted("command") @Nullable String command,
                          @Assisted("pid_file_path") String pidFilePath,
-                         @Assisted int pid) {
+                         @Assisted int pid,
+                         @Assisted boolean isStarted) {
         this.docker = docker;
         this.container = container;
         this.command = command;
         this.pidFilePath = pidFilePath;
-        this.started = false;
+        this.started = isStarted;
         this.pid = pid;
     }
 

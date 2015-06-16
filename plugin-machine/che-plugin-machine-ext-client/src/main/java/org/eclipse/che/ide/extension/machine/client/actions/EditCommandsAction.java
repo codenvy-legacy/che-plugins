@@ -14,17 +14,21 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import org.eclipse.che.api.analytics.client.logger.AnalyticsEventLogger;
-import org.eclipse.che.ide.api.action.Action;
+import org.eclipse.che.ide.api.action.AbstractPerspectiveAction;
 import org.eclipse.che.ide.api.action.ActionEvent;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.command.edit.EditConfigurationsPresenter;
 
+import java.util.Collections;
+
+import static org.eclipse.che.ide.workspace.perspectives.project.ProjectPerspective.PROJECT_PERSPECTIVE_ID;
+
 /**
  * @author Artem Zatsarynnyy
  */
 @Singleton
-public class EditCommandsAction extends Action {
+public class EditCommandsAction extends AbstractPerspectiveAction {
     private final AppContext                  appContext;
     private final EditConfigurationsPresenter presenter;
     private final AnalyticsEventLogger        eventLogger;
@@ -34,19 +38,21 @@ public class EditCommandsAction extends Action {
                               MachineLocalizationConstant localizationConstant,
                               AppContext appContext,
                               AnalyticsEventLogger eventLogger) {
-        super(localizationConstant.editConfigurationsControlTitle(), localizationConstant.editConfigurationsControlDescription(), null);
+        super(Collections.singletonList(PROJECT_PERSPECTIVE_ID),
+              localizationConstant.editConfigurationsControlTitle(),
+              localizationConstant.editConfigurationsControlDescription(),
+              null,
+              null);
         this.presenter = presenter;
         this.appContext = appContext;
         this.eventLogger = eventLogger;
     }
 
-    /** {@inheritDoc} */
     @Override
-    public void update(ActionEvent e) {
+    public void updateInPerspective(ActionEvent e) {
         e.getPresentation().setVisible(appContext.getCurrentProject() != null);
     }
 
-    /** {@inheritDoc} */
     @Override
     public void actionPerformed(ActionEvent e) {
         eventLogger.log(this);
