@@ -18,7 +18,7 @@
         <groupId>org.eclipse.che.plugin</groupId>
         <version>4.0.0-SNAPSHOT</version>
     </parent>
-    <artifactId>che-plugin-java-ext-client</artifactId>
+    <artifactId>che-plugin-java-ext-lang-client</artifactId>
     <packaging>jar</packaging>
     <name>Che Plugin :: Java :: Extension Java Client</name>
     <dependencies>

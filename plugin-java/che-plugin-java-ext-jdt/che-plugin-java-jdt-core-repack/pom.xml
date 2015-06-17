@@ -21,6 +21,7 @@
     <artifactId>che-plugin-java-jdt-core-repack</artifactId>
     <packaging>jar</packaging>
     <name>Che Plugin :: Java :: Eclipse JDT Core Repack</name>
+    <description>We repack JAR for removing Eclipse RSA key</description>
     <dependencies>
         <dependency>
             <groupId>org.eclipse.tycho</groupId>
@@ -44,7 +45,7 @@
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>copy-clear-tomcat</id>
+                        <id>copy-deps</id>
                         <phase>process-resources</phase>
                         <goals>
                             <goal>copy</goal>
@@ -68,7 +69,7 @@
                 <artifactId>maven-antrun-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>Prepare Tomcat</id>
+                        <id>unpack</id>
                         <phase>process-resources</phase>
                         <goals>
                             <goal>run</goal>
@@ -91,21 +92,13 @@
                                         <exclude name="**/org/eclipse/jdt/internal/core/DeltaProcessor**" />
                                         <exclude name="**/org/eclipse/jdt/internal/core/BecomeWorkingCopyOperation**" />
                                         <exclude name="**/org/eclipse/jdt/core/JavaConventions**" />
-
-                                        <!--<exclude name="**/org/eclipse/jdt/internal/core/**" />-->
                                     </patternset>
                                 </unzip>
-                                <!--jar basedir="${project.build.directory}/packager-conf/jar/org.eclipse.jdt.core" destfile="${project.build.directory}/packager-conf/jar-repack/org.eclipse.jdt.core-${org.eclipse.jdt.core.version}.jar" /-->
                             </target>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
-            <!--plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-jar-plugin</artifactId>
-          
-        </plugin-->
         </plugins>
     </build>
 </project>
