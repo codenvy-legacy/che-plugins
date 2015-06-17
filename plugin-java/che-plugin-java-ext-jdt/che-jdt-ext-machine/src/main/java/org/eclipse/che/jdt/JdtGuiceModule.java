@@ -14,6 +14,7 @@ package org.eclipse.che.jdt;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
+import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Named;
 
 import org.eclipse.che.core.internal.resources.ResourcesPlugin;
@@ -22,6 +23,7 @@ import org.eclipse.che.jdt.rest.CodeAssistService;
 import org.eclipse.che.jdt.rest.JavaClasspathService;
 import org.eclipse.che.jdt.rest.JavaReconcileService;
 import org.eclipse.core.internal.filebuffers.FileBuffersPlugin;
+import org.eclipse.ide.ext.machine.ProjectEventListener;
 import org.eclipse.jdt.internal.ui.JavaPlugin;
 
 /**
@@ -42,7 +44,9 @@ public class JdtGuiceModule extends AbstractModule {
         bind(ResourcesPlugin.class).asEagerSingleton();
         bind(JavaPlugin.class).asEagerSingleton();
         bind(FileBuffersPlugin.class).asEagerSingleton();
-//        bind(ProjectListeners.class).asEagerSingleton();
+        bind(ProjectListeners.class).asEagerSingleton();
+        Multibinder<ProjectEventListener> listenerMultibinder = Multibinder.newSetBinder(binder(), ProjectEventListener.class);
+        listenerMultibinder.addBinding().to(ProjectListeners.class);
     }
 
     @Provides

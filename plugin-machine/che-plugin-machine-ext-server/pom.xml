@@ -14,17 +14,26 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>che-plugin-parent</artifactId>
+        <artifactId>che-plugin-machine-parent</artifactId>
         <groupId>org.eclipse.che.plugin</groupId>
         <version>4.0.0-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
-    <artifactId>che-plugin-machine-parent</artifactId>
-    <packaging>pom</packaging>
-    <name>Che Plugin :: Machine :: Parent</name>
-    <modules>
-        <module>che-plugin-machine-ext-client</module>
-        <module>che-plugin-machine-ext-server</module>
-        <module>che-plugin-machine-ext-machine</module>
-    </modules>
+    <artifactId>che-plugin-machine-ext-server</artifactId>
+    <dependencies>
+        <dependency>
+            <groupId>org.eclipse.che.core</groupId>
+            <artifactId>che-core-api-machine</artifactId>
+            <version>${che.core.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.che.core</groupId>
+            <artifactId>che-core-api-project</artifactId>
+            <version>${che.core.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.che.core</groupId>
+            <artifactId>che-core-commons-inject</artifactId>
+            <version>${che.core.version}</version>
+        </dependency>
+    </dependencies>
 </project>

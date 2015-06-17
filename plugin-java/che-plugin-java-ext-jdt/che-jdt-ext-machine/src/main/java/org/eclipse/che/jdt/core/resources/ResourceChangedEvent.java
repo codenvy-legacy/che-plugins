@@ -11,9 +11,10 @@
 
 package org.eclipse.che.jdt.core.resources;
 
-import org.eclipse.che.api.vfs.server.observation.VirtualFileEvent;
-
-import org.eclipse.core.resources.*;
+import org.eclipse.che.api.project.server.notification.ProjectItemModifiedEvent;
+import org.eclipse.core.resources.IMarkerDelta;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceDelta;
 
 import java.io.File;
@@ -24,10 +25,10 @@ import java.io.File;
 public class ResourceChangedEvent implements IResourceChangeEvent {
 
 
-    private VirtualFileEvent event;
+    private ProjectItemModifiedEvent event;
     private ResourceDeltaImpl resourceDelta;
 
-    public ResourceChangedEvent(File workspace, VirtualFileEvent event) {
+    public ResourceChangedEvent(File workspace, ProjectItemModifiedEvent event) {
         this.event = event;
         resourceDelta = new ResourceDeltaImpl(workspace, event);
 

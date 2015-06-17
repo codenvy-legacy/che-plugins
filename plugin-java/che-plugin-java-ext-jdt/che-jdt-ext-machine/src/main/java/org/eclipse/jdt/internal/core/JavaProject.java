@@ -91,18 +91,20 @@ public class JavaProject extends Openable implements IJavaProject, SuffixConstan
     /**
      * Name of file containing project classpath
      */
-    public static final String CLASSPATH_FILENAME = ".codenvy/classpath";
+    public static final String INNER_DIR = ".codenvy";
+    public static final String CLASSPATH_FILENAME = INNER_DIR +"/classpath";
 
     /**
      * Whether the underlying file system is case sensitive.
      */
-    protected static final boolean IS_CASE_SENSITIVE = !new File("Temp").equals(new File("temp")); //$NON-NLS-1$ //$NON-NLS-2$
+    protected static final boolean                                    IS_CASE_SENSITIVE = !new File("Temp").equals(new File("temp"));
+            //$NON-NLS-1$ //$NON-NLS-2$
     /**
      * Value of the project's raw classpath if the .classpath file contains invalid entries.
      */
-    public static final  IClasspathEntry[]                          INVALID_CLASSPATH = new IClasspathEntry[0];
-    private static final Logger                                     LOG               = LoggerFactory.getLogger(JavaProject.class);
-    private final        DirectoryStream.Filter<java.nio.file.Path> jarFilter         = new DirectoryStream.Filter<java.nio.file.Path>() {
+    public static final    IClasspathEntry[]                          INVALID_CLASSPATH = new IClasspathEntry[0];
+    private static final   Logger                                     LOG               = LoggerFactory.getLogger(JavaProject.class);
+    private final DirectoryStream.Filter<java.nio.file.Path> jarFilter = new DirectoryStream.Filter<java.nio.file.Path>() {
         @Override
         public boolean accept(java.nio.file.Path entry) throws IOException {
             return entry.getFileName().toString().endsWith("jar");
@@ -1751,7 +1753,7 @@ public class JavaProject extends Openable implements IJavaProject, SuffixConstan
 
     @Override
     protected IStatus validateExistence(IResource underlyingResource) {
-        if ((!((IProject)underlyingResource).getFolder(".codenvy").exists())) {
+        if ((!((IProject)underlyingResource).getFolder(INNER_DIR).exists())) {
             return newDoesNotExistStatus();
         }
         return JavaModelStatus.VERIFIED_OK;

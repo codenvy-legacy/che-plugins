@@ -11,8 +11,7 @@
 
 package org.eclipse.che.jdt.core.resources;
 
-import org.eclipse.che.api.vfs.server.observation.VirtualFileEvent;
-
+import org.eclipse.che.api.project.server.notification.ProjectItemModifiedEvent;
 import org.eclipse.che.core.internal.resources.ResourcesPlugin;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IMarkerDelta;
@@ -31,15 +30,15 @@ public class ResourceDeltaImpl implements IResourceDelta {
 
     protected static int KIND_MASK = 0xFF;
     private File workspace;
-    private VirtualFileEvent event;
+    private ProjectItemModifiedEvent event;
     protected int status;
 
-    public ResourceDeltaImpl(File workspace, VirtualFileEvent event) {
+    public ResourceDeltaImpl(File workspace, ProjectItemModifiedEvent event) {
         this.workspace = workspace;
         this.event = event;
 //        status|= KIND_MASK;
         switch (event.getType()) {
-            case CONTENT_UPDATED:
+            case UPDATED:
                 status |= CHANGED | CONTENT;
                 break;
             case CREATED:
