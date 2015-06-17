@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.che.runner.webapps;
 
+import com.google.inject.Singleton;
+
 import org.eclipse.che.api.core.notification.EventService;
 import org.eclipse.che.api.core.util.CommandLine;
 import org.eclipse.che.api.core.util.StreamPump;
@@ -18,8 +20,6 @@ import org.eclipse.che.api.runner.internal.ApplicationLogger;
 import org.eclipse.che.api.runner.internal.ApplicationLogsPublisher;
 import org.eclipse.che.api.runner.internal.ApplicationProcess;
 import org.eclipse.che.api.runner.internal.DeploymentSources;
-import com.google.inject.Singleton;
-
 import org.jvnet.winp.WinProcess;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -115,9 +115,9 @@ public class WindowsTomcatServer extends BaseTomcatServer {
                               "set \"CATALINA_TMPDIR=%cd%\\temp\"\r\n";
         final boolean debug = runnerConfiguration.getDebugPort() > 0;
         if (debug) {
-            return catalinaOpts + "call bin/catalina.bat jpda run 2>&1\r\n";
+            return catalinaOpts + "call bin/catalina.bat jpda run 2>&1 | tee ../logs/output.log\r\n";
         }
-        return catalinaOpts + "call bin/catalina.bat run 2>&1\r\n";
+        return catalinaOpts + "call bin/catalina.bat run 2>&1 | tee ../logs/output.log\r\n";
     }
 
     private static class TomcatProcess extends ApplicationProcess {
