@@ -75,10 +75,10 @@ define("orion/editor/stylers/text_x-java-source/syntax", ["orion/editor/stylers/
 			},
 			{
 				match: "\\b(?:this|super)\\b", //$NON-NLS-0$
-				name: "variable.language.java" //$NON-NLS-0$
+				name: "constant.language.java" //$NON-NLS-0$
 			},
 			{
-				match: "@(?:(?!\\*/)\\S)*",
+				match: "@[a-zA-Z_$\.]+", //TODO need to more general regexp
                 name:"annotation.language.java"
 			}
 		]

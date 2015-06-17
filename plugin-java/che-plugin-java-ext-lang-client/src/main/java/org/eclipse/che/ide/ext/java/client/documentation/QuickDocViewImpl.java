@@ -43,11 +43,15 @@ public class QuickDocViewImpl implements QuickDocView {
         });
 
         rootPanel = new DockLayoutPanel(Style.Unit.PX);
-        popupPanel.setWidget(rootPanel);
-        rootPanel.setSize("400px", "200px");
-
+        popupPanel.setSize("400px", "200px");
+        Style style = popupPanel.getElement().getStyle();
+        style.setProperty("resize", "both");
+        style.setPaddingBottom(0, Style.Unit.PX);
+        style.setPaddingTop(3, Style.Unit.PX);
+        style.setPaddingLeft(3, Style.Unit.PX);
+        style.setPaddingRight(3, Style.Unit.PX);
         createFrame();
-        rootPanel.add(frame);
+        popupPanel.add(frame);
 
     }
 
@@ -56,6 +60,7 @@ public class QuickDocViewImpl implements QuickDocView {
         frame.setSize("100%", "100%");
         frame.getElement().getStyle().setBorderStyle(Style.BorderStyle.NONE);
         frame.getElement().setAttribute("sandbox", ""); // empty value, not null
+        frame.getElement().getStyle().setProperty("resize", "both");
     }
 
     @Override
@@ -70,9 +75,9 @@ public class QuickDocViewImpl implements QuickDocView {
 
     @Override
     public void show(String url, int x, int y) {
-        rootPanel.remove(frame);
+        popupPanel.remove(frame);
         createFrame();
-        rootPanel.add(frame);
+        popupPanel.add(frame);
         frame.setUrl(url);
         popupPanel.setPopupPosition(x, y);
         popupPanel.show();
