@@ -10,6 +10,10 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.java.client.action;
 
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+
 import org.eclipse.che.api.project.shared.dto.ItemReference;
 import org.eclipse.che.ide.api.action.ActionEvent;
 import org.eclipse.che.ide.api.app.CurrentProject;
@@ -34,10 +38,8 @@ import org.eclipse.che.ide.ui.dialogs.InputCallback;
 import org.eclipse.che.ide.ui.dialogs.input.InputDialog;
 import org.eclipse.che.ide.ui.dialogs.input.InputValidator;
 import org.eclipse.che.ide.util.loging.Log;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import static org.eclipse.che.ide.api.event.ItemEvent.ItemOperation.CREATED;
@@ -46,6 +48,7 @@ import static org.eclipse.che.ide.api.event.ItemEvent.ItemOperation.CREATED;
  * Action to create new Java package.
  *
  * @author Artem Zatsarynnyy
+ * @author Dmitry Shnurenko
  */
 @Singleton
 public class NewPackageAction extends AbstractNewResourceAction {
@@ -127,13 +130,13 @@ public class NewPackageAction extends AbstractNewResourceAction {
     }
 
     @Override
-    public void updateProjectAction(ActionEvent e) {
+    public void updateInPerspective(@Nonnull ActionEvent event) {
         boolean enabled = false;
         Selection<?> selection = selectionAgent.getSelection();
         if (selection != null) {
             enabled = selection.getFirstElement() instanceof AbstractSourceContainerNode;
         }
-        e.getPresentation().setEnabledAndVisible(enabled);
+        event.getPresentation().setEnabledAndVisible(enabled);
     }
 
     private void createPackage(StorableNode parent, String name, final AsyncCallback<ItemReference> callback) {

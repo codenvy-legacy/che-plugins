@@ -17,12 +17,11 @@ import com.google.gwt.inject.client.multibindings.GinMultibinder;
 import com.google.inject.Singleton;
 
 import org.eclipse.che.ide.api.extension.ExtensionGinModule;
+import org.eclipse.che.ide.api.parts.Perspective;
 import org.eclipse.che.ide.extension.machine.client.command.CommandType;
 import org.eclipse.che.ide.extension.machine.client.command.arbitrary.ArbitraryCommandType;
 import org.eclipse.che.ide.extension.machine.client.command.edit.EditConfigurationsView;
 import org.eclipse.che.ide.extension.machine.client.command.edit.EditConfigurationsViewImpl;
-import org.eclipse.che.ide.extension.machine.client.command.execute.ExecuteArbitraryCommandView;
-import org.eclipse.che.ide.extension.machine.client.command.execute.ExecuteArbitraryCommandViewImpl;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.EntityFactory;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.WidgetsFactory;
 import org.eclipse.che.ide.extension.machine.client.machine.console.MachineConsoleToolbar;
@@ -43,7 +42,6 @@ import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.TabI
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.header.TabHeader;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.header.TabHeaderImpl;
 import org.eclipse.che.ide.ui.toolbar.ToolbarPresenter;
-import org.eclipse.che.ide.workspace.perspectives.general.Perspective;
 
 import static org.eclipse.che.ide.extension.machine.client.perspective.MachinePerspective.MACHINE_PERSPECTIVE_ID;
 
@@ -70,7 +68,7 @@ public class MachineGinModule extends AbstractGinModule {
                                              .build(CommandConsoleFactory.class));
 
         bind(OutputsContainerView.class).to(OutputsContainerViewImpl.class).in(Singleton.class);
-        bind(ExecuteArbitraryCommandView.class).to(ExecuteArbitraryCommandViewImpl.class).in(Singleton.class);
+
         bind(EditConfigurationsView.class).to(EditConfigurationsViewImpl.class).in(Singleton.class);
 
         GinMultibinder.newSetBinder(binder(), CommandType.class).addBinding().to(ArbitraryCommandType.class);

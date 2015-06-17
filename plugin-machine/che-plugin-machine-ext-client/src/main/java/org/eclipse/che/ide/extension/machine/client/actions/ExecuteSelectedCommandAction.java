@@ -14,7 +14,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import org.eclipse.che.api.analytics.client.logger.AnalyticsEventLogger;
-import org.eclipse.che.ide.api.action.Action;
+import org.eclipse.che.ide.api.action.AbstractPerspectiveAction;
 import org.eclipse.che.ide.api.action.ActionEvent;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
@@ -23,13 +23,17 @@ import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration
 import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 
+import java.util.Collections;
+
+import static org.eclipse.che.ide.workspace.perspectives.project.ProjectPerspective.PROJECT_PERSPECTIVE_ID;
+
 /**
  * Action to execute command which is selected in drop-down list.
  *
  * @author Artem Zatsarynnyy
  */
 @Singleton
-public class ExecuteSelectedCommandAction extends Action {
+public class ExecuteSelectedCommandAction extends AbstractPerspectiveAction {
     private final AppContext                  appContext;
     private final DialogFactory               dialogFactory;
     private final SelectCommandAction         selectCommandAction;
@@ -45,7 +49,8 @@ public class ExecuteSelectedCommandAction extends Action {
                                         SelectCommandAction selectCommandAction,
                                         MachineManager machineManager,
                                         AnalyticsEventLogger eventLogger) {
-        super(localizationConstant.executeSelectedCommandControlTitle(),
+        super(Collections.singletonList(PROJECT_PERSPECTIVE_ID),
+              localizationConstant.executeSelectedCommandControlTitle(),
               localizationConstant.executeSelectedCommandControlDescription(),
               null,
               resources.execute());
@@ -57,13 +62,11 @@ public class ExecuteSelectedCommandAction extends Action {
         this.eventLogger = eventLogger;
     }
 
-    /** {@inheritDoc} */
     @Override
-    public void update(ActionEvent e) {
+    public void updateInPerspective(ActionEvent e) {
         e.getPresentation().setVisible(appContext.getCurrentProject() != null);
     }
 
-    /** {@inheritDoc} */
     @Override
     public void actionPerformed(ActionEvent e) {
         eventLogger.log(this);

@@ -46,6 +46,10 @@ public class DockerConnectorConfiguration {
         this.dockerCertificatesDirectoryPath = dockerCertificatesDirectoryPath;
     }
 
+    public static String getExpectedLocalHost() {
+        return SystemInfo.isLinux() ? "localhost" : DockerConnector.BOOT2DOCKER_URI.getHost();
+    }
+
     private static URI dockerDaemonUri() {
         return SystemInfo.isLinux() ? DockerConnector.UNIX_SOCKET_URI : DockerConnector.BOOT2DOCKER_URI;
     }

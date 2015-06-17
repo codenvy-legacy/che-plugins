@@ -94,7 +94,7 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
 
         setTitle(locale.editConfigurationsViewTitle());
 
-        createFooterButtons(resources);
+        createFooterButtons();
 
         configurationName.addKeyUpHandler(new KeyUpHandler() {
             @Override
@@ -199,7 +199,7 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
         }
     }
 
-    private void createFooterButtons(@Nonnull org.eclipse.che.ide.Resources resources) {
+    private void createFooterButtons() {
         final Button okButton = createButton(locale.okButton(), "window-edit-configurations-ok", new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
@@ -219,9 +219,7 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
             }
         });
 
-        okButton.addStyleName(resources.wizardCss().buttonPrimary());
-        applyButton.addStyleName(resources.wizardCss().buttonSuccess());
-        cancelButton.addStyleName(resources.wizardCss().button());
+        okButton.addStyleName(resources.centerPanelCss().blueButton());
 
         getFooter().add(okButton);
         getFooter().add(applyButton);

@@ -14,32 +14,36 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import org.eclipse.che.api.analytics.client.logger.AnalyticsEventLogger;
+import org.eclipse.che.ide.api.action.AbstractPerspectiveAction;
 import org.eclipse.che.ide.api.action.ActionEvent;
-import org.eclipse.che.ide.api.action.ProjectAction;
 import org.eclipse.che.ide.api.app.AppContext;
-import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.ext.java.client.JavaResources;
 import org.eclipse.che.ide.ext.java.client.dependenciesupdater.DependenciesUpdater;
 
-/** @author Evgen Vidolob */
+import javax.annotation.Nonnull;
+import java.util.Arrays;
+
+import static org.eclipse.che.ide.workspace.perspectives.project.ProjectPerspective.PROJECT_PERSPECTIVE_ID;
+
+/**
+ * @author Evgen Vidolob
+ * @author Dmitry Shnurenko
+ */
 @Singleton
-public class UpdateDependencyAction extends ProjectAction {
+public class UpdateDependencyAction extends AbstractPerspectiveAction {
 
     private final AppContext           appContext;
     private final AnalyticsEventLogger eventLogger;
     private final DependenciesUpdater  dependenciesUpdater;
-//    private       BuildContext         buildContext;
 
     @Inject
     public UpdateDependencyAction(AppContext appContext,
                                   AnalyticsEventLogger eventLogger,
                                   JavaResources resources,
-//                                  BuildContext buildContext,
                                   DependenciesUpdater dependenciesUpdater) {
-        super("Update Dependencies", "Update Dependencies", resources.updateDependencies());
+        super(Arrays.asList(PROJECT_PERSPECTIVE_ID), "Update Dependencies", "Update Dependencies", null, resources.updateDependencies());
         this.appContext = appContext;
         this.eventLogger = eventLogger;
-//        this.buildContext = buildContext;
         this.dependenciesUpdater = dependenciesUpdater;
     }
 
@@ -50,23 +54,10 @@ public class UpdateDependencyAction extends ProjectAction {
         dependenciesUpdater.updateDependencies(appContext.getCurrentProject().getProjectDescription(), true);
     }
 
+    /** {@inheritDoc} */
     @Override
-    protected void updateProjectAction(ActionEvent e) {
-//        if (buildContext.isBuilding()) {
-//            e.getPresentation().setEnabled(false);
-//            return;
-//        }
-        CurrentProject activeProject = appContext.getCurrentProject();
-//        if (activeProject != null) {
-//            BuildersDescriptor builders = activeProject.getProjectDescription().getBuilders();
-//            if (builders != null && "maven".equals(builders.getDefault())) {
+    public void updateInPerspective(@Nonnull ActionEvent event) {
         //TODO only maven
-                e.getPresentation().setEnabledAndVisible(true);
-//            } else {
-//                e.getPresentation().setEnabledAndVisible(false);
-//            }
-//        } else {
-//            e.getPresentation().setEnabledAndVisible(false);
-//        }
+        event.getPresentation().setEnabledAndVisible(true);
     }
 }

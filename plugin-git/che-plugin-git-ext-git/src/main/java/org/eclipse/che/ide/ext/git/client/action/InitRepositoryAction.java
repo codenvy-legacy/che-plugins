@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.git.client.action;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+
 import org.eclipse.che.api.analytics.client.logger.AnalyticsEventLogger;
 import org.eclipse.che.ide.api.action.ActionEvent;
 import org.eclipse.che.ide.api.app.AppContext;
@@ -19,16 +22,19 @@ import org.eclipse.che.ide.ext.git.client.GitResources;
 import org.eclipse.che.ide.ext.git.client.init.InitRepositoryPresenter;
 import org.eclipse.che.ide.ui.dialogs.ConfirmCallback;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 
-/** @author Andrey Plotnikov */
+import javax.annotation.Nonnull;
+
+/**
+ * @author Andrey Plotnikov
+ * @author Dmitry Shnurenko
+ */
 @Singleton
 public class InitRepositoryAction extends GitAction {
     private final InitRepositoryPresenter presenter;
     private final AnalyticsEventLogger    eventLogger;
     private final DialogFactory           dialogFactory;
-    private GitLocalizationConstant constant;
+    private       GitLocalizationConstant constant;
 
     @Inject
     public InitRepositoryAction(InitRepositoryPresenter presenter,
@@ -61,8 +67,8 @@ public class InitRepositoryAction extends GitAction {
     }
 
     @Override
-    protected void updateProjectAction(ActionEvent e) {
-        e.getPresentation().setVisible(getActiveProject() != null);
-        e.getPresentation().setEnabled(!isGitRepository());
+    public void updateInPerspective(@Nonnull ActionEvent event) {
+        event.getPresentation().setVisible(getActiveProject() != null);
+        event.getPresentation().setEnabled(!isGitRepository());
     }
 }

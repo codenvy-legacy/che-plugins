@@ -15,6 +15,7 @@ import com.google.inject.Singleton;
 
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
 import org.eclipse.che.api.machine.shared.dto.MachineDescriptor;
+import org.eclipse.che.api.machine.shared.dto.ProcessDescriptor;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.Promise;
@@ -188,11 +189,19 @@ public class MachineManager implements ProjectActionHandler {
 
         final String outputChannel = "process:output:" + UUID.uuid();
 
-        final OutputConsole console = commandConsoleFactory.create(configuration);
-        console.attachToOutput(outputChannel);
+        final OutputConsole console = commandConsoleFactory.create(configuration, devMachineId);
+        console.listenToOutput(outputChannel);
         outputsContainerPresenter.addConsole(console);
         workspaceAgent.setActivePart(outputsContainerPresenter);
 
-        machineServiceClient.executeCommand(devMachineId, configuration.toCommandLine(), outputChannel);
+        final Promise<ProcessDescriptor> processPromise = machineServiceClient.executeCommand(devMachineId,
+                                                                                              configuration.toCommandLine(),
+                                                                                              outputChannel);
+        processPromise.then(new Operation<ProcessDescriptor>() {
+            @Override
+            public void apply(ProcessDescriptor arg) throws OperationException {
+                console.attachToProcess(arg.getPid());
+            }
+        });
     }
 }

@@ -12,6 +12,7 @@ package org.eclipse.che.plugin.docker.machine.local;
 
 import org.eclipse.che.api.machine.server.exception.MachineException;
 import org.eclipse.che.api.machine.shared.ProjectBinding;
+import org.eclipse.che.plugin.docker.client.DockerConnectorConfiguration;
 import org.eclipse.che.plugin.docker.machine.DockerNode;
 
 import javax.inject.Inject;
@@ -28,6 +29,7 @@ import java.io.IOException;
 public class LocalDockerNode implements DockerNode {
 
     private final File folder;
+    private String host;
 
     @Inject
     public LocalDockerNode(@Named("vfs.local.fs_root_dir") String projectsFolder) throws IOException {
@@ -37,6 +39,10 @@ public class LocalDockerNode implements DockerNode {
             throw new IOException(
                     "Folder " + folder.getAbsolutePath() + " does not exist. Check vfs.local.fs_root_dir configuration property.");
         }
+
+
+        host = DockerConnectorConfiguration.getExpectedLocalHost();
+
     }
 
     @Override
@@ -62,5 +68,11 @@ public class LocalDockerNode implements DockerNode {
     @Override
     public String getProjectsFolder() {
         return folder.getAbsolutePath();
+    }
+
+
+    @Override
+    public String getHost() {
+        return host;
     }
 }

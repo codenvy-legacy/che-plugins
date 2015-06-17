@@ -86,7 +86,6 @@
     text-shadow: 0 1px 0 buttonTextShadow;
     position: relative;
     top: 2px;
-    white-space: nowrap;
 }
 
 .outputsContainerConsoleTabCloseButton {

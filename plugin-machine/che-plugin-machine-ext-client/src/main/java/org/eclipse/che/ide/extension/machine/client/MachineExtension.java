@@ -22,7 +22,6 @@ import org.eclipse.che.ide.api.extension.Extension;
 import org.eclipse.che.ide.api.parts.PartStackType;
 import org.eclipse.che.ide.api.parts.WorkspaceAgent;
 import org.eclipse.che.ide.extension.machine.client.actions.EditCommandsAction;
-import org.eclipse.che.ide.extension.machine.client.actions.ExecuteArbitraryCommandAction;
 import org.eclipse.che.ide.extension.machine.client.actions.ExecuteSelectedCommandAction;
 import org.eclipse.che.ide.extension.machine.client.actions.MachinePerspectiveAction;
 import org.eclipse.che.ide.extension.machine.client.actions.SelectCommandAction;
@@ -61,7 +60,6 @@ public class MachineExtension {
     @Inject
     private void prepareActions(MachineLocalizationConstant localizationConstant,
                                 ActionManager actionManager,
-                                ExecuteArbitraryCommandAction executeArbitraryCommandAction,
                                 ExecuteSelectedCommandAction executeSelectedCommandAction,
                                 SelectCommandAction selectCommandAction,
                                 EditCommandsAction editCommandsAction,
@@ -71,14 +69,12 @@ public class MachineExtension {
 
         // register actions
         actionManager.registerAction("run", runMenu);
-        actionManager.registerAction("executeArbitraryCommand", executeArbitraryCommandAction);
         actionManager.registerAction("editCommands", editCommandsAction);
         actionManager.registerAction("selectCommandAction", selectCommandAction);
         actionManager.registerAction("executeSelectedCommand", executeSelectedCommandAction);
 
         // add actions in main menu
         mainMenu.add(runMenu, new Constraints(AFTER, GROUP_CODE));
-        runMenu.add(executeArbitraryCommandAction);
         runMenu.add(editCommandsAction);
 
         // add actions on right toolbar

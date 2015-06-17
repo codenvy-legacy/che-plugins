@@ -59,7 +59,7 @@ public class OutputsContainerPresenter extends BasePresenter implements OutputsC
         // check whether console for an appropriate command is already opened
         OutputConsole existingOutputConsole = null;
         for (final OutputConsole outputConsole : consoles) {
-            if (console.getCommand().getId().equals(outputConsole.getCommand().getId())) {
+            if (outputConsole.isFinished() && console.getCommand().getId().equals(outputConsole.getCommand().getId())) {
                 existingOutputConsole = outputConsole;
                 break;
             }
