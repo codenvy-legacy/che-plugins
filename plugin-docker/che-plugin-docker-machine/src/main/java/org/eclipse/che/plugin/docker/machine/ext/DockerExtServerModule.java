@@ -8,11 +8,13 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.plugin.docker.machine;
+package org.eclipse.che.plugin.docker.machine.ext;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
+
+import org.eclipse.che.plugin.docker.machine.ServerConf;
 
 /**
  * Guice module for extension servers feature in docker machines

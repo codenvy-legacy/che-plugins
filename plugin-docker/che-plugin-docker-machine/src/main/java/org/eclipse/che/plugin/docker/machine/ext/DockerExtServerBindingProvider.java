@@ -8,7 +8,7 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.plugin.docker.machine;
+package org.eclipse.che.plugin.docker.machine.ext;
 
 import javax.inject.Inject;
 import javax.inject.Named;

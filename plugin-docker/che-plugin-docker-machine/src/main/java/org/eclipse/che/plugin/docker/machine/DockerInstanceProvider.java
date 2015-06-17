@@ -77,7 +77,6 @@ public class DockerInstanceProvider implements InstanceProvider {
         this.systemVolumes = systemVolumes;
         this.supportedRecipeTypes = Collections.unmodifiableSet(Collections.singleton("Dockerfile"));
 
-
         this.portsToExpose = new HashMap<>();
         this.containerLabels = new HashMap<>();
         for (ServerConf serverConf : machineServers) {
@@ -98,12 +97,37 @@ public class DockerInstanceProvider implements InstanceProvider {
     }
 
     @Override
-    public Instance createInstance(Recipe recipe, final LineConsumer creationLogsOutput, String workspaceId, boolean bindWorkspace)
+    public Instance createInstance(Recipe recipe, LineConsumer creationLogsOutput, String workspaceId, boolean bindWorkspace)
             throws UnsupportedRecipeException, InvalidRecipeException, MachineException {
+        final Dockerfile dockerfile = parseRecipe(recipe);
+
+        final String dockerImage = buildImage(dockerfile, creationLogsOutput);
+
+        return createInstance(dockerImage, creationLogsOutput, workspaceId, bindWorkspace);
+    }
+
+    private Dockerfile parseRecipe(Recipe recipe) throws InvalidRecipeException {
         final Dockerfile dockerfile = getDockerFile(recipe);
         if (dockerfile.getImages().isEmpty()) {
             throw new InvalidRecipeException("Unable build docker based machine, Dockerfile found but it doesn't contain base image.");
         }
+        return dockerfile;
+    }
+
+    private Dockerfile getDockerFile(Recipe recipe) throws InvalidRecipeException {
+        if (recipe.getScript() == null) {
+            throw new InvalidRecipeException("Unable build docker based machine, recipe isn't set or doesn't provide Dockerfile and " +
+                                             "no Dockerfile found in the list of files attached to this builder.");
+        }
+        try {
+            return DockerfileParser.parse(recipe.getScript());
+        } catch (DockerFileException e) {
+            LOG.debug(e.getLocalizedMessage(), e);
+            throw new InvalidRecipeException(String.format("Unable build docker based machine. %s", e.getMessage()));
+        }
+    }
+
+    private String buildImage(Dockerfile dockerfile, final LineConsumer creationLogsOutput) throws MachineException {
         File workDir = null;
         try {
             // build docker image
@@ -117,17 +141,13 @@ public class DockerInstanceProvider implements InstanceProvider {
                 @Override
                 public void updateProgress(ProgressStatus currentProgressStatus) {
                     try {
-                        // format/beatify logs
                         creationLogsOutput.writeLine(progressLineFormatter.format(currentProgressStatus));
                     } catch (IOException e) {
                         LOG.error(e.getLocalizedMessage(), e);
                     }
                 }
             };
-            // don't need repository for now
-            final String dockerImage = docker.buildImage(null, progressMonitor, files.toArray(new File[files.size()]));
-
-            return createInstance(dockerImage, creationLogsOutput, workspaceId, bindWorkspace);
+            return docker.buildImage(null, progressMonitor, files.toArray(new File[files.size()]));
         } catch (IOException | InterruptedException e) {
             throw new MachineException(e.getMessage(), e);
         } finally {
@@ -143,6 +163,12 @@ public class DockerInstanceProvider implements InstanceProvider {
                                    final String workspaceId,
                                    final boolean bindWorkspace)
             throws NotFoundException, InvalidInstanceSnapshotException, MachineException {
+        final String imageId = pullImage(instanceKey, creationLogsOutput);
+
+        return createInstance(imageId, creationLogsOutput, workspaceId, bindWorkspace);
+    }
+
+    private String pullImage(InstanceKey instanceKey, final LineConsumer creationLogsOutput) throws MachineException {
         final DockerInstanceKey dockerInstanceKey = new DockerInstanceKey(instanceKey);
         final String repository = dockerInstanceKey.getRepository();
         final String imageId = dockerInstanceKey.getImageId();
@@ -162,10 +188,11 @@ public class DockerInstanceProvider implements InstanceProvider {
                 }
             });
 
-            return createInstance(imageId, creationLogsOutput, workspaceId, bindWorkspace);
         } catch (IOException | InterruptedException e) {
             throw new MachineException(e.getLocalizedMessage(), e);
         }
+
+        return imageId;
     }
 
     @Override
@@ -207,19 +234,6 @@ public class DockerInstanceProvider implements InstanceProvider {
         }
     }
 
-    private Dockerfile getDockerFile(Recipe recipe) throws InvalidRecipeException {
-        if (recipe.getScript() != null) {
-            try {
-                return DockerfileParser.parse(recipe.getScript());
-            } catch (DockerFileException e) {
-                LOG.debug(e.getLocalizedMessage(), e);
-                throw new InvalidRecipeException(String.format("Unable build docker based machine. %s", e.getMessage()));
-            }
-        }
-        throw new InvalidRecipeException("Unable build docker based machine, recipe isn't set or doesn't provide Dockerfile and " +
-                                         "no Dockerfile found in the list of files attached to this builder.");
-    }
-
     private Instance createInstance(String imageId, LineConsumer outputConsumer, String workspaceId, boolean bindWorkspace)
             throws MachineException {
         try {
@@ -228,11 +242,7 @@ public class DockerInstanceProvider implements InstanceProvider {
                                                                 .withLabels(containerLabels)
                                                                 .withExposedPorts(portsToExpose);
 
-            LOG.debug("Creating container from image {}", imageId);
-
             final String containerId = docker.createContainer(config, null).getId();
-
-            LOG.debug("Container {} has been created successfully", containerId);
 
             final DockerNode node = dockerMachineFactory.createNode(containerId);
             String hostProjectsFolder = node.getProjectsFolder();
@@ -245,12 +255,10 @@ public class DockerInstanceProvider implements InstanceProvider {
             volumes.addAll(systemVolumes);
             volumes.add(String.format("%s:%s", hostProjectsFolder, "/projects"));
 
-            LOG.debug("Starting container {}", containerId);
             docker.startContainer(containerId,
                                   new HostConfig().withPublishAllPorts(true)
                                                   .withBinds(volumes.toArray(new String[volumes.size()])),
                                   new LogMessagePrinter(outputConsumer));
-            LOG.debug("Container {} has been started successfully", containerId);
 
             return dockerMachineFactory.createInstance(containerId, node, workspaceId, bindWorkspace, outputConsumer);
         } catch (IOException e) {
