@@ -11,8 +11,7 @@
 
 package org.eclipse.che.ide.ext.java;
 
-import org.eclipse.che.api.vfs.server.observation.CreateEvent;
-import org.eclipse.che.api.vfs.server.observation.DeleteEvent;
+import org.eclipse.che.api.project.server.notification.ProjectItemModifiedEvent;
 import org.eclipse.che.jdt.core.resources.ResourceChangedEvent;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -44,7 +43,8 @@ public class DeltaProcessingTest extends BaseTest {
 
     @Test
     public void testRemoveClass() throws Exception {
-        ResourceChangedEvent event = new ResourceChangedEvent(new File(BaseTest.class.getResource("/projects").getFile()),new DeleteEvent("projects", "/test/src/main/java/com/codenvy/test/MyClass.java", false));
+        ResourceChangedEvent event = new ResourceChangedEvent(new File(BaseTest.class.getResource("/projects").getFile()),new ProjectItemModifiedEvent(
+                ProjectItemModifiedEvent.EventType.DELETED, "projects","test", "/test/src/main/java/com/codenvy/test/MyClass.java", false));
         NameEnvironmentAnswer answer =
                 project.newSearchableNameEnvironment(DefaultWorkingCopyOwner.PRIMARY).findType(CharOperation.splitOn('.', "com.codenvy.test.MyClass".toCharArray()));
 
@@ -60,7 +60,10 @@ public class DeltaProcessingTest extends BaseTest {
 
     @Test
     public void testRemoveFolder() throws Exception {
-        ResourceChangedEvent event = new ResourceChangedEvent(new File(BaseTest.class.getResource("/projects").getFile()),new DeleteEvent("projects", "/test/src/main/java/com/codenvy/test", true));
+        ResourceChangedEvent event = new ResourceChangedEvent(new File(BaseTest.class.getResource("/projects").getFile()),new ProjectItemModifiedEvent(
+
+
+                ProjectItemModifiedEvent.EventType.DELETED, "projects", "test","/test/src/main/java/com/codenvy/test", true));
         NameEnvironmentAnswer answer =
                 project.newSearchableNameEnvironment(DefaultWorkingCopyOwner.PRIMARY).findType(CharOperation.splitOn('.', "com.codenvy.test.MyClass".toCharArray()));
 
@@ -76,7 +79,7 @@ public class DeltaProcessingTest extends BaseTest {
     public void testAddClass() throws Exception {
 
         File workspace = new File(BaseTest.class.getResource("/projects").getFile());
-        ResourceChangedEvent event = new ResourceChangedEvent(workspace,new CreateEvent("projects", "/test/src/main/java/com/codenvy/test/NewClass.java", false));
+        ResourceChangedEvent event = new ResourceChangedEvent(workspace,new ProjectItemModifiedEvent(ProjectItemModifiedEvent.EventType.CREATED,"projects","test", "/test/src/main/java/com/codenvy/test/NewClass.java", false));
 
 
         NameEnvironmentAnswer answer =
