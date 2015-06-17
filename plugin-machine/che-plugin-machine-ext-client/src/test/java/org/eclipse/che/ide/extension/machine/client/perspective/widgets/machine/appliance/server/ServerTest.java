@@ -10,13 +10,17 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.appliance.server;
 
+import org.eclipse.che.api.machine.shared.dto.ServerDescriptor;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Dmitry Shnurenko
@@ -24,24 +28,48 @@ import static org.junit.Assert.assertThat;
 @RunWith(MockitoJUnitRunner.class)
 public class ServerTest {
 
-    private static final String NAME    = "name";
-    private static final String ADDRESS = "address";
+    private static final String SOME_TEXT = "someText";
+
+    @Mock
+    private ServerDescriptor descriptor;
 
     private Server server;
 
     @Before
     public void setUp() {
-        server = new Server(NAME, ADDRESS);
+        server = new Server(SOME_TEXT, descriptor);
     }
 
     @Test
-    public void nameShouldBeReturned() {
-        assertThat(server.getName(), equalTo(NAME));
+    public void exposedPortShouldBeReturned() {
+        assertThat(server.getPort(), equalTo(SOME_TEXT));
     }
 
     @Test
     public void addressShouldBeReturned() {
-        assertThat(server.getAddress(), equalTo(ADDRESS));
+        when(descriptor.getAddress()).thenReturn(SOME_TEXT);
+
+        assertThat(server.getAddress(), equalTo(SOME_TEXT));
+
+        verify(descriptor).getAddress();
+    }
+
+    @Test
+    public void urlShouldBeReturned() {
+        when(descriptor.getUrl()).thenReturn(SOME_TEXT);
+
+        assertThat(server.getUrl(), equalTo(SOME_TEXT));
+
+        verify(descriptor).getUrl();
+    }
+
+    @Test
+    public void refShouldBeReturned() {
+        when(descriptor.getRef()).thenReturn(SOME_TEXT);
+
+        assertThat(server.getRef(), equalTo(SOME_TEXT));
+
+        verify(descriptor).getRef();
     }
 
 }

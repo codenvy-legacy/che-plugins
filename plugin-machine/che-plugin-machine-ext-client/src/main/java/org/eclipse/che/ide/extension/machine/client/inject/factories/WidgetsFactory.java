@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.machine.client.inject.factories;
 
-import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.MachineWidget;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.header.TabHeader;
 
 import javax.annotation.Nonnull;
@@ -21,13 +20,6 @@ import javax.annotation.Nonnull;
  * @author Dmitry Shnurenko
  */
 public interface WidgetsFactory {
-
-    /**
-     * Creates machine widget.
-     *
-     * @return an instance of {@link MachineWidget}
-     */
-    MachineWidget createMachineWidget();
 
     /**
      * Creates widget for tab header.

@@ -156,9 +156,6 @@ public interface MachineLocalizationConstant extends Messages {
     @Key("process.table.active")
     String processTableActive();
 
-    @Key("tab.processes")
-    String tabProcesses();
-
     @Key("tab.terminal")
     String tabTerminal();
 
@@ -192,12 +189,18 @@ public interface MachineLocalizationConstant extends Messages {
     @Key("info.ws.id")
     String infoWsId();
 
-    @Key("info.server.name")
-    String infoServerName();
+    @Key("info.server.port")
+    String infoServerPort();
 
     @Key("info.server.address")
     String infoServerAddress();
 
     @Key("tab.server")
     String tabServer();
+
+    @Key("info.server.ref")
+    String infoServerRef();
+
+    @Key("info.server.url")
+    String infoServerUrl();
 }

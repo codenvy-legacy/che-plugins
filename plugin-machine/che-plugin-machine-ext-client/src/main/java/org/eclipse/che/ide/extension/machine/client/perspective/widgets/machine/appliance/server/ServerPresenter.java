@@ -53,10 +53,10 @@ public class ServerPresenter implements TabPresenter {
         Map<String, ServerDescriptor> servers = machine.getServers();
 
         for (Map.Entry<String, ServerDescriptor> entry : servers.entrySet()) {
-            String serverName = entry.getKey();
-            String address = entry.getValue().getAddress();
+            String exposedPort = entry.getKey();
+            ServerDescriptor descriptor = entry.getValue();
 
-            Server server = entityFactory.createServer(serverName, address);
+            Server server = entityFactory.createServer(exposedPort, descriptor);
 
             serversList.add(server);
         }

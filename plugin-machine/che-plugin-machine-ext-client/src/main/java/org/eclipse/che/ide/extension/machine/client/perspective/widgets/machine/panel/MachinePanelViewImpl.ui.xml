@@ -11,7 +11,8 @@
 
 -->
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
-             xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'
+             xmlns:ideui='urn:import:org.eclipse.che.ide.ui.tree'>
 
     <ui:style>
         .buttonPanel {
@@ -31,7 +32,7 @@
             </g:FlowPanel>
         </g:north>
         <g:center>
-            <g:FlowPanel ui:field="machines"/>
+            <ideui:Tree ui:field="tree"/>
         </g:center>
     </g:DockLayoutPanel>
 </ui:UiBinder>

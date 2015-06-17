@@ -16,15 +16,15 @@ import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.eclipse.che.ide.extension.machine.client.machine.Machine.TERMINAL_URL_KEY;
+import static org.eclipse.che.ide.extension.machine.client.machine.Machine.TERMINAL_REF_KEY;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -45,19 +45,17 @@ public class MachineTest {
     @Mock
     private MachineLocalizationConstant locale;
 
-    private Map<String, ServerDescriptor> servers;
-
-    @InjectMocks
     private Machine machine;
 
     @Before
     public void setUp() {
-        servers = new HashMap<>();
+        Map<String, ServerDescriptor> servers = new HashMap<>();
+        servers.put(SOME_TEXT, serverDescriptor);
+
+        machine = new Machine(locale, descriptor);
 
         when(serverDescriptor.getAddress()).thenReturn(SOME_TEXT);
         when(descriptor.getServers()).thenReturn(servers);
-
-        machine.setDescriptor(descriptor);
     }
 
     @Test
@@ -68,7 +66,7 @@ public class MachineTest {
     @Test
     public void defaultActiveTabShouldBeReturned() {
         when(locale.tabInfo()).thenReturn(SOME_TEXT);
-        machine = new Machine(locale);
+        machine = new Machine(locale, descriptor);
 
         String tabName = machine.getActiveTabName();
 
@@ -114,25 +112,27 @@ public class MachineTest {
 
     @Test
     public void terminalUrlShouldBeReturned() {
-        servers.put(TERMINAL_URL_KEY, serverDescriptor);
+        when(serverDescriptor.getRef()).thenReturn(TERMINAL_REF_KEY);
+        when(serverDescriptor.getUrl()).thenReturn(SOME_TEXT);
 
         String url = machine.getTerminalUrl();
 
         verify(descriptor).getServers();
-        verify(serverDescriptor).getAddress();
+        verify(serverDescriptor).getRef();
+        verify(serverDescriptor).getUrl();
 
-        assertThat(url, equalTo("http://someText"));
+        assertThat(url, equalTo(SOME_TEXT));
     }
 
     @Test
-    public void emptyStringShouldBeReturnedWhenServerDescriptorNotFound() {
-        servers.put(SOME_TEXT, serverDescriptor);
+    public void nullShouldBeReturnedWhenTerminalRefIsNull() {
+        when(serverDescriptor.getRef()).thenReturn(null);
 
         String url = machine.getTerminalUrl();
 
-        verify(serverDescriptor, never()).getAddress();
+        verify(serverDescriptor, never()).getUrl();
 
-        assertThat(url, equalTo(""));
+        assertThat(url, nullValue());
     }
 
     @Test

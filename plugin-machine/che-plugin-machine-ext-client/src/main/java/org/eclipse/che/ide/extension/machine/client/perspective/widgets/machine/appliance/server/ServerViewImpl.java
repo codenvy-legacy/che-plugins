@@ -17,8 +17,6 @@ import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.gwt.view.client.SelectionChangeEvent;
-import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.inject.Inject;
 
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
@@ -56,30 +54,38 @@ public class ServerViewImpl extends Composite implements ServerView {
         CellTable<Server> table = new CellTable<>(0, tableResources);
         table.setLoadingIndicator(null);
 
-        TextColumn<Server> name = new TextColumn<Server>() {
+        TextColumn<Server> exposedPort = new TextColumn<Server>() {
             @Override
             public String getValue(Server server) {
-                return server.getName();
+                return server.getPort();
             }
         };
 
-        TextColumn<Server> value = new TextColumn<Server>() {
+        TextColumn<Server> address = new TextColumn<Server>() {
             @Override
             public String getValue(Server server) {
                 return server.getAddress();
             }
         };
 
-        table.addColumn(name, locale.infoServerName());
-        table.addColumn(value, locale.infoServerAddress());
-
-        final SingleSelectionModel<Server> selectionModel = new SingleSelectionModel<>();
-        selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
+        TextColumn<Server> url = new TextColumn<Server>() {
             @Override
-            public void onSelectionChange(SelectionChangeEvent event) {
+            public String getValue(Server server) {
+                return server.getUrl();
             }
-        });
-        table.setSelectionModel(selectionModel);
+        };
+
+        TextColumn<Server> ref = new TextColumn<Server>() {
+            @Override
+            public String getValue(Server server) {
+                return server.getRef();
+            }
+        };
+
+        table.addColumn(ref, locale.infoServerRef());
+        table.addColumn(exposedPort, locale.infoServerPort());
+        table.addColumn(address, locale.infoServerAddress());
+        table.addColumn(url, locale.infoServerUrl());
 
         return table;
     }

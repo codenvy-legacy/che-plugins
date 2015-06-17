@@ -10,10 +10,12 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.panel;
 
+import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwtmockito.GwtMockitoTestRunner;
 
 import org.eclipse.che.ide.api.parts.PartStackUIResources;
-import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.MachineWidget;
+import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.panel.MachinePanelView.ActionDelegate;
+import org.eclipse.che.ide.ui.tree.Tree;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,33 +34,46 @@ public class MachinePanelViewImplTest {
     private static final String SOME_TEXT = "someText";
 
     @Mock(answer = RETURNS_DEEP_STUBS)
-    private PartStackUIResources resources;
-
+    private PartStackUIResources          partStackResources;
     @Mock
-    private MachineWidget machineWidget;
+    private org.eclipse.che.ide.Resources resources;
+    @Mock
+    private MachineDataAdapter            adapter;
+    @Mock
+    private MachineTreeRenderer           renderer;
+    @Mock
+    private ActionDelegate                delegate;
+    @Mock
+    private Tree.Css                      css;
+    @Mock
+    private ClickEvent                    clickEvent;
 
     private MachinePanelViewImpl view;
 
     @Before
     public void setUp() {
-        when(resources.partStackCss().ideBasePartToolbar()).thenReturn(SOME_TEXT);
-        when(resources.partStackCss().ideBasePartTitleLabel()).thenReturn(SOME_TEXT);
+        when(partStackResources.partStackCss().ideBasePartToolbar()).thenReturn(SOME_TEXT);
+        when(partStackResources.partStackCss().ideBasePartTitleLabel()).thenReturn(SOME_TEXT);
 
-        view = new MachinePanelViewImpl(resources);
+        when(resources.treeCss()).thenReturn(css);
+
+        view = new MachinePanelViewImpl(resources, partStackResources, adapter, renderer);
+
+        view.setDelegate(delegate);
     }
 
     @Test
-    public void widgetShouldBeAdded() {
-        view.add(machineWidget);
+    public void onCreateMachineShouldBeClicked() {
+        view.onCreateMachineClicked(clickEvent);
 
-        verify(view.machines).add(machineWidget);
+        verify(delegate).onCreateMachineButtonClicked();
     }
 
     @Test
-    public void panelShouldBeCleared() {
-        view.clear();
+    public void onDestroyMachineShouldBeClicked() {
+        view.onDestroyMachineClicked(clickEvent);
 
-        verify(view.machines).clear();
+        verify(delegate).onDestroyMachineButtonClicked();
     }
 
 }
