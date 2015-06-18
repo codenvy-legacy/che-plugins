@@ -79,6 +79,7 @@ import org.eclipse.che.ide.jseditor.client.text.TextRange;
 import org.eclipse.che.ide.jseditor.client.texteditor.CompositeEditorWidget;
 import org.eclipse.che.ide.jseditor.client.texteditor.EditorWidget;
 import org.eclipse.che.ide.jseditor.client.texteditor.LineStyler;
+import org.eclipse.che.ide.util.browser.UserAgent;
 import org.eclipse.che.ide.util.loging.Log;
 
 import java.util.List;
@@ -469,14 +470,25 @@ public class OrionEditorWidget extends CompositeEditorWidget implements HasChang
     }
 
     public void addKeybinding(final Keybinding keybinding) {
-        OrionKeyStrokeOverlay strokeOverlay =
-                OrionKeyStrokeOverlay.create(keybinding.getKeyCode(),
-                                             keybinding.isControl() ? keybinding.isControl() : keybinding.isCmd(),
-                                             keybinding.isShift(),
-                                             keybinding.isAlt(),
-                                             false,
-                                             "keydown",
-                                             keyBindingModuleProvider.get());
+
+        OrionKeyStrokeOverlay strokeOverlay;
+        if(UserAgent.isMac()) {
+            strokeOverlay = OrionKeyStrokeOverlay.create(keybinding.getKeyCode(),
+                                                         keybinding.isCmd(),
+                                                         keybinding.isShift(),
+                                                         keybinding.isAlt(),
+                                                         keybinding.isControl(),
+                                                         "keydown",
+                                                         keyBindingModuleProvider.get());
+        } else {
+            strokeOverlay = OrionKeyStrokeOverlay.create(keybinding.getKeyCode(),
+                                                         keybinding.isControl(),
+                                                         keybinding.isShift(),
+                                                         keybinding.isAlt(),
+                                                         false,
+                                                         "keydown",
+                                                         keyBindingModuleProvider.get());
+        }
         String actionId = "che-action" + keybinding.getAction().toString();
         editorOverlay.getTextView().setKeyBinding(strokeOverlay, actionId);
         editorOverlay.getTextView().setAction(actionId, new Action() {
