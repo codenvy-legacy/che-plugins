@@ -14,11 +14,8 @@ import elemental.events.KeyboardEvent;
 import elemental.events.MouseEvent;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
-import com.google.gwt.uibinder.client.UiHandler;
-import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -47,11 +44,6 @@ public class MachinePanelViewImpl extends BaseView<MachinePanelView.ActionDelega
 
     @UiField(provided = true)
     Tree<MachineTreeNode> tree;
-
-    @UiField
-    Button createMachine;
-    @UiField
-    Button destroyMachine;
 
     @Inject
     public MachinePanelViewImpl(org.eclipse.che.ide.Resources resources,
@@ -140,16 +132,4 @@ public class MachinePanelViewImpl extends BaseView<MachinePanelView.ActionDelega
 
         delegate.onMachineSelected((Machine)machineNode.getData());
     }
-
-
-    @UiHandler("createMachine")
-    public void onCreateMachineClicked(@SuppressWarnings("UnusedParameters") ClickEvent event) {
-        delegate.onCreateMachineButtonClicked();
-    }
-
-    @UiHandler("destroyMachine")
-    public void onDestroyMachineClicked(@SuppressWarnings("UnusedParameters") ClickEvent event) {
-        delegate.onDestroyMachineButtonClicked();
-    }
-
 }

@@ -44,12 +44,6 @@ public interface MachinePanelView extends View<MachinePanelView.ActionDelegate> 
     void selectNode(@Nullable MachineTreeNode machineNode);
 
     interface ActionDelegate extends BaseActionDelegate {
-        /** Performs some actions when user click on Create machine button. */
-        void onCreateMachineButtonClicked();
-
-        /** Performs some actions when user click on Delete machine button. */
-        void onDestroyMachineButtonClicked();
-
         /**
          * Performs some actions when user selects current machine
          *

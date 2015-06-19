@@ -34,6 +34,9 @@ public interface MachineLocalizationConstant extends Messages {
     @Key("mainMenu.run.name")
     String mainMenuRunName();
 
+    @Key("main.menu.machine")
+    String mainMenuMachine();
+
     @Key("control.selectCommand.text")
     String selectCommandControlTitle();
 
@@ -57,6 +60,12 @@ public interface MachineLocalizationConstant extends Messages {
 
     @Key("control.clearMachineConsole.description")
     String clearConsoleControlDescription();
+
+    @Key("machine.create")
+    String machineCreate();
+
+    @Key("machine.destroy")
+    String machineDestroy();
 
 
     /* Messages */

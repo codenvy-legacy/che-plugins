@@ -10,10 +10,10 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.panel;
 
-import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwtmockito.GwtMockitoTestRunner;
 
 import org.eclipse.che.ide.api.parts.PartStackUIResources;
+import org.eclipse.che.ide.extension.machine.client.machine.Machine;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.panel.MachinePanelView.ActionDelegate;
 import org.eclipse.che.ide.ui.tree.Tree;
 import org.junit.Before;
@@ -22,6 +22,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import static org.mockito.Answers.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -46,7 +47,9 @@ public class MachinePanelViewImplTest {
     @Mock
     private Tree.Css                      css;
     @Mock
-    private ClickEvent                    clickEvent;
+    private MachineTreeNode               treeNode;
+    @Mock
+    private Machine                       machine;
 
     private MachinePanelViewImpl view;
 
@@ -63,17 +66,22 @@ public class MachinePanelViewImplTest {
     }
 
     @Test
-    public void onCreateMachineShouldBeClicked() {
-        view.onCreateMachineClicked(clickEvent);
+    public void nodeShouldBeSelected() {
+        when(treeNode.getData()).thenReturn(machine);
 
-        verify(delegate).onCreateMachineButtonClicked();
+        view.selectNode(treeNode);
+
+        verify(treeNode).getData();
+        verify(delegate).onMachineSelected(machine);
+
     }
 
     @Test
-    public void onDestroyMachineShouldBeClicked() {
-        view.onDestroyMachineClicked(clickEvent);
+    public void nodeShouldNotBeSelected() {
+        view.selectNode(null);
 
-        verify(delegate).onDestroyMachineButtonClicked();
+        verify(treeNode, never()).getData();
+        verify(delegate, never()).onMachineSelected(machine);
+
     }
-
 }

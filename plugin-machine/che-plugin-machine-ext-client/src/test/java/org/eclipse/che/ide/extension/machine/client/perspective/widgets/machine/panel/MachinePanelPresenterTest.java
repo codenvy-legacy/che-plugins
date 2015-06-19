@@ -191,7 +191,7 @@ public class MachinePanelPresenterTest {
                                              any(InputCallback.class),
                                              any(CancelCallback.class))).thenReturn(inputDialog);
 
-        presenter.onCreateMachineButtonClicked();
+        presenter.createMachine();
 
         verify(dialogFactory).createInputDialog(anyString(),
                                                 anyString(),
@@ -215,7 +215,7 @@ public class MachinePanelPresenterTest {
         when(machine1.getId()).thenReturn(SOME_TEXT);
         presenter.onMachineSelected(machine1);
 
-        presenter.onDestroyMachineButtonClicked();
+        presenter.destroyMachine();
 
         verify(managerProvider).get();
         verify(machine1).getId();

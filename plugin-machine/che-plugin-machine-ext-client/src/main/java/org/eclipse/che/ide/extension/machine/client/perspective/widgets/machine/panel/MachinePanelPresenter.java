@@ -122,9 +122,8 @@ public class MachinePanelPresenter extends BasePresenter implements MachinePanel
         });
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public void onCreateMachineButtonClicked() {
+    /** Creates machine and adds it in special place on view. */
+    public void createMachine() {
         final InputCallback inputCallback = new InputCallback() {
             @Override
             public void accepted(String value) {
@@ -159,9 +158,8 @@ public class MachinePanelPresenter extends BasePresenter implements MachinePanel
         return name;
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public void onDestroyMachineButtonClicked() {
+    /** Destroys machine and removes it from view. */
+    public void destroyMachine() {
         machineList.remove(selectedMachine);
 
         MachineManager manager = managerProvider.get();

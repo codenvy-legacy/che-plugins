@@ -21,6 +21,8 @@ import org.eclipse.che.ide.api.event.ProjectActionEvent;
 import org.eclipse.che.ide.api.extension.Extension;
 import org.eclipse.che.ide.api.parts.PartStackType;
 import org.eclipse.che.ide.api.parts.WorkspaceAgent;
+import org.eclipse.che.ide.extension.machine.client.actions.CreateMachineAction;
+import org.eclipse.che.ide.extension.machine.client.actions.DestroyMachineAction;
 import org.eclipse.che.ide.extension.machine.client.actions.EditCommandsAction;
 import org.eclipse.che.ide.extension.machine.client.actions.ExecuteSelectedCommandAction;
 import org.eclipse.che.ide.extension.machine.client.actions.MachinePerspectiveAction;
@@ -63,7 +65,9 @@ public class MachineExtension {
                                 ExecuteSelectedCommandAction executeSelectedCommandAction,
                                 SelectCommandAction selectCommandAction,
                                 EditCommandsAction editCommandsAction,
-                                MachinePerspectiveAction machinePerspectiveAction) {
+                                MachinePerspectiveAction machinePerspectiveAction,
+                                CreateMachineAction createMachine,
+                                DestroyMachineAction destroyMachine) {
         final DefaultActionGroup mainMenu = (DefaultActionGroup)actionManager.getAction(GROUP_MAIN_MENU);
         final DefaultActionGroup runMenu = new DefaultActionGroup(localizationConstant.mainMenuRunName(), true, actionManager);
 
@@ -76,6 +80,17 @@ public class MachineExtension {
         // add actions in main menu
         mainMenu.add(runMenu, new Constraints(AFTER, GROUP_CODE));
         runMenu.add(editCommandsAction);
+
+        //add actions in machine menu
+        final DefaultActionGroup machineMenu = new DefaultActionGroup(localizationConstant.mainMenuMachine(), true, actionManager);
+
+        actionManager.registerAction("machine", machineMenu);
+        actionManager.registerAction("createMachine", createMachine);
+        actionManager.registerAction("destroyMachine", destroyMachine);
+
+        mainMenu.add(machineMenu, new Constraints(AFTER, "run"));
+        machineMenu.add(createMachine);
+        machineMenu.add(destroyMachine);
 
         // add actions on right toolbar
         final DefaultActionGroup rightToolbarGroup = (DefaultActionGroup)actionManager.getAction(GROUP_RIGHT_TOOLBAR);
