@@ -44,6 +44,12 @@ public interface MachineResources extends ClientBundle {
     @Source("images/tick.svg")
     SVGResource tick();
 
+    @Source("images/project-perspective.svg")
+    SVGResource projectPerspective();
+
+    @Source("images/machine-perspective.svg")
+    SVGResource machinePerspective();
+
     ImageResource close();
 
     /** Returns the CSS resource for the Machine extension. */
