@@ -106,6 +106,11 @@ public class OutputsContainerPresenter extends BasePresenter implements OutputsC
     }
 
     @Override
+    public void setVisible(boolean visible) {
+        view.setVisible(visible);
+    }
+
+    @Override
     public ImageResource getTitleImage() {
         return null;
     }

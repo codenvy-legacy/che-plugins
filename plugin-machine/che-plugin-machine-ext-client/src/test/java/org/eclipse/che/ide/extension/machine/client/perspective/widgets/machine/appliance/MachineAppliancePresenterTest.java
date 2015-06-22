@@ -13,6 +13,7 @@ package org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.web.bindery.event.shared.EventBus;
 
+import org.eclipse.che.ide.client.inject.factories.TabItemFactory;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.EntityFactory;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.WidgetsFactory;
@@ -62,6 +63,8 @@ public class MachineAppliancePresenterTest {
     private WidgetsFactory              widgetsFactory;
     @Mock
     private EntityFactory               entityFactory;
+    @Mock
+    private TabItemFactory              tabItemFactory;
     //TODO un commit to test process tab
 //    @Mock
 //    private ProcessesPresenter          processesPresenter;
@@ -130,6 +133,7 @@ public class MachineAppliancePresenterTest {
                                                   locale,
                                                   widgetsFactory,
                                                   entityFactory,
+                                                  tabItemFactory,
                                                   terminalPresenter,
                                                   infoPresenter,
                                                   serverPresenter,

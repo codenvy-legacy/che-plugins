@@ -12,6 +12,7 @@ package org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine
 
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
+import com.google.gwt.user.client.ui.IsWidget;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
@@ -179,6 +180,18 @@ public class MachinePanelPresenter extends BasePresenter implements MachinePanel
     @Override
     public String getTitle() {
         return locale.machineConsoleViewTitle();
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void setVisible(boolean visible) {
+        view.setVisible(visible);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public IsWidget getView() {
+        return view;
     }
 
     /** {@inheritDoc} */

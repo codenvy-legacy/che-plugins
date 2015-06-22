@@ -15,14 +15,13 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.InsertPanel;
-import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 
+import org.eclipse.che.ide.api.parts.PartPresenter;
 import org.eclipse.che.ide.api.parts.PartStackView;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.container.TabContainerView;
-import org.vectomatic.dom.svg.ui.SVGImage;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -54,20 +53,25 @@ public class MachineApplianceViewImpl extends Composite implements MachineApplia
 
     /** {@inheritDoc} */
     @Override
-    public TabItem addTab(SVGImage icon, String title, String toolTip, IsWidget widget, boolean closable) {
-        //to do nothing
-        return null;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void removeTab(int index) {
+    public void addTab(@Nonnull TabItem tabItem, @Nonnull PartPresenter presenter) {
         //to do nothing
     }
 
     /** {@inheritDoc} */
     @Override
-    public void setActiveTab(int index) {
+    public void removeTab(@Nonnull PartPresenter partPresenter) {
+        //to do nothing
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void setActiveTab(@Nonnull PartPresenter partPresenter) {
+        //to do nothing
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void unSelectTabs() {
         //to do nothing
     }
 
@@ -92,7 +96,7 @@ public class MachineApplianceViewImpl extends Composite implements MachineApplia
 
     /** {@inheritDoc} */
     @Override
-    public void updateTabItem(int index, SVGImage icon, String title, String toolTip, IsWidget widget) {
+    public void updateTabItem(@Nonnull PartPresenter partPresenter) {
         //to do nothing
     }
 

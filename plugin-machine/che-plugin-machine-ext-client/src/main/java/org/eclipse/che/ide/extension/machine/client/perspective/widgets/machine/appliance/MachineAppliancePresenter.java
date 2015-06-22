@@ -15,6 +15,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.event.shared.EventBus;
 
+import org.eclipse.che.ide.client.inject.factories.TabItemFactory;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.EntityFactory;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.WidgetsFactory;
@@ -59,11 +60,12 @@ public class MachineAppliancePresenter extends PartStackPresenter {
                                      final MachineLocalizationConstant locale,
                                      WidgetsFactory widgetsFactory,
                                      EntityFactory entityFactory,
+                                     TabItemFactory tabItemFactory,
                                      TerminalPresenter terminalPresenter,
                                      MachineInfoPresenter infoPresenter,
                                      ServerPresenter serverPresenter,
                                      TabContainerPresenter tabContainer) {
-        super(eventBus, partStackEventHandler, view, null);
+        super(eventBus, partStackEventHandler, tabItemFactory, view, null);
 
         this.view = view;
         this.tabContainer = tabContainer;

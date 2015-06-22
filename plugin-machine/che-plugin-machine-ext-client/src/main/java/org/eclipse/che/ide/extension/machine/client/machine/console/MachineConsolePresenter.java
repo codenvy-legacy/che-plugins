@@ -82,6 +82,12 @@ public class MachineConsolePresenter extends BasePresenter implements MachineCon
 
     /** {@inheritDoc} */
     @Override
+    public void setVisible(boolean visible) {
+        view.setVisible(visible);
+    }
+
+    /** {@inheritDoc} */
+    @Override
     public ImageResource getTitleImage() {
         return null;
     }

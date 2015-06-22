@@ -45,6 +45,8 @@ public interface OutputsContainerView extends View<OutputsContainerView.ActionDe
      */
     void setTitle(String title);
 
+    void setVisible(boolean visible);
+
     interface ActionDelegate extends BaseActionDelegate {
 
         /** Called when console with the given {@code index} has been selected. */

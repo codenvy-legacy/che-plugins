@@ -52,6 +52,8 @@ public interface HistoryView extends View<HistoryView.ActionDelegate> {
         void onRevisionSelected(@Nonnull Revision revision);
     }
 
+    void setVisible(boolean visible);
+
     /**
      * Set available revisions.
      *
