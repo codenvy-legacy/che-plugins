@@ -10,14 +10,6 @@
  *******************************************************************************/
 package org.eclipse.che.jdt;
 
-import org.eclipse.che.api.core.ServerException;
-import org.eclipse.che.api.core.notification.EventService;
-import org.eclipse.che.api.core.notification.EventSubscriber;
-import org.eclipse.che.api.vfs.server.observation.VirtualFileEvent;
-import org.eclipse.che.commons.lang.IoUtil;
-import org.eclipse.che.jdt.core.resources.ResourceChangedEvent;
-import org.eclipse.che.jdt.internal.core.JavaProject;
-import org.eclipse.che.vfs.impl.fs.LocalFSMountStrategy;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.RemovalListener;
@@ -26,6 +18,14 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 
+import org.eclipse.che.api.core.ServerException;
+import org.eclipse.che.api.core.notification.EventService;
+import org.eclipse.che.api.core.notification.EventSubscriber;
+import org.eclipse.che.api.vfs.server.observation.VirtualFileEvent;
+import org.eclipse.che.commons.lang.IoUtil;
+import org.eclipse.che.jdt.core.resources.ResourceChangedEvent;
+import org.eclipse.che.jdt.internal.core.JavaProject;
+import org.eclipse.che.vfs.impl.fs.LocalFSMountStrategy;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.codeassist.impl.AssistOptions;
@@ -38,6 +38,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -84,10 +86,19 @@ public class JavaProjectService {
                     public void onRemoval(RemovalNotification<String, JavaProject> notification) {
                         JavaProject value = notification.getValue();
                         if (value != null) {
-                            removeProject(value.getWsId(), value.getProjectPath());
+                            closeProject(value);
+                            deleteDependencyDirectory(value.getWsId(), value.getProjectPath());
                         }
                     }
                 }).build();
+
+        ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
+        executorService.scheduleAtFixedRate(new Runnable() {
+            @Override
+            public void run() {
+                cache.cleanUp();
+            }
+        }, 1, 1,TimeUnit.HOURS);
     }
 
     public JavaProject getOrCreateJavaProject(String wsId, String projectPath) {
@@ -126,13 +137,17 @@ public class JavaProjectService {
         }
         if (javaProject != null) {
             cache.invalidate(wsId + projectPath);
-            try {
-                javaProject.close();
-            } catch (JavaModelException e) {
-                LOG.warn("Error when trying close project.", e);
-            }
+            closeProject(javaProject);
         }
         deleteDependencyDirectory(wsId, projectPath);
+    }
+
+    private void closeProject(JavaProject javaProject) {
+        try {
+            javaProject.close();
+        } catch (JavaModelException e) {
+            LOG.error("Error when trying close project.", e);
+        }
     }
 
     public Map<String, String> getOptions() {
@@ -183,7 +198,7 @@ public class JavaProjectService {
                                             new ResourceChangedEvent(fsMountStrategy.getMountPath(eventWorkspace), event));
                                     javaProject.creteNewNameEnvironment();
                                 } catch (ServerException e) {
-                                    LOG.warn("Can't update java model", e);
+                                    LOG.error("Can't find workspace mount path", e);
                                 }
                             }
                             break;
@@ -192,7 +207,7 @@ public class JavaProjectService {
                 }
             } catch (Throwable t) {
                 //catch all exceptions that may be happened
-                LOG.warn("Can't update java model", t);
+                LOG.error("Can't update java model", t);
             }
         }
     }
