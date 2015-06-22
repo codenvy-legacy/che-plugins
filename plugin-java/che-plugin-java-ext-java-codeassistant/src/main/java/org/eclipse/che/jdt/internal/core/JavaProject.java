@@ -863,9 +863,12 @@ public class JavaProject extends Openable implements IJavaProject {
 
     @Override
     public IPackageFragmentRoot getPackageFragmentRoot(String externalLibraryPath) {
-
-//        return new JarPackageFragmentRoot(new Path(externalLibraryPath), this);
-        throw new UnsupportedOperationException();
+        File file = new File(externalLibraryPath);
+        if(file.isFile()) {
+            return new JarPackageFragmentRoot(file, this, manager);
+        } else {
+            return new PackageFragmentRoot(file, this, manager);
+        }
     }
 
     @Override

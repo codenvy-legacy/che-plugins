@@ -77,6 +77,7 @@ public class BaseCodemirrorInitializer extends AbstractCodemirrorInitializer {
                                           "addon/scroll/annotatescrollbar",
                                           "addon/scroll/scrollpastend",
                                           "addon/search/matchesonscrollbar",
+                                          "mode/jaggery/jaggery",
         });
     }
 }

@@ -121,6 +121,22 @@
                         </goals>
                         <configuration>
                             <target>
+                                <copy todir="${codemirror.extract.location}/mode/jaggery/" file="${project.basedir}/src/main/resources/codemirror/mode/jaggery/jaggery.js"/>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
                                 <mkdir dir="${codemirror.extract.location}/"/>
                                 <move todir="${codemirror.extract.location}/">
                                     <fileset
@@ -149,6 +165,16 @@
                     <filterConfig>true</filterConfig>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>com.mycila</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>**/jaggery.js</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+
         </plugins>
     </build>
 </project>
