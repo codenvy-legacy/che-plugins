@@ -45,13 +45,14 @@ public class SwitchPerspectiveAction extends Action implements CustomComponentAc
     @Inject
     public SwitchPerspectiveAction(PerspectiveManager perspectiveManager,
                                    MachineLocalizationConstant localizationConstant,
-                                   MachineResources resources) {
+                                   MachineResources resources,
+                                   RadioButtonGroup radioButtonGroup) {
         super();
         this.perspectiveManager = perspectiveManager;
         this.localizationConstant = localizationConstant;
         this.resources = resources;
+        this.radioButtonGroup = radioButtonGroup;
 
-        radioButtonGroup = new RadioButtonGroup();
         createButtons();
     }
 
