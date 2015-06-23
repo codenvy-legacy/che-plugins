@@ -10,30 +10,50 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.maven.client.actions;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+
 import org.eclipse.che.api.analytics.client.logger.AnalyticsEventLogger;
+import org.eclipse.che.ide.api.action.AbstractPerspectiveAction;
 import org.eclipse.che.ide.api.action.ActionEvent;
-import org.eclipse.che.ide.api.action.ProjectAction;
+import org.eclipse.che.ide.api.action.Presentation;
+import org.eclipse.che.ide.api.app.AppContext;
+import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.extension.maven.client.MavenLocalizationConstant;
 import org.eclipse.che.ide.extension.maven.client.module.CreateMavenModulePresenter;
 import org.eclipse.che.ide.extension.maven.shared.MavenAttributes;
 
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
+import javax.annotation.Nonnull;
+import java.util.Collections;
 
-/** @author Evgen Vidolob */
+import static org.eclipse.che.ide.workspace.perspectives.project.ProjectPerspective.PROJECT_PERSPECTIVE_ID;
+
+/**
+ * Action for creating Maven module.
+ *
+ * @author Evgen Vidolob
+ * @author Artem Zatsarynnyy
+ */
 @Singleton
-public class CreateMavenModuleAction extends ProjectAction {
+public class CreateMavenModuleAction extends AbstractPerspectiveAction {
 
-    private CreateMavenModulePresenter presenter;
-
-    private final AnalyticsEventLogger eventLogger;
+    private final AnalyticsEventLogger       eventLogger;
+    private final AppContext                 appContext;
+    private final CreateMavenModulePresenter presenter;
 
     @Inject
-    public CreateMavenModuleAction(MavenLocalizationConstant constant, CreateMavenModulePresenter presenter,
-                                   AnalyticsEventLogger eventLogger) {
-        super(constant.actionCreateMavenModuleText(), constant.actionCreateMavenModuleDescription());
+    public CreateMavenModuleAction(MavenLocalizationConstant constant,
+                                   CreateMavenModulePresenter presenter,
+                                   AnalyticsEventLogger eventLogger,
+                                   AppContext appContext) {
+        super(Collections.singletonList(PROJECT_PERSPECTIVE_ID),
+              constant.actionCreateMavenModuleText(),
+              constant.actionCreateMavenModuleDescription(),
+              null,
+              null);
         this.presenter = presenter;
         this.eventLogger = eventLogger;
+        this.appContext = appContext;
     }
 
     @Override
@@ -45,8 +65,15 @@ public class CreateMavenModuleAction extends ProjectAction {
     }
 
     @Override
-    public void updateProjectAction(ActionEvent e) {
-        e.getPresentation().setVisible(appContext.getCurrentProject().getRootProject().getType().equals("maven"));
-        e.getPresentation().setEnabled("pom".equals(appContext.getCurrentProject().getAttributeValue(MavenAttributes.PACKAGING)));
+    public void updateInPerspective(@Nonnull ActionEvent event) {
+        final Presentation presentation = event.getPresentation();
+        final CurrentProject currentProject = appContext.getCurrentProject();
+        if (currentProject == null) {
+            presentation.setEnabledAndVisible(false);
+            return;
+        }
+
+        presentation.setVisible(MavenAttributes.MAVEN_ID.equals(currentProject.getRootProject().getType()));
+        presentation.setEnabled("pom".equals(currentProject.getAttributeValue(MavenAttributes.PACKAGING)));
     }
 }
