@@ -259,21 +259,18 @@ public class NativeGitStatusImpl implements Status, InfoPage {
             conflicting = new ArrayList<>();
             for (String statusLine : statusOutput) {
                 //add conflict files AA, UU, any of U
-                addIfMatches(conflicting, statusLine, 'A', 'A');
-                addIfMatches(conflicting, statusLine, 'U', '*');
-                addIfMatches(conflicting, statusLine, '*', 'U');
-                //add Added files
-                addIfMatches(added, statusLine, 'A', 'M');
-                addIfMatches(added, statusLine, 'A', ' ');
-                //add Changed
-                addIfMatches(changed, statusLine, 'M', '*');
-                //add removed
-                addIfMatches(removed, statusLine, 'D', '*');
-                addIfMatches(removed, statusLine, ' ', 'D');
-                //add missing
-                addIfMatches(missing, statusLine, 'A', 'D');
-                //add modified
-                addIfMatches(modified, statusLine, '*', 'M');
+                if (!(addIfMatches(conflicting, statusLine, 'A', 'A') //
+                        || addIfMatches(conflicting, statusLine, 'D', 'D') //
+                        || addIfMatches(conflicting, statusLine, 'U', '*') //
+                        || addIfMatches(conflicting, statusLine, '*', 'U'))) {
+                    // Add index-based entries
+                    addIfMatches(added, statusLine, 'A', '*');
+                    addIfMatches(removed, statusLine, 'D', '*');
+                    addIfMatches(changed, statusLine, 'M', '*');
+                    // Add working tree - based entries
+                    addIfMatches(missing, statusLine, '*', 'D');
+                    addIfMatches(modified, statusLine, '*', 'M');
+                }
                 if (statusLine.endsWith("/")) {
                     //add untracked folders
                     addIfMatches(untrackedFolders, statusLine.substring(0, statusLine.length() - 1), '?', '?');
@@ -297,18 +294,19 @@ public class NativeGitStatusImpl implements Status, InfoPage {
      * @param y
      *         second template parameter
      */
-    private void addIfMatches(List<String> container, String statusLine, char x, char y) {
+    private static boolean addIfMatches(List<String> container, String statusLine, char x, char y) {
         if (matches(statusLine, x, y)) {
             final String filename = statusLine.substring(3);
             if (!container.contains(filename)) {
                 container.add(filename);
             }
+            return true;
         }
+        return false;
     }
 
-    private boolean matches(String statusLine, char x, char y) {
-        return x == '*' && statusLine.charAt(1) == y ||
-               y == '*' && statusLine.charAt(0) == x ||
-               x == statusLine.charAt(0) && y == statusLine.charAt(1);
+    private static boolean matches(String statusLine, char x, char y) {
+        return (x == '*' || x == statusLine.charAt(0)) &&
+               (y == '*' || y == statusLine.charAt(1));
     }
 }
