@@ -139,7 +139,7 @@
     <g:DockLayoutPanel ui:field="propertiesPanel" unit="PX" addStyleNames="{resources.runnerCss.fullSize} {style.mainPanel}">
         <g:west size="300">
             <g:FlowPanel>
-                <g:FlowPanel addStyleNames="{style.settingsPanel}">
+                <g:FlowPanel addStyleNames="{style.settingsPanel}" debugId="propertiesPanelSettingsId">
                     <g:FlowPanel addStyleNames="{style.itemPanel}" ui:field="configLinkPanel">
                         <g:Label text="{locale.propertiesConfig}" addStyleNames="{style.label} {resources.runnerCss.propertiesFont}"/>
                         <g:Label text="{locale.propertiesOpenConfig}" ui:field="configLink"
