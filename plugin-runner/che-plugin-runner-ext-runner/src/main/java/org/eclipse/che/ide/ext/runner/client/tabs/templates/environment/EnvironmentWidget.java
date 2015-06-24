@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.runner.client.tabs.templates.environment;
 
+import com.google.gwt.http.client.URL;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 
@@ -21,6 +22,7 @@ import org.eclipse.che.ide.ext.runner.client.selection.SelectionManager;
 import org.eclipse.che.ide.ext.runner.client.tabs.common.item.ItemWidget;
 import org.eclipse.che.ide.ext.runner.client.tabs.common.item.RunnerItems;
 import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope;
+import org.eclipse.che.ide.ext.runner.client.util.EnvironmentIdValidator;
 import org.vectomatic.dom.svg.ui.SVGImage;
 
 import javax.annotation.Nonnull;
@@ -116,7 +118,12 @@ public class EnvironmentWidget implements RunnerItems<Environment> {
 
         String defaultConfig = getDefaultRunner();
 
-        return environment.getId().equals(defaultConfig) ? DEFAULT_DESCRIPTION : description;
+        String environmentId = environment.getId();
+        if (!EnvironmentIdValidator.isValid(environmentId)) {
+            environmentId = URL.encode(environmentId);
+        }
+
+        return environmentId.equals(defaultConfig) ? DEFAULT_DESCRIPTION : description;
     }
 
     @Nullable
