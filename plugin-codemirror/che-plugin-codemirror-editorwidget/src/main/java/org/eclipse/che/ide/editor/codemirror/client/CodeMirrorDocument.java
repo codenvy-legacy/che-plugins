@@ -90,9 +90,11 @@ public class CodeMirrorDocument extends AbstractEmbeddedDocument {
             endOffset = this.documentOverlay.getValue().length();
         }
         final int length = endOffset - startOffset;
-        final String text = param.getText().join("\n");
-
-        final DocumentChangeEvent event = new DocumentChangeEvent(this, startOffset, length, text);
+        // one line per array element, we join all the elements to get the whole text
+        final String addedText = param.getText().join("\n");
+        final String removedText = param.getRemoved().join("\n");
+        final int removedCharCount = removedText.length();
+        final DocumentChangeEvent event = new DocumentChangeEvent(this, startOffset, length, addedText, removedCharCount);
         getDocEventBus().fireEvent(event);
     }
 
