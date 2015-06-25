@@ -22,6 +22,8 @@ import com.google.inject.Singleton;
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
 import org.eclipse.che.api.machine.shared.dto.MachineDescriptor;
 import org.eclipse.che.api.machine.shared.dto.ProcessDescriptor;
+import org.eclipse.che.api.promises.client.Function;
+import org.eclipse.che.api.promises.client.FunctionException;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.Promise;
@@ -136,33 +138,27 @@ public class MachineManager implements ProjectActionHandler {
         }
 
         final String recipeURL = currentProject.getRootProject().getRecipe();
-        downloadRecipe(recipeURL).then(new Operation<String>() {
+        downloadRecipe(recipeURL).thenPromise(new Function<String, Promise<MachineDescriptor>>() {
             @Override
-            public void apply(String recipeScript) throws OperationException {
+            public Promise<MachineDescriptor> apply(String recipeScript) throws FunctionException {
                 final String outputChannel = "machine:output:" + UUID.uuid();
                 subscribeToOutput(outputChannel);
-
-                final Promise<MachineDescriptor> machinePromise = machineServiceClient.createMachineFromRecipe("docker",
-                                                                                                               "Dockerfile",
-                                                                                                               recipeScript,
-                                                                                                               displayName,
-                                                                                                               bindWorkspace,
-                                                                                                               outputChannel);
-                machinePromise.then(new Operation<MachineDescriptor>() {
-                    @Override
-                    public void apply(final MachineDescriptor arg) throws OperationException {
-                        MachineStateNotifier.RunningListener runningListener = null;
-                        if (bindWorkspace) {
-                            runningListener = new MachineStateNotifier.RunningListener() {
-                                @Override
-                                public void onRunning() {
-                                    devMachineId = arg.getId();
-                                }
-                            };
+                return machineServiceClient.createMachineFromRecipe("docker", "Dockerfile", recipeScript, displayName, bindWorkspace,
+                                                                    outputChannel);
+            }
+        }).then(new Operation<MachineDescriptor>() {
+            @Override
+            public void apply(final MachineDescriptor machineDescriptor) throws OperationException {
+                MachineStateNotifier.RunningListener runningListener = null;
+                if (bindWorkspace) {
+                    runningListener = new MachineStateNotifier.RunningListener() {
+                        @Override
+                        public void onRunning() {
+                            devMachineId = machineDescriptor.getId();
                         }
-                        machineStateNotifier.trackMachine(arg.getId(), runningListener);
-                    }
-                });
+                    };
+                }
+                machineStateNotifier.trackMachine(machineDescriptor.getId(), runningListener);
             }
         });
     }
