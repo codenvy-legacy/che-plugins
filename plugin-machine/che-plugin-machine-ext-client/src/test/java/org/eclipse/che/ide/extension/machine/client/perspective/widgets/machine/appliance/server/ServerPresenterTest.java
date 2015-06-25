@@ -82,8 +82,8 @@ public class ServerPresenterTest {
     public void serverShouldBeUpdated() {
         presenter.updateInfo(machine);
 
-        verify(entityFactory).createServer(NAME_1, ADDRESS_1);
-        verify(entityFactory).createServer(NAME_2, ADDRESS_2);
+        verify(entityFactory).createServer(NAME_1, descriptor1);
+        verify(entityFactory).createServer(NAME_2, descriptor2);
 
         verify(view).setServers(serverListCaptor.capture());
 

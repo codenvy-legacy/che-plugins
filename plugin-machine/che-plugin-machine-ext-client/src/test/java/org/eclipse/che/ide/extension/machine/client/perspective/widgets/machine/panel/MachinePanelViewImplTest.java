@@ -13,13 +13,16 @@ package org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine
 import com.google.gwtmockito.GwtMockitoTestRunner;
 
 import org.eclipse.che.ide.api.parts.PartStackUIResources;
-import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.MachineWidget;
+import org.eclipse.che.ide.extension.machine.client.machine.Machine;
+import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.panel.MachinePanelView.ActionDelegate;
+import org.eclipse.che.ide.ui.tree.Tree;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import static org.mockito.Answers.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -32,33 +35,53 @@ public class MachinePanelViewImplTest {
     private static final String SOME_TEXT = "someText";
 
     @Mock(answer = RETURNS_DEEP_STUBS)
-    private PartStackUIResources resources;
-
+    private PartStackUIResources          partStackResources;
     @Mock
-    private MachineWidget machineWidget;
+    private org.eclipse.che.ide.Resources resources;
+    @Mock
+    private MachineDataAdapter            adapter;
+    @Mock
+    private MachineTreeRenderer           renderer;
+    @Mock
+    private ActionDelegate                delegate;
+    @Mock
+    private Tree.Css                      css;
+    @Mock
+    private MachineTreeNode               treeNode;
+    @Mock
+    private Machine                       machine;
 
     private MachinePanelViewImpl view;
 
     @Before
     public void setUp() {
-        when(resources.partStackCss().ideBasePartToolbar()).thenReturn(SOME_TEXT);
-        when(resources.partStackCss().ideBasePartTitleLabel()).thenReturn(SOME_TEXT);
+        when(partStackResources.partStackCss().ideBasePartToolbar()).thenReturn(SOME_TEXT);
+        when(partStackResources.partStackCss().ideBasePartTitleLabel()).thenReturn(SOME_TEXT);
 
-        view = new MachinePanelViewImpl(resources);
+        when(resources.treeCss()).thenReturn(css);
+
+        view = new MachinePanelViewImpl(resources, partStackResources, adapter, renderer);
+
+        view.setDelegate(delegate);
     }
 
     @Test
-    public void widgetShouldBeAdded() {
-        view.add(machineWidget);
+    public void nodeShouldBeSelected() {
+        when(treeNode.getData()).thenReturn(machine);
 
-        verify(view.machines).add(machineWidget);
+        view.selectNode(treeNode);
+
+        verify(treeNode).getData();
+        verify(delegate).onMachineSelected(machine);
+
     }
 
     @Test
-    public void panelShouldBeCleared() {
-        view.clear();
+    public void nodeShouldNotBeSelected() {
+        view.selectNode(null);
 
-        verify(view.machines).clear();
+        verify(treeNode, never()).getData();
+        verify(delegate, never()).onMachineSelected(machine);
+
     }
-
 }

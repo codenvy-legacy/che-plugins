@@ -34,6 +34,9 @@ public interface MachineLocalizationConstant extends Messages {
     @Key("mainMenu.run.name")
     String mainMenuRunName();
 
+    @Key("main.menu.machine")
+    String mainMenuMachine();
+
     @Key("control.selectCommand.text")
     String selectCommandControlTitle();
 
@@ -57,6 +60,12 @@ public interface MachineLocalizationConstant extends Messages {
 
     @Key("control.clearMachineConsole.description")
     String clearConsoleControlDescription();
+
+    @Key("machine.create")
+    String machineCreate();
+
+    @Key("machine.destroy")
+    String machineDestroy();
 
 
     /* Messages */
@@ -156,17 +165,14 @@ public interface MachineLocalizationConstant extends Messages {
     @Key("process.table.active")
     String processTableActive();
 
-    @Key("tab.processes")
-    String tabProcesses();
-
     @Key("tab.terminal")
     String tabTerminal();
 
-    @Key("machine.perspective.action.description")
-    String perspectiveActionDescription();
+    @Key("perspective.project.action.tooltip")
+    String perspectiveProjectActionTooltip();
 
-    @Key("machine.perspective.action.tooltip")
-    String perspectiveActionTooltip();
+    @Key("perspective.machine.action.tooltip")
+    String perspectiveMachineActionTooltip();
 
     @Key("tab.info")
     String tabInfo();
@@ -192,12 +198,18 @@ public interface MachineLocalizationConstant extends Messages {
     @Key("info.ws.id")
     String infoWsId();
 
-    @Key("info.server.name")
-    String infoServerName();
+    @Key("info.server.port")
+    String infoServerPort();
 
     @Key("info.server.address")
     String infoServerAddress();
 
     @Key("tab.server")
     String tabServer();
+
+    @Key("info.server.ref")
+    String infoServerRef();
+
+    @Key("info.server.url")
+    String infoServerUrl();
 }

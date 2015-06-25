@@ -25,7 +25,6 @@ import org.eclipse.che.ide.extension.machine.client.inject.factories.EntityFacto
 import org.eclipse.che.ide.extension.machine.client.inject.factories.WidgetsFactory;
 import org.eclipse.che.ide.extension.machine.client.machine.Machine;
 import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
-import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.MachineWidget;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.appliance.MachineAppliancePresenter;
 import org.eclipse.che.ide.ui.dialogs.CancelCallback;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
@@ -50,6 +49,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -75,7 +75,7 @@ public class MachinePanelPresenterTest {
     @Mock
     private MachineLocalizationConstant locale;
     @Mock
-    private MachineAppliancePresenter   infoContainer;
+    private MachineAppliancePresenter   appliance;
     @Mock
     private Provider<MachineManager>    managerProvider;
     @Mock
@@ -99,11 +99,15 @@ public class MachinePanelPresenterTest {
     @Mock
     private Machine                          machine2;
     @Mock
-    private MachineWidget                    machineWidget1;
-    @Mock
-    private MachineWidget                    machineWidget2;
-    @Mock
     private AcceptsOneWidget                 container;
+    @Mock
+    private MachineTreeNode                  rootNode;
+    @Mock
+    private MachineTreeNode                  environmentNode;
+    @Mock
+    private MachineTreeNode                  machineNode1;
+    @Mock
+    private MachineTreeNode                  machineNode2;
 
     @Captor
     private ArgumentCaptor<Operation<List<MachineDescriptor>>> operationCaptor;
@@ -117,61 +121,62 @@ public class MachinePanelPresenterTest {
     public void setUp() {
         when(managerProvider.get()).thenReturn(machineManager);
 
-        when(entityFactory.createMachine()).thenReturn(machine1).thenReturn(machine2);
-        when(widgetsFactory.createMachineWidget()).thenReturn(machineWidget1).thenReturn(machineWidget2);
+        when(entityFactory.createMachine(machineDescriptor1)).thenReturn(machine1);
+        when(entityFactory.createMachine(machineDescriptor2)).thenReturn(machine2);
+
+        when(entityFactory.createMachineNode(isNull(MachineTreeNode.class),
+                                             anyString(),
+                                             Matchers.<List<MachineTreeNode>>anyObject())).thenReturn(rootNode);
+
+        when(entityFactory.createMachineNode(eq(rootNode),
+                                             anyString(),
+                                             Matchers.<List<MachineTreeNode>>anyObject())).thenReturn(environmentNode);
+        //noinspection unchecked
+        when(entityFactory.createMachineNode(eq(environmentNode),
+                                             eq(machine1),
+                                             isNull(List.class))).thenReturn(machineNode1);
+        //noinspection unchecked
+        when(entityFactory.createMachineNode(eq(environmentNode),
+                                             eq(machine2),
+                                             isNull(List.class))).thenReturn(machineNode2);
 
         when(service.getMachines(null)).thenReturn(machinePromise);
     }
 
     @Test
-    public void machinesShouldBeReturnedAndWidgetShouldBeCreated() throws Exception {
+    public void treeShouldBeDisplayedWithMachines() throws Exception {
         presenter.showMachines();
 
         verify(service).getMachines(null);
 
         verify(machinePromise).then(operationCaptor.capture());
-        operationCaptor.getValue().apply(Arrays.asList(machineDescriptor1));
+        operationCaptor.getValue().apply(Arrays.asList(machineDescriptor1, machineDescriptor2));
 
-        verify(view).clear();
+        verify(entityFactory).createMachineNode(isNull(MachineTreeNode.class), eq("root"), Matchers.<List<MachineTreeNode>>anyObject());
+        verify(entityFactory).createMachineNode(eq(rootNode), eq("environment"), Matchers.<List<MachineTreeNode>>anyObject());
 
-        verify(entityFactory).createMachine();
-        verify(machine1).setDescriptor(machineDescriptor1);
+        //noinspection unchecked
+        verify(entityFactory).createMachineNode(eq(environmentNode), eq(machine1), isNull(List.class));
+        //noinspection unchecked
+        verify(entityFactory).createMachineNode(eq(environmentNode), eq(machine2), isNull(List.class));
 
-        verify(widgetsFactory).createMachineWidget();
-        verify(machineWidget1).setDelegate(presenter);
-        verify(machineWidget1).update(machine1);
+        verify(view).setData(rootNode);
+        verify(view).selectNode(machineNode1);
 
-        verify(view).add(machineWidget1);
+        verify(view, never()).selectNode(machineNode2);
     }
 
     @Test
     public void onMachineShouldBeClicked() throws Exception {
-        callShowMachines();
+        presenter.onMachineSelected(machine1);
 
-        presenter.onMachineClicked(machine1);
-
-        verify(machineWidget1).unSelect();
-        verify(machineWidget2).unSelect();
-
-        verify(machineWidget1).select();
-
-        verify(infoContainer).showAppliance(machine1);
+        verify(appliance).showAppliance(machine1);
     }
 
     private void callShowMachines() throws Exception {
         presenter.showMachines();
         verify(machinePromise).then(operationCaptor.capture());
         operationCaptor.getValue().apply(Arrays.asList(machineDescriptor1, machineDescriptor2));
-    }
-
-    @Test
-    public void boundedMachineShouldBeSelected() throws Exception {
-        when(machine1.isWorkspaceBound()).thenReturn(true);
-
-        callShowMachines();
-
-        verify(machineWidget1).select();
-        verify(machineWidget2, never()).select();
     }
 
     @Test
@@ -186,7 +191,7 @@ public class MachinePanelPresenterTest {
                                              any(InputCallback.class),
                                              any(CancelCallback.class))).thenReturn(inputDialog);
 
-        presenter.onCreateMachineButtonClicked();
+        presenter.createMachine();
 
         verify(dialogFactory).createInputDialog(anyString(),
                                                 anyString(),
@@ -208,9 +213,9 @@ public class MachinePanelPresenterTest {
     public void machineShouldBeDestroyed() throws Exception {
         callShowMachines();
         when(machine1.getId()).thenReturn(SOME_TEXT);
-        presenter.onMachineClicked(machine1);
+        presenter.onMachineSelected(machine1);
 
-        presenter.onDestroyMachineButtonClicked();
+        presenter.destroyMachine();
 
         verify(managerProvider).get();
         verify(machine1).getId();

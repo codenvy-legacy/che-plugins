@@ -11,12 +11,14 @@
 package org.eclipse.che.ide.extension.machine.client.machine;
 
 import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
 
 import org.eclipse.che.api.machine.shared.MachineState;
 import org.eclipse.che.api.machine.shared.dto.MachineDescriptor;
 import org.eclipse.che.api.machine.shared.dto.ServerDescriptor;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 
+import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.Objects;
 
@@ -27,13 +29,16 @@ import java.util.Objects;
  */
 public class Machine {
 
-    public static final String TERMINAL_URL_KEY = "4300";
+    public static final String TERMINAL_REF_KEY = "terminal";
 
-    private MachineDescriptor descriptor;
-    private String            activeTabName;
+    private final MachineDescriptor descriptor;
+
+    private String activeTabName;
 
     @Inject
-    public Machine(MachineLocalizationConstant locale) {
+    public Machine(MachineLocalizationConstant locale, @Assisted MachineDescriptor descriptor) {
+        this.descriptor = descriptor;
+
         this.activeTabName = locale.tabInfo();
     }
 
@@ -58,14 +63,18 @@ public class Machine {
     }
 
     /** @return special url which references on terminal content. */
+    @Nullable
     public String getTerminalUrl() {
-        ServerDescriptor serverDescriptor = descriptor.getServers().get(TERMINAL_URL_KEY);
+        Map<String, ServerDescriptor> serverDescriptors = descriptor.getServers();
 
-        if (serverDescriptor == null) {
-            return "";
+        for (ServerDescriptor descriptor : serverDescriptors.values()) {
+
+            if (TERMINAL_REF_KEY.equals(descriptor.getRef())) {
+                return descriptor.getUrl();
+            }
         }
 
-        return "http://" + serverDescriptor.getAddress();
+        return null;
     }
 
     /** @return active tab name for current machine */
@@ -92,16 +101,6 @@ public class Machine {
     /** @return servers for current machine */
     public Map<String, ServerDescriptor> getServers() {
         return descriptor.getServers();
-    }
-
-    /**
-     * Sets descriptor to current machine.
-     *
-     * @param descriptor
-     *         descriptor which need set
-     */
-    public void setDescriptor(MachineDescriptor descriptor) {
-        this.descriptor = descriptor;
     }
 
     /**

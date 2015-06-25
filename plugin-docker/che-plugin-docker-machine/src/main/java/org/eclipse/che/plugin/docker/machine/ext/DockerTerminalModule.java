@@ -15,7 +15,7 @@ import com.google.inject.matcher.AbstractMatcher;
 import com.google.inject.matcher.Matchers;
 import com.google.inject.name.Names;
 
-import org.eclipse.che.api.machine.shared.recipe.Recipe;
+import org.eclipse.che.api.machine.shared.Recipe;
 import org.eclipse.che.plugin.docker.machine.DockerInstanceProvider;
 
 import java.lang.reflect.Method;

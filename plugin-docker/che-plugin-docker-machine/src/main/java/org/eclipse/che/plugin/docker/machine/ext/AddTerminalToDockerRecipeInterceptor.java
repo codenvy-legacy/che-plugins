@@ -12,7 +12,8 @@ package org.eclipse.che.plugin.docker.machine.ext;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
-import org.eclipse.che.api.machine.shared.recipe.Recipe;
+import org.eclipse.che.api.machine.server.recipe.RecipeImpl;
+import org.eclipse.che.api.machine.shared.Recipe;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -30,8 +31,9 @@ public class AddTerminalToDockerRecipeInterceptor implements MethodInterceptor {
     @Override
     public Object invoke(MethodInvocation methodInvocation) throws Throwable {
         final Object[] arguments = methodInvocation.getArguments();
-        Recipe recipe = (Recipe)arguments[0];
-        recipe.setScript(recipe.getScript().concat(dockerfileInstructions));
+        final Recipe source = (Recipe)arguments[0];
+        arguments[0] = new RecipeImpl().withType(source.getType())
+                                       .withScript(source.getScript().concat(dockerfileInstructions));
         return methodInvocation.proceed();
     }
 }

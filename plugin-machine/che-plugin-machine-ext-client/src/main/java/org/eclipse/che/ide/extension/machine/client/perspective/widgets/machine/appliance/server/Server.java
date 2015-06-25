@@ -13,32 +13,43 @@ package org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
+import org.eclipse.che.api.machine.shared.dto.ServerDescriptor;
+
 import javax.annotation.Nonnull;
 
 /**
- * The class which describes entity which store name and address of current server.
+ * The class which describes entity which store information of current server.
  *
  * @author Dmitry Shnurenko
  */
 public class Server {
-    private final String name;
-    private final String address;
+
+    private final String           port;
+    private final ServerDescriptor descriptor;
 
     @Inject
-    public Server(@Assisted("name") String name, @Assisted("address") String address) {
-        this.name = name;
-        this.address = address;
+    public Server(@Assisted String port, @Assisted ServerDescriptor descriptor) {
+        this.port = port;
+        this.descriptor = descriptor;
     }
 
-    /** @return server's name */
     @Nonnull
-    public String getName() {
-        return name;
+    public String getPort() {
+        return port;
     }
 
-    /** @return server's address */
     @Nonnull
     public String getAddress() {
-        return address;
+        return descriptor.getAddress();
+    }
+
+    @Nonnull
+    public String getUrl() {
+        return descriptor.getUrl();
+    }
+
+    @Nonnull
+    public String getRef() {
+        return descriptor.getRef();
     }
 }

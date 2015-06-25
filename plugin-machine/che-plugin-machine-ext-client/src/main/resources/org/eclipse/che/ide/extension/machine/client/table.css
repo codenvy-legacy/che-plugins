@@ -37,8 +37,9 @@
 .cellTableCell {
     padding: 5px 15px;
     text-align: center;
-    cursor: pointer;
     overflow: hidden;
+    -moz-user-select: all;
+    -webkit-user-select: auto;
 }
 
 .cellTableFirstColumnFooter {

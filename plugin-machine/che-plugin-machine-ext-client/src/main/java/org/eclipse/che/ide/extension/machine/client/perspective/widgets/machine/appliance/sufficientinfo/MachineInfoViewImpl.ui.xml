@@ -37,10 +37,12 @@
 
         .label {
             float: left;
+            cursor: default !important;
         }
 
         .value {
             float: right;
+            cursor: default !important;
         }
     </ui:style>
     <g:FlowPanel addStyleNames="{style.fullSize}">

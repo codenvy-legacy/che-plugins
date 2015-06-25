@@ -14,9 +14,10 @@ import com.google.inject.ImplementedBy;
 
 import org.eclipse.che.ide.api.mvp.View;
 import org.eclipse.che.ide.api.parts.base.BaseActionDelegate;
-import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.MachineWidget;
+import org.eclipse.che.ide.extension.machine.client.machine.Machine;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Provides methods to control view representation of machine panel.
@@ -27,21 +28,28 @@ import javax.annotation.Nonnull;
 public interface MachinePanelView extends View<MachinePanelView.ActionDelegate> {
 
     /**
-     * Adds machine widget in special place on view.
+     * Sets data to display it in special place on view.
      *
-     * @param machineWidget
-     *         widget which need add
+     * @param root
+     *         data which will be displayed
      */
-    void add(@Nonnull MachineWidget machineWidget);
+    void setData(@Nonnull MachineTreeNode root);
 
-    /** Clears machine panel. */
-    void clear();
+    /**
+     * Calls special method which adds special styles to selected element.
+     *
+     * @param machineNode
+     *         node which will be selected
+     */
+    void selectNode(@Nullable MachineTreeNode machineNode);
 
     interface ActionDelegate extends BaseActionDelegate {
-        /** Performs some actions when user click on Create machine button. */
-        void onCreateMachineButtonClicked();
-
-        /** Performs some actions when user click on Delete machine button. */
-        void onDestroyMachineButtonClicked();
+        /**
+         * Performs some actions when user selects current machine
+         *
+         * @param selectedMachine
+         *         machine which was selected
+         */
+        void onMachineSelected(@Nonnull Machine selectedMachine);
     }
 }

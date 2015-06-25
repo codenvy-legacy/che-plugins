@@ -12,8 +12,11 @@ package org.eclipse.che.ide.extension.machine.client.inject.factories;
 
 import com.google.inject.assistedinject.Assisted;
 
+import org.eclipse.che.api.machine.shared.dto.MachineDescriptor;
+import org.eclipse.che.api.machine.shared.dto.ServerDescriptor;
 import org.eclipse.che.ide.extension.machine.client.machine.Machine;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.appliance.server.Server;
+import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.panel.MachineTreeNode;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.Tab;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.container.TabContainerView.TabSelectHandler;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.content.TabPresenter;
@@ -21,6 +24,7 @@ import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.head
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Collection;
 
 /**
  * Special factory for creating entities.
@@ -34,7 +38,7 @@ public interface EntityFactory {
      *
      * @return an instance of {@link Machine}
      */
-    Machine createMachine();
+    Machine createMachine(@Nonnull MachineDescriptor descriptor);
 
     /**
      * Creates tab entity using special parameters.
@@ -50,11 +54,26 @@ public interface EntityFactory {
     /**
      * Creates server entity with special parameters.
      *
-     * @param name
-     *         server name
-     * @param address
-     *         server address
+     * @param port
+     *         server port
+     * @param descriptor
+     *         server descriptor which contains information about current server
      * @return an instance of {@link Server}
      */
-    Server createServer(@Assisted("name") String name, @Assisted("address") String address);
+    Server createServer(@Nonnull String port, @Nonnull ServerDescriptor descriptor);
+
+    /**
+     * Creates machine node which will be displayed in special table on view.
+     *
+     * @param parent
+     *         parent of creating node
+     * @param data
+     *         data of creating node
+     * @param children
+     *         children of creating node
+     * @return an instance of{@link MachineTreeNode}
+     */
+    MachineTreeNode createMachineNode(@Nullable MachineTreeNode parent,
+                                      @Assisted("data") Object data,
+                                      Collection<MachineTreeNode> children);
 }

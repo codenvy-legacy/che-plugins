@@ -11,27 +11,10 @@
 
 -->
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
-             xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+             xmlns:ideui='urn:import:org.eclipse.che.ide.ui.tree'
+             xmlns:g="urn:import:com.google.gwt.user.client.ui">
 
-    <ui:style>
-        .buttonPanel {
-            margin-left: 20px;
-        }
-
-        .button {
-            margin-right: 12px;
-            margin-top: 3px;
-        }
-    </ui:style>
-    <g:DockLayoutPanel>
-        <g:north size="30">
-            <g:FlowPanel addStyleNames="{style.buttonPanel}">
-                <g:Button ui:field="createMachine" text="Create Machine" addStyleNames="{style.button}"/>
-                <g:Button ui:field="destroyMachine" text="Destroy Machine" addStyleNames="{style.button}"/>
-            </g:FlowPanel>
-        </g:north>
-        <g:center>
-            <g:FlowPanel ui:field="machines"/>
-        </g:center>
-    </g:DockLayoutPanel>
+    <g:SimplePanel>
+        <ideui:Tree ui:field="tree"/>
+    </g:SimplePanel>
 </ui:UiBinder>

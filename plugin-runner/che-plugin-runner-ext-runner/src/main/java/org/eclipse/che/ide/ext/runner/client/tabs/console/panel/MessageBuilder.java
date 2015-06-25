@@ -92,7 +92,9 @@ public class MessageBuilder {
             }
         }
 
-        builder.append(SimpleHtmlSanitizer.sanitizeHtml(message.substring(prefixes.length())));
+        if (prefixes.length() != 0) {
+            builder.append(SimpleHtmlSanitizer.sanitizeHtml(message.substring(prefixes.length())));
+        }
 
         return builder.appendHtmlConstant("</pre>")
                       .toSafeHtml();

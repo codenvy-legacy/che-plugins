@@ -35,8 +35,6 @@ import org.eclipse.che.ide.extension.machine.client.outputspanel.console.Command
 import org.eclipse.che.ide.extension.machine.client.outputspanel.console.OutputConsole;
 import org.eclipse.che.ide.extension.machine.client.outputspanel.console.OutputConsoleView;
 import org.eclipse.che.ide.extension.machine.client.perspective.MachinePerspective;
-import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.MachineWidget;
-import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.MachineWidgetImpl;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.Tab;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.TabImpl;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.header.TabHeader;
@@ -73,8 +71,7 @@ public class MachineGinModule extends AbstractGinModule {
 
         GinMultibinder.newSetBinder(binder(), CommandType.class).addBinding().to(ArbitraryCommandType.class);
 
-        install(new GinFactoryModuleBuilder().implement(MachineWidget.class, MachineWidgetImpl.class)
-                                             .implement(TabHeader.class, TabHeaderImpl.class).build(WidgetsFactory.class));
+        install(new GinFactoryModuleBuilder().implement(TabHeader.class, TabHeaderImpl.class).build(WidgetsFactory.class));
         install(new GinFactoryModuleBuilder().implement(Tab.class, TabImpl.class).build(EntityFactory.class));
     }
 }
