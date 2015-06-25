@@ -13,7 +13,6 @@ package org.eclipse.che.ide.extension.machine.client;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.resources.client.ImageResource;
-import com.google.gwt.resources.client.TextResource;
 
 import org.vectomatic.dom.svg.ui.SVGResource;
 
@@ -24,10 +23,6 @@ import org.vectomatic.dom.svg.ui.SVGResource;
  * @author Dmitry Shnurenko
  */
 public interface MachineResources extends ClientBundle {
-
-    /** Returns the test Docker recipe. */
-    @Source("test-docker-recipe.txt")
-    TextResource testDockerRecipe();
 
     /** Returns the icon for clear console button. */
     @Source("images/console/clear-logs.svg")
