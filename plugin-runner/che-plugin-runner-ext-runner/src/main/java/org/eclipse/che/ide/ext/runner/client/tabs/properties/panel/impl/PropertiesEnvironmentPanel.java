@@ -49,6 +49,7 @@ import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope;
 import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.docker.DockerFile;
 import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.docker.DockerFileFactory;
 import org.eclipse.che.ide.ext.runner.client.tabs.templates.TemplatesContainer;
+import org.eclipse.che.ide.ext.runner.client.util.EnvironmentIdValidator;
 import org.eclipse.che.ide.ext.runner.client.util.NameGenerator;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
@@ -585,7 +586,10 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
         view.setEnableDeleteButton(PROJECT.equals(scope));
 
         String environmentName = environment.getName();
-        String environmentId = URL.encode(environment.getId());
+        String environmentId = environment.getId();
+        if (!EnvironmentIdValidator.isValid(environmentId)) {
+            environmentId = URL.encode(environmentId);
+        }
 
         boolean isConfigExist = runnerConfigs.containsKey(environmentId);
 
@@ -608,7 +612,7 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
 
         String defaultRunner = currentProject.getRunner();
 
-        view.changeSwitcherState(environment.getId().equals(defaultRunner));
+        view.changeSwitcherState(environmentId.equals(defaultRunner));
     }
 
     /** {@inheritDoc} */
