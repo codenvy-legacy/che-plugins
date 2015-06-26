@@ -15,10 +15,10 @@ import com.google.inject.Inject;
 import org.eclipse.che.ide.api.action.AbstractPerspectiveAction;
 import org.eclipse.che.ide.api.action.ActionEvent;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
-import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.panel.MachinePanelPresenter;
+import org.eclipse.che.ide.extension.machine.client.machine.create.CreateMachinePresenter;
 
 import javax.annotation.Nonnull;
-import java.util.Arrays;
+import java.util.Collections;
 
 import static org.eclipse.che.ide.extension.machine.client.perspective.MachinePerspective.MACHINE_PERSPECTIVE_ID;
 
@@ -29,14 +29,14 @@ import static org.eclipse.che.ide.extension.machine.client.perspective.MachinePe
  */
 public class CreateMachineAction extends AbstractPerspectiveAction {
 
-    private final MachinePanelPresenter panelPresenter;
+    private final CreateMachinePresenter createMachinePresenter;
 
     @Inject
     public CreateMachineAction(MachineLocalizationConstant locale,
-                               MachinePanelPresenter panelPresenter) {
-        super(Arrays.asList(MACHINE_PERSPECTIVE_ID), locale.machineCreate(), locale.machineCreate(), null, null);
+                               CreateMachinePresenter createMachinePresenter) {
+        super(Collections.singletonList(MACHINE_PERSPECTIVE_ID), locale.machineCreateTitle(), locale.machineCreateDescription(), null, null);
 
-        this.panelPresenter = panelPresenter;
+        this.createMachinePresenter = createMachinePresenter;
     }
 
     /** {@inheritDoc} */
@@ -48,6 +48,6 @@ public class CreateMachineAction extends AbstractPerspectiveAction {
     /** {@inheritDoc} */
     @Override
     public void actionPerformed(@Nonnull ActionEvent event) {
-        panelPresenter.createMachine();
+        createMachinePresenter.showDialog();
     }
 }

@@ -15,10 +15,12 @@ import com.google.inject.Inject;
 import org.eclipse.che.ide.api.action.AbstractPerspectiveAction;
 import org.eclipse.che.ide.api.action.ActionEvent;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
+import org.eclipse.che.ide.extension.machine.client.machine.Machine;
+import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.panel.MachinePanelPresenter;
 
 import javax.annotation.Nonnull;
-import java.util.Arrays;
+import java.util.Collections;
 
 import static org.eclipse.che.ide.extension.machine.client.perspective.MachinePerspective.MACHINE_PERSPECTIVE_ID;
 
@@ -29,25 +31,39 @@ import static org.eclipse.che.ide.extension.machine.client.perspective.MachinePe
  */
 public class DestroyMachineAction extends AbstractPerspectiveAction {
 
-    private final MachinePanelPresenter panelPresenter;
+    private final MachineLocalizationConstant locale;
+    private final MachinePanelPresenter       panelPresenter;
+    private final MachineManager              machineManager;
 
     @Inject
     public DestroyMachineAction(MachineLocalizationConstant locale,
-                                MachinePanelPresenter panelPresenter) {
-        super(Arrays.asList(MACHINE_PERSPECTIVE_ID), locale.machineDestroy(), locale.machineDestroy(), null, null);
+                                MachinePanelPresenter panelPresenter,
+                                MachineManager machineManager) {
+        super(Collections.singletonList(MACHINE_PERSPECTIVE_ID),
+              locale.machineDestroyTitle(),
+              locale.machineDestroyDescription(),
+              null, null);
 
+        this.locale = locale;
         this.panelPresenter = panelPresenter;
+        this.machineManager = machineManager;
     }
 
     /** {@inheritDoc} */
     @Override
     public void updateInPerspective(@Nonnull ActionEvent event) {
-        //to do nothing
+        final Machine selectedMachine = panelPresenter.getSelectedMachine();
+        event.getPresentation().setEnabled(selectedMachine != null);
+        event.getPresentation().setText(selectedMachine != null ? locale.machineDestroyTitle(selectedMachine.getDisplayName())
+                                                                : locale.machineDestroyTitle());
     }
 
     /** {@inheritDoc} */
     @Override
     public void actionPerformed(@Nonnull ActionEvent event) {
-        panelPresenter.destroyMachine();
+        final Machine selectedMachine = panelPresenter.getSelectedMachine();
+        if (selectedMachine != null) {
+            machineManager.destroyMachine(selectedMachine.getId());
+        }
     }
 }

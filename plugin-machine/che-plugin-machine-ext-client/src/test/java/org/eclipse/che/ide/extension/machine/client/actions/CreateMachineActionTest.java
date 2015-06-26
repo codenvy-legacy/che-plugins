@@ -12,14 +12,13 @@ package org.eclipse.che.ide.extension.machine.client.actions;
 
 import org.eclipse.che.ide.api.action.ActionEvent;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
-import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.panel.MachinePanelPresenter;
+import org.eclipse.che.ide.extension.machine.client.machine.create.CreateMachinePresenter;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 /**
@@ -31,7 +30,7 @@ public class CreateMachineActionTest {
     @Mock
     private MachineLocalizationConstant locale;
     @Mock
-    private MachinePanelPresenter       panelPresenter;
+    private CreateMachinePresenter      createMachinePresenter;
     @Mock
     private ActionEvent                 event;
 
@@ -40,13 +39,14 @@ public class CreateMachineActionTest {
 
     @Test
     public void constructorShouldBeVerified() {
-        verify(locale, times(2)).machineCreate();
+        verify(locale).machineCreateTitle();
+        verify(locale).machineCreateDescription();
     }
 
     @Test
     public void actionShouldBePerformed() {
         action.actionPerformed(event);
 
-        verify(panelPresenter).createMachine();
+        verify(createMachinePresenter).showDialog();
     }
 }

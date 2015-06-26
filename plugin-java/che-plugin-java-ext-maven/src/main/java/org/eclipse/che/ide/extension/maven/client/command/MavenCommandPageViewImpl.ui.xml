@@ -14,10 +14,9 @@
              xmlns:g='urn:import:com.google.gwt.user.client.ui'>
     <ui:with field='locale' type='org.eclipse.che.ide.extension.maven.client.MavenLocalizationConstant'/>
     <ui:style>
-        @eval InputBackgroundColor org.eclipse.che.ide.api.theme.Style.getInputBackground();
-        @eval borderColor org.eclipse.che.ide.api.theme.Style.getTabBorderColor();
+        @eval inputBackgroundColor org.eclipse.che.ide.api.theme.Style.getInputBackground();
         .commandLineField {
-            background-color: InputBackgroundColor;
+            background-color: inputBackgroundColor;
             color: #dbdbdb;
             border: 1px solid #191c1e;
             border-radius: 1px;
@@ -32,7 +31,7 @@
             line-height: 29px;
         }
 
-        .mainDoc {
+        .mainPanel {
             margin: 15px;
         }
 
@@ -45,7 +44,7 @@
         }
     </ui:style>
 
-    <g:DockLayoutPanel unit="PX" debugId="mavenPageView-mainPanel" addStyleNames="{style.mainDoc}">
+    <g:DockLayoutPanel unit="PX" debugId="mavenPageView-mainPanel" addStyleNames="{style.mainPanel}">
         <g:north size="200">
             <g:FlowPanel>
                 <g:FlowPanel height="50px">

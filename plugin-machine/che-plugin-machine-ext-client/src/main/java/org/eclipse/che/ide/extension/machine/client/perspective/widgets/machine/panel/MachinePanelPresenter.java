@@ -13,8 +13,8 @@ package org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.inject.Inject;
-import com.google.inject.Provider;
 import com.google.inject.Singleton;
+import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
 import org.eclipse.che.api.machine.shared.dto.MachineDescriptor;
@@ -25,34 +25,29 @@ import org.eclipse.che.ide.api.parts.base.BasePresenter;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.EntityFactory;
 import org.eclipse.che.ide.extension.machine.client.machine.Machine;
-import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
+import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateEvent;
+import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateHandler;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.appliance.MachineAppliancePresenter;
-import org.eclipse.che.ide.ui.dialogs.DialogFactory;
-import org.eclipse.che.ide.ui.dialogs.InputCallback;
-import org.eclipse.che.ide.ui.dialogs.input.InputDialog;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * The class contains business logic to control displaying of machines on special view.
  *
  * @author Dmitry Shnurenko
+ * @author Artem Zatsarynnyy
  */
 @Singleton
-public class MachinePanelPresenter extends BasePresenter implements MachinePanelView.ActionDelegate {
+public class MachinePanelPresenter extends BasePresenter implements MachinePanelView.ActionDelegate, MachineStateHandler {
 
     private final MachinePanelView            view;
     private final MachineServiceClient        service;
     private final EntityFactory               entityFactory;
     private final MachineLocalizationConstant locale;
     private final MachineAppliancePresenter   appliance;
-    private final Provider<MachineManager>    managerProvider;
-    private final DialogFactory               dialogFactory;
     private final List<Machine>               machineList;
 
     private Machine selectedMachine;
@@ -64,8 +59,7 @@ public class MachinePanelPresenter extends BasePresenter implements MachinePanel
                                  EntityFactory entityFactory,
                                  MachineLocalizationConstant locale,
                                  MachineAppliancePresenter appliance,
-                                 Provider<MachineManager> managerProvider,
-                                 DialogFactory dialogFactory) {
+                                 EventBus eventBus) {
         this.view = view;
         this.view.setDelegate(this);
 
@@ -73,10 +67,10 @@ public class MachinePanelPresenter extends BasePresenter implements MachinePanel
         this.entityFactory = entityFactory;
         this.locale = locale;
         this.appliance = appliance;
-        this.managerProvider = managerProvider;
-        this.dialogFactory = dialogFactory;
 
         this.machineList = new ArrayList<>();
+
+        eventBus.addHandler(MachineStateEvent.TYPE, this);
     }
 
     /** Gets all machines and adds them to special place on view. */
@@ -90,12 +84,8 @@ public class MachinePanelPresenter extends BasePresenter implements MachinePanel
                 isFirstNode = true;
 
                 List<MachineTreeNode> rootChildren = new ArrayList<>();
-                List<MachineTreeNode> environmentChildren = new ArrayList<>();
 
                 MachineTreeNode rootNode = entityFactory.createMachineNode(null, "root", rootChildren);
-
-                MachineTreeNode environmentNode = entityFactory.createMachineNode(rootNode, "environment", environmentChildren);
-                rootChildren.add(environmentNode);
 
                 MachineTreeNode selectedNode = null;
 
@@ -104,9 +94,9 @@ public class MachinePanelPresenter extends BasePresenter implements MachinePanel
 
                     machineList.add(machine);
 
-                    MachineTreeNode machineNode = entityFactory.createMachineNode(environmentNode, machine, null);
+                    MachineTreeNode machineNode = entityFactory.createMachineNode(rootNode, machine, null);
 
-                    environmentChildren.add(machineNode);
+                    rootChildren.add(machineNode);
 
                     if (isFirstNode) {
                         selectedNode = machineNode;
@@ -122,48 +112,8 @@ public class MachinePanelPresenter extends BasePresenter implements MachinePanel
         });
     }
 
-    /** Creates machine and adds it in special place on view. */
-    public void createMachine() {
-        final InputCallback inputCallback = new InputCallback() {
-            @Override
-            public void accepted(String value) {
-                MachineManager manager = managerProvider.get();
-                manager.startMachine(true, value);
-            }
-        };
-
-        final String defaultName = generateDefaultName();
-        final InputDialog dialog = dialogFactory.createInputDialog(locale.machineCreateTitle(),
-                                                                   locale.machineCreateMessage(),
-                                                                   defaultName,
-                                                                   0,
-                                                                   defaultName.length(),
-                                                                   inputCallback,
-                                                                   null);
-        dialog.show();
-    }
-
-    private String generateDefaultName() {
-        final Set<String> machineNames = new HashSet<>();
-        for (Machine machine : machineList) {
-            machineNames.add(machine.getDisplayName());
-        }
-
-        int index = 1;
-        String name = "Machine (" + index + ')';
-        while (machineNames.contains(name)) {
-            name = "Machine (" + ++index + ')';
-        }
-
-        return name;
-    }
-
-    /** Destroys machine and removes it from view. */
-    public void destroyMachine() {
-        machineList.remove(selectedMachine);
-
-        MachineManager manager = managerProvider.get();
-        manager.destroyMachine(selectedMachine.getId());
+    public Machine getSelectedMachine() {
+        return selectedMachine;
     }
 
     /** {@inheritDoc} */
@@ -178,7 +128,7 @@ public class MachinePanelPresenter extends BasePresenter implements MachinePanel
     @Nonnull
     @Override
     public String getTitle() {
-        return locale.machineConsoleViewTitle();
+        return locale.machinePanelTitle();
     }
 
     /** {@inheritDoc} */
@@ -192,12 +142,24 @@ public class MachinePanelPresenter extends BasePresenter implements MachinePanel
     @Nullable
     @Override
     public String getTitleToolTip() {
-        return locale.machineConsoleViewTooltip();
+        return locale.machinePanelTooltip();
     }
 
     /** {@inheritDoc} */
     @Override
     public void go(AcceptsOneWidget container) {
         container.setWidget(view);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void onMachineRunning(MachineStateEvent event) {
+        showMachines();
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void onMachineDestroyed(MachineStateEvent event) {
+        showMachines();
     }
 }

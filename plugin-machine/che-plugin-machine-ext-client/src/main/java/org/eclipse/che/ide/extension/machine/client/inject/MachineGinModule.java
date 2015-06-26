@@ -27,6 +27,8 @@ import org.eclipse.che.ide.extension.machine.client.inject.factories.WidgetsFact
 import org.eclipse.che.ide.extension.machine.client.machine.console.MachineConsoleToolbar;
 import org.eclipse.che.ide.extension.machine.client.machine.console.MachineConsoleView;
 import org.eclipse.che.ide.extension.machine.client.machine.console.MachineConsoleViewImpl;
+import org.eclipse.che.ide.extension.machine.client.machine.create.CreateMachineView;
+import org.eclipse.che.ide.extension.machine.client.machine.create.CreateMachineViewImpl;
 import org.eclipse.che.ide.extension.machine.client.outputspanel.OutputsContainerView;
 import org.eclipse.che.ide.extension.machine.client.outputspanel.OutputsContainerViewImpl;
 import org.eclipse.che.ide.extension.machine.client.outputspanel.console.CommandConsoleFactory;
@@ -61,6 +63,7 @@ public class MachineGinModule extends AbstractGinModule {
         bind(ToolbarPresenter.class).annotatedWith(MachineConsoleToolbar.class).to(ToolbarPresenter.class).in(Singleton.class);
         bind(MachineConsoleView.class).to(MachineConsoleViewImpl.class).in(Singleton.class);
 
+        bind(CreateMachineView.class).to(CreateMachineViewImpl.class);
         bind(OutputConsoleView.class).to(CommandOutputConsoleView.class);
         install(new GinFactoryModuleBuilder().implement(OutputConsole.class, CommandOutputConsole.class)
                                              .build(CommandConsoleFactory.class));
