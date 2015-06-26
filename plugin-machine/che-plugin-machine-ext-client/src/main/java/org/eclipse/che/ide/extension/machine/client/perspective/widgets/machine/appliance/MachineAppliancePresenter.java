@@ -29,6 +29,7 @@ import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.cont
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.content.TabPresenter;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.header.TabHeader;
 import org.eclipse.che.ide.part.PartStackPresenter;
+import org.eclipse.che.ide.part.PartsComparator;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -55,6 +56,7 @@ public class MachineAppliancePresenter extends PartStackPresenter {
 
     @Inject
     public MachineAppliancePresenter(EventBus eventBus,
+                                     PartsComparator partsComparator,
                                      PartStackEventHandler partStackEventHandler,
                                      MachineApplianceView view,
                                      final MachineLocalizationConstant locale,
@@ -65,7 +67,7 @@ public class MachineAppliancePresenter extends PartStackPresenter {
                                      MachineInfoPresenter infoPresenter,
                                      ServerPresenter serverPresenter,
                                      TabContainerPresenter tabContainer) {
-        super(eventBus, partStackEventHandler, tabItemFactory, view, null);
+        super(eventBus, partStackEventHandler, tabItemFactory, partsComparator, view, null);
 
         this.view = view;
         this.tabContainer = tabContainer;

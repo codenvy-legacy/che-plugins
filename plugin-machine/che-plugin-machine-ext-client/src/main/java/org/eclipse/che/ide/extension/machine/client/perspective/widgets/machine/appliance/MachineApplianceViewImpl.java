@@ -14,7 +14,6 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.InsertPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
@@ -65,27 +64,14 @@ public class MachineApplianceViewImpl extends Composite implements MachineApplia
 
     /** {@inheritDoc} */
     @Override
-    public void setActiveTab(@Nonnull PartPresenter partPresenter) {
+    public void selectTab(@Nonnull PartPresenter partPresenter) {
         //to do nothing
     }
 
     /** {@inheritDoc} */
     @Override
-    public void unSelectTabs() {
+    public void setTabPositions(List<PartPresenter> partPositions) {
         //to do nothing
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void setTabpositions(List<Integer> partPositions) {
-        //to do nothing
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public InsertPanel.ForIsWidget getContentPanel() {
-        //to do nothing
-        return null;
     }
 
     /** {@inheritDoc} */
