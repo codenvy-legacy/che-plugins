@@ -61,10 +61,6 @@ public class MachineTreeNode {
         return name;
     }
 
-    public boolean isDevMachine() {
-        return (data instanceof Machine) && ((Machine)data).isWorkspaceBound();
-    }
-
     @Nonnull
     public MachineTreeNode getParent() {
         return parent;

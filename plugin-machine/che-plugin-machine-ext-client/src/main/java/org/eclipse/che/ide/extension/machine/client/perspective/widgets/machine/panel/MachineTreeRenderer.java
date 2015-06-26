@@ -34,11 +34,7 @@ public class MachineTreeRenderer implements NodeRenderer<MachineTreeNode> {
         SpanElement root = Elements.createSpanElement();
 
         Element nodeName = Elements.createSpanElement();
-        String content = data.getName();
-        if (data.isDevMachine()) {
-            content += " (Dev)";
-        }
-        nodeName.setTextContent(content);
+        nodeName.setTextContent(data.getName());
 
         root.appendChild(nodeName);
 
