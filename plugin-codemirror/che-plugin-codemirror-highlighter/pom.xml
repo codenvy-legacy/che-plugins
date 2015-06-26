@@ -22,6 +22,11 @@
     <name>Che Plugin :: CodeMirror :: Highlighter</name>
     <dependencies>
         <dependency>
+            <groupId>che.codemirror.resources</groupId>
+            <artifactId>che-codemirror-resources</artifactId>
+            <version>${che.codemirror.resources.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.eclipse.che.core</groupId>
             <artifactId>che-core-ide-api</artifactId>
             <version>${che.core.version}</version>
@@ -34,11 +39,6 @@
         <dependency>
             <groupId>org.eclipse.che.plugin</groupId>
             <artifactId>che-plugin-codemirror-jso</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.che.plugin</groupId>
-            <artifactId>che-plugin-codemirror-resources</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

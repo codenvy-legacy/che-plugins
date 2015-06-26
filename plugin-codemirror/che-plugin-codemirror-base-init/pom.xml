@@ -33,9 +33,9 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>che-plugin-codemirror-resources</artifactId>
-            <version>${project.version}</version>
+            <groupId>che.codemirror.resources</groupId>
+            <artifactId>che-codemirror-resources</artifactId>
+            <version>${che.codemirror.resources.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.core</groupId>
