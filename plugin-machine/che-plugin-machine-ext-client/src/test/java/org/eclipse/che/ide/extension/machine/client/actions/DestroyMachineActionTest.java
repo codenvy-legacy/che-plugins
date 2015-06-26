@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.machine.client.actions;
 
+import org.eclipse.che.api.analytics.client.logger.AnalyticsEventLogger;
 import org.eclipse.che.ide.api.action.ActionEvent;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.machine.Machine;
@@ -39,6 +40,8 @@ public class DestroyMachineActionTest {
     private ActionEvent                 event;
     @Mock
     private MachineManager              machineManager;
+    @Mock
+    private AnalyticsEventLogger        eventLogger;
 
     @InjectMocks
     private DestroyMachineAction action;

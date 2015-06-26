@@ -12,6 +12,7 @@ package org.eclipse.che.ide.extension.machine.client.actions;
 
 import com.google.inject.Inject;
 
+import org.eclipse.che.api.analytics.client.logger.AnalyticsEventLogger;
 import org.eclipse.che.ide.api.action.AbstractPerspectiveAction;
 import org.eclipse.che.ide.api.action.ActionEvent;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
@@ -34,11 +35,13 @@ public class DestroyMachineAction extends AbstractPerspectiveAction {
     private final MachineLocalizationConstant locale;
     private final MachinePanelPresenter       panelPresenter;
     private final MachineManager              machineManager;
+    private final AnalyticsEventLogger        eventLogger;
 
     @Inject
     public DestroyMachineAction(MachineLocalizationConstant locale,
                                 MachinePanelPresenter panelPresenter,
-                                MachineManager machineManager) {
+                                MachineManager machineManager,
+                                AnalyticsEventLogger eventLogger) {
         super(Collections.singletonList(MACHINE_PERSPECTIVE_ID),
               locale.machineDestroyTitle(),
               locale.machineDestroyDescription(),
@@ -47,6 +50,7 @@ public class DestroyMachineAction extends AbstractPerspectiveAction {
         this.locale = locale;
         this.panelPresenter = panelPresenter;
         this.machineManager = machineManager;
+        this.eventLogger = eventLogger;
     }
 
     /** {@inheritDoc} */
@@ -61,6 +65,8 @@ public class DestroyMachineAction extends AbstractPerspectiveAction {
     /** {@inheritDoc} */
     @Override
     public void actionPerformed(@Nonnull ActionEvent event) {
+        eventLogger.log(this);
+
         final Machine selectedMachine = panelPresenter.getSelectedMachine();
         if (selectedMachine != null) {
             machineManager.destroyMachine(selectedMachine.getId());

@@ -12,6 +12,7 @@ package org.eclipse.che.ide.extension.machine.client.actions;
 
 import com.google.inject.Inject;
 
+import org.eclipse.che.api.analytics.client.logger.AnalyticsEventLogger;
 import org.eclipse.che.ide.api.action.AbstractPerspectiveAction;
 import org.eclipse.che.ide.api.action.ActionEvent;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
@@ -30,13 +31,19 @@ import static org.eclipse.che.ide.extension.machine.client.perspective.MachinePe
 public class CreateMachineAction extends AbstractPerspectiveAction {
 
     private final CreateMachinePresenter createMachinePresenter;
+    private final AnalyticsEventLogger   eventLogger;
 
     @Inject
     public CreateMachineAction(MachineLocalizationConstant locale,
-                               CreateMachinePresenter createMachinePresenter) {
-        super(Collections.singletonList(MACHINE_PERSPECTIVE_ID), locale.machineCreateTitle(), locale.machineCreateDescription(), null, null);
+                               CreateMachinePresenter createMachinePresenter,
+                               AnalyticsEventLogger eventLogger) {
+        super(Collections.singletonList(MACHINE_PERSPECTIVE_ID),
+              locale.machineCreateTitle(),
+              locale.machineCreateDescription(),
+              null, null);
 
         this.createMachinePresenter = createMachinePresenter;
+        this.eventLogger = eventLogger;
     }
 
     /** {@inheritDoc} */
@@ -48,6 +55,7 @@ public class CreateMachineAction extends AbstractPerspectiveAction {
     /** {@inheritDoc} */
     @Override
     public void actionPerformed(@Nonnull ActionEvent event) {
+        eventLogger.log(this);
         createMachinePresenter.showDialog();
     }
 }
