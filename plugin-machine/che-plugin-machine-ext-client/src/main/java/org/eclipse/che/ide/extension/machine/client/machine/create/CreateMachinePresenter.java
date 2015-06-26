@@ -47,7 +47,7 @@ public class CreateMachinePresenter implements CreateMachineView.ActionDelegate 
     @Override
     public void onCreateClicked() {
         final String machineName = view.getMachineName();
-        machineManager.startMachine(false, machineName);
+        machineManager.startMachine(machineName);
 
         view.close();
     }
@@ -55,7 +55,7 @@ public class CreateMachinePresenter implements CreateMachineView.ActionDelegate 
     @Override
     public void onReplaceDevMachineClicked() {
         final String machineName = view.getMachineName();
-        machineManager.startMachine(true, machineName);
+        machineManager.startAndBindMachine(machineName);
 
         view.close();
     }

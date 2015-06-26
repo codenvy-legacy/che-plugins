@@ -75,7 +75,7 @@ public class CreateMachinePresenterTest {
         presenter.onCreateClicked();
 
         verify(view).getMachineName();
-        verify(machineManager).startMachine(eq(false), eq(MACHINE_NAME));
+        verify(machineManager).startMachine(eq(MACHINE_NAME));
         verify(view).close();
     }
 
@@ -84,7 +84,7 @@ public class CreateMachinePresenterTest {
         presenter.onReplaceDevMachineClicked();
 
         verify(view).getMachineName();
-        verify(machineManager).startMachine(eq(true), eq(MACHINE_NAME));
+        verify(machineManager).startAndBindMachine(eq(MACHINE_NAME));
         verify(view).close();
     }
 

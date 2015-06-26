@@ -114,7 +114,7 @@ public class MachineManager implements ProjectActionHandler {
                         return;
                     }
                 }
-                startMachine(true, "Dev");
+                startAndBindMachine("Dev");
             }
         });
     }
@@ -129,8 +129,17 @@ public class MachineManager implements ProjectActionHandler {
         machineConsolePresenter.clear();
     }
 
-    /** Start machine and bind workspace to created machine if {@code bindWorkspace} is {@code true}. */
-    public void startMachine(final boolean bindWorkspace, @Nullable final String displayName) {
+    /** Start new machine. */
+    public void startMachine(@Nullable final String displayName) {
+        startMachine(false, displayName);
+    }
+
+    /** Start machine and bind workspace to created machine. */
+    public void startAndBindMachine(@Nullable final String displayName) {
+        startMachine(true, displayName);
+    }
+
+    private void startMachine(final boolean bindWorkspace, @Nullable final String displayName) {
         final CurrentProject currentProject = appContext.getCurrentProject();
         if (currentProject == null) {
             dialogFactory.createMessageDialog("", "Project should be opened", null).show();
@@ -138,18 +147,25 @@ public class MachineManager implements ProjectActionHandler {
         }
 
         final String recipeURL = currentProject.getRootProject().getRecipe();
+
         downloadRecipe(recipeURL).thenPromise(new Function<String, Promise<MachineDescriptor>>() {
             @Override
             public Promise<MachineDescriptor> apply(String recipeScript) throws FunctionException {
                 final String outputChannel = "machine:output:" + UUID.uuid();
                 subscribeToOutput(outputChannel);
-                return machineServiceClient.createMachineFromRecipe("docker", "Dockerfile", recipeScript, displayName, bindWorkspace,
+
+                return machineServiceClient.createMachineFromRecipe("docker",
+                                                                    "Dockerfile",
+                                                                    recipeScript,
+                                                                    displayName,
+                                                                    bindWorkspace,
                                                                     outputChannel);
             }
         }).then(new Operation<MachineDescriptor>() {
             @Override
             public void apply(final MachineDescriptor machineDescriptor) throws OperationException {
                 MachineStateNotifier.RunningListener runningListener = null;
+
                 if (bindWorkspace) {
                     runningListener = new MachineStateNotifier.RunningListener() {
                         @Override
@@ -158,6 +174,7 @@ public class MachineManager implements ProjectActionHandler {
                         }
                     };
                 }
+
                 machineStateNotifier.trackMachine(machineDescriptor.getId(), runningListener);
             }
         });
