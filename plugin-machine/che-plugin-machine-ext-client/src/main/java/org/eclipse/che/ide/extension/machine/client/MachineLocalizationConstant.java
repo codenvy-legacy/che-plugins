@@ -61,22 +61,25 @@ public interface MachineLocalizationConstant extends Messages {
     @Key("control.clearMachineConsole.description")
     String clearConsoleControlDescription();
 
-    @Key("machine.create")
-    String machineCreate();
+    @Key("control.machine.create.text")
+    String machineCreateTitle();
 
-    @Key("machine.destroy")
-    String machineDestroy();
+    @Key("control.machine.create.description")
+    String machineCreateDescription();
+
+    @Key("control.machine.destroy.text")
+    String machineDestroyTitle();
+
+    @Key("control.machine.destroyByName.text")
+    String machineDestroyTitle(String machineName);
+
+    @Key("control.machine.destroy.description")
+    String machineDestroyDescription();
 
 
     /* Messages */
     @Key("messages.noDevMachine")
     String noDevMachine();
-
-    @Key("machine.create.title")
-    String machineCreateTitle();
-
-    @Key("machine.create.message")
-    String machineCreateMessage();
 
 
     /* MachineStateNotifier */
@@ -93,6 +96,14 @@ public interface MachineLocalizationConstant extends Messages {
     String notificationMachineDestroyed(String machineId);
 
 
+    /* MachinePanelPresenter */
+    @Key("view.machinePanel.title")
+    String machinePanelTitle();
+
+    @Key("view.machinePanel.tooltip")
+    String machinePanelTooltip();
+
+
     /* MachineConsoleView */
     @Key("view.machineConsole.title")
     String machineConsoleViewTitle();
@@ -107,6 +118,15 @@ public interface MachineLocalizationConstant extends Messages {
 
     @Key("view.outputsConsole.tooltip")
     String outputsConsoleViewTooltip();
+
+    @Key("view.createMachine.title")
+    String viewCreateMachineTitle();
+
+    @Key("view.createMachine.button.create")
+    String viewCreateMachineButtonCreate();
+
+    @Key("view.createMachine.button.replace")
+    String viewCreateMachineButtonReplace();
 
 
     /* EditConfigurationsView */
@@ -168,11 +188,11 @@ public interface MachineLocalizationConstant extends Messages {
     @Key("tab.terminal")
     String tabTerminal();
 
-    @Key("machine.perspective.action.description")
-    String perspectiveActionDescription();
+    @Key("perspective.project.action.tooltip")
+    String perspectiveProjectActionTooltip();
 
-    @Key("machine.perspective.action.tooltip")
-    String perspectiveActionTooltip();
+    @Key("perspective.machine.action.tooltip")
+    String perspectiveMachineActionTooltip();
 
     @Key("tab.info")
     String tabInfo();

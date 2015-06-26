@@ -18,13 +18,17 @@ import org.eclipse.che.ide.api.action.AbstractPerspectiveAction;
 import org.eclipse.che.ide.api.action.ActionEvent;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
+import org.eclipse.che.ide.extension.machine.client.MachineResources;
 import org.eclipse.che.ide.extension.machine.client.command.edit.EditConfigurationsPresenter;
 
+import javax.annotation.Nonnull;
 import java.util.Collections;
 
 import static org.eclipse.che.ide.workspace.perspectives.project.ProjectPerspective.PROJECT_PERSPECTIVE_ID;
 
 /**
+ * Action for editing commands.
+ *
  * @author Artem Zatsarynnyy
  */
 @Singleton
@@ -36,20 +40,22 @@ public class EditCommandsAction extends AbstractPerspectiveAction {
     @Inject
     public EditCommandsAction(EditConfigurationsPresenter presenter,
                               MachineLocalizationConstant localizationConstant,
+                              MachineResources resources,
                               AppContext appContext,
                               AnalyticsEventLogger eventLogger) {
         super(Collections.singletonList(PROJECT_PERSPECTIVE_ID),
               localizationConstant.editConfigurationsControlTitle(),
               localizationConstant.editConfigurationsControlDescription(),
               null,
-              null);
+              resources.recipe());
+
         this.presenter = presenter;
         this.appContext = appContext;
         this.eventLogger = eventLogger;
     }
 
     @Override
-    public void updateInPerspective(ActionEvent e) {
+    public void updateInPerspective(@Nonnull ActionEvent e) {
         e.getPresentation().setVisible(appContext.getCurrentProject() != null);
     }
 

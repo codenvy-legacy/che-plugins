@@ -74,6 +74,8 @@ public class FullCodemirrorInitializer extends AbstractCodemirrorInitializer {
 
                                           "mode/css/css",
 
+                                          "mode/jaggery/jaggery",
+
                                           "mode/sql/sql",
 
                                           "mode/clike/clike",

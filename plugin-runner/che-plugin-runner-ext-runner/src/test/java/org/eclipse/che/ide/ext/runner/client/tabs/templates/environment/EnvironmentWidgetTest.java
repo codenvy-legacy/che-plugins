@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.runner.client.tabs.templates.environment;
 
+import com.google.gwtmockito.GwtMockitoTestRunner;
+
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.ext.runner.client.RunnerResources;
@@ -17,8 +19,6 @@ import org.eclipse.che.ide.ext.runner.client.TestUtil;
 import org.eclipse.che.ide.ext.runner.client.models.Environment;
 import org.eclipse.che.ide.ext.runner.client.selection.SelectionManager;
 import org.eclipse.che.ide.ext.runner.client.tabs.common.item.ItemWidget;
-import com.google.gwtmockito.GwtMockitoTestRunner;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,6 +27,10 @@ import org.mockito.Mock;
 import org.vectomatic.dom.svg.ui.SVGImage;
 import org.vectomatic.dom.svg.ui.SVGResource;
 
+import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope.PROJECT;
+import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope.SYSTEM;
+import static org.eclipse.che.ide.ext.runner.client.tabs.templates.environment.EnvironmentWidget.CUSTOM_DESCRIPTION;
+import static org.eclipse.che.ide.ext.runner.client.tabs.templates.environment.EnvironmentWidget.DEFAULT_DESCRIPTION;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
@@ -34,10 +38,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.eclipse.che.ide.ext.runner.client.tabs.templates.environment.EnvironmentWidget.DEFAULT_DESCRIPTION;
-import static org.eclipse.che.ide.ext.runner.client.tabs.templates.environment.EnvironmentWidget.CUSTOM_DESCRIPTION;
-import static  org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope.SYSTEM;
-import static  org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope.PROJECT;
 
 /**
  * @author Andrienko Alexander
@@ -204,7 +204,7 @@ public class EnvironmentWidgetTest {
     @Test
     public void shouldUpdateWhenDescriptionIsDefaultScopeIsSystem() {
         when(environment.getName()).thenReturn(ID);
-        when(environment.getDescription()).thenReturn(TEXT);
+        when(environment.getDescription()).thenReturn(DEFAULT_DESCRIPTION);
         when(currentProject.getRunner()).thenReturn(TEXT);
 
         environmentWidget.update(environment);
@@ -222,7 +222,7 @@ public class EnvironmentWidgetTest {
     @Test
     public void shouldUpdateWhenDescriptionIsDefaultScopeIsProject() {
         when(environment.getName()).thenReturn(ID);
-        when(environment.getDescription()).thenReturn(TEXT);
+        when(environment.getDescription()).thenReturn(DEFAULT_DESCRIPTION);
         when(currentProject.getRunner()).thenReturn(TEXT);
 
         environmentWidget.setScope(PROJECT);

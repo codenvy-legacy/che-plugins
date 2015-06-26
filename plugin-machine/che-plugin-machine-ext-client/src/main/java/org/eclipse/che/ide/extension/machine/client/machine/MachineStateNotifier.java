@@ -59,7 +59,6 @@ class MachineStateNotifier {
     private final NotificationManager         notificationManager;
     private final MachineServiceClient        service;
     private final MachineLocalizationConstant locale;
-    private final MachinePanelPresenter       machinePanelPresenter;
 
     @Inject
     MachineStateNotifier(MessageBus messageBus,
@@ -67,15 +66,13 @@ class MachineStateNotifier {
                          DtoUnmarshallerFactory dtoUnmarshallerFactory,
                          NotificationManager notificationManager,
                          MachineServiceClient service,
-                         MachineLocalizationConstant locale,
-                         MachinePanelPresenter machinePanelPresenter) {
+                         MachineLocalizationConstant locale) {
         this.messageBus = messageBus;
         this.eventBus = eventBus;
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
         this.notificationManager = notificationManager;
         this.service = service;
         this.locale = locale;
-        this.machinePanelPresenter = machinePanelPresenter;
     }
 
     /**
@@ -115,8 +112,6 @@ class MachineStateNotifier {
                         notification.setStatus(FINISHED);
                         notification.setType(INFO);
 
-                        machinePanelPresenter.showMachines();
-
                         eventBus.fireEvent(org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateEvent
                                                    .createMachineRunningEvent(result.getMachineId()));
 
@@ -127,8 +122,6 @@ class MachineStateNotifier {
                         notification.setMessage(locale.notificationMachineDestroyed(result.getMachineId()));
                         notification.setStatus(FINISHED);
                         notification.setType(INFO);
-
-                        machinePanelPresenter.showMachines();
 
                         eventBus.fireEvent(
                                 org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateEvent.createMachineDestroyedEvent(

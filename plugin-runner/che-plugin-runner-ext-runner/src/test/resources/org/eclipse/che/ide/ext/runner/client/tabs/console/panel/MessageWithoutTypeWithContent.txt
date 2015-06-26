@@ -1,1 +1,1 @@
-<pre style='margin:0px;'>some text</pre>
+<pre style='margin:0px;'></pre>

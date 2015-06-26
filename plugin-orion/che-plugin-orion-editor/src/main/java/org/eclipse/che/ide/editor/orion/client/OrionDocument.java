@@ -74,7 +74,7 @@ public class OrionDocument extends AbstractEmbeddedDocument {
         }
         String text = textViewOverlay.getModel().getText(startOffset, startOffset + length);
 
-        final DocumentChangeEvent event = new DocumentChangeEvent(this, startOffset, length, text);
+        final DocumentChangeEvent event = new DocumentChangeEvent(this, startOffset, length, text, removedCharCount);//TODO: need check removedCharCount add it for fix according to https://github.com/codenvy/che-core/pull/122
         getDocEventBus().fireEvent(event);
     }
 
