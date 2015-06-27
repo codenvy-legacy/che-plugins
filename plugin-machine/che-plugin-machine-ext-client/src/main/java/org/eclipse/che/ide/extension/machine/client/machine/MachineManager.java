@@ -22,6 +22,8 @@ import com.google.inject.Singleton;
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
 import org.eclipse.che.api.machine.shared.dto.MachineDescriptor;
 import org.eclipse.che.api.machine.shared.dto.ProcessDescriptor;
+import org.eclipse.che.api.project.gwt.client.ProjectTypeServiceClient;
+import org.eclipse.che.api.project.shared.dto.ProjectTypeDefinition;
 import org.eclipse.che.api.promises.client.Function;
 import org.eclipse.che.api.promises.client.FunctionException;
 import org.eclipse.che.api.promises.client.Operation;
@@ -29,6 +31,7 @@ import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.api.promises.client.PromiseError;
 import org.eclipse.che.api.promises.client.callback.AsyncPromiseHelper;
+import org.eclipse.che.api.promises.client.js.Promises;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.event.ProjectActionEvent;
@@ -74,6 +77,7 @@ public class MachineManager implements ProjectActionHandler {
     private final MachineStateNotifier        machineStateNotifier;
     private final AppContext                  appContext;
     private final DialogFactory               dialogFactory;
+    private final ProjectTypeServiceClient    projectTypeServiceClient;
 
     /** Stores ID of the developer machine (where workspace or current project is bound). */
     private String devMachineId;
@@ -89,7 +93,8 @@ public class MachineManager implements ProjectActionHandler {
                           WorkspaceAgent workspaceAgent,
                           MachineStateNotifier machineStateNotifier,
                           AppContext appContext,
-                          DialogFactory dialogFactory) {
+                          DialogFactory dialogFactory,
+                          ProjectTypeServiceClient projectTypeServiceClient) {
         this.machineServiceClient = machineServiceClient;
         this.messageBus = messageBus;
         this.machineConsolePresenter = machineConsolePresenter;
@@ -101,6 +106,7 @@ public class MachineManager implements ProjectActionHandler {
         this.machineStateNotifier = machineStateNotifier;
         this.appContext = appContext;
         this.dialogFactory = dialogFactory;
+        this.projectTypeServiceClient = projectTypeServiceClient;
     }
 
     @Override
@@ -146,9 +152,12 @@ public class MachineManager implements ProjectActionHandler {
             return;
         }
 
-        final String recipeURL = currentProject.getRootProject().getRecipe();
-
-        downloadRecipe(recipeURL).thenPromise(new Function<String, Promise<MachineDescriptor>>() {
+        getRecipeURL().thenPromise(new Function<String, Promise<String>>() {
+            @Override
+            public Promise<String> apply(String arg) throws FunctionException {
+                return downloadRecipe(arg);
+            }
+        }).thenPromise(new Function<String, Promise<MachineDescriptor>>() {
             @Override
             public Promise<MachineDescriptor> apply(String recipeScript) throws FunctionException {
                 final String outputChannel = "machine:output:" + UUID.uuid();
@@ -178,6 +187,23 @@ public class MachineManager implements ProjectActionHandler {
                 machineStateNotifier.trackMachine(machineDescriptor.getId(), runningListener);
             }
         });
+    }
+
+    private Promise<String> getRecipeURL() {
+        final CurrentProject currentProject = appContext.getCurrentProject();
+        final String recipeURL = currentProject.getRootProject().getRecipe();
+        if (recipeURL != null) {
+            return Promises.resolve(recipeURL);
+        } else {
+            final String projectTypeID = currentProject.getRootProject().getType();
+            return projectTypeServiceClient.getProjectType(projectTypeID).then(
+                    new Function<ProjectTypeDefinition, String>() {
+                        @Override
+                        public String apply(ProjectTypeDefinition arg) throws FunctionException {
+                            return arg.getDefaultRecipe();
+                        }
+                    });
+        }
     }
 
     private Promise<String> downloadRecipe(String recipeURL) {
