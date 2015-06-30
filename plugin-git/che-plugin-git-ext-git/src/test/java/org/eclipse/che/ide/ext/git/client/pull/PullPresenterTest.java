@@ -21,6 +21,7 @@ import org.eclipse.che.ide.collections.StringMap;
 import org.eclipse.che.ide.ext.git.client.BaseTest;
 import org.eclipse.che.ide.ext.git.client.BranchSearcher;
 import org.eclipse.che.ide.ext.git.shared.Branch;
+import org.eclipse.che.ide.ext.git.shared.PullResponse;
 import org.eclipse.che.ide.ext.git.shared.Remote;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import com.google.gwt.event.shared.GwtEvent;
@@ -42,6 +43,7 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -67,6 +69,8 @@ public class PullPresenterTest extends BaseTest {
     private EditorPartPresenter partPresenter;
     @Mock
     private BranchSearcher      branchSearcher;
+    @Mock
+    private PullResponse        pullResponse;
 
     @InjectMocks
     private PullPresenter presenter;
@@ -265,16 +269,18 @@ public class PullPresenterTest extends BaseTest {
 
     @Test
     public void testOnPullClickedWhenPullRequestIsSuccessful() throws Exception {
+        when(pullResponse.getCommandOutput()).thenReturn("Something pulled");
+
         doAnswer(new Answer() {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 Object[] arguments = invocation.getArguments();
                 AsyncRequestCallback<Void> callback = (AsyncRequestCallback<Void>)arguments[3];
                 Method onSuccess = GwtReflectionUtils.getMethod(callback.getClass(), "onSuccess");
-                onSuccess.invoke(callback, (Void)null);
+                onSuccess.invoke(callback, pullResponse);
                 return callback;
             }
-        }).when(service).pull((ProjectDescriptor)anyObject(), anyString(), anyString(), (AsyncRequestCallback<Void>)anyObject());
+        }).when(service).pull((ProjectDescriptor)anyObject(), anyString(), anyString(), (AsyncRequestCallback<PullResponse>)anyObject());
 
         presenter.showDialog();
         presenter.onPullClicked();
@@ -285,7 +291,6 @@ public class PullPresenterTest extends BaseTest {
         verify(editorAgent).getOpenedEditors();
         verify(service).pull(eq(rootProjectDescriptor), anyString(), eq(REPOSITORY_NAME), (AsyncRequestCallback)anyObject());
         verify(notificationManager).showInfo(anyString());
-        verify(constant).pullSuccess(eq(REMOTE_URI));
         verify(appContext).getCurrentProject();
         verify(eventBus, times(2)).fireEvent(Matchers.<Event<GwtEvent>>anyObject());
         verify(partPresenter).getEditorInput();
@@ -303,13 +308,13 @@ public class PullPresenterTest extends BaseTest {
                 onFailure.invoke(callback, exception);
                 return callback;
             }
-        }).when(service).pull((ProjectDescriptor)anyObject(), anyString(), anyString(), (AsyncRequestCallback<Void>)anyObject());
+        }).when(service).pull((ProjectDescriptor)anyObject(), anyString(), anyString(), (AsyncRequestCallback<PullResponse>)anyObject());
         when(exception.getMessage()).thenReturn("error Message");
 
         presenter.showDialog();
         presenter.onPullClicked();
 
-        verify(service).pull(eq(rootProjectDescriptor), anyString(), eq(REPOSITORY_NAME), (AsyncRequestCallback<Void>)anyObject());
+        verify(service).pull(eq(rootProjectDescriptor), anyString(), eq(REPOSITORY_NAME), (AsyncRequestCallback<PullResponse>)anyObject());
         verify(view).close();
         verify(notificationManager).showError(anyString());
     }
@@ -328,7 +333,7 @@ public class PullPresenterTest extends BaseTest {
                 onFailure.invoke(callback, exception);
                 return callback;
             }
-        }).when(service).pull((ProjectDescriptor)anyObject(), anyString(), anyString(), (AsyncRequestCallback<Void>)anyObject());
+        }).when(service).pull((ProjectDescriptor)anyObject(), anyString(), anyString(), (AsyncRequestCallback<PullResponse>)anyObject());
 
         presenter.showDialog();
         presenter.onPullClicked();
@@ -339,6 +344,30 @@ public class PullPresenterTest extends BaseTest {
         verify(appContext).getCurrentProject();
         verify(eventBus, times(2)).fireEvent(Matchers.<Event<GwtEvent>>anyObject());
         verify(partPresenter).getEditorInput();
+    }
+
+    @Test
+    public void testOnPullClickedWhenAlreadyUpToDateHappenedAndRefreshProjectIsNotCalled() throws Exception {
+        when(pullResponse.getCommandOutput()).thenReturn("Already up-to-date");
+
+        doAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                Object[] arguments = invocation.getArguments();
+                AsyncRequestCallback<Void> callback = (AsyncRequestCallback<Void>)arguments[3];
+                Method onSuccess = GwtReflectionUtils.getMethod(callback.getClass(), "onSuccess");
+                onSuccess.invoke(callback, pullResponse);
+                return callback;
+            }
+        }).when(service).pull((ProjectDescriptor)anyObject(), anyString(), anyString(), (AsyncRequestCallback<PullResponse>)anyObject());
+
+        presenter.showDialog();
+        presenter.onPullClicked();
+
+        verify(view).close();
+        verify(notificationManager).showInfo("Already up-to-date");
+        //check Refresh project is not called
+        verify(eventBus, never()).fireEvent(Matchers.<Event<GwtEvent>>anyObject());
     }
 
     @Test
