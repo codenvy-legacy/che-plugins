@@ -64,10 +64,10 @@ public class MachinePerspective extends AbstractPerspective {
         //central panel
         partStacks.put(EDITING, infoContainer);
 
-        openPart(console, INFORMATION);
-        openPart(notificationManager, INFORMATION, FIRST);
-        openPart(outputsContainer, INFORMATION);
-        openPart(machinePanel, NAVIGATION);
+        addPart(console, INFORMATION);
+        addPart(notificationManager, INFORMATION, FIRST);
+        addPart(outputsContainer, INFORMATION);
+        addPart(machinePanel, NAVIGATION);
 
         setActivePart(machinePanel);
     }
@@ -90,6 +90,8 @@ public class MachinePerspective extends AbstractPerspective {
         editing.go(view.getEditorPanel());
 
         container.setWidget(view);
+
+        openActivePart(INFORMATION);
 
         setActivePart(machinePanel);
     }
