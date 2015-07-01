@@ -21,13 +21,15 @@ import javax.inject.Singleton;
 /**
  * @author Evgen Vidolob
  * @author Dmitry Shnurenko
+ * @author Artem Zatsarynnyy
  */
 @Singleton
 public class MavenProjectType extends ProjectType {
 
     @Inject
     public MavenProjectType(MavenValueProviderFactory mavenValueProviderFactory, JavaProjectType javaProjectType) {
-        super(MavenAttributes.MAVEN_ID, MavenAttributes.MAVEN_NAME, true, false);
+        super(MavenAttributes.MAVEN_ID, MavenAttributes.MAVEN_NAME, true, false, true,
+              "https://gist.githubusercontent.com/azatsarynnyy/aceb43e8f71f3d14e7aa/raw/a8b23dd780c2a436a7779dbf0b6389d85a5adc56/maven");
 
         addVariableDefinition(MavenAttributes.GROUP_ID, "", false, mavenValueProviderFactory);
         addVariableDefinition(MavenAttributes.ARTIFACT_ID, "", true, mavenValueProviderFactory);
