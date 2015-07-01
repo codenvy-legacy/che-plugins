@@ -22,6 +22,7 @@ import elemental.util.Timer;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArrayMixed;
+import com.google.gwt.user.client.ui.Widget;
 
 import org.eclipse.che.ide.api.texteditor.HandlesUndoRedo;
 import org.eclipse.che.ide.editor.codemirrorjso.client.CMEditorOverlay;
@@ -411,9 +412,9 @@ public final class ShowCompletion {
         }
     }
 
-    private static void setAdditionalInfo(final CMCompletionObjectOverlay completion, final Element value) {
+    private static void setAdditionalInfo(final CMCompletionObjectOverlay completion, final Widget value) {
         JsMapFromStringTo<Element> element = completion.cast();
-        element.put(PROP_ADDITIONAL_INFO, value);
+        element.put(PROP_ADDITIONAL_INFO, (Element)value.getElement());
     }
 
     private static Element getAdditionalInfo(final CMCompletionObjectOverlay completion) {

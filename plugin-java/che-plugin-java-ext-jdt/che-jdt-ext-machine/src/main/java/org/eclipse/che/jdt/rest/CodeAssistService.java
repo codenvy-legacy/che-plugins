@@ -15,10 +15,10 @@ import org.eclipse.che.ide.ext.java.shared.dto.Problem;
 import org.eclipse.che.ide.ext.java.shared.dto.ProposalApplyResult;
 import org.eclipse.che.ide.ext.java.shared.dto.Proposals;
 import org.eclipse.che.jdt.CodeAssist;
-import org.eclipse.jdt.internal.core.JavaModel;
-import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.internal.core.JavaModel;
+import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.ui.JavaPlugin;
 
 import javax.inject.Inject;
@@ -30,6 +30,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.UriInfo;
 import java.util.List;
 
 /**
@@ -83,4 +85,15 @@ public class CodeAssistService {
             throw new WebApplicationException(e.getMessage());
         }
     }
+
+    @GET
+    @Produces("text/html")
+    @Path("compute/info")
+    public String getJavaDoc(@QueryParam("sessionid") String sessionId,
+                             @QueryParam("index") int index, @Context UriInfo uriInfo) {
+
+        UrlContextProvider.setUriBuilder(uriInfo.getBaseUriBuilder().clone());
+        return codeAssist.getJavaDoc(sessionId, index);
+    }
+
 }

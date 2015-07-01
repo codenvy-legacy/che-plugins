@@ -10,9 +10,10 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.java.client.editor;
 
-import elemental.dom.Element;
-
+import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.Frame;
+import com.google.gwt.user.client.ui.Widget;
 
 import org.eclipse.che.ide.api.icon.Icon;
 import org.eclipse.che.ide.api.text.Position;
@@ -61,8 +62,14 @@ public class JavaCompletionProposal implements CompletionProposal, CompletionPro
 
     /** {@inheritDoc} */
     @Override
-    public Element getAdditionalProposalInfo() {
-        return null;
+    public Widget getAdditionalProposalInfo() {
+        Frame frame = new Frame();
+        frame.setSize("100%", "100%");
+        frame.getElement().getStyle().setBorderStyle(Style.BorderStyle.NONE);
+        frame.getElement().setAttribute("sandbox", ""); // empty value, not null
+        frame.getElement().getStyle().setProperty("resize", "both");
+        frame.setUrl(client.getProposalDocUrl(id,sessionId));
+        return frame;
     }
 
     /** {@inheritDoc} */

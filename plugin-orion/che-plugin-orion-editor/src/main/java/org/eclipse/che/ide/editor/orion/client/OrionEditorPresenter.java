@@ -28,6 +28,7 @@ import org.eclipse.che.ide.jseditor.client.annotation.ClearAnnotationModelEvent;
 import org.eclipse.che.ide.jseditor.client.annotation.ClearAnnotationModelHandler;
 import org.eclipse.che.ide.jseditor.client.annotation.HasAnnotationRendering;
 import org.eclipse.che.ide.jseditor.client.codeassist.CodeAssistantFactory;
+import org.eclipse.che.ide.jseditor.client.codeassist.HasCompletionInformation;
 import org.eclipse.che.ide.jseditor.client.debug.BreakpointRendererFactory;
 import org.eclipse.che.ide.jseditor.client.document.DocumentHandle;
 import org.eclipse.che.ide.jseditor.client.document.DocumentStorage;
@@ -49,7 +50,8 @@ import org.eclipse.che.ide.ui.dialogs.DialogFactory;
  * {@link EmbeddedTextEditorPresenter} using orion.
  * This class is only defined to allow the Gin binding to be performed.
  */
-public class OrionEditorPresenter extends EmbeddedTextEditorPresenter<OrionEditorWidget> implements HasAnnotationRendering, HasLinkedMode {
+public class OrionEditorPresenter extends EmbeddedTextEditorPresenter<OrionEditorWidget> implements HasAnnotationRendering, HasLinkedMode,
+                                                                                                    HasCompletionInformation {
 
     private final AnnotationRendering rendering = new AnnotationRendering();
 
@@ -102,6 +104,15 @@ public class OrionEditorPresenter extends EmbeddedTextEditorPresenter<OrionEdito
     @Override
     public LinkedModelData createLinkedModelData() {
         return OrionLinkedModelDataOverlay.create();
+    }
+
+    @Override
+    public void showCompletionInformation() {
+        EditorWidget editorWidget = getEditorWidget();
+        if(editorWidget != null){
+            OrionEditorWidget orion = ((OrionEditorWidget)editorWidget);
+            orion.showCompletionInformation();
+        }
     }
 
     private class AnnotationRendering implements AnnotationModelHandler, ClearAnnotationModelHandler {

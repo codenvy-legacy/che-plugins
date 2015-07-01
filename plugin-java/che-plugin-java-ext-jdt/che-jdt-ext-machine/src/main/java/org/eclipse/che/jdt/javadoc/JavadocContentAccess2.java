@@ -12,10 +12,13 @@
  *******************************************************************************/
 package org.eclipse.che.jdt.javadoc;
 
+import org.eclipse.che.jdt.dom.ASTNodes;
 import org.eclipse.che.jdt.util.JavaModelUtil;
 import org.eclipse.che.jdt.util.JdtFlags;
-import org.eclipse.che.jdt.dom.ASTNodes;
-
+import org.eclipse.core.filebuffers.FileBuffers;
+import org.eclipse.core.filebuffers.ITextFileBuffer;
+import org.eclipse.core.filebuffers.ITextFileBufferManager;
+import org.eclipse.core.filebuffers.LocationKind;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
@@ -27,6 +30,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.core.IBuffer;
+import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IField;
@@ -35,19 +39,21 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMember;
 import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.IPackageDeclaration;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.ISourceRange;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.ITypeHierarchy;
+import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.SourceRange;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.CheASTParser;
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
+import org.eclipse.jdt.core.dom.CheASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
@@ -61,6 +67,8 @@ import org.eclipse.jdt.core.dom.PackageDeclaration;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.TagElement;
 import org.eclipse.jdt.core.dom.TextElement;
+import org.eclipse.jdt.internal.corext.util.MethodOverrideTester;
+import org.eclipse.jdt.internal.corext.util.SuperTypeHierarchyCache;
 import org.eclipse.jdt.internal.ui.javaeditor.ASTProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,6 +82,7 @@ import java.io.Reader;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -109,22 +118,23 @@ public class JavadocContentAccess2 {
     /**
      * Either an IMember or an IPackageFragment.
      */
-    private final IJavaElement                  fElement;
+    private final IJavaElement  fElement;
     /**
      * The method, or <code>null</code> if {@link #fElement} is not a method where @inheritDoc could
      * work.
      */
-    private final IMethod                       fMethod;
-    private final Javadoc                       fJavadoc;
-    private final String                        fSource;
-    private final JavadocLookup                 fJavadocLookup;
-    private       StringBuffer                  fBuf;
-    private       int                           fLiteralContent;
-    private       StringBuffer                  fMainDescription;
-    private       StringBuffer                  fReturnDescription;
-    private       StringBuffer[]                fParamDescriptions;
-    private       HashMap<String, StringBuffer> fExceptionDescriptions;
-    private String urlPrefix;
+    private final IMethod       fMethod;
+    private final Javadoc       fJavadoc;
+    private final String        fSource;
+    private final JavadocLookup fJavadocLookup;
+
+    private StringBuffer                  fBuf;
+    private int                           fLiteralContent;
+    private StringBuffer                  fMainDescription;
+    private StringBuffer                  fReturnDescription;
+    private StringBuffer[]                fParamDescriptions;
+    private HashMap<String, StringBuffer> fExceptionDescriptions;
+    private String                        urlPrefix;
 
     private JavadocContentAccess2(IMethod method, Javadoc javadoc, String source, JavadocLookup lookup, String urlPrefix) {
         this.urlPrefix = urlPrefix;
@@ -176,7 +186,7 @@ public class JavadocContentAccess2 {
                     // that description has been copied from super method.
                     if (attachedDocInHierarchy == null)
                         return sourceJavadoc;
-                    StringBuffer superMethodReferences = createSuperMethodReferences(method);
+                    StringBuffer superMethodReferences = createSuperMethodReferences(method, urlPrefix);
                     if (superMethodReferences == null)
                         return attachedDocInHierarchy;
                     superMethodReferences.append(attachedDocInHierarchy);
@@ -187,82 +197,80 @@ public class JavadocContentAccess2 {
         return sourceJavadoc;
     }
 
-    private static StringBuffer createSuperMethodReferences(final IMethod method) throws JavaModelException {
-//		IType type = method.getDeclaringType();
-//		ITypeHierarchy hierarchy = SuperTypeHierarchyCache.getTypeHierarchy(type);
-//		final MethodOverrideTester tester = SuperTypeHierarchyCache.getMethodOverrideTester(type);
-//
-//		final ArrayList<IMethod> superInterfaceMethods = new ArrayList<IMethod>();
-//		final IMethod[] superClassMethod = {null};
-//		new InheritDocVisitor() {
-//			@Override
-//			public Object visit(IType currType) throws JavaModelException {
-//				IMethod overridden = tester.findOverriddenMethodInType(currType, method);
-//				if (overridden == null)
-//					return InheritDocVisitor.CONTINUE;
-//
-//				if (currType.isInterface())
-//					superInterfaceMethods.add(overridden);
-//				else
-//					superClassMethod[0] = overridden;
-//
-//				return STOP_BRANCH;
-//			}
-//		}.visitInheritDoc(type, hierarchy);
-//
-//		boolean hasSuperInterfaceMethods = superInterfaceMethods.size() != 0;
-//		if (!hasSuperInterfaceMethods && superClassMethod[0] == null)
-//			return null;
-//
-//		StringBuffer buf = new StringBuffer();
-//		buf.append("<div>"); //$NON-NLS-1$
-//		if (hasSuperInterfaceMethods) {
-//			buf.append("<b>"); //$NON-NLS-1$
-//			buf.append(JavaDocMessages.JavaDoc2HTMLTextReader_specified_by_section);
-//			buf.append("</b> "); //$NON-NLS-1$
-//			for (Iterator<IMethod> iter = superInterfaceMethods.iterator(); iter.hasNext(); ) {
-//				IMethod overridden = iter.next();
-//				buf.append(createMethodInTypeLinks(overridden));
-//				if (iter.hasNext())
-//					buf.append(JavaElementLabels.COMMA_STRING);
-//			}
-//		}
-//		if (superClassMethod[0] != null) {
-//			if (hasSuperInterfaceMethods)
-//				buf.append(JavaElementLabels.COMMA_STRING);
-//			buf.append("<b>"); //$NON-NLS-1$
-//			buf.append(JavaDocMessages.JavaDoc2HTMLTextReader_overrides_section);
-//			buf.append("</b> "); //$NON-NLS-1$
-//			buf.append(createMethodInTypeLinks(superClassMethod[0]));
-//		}
-//		buf.append("</div>"); //$NON-NLS-1$
-//		return buf;
-//        throw new UnsupportedOperationException();
-        return new StringBuffer("createSuperMethodReferences is not supported");
+    private static StringBuffer createSuperMethodReferences(final IMethod method, String urlPrefix) throws JavaModelException {
+		IType type = method.getDeclaringType();
+		ITypeHierarchy hierarchy = SuperTypeHierarchyCache.getTypeHierarchy(type);
+		final MethodOverrideTester tester = SuperTypeHierarchyCache.getMethodOverrideTester(type);
+
+		final ArrayList<IMethod> superInterfaceMethods = new ArrayList<IMethod>();
+		final IMethod[] superClassMethod = {null};
+		new InheritDocVisitor() {
+			@Override
+			public Object visit(IType currType) throws JavaModelException {
+				IMethod overridden = tester.findOverriddenMethodInType(currType, method);
+				if (overridden == null)
+					return InheritDocVisitor.CONTINUE;
+
+				if (currType.isInterface())
+					superInterfaceMethods.add(overridden);
+				else
+					superClassMethod[0] = overridden;
+
+				return STOP_BRANCH;
+			}
+		}.visitInheritDoc(type, hierarchy);
+
+		boolean hasSuperInterfaceMethods = superInterfaceMethods.size() != 0;
+		if (!hasSuperInterfaceMethods && superClassMethod[0] == null)
+			return null;
+
+		StringBuffer buf = new StringBuffer();
+		buf.append("<div>"); //$NON-NLS-1$
+		if (hasSuperInterfaceMethods) {
+			buf.append("<b>"); //$NON-NLS-1$
+			buf.append(JavaDocMessages.JavaDoc2HTMLTextReader_specified_by_section);
+			buf.append("</b> "); //$NON-NLS-1$
+			for (Iterator<IMethod> iter = superInterfaceMethods.iterator(); iter.hasNext(); ) {
+				IMethod overridden = iter.next();
+				buf.append(createMethodInTypeLinks(overridden, urlPrefix));
+				if (iter.hasNext())
+					buf.append(JavaElementLabels.COMMA_STRING);
+			}
+		}
+		if (superClassMethod[0] != null) {
+			if (hasSuperInterfaceMethods)
+				buf.append(JavaElementLabels.COMMA_STRING);
+			buf.append("<b>"); //$NON-NLS-1$
+			buf.append(JavaDocMessages.JavaDoc2HTMLTextReader_overrides_section);
+			buf.append("</b> "); //$NON-NLS-1$
+			buf.append(createMethodInTypeLinks(superClassMethod[0], urlPrefix));
+		}
+		buf.append("</div>"); //$NON-NLS-1$
+		return buf;
     }
 
-//    private static String createMethodInTypeLinks(IMethod overridden) {
-//        CharSequence methodLink = createSimpleMemberLink(overridden);
-//        CharSequence typeLink = createSimpleMemberLink(overridden.getDeclaringType());
-//        String methodInType =
-//                MessageFormat.format(JavaDocMessages.JavaDoc2HTMLTextReader_method_in_type, new Object[]{methodLink, typeLink});
-//        return methodInType;
-//    }
+    private static String createMethodInTypeLinks(IMethod overridden, String urlPrefix) {
+        CharSequence methodLink = createSimpleMemberLink(overridden, urlPrefix);
+        CharSequence typeLink = createSimpleMemberLink(overridden.getDeclaringType(), urlPrefix);
+        String methodInType =
+                MessageFormat.format(JavaDocMessages.JavaDoc2HTMLTextReader_method_in_type, new Object[]{methodLink, typeLink});
+        return methodInType;
+    }
 
-//    private static CharSequence createSimpleMemberLink(IMember member) {
-//        StringBuffer buf = new StringBuffer();
-//        buf.append("<a href='"); //$NON-NLS-1$
-//        try {
-//            String uri = JavaElementLinks.createURI(, member);
-//            buf.append(uri);
-//        } catch (URISyntaxException e) {
-//            LOG.error(e.getMessage(), e);
-//        }
-//        buf.append("'>"); //$NON-NLS-1$
-//        JavaElementLabels.getElementLabel(member, 0, buf);
-//        buf.append("</a>"); //$NON-NLS-1$
-//        return buf;
-//    }
+    private static CharSequence createSimpleMemberLink(IMember member, String urlPrefix) {
+        StringBuffer buf = new StringBuffer();
+        buf.append("<a href='"); //$NON-NLS-1$
+        try {
+            String uri = JavaElementLinks.createURI(urlPrefix, member);
+            buf.append(uri);
+        } catch (URISyntaxException e) {
+            LOG.error(e.getMessage(), e);
+        }
+        buf.append("'>"); //$NON-NLS-1$
+        JavaElementLabels.getElementLabel(member, 0, buf);
+        buf.append("</a>"); //$NON-NLS-1$
+        return buf;
+    }
 
     private static String getHTMLContentFromSource(IMember member, String urlPrefix) throws JavaModelException {
         IBuffer buf = member.getOpenable().getBuffer();
@@ -399,7 +407,8 @@ public class JavadocContentAccess2 {
 
         if (canInheritJavadoc(member)) {
             IMethod method = (IMethod)member;
-            return new JavadocContentAccess2(method, javadoc, rawJavadoc, new JavadocLookup(method.getDeclaringType()), urlPrefix).toHTML();
+            return new JavadocContentAccess2(method, javadoc, rawJavadoc, new JavadocLookup(method.getDeclaringType(), urlPrefix),
+                                             urlPrefix).toHTML();
         }
         return new JavadocContentAccess2(member, javadoc, rawJavadoc, urlPrefix).toHTML();
     }
@@ -407,7 +416,7 @@ public class JavadocContentAccess2 {
     private static boolean canInheritJavadoc(IMember member) {
         if (member instanceof IMethod && member.getJavaProject().exists()) {
             /*
-			 * Exists test catches ExternalJavaProject, in which case no hierarchy can be built.
+             * Exists test catches ExternalJavaProject, in which case no hierarchy can be built.
 			 */
             try {
                 return !((IMethod)member).isConstructor();
@@ -526,19 +535,19 @@ public class JavadocContentAccess2 {
         }
     }
 
-//    private static String getHTMLContentFromAttachedSource(IPackageFragmentRoot root, IPackageFragment packageFragment)
-//            throws CoreException {
-//        String filePath = packageFragment.getElementName().replace('.', '/') + '/' + JavaModelUtil.PACKAGE_INFO_JAVA;
-//        String contents = getFileContentFromAttachedSource(root, filePath);
-//        if (contents != null) {
-//            Javadoc packageJavadocNode = getPackageJavadocNode(packageFragment, contents);
-//            if (packageJavadocNode != null)
-//                return new JavadocContentAccess2(packageFragment, packageJavadocNode, contents).toHTML();
-//
-//        }
-//        filePath = packageFragment.getElementName().replace('.', '/') + '/' + JavaModelUtil.PACKAGE_HTML;
-//        return getFileContentFromAttachedSource(root, filePath);
-//    }
+    private static String getHTMLContentFromAttachedSource(IPackageFragmentRoot root, IPackageFragment packageFragment, String urlPrefix)
+            throws CoreException {
+        String filePath = packageFragment.getElementName().replace('.', '/') + '/' + JavaModelUtil.PACKAGE_INFO_JAVA;
+        String contents = getFileContentFromAttachedSource(root, filePath);
+        if (contents != null) {
+            Javadoc packageJavadocNode = getPackageJavadocNode(packageFragment, contents);
+            if (packageJavadocNode != null)
+                return new JavadocContentAccess2(packageFragment, packageJavadocNode, contents, urlPrefix).toHTML();
+
+        }
+        filePath = packageFragment.getElementName().replace('.', '/') + '/' + JavaModelUtil.PACKAGE_HTML;
+        return getFileContentFromAttachedSource(root, filePath);
+    }
 
     private static String getFileContentFromAttachedSource(IPackageFragmentRoot root, String filePath) throws CoreException {
         IPath sourceAttachmentPath = root.getSourceAttachmentPath();
@@ -842,7 +851,7 @@ public class JavadocContentAccess2 {
     private void handleSuperMethodReferences() {
         if (fMethod != null) {
             try {
-                StringBuffer superMethodReferences = createSuperMethodReferences(fMethod);
+                StringBuffer superMethodReferences = createSuperMethodReferences(fMethod, urlPrefix);
                 if (superMethodReferences != null)
                     fBuf.append(superMethodReferences);
             } catch (JavaModelException e) {
@@ -1426,105 +1435,107 @@ public class JavadocContentAccess2 {
         }
     }
 
-//	/**
-//	 * Returns the Javadoc for a PackageDeclaration.
-//	 *
-//	 * @param packageDeclaration the Java element whose Javadoc has to be retrieved
-//	 * @return the package documentation in HTML format or <code>null</code> if there is no
-//	 *         associated Javadoc
-//	 * @throws CoreException if the Java element does not exists or an exception occurs while
-//	 *             accessing the file containing the package Javadoc
-//	 * @since 3.9
-//	 */
-//	public static String getHTMLContent(IPackageDeclaration packageDeclaration) throws CoreException {
-//		IJavaElement element= packageDeclaration.getAncestor(IJavaElement.PACKAGE_FRAGMENT);
-//		if (element instanceof IPackageFragment) {
-//			return getHTMLContent((IPackageFragment) element);
-//		}
-//		return null;
-//	}
+    /**
+     * Returns the Javadoc for a PackageDeclaration.
+     *
+     * @param packageDeclaration the Java element whose Javadoc has to be retrieved
+     * @param urlPrefix
+     * @return the package documentation in HTML format or <code>null</code> if there is no
+     *         associated Javadoc
+     * @throws CoreException if the Java element does not exists or an exception occurs while
+     *             accessing the file containing the package Javadoc
+     * @since 3.9
+     */
+    public static String getHTMLContent(IPackageDeclaration packageDeclaration, String urlPrefix) throws CoreException {
+        IJavaElement element = packageDeclaration.getAncestor(IJavaElement.PACKAGE_FRAGMENT);
+        if (element instanceof IPackageFragment) {
+            return getHTMLContent((IPackageFragment)element, urlPrefix);
+        }
+        return null;
+    }
 
 
-//	/**
-//	 * Returns the Javadoc for a package which could be present in package.html, package-info.java
-//	 * or from an attached Javadoc.
-//	 *
-//	 * @param packageFragment the package which is requesting for the document
-//	 * @return the document content in HTML format or <code>null</code> if there is no associated
-//	 *         Javadoc
-//	 * @throws CoreException if the Java element does not exists or an exception occurs while
-//	 *             accessing the file containing the package Javadoc
-//	 * @since 3.9
-//	 */
-//	public static String getHTMLContent(IPackageFragment packageFragment) throws CoreException {
-//		IPackageFragmentRoot root= (IPackageFragmentRoot) packageFragment.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
-//
-//		//1==> Handle the case when the documentation is present in package-info.java or package-info.class file
-//		ITypeRoot packageInfo;
-//		boolean isBinary= root.getKind() == IPackageFragmentRoot.K_BINARY;
-//		if (isBinary) {
-//			packageInfo= packageFragment.getClassFile(JavaModelUtil.PACKAGE_INFO_CLASS);
-//		} else {
-//			packageInfo= packageFragment.getCompilationUnit(JavaModelUtil.PACKAGE_INFO_JAVA);
-//		}
-//		if (packageInfo != null && packageInfo.exists()) {
-//			String cuSource= packageInfo.getSource();
-//			//the source can be null for some of the class files
-//			if (cuSource != null) {
-//				Javadoc packageJavadocNode= getPackageJavadocNode(packageFragment, cuSource);
-//				if (packageJavadocNode != null) {
-//					IJavaElement element;
-//					if (isBinary) {
-//						element= ((IClassFile) packageInfo).getType();
-//					} else {
-//						element= packageInfo.getParent(); // parent is the IPackageFragment
-//					}
-//					return new JavadocContentAccess2(element, packageJavadocNode, cuSource).toHTML();
-//				}
-//			}
-//		}
-//
-//		// 2==> Handle the case when the documentation is done in package.html file. The file can be either in normal source folder or
-// coming from a jar file
-//		else {
-//			Object[] nonJavaResources= packageFragment.getNonJavaResources();
-//			// 2.1 ==>If the package.html file is present in the source or directly in the binary jar
-//			for (Object nonJavaResource : nonJavaResources) {
-//				if (nonJavaResource instanceof IFile) {
-//					IFile iFile= (IFile) nonJavaResource;
-//					if (iFile.exists() && JavaModelUtil.PACKAGE_HTML.equals(iFile.getName())) {
-//						return getIFileContent(iFile);
-//					}
-//				}
-//			}
-//
-//			// 2.2==>The file is present in a binary container
-//			if (isBinary) {
-//				for (Object nonJavaResource : nonJavaResources) {
-//					// The content is from an external binary class folder
-//					if (nonJavaResource instanceof IJarEntryResource) {
-//						IJarEntryResource jarEntryResource= (IJarEntryResource) nonJavaResource;
-//						String encoding= getSourceAttachmentEncoding(root);
-//						if (JavaModelUtil.PACKAGE_HTML.equals(jarEntryResource.getName()) && jarEntryResource.isFile()) {
-//							return getHTMLContent(jarEntryResource, encoding);
-//						}
-//					}
-//				}
-//				//2.3 ==>The file is present in the source attachment path.
-//				String contents= getHTMLContentFromAttachedSource(root, packageFragment);
-//				if (contents != null)
-//					return contents;
-//			}
-//		}
-//
-//		//3==> Handle the case when the documentation is coming from the attached Javadoc
-//		if ((root.isArchive() || root.isExternal())) {
-//			return packageFragment.getAttachedJavadoc(null);
-//
-//		}
-//
-//		return null;
-//	}
+    /**
+     * Returns the Javadoc for a package which could be present in package.html, package-info.java
+     * or from an attached Javadoc.
+     *
+     * @param packageFragment the package which is requesting for the document
+     * @param urlPrefix
+     * @return the document content in HTML format or <code>null</code> if there is no associated
+     *         Javadoc
+     * @throws CoreException if the Java element does not exists or an exception occurs while
+     *             accessing the file containing the package Javadoc
+     * @since 3.9
+     */
+    public static String getHTMLContent(IPackageFragment packageFragment, String urlPrefix) throws CoreException {
+        IPackageFragmentRoot root = (IPackageFragmentRoot)packageFragment.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
+
+        //1==> Handle the case when the documentation is present in package-info.java or package-info.class file
+        ITypeRoot packageInfo;
+        boolean isBinary = root.getKind() == IPackageFragmentRoot.K_BINARY;
+        if (isBinary) {
+            packageInfo = packageFragment.getClassFile(JavaModelUtil.PACKAGE_INFO_CLASS);
+        } else {
+            packageInfo = packageFragment.getCompilationUnit(JavaModelUtil.PACKAGE_INFO_JAVA);
+        }
+        if (packageInfo != null && packageInfo.exists()) {
+            String cuSource = packageInfo.getSource();
+            //the source can be null for some of the class files
+            if (cuSource != null) {
+                Javadoc packageJavadocNode = getPackageJavadocNode(packageFragment, cuSource);
+                if (packageJavadocNode != null) {
+                    IJavaElement element;
+                    if (isBinary) {
+                        element = ((IClassFile)packageInfo).getType();
+                    } else {
+                        element = packageInfo.getParent(); // parent is the IPackageFragment
+                    }
+                    return new JavadocContentAccess2(element, packageJavadocNode, cuSource, urlPrefix).toHTML();
+                }
+            }
+        }
+
+        // 2==> Handle the case when the documentation is done in package.html file. The file can be either in normal source folder or
+        // coming from a jar file
+        else {
+            Object[] nonJavaResources = packageFragment.getNonJavaResources();
+            // 2.1 ==>If the package.html file is present in the source or directly in the binary jar
+            for (Object nonJavaResource : nonJavaResources) {
+                if (nonJavaResource instanceof IFile) {
+                    IFile iFile = (IFile)nonJavaResource;
+                    if (iFile.exists() && JavaModelUtil.PACKAGE_HTML.equals(iFile.getName())) {
+                        return getIFileContent(iFile);
+                    }
+                }
+            }
+
+            // 2.2==>The file is present in a binary container
+            if (isBinary) {
+                for (Object nonJavaResource : nonJavaResources) {
+                    // The content is from an external binary class folder
+                    if (nonJavaResource instanceof IJarEntryResource) {
+                        IJarEntryResource jarEntryResource = (IJarEntryResource)nonJavaResource;
+                        String encoding = getSourceAttachmentEncoding(root);
+                        if (JavaModelUtil.PACKAGE_HTML.equals(jarEntryResource.getName()) && jarEntryResource.isFile()) {
+                            return getHTMLContent(jarEntryResource, encoding);
+                        }
+                    }
+                }
+                //2.3 ==>The file is present in the source attachment path.
+                String contents = getHTMLContentFromAttachedSource(root, packageFragment, urlPrefix);
+                if (contents != null)
+                    return contents;
+            }
+        }
+
+        //3==> Handle the case when the documentation is coming from the attached Javadoc
+        if ((root.isArchive() || root.isExternal())) {
+            return packageFragment.getAttachedJavadoc(null);
+
+        }
+
+        return null;
+    }
 
     private void handleParameterTags(List<TagElement> tags, List<String> parameterNames, CharSequence[] parameterDescriptions) {
         if (tags.size() == 0 && containsOnlyNull(parameterNames))
@@ -1816,32 +1827,32 @@ public class JavadocContentAccess2 {
         }
     }
 
-//	/**
-//	 * Reads the content of the IFile.
-//	 *
-//	 * @param file the file whose content has to be read
-//	 * @return the content of the file
-//	 * @throws CoreException if the file could not be successfully connected or disconnected
-//	 */
-//	private static String getIFileContent(IFile file) throws CoreException {
-//		String content= null;
-//		ITextFileBufferManager manager= FileBuffers.getTextFileBufferManager();
-//		IPath fullPath= file.getFullPath();
-//		manager.connect(fullPath, LocationKind.IFILE, null);
-//		try {
-//			ITextFileBuffer buffer= manager.getTextFileBuffer(fullPath, LocationKind.IFILE);
-//			if (buffer != null) {
-//				content= buffer.getDocument().get();
-//			}
-//		} finally {
-//			manager.disconnect(fullPath, LocationKind.IFILE, null);
-//		}
-//
-//		return content;
-//	}
+    /**
+     * Reads the content of the IFile.
+     *
+     * @param file the file whose content has to be read
+     * @return the content of the file
+     * @throws CoreException if the file could not be successfully connected or disconnected
+     */
+    private static String getIFileContent(IFile file) throws CoreException {
+        String content = null;
+        ITextFileBufferManager manager = FileBuffers.getTextFileBufferManager();
+        IPath fullPath = file.getFullPath();
+        manager.connect(fullPath, LocationKind.IFILE, null);
+        try {
+            ITextFileBuffer buffer = manager.getTextFileBuffer(fullPath, LocationKind.IFILE);
+            if (buffer != null) {
+                content = buffer.getDocument().get();
+            }
+        } finally {
+            manager.disconnect(fullPath, LocationKind.IFILE, null);
+        }
+
+        return content;
+    }
 
     private static class JavadocLookup {
-        private static final JavadocLookup NONE = new JavadocLookup(null) {
+        private static final JavadocLookup NONE = new JavadocLookup(null, null) {
             @Override
             public CharSequence getInheritedMainDescription(IMethod method) {
                 return null;
@@ -1864,13 +1875,17 @@ public class JavadocContentAccess2 {
         };
         private final IType                                   fStartingType;
         private final HashMap<IMethod, JavadocContentAccess2> fContentAccesses;
-        private       ITypeHierarchy                          fTypeHierarchy;
 
-        private JavadocLookup(IType startingType) {
+        private String               urlPrefix;
+        private ITypeHierarchy       fTypeHierarchy;
+        private MethodOverrideTester fOverrideTester;
+
+
+        private JavadocLookup(IType startingType, String urlPrefix) {
             fStartingType = startingType;
+            this.urlPrefix = urlPrefix;
             fContentAccesses = new HashMap<>();
         }
-//		private MethodOverrideTester fOverrideTester;
 
         /**
          * For the given method, returns the main description from an overridden method.
@@ -1943,85 +1958,84 @@ public class JavadocContentAccess2 {
         }
 
         private CharSequence getInheritedDescription(final IMethod method, final DescriptionGetter descriptionGetter) {
-//			try {
-//				return (CharSequence)new InheritDocVisitor() {
-//					@Override
-//					public Object visit(IType currType) throws JavaModelException {
-//						IMethod overridden = getOverrideTester().findOverriddenMethodInType(currType, method);
-//						if (overridden == null)
-//							return InheritDocVisitor.CONTINUE;
-//
-//						JavadocContentAccess2 contentAccess = getJavadocContentAccess(overridden);
-//						if (contentAccess == null) {
-//							if (overridden.getOpenable().getBuffer() == null) {
-//								// Don't continue this branch when no source is available.
-//								// We don't extract individual tags from Javadoc attachments,
-//								// and it would be wrong to copy doc from further up the branch,
-//								// thereby skipping doc from this overridden method.
-//								return InheritDocVisitor.STOP_BRANCH;
-//							} else {
-//								return InheritDocVisitor.CONTINUE;
-//							}
-//						}
-//
-//						CharSequence overriddenDescription = descriptionGetter.getDescription(contentAccess);
-//						if (overriddenDescription != null)
-//							return overriddenDescription;
-//						else
-//							return InheritDocVisitor.CONTINUE;
-//					}
-//				}.visitInheritDoc(method.getDeclaringType(), getTypeHierarchy());
-//			} catch (JavaModelException e) {
-//				LOG.error(e.getMessage(), e);
-//			}
-//			return null;
-            throw new UnsupportedOperationException();
+            try {
+                return (CharSequence)new InheritDocVisitor() {
+                    @Override
+                    public Object visit(IType currType) throws JavaModelException {
+                        IMethod overridden = getOverrideTester().findOverriddenMethodInType(currType, method);
+                        if (overridden == null)
+                            return InheritDocVisitor.CONTINUE;
+
+                        JavadocContentAccess2 contentAccess = getJavadocContentAccess(overridden, urlPrefix);
+                        if (contentAccess == null) {
+                            if (overridden.getOpenable().getBuffer() == null) {
+                                // Don't continue this branch when no source is available.
+                                // We don't extract individual tags from Javadoc attachments,
+                                // and it would be wrong to copy doc from further up the branch,
+                                // thereby skipping doc from this overridden method.
+                                return InheritDocVisitor.STOP_BRANCH;
+                            } else {
+                                return InheritDocVisitor.CONTINUE;
+                            }
+                        }
+
+                        CharSequence overriddenDescription = descriptionGetter.getDescription(contentAccess);
+                        if (overriddenDescription != null)
+                            return overriddenDescription;
+                        else
+                            return InheritDocVisitor.CONTINUE;
+                    }
+                }.visitInheritDoc(method.getDeclaringType(), getTypeHierarchy());
+            } catch (JavaModelException e) {
+                LOG.error(e.getMessage(), e);
+            }
+            return null;
+//            throw new UnsupportedOperationException();
         }
 
-//        /**
-//         * @param method
-//         *         the method
-//         * @return the Javadoc content access for the given method, or
-//         * <code>null</code> if no Javadoc could be found in source
-//         * @throws org.eclipse.jdt.core.JavaModelException
-//         *         unexpected problem
-//         */
-//        private JavadocContentAccess2 getJavadocContentAccess(IMethod method) throws JavaModelException {
-//            Object cached = fContentAccesses.get(method);
-//            if (cached != null)
-//                return (JavadocContentAccess2)cached;
-//            if (fContentAccesses.containsKey(method))
-//                return null;
-//
-//            IBuffer buf = method.getOpenable().getBuffer();
-//            if (buf == null) { // no source attachment found
-//                fContentAccesses.put(method, null);
-//                return null;
-//            }
-//
-//            ISourceRange javadocRange = method.getJavadocRange();
-//            if (javadocRange == null) {
-//                fContentAccesses.put(method, null);
-//                return null;
-//            }
-//
-//            String rawJavadoc = buf.getText(javadocRange.getOffset(), javadocRange.getLength());
-//            Javadoc javadoc = getJavadocNode(method, rawJavadoc);
-//            if (javadoc == null) {
-//                fContentAccesses.put(method, null);
-//                return null;
-//            }
-//
-//            JavadocContentAccess2 contentAccess = new JavadocContentAccess2(method, javadoc, rawJavadoc, this);
-//            fContentAccesses.put(method, contentAccess);
-//            return contentAccess;
-//        }
+        /**
+         * @param method
+         *         the method
+         * @return the Javadoc content access for the given method, or
+         * <code>null</code> if no Javadoc could be found in source
+         * @throws org.eclipse.jdt.core.JavaModelException
+         *         unexpected problem
+         */
+        private JavadocContentAccess2 getJavadocContentAccess(IMethod method, String urlContext) throws JavaModelException {
+            Object cached = fContentAccesses.get(method);
+            if (cached != null)
+                return (JavadocContentAccess2)cached;
+            if (fContentAccesses.containsKey(method))
+                return null;
+
+            IBuffer buf = method.getOpenable().getBuffer();
+            if (buf == null) { // no source attachment found
+                fContentAccesses.put(method, null);
+                return null;
+            }
+
+            ISourceRange javadocRange = method.getJavadocRange();
+            if (javadocRange == null) {
+                fContentAccesses.put(method, null);
+                return null;
+            }
+
+            String rawJavadoc = buf.getText(javadocRange.getOffset(), javadocRange.getLength());
+            Javadoc javadoc = getJavadocNode(method, rawJavadoc);
+            if (javadoc == null) {
+                fContentAccesses.put(method, null);
+                return null;
+            }
+
+            JavadocContentAccess2 contentAccess = new JavadocContentAccess2(method, javadoc, rawJavadoc, this, urlContext);
+            fContentAccesses.put(method, contentAccess);
+            return contentAccess;
+        }
 
         private ITypeHierarchy getTypeHierarchy() throws JavaModelException {
-//			if (fTypeHierarchy == null)
-//				fTypeHierarchy = SuperTypeHierarchyCache.getTypeHierarchy(fStartingType);
-//			return fTypeHierarchy;
-            throw new UnsupportedOperationException();
+            if (fTypeHierarchy == null)
+                fTypeHierarchy = SuperTypeHierarchyCache.getTypeHierarchy(fStartingType);
+            return fTypeHierarchy;
         }
 
         private static interface DescriptionGetter {
@@ -2037,11 +2051,11 @@ public class JavadocContentAccess2 {
             CharSequence getDescription(JavadocContentAccess2 contentAccess) throws JavaModelException;
         }
 
-//		private MethodOverrideTester getOverrideTester() throws JavaModelException {
-//			if (fOverrideTester == null)
-//				fOverrideTester = SuperTypeHierarchyCache.getMethodOverrideTester(fStartingType);
-//			return fOverrideTester;
-//		}
+        private MethodOverrideTester getOverrideTester() throws JavaModelException {
+            if (fOverrideTester == null)
+                fOverrideTester = SuperTypeHierarchyCache.getMethodOverrideTester(fStartingType);
+            return fOverrideTester;
+        }
     }
 
 }

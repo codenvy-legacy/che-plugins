@@ -24,4 +24,9 @@ public class JavadocBrowserInformationControlInput {
     public String getHtml() {
         return html;
     }
+
+    @Override
+    public String toString() {
+        return  html;
+    }
 }
