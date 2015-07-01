@@ -175,7 +175,12 @@ public class MachineManager implements ProjectActionHandler {
                 try {
                     builder.sendRequest("", new RequestCallback() {
                         public void onResponseReceived(Request request, Response response) {
-                            callback.onSuccess(response.getText());
+                            final String text = response.getText();
+                            if (text.isEmpty()) {
+                                callback.onFailure(new Exception("Unable to fetch recipe"));
+                            } else {
+                                callback.onSuccess(text);
+                            }
                         }
 
                         public void onError(Request request, Throwable exception) {
@@ -189,7 +194,7 @@ public class MachineManager implements ProjectActionHandler {
         }).catchError(new Operation<PromiseError>() {
             @Override
             public void apply(PromiseError arg) throws OperationException {
-                dialogFactory.createMessageDialog("", "Unable to fetch recipe: " + arg.toString(), null).show();
+                dialogFactory.createMessageDialog("", arg.toString(), null).show();
             }
         });
     }
