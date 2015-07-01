@@ -16,8 +16,12 @@ import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.SplitLayoutPanel;
 import com.google.gwtmockito.GwtMockitoTestRunner;
 
+import org.eclipse.che.ide.api.constraints.Constraints;
+import org.eclipse.che.ide.api.notification.NotificationManager;
+import org.eclipse.che.ide.api.parts.PartStackType;
 import org.eclipse.che.ide.api.parts.PartStackView;
 import org.eclipse.che.ide.extension.machine.client.machine.console.MachineConsolePresenter;
+import org.eclipse.che.ide.extension.machine.client.outputspanel.OutputsContainerPresenter;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.appliance.MachineAppliancePresenter;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.panel.MachinePanelPresenter;
 import org.eclipse.che.ide.part.PartStackPresenter;
@@ -32,6 +36,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 
+import static org.eclipse.che.ide.extension.machine.client.perspective.MachinePerspective.MACHINE_PERSPECTIVE_ID;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -57,6 +62,10 @@ public class MachinePerspectiveTest {
     private MachinePanelPresenter      machinePanel;
     @Mock
     private MachineAppliancePresenter  infoContainer;
+    @Mock
+    private NotificationManager        notificationManager;
+    @Mock
+    private OutputsContainerPresenter  outputsContainer;
 
     //additional mocks
     @Mock
@@ -97,28 +106,39 @@ public class MachinePerspectiveTest {
         when(stackPresenterFactory.create(Matchers.<PartStackView>anyObject(),
                                           Matchers.<WorkBenchPartController>anyObject())).thenReturn(partStackPresenter);
 
-//        perspective = new MachinePerspective(view,
-//                                             partViewFactory,
-//                                             controllerFactory,
-//                                             stackPresenterFactory,
-//                                             console,
-//                                             machinePanel,
-//                                             infoContainer);
+        perspective = new MachinePerspective(view,
+                                             partViewFactory,
+                                             controllerFactory,
+                                             stackPresenterFactory,
+                                             console,
+                                             machinePanel,
+                                             notificationManager,
+                                             outputsContainer,
+                                             infoContainer);
     }
 
     @Test
     public void constructorShouldBeVerified() {
-//        verify(partStackPresenter).addPart(console, null);
+        verify(notificationManager).addRule(MACHINE_PERSPECTIVE_ID);
+
+        verify(partStackPresenter).addPart(console, null);
+        verify(partStackPresenter).addPart(notificationManager, Constraints.FIRST);
+        verify(partStackPresenter).addPart(outputsContainer, null);
+        verify(partStackPresenter).addPart(machinePanel, null);
     }
 
     @Test
     public void perspectiveShouldBeDisplayed() {
-//        perspective.go(container);
-//
-//        verify(view, times(2)).getInformationPanel();
-//        verify(view, times(2)).getNavigationPanel();
-//        verify(view).getEditorPanel();
-//        verify(partStackPresenter, times(2)).go(simplePanel);
-//        verify(container).setWidget(view);
+        perspective.addPart(machinePanel, PartStackType.INFORMATION);
+
+        perspective.go(container);
+
+        verify(view, times(2)).getInformationPanel();
+        verify(view, times(2)).getNavigationPanel();
+        verify(view).getEditorPanel();
+        verify(partStackPresenter, times(2)).go(simplePanel);
+        verify(container).setWidget(view);
+
+        verify(partStackPresenter).openPreviousActivePart();
     }
 }
