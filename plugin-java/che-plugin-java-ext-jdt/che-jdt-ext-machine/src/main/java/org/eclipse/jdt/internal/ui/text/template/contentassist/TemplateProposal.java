@@ -11,6 +11,8 @@
 package org.eclipse.jdt.internal.ui.text.template.contentassist;
 
 import org.eclipse.che.ide.ext.java.shared.dto.LinkedModeModel;
+import org.eclipse.che.jdt.JavadocFinder;
+import org.eclipse.che.jdt.javadoc.HTMLPrinter;
 import org.eclipse.che.jdt.javaeditor.HasLinkedModel;
 import org.eclipse.che.jface.text.ITextViewer;
 import org.eclipse.che.jface.text.contentassist.ICompletionProposal;
@@ -432,7 +434,11 @@ public class TemplateProposal implements IJavaCompletionProposal, ICompletionPro
 
 			IDocument document= new Document(templateBuffer.getString());
 			IndentUtil.indentLines(document, new LineRange(0, document.getNumberOfLines()), null, null);
-			return document.get();
+			StringBuffer buffer = new StringBuffer();
+			HTMLPrinter.insertPageProlog(buffer, 0, JavadocFinder.getStyleSheet());
+			HTMLPrinter.addParagraph(buffer, document.get());
+			HTMLPrinter.addPageEpilog(buffer);
+			return buffer.toString();
 
 	    } catch (BadLocationException e) {
 //			handleException(

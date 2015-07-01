@@ -174,7 +174,7 @@ public class OrionTextViewOverlay extends JavaScriptObject {
     public final native <T extends OrionEventOverlay> void addEventListener(String eventType, EventHandler<T> handler, boolean useCapture) /*-{
         var func = function (param) {
             handler.@org.eclipse.che.ide.editor.orion.client.jso.OrionTextViewOverlay.EventHandler::onEvent(*)(param);
-        }
+        };
         if(this.handels === undefined){
             this.handels = {};
         }

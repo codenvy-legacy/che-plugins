@@ -8,21 +8,27 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.ide.ext.java.client.documentation;
 
-import com.google.inject.ImplementedBy;
+package org.eclipse.che.jdt.rest;
 
-import org.eclipse.che.ide.api.mvp.View;
+import org.eclipse.che.jdt.JavadocService;
+
+import javax.ws.rs.core.UriBuilder;
 
 /**
  * @author Evgen Vidolob
  */
-@ImplementedBy(QuickDocViewImpl.class)
-public interface QuickDocView extends View<QuickDocView.ActionDelegate> {
-    void show(String url, int x, int y);
+public class UrlContextProvider {
 
-    interface ActionDelegate{
 
-        void onCloseView();
+    private static UriBuilder builder;
+
+    public static String get(String projectPath) {
+        return builder.path(JavadocService.class).path(JavadocService.class, "get").build().toString() + "?projectpath=" + projectPath +
+               "&handle=";
+    }
+
+    public static synchronized void setUriBuilder(UriBuilder builder) {
+        UrlContextProvider.builder = builder;
     }
 }

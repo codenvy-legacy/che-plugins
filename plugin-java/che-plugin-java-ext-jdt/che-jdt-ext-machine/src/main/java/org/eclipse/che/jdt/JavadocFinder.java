@@ -236,7 +236,7 @@ public class JavadocFinder {
         return null;
     }
 
-    private static  String getStyleSheet() {
+    public static  String getStyleSheet() {
         if(styleSheet == null){
             try(InputStream stream = JavadocFinder.class.getClassLoader().getResource("JavadocHoverStyleSheet.css").openStream()) {
                 styleSheet = IoUtil.readStream(stream);

@@ -10,17 +10,21 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.java.client.action;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+
 import org.eclipse.che.api.analytics.client.logger.AnalyticsEventLogger;
 import org.eclipse.che.ide.MimeType;
 import org.eclipse.che.ide.api.action.ActionEvent;
 import org.eclipse.che.ide.api.action.ProjectAction;
 import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.editor.EditorInput;
+import org.eclipse.che.ide.api.editor.EditorPartPresenter;
 import org.eclipse.che.ide.api.project.tree.VirtualFile;
 import org.eclipse.che.ide.ext.java.client.JavaLocalizationConstant;
 import org.eclipse.che.ide.ext.java.client.documentation.QuickDocumentation;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
+import org.eclipse.che.ide.jseditor.client.codeassist.HasCompletionInformation;
+import org.eclipse.che.ide.jseditor.client.texteditor.EmbeddedTextEditorPresenter;
 
 /**
  * @author Evgen Vidolob
@@ -63,6 +67,16 @@ public class QuickDocumentationAction extends ProjectAction {
     @Override
     public void actionPerformed(ActionEvent e) {
         eventLogger.log(this);
+        EditorPartPresenter activeEditor = editorAgent.getActiveEditor();
+        if(activeEditor == null){
+            return;
+        }
+        if(activeEditor instanceof EmbeddedTextEditorPresenter && activeEditor instanceof HasCompletionInformation) {
+            if (((EmbeddedTextEditorPresenter)activeEditor).isCompletionProposalsShowing() ) {
+                ((HasCompletionInformation)activeEditor).showCompletionInformation();
+                return;
+            }
+        }
         quickDocumentation.showDocumentation();
     }
 }

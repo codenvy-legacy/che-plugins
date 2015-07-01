@@ -24,6 +24,7 @@ import org.eclipse.che.ide.ext.java.shared.dto.ProposalApplyResult;
 import org.eclipse.che.ide.ext.java.shared.dto.ProposalPresentation;
 import org.eclipse.che.ide.ext.java.shared.dto.Proposals;
 import org.eclipse.che.ide.ext.java.shared.dto.Region;
+import org.eclipse.che.jdt.javadoc.HTMLPrinter;
 import org.eclipse.che.jdt.javaeditor.HasLinkedModel;
 import org.eclipse.che.jdt.javaeditor.TextViewer;
 import org.eclipse.che.jdt.ui.CheActionAcces;
@@ -31,6 +32,7 @@ import org.eclipse.che.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.che.jface.text.contentassist.ICompletionProposalExtension;
 import org.eclipse.che.jface.text.contentassist.ICompletionProposalExtension2;
 import org.eclipse.che.jface.text.contentassist.ICompletionProposalExtension4;
+import org.eclipse.che.jface.text.contentassist.ICompletionProposalExtension5;
 import org.eclipse.core.filebuffers.FileBuffers;
 import org.eclipse.core.filebuffers.ITextFileBuffer;
 import org.eclipse.core.filebuffers.ITextFileBufferManager;
@@ -145,9 +147,9 @@ public class CodeAssist {
             if (proposal instanceof ICompletionProposalExtension4) {
                 presentation.setAutoInsertable(((ICompletionProposalExtension4)proposal).isAutoInsertable());
             }
-            if(proposal instanceof CheActionAcces) {
+            if (proposal instanceof CheActionAcces) {
                 String actionId = ((CheActionAcces)proposal).getActionId();
-                if(actionId != null){
+                if (actionId != null) {
                     presentation.setActionId(actionId);
                 }
             }
@@ -203,6 +205,16 @@ public class CodeAssist {
         ArrayList proposals = new ArrayList<>();
         JavaCorrectionProcessor.collectProposals(context, problems, true, true, proposals);
         return convertProposals(offset, compilationUnit, viewer, proposals);
+    }
+
+    public String getJavaDoc(String sessionId, int index) {
+        CodeAssistContext context = cache.getIfPresent(sessionId);
+        if (context != null) {
+            return context.getJavadoc(index);
+        } else {
+
+            throw new IllegalArgumentException("CodeAssist context doesn't exist or time of completion was expired");
+        }
     }
 
     private class CodeAssistContext {
@@ -275,7 +287,7 @@ public class CodeAssist {
                     region.setLength(selection.y);
                     result.setSelection(region);
                 }
-                if(p instanceof HasLinkedModel){
+                if (p instanceof HasLinkedModel) {
                     result.setLinkedModeModel(((HasLinkedModel)p).getLinkedModel());
                 }
                 return result;
@@ -284,6 +296,26 @@ public class CodeAssist {
             } catch (IndexOutOfBoundsException e) {
                 throw new IllegalArgumentException("Can't find completion: " + index);
             }
+        }
+
+        public String getJavadoc(int index) {
+            ICompletionProposal proposal = proposals.get(index);
+            String result;
+            if (proposal instanceof ICompletionProposalExtension5) {
+                Object info = ((ICompletionProposalExtension5)proposal).getAdditionalProposalInfo(null);
+                if (info != null) {
+                    result = info.toString();
+                } else {
+                    StringBuffer buffer = new StringBuffer();
+                    HTMLPrinter.insertPageProlog(buffer, 0, JavadocFinder.getStyleSheet());
+                    HTMLPrinter.addParagraph(buffer, "No documentation found.");
+                    HTMLPrinter.addPageEpilog(buffer);
+                    result = buffer.toString();
+                }
+            } else {
+                result = proposal.getAdditionalProposalInfo();
+            }
+            return result;
         }
     }
 }

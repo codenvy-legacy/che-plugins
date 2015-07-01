@@ -24,8 +24,11 @@ import elemental.html.SpanElement;
 import elemental.html.Window;
 
 import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.user.client.Timer;
+import com.google.gwt.user.client.ui.PopupPanel;
+import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
 
@@ -57,10 +60,11 @@ public class ContentAssistWidget implements EventListener {
      * Custom event type.
      */
     private static final String CUSTOM_EVT_TYPE_VALIDATE = "itemvalidate";
+    private static final String DOCUMENTATION            = "documentation";
 
     /** The related editor. */
-    private final OrionEditorWidget textEditor;
-    private OrionKeyModeOverlay assistMode;
+    private final OrionEditorWidget   textEditor;
+    private       OrionKeyModeOverlay assistMode;
 
     /** The main element for the popup. */
     protected final Element popupElement;
@@ -68,27 +72,31 @@ public class ContentAssistWidget implements EventListener {
     /** The list (ul) element for the popup. */
     protected final Element listElement;
 
-    protected final EventListener popupListener;
-    private final PopupResources popupResources;
+    protected final EventListener  popupListener;
+    private final   PopupResources popupResources;
 
     @Inject
     private CompletionResources completionResources;
+    private boolean             state;
     private boolean insert = true;
 
     /**
      * The previously focused element.
      */
-    protected Element selectedElement;
+    protected Element    selectedElement;
+    private   PopupPanel docWidget;
+
     private OrionTextViewOverlay.EventHandler<OrionModelChangedEventOverlay>
             handler;
 
-    private Timer callCodeAssis = new Timer() {
+    private Timer callCodeAssist = new Timer() {
         @Override
         public void run() {
             hide();
             textEditor.getDocument().getDocumentHandle().getDocEventBus().fireEvent(new CompletionRequestEvent());
         }
     };
+    private boolean showingDoc;
 
     @AssistedInject
     public ContentAssistWidget(final PopupResources popupResources,
@@ -97,7 +105,14 @@ public class ContentAssistWidget implements EventListener {
         this.listElement = Elements.createUListElement();
         this.popupElement.appendChild(this.listElement);
         this.popupResources = popupResources;
-
+        docWidget = new PopupPanel(false);
+        docWidget.setSize("400px", "205px");
+        Style style = docWidget.getElement().getStyle();
+        style.setProperty("resize", "both");
+        style.setPaddingBottom(0, Style.Unit.PX);
+        style.setPaddingTop(3, Style.Unit.PX);
+        style.setPaddingLeft(3, Style.Unit.PX);
+        style.setPaddingRight(3, Style.Unit.PX);
         this.popupListener = new EventListener() {
             @Override
             public void handleEvent(final Event evt) {
@@ -106,6 +121,9 @@ public class ContentAssistWidget implements EventListener {
                     final EventTarget target = mouseEvent.getTarget();
                     if (target instanceof Element) {
                         final Element elementTarget = (Element)target;
+                        if (elementTarget.equals(docWidget.getElement()) && docWidget.isShowing()) {
+                            return;
+                        }
                         if (!ContentAssistWidget.this.popupElement.contains(elementTarget)) {
                             hide();
                             evt.preventDefault();
@@ -121,8 +139,8 @@ public class ContentAssistWidget implements EventListener {
         handler = new OrionTextViewOverlay.EventHandler<OrionModelChangedEventOverlay>() {
             @Override
             public void onEvent(OrionModelChangedEventOverlay event) {
-                callCodeAssis.cancel();
-                callCodeAssis.schedule(500);
+                callCodeAssist.cancel();
+                callCodeAssist.schedule(500);
                 hide();
             }
         };
@@ -158,6 +176,7 @@ public class ContentAssistWidget implements EventListener {
         element.appendChild(label);
         element.appendChild(group);
 
+
         final EventListener validateListener = new EventListener() {
             @Override
             public void handleEvent(final Event evt) {
@@ -187,7 +206,7 @@ public class ContentAssistWidget implements EventListener {
                         }
                     }
                 };
-                if(proposal instanceof CompletionProposalExtension){
+                if (proposal instanceof CompletionProposalExtension) {
                     ((CompletionProposalExtension)proposal).getCompletion(insert, callback);
                 } else {
                     proposal.getCompletion(callback);
@@ -201,6 +220,19 @@ public class ContentAssistWidget implements EventListener {
             @Override
             public void handleEvent(Event event) {
                 selectElement(element);
+            }
+        }, false);
+        element.addEventListener(DOCUMENTATION, new EventListener() {
+            @Override
+            public void handleEvent(Event event) {
+                Widget info = proposal.getAdditionalProposalInfo();
+                if (info != null) {
+                    showingDoc = true;
+                    docWidget.setWidget(info);
+                    docWidget.setPopupPosition(popupElement.getOffsetLeft() + popupElement.getOffsetWidth() + 3,
+                                               popupElement.getOffsetTop());
+                    docWidget.show();
+                }
             }
         }, false);
 
@@ -257,7 +289,7 @@ public class ContentAssistWidget implements EventListener {
         textEditor.getTextView().setAction("cheContentAssistNextProposal", new Action() {
             @Override
             public void onAction() {
-               selectNext();
+                selectNext();
             }
         });
 
@@ -285,25 +317,26 @@ public class ContentAssistWidget implements EventListener {
         textEditor.getTextView().setAction("cheContentAssistHome", new Action() {
             @Override
             public void onAction() {
-               selectFirst();
+                selectFirst();
             }
         });
 
         textEditor.getTextView().setAction("cheContentAssistTab", new Action() {
             @Override
             public void onAction() {
-               validateItem(false);
+                validateItem(false);
             }
         });
 
         textEditor.getTextView().addEventListener("ModelChanging", handler);
         selectFirst();
         this.listElement.addEventListener(Event.KEYDOWN, this, false);
+        state = true;
     }
 
     private void selectPrevious() {
         Element previousElement = selectedElement.getPreviousElementSibling();
-        if(previousElement != null){
+        if (previousElement != null) {
             selectElement(previousElement);
         } else {
             selectLast();
@@ -313,7 +346,7 @@ public class ContentAssistWidget implements EventListener {
     private void selectNext() {
 
         Element nextElement = selectedElement.getNextElementSibling();
-        if(nextElement != null){
+        if (nextElement != null) {
             selectElement(nextElement);
         } else {
             selectFirst();
@@ -328,22 +361,26 @@ public class ContentAssistWidget implements EventListener {
         selectElement(listElement.getFirstElementChild());
     }
 
-    private void selectElement(Element newSelected){
-        if(selectedElement != null){
+    private void selectElement(Element newSelected) {
+        if (selectedElement != null) {
             Elements.removeClassName("che-hint-active", selectedElement);
+        }
+        if (showingDoc && selectedElement != newSelected) {
+            newSelected.dispatchEvent(createValidateEvent(DOCUMENTATION));
         }
         selectedElement = newSelected;
         Elements.addClassName("che-hint-active", selectedElement);
 
         if (selectedElement.getOffsetTop() < this.popupElement.getScrollTop()) {
             selectedElement.scrollIntoView(true);
-        } else if ((selectedElement.getOffsetTop() + selectedElement.getOffsetHeight()) > (this.popupElement.getScrollTop() + this.popupElement.getClientHeight())) {
+        } else if ((selectedElement.getOffsetTop() + selectedElement.getOffsetHeight()) >
+                   (this.popupElement.getScrollTop() + this.popupElement.getClientHeight())) {
             selectedElement.scrollIntoView(false);
         }
 
     }
 
-    public void positionAndShow(){
+    public void positionAndShow() {
         int offset = textEditor.getDocument().getCursorOffset();
         OrionTextViewOverlay textView = textEditor.getTextView();
         OrionPixelPositionOverlay caretLocation = textView.getLocationAtOffset(offset);
@@ -360,7 +397,7 @@ public class ContentAssistWidget implements EventListener {
         if (this.popupElement.getOffsetHeight() > spaceBelow) {
             // Check if div is too large to fit above
             int spaceAbove = caretLocation.getY() - textView.getLineHeight();
-            if (this.popupElement.getOffsetHeight() > spaceAbove){
+            if (this.popupElement.getOffsetHeight() > spaceAbove) {
                 // Squeeze the div into the larger area
                 if (spaceBelow > spaceAbove) {
                     this.popupElement.getStyle().setProperty("maxHeight", spaceBelow + "px");
@@ -370,7 +407,8 @@ public class ContentAssistWidget implements EventListener {
                 }
             } else {
                 // Put the div above the line
-                this.popupElement.getStyle().setTop((caretLocation.getY() - this.popupElement.getOffsetHeight() - textView.getLineHeight()) + "px");
+                this.popupElement.getStyle()
+                                 .setTop((caretLocation.getY() - this.popupElement.getOffsetHeight() - textView.getLineHeight()) + "px");
                 this.popupElement.getStyle().setProperty("maxHeight", spaceAbove + "px");
             }
         } else {
@@ -396,6 +434,7 @@ public class ContentAssistWidget implements EventListener {
             this.listElement.removeChild(lastChild);
             lastChild = this.listElement.getLastChild();
         }
+        docWidget.hide();
     }
 
     /** Returns the style to add to all items. */
@@ -421,6 +460,12 @@ public class ContentAssistWidget implements EventListener {
 
     /** Hide the popup. */
     public void hide() {
+        if(showingDoc){
+            docWidget.hide();
+            showingDoc = false;
+            return;
+        }
+        state = false;
         textEditor.getTextView().removeKeyMode(assistMode);
         textEditor.getTextView().removeEventListener("ModelChanging", handler, false);
 
@@ -430,10 +475,11 @@ public class ContentAssistWidget implements EventListener {
         // remove the element from dom
         final Document document = Elements.getDocument();
         final Node parent = this.popupElement.getParentNode();
-        if (parent  != null) {
+        if (parent != null) {
             parent.removeChild(this.popupElement);
         }
-
+        showingDoc = false;
+        docWidget.hide();
         // remove the mouse listener
         document.removeEventListener(Event.MOUSEDOWN, this.popupListener);
     }
@@ -441,7 +487,7 @@ public class ContentAssistWidget implements EventListener {
     @Override
     public void handleEvent(Event evt) {
         if (evt instanceof KeyboardEvent) {
-            final KeyboardEvent keyEvent = (KeyboardEvent) evt;
+            final KeyboardEvent keyEvent = (KeyboardEvent)evt;
             switch (keyEvent.getKeyCode()) {
                 case KeyCodes.KEY_ESCAPE:
                     Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
@@ -477,6 +523,16 @@ public class ContentAssistWidget implements EventListener {
                     break;
                 default:
             }
+        }
+    }
+
+    public boolean isActive() {
+        return state;
+    }
+
+    public void showCompletionInfo() {
+        if (state && selectedElement != null) {
+            selectedElement.dispatchEvent(createValidateEvent(DOCUMENTATION));
         }
     }
 }
