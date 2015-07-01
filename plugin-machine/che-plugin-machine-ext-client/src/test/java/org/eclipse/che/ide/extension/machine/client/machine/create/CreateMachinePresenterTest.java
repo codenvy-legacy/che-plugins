@@ -58,6 +58,7 @@ public class CreateMachinePresenterTest {
 
     @Test
     public void shouldShowView() {
+        when(projectDescriptor.getRecipe()).thenReturn(RECIPE_URL);
         final CurrentProject currentProject = mock(CurrentProject.class);
         when(currentProject.getRootProject()).thenReturn(projectDescriptor);
         when(appContext.getCurrentProject()).thenReturn(currentProject);
@@ -65,6 +66,12 @@ public class CreateMachinePresenterTest {
         presenter.showDialog();
 
         verify(view).show();
+        verify(view).setCreateButtonState(eq(false));
+        verify(view).setReplaceButtonState(eq(false));
+        verify(view).setMachineName(eq(""));
+        verify(view).setRecipeURL(eq(""));
+        verify(view).setErrorHint(eq(false));
+        verify(view).setRecipeURL(eq(RECIPE_URL));
     }
 
     @Test

@@ -50,6 +50,7 @@ public class CreateMachinePresenter implements CreateMachineView.ActionDelegate 
         view.setReplaceButtonState(false);
         view.setMachineName("");
         view.setRecipeURL("");
+        view.setErrorHint(false);
 
         final CurrentProject currentProject = appContext.getCurrentProject();
         if (currentProject != null) {
