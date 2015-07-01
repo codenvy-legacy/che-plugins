@@ -21,7 +21,7 @@
             margin: 6px;
         }
 
-        .machineNameField {
+        .inputField {
             background-color: inputBackgroundColor;
             color: #dbdbdb;
             border: 1px solid #191c1e;
@@ -33,7 +33,7 @@
         }
 
         .machineNameLabel {
-            line-height: 29px;
+            line-height: 25px;
         }
 
         .floatLeft {
@@ -43,15 +43,29 @@
         .floatRight {
             float: right;
         }
+
+        .errorHint {
+            color: red;
+            height: 12px;
+            margin: 10px;
+        }
     </ui:style>
 
-    <g:DockLayoutPanel unit="PX" width="400px" height="50px" addStyleNames="{style.emptyBorder}">
-        <g:north size="50">
-            <g:FlowPanel height="50px">
+    <g:DockLayoutPanel unit="PX" width="500px" height="100px" addStyleNames="{style.emptyBorder}">
+        <g:north size="40">
+            <g:FlowPanel>
                 <g:Label text="Name:" addStyleNames="{style.machineNameLabel} {style.floatLeft}"/>
-                <g:TextBox width="300px" ui:field="machineName" debugId="createMachineView-machineName"
-                           addStyleNames="{style.machineNameField} {style.floatRight}"/>
+                <g:TextBox width="400px" ui:field="machineName" debugId="createMachineView-machineName"
+                           addStyleNames="{style.inputField} {style.floatRight}"/>
             </g:FlowPanel>
         </g:north>
+        <g:center>
+            <g:FlowPanel>
+                <g:Label text="Recipe URL:" addStyleNames="{style.machineNameLabel} {style.floatLeft}"/>
+                <g:TextBox width="400px" ui:field="recipeURL" debugId="createMachineView-recipeURL"
+                           addStyleNames="{style.inputField} {style.floatRight}"/>
+                <g:Label visible="false" ui:field="errorHint" text="URL is not valid" addStyleNames="{style.errorHint} {style.floatRight}"/>
+            </g:FlowPanel>
+        </g:center>
     </g:DockLayoutPanel>
 </ui:UiBinder>

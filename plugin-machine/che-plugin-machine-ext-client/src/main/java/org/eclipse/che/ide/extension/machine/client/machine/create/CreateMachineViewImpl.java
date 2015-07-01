@@ -19,6 +19,7 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
@@ -42,6 +43,10 @@ public class CreateMachineViewImpl extends Window implements CreateMachineView {
 
     @UiField
     TextBox machineName;
+    @UiField
+    TextBox recipeURL;
+    @UiField
+    Label   errorHint;
 
     private ActionDelegate delegate;
     private Button         createButton;
@@ -54,7 +59,6 @@ public class CreateMachineViewImpl extends Window implements CreateMachineView {
 
         setWidget(UI_BINDER.createAndBindUi(this));
         setTitle(localizationConstant.viewCreateMachineTitle());
-        createFooterButtons();
 
         machineName.addKeyUpHandler(new KeyUpHandler() {
             @Override
@@ -62,6 +66,15 @@ public class CreateMachineViewImpl extends Window implements CreateMachineView {
                 delegate.onNameChanged();
             }
         });
+
+        recipeURL.addKeyUpHandler(new KeyUpHandler() {
+            @Override
+            public void onKeyUp(KeyUpEvent event) {
+                delegate.onRecipeUrlChanged();
+            }
+        });
+
+        createFooterButtons();
     }
 
     private void createFooterButtons() {
@@ -98,10 +111,6 @@ public class CreateMachineViewImpl extends Window implements CreateMachineView {
     public void show() {
         super.show();
 
-        createButton.setEnabled(false);
-        replaceButton.setEnabled(false);
-        machineName.setValue("");
-
         new Timer() {
             @Override
             public void run() {
@@ -118,6 +127,27 @@ public class CreateMachineViewImpl extends Window implements CreateMachineView {
     @Override
     public String getMachineName() {
         return machineName.getValue();
+    }
+
+    @Override
+    public void setMachineName(String name) {
+        machineName.setValue(name);
+    }
+
+    @Override
+    public String getRecipeURL() {
+        return recipeURL.getValue();
+    }
+
+    @Override
+    public void setRecipeURL(String url) {
+        recipeURL.setValue(url);
+        recipeURL.setTitle(url);
+    }
+
+    @Override
+    public void setErrorHint(boolean show) {
+        errorHint.setVisible(show);
     }
 
     @Override
