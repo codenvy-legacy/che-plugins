@@ -71,17 +71,15 @@ public class CreateMachinePresenter implements CreateMachineView.ActionDelegate 
     }
 
     private void checkButtons() {
-        boolean enable = false;
-
         final String recipeURL = view.getRecipeURL();
-        if (URL.test(recipeURL)) {
-            enable = !view.getMachineName().isEmpty();
-        }
+        final boolean urlValid = URL.test(recipeURL);
 
-        view.setErrorHint(!enable);
+        view.setErrorHint(!urlValid);
 
-        view.setCreateButtonState(enable);
-        view.setReplaceButtonState(enable);
+        final boolean allowCreation = urlValid && !view.getMachineName().isEmpty();
+
+        view.setCreateButtonState(allowCreation);
+        view.setReplaceButtonState(allowCreation);
     }
 
     @Override
