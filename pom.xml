@@ -24,6 +24,7 @@
     <packaging>pom</packaging>
     <name>Che Plugin :: Parent</name>
     <modules>
+        <module>plugin-help</module>
         <!--<module>plugin-builder</module>-->
         <!--<module>plugin-runner</module>-->
         <module>plugin-docker</module>
