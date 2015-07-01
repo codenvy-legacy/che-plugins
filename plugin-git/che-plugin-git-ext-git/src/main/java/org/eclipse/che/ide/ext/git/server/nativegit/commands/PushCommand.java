@@ -10,10 +10,15 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.git.server.nativegit.commands;
 
+import com.google.common.base.Joiner;
+
 import org.eclipse.che.ide.ext.git.server.GitException;
+import org.eclipse.che.ide.ext.git.shared.PushResponse;
 
 import java.io.File;
 import java.util.List;
+
+import static org.eclipse.che.dto.server.DtoFactory.newDto;
 
 /**
  * Update remote refs with associated objects
@@ -23,8 +28,9 @@ import java.util.List;
 public class PushCommand extends GitCommand<Void> {
 
     private List<String> refSpec;
-    private String   remote;
-    private boolean  force;
+    private String       remote;
+    private boolean      force;
+    private PushResponse pushResponse;
 
     public PushCommand(File repository) {
         super(repository);
@@ -44,6 +50,7 @@ public class PushCommand extends GitCommand<Void> {
             commandLine.add("--force");
         }
         start();
+        pushResponse = newDto(PushResponse.class).withCommandOutput(Joiner.on("\n").join(lines));
         return null;
     }
 
@@ -77,5 +84,13 @@ public class PushCommand extends GitCommand<Void> {
     public PushCommand setForce(boolean force) {
         this.force = force;
         return this;
+    }
+
+    /**
+     * Get push response information
+     * @return PushResponse DTO
+     */
+    public PushResponse getPushResponse() {
+        return pushResponse;
     }
 }
