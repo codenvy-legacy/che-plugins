@@ -196,6 +196,13 @@ public class OrionEditorWidget extends CompositeEditorWidget implements HasChang
         json.put("showZoomRuler", JSONBoolean.getInstance(true));
         json.put("expandTab", JSONBoolean.getInstance(true));
         json.put("tabSize", new JSONNumber(4));
+        json.put("autoPairParentheses", JSONBoolean.getInstance(true));
+        json.put("autoPairBraces", JSONBoolean.getInstance(true));
+        json.put("autoPairSquareBrackets", JSONBoolean.getInstance(true));
+        json.put("autoPairAngleBrackets", JSONBoolean.getInstance(true));
+        json.put("autoPairQuotations", JSONBoolean.getInstance(true));
+        json.put("autoCompleteComments", JSONBoolean.getInstance(true));
+        json.put("smartIndentation", JSONBoolean.getInstance(true));
 
         return json.getJavaScriptObject();
     }
@@ -561,6 +568,11 @@ public class OrionEditorWidget extends CompositeEditorWidget implements HasChang
         this.editorOverlay.getTextView().redraw();
     }
 
+    @Override
+    public boolean isCompletionProposalsShowing() {
+        return assistWidget.isActive();
+    }
+
 
     public void scrollToLine(int line) {
         this.editorOverlay.getTextView().setTopIndex(line);
@@ -605,6 +617,12 @@ public class OrionEditorWidget extends CompositeEditorWidget implements HasChang
 
     public LinkedMode getLinkedMode() {
         return editorOverlay.getLinkedMode();
+    }
+
+    public void showCompletionInformation() {
+        if(assistWidget.isActive()){
+            assistWidget.showCompletionInfo();
+        }
     }
 
     /**

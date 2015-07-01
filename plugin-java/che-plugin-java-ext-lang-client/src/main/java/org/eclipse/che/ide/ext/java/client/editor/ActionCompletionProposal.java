@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.java.client.editor;
 
-import elemental.dom.Element;
+import com.google.gwt.user.client.ui.Widget;
 
 import org.eclipse.che.ide.api.icon.Icon;
 import org.eclipse.che.ide.jseditor.client.codeassist.CompletionProposal;
@@ -19,20 +19,20 @@ import org.eclipse.che.ide.util.loging.Log;
 /**
  * @author Evgen Vidolob
  */
-public class ActionCompletonProposal implements CompletionProposal {
+public class ActionCompletionProposal implements CompletionProposal {
 
     private final String               display;
     private final String               actionId;
     private final Icon                 icon;
 
-    public ActionCompletonProposal(String display, String actionId, Icon icon) {
+    public ActionCompletionProposal(String display, String actionId, Icon icon) {
         this.display = display;
         this.actionId = actionId;
         this.icon = icon;
     }
 
     @Override
-    public Element getAdditionalProposalInfo() {
+    public Widget getAdditionalProposalInfo() {
         return null;
     }
 

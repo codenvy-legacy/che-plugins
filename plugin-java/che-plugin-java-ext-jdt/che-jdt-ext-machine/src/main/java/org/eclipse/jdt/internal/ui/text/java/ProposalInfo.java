@@ -11,10 +11,14 @@
 package org.eclipse.jdt.internal.ui.text.java;
 
 import org.eclipse.che.jdt.javadoc.JavaDocLocations;
+import org.eclipse.che.jdt.javadoc.JavadocContentAccess2;
+import org.eclipse.che.jdt.rest.UrlContextProvider;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMember;
+import org.eclipse.jdt.core.IPackageDeclaration;
+import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.JavaModelException;
 
 
@@ -83,15 +87,16 @@ public class ProposalInfo {
 	 * @throws org.eclipse.core.runtime.CoreException if fetching the Javadoc for the given element failed connected
 	 */
 	private String extractJavadoc(IJavaElement element) throws CoreException {
-//		if (element instanceof IMember) {
-//			return JavadocContentAccess2.getHTMLContent((IMember) element, true);
-//		} else if (element instanceof IPackageDeclaration) {
-//			return JavadocContentAccess2.getHTMLContent((IPackageDeclaration) element);
-//		} else if (element instanceof IPackageFragment) {
-//			return JavadocContentAccess2.getHTMLContent((IPackageFragment) element);
-//		}
-        //TODO
-		return null;
+		if (element instanceof IMember) {
+			return JavadocContentAccess2.getHTMLContent((IMember) element, true, UrlContextProvider.get(element.getJavaProject().getPath().toString()));
+		} else if (element instanceof IPackageDeclaration) {
+			return JavadocContentAccess2.getHTMLContent((IPackageDeclaration)element,UrlContextProvider.get(
+                    element.getJavaProject().getPath().toString()));
+		} else if (element instanceof IPackageFragment) {
+			return JavadocContentAccess2.getHTMLContent((IPackageFragment) element,UrlContextProvider.get(
+                    element.getJavaProject().getPath().toString()));
+		}
+        return null;
 	}
 
 }

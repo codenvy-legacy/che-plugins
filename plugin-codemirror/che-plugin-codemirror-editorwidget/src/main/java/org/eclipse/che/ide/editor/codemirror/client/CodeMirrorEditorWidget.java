@@ -1069,6 +1069,11 @@ public class CodeMirrorEditorWidget extends CompositeEditorWidget implements
         this.editorOverlay.refresh();
     }
 
+    @Override
+    public boolean isCompletionProposalsShowing() {
+        return false;
+    }
+
     public void scrollToLine(int line) {
         this.editorOverlay.scrollIntoView(CMPositionOverlay.create(line, 0));
     }

@@ -13,7 +13,6 @@ package org.eclipse.che.ide.ext.java.client.documentation;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.logical.shared.CloseEvent;
 import com.google.gwt.event.logical.shared.CloseHandler;
-import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.Frame;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -28,7 +27,6 @@ public class QuickDocViewImpl implements QuickDocView {
 
 
     private final PopupPanel popupPanel;
-    private final DockLayoutPanel rootPanel;
     private ActionDelegate delegate;
     private Frame frame;
 
@@ -42,7 +40,6 @@ public class QuickDocViewImpl implements QuickDocView {
             }
         });
 
-        rootPanel = new DockLayoutPanel(Style.Unit.PX);
         popupPanel.setSize("400px", "200px");
         Style style = popupPanel.getElement().getStyle();
         style.setProperty("resize", "both");
