@@ -22,8 +22,6 @@ import com.google.inject.Singleton;
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
 import org.eclipse.che.api.machine.shared.dto.MachineDescriptor;
 import org.eclipse.che.api.machine.shared.dto.ProcessDescriptor;
-import org.eclipse.che.api.project.gwt.client.ProjectTypeServiceClient;
-import org.eclipse.che.api.project.shared.dto.ProjectTypeDefinition;
 import org.eclipse.che.api.promises.client.Function;
 import org.eclipse.che.api.promises.client.FunctionException;
 import org.eclipse.che.api.promises.client.Operation;
@@ -31,9 +29,6 @@ import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.api.promises.client.PromiseError;
 import org.eclipse.che.api.promises.client.callback.AsyncPromiseHelper;
-import org.eclipse.che.api.promises.client.js.Promises;
-import org.eclipse.che.ide.api.app.AppContext;
-import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.event.ProjectActionEvent;
 import org.eclipse.che.ide.api.event.ProjectActionHandler;
 import org.eclipse.che.ide.api.notification.NotificationManager;
@@ -75,9 +70,7 @@ public class MachineManager implements ProjectActionHandler {
     private final MachineLocalizationConstant localizationConstant;
     private final WorkspaceAgent              workspaceAgent;
     private final MachineStateNotifier        machineStateNotifier;
-    private final AppContext                  appContext;
     private final DialogFactory               dialogFactory;
-    private final ProjectTypeServiceClient    projectTypeServiceClient;
 
     /** Stores ID of the developer machine (where workspace or current project is bound). */
     private String devMachineId;
@@ -92,9 +85,7 @@ public class MachineManager implements ProjectActionHandler {
                           MachineLocalizationConstant localizationConstant,
                           WorkspaceAgent workspaceAgent,
                           MachineStateNotifier machineStateNotifier,
-                          AppContext appContext,
-                          DialogFactory dialogFactory,
-                          ProjectTypeServiceClient projectTypeServiceClient) {
+                          DialogFactory dialogFactory) {
         this.machineServiceClient = machineServiceClient;
         this.messageBus = messageBus;
         this.machineConsolePresenter = machineConsolePresenter;
@@ -104,13 +95,11 @@ public class MachineManager implements ProjectActionHandler {
         this.localizationConstant = localizationConstant;
         this.workspaceAgent = workspaceAgent;
         this.machineStateNotifier = machineStateNotifier;
-        this.appContext = appContext;
         this.dialogFactory = dialogFactory;
-        this.projectTypeServiceClient = projectTypeServiceClient;
     }
 
     @Override
-    public void onProjectOpened(ProjectActionEvent event) {
+    public void onProjectOpened(final ProjectActionEvent event) {
         machineServiceClient.getMachines(null).then(new Operation<List<MachineDescriptor>>() {
             @Override
             public void apply(List<MachineDescriptor> arg) throws OperationException {
@@ -120,7 +109,7 @@ public class MachineManager implements ProjectActionHandler {
                         return;
                     }
                 }
-                startAndBindMachine("Dev");
+                startAndBindMachine(event.getProject().getRecipe(), "Dev");
             }
         });
     }
@@ -136,28 +125,17 @@ public class MachineManager implements ProjectActionHandler {
     }
 
     /** Start new machine. */
-    public void startMachine(@Nullable final String displayName) {
-        startMachine(false, displayName);
+    public void startMachine(String recipeURL, @Nullable String displayName) {
+        startMachine(recipeURL, displayName, false);
     }
 
-    /** Start machine and bind workspace to created machine. */
-    public void startAndBindMachine(@Nullable final String displayName) {
-        startMachine(true, displayName);
+    /** Start new machine and bind workspace to running machine. */
+    public void startAndBindMachine(String recipeURL, @Nullable String displayName) {
+        startMachine(recipeURL, displayName, true);
     }
 
-    private void startMachine(final boolean bindWorkspace, @Nullable final String displayName) {
-        final CurrentProject currentProject = appContext.getCurrentProject();
-        if (currentProject == null) {
-            dialogFactory.createMessageDialog("", "Project should be opened", null).show();
-            return;
-        }
-
-        getRecipeURL().thenPromise(new Function<String, Promise<String>>() {
-            @Override
-            public Promise<String> apply(String arg) throws FunctionException {
-                return downloadRecipe(arg);
-            }
-        }).thenPromise(new Function<String, Promise<MachineDescriptor>>() {
+    private void startMachine(String recipeURL, @Nullable final String displayName, final boolean bindWorkspace) {
+        downloadRecipe(recipeURL).thenPromise(new Function<String, Promise<MachineDescriptor>>() {
             @Override
             public Promise<MachineDescriptor> apply(String recipeScript) throws FunctionException {
                 final String outputChannel = "machine:output:" + UUID.uuid();
@@ -189,23 +167,6 @@ public class MachineManager implements ProjectActionHandler {
         });
     }
 
-    private Promise<String> getRecipeURL() {
-        final CurrentProject currentProject = appContext.getCurrentProject();
-        final String recipeURL = currentProject.getRootProject().getRecipe();
-        if (recipeURL != null) {
-            return Promises.resolve(recipeURL);
-        } else {
-            final String projectTypeID = currentProject.getRootProject().getType();
-            return projectTypeServiceClient.getProjectType(projectTypeID).then(
-                    new Function<ProjectTypeDefinition, String>() {
-                        @Override
-                        public String apply(ProjectTypeDefinition arg) throws FunctionException {
-                            return arg.getDefaultRecipe();
-                        }
-                    });
-        }
-    }
-
     private Promise<String> downloadRecipe(String recipeURL) {
         final RequestBuilder builder = new RequestBuilder(GET, recipeURL);
         return AsyncPromiseHelper.createFromAsyncRequest(new AsyncPromiseHelper.RequestCall<String>() {
@@ -214,7 +175,12 @@ public class MachineManager implements ProjectActionHandler {
                 try {
                     builder.sendRequest("", new RequestCallback() {
                         public void onResponseReceived(Request request, Response response) {
-                            callback.onSuccess(response.getText());
+                            final String text = response.getText();
+                            if (text.isEmpty()) {
+                                callback.onFailure(new Exception("Unable to fetch recipe"));
+                            } else {
+                                callback.onSuccess(text);
+                            }
                         }
 
                         public void onError(Request request, Throwable exception) {
@@ -228,7 +194,7 @@ public class MachineManager implements ProjectActionHandler {
         }).catchError(new Operation<PromiseError>() {
             @Override
             public void apply(PromiseError arg) throws OperationException {
-                dialogFactory.createMessageDialog("", "Unable to fetch recipe: " + arg.toString(), null).show();
+                dialogFactory.createMessageDialog("", arg.toString(), null).show();
             }
         });
     }
