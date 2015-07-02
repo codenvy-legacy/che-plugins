@@ -15,11 +15,11 @@ import org.eclipse.che.ide.ext.java.shared.dto.Problem;
 import org.eclipse.che.ide.ext.java.shared.dto.ProposalApplyResult;
 import org.eclipse.che.ide.ext.java.shared.dto.Proposals;
 import org.eclipse.che.jdt.CodeAssist;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.core.JavaModel;
 import org.eclipse.jdt.internal.core.JavaModelManager;
-import org.eclipse.jdt.internal.ui.JavaPlugin;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -29,7 +29,6 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 import java.util.List;
@@ -50,14 +49,10 @@ public class CodeAssistService {
     @Produces("application/json")
     public Proposals computeCompletionProposals(@QueryParam("projectpath") String projectPath,
                                                 @QueryParam("fqn") String fqn,
-                                                @QueryParam("offset") int offset, String content) {
+                                                @QueryParam("offset") int offset, String content) throws JavaModelException {
         IJavaProject javaProject = model.getJavaProject(projectPath);
-        try {
-            return codeAssist.computeProposals(javaProject, fqn, offset, content);
-        } catch (JavaModelException e) {
-            JavaPlugin.log(e);
-            throw new WebApplicationException(e.getMessage());
-        }
+        return codeAssist.computeProposals(javaProject, fqn, offset, content);
+
     }
 
     @GET
@@ -76,14 +71,10 @@ public class CodeAssistService {
     public Proposals computeAssistProposals(@QueryParam("projectpath") String projectPath,
                                                 @QueryParam("fqn") String fqn,
                                                 @QueryParam("offset") int offset,
-                                                List<Problem> problems) {
+                                                List<Problem> problems) throws CoreException {
         IJavaProject javaProject = model.getJavaProject(projectPath);
-        try {
-            return codeAssist.computeAssistProposals(javaProject, fqn, offset, problems);
-        } catch (org.eclipse.core.runtime.CoreException e) {
-            JavaPlugin.log(e);
-            throw new WebApplicationException(e.getMessage());
-        }
+        return codeAssist.computeAssistProposals(javaProject, fqn, offset, problems);
+
     }
 
     @GET

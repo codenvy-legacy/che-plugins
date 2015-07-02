@@ -97,7 +97,7 @@ public class CodeAssist {
                 return new org.eclipse.jdt.internal.ui.javaeditor.DocumentAdapter(workingCopy, workingCopy.getPath(), content);
             }
         };
-        ICompilationUnit compilationUnit = null;
+        ICompilationUnit compilationUnit;
 
         IType type = project.findType(fqn);
         if (type == null) {
@@ -125,9 +125,8 @@ public class CodeAssist {
         proposals.addAll(new TemplateCompletionProposalComputer().computeCompletionProposals(context, null));
 
         Collections.sort(proposals, new RelevanceSorter());
-        Proposals result = convertProposals(offset, compilationUnit, viewer, proposals);
 
-        return result;
+        return convertProposals(offset, compilationUnit, viewer, proposals);
     }
 
     private Proposals convertProposals(int offset, ICompilationUnit compilationUnit, TextViewer viewer,
@@ -175,7 +174,7 @@ public class CodeAssist {
 
     @SuppressWarnings("unchecked")
     public Proposals computeAssistProposals(IJavaProject project, String fqn, int offset, List<Problem> problems) throws CoreException {
-        ICompilationUnit compilationUnit = null;
+        ICompilationUnit compilationUnit;
 
         IType type = project.findType(fqn);
         if (type == null) {
@@ -193,13 +192,7 @@ public class CodeAssist {
         ITextFileBufferManager bufferManager = FileBuffers.getTextFileBufferManager();
         bufferManager.connect(compilationUnit.getPath(), LocationKind.IFILE, new NullProgressMonitor());
         ITextFileBuffer textFileBuffer = bufferManager.getTextFileBuffer(compilationUnit.getPath(), LocationKind.IFILE);
-        IDocument document =
-                textFileBuffer.getDocument();
-//        if (buffer instanceof org.eclipse.jdt.internal.ui.javaeditor.DocumentAdapter) {
-//            document = ((org.eclipse.jdt.internal.ui.javaeditor.DocumentAdapter)buffer).getDocument();
-//        } else {
-//            document = new DocumentAdapter(buffer);
-//        }
+        IDocument document = textFileBuffer.getDocument();
         TextViewer viewer = new TextViewer(document, new Point(offset, 0));
         AssistContext context = new AssistContext(compilationUnit, offset, 0);
         ArrayList proposals = new ArrayList<>();

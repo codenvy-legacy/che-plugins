@@ -158,17 +158,12 @@ public class JavadocFinder {
         IMember member = null;
         IType type = project.findType(fqn);
         ICodeAssist codeAssist;
-//        IBuffer buffer;
         if(type.isBinary()){
             codeAssist = type.getClassFile();
-//            buffer = type.getClassFile().getBuffer();
         } else {
            codeAssist = type.getCompilationUnit();
-//            buffer = type.getCompilationUnit().getBuffer();
         }
 
-//        DocumentAdapter adapter = new DocumentAdapter(buffer);
-//        org.eclipse.jface.text.IRegion region = JavaWordFinder.findWord(adapter, offset);
         IJavaElement[] elements = null;
         if(codeAssist != null) {
             elements = codeAssist.codeSelect(/*region.getOffset(), region.getLength()*/ offset, 0);
@@ -200,9 +195,7 @@ public class JavadocFinder {
                                  ? JavadocContentAccess2.getHTMLContent(element, true, baseHref)
                                  : null;//JavadocContentAccess2.getHTMLContent((IPackageFragment)element);
                 IPackageFragmentRoot root = (IPackageFragmentRoot)element.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
-//                boolean isBinary = root.exists() && root.getKind() == IPackageFragmentRoot.K_BINARY;
                 if (content != null) {
-//                base= JavaDocLocations.getBaseURL(element, isBinary);
                     reader = new StringReader(content);
                 } else {
                     String explanationForMissingJavadoc = JavaDocLocations.getExplanationForMissingJavadoc(element, root);
@@ -223,12 +216,7 @@ public class JavadocFinder {
             return null;
 
         if (buffer.length() > 0) {
-            //todo use url for css
             HTMLPrinter.insertPageProlog(buffer, 0, getStyleSheet());
-//            if (base != null) {
-//                int endHeadIdx= buffer.indexOf("</head>"); //$NON-NLS-1$
-//                buffer.insert(endHeadIdx, "\n<base href='" + base + "'>\n"); //$NON-NLS-1$ //$NON-NLS-2$
-//            }
             HTMLPrinter.addPageEpilog(buffer);
             return buffer.toString();
         }
