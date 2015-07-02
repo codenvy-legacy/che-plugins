@@ -30,7 +30,7 @@ import org.eclipse.che.ide.editor.orion.client.jso.OrionKeyBindingModule;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionTextThemeOverlay;
 import org.eclipse.che.ide.editor.orion.client.style.OrionResource;
 import org.eclipse.che.ide.jseditor.client.defaulteditor.EditorBuilder;
-import org.eclipse.che.ide.jseditor.client.editorconfig.DefaultTextEditorConfiguration;
+import org.eclipse.che.ide.jseditor.client.editorconfig.AutoSaveTextEditorConfiguration;
 import org.eclipse.che.ide.jseditor.client.editortype.EditorType;
 import org.eclipse.che.ide.jseditor.client.editortype.EditorTypeRegistry;
 import org.eclipse.che.ide.jseditor.client.requirejs.ModuleHolder;
@@ -196,7 +196,7 @@ public class OrionEditorExtension implements Provider<OrionKeyBindingModule>{
             @Override
             public ConfigurableTextEditor buildEditor() {
                 final EmbeddedTextEditorPresenter<OrionEditorWidget> editor = orionTextEditorFactory.createTextEditor();
-                editor.initialize(new DefaultTextEditorConfiguration(), notificationManager);
+                editor.initialize(new AutoSaveTextEditorConfiguration(), notificationManager);
                 return editor;
             }
         });
