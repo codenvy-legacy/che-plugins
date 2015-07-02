@@ -28,6 +28,18 @@ public interface CreateMachineView extends View<CreateMachineView.ActionDelegate
     /** Returns machine name. */
     String getMachineName();
 
+    /** Sets machine name. */
+    void setMachineName(String name);
+
+    /** Returns recipe URL. */
+    String getRecipeURL();
+
+    /** Sets recipe URL. */
+    void setRecipeURL(String url);
+
+    /** Sets error hint visibility. */
+    void setErrorHint(boolean show);
+
     /**
      * Sets whether 'Create' button is enabled.
      *
@@ -51,6 +63,9 @@ public interface CreateMachineView extends View<CreateMachineView.ActionDelegate
 
         /** Called when machines name has been changed. */
         void onNameChanged();
+
+        /** Called when recipe URL has been changed. */
+        void onRecipeUrlChanged();
 
         /** Called when 'Create' button has been clicked. */
         void onCreateClicked();
