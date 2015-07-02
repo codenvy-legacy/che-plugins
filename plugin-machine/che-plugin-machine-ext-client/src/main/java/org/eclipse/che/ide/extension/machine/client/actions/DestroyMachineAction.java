@@ -19,6 +19,7 @@ import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.machine.Machine;
 import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.panel.MachinePanelPresenter;
+import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 
 import javax.annotation.Nonnull;
 import java.util.Collections;
@@ -36,12 +37,14 @@ public class DestroyMachineAction extends AbstractPerspectiveAction {
     private final MachinePanelPresenter       panelPresenter;
     private final MachineManager              machineManager;
     private final AnalyticsEventLogger        eventLogger;
+    private final DialogFactory               dialogFactory;
 
     @Inject
     public DestroyMachineAction(MachineLocalizationConstant locale,
                                 MachinePanelPresenter panelPresenter,
                                 MachineManager machineManager,
-                                AnalyticsEventLogger eventLogger) {
+                                AnalyticsEventLogger eventLogger,
+                                DialogFactory dialogFactory) {
         super(Collections.singletonList(MACHINE_PERSPECTIVE_ID),
               locale.machineDestroyTitle(),
               locale.machineDestroyDescription(),
@@ -51,6 +54,7 @@ public class DestroyMachineAction extends AbstractPerspectiveAction {
         this.panelPresenter = panelPresenter;
         this.machineManager = machineManager;
         this.eventLogger = eventLogger;
+        this.dialogFactory = dialogFactory;
     }
 
     /** {@inheritDoc} */
@@ -68,8 +72,15 @@ public class DestroyMachineAction extends AbstractPerspectiveAction {
         eventLogger.log(this);
 
         final Machine selectedMachine = panelPresenter.getSelectedMachine();
-        if (selectedMachine != null) {
-            machineManager.destroyMachine(selectedMachine.getId());
+        if (selectedMachine == null) {
+            return;
         }
+
+        if (selectedMachine.isWorkspaceBound()) {
+            dialogFactory.createMessageDialog(locale.devMachineCanNotBeDestroyedTitle(), locale.devMachineCanNotBeDestroyed(), null).show();
+            return;
+        }
+
+        machineManager.destroyMachine(selectedMachine.getId());
     }
 }

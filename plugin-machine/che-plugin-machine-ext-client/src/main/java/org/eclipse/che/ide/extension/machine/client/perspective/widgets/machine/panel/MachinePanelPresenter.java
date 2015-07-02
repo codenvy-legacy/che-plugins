@@ -119,8 +119,11 @@ public class MachinePanelPresenter extends BasePresenter implements MachinePanel
     /** {@inheritDoc} */
     @Override
     public void onMachineSelected(@Nonnull Machine selectedMachine) {
-        this.selectedMachine = selectedMachine;
+        if (this.selectedMachine != null && this.selectedMachine.equals(selectedMachine)) {
+            return;
+        }
 
+        this.selectedMachine = selectedMachine;
         appliance.showAppliance(selectedMachine);
     }
 
