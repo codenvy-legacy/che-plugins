@@ -16,6 +16,7 @@ import com.google.gwt.user.client.ui.Frame;
 import com.google.gwt.user.client.ui.Widget;
 
 import org.eclipse.che.ide.api.icon.Icon;
+import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.text.Position;
 import org.eclipse.che.ide.ext.java.shared.dto.Change;
 import org.eclipse.che.ide.ext.java.shared.dto.LinkedData;
@@ -49,15 +50,18 @@ public class JavaCompletionProposal implements CompletionProposal, CompletionPro
     private final JavaCodeAssistClient client;
     private       String               sessionId;
     private HasLinkedMode linkedEditor;
+    private NotificationManager notificationManager;
 
     public JavaCompletionProposal(final int id, final String display, final Icon icon,
-                                  final JavaCodeAssistClient client, String sessionId, HasLinkedMode linkedEditor) {
+                                  final JavaCodeAssistClient client, String sessionId, HasLinkedMode linkedEditor,
+                                  NotificationManager notificationManager) {
         this.id = id;
         this.display = display;
         this.icon = icon;
         this.client = client;
         this.sessionId = sessionId;
         this.linkedEditor = linkedEditor;
+        this.notificationManager = notificationManager;
     }
 
     /** {@inheritDoc} */
@@ -68,7 +72,7 @@ public class JavaCompletionProposal implements CompletionProposal, CompletionPro
         frame.getElement().getStyle().setBorderStyle(Style.BorderStyle.NONE);
         frame.getElement().setAttribute("sandbox", ""); // empty value, not null
         frame.getElement().getStyle().setProperty("resize", "both");
-        frame.setUrl(client.getProposalDocUrl(id,sessionId));
+        frame.setUrl(client.getProposalDocUrl(id, sessionId));
         return frame;
     }
 
@@ -95,6 +99,7 @@ public class JavaCompletionProposal implements CompletionProposal, CompletionPro
             @Override
             public void onFailure(Throwable caught) {
                 Log.error(JavaCompletionProposal.class, caught);
+                notificationManager.showError(caught.getMessage());
             }
 
             @Override
@@ -106,10 +111,10 @@ public class JavaCompletionProposal implements CompletionProposal, CompletionPro
 
     private class CompletionImpl implements Completion {
 
-        private final List<Change> changes;
-        private final Region       region;
-        private LinkedModeModel linkedModeModel;
-        private int cursorOffset;
+        private final List<Change>    changes;
+        private final Region          region;
+        private       LinkedModeModel linkedModeModel;
+        private       int             cursorOffset;
 
         private CompletionImpl(final List<Change> changes, final Region region, final LinkedModeModel linkedModeModel) {
             this.changes = changes;

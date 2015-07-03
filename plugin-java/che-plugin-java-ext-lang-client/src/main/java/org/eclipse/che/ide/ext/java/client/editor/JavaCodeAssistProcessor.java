@@ -17,6 +17,7 @@ import com.google.inject.assistedinject.AssistedInject;
 import org.eclipse.che.api.analytics.client.logger.AnalyticsEventLogger;
 import org.eclipse.che.ide.api.editor.EditorPartPresenter;
 import org.eclipse.che.ide.api.icon.Icon;
+import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.project.tree.VirtualFile;
 import org.eclipse.che.ide.ext.java.client.JavaResources;
 import org.eclipse.che.ide.ext.java.client.projecttree.JavaSourceFolderUtil;
@@ -45,6 +46,7 @@ public class JavaCodeAssistProcessor implements CodeAssistProcessor {
     private       JavaCodeAssistClient   client;
     private final JavaResources          javaResources;
     private       DtoUnmarshallerFactory unmarshallerFactory;
+    private       NotificationManager    notificationManager;
     private final AnalyticsEventLogger eventLogger;
 
 
@@ -55,11 +57,13 @@ public class JavaCodeAssistProcessor implements CodeAssistProcessor {
                                    final JavaCodeAssistClient client,
                                    final JavaResources javaResources,
                                    DtoUnmarshallerFactory unmarshallerFactory,
+                                   NotificationManager notificationManager,
                                    final AnalyticsEventLogger eventLogger) {
         this.editor = editor;
         this.client = client;
         this.javaResources = javaResources;
         this.unmarshallerFactory = unmarshallerFactory;
+        this.notificationManager = notificationManager;
         this.eventLogger = eventLogger;
         if (images == null) {
             initImages(javaResources);
@@ -133,7 +137,7 @@ public class JavaCodeAssistProcessor implements CodeAssistProcessor {
         }
     }
 
-    public static ImageResource getImage(final JavaResources javaResources, final String image) {
+    public static ImageResource getImage(final String image) {
         if (image == null) {
             return null;
         }
@@ -143,11 +147,6 @@ public class JavaCodeAssistProcessor implements CodeAssistProcessor {
     @Override
     public void computeCompletionProposals(final TextEditor textEditor, final int offset,
                                            final CodeAssistCallback callback) {
-//        if (buildContext.isBuilding()) {
-//            errorMessage = "Code Assistant currently unavailable due to project build.";
-//        } else {
-//            errorMessage = null;
-//        }
         if (errorMessage != null) {
             return;
         }
@@ -165,7 +164,7 @@ public class JavaCodeAssistProcessor implements CodeAssistProcessor {
             @Override
             protected void onFailure(Throwable throwable) {
                 Log.error(JavaCodeAssistProcessor.class, throwable);
-                com.google.gwt.user.client.Window.alert(throwable.getMessage());
+                notificationManager.showError(throwable.getMessage());
             }
         });
     }
@@ -179,8 +178,8 @@ public class JavaCodeAssistProcessor implements CodeAssistProcessor {
                                                           new JavaCompletionProposal(
                                                                                      proposal.getIndex(),
                                                                                      insertStyle(javaResources, proposal.getDisplayString()),
-                                                                                     new Icon("", getImage(javaResources, proposal.getImage())),
-                                                                                     client, respons.getSessionId(), linkedEditor);
+                                                                                     new Icon("", getImage(proposal.getImage())),
+                                                                                     client, respons.getSessionId(), linkedEditor, notificationManager);
             proposals.add(completionProposal);
         }
 

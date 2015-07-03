@@ -40,9 +40,6 @@ public interface MachineResources extends ClientBundle {
     @Source("command/arbitrary/arbitrary-command-type.svg")
     SVGResource arbitraryCommandType();
 
-    @Source("images/tick.svg")
-    SVGResource tick();
-
     @Source("images/project-perspective.svg")
     SVGResource projectPerspective();
 
@@ -86,7 +83,6 @@ public interface MachineResources extends ClientBundle {
         /** Returns the CSS class name for close button of tab button in 'Outputs' console. */
         String outputsContainerConsoleTabCloseButton();
 
-
         String activeTab();
 
         String disableTab();
@@ -95,6 +91,6 @@ public interface MachineResources extends ClientBundle {
 
         String fullSize();
 
-        String selectMachine();
+        String unavailableLabel();
     }
 }

@@ -14,6 +14,14 @@ import com.google.gwt.regexp.shared.RegExp;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
+import org.eclipse.che.api.project.gwt.client.ProjectTypeServiceClient;
+import org.eclipse.che.api.project.shared.dto.ProjectTypeDefinition;
+import org.eclipse.che.api.promises.client.Function;
+import org.eclipse.che.api.promises.client.FunctionException;
+import org.eclipse.che.api.promises.client.Operation;
+import org.eclipse.che.api.promises.client.OperationException;
+import org.eclipse.che.api.promises.client.Promise;
+import org.eclipse.che.api.promises.client.js.Promises;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
@@ -30,15 +38,20 @@ public class CreateMachinePresenter implements CreateMachineView.ActionDelegate 
             "(https?|ftp)://(www\\.)?(((([a-zA-Z0-9.-]+\\.){1,}[a-zA-Z]{2,4}|localhost))|((\\d{1,3}\\.){3}(\\d{1,3})))(:(\\d+))?(/([a-zA-Z0-9-._~!$&'()*+,;=:@/]|%[0-9A-F]{2})*)?(\\?([a-zA-Z0-9-._~!$&'()*+,;=:/?@]|%[0-9A-F]{2})*)?(#([a-zA-Z0-9._-]|%[0-9A-F]{2})*)?";
     private static final RegExp URL         = RegExp.compile(URL_PATTERN);
 
-    private final CreateMachineView view;
-    private final MachineManager    machineManager;
-    private final AppContext        appContext;
+    private final CreateMachineView        view;
+    private final MachineManager           machineManager;
+    private final AppContext               appContext;
+    private final ProjectTypeServiceClient projectTypeServiceClient;
 
     @Inject
-    public CreateMachinePresenter(CreateMachineView view, MachineManager machineManager, AppContext appContext) {
+    public CreateMachinePresenter(CreateMachineView view,
+                                  MachineManager machineManager,
+                                  AppContext appContext,
+                                  ProjectTypeServiceClient projectTypeServiceClient) {
         this.view = view;
         this.machineManager = machineManager;
         this.appContext = appContext;
+        this.projectTypeServiceClient = projectTypeServiceClient;
 
         view.setDelegate(this);
     }
@@ -52,12 +65,32 @@ public class CreateMachinePresenter implements CreateMachineView.ActionDelegate 
         view.setRecipeURL("");
         view.setErrorHint(false);
 
-        final CurrentProject currentProject = appContext.getCurrentProject();
-        if (currentProject != null) {
-            final String recipeURL = currentProject.getRootProject().getRecipe();
-            if (recipeURL != null) {
+        getRecipeURL().then(new Operation<String>() {
+            @Override
+            public void apply(String recipeURL) throws OperationException {
                 view.setRecipeURL(recipeURL);
             }
+        });
+    }
+
+    /** Returns project's recipe URL or project type's recipe URL. */
+    private Promise<String> getRecipeURL() {
+        final CurrentProject currentProject = appContext.getCurrentProject();
+        if (currentProject == null) {
+            return Promises.resolve("");
+        }
+
+        final String recipeURL = currentProject.getRootProject().getRecipe();
+        if (recipeURL != null) {
+            return Promises.resolve(recipeURL);
+        } else {
+            final String projectTypeID = currentProject.getRootProject().getType();
+            return projectTypeServiceClient.getProjectType(projectTypeID).then(new Function<ProjectTypeDefinition, String>() {
+                @Override
+                public String apply(ProjectTypeDefinition arg) throws FunctionException {
+                    return arg.getDefaultRecipe();
+                }
+            });
         }
     }
 

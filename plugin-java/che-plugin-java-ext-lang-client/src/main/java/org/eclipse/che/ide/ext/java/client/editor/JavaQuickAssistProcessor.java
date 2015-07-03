@@ -11,6 +11,7 @@
 package org.eclipse.che.ide.ext.java.client.editor;
 
 import org.eclipse.che.ide.api.icon.Icon;
+import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.project.tree.VirtualFile;
 import org.eclipse.che.ide.api.text.Position;
 import org.eclipse.che.ide.api.text.annotation.Annotation;
@@ -51,16 +52,18 @@ public class JavaQuickAssistProcessor implements QuickAssistProcessor {
     private final JavaResources          javaResources;
     private final DtoUnmarshallerFactory unmarshallerFactory;
     private final DtoFactory             dtoFactory;
+    private NotificationManager notificationManager;
 
     @Inject
     public JavaQuickAssistProcessor(final JavaCodeAssistClient client,
                                     final JavaResources javaResources,
                                     DtoUnmarshallerFactory unmarshallerFactory,
-                                    DtoFactory dtoFactory) {
+                                    DtoFactory dtoFactory, NotificationManager notificationManager) {
         this.client = client;
         this.javaResources = javaResources;
         this.unmarshallerFactory = unmarshallerFactory;
         this.dtoFactory = dtoFactory;
+        this.notificationManager = notificationManager;
     }
 
     @Override
@@ -69,11 +72,9 @@ public class JavaQuickAssistProcessor implements QuickAssistProcessor {
         final Document document = textEditor.getDocument();
 
         LinearRange tempRange;
-//        if (quickAssistContext.getOffset() != null) {
-//            tempRange = document.getLinearRangeForLine(quickAssistContext.getLine());
-//        } else {
+
         tempRange = textEditor.getSelectedLinearRange();
-//        }
+
         final LinearRange range = tempRange;
 
         final boolean goToClosest = (range.getLength() == 0);
@@ -118,13 +119,13 @@ public class JavaQuickAssistProcessor implements QuickAssistProcessor {
                 completionProposal =
                         new ActionCompletionProposal(JavaCodeAssistProcessor.insertStyle(javaResources, proposal.getDisplayString()),
                                                     proposal.getActionId(),
-                                                    new Icon("", JavaCodeAssistProcessor.getImage(javaResources, proposal.getImage())));
+                                                    new Icon("", JavaCodeAssistProcessor.getImage(proposal.getImage())));
             } else {
                 completionProposal = new JavaCompletionProposal(
                         proposal.getIndex(),
                         JavaCodeAssistProcessor.insertStyle(javaResources, proposal.getDisplayString()),
-                        new Icon("", JavaCodeAssistProcessor.getImage(javaResources, proposal.getImage())),
-                        client, responds.getSessionId(), linkedEditor);
+                        new Icon("", JavaCodeAssistProcessor.getImage(proposal.getImage())),
+                        client, responds.getSessionId(), linkedEditor, notificationManager);
             }
             proposals.add(completionProposal);
         }
@@ -149,7 +150,7 @@ public class JavaQuickAssistProcessor implements QuickAssistProcessor {
             @Override
             protected void onFailure(Throwable throwable) {
                 Log.error(JavaCodeAssistProcessor.class, throwable);
-                com.google.gwt.user.client.Window.alert(throwable.getMessage());
+                notificationManager.showError(throwable.getMessage());
             }
         });
     }

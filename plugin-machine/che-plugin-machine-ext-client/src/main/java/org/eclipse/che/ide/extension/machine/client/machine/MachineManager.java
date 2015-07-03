@@ -71,6 +71,7 @@ public class MachineManager implements ProjectActionHandler {
     private final WorkspaceAgent              workspaceAgent;
     private final MachineStateNotifier        machineStateNotifier;
     private final DialogFactory               dialogFactory;
+    private final MachineNameManager          nameManager;
 
     /** Stores ID of the developer machine (where workspace or current project is bound). */
     private String devMachineId;
@@ -85,7 +86,8 @@ public class MachineManager implements ProjectActionHandler {
                           MachineLocalizationConstant localizationConstant,
                           WorkspaceAgent workspaceAgent,
                           MachineStateNotifier machineStateNotifier,
-                          DialogFactory dialogFactory) {
+                          DialogFactory dialogFactory,
+                          MachineNameManager nameManager) {
         this.machineServiceClient = machineServiceClient;
         this.messageBus = messageBus;
         this.machineConsolePresenter = machineConsolePresenter;
@@ -96,6 +98,7 @@ public class MachineManager implements ProjectActionHandler {
         this.workspaceAgent = workspaceAgent;
         this.machineStateNotifier = machineStateNotifier;
         this.dialogFactory = dialogFactory;
+        this.nameManager = nameManager;
     }
 
     @Override
@@ -125,16 +128,16 @@ public class MachineManager implements ProjectActionHandler {
     }
 
     /** Start new machine. */
-    public void startMachine(String recipeURL, @Nullable String displayName) {
+    public void startMachine(String recipeURL, @Nonnull String displayName) {
         startMachine(recipeURL, displayName, false);
     }
 
     /** Start new machine and bind workspace to running machine. */
-    public void startAndBindMachine(String recipeURL, @Nullable String displayName) {
+    public void startAndBindMachine(String recipeURL, @Nonnull String displayName) {
         startMachine(recipeURL, displayName, true);
     }
 
-    private void startMachine(String recipeURL, @Nullable final String displayName, final boolean bindWorkspace) {
+    private void startMachine(String recipeURL, @Nonnull final String displayName, final boolean bindWorkspace) {
         downloadRecipe(recipeURL).thenPromise(new Function<String, Promise<MachineDescriptor>>() {
             @Override
             public Promise<MachineDescriptor> apply(String recipeScript) throws FunctionException {
@@ -153,16 +156,20 @@ public class MachineManager implements ProjectActionHandler {
             public void apply(final MachineDescriptor machineDescriptor) throws OperationException {
                 MachineStateNotifier.RunningListener runningListener = null;
 
+                final String machineId = machineDescriptor.getId();
+
                 if (bindWorkspace) {
                     runningListener = new MachineStateNotifier.RunningListener() {
                         @Override
                         public void onRunning() {
-                            devMachineId = machineDescriptor.getId();
+                            devMachineId = machineId;
                         }
                     };
                 }
 
-                machineStateNotifier.trackMachine(machineDescriptor.getId(), runningListener);
+                nameManager.addName(machineId, displayName);
+
+                machineStateNotifier.trackMachine(machineId, runningListener);
             }
         });
     }
@@ -175,7 +182,12 @@ public class MachineManager implements ProjectActionHandler {
                 try {
                     builder.sendRequest("", new RequestCallback() {
                         public void onResponseReceived(Request request, Response response) {
-                            callback.onSuccess(response.getText());
+                            final String text = response.getText();
+                            if (text.isEmpty()) {
+                                callback.onFailure(new Exception("Unable to fetch recipe"));
+                            } else {
+                                callback.onSuccess(text);
+                            }
                         }
 
                         public void onError(Request request, Throwable exception) {
@@ -189,7 +201,7 @@ public class MachineManager implements ProjectActionHandler {
         }).catchError(new Operation<PromiseError>() {
             @Override
             public void apply(PromiseError arg) throws OperationException {
-                dialogFactory.createMessageDialog("", "Unable to fetch recipe: " + arg.toString(), null).show();
+                dialogFactory.createMessageDialog("", arg.toString(), null).show();
             }
         });
     }

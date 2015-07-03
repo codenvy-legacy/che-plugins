@@ -18,6 +18,7 @@ import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
 import org.eclipse.che.api.machine.shared.dto.MachineDescriptor;
 import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.api.promises.client.Operation;
+import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
@@ -37,6 +38,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -143,6 +145,16 @@ public class MachinePanelPresenterTest {
         verify(view).selectNode(machineNode1);
 
         verify(view, never()).selectNode(machineNode2);
+    }
+
+    @Test
+    public void stubShouldBeDisplayedWhenMachinesNotExist() throws OperationException {
+        presenter.showMachines();
+
+        verify(machinePromise).then(operationCaptor.capture());
+        operationCaptor.getValue().apply(Collections.<MachineDescriptor>emptyList());
+
+        verify(appliance).showStub();
     }
 
     @Test

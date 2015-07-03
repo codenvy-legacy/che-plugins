@@ -52,7 +52,7 @@ public class JavaReconciler {
         this.semanticHighlighting = semanticHighlighting;
     }
 
-    public ReconcileResult reconcile(IJavaProject javaProject, String fqn) {
+    public ReconcileResult reconcile(IJavaProject javaProject, String fqn) throws JavaModelException {
         final ProblemRequestor requestor = new ProblemRequestor();
         WorkingCopyOwner wcOwner = new WorkingCopyOwner() {
             public IProblemRequestor getProblemRequestor(ICompilationUnit unit) {
@@ -88,6 +88,7 @@ public class JavaReconciler {
 
         } catch (JavaModelException e) {
             LOG.error("Can't reconcile class: " + fqn + " in project:" + javaProject.getPath().toOSString(), e);
+            throw e;
         } finally {
             if(compilationUnit!= null && compilationUnit.isWorkingCopy()){
                 try {

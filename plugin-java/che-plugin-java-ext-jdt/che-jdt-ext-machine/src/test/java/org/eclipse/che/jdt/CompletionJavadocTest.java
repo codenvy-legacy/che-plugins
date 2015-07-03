@@ -19,7 +19,6 @@ import org.eclipse.che.jdt.testplugin.JavaProjectHelper;
 import org.eclipse.che.jdt.testplugin.ProjectTestSetup;
 import org.eclipse.che.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.che.jface.text.contentassist.ICompletionProposalExtension5;
-import org.eclipse.core.internal.filebuffers.FileBuffersPlugin;
 import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
@@ -45,49 +44,28 @@ import java.util.List;
 /**
  * @author Evgen Vidolob
  */
-public class CompletionJavadocTest {
-    protected static final String wsPath = QuickFixTest.class.getResource("/projects").getFile();
-//    protected static ResourcesPlugin   plugin            =
-//            new ResourcesPlugin(wsPath + "/index", CompletionJavadocTest.class.getResource("/projects").getFile());
-//    protected static JavaPlugin        javaPlugin        = new JavaPlugin(wsPath + "/set");
-    protected static FileBuffersPlugin fileBuffersPlugin;
-    private          ProjectTestSetup  setup;
-    private          IPackageFragmentRoot
-            fSourceFolder;
-    private          IJavaProject fJProject1;
+public class CompletionJavadocTest extends QuickFixTest {
 
-    static {
-//        plugin.start();
-//        javaPlugin.start();
-//        UrlContextProvider.setUrlContext("http://test.com/");
-//        DefaultWorkingCopyOwner.setPrimaryBufferProvider(new WorkingCopyOwner() {
-//            @Override
-//            public IBuffer createBuffer(ICompilationUnit workingCopy) {
-//                return BufferManager.createBuffer(workingCopy);
-//            }
-//        });
-//        if(FileBuffersPlugin.getDefault() == null) {
-//            fileBuffersPlugin = new FileBuffersPlugin();
-//        } else {
-//            fileBuffersPlugin = FileBuffersPlugin.getDefault();
-//        }
-        UrlContextProvider.setUriBuilder(new GuiceUriBuilderImpl());
-    }
+
+    private IJavaProject fJProject1;
+    private IPackageFragmentRoot fSourceFolder;
 
     public CompletionJavadocTest() {
-        setup = new Java18ProjectTestSetup();
+
+        super(new Java18ProjectTestSetup());
+        UrlContextProvider.setUriBuilder(new GuiceUriBuilderImpl());
     }
 
     @Before
     public void setUp() throws Exception {
-        setup.setUp();
+        super.setUp();
         fJProject1 = Java18ProjectTestSetup.getProject();
         fSourceFolder = JavaProjectHelper.addSourceContainer(fJProject1, "src");
     }
 
     @After
     public void tearDown() throws Exception {
-        setup.tearDown();
+        super.tearDown();
         JavaProjectHelper.clear(fJProject1, ProjectTestSetup.getDefaultClasspath());
     }
 

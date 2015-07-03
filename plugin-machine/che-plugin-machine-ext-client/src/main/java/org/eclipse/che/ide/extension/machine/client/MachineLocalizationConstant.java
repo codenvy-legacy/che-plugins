@@ -81,6 +81,12 @@ public interface MachineLocalizationConstant extends Messages {
     @Key("messages.noDevMachine")
     String noDevMachine();
 
+    @Key("messages.devMachineCanNotBeDestroyed")
+    String devMachineCanNotBeDestroyed();
+
+    @Key("messages.devMachineCanNotBeDestroyed.title")
+    String devMachineCanNotBeDestroyedTitle();
+
 
     /* MachineStateNotifier */
     @Key("notification.creatingMachine")
@@ -127,6 +133,15 @@ public interface MachineLocalizationConstant extends Messages {
 
     @Key("view.createMachine.button.replace")
     String viewCreateMachineButtonReplace();
+
+    @Key("view.createMachine.message.urlIsNotValid")
+    String viewCreateMachineUrlIsNotValid();
+
+    @Key("view.createMachine.name")
+    String viewCreateMachineName();
+
+    @Key("view.createMachine.recipeURL")
+    String viewCreateMachineRecipeURL();
 
 
     /* EditConfigurationsView */
@@ -232,4 +247,7 @@ public interface MachineLocalizationConstant extends Messages {
 
     @Key("info.server.url")
     String infoServerUrl();
+
+    @Key("unavailable.machine.info")
+    String unavailableMachineInfo();
 }

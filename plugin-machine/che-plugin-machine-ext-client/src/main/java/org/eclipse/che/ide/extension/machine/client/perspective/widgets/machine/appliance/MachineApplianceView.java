@@ -15,7 +15,7 @@ import com.google.inject.ImplementedBy;
 import org.eclipse.che.ide.api.parts.PartStackView;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.container.TabContainerView;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Provides methods to control view representation of info container.
@@ -26,10 +26,10 @@ import javax.annotation.Nonnull;
 public interface MachineApplianceView extends PartStackView {
 
     /**
-     * Adds tab container to main view.
+     * Shows tabs container on main view.
      *
      * @param tabContainer
      *         container which need add
      */
-    void addContainer(@Nonnull TabContainerView tabContainer);
+    void showContainer(@Nullable TabContainerView tabContainer);
 }

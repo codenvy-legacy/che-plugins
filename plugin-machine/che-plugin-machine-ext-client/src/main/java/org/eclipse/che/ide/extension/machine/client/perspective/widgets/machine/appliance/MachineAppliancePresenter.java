@@ -105,7 +105,7 @@ public class MachineAppliancePresenter extends PartStackPresenter {
         };
         createAndAddTab(serverTabName, serverPresenter, serverHandler);
 
-        this.view.addContainer(tabContainer.getView());
+        this.view.showContainer(tabContainer.getView());
     }
 
     private void createAndAddTab(@Nonnull String tabName, @Nonnull TabPresenter content, @Nullable TabSelectHandler handler) {
@@ -124,6 +124,8 @@ public class MachineAppliancePresenter extends PartStackPresenter {
     public void showAppliance(@Nonnull Machine machine) {
         selectedMachine = machine;
 
+        view.showContainer(tabContainer.getView());
+
         tabContainer.showTab(machine.getActiveTabName());
 
         terminalPresenter.updateTerminal(machine);
@@ -135,5 +137,10 @@ public class MachineAppliancePresenter extends PartStackPresenter {
     @Override
     public void go(AcceptsOneWidget container) {
         container.setWidget(view);
+    }
+
+    /** Shows special stub panel when no machine exist. */
+    public void showStub() {
+        view.showContainer(null);
     }
 }

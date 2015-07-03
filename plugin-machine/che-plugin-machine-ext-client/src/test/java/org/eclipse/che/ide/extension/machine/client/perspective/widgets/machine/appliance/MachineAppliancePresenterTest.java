@@ -165,7 +165,7 @@ public class MachineAppliancePresenterTest {
 
         verify(tabContainer).getView();
 
-        verify(view).addContainer(tabContainerView);
+        verify(view).showContainer(tabContainerView);
     }
 
     @Test
@@ -208,6 +208,9 @@ public class MachineAppliancePresenterTest {
 
 //        verify(machine).getId();
 //        verify(processesPresenter).showProcesses(SOME_TEXT);
+        verify(tabContainer).getView();
+        verify(view).showContainer(tabContainerView);
+
         verify(tabContainer).showTab(SOME_TEXT);
         verify(terminalPresenter).updateTerminal(machine);
         verify(infoPresenter).update(machine);

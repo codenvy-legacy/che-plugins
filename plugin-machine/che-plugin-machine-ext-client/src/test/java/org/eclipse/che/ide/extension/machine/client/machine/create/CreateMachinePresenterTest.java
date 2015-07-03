@@ -10,18 +10,27 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.machine.client.machine.create;
 
+import org.eclipse.che.api.project.gwt.client.ProjectTypeServiceClient;
 import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
+import org.eclipse.che.api.project.shared.dto.ProjectTypeDefinition;
+import org.eclipse.che.api.promises.client.Function;
+import org.eclipse.che.api.promises.client.Operation;
+import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Answers.RETURNS_DEEP_STUBS;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -35,15 +44,29 @@ public class CreateMachinePresenterTest {
     private final static String MACHINE_NAME = "machine";
 
     @Mock
-    private CreateMachineView      view;
+    private CreateMachineView        view;
     @Mock
-    private MachineManager         machineManager;
+    private MachineManager           machineManager;
     @Mock
-    private AppContext             appContext;
+    private AppContext               appContext;
+    @Mock
+    private ProjectTypeServiceClient projectTypeServiceClient;
+
     @InjectMocks
     private CreateMachinePresenter presenter;
+
     @Mock(answer = RETURNS_DEEP_STUBS)
-    private ProjectDescriptor      projectDescriptor;
+    private ProjectDescriptor projectDescriptor;
+
+    @Mock
+    private Promise<ProjectTypeDefinition> projectTypePromise;
+    @Mock
+    private Promise<String>                recipeUrlPromise;
+
+    @Captor
+    private ArgumentCaptor<Function<ProjectTypeDefinition, String>> functionCaptor;
+    @Captor
+    private ArgumentCaptor<Operation<String>>                       recipeUrlCaptor;
 
     @Before
     public void setUp() {
@@ -52,16 +75,24 @@ public class CreateMachinePresenterTest {
     }
 
     @Test
-    public void shouldSetActionDelegate() {
+    public void shouldSetActionDelegate() throws Exception {
         verify(view).setDelegate(presenter);
     }
 
     @Test
-    public void shouldShowView() {
-        when(projectDescriptor.getRecipe()).thenReturn(RECIPE_URL);
+    public void shouldShowView() throws Exception {
+        final ProjectTypeDefinition projectTypeDefinition = mock(ProjectTypeDefinition.class);
+        when(projectTypeDefinition.getDefaultRecipe()).thenReturn(RECIPE_URL);
+
+        String projectTypeId = "p_type_id";
+        when(projectDescriptor.getType()).thenReturn(projectTypeId);
+        when(projectDescriptor.getRecipe()).thenReturn(null);
         final CurrentProject currentProject = mock(CurrentProject.class);
         when(currentProject.getRootProject()).thenReturn(projectDescriptor);
         when(appContext.getCurrentProject()).thenReturn(currentProject);
+
+        when(projectTypeServiceClient.getProjectType(anyString())).thenReturn(projectTypePromise);
+        when(projectTypePromise.then(any(Function.class))).thenReturn(recipeUrlPromise);
 
         presenter.showDialog();
 
@@ -71,11 +102,18 @@ public class CreateMachinePresenterTest {
         verify(view).setMachineName(eq(""));
         verify(view).setRecipeURL(eq(""));
         verify(view).setErrorHint(eq(false));
+
+        verify(projectTypePromise).then(functionCaptor.capture());
+        functionCaptor.getValue().apply(projectTypeDefinition);
+
+        verify(recipeUrlPromise).then(recipeUrlCaptor.capture());
+        recipeUrlCaptor.getValue().apply(RECIPE_URL);
+
         verify(view).setRecipeURL(eq(RECIPE_URL));
     }
 
     @Test
-    public void buttonsShouldBeDisabledWhenNameIsEmpty() {
+    public void buttonsShouldBeDisabledWhenNameIsEmpty() throws Exception {
         when(view.getMachineName()).thenReturn("");
 
         presenter.onNameChanged();
@@ -85,7 +123,7 @@ public class CreateMachinePresenterTest {
     }
 
     @Test
-    public void buttonsShouldBeEnabledWhenNameIsNotEmpty() {
+    public void buttonsShouldBeEnabledWhenNameIsNotEmpty() throws Exception {
         presenter.onNameChanged();
 
         verify(view).setCreateButtonState(eq(true));
@@ -93,7 +131,7 @@ public class CreateMachinePresenterTest {
     }
 
     @Test
-    public void shouldCreateMachine() {
+    public void shouldCreateMachine() throws Exception {
         presenter.onCreateClicked();
 
         verify(view).getRecipeURL();
@@ -103,7 +141,7 @@ public class CreateMachinePresenterTest {
     }
 
     @Test
-    public void shouldReplaceDevMachine() {
+    public void shouldReplaceDevMachine() throws Exception {
         presenter.onReplaceDevMachineClicked();
 
         verify(view).getMachineName();
@@ -112,7 +150,7 @@ public class CreateMachinePresenterTest {
     }
 
     @Test
-    public void shouldCloseView() {
+    public void shouldCloseView() throws Exception {
         presenter.onCancelClicked();
 
         verify(view).close();

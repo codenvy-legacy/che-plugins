@@ -48,10 +48,10 @@ public class JavaClasspathService {
 
     @GET
     @Path("update")
-    public boolean update(@QueryParam("projectpath") final String projectPath) {
+    public boolean update(@QueryParam("projectpath") final String projectPath) throws JavaModelException {
         IJavaProject javaProject = model.getJavaProject(projectPath);
         File dir = new File(ResourcesPlugin.getPathToWorkspace() + projectPath);
-        boolean succes = generateClaspath(projectPath, dir);
+        boolean succes = generateClasspath(projectPath, dir);
         if (succes) {
             try {
                 IClasspathContainer container = MavenClasspathUtil.readMavenClasspath(javaProject);
@@ -59,6 +59,7 @@ public class JavaClasspathService {
                                                                   new IClasspathContainer[]{container}, null);
             } catch (JavaModelException e) {
                 LOG.error(e.getMessage(), e);
+                throw e;
             }
         }
         return succes;
@@ -67,7 +68,7 @@ public class JavaClasspathService {
 
 
 
-    private boolean generateClaspath(final String projectPath, File dir) {
+    private boolean generateClasspath(final String projectPath, File dir) {
         StreamPump output = null;
         Watchdog watcher = null;
         int timeout = 10; //10 minutes
