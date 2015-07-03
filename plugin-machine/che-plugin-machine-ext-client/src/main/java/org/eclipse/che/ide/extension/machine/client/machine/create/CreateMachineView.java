@@ -10,7 +10,10 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.machine.client.machine.create;
 
+import org.eclipse.che.api.machine.shared.dto.recipe.RecipeDescriptor;
 import org.eclipse.che.ide.api.mvp.View;
+
+import java.util.List;
 
 /**
  * The view of {@link CreateMachinePresenter}.
@@ -40,6 +43,15 @@ public interface CreateMachineView extends View<CreateMachineView.ActionDelegate
     /** Sets error hint visibility. */
     void setErrorHint(boolean show);
 
+    /** Returns tags. */
+    List<String> getTags();
+
+    /** Sets tags. */
+    void setTags(String tags);
+
+    /** Sets recipes corresponded to tags. */
+    void setRecipes(List<RecipeDescriptor> recipes);
+
     /**
      * Sets whether 'Create' button is enabled.
      *
@@ -66,6 +78,17 @@ public interface CreateMachineView extends View<CreateMachineView.ActionDelegate
 
         /** Called when recipe URL has been changed. */
         void onRecipeUrlChanged();
+
+        /** Called when tags has been changed. */
+        void onTagsChanged();
+
+        /**
+         * Called when recipe has been selected.
+         *
+         * @param recipe
+         *         selected recipe
+         */
+        void onRecipeSelected(RecipeDescriptor recipe);
 
         /** Called when 'Create' button has been clicked. */
         void onCreateClicked();

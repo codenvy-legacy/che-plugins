@@ -51,7 +51,7 @@
         }
     </ui:style>
 
-    <g:DockLayoutPanel unit="PX" width="500px" height="100px" addStyleNames="{style.emptyBorder}">
+    <g:DockLayoutPanel unit="PX" width="500px" height="160px" addStyleNames="{style.emptyBorder}">
         <g:north size="40">
             <g:FlowPanel>
                 <g:Label text="{localizationConstant.viewCreateMachineName}"
@@ -70,5 +70,13 @@
                          addStyleNames="{style.errorHint} {style.floatRight}"/>
             </g:FlowPanel>
         </g:center>
+        <g:south size="60">
+            <g:FlowPanel>
+                <g:Label text="Find by tags:"
+                         addStyleNames="{style.machineNameLabel} {style.floatLeft}"/>
+                <g:TextBox width="400px" ui:field="tags" debugId="createMachineView-tags"
+                           addStyleNames="{style.inputField} {style.floatRight}"/>
+            </g:FlowPanel>
+        </g:south>
     </g:DockLayoutPanel>
 </ui:UiBinder>

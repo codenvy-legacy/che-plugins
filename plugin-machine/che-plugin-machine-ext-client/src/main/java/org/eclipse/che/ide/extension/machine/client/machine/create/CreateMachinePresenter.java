@@ -14,6 +14,8 @@ import com.google.gwt.regexp.shared.RegExp;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
+import org.eclipse.che.api.machine.gwt.client.RecipeServiceClient;
+import org.eclipse.che.api.machine.shared.dto.recipe.RecipeDescriptor;
 import org.eclipse.che.api.project.gwt.client.ProjectTypeServiceClient;
 import org.eclipse.che.api.project.shared.dto.ProjectTypeDefinition;
 import org.eclipse.che.api.promises.client.Function;
@@ -25,6 +27,10 @@ import org.eclipse.che.api.promises.client.js.Promises;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Presenter for creating machine.
@@ -42,16 +48,19 @@ public class CreateMachinePresenter implements CreateMachineView.ActionDelegate 
     private final MachineManager           machineManager;
     private final AppContext               appContext;
     private final ProjectTypeServiceClient projectTypeServiceClient;
+    private final RecipeServiceClient      recipeServiceClient;
 
     @Inject
     public CreateMachinePresenter(CreateMachineView view,
                                   MachineManager machineManager,
                                   AppContext appContext,
-                                  ProjectTypeServiceClient projectTypeServiceClient) {
+                                  ProjectTypeServiceClient projectTypeServiceClient,
+                                  RecipeServiceClient recipeServiceClient) {
         this.view = view;
         this.machineManager = machineManager;
         this.appContext = appContext;
         this.projectTypeServiceClient = projectTypeServiceClient;
+        this.recipeServiceClient = recipeServiceClient;
 
         view.setDelegate(this);
     }
@@ -64,6 +73,7 @@ public class CreateMachinePresenter implements CreateMachineView.ActionDelegate 
         view.setMachineName("");
         view.setRecipeURL("");
         view.setErrorHint(false);
+        view.setTags("");
 
         getRecipeURL().then(new Operation<String>() {
             @Override
@@ -102,6 +112,21 @@ public class CreateMachinePresenter implements CreateMachineView.ActionDelegate 
     @Override
     public void onRecipeUrlChanged() {
         checkButtons();
+    }
+
+    @Override
+    public void onTagsChanged() {
+        recipeServiceClient.searchRecipes(view.getTags(), "docker", 0, 100).then(new Operation<List<RecipeDescriptor>>() {
+            @Override
+            public void apply(List<RecipeDescriptor> arg) throws OperationException {
+                view.setRecipes(arg);
+            }
+        });
+    }
+
+    @Override
+    public void onRecipeSelected(RecipeDescriptor recipe) {
+        view.setRecipeURL(recipe.getLink("get recipe script").getHref());
     }
 
     private void checkButtons() {
