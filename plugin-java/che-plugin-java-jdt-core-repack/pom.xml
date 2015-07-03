@@ -26,6 +26,7 @@
             <groupId>org.eclipse.tycho</groupId>
             <artifactId>org.eclipse.jdt.core</artifactId>
             <version>${org.eclipse.jdt.core.version}</version>
+            <scope>provided</scope> 
         </dependency>
     </dependencies>
     <build>
