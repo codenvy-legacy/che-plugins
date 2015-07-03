@@ -26,6 +26,8 @@ public interface GitOutputPartView extends View<GitOutputPartView.ActionDelegate
         void onClearClicked();
     }
 
+    void setVisible(boolean visible);
+
     /**
      * Print text in console area.
      *
@@ -52,7 +54,7 @@ public interface GitOutputPartView extends View<GitOutputPartView.ActionDelegate
 
     /** Clear console. Remove all messages. */
     void clear();
-    
+
     /**
      * Scroll to bottom of the view.
      */

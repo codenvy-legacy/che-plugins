@@ -51,6 +51,8 @@ public interface MachineConsoleView extends View<MachineConsoleView.ActionDelega
     /** Scrolls console to bottom. */
     void scrollBottom();
 
+    void setVisible(boolean visible);
+
     interface ActionDelegate extends BaseActionDelegate {
     }
 }

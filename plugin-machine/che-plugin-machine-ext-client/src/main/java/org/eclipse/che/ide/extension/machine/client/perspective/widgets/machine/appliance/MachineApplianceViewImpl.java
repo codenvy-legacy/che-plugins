@@ -14,19 +14,18 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.InsertPanel;
-import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 
+import org.eclipse.che.ide.api.parts.PartPresenter;
 import org.eclipse.che.ide.api.parts.PartStackView;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.MachineResources;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.container.TabContainerView;
-import org.vectomatic.dom.svg.ui.SVGImage;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
@@ -63,34 +62,26 @@ public class MachineApplianceViewImpl extends Composite implements MachineApplia
 
     /** {@inheritDoc} */
     @Override
-    public TabItem addTab(SVGImage icon, String title, String toolTip, IsWidget widget, boolean closable) {
-        //to do nothing
-        return null;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void removeTab(int index) {
+    public void addTab(@Nonnull TabItem tabItem, @Nonnull PartPresenter presenter) {
         //to do nothing
     }
 
     /** {@inheritDoc} */
     @Override
-    public void setActiveTab(int index) {
+    public void removeTab(@Nonnull PartPresenter partPresenter) {
         //to do nothing
     }
 
     /** {@inheritDoc} */
     @Override
-    public void setTabpositions(List<Integer> partPositions) {
+    public void selectTab(@Nonnull PartPresenter partPresenter) {
         //to do nothing
     }
 
     /** {@inheritDoc} */
     @Override
-    public InsertPanel.ForIsWidget getContentPanel() {
+    public void setTabPositions(List<PartPresenter> partPositions) {
         //to do nothing
-        return null;
     }
 
     /** {@inheritDoc} */
@@ -101,7 +92,7 @@ public class MachineApplianceViewImpl extends Composite implements MachineApplia
 
     /** {@inheritDoc} */
     @Override
-    public void updateTabItem(int index, SVGImage icon, String title, String toolTip, IsWidget widget) {
+    public void updateTabItem(@Nonnull PartPresenter partPresenter) {
         //to do nothing
     }
 

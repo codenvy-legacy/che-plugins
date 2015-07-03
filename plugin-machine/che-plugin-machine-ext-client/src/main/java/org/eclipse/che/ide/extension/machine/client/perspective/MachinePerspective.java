@@ -14,8 +14,10 @@ import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
+import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.parts.PartStack;
 import org.eclipse.che.ide.extension.machine.client.machine.console.MachineConsolePresenter;
+import org.eclipse.che.ide.extension.machine.client.outputspanel.OutputsContainerPresenter;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.appliance.MachineAppliancePresenter;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.panel.MachinePanelPresenter;
 import org.eclipse.che.ide.workspace.PartStackPresenterFactory;
@@ -26,6 +28,7 @@ import org.eclipse.che.ide.workspace.perspectives.general.PerspectiveViewImpl;
 
 import javax.annotation.Nonnull;
 
+import static org.eclipse.che.ide.api.constraints.Constraints.FIRST;
 import static org.eclipse.che.ide.api.parts.PartStackType.EDITING;
 import static org.eclipse.che.ide.api.parts.PartStackType.INFORMATION;
 import static org.eclipse.che.ide.api.parts.PartStackType.NAVIGATION;
@@ -49,16 +52,22 @@ public class MachinePerspective extends AbstractPerspective {
                               PartStackPresenterFactory stackPresenterFactory,
                               MachineConsolePresenter console,
                               MachinePanelPresenter machinePanel,
+                              NotificationManager notificationManager,
+                              OutputsContainerPresenter outputsContainer,
                               MachineAppliancePresenter infoContainer) {
-        super(view, stackPresenterFactory, partViewFactory, controllerFactory);
+        super(MACHINE_PERSPECTIVE_ID, view, stackPresenterFactory, partViewFactory, controllerFactory);
 
         this.machinePanel = machinePanel;
+
+        notificationManager.addRule(MACHINE_PERSPECTIVE_ID);
 
         //central panel
         partStacks.put(EDITING, infoContainer);
 
-        openPart(console, INFORMATION);
-        openPart(machinePanel, NAVIGATION);
+        addPart(console, INFORMATION);
+        addPart(notificationManager, INFORMATION, FIRST);
+        addPart(outputsContainer, INFORMATION);
+        addPart(machinePanel, NAVIGATION);
 
         setActivePart(machinePanel);
     }
@@ -81,5 +90,9 @@ public class MachinePerspective extends AbstractPerspective {
         editing.go(view.getEditorPanel());
 
         container.setWidget(view);
+
+        openActivePart(INFORMATION);
+
+        setActivePart(machinePanel);
     }
 }

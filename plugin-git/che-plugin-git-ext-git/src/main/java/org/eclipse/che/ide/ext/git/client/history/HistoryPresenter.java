@@ -10,6 +10,13 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.git.client.history;
 
+import com.google.gwt.resources.client.ImageResource;
+import com.google.gwt.user.client.ui.AcceptsOneWidget;
+import com.google.gwt.user.client.ui.IsWidget;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+import com.google.web.bindery.event.shared.EventBus;
+
 import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.event.ProjectActionEvent;
@@ -25,21 +32,15 @@ import org.eclipse.che.ide.api.selection.Selection;
 import org.eclipse.che.ide.api.selection.SelectionAgent;
 import org.eclipse.che.ide.collections.Array;
 import org.eclipse.che.ide.collections.Collections;
+import org.eclipse.che.ide.ext.git.client.DateTimeFormatter;
 import org.eclipse.che.ide.ext.git.client.GitLocalizationConstant;
 import org.eclipse.che.ide.ext.git.client.GitResources;
 import org.eclipse.che.ide.ext.git.client.GitServiceClient;
-import org.eclipse.che.ide.ext.git.client.DateTimeFormatter;
 import org.eclipse.che.ide.ext.git.shared.LogResponse;
 import org.eclipse.che.ide.ext.git.shared.Revision;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.rest.StringUnmarshaller;
-import com.google.gwt.resources.client.ImageResource;
-import com.google.gwt.user.client.ui.AcceptsOneWidget;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
-import com.google.web.bindery.event.shared.EventBus;
-
 import org.vectomatic.dom.svg.ui.SVGResource;
 
 import javax.annotation.Nonnull;
@@ -409,6 +410,18 @@ public class HistoryPresenter extends BasePresenter implements HistoryView.Actio
     @Override
     public String getTitle() {
         return constant.historyTitle();
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void setVisible(boolean visible) {
+        view.setVisible(visible);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public IsWidget getView() {
+        return view;
     }
 
     /** {@inheritDoc} */

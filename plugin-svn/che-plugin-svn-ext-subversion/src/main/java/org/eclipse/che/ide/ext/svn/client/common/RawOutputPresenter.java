@@ -10,18 +10,20 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.svn.client.common;
 
-import org.eclipse.che.ide.api.parts.PartPresenter;
-import org.eclipse.che.ide.api.parts.base.BasePresenter;
-import org.eclipse.che.ide.workspace.WorkBenchPartControllerImpl;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
+import com.google.gwt.user.client.ui.IsWidget;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
+import org.eclipse.che.ide.api.parts.PartPresenter;
+import org.eclipse.che.ide.api.parts.base.BasePresenter;
 import org.eclipse.che.ide.ext.svn.client.SubversionExtensionLocalizationConstants;
+import org.eclipse.che.ide.workspace.WorkBenchPartControllerImpl;
 import org.vectomatic.dom.svg.ui.SVGResource;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
@@ -32,7 +34,7 @@ import javax.validation.constraints.NotNull;
 public class RawOutputPresenter extends BasePresenter implements RawOutputView.ActionDelegate {
 
     private final RawOutputView view;
-    private final String title;
+    private final String        title;
 
     /**
      * Constructor.
@@ -80,11 +82,26 @@ public class RawOutputPresenter extends BasePresenter implements RawOutputView.A
     }
 
     @Override
-    public String getTitle() { return title; }
+    @Nonnull
+    public String getTitle() {
+        return title;
+    }
+
+    @Override
+    public void setVisible(boolean visible) {
+        view.setVisible(visible);
+    }
+
+    @Override
+    public IsWidget getView() {
+        return view;
+    }
 
     @Nullable
     @Override
-    public ImageResource getTitleImage() { return null; }
+    public ImageResource getTitleImage() {
+        return null;
+    }
 
     @Override
     public SVGResource getTitleSVGImage() {

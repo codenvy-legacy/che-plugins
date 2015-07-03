@@ -29,17 +29,21 @@ public interface RawOutputView extends View<RawOutputView.ActionDelegate> {
         void onClearClicked();
     }
 
+    void setVisible(boolean visible);
+
     /**
      * Print text in view.
      *
-     * @param text The text to display
+     * @param text
+     *         The text to display
      */
     void print(final String text);
 
     /**
      * Set title of view.
      *
-     * @param title The title to display
+     * @param title
+     *         The title to display
      */
     void setTitle(final String title);
 

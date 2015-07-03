@@ -13,6 +13,7 @@ package org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.web.bindery.event.shared.EventBus;
 
+import org.eclipse.che.ide.client.inject.factories.TabItemFactory;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.EntityFactory;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.WidgetsFactory;
@@ -26,6 +27,7 @@ import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.cont
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.container.TabContainerView.TabSelectHandler;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.header.TabHeader;
 import org.eclipse.che.ide.part.PartStackPresenter.PartStackEventHandler;
+import org.eclipse.che.ide.part.PartsComparator;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -62,6 +64,10 @@ public class MachineAppliancePresenterTest {
     private WidgetsFactory              widgetsFactory;
     @Mock
     private EntityFactory               entityFactory;
+    @Mock
+    private TabItemFactory              tabItemFactory;
+    @Mock
+    private PartsComparator             comparator;
     //TODO un commit to test process tab
 //    @Mock
 //    private ProcessesPresenter          processesPresenter;
@@ -125,11 +131,13 @@ public class MachineAppliancePresenterTest {
                                      Matchers.<TabSelectHandler>anyObject())).thenReturn(serverTab);
 
         presenter = new MachineAppliancePresenter(eventBus,
+                                                  comparator,
                                                   partStackEventHandler,
                                                   view,
                                                   locale,
                                                   widgetsFactory,
                                                   entityFactory,
+                                                  tabItemFactory,
                                                   terminalPresenter,
                                                   infoPresenter,
                                                   serverPresenter,

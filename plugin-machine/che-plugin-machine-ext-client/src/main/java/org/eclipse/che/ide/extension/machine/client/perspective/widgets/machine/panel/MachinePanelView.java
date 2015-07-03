@@ -43,6 +43,8 @@ public interface MachinePanelView extends View<MachinePanelView.ActionDelegate> 
      */
     void selectNode(@Nullable MachineTreeNode machineNode);
 
+    void setVisible(boolean visible);
+
     interface ActionDelegate extends BaseActionDelegate {
         /**
          * Performs some actions when user selects current machine
