@@ -10,15 +10,21 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.appliance;
 
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwtmockito.GwtMockitoTestRunner;
 
+import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
+import org.eclipse.che.ide.extension.machine.client.MachineResources;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.container.TabContainerView;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
+import org.mockito.Answers;
 import org.mockito.Mock;
 
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Dmitry Shnurenko
@@ -26,17 +32,48 @@ import static org.mockito.Mockito.verify;
 @RunWith(GwtMockitoTestRunner.class)
 public class MachineApplianceViewImplTest {
 
-    //additional mock
-    @Mock
-    private TabContainerView tabContainerView;
+    private static final String SOME_TEXT = "someText";
 
-    @InjectMocks
+    //constructor mocks
+    @Mock
+    private TabContainerView            tabContainerView;
+    @Mock
+    private Label                       unavailableLabel;
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    private MachineResources            resources;
+    @Mock
+    private MachineLocalizationConstant locale;
+
     private MachineApplianceViewImpl view;
 
+    @Before
+    public void setUp() {
+        when(resources.getCss().unavailableLabel()).thenReturn(SOME_TEXT);
+        when(locale.unavailableMachineInfo()).thenReturn(SOME_TEXT);
+
+        view = new MachineApplianceViewImpl(resources, unavailableLabel, locale);
+    }
+
     @Test
-    public void tabContainerShouldBeAdded() {
-        view.addContainer(tabContainerView);
+    public void constructorShouldBeVerified() {
+        verify(resources.getCss()).unavailableLabel();
+        verify(unavailableLabel).addStyleName(SOME_TEXT);
+        verify(locale).unavailableMachineInfo();
+        verify(unavailableLabel).setText(SOME_TEXT);
+    }
+
+    @Test
+    public void tabContainerShouldBeAddedWhenViewIsNotNull() {
+        view.showContainer(tabContainerView);
 
         verify(view.container).setWidget(tabContainerView);
+        verify(view.container, never()).setWidget(unavailableLabel);
+    }
+
+    @Test
+    public void tabContainerShouldBeAddedWhenViewIsNull() {
+        view.showContainer(null);
+
+        verify(view.container, never()).setWidget(tabContainerView);
     }
 }

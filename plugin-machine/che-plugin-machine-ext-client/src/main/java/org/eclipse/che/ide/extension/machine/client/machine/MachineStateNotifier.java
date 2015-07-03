@@ -23,7 +23,6 @@ import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
-import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.panel.MachinePanelPresenter;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.util.loging.Log;
 import org.eclipse.che.ide.websocket.MessageBus;
@@ -59,6 +58,7 @@ class MachineStateNotifier {
     private final NotificationManager         notificationManager;
     private final MachineServiceClient        service;
     private final MachineLocalizationConstant locale;
+    private final MachineNameManager          nameManager;
 
     @Inject
     MachineStateNotifier(MessageBus messageBus,
@@ -66,13 +66,15 @@ class MachineStateNotifier {
                          DtoUnmarshallerFactory dtoUnmarshallerFactory,
                          NotificationManager notificationManager,
                          MachineServiceClient service,
-                         MachineLocalizationConstant locale) {
+                         MachineLocalizationConstant locale,
+                         MachineNameManager nameManager) {
         this.messageBus = messageBus;
         this.eventBus = eventBus;
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
         this.notificationManager = notificationManager;
         this.service = service;
         this.locale = locale;
+        this.nameManager = nameManager;
     }
 
     /**
@@ -101,6 +103,8 @@ class MachineStateNotifier {
         final MessageHandler handler = new SubscriptionHandler<MachineStateEvent>(unmarshaller) {
             @Override
             protected void onMessageReceived(MachineStateEvent result) {
+                String machineName = nameManager.getNameById(result.getMachineId());
+
                 switch (result.getEventType()) {
                     case RUNNING:
                         unsubscribe(wsChannel, this);
@@ -108,7 +112,7 @@ class MachineStateNotifier {
                             runningListener.onRunning();
                         }
 
-                        notification.setMessage(locale.notificationMachineIsRunning(result.getMachineId()));
+                        notification.setMessage(locale.notificationMachineIsRunning(machineName));
                         notification.setStatus(FINISHED);
                         notification.setType(INFO);
 
@@ -119,13 +123,14 @@ class MachineStateNotifier {
                     case DESTROYED:
                         unsubscribe(wsChannel, this);
 
-                        notification.setMessage(locale.notificationMachineDestroyed(result.getMachineId()));
+                        notification.setMessage(locale.notificationMachineDestroyed(machineName));
                         notification.setStatus(FINISHED);
                         notification.setType(INFO);
 
-                        eventBus.fireEvent(
-                                org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateEvent.createMachineDestroyedEvent(
-                                        result.getMachineId()));
+                        eventBus.fireEvent(org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateEvent
+                                                   .createMachineDestroyedEvent(result.getMachineId()));
+
+                        nameManager.removeName(result.getMachineId());
 
                         break;
                     case ERROR:

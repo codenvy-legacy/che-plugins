@@ -16,15 +16,18 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.InsertPanel;
 import com.google.gwt.user.client.ui.IsWidget;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 
 import org.eclipse.che.ide.api.parts.PartStackView;
+import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
+import org.eclipse.che.ide.extension.machine.client.MachineResources;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.container.TabContainerView;
 import org.vectomatic.dom.svg.ui.SVGImage;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.List;
 
 /**
@@ -38,18 +41,24 @@ public class MachineApplianceViewImpl extends Composite implements MachineApplia
 
     private final static MachineInfoContainerUiBinder UI_BINDER = GWT.create(MachineInfoContainerUiBinder.class);
 
+    private final Label unavailableLabel;
+
     @UiField
     SimplePanel container;
 
     @Inject
-    public MachineApplianceViewImpl() {
+    public MachineApplianceViewImpl(MachineResources resources, Label unavailableLabel, MachineLocalizationConstant locale) {
         initWidget(UI_BINDER.createAndBindUi(this));
+
+        this.unavailableLabel = unavailableLabel;
+        this.unavailableLabel.addStyleName(resources.getCss().unavailableLabel());
+        this.unavailableLabel.setText(locale.unavailableMachineInfo());
     }
 
     /** {@inheritDoc} */
     @Override
-    public void addContainer(@Nonnull TabContainerView tabContainer) {
-        this.container.setWidget(tabContainer);
+    public void showContainer(@Nullable TabContainerView tabContainer) {
+        container.setWidget(tabContainer != null ? tabContainer : unavailableLabel);
     }
 
     /** {@inheritDoc} */

@@ -48,7 +48,6 @@ public class MachinePanelPresenter extends BasePresenter implements MachinePanel
     private final EntityFactory               entityFactory;
     private final MachineLocalizationConstant locale;
     private final MachineAppliancePresenter   appliance;
-    private final List<Machine>               machineList;
 
     private Machine selectedMachine;
     private boolean isFirstNode;
@@ -68,8 +67,6 @@ public class MachinePanelPresenter extends BasePresenter implements MachinePanel
         this.locale = locale;
         this.appliance = appliance;
 
-        this.machineList = new ArrayList<>();
-
         eventBus.addHandler(MachineStateEvent.TYPE, this);
     }
 
@@ -80,7 +77,10 @@ public class MachinePanelPresenter extends BasePresenter implements MachinePanel
         machinesPromise.then(new Operation<List<MachineDescriptor>>() {
             @Override
             public void apply(List<MachineDescriptor> machines) throws OperationException {
-                machineList.clear();
+                if (machines.isEmpty()) {
+                    appliance.showStub();
+                }
+
                 isFirstNode = true;
 
                 List<MachineTreeNode> rootChildren = new ArrayList<>();
@@ -91,8 +91,6 @@ public class MachinePanelPresenter extends BasePresenter implements MachinePanel
 
                 for (MachineDescriptor descriptor : machines) {
                     Machine machine = entityFactory.createMachine(descriptor);
-
-                    machineList.add(machine);
 
                     MachineTreeNode machineNode = entityFactory.createMachineNode(rootNode, machine, null);
 

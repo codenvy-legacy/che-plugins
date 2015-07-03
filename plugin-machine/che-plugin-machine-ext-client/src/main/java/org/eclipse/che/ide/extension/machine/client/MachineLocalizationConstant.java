@@ -247,4 +247,7 @@ public interface MachineLocalizationConstant extends Messages {
 
     @Key("info.server.url")
     String infoServerUrl();
+
+    @Key("unavailable.machine.info")
+    String unavailableMachineInfo();
 }
