@@ -18,7 +18,7 @@ import org.eclipse.che.api.machine.shared.dto.MachineDescriptor;
 import org.eclipse.che.api.machine.shared.dto.ServerDescriptor;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 
-import javax.annotation.Nullable;
+import javax.annotation.Nonnull;
 import java.util.Map;
 import java.util.Objects;
 
@@ -63,7 +63,7 @@ public class Machine {
     }
 
     /** @return special url which references on terminal content. */
-    @Nullable
+    @Nonnull
     public String getTerminalUrl() {
         Map<String, ServerDescriptor> serverDescriptors = descriptor.getServers();
 
@@ -74,7 +74,7 @@ public class Machine {
             }
         }
 
-        return null;
+        return "";
     }
 
     /** @return active tab name for current machine */

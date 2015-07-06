@@ -24,7 +24,6 @@ import java.util.Map;
 
 import static org.eclipse.che.ide.extension.machine.client.machine.Machine.TERMINAL_REF_KEY;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -132,7 +131,7 @@ public class MachineTest {
 
         verify(serverDescriptor, never()).getUrl();
 
-        assertThat(url, nullValue());
+        assertThat(url, equalTo(""));
     }
 
     @Test

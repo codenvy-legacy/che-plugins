@@ -36,10 +36,12 @@ import org.eclipse.che.ide.api.parts.WorkspaceAgent;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.OutputMessageUnmarshaller;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
+import org.eclipse.che.ide.extension.machine.client.machine.MachineStateNotifier.RunningListener;
 import org.eclipse.che.ide.extension.machine.client.machine.console.MachineConsolePresenter;
 import org.eclipse.che.ide.extension.machine.client.outputspanel.OutputsContainerPresenter;
 import org.eclipse.che.ide.extension.machine.client.outputspanel.console.CommandConsoleFactory;
 import org.eclipse.che.ide.extension.machine.client.outputspanel.console.OutputConsole;
+import org.eclipse.che.ide.extension.machine.client.util.RecipeProvider;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 import org.eclipse.che.ide.util.UUID;
 import org.eclipse.che.ide.util.loging.Log;
@@ -52,6 +54,8 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 import static com.google.gwt.http.client.RequestBuilder.GET;
+import static org.eclipse.che.ide.extension.machine.client.machine.MachineManager.OperationType.RESTART;
+import static org.eclipse.che.ide.extension.machine.client.machine.MachineManager.OperationType.START;
 
 /**
  * Manager for machine operations.
@@ -72,6 +76,7 @@ public class MachineManager implements ProjectActionHandler {
     private final MachineStateNotifier        machineStateNotifier;
     private final DialogFactory               dialogFactory;
     private final MachineNameManager          nameManager;
+    private final RecipeProvider              recipeProvider;
 
     /** Stores ID of the developer machine (where workspace or current project is bound). */
     private String devMachineId;
@@ -87,7 +92,8 @@ public class MachineManager implements ProjectActionHandler {
                           WorkspaceAgent workspaceAgent,
                           MachineStateNotifier machineStateNotifier,
                           DialogFactory dialogFactory,
-                          MachineNameManager nameManager) {
+                          MachineNameManager nameManager,
+                          RecipeProvider recipeProvider) {
         this.machineServiceClient = machineServiceClient;
         this.messageBus = messageBus;
         this.machineConsolePresenter = machineConsolePresenter;
@@ -99,6 +105,7 @@ public class MachineManager implements ProjectActionHandler {
         this.machineStateNotifier = machineStateNotifier;
         this.dialogFactory = dialogFactory;
         this.nameManager = nameManager;
+        this.recipeProvider = recipeProvider;
     }
 
     @Override
@@ -127,17 +134,39 @@ public class MachineManager implements ProjectActionHandler {
         machineConsolePresenter.clear();
     }
 
+    public void restartMachine(@Nonnull final Machine machine) {
+        final String machineId = machine.getId();
+
+        nameManager.removeName(machineId);
+
+        machineServiceClient.destroyMachine(machineId).then(new Operation<Void>() {
+            @Override
+            public void apply(Void arg) throws OperationException {
+                String recipeUrl = recipeProvider.getRecipeUrl();
+                String displayName = machine.getDisplayName();
+
+                boolean isWSBound = machine.isWorkspaceBound();
+
+                startMachine(recipeUrl, displayName, isWSBound, RESTART);
+            }
+        });
+
+    }
+
     /** Start new machine. */
     public void startMachine(String recipeURL, @Nonnull String displayName) {
-        startMachine(recipeURL, displayName, false);
+        startMachine(recipeURL, displayName, false, START);
     }
 
     /** Start new machine and bind workspace to running machine. */
     public void startAndBindMachine(String recipeURL, @Nonnull String displayName) {
-        startMachine(recipeURL, displayName, true);
+        startMachine(recipeURL, displayName, true, START);
     }
 
-    private void startMachine(String recipeURL, @Nonnull final String displayName, final boolean bindWorkspace) {
+    private void startMachine(@Nonnull final String recipeURL,
+                              @Nonnull final String displayName,
+                              final boolean bindWorkspace,
+                              @Nonnull final OperationType operationType) {
         downloadRecipe(recipeURL).thenPromise(new Function<String, Promise<MachineDescriptor>>() {
             @Override
             public Promise<MachineDescriptor> apply(String recipeScript) throws FunctionException {
@@ -154,12 +183,12 @@ public class MachineManager implements ProjectActionHandler {
         }).then(new Operation<MachineDescriptor>() {
             @Override
             public void apply(final MachineDescriptor machineDescriptor) throws OperationException {
-                MachineStateNotifier.RunningListener runningListener = null;
+                RunningListener runningListener = null;
 
                 final String machineId = machineDescriptor.getId();
 
                 if (bindWorkspace) {
-                    runningListener = new MachineStateNotifier.RunningListener() {
+                    runningListener = new RunningListener() {
                         @Override
                         public void onRunning() {
                             devMachineId = machineId;
@@ -169,7 +198,7 @@ public class MachineManager implements ProjectActionHandler {
 
                 nameManager.addName(machineId, displayName);
 
-                machineStateNotifier.trackMachine(machineId, runningListener);
+                machineStateNotifier.trackMachine(machineId, runningListener, operationType);
             }
         });
     }
@@ -268,5 +297,9 @@ public class MachineManager implements ProjectActionHandler {
                 console.attachToProcess(arg.getPid());
             }
         });
+    }
+
+    enum OperationType {
+        START, RESTART
     }
 }

@@ -23,6 +23,7 @@ import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
+import org.eclipse.che.ide.extension.machine.client.machine.MachineManager.OperationType;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.util.loging.Log;
 import org.eclipse.che.ide.websocket.MessageBus;
@@ -35,11 +36,12 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import static org.eclipse.che.api.machine.shared.MachineState.CREATING;
-import static org.eclipse.che.api.machine.shared.MachineState.DESTROYING;
 import static org.eclipse.che.ide.api.notification.Notification.Status.FINISHED;
 import static org.eclipse.che.ide.api.notification.Notification.Status.PROGRESS;
 import static org.eclipse.che.ide.api.notification.Notification.Type.ERROR;
 import static org.eclipse.che.ide.api.notification.Notification.Type.INFO;
+import static org.eclipse.che.ide.extension.machine.client.machine.MachineManager.OperationType.RESTART;
+import static org.eclipse.che.ide.extension.machine.client.machine.MachineManager.OperationType.START;
 
 /**
  * Notifies about changing machine state.
@@ -84,7 +86,7 @@ class MachineStateNotifier {
      *         ID of the machine to track
      */
     void trackMachine(@Nonnull final String machineId) {
-        trackMachine(machineId, null);
+        trackMachine(machineId, null, START);
     }
 
     /**
@@ -95,9 +97,13 @@ class MachineStateNotifier {
      * @param runningListener
      *         listener that will be notified when machine is running
      */
-    void trackMachine(@Nonnull final String machineId, @Nullable final RunningListener runningListener) {
+    void trackMachine(@Nonnull final String machineId,
+                      @Nullable final RunningListener runningListener,
+                      @Nonnull final OperationType operationType) {
+
         final String wsChannel = MACHINE_STATE_WS_CHANNEL + machineId;
         final Notification notification = new Notification("", INFO, true);
+        final boolean isRestarting = RESTART.equals(operationType);
 
         final Unmarshallable<MachineStateEvent> unmarshaller = dtoUnmarshallerFactory.newWSUnmarshaller(MachineStateEvent.class);
         final MessageHandler handler = new SubscriptionHandler<MachineStateEvent>(unmarshaller) {
@@ -112,7 +118,8 @@ class MachineStateNotifier {
                             runningListener.onRunning();
                         }
 
-                        notification.setMessage(locale.notificationMachineIsRunning(machineName));
+                        notification.setMessage(isRestarting ? locale.machineRestarted(machineName)
+                                                             : locale.notificationMachineIsRunning(machineName));
                         notification.setStatus(FINISHED);
                         notification.setType(INFO);
 
@@ -135,9 +142,8 @@ class MachineStateNotifier {
                         break;
                     case ERROR:
                         unsubscribe(wsChannel, this);
-                        notification.setMessage(result.getError());
-                        notification.setStatus(FINISHED);
-                        notification.setType(ERROR);
+
+                        showError(result.getError(), notification);
                         break;
                 }
             }
@@ -145,9 +151,8 @@ class MachineStateNotifier {
             @Override
             protected void onErrorReceived(Throwable exception) {
                 unsubscribe(wsChannel, this);
-                notification.setMessage(exception.getMessage());
-                notification.setStatus(FINISHED);
-                notification.setType(ERROR);
+
+                showError(exception.getMessage(), notification);
             }
         };
 
@@ -155,23 +160,38 @@ class MachineStateNotifier {
             @Override
             public void apply(MachineDescriptor arg) throws OperationException {
                 final MachineState state = arg.getState();
-                if (state == CREATING || state == DESTROYING) {
-                    notification.setMessage(state == CREATING ? locale.notificationCreatingMachine(arg.getDisplayName())
-                                                              : locale.notificationDestroyingMachine(arg.getDisplayName()));
-                    notification.setStatus(PROGRESS);
-                    notificationManager.showNotification(notification);
+                String machineName = arg.getDisplayName();
 
-                    try {
-                        messageBus.subscribe(wsChannel, handler);
-                    } catch (WebSocketException e) {
-                        Log.error(getClass(), e);
-                    }
+                if (isRestarting) {
+                    notification.setMessage(locale.notificationMachineRestarting(machineName));
+                } else {
+                    notification.setMessage(state == CREATING ? locale.notificationCreatingMachine(machineName)
+                                                              : locale.notificationDestroyingMachine(machineName));
                 }
+
+                notification.setStatus(PROGRESS);
+                notificationManager.showNotification(notification);
+
+                subscribe(wsChannel, handler);
             }
         });
     }
 
-    private void unsubscribe(String wsChannel, MessageHandler handler) {
+    private void showError(@Nonnull String error, @Nonnull Notification notification) {
+        notification.setMessage(error);
+        notification.setStatus(FINISHED);
+        notification.setType(ERROR);
+    }
+
+    private void subscribe(@Nonnull String wsChannel, @Nonnull MessageHandler handler) {
+        try {
+            messageBus.subscribe(wsChannel, handler);
+        } catch (WebSocketException e) {
+            Log.error(getClass(), e);
+        }
+    }
+
+    private void unsubscribe(@Nonnull String wsChannel, @Nonnull MessageHandler handler) {
         try {
             messageBus.unsubscribe(wsChannel, handler);
         } catch (WebSocketException e) {
@@ -179,7 +199,7 @@ class MachineStateNotifier {
         }
     }
 
-    /** If provided to {@link #trackMachine(String, RunningListener)} method - will be invoked when machine is running. */
+    /** Listener's method will be invoked when machine is running. */
     interface RunningListener {
         void onRunning();
     }

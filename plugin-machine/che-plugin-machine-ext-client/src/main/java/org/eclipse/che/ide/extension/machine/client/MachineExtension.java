@@ -25,6 +25,7 @@ import org.eclipse.che.ide.extension.machine.client.actions.CreateMachineAction;
 import org.eclipse.che.ide.extension.machine.client.actions.DestroyMachineAction;
 import org.eclipse.che.ide.extension.machine.client.actions.EditCommandsAction;
 import org.eclipse.che.ide.extension.machine.client.actions.ExecuteSelectedCommandAction;
+import org.eclipse.che.ide.extension.machine.client.actions.RestartMachineAction;
 import org.eclipse.che.ide.extension.machine.client.actions.SelectCommandAction;
 import org.eclipse.che.ide.extension.machine.client.actions.SwitchPerspectiveAction;
 import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
@@ -66,6 +67,7 @@ public class MachineExtension {
                                 SelectCommandAction selectCommandAction,
                                 EditCommandsAction editCommandsAction,
                                 CreateMachineAction createMachine,
+                                RestartMachineAction restartMachine,
                                 DestroyMachineAction destroyMachine,
                                 SwitchPerspectiveAction switchPerspectiveAction) {
         final DefaultActionGroup mainMenu = (DefaultActionGroup)actionManager.getAction(GROUP_MAIN_MENU);
@@ -86,10 +88,12 @@ public class MachineExtension {
 
         actionManager.registerAction("machine", machineMenu);
         actionManager.registerAction("createMachine", createMachine);
+        actionManager.registerAction("restartMachine", restartMachine);
         actionManager.registerAction("destroyMachine", destroyMachine);
 
         mainMenu.add(machineMenu, new Constraints(AFTER, "run"));
         machineMenu.add(createMachine);
+        machineMenu.add(restartMachine);
         machineMenu.add(destroyMachine);
 
         // add actions on right toolbar

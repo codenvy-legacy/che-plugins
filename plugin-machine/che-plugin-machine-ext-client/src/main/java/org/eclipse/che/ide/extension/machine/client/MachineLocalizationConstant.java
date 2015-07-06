@@ -250,4 +250,19 @@ public interface MachineLocalizationConstant extends Messages {
 
     @Key("unavailable.machine.info")
     String unavailableMachineInfo();
+
+    @Key("control.machine.restart.text")
+    String controlMachineRestartText();
+
+    @Key("control.machine.restart.tooltip")
+    String controlMachineRestartTooltip();
+
+    @Key("control.machine.restart.text.by.name")
+    String machineRestartTextByName(String text);
+
+    @Key("notification.machine.restarting")
+    String notificationMachineRestarting(String text);
+
+    @Key("machine.restarted")
+    String machineRestarted(String text);
 }

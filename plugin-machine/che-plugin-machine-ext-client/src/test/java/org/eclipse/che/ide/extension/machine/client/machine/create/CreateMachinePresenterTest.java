@@ -17,8 +17,8 @@ import org.eclipse.che.api.promises.client.Function;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.ide.api.app.AppContext;
-import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
+import org.eclipse.che.ide.extension.machine.client.util.RecipeProvider;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,10 +29,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Answers.RETURNS_DEEP_STUBS;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -43,6 +40,8 @@ public class CreateMachinePresenterTest {
     private final static String RECIPE_URL   = "http://www.host.com/recipe";
     private final static String MACHINE_NAME = "machine";
 
+    private final static String SOME_TEXT = "someText";
+
     @Mock
     private CreateMachineView        view;
     @Mock
@@ -51,6 +50,8 @@ public class CreateMachinePresenterTest {
     private AppContext               appContext;
     @Mock
     private ProjectTypeServiceClient projectTypeServiceClient;
+    @Mock
+    private RecipeProvider           recipeProvider;
 
     @InjectMocks
     private CreateMachinePresenter presenter;
@@ -80,36 +81,21 @@ public class CreateMachinePresenterTest {
     }
 
     @Test
-    public void shouldShowView() throws Exception {
-        final ProjectTypeDefinition projectTypeDefinition = mock(ProjectTypeDefinition.class);
-        when(projectTypeDefinition.getDefaultRecipe()).thenReturn(RECIPE_URL);
-
-        String projectTypeId = "p_type_id";
-        when(projectDescriptor.getType()).thenReturn(projectTypeId);
-        when(projectDescriptor.getRecipe()).thenReturn(null);
-        final CurrentProject currentProject = mock(CurrentProject.class);
-        when(currentProject.getRootProject()).thenReturn(projectDescriptor);
-        when(appContext.getCurrentProject()).thenReturn(currentProject);
-
-        when(projectTypeServiceClient.getProjectType(anyString())).thenReturn(projectTypePromise);
-        when(projectTypePromise.then(any(Function.class))).thenReturn(recipeUrlPromise);
+    public void viewShouldBeShown() throws Exception {
+        when(recipeProvider.getRecipeUrl()).thenReturn(SOME_TEXT);
 
         presenter.showDialog();
 
         verify(view).show();
-        verify(view).setCreateButtonState(eq(false));
-        verify(view).setReplaceButtonState(eq(false));
-        verify(view).setMachineName(eq(""));
-        verify(view).setRecipeURL(eq(""));
-        verify(view).setErrorHint(eq(false));
+        verify(view).setCreateButtonState(false);
+        verify(view).setReplaceButtonState(false);
+        verify(view).setMachineName("");
+        verify(view).setRecipeURL("");
+        verify(view).setErrorHint(false);
+        verify(view).setTags("");
 
-        verify(projectTypePromise).then(functionCaptor.capture());
-        functionCaptor.getValue().apply(projectTypeDefinition);
-
-        verify(recipeUrlPromise).then(recipeUrlCaptor.capture());
-        recipeUrlCaptor.getValue().apply(RECIPE_URL);
-
-        verify(view).setRecipeURL(eq(RECIPE_URL));
+        verify(recipeProvider).getRecipeUrl();
+        verify(view).setRecipeURL(SOME_TEXT);
     }
 
     @Test
