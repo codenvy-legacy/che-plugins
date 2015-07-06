@@ -97,9 +97,9 @@ public class MachineTest {
 
     @Test
     public void stateShouldBeReturned() {
-        machine.getState();
+        machine.getStatus();
 
-        verify(descriptor).getState();
+        verify(descriptor).getStatus();
     }
 
     @Test

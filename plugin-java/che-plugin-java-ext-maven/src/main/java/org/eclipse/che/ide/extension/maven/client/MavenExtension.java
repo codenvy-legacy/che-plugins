@@ -32,8 +32,8 @@ import org.eclipse.che.ide.api.project.type.wizard.PreSelectedProjectTypeManager
 import org.eclipse.che.ide.collections.Array;
 import org.eclipse.che.ide.collections.Collections;
 import org.eclipse.che.ide.ext.java.client.dependenciesupdater.DependenciesUpdater;
-import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateEvent;
-import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateHandler;
+import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStatusEvent;
+import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStatusHandler;
 import org.eclipse.che.ide.extension.maven.client.actions.CreateMavenModuleAction;
 import org.eclipse.che.ide.extension.maven.client.actions.UpdateDependencyAction;
 import org.eclipse.che.ide.extension.maven.client.event.BeforeModuleOpenEvent;
@@ -106,9 +106,9 @@ public class MavenExtension {
             }
         });
 
-        eventBus.addHandler(MachineStateEvent.TYPE, new MachineStateHandler() {
+        eventBus.addHandler(MachineStatusEvent.TYPE, new MachineStatusHandler() {
             @Override
-            public void onMachineRunning(MachineStateEvent event) {
+            public void onMachineRunning(MachineStatusEvent event) {
                 if(project != null) {
                     if (isValidForResolveDependencies(project)) {
                         new Timer() {
@@ -122,7 +122,7 @@ public class MavenExtension {
             }
 
             @Override
-            public void onMachineDestroyed(MachineStateEvent event) {
+            public void onMachineDestroyed(MachineStatusEvent event) {
 
             }
         });

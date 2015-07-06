@@ -15,7 +15,6 @@ import com.google.inject.assistedinject.Assisted;
 import org.eclipse.che.api.core.util.LineConsumer;
 import org.eclipse.che.api.machine.server.exception.MachineException;
 import org.eclipse.che.api.machine.server.spi.Instance;
-import org.eclipse.che.api.machine.server.spi.InstanceMetadata;
 import org.eclipse.che.api.machine.server.spi.InstanceProcess;
 
 import javax.annotation.Nullable;
@@ -26,18 +25,19 @@ import javax.annotation.Nullable;
  * @author Alexander Garagatyi
  */
 public interface DockerMachineFactory {
-    InstanceMetadata createInstanceMetadata(@Assisted String container) throws MachineException;
-
     InstanceProcess createProcess(@Assisted("container") String container,
                                   @Assisted("command") @Nullable String command,
                                   @Assisted("pid_file_path") String pidFilePath,
                                   @Assisted int pid,
                                   @Assisted boolean isStarted) throws MachineException;
 
-    Instance createInstance(@Assisted("container") String containerId,
+    Instance createInstance(@Assisted("machineId") String machineId,
+                            @Assisted("workspaceId") String workspaceId,
+                            @Assisted boolean workspaceIsBound,
+                            @Assisted("creator") String creator,
+                            @Assisted("displayName") String displayName,
+                            @Assisted("container") String container,
                             @Assisted DockerNode node,
-                            @Assisted("workspace") String workspaceId,
-                            @Assisted boolean bindWorkspace,
                             @Assisted LineConsumer outputConsumer) throws MachineException;
 
     DockerNode createNode(@Assisted String containerId) throws MachineException;

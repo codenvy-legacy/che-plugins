@@ -12,7 +12,8 @@ package org.eclipse.che.ide.extension.machine.client.machine;
 
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
 import org.eclipse.che.api.machine.shared.dto.MachineDescriptor;
-import org.eclipse.che.api.machine.shared.dto.event.MachineStateEvent;
+import org.eclipse.che.api.machine.shared.dto.MachineStateDescriptor;
+import org.eclipse.che.api.machine.shared.dto.event.MachineStatusEvent;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.ide.api.notification.Notification;
@@ -34,8 +35,8 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.eclipse.che.api.machine.shared.MachineState.CREATING;
-import static org.eclipse.che.api.machine.shared.MachineState.DESTROYING;
+import static org.eclipse.che.api.machine.shared.MachineStatus.CREATING;
+import static org.eclipse.che.api.machine.shared.MachineStatus.DESTROYING;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyString;
@@ -67,29 +68,29 @@ public class MachineStateNotifierTest {
 
     //additional mocks
     @Mock
-    private Unmarshallable<MachineStateEvent> unmarshaller;
+    private Unmarshallable<MachineStatusEvent> unmarshaller;
     @Mock
-    private Promise<MachineDescriptor>        machinePromise;
+    private Promise<MachineStateDescriptor>    machineStatePromise;
     @Mock
-    private MachineDescriptor                 descriptor;
+    private MachineStateDescriptor                  descriptor;
     @Mock
-    private MachineStateEvent                 stateEvent;
+    private MachineStatusEvent                 stateEvent;
 
     @Captor
-    private ArgumentCaptor<Operation<MachineDescriptor>>           operationCaptor;
+    private ArgumentCaptor<Operation<MachineStateDescriptor>>            operationCaptor;
     @Captor
-    private ArgumentCaptor<Notification>                           notificationCaptor;
+    private ArgumentCaptor<Notification>                            notificationCaptor;
     @Captor
-    private ArgumentCaptor<SubscriptionHandler<MachineStateEvent>> handlerCaptor;
+    private ArgumentCaptor<SubscriptionHandler<MachineStatusEvent>> handlerCaptor;
 
     @InjectMocks
-    private MachineStateNotifier stateNotifier;
+    private MachineStatusNotifier stateNotifier;
 
     @Before
     public void setUp() {
-        when(dtoUnmarshallerFactory.newWSUnmarshaller(MachineStateEvent.class)).thenReturn(unmarshaller);
+        when(dtoUnmarshallerFactory.newWSUnmarshaller(MachineStatusEvent.class)).thenReturn(unmarshaller);
 
-        when(service.getMachine(SOME_TEXT)).thenReturn(machinePromise);
+        when(service.getMachineState(SOME_TEXT)).thenReturn(machineStatePromise);
 
         when(locale.notificationCreatingMachine(SOME_TEXT)).thenReturn(SOME_TEXT);
         when(locale.notificationDestroyingMachine(SOME_TEXT)).thenReturn(SOME_TEXT);
@@ -97,11 +98,11 @@ public class MachineStateNotifierTest {
 
     @Test
     public void machineShouldBeTrackedWhenMachineStateIsCreating() throws Exception {
-        when(descriptor.getState()).thenReturn(CREATING);
+        when(descriptor.getStatus()).thenReturn(CREATING);
         when(descriptor.getDisplayName()).thenReturn(SOME_TEXT);
         stateNotifier.trackMachine(SOME_TEXT);
 
-        verify(machinePromise).then(operationCaptor.capture());
+        verify(machineStatePromise).then(operationCaptor.capture());
         operationCaptor.getValue().apply(descriptor);
 
         verify(notificationManager).showNotification(notificationCaptor.capture());
@@ -118,11 +119,11 @@ public class MachineStateNotifierTest {
 
     @Test
     public void machineShouldBeTrackedWhenMachineStateIsDestroying() throws Exception {
-        when(descriptor.getState()).thenReturn(DESTROYING);
+        when(descriptor.getStatus()).thenReturn(DESTROYING);
         when(descriptor.getDisplayName()).thenReturn(SOME_TEXT);
         stateNotifier.trackMachine(SOME_TEXT);
 
-        verify(machinePromise).then(operationCaptor.capture());
+        verify(machineStatePromise).then(operationCaptor.capture());
         operationCaptor.getValue().apply(descriptor);
 
         verify(notificationManager).showNotification(notificationCaptor.capture());

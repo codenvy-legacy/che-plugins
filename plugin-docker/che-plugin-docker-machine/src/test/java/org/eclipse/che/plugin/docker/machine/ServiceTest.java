@@ -21,14 +21,16 @@ import org.eclipse.che.api.machine.server.MachineManager;
 import org.eclipse.che.api.machine.server.MachineRegistry;
 import org.eclipse.che.api.machine.server.MachineService;
 import org.eclipse.che.api.machine.server.dao.SnapshotDao;
-import org.eclipse.che.api.machine.server.impl.MachineImpl;
+import org.eclipse.che.api.machine.server.exception.MachineException;
+import org.eclipse.che.api.machine.server.impl.MachineState;
 import org.eclipse.che.api.machine.server.impl.SnapshotImpl;
 import org.eclipse.che.api.machine.server.spi.InstanceProvider;
-import org.eclipse.che.api.machine.shared.MachineState;
+import org.eclipse.che.api.machine.shared.MachineStatus;
 import org.eclipse.che.api.machine.shared.dto.CommandDescriptor;
 import org.eclipse.che.api.machine.shared.dto.MachineDescriptor;
 import org.eclipse.che.api.machine.shared.dto.MachineFromRecipeMetadata;
 import org.eclipse.che.api.machine.shared.dto.MachineFromSnapshotMetadata;
+import org.eclipse.che.api.machine.shared.dto.MachineStateDescriptor;
 import org.eclipse.che.api.machine.shared.dto.ProcessDescriptor;
 import org.eclipse.che.api.machine.shared.dto.recipe.RecipeDescriptor;
 import org.eclipse.che.api.workspace.server.dao.Member;
@@ -54,7 +56,6 @@ import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -90,18 +91,18 @@ public class ServiceTest {
     // used in methods {@link createMachineFromSnapshotTest} and {@link removeSnapshotTest}
     private DockerInstanceKey pushedImage;
 
-    private SnapshotDao              snapshotDao;
-    private MemberDao                memberDao;
-    private DockerMachineFactory     dockerFactory;
-    private DockerNode               dockerNode;
-    private MachineRegistry          machineRegistry;
-    private DockerConnector          docker;
-    private InstanceProvider         dockerInstanceProvider;
-    private MachineManager           machineManager;
-    private MachineService           machineService;
-    private String                   registryContainerId;
-    private AuthConfigs              authConfigs;
-    private EventService             eventService;
+    private SnapshotDao          snapshotDao;
+    private MemberDao            memberDao;
+    private DockerMachineFactory dockerFactory;
+    private DockerNode           dockerNode;
+    private MachineRegistry      machineRegistry;
+    private DockerConnector      docker;
+    private InstanceProvider     dockerInstanceProvider;
+    private MachineManager       machineManager;
+    private MachineService       machineService;
+    private String               registryContainerId;
+    private AuthConfigs          authConfigs;
+    private EventService         eventService;
 
     private DtoFactory dtoFactory = DtoFactory.getInstance();
 
@@ -199,14 +200,14 @@ public class ServiceTest {
 
     @AfterMethod
     public void tearDown() throws Exception {
-        for (MachineImpl machine : new ArrayList<>(machineManager.getMachines())) {
+        for (MachineState machine : new ArrayList<>(machineManager.getMachines())) {
             machineManager.destroy(machine.getId());
         }
     }
 
     @Test
     public void createFromRecipeTest() throws Exception {
-        final MachineDescriptor machine = machineService.createMachineFromRecipe(
+        final MachineStateDescriptor machine = machineService.createMachineFromRecipe(
                 dtoFactory.createDto(MachineFromRecipeMetadata.class)
                           .withType("docker")
                           .withWorkspaceId("wsId")
@@ -229,7 +230,7 @@ public class ServiceTest {
         when(snapshot.getInstanceKey()).thenReturn(pushedImage);
         when(snapshot.getOwner()).thenReturn(USER);
 
-        final MachineDescriptor machine = machineService
+        final MachineStateDescriptor machine = machineService
                 .createMachineFromSnapshot(dtoFactory.createDto(MachineFromSnapshotMetadata.class).withSnapshotId(SNAPSHOT_ID));
 
         waitMachineIsRunning(machine.getId());
@@ -237,7 +238,7 @@ public class ServiceTest {
 
     @Test
     public void getMachineTest() throws Exception {
-        final MachineImpl machine = createMachineAndWaitRunningState();
+        final MachineState machine = createMachineAndWaitRunningState();
 
         final MachineDescriptor machineById = machineService.getMachineById(machine.getId());
 
@@ -251,7 +252,7 @@ public class ServiceTest {
         expected.add(createMachineAndWaitRunningState().getId());
 
         Set<String> actual = new HashSet<>();
-        for (MachineImpl machine : machineManager.getMachines()) {
+        for (MachineState machine : machineManager.getMachines()) {
             actual.add(machine.getId());
         }
         assertEquals(actual, expected);
@@ -259,11 +260,11 @@ public class ServiceTest {
 
     @Test
     public void destroyMachineTest() throws Exception {
-        final MachineImpl machine = createMachineAndWaitRunningState();
+        final MachineState machine = createMachineAndWaitRunningState();
 
         machineService.destroyMachine(machine.getId());
 
-        assertEquals(MachineState.DESTROYING, machine.getState());
+        assertEquals(MachineStatus.DESTROYING, machine.getStatus());
 
         int counter = 0;
         while (++counter < 1000) {
@@ -279,7 +280,7 @@ public class ServiceTest {
 
     @Test(enabled = false)// TODO Add ability to check when snapshot creation is finishes or fails
     public void saveSnapshotTest() throws Exception {
-        final MachineImpl machine = createMachineAndWaitRunningState();
+        final MachineState machine = createMachineAndWaitRunningState();
 
         // use machine manager instead of machine service because it returns future with snapshot
         // that allows check operation result
@@ -324,7 +325,7 @@ public class ServiceTest {
 
     @Test
     public void executeTest() throws Exception {
-        final MachineImpl machine = createMachineAndWaitRunningState();
+        final MachineState machine = createMachineAndWaitRunningState();
 
         String commandInMachine = "echo \"command in machine\" && tail -f /dev/null";
         machineService
@@ -339,7 +340,7 @@ public class ServiceTest {
 
     @Test
     public void getProcessesTest() throws Exception {
-        final MachineImpl machine = createMachineAndWaitRunningState();
+        final MachineState machine = createMachineAndWaitRunningState();
 
         Set<String> commands = new HashSet<>(2);
         commands.add("tail -f /dev/null");
@@ -363,7 +364,7 @@ public class ServiceTest {
 
     @Test
     public void stopProcessTest() throws Exception {
-        final MachineImpl machine = createMachineAndWaitRunningState();
+        final MachineState machine = createMachineAndWaitRunningState();
 
         String commandInMachine = "echo \"command in machine\" && tail -f /dev/null";
         machineService
@@ -382,7 +383,7 @@ public class ServiceTest {
 
     @Test(expectedExceptions = NotFoundException.class, expectedExceptionsMessageRegExp = "Process with pid .* not found")
     public void shouldThrowNotFoundExceptionOnProcessKillIfProcessPidMissing() throws Exception {
-        final MachineImpl machine = createMachineAndWaitRunningState();
+        final MachineState machine = createMachineAndWaitRunningState();
 
         String commandInMachine = "echo \"command in machine\" && tail -f /dev/null";
         machineService
@@ -397,27 +398,27 @@ public class ServiceTest {
         machineService.stopProcess(machine.getId(), processes.get(0).getPid() + 100);
     }
 
-    private MachineImpl createMachineAndWaitRunningState()
+    private MachineState createMachineAndWaitRunningState()
             throws ServerException, NotFoundException, ForbiddenException, InterruptedException {
-        final MachineImpl machine = machineManager.create(dtoFactory.createDto(MachineFromRecipeMetadata.class)
-                                                                    .withWorkspaceId("wsId")
-                                                                    .withType("docker")
-                                                                    .withRecipeDescriptor(dtoFactory.createDto(RecipeDescriptor.class)
-                                                                                                    .withType("Dockerfile")
-                                                                                                    .withScript(
-                                                                                                            "FROM ubuntu\nCMD tail -f /dev/null\n"))
-                                                                    .withBindWorkspace(false)
-                                                                    .withDisplayName("displayName")
-                                                                    .withOutputChannel("blah")
+        final MachineState machine = machineManager.create(dtoFactory.createDto(MachineFromRecipeMetadata.class)
+                                                                     .withWorkspaceId("wsId")
+                                                                     .withType("docker")
+                                                                     .withRecipeDescriptor(dtoFactory.createDto(RecipeDescriptor.class)
+                                                                                                     .withType("Dockerfile")
+                                                                                                     .withScript(
+                                                                                                             "FROM ubuntu\nCMD tail -f /dev/null\n"))
+                                                                     .withBindWorkspace(false)
+                                                                     .withDisplayName("displayName")
+                                                                     .withOutputChannel("blah")
                                                           );
-        while (MachineState.RUNNING != machineManager.getMachine(machine.getId()).getState()) {
+        while (MachineStatus.RUNNING != machineManager.getMachine(machine.getId()).getStatus()) {
             Thread.sleep(500);
         }
         return machine;
     }
 
-    private void waitMachineIsRunning(String machineId) throws NotFoundException, InterruptedException {
-        while (MachineState.RUNNING != machineManager.getMachine(machineId).getState()) {
+    private void waitMachineIsRunning(String machineId) throws NotFoundException, InterruptedException, MachineException {
+        while (MachineStatus.RUNNING != machineManager.getMachine(machineId).getStatus()) {
             Thread.sleep(500);
         }
     }
