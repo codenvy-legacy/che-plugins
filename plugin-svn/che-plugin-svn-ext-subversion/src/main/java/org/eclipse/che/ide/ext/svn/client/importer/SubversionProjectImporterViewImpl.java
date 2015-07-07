@@ -244,4 +244,5 @@ public class SubversionProjectImporterViewImpl extends Composite implements Subv
 
         String horizontalLine();
     }
+
 }

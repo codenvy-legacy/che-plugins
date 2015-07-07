@@ -224,8 +224,11 @@ public class SubversionActionPresenter {
     protected void printCommand(String command) {
         ensureViewOpened();
 
-        command = "$ " + command.substring(1, command.length() - 1);
-        String line = "<span style=\"font-weight: bold; font-style: italic;\">" + command + "</span>";
+        if (command.startsWith("'") || command.startsWith("\"")) {
+            command += command.substring(1, command.length() - 1);
+        }
+
+        String line = "<span style=\"font-weight: bold; font-style: italic;\">$ " + command + "</span>";
 
         console.print(line);
     }
