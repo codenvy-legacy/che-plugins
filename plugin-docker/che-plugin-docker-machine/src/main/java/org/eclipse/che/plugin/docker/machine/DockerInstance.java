@@ -123,9 +123,20 @@ public class DockerInstance extends AbstractInstance {
 
             addRefAndUrlToServerFromImageLabels(servers, containerInfo.getConfig().getLabels());
 
+            addDefaultReferenceForServersWithoutReference(servers);
+
             return servers;
         } catch (IOException e) {
             throw new MachineException(e.getLocalizedMessage(), e);
+        }
+    }
+
+    private void addDefaultReferenceForServersWithoutReference(Map<String, Server> servers) {
+        for (Map.Entry<String, Server> server : servers.entrySet()) {
+            if (server.getValue().getRef() == null) {
+                // replace / if server port contains it. E.g. 5411/udp
+                ((ServerImpl)server.getValue()).setRef("Server-" + server.getKey().replace("/", "-"));
+            }
         }
     }
 
