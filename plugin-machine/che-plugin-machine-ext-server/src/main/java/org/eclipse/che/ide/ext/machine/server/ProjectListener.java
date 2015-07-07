@@ -21,9 +21,10 @@ import org.eclipse.che.api.core.ServerException;
 import org.eclipse.che.api.core.notification.EventService;
 import org.eclipse.che.api.core.notification.EventSubscriber;
 import org.eclipse.che.api.machine.server.MachineManager;
-import org.eclipse.che.api.machine.server.impl.MachineImpl;
+import org.eclipse.che.api.machine.server.exception.MachineException;
+import org.eclipse.che.api.machine.server.spi.Instance;
 import org.eclipse.che.api.machine.shared.Server;
-import org.eclipse.che.api.machine.shared.dto.event.MachineStateEvent;
+import org.eclipse.che.api.machine.shared.dto.event.MachineStatusEvent;
 import org.eclipse.che.api.project.server.notification.ProjectItemModifiedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +39,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-import static org.eclipse.che.api.machine.shared.dto.event.MachineStateEvent.EventType;
+import static org.eclipse.che.api.machine.shared.dto.event.MachineStatusEvent.EventType;
 
 /**
  * @author Evgen Vidolob
@@ -65,9 +66,9 @@ public class ProjectListener {
             }
         });
 
-        eventService.subscribe(new EventSubscriber<MachineStateEvent>() {
+        eventService.subscribe(new EventSubscriber<MachineStatusEvent>() {
             @Override
-            public void onEvent(MachineStateEvent event) {
+            public void onEvent(MachineStatusEvent event) {
                 String machineId = event.getMachineId();
                 EventType type = event.getEventType();
                 switch (type) {
@@ -100,7 +101,7 @@ public class ProjectListener {
     private void sendEvent(String machineId, String json) {
         HttpURLConnection connection;
         try {
-            MachineImpl machine = machineManager.getMachine(machineId);
+            final Instance machine = machineManager.getMachine(machineId);
             final Server server = machine.getServers().get(Integer.toString(extServicesPort));
             if (server == null) {
                 throw new ServerException("No extension server found in machine");
@@ -143,7 +144,7 @@ public class ProjectListener {
 
     private void addMachine(String machineId, MachineManager machineManager) {
         try {
-            MachineImpl machine = machineManager.getMachine(machineId);
+            final Instance machine = machineManager.getMachine(machineId);
             String workspaceId = machine.getWorkspaceId();
             if (workspaceId != null) {
                 if (!workspace2machines.containsKey(workspaceId)) {
@@ -152,7 +153,7 @@ public class ProjectListener {
                 workspace2machines.get(workspaceId).add(machineId);
                 machine2workspace.putIfAbsent(machineId, workspaceId);
             }
-        } catch (NotFoundException e) {
+        } catch (NotFoundException | MachineException e) {
             LOG.error("Can't find machine.", e);
         }
     }

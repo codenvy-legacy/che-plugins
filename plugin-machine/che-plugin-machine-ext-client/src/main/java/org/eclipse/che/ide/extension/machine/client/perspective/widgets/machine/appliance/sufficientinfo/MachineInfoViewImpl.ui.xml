@@ -63,8 +63,8 @@
             </g:FlowPanel>
 
             <g:FlowPanel addStyleNames="{style.block}">
-                <g:Label text="{locale.infoState}" addStyleNames="{style.label}"/>
-                <g:Label ui:field="state" addStyleNames="{style.value}"/>
+                <g:Label text="{locale.infoStatus}" addStyleNames="{style.label}"/>
+                <g:Label ui:field="status" addStyleNames="{style.value}"/>
             </g:FlowPanel>
 
             <g:FlowPanel addStyleNames="{style.block}">

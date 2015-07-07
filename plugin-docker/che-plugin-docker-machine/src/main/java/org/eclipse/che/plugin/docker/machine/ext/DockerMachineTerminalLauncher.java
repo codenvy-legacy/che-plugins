@@ -15,8 +15,8 @@ import org.eclipse.che.api.core.notification.EventService;
 import org.eclipse.che.api.core.notification.EventSubscriber;
 import org.eclipse.che.api.machine.server.MachineManager;
 import org.eclipse.che.api.machine.server.exception.MachineException;
-import org.eclipse.che.api.machine.server.impl.MachineImpl;
-import org.eclipse.che.api.machine.shared.dto.event.MachineStateEvent;
+import org.eclipse.che.api.machine.server.spi.Instance;
+import org.eclipse.che.api.machine.shared.dto.event.MachineStatusEvent;
 import org.eclipse.che.plugin.docker.client.DockerConnector;
 import org.eclipse.che.plugin.docker.client.Exec;
 import org.eclipse.che.plugin.docker.client.LogMessage;
@@ -59,13 +59,13 @@ public class DockerMachineTerminalLauncher {
 
     @PostConstruct
     private void start() {
-        eventService.subscribe(new EventSubscriber<MachineStateEvent>() {
+        eventService.subscribe(new EventSubscriber<MachineStatusEvent>() {
             @Override
-            public void onEvent(MachineStateEvent event) {
+            public void onEvent(MachineStatusEvent event) {
                 // TODO launch it on dev machines only???
-                if (event.getEventType() == MachineStateEvent.EventType.RUNNING) {
+                if (event.getEventType() == MachineStatusEvent.EventType.RUNNING) {
                     try {
-                        final MachineImpl machine = machineManager.getMachine(event.getMachineId());
+                        final Instance machine = machineManager.getMachine(event.getMachineId());
                         final String containerId = machine.getMetadata().getProperties().get("id");
 
                         final Exec exec = docker.createExec(containerId, true, "/bin/bash", "-c", terminalStartCommand);
@@ -74,7 +74,7 @@ public class DockerMachineTerminalLauncher {
                             public void process(LogMessage logMessage) {
                                 if (logMessage.getType() == LogMessage.Type.STDERR) {
                                     try {
-                                        machine.getMachineLogsOutput().writeLine("Terminal error. %s" + logMessage.getContent());
+                                        machine.getLogger().writeLine("Terminal error. %s" + logMessage.getContent());
                                     } catch (IOException ignore) {
                                     }
                                 }

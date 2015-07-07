@@ -97,13 +97,25 @@ public class DockerInstanceProvider implements InstanceProvider {
     }
 
     @Override
-    public Instance createInstance(Recipe recipe, LineConsumer creationLogsOutput, String workspaceId, boolean bindWorkspace)
+    public Instance createInstance(Recipe recipe,
+                                   String machineId,
+                                   String userId,
+                                   String workspaceId,
+                                   boolean bindWorkspace,
+                                   String displayName,
+                                   LineConsumer creationLogsOutput)
             throws UnsupportedRecipeException, InvalidRecipeException, MachineException {
         final Dockerfile dockerfile = parseRecipe(recipe);
 
         final String dockerImage = buildImage(dockerfile, creationLogsOutput);
 
-        return createInstance(dockerImage, creationLogsOutput, workspaceId, bindWorkspace);
+        return createInstance(dockerImage,
+                              machineId,
+                              userId,
+                              workspaceId,
+                              bindWorkspace,
+                              displayName,
+                              creationLogsOutput);
     }
 
     private Dockerfile parseRecipe(Recipe recipe) throws InvalidRecipeException {
@@ -158,14 +170,23 @@ public class DockerInstanceProvider implements InstanceProvider {
     }
 
     @Override
-    public Instance createInstance(final InstanceKey instanceKey,
-                                   final LineConsumer creationLogsOutput,
-                                   final String workspaceId,
-                                   final boolean bindWorkspace)
+    public Instance createInstance(InstanceKey instanceKey,
+                                   String machineId,
+                                   String userId,
+                                   String workspaceId,
+                                   boolean bindWorkspace,
+                                   String displayName,
+                                   LineConsumer creationLogsOutput)
             throws NotFoundException, InvalidInstanceSnapshotException, MachineException {
         final String imageId = pullImage(instanceKey, creationLogsOutput);
 
-        return createInstance(imageId, creationLogsOutput, workspaceId, bindWorkspace);
+        return createInstance(imageId,
+                              machineId,
+                              userId,
+                              workspaceId,
+                              bindWorkspace,
+                              displayName,
+                              creationLogsOutput);
     }
 
     private String pullImage(InstanceKey instanceKey, final LineConsumer creationLogsOutput) throws MachineException {
@@ -234,7 +255,13 @@ public class DockerInstanceProvider implements InstanceProvider {
         }
     }
 
-    private Instance createInstance(String imageId, LineConsumer outputConsumer, String workspaceId, boolean bindWorkspace)
+    private Instance createInstance(String imageId,
+                                    String machineId,
+                                    String creator,
+                                    String workspaceId,
+                                    boolean bindWorkspace,
+                                    String displayName,
+                                    LineConsumer outputConsumer)
             throws MachineException {
         try {
             final ContainerConfig config = new ContainerConfig().withImage(imageId)
@@ -260,7 +287,14 @@ public class DockerInstanceProvider implements InstanceProvider {
                                                   .withBinds(volumes.toArray(new String[volumes.size()])),
                                   new LogMessagePrinter(outputConsumer));
 
-            return dockerMachineFactory.createInstance(containerId, node, workspaceId, bindWorkspace, outputConsumer);
+            return dockerMachineFactory.createInstance(machineId,
+                                                       workspaceId,
+                                                       bindWorkspace,
+                                                       creator,
+                                                       displayName,
+                                                       containerId,
+                                                       node,
+                                                       outputConsumer);
         } catch (IOException e) {
             throw new MachineException(e);
         }

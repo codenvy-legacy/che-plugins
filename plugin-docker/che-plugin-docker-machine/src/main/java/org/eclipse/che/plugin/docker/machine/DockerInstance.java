@@ -16,11 +16,14 @@ import org.eclipse.che.api.core.NotFoundException;
 import org.eclipse.che.api.core.util.LineConsumer;
 import org.eclipse.che.api.core.util.ValueHolder;
 import org.eclipse.che.api.machine.server.exception.MachineException;
+import org.eclipse.che.api.machine.server.impl.AbstractInstance;
+import org.eclipse.che.api.machine.server.impl.ServerImpl;
 import org.eclipse.che.api.machine.server.spi.Instance;
 import org.eclipse.che.api.machine.server.spi.InstanceKey;
 import org.eclipse.che.api.machine.server.spi.InstanceMetadata;
 import org.eclipse.che.api.machine.server.spi.InstanceProcess;
 import org.eclipse.che.api.machine.shared.ProjectBinding;
+import org.eclipse.che.api.machine.shared.Server;
 import org.eclipse.che.commons.lang.NameGenerator;
 import org.eclipse.che.plugin.docker.client.DockerConnector;
 import org.eclipse.che.plugin.docker.client.Exec;
@@ -28,13 +31,18 @@ import org.eclipse.che.plugin.docker.client.LogMessage;
 import org.eclipse.che.plugin.docker.client.LogMessageProcessor;
 import org.eclipse.che.plugin.docker.client.ProgressLineFormatterImpl;
 import org.eclipse.che.plugin.docker.client.ProgressMonitor;
+import org.eclipse.che.plugin.docker.client.json.ContainerInfo;
+import org.eclipse.che.plugin.docker.client.json.PortBinding;
 import org.eclipse.che.plugin.docker.client.json.ProgressStatus;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -45,10 +53,12 @@ import java.util.regex.Pattern;
  * @author andrew00x
  * @author Alexander Garagatyi
  */
-public class DockerInstance implements Instance {
-    private static final AtomicInteger pidSequence           = new AtomicInteger(1);
-    private static final String        PID_FILE_TEMPLATE     = "/tmp/docker-exec-%s.pid";
-    private static final Pattern       PID_FILE_PATH_PATTERN = Pattern.compile(String.format(PID_FILE_TEMPLATE, "([0-9]+)"));
+public class DockerInstance extends AbstractInstance {
+    private static final   AtomicInteger pidSequence           = new AtomicInteger(1);
+    private static final   String        PID_FILE_TEMPLATE     = "/tmp/docker-exec-%s.pid";
+    private static final   Pattern       PID_FILE_PATH_PATTERN = Pattern.compile(String.format(PID_FILE_TEMPLATE, "([0-9]+)"));
+    protected static final Pattern       SERVICE_LABEL_PATTERN =
+            Pattern.compile("che:server:(?<port>[0-9]+(/tcp|/udp)?):(?<servprop>ref|protocol)");
 
     private final DockerMachineFactory dockerMachineFactory;
     private final String               container;
@@ -59,15 +69,21 @@ public class DockerInstance implements Instance {
     private final String               workspaceId;
     private final boolean              workspaceIsBound;
 
+    private ContainerInfo containerInfo;
+
     @Inject
     public DockerInstance(DockerConnector docker,
                           @Named("machine.docker.registry") String registry,
                           DockerMachineFactory dockerMachineFactory,
+                          @Assisted("machineId") String machineId,
+                          @Assisted("workspaceId") String workspaceId,
+                          @Assisted boolean workspaceIsBound,
+                          @Assisted("creator") String creator,
+                          @Assisted("displayName") String displayName,
                           @Assisted("container") String container,
                           @Assisted DockerNode node,
-                          @Assisted("workspace") String workspaceId,
-                          @Assisted boolean workspaceIsBound,
                           @Assisted LineConsumer outputConsumer) {
+        super(machineId, "docker", workspaceId, creator, workspaceIsBound, displayName);
         this.dockerMachineFactory = dockerMachineFactory;
         this.container = container;
         this.docker = docker;
@@ -79,8 +95,75 @@ public class DockerInstance implements Instance {
     }
 
     @Override
+    public LineConsumer getLogger() {
+        return outputConsumer;
+    }
+
+    @Override
     public InstanceMetadata getMetadata() throws MachineException {
-        return dockerMachineFactory.createInstanceMetadata(container);
+        try {
+            if (containerInfo == null) {
+                containerInfo = docker.inspectContainer(container);
+            }
+
+            return new DockerInstanceMetadata(containerInfo);
+        } catch (IOException e) {
+            throw new MachineException(e.getLocalizedMessage(), e);
+        }
+    }
+
+    @Override
+    public Map<String, Server> getServers() throws MachineException {
+        try {
+            if (containerInfo == null) {
+                containerInfo = docker.inspectContainer(container);
+            }
+
+            final Map<String, Server> servers = getServersWithFilledPorts(node.getHost(), containerInfo.getNetworkSettings().getPorts());
+
+            addRefAndUrlToServerFromImageLabels(servers, containerInfo.getConfig().getLabels());
+
+            return servers;
+        } catch (IOException e) {
+            throw new MachineException(e.getLocalizedMessage(), e);
+        }
+    }
+
+    protected HashMap<String, Server> getServersWithFilledPorts(final String host, final Map<String, List<PortBinding>> exposedPorts) {
+        final HashMap<String, Server> servers = new LinkedHashMap<>();
+
+        for (Map.Entry<String, List<PortBinding>> portEntry : exposedPorts.entrySet()) {
+            // in form 1234/tcp or 1234
+            String portOrPortUdp = portEntry.getKey();
+            // we are assigning ports automatically, so have 1 to 1 binding (at least per protocol)
+            if (!portOrPortUdp.endsWith("/udp")) {
+                // cut off /tcp if it presents
+                portOrPortUdp = portOrPortUdp.split("/", 2)[0];
+            }
+            final PortBinding portBinding = portEntry.getValue().get(0);
+            final ServerImpl server = new ServerImpl();
+            servers.put(portOrPortUdp, server.setAddress(host + ":" + portBinding.getHostPort()));
+        }
+
+        return servers;
+    }
+
+    protected void addRefAndUrlToServerFromImageLabels(final Map<String, Server> servers, final Map<String, String> labels) {
+        for (Map.Entry<String, String> label : labels.entrySet()) {
+            final Matcher matcher = SERVICE_LABEL_PATTERN.matcher(label.getKey());
+            if (matcher.matches()) {
+                final String port = matcher.group("port");
+                if (servers.containsKey(port)) {
+                    final ServerImpl server = (ServerImpl)servers.get(port);
+                    if ("ref".equals(matcher.group("servprop"))) {
+                        server.setRef(label.getValue());
+                    } else {
+                        // value is protocol
+                        server.setUrl(label.getValue() + "://" + server.getAddress());
+                    }
+                }
+            }
+        }
     }
 
     @Override
@@ -193,12 +276,12 @@ public class DockerInstance implements Instance {
     }
 
     @Override
-    public void bindProject(String workspaceId, ProjectBinding project) throws MachineException {
+    protected void doBindProject(ProjectBinding project) throws MachineException {
         node.bindProject(workspaceId, project);
     }
 
     @Override
-    public void unbindProject(String workspaceId, ProjectBinding project) throws MachineException {
+    public void doUnbindProject(ProjectBinding project) throws MachineException {
         node.unbindProject(workspaceId, project);
     }
 }

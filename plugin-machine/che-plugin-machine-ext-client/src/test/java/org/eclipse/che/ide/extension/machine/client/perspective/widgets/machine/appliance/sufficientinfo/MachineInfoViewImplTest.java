@@ -19,7 +19,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 
-import static org.eclipse.che.api.machine.shared.MachineState.CREATING;
+import static org.eclipse.che.api.machine.shared.MachineStatus.CREATING;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -46,7 +46,7 @@ public class MachineInfoViewImplTest {
     public void infoShouldBeUpdated() {
         when(machine.getDisplayName()).thenReturn(SOME_TEXT);
         when(machine.getId()).thenReturn(SOME_TEXT);
-        when(machine.getState()).thenReturn(CREATING);
+        when(machine.getStatus()).thenReturn(CREATING);
         when(machine.getType()).thenReturn(SOME_TEXT);
         when(machine.isWorkspaceBound()).thenReturn(true);
 
@@ -54,13 +54,13 @@ public class MachineInfoViewImplTest {
 
         verify(machine).getDisplayName();
         verify(machine).getId();
-        verify(machine).getState();
+        verify(machine).getStatus();
         verify(machine).getType();
         verify(machine).isWorkspaceBound();
 
         verify(view.name).setText(SOME_TEXT);
         verify(view.machineId).setText(SOME_TEXT);
-        verify(view.state).setText("CREATING");
+        verify(view.status).setText("CREATING");
         verify(view.type).setText(SOME_TEXT);
         verify(view.workspaceBound).setText("true");
     }

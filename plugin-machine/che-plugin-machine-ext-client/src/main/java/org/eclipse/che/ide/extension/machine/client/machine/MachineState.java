@@ -14,29 +14,24 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
 import org.eclipse.che.api.machine.shared.MachineStatus;
-import org.eclipse.che.api.machine.shared.dto.MachineDescriptor;
-import org.eclipse.che.api.machine.shared.dto.ServerDescriptor;
+import org.eclipse.che.api.machine.shared.dto.MachineStateDescriptor;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 
-import javax.annotation.Nonnull;
-import java.util.Map;
 import java.util.Objects;
 
 /**
- * The class which describes machine entity. The class is wrapper of MachineDescriptor.
+ * The class which describes machine state entity. The class is wrapper of MachineStateDescriptor.
  *
  * @author Dmitry Shnurenko
  */
-public class Machine {
+public class MachineState {
 
-    public static final String TERMINAL_REF_KEY = "terminal";
-
-    private final MachineDescriptor descriptor;
+    private final MachineStateDescriptor descriptor;
 
     private String activeTabName;
 
     @Inject
-    public Machine(MachineLocalizationConstant locale, @Assisted MachineDescriptor descriptor) {
+    public MachineState(MachineLocalizationConstant locale, @Assisted MachineStateDescriptor descriptor) {
         this.descriptor = descriptor;
 
         this.activeTabName = locale.tabInfo();
@@ -62,21 +57,6 @@ public class Machine {
         return descriptor.getType();
     }
 
-    /** @return special url which references on terminal content. */
-    @Nonnull
-    public String getTerminalUrl() {
-        Map<String, ServerDescriptor> serverDescriptors = descriptor.getServers();
-
-        for (ServerDescriptor descriptor : serverDescriptors.values()) {
-
-            if (TERMINAL_REF_KEY.equals(descriptor.getRef())) {
-                return descriptor.getUrl();
-            }
-        }
-
-        return "";
-    }
-
     /** @return active tab name for current machine */
     public String getActiveTabName() {
         return activeTabName;
@@ -98,11 +78,6 @@ public class Machine {
         return descriptor.getWorkspaceId();
     }
 
-    /** @return servers for current machine */
-    public Map<String, ServerDescriptor> getServers() {
-        return descriptor.getServers();
-    }
-
     /**
      * Returns boolean which defines bounding workspace to current machine
      *
@@ -115,7 +90,7 @@ public class Machine {
     @Override
     public boolean equals(Object machine) {
         return this == machine || !(machine == null || getClass() != machine.getClass()) && Objects.equals(descriptor.getId(),
-                                                                                                           ((Machine)machine).getId());
+                                                                                                           ((MachineState)machine).getId());
     }
 
     @Override

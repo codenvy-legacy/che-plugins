@@ -15,9 +15,9 @@ import com.google.inject.Singleton;
 import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
-import org.eclipse.che.api.machine.shared.MachineState;
-import org.eclipse.che.api.machine.shared.dto.MachineDescriptor;
-import org.eclipse.che.api.machine.shared.dto.event.MachineStateEvent;
+import org.eclipse.che.api.machine.shared.MachineStatus;
+import org.eclipse.che.api.machine.shared.dto.MachineStateDescriptor;
+import org.eclipse.che.api.machine.shared.dto.event.MachineStatusEvent;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.ide.api.notification.Notification;
@@ -35,7 +35,7 @@ import org.eclipse.che.ide.websocket.rest.Unmarshallable;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import static org.eclipse.che.api.machine.shared.MachineState.CREATING;
+import static org.eclipse.che.api.machine.shared.MachineStatus.CREATING;
 import static org.eclipse.che.ide.api.notification.Notification.Status.FINISHED;
 import static org.eclipse.che.ide.api.notification.Notification.Status.PROGRESS;
 import static org.eclipse.che.ide.api.notification.Notification.Type.ERROR;
@@ -49,10 +49,10 @@ import static org.eclipse.che.ide.extension.machine.client.machine.MachineManage
  * @author Artem Zatsarynnyy
  */
 @Singleton
-class MachineStateNotifier {
+class MachineStatusNotifier {
 
     /** WebSocket channel to receive messages about changing machine state. */
-    public static final String MACHINE_STATE_WS_CHANNEL = "machine:state:";
+    public static final String MACHINE_STATUS_WS_CHANNEL = "machine:status:";
 
     private final MessageBus                  messageBus;
     private final EventBus                    eventBus;
@@ -63,7 +63,7 @@ class MachineStateNotifier {
     private final MachineNameManager          nameManager;
 
     @Inject
-    MachineStateNotifier(MessageBus messageBus,
+    MachineStatusNotifier(MessageBus messageBus,
                          EventBus eventBus,
                          DtoUnmarshallerFactory dtoUnmarshallerFactory,
                          NotificationManager notificationManager,
@@ -101,14 +101,14 @@ class MachineStateNotifier {
                       @Nullable final RunningListener runningListener,
                       @Nonnull final OperationType operationType) {
 
-        final String wsChannel = MACHINE_STATE_WS_CHANNEL + machineId;
+        final String wsChannel = MACHINE_STATUS_WS_CHANNEL + machineId;
         final Notification notification = new Notification("", INFO, true);
         final boolean isRestarting = RESTART.equals(operationType);
 
-        final Unmarshallable<MachineStateEvent> unmarshaller = dtoUnmarshallerFactory.newWSUnmarshaller(MachineStateEvent.class);
-        final MessageHandler handler = new SubscriptionHandler<MachineStateEvent>(unmarshaller) {
+        final Unmarshallable<MachineStatusEvent> unmarshaller = dtoUnmarshallerFactory.newWSUnmarshaller(MachineStatusEvent.class);
+        final MessageHandler handler = new SubscriptionHandler<MachineStatusEvent>(unmarshaller) {
             @Override
-            protected void onMessageReceived(MachineStateEvent result) {
+            protected void onMessageReceived(MachineStatusEvent result) {
                 String machineName = nameManager.getNameById(result.getMachineId());
 
                 switch (result.getEventType()) {
@@ -123,7 +123,7 @@ class MachineStateNotifier {
                         notification.setStatus(FINISHED);
                         notification.setType(INFO);
 
-                        eventBus.fireEvent(org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateEvent
+                        eventBus.fireEvent(org.eclipse.che.ide.extension.machine.client.machine.events.MachineStatusEvent
                                                    .createMachineRunningEvent(result.getMachineId()));
 
                         break;
@@ -134,7 +134,7 @@ class MachineStateNotifier {
                         notification.setStatus(FINISHED);
                         notification.setType(INFO);
 
-                        eventBus.fireEvent(org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateEvent
+                        eventBus.fireEvent(org.eclipse.che.ide.extension.machine.client.machine.events.MachineStatusEvent
                                                    .createMachineDestroyedEvent(result.getMachineId()));
 
                         nameManager.removeName(result.getMachineId());
@@ -156,10 +156,10 @@ class MachineStateNotifier {
             }
         };
 
-        service.getMachine(machineId).then(new Operation<MachineDescriptor>() {
+        service.getMachineState(machineId).then(new Operation<MachineStateDescriptor>() {
             @Override
-            public void apply(MachineDescriptor arg) throws OperationException {
-                final MachineState state = arg.getState();
+            public void apply(MachineStateDescriptor arg) throws OperationException {
+                final MachineStatus state = arg.getStatus();
                 String machineName = arg.getDisplayName();
 
                 if (isRestarting) {

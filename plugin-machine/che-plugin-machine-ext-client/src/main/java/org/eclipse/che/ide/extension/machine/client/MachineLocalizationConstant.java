@@ -221,8 +221,8 @@ public interface MachineLocalizationConstant extends Messages {
     @Key("info.owner")
     String infoOwner();
 
-    @Key("info.state")
-    String infoState();
+    @Key("info.status")
+    String infoStatus();
 
     @Key("info.type")
     String infoType();

@@ -21,6 +21,7 @@ import com.google.inject.Singleton;
 
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
 import org.eclipse.che.api.machine.shared.dto.MachineDescriptor;
+import org.eclipse.che.api.machine.shared.dto.MachineStateDescriptor;
 import org.eclipse.che.api.machine.shared.dto.ProcessDescriptor;
 import org.eclipse.che.api.promises.client.Function;
 import org.eclipse.che.api.promises.client.FunctionException;
@@ -36,7 +37,7 @@ import org.eclipse.che.ide.api.parts.WorkspaceAgent;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.OutputMessageUnmarshaller;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
-import org.eclipse.che.ide.extension.machine.client.machine.MachineStateNotifier.RunningListener;
+import org.eclipse.che.ide.extension.machine.client.machine.MachineStatusNotifier.RunningListener;
 import org.eclipse.che.ide.extension.machine.client.machine.console.MachineConsolePresenter;
 import org.eclipse.che.ide.extension.machine.client.outputspanel.OutputsContainerPresenter;
 import org.eclipse.che.ide.extension.machine.client.outputspanel.console.CommandConsoleFactory;
@@ -73,7 +74,7 @@ public class MachineManager implements ProjectActionHandler {
     private final NotificationManager         notificationManager;
     private final MachineLocalizationConstant localizationConstant;
     private final WorkspaceAgent              workspaceAgent;
-    private final MachineStateNotifier        machineStateNotifier;
+    private final MachineStatusNotifier       machineStatusNotifier;
     private final DialogFactory               dialogFactory;
     private final MachineNameManager          nameManager;
     private final RecipeProvider              recipeProvider;
@@ -90,7 +91,7 @@ public class MachineManager implements ProjectActionHandler {
                           NotificationManager notificationManager,
                           MachineLocalizationConstant localizationConstant,
                           WorkspaceAgent workspaceAgent,
-                          MachineStateNotifier machineStateNotifier,
+                          MachineStatusNotifier machineStatusNotifier,
                           DialogFactory dialogFactory,
                           MachineNameManager nameManager,
                           RecipeProvider recipeProvider) {
@@ -102,7 +103,7 @@ public class MachineManager implements ProjectActionHandler {
         this.notificationManager = notificationManager;
         this.localizationConstant = localizationConstant;
         this.workspaceAgent = workspaceAgent;
-        this.machineStateNotifier = machineStateNotifier;
+        this.machineStatusNotifier = machineStatusNotifier;
         this.dialogFactory = dialogFactory;
         this.nameManager = nameManager;
         this.recipeProvider = recipeProvider;
@@ -110,12 +111,12 @@ public class MachineManager implements ProjectActionHandler {
 
     @Override
     public void onProjectOpened(final ProjectActionEvent event) {
-        machineServiceClient.getMachines(null).then(new Operation<List<MachineDescriptor>>() {
+        machineServiceClient.getMachinesStates(null).then(new Operation<List<MachineStateDescriptor>>() {
             @Override
-            public void apply(List<MachineDescriptor> arg) throws OperationException {
-                for (MachineDescriptor machineDescriptor : arg) {
-                    if (machineDescriptor.isWorkspaceBound()) {
-                        devMachineId = machineDescriptor.getId();
+            public void apply(List<MachineStateDescriptor> arg) throws OperationException {
+                for (MachineStateDescriptor machineStateDescriptor : arg) {
+                    if (machineStateDescriptor.isWorkspaceBound()) {
+                        devMachineId = machineStateDescriptor.getId();
                         return;
                     }
                 }
@@ -198,7 +199,7 @@ public class MachineManager implements ProjectActionHandler {
 
                 nameManager.addName(machineId, displayName);
 
-                machineStateNotifier.trackMachine(machineId, runningListener, operationType);
+                machineStatusNotifier.trackMachine(machineId, runningListener, operationType);
             }
         });
     }
@@ -239,7 +240,7 @@ public class MachineManager implements ProjectActionHandler {
         machineServiceClient.destroyMachine(machineId).then(new Operation<Void>() {
             @Override
             public void apply(Void arg) throws OperationException {
-                machineStateNotifier.trackMachine(machineId);
+                machineStatusNotifier.trackMachine(machineId);
                 if (devMachineId != null && machineId.equals(devMachineId)) {
                     devMachineId = null;
                 }
