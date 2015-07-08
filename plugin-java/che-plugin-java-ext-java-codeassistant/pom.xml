@@ -115,6 +115,12 @@
             <version>${org.eclipse.osgi.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.eclipse.tycho</groupId>
+            <artifactId>org.eclipse.jdt.core</artifactId>
+            <version>${org.eclipse.jdt.core.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>${ch.qos.logback.version}</version>

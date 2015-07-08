@@ -129,6 +129,7 @@ public class DependenciesUpdater {
 
                         if (descriptor.getStatus() == BuildStatus.SUCCESSFUL) {
                             onUpdated();
+                            refreshExtLibs(project);
                             return;
                         }
                         buildController.showRunningBuild(descriptor, "[INFO] Updating dependencies...");
