@@ -106,7 +106,8 @@ public class JavaElementFinder extends BindingKeyParser {
 		IType type = (IType) this.element;
 		IMethod method = type.getMethod(new String(selector), parameterTypes);
 		IMethod[] methods = type.findMethods(method);
-		if (methods.length > 0)
+
+		if (methods != null && methods.length > 0)
 			this.element = methods[0];
 	}
 
