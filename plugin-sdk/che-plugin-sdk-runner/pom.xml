@@ -16,7 +16,7 @@
     <parent>
         <artifactId>che-plugin-sdk-parent</artifactId>
         <groupId>org.eclipse.che.plugin</groupId>
-        <version>3.11.1-SNAPSHOT</version>
+        <version>3.11.1</version>
     </parent>
     <artifactId>che-plugin-sdk-runner</artifactId>
     <packaging>jar</packaging>
@@ -103,7 +103,7 @@
                             <tasks>
                                 <!-- Unzip Tomcat package -->
                                 <mkdir dir="${project.build.directory}/classes/tomcat-bundle" />
-                                <unzip dest="${project.build.directory}/classes/tomcat-bundle" src="${project.build.directory}/classes/tomcat.zip"/>
+                                <unzip dest="${project.build.directory}/classes/tomcat-bundle" src="${project.build.directory}/classes/tomcat.zip" />
                                <delete file="${project.build.directory}/classes/tomcat.zip" />
                                 <!-- Move additional libraries and WAR's -->
                                 <!--<move todir="${project.build.directory}/classes/tomcat-bundle">-->

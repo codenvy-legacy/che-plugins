@@ -16,7 +16,7 @@
     <parent>
         <artifactId>che-plugin-builder-parent</artifactId>
         <groupId>org.eclipse.che.plugin</groupId>
-        <version>3.11.1-SNAPSHOT</version>
+        <version>3.11.1</version>
     </parent>
     <artifactId>che-plugin-builder-ext-builder</artifactId>
     <packaging>jar</packaging>
