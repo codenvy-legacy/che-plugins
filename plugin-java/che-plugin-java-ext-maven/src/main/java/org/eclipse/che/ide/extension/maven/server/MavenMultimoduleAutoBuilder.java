@@ -78,7 +78,7 @@ public class MavenMultimoduleAutoBuilder implements EventSubscriber<ProjectCreat
 //                        }
 //                    }
             }
-        } catch (ForbiddenException | ServerException | ProjectTypeConstraintException
+        } catch (ForbiddenException | NotFoundException | ServerException | ProjectTypeConstraintException
                 | ValueStorageException e) {
             LOG.error(e.getMessage(), e);
         }
