@@ -125,9 +125,9 @@ public class OrionEditorWidget extends CompositeEditorWidget implements HasChang
     private boolean scrollHandlerAdded = false;
     private boolean cursorHandlerAdded = false;
 
-    private Keymap                          keymap;
-    private Provider<OrionKeyBindingModule> keyBindingModuleProvider;
-    private final ContentAssistWidget assistWidget;
+    private       Keymap                          keymap;
+    private       Provider<OrionKeyBindingModule> keyBindingModuleProvider;
+    private final ContentAssistWidget             assistWidget;
 
     @AssistedInject
     public OrionEditorWidget(final ModuleHolder moduleHolder,
@@ -155,6 +155,10 @@ public class OrionEditorWidget extends CompositeEditorWidget implements HasChang
         panel.getElement().addClassName(this.editorElementStyle.editorParent());
         this.editorOverlay = OrionEditorOverlay.createEditor(panel.getElement(), getConfiguration(), orionEditorModule);
 
+        if (getMode().equals("text/jaggery")) {
+            createMirrorStyler(getMode(), moduleHolder.getModule("Codemirror") ,moduleHolder.getModule("Mirrors"), editorOverlay.getTextView(), editorOverlay.getAnnotationModel());
+        }
+
         this.keyModeInstances = keyModeInstances;
         final OrionTextViewOverlay textView = this.editorOverlay.getTextView();
         this.keyModeInstances.add(KeyMode.VI, OrionKeyModeOverlay.getViKeyMode(moduleHolder.getModule("OrionVi"), textView));
@@ -175,6 +179,11 @@ public class OrionEditorWidget extends CompositeEditorWidget implements HasChang
                 OrionKeyModeOverlay.getCheCodeAssistMode(moduleHolder.getModule("CheContentAssistMode"), editorOverlay.getTextView());
         assistWidget = contentAssistWidgetFactory.create(this, cheContentAssistMode);
     }
+
+    private native void createMirrorStyler(String mode,JavaScriptObject codeMirror, JavaScriptObject mirror, JavaScriptObject textView, JavaScriptObject annotationModel)/*-{
+        var mi = new mirror.CodeMirrorStyler(textView, codeMirror, annotationModel);
+        mi.setMode(mode);
+    }-*/;
 
     @Override
     public String getValue() {
@@ -205,10 +214,6 @@ public class OrionEditorWidget extends CompositeEditorWidget implements HasChang
         json.put("smartIndentation", JSONBoolean.getInstance(true));
 
         return json.getJavaScriptObject();
-    }
-
-    protected void autoComplete(OrionEditorOverlay editor) {
-        // TODO
     }
 
     public void setMode(final String modeName) {
@@ -479,7 +484,7 @@ public class OrionEditorWidget extends CompositeEditorWidget implements HasChang
     public void addKeybinding(final Keybinding keybinding) {
 
         OrionKeyStrokeOverlay strokeOverlay;
-        if(UserAgent.isMac()) {
+        if (UserAgent.isMac()) {
             strokeOverlay = OrionKeyStrokeOverlay.create(keybinding.getKeyCode(),
                                                          keybinding.isCmd(),
                                                          keybinding.isShift(),
@@ -620,7 +625,7 @@ public class OrionEditorWidget extends CompositeEditorWidget implements HasChang
     }
 
     public void showCompletionInformation() {
-        if(assistWidget.isActive()){
+        if (assistWidget.isActive()) {
             assistWidget.showCompletionInfo();
         }
     }

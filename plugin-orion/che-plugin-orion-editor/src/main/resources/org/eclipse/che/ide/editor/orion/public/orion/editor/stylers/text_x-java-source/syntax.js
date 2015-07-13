@@ -1,13 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2014-2015 Codenvy, S.A.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * @license
+ * Copyright (c) 2014 IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials are made
+ * available under the terms of the Eclipse Public License v1.0
+ * (http://www.eclipse.org/legal/epl-v10.html), and the Eclipse Distribution
+ * License v1.0 (http://www.eclipse.org/org/documents/edl-v10.html).
  *
- * Contributors:
- *   Codenvy, S.A. - initial API and implementation
- *******************************************************************************/
+ * Contributors: IBM Corporation - initial API and implementation
+ ******************************************************************************/
 
 /*eslint-env browser, amd*/
 define("orion/editor/stylers/text_x-java-source/syntax", ["orion/editor/stylers/lib/syntax"], function(mLib) { //$NON-NLS-1$ //$NON-NLS-0$
@@ -24,7 +24,7 @@ define("orion/editor/stylers/text_x-java-source/syntax", ["orion/editor/stylers/
 		"package", "private", "protected", "public", //$NON-NLS-3$ //$NON-NLS-2$ //$NON-NLS-1$ //$NON-NLS-0$
 		"short", "static", "synchronized", //$NON-NLS-2$ //$NON-NLS-1$ //$NON-NLS-0$
 		"throws", "transient", //$NON-NLS-1$ //$NON-NLS-0$
-		"void", "volatile" //$NON-NLS-1$ //$NON-NLS-0$
+		"void", "volatile","enum", "strictfp" //$NON-NLS-1$ //$NON-NLS-0$
 	];
 	var controlKeywords = [
 		"break", //$NON-NLS-0$
@@ -36,7 +36,8 @@ define("orion/editor/stylers/text_x-java-source/syntax", ["orion/editor/stylers/
 		"return", //$NON-NLS-0$
 		"switch", //$NON-NLS-0$
 		"throw", "try", //$NON-NLS-1$ //$NON-NLS-0$
-		"while" //$NON-NLS-0$
+		"while", //$NON-NLS-0$
+		"assert"
 	];
 	var constants = [
 		"false", "null", "true" //$NON-NLS-2$ //$NON-NLS-1$ //$NON-NLS-0$

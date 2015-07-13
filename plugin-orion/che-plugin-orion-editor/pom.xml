@@ -106,6 +106,7 @@
                         <exclude>**/org/eclipse/che/ide/editor/orion/public/orion-8.0/**</exclude>
                         <exclude>**/org/eclipse/che/ide/editor/orion/public/built-editor-compat.css</exclude>
                         <exclude>**/patches/Orion.diff</exclude>
+                        <exclude>**/codemirror/**</exclude>
                     </excludes>
                 </configuration>
             </plugin>

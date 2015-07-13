@@ -96,6 +96,7 @@ public class OrionEditorExtension implements Provider<OrionKeyBindingModule>{
                     public void onSuccess() {
                         injectOrion(callback);
                     }
+
                     @Override
                     public void onFailure(final Throwable reason) {
                         callback.onFailure(reason);
@@ -180,8 +181,8 @@ public class OrionEditorExtension implements Provider<OrionKeyBindingModule>{
 
             }
         },
-         new String[]{"orion/editor/edit", "orion/editor/emacs", "orion/editor/vi", "orion/keyBinding","che/editor/contentAssist"},
-         new String[]{"OrionEditor", "OrionEmacs", "OrionVi", "OrionKeyBinding", "CheContentAssistMode"});
+         new String[]{"orion/editor/edit", "orion/editor/emacs", "orion/editor/vi", "orion/keyBinding","che/editor/contentAssist", "orion/editor/mirror","codemirror/lib/codemirror", "codemirror/mode/jaggery/jaggery"},
+         new String[]{"OrionEditor", "OrionEmacs", "OrionVi", "OrionKeyBinding", "CheContentAssistMode", "Mirrors", "Codemirror","jagg"});
     }
 
     private void endConfiguration(final InitializerCallback callback) {
