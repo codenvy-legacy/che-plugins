@@ -41,7 +41,7 @@ public class InitialAuthConfig {
     AuthConfig predefinedConfig;
 
     @Inject
-    InitialAuthConfig(ConfigurationProperties configurationProperties) {
+    public InitialAuthConfig(ConfigurationProperties configurationProperties) {
         String serverAddress = "https://index.docker.io/v1/";
         String username = null, password = null, email = null;
         for (Map.Entry<String, String> e : configurationProperties.getProperties(CONFIGURATION_PREFIX_PATTERN).entrySet()) {
