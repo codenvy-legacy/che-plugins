@@ -84,7 +84,7 @@
                                         <exclude name="**/org/eclipse/jdt/internal/core/ClasspathEntry**" />
                                         <exclude name="**/org/eclipse/jdt/internal/core/DeltaProcessingState**" />
                                         <exclude name="**/org/eclipse/jdt/internal/core/DeltaProcessor**" />
-                                        <exclude name="**/org/eclipse/jdt/internal/core/JavaModel**" />
+                                        <exclude name="**/org/eclipse/jdt/internal/core/JavaModel.class" />
                                         <exclude name="**/org/eclipse/jdt/internal/core/JavaModelManager**" />
                                         <exclude name="**/org/eclipse/jdt/internal/core/JavaModelOperation**" />
                                         <exclude name="**/org/eclipse/jdt/internal/core/JavaProject.class" />
