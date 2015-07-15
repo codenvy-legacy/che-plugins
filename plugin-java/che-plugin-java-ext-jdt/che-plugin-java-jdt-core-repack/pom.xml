@@ -92,6 +92,7 @@
                                         <exclude name="**/org/eclipse/jdt/internal/core/DeltaProcessor**" />
                                         <exclude name="**/org/eclipse/jdt/internal/core/BecomeWorkingCopyOperation**" />
                                         <exclude name="**/org/eclipse/jdt/core/JavaConventions**" />
+                                        <exclude name="**/org/eclipse/jdt/internal/core/search/indexing/IndexManager**" />
                                     </patternset>
                                 </unzip>
                             </target>
