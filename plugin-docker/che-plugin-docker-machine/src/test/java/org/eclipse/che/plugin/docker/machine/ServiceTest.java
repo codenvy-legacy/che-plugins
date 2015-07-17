@@ -205,7 +205,7 @@ public class ServiceTest {
 
     @AfterMethod
     public void tearDown() throws Exception {
-        for (MachineState machine : new ArrayList<>(machineManager.getMachines())) {
+        for (MachineState machine : new ArrayList<>(machineManager.getMachinesStates())) {
             machineManager.destroy(machine.getId());
         }
     }
@@ -257,7 +257,7 @@ public class ServiceTest {
         expected.add(createMachineAndWaitRunningState().getId());
 
         Set<String> actual = new HashSet<>();
-        for (MachineState machine : machineManager.getMachines()) {
+        for (MachineState machine : machineManager.getMachinesStates()) {
             actual.add(machine.getId());
         }
         assertEquals(actual, expected);
