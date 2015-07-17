@@ -73,10 +73,9 @@ public class SettingsServiceClientImpl implements SettingsServiceClient {
             @Override
             public void makeCall(AsyncCallback<Void> callback) {
                 String url = extPath
-                             + '/'
-                             + machineManager.getDeveloperMachineId()
                              + "/jdt/compiler-settings"
-                             + "/set?projectpath=" + pathToProject;
+                             + "/set?projectpath=" + pathToProject
+                             +  "&machineId=" + machineManager.getDeveloperMachineId();
 
                 JsonSerializable data = new JsonSerializable() {
                     @Override
@@ -102,10 +101,9 @@ public class SettingsServiceClientImpl implements SettingsServiceClient {
             @Override
             public void makeCall(AsyncCallback<Map<String, String>> callback) {
                 String url = extPath
-                             + '/'
-                             + machineManager.getDeveloperMachineId()
                              + "/jdt/compiler-settings"
-                             + "/all?projectpath=" + pathToProject;
+                             + "/all?projectpath=" + pathToProject
+                             +  "&machineId=" + machineManager.getDeveloperMachineId();
 
                 asyncRequestFactory.createGetRequest(url)
                                    .header(ACCEPT, APPLICATION_JSON)

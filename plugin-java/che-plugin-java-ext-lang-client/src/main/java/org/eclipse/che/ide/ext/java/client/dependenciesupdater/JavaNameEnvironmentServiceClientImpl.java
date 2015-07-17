@@ -45,7 +45,7 @@ public class JavaNameEnvironmentServiceClientImpl implements JavaNameEnvironment
     /** {@inheritDoc} */
     @Override
     public void updateDependencies(String projectPath, boolean force, AsyncRequestCallback<Boolean> callback) {
-        final String requestUrl = extPath +"/" +machineManager.getDeveloperMachineId() + UPDATE_DEPENDENCIES + "?projectpath=" + projectPath;
+        final String requestUrl = extPath + UPDATE_DEPENDENCIES + "?projectpath=" + projectPath + "&machineId=" + machineManager.getDeveloperMachineId();
         asyncRequestFactory.createGetRequest(requestUrl)
                            .header(ACCEPT, APPLICATION_JSON)
                            .send(callback);
