@@ -19,6 +19,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
+import org.eclipse.che.api.machine.gwt.client.DevMachine;
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
 import org.eclipse.che.api.machine.shared.dto.MachineDescriptor;
 import org.eclipse.che.api.machine.shared.dto.MachineStateDescriptor;
@@ -55,8 +56,6 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 import static com.google.gwt.http.client.RequestBuilder.GET;
-import static org.eclipse.che.ide.extension.machine.client.machine.MachineManager.OperationType.RESTART;
-import static org.eclipse.che.ide.extension.machine.client.machine.MachineManager.OperationType.START;
 
 /**
  * Manager for machine operations.
@@ -78,6 +77,7 @@ public class MachineManager implements ProjectActionHandler {
     private final DialogFactory               dialogFactory;
     private final MachineNameManager          nameManager;
     private final RecipeProvider              recipeProvider;
+    private DevMachine devMachine;
 
     /** Stores ID of the developer machine (where workspace or current project is bound). */
     private String devMachineId;
@@ -90,7 +90,7 @@ public class MachineManager implements ProjectActionHandler {
                           CommandConsoleFactory commandConsoleFactory,
                           NotificationManager notificationManager,
                           MachineLocalizationConstant localizationConstant,
-                          WorkspaceAgent workspaceAgent,
+                          final WorkspaceAgent workspaceAgent,
                           MachineStatusNotifier machineStatusNotifier,
                           DialogFactory dialogFactory,
                           MachineNameManager nameManager,
@@ -107,7 +107,20 @@ public class MachineManager implements ProjectActionHandler {
         this.dialogFactory = dialogFactory;
         this.nameManager = nameManager;
         this.recipeProvider = recipeProvider;
+        machineServiceClient.getMachinesStates(null).then(new Operation<List<MachineStateDescriptor>>() {
+            @Override
+            public void apply(List<MachineStateDescriptor> arg) throws OperationException {
+                for (MachineStateDescriptor machineStateDescriptor : arg) {
+                    if (machineStateDescriptor.isWorkspaceBound()) {
+                        devMachineId = machineStateDescriptor.getId();
+                        DevMachine.devMachineId = devMachineId;//TODO
+                        return;
+                    }
+                }
+            }
+        });
     }
+
 
     @Override
     public void onProjectOpened(final ProjectActionEvent event) {
@@ -148,7 +161,7 @@ public class MachineManager implements ProjectActionHandler {
 
                 boolean isWSBound = machine.isWorkspaceBound();
 
-                startMachine(recipeUrl, displayName, isWSBound, RESTART);
+                startMachine(recipeUrl, displayName, isWSBound, OperationType.RESTART);
             }
         });
 
@@ -156,12 +169,12 @@ public class MachineManager implements ProjectActionHandler {
 
     /** Start new machine. */
     public void startMachine(String recipeURL, @Nonnull String displayName) {
-        startMachine(recipeURL, displayName, false, START);
+        startMachine(recipeURL, displayName, false, OperationType.START);
     }
 
     /** Start new machine and bind workspace to running machine. */
     public void startAndBindMachine(String recipeURL, @Nonnull String displayName) {
-        startMachine(recipeURL, displayName, true, START);
+        startMachine(recipeURL, displayName, true, OperationType.START);
     }
 
     private void startMachine(@Nonnull final String recipeURL,
