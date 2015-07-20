@@ -281,12 +281,12 @@ public class GitProjectImporterTest {
     @Test
     public void testImportKeepDirectory() throws Exception {
         FolderEntry folder = new FolderEntry("my-vfs", vfs.getMountPoint().getRoot().createFolder("project"));
-        Map<String, String> parameters = new HashMap<>(2);
+        Map<String, String> parameters = new HashMap<>(1);
         parameters.put("keepDirectory", "src");
         gitProjectImporter.importSources(folder, gitRepo.getAbsolutePath(), parameters, new SystemOutLineConsumerFactory());
         // content of src folder copied
-        Assert.assertEquals(1, folder.getChildren().size());
-        Assert.assertNotNull(folder.getChild("hello.c"));
+        Assert.assertEquals(2, folder.getChildren().size());
+        Assert.assertNotNull(((FolderEntry)folder.getChild(parameters.get("keepDirectory"))).getChild("hello.c"));
     }
 
     @Test
