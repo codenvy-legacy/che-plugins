@@ -85,7 +85,7 @@ public class CreateMachineViewImpl extends Window implements CreateMachineView {
                     image.getElement().getStyle().setMargin(0, Style.Unit.PX);
                     icon.appendChild((Node)image.getElement());
 
-                    label.setInnerHTML(itemData.getId());
+                    label.setInnerHTML(itemData.getName());
                     group.setInnerHTML(itemData.getType());
 
                     itemElement.appendChild(icon);
