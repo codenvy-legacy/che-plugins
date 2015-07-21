@@ -239,7 +239,7 @@ public class DockerInstance extends AbstractInstance {
     }
 
     @Override
-    public InstanceKey saveToSnapshot(String owner, String label) throws MachineException {
+    public InstanceKey saveToSnapshot(String owner) throws MachineException {
         try {
             final String repository = generateRepository();
             String comment = String.format("Suspended at %1$ta %1$tb %1$td %1$tT %1$tZ %1$tY", System.currentTimeMillis());
