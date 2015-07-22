@@ -21,9 +21,9 @@ import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.EntityFactory;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.WidgetsFactory;
 import org.eclipse.che.ide.extension.machine.client.machine.Machine;
+import org.eclipse.che.ide.extension.machine.client.perspective.terminal.TerminalPresenter;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.appliance.server.ServerPresenter;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.appliance.sufficientinfo.MachineInfoPresenter;
-import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.appliance.terminal.TerminalPresenter;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.panel.MachinePanelPresenter;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.panel.MachinePanelView;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.recipe.RecipePartPresenter;
@@ -82,13 +82,13 @@ public class MachineAppliancePresenterTest {
 //    @Mock
 //    private ProcessesPresenter          processesPresenter;
     @Mock
-    private TerminalPresenter           terminalPresenter;
+    private TerminalPresenter     terminalPresenter;
     @Mock
-    private MachineInfoPresenter        infoPresenter;
+    private MachineInfoPresenter  infoPresenter;
     @Mock
-    private ServerPresenter             serverPresenter;
+    private ServerPresenter       serverPresenter;
     @Mock
-    private TabContainerPresenter       tabContainer;
+    private TabContainerPresenter tabContainer;
 
     //additional mocks
     @Mock

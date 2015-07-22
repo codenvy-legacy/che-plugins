@@ -13,6 +13,8 @@ package org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 
 import org.eclipse.che.ide.extension.machine.client.machine.Machine;
+import org.eclipse.che.ide.extension.machine.client.perspective.terminal.TerminalPresenter;
+import org.eclipse.che.ide.extension.machine.client.perspective.terminal.TerminalView;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;

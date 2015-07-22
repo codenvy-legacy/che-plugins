@@ -14,23 +14,10 @@
              xmlns:g='urn:import:com.google.gwt.user.client.ui'>
 
     <ui:style>
-        .fullSize {
-            width: 100%;
-            height: 100%;
-        }
 
-        .terminalFrame {
-            position: absolute;
-            left: 0;
-            top: 0;
-            right: 0;
-            bottom: 0;
-            border: 0;
-            overflow: hidden;
-        }
     </ui:style>
 
-    <g:FlowPanel>
-        <g:Frame ui:field="terminal" debugId="FrameTerminal" addStyleNames="{style.fullSize} {style.terminalFrame}"/>
-    </g:FlowPanel>
+    <g:HTML>
+        <div id="bash" style="width: 800px; height: 400px; background-color: gray;" />
+    </g:HTML>
 </ui:UiBinder>

@@ -19,20 +19,21 @@ import javax.inject.Provider;
  *
  * @author Alexander Garagatyi
  */
-public class TerminalDockerfileInstructionsProvider implements Provider<String> {
-    private final String terminalArchiveUrl;
+public class TerminalServerBindingProvider implements Provider<String> {
+    private final String terminalArchivePath;
 
     @Inject
-    public TerminalDockerfileInstructionsProvider(@Named("machine.server.terminal.archive_url") String terminalArchiveUrl) {
-        this.terminalArchiveUrl = terminalArchiveUrl;
+    public TerminalServerBindingProvider(@Named("machine.server.terminal.archive") String terminalArchivePath) {
+        this.terminalArchivePath = terminalArchivePath;
     }
 
     @Override
     public String get() {
-        return "\n LABEL che:server:4411:ref=terminal che:server:4411:protocol=http" +
-               "\n EXPOSE 4411" +
-               "\nRUN mkdir -p ~/che && " +
-               "wget -q " + terminalArchiveUrl + " -O ~/che/terminal.zip && " +
-               "unzip ~/che/terminal.zip -d ~/che/";
+//        return "\n LABEL che:server:4411:ref=terminal che:server:4411:protocol=http" +
+//               "\n EXPOSE 4411" +
+//               "\nRUN mkdir -p ~/che && " +
+//               "wget -q " + terminalArchivePath + " -O ~/che/terminal.zip && " +
+//               "unzip ~/che/terminal.zip -d ~/che/";
+        return terminalArchivePath + ":/mnt/che/terminal.zip";
     }
 }

@@ -8,7 +8,7 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.appliance.terminal;
+package org.eclipse.che.ide.extension.machine.client.perspective.terminal;
 
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.gwt.user.client.ui.IsWidget;
@@ -43,6 +43,7 @@ public class TerminalPresenter implements TabPresenter {
      */
     public void updateTerminal(@Nonnull Machine machine) {
         view.updateTerminal(machine);
+
     }
 
     /** {@inheritDoc} */

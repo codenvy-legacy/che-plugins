@@ -73,6 +73,12 @@
             <version>${che.core.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.eclipse.che.depmgt</groupId>
+            <artifactId>che-websocket-terminal</artifactId>
+            <version>${websocket.terminal.version}</version>
+            <type>zip</type>
+        </dependency>
+        <dependency>
             <groupId>org.eclipse.che.plugin</groupId>
             <artifactId>che-plugin-orion-editor</artifactId>
             <version>${che.core.version}</version>
@@ -146,5 +152,49 @@
                 <directory>src/test/resources</directory>
             </testResource>
         </testResources>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>unpack-terminal</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.eclipse.che.depmgt</groupId>
+                                    <artifactId>che-websocket-terminal</artifactId>
+                                    <version>${websocket.terminal.version}</version>
+                                    <type>zip</type>
+                                    <overWrite>false</overWrite>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.7</version>
+                <executions>
+                    <execution>
+                        <id>copy-resources</id>
+                        <phase>process-classes</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <copy file="${project.build.directory}/dependency/terminal/term.js" todir="${project.build.outputDirectory}/org/eclipse/che/ide/extension/machine/public/term/" />
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
     </build>
 </project>
