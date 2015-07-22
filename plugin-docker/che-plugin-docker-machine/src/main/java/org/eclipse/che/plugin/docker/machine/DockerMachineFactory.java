@@ -40,7 +40,7 @@ public interface DockerMachineFactory {
                             @Assisted("container") String container,
                             @Assisted DockerNode node,
                             @Assisted LineConsumer outputConsumer,
-                            @Assisted("recipe") Recipe recipe,
+                            @Assisted Recipe recipe,
                             @Assisted int memorySizeMB) throws MachineException;
 
     DockerNode createNode(@Assisted String containerId) throws MachineException;
