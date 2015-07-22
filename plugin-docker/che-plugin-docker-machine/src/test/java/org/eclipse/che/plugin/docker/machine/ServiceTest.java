@@ -282,7 +282,7 @@ public class ServiceTest {
 
         // use machine manager instead of machine service because it returns future with snapshot
         // that allows check operation result
-        final SnapshotImpl snapshot = machineManager.save(machine.getId(), USER, "label", "test description");
+        final SnapshotImpl snapshot = machineManager.save(machine.getId(), USER, "test description");
 
         for (int i = 0; snapshot.getInstanceKey() == null && i < 10; ++i) {
             Thread.sleep(500);
