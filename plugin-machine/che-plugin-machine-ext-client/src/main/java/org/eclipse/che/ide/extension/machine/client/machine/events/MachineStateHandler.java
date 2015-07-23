@@ -13,25 +13,25 @@ package org.eclipse.che.ide.extension.machine.client.machine.events;
 import com.google.gwt.event.shared.EventHandler;
 
 /**
- * A handler for handling {@link MachineStatusEvent}.
+ * A handler for handling {@link MachineStateEvent}.
  *
  * @author Artem Zatsarynnyy
  */
-public interface MachineStatusHandler extends EventHandler {
+public interface MachineStateHandler extends EventHandler {
 
     /**
      * Called when machine has been run.
      *
      * @param event
-     *         the fired {@link MachineStatusEvent}
+     *         the fired {@link MachineStateEvent}
      */
-    void onMachineRunning(MachineStatusEvent event);
+    void onMachineRunning(MachineStateEvent event);
 
     /**
      * Called when machine has been destroyed.
      *
      * @param event
-     *         the fired {@link MachineStatusEvent}
+     *         the fired {@link MachineStateEvent}
      */
-    void onMachineDestroyed(MachineStatusEvent event);
+    void onMachineDestroyed(MachineStateEvent event);
 }

@@ -81,6 +81,6 @@ public class DestroyMachineAction extends AbstractPerspectiveAction {
             return;
         }
 
-        machineManager.destroyMachine(selectedMachine.getId());
+        machineManager.destroyMachine(selectedMachine);
     }
 }

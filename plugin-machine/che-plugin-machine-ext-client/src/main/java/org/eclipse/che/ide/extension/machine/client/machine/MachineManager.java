@@ -37,6 +37,7 @@ import org.eclipse.che.ide.api.parts.WorkspaceAgent;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.OutputMessageUnmarshaller;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
+import org.eclipse.che.ide.extension.machine.client.inject.factories.EntityFactory;
 import org.eclipse.che.ide.extension.machine.client.machine.MachineStatusNotifier.RunningListener;
 import org.eclipse.che.ide.extension.machine.client.machine.console.MachineConsolePresenter;
 import org.eclipse.che.ide.extension.machine.client.outputspanel.OutputsContainerPresenter;
@@ -55,6 +56,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 import static com.google.gwt.http.client.RequestBuilder.GET;
+import static org.eclipse.che.ide.extension.machine.client.machine.MachineManager.OperationType.DESTROY;
 import static org.eclipse.che.ide.extension.machine.client.machine.MachineManager.OperationType.RESTART;
 import static org.eclipse.che.ide.extension.machine.client.machine.MachineManager.OperationType.START;
 
@@ -76,8 +78,8 @@ public class MachineManager implements ProjectActionHandler {
     private final WorkspaceAgent              workspaceAgent;
     private final MachineStatusNotifier       machineStatusNotifier;
     private final DialogFactory               dialogFactory;
-    private final MachineNameManager          nameManager;
     private final RecipeProvider              recipeProvider;
+    private final EntityFactory               entityFactory;
 
     /** Stores ID of the developer machine (where workspace or current project is bound). */
     private String devMachineId;
@@ -93,8 +95,8 @@ public class MachineManager implements ProjectActionHandler {
                           WorkspaceAgent workspaceAgent,
                           MachineStatusNotifier machineStatusNotifier,
                           DialogFactory dialogFactory,
-                          MachineNameManager nameManager,
-                          RecipeProvider recipeProvider) {
+                          RecipeProvider recipeProvider,
+                          EntityFactory entityFactory) {
         this.machineServiceClient = machineServiceClient;
         this.messageBus = messageBus;
         this.machineConsolePresenter = machineConsolePresenter;
@@ -105,8 +107,8 @@ public class MachineManager implements ProjectActionHandler {
         this.workspaceAgent = workspaceAgent;
         this.machineStatusNotifier = machineStatusNotifier;
         this.dialogFactory = dialogFactory;
-        this.nameManager = nameManager;
         this.recipeProvider = recipeProvider;
+        this.entityFactory = entityFactory;
     }
 
     @Override
@@ -136,11 +138,7 @@ public class MachineManager implements ProjectActionHandler {
     }
 
     public void restartMachine(@Nonnull final Machine machine) {
-        final String machineId = machine.getId();
-
-        nameManager.removeName(machineId);
-
-        machineServiceClient.destroyMachine(machineId).then(new Operation<Void>() {
+        machineServiceClient.destroyMachine(machine.getId()).then(new Operation<Void>() {
             @Override
             public void apply(Void arg) throws OperationException {
                 String recipeUrl = recipeProvider.getRecipeUrl();
@@ -151,7 +149,6 @@ public class MachineManager implements ProjectActionHandler {
                 startMachine(recipeUrl, displayName, isWSBound, RESTART);
             }
         });
-
     }
 
     /** Start new machine. */
@@ -184,22 +181,20 @@ public class MachineManager implements ProjectActionHandler {
         }).then(new Operation<MachineDescriptor>() {
             @Override
             public void apply(final MachineDescriptor machineDescriptor) throws OperationException {
-                RunningListener runningListener = null;
+                final Machine machine = entityFactory.createMachine(machineDescriptor);
 
-                final String machineId = machineDescriptor.getId();
+                RunningListener runningListener = null;
 
                 if (bindWorkspace) {
                     runningListener = new RunningListener() {
                         @Override
                         public void onRunning() {
-                            devMachineId = machineId;
+                            devMachineId = machine.getId();
                         }
                     };
                 }
 
-                nameManager.addName(machineId, displayName);
-
-                machineStatusNotifier.trackMachine(machineId, runningListener, operationType);
+                machineStatusNotifier.trackMachine(machine, runningListener, operationType);
             }
         });
     }
@@ -236,12 +231,12 @@ public class MachineManager implements ProjectActionHandler {
         });
     }
 
-    public void destroyMachine(final String machineId) {
-        machineServiceClient.destroyMachine(machineId).then(new Operation<Void>() {
+    public void destroyMachine(final Machine machine) {
+        machineServiceClient.destroyMachine(machine.getId()).then(new Operation<Void>() {
             @Override
             public void apply(Void arg) throws OperationException {
-                machineStatusNotifier.trackMachine(machineId);
-                if (devMachineId != null && machineId.equals(devMachineId)) {
+                machineStatusNotifier.trackMachine(machine, DESTROY);
+                if (devMachineId != null && machine.getId().equals(devMachineId)) {
                     devMachineId = null;
                 }
             }
@@ -301,6 +296,6 @@ public class MachineManager implements ProjectActionHandler {
     }
 
     enum OperationType {
-        START, RESTART
+        START, RESTART, DESTROY
     }
 }

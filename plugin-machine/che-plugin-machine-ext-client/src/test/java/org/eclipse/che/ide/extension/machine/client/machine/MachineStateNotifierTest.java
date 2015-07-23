@@ -10,12 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.machine.client.machine;
 
-import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
-import org.eclipse.che.api.machine.shared.dto.MachineDescriptor;
-import org.eclipse.che.api.machine.shared.dto.MachineStateDescriptor;
 import org.eclipse.che.api.machine.shared.dto.event.MachineStatusEvent;
-import org.eclipse.che.api.promises.client.Operation;
-import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
@@ -23,7 +18,6 @@ import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.websocket.MessageBus;
 import org.eclipse.che.ide.websocket.events.MessageHandler;
-import org.eclipse.che.ide.websocket.rest.SubscriptionHandler;
 import org.eclipse.che.ide.websocket.rest.Unmarshallable;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,8 +29,6 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.eclipse.che.api.machine.shared.MachineStatus.CREATING;
-import static org.eclipse.che.api.machine.shared.MachineStatus.DESTROYING;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyString;
@@ -60,8 +52,6 @@ public class MachineStateNotifierTest {
     @Mock
     private NotificationManager         notificationManager;
     @Mock
-    private MachineServiceClient        service;
-    @Mock
     private MachineLocalizationConstant locale;
     @Mock
     private MachinePanelPresenter       machinePanelPresenter;
@@ -70,18 +60,10 @@ public class MachineStateNotifierTest {
     @Mock
     private Unmarshallable<MachineStatusEvent> unmarshaller;
     @Mock
-    private Promise<MachineStateDescriptor>    machineStatePromise;
-    @Mock
-    private MachineStateDescriptor                  descriptor;
-    @Mock
-    private MachineStatusEvent                 stateEvent;
+    private Machine                            machine;
 
     @Captor
-    private ArgumentCaptor<Operation<MachineStateDescriptor>>            operationCaptor;
-    @Captor
-    private ArgumentCaptor<Notification>                            notificationCaptor;
-    @Captor
-    private ArgumentCaptor<SubscriptionHandler<MachineStatusEvent>> handlerCaptor;
+    private ArgumentCaptor<Notification> notificationCaptor;
 
     @InjectMocks
     private MachineStatusNotifier stateNotifier;
@@ -90,20 +72,14 @@ public class MachineStateNotifierTest {
     public void setUp() {
         when(dtoUnmarshallerFactory.newWSUnmarshaller(MachineStatusEvent.class)).thenReturn(unmarshaller);
 
-        when(service.getMachineState(SOME_TEXT)).thenReturn(machineStatePromise);
-
         when(locale.notificationCreatingMachine(SOME_TEXT)).thenReturn(SOME_TEXT);
         when(locale.notificationDestroyingMachine(SOME_TEXT)).thenReturn(SOME_TEXT);
     }
 
     @Test
     public void machineShouldBeTrackedWhenMachineStateIsCreating() throws Exception {
-        when(descriptor.getStatus()).thenReturn(CREATING);
-        when(descriptor.getDisplayName()).thenReturn(SOME_TEXT);
-        stateNotifier.trackMachine(SOME_TEXT);
-
-        verify(machineStatePromise).then(operationCaptor.capture());
-        operationCaptor.getValue().apply(descriptor);
+        when(machine.getDisplayName()).thenReturn(SOME_TEXT);
+        stateNotifier.trackMachine(machine, MachineManager.OperationType.START);
 
         verify(notificationManager).showNotification(notificationCaptor.capture());
         Notification notification = notificationCaptor.getValue();
@@ -119,12 +95,8 @@ public class MachineStateNotifierTest {
 
     @Test
     public void machineShouldBeTrackedWhenMachineStateIsDestroying() throws Exception {
-        when(descriptor.getStatus()).thenReturn(DESTROYING);
-        when(descriptor.getDisplayName()).thenReturn(SOME_TEXT);
-        stateNotifier.trackMachine(SOME_TEXT);
-
-        verify(machineStatePromise).then(operationCaptor.capture());
-        operationCaptor.getValue().apply(descriptor);
+        when(machine.getDisplayName()).thenReturn(SOME_TEXT);
+        stateNotifier.trackMachine(machine, MachineManager.OperationType.DESTROY);
 
         verify(notificationManager).showNotification(notificationCaptor.capture());
         Notification notification = notificationCaptor.getValue();
