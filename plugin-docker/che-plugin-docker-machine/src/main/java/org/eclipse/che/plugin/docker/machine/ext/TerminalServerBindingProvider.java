@@ -29,11 +29,6 @@ public class TerminalServerBindingProvider implements Provider<String> {
 
     @Override
     public String get() {
-//        return "\n LABEL che:server:4411:ref=terminal che:server:4411:protocol=http" +
-//               "\n EXPOSE 4411" +
-//               "\nRUN mkdir -p ~/che && " +
-//               "wget -q " + terminalArchivePath + " -O ~/che/terminal.zip && " +
-//               "unzip ~/che/terminal.zip -d ~/che/";
         return terminalArchivePath + ":/mnt/che/terminal.zip";
     }
 }
