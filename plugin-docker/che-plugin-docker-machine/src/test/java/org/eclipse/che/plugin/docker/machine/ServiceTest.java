@@ -63,7 +63,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -92,16 +91,16 @@ public class ServiceTest {
     // used in methods {@link createMachineFromSnapshotTest} and {@link removeSnapshotTest}
     private DockerInstanceKey pushedImage;
 
-    private SnapshotDao          snapshotDao;
-    private MachineRegistry      machineRegistry;
-    private DockerConnector      docker;
-    private MachineManager       machineManager;
-    private MachineService       machineService;
-    private String               registryContainerId;
+    private SnapshotDao             snapshotDao;
+    private MachineRegistry         machineRegistry;
+    private DockerConnector         docker;
+    private MachineManager          machineManager;
+    private MachineService          machineService;
+    private String                  registryContainerId;
     @Mock
     private ConfigurationProperties configurationProperties;
 
-    private DtoFactory dtoFactory = DtoFactory.getInstance();
+    private DockerMachineFactory dockerMachineFactory;
 
     @BeforeClass
     public void setUpClass() throws Exception {
@@ -113,6 +112,8 @@ public class ServiceTest {
         machineRegistry = new MachineRegistry();
 
         assertTrue(pull("registry", "latest", null));
+
+        dockerMachineFactory = new TestDockerMachineFactory(docker);
 
         registryContainerId = docker.createContainer(new ContainerConfig().withImage("registry").withExposedPorts(
                 Collections.singletonMap("5000/tcp", Collections.<String, String>emptyMap())), null).getId();
@@ -135,15 +136,13 @@ public class ServiceTest {
 
         snapshotDao = mock(SnapshotDao.class);
 
-        DockerMachineFactory dockerFactory = mock(DockerMachineFactory.class);
-
         DockerNode dockerNode = mock(DockerNode.class);
 
         EventService eventService = mock(EventService.class);
 
 
         InstanceProvider dockerInstanceProvider = new DockerInstanceProvider(docker,
-                                                                             dockerFactory,
+                                                                             dockerMachineFactory,
                                                                              new HashSet<ServerConf>(),
                                                                              new HashSet<String>());
 
@@ -153,11 +152,6 @@ public class ServiceTest {
                                             "/tmp",
                                             eventService,
                                             100);
-
-        // fixme
-//        Field field = MachineService.class.getDeclaredField("defaultLineConsumer");
-//        field.setAccessible(true);
-//        field.set(null, lineConsumer);
 
         machineService = spy(new MachineService(machineManager, memberDao));
 
@@ -188,7 +182,6 @@ public class ServiceTest {
             }
         });
 
-        when(dockerFactory.createNode(anyString())).thenReturn(dockerNode);
         when(dockerNode.getProjectsFolder()).thenReturn(System.getProperty("user.dir"));
         when(memberDao.getWorkspaceMember("wsId", USER)).thenReturn(new Member()
                                                                             .withWorkspaceId("wsId")
@@ -206,10 +199,10 @@ public class ServiceTest {
     @Test
     public void createFromRecipeTest() throws Exception {
         final MachineStateDescriptor machine = machineService.createMachineFromRecipe(
-                dtoFactory.createDto(RecipeMachineCreationMetadata.class)
+                DtoFactory.newDto(RecipeMachineCreationMetadata.class)
                           .withType("docker")
                           .withWorkspaceId("wsId")
-                          .withRecipe(dtoFactory.createDto(MachineRecipe.class)
+                          .withRecipe(DtoFactory.newDto(MachineRecipe.class)
                                                 .withType("Dockerfile")
                                                 .withScript("FROM ubuntu\nCMD tail -f /dev/null\n")));
 
@@ -229,7 +222,7 @@ public class ServiceTest {
         when(snapshot.getOwner()).thenReturn(USER);
 
         final MachineStateDescriptor machine = machineService
-                .createMachineFromSnapshot(dtoFactory.createDto(SnapshotMachineCreationMetadata.class).withSnapshotId(SNAPSHOT_ID));
+                .createMachineFromSnapshot(DtoFactory.newDto(SnapshotMachineCreationMetadata.class).withSnapshotId(SNAPSHOT_ID));
 
         waitMachineIsRunning(machine.getId());
     }
@@ -262,7 +255,7 @@ public class ServiceTest {
 
         machineService.destroyMachine(machine.getId());
 
-        assertEquals(MachineStatus.DESTROYING, machine.getStatus());
+        assertEquals(machineService.getMachineStateById(machine.getId()).getStatus(), MachineStatus.DESTROYING);
 
         int counter = 0;
         while (++counter < 1000) {
@@ -327,7 +320,7 @@ public class ServiceTest {
 
         String commandInMachine = "echo \"command in machine\" && tail -f /dev/null";
         machineService
-                .executeCommandInMachine(machine.getId(), dtoFactory.createDto(CommandDescriptor.class).withCommandLine(commandInMachine));
+                .executeCommandInMachine(machine.getId(), DtoFactory.newDto(CommandDescriptor.class).withCommandLine(commandInMachine));
 
         Thread.sleep(500);
 
@@ -345,7 +338,7 @@ public class ServiceTest {
         commands.add("sleep 10000");
 
         for (String command : commands) {
-            machineService.executeCommandInMachine(machine.getId(), dtoFactory.createDto(CommandDescriptor.class).withCommandLine(command));
+            machineService.executeCommandInMachine(machine.getId(), DtoFactory.newDto(CommandDescriptor.class).withCommandLine(command));
         }
 
         Thread.sleep(500);
@@ -366,7 +359,7 @@ public class ServiceTest {
 
         String commandInMachine = "echo \"command in machine\" && tail -f /dev/null";
         machineService
-                .executeCommandInMachine(machine.getId(), dtoFactory.createDto(CommandDescriptor.class).withCommandLine(commandInMachine));
+                .executeCommandInMachine(machine.getId(), DtoFactory.newDto(CommandDescriptor.class).withCommandLine(commandInMachine));
 
         Thread.sleep(500);
 
@@ -385,7 +378,7 @@ public class ServiceTest {
 
         String commandInMachine = "echo \"command in machine\" && tail -f /dev/null";
         machineService
-                .executeCommandInMachine(machine.getId(), dtoFactory.createDto(CommandDescriptor.class).withCommandLine(commandInMachine));
+                .executeCommandInMachine(machine.getId(), DtoFactory.newDto(CommandDescriptor.class).withCommandLine(commandInMachine));
 
         Thread.sleep(500);
 
@@ -398,26 +391,23 @@ public class ServiceTest {
 
     private MachineImpl createMachineAndWaitRunningState()
             throws ServerException, NotFoundException, ForbiddenException, InterruptedException {
-        final MachineImpl machine = machineManager.create(dtoFactory.createDto(RecipeMachineCreationMetadata.class)
-                                                                     .withWorkspaceId("wsId")
-                                                                     .withType("docker")
-                                                                     .withRecipe(dtoFactory.createDto(MachineRecipe.class)
-                                                                                           .withType("Dockerfile")
-                                                                                           .withScript(
-                                                                                                   "FROM ubuntu\nCMD tail -f " +
-                                                                                                   "/dev/null\n"))
-                                                                     .withBindWorkspace(false)
-                                                                     .withDisplayName("displayName")
-                                                                     .withOutputChannel("blah")
-                                                          );
-        while (MachineStatus.RUNNING != machineManager.getMachine(machine.getId()).getStatus()) {
-            Thread.sleep(500);
-        }
+        final MachineImpl machine = machineManager.create(DtoFactory.newDto(RecipeMachineCreationMetadata.class)
+                                                                    .withWorkspaceId("wsId")
+                                                                    .withType("docker")
+                                                                    .withRecipe(DtoFactory.newDto(MachineRecipe.class)
+                                                                                          .withType("Dockerfile")
+                                                                                          .withScript(
+                                                                                                  "FROM ubuntu\nCMD tail -f " +
+                                                                                                  "/dev/null\n"))
+                                                                    .withBindWorkspace(false)
+                                                                    .withDisplayName("displayName")
+                                                         );
+        waitMachineIsRunning(machine.getId());
         return machine;
     }
 
     private void waitMachineIsRunning(String machineId) throws NotFoundException, InterruptedException, MachineException {
-        while (MachineStatus.RUNNING != machineManager.getMachine(machineId).getStatus()) {
+        while (MachineStatus.RUNNING != machineManager.getMachineState(machineId).getStatus()) {
             Thread.sleep(500);
         }
     }
