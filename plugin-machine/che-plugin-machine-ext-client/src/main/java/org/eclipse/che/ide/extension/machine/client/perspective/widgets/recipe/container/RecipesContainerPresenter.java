@@ -46,7 +46,7 @@ public class RecipesContainerPresenter implements TabPresenter, RecipesContainer
         view.setDelegate(this);
 
         editorStubPanel = entityFactory.createRecipeEditorPanel(null);
-        editorStubPanel.setEnableSaveCancelDeleteBtn(false);
+        editorStubPanel.setEnableSaveCancelCloneDeleteBtns(false);
     }
 
     /**

@@ -91,7 +91,7 @@ public class RecipeEditorPanelTest {
 
     @Test
     public void saveCancelDeleteButtonsShouldBeEnabled() throws Exception {
-        presenter.setEnableSaveCancelDeleteBtn(true);
+        presenter.setEnableSaveCancelCloneDeleteBtns(true);
 
         verify(view).setEnableCancelButton(true);
         verify(view).setEnableDeleteButton(true);
@@ -100,7 +100,7 @@ public class RecipeEditorPanelTest {
 
     @Test
     public void saveCancelDeleteButtonsShouldBeVisible() throws Exception {
-        presenter.setVisibleSaveCancelDeleteBtn(true);
+        presenter.setVisibleSaveCancelCloneDeleteBtns(true);
 
         verify(view).setVisibleDeleteButton(true);
         verify(view).setVisibleCancelButton(true);
@@ -109,7 +109,7 @@ public class RecipeEditorPanelTest {
 
     @Test
     public void saveCancelDeleteButtonsShouldBeHidden() throws Exception {
-        presenter.setVisibleSaveCancelDeleteBtn(false);
+        presenter.setVisibleSaveCancelCloneDeleteBtns(false);
 
         verify(view).setVisibleDeleteButton(false);
         verify(view).setVisibleCancelButton(false);
@@ -172,9 +172,9 @@ public class RecipeEditorPanelTest {
 
     @Test
     public void verifyCreateButtonClick() throws Exception {
-        presenter.onCreateButtonClicked();
+        presenter.onCloneButtonClicked();
 
-        verify(delegate).onCreateButtonClicked();
+        verify(delegate).onCloneButtonClicked();
     }
 
     @Test

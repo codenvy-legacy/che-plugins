@@ -41,8 +41,9 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(GwtMockitoTestRunner.class)
 public class RecipeEditorViewImplTest {
-    private static final String CREATE = "Create";
-    private static final String SAVE   = "Save";
+    private static final String CREATE = "CREATE";
+    private static final String CLONE = "CLONE";
+    private static final String SAVE   = "SAVE";
     private static final String DELETE = "DELETE";
     private static final String CANCEL = "CANCEL";
 
@@ -54,7 +55,9 @@ public class RecipeEditorViewImplTest {
     private WidgetsFactory              widgetFactory;
 
     @Mock
-    private EditorButtonWidget              createButtonWidget;
+    private EditorButtonWidget              newButtonWidget;
+    @Mock
+    private EditorButtonWidget              cloneButtonWidget;
     @Mock
     private EditorButtonWidget              saveButtonWidget;
     @Mock
@@ -73,12 +76,14 @@ public class RecipeEditorViewImplTest {
 
     @Before
     public void setUp() throws Exception {
-        when(locale.editorButtonCreate()).thenReturn(CREATE);
+        when(locale.editorButtonNew()).thenReturn(CREATE);
+        when(locale.editorButtonClone()).thenReturn(CLONE);
         when(locale.editorButtonSave()).thenReturn(SAVE);
         when(locale.editorButtonDelete()).thenReturn(DELETE);
         when(locale.editorButtonCancel()).thenReturn(CANCEL);
 
-        when(widgetFactory.createEditorButton(CREATE, BLUE)).thenReturn(createButtonWidget);
+        when(widgetFactory.createEditorButton(CREATE, BLUE)).thenReturn(newButtonWidget);
+        when(widgetFactory.createEditorButton(CLONE, GREY)).thenReturn(cloneButtonWidget);
         when(widgetFactory.createEditorButton(SAVE, GREY)).thenReturn(saveButtonWidget);
         when(widgetFactory.createEditorButton(DELETE, GREY)).thenReturn(deleteButtonWidget);
         when(widgetFactory.createEditorButton(CANCEL, GREY)).thenReturn(cancelButtonWidget);
@@ -89,19 +94,23 @@ public class RecipeEditorViewImplTest {
 
     @Test
     public void buttonsShouldBeAdded() throws Exception {
-        EditorButtonWidget.ActionDelegate createDelegate = buttonShouldBeCreated(CREATE, BLUE, createButtonWidget, createButtonWidget);
+        EditorButtonWidget.ActionDelegate createDelegate = buttonShouldBeCreated(CREATE, BLUE, newButtonWidget, newButtonWidget);
         createDelegate.onButtonClicked();
-        verify(delegate).onCreateButtonClicked();
+        verify(delegate).onNewButtonClicked();
+
+        EditorButtonWidget.ActionDelegate cloneDelegate = buttonShouldBeCreated(CLONE, GREY, cloneButtonWidget, cloneButtonWidget);
+        cloneDelegate.onButtonClicked();
+        verify(delegate).onCloneButtonClicked();
 
         EditorButtonWidget.ActionDelegate saveDelegate = buttonShouldBeCreated(SAVE, GREY, saveButtonWidget, saveButtonWidget);
         saveDelegate.onButtonClicked();
         verify(delegate).onSaveButtonClicked();
 
-        EditorButtonWidget.ActionDelegate deleteDelegate = buttonShouldBeCreated(CANCEL, GREY, cancelButtonWidget, deleteButtonWidget);
+        EditorButtonWidget.ActionDelegate deleteDelegate = buttonShouldBeCreated(CANCEL, GREY, cancelButtonWidget, cancelButtonWidget);
         deleteDelegate.onButtonClicked();
-        verify(delegate).onDeleteButtonClicked();
+        verify(delegate).onCancelButtonClicked();
 
-        EditorButtonWidget.ActionDelegate cancelDelegate = buttonShouldBeCreated(DELETE, GREY, deleteButtonWidget, cancelButtonWidget);
+        EditorButtonWidget.ActionDelegate cancelDelegate = buttonShouldBeCreated(DELETE, GREY, deleteButtonWidget, deleteButtonWidget);
         cancelDelegate.onButtonClicked();
         verify(delegate).onCancelButtonClicked();
     }
@@ -157,6 +166,20 @@ public class RecipeEditorViewImplTest {
         view.setEnableDeleteButton(false);
 
         verify(deleteButtonWidget).setEnable(false);
+    }
+
+    @Test
+    public void buttonCloneShouldBeEnable() {
+        view.setEnableCloneButton(true);
+
+        verify(cloneButtonWidget).setEnable(true);
+    }
+
+    @Test
+    public void buttonCloneShouldNotBeEnable() {
+        view.setEnableCloneButton(false);
+
+        verify(cloneButtonWidget).setEnable(false);
     }
 
     @Test

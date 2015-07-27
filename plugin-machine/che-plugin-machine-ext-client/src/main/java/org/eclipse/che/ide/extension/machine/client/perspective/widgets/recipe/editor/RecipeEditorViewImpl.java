@@ -46,6 +46,12 @@ public class RecipeEditorViewImpl extends Composite implements RecipeEditorView 
 
     @UiField
     FlowPanel buttonsPanel;
+    @UiField
+    FlowPanel tagsPanel;
+    @UiField
+    FlowPanel urlPanel;
+    @UiField
+    FlowPanel namePanel;
 
     @UiField
     DockLayoutPanel   recipePanel;
@@ -65,6 +71,7 @@ public class RecipeEditorViewImpl extends Composite implements RecipeEditorView 
 
     private ActionDelegate     delegate;
     private EditorButtonWidget saveBtn;
+    private EditorButtonWidget cloneBtn;
     private EditorButtonWidget cancelBtn;
     private EditorButtonWidget deleteBtn;
 
@@ -78,10 +85,18 @@ public class RecipeEditorViewImpl extends Composite implements RecipeEditorView 
         EditorButtonWidget.ActionDelegate createDelegate = new EditorButtonWidget.ActionDelegate() {
             @Override
             public void onButtonClicked() {
-                delegate.onCreateButtonClicked();
+                delegate.onNewButtonClicked();
             }
         };
-        createButton(locale.editorButtonCreate(), createDelegate, EditorButtonWidgetImpl.Background.BLUE);
+        createButton(locale.editorButtonNew(), createDelegate, EditorButtonWidgetImpl.Background.BLUE);
+
+        EditorButtonWidget.ActionDelegate cloneDelegate = new EditorButtonWidget.ActionDelegate() {
+            @Override
+            public void onButtonClicked() {
+                delegate.onCloneButtonClicked();
+            }
+        };
+        cloneBtn = createButton(locale.editorButtonClone(), cloneDelegate, EditorButtonWidgetImpl.Background.GREY);
 
         EditorButtonWidget.ActionDelegate saveDelegate = new EditorButtonWidget.ActionDelegate() {
             @Override
@@ -211,6 +226,18 @@ public class RecipeEditorViewImpl extends Composite implements RecipeEditorView 
     @Override
     public void setVisibleCancelButton(boolean visible) {
         cancelBtn.setVisible(visible);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void setEnableCloneButton(boolean enable) {
+        cloneBtn.setEnable(enable);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void setVisibleCloneButton(boolean visible) {
+        cloneBtn.setVisible(visible);
     }
 
     /** {@inheritDoc} */

@@ -37,6 +37,7 @@ import org.eclipse.che.ide.extension.machine.client.perspective.widgets.recipe.e
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.recipe.editor.RecipeEditorView;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.recipe.entry.RecipeEntry;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.recipe.entry.RecipeWidget;
+import org.eclipse.che.ide.extension.machine.client.util.NameGenerator;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -152,31 +153,42 @@ public class RecipePartPresenter extends BasePresenter implements RecipePartView
 
     /** {@inheritDoc} */
     @Override
-    public void onCreateButtonClicked() {
-        String type;
-        String script;
-        String name;
-        List<String> tags;
-        if (selectedRecipe == null) {
-            RecipeEditorPanel stubPanel = recipesContainerPresenter.getEditorStubPanel();
-            type = RECIPE_TYPE;
-            script = resources.recipeTemplate().getText();
-            name = stubPanel.getName();
-            tags = stubPanel.getTags();
-        } else {
-            RecipeDescriptor selectedRecipeDescriptor = recipes.get(selectedRecipe);
-            type = selectedRecipeDescriptor.getType();
-            script = selectedRecipeDescriptor.getScript();
-            tags = selectedRecipeDescriptor.getTags();
-            name = selectedRecipeDescriptor.getName();
+    public void onCloneButtonClicked() {
+        RecipeDescriptor selectedRecipeDescriptor = recipes.get(selectedRecipe);
+
+        String recipeName = NameGenerator.generateCopy(selectedRecipeDescriptor.getName(), recipes.keySet());
+
+        NewRecipe newRecipe = dtoFactory.createDto(NewRecipe.class)
+                                        .withType(selectedRecipeDescriptor.getType())
+                                        .withScript(selectedRecipeDescriptor.getScript())
+                                        .withName(recipeName)
+                                        .withTags(selectedRecipeDescriptor.getTags());
+
+        createRecipe(newRecipe);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void onNewButtonClicked() {
+        RecipeEditorPanel stubPanel = recipesContainerPresenter.getEditorStubPanel();
+
+        String recipeName = NameGenerator.generateCustomRecipeName(recipes.keySet());
+        List<String> tags = stubPanel.getTags();
+        if (recipes.isEmpty() && !stubPanel.getName().isEmpty()) {
+            recipeName = stubPanel.getName();
+            stubPanel.setTags(Collections.<String>emptyList());
         }
 
         NewRecipe newRecipe = dtoFactory.createDto(NewRecipe.class)
-                                        .withType(type)
-                                        .withScript(script)
-                                        .withName(name)
+                                        .withType(RECIPE_TYPE)
+                                        .withScript(resources.recipeTemplate().getText())
+                                        .withName(recipeName)
                                         .withTags(tags);
 
+        createRecipe(newRecipe);
+    }
+
+    private void createRecipe(@Nonnull NewRecipe newRecipe) {
         Promise<RecipeDescriptor> createRecipe = service.createRecipe(newRecipe);
         createRecipe.then(new Operation<RecipeDescriptor>() {
             @Override
@@ -221,15 +233,32 @@ public class RecipePartPresenter extends BasePresenter implements RecipePartView
                 notificationManager.showInfo("Recipe \"" + recipeDescriptor.getName() + "\" was saved.");
             }
         });
+
+        updateRecipe.catchError(new Operation<PromiseError>() {
+            @Override
+            public void apply(PromiseError arg) throws OperationException {
+                if (arg.getMessage() != null) {
+                    notificationManager.showError(arg.getMessage());
+                }
+            }
+        });
     }
 
     /** {@inheritDoc} */
     @Override
     public void selectRecipe() {
         LinkedList<RecipeWidget> list = new LinkedList<>(recipes.keySet());
-        if (!list.isEmpty()) {
-            onRecipeClicked(list.getFirst());
+
+        if (list.isEmpty() || (selectedRecipe != null && selectedRecipe.equals(list.getFirst()))) {
+            return;
         }
+
+        for (RecipeWidget recipe : recipes.keySet()) {
+            recipe.unSelect();
+        }
+
+        selectedRecipe = list.getFirst();
+        selectedRecipe.select();
     }
 
     /** {@inheritDoc} */
@@ -297,7 +326,7 @@ public class RecipePartPresenter extends BasePresenter implements RecipePartView
         stubPanelView.setName("");
         stubPanelView.setTags(Collections.<String>emptyList());
 
-        editorStubPanel.setVisibleSaveCancelDeleteBtn(false);
+        editorStubPanel.setVisibleSaveCancelCloneDeleteBtns(false);
         editorStubPanel.setDelegate(this);
         recipesContainerPresenter.showEditorStubPanel();
     }

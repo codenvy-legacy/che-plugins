@@ -73,6 +73,14 @@ public interface RecipeEditorView extends View<RecipeEditorView.ActionDelegate> 
     void setEnableCancelButton(boolean enable);
 
     /**
+     * Changes enable state of 'Clone' button.
+     *
+     * @param enable
+     *         enable state of button
+     */
+    void setEnableCloneButton(boolean enable);
+
+    /**
      * Changes enable state of 'Delete' button.
      *
      * @param enable
@@ -87,6 +95,14 @@ public interface RecipeEditorView extends View<RecipeEditorView.ActionDelegate> 
      *         state button visibility
      */
     void setVisibleSaveButton(boolean visible);
+
+    /**
+     * Sets visibility of the button clone.
+     *
+     * @param visible
+     *         state button visibility
+     */
+    void setVisibleCloneButton(boolean visible);
 
     /**
      * Sets visibility of the button delete.
@@ -118,8 +134,11 @@ public interface RecipeEditorView extends View<RecipeEditorView.ActionDelegate> 
     interface ActionDelegate {
         void showEditor();
 
-        /** Performs some actions in response to user's clicking on the 'Create' button. */
-        void onCreateButtonClicked();
+        /** Performs some actions in response to user's clicking on the 'Clone' button. */
+        void onCloneButtonClicked();
+
+        /** Performs some actions in response to user's clicking on the 'New' button. */
+        void onNewButtonClicked();
 
         /** Performs some actions in response to user's clicking on the 'Save' button. */
         void onSaveButtonClicked();

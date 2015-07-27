@@ -156,9 +156,6 @@ public class RecipePartPresenterTest {
         verify(recipePartView).clear();
         verify(recipePartView, times(2)).addRecipe(Matchers.<RecipeWidget>any());
         verify(recipesContainerPresenter, times(2)).addRecipePanel(Matchers.<RecipeWidget>any());
-        verify(recipesContainerPresenter).showEditorPanel(Matchers.<RecipeWidget>any());
-        verify(recipesContainerPresenter).getEditorPanel(Matchers.<RecipeWidget>any());
-        verify(recipeEditorPanel).setDelegate(recipePartPresenter);
     }
 
     @Test
@@ -194,13 +191,13 @@ public class RecipePartPresenterTest {
         when(recipesContainerPresenter.getEditorPanel(Matchers.<RecipeWidget>any())).thenReturn(recipeEditorPanel);
         when(recipeEditorPanel.getName()).thenReturn("name");
 
-        recipePartPresenter.onCreateButtonClicked();
+        recipePartPresenter.onNewButtonClicked();
 
         verify(service).createRecipe(newRecipe);
         verify(newRecipe).withType(RECIPE_TYPE);
         verify(newRecipe).withScript("script");
         verify(newRecipe).withName("name");
-        verify(stubPanel).getName();
+        verify(stubPanel,times(2)).getName();
         verify(stubPanel).getTags();
         assertTrue(newRecipe.getTags().isEmpty());
 
@@ -227,12 +224,14 @@ public class RecipePartPresenterTest {
         when(recipesContainerPresenter.getEditorPanel(Matchers.<RecipeWidget>any())).thenReturn(recipeEditorPanel);
         when(recipesContainerPresenter.getEditorStubPanel()).thenReturn(stubPanel);
 
-        recipePartPresenter.onCreateButtonClicked();
+        recipePartPresenter.onNewButtonClicked();
 
         verify(recipeDescriptorPromise).then(operationDescriptorCaptor.capture());
         operationDescriptorCaptor.getValue().apply(recipeDescriptor1);
 
-        recipePartPresenter.onCreateButtonClicked();
+        when(recipeDescriptor1.getName()).thenReturn("name");
+
+        recipePartPresenter.onCloneButtonClicked();
 
         verify(recipeDescriptor1).getType();
         verify(recipeDescriptor1).getScript();
@@ -269,7 +268,7 @@ public class RecipePartPresenterTest {
         when(recipeDescriptor1.getId()).thenReturn("id");
         when(service.removeRecipe(anyString())).thenReturn(deletePromise);
 
-        recipePartPresenter.onCreateButtonClicked();
+        recipePartPresenter.onNewButtonClicked();
 
         verify(recipeDescriptorPromise).then(operationDescriptorCaptor.capture());
         operationDescriptorCaptor.getValue().apply(recipeDescriptor1);
@@ -309,7 +308,7 @@ public class RecipePartPresenterTest {
         when(recipeEditorPanel.getTags()).thenReturn(tags);
         when(recipeEditorPanel.getName()).thenReturn("name");
 
-        recipePartPresenter.onCreateButtonClicked();
+        recipePartPresenter.onNewButtonClicked();
 
         verify(recipeDescriptorPromise).then(operationDescriptorCaptor.capture());
         operationDescriptorCaptor.getValue().apply(recipeDescriptor1);
@@ -368,13 +367,13 @@ public class RecipePartPresenterTest {
         when(recipesContainerPresenter.getEditorPanel(Matchers.<RecipeWidget>any())).thenReturn(recipeEditorPanel);
         when(recipeEditorPanel.getName()).thenReturn("name");
 
-        recipePartPresenter.onCreateButtonClicked();
+        recipePartPresenter.onNewButtonClicked();
 
         verify(service).createRecipe(newRecipe);
         verify(newRecipe).withType(RECIPE_TYPE);
         verify(newRecipe).withScript("script");
         verify(newRecipe).withName("name");
-        verify(stubPanel).getName();
+        verify(stubPanel,times(2)).getName();
         verify(stubPanel).getTags();
         assertTrue(newRecipe.getTags().isEmpty());
 

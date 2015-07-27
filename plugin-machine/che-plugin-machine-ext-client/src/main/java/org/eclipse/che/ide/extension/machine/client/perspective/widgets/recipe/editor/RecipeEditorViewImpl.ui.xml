@@ -53,17 +53,17 @@
         <g:east size="250">
             <g:FlowPanel addStyleNames="{resources.getCss.fullSize}">
 
-                <g:FlowPanel addStyleNames="{style.textContainer}">
+                <g:FlowPanel ui:field="namePanel" addStyleNames="{style.textContainer}">
                     <g:Label text="Name:" width="100%"/>
                     <g:TextBox ui:field="name" addStyleNames="{style.script}" debugId="recipe-name"/>
                 </g:FlowPanel>
 
-                <g:FlowPanel addStyleNames="{style.textContainer}">
+                <g:FlowPanel ui:field="urlPanel" addStyleNames="{style.textContainer}">
                     <g:Label text="URL:" width="100%"/>
                     <g:TextBox ui:field="scriptUrl" enabled="false" addStyleNames="{style.script}" debugId="recipe-url"/>
                 </g:FlowPanel>
 
-                <g:FlowPanel addStyleNames="{style.textContainer}">
+                <g:FlowPanel ui:field="tagsPanel" addStyleNames="{style.textContainer}">
                     <g:Label text="Tags:" width="100%"/>
                     <g:TextBox ui:field="tags" addStyleNames="{style.script}" debugId="recipe-tags"/>
                 </g:FlowPanel>

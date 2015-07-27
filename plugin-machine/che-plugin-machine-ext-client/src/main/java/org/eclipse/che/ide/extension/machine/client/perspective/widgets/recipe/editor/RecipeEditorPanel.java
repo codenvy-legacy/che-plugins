@@ -86,16 +86,18 @@ public class RecipeEditorPanel implements TabPresenter, RecipeEditorView.ActionD
     }
 
     /** Changes enable state of 'Cancel', 'Save' and 'Delete' buttons. */
-    public void setEnableSaveCancelDeleteBtn(boolean enable) {
+    public void setEnableSaveCancelCloneDeleteBtns(boolean enable) {
         view.setEnableCancelButton(enable);
         view.setEnableSaveButton(enable);
         view.setEnableDeleteButton(enable);
+        view.setEnableCloneButton(enable);
     }
 
-    public void setVisibleSaveCancelDeleteBtn(boolean visible) {
+    public void setVisibleSaveCancelCloneDeleteBtns(boolean visible) {
         view.setVisibleCancelButton(visible);
         view.setVisibleDeleteButton(visible);
         view.setVisibleSaveButton(visible);
+        view.setVisibleCloneButton(visible);
     }
 
     /** Returns a script of recipe */
@@ -114,6 +116,16 @@ public class RecipeEditorPanel implements TabPresenter, RecipeEditorView.ActionD
     @Nonnull
     public String getName() {
         return view.getName();
+    }
+
+    /** Sets name of the recipe. */
+    public void setName(@Nonnull String name) {
+        view.setName(name);
+    }
+
+    /** Sets list of tags. */
+    public void setTags(@Nonnull List<String> tags) {
+        view.setTags(tags);
     }
 
     /** {@inheritDoc} */
@@ -197,8 +209,14 @@ public class RecipeEditorPanel implements TabPresenter, RecipeEditorView.ActionD
 
     /** {@inheritDoc} */
     @Override
-    public void onCreateButtonClicked() {
-        delegate.onCreateButtonClicked();
+    public void onCloneButtonClicked() {
+        delegate.onCloneButtonClicked();
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void onNewButtonClicked() {
+        delegate.onNewButtonClicked();
     }
 
     /** {@inheritDoc} */
@@ -247,7 +265,10 @@ public class RecipeEditorPanel implements TabPresenter, RecipeEditorView.ActionD
         void onDeleteButtonClicked();
 
         /** Performs some actions in response to user's clicking on the 'Create' button. */
-        void onCreateButtonClicked();
+        void onCloneButtonClicked();
+
+        /** Performs some actions in response to user's clicking on the 'Create' button. */
+        void onNewButtonClicked();
 
         /** Performs some actions in response to user's clicking on the 'Save' button. */
         void onSaveButtonClicked();

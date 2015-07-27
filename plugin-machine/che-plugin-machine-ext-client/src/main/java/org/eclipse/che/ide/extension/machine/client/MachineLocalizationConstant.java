@@ -278,8 +278,8 @@ public interface MachineLocalizationConstant extends Messages {
     @Key("view.recipePanel.tooltip")
     String viewRecipePanelTooltip();
 
-    @Key("editor.button.create")
-    String editorButtonCreate();
+    @Key("editor.button.new")
+    String editorButtonNew();
 
     @Key("editor.button.save")
     String editorButtonSave();
@@ -292,4 +292,7 @@ public interface MachineLocalizationConstant extends Messages {
 
     @Key("tab.recipe")
     String tabRecipe();
+
+    @Key("editor.button.clone")
+    String editorButtonClone();
 }
