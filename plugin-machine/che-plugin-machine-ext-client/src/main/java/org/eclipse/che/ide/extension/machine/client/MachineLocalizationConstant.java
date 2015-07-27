@@ -295,4 +295,10 @@ public interface MachineLocalizationConstant extends Messages {
 
     @Key("editor.button.clone")
     String editorButtonClone();
+
+    @Key("terminal.error.connection")
+    String terminalErrorConnection();
+
+    @Key("terminal.can.not.load.script")
+    String terminalCanNotLoadScript();
 }

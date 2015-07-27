@@ -16,11 +16,11 @@ import org.eclipse.che.ide.collections.Jso;
 /**
  * @author Evgen Vidolob
  */
-public class TermOptionsJso extends Jso{
-    protected TermOptionsJso() {
+class TerminalOptionsJso extends Jso{
+    protected TerminalOptionsJso() {
     }
 
-    public static native TermOptionsJso createDefault() /*-{
+    public static native TerminalOptionsJso createDefault() /*-{
         return {
             cols: 200,
             rows: 60,

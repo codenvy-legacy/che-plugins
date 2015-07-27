@@ -107,12 +107,12 @@ class MachineStatusNotifier {
 
                         showInfo(RESTART.equals(operationType) ? locale.machineRestarted(machineName)
                                                                : locale.notificationMachineIsRunning(machineName), notification);
-                        eventBus.fireEvent(MachineStateEvent.createMachineRunningEvent(result.getMachineId()));
+                        eventBus.fireEvent(MachineStateEvent.createMachineRunningEvent(machine));
                         break;
                     case DESTROYED:
                         unsubscribe(wsChannel, this);
                         showInfo(locale.notificationMachineDestroyed(machineName), notification);
-                        eventBus.fireEvent(MachineStateEvent.createMachineDestroyedEvent(result.getMachineId()));
+                        eventBus.fireEvent(MachineStateEvent.createMachineDestroyedEvent(machine));
                         break;
                     case ERROR:
                         unsubscribe(wsChannel, this);

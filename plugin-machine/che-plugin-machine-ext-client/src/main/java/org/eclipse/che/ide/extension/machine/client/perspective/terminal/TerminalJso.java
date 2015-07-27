@@ -11,9 +11,8 @@
 
 package org.eclipse.che.ide.extension.machine.client.perspective.terminal;
 
-import elemental.dom.Element;
-
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.dom.client.Element;
 
 import org.eclipse.che.api.promises.client.Operation;
 
@@ -21,11 +20,11 @@ import org.eclipse.che.api.promises.client.Operation;
  * GWT binding to term.js script
  * @author Evgen Vidolob
  */
-public class TermJso extends JavaScriptObject {
-    protected TermJso() {
+class TerminalJso extends JavaScriptObject {
+    protected TerminalJso() {
     }
 
-    public static native TermJso create(TermOptionsJso options) /*-{
+    public static native TerminalJso create(TerminalOptionsJso options) /*-{
         return new $wnd.Terminal(options);
     }-*/;
 

@@ -21,7 +21,7 @@ import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.EntityFactory;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.WidgetsFactory;
 import org.eclipse.che.ide.extension.machine.client.machine.Machine;
-import org.eclipse.che.ide.extension.machine.client.perspective.terminal.TerminalPresenter;
+import org.eclipse.che.ide.extension.machine.client.perspective.terminal.container.TerminalContainer;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.appliance.recipe.RecipeTabPresenter;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.appliance.server.ServerPresenter;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.appliance.sufficientinfo.MachineInfoPresenter;
@@ -82,11 +82,8 @@ public class MachineAppliancePresenterTest {
     @Mock
     private RecipeTabPresenter          recipeTabPresenter;
 
-    //TODO un commit to test process tab
-//    @Mock
-//    private ProcessesPresenter          processesPresenter;
     @Mock
-    private TerminalPresenter     terminalPresenter;
+    private TerminalContainer     terminalContainer;
     @Mock
     private MachineInfoPresenter  infoPresenter;
     @Mock
@@ -97,8 +94,6 @@ public class MachineAppliancePresenterTest {
     //additional mocks
     @Mock
     private TabHeader              tabHeader;
-    //    @Mock
-//    private Tab              processTab;
     @Mock
     private Tab                    terminalTab;
     @Mock
@@ -137,19 +132,15 @@ public class MachineAppliancePresenterTest {
         when(tabContainer.getView()).thenReturn(tabContainerView);
         when(tabContainerView.asWidget()).thenReturn(widget);
 
-//        when(locale.tabProcesses()).thenReturn(SOME_TEXT);
         when(locale.tabTerminal()).thenReturn(SOME_TEXT);
         when(locale.tabInfo()).thenReturn(SOME_TEXT);
         when(locale.tabServer()).thenReturn(SOME_TEXT);
         when(locale.tabRecipe()).thenReturn(SOME_TEXT);
 
         when(widgetsFactory.createTabHeader(SOME_TEXT)).thenReturn(tabHeader);
-//        when(entityFactory.createTab(Matchers.<TabHeader>anyObject(),
-//                                     eq(processesPresenter),
-//                                     Matchers.<TabSelectHandler>anyObject())).thenReturn(processTab);
 
         when(entityFactory.createTab(Matchers.<TabHeader>anyObject(),
-                                     eq(terminalPresenter),
+                                     eq(terminalContainer),
                                      Matchers.<TabSelectHandler>anyObject())).thenReturn(terminalTab);
 
         when(entityFactory.createTab(Matchers.<TabHeader>anyObject(),
@@ -172,7 +163,7 @@ public class MachineAppliancePresenterTest {
                                                   widgetsFactory,
                                                   entityFactory,
                                                   tabItemFactory,
-                                                  terminalPresenter,
+                                                  terminalContainer,
                                                   infoPresenter,
                                                   recipesContainerPresenter,
                                                   serverPresenter,
@@ -184,18 +175,15 @@ public class MachineAppliancePresenterTest {
     public void constructorShouldBeVerified() {
         verify(widgetsFactory, times(4)).createTabHeader(SOME_TEXT);
 
-//        verify(entityFactory).createTab(eq(tabHeader), eq(processesPresenter), Matchers.<TabSelectHandler>anyObject());
-        verify(entityFactory).createTab(eq(tabHeader), eq(terminalPresenter), Matchers.<TabSelectHandler>anyObject());
+        verify(entityFactory).createTab(eq(tabHeader), eq(terminalContainer), Matchers.<TabSelectHandler>anyObject());
         verify(entityFactory).createTab(eq(tabHeader), eq(infoPresenter), Matchers.<TabSelectHandler>anyObject());
         verify(entityFactory).createTab(eq(tabHeader), eq(serverPresenter), Matchers.<TabSelectHandler>anyObject());
         verify(entityFactory).createTab(eq(tabHeader), eq(recipeTabPresenter), Matchers.<TabSelectHandler>anyObject());
 
-//        verify(locale).tabProcesses();
         verify(locale).tabTerminal();
         verify(locale).tabInfo();
         verify(locale).tabServer();
 
-//        verify(tabContainer).addTab(processTab);
         verify(tabContainer).addTab(terminalTab);
         verify(tabContainer).addTab(infoTab);
         verify(tabContainer).addTab(serverTab);
@@ -211,12 +199,13 @@ public class MachineAppliancePresenterTest {
         callAndVerifyHandler();
 
         verify(locale).tabTerminal();
+        verify(terminalContainer, times(2)).addOrShowTerminal(machine);
     }
 
     private void callAndVerifyHandler() {
         presenter.showAppliance(machine);
 
-        verify(entityFactory).createTab(eq(tabHeader), eq(terminalPresenter), handlerCaptor.capture());
+        verify(entityFactory).createTab(eq(tabHeader), eq(terminalContainer), handlerCaptor.capture());
         handlerCaptor.getValue().onTabSelected();
 
         verify(machine).setActiveTabName(SOME_TEXT);
@@ -239,20 +228,17 @@ public class MachineAppliancePresenterTest {
     @Test
     public void infoShouldBeShown() {
         reset(tabContainer);
-//        when(machine.getId()).thenReturn(SOME_TEXT);
         when(machine.getActiveTabName()).thenReturn(SOME_TEXT);
         when(tabContainer.getView()).thenReturn(tabContainerView);
         when(tabContainerView.asWidget()).thenReturn(widget);
 
         presenter.showAppliance(machine);
 
-//        verify(machine).getId();
-//        verify(processesPresenter).showProcesses(SOME_TEXT);
         verify(tabContainer).getView();
         verify(view, times(2)).showContainer(widget);
 
         verify(tabContainer).showTab(SOME_TEXT);
-        verify(terminalPresenter).updateTerminal(machine);
+        verify(terminalContainer).addOrShowTerminal(machine);
         verify(infoPresenter).update(machine);
         verify(serverPresenter).updateInfo(machine);
     }

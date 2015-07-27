@@ -22,8 +22,8 @@ import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.EntityFactory;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.WidgetsFactory;
 import org.eclipse.che.ide.extension.machine.client.machine.Machine;
+import org.eclipse.che.ide.extension.machine.client.perspective.terminal.container.TerminalContainer;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.appliance.recipe.RecipeTabPresenter;
-import org.eclipse.che.ide.extension.machine.client.perspective.terminal.TerminalPresenter;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.appliance.server.ServerPresenter;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.appliance.sufficientinfo.MachineInfoPresenter;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.panel.MachinePanelPresenter;
@@ -53,7 +53,7 @@ public class MachineAppliancePresenter extends PartStackPresenter implements Act
 
     private final MachineApplianceView      view;
     private final TabContainerPresenter     tabContainer;
-    private final TerminalPresenter         terminalPresenter;
+    private final TerminalContainer         terminalContainer;
     private final MachineInfoPresenter      infoPresenter;
     private final ServerPresenter           serverPresenter;
     private final RecipeTabPresenter        recipeTabPresenter;
@@ -72,7 +72,7 @@ public class MachineAppliancePresenter extends PartStackPresenter implements Act
                                      WidgetsFactory widgetsFactory,
                                      EntityFactory entityFactory,
                                      TabItemFactory tabItemFactory,
-                                     TerminalPresenter terminalPresenter,
+                                     final TerminalContainer terminalContainer,
                                      MachineInfoPresenter infoPresenter,
                                      RecipesContainerPresenter recipesContainerPresenter,
                                      ServerPresenter serverPresenter,
@@ -82,7 +82,7 @@ public class MachineAppliancePresenter extends PartStackPresenter implements Act
 
         this.view = view;
         this.tabContainer = tabContainer;
-        this.terminalPresenter = terminalPresenter;
+        this.terminalContainer = terminalContainer;
         this.recipesContainerPresenter = recipesContainerPresenter;
         this.infoPresenter = infoPresenter;
         this.recipeTabPresenter = recipeTabPresenter;
@@ -99,9 +99,11 @@ public class MachineAppliancePresenter extends PartStackPresenter implements Act
             @Override
             public void onTabSelected() {
                 selectedMachine.setActiveTabName(terminalTabName);
+
+                terminalContainer.addOrShowTerminal(selectedMachine);
             }
         };
-        createAndAddTab(terminalTabName, terminalPresenter, terminalHandler);
+        createAndAddTab(terminalTabName, terminalContainer, terminalHandler);
 
         TabSelectHandler infoHandler = new TabSelectHandler() {
             @Override
@@ -151,7 +153,7 @@ public class MachineAppliancePresenter extends PartStackPresenter implements Act
 
         tabContainer.showTab(machine.getActiveTabName());
 
-        terminalPresenter.updateTerminal(machine);
+        terminalContainer.addOrShowTerminal(machine);
         infoPresenter.update(machine);
         recipeTabPresenter.updateInfo(machine);
         serverPresenter.updateInfo(machine);

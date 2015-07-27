@@ -13,8 +13,6 @@ package org.eclipse.che.ide.extension.machine.client.perspective.terminal;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.inject.ImplementedBy;
 
-import org.eclipse.che.ide.extension.machine.client.machine.Machine;
-
 import javax.annotation.Nonnull;
 
 /**
@@ -23,7 +21,7 @@ import javax.annotation.Nonnull;
  * @author Dmitry Shnurenko
  */
 @ImplementedBy(TerminalViewImpl.class)
-public interface TerminalView extends IsWidget {
+interface TerminalView extends IsWidget {
 
     /**
      * Change visibility state of panel.
@@ -34,10 +32,10 @@ public interface TerminalView extends IsWidget {
     void setVisible(boolean visible);
 
     /**
-     * updates Terminal for current machine
+     * Opens current terminal.
      *
-     * @param machine
-     *         machine for which need update terminal
+     * @param terminal
+     *         terminal which will be opened
      */
-    void updateTerminal(@Nonnull Machine machine);
+    void openTerminal(@Nonnull TerminalJso terminal);
 }

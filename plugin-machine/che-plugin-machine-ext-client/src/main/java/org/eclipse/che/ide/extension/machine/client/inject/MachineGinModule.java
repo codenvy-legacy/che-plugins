@@ -23,6 +23,7 @@ import org.eclipse.che.ide.extension.machine.client.command.arbitrary.ArbitraryC
 import org.eclipse.che.ide.extension.machine.client.command.edit.EditConfigurationsView;
 import org.eclipse.che.ide.extension.machine.client.command.edit.EditConfigurationsViewImpl;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.EntityFactory;
+import org.eclipse.che.ide.extension.machine.client.inject.factories.TerminalFactory;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.WidgetsFactory;
 import org.eclipse.che.ide.extension.machine.client.machine.console.MachineConsoleToolbar;
 import org.eclipse.che.ide.extension.machine.client.machine.console.MachineConsoleView;
@@ -81,5 +82,6 @@ public class MachineGinModule extends AbstractGinModule {
                                              .implement(EditorButtonWidget.class, EditorButtonWidgetImpl.class)
                                              .build(WidgetsFactory.class));
         install(new GinFactoryModuleBuilder().implement(Tab.class, TabImpl.class).build(EntityFactory.class));
+        install(new GinFactoryModuleBuilder().build(TerminalFactory.class));
     }
 }
