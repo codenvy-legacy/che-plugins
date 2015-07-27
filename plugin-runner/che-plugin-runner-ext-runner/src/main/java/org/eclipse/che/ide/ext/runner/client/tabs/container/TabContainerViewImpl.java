@@ -56,7 +56,8 @@ public class TabContainerViewImpl extends Composite implements TabContainerView 
     private final Set<TabPresenter>      visiblePresenters;
     private final Set<TabPresenter>      removablePresenters;
     private final Map<String, TabWidget> titles;
-    private       ActionDelegate         actionDelegate;
+
+    private ActionDelegate actionDelegate;
 
     @Inject
     public TabContainerViewImpl(RunnerResources resources, WidgetFactory widgetFactory) {
@@ -114,7 +115,7 @@ public class TabContainerViewImpl extends Composite implements TabContainerView 
             String title = entry.getKey();
             TabWidget tabWidget = titles.get(title);
 
-            if (entry.getValue()) {
+            if (tabWidget != null && entry.getValue()) {
                 tabs.add(tabWidget);
             }
         }
@@ -140,6 +141,12 @@ public class TabContainerViewImpl extends Composite implements TabContainerView 
 
         tabs.add(tabWidget);
         titles.put(title, tabWidget);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void showTabTitle(@Nonnull String tabName, boolean isShown) {
+        titles.get(tabName).setVisible(isShown);
     }
 
     /** {@inheritDoc} */

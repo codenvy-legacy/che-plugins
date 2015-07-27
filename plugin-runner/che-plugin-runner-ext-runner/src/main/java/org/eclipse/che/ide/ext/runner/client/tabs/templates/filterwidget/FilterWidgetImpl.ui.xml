@@ -19,7 +19,7 @@
     <ui:style>
         .main {
             width: 180px;
-            padding: 10px;
+            margin-top: 8px;
         }
 
         .floatLeft {
@@ -28,6 +28,7 @@
 
         .label {
             float: left;
+            margin-left: 3px;
             margin-top: 3px;
         }
 
@@ -39,7 +40,7 @@
 
     <g:FlowPanel addStyleNames="{style.main}">
         <g:FlowPanel addStyleNames="{style.floatLeft} ">
-            <g:Label text="{locale.matchProjectType}" addStyleNames="{style.label}"/>
+            <g:Label text="{locale.matchProjectType}" addStyleNames="{style.label} {resources.runnerCss.fontSizeTen}"/>
             <g:CheckBox ui:field="filter" addStyleNames="{style.margin} {style.floatLeft}"/>
         </g:FlowPanel>
     </g:FlowPanel>

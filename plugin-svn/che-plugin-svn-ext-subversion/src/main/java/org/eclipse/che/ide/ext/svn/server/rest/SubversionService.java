@@ -27,12 +27,22 @@ import org.eclipse.che.ide.ext.svn.server.credentials.CredentialsProvider;
 import org.eclipse.che.ide.ext.svn.server.credentials.CredentialsProvider.Credentials;
 import org.eclipse.che.ide.ext.svn.shared.AddRequest;
 import org.eclipse.che.ide.ext.svn.shared.CLIOutputResponse;
+import org.eclipse.che.ide.ext.svn.shared.CLIOutputResponseList;
 import org.eclipse.che.ide.ext.svn.shared.CLIOutputWithRevisionResponse;
 import org.eclipse.che.ide.ext.svn.shared.CleanupRequest;
 import org.eclipse.che.ide.ext.svn.shared.CommitRequest;
 import org.eclipse.che.ide.ext.svn.shared.CopyRequest;
+import org.eclipse.che.ide.ext.svn.shared.InfoRequest;
+import org.eclipse.che.ide.ext.svn.shared.InfoResponse;
+import org.eclipse.che.ide.ext.svn.shared.ListResponse;
+import org.eclipse.che.ide.ext.svn.shared.ListRequest;
 import org.eclipse.che.ide.ext.svn.shared.LockRequest;
+import org.eclipse.che.ide.ext.svn.shared.MergeRequest;
 import org.eclipse.che.ide.ext.svn.shared.MoveRequest;
+import org.eclipse.che.ide.ext.svn.shared.PropertyDeleteRequest;
+import org.eclipse.che.ide.ext.svn.shared.PropertyGetRequest;
+import org.eclipse.che.ide.ext.svn.shared.PropertyListRequest;
+import org.eclipse.che.ide.ext.svn.shared.PropertySetRequest;
 import org.eclipse.che.ide.ext.svn.shared.RemoveRequest;
 import org.eclipse.che.ide.ext.svn.shared.ResolveRequest;
 import org.eclipse.che.ide.ext.svn.shared.RevertRequest;
@@ -46,6 +56,7 @@ import org.eclipse.che.vfs.impl.fs.VirtualFileImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
@@ -107,6 +118,7 @@ public class SubversionService extends Service {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
+    @RolesAllowed("workspace/developer")
     public CLIOutputResponse add(final AddRequest request) throws ServerException, IOException {
         request.setProjectPath(getRealPath(request.getProjectPath()));
         return this.subversionApi.add(request);
@@ -127,6 +139,7 @@ public class SubversionService extends Service {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
+    @RolesAllowed("workspace/developer")
     public CLIOutputResponse remove(final RemoveRequest request) throws ServerException, IOException {
         request.setProjectPath(getRealPath(request.getProjectPath()));
         return this.subversionApi.remove(request);
@@ -147,6 +160,7 @@ public class SubversionService extends Service {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
+    @RolesAllowed("workspace/developer")
     public CLIOutputResponse revert(final RevertRequest request) throws ServerException, IOException {
         request.setProjectPath(getRealPath(request.getProjectPath()));
         return this.subversionApi.revert(request);
@@ -167,6 +181,7 @@ public class SubversionService extends Service {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
+    @RolesAllowed("workspace/developer")
     public CLIOutputResponse copy(final CopyRequest request) throws ServerException, IOException {
         request.setProjectPath(getRealPath(request.getProjectPath()));
         return this.subversionApi.copy(request);
@@ -187,9 +202,46 @@ public class SubversionService extends Service {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
+    @RolesAllowed("workspace/developer")
     public CLIOutputResponse update(final StatusRequest request) throws ServerException, IOException {
         request.setProjectPath(getRealPath(request.getProjectPath()));
         return this.subversionApi.status(request);
+    }
+
+    /**
+     * Retrieve information about subversion resource.
+     *
+     * @param request
+     * @return
+     * @throws ServerException
+     * @throws IOException
+     */
+    @Path("info")
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
+    @RolesAllowed("workspace/developer")
+    public InfoResponse info(final InfoRequest request) throws ServerException, IOException {
+        request.withProjectPath(getRealPath(request.getProjectPath()));
+        return this.subversionApi.info(request);
+    }
+
+    /**
+     * Merge specified URL with target.
+     *
+     * @param request request
+     * @return merge response
+     * @throws ServerException
+     * @throws IOException
+     */
+    @Path("merge")
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
+    @RolesAllowed("workspace/developer")
+    public CLIOutputResponse merge(final MergeRequest request) throws ServerException, IOException {
+        request.withProjectPath(getRealPath(request.getProjectPath()));
+        return this.subversionApi.merge(request);
     }
 
     /**
@@ -207,6 +259,7 @@ public class SubversionService extends Service {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
+    @RolesAllowed("workspace/developer")
     public CLIOutputWithRevisionResponse update(final UpdateRequest request) throws ServerException, IOException {
         request.setProjectPath(getRealPath(request.getProjectPath()));
         return this.subversionApi.update(request);
@@ -227,6 +280,7 @@ public class SubversionService extends Service {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
+    @RolesAllowed("workspace/developer")
     public CLIOutputResponse showLog(final ShowLogRequest request) throws ServerException, IOException {
         request.setProjectPath(getRealPath(request.getProjectPath()));
         return this.subversionApi.showLog(request);
@@ -247,9 +301,32 @@ public class SubversionService extends Service {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
+    @RolesAllowed("workspace/developer")
     public CLIOutputResponse showDiff(final ShowDiffRequest request) throws ServerException, IOException {
         request.setProjectPath(getRealPath(request.getProjectPath()));
         return this.subversionApi.showDiff(request);
+    }
+
+    /**
+     * List remote directory.
+     *
+     * @param request
+     *         a list request
+     * @return children of requested target
+     *
+     * @throws IOException
+     *         if there is a problem executing the command
+     * @throws SubversionException
+     *         if there is a Subversion issue
+     */
+    @Path("list")
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
+    @RolesAllowed("workspace/developer")
+    public ListResponse list(final ListRequest request) throws ServerException, IOException {
+        request.withProjectPath(getRealPath(request.getProjectPath()));
+        return this.subversionApi.list(request);
     }
 
     /**
@@ -267,7 +344,8 @@ public class SubversionService extends Service {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
-    public CLIOutputResponse resolve(final ResolveRequest request) throws ServerException, IOException {
+    @RolesAllowed("workspace/developer")
+    public CLIOutputResponseList resolve(final ResolveRequest request) throws ServerException, IOException {
         request.setProjectPath(getRealPath(request.getProjectPath()));
         return subversionApi.resolve(request);
     }
@@ -285,6 +363,7 @@ public class SubversionService extends Service {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
+    @RolesAllowed("workspace/developer")
     public CLIOutputWithRevisionResponse commit(final CommitRequest request) throws ServerException, IOException {
         request.setProjectPath(getRealPath(request.getProjectPath()));
         return this.subversionApi.commit(request);
@@ -303,6 +382,7 @@ public class SubversionService extends Service {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
+    @RolesAllowed("workspace/developer")
     public CLIOutputResponse cleanup(final CleanupRequest request) throws ServerException, IOException {
         request.setProjectPath(getRealPath(request.getProjectPath()));
         return this.subversionApi.cleanup(request);
@@ -312,6 +392,7 @@ public class SubversionService extends Service {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
+    @RolesAllowed("workspace/developer")
     public CLIOutputResponse lock(final LockRequest request) throws ServerException, IOException {
         request.setProjectPath(getRealPath(request.getProjectPath()));
         return this.subversionApi.lockUnlock(request, true);
@@ -321,6 +402,7 @@ public class SubversionService extends Service {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
+    @RolesAllowed("workspace/developer")
     public CLIOutputResponse unlock(final LockRequest request) throws ServerException, IOException {
         request.setProjectPath(getRealPath(request.getProjectPath()));
         return this.subversionApi.lockUnlock(request, false);
@@ -330,6 +412,7 @@ public class SubversionService extends Service {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
+    @RolesAllowed("workspace/developer")
     public void saveCredentials(final SaveCredentialsRequest request) throws ServerException, IOException {
         try {
             this.credentialsProvider.storeCredential(request.getRepositoryUrl(),
@@ -342,6 +425,7 @@ public class SubversionService extends Service {
     @Path("export/{projectPath:.*}")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed("workspace/developer")
     public Response exportPath(final @PathParam("projectPath") String projectPath,
                                final @DefaultValue(".") @QueryParam("path") String path,
                                final @QueryParam("revision") String revision) throws ServerException, IOException {
@@ -363,9 +447,94 @@ public class SubversionService extends Service {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
+    @RolesAllowed("workspace/developer")
     public CLIOutputResponse move(final MoveRequest request) throws ServerException, IOException {
         request.setProjectPath(getRealPath(request.getProjectPath()));
         return this.subversionApi.move(request);
+    }
+
+    /**
+     * Set property to specified path or target.
+     *
+     * @param request
+     *         the property setting request
+     * @return the property setting response
+     * @throws ServerException
+     *         if there is a Subversion issue
+     * @throws IOException
+     *         if there is a problem executing the command
+     */
+    @Path("propset")
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
+    @RolesAllowed("workspace/developer")
+    public CLIOutputResponse propset(final PropertySetRequest request) throws ServerException, IOException {
+        request.setProjectPath(getRealPath(request.getProjectPath()));
+        return this.subversionApi.propset(request);
+    }
+
+    /**
+     * Delete property from specified path or target.
+     *
+     * @param request
+     *         the property delete request
+     * @return the property delete response
+     * @throws ServerException
+     *         if there is a Subversion issue
+     * @throws IOException
+     *         if there is a problem executing the command
+     */
+    @Path("propdel")
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
+    @RolesAllowed("workspace/developer")
+    public CLIOutputResponse propdel(final PropertyDeleteRequest request) throws ServerException, IOException {
+        request.setProjectPath(getRealPath(request.getProjectPath()));
+        return this.subversionApi.propdel(request);
+    }
+
+    /**
+     * Get property for specified path or target.
+     *
+     * @param request
+     *         the property setting request
+     * @return the property setting response
+     * @throws ServerException
+     *         if there is a Subversion issue
+     * @throws IOException
+     *         if there is a problem executing the command
+     */
+    @Path("propget")
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
+    @RolesAllowed("workspace/developer")
+    public CLIOutputResponse propget(final PropertyGetRequest request) throws ServerException, IOException {
+        request.setProjectPath(getRealPath(request.getProjectPath()));
+        return this.subversionApi.propget(request);
+    }
+
+    /**
+     * Get property for specified path or target.
+     *
+     * @param request
+     *         the property setting request
+     * @return the property setting response
+     * @throws ServerException
+     *         if there is a Subversion issue
+     * @throws IOException
+     *         if there is a problem executing the command
+     */
+    @Path("proplist")
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
+    @RolesAllowed("workspace/developer")
+    public CLIOutputResponse proplist(final PropertyListRequest request) throws ServerException, IOException {
+        request.setProjectPath(getRealPath(request.getProjectPath()));
+        return this.subversionApi.proplist(request);
     }
 
     /**

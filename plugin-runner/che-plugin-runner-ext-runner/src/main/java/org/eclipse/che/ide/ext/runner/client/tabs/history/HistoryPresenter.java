@@ -16,16 +16,23 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import org.eclipse.che.ide.ext.runner.client.inject.factories.WidgetFactory;
+import org.eclipse.che.ide.ext.runner.client.manager.RunnerManagerView;
 import org.eclipse.che.ide.ext.runner.client.models.Runner;
 import org.eclipse.che.ide.ext.runner.client.selection.SelectionManager;
 import org.eclipse.che.ide.ext.runner.client.tabs.common.item.RunnerItems;
 import org.eclipse.che.ide.ext.runner.client.tabs.console.container.ConsoleContainer;
 import org.eclipse.che.ide.ext.runner.client.tabs.history.runner.RunnerWidget;
+import org.eclipse.che.ide.ext.runner.client.tabs.terminal.container.TerminalContainer;
 
 import javax.annotation.Nonnull;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
+
+import static org.eclipse.che.ide.ext.runner.client.models.Runner.Status.FAILED;
+import static org.eclipse.che.ide.ext.runner.client.models.Runner.Status.STOPPED;
 
 /**
  * The class contains business logic which allows add or change state of runners and performs some logic in respond on user's actions.
@@ -33,23 +40,30 @@ import java.util.Map;
  * @author Dmitry Shnurenko
  */
 @Singleton
-public class HistoryPresenter implements HistoryPanel, RunnerWidget.ActionDelegate {
+public class HistoryPresenter implements HistoryPanel, RunnerWidget.ActionDelegate, HistoryView.ActionDelegate {
 
     private final HistoryView               view;
     private final WidgetFactory             widgetFactory;
     private final Map<Runner, RunnerWidget> runnerWidgets;
     private final SelectionManager          selectionManager;
-    private final ConsoleContainer consolePresenter;
+    private final ConsoleContainer          consolePresenter;
+    private final RunnerManagerView         runnerManagerView;
+    private final TerminalContainer         terminalContainer;
 
     @Inject
     public HistoryPresenter(HistoryView view,
                             WidgetFactory widgetFactory,
                             SelectionManager selectionManager,
-                            ConsoleContainer consolePresenter) {
+                            RunnerManagerView runnerManager,
+                            ConsoleContainer consolePresenter,
+                            TerminalContainer terminalContainer) {
         this.view = view;
+        this.view.setDelegate(this);
         this.consolePresenter = consolePresenter;
+        this.terminalContainer = terminalContainer;
 
         this.selectionManager = selectionManager;
+        this.runnerManagerView = runnerManager;
         this.widgetFactory = widgetFactory;
         this.runnerWidgets = new HashMap<>();
     }
@@ -125,12 +139,25 @@ public class HistoryPresenter implements HistoryPanel, RunnerWidget.ActionDelega
 
     /** {@inheritDoc} */
     @Override
-    public void onRunnerCleanBtnClicked(@Nonnull Runner runner) {
+    public boolean isRunnerExist(@Nonnull Runner runner) {
+        return runnerWidgets.get(runner) != null;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void removeRunnerWidget(@Nonnull Runner runner) {
         RunnerWidget widget = runnerWidgets.get(runner);
 
         view.removeRunner(widget);
         runnerWidgets.remove(runner);
-        consolePresenter.deleteSelectedConsole();
+        consolePresenter.deleteConsoleByRunner(runner);
+
+        if (runnerWidgets.isEmpty()) {
+            runnerManagerView.setEnableReRunButton(false);
+            terminalContainer.reset();
+            selectionManager.setRunner(null);
+            return;
+        }
 
         if (runner.equals(selectionManager.getRunner())) {
             selectFirst();
@@ -148,6 +175,17 @@ public class HistoryPresenter implements HistoryPanel, RunnerWidget.ActionDelega
             selectionManager.setRunner(runner);
 
             selectRunner(runner);
+        }
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void cleanInactiveRunners() {
+        Set<Runner> runners = new HashSet<>(runnerWidgets.keySet());
+        for (Runner runner : runners) {
+            if (STOPPED.equals(runner.getStatus()) || FAILED.equals(runner.getStatus())) {
+                removeRunnerWidget(runner);
+            }
         }
     }
 }

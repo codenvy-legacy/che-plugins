@@ -13,6 +13,7 @@ package org.eclipse.che.ide.ext.ssh.client.upload;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.parts.ConsolePart;
 import org.eclipse.che.ide.ext.ssh.client.SshLocalizationConstant;
+import org.eclipse.che.ide.rest.RestContext;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.FormPanel;
@@ -42,7 +43,7 @@ public class UploadSshKeyPresenter implements UploadSshKeyView.ActionDelegate {
     @Inject
     public UploadSshKeyPresenter(UploadSshKeyView view,
                                  SshLocalizationConstant constant,
-                                 @Named("restContext") String restContext,
+                                 @RestContext String restContext,
                                  @Named("workspaceId") String workspaceId,
                                  EventBus eventBus,
                                  ConsolePart console,

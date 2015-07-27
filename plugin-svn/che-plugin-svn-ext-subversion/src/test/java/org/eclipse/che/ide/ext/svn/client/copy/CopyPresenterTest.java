@@ -67,7 +67,7 @@ public class CopyPresenterTest extends BaseSubversionPresenterTest {
 
         presenter.showCopy(mock(FileNode.class));
 
-        verify(copyView).onShow();
+        verify(copyView).show();
     }
 
     @Test

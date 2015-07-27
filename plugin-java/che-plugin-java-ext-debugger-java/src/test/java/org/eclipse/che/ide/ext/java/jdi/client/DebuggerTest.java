@@ -27,6 +27,7 @@ import org.eclipse.che.ide.api.project.tree.generic.FileNode;
 import org.eclipse.che.ide.debug.Breakpoint;
 import org.eclipse.che.ide.debug.BreakpointManager;
 import org.eclipse.che.ide.ext.java.jdi.client.debug.DebuggerPresenter;
+import org.eclipse.che.ide.ext.java.jdi.client.debug.DebuggerVariable;
 import org.eclipse.che.ide.ext.java.jdi.client.debug.DebuggerView;
 import org.eclipse.che.ide.ext.java.jdi.client.debug.changevalue.ChangeValuePresenter;
 import org.eclipse.che.ide.ext.java.jdi.client.debug.expression.EvaluateExpressionPresenter;
@@ -36,7 +37,9 @@ import org.eclipse.che.ide.ext.java.jdi.shared.BreakPoint;
 import org.eclipse.che.ide.ext.java.jdi.shared.DebuggerInfo;
 import org.eclipse.che.ide.ext.java.jdi.shared.Location;
 import org.eclipse.che.ide.ext.java.jdi.shared.Variable;
+import org.eclipse.che.ide.ext.runner.client.actions.ChooseRunnerAction;
 import org.eclipse.che.ide.ext.runner.client.manager.RunnerManager;
+import org.eclipse.che.ide.ext.runner.client.models.Environment;
 import org.eclipse.che.ide.ext.runner.client.models.Runner;
 import org.eclipse.che.ide.ext.runner.client.runneractions.impl.launch.common.RunnerApplicationStatusEventHandler;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
@@ -51,12 +54,15 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.eclipse.che.api.runner.ApplicationStatus.NEW;
 import static org.eclipse.che.api.runner.ApplicationStatus.RUNNING;
 import static org.mockito.Matchers.anyByte;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyListOf;
+import static org.mockito.Matchers.anyMap;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -117,6 +123,8 @@ public class DebuggerTest extends BaseTest {
     private Runner                       runner;
     @Mock
     private Runner                       runner2;
+    @Mock
+    private ChooseRunnerAction           chooseRunnerAction;
 
     @InjectMocks
     private DebuggerPresenter presenter;
@@ -213,6 +221,35 @@ public class DebuggerTest extends BaseTest {
 
         verify(service).connect(anyString(), anyByte(), Matchers.<AsyncRequestCallback<DebuggerInfo>>any());
 
+    }
+
+    @Test
+    public void debuggerShouldBeWithEnvironmentFromChooseRunnerAction() throws Exception {
+        String envId = "id";
+        int ram = 1024;
+        Map<String, String> envOptions = new HashMap<>();
+        Environment environment = mock(Environment.class);
+        RunOptions runOptions = mock(RunOptions.class);
+        when(dtoFactory.createDto(RunOptions.class)).thenReturn(runOptions);
+        when(chooseRunnerAction.selectEnvironment()).thenReturn(environment);
+        when(appContext.getCurrentProject()).thenReturn(currentProject);
+        when(runOptions.withOptions(anyMap())).thenReturn(runOptions);
+        when(runOptions.withEnvironmentId(anyString())).thenReturn(runOptions);
+        when(runOptions.withMemorySize(anyInt())).thenReturn(runOptions);
+
+        when(environment.getOptions()).thenReturn(envOptions);
+        when(environment.getId()).thenReturn(envId);
+        when(environment.getRam()).thenReturn(ram);
+
+        presenter.debug();
+
+        verify(runOptions).withOptions(eq(envOptions));
+        verify(runOptions).withEnvironmentId(eq(envId));
+        verify(runOptions).withMemorySize(eq(ram));
+        verify(environment).getOptions();
+        verify(environment).getId();
+        verify(environment).getRam();
+        verify(runnerManager).launchRunner(eq(runOptions));
     }
 
     @Test
@@ -358,7 +395,7 @@ public class DebuggerTest extends BaseTest {
 
         verifySetEnableButtons(DISABLE_BUTTON);
         verify(service).resume(anyString(), Matchers.<AsyncRequestCallback<Void>>anyObject());
-        verify(view).setVariables(anyListOf(Variable.class));
+        verify(view).setVariables(anyListOf(DebuggerVariable.class));
         verify(view).setEnableChangeValueButtonEnable(eq(DISABLE_BUTTON));
         verify(gutterManager).unmarkCurrentBreakpoint();
     }
@@ -401,7 +438,7 @@ public class DebuggerTest extends BaseTest {
         presenter.onStepIntoButtonClicked();
 
         verify(service).stepInto(anyString(), Matchers.<AsyncRequestCallback<Void>>anyObject());
-        verify(view).setVariables(anyListOf(Variable.class));
+        verify(view).setVariables(anyListOf(DebuggerVariable.class));
         verify(view).setEnableChangeValueButtonEnable(eq(DISABLE_BUTTON));
         verify(gutterManager).unmarkCurrentBreakpoint();
     }
@@ -454,7 +491,7 @@ public class DebuggerTest extends BaseTest {
         presenter.onStepOverButtonClicked();
 
         verify(service).stepOver(anyString(), Matchers.<AsyncRequestCallback<Void>>anyObject());
-        verify(view).setVariables(anyListOf(Variable.class));
+        verify(view).setVariables(anyListOf(DebuggerVariable.class));
         verify(view).setEnableChangeValueButtonEnable(eq(DISABLE_BUTTON));
         verify(gutterManager).unmarkCurrentBreakpoint();
     }
@@ -507,7 +544,7 @@ public class DebuggerTest extends BaseTest {
         presenter.onStepReturnButtonClicked();
 
         verify(service).stepReturn(anyString(), Matchers.<AsyncRequestCallback<Void>>anyObject());
-        verify(view).setVariables(anyListOf(Variable.class));
+        verify(view).setVariables(anyListOf(DebuggerVariable.class));
         verify(view).setEnableChangeValueButtonEnable(eq(DISABLE_BUTTON));
         verify(gutterManager).unmarkCurrentBreakpoint();
     }
@@ -624,7 +661,7 @@ public class DebuggerTest extends BaseTest {
 
     @Test
     public void shouldOpenChangeVariableValueDialog() throws Exception {
-        presenter.onSelectedVariableElement(mock(Variable.class));
+        presenter.onSelectedVariableElement(mock(DebuggerVariable.class));
         presenter.onChangeValueButtonClicked();
 
         verify(changeValuePresenter).showDialog((DebuggerInfo)anyObject(),

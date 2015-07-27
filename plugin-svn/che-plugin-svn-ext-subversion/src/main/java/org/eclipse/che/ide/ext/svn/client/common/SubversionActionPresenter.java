@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.svn.client.common;
 
+import org.eclipse.che.ide.api.project.tree.TreeNode;
 import static org.eclipse.che.ide.ext.svn.client.common.PathTypeFilter.ALL;
 import static org.eclipse.che.ide.ext.svn.client.common.PathTypeFilter.PROJECT;
 
@@ -20,6 +21,7 @@ import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import org.eclipse.che.ide.api.event.RefreshProjectTreeEvent;
 import org.eclipse.che.ide.api.parts.ProjectExplorerPart;
 import org.eclipse.che.ide.ext.svn.client.action.SubversionAction;
@@ -54,7 +56,9 @@ public class SubversionActionPresenter {
             {"D", "rgb(247, 47, 47)"},
             {"+", "chartreuse"},
             {"-", "rgb(247, 47, 47)"},
-            {"@", "cyan"}
+            {"@", "cyan"},
+            {"U", "chartreuse"},
+            {"G", "chartreuse"}
     };
 
     protected final AppContext       appContext;
@@ -88,6 +92,10 @@ public class SubversionActionPresenter {
             }
 
             @Override
+            public void onProjectClosing(ProjectActionEvent event) {
+            }
+
+            @Override
             public void onProjectClosed(final ProjectActionEvent event) {
                 isViewClosed = true;
                 console.clear();
@@ -117,6 +125,15 @@ public class SubversionActionPresenter {
     }
 
     /**
+     * Returns currently selected project item.
+     * @return
+     */
+    protected TreeNode<?> getSelectedNode() {
+        Object selectedNode = projectExplorerPart.getSelection().getHeadElement();
+        return selectedNode != null && selectedNode instanceof StorableNode ? (StorableNode)selectedNode : null;
+    }
+
+    /**
      * @return the selected paths or an empty list of there is no selection
      */
     @NotNull
@@ -130,6 +147,8 @@ public class SubversionActionPresenter {
                     final String path = relativePath((StorableNode)item);
                     if (!path.isEmpty()) {
                         paths.add(path);
+                    } else {
+                        paths.add("."); //it may be root path for our project
                     }
                 }
             }
@@ -205,10 +224,21 @@ public class SubversionActionPresenter {
     protected void printCommand(String command) {
         ensureViewOpened();
 
-        command = "$ " + command.substring(1, command.length() - 1);
-        String line = "<span style=\"font-weight: bold; font-style: italic;\">" + command + "</span>";
+        if (command.startsWith("'") || command.startsWith("\"")) {
+            command += command.substring(1, command.length() - 1);
+        }
+
+        String line = "<span style=\"font-weight: bold; font-style: italic;\">$ " + command + "</span>";
 
         console.print(line);
+    }
+
+    protected void printErrors(final List<String> errors) {
+        ensureViewOpened();
+
+        for (final String line : errors) {
+            console.print("<span style=\"color:red;\">" + SafeHtmlUtils.htmlEscape(line) + "</span>");
+        }
     }
 
     /**
@@ -221,22 +251,21 @@ public class SubversionActionPresenter {
     protected void printResponse(final String command, final List<String> output, final List<String> errors) {
         ensureViewOpened();
 
-        printCommand(command);
+        if (command != null) {
+            printCommand(command);
+        }
 
         if (output != null) {
             for (final String line : output) {
                 boolean found = false;
 
                 if (!line.trim().isEmpty()) {
-                    String prefix = line.substring(0, 1);
-
-                    String file = line.substring(8);
+                    String prefix = line.trim().substring(0, 1);
 
                     for (String[] stcol : STATUS_COLORS) {
                         if (stcol[0].equals(prefix)) {
                             // TODO: Turn the file paths into links (where appropriate)
-                            console.print("<span style=\"color:" + stcol[1] + ";\">" + line + "</span>");
-
+                            console.print("<span style=\"color:" + stcol[1] + ";\">" + SafeHtmlUtils.htmlEscape(line) + "</span>");
                             found = true;
                             break;
                         }
@@ -244,14 +273,14 @@ public class SubversionActionPresenter {
                 }
 
                 if (!found) {
-                    console.print(line);
+                    console.print(SafeHtmlUtils.htmlEscape(line));
                 }
             }
         }
 
         if (errors != null) {
             for (final String line : errors) {
-                console.print("<span style=\"color:red;\">" + line + "</span>");
+                console.print("<span style=\"color:red;\">" + SafeHtmlUtils.htmlEscape(line) + "</span>");
             }
         }
 

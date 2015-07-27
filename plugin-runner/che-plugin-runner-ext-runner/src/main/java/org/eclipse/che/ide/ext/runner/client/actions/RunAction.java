@@ -34,13 +34,13 @@ import javax.annotation.Nonnull;
  */
 public class RunAction extends AbstractRunnerActions {
 
-    private final RunnerManager              runnerManager;
-    private final DtoFactory                 dtoFactory;
-    private final ChooseRunnerAction         chooseRunnerAction;
-    private final NotificationManager        notificationManager;
-    private final RunnerLocalizationConstant locale;
-    private final AppContext                 appContext;
-    private final AnalyticsEventLogger       eventLogger;
+    private final RunnerManager               runnerManager;
+    private final DtoFactory                  dtoFactory;
+    private final ChooseRunnerAction          chooseRunnerAction;
+    private final NotificationManager         notificationManager;
+    private final RunnerLocalizationConstant  locale;
+    private final AppContext                  appContext;
+    private final AnalyticsEventLogger        eventLogger;
 
     @Inject
     public RunAction(RunnerManager runnerManager,
@@ -66,27 +66,27 @@ public class RunAction extends AbstractRunnerActions {
     @Override
     public void actionPerformed(@Nonnull ActionEvent event) {
         eventLogger.log(this);
+            CurrentProject currentProject = appContext.getCurrentProject();
+            if (currentProject == null) {
+                return;
+            }
 
-        CurrentProject currentProject = appContext.getCurrentProject();
-        if (currentProject == null) {
-            return;
-        }
+            String defaultRunner = currentProject.getRunner();
+            Environment environment = chooseRunnerAction.selectEnvironment();
 
-        String defaultRunner = currentProject.getRunner();
-        Environment environment = chooseRunnerAction.selectEnvironment();
+            if (environment == null && defaultRunner == null) {
+                notificationManager.showError(locale.actionRunnerNotSpecified());
+            }
 
-        if (environment == null && defaultRunner == null) {
-            notificationManager.showError(locale.actionRunnerNotSpecified());
-        }
+            if (environment == null || (defaultRunner != null && defaultRunner.equals(environment.getId()))) {
+                runnerManager.launchRunner();
+            } else {
+                RunOptions runOptions = dtoFactory.createDto(RunOptions.class)
+                                                  .withOptions(environment.getOptions())
+                                                  .withEnvironmentId(environment.getId())
+                                                  .withMemorySize(environment.getRam());
 
-        if (environment == null || (defaultRunner != null && defaultRunner.equals(environment.getId()))) {
-            runnerManager.launchRunner();
-        } else {
-            RunOptions runOptions = dtoFactory.createDto(RunOptions.class)
-                                              .withOptions(environment.getOptions())
-                                              .withEnvironmentId(environment.getId());
-
-            runnerManager.launchRunner(runOptions, environment.getName());
-        }
+                runnerManager.launchRunner(runOptions, environment.getScope(), environment.getName());
+            }
     }
 }

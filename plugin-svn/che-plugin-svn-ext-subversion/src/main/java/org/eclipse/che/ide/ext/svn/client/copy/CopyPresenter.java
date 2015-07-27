@@ -146,7 +146,7 @@ public class CopyPresenter extends SubversionActionPresenter implements CopyView
             }
         });
 
-        view.onShow();
+        view.show();
     }
 
     /** {@inheritDoc} */
@@ -165,7 +165,7 @@ public class CopyPresenter extends SubversionActionPresenter implements CopyView
         notification = new Notification(constants.copyNotificationStarted(src), PROGRESS);
         notificationManager.showNotification(notification);
 
-        view.onClose();
+        view.hide();
 
         service.copy(projectPath, src, target, comment,
                      new AsyncRequestCallback<CLIOutputResponse>(dtoUnmarshallerFactory.newUnmarshaller(CLIOutputResponse.class)) {
@@ -216,7 +216,7 @@ public class CopyPresenter extends SubversionActionPresenter implements CopyView
     /** {@inheritDoc} */
     @Override
     public void onCancelClicked() {
-        view.onClose();
+        view.hide();
     }
 
     /** {@inheritDoc} */

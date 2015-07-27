@@ -60,7 +60,6 @@ public class SDKRunner extends Runner {
     private static final Logger LOG = LoggerFactory.getLogger(SDKRunner.class);
 
     public static final String IDE_GWT_XML_FILE_NAME    = "IDEPlatform.gwt.xml";
-    public static final String DEFAULT_SERVER_NAME      = "tomcat7";
     /** Rel for code server link. */
     public static final String LINK_REL_CODE_SERVER     = "code server";
     /** Name of configuration parameter that specifies the domain name or IP address of the code server. */
@@ -133,7 +132,7 @@ public class SDKRunner extends Runner {
                         new SDKRunnerConfiguration(server, request.getMemorySize(), httpPort, codeServerAddress, codeServerPort, request);
                 configuration.getLinks().add(DtoFactory.getInstance().createDto(Link.class)
                                                        .withRel(Constants.LINK_REL_WEB_URL)
-                                                       .withHref(String.format("http://%s:%d/%s", hostName, httpPort, "ws/default")));
+                                                       .withHref(String.format("http://%s:%d/%s", hostName, httpPort, "che/default")));
                 configuration.getLinks().add(DtoFactory.getInstance().createDto(Link.class)
                                                        .withRel(LINK_REL_CODE_SERVER)
                                                        .withHref(String.format("%s:%d", codeServerAddress, codeServerPort)));

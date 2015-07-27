@@ -20,10 +20,13 @@ import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import static org.eclipse.che.ide.ext.runner.client.tabs.console.panel.MessageType.UNDEFINED;
+
 /**
  * The builder that simplifies work flow of using {@link SimpleHtmlSanitizer} class for avoiding hackers attacks.
  *
  * @author Andrey Plotnikov
+ * @author Dmitry Shnurenko
  */
 public class MessageBuilder {
 
@@ -72,19 +75,26 @@ public class MessageBuilder {
 
         for (Iterator<MessageType> iterator = types.iterator(); iterator.hasNext(); ) {
             MessageType type = iterator.next();
-            String prefix = type.getPrefix();
 
-            builder.appendHtmlConstant("[<span style='color:" + type.getColor() + ";'>")
-                   .appendHtmlConstant("<b>" + prefix.replaceAll("[\\[\\]]", "") + "</b></span>]");
+            if (UNDEFINED.equals(type)) {
+                builder.append(SimpleHtmlSanitizer.sanitizeHtml(message));
+            } else {
+                String prefix = type.getPrefix();
 
-            prefixes.append(prefix);
+                builder.appendHtmlConstant("[<span style='color:" + type.getColor() + ";'>")
+                       .appendHtmlConstant("<b>" + prefix.replaceAll("[\\[\\]]", "") + "</b></span>]");
 
-            if (iterator.hasNext()) {
-                prefixes.append(' ');
+                prefixes.append(prefix);
+
+                if (iterator.hasNext()) {
+                    prefixes.append(' ');
+                }
             }
         }
 
-        builder.append(SimpleHtmlSanitizer.sanitizeHtml(message.substring(prefixes.length())));
+        if (prefixes.length() != 0) {
+            builder.append(SimpleHtmlSanitizer.sanitizeHtml(message.substring(prefixes.length())));
+        }
 
         return builder.appendHtmlConstant("</pre>")
                       .toSafeHtml();

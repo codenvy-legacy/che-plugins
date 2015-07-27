@@ -12,18 +12,57 @@ package org.eclipse.che.ide.ext.svn.shared;
 
 import org.eclipse.che.dto.shared.DTO;
 
+import javax.validation.constraints.NotNull;
+
 @DTO
 public interface InfoRequest {
 
-    String getPath();
-
-    void setPath(String path);
-
-    InfoRequest withPath(String path);
+    /**************************************************************************
+     *
+     *  Project path
+     *
+     **************************************************************************/
 
     String getProjectPath();
 
-    void setProjectPath(String projectPath);
+    void setProjectPath(@NotNull final String projectPath);
 
-    InfoRequest withProjectPath(String projectPath);
+    InfoRequest withProjectPath(@NotNull final String projectPath);
+
+    /**************************************************************************
+     *
+     *  Target
+     *
+     **************************************************************************/
+
+    String getTarget();
+
+    void setTarget(@NotNull final String target);
+
+    InfoRequest withTarget(@NotNull final String target);
+
+    /**************************************************************************
+     *
+     *  Revision
+     *
+     **************************************************************************/
+
+    String getRevision();
+
+    void setRevision(@NotNull final String revision);
+
+    InfoRequest withRevision(@NotNull final String revision);
+
+    /**************************************************************************
+     *
+     *  Children
+     *
+     **************************************************************************/
+
+    boolean getChildren();
+
+    void setChildren(@NotNull final boolean children);
+
+    InfoRequest withChildren(@NotNull final boolean children);
+
 }

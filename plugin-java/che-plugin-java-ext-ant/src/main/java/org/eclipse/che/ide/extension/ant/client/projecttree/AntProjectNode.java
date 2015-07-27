@@ -15,6 +15,7 @@ import org.eclipse.che.api.project.shared.dto.ItemReference;
 import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.ide.api.project.tree.AbstractTreeNode;
 import org.eclipse.che.ide.api.project.tree.TreeNode;
+import org.eclipse.che.ide.collections.Array;
 import org.eclipse.che.ide.ext.java.client.projecttree.JavaSourceFolderUtil;
 import org.eclipse.che.ide.ext.java.client.projecttree.nodes.JavaProjectNode;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
@@ -53,13 +54,13 @@ public class AntProjectNode extends JavaProjectNode {
     /** {@inheritDoc} */
     @Nullable
     @Override
-    protected AbstractTreeNode<?> createChildNode(ItemReference item) {
+    protected AbstractTreeNode<?> createChildNode(ItemReference item, Array<ProjectDescriptor> modules) {
         if (JavaSourceFolderUtil.isSourceFolder(item, getProject())) {
             return getTreeStructure().newSourceFolderNode(AntProjectNode.this, item);
         } else if ("folder".equals(item.getType())) {
             return getTreeStructure().newJavaFolderNode(AntProjectNode.this, item);
         } else {
-            return super.createChildNode(item);
+            return super.createChildNode(item, modules);
         }
     }
 }

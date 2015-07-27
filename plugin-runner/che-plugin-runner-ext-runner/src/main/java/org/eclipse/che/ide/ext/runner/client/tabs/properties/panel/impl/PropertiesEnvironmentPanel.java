@@ -10,9 +10,12 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.impl;
 
+import com.google.gwt.http.client.URL;
+import com.google.gwt.regexp.shared.RegExp;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
+import com.google.inject.name.Named;
 import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
@@ -20,8 +23,9 @@ import org.eclipse.che.api.project.shared.dto.ItemReference;
 import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.api.project.shared.dto.RunnerConfiguration;
 import org.eclipse.che.ide.api.app.AppContext;
+import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.editor.EditorInput;
-import org.eclipse.che.ide.api.editor.EditorRegistry;
+import org.eclipse.che.ide.api.editor.EditorProvider;
 import org.eclipse.che.ide.api.filetypes.FileTypeRegistry;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.project.tree.generic.FileNode;
@@ -31,6 +35,7 @@ import org.eclipse.che.ide.api.texteditor.UndoableEditor;
 import org.eclipse.che.ide.collections.Array;
 import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.ext.runner.client.RunnerLocalizationConstant;
+import org.eclipse.che.ide.ext.runner.client.actions.ChooseRunnerAction;
 import org.eclipse.che.ide.ext.runner.client.callbacks.AsyncCallbackBuilder;
 import org.eclipse.che.ide.ext.runner.client.callbacks.FailureCallback;
 import org.eclipse.che.ide.ext.runner.client.callbacks.SuccessCallback;
@@ -44,21 +49,25 @@ import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope;
 import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.docker.DockerFile;
 import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.docker.DockerFileFactory;
 import org.eclipse.che.ide.ext.runner.client.tabs.templates.TemplatesContainer;
+import org.eclipse.che.ide.ext.runner.client.util.EnvironmentIdValidator;
 import org.eclipse.che.ide.ext.runner.client.util.NameGenerator;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.rest.Unmarshallable;
 import org.eclipse.che.ide.ui.dialogs.ConfirmCallback;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
+import org.eclipse.che.ide.util.Config;
 import org.eclipse.che.ide.util.loging.Log;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static org.eclipse.che.ide.ext.runner.client.models.EnvironmentImpl.ROOT_FOLDER;
+import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.DEFAULT;
 import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope.PROJECT;
 
 /**
@@ -67,12 +76,14 @@ import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common
  */
 public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
 
+    private static       RegExp FILE_NAME             = RegExp.compile("^[A-Za-z0-9_\\s-\\.]+$");
+    private static final String CONFIGURATION_TYPE    = "configurationType";
     private static final String DOCKER_SCRIPT_NAME    = "/Dockerfile";
-    public static final  String ENVIRONMENT_ID_PREFIX = "project://";
+    public static final  String ENVIRONMENT_ID_PREFIX = "project:/";
 
     private final Environment                                environment;
     private final DtoFactory                                 dtoFactory;
-    private final EditorRegistry                             editorRegistry;
+    private final EditorProvider                             editorProvider;
     private final FileTypeRegistry                           fileTypeRegistry;
     private final DockerFileFactory                          dockerFileFactory;
     private final ProjectServiceClient                       projectService;
@@ -86,8 +97,10 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
     private final AsyncCallbackBuilder<Void>                 voidAsyncCallbackBuilder;
     private final AsyncCallbackBuilder<ProjectDescriptor>    asyncDescriptorCallbackBuilder;
     private final DialogFactory                              dialogFactory;
+    private final ChooseRunnerAction                         chooseRunnerAction;
     private final List<RemovePanelListener>                  listeners;
     private final TemplatesContainer                         templatesContainer;
+    private final EditorAgent                                editorAgent;
 
     private ProjectDescriptor                projectDescriptor;
     private Map<String, RunnerConfiguration> runnerConfigs;
@@ -97,12 +110,13 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
     @AssistedInject
     public PropertiesEnvironmentPanel(final PropertiesPanelView view,
                                       DtoFactory dtoFactory,
-                                      @Nonnull final EditorRegistry editorRegistry,
+                                      @Named("DefaultEditorProvider") EditorProvider editorProvider,
                                       @Nonnull final FileTypeRegistry fileTypeRegistry,
                                       final DockerFileFactory dockerFileFactory,
                                       final ProjectServiceClient projectService,
                                       EventBus eventBus,
                                       AppContext appContext,
+                                      ChooseRunnerAction chooseRunnerAction,
                                       DialogFactory dialogFactory,
                                       RunnerLocalizationConstant locale,
                                       GetProjectEnvironmentsAction projectEnvironmentsAction,
@@ -113,14 +127,15 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
                                       AsyncCallbackBuilder<Void> voidAsyncCallbackBuilder,
                                       AsyncCallbackBuilder<ProjectDescriptor> asyncDescriptorCallbackBuilder,
                                       TemplatesContainer templatesContainer,
+                                      EditorAgent editorAgent,
                                       @Assisted @Nonnull final Environment environment) {
         super(view, appContext);
-
         this.dtoFactory = dtoFactory;
-        this.editorRegistry = editorRegistry;
+        this.editorProvider = editorProvider;
         this.fileTypeRegistry = fileTypeRegistry;
         this.dockerFileFactory = dockerFileFactory;
         this.projectService = projectService;
+        this.chooseRunnerAction = chooseRunnerAction;
         this.eventBus = eventBus;
         this.environment = environment;
         this.locale = locale;
@@ -132,8 +147,11 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
         this.voidAsyncCallbackBuilder = voidAsyncCallbackBuilder;
         this.asyncDescriptorCallbackBuilder = asyncDescriptorCallbackBuilder;
         this.templatesContainer = templatesContainer;
+        this.editorAgent = editorAgent;
 
         this.dialogFactory = dialogFactory;
+
+        this.listeners = new ArrayList<>();
 
         boolean isProjectScope = PROJECT.equals(environment.getScope());
 
@@ -142,17 +160,19 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
         this.view.setEnableBootProperty(false);
         this.view.setEnableShutdownProperty(false);
         this.view.setEnableScopeProperty(false);
+        this.view.setVisibleConfigLink(false);
 
         this.view.setVisibleSaveButton(isProjectScope);
         this.view.setVisibleDeleteButton(isProjectScope);
         this.view.setVisibleCancelButton(isProjectScope);
 
-        this.listeners = new ArrayList<>();
+        if (!Config.isSdkProject()) {
 
-        if (isProjectScope) {
-            getProjectEnvironmentDocker();
-        } else {
-            getSystemEnvironmentDocker();
+            if (isProjectScope) {
+                getProjectEnvironmentDocker();
+            } else {
+                getSystemEnvironmentDocker();
+            }
         }
 
         projectDescriptor = currentProject.getProjectDescription();
@@ -164,9 +184,35 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
 
     @Nonnegative
     private int getRam(@Nonnull String environmentId) {
-        boolean isConfigExist = runnerConfigs.containsKey(environmentId);
+        boolean isConfigExist = runnerConfigs.containsKey(environmentId) || runnerConfigs.containsKey(URL.encode(environmentId));
 
-        return isConfigExist ? runnerConfigs.get(environmentId).getRam() : RAM.DEFAULT.getValue();
+        if (!isConfigExist) {
+            return DEFAULT.getValue();
+        }
+
+        if (runnerConfigs.get(environmentId) != null) {
+            return runnerConfigs.get(environmentId).getRam();
+        } else {
+            return runnerConfigs.get(URL.encode(environmentId)).getRam();
+        }
+    }
+
+    /**
+     * Gets the type of an environment. First we check if type is not defined by a runner configuration. If there is not, use type of the
+     * environment
+     *
+     * @param environment
+     *         the environment to check
+     * @return the type of the provided environment
+     */
+    private String getType(@Nonnull Environment environment) {
+        String envId = URL.encode(environment.getId());
+        RunnerConfiguration runnerConfiguration = runnerConfigs.get(envId);
+        if (runnerConfiguration != null) {
+            return runnerConfiguration.getVariables().get(CONFIGURATION_TYPE);
+        } else {
+            return environment.getType();
+        }
     }
 
     private void getProjectEnvironmentDocker() {
@@ -191,9 +237,10 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
                                                                                            eventBus,
                                                                                            projectService,
                                                                                            unmarshallerFactory,
-                                                                                           environment.getName());
+                                                                                           environment.getName(),
+                                                                                           editorAgent);
 
-                                                     initializeEditor(file, editorRegistry, fileTypeRegistry);
+                                                     initializeEditor(file, editorProvider, fileTypeRegistry);
                                                  }
                                              }
                                          })
@@ -211,13 +258,16 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
 
     private void getSystemEnvironmentDocker() {
         DockerFile file = dockerFileFactory.newInstance(environment.getPath());
-        initializeEditor(file, editorRegistry, fileTypeRegistry);
+        initializeEditor(file, editorProvider, fileTypeRegistry);
     }
 
     /** {@inheritDoc} */
     @Override
     public void onCopyButtonClicked() {
-        final String fileName = NameGenerator.generate();
+        List<Environment> projectEnvironments = templatesContainer.getProjectEnvironments();
+
+        final String fileName = NameGenerator.generateCopy(environment.getName(), projectEnvironments);
+
         String path = projectDescriptor.getPath() + ROOT_FOLDER + fileName;
 
         AsyncRequestCallback<ItemReference> callback = asyncCallbackBuilder.unmarshaller(ItemReference.class)
@@ -281,21 +331,29 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
 
     private void updateRunnerConfig(@Nonnull ItemReference result) {
         boolean isConfigExist = runnerConfigs.containsKey(environment.getId());
+        view.selectShutdown(getTimeout());
+        String newEnvironmentName = getNewEnvironmentName(result.getPath());
+        Map<String, String> variables = new HashMap<>();
+        variables.put(CONFIGURATION_TYPE, environment.getType());
 
         if (isConfigExist) {
             int ram = getRam(environment.getId());
-
-            String newEnvironmentName = getNewEnvironmentName(result.getPath());
-
             RunnerConfiguration newConfig = dtoFactory.createDto(RunnerConfiguration.class)
+                                                      .withVariables(variables)
                                                       .withRam(ram);
 
             runnerConfigs.put(generateEnvironmentId(newEnvironmentName), newConfig);
-
             environment.setRam(ram);
             view.selectMemory(RAM.detect(ram));
         } else {
-            view.selectMemory(RAM.detect(environment.getRam()));
+            int ram = environment.getRam();
+            RunnerConfiguration newConfig = dtoFactory.createDto(RunnerConfiguration.class)
+                                                      .withVariables(variables)
+                                                      .withRam(ram);
+            runnerConfigs.put(generateEnvironmentId(newEnvironmentName), newConfig);
+            updateProject();
+            view.setType(environment.getType());
+            view.selectMemory(RAM.detect(ram));
         }
     }
 
@@ -307,12 +365,26 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
     }
 
     private String generateEnvironmentId(@Nonnull String environmentName) {
-        return ENVIRONMENT_ID_PREFIX + environmentName;
+        String newName = URL.encode(ENVIRONMENT_ID_PREFIX + environmentName);
+        // with GWT mocks, native methods can be empty
+        if (newName.isEmpty()) {
+            return ENVIRONMENT_ID_PREFIX + environmentName;
+        }
+        return newName;
     }
 
     /** {@inheritDoc} */
     @Override
     public void onConfigurationChanged() {
+        view.incorrectName(false);
+
+        String name = view.getName();
+
+        if (!FILE_NAME.test(name)) {
+            view.incorrectName(true);
+            return;
+        }
+
         isParameterChanged = true;
 
         environment.setRam(view.getRam().getValue());
@@ -329,6 +401,7 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
         final String newEnvironmentName = view.getName();
         final String environmentName = environment.getName();
         final String environmentId = environment.getId();
+        final String encodedEnvironmentId = URL.encode(environmentId);
 
         final String pathToProject = projectDescriptor.getPath();
         final String path = pathToProject + ROOT_FOLDER + environmentName;
@@ -337,11 +410,16 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
                 .success(new SuccessCallback<Void>() {
                     @Override
                     public void onSuccess(Void result) {
-                        RunnerConfiguration config = runnerConfigs.get(environmentId);
-
-                        runnerConfigs.remove(environmentId);
+                        RunnerConfiguration config = runnerConfigs.get(encodedEnvironmentId);
+                        runnerConfigs.remove(encodedEnvironmentId);
 
                         runnerConfigs.put(generateEnvironmentId(newEnvironmentName), config);
+
+                        String defaultRunner = currentProject.getRunner();
+
+                        if (defaultRunner != null && defaultRunner.equals(environmentId)) {
+                            projectDescriptor.getRunners().setDefault(generateEnvironmentId(newEnvironmentName));
+                        }
 
                         updateProject();
                     }
@@ -382,12 +460,15 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
 
         }
 
+        Map<String, String> variables = new HashMap<>();
+        variables.put(CONFIGURATION_TYPE, environment.getType());
+        RunnerConfiguration config = dtoFactory.createDto(RunnerConfiguration.class).withRam(environment.getRam()).withVariables(variables);
 
-        RunnerConfiguration config = dtoFactory.createDto(RunnerConfiguration.class).withRam(environment.getRam());
-
-        runnerConfigs.put(environmentId, config);
+        runnerConfigs.put(encodedEnvironmentId, config);
 
         updateProject();
+
+        projectEnvironmentsAction.perform();
     }
 
     private void updateProject() {
@@ -397,8 +478,6 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
                     public void onSuccess(ProjectDescriptor result) {
                         view.setEnableSaveButton(false);
                         view.setEnableCancelButton(false);
-
-                        projectEnvironmentsAction.perform();
                     }
                 }).failure(new FailureCallback() {
                     @Override
@@ -439,7 +518,16 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
 
                         runnerConfigs.remove(environmentId);
 
+                        String defaultRunner = currentProject.getRunner();
+
+                        if (defaultRunner != null && defaultRunner.equals(environmentId)) {
+                            templatesContainer.setDefaultEnvironment(null);
+                            chooseRunnerAction.setEmptyDefaultRunner();
+                        }
+
                         updateProject();
+
+                        projectEnvironmentsAction.perform();
 
                         notifyListeners(environment);
                     }
@@ -464,6 +552,7 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
     /** {@inheritDoc} */
     @Override
     public void onCancelButtonClicked() {
+        view.incorrectName(false);
         isParameterChanged = false;
         Scope scope = environment.getScope();
 
@@ -497,27 +586,44 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
         view.setEnableDeleteButton(PROJECT.equals(scope));
 
         String environmentName = environment.getName();
+        String environmentId = environment.getId();
+        if (!EnvironmentIdValidator.isValid(environmentId)) {
+            environmentId = URL.encode(environmentId);
+        }
 
-        boolean isConfigExist = runnerConfigs.containsKey(environment.getId());
+        boolean isConfigExist = runnerConfigs.containsKey(environmentId);
 
-        RAM ram = RAM.detect(isConfigExist && !isParameterChanged ? getRam(environment.getId()) : environment.getRam());
+        RAM ram = RAM.detect(isConfigExist && !isParameterChanged ? getRam(environmentId) : environment.getRam());
 
-        this.environment.setRam(ram.getValue());
+        if (DEFAULT.getValue() != currentRam && DEFAULT.equals(ram)) {
+            view.addRamValue(currentRam);
+            view.selectMemory(currentRam);
+            this.environment.setRam(currentRam);
+        } else {
+            this.environment.setRam(ram.getValue());
+            view.selectMemory(ram);
+        }
 
-        view.selectMemory(ram);
+        view.selectShutdown(getTimeout());
         view.setName(environmentName);
-        view.setType(environment.getType());
+        String type = getType(environment);
+        view.setType(type);
         view.selectScope(scope);
 
         String defaultRunner = currentProject.getRunner();
 
-        view.changeSwitcherState(environment.getId().equals(defaultRunner));
+        view.changeSwitcherState(environmentId.equals(defaultRunner));
     }
 
     /** {@inheritDoc} */
     @Override
     public void onSwitcherChanged(boolean isOn) {
-        templatesContainer.setDefaultEnvironment(isOn ? environment : null);
+        if (isOn) {
+            templatesContainer.setDefaultEnvironment(environment);
+        } else {
+            templatesContainer.setDefaultEnvironment(null);
+            chooseRunnerAction.setEmptyDefaultRunner();
+        }
     }
 
     /** {@inheritDoc} */

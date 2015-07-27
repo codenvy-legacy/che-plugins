@@ -10,13 +10,14 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.runner.client;
 
+import com.google.common.io.Resources;
+
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.charset.Charset;
 
 /**
  * The class contains methods which are used in several test classes.
@@ -124,8 +125,6 @@ public class TestUtil {
      */
     @Nonnull
     public static String getContentByPath(@Nonnull Class clazz, @Nonnull String path) throws IOException {
-        String file = clazz.getResource(path).getFile();
-        return new String(Files.readAllBytes(Paths.get(file)));
+        return Resources.toString(Resources.getResource(clazz, path), Charset.defaultCharset());
     }
-
 }

@@ -68,6 +68,15 @@ public interface SubversionExtensionLocalizationConstants extends Messages {
     @Key("commit.title")
     String commitTitle();
 
+    @Key("commit.placeholder")
+    String commitPlaceholder();
+
+    @Key("commit.message.empty")
+    String commitMessageEmpty();
+
+    @Key("commit.diff.unavailable")
+    String commitDiffUnavailable();
+
     @Key("copy.description")
     String copyDescription();
 
@@ -130,6 +139,9 @@ public interface SubversionExtensionLocalizationConstants extends Messages {
 
     @Key("merge.title")
     String mergeTitle();
+
+    @Key("merge.dialog.title")
+    String mergeDialogTitle();
 
     @Key("lock.description")
     String lockDescription();
@@ -277,11 +289,17 @@ public interface SubversionExtensionLocalizationConstants extends Messages {
     @Key("button.commit")
     String buttonCommit();
 
+    @Key("button.merge")
+    String buttonMerge();
+
     @Key("button.resolve")
     String buttonResolve();
 
     @Key("button.update")
     String buttonUpdate();
+
+    @Key("button.log")
+    String buttonLog();
 
     @Key("update.depth.label")
     String updateDepthLabel();
@@ -498,4 +516,23 @@ public interface SubversionExtensionLocalizationConstants extends Messages {
 
     @Key("move.item.child.detect")
     String moveItemChildDetected();
+
+    /** Property */
+    @Key("property.modify.start")
+    String propertyModifyStart();
+
+    @Key("property.modify.finished")
+    String propertyModifyFinished();
+
+    @Key("property.modifying.failed")
+    String propertyModifyFailed();
+
+    @Key("property.remove.start")
+    String propertyRemoveStart();
+
+    @Key("property.remove.finished")
+    String propertyRemoveFinished();
+
+    @Key("property.remove.failed")
+    String propertyRemoveFailed();
 }

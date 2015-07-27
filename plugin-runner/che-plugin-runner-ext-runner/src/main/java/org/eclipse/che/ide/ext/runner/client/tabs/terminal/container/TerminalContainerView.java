@@ -10,9 +10,10 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.runner.client.tabs.terminal.container;
 
-import org.eclipse.che.ide.api.mvp.View;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.inject.ImplementedBy;
+
+import org.eclipse.che.ide.api.mvp.View;
 
 import javax.annotation.Nonnull;
 
@@ -47,6 +48,15 @@ public interface TerminalContainerView extends View<TerminalContainerView.Action
      *         visible state that needs to be applied
      */
     void setVisible(boolean visible);
+
+
+    /**
+     * Changes visibility of the no runner label.
+     *
+     * @param visible
+     *         visible state that needs to be applied
+     */
+    void setVisibleNoRunnerLabel(boolean visible);
 
     interface ActionDelegate {
     }

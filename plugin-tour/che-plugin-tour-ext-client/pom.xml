@@ -16,7 +16,7 @@
     <parent>
         <artifactId>che-plugin-tour-parent</artifactId>
         <groupId>org.eclipse.che.plugin</groupId>
-        <version>3.9.0-SNAPSHOT</version>
+        <version>3.11.5-SNAPSHOT</version>
     </parent>
     <artifactId>che-plugin-tour-ext-client</artifactId>
     <name>Che Plugin :: Tour :: Client</name>
@@ -59,19 +59,19 @@
         <dependency>
             <groupId>org.eclipse.che.plugin</groupId>
             <artifactId>che-plugin-tour-dto</artifactId>
-            <version>${che.plugins.version}</version>
+            <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.plugin</groupId>
             <artifactId>che-plugin-tour-dto-gen</artifactId>
-            <version>${che.plugins.version}</version>
+            <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.plugin</groupId>
             <artifactId>che-plugin-tour-hopscotch</artifactId>
-            <version>${che.plugins.version}</version>
+            <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

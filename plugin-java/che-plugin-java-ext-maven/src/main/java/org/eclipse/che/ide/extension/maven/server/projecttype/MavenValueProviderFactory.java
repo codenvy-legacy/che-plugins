@@ -22,11 +22,13 @@ import org.eclipse.che.api.project.server.ValueProviderFactory;
 import org.eclipse.che.api.project.server.ValueStorageException;
 import org.eclipse.che.api.project.server.VirtualFileEntry;
 import org.eclipse.che.api.vfs.server.VirtualFile;
+import org.eclipse.che.commons.xml.XMLTreeException;
 import org.eclipse.che.ide.extension.maven.shared.MavenAttributes;
 import org.eclipse.che.ide.maven.tools.Build;
 import org.eclipse.che.ide.maven.tools.Model;
 
 import javax.annotation.Nullable;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -35,6 +37,8 @@ import java.util.List;
  * @author Evgen Vidolob
  */
 public class MavenValueProviderFactory implements ValueProviderFactory {
+
+    private final String xmlHead = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
 
     protected Model readModel(FolderEntry projectFolder) throws ValueStorageException, ServerException, ForbiddenException, IOException {
         FileEntry pomFile = (FileEntry)projectFolder.getChild("pom.xml");
@@ -117,6 +121,8 @@ public class MavenValueProviderFactory implements ValueProviderFactory {
                 return Arrays.asList(value);
             } catch (ServerException | ForbiddenException | IOException e) {
                 throwReadException(e);
+            } catch (XMLTreeException e) {
+                throw new ValueStorageException("Error parsing pom.xml : " + e.getMessage());
             }
             return null;
         }
@@ -128,7 +134,8 @@ public class MavenValueProviderFactory implements ValueProviderFactory {
                 if(pom == null) {
                     Model model = Model.createModel();
                     model.setModelVersion("4.0.0");
-                    projectFolder.createFile("pom.xml", new byte[0], "text/xml");
+                    pom = projectFolder.createFile("pom.xml", new byte[0], "text/xml").getVirtualFile();
+                    model.writeTo(pom);
                 }
 
                 if (attributeName.equals(MavenAttributes.ARTIFACT_ID))
@@ -137,7 +144,7 @@ public class MavenValueProviderFactory implements ValueProviderFactory {
                     Model.readFrom(pom).setGroupId(value.get(0)).writeTo(pom);
                 if (attributeName.equals(MavenAttributes.PACKAGING)) {
                     Model model = Model.readFrom(pom);
-                    if(model.getPackaging() != null && value.get(0).equals("pom")) {
+                    if(model.getPackaging() != null) {
                         model.setPackaging(value.get(0)).writeTo(pom);
                     }
                 }
@@ -146,6 +153,8 @@ public class MavenValueProviderFactory implements ValueProviderFactory {
 
             } catch (ForbiddenException | ServerException | IOException | ConflictException e) {
                 throwWriteException(e);
+            } catch (XMLTreeException e) {
+                throw new ValueStorageException("Error parsing pom.xml : " + e.getMessage());
             }
         }
     }

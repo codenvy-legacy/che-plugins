@@ -86,7 +86,7 @@ public class SubversionProjectImporter implements ProjectImporter {
 
     @Override
     public void importSources(final FolderEntry baseFolder, final String location,
-                              final Map<String, String> parameters, final LineConsumerFactory factory)
+                              final Map<String, String> parameters, final LineConsumerFactory outputPublisherFactory)
             throws ForbiddenException, ConflictException, UnauthorizedException, IOException, ServerException {
         if (!baseFolder.isFolder()) {
             throw new IOException("Project cannot be imported into \"" + baseFolder.getName() + "\".  "
@@ -114,6 +114,9 @@ public class SubversionProjectImporter implements ProjectImporter {
                              .warn("Could not store credentials - try to continue anyway." + e.getMessage());
             }
         }
+
+        this.subversionApi.setOutputLineConsumerFactory(outputPublisherFactory);
+
         // Perform checkout
         this.subversionApi.checkout(DtoFactory.getInstance()
                                          .createDto(CheckoutRequest.class)

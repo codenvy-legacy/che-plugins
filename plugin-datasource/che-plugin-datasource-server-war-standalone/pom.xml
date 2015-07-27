@@ -16,7 +16,7 @@
     <parent>
         <artifactId>che-plugin-datasource-parent</artifactId>
         <groupId>org.eclipse.che.plugin</groupId>
-        <version>3.9.0-SNAPSHOT</version>
+        <version>3.11.5-SNAPSHOT</version>
     </parent>
     <artifactId>che-plugin-datasource-server-war-standalone</artifactId>
     <packaging>war</packaging>
@@ -67,7 +67,7 @@
         <dependency>
             <groupId>org.eclipse.che.plugin</groupId>
             <artifactId>che-plugin-datasource-server</artifactId>
-            <version>${che.plugins.version}</version>
+            <version>${project.version}</version>
             <exclusions>
                 <exclusion>
                     <artifactId>che-core-client-gwt-vfs</artifactId>
@@ -116,14 +116,15 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <version>${jdbc.postgresql-driver.version}</version>
-        </dependency>
-        <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
             <version>${javax.servlet.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>${jdbc.postgresql-driver.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

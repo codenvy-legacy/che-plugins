@@ -12,6 +12,7 @@ package org.eclipse.che.ide.ext.java.client.projecttree.nodes;
 
 import org.eclipse.che.api.project.shared.dto.ItemReference;
 
+import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -25,13 +26,21 @@ public class SourceFileNodeTest extends BaseNodeTest {
     private static final String FILE_ITEM_NAME = "Test.java";
     @Mock
     private ItemReference  fileItemReference;
+    @Mock
+    private EditorAgent    editorAgent;
     private SourceFileNode sourceFileNode;
 
     @Before
     public void setUp() {
         super.setUp();
         when(fileItemReference.getName()).thenReturn(FILE_ITEM_NAME);
-        sourceFileNode = new SourceFileNode(null, fileItemReference, treeStructure, eventBus, projectServiceClient, dtoUnmarshallerFactory);
+        sourceFileNode = new SourceFileNode(null,
+                                            fileItemReference,
+                                            treeStructure,
+                                            eventBus,
+                                            projectServiceClient,
+                                            dtoUnmarshallerFactory,
+                                            editorAgent);
     }
 
     @Test

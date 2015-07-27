@@ -11,28 +11,38 @@
 package org.eclipse.che.ide.ext.runner.client.tabs.terminal.panel;
 
 import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.Timer;
 import com.google.gwtmockito.GwtMockitoTestRunner;
 
+import org.eclipse.che.ide.ext.runner.client.RunnerLocalizationConstant;
+import org.eclipse.che.ide.ext.runner.client.RunnerResources;
 import org.eclipse.che.ide.ext.runner.client.models.Runner;
+import org.eclipse.che.ide.ext.runner.client.selection.SelectionManager;
+import org.eclipse.che.ide.ext.runner.client.util.TimerFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 
+import static org.eclipse.che.ide.ext.runner.client.constants.TimeInterval.ONE_SEC;
 import static org.eclipse.che.ide.ext.runner.client.models.Runner.Status.DONE;
+import static org.eclipse.che.ide.ext.runner.client.models.Runner.Status.FAILED;
 import static org.eclipse.che.ide.ext.runner.client.models.Runner.Status.IN_PROGRESS;
 import static org.eclipse.che.ide.ext.runner.client.models.Runner.Status.IN_QUEUE;
+import static org.eclipse.che.ide.ext.runner.client.models.Runner.Status.STOPPED;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
  * @author Andrey Plotnikov
  * @author Valeriy Svydenko
+ * @author Dmitry Shnurenko
  */
 @RunWith(GwtMockitoTestRunner.class)
 public class TerminalImplTest {
@@ -40,15 +50,47 @@ public class TerminalImplTest {
     private static final String SOME_TEXT = "some text";
 
     @Mock
-    private Runner       runner;
+    private Runner                     runner;
     @Mock
-    private Element      element;
-    @InjectMocks
+    private Element                    element;
+    @Mock
+    private RunnerLocalizationConstant locale;
+    @Mock
+    private RunnerResources            resources;
+    @Mock
+    private TimerFactory               timerFactory;
+    @Mock
+    private SelectionManager           selectionManager;
+    @Mock
+    private Timer                      timer;
+
+    @Captor
+    private ArgumentCaptor<TimerFactory.TimerCallBack> timerCaptor;
+
     private TerminalImpl terminal;
 
     @Before
     public void setUp() throws Exception {
+        when(locale.terminalNotReady()).thenReturn(SOME_TEXT);
+        when(locale.runnerNotReady()).thenReturn(SOME_TEXT);
+        when(timerFactory.newInstance(Matchers.<TimerFactory.TimerCallBack>anyObject())).thenReturn(timer);
+
+        terminal = new TerminalImpl(resources, selectionManager, locale, timerFactory);
+
         when(terminal.terminal.getElement()).thenReturn(element);
+    }
+
+    @Test
+    public void constructorShouldBeVerified() throws Exception {
+        when(runner.getTerminalURL()).thenReturn(SOME_TEXT);
+
+        terminal.update(runner);
+        reset(terminal.terminal);
+
+        verify(timerFactory).newInstance(timerCaptor.capture());
+        timerCaptor.getValue().onRun();
+
+        verify(terminal.terminal).setUrl(SOME_TEXT);
     }
 
     @Test
@@ -57,6 +99,7 @@ public class TerminalImplTest {
 
         verify(terminal.unavailableLabel).setVisible(true);
         verify(element).removeAttribute("src");
+        verify(terminal.unavailableLabel).setText(SOME_TEXT);
     }
 
     @Test
@@ -67,7 +110,6 @@ public class TerminalImplTest {
 
         terminal.update(runner);
 
-        verify(terminal.unavailableLabel).setVisible(false);
         verify(element).focus();
 
         when(runner.getTerminalURL()).thenReturn(SOME_TEXT + SOME_TEXT);
@@ -78,22 +120,29 @@ public class TerminalImplTest {
     }
 
     @Test
-    public void unavailableLabelShouldBeShowed() throws Exception {
-        when(runner.getStatus()).thenReturn(DONE);
-        when(runner.isAlive()).thenReturn(false);
-        when(runner.getTerminalURL()).thenReturn(SOME_TEXT);
+    public void stubShouldBeShownWhenRunnerIsStopped() throws Exception {
+        when(runner.getStatus()).thenReturn(STOPPED);
 
         terminal.update(runner);
 
-        verify(element).focus();
-        verify(element).removeAttribute("src");
+        verify(locale).runnerNotReady();
+        verifyShowStub();
+    }
+
+    @Test
+    public void stubShouldBeShownWhenRunnerIsFailed() throws Exception {
+        when(runner.getStatus()).thenReturn(FAILED);
+
+        terminal.update(runner);
+
+        verify(locale).runnerNotReady();
+        verifyShowStub();
+    }
+
+    private void verifyShowStub() {
+        verify(terminal.unavailableLabel).setText(SOME_TEXT);
         verify(terminal.unavailableLabel).setVisible(true);
-
-        when(runner.getTerminalURL()).thenReturn(SOME_TEXT + SOME_TEXT);
-
-        terminal.update(runner);
-
-        verify(terminal.terminal, never()).setUrl(anyString());
+        verify(terminal.terminal).setVisible(false);
     }
 
     @Test
@@ -149,6 +198,8 @@ public class TerminalImplTest {
         terminal.setUnavailableLabelVisible(true);
 
         verify(terminal.unavailableLabel).setVisible(true);
+        verify(terminal.unavailableLabel).setText(SOME_TEXT);
+        verify(locale).runnerNotReady();
     }
 
     @Test
@@ -157,7 +208,17 @@ public class TerminalImplTest {
 
         terminal.setUrl(runner);
 
-        verify(terminal.terminal).setUrl(eq(SOME_TEXT));
+        verify(timer).schedule(ONE_SEC.getValue());
+    }
+
+    @Test
+    public void stubShouldBeShownWhenUrlIsNull() {
+        when(runner.getApplicationURL()).thenReturn(null);
+
+        terminal.setUrl(runner);
+
+        verify(locale).terminalNotReady();
+        verifyShowStub();
     }
 
     @Test
@@ -170,6 +231,6 @@ public class TerminalImplTest {
 
         terminal.setUrl(runner);
 
-        verify(terminal.terminal, times(1)).setUrl(anyString());
+        verify(timer).schedule(ONE_SEC.getValue());
     }
 }

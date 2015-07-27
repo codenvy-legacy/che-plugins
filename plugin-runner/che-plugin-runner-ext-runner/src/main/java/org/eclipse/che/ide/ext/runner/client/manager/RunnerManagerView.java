@@ -49,6 +49,14 @@ public interface RunnerManagerView extends View<RunnerManagerView.ActionDelegate
     void setApplicationURl(@Nullable String applicationUrl);
 
     /**
+     * Shows debug port on the view.
+     *
+     * @param debugPort
+     *         debug port which needs set
+     */
+    void setDebugPort(@Nullable String debugPort);
+
+    /**
      * Shows timeout on the view.
      *
      * @param timeout
@@ -81,12 +89,28 @@ public interface RunnerManagerView extends View<RunnerManagerView.ActionDelegate
     void setLeftPanel(@Nonnull TabContainer containerPresenter);
 
     /**
-     * Sets left panel view representation to container. This panel contains history and templates containers.
+     * Sets right properties panel view representation to container. This panel contains terminal container.
      *
      * @param containerPresenter
      *         container to which need set panel
      */
-    void setRightPanel(@Nonnull TabContainer containerPresenter);
+    void setRightPropertiesPanel(@Nonnull TabContainer containerPresenter);
+
+    /**
+     * Sets left panel view representation to container. This panel contains console and properties containers.
+     *
+     * @param containerPresenter
+     *         container to which need set panel
+     */
+    void setLeftPropertiesPanel(@Nonnull TabContainer containerPresenter);
+
+    /**
+     * Sets all tabs in one panel.
+     *
+     * @param containerPresenter
+     *         container which contains all tabs
+     */
+    void setGeneralPropertiesPanel(@Nonnull TabContainer containerPresenter);
 
     /** Hides all buttons on buttons panel except run button. */
     void hideOtherButtons();
@@ -150,6 +174,15 @@ public interface RunnerManagerView extends View<RunnerManagerView.ActionDelegate
 
         /** Performs some actions in response to user's over mouse on timeout label. */
         void onMoreInfoBtnMouseOver();
+
+        /**
+         * Performs some actions when user click on toggle splitter button.
+         *
+         * @param isShowSplitter
+         *         <code>true</code> show splitter and shows properties tabs on two different panels, <code>false</code> hide
+         *         splitter and shows properties tabs on one panel
+         */
+        void onToggleSplitterClicked(boolean isShowSplitter);
     }
 
 }

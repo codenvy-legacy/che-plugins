@@ -12,21 +12,22 @@ package org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.impl;
 
 import com.google.gwt.user.client.Timer;
 import com.google.gwtmockito.GwtMockitoTestRunner;
+import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
+import org.eclipse.che.api.workspace.shared.dto.WorkspaceDescriptor;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.editor.EditorInitException;
 import org.eclipse.che.ide.api.editor.EditorPartPresenter;
 import org.eclipse.che.ide.api.editor.EditorProvider;
-import org.eclipse.che.ide.api.editor.EditorRegistry;
-import org.eclipse.che.ide.api.filetypes.FileType;
 import org.eclipse.che.ide.api.filetypes.FileTypeRegistry;
 import org.eclipse.che.ide.api.parts.PropertyListener;
+import org.eclipse.che.ide.ext.runner.client.RunnerLocalizationConstant;
 import org.eclipse.che.ide.ext.runner.client.constants.TimeInterval;
 import org.eclipse.che.ide.ext.runner.client.models.Runner;
+import org.eclipse.che.ide.ext.runner.client.tabs.container.TabContainer;
 import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.PropertiesPanelView;
-import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM;
 import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope;
 import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.docker.DockerFile;
 import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.docker.DockerFileEditorInput;
@@ -39,10 +40,12 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 
+import java.util.HashMap;
+
 import static org.eclipse.che.ide.ext.runner.client.constants.TimeInterval.ONE_SEC;
-import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MB_512;
+import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MB_500;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.isNull;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -57,22 +60,26 @@ public class PropertiesRunnerPanelTest {
 
     //mocks for constructors
     @Mock
-    private PropertiesPanelView view;
+    private PropertiesPanelView        view;
     @Mock
-    private EditorRegistry      editorRegistry;
+    private FileTypeRegistry           fileTypeRegistry;
     @Mock
-    private FileTypeRegistry    fileTypeRegistry;
+    private DockerFileFactory          dockerFileFactory;
     @Mock
-    private DockerFileFactory   dockerFileFactory;
+    private AppContext                 appContext;
     @Mock
-    private AppContext          appContext;
+    private TimerFactory               timerFactory;
     @Mock
-    private TimerFactory        timerFactory;
+    private Runner                     runner;
     @Mock
-    private Runner              runner;
+    private TabContainer               tabContainer;
+    @Mock
+    private RunnerLocalizationConstant locale;
 
     @Mock
     private CurrentProject      currentProject;
+    @Mock
+    private WorkspaceDescriptor currentWorkspace;
     @Mock
     private Timer               timer;
     @Mock
@@ -83,6 +90,8 @@ public class PropertiesRunnerPanelTest {
     private EditorPartPresenter editor;
     @Mock
     private DockerFile          file;
+    @Mock
+    private EventBus            eventBus;
 
     @Captor
     private ArgumentCaptor<TimerFactory.TimerCallBack> timerCaptor;
@@ -91,21 +100,23 @@ public class PropertiesRunnerPanelTest {
     public void setUp() {
         when(timerFactory.newInstance(any(TimerFactory.TimerCallBack.class))).thenReturn(timer);
         when(appContext.getCurrentProject()).thenReturn(currentProject);
+        when(appContext.getWorkspace()).thenReturn(currentWorkspace);
+        when(appContext.getWorkspace().getAttributes()).thenReturn(new HashMap<String, String>());
         when(currentProject.getProjectDescription()).thenReturn(descriptor);
-        when(editorRegistry.getEditor(isNull(FileType.class))).thenReturn(editorProvider);
         when(editorProvider.getEditor()).thenReturn(editor);
         when(dockerFileFactory.newInstance(TEXT)).thenReturn(file);
 
         new PropertiesRunnerPanel(view,
-                                  editorRegistry,
+                                  editorProvider,
                                   fileTypeRegistry,
                                   dockerFileFactory,
                                   appContext,
                                   timerFactory,
-                                  runner);
+                                  runner, tabContainer, locale,
+                                  eventBus);
 
         when(runner.getTitle()).thenReturn(TEXT);
-        when(runner.getRAM()).thenReturn(MB_512.getValue());
+        when(runner.getRAM()).thenReturn(MB_500.getValue());
         when(runner.getScope()).thenReturn(Scope.SYSTEM);
         when(runner.getType()).thenReturn(TEXT);
         when(runner.getTitle()).thenReturn(TEXT);
@@ -125,14 +136,13 @@ public class PropertiesRunnerPanelTest {
         verify(dockerFileFactory).newInstance(TEXT);
 
         verify(fileTypeRegistry).getFileTypeByFile(file);
-        verify(editorRegistry).getEditor(isNull(FileType.class));
         verify(editorProvider).getEditor();
 
         verify(editor).addPropertyListener(any(PropertyListener.class));
         verify(editor).init(any(DockerFileEditorInput.class));
 
-        verify(runner, times(2)).getRAM();
-        verify(view).selectMemory(MB_512);
+        verify(runner, times(3)).getRAM();
+        verify(view).selectMemory(0);
 
         verify(timer).schedule(ONE_SEC.getValue());
 
@@ -145,6 +155,7 @@ public class PropertiesRunnerPanelTest {
         verify(view).setVisibleSaveButton(false);
         verify(view).setVisibleDeleteButton(false);
         verify(view).setVisibleCancelButton(false);
+        verify(view).hideSwitcher();
     }
 
     @Test
@@ -166,7 +177,7 @@ public class PropertiesRunnerPanelTest {
         verify(view).setVisibleDeleteButton(false);
         verify(view).setVisibleCancelButton(false);
 
-        verify(runner).getRAM();
-        verify(view).selectMemory(any(RAM.class));
+        verify(runner,times(2)).getRAM();
+        verify(view).selectMemory(anyInt());
     }
 }

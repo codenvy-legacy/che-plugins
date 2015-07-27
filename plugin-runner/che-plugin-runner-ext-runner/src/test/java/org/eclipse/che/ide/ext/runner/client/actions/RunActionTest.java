@@ -13,6 +13,7 @@ package org.eclipse.che.ide.ext.runner.client.actions;
 import org.eclipse.che.api.analytics.client.logger.AnalyticsEventLogger;
 import org.eclipse.che.api.runner.dto.RunOptions;
 import org.eclipse.che.ide.api.action.ActionEvent;
+import org.eclipse.che.ide.api.action.permits.ActionDenyAccessDialog;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.notification.NotificationManager;
@@ -21,6 +22,7 @@ import org.eclipse.che.ide.ext.runner.client.RunnerLocalizationConstant;
 import org.eclipse.che.ide.ext.runner.client.RunnerResources;
 import org.eclipse.che.ide.ext.runner.client.manager.RunnerManager;
 import org.eclipse.che.ide.ext.runner.client.models.Environment;
+import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -30,8 +32,11 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Map;
 
+import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MB_200;
+import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope.SYSTEM;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -67,6 +72,8 @@ public class RunActionTest {
     private CurrentProject     currentProject;
     @Mock
     private Environment        environment;
+    @Mock
+    private ActionDenyAccessDialog runActionDenyAccessDialog;
 
     @InjectMocks
     private RunAction action;
@@ -86,7 +93,7 @@ public class RunActionTest {
 
         verify(eventLogger).log(action);
         verify(runnerManager, never()).launchRunner();
-        verify(runnerManager, never()).launchRunner(Matchers.<RunOptions>any(), anyString());
+        verify(runnerManager, never()).launchRunner(Matchers.<RunOptions>any(), Matchers.<Scope>any(),anyString());
     }
 
     @Test
@@ -131,20 +138,34 @@ public class RunActionTest {
     @Test
     public void actionShouldBeLaunchCustomEnvironment() throws Exception {
         when(chooseRunnerAction.selectEnvironment()).thenReturn(environment);
+        when(environment.getScope()).thenReturn(SYSTEM);
         when(appContext.getCurrentProject()).thenReturn(currentProject);
         when(currentProject.getRunner()).thenReturn(SOME_STRING + SOME_STRING);
+
         when(environment.getName()).thenReturn(SOME_STRING);
+        when(environment.getId()).thenReturn(SOME_STRING);
+        when(environment.getRam()).thenReturn(MB_200.getValue());
+
         when(dtoFactory.createDto(RunOptions.class)).thenReturn(runOptions);
         when(runOptions.withOptions(Matchers.<Map<String, String>>any())).thenReturn(runOptions);
         when(runOptions.withEnvironmentId(anyString())).thenReturn(runOptions);
+        when(runOptions.withMemorySize(MB_200.getValue())).thenReturn(runOptions);
 
         action.actionPerformed(actionEvent);
 
         verify(eventLogger).log(action);
         verify(environment).getOptions();
+        verify(environment, times(2)).getId();
+        verify(environment).getRam();
         verify(environment).getName();
+
+        verify(dtoFactory).createDto(RunOptions.class);
         verify(runOptions).withOptions(Matchers.<Map<String, String>>any());
-        verify(runnerManager).launchRunner(runOptions, SOME_STRING);
+        verify(runOptions).withEnvironmentId(anyString());
+        verify(runOptions).withMemorySize(MB_200.getValue());
+
+        verify(runOptions).withOptions(Matchers.<Map<String, String>>any());
+        verify(runnerManager).launchRunner(runOptions, SYSTEM, SOME_STRING);
     }
 
     @Test
@@ -155,6 +176,7 @@ public class RunActionTest {
 
         action.actionPerformed(actionEvent);
 
+        verify(eventLogger).log(action);
         verify(locale).actionRunnerNotSpecified();
         verify(notificationManager).showError(SOME_STRING);
     }

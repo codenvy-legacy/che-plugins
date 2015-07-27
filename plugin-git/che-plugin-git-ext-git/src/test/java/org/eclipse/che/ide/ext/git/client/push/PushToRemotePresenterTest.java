@@ -18,6 +18,7 @@ import org.eclipse.che.ide.ext.git.client.BaseTest;
 import org.eclipse.che.ide.ext.git.client.BranchFilterByRemote;
 import org.eclipse.che.ide.ext.git.client.BranchSearcher;
 import org.eclipse.che.ide.ext.git.shared.Branch;
+import org.eclipse.che.ide.ext.git.shared.PushResponse;
 import org.eclipse.che.ide.ext.git.shared.Remote;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -63,7 +64,7 @@ public class PushToRemotePresenterTest extends BaseTest {
     @Captor
     private ArgumentCaptor<AsyncCallback<Array<Branch>>>              asyncCallbackArrayBranchCaptor;
     @Captor
-    private ArgumentCaptor<AsyncRequestCallback<Void>>                asyncCallbackVoidCaptor;
+    private ArgumentCaptor<AsyncRequestCallback<PushResponse>>        asyncCallbackVoidCaptor;
 
     @Mock
     private PushToRemoteView view;
@@ -73,6 +74,8 @@ public class PushToRemotePresenterTest extends BaseTest {
     private Branch           remoteBranch;
     @Mock
     private BranchSearcher   branchSearcher;
+    @Mock
+    private PushResponse     pushResponse;
 
     @InjectMocks
     private PushToRemotePresenter presenter;
@@ -277,15 +280,14 @@ public class PushToRemotePresenterTest extends BaseTest {
 
         verify(service).push((ProjectDescriptor)anyObject(), anyListOf(String.class), anyString(), anyBoolean(),
                              asyncCallbackVoidCaptor.capture());
-        AsyncRequestCallback<Void> voidCallback = asyncCallbackVoidCaptor.getValue();
+        AsyncRequestCallback<PushResponse> voidCallback = asyncCallbackVoidCaptor.getValue();
         Method onSuccess = GwtReflectionUtils.getMethod(voidCallback.getClass(), "onSuccess");
-        onSuccess.invoke(voidCallback, (Void)null);
+        onSuccess.invoke(voidCallback, pushResponse);
 
         verify(service).push(eq(rootProjectDescriptor), anyListOf(String.class), eq(REPOSITORY_NAME), eq(DISABLE_CHECK),
-                             (AsyncRequestCallback<Void>)anyObject());
+                             (AsyncRequestCallback<PushResponse>)anyObject());
         verify(view).close();
         verify(notificationManager).showInfo(anyString());
-        verify(constant).pushSuccess(eq(REPOSITORY_NAME));
     }
 
     @Test
@@ -295,12 +297,12 @@ public class PushToRemotePresenterTest extends BaseTest {
 
         verify(service).push((ProjectDescriptor)anyObject(), anyListOf(String.class), anyString(), anyBoolean(),
                              asyncCallbackVoidCaptor.capture());
-        AsyncRequestCallback<Void> voidCallback = asyncCallbackVoidCaptor.getValue();
+        AsyncRequestCallback<PushResponse> voidCallback = asyncCallbackVoidCaptor.getValue();
         Method onFailure = GwtReflectionUtils.getMethod(voidCallback.getClass(), "onFailure");
         onFailure.invoke(voidCallback, mock(Throwable.class));
 
         verify(service).push(eq(rootProjectDescriptor), anyListOf(String.class), eq(REPOSITORY_NAME), eq(DISABLE_CHECK),
-                             (AsyncRequestCallback<Void>)anyObject());
+                             (AsyncRequestCallback<PushResponse>)anyObject());
         verify(view).close();
         verify(constant).pushFail();
         verify(notificationManager).showError(anyString());

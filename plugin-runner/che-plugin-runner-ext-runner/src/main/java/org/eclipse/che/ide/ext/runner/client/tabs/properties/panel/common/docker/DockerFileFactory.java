@@ -15,6 +15,7 @@ import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
 import org.eclipse.che.api.project.shared.dto.ItemReference;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
+import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import com.google.inject.Inject;
@@ -44,18 +45,21 @@ public class DockerFileFactory {
     private final DtoUnmarshallerFactory dtoUnmarshallerFactory;
     private final DtoFactory             dtoFactory;
     private final AppContext             appContext;
+    private final EditorAgent            editorAgent;
 
     @Inject
     public DockerFileFactory(EventBus eventBus,
                              ProjectServiceClient projectServiceClient,
                              DtoUnmarshallerFactory dtoUnmarshallerFactory,
                              DtoFactory dtoFactory,
-                             AppContext appContext) {
+                             AppContext appContext,
+                             EditorAgent editorAgent) {
         this.eventBus = eventBus;
         this.projectServiceClient = projectServiceClient;
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
         this.dtoFactory = dtoFactory;
         this.appContext = appContext;
+        this.editorAgent = editorAgent;
     }
 
     /**
@@ -90,7 +94,12 @@ public class DockerFileFactory {
                                                  .withMediaType(TYPE)
                                                  .withLinks(links);
 
-        return new DockerFile(eventBus, projectServiceClient, dtoUnmarshallerFactory, recipeFileItem, currentProject.getCurrentTree());
+        return new DockerFile(eventBus,
+                              projectServiceClient,
+                              dtoUnmarshallerFactory,
+                              recipeFileItem,
+                              currentProject.getCurrentTree(),
+                              editorAgent);
     }
 
 }

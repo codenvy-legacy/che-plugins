@@ -11,15 +11,19 @@
 package org.eclipse.che.ide.ext.runner.client.tabs.history;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
+import com.google.gwt.user.client.ui.SimpleLayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
+import org.eclipse.che.ide.ext.runner.client.RunnerResources;
 import org.eclipse.che.ide.ext.runner.client.tabs.history.runner.RunnerWidget;
 
 import javax.annotation.Nonnull;
@@ -28,6 +32,7 @@ import javax.annotation.Nonnull;
  * The class contains methods which allow change view representation of history panel.
  *
  * @author Dmitry Shnurenko
+ * @author Valeriy Svydenko
  */
 @Singleton
 public class HistoryViewImpl extends Composite implements HistoryView {
@@ -38,13 +43,28 @@ public class HistoryViewImpl extends Composite implements HistoryView {
     private static final HistoryImplUiBinder UI_BINDER = GWT.create(HistoryImplUiBinder.class);
 
     @UiField
-    FlowPanel   runnersPanel;
+    FlowPanel         runnersPanel;
     @UiField
-    ScrollPanel scrollPanel;
+    ScrollPanel       scrollPanel;
+    @UiField
+    FlowPanel         clearAll;
+    @UiField
+    SimpleLayoutPanel broomImage;
+
+    private ActionDelegate actionDelegate;
 
     @Inject
-    public HistoryViewImpl() {
+    public HistoryViewImpl(RunnerResources resources) {
         initWidget(UI_BINDER.createAndBindUi(this));
+
+        broomImage.getElement().appendChild(resources.erase().getSvg().getElement());
+
+        clearAll.addDomHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                actionDelegate.cleanInactiveRunners();
+            }
+        }, ClickEvent.getType());
     }
 
     /** {@inheritDoc} */
@@ -64,5 +84,11 @@ public class HistoryViewImpl extends Composite implements HistoryView {
     @Override
     public void clear() {
         runnersPanel.clear();
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void setDelegate(@Nonnull ActionDelegate delegate) {
+        this.actionDelegate = delegate;
     }
 }

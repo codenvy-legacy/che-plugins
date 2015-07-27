@@ -16,7 +16,7 @@
     <parent>
         <artifactId>che-plugin-java-parent</artifactId>
         <groupId>org.eclipse.che.plugin</groupId>
-        <version>3.9.0-SNAPSHOT</version>
+        <version>3.11.5-SNAPSHOT</version>
     </parent>
     <artifactId>che-plugin-java-builder-ant</artifactId>
     <packaging>jar</packaging>
@@ -35,7 +35,7 @@
         <dependency>
             <groupId>org.eclipse.che.plugin</groupId>
             <artifactId>che-plugin-java-ant-tools</artifactId>
-            <version>${che.plugins.version}</version>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 </project>

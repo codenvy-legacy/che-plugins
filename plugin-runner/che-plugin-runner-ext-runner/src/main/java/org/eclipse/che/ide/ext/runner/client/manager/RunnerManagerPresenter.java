@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.runner.client.manager;
 
+import com.google.gwt.http.client.URL;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
@@ -23,6 +24,9 @@ import org.eclipse.che.api.project.shared.dto.RunnerConfiguration;
 import org.eclipse.che.api.project.shared.dto.RunnersDescriptor;
 import org.eclipse.che.api.runner.dto.ApplicationProcessDescriptor;
 import org.eclipse.che.api.runner.dto.RunOptions;
+import org.eclipse.che.ide.api.action.permits.ActionDenyAccessDialog;
+import org.eclipse.che.ide.api.action.permits.ResourcesLockedActionPermit;
+import org.eclipse.che.ide.api.action.permits.Run;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.event.ProjectActionEvent;
@@ -50,15 +54,20 @@ import org.eclipse.che.ide.ext.runner.client.state.State;
 import org.eclipse.che.ide.ext.runner.client.tabs.common.Tab;
 import org.eclipse.che.ide.ext.runner.client.tabs.common.TabBuilder;
 import org.eclipse.che.ide.ext.runner.client.tabs.console.container.ConsoleContainer;
+import org.eclipse.che.ide.ext.runner.client.tabs.container.PanelLocation;
 import org.eclipse.che.ide.ext.runner.client.tabs.container.TabContainer;
 import org.eclipse.che.ide.ext.runner.client.tabs.history.HistoryPanel;
 import org.eclipse.che.ide.ext.runner.client.tabs.properties.container.PropertiesContainer;
+import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope;
 import org.eclipse.che.ide.ext.runner.client.tabs.templates.TemplatesContainer;
 import org.eclipse.che.ide.ext.runner.client.tabs.terminal.container.TerminalContainer;
+import org.eclipse.che.ide.ext.runner.client.util.EnvironmentIdValidator;
 import org.eclipse.che.ide.ext.runner.client.util.RunnerUtil;
 import org.eclipse.che.ide.ext.runner.client.util.TimerFactory;
 import org.eclipse.che.ide.ext.runner.client.util.annotations.LeftPanel;
-import org.eclipse.che.ide.ext.runner.client.util.annotations.RightPanel;
+import org.eclipse.che.ide.ext.runner.client.util.annotations.LeftPropertiesPanel;
+import org.eclipse.che.ide.ext.runner.client.util.annotations.RightPropertiesPanel;
+import org.eclipse.che.ide.util.Config;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -69,15 +78,20 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.eclipse.che.ide.ext.runner.client.constants.TimeInterval.ONE_SEC;
+import static org.eclipse.che.ide.ext.runner.client.manager.menu.SplitterState.SPLITTER_OFF;
+import static org.eclipse.che.ide.ext.runner.client.manager.menu.SplitterState.SPLITTER_ON;
 import static org.eclipse.che.ide.ext.runner.client.models.Runner.Status.IN_QUEUE;
 import static org.eclipse.che.ide.ext.runner.client.selection.Selection.RUNNER;
 import static org.eclipse.che.ide.ext.runner.client.state.State.RUNNERS;
+import static org.eclipse.che.ide.ext.runner.client.state.State.TEMPLATE;
 import static org.eclipse.che.ide.ext.runner.client.tabs.common.Tab.VisibleState.REMOVABLE;
 import static org.eclipse.che.ide.ext.runner.client.tabs.common.Tab.VisibleState.VISIBLE;
+import static org.eclipse.che.ide.ext.runner.client.tabs.container.PanelLocation.RIGHT_PROPERTIES;
 import static org.eclipse.che.ide.ext.runner.client.tabs.container.TabContainer.TabSelectHandler;
 import static org.eclipse.che.ide.ext.runner.client.tabs.container.tab.TabType.LEFT;
 import static org.eclipse.che.ide.ext.runner.client.tabs.container.tab.TabType.RIGHT;
-import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MB_512;
+import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.DEFAULT;
+import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope.PROJECT;
 
 /**
  * The class provides much business logic:
@@ -96,6 +110,8 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
                                                                      SelectionManager.SelectionChangeListener {
     public static final String TIMER_STUB = "--:--:--";
 
+    private static final String PROJECT_PREFIX = "project:/";
+
     private final RunnerManagerView           view;
     private final DtoFactory                  dtoFactory;
     private final AppContext                  appContext;
@@ -104,11 +120,11 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
     private final GetSystemEnvironmentsAction getSystemEnvironmentsAction;
     private final Map<Runner, RunnerAction>   runnerActions;
     private final Timer                       runnerTimer;
+    private final Timer                       runnerInQueueTimer;
     private final RunnerLocalizationConstant  locale;
     private final HistoryPanel                history;
     private final SelectionManager            selectionManager;
     private final TerminalContainer           terminalContainer;
-    private final TabContainer                rightTabContainer;
     private final ConsoleContainer            consoleContainer;
     private final PropertiesContainer         propertiesContainer;
     private final TemplatesContainer          templateContainer;
@@ -116,12 +132,24 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
     private final RunnerCounter               runnerCounter;
     private final Set<Long>                   runnersId;
     private final RunnerUtil                  runnerUtil;
-    private ChooseRunnerAction                chooseRunnerAction;
+    private final ResourcesLockedActionPermit runActionPermit;
+    private final ActionDenyAccessDialog      runActionDenyAccessDialog;
+    private final ChooseRunnerAction          chooseRunnerAction;
+
+    private final TabContainer leftPropertiesContainer;
+    private final TabContainer rightPropertiesContainer;
+    private final TabContainer leftTabContainer;
 
     private GetRunningProcessesAction getRunningProcessAction;
 
     private Runner      selectedRunner;
     private Environment selectedEnvironment;
+
+    private Tab terminalTab;
+    private Tab consoleTab;
+    private Tab propertiesTab;
+
+    private State state;
 
     @Inject
     public RunnerManagerPresenter(final RunnerManagerView view,
@@ -131,12 +159,13 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
                                   DtoFactory dtoFactory,
                                   ChooseRunnerAction chooseRunnerAction,
                                   EventBus eventBus,
-                                  RunnerLocalizationConstant locale,
+                                  final RunnerLocalizationConstant locale,
                                   @LeftPanel TabContainer leftTabContainer,
-                                  @RightPanel TabContainer rightTabContainer,
+                                  @LeftPropertiesPanel TabContainer leftPropertiesContainer,
+                                  @RightPropertiesPanel TabContainer rightPropertiesContainer,
                                   PanelState panelState,
                                   Provider<TabBuilder> tabBuilderProvider,
-                                  ConsoleContainer consoleContainer,
+                                  final ConsoleContainer consoleContainer,
                                   TerminalContainer terminalContainer,
                                   PropertiesContainer propertiesContainer,
                                   HistoryPanel history,
@@ -145,7 +174,9 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
                                   SelectionManager selectionManager,
                                   TimerFactory timerFactory,
                                   GetSystemEnvironmentsAction getSystemEnvironmentsAction,
-                                  RunnerUtil runnerUtil) {
+                                  RunnerUtil runnerUtil,
+                                  @Run ResourcesLockedActionPermit runActionPermit,
+                                  @Run ActionDenyAccessDialog runActionDenyAccessDialog) {
         this.view = view;
         this.view.setDelegate(this);
         this.locale = locale;
@@ -157,6 +188,15 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
         this.runnerCounter = runnerCounter;
         this.getSystemEnvironmentsAction = getSystemEnvironmentsAction;
         this.runnerUtil = runnerUtil;
+        this.runActionPermit = runActionPermit;
+        this.runActionDenyAccessDialog = runActionDenyAccessDialog;
+
+        this.leftTabContainer = leftTabContainer;
+        this.leftTabContainer.setLocation(PanelLocation.LEFT);
+        this.leftPropertiesContainer = leftPropertiesContainer;
+        this.leftPropertiesContainer.setLocation(PanelLocation.LEFT_PROPERTIES);
+        this.rightPropertiesContainer = rightPropertiesContainer;
+        this.rightPropertiesContainer.setLocation(RIGHT_PROPERTIES);
 
         this.selectionManager = selectionManager;
         this.selectionManager.addListener(this);
@@ -170,8 +210,6 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
         this.terminalContainer = terminalContainer;
         this.propertiesContainer = propertiesContainer;
 
-        this.rightTabContainer = rightTabContainer;
-
         this.runnerActions = new HashMap<>();
 
         this.runnerTimer = timerFactory.newInstance(new TimerFactory.TimerCallBack() {
@@ -183,14 +221,27 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
             }
         });
 
+        this.runnerInQueueTimer = timerFactory.newInstance(new TimerFactory.TimerCallBack() {
+            @Override
+            public void onRun() {
+                if (IN_QUEUE.equals(selectedRunner.getStatus())) {
+                    consoleContainer.printInfo(selectedRunner, locale.messageRunnerInQueue());
+                }
+            }
+        });
+
         eventBus.addHandler(ProjectActionEvent.TYPE, this);
         runnersId = new HashSet<>();
 
-        initializeLeftPanel(panelState, leftTabContainer, tabBuilderProvider, history, templateContainer);
-        initializeRightPanel(rightTabContainer, tabBuilderProvider, consoleContainer, terminalContainer, propertiesContainer);
+        initializeLeftPanel(panelState, tabBuilderProvider, history, templateContainer);
+
+        initializeLeftPropertiesPanel(tabBuilderProvider);
+        initializeRightPropertiesPanel(tabBuilderProvider);
 
         view.setLeftPanel(leftTabContainer);
-        view.setRightPanel(rightTabContainer);
+
+        panelState.setSplitterState(SPLITTER_OFF);
+        view.setGeneralPropertiesPanel(rightPropertiesContainer);
     }
 
     private void updateRunnerTimer() {
@@ -203,7 +254,6 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
     }
 
     private void initializeLeftPanel(@Nonnull final PanelState panelState,
-                                     @Nonnull TabContainer container,
                                      @Nonnull Provider<TabBuilder> tabBuilderProvider,
                                      @Nonnull HistoryPanel historyPanel,
                                      @Nonnull final TemplatesContainer templatesContainer) {
@@ -223,11 +273,12 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
                                            .tabType(LEFT)
                                            .build();
 
-        container.addTab(historyTab);
+        leftTabContainer.addTab(historyTab);
 
         TabSelectHandler templatesHandler = new TabSelectHandler() {
             @Override
             public void onTabSelected() {
+                state = TEMPLATE;
                 panelState.setState(State.TEMPLATE);
 
                 templatesContainer.selectEnvironment();
@@ -246,15 +297,10 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
                                             .tabType(LEFT)
                                             .build();
 
-        container.addTab(templateTab);
+        leftTabContainer.addTab(templateTab);
     }
 
-    private void initializeRightPanel(@Nonnull TabContainer container,
-                                      @Nonnull Provider<TabBuilder> tabBuilderProvider,
-                                      @Nonnull ConsoleContainer consoleContainer,
-                                      @Nonnull final TerminalContainer terminalContainer,
-                                      @Nonnull final PropertiesContainer propertiesContainer) {
-
+    private void initializeLeftPropertiesPanel(@Nonnull Provider<TabBuilder> tabBuilderProvider) {
         final TabSelectHandler consoleHandler = new TabSelectHandler() {
             @Override
             public void onTabSelected() {
@@ -264,38 +310,16 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
             }
         };
 
-        Tab consoleTab = tabBuilderProvider.get()
-                                           .presenter(consoleContainer)
-                                           .title(locale.runnerTabConsole())
-                                           .visible(REMOVABLE)
-                                           .selectHandler(consoleHandler)
-                                           .scope(EnumSet.of(RUNNERS))
-                                           .tabType(RIGHT)
-                                           .build();
+        consoleTab = tabBuilderProvider.get()
+                                       .presenter(consoleContainer)
+                                       .title(locale.runnerTabConsole())
+                                       .visible(REMOVABLE)
+                                       .selectHandler(consoleHandler)
+                                       .scope(EnumSet.of(RUNNERS))
+                                       .tabType(RIGHT)
+                                       .build();
 
-        container.addTab(consoleTab);
-
-        TabSelectHandler terminalHandler = new TabSelectHandler() {
-            @Override
-            public void onTabSelected() {
-                if (selectedRunner != null) {
-                    selectedRunner.setActiveTab(locale.runnerTabTerminal());
-
-                    terminalContainer.update(selectedRunner);
-                }
-            }
-        };
-
-        Tab terminalTab = tabBuilderProvider.get()
-                                            .presenter(terminalContainer)
-                                            .title(locale.runnerTabTerminal())
-                                            .visible(VISIBLE)
-                                            .selectHandler(terminalHandler)
-                                            .scope(EnumSet.of(RUNNERS))
-                                            .tabType(RIGHT)
-                                            .build();
-
-        container.addTab(terminalTab);
+        leftPropertiesContainer.addTab(consoleTab);
 
         TabSelectHandler propertiesHandler = new TabSelectHandler() {
             @Override
@@ -312,16 +336,48 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
             }
         };
 
-        Tab propertiesTab = tabBuilderProvider.get()
-                                              .presenter(propertiesContainer)
-                                              .selectHandler(propertiesHandler)
-                                              .title(locale.runnerTabProperties())
-                                              .visible(REMOVABLE)
-                                              .scope(EnumSet.allOf(State.class))
-                                              .tabType(RIGHT)
-                                              .build();
+        propertiesTab = tabBuilderProvider.get()
+                                          .presenter(propertiesContainer)
+                                          .selectHandler(propertiesHandler)
+                                          .title(locale.runnerTabProperties())
+                                          .visible(REMOVABLE)
+                                          .scope(EnumSet.allOf(State.class))
+                                          .tabType(RIGHT)
+                                          .build();
 
-        container.addTab(propertiesTab);
+        leftPropertiesContainer.addTab(propertiesTab);
+    }
+
+    private void initializeRightPropertiesPanel(@Nonnull Provider<TabBuilder> tabBuilderProvider) {
+        rightPropertiesContainer.addTab(consoleTab);
+
+        TabSelectHandler terminalHandler = new TabSelectHandler() {
+            @Override
+            public void onTabSelected() {
+                if (selectedRunner != null) {
+                    selectedRunner.setActiveTab(locale.runnerTabTerminal());
+
+                    terminalContainer.update(selectedRunner);
+                }
+            }
+        };
+
+        terminalTab = tabBuilderProvider.get()
+                                        .presenter(terminalContainer)
+                                        .title(locale.runnerTabTerminal())
+                                        .visible(VISIBLE)
+                                        .selectHandler(terminalHandler)
+                                        .scope(EnumSet.of(RUNNERS))
+                                        .tabType(RIGHT)
+                                        .build();
+        if (!Config.isSdkProject()) {
+            rightPropertiesContainer.addTab(terminalTab);
+        }
+
+        rightPropertiesContainer.addTab(propertiesTab);
+
+        rightPropertiesContainer.showTabTitle(consoleTab.getTitle(), false);
+        rightPropertiesContainer.showTabTitle(propertiesTab.getTitle(), false);
     }
 
     /** @return the GWT widget that is controlled by the presenter */
@@ -339,7 +395,7 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
     public void update(@Nonnull Runner runner) {
         history.update(runner);
 
-        if (runner.equals(selectedRunner)) {
+        if (runner.equals(selectedRunner) && history.isRunnerExist(runner)) {
             view.update(runner);
             changeURLDependingOnState(runner);
         }
@@ -362,6 +418,7 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
             default:
                 String url = runner.getApplicationURL();
                 view.setApplicationURl(url == null ? locale.urlAppRunning() : url);
+                setDebugPort(runner);
         }
     }
 
@@ -374,7 +431,13 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
                                               .withEnvironmentId(selectedEnvironment.getId())
                                               .withMemorySize(selectedEnvironment.getRam());
 
-            launchRunner(runOptions, selectedEnvironment.getName());
+            Runner runner = modelsFactory.createRunner(runOptions, selectedEnvironment.getScope(), selectedEnvironment.getName());
+
+            if (PROJECT.equals(selectedEnvironment.getScope())) {
+                runner.setScope(PROJECT);
+            }
+
+            launchRunner(runner);
         } else {
             launchRunner();
         }
@@ -384,17 +447,22 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
     /** {@inheritDoc} */
     @Override
     public void onRerunButtonClicked() {
-        selectedRunner.setStatus(IN_QUEUE);
+        if (runActionPermit.isAllowed()) {
 
-        RunnerAction runnerAction = runnerActions.get(selectedRunner);
-        if (runnerAction == null || runnerAction instanceof LaunchAction) {
-            //Create new CheckRamAndRunAction and update selected runner
-            launchRunner(selectedRunner);
+            selectedRunner.setStatus(IN_QUEUE);
+
+            RunnerAction runnerAction = runnerActions.get(selectedRunner);
+            if (runnerAction == null || runnerAction instanceof LaunchAction) {
+                //Create new CheckRamAndRunAction and update selected runner
+                launchRunner(selectedRunner);
+            } else {
+                runnerAction.perform(selectedRunner);
+
+                update(selectedRunner);
+                selectedRunner.resetCreationTime();
+            }
         } else {
-            runnerAction.perform(selectedRunner);
-
-            update(selectedRunner);
-            selectedRunner.resetCreationTime();
+            runActionDenyAccessDialog.show();
         }
     }
 
@@ -439,16 +507,48 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
 
     /** {@inheritDoc} */
     @Override
+    public void onToggleSplitterClicked(boolean isShowSplitter) {
+        terminalTab.setScopes(isShowSplitter ? EnumSet.allOf(State.class) : EnumSet.of(RUNNERS));
+
+        if (isShowSplitter) {
+            panelState.setSplitterState(SPLITTER_ON);
+
+            view.setLeftPropertiesPanel(leftPropertiesContainer);
+            view.setRightPropertiesPanel(rightPropertiesContainer);
+        } else {
+            panelState.setSplitterState(SPLITTER_OFF);
+
+            view.setGeneralPropertiesPanel(rightPropertiesContainer);
+        }
+
+        if (TEMPLATE.equals(state)) {
+            panelState.setState(TEMPLATE);
+
+            leftTabContainer.showTab(locale.runnerTabTemplates());
+
+            if (SPLITTER_OFF.equals(panelState.getSplitterState())) {
+                rightPropertiesContainer.showTab(propertiesTab.getTitle());
+            }
+        }
+    }
+
+    /** {@inheritDoc} */
+    @Override
     public Runner launchRunner() {
         CurrentProject currentProject = appContext.getCurrentProject();
         if (currentProject == null) {
             throw new IllegalStateException("Can't launch runner for current project. Current project is absent...");
         }
 
-        int ram = MB_512.getValue();
+        int ram = DEFAULT.getValue();
 
         RunnersDescriptor runnersDescriptor = currentProject.getProjectDescription().getRunners();
         String defaultRunner = runnersDescriptor.getDefault();
+
+        if (!EnvironmentIdValidator.isValid(defaultRunner)) {
+            defaultRunner = URL.encode(defaultRunner);
+        }
+
         RunnerConfiguration defaultConfigs = runnersDescriptor.getConfigs().get(defaultRunner);
 
         if (defaultRunner != null && defaultConfigs != null) {
@@ -457,16 +557,32 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
 
         RunOptions runOptions = dtoFactory.createDto(RunOptions.class)
                                           .withSkipBuild(Boolean.valueOf(currentProject.getAttributeValue("runner:skipBuild")))
+                                          .withEnvironmentId(defaultRunner)
                                           .withMemorySize(ram);
 
-        if (this.selectedEnvironment == null) {
-            Environment environment = chooseRunnerAction.selectEnvironment();
-            if (environment != null) {
-                runOptions = runOptions.withOptions(environment.getOptions()).withEnvironmentId(environment.getId());
+        Environment environment = chooseRunnerAction.selectEnvironment();
+        if (environment != null) {
+            if (defaultRunner != null && defaultRunner.equals(environment.getId())) {
+                Runner runner = modelsFactory.createRunner(runOptions);
+                if (defaultRunner.startsWith(PROJECT_PREFIX)) {
+                    runner.setScope(PROJECT);
+                }
+                return launchRunner(runner);
             }
+            runOptions = runOptions.withOptions(environment.getOptions())
+                                   .withMemorySize(environment.getRam())
+                                   .withEnvironmentId(environment.getId());
+            Runner runner = modelsFactory.createRunner(runOptions, environment.getScope(), environment.getName());
+            if (environment.getId().startsWith(PROJECT_PREFIX)) {
+                runner.setScope(PROJECT);
+            }
+            return launchRunner(runner);
         }
 
-
+        Runner runner = modelsFactory.createRunner(runOptions);
+        if (defaultRunner != null && defaultRunner.startsWith(PROJECT_PREFIX)) {
+            runner.setScope(PROJECT);
+        }
         return launchRunner(modelsFactory.createRunner(runOptions));
     }
 
@@ -480,33 +596,39 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
     /** {@inheritDoc} */
     @Override
     @Nonnull
-    public Runner launchRunner(@Nonnull RunOptions runOptions, @Nonnull String environmentName) {
-        return launchRunner(modelsFactory.createRunner(runOptions, environmentName));
+    public Runner launchRunner(@Nonnull RunOptions runOptions, @Nonnull Scope scope, @Nonnull String environmentName) {
+        return launchRunner(modelsFactory.createRunner(runOptions, scope, environmentName));
     }
 
     @Nonnull
     private Runner launchRunner(@Nonnull Runner runner) {
-        CurrentProject currentProject = appContext.getCurrentProject();
+        if (runActionPermit.isAllowed()) {
 
-        if (currentProject == null) {
-            throw new IllegalStateException("Can't launch runner for current project. Current project is absent...");
+            CurrentProject currentProject = appContext.getCurrentProject();
+
+            if (currentProject == null) {
+                throw new IllegalStateException("Can't launch runner for current project. Current project is absent...");
+            }
+
+            selectedEnvironment = null;
+
+            panelState.setState(RUNNERS);
+            view.showOtherButtons();
+
+            history.addRunner(runner);
+
+            runnerInQueueTimer.schedule(ONE_SEC.getValue());
+
+            CheckRamAndRunAction checkRamAndRunAction = actionFactory.createCheckRamAndRun();
+            checkRamAndRunAction.perform(runner);
+
+            runnerActions.put(runner, checkRamAndRunAction);
+
+            runner.resetCreationTime();
+            runnerTimer.schedule(ONE_SEC.getValue());
+        } else {
+            runActionDenyAccessDialog.show();
         }
-
-        selectedEnvironment = null;
-
-        panelState.setState(RUNNERS);
-        view.showOtherButtons();
-
-        history.addRunner(runner);
-
-        CheckRamAndRunAction checkRamAndRunAction = actionFactory.createCheckRamAndRun();
-        checkRamAndRunAction.perform(runner);
-
-        runnerActions.put(runner, checkRamAndRunAction);
-
-        runner.resetCreationTime();
-        runnerTimer.schedule(ONE_SEC.getValue());
-
         return runner;
     }
 
@@ -563,12 +685,16 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
             return;
         }
 
+        templateContainer.showEnvironments();
+
         getRunningProcessAction.perform();
         getSystemEnvironmentsAction.perform();
 
-        templateContainer.showEnvironments();
-
         runnerTimer.schedule(ONE_SEC.getValue());
+    }
+
+    @Override
+    public void onProjectClosing(ProjectActionEvent event) {
     }
 
     /** {@inheritDoc} */
@@ -586,6 +712,7 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
         view.setEnableLogsButton(false);
 
         view.setApplicationURl(null);
+        view.setDebugPort(null);
         view.setTimeout(TIMER_STUB);
 
         history.clear();
@@ -611,6 +738,13 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
     public Runner addRunner(@Nonnull ApplicationProcessDescriptor processDescriptor) {
         RunOptions runOptions = dtoFactory.createDto(RunOptions.class);
         Runner runner = modelsFactory.createRunner(runOptions);
+
+        String environmentId = processDescriptor.getEnvironmentId();
+
+        if (environmentId != null && environmentId.startsWith(PROJECT_PREFIX)) {
+            runner.setScope(PROJECT);
+        }
+
         runnersId.add(processDescriptor.getProcessId());
 
         runner.setProcessDescriptor(processDescriptor);
@@ -667,16 +801,33 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
     private void runnerSelected() {
         selectedRunner = selectionManager.getRunner();
         if (selectedRunner == null) {
+            showNoRunnerMessage(true);
+
+            propertiesContainer.reset();
             return;
+        }
+
+        showNoRunnerMessage(false);
+
+        if (SPLITTER_OFF.equals(panelState.getSplitterState())) {
+            rightPropertiesContainer.showTab(selectedRunner.getActiveTab());
         }
 
         history.selectRunner(selectedRunner);
 
-        rightTabContainer.showTab(selectedRunner.getActiveTab());
+        if (locale.runnerTabTerminal().equals(selectedRunner.getActiveTab()) || SPLITTER_ON.equals(panelState.getSplitterState())) {
+            terminalContainer.update(selectedRunner);
+        }
 
         update(selectedRunner);
 
         updateRunnerTimer();
+    }
+
+    private void showNoRunnerMessage(boolean isVisible) {
+        terminalContainer.setVisibleNoRunnerLabel(isVisible);
+        consoleContainer.setVisibleNoRunnerLabel(isVisible);
+        propertiesContainer.setVisibleNoRunnerLabel(isVisible);
     }
 
     private void environmentSelected() {
@@ -689,10 +840,18 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
     }
 
     private void selectHistoryTab() {
+        state = RUNNERS;
         panelState.setState(RUNNERS);
 
         view.setEnableRunButton(runnerUtil.hasRunPermission());
 
         view.showOtherButtons();
+    }
+
+    private void setDebugPort(Runner runner) {
+        ApplicationProcessDescriptor runnerDescriptor = runner.getDescriptor();
+        if (runnerDescriptor != null && runnerDescriptor.getDebugPort() != -1) {
+            view.setDebugPort(String.valueOf(runnerDescriptor.getDebugPort()));
+        }
     }
 }

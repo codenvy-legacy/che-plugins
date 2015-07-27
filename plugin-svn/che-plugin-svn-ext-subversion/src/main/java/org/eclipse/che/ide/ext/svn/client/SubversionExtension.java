@@ -155,7 +155,7 @@ public class SubversionExtension {
         actionManager.registerAction("SvnUpdate", updateAction);
         fileCommandGroup.add(updateAction);
         actionManager.registerAction("SvnUpdateToRevision",
-                updateToRevisionAction);
+                                     updateToRevisionAction);
         fileCommandGroup.add(updateToRevisionAction);
         actionManager.registerAction("SvnCommit", commitAction);
         fileCommandGroup.add(commitAction);
@@ -167,8 +167,8 @@ public class SubversionExtension {
         fileCommandGroup.add(moveAction);
 
         // Commands that interact with the repository
-        // actionManager.registerAction("SvnMerge", mergeAction);
-        // repositoryCommandGroup.add(mergeAction);
+        actionManager.registerAction("SvnMerge", mergeAction);
+        repositoryCommandGroup.add(mergeAction);
         actionManager.registerAction("SvnExport", exportAction);
         repositoryCommandGroup.add(exportAction);
         // actionManager.registerAction("SvnBranchTag", branchTagAction);
@@ -179,8 +179,8 @@ public class SubversionExtension {
         // miscellaneousCommandGroup.add(createPatchAction);
         // actionManager.registerAction("SvnApplyPatch", applyPatchAction);
         // miscellaneousCommandGroup.add(applyPatchAction);
-        // actionManager.registerAction("SvnProperties", propertiesAction);
-        // miscellaneousCommandGroup.add(propertiesAction);
+        actionManager.registerAction("SvnProperties", propertiesAction);
+        miscellaneousCommandGroup.add(propertiesAction);
 
         // Commands that manage working copy
         actionManager.registerAction("SvnAdd", addAction);
@@ -200,6 +200,30 @@ public class SubversionExtension {
 
         actionManager.registerAction("SvnChangeCredentials", changeCredentialsAction);
         credentialsCommandGroup.add(changeCredentialsAction);
-    }
 
+        //context menu
+        DefaultActionGroup contextGroup = new DefaultActionGroup("Subversion", true, actionManager);
+        contextGroup.getTemplatePresentation().setDescription("Subversion operation...");
+
+        contextGroup.add(statusAction);
+        contextGroup.add(logAction);
+        contextGroup.add(diffAction);
+        contextGroup.addSeparator();
+        contextGroup.add(updateAction);
+        contextGroup.add(commitAction);
+        contextGroup.add(resolveAction);
+        contextGroup.addSeparator();
+        contextGroup.add(mergeAction);
+        contextGroup.addSeparator();
+        contextGroup.add(addAction);
+        contextGroup.add(removeAction);
+        contextGroup.add(cleanupAction);
+        contextGroup.add(revertAction);
+
+        contextGroup.getTemplatePresentation().setSVGIcon(resources.svn());
+
+        DefaultActionGroup mainContextMenuGroup = (DefaultActionGroup)actionManager.getAction(IdeActions.GROUP_MAIN_CONTEXT_MENU);
+        mainContextMenuGroup.addSeparator();
+        mainContextMenuGroup.add(contextGroup);
+    }
 }

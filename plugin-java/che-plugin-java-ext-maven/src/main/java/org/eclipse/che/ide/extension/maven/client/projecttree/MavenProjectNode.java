@@ -82,6 +82,18 @@ public class MavenProjectNode extends JavaProjectNode {
 
             @Override
             public void onFailure(Throwable caught) {
+                //can be if pom.xml not found
+                getChildren(getData().getPath(), new AsyncCallback<Array<ItemReference>>() {
+                    @Override
+                    public void onSuccess(Array<ItemReference> childItems) {
+                        callback.onSuccess(MavenProjectNode.this);
+                    }
+
+                    @Override
+                    public void onFailure(Throwable caught) {
+                        callback.onFailure(caught);
+                    }
+                });
                 callback.onFailure(caught);
             }
         });
@@ -152,7 +164,7 @@ public class MavenProjectNode extends JavaProjectNode {
         } else if ("folder".equals(item.getType())) {
             return getTreeStructure().newJavaFolderNode(MavenProjectNode.this, item);
         } else {
-            return super.createChildNode(item);
+            return super.createChildNode(item, modules);
         }
     }
 

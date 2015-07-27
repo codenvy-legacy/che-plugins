@@ -24,6 +24,8 @@ import org.eclipse.che.ide.ext.github.shared.GitHubUser;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.AsyncRequestFactory;
 import org.eclipse.che.ide.rest.AsyncRequestLoader;
+import org.eclipse.che.ide.rest.RestContext;
+
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
@@ -46,7 +48,6 @@ public class GitHubClientServiceImpl implements GitHubClientService {
     private static final String LIST_ALL       = "/list/available";
     private static final String COLLABORATORS  = "/collaborators";
     private static final String ORGANIZATIONS  = "/orgs";
-    private static final String PAGE           = "/page";
     private static final String TOKEN          = "/token";
     private static final String USER           = "/user";
     private static final String SSH_GEN        = "/ssh/generate";
@@ -63,7 +64,7 @@ public class GitHubClientServiceImpl implements GitHubClientService {
     private final AsyncRequestFactory asyncRequestFactory;
 
     @Inject
-    protected GitHubClientServiceImpl(@Named("restContext") String baseUrl,
+    protected GitHubClientServiceImpl(@RestContext String baseUrl,
                                       AsyncRequestLoader loader,
                                       AsyncRequestFactory asyncRequestFactory) {
         this.baseUrl = baseUrl + "/github";
@@ -184,14 +185,6 @@ public class GitHubClientServiceImpl implements GitHubClientService {
     public void getRepositoriesByAccount(String account, @Nonnull AsyncRequestCallback<GitHubRepositoryList> callback) {
         String params = (account != null) ? "?account=" + account : "";
         String url = baseUrl + LIST_ACCOUNT;
-        asyncRequestFactory.createGetRequest(url + params).loader(loader).send(callback);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void getPage(String pageLocation, @Nonnull AsyncRequestCallback<GitHubRepositoryList> callback) {
-        String params = (pageLocation != null) ? "?url=" + pageLocation : "";
-        String url = baseUrl + PAGE;
         asyncRequestFactory.createGetRequest(url + params).loader(loader).send(callback);
     }
 

@@ -10,14 +10,13 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.git.client.reset.commit;
 
+import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.editor.EditorPartPresenter;
-import org.eclipse.che.ide.api.event.FileEvent;
-import org.eclipse.che.ide.api.event.RefreshProjectTreeEvent;
+import org.eclipse.che.ide.api.event.OpenProjectEvent;
 import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.api.notification.NotificationManager;
-import org.eclipse.che.ide.api.project.tree.VirtualFile;
 import org.eclipse.che.ide.ext.git.client.GitLocalizationConstant;
 import org.eclipse.che.ide.ext.git.client.GitServiceClient;
 import org.eclipse.che.ide.ext.git.shared.LogResponse;
@@ -131,14 +130,17 @@ public class ResetToCommitPresenter implements ResetToCommitView.ActionDelegate 
 //        type = (type == null && view.isMergeMode()) ? ResetRequest.ResetType.MERGE : type;
 
         final ResetRequest.ResetType finalType = type;
-        service.reset(appContext.getCurrentProject().getRootProject(), selectedRevision.getId(), finalType, null,
+        final ProjectDescriptor project = appContext.getCurrentProject().getRootProject();
+        service.reset(project, selectedRevision.getId(), finalType, null,
                       new AsyncRequestCallback<Void>() {
                           @Override
                           protected void onSuccess(Void result) {
                               if (ResetRequest.ResetType.HARD.equals(finalType) || ResetRequest.ResetType.MERGE.equals(finalType)) {
                                   // Only in the cases of <code>ResetRequest.ResetType.HARD</code>  or <code>ResetRequest.ResetType.MERGE</code>
                                   // must change the workdir
-                                  refreshProject();
+                                  //In this case we can have unconfigured state of the project,
+                                  //so we must repeat the logic which is performed when we open a project
+                                  eventBus.fireEvent(new OpenProjectEvent(project.getPath()));
                               }
                               Notification notification = new Notification(constant.resetSuccessfully(), INFO);
                               notificationManager.showNotification(notification);
@@ -152,15 +154,6 @@ public class ResetToCommitPresenter implements ResetToCommitView.ActionDelegate 
                               notificationManager.showNotification(notification);
                           }
                       });
-    }
-
-    /** Refresh project. */
-    private void refreshProject() {
-        eventBus.fireEvent(new RefreshProjectTreeEvent());
-        for (EditorPartPresenter partPresenter : openedEditors) {
-            VirtualFile file = partPresenter.getEditorInput().getFile();
-            eventBus.fireEvent(new FileEvent(file, FileEvent.FileOperation.CLOSE));
-        }
     }
 }
 

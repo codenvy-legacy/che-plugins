@@ -16,7 +16,7 @@
     <parent>
         <artifactId>che-plugin-svn-parent</artifactId>
         <groupId>org.eclipse.che.plugin</groupId>
-        <version>3.9.0-SNAPSHOT</version>
+        <version>3.11.5-SNAPSHOT</version>
     </parent>
     <artifactId>che-plugin-svn-ext-subversion</artifactId>
     <packaging>jar</packaging>
@@ -210,7 +210,7 @@
                     <dependency>
                         <groupId>org.eclipse.che.plugin</groupId>
                         <artifactId>che-plugin-svn-ext-subversion</artifactId>
-                        <version>${che.plugins.version}</version>
+                        <version>${project.version}</version>
                     </dependency>
                 </dependencies>
             </plugin>

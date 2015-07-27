@@ -136,6 +136,9 @@ public interface GitLocalizationConstant extends Messages {
     @Key("messages.pull_fail")
     String pullFail(String remoteUrl);
 
+    @Key("messages.checkout_failed")
+    String checkoutFailed(String reference);
+
     @Key("messages.fetch_success")
     String fetchSuccess(String remoteUrl);
 
@@ -312,6 +315,12 @@ public interface GitLocalizationConstant extends Messages {
     // Branch
     @Key("view.branch.create_new")
     String branchCreateNew();
+
+    @Key("view.branch.confirm_rename.title")
+    String branchConfirmRenameTitle();
+
+    @Key("view.branch.confirm_rename.message")
+    String branchConfirmRenameMessage();
 
     @Key("view.branch.type_new")
     String branchTypeNew();
@@ -525,6 +534,16 @@ public interface GitLocalizationConstant extends Messages {
 
     @Key("merged.conflicts")
     String mergedConflicts(String conflicts);
+
+    /* Checkout reference */
+    @Key("checkout.reference.title")
+    String checkoutReferenceTitle();
+
+    @Key("checkout.reference.description")
+    String checkoutReferenceDescription();
+
+    @Key("checkout.reference.message")
+    String checkoutReferenceMessage();
 
     /* Controls */
     @Key("control.branches.title")

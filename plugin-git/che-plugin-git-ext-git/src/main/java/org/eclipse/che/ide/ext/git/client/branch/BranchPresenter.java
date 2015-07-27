@@ -15,12 +15,10 @@ import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.editor.EditorPartPresenter;
-import org.eclipse.che.ide.api.event.FileEvent;
-import org.eclipse.che.ide.api.event.RefreshProjectTreeEvent;
+import org.eclipse.che.ide.api.event.OpenProjectEvent;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.parts.PartStackType;
 import org.eclipse.che.ide.api.parts.WorkspaceAgent;
-import org.eclipse.che.ide.api.project.tree.VirtualFile;
 import org.eclipse.che.ide.collections.Array;
 import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.ext.git.client.GitLocalizationConstant;
@@ -29,6 +27,7 @@ import org.eclipse.che.ide.ext.git.client.GitServiceClient;
 import org.eclipse.che.ide.ext.git.shared.Branch;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
+import org.eclipse.che.ide.ui.dialogs.ConfirmCallback;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 import org.eclipse.che.ide.ui.dialogs.InputCallback;
 import com.google.gwt.json.client.JSONObject;
@@ -113,26 +112,60 @@ public class BranchPresenter implements BranchView.ActionDelegate {
     /** {@inheritDoc} */
     @Override
     public void onRenameClicked() {
-        final String currentBranchName = selectedBranch.getDisplayName();
-        dialogFactory.createInputDialog(constant.branchTitleRename(), constant.branchTypeRename(), currentBranchName,
-                                        0, currentBranchName.length(), new InputCallback() {
-                    @Override
-                    public void accepted(String value) {
-                        service.branchRename(project.getRootProject(), currentBranchName, value, new AsyncRequestCallback<String>() {
-                            @Override
-                            protected void onSuccess(String result) {
-                                getBranches();
-                            }
+        if (selectedBranch.isRemote()) {
+            dialogFactory.createConfirmDialog(constant.branchConfirmRenameTitle(), constant.branchConfirmRenameMessage(),
+                                              getConfirmRenameBranchCallback(), null).show();
+        } else {
+            renameBranch();
+        }
+    }
 
-                            @Override
-                            protected void onFailure(Throwable exception) {
-                                String errorMessage =
-                                        (exception.getMessage() != null) ? exception.getMessage() : constant.branchRenameFailed();
-                                notificationManager.showError(errorMessage);
-                            }
-                        });
-                    }
-                }, null).show();
+    private ConfirmCallback getConfirmRenameBranchCallback() {
+        return new ConfirmCallback() {
+            @Override
+            public void accepted() {
+                renameBranch();
+            }
+        };
+    }
+
+    private void renameBranch() {
+        final String selectedBranchName = getSelectedBranchName();
+        dialogFactory.createInputDialog(constant.branchTitleRename(), constant.branchTypeRename(), selectedBranchName,
+                                        0, selectedBranchName.length(), getNewBranchNameCallback(), null).show();
+    }
+
+    private InputCallback getNewBranchNameCallback() {
+        return new InputCallback() {
+            @Override
+            public void accepted(String newBranchName) {
+                renameBranch(newBranchName);
+            }
+        };
+    }
+
+    private void renameBranch(String newName) {
+        service.branchRename(project.getRootProject(), selectedBranch.getDisplayName(), newName, new AsyncRequestCallback<String>() {
+            @Override
+            protected void onSuccess(String result) {
+                getBranches();
+            }
+
+            @Override
+            protected void onFailure(Throwable exception) {
+                String errorMessage =
+                        (exception.getMessage() != null) ? exception.getMessage() : constant.branchRenameFailed();
+                notificationManager.showError(errorMessage);
+                getBranches();//rename of remote branch occurs in three stages, so needs update list of branches on view
+            }
+        });
+    }
+
+    /** @return name of branch, e.g. 'origin/master' -> 'master' */
+    private String getSelectedBranchName() {
+        String selectedBranchName = selectedBranch.getDisplayName();
+        String[] tokens = selectedBranchName.split("/");
+        return tokens.length > 0 ? tokens[tokens.length - 1] : selectedBranchName;
     }
 
     /** {@inheritDoc} */
@@ -175,7 +208,10 @@ public class BranchPresenter implements BranchView.ActionDelegate {
             @Override
             protected void onSuccess(String result) {
                 getBranches();
-                refreshProject(openedEditors);
+                String projectPath = project.getRootProject().getPath();
+                //In this case we can have unconfigured state of the project,
+                //so we must repeat the logic which is performed when we open a project
+                eventBus.fireEvent(new OpenProjectEvent(projectPath));
             }
 
             @Override
@@ -204,20 +240,6 @@ public class BranchPresenter implements BranchView.ActionDelegate {
         String[] lines = message.split("\n");
         for (String line : lines) {
             gitConsole.printError(line);
-        }
-    }
-
-    /**
-     * Refresh project.
-     *
-     * @param openedEditors
-     *         editors that corresponds to open files
-     */
-    private void refreshProject(final List<EditorPartPresenter> openedEditors) {
-        eventBus.fireEvent(new RefreshProjectTreeEvent());
-        for (EditorPartPresenter partPresenter : openedEditors) {
-            final VirtualFile file = partPresenter.getEditorInput().getFile();
-            eventBus.fireEvent(new FileEvent(file, FileEvent.FileOperation.CLOSE));
         }
     }
 
@@ -273,9 +295,10 @@ public class BranchPresenter implements BranchView.ActionDelegate {
     @Override
     public void onBranchSelected(@Nonnull Branch branch) {
         selectedBranch = branch;
-        boolean enabled = !selectedBranch.isActive();
-        view.setEnableCheckoutButton(enabled);
-        view.setEnableDeleteButton(true);
+        boolean isActive = selectedBranch.isActive();
+
+        view.setEnableCheckoutButton(!isActive);
+        view.setEnableDeleteButton(!isActive);
         view.setEnableRenameButton(true);
     }
 

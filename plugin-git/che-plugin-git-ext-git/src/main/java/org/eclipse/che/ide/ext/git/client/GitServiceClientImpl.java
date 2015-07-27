@@ -37,7 +37,9 @@ import org.eclipse.che.ide.ext.git.shared.LogResponse;
 import org.eclipse.che.ide.ext.git.shared.MergeRequest;
 import org.eclipse.che.ide.ext.git.shared.MergeResult;
 import org.eclipse.che.ide.ext.git.shared.PullRequest;
+import org.eclipse.che.ide.ext.git.shared.PullResponse;
 import org.eclipse.che.ide.ext.git.shared.PushRequest;
+import org.eclipse.che.ide.ext.git.shared.PushResponse;
 import org.eclipse.che.ide.ext.git.shared.Remote;
 import org.eclipse.che.ide.ext.git.shared.RemoteAddRequest;
 import org.eclipse.che.ide.ext.git.shared.RemoteListRequest;
@@ -51,6 +53,7 @@ import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.AsyncRequestFactory;
 import org.eclipse.che.ide.rest.AsyncRequestLoader;
 import org.eclipse.che.ide.rest.HTTPHeader;
+import org.eclipse.che.ide.rest.RestContext;
 import org.eclipse.che.ide.websocket.Message;
 import org.eclipse.che.ide.websocket.MessageBuilder;
 import org.eclipse.che.ide.websocket.MessageBus;
@@ -117,7 +120,7 @@ public class GitServiceClientImpl implements GitServiceClient {
     private final AsyncRequestFactory     asyncRequestFactory;
 
     @Inject
-    protected GitServiceClientImpl(@Named("restContext") String restContext,
+    protected GitServiceClientImpl(@RestContext String restContext,
                                    @Named("workspaceId") String workspaceId,
                                    AsyncRequestLoader loader,
                                    MessageBus wsMessageBus,
@@ -252,7 +255,7 @@ public class GitServiceClientImpl implements GitServiceClient {
     /** {@inheritDoc} */
     @Override
     public void push(@Nonnull ProjectDescriptor project, @Nonnull List<String> refSpec, @Nonnull String remote,
-                     boolean force, @Nonnull AsyncRequestCallback<Void> callback) {
+                     boolean force, @Nonnull AsyncRequestCallback<PushResponse> callback) {
         PushRequest pushRequest =
                 dtoFactory.createDto(PushRequest.class).withRemote(remote).withRefSpec(refSpec).withForce(force);
         String url = baseHttpUrl + PUSH + "?projectPath=" + project.getPath();
@@ -325,11 +328,12 @@ public class GitServiceClientImpl implements GitServiceClient {
 
     /** {@inheritDoc} */
     @Override
-    public void branchCheckout(@Nonnull ProjectDescriptor project, @Nonnull String name, @Nonnull String startPoint,
+    public void branchCheckout(@Nonnull ProjectDescriptor project, @Nonnull String name, @Nullable String startPoint,
                                boolean createNew, @Nonnull AsyncRequestCallback<String> callback) {
-        BranchCheckoutRequest branchCheckoutRequest =
-                dtoFactory.createDto(BranchCheckoutRequest.class).withName(name).withStartPoint(startPoint)
-                          .withCreateNew(createNew);
+        BranchCheckoutRequest branchCheckoutRequest = dtoFactory.createDto(BranchCheckoutRequest.class)
+                                                                .withName(name)
+                                                                .withStartPoint(startPoint)
+                                                                .withCreateNew(createNew);
         String url = baseHttpUrl + BRANCH_CHECKOUT + "?projectPath=" + project.getPath();
         asyncRequestFactory.createPostRequest(url, branchCheckoutRequest).loader(loader).send(callback);
     }
@@ -407,7 +411,7 @@ public class GitServiceClientImpl implements GitServiceClient {
     /** {@inheritDoc} */
     @Override
     public void pull(@Nonnull ProjectDescriptor project, @Nonnull String refSpec, @Nonnull String remote,
-                     @Nonnull AsyncRequestCallback<Void> callback) {
+                     @Nonnull AsyncRequestCallback<PullResponse> callback) {
         PullRequest pullRequest = dtoFactory.createDto(PullRequest.class).withRemote(remote).withRefSpec(refSpec);
         String url = baseHttpUrl + PULL + "?projectPath=" + project.getPath();
         asyncRequestFactory.createPostRequest(url, pullRequest).send(callback);

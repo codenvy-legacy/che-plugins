@@ -48,6 +48,14 @@
             z-index: 0;
         }
 
+        .svgImage svg {
+            position: absolute;
+            padding-top: 10px;
+            padding-left: 6px;
+            width: 14px;
+            height: 14px;
+        }
+
         .imagePanel {
             position: absolute;
             width: 20px;
@@ -58,7 +66,7 @@
     <g:DockLayoutPanel unit="PX" addStyleNames="{style.runnerSize}">
         <g:west size="20">
             <g:SimpleLayoutPanel ui:field="imagePanel" addStyleNames="{style.imagePanel}">
-                <g:SimpleLayoutPanel ui:field="image" addStyleNames="{style.svgImage}"/>
+                <g:SimpleLayoutPanel ui:field="image" addStyleNames="{style.svgImage}" debugId="statusImage"/>
             </g:SimpleLayoutPanel>
         </g:west>
 

@@ -14,31 +14,57 @@ import java.util.List;
 
 import org.eclipse.che.dto.shared.DTO;
 
+import javax.validation.constraints.NotNull;
+
 @DTO
 public interface InfoResponse {
 
-    String getCommandLine();
+    /**************************************************************************
+     *
+     *  Subversion command
+     *
+     **************************************************************************/
 
-    InfoResponse withCommandLine(String commandLine);
+    String getCommand();
 
-    String getRepositoryUrl();
+    void setCommand(@NotNull final String command);
 
-    InfoResponse withRepositoryUrl(String repositoryUrl);
+    InfoResponse withCommand(@NotNull final String command);
 
-    String getRepositoryRoot();
+    /**************************************************************************
+     *
+     *  Execution output
+     *
+     **************************************************************************/
 
-    InfoResponse withRepositoryRoot(String repositoryRootUrl);
+    List<String> getOutput();
 
-    String getRevision();
+    void setOutput(@NotNull final List<String> output);
 
-    InfoResponse withRevision(String revision);
+    InfoResponse withOutput(@NotNull final List<String> output);
 
-    int getExitCode();
-
-    InfoResponse withExitCode(int exitCode);
+    /**************************************************************************
+     *
+     *  Error output
+     *
+     **************************************************************************/
 
     List<String> getErrorOutput();
 
-    InfoResponse withErrorOutput(List<String> stderr);
+    void setErrorOutput(List<String> errorOutput);
+
+    InfoResponse withErrorOutput(List<String> errorOutput);
+
+    /**************************************************************************
+     *
+     *  Item list
+     *
+     **************************************************************************/
+
+    List<SubversionItem> getItems();
+
+    void setItems(List<SubversionItem> items);
+
+    InfoResponse withItems(List<SubversionItem> items);
 
 }

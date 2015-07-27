@@ -12,6 +12,8 @@ package org.eclipse.che.ide.ext.java.client.format;
 
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.AsyncRequestFactory;
+import org.eclipse.che.ide.rest.RestContext;
+
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
@@ -28,7 +30,7 @@ public class FormatClientService {
     public final  String              formatServicePath;
 
     @Inject
-    public FormatClientService(@Named("restContext") String baseHttpUrl,
+    public FormatClientService(@RestContext String baseHttpUrl,
                                AsyncRequestFactory asyncRequestFactory) {
         this.asyncRequestFactory = asyncRequestFactory;
         this.formatServicePath = "/code-formatting";

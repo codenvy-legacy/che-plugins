@@ -18,7 +18,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Used to bind Builder {@link org.eclipse.che.ide.toolbar.Toolbar}.
+ * Used to bind Builder {@link org.eclipse.che.ide.ui.toolbar.ToolbarPresenter}.
  *
  * @author Artem Zatsarynnyy
  */

@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.runner.client.tabs.terminal.container;
 
-import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.inject.Inject;
@@ -36,6 +35,7 @@ import static org.eclipse.che.ide.ext.runner.client.selection.Selection.ENVIRONM
  * The class that manages a container of the terminals.
  *
  * @author Valeriy Svydenko
+ * @author Dmitry Shnurenko
  */
 @Singleton
 public class TerminalContainerPresenter implements TerminalContainer,
@@ -82,16 +82,11 @@ public class TerminalContainerPresenter implements TerminalContainer,
 
                                     final boolean isRunner = RUNNING.equals(runner.getStatus());
 
-                                    terminal.setVisible(isRunner);
-                                    terminal.setUnavailableLabelVisible(!isRunner);
-
                                     if (isRunner) {
-                                        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-                                            @Override
-                                            public void execute() {
-                                                terminal.setUrl(runner);
-                                            }
-                                        });
+                                        terminal.setVisible(true);
+                                        terminal.setUnavailableLabelVisible(true);
+
+                                        terminal.setUrl(runner);
                                     }
                                 }
                             }
@@ -129,7 +124,7 @@ public class TerminalContainerPresenter implements TerminalContainer,
             boolean isAnyAppRun = runner.isAlive();
 
             terminal.setVisible(isAnyAppRun);
-            terminal.setUnavailableLabelVisible(!isAnyAppRun);
+            terminal.setUnavailableLabelVisible(isAnyAppRun);
         }
     }
 
@@ -181,5 +176,11 @@ public class TerminalContainerPresenter implements TerminalContainer,
             terminal.setVisible(false);
             terminal.setUnavailableLabelVisible(true);
         }
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void setVisibleNoRunnerLabel(boolean isVisible) {
+        view.setVisibleNoRunnerLabel(isVisible);
     }
 }

@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.svn.client.update;
 
-import java.util.ArrayList;
-
 import org.eclipse.che.ide.api.parts.ProjectExplorerPart;
 import org.eclipse.che.ide.ext.svn.client.SubversionClientService;
 import org.eclipse.che.ide.ext.svn.client.SubversionExtensionLocalizationConstants;
@@ -25,7 +23,6 @@ import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.parts.WorkspaceAgent;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
-import org.eclipse.che.ide.rest.Unmarshallable;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.event.shared.EventBus;
@@ -41,9 +38,10 @@ import static org.eclipse.che.ide.api.notification.Notification.Type.INFO;
 @Singleton
 public class UpdatePresenter extends SubversionActionPresenter {
 
-    private final DtoUnmarshallerFactory                   dtoUnmarshallerFactory;
-    private final NotificationManager                      notificationManager;
-    private final SubversionClientService                  service;
+    private final DtoUnmarshallerFactory  dtoUnmarshallerFactory;
+    private final NotificationManager     notificationManager;
+    private final SubversionClientService service;
+    private       EventBus                eventBus;
     private final SubversionExtensionLocalizationConstants constants;
 
     private Notification notification;
@@ -63,6 +61,7 @@ public class UpdatePresenter extends SubversionActionPresenter {
                            final ProjectExplorerPart projectExplorerPart) {
         super(appContext, eventBus, console, workspaceAgent, projectExplorerPart);
 
+        this.eventBus = eventBus;
         this.constants = constants;
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
         this.notificationManager = notificationManager;
@@ -87,7 +86,8 @@ public class UpdatePresenter extends SubversionActionPresenter {
         // TODO: Add UI widget for "Accept" part of update
 
         service.update(projectPath, getSelectedPaths(), revision, depth, ignoreExternals, "postpone",
-                       new AsyncRequestCallback<CLIOutputWithRevisionResponse>(dtoUnmarshallerFactory.newUnmarshaller(CLIOutputWithRevisionResponse.class)) {
+                       new AsyncRequestCallback<CLIOutputWithRevisionResponse>(
+                               dtoUnmarshallerFactory.newUnmarshaller(CLIOutputWithRevisionResponse.class)) {
                            @Override
                            protected void onSuccess(final CLIOutputWithRevisionResponse response) {
                                printResponse(response.getCommand(), response.getOutput(), response.getErrOutput());
@@ -101,6 +101,8 @@ public class UpdatePresenter extends SubversionActionPresenter {
                                if (view != null) {
                                    view.close();
                                }
+
+                               eventBus.fireEvent(new SubversionProjectUpdatedEvent(response.getRevision()));
                            }
 
                            @Override

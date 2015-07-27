@@ -46,7 +46,8 @@ class Utils {
 
     /** Returns URL to get Tomcat binary distribution. */
     static URL getTomcatBinaryDistribution() throws IOException {
-        URL tomcatDistributionUrl = Thread.currentThread().getContextClassLoader().getResource("tomcat.zip");
+
+        URL tomcatDistributionUrl = Thread.currentThread().getContextClassLoader().getResource("sdk-tomcat.zip");
         if (tomcatDistributionUrl == null) {
             throw new IOException("Unable to get Tomcat binary distribution.");
         }
@@ -165,7 +166,7 @@ class Utils {
             }
             gwtModuleName = gwtModuleName.replace(java.io.File.separatorChar, '.');
             if (gwtModuleName.startsWith("."))
-                gwtModuleName = gwtModuleName.replaceFirst(".","");
+                gwtModuleName = gwtModuleName.substring(1);
             return new ExtensionDescriptor(gwtModuleName, MavenUtils.getGroupId(pom), pom.getArtifactId(), MavenUtils.getVersion(pom));
         } finally {
             zipFile.close();

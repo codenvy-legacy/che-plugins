@@ -51,8 +51,6 @@ public class TomcatServer implements ApplicationServer {
     private static final String SERVER_XML         =
             "<?xml version='1.0' encoding='utf-8'?>\n" +
             "<Server port=\"-1\">\n" +
-            "  <Listener className=\"org.apache.catalina.core.AprLifecycleListener\" SSLEngine=\"on\" />\n" +
-            "  <Listener className=\"org.apache.catalina.core.JasperListener\" />\n" +
             "  <Listener className=\"org.apache.catalina.core.JreMemoryLeakPreventionListener\" />\n" +
             "  <Listener className=\"org.apache.catalina.mbeans.GlobalResourcesLifecycleListener\" />\n" +
             "  <Listener className=\"org.apache.catalina.core.ThreadLocalLeakPreventionListener\" />\n" +
@@ -81,12 +79,12 @@ public class TomcatServer implements ApplicationServer {
 
     @Override
     public final String getName() {
-        return "tomcat7";
+        return "tomcat8";
     }
 
     @Override
     public String getDescription() {
-        return "Apache Tomcat 7.0 is an implementation of the Java Servlet and JavaServer Pages technologies.\n" +
+        return "Apache Tomcat 8.0 is an implementation of the Java Servlet and JavaServer Pages technologies.\n" +
                "Home page: http://tomcat.apache.org/";
     }
 
@@ -97,19 +95,18 @@ public class TomcatServer implements ApplicationServer {
                                      final SDKRunnerConfiguration runnerConfiguration,
                                      CodeServer.CodeServerProcess codeServerProcess,
                                      ApplicationProcess.Callback callback) throws RunnerException {
-        final Path tomcatPath;
+        Path tomcatPath;
         final Path webappsPath;
         final Path apiAppContextPath;
         try {
             tomcatPath = Files.createDirectory(workDir.toPath().resolve("tomcat"));
             ZipUtils.unzip(Utils.getTomcatBinaryDistribution().openStream(), tomcatPath.toFile());
             webappsPath = tomcatPath.resolve("webapps");
-            ZipUtils.unzip(new java.io.File(warToDeploy.getName()), webappsPath.resolve("ws").toFile());
-            generateServerXml(tomcatPath.toFile(), runnerConfiguration);
 
-            // add JAR with extension to 'api' application's 'lib' directory
-            apiAppContextPath = webappsPath.resolve("api");
-            ZipUtils.unzip(new java.io.File(webappsPath.resolve("api.war").toString()), apiAppContextPath.toFile());
+            apiAppContextPath = webappsPath.resolve("che");
+            ZipUtils.unzip(new java.io.File(warToDeploy.getName()), apiAppContextPath.toFile());
+            generateServerXml(tomcatPath.toFile(), runnerConfiguration);
+            //add JAR with extension to 'api' application's 'lib' directory
             IoUtil.copy(extensionJar, apiAppContextPath.resolve("WEB-INF/lib").resolve(extensionJar.getName()).toFile(), null);
         } catch (IOException e) {
             throw new RunnerException(e);

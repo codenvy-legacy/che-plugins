@@ -101,6 +101,8 @@
     margin-top: -3px;
     fill: #dbdbdb !important;
     stroke: #dbdbdb !important;
+    width: 20px !important;
+    height: 19px !important;
 }
 
 .fontSizeTwelve {
@@ -121,6 +123,13 @@
 .splitter {
     background: #474747;
     cursor: col-resize;
+}
+
+.propertiesSplitter {
+    background: #474747;
+    cursor: col-resize;
+    border-left: 1px solid #000000;
+    box-shadow: inset -2px 0 0 0 #000000;
 }
 
 .cursor {
@@ -147,24 +156,6 @@
     word-wrap: break-word;
 }
 
-.runnersAction {
-    width: 115px;
-    margin-top: 3px;
-    margin-left: 4px;
-    margin-right: 2px;
-    border-radius: 5px;
-    padding-left: 7px;
-    padding-top: 1px;
-    padding-bottom: 1px;
-    background-color: #373737;
-    box-shadow: none !important;
-}
-
-.runnerFontStyle {
-    font-family: "Droid Sans Mono", monospace;
-    font-size: 11px;
-}
-
 .mainButtonIcon {
     width: 12px;
     height: 12px;
@@ -186,7 +177,18 @@
     text-align: center;
 }
 
-.hideElement {
-    opacity: 0;
-    cursor: default !important;
+.displayNone {
+    display: none !important;
+}
+
+.displayBlock {
+    display: block !important;
+}
+
+.highWidth {
+    width: 100% !important;
+}
+
+.defaultWidth {
+    width: 800px;
 }

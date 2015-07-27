@@ -24,6 +24,7 @@ import org.eclipse.che.ide.ext.git.server.nativegit.commands.BranchCheckoutComma
 import org.eclipse.che.ide.ext.git.server.nativegit.commands.BranchCreateCommand;
 import org.eclipse.che.ide.ext.git.server.nativegit.commands.BranchDeleteCommand;
 import org.eclipse.che.ide.ext.git.server.nativegit.commands.BranchListCommand;
+import org.eclipse.che.ide.ext.git.server.nativegit.commands.BranchRenameCommand;
 import org.eclipse.che.ide.ext.git.server.nativegit.commands.CloneCommand;
 import org.eclipse.che.ide.ext.git.server.nativegit.commands.CommitCommand;
 import org.eclipse.che.ide.ext.git.server.nativegit.commands.EmptyGitCommand;
@@ -53,7 +54,9 @@ import org.eclipse.che.ide.ext.git.shared.MergeRequest;
 import org.eclipse.che.ide.ext.git.shared.MergeResult;
 import org.eclipse.che.ide.ext.git.shared.MoveRequest;
 import org.eclipse.che.ide.ext.git.shared.PullRequest;
+import org.eclipse.che.ide.ext.git.shared.PullResponse;
 import org.eclipse.che.ide.ext.git.shared.PushRequest;
+import org.eclipse.che.ide.ext.git.shared.PushResponse;
 import org.eclipse.che.ide.ext.git.shared.Remote;
 import org.eclipse.che.ide.ext.git.shared.RemoteAddRequest;
 import org.eclipse.che.ide.ext.git.shared.RemoteListRequest;
@@ -176,11 +179,13 @@ public class NativeGitConnection implements GitConnection {
                     command.setRemote(true);
                 }
             } catch (GitException ignored) {
-                command.setCreateNew(true);
-                command.setStartPoint(request.getStartPoint());
+                //ignored
             }
         }
-        command.setBranchName(request.getName()).execute();
+        command.setBranchName(request.getName())
+               .setStartPoint(request.getStartPoint())
+               .setCreateNew(request.isCreateNew())
+               .execute();
     }
 
     @Override
@@ -230,8 +235,39 @@ public class NativeGitConnection implements GitConnection {
     }
 
     @Override
-    public void branchRename(String oldName, String newName) throws GitException {
-        nativeGit.createBranchRenameCommand().setNames(oldName, newName).execute();
+    public void branchRename(String oldName, String newName) throws GitException, UnauthorizedException {
+        String branchName = getBranchRef(oldName);
+        String remoteName = null;
+        String remoteUri = null;
+        BranchRenameCommand branchRenameCommand = null;
+
+        if (branchName.startsWith("refs/remotes/")) {
+            remoteName = parseRemoteName(branchName);
+
+            try {
+                remoteUri = nativeGit.createRemoteListCommand()
+                                     .setRemoteName(remoteName)
+                                     .execute()
+                                     .get(0)
+                                     .getUrl();
+            } catch (GitException ignored) {
+                remoteUri = remoteName;
+            }
+            if (Util.isSSH(remoteUri)) {
+                branchRenameCommand = nativeGit.createBranchRenameCommand(keysManager.writeKeyFile(remoteUri).getAbsolutePath());
+            }
+        }
+
+        if (branchRenameCommand == null) {
+            branchRenameCommand = nativeGit.createBranchRenameCommand();
+        }
+
+        branchName = remoteName != null ? parseBranchName(branchName) : oldName;
+
+        branchRenameCommand.setNames(branchName, newName);
+        branchRenameCommand.setRemote(remoteName);
+
+        executeRemoteCommand(branchRenameCommand, remoteUri);
     }
 
     @Override
@@ -409,7 +445,7 @@ public class NativeGitConnection implements GitConnection {
     }
 
     @Override
-    public void pull(PullRequest request) throws GitException, UnauthorizedException {
+    public PullResponse pull(PullRequest request) throws GitException, UnauthorizedException {
         PullCommand pullCommand;
         String remoteUri;
         try {
@@ -433,13 +469,11 @@ public class NativeGitConnection implements GitConnection {
 
         executeRemoteCommand(pullCommand, remoteUri);
 
-        if (pullCommand.getText().toLowerCase().contains("already up-to-date")) {
-            throw new AlreadyUpToDateException("Already up-to-date");
-        }
+        return pullCommand.getPullResponse();
     }
 
     @Override
-    public void push(PushRequest request) throws GitException, UnauthorizedException {
+    public PushResponse push(PushRequest request) throws GitException, UnauthorizedException {
         PushCommand pushCommand;
         String remoteUri;
         try {
@@ -464,9 +498,7 @@ public class NativeGitConnection implements GitConnection {
 
         executeRemoteCommand(pushCommand, remoteUri);
 
-        if (pushCommand.getText().toLowerCase().contains("everything up-to-date")) {
-            throw new AlreadyUpToDateException("Everything up-to-date");
-        }
+        return pushCommand.getPushResponse();
     }
 
     @Override
@@ -617,9 +649,8 @@ public class NativeGitConnection implements GitConnection {
      *         when it is not possible to execute {@code command} with existing credentials
      */
     private void executeRemoteCommand(GitCommand<?> command, String url) throws GitException, UnauthorizedException {
-        //first time execute without of credentials
         try {
-            command.execute();
+            withCredentials(command, url).execute();
         } catch (GitException gitEx) {
             if (!isOperationNeedAuth(gitEx.getMessage())) {
                 throw gitEx;

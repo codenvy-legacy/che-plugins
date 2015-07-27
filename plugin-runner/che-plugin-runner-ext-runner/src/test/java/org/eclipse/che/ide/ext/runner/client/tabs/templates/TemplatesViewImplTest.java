@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.runner.client.tabs.templates;
 
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.MouseOutEvent;
 import com.google.gwt.event.dom.client.MouseOutHandler;
 import com.google.gwt.event.dom.client.MouseOverEvent;
@@ -43,12 +45,14 @@ import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common
 import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope.SYSTEM;
 import static org.mockito.Answers.RETURNS_DEEP_STUBS;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
  * @author Dmitry Shnurenko
+ * @author Valeriy Svydenko
  */
 @RunWith(GwtMockitoTestRunner.class)
 public class TemplatesViewImplTest {
@@ -89,12 +93,16 @@ public class TemplatesViewImplTest {
     @Mock
     private MouseOutEvent     outEvent;
     @Mock
+    private ClickEvent        clickEvent;
+    @Mock
     private ActionDelegate    delegate;
 
     @Captor
     private ArgumentCaptor<MouseOverHandler> mouseOverCaptor;
     @Captor
     private ArgumentCaptor<MouseOutHandler>  mouseOutCaptor;
+    @Captor
+    private ArgumentCaptor<ClickHandler>     clickHandlerArgumentCaptor;
 
     @InjectMocks
     private TemplatesViewImpl view;
@@ -122,6 +130,15 @@ public class TemplatesViewImplTest {
         verify(resources.runnerCss()).fullSize();
         verify(resources.runnerCss()).defaultRunnerStub();
         verify(resources.runnerCss()).fontSizeTen();
+    }
+
+    @Test
+    public void onClickHandlerShouldBeFired() throws Exception {
+        verify(view.createNewButton).addDomHandler(clickHandlerArgumentCaptor.capture(), eq(ClickEvent.getType()));
+
+        clickHandlerArgumentCaptor.getValue().onClick(clickEvent);
+
+        verify(delegate).createNewEnvironment();
     }
 
     @Test
@@ -197,6 +214,20 @@ public class TemplatesViewImplTest {
         view.setDefaultProjectWidget(environmentWidget);
 
         verify(view.defaultRunner).setWidget(environmentWidget);
+    }
+
+    @Test
+    public void defaultRunnerShouldBeSetAndAllEnvironmentWidgetsShouldBeUpdated() {
+        view.addEnvironment(environmentMap);
+        reset(widget);
+
+        view.setDefaultProjectWidget(environmentWidget);
+
+        verify(view.defaultRunner).setWidget(environmentWidget);
+        verify(widget).update(projectEnvironment1);
+        verify(widget).update(projectEnvironment2);
+        verify(widget).update(systemEnvironment1);
+        verify(widget).update(systemEnvironment2);
     }
 
     @Test

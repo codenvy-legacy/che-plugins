@@ -19,8 +19,10 @@ import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM;
 import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope;
 import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Shutdown;
 
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Map;
 
 /**
  * The visual part of Properties panel that has an ability to show configuration of a runner.
@@ -55,6 +57,22 @@ public interface PropertiesPanelView extends View<PropertiesPanelView.ActionDele
      */
     void selectMemory(@Nonnull RAM size);
 
+    /**
+     * Select a given value into RAM field.
+     *
+     * @param size
+     *         value that needs to be chosen
+     */
+    void selectMemory(@Nonnegative int size);
+
+    /**
+     * Add new value into the RAM list.
+     *
+     * @param value
+     *         value that needs to be add
+     */
+    void addRamValue(@Nonnegative int value);
+
     /** @return chosen value of Scope field */
     @Nonnull
     Scope getScope();
@@ -72,12 +90,28 @@ public interface PropertiesPanelView extends View<PropertiesPanelView.ActionDele
     String getType();
 
     /**
+     * Changes content of Config label.
+     *
+     * @param config
+     *         content that needs to be set
+     */
+    void setConfig(@Nonnull String config);
+
+    /**
      * Changes content of Type field.
      *
      * @param type
      *         content that needs to be set
      */
     void setType(@Nonnull String type);
+
+    /**
+     * Display port mapping.
+     *
+     * @param ports
+     *         private ports are used as keys and public ports as values in received {@code Map}.
+     */
+    void setPorts(Map<String, String> ports);
 
     /** @return chosen value of Boot field */
     @Nonnull
@@ -192,6 +226,14 @@ public interface PropertiesPanelView extends View<PropertiesPanelView.ActionDele
     void setVisibleCancelButton(boolean visible);
 
     /**
+     * Sets visibility of the config clink.
+     *
+     * @param visible
+     *         config link visibility
+     */
+    void setVisibleConfigLink(boolean visible);
+
+    /**
      * Show a given editor in the special place on the container.
      *
      * @param editor
@@ -213,10 +255,21 @@ public interface PropertiesPanelView extends View<PropertiesPanelView.ActionDele
     /** Hides switcher for current panel. */
     void hideSwitcher();
 
+    /**
+     * Adds special elements on view when user input incorrect name of environment.
+     *
+     * @param isCorrect
+     *         <code>true</code> input is incorrect,<code>false</code> input is correct
+     */
+    void incorrectName(boolean isCorrect);
+
     interface ActionDelegate {
 
         /** Performs some actions in response to user's changing some configuration. */
         void onConfigurationChanged();
+
+        /** Performs some actions in response to user's clicking configuration link. */
+        void onConfigLinkClicked();
 
         /** Performs some actions in response to user's clicking on the 'Create' button. */
         void onCopyButtonClicked();

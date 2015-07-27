@@ -14,6 +14,7 @@
              xmlns:g='urn:import:com.google.gwt.user.client.ui'>
 
     <ui:with field="resources" type="org.eclipse.che.ide.ext.runner.client.RunnerResources"/>
+    <ui:with field="locale" type="org.eclipse.che.ide.ext.runner.client.RunnerLocalizationConstant"/>
 
     <ui:style>
         .background {
@@ -22,6 +23,10 @@
 
         .border {
             border: 1px solid #242424;
+        }
+
+        .mainBackground {
+            background: #373737;
         }
     </ui:style>
 
@@ -35,7 +40,10 @@
         </g:west>
 
         <g:center>
-            <g:FlowPanel ui:field="mainPanel" addStyleNames="{resources.runnerCss.fullSize} {style.border}"/>
+            <g:FlowPanel ui:field="mainPanel" addStyleNames="{resources.runnerCss.fullSize} {style.border} {style.mainBackground}">
+                <g:Label ui:field="noRunnerLabel" text="{locale.noActiveRunner}"
+                         addStyleNames="{resources.runnerCss.fullSize} {resources.runnerCss.unAvailableMessage}"/>
+            </g:FlowPanel>
         </g:center>
     </g:DockLayoutPanel>
 </ui:UiBinder>

@@ -10,14 +10,6 @@
  *******************************************************************************/
 package org.eclipse.che.jdt;
 
-import org.eclipse.che.api.core.ServerException;
-import org.eclipse.che.api.core.notification.EventService;
-import org.eclipse.che.api.core.notification.EventSubscriber;
-import org.eclipse.che.api.vfs.server.observation.VirtualFileEvent;
-import org.eclipse.che.commons.lang.IoUtil;
-import org.eclipse.che.jdt.core.resources.ResourceChangedEvent;
-import org.eclipse.che.jdt.internal.core.JavaProject;
-import org.eclipse.che.vfs.impl.fs.LocalFSMountStrategy;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.RemovalListener;
@@ -26,6 +18,15 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 
+import org.eclipse.che.api.core.ServerException;
+import org.eclipse.che.api.core.notification.EventService;
+import org.eclipse.che.api.core.notification.EventSubscriber;
+import org.eclipse.che.api.vfs.server.observation.VirtualFileEvent;
+import org.eclipse.che.commons.lang.IoUtil;
+import org.eclipse.che.commons.schedule.ScheduleRate;
+import org.eclipse.che.jdt.core.resources.ResourceChangedEvent;
+import org.eclipse.che.jdt.internal.core.JavaProject;
+import org.eclipse.che.vfs.impl.fs.LocalFSMountStrategy;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.codeassist.impl.AssistOptions;
@@ -84,7 +85,8 @@ public class JavaProjectService {
                     public void onRemoval(RemovalNotification<String, JavaProject> notification) {
                         JavaProject value = notification.getValue();
                         if (value != null) {
-                            removeProject(value.getWsId(), value.getProjectPath());
+                            closeProject(value);
+                            deleteDependencyDirectory(value.getWsId(), value.getProjectPath());
                         }
                     }
                 }).build();
@@ -126,13 +128,17 @@ public class JavaProjectService {
         }
         if (javaProject != null) {
             cache.invalidate(wsId + projectPath);
-            try {
-                javaProject.close();
-            } catch (JavaModelException e) {
-                LOG.error("Error when trying close project.", e);
-            }
+            closeProject(javaProject);
         }
         deleteDependencyDirectory(wsId, projectPath);
+    }
+
+    private void closeProject(JavaProject javaProject) {
+        try {
+            javaProject.close();
+        } catch (JavaModelException e) {
+            LOG.error("Error when trying close project.", e);
+        }
     }
 
     public Map<String, String> getOptions() {
@@ -183,7 +189,7 @@ public class JavaProjectService {
                                             new ResourceChangedEvent(fsMountStrategy.getMountPath(eventWorkspace), event));
                                     javaProject.creteNewNameEnvironment();
                                 } catch (ServerException e) {
-                                    LOG.error("Can't update java model", e);
+                                    LOG.error("Can't find workspace mount path", e);
                                 }
                             }
                             break;
@@ -195,5 +201,13 @@ public class JavaProjectService {
                 LOG.error("Can't update java model", t);
             }
         }
+    }
+
+    /**
+     * Periodically cleanup cache, to avoid memory leak.
+     */
+    @ScheduleRate(initialDelay = 1, period = 1, unit = TimeUnit.HOURS)
+    void cacheClenup() {
+        cache.cleanUp();
     }
 }

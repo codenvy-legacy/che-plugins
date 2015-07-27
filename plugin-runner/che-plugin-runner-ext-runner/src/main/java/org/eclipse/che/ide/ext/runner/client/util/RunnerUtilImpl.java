@@ -30,7 +30,7 @@ import javax.annotation.Nullable;
 
 import static org.eclipse.che.ide.api.notification.Notification.Status.FINISHED;
 import static org.eclipse.che.ide.api.notification.Notification.Type.ERROR;
-import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MB_128;
+import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MB_100;
 
 /**
  * Contains implementations of methods which are general for runner plugin classes.
@@ -70,8 +70,8 @@ public class RunnerUtilImpl implements RunnerUtil {
             return false;
         }
 
-        if (usedMemory % MB_128.getValue() != 0) {
-            showWarning(locale.ramSizeMustBeMultipleOf(MB_128.getValue()));
+        if (usedMemory % MB_100.getValue() != 0) {
+            showWarning(locale.ramSizeMustBeMultipleOf(MB_100.getValue()));
             return false;
         }
 
