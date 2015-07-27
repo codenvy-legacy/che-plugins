@@ -15,7 +15,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * //
+ * Container for command line arguments.
  *
  * @author Artem Zatsarynnyy
  */

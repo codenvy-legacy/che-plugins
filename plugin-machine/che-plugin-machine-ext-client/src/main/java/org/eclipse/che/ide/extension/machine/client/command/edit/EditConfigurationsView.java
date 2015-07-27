@@ -59,6 +59,9 @@ public interface EditConfigurationsView extends View<EditConfigurationsView.Acti
     /** Sets enabled state of the 'Remove' button. */
     void setRemoveButtonState(boolean enabled);
 
+    /** Sets enabled state of the 'Execute' button. */
+    void setExecuteButtonState(boolean enabled);
+
     /** Sets enabled state of the 'Cancel' button. */
     void setCancelButtonState(boolean enabled);
 
@@ -93,6 +96,9 @@ public interface EditConfigurationsView extends View<EditConfigurationsView.Acti
 
         /** Called when 'Remove' button is clicked. */
         void onRemoveClicked();
+
+        /** Called when 'Execute' button is clicked. */
+        void onExecuteClicked();
 
         /**
          * Called when some command type is selected.

@@ -41,7 +41,7 @@ public class CommandTypeRegistry {
         for (CommandType type : commandTypes) {
             final String id = type.getId();
             if (this.commandTypes.containsKey(id)) {
-                Log.warn(CommandTypeRegistry.class, "Command type with ID " + id + " already registered.");
+                Log.warn(CommandTypeRegistry.class, "Command type with ID " + id + " is already registered.");
             } else {
                 this.commandTypes.put(id, type);
             }

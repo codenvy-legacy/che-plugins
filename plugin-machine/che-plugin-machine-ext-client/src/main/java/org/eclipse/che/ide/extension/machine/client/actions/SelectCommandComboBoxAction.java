@@ -55,9 +55,9 @@ import static org.eclipse.che.ide.workspace.perspectives.project.ProjectPerspect
  * @author Artem Zatsarynnyy
  */
 @Singleton
-public class SelectCommandAction extends AbstractPerspectiveAction implements CustomComponentAction,
-                                                                              ProjectActionHandler,
-                                                                              EditConfigurationsPresenter.ConfigurationsChangedListener {
+public class SelectCommandComboBoxAction extends AbstractPerspectiveAction implements CustomComponentAction,
+                                                                                      ProjectActionHandler,
+                                                                                      EditConfigurationsPresenter.ConfigurationChangedListener {
 
     public static final  String                           GROUP_COMMANDS     = "CommandsGroup";
     private static final Comparator<CommandConfiguration> commandsComparator = new CommandsComparator();
@@ -72,18 +72,17 @@ public class SelectCommandAction extends AbstractPerspectiveAction implements Cu
     private DefaultActionGroup         commandActions;
 
     @Inject
-    public SelectCommandAction(MachineLocalizationConstant locale,
-                               ActionManager actionManager,
-                               EventBus eventBus,
-                               DropDownListFactory dropDownListFactory,
-                               CommandServiceClient commandServiceClient,
-                               CommandTypeRegistry commandTypeRegistry,
-                               EditConfigurationsPresenter editConfigurationsPresenter) {
+    public SelectCommandComboBoxAction(MachineLocalizationConstant locale,
+                                       ActionManager actionManager,
+                                       EventBus eventBus,
+                                       DropDownListFactory dropDownListFactory,
+                                       CommandServiceClient commandServiceClient,
+                                       CommandTypeRegistry commandTypeRegistry,
+                                       EditConfigurationsPresenter editConfigurationsPresenter) {
         super(Collections.singletonList(PROJECT_PERSPECTIVE_ID),
               locale.selectCommandControlTitle(),
               locale.selectCommandControlDescription(),
-              null,
-              null);
+              null, null);
         this.actionManager = actionManager;
         this.commandServiceClient = commandServiceClient;
         this.commandTypeRegistry = commandTypeRegistry;
@@ -131,12 +130,22 @@ public class SelectCommandAction extends AbstractPerspectiveAction implements Cu
         return null;
     }
 
-    @Override
-    public void onProjectOpened(ProjectActionEvent event) {
-        loadCommands();
+    public void setSelectedCommand(final CommandConfiguration command) {
+        dropDownHeaderWidget.selectElement(command.getType().getIcon(), command.getName());
     }
 
-    private void loadCommands() {
+    @Override
+    public void onProjectOpened(ProjectActionEvent event) {
+        loadCommands(null);
+    }
+
+    /**
+     * Load all saved commands.
+     *
+     * @param commandToSelect
+     *         command that should be selected after loading all commands
+     */
+    private void loadCommands(@Nullable final CommandConfiguration commandToSelect) {
         commandServiceClient.getCommands().then(new Function<List<CommandDescriptor>, List<CommandConfiguration>>() {
             @Override
             public List<CommandConfiguration> apply(List<CommandDescriptor> arg) throws FunctionException {
@@ -155,7 +164,7 @@ public class SelectCommandAction extends AbstractPerspectiveAction implements Cu
         }).then(new Operation<List<CommandConfiguration>>() {
             @Override
             public void apply(List<CommandConfiguration> commandConfigurations) throws OperationException {
-                setCommandConfigurations(commandConfigurations);
+                setCommandConfigurations(commandConfigurations, commandToSelect);
             }
         });
     }
@@ -166,7 +175,7 @@ public class SelectCommandAction extends AbstractPerspectiveAction implements Cu
 
     @Override
     public void onProjectClosed(ProjectActionEvent event) {
-        setCommandConfigurations(Collections.<CommandConfiguration>emptyList());
+        setCommandConfigurations(Collections.<CommandConfiguration>emptyList(), null);
     }
 
     /**
@@ -174,8 +183,11 @@ public class SelectCommandAction extends AbstractPerspectiveAction implements Cu
      *
      * @param commandConfigurations
      *         collection of command configurations to set
+     * @param commandToSelect
+     *         command that should be selected or {@code null} if none
      */
-    private void setCommandConfigurations(@Nonnull List<CommandConfiguration> commandConfigurations) {
+    private void setCommandConfigurations(@Nonnull List<CommandConfiguration> commandConfigurations,
+                                          @Nullable CommandConfiguration commandToSelect) {
         final DefaultActionGroup commandsList = (DefaultActionGroup)actionManager.getAction(GROUP_COMMANDS_LIST);
 
         commands.clear();
@@ -189,6 +201,7 @@ public class SelectCommandAction extends AbstractPerspectiveAction implements Cu
             if (prevCommand != null && !configuration.getType().getId().equals(prevCommand.getType().getId())) {
                 commandActions.addSeparator();
             }
+
             commandActions.add(dropDownListFactory.createElement(configuration.getName(),
                                                                  configuration.getType().getIcon(),
                                                                  dropDownHeaderWidget));
@@ -198,12 +211,16 @@ public class SelectCommandAction extends AbstractPerspectiveAction implements Cu
         commandsList.addAll(commandActions);
         commands.addAll(commandConfigurations);
 
-        selectLastUsedCommand();
+        if (commandToSelect != null) {
+            setSelectedCommand(commandToSelect);
+        } else {
+            selectLastUsedCommand();
+        }
     }
 
-    private void clearCommandActions(@Nonnull DefaultActionGroup runnersList) {
+    private void clearCommandActions(@Nonnull DefaultActionGroup commandsList) {
         for (Action action : commandActions.getChildActionsOrStubs()) {
-            runnersList.remove(action);
+            commandsList.remove(action);
         }
     }
 
@@ -225,8 +242,18 @@ public class SelectCommandAction extends AbstractPerspectiveAction implements Cu
     }
 
     @Override
-    public void onConfigurationsChanged() {
-        loadCommands();
+    public void onConfigurationAdded(CommandConfiguration command) {
+        loadCommands(command);
+    }
+
+    @Override
+    public void onConfigurationRemoved(CommandConfiguration command) {
+        loadCommands(null);
+    }
+
+    @Override
+    public void onConfigurationsUpdated(CommandConfiguration command) {
+        loadCommands(command);
     }
 
     private static class CommandsComparator implements Comparator<CommandConfiguration> {

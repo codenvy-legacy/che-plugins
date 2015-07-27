@@ -69,6 +69,8 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
     @UiField
     Button                      removeButton;
     @UiField
+    Button                      executeButton;
+    @UiField
     TextBox                     configurationName;
     @UiField
     SimplePanel                 contentPanel;
@@ -125,9 +127,20 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
             }
         });
 
+        executeButton.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent clickEvent) {
+                delegate.onExecuteClicked();
+            }
+        });
+
         tree.setTreeEventHandler(new Tree.Listener<CommandTreeNode>() {
             @Override
             public void onNodeAction(TreeNodeElement<CommandTreeNode> node) {
+                final Object selectedNode = node.getData().getData();
+                if (selectedNode instanceof CommandConfiguration) {
+                    delegate.onExecuteClicked();
+                }
             }
 
             @Override
@@ -315,6 +328,11 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
     @Override
     public void setRemoveButtonState(boolean enabled) {
         removeButton.setEnabled(enabled);
+    }
+
+    @Override
+    public void setExecuteButtonState(boolean enabled) {
+        executeButton.setEnabled(enabled);
     }
 
     @Override

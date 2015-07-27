@@ -175,6 +175,15 @@ public interface MachineLocalizationConstant extends Messages {
     @Key("view.editConfigurations.remove.confirmation")
     String editConfigurationsRemoveConfirmation(String commandName);
 
+    @Key("view.editConfigurations.execute.text")
+    String editConfigurationsViewExecuteText();
+
+    @Key("view.editConfigurations.execute.title")
+    String editConfigurationsViewExecuteTitle();
+
+    @Key("view.editConfigurations.execute.message")
+    String editConfigurationsExecuteMessage();
+
     @Key("view.editConfigurations.saveChanges.title")
     String editConfigurationsSaveChangesTitle();
 
