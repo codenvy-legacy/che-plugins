@@ -10,12 +10,16 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.datasource.client.editdatasource;
 
-import java.util.List;
-import java.util.Set;
+import com.google.gwt.core.shared.GWT;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.view.client.ListDataProvider;
+import com.google.gwt.view.client.MultiSelectionModel;
+import com.google.gwt.view.client.SelectionChangeEvent;
+import com.google.inject.Inject;
+import com.google.inject.name.Named;
+import com.google.web.bindery.event.shared.EventBus;
+import com.google.web.bindery.event.shared.HandlerRegistration;
 
-import javax.validation.constraints.NotNull;
-
-import org.eclipse.che.api.user.shared.dto.ProfileDescriptor;
 import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.api.notification.Notification.Status;
 import org.eclipse.che.ide.api.notification.Notification.Type;
@@ -34,59 +38,55 @@ import org.eclipse.che.ide.ext.datasource.client.store.DatabaseInfoStore;
 import org.eclipse.che.ide.ext.datasource.client.store.DatasourceManager;
 import org.eclipse.che.ide.ext.datasource.shared.DatabaseConfigurationDTO;
 import org.eclipse.che.ide.util.loging.Log;
-import com.google.gwt.core.shared.GWT;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.view.client.ListDataProvider;
-import com.google.gwt.view.client.MultiSelectionModel;
-import com.google.gwt.view.client.SelectionChangeEvent;
-import com.google.inject.Inject;
-import com.google.inject.name.Named;
-import com.google.web.bindery.event.shared.EventBus;
-import com.google.web.bindery.event.shared.HandlerRegistration;
+
+import javax.validation.constraints.NotNull;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * The presenter for the datasource edit/delete datasources dialog.
- * 
+ *
  * @author "Mickaël Leduque"
  */
 public class EditDatasourcesPresenter implements EditDatasourcesView.ActionDelegate, DatasourceListChangeHandler,
-                                     SelectionChangeEvent.Handler, InitializableWizardDialog<DatabaseConfigurationDTO> {
+                                                 SelectionChangeEvent.Handler, InitializableWizardDialog<DatabaseConfigurationDTO> {
 
     /** The view component. */
-    private final EditDatasourcesView                           view;
+    private final EditDatasourcesView view;
 
     /** The component that stores datasources. */
-    private final DatasourceManager                             datasourceManager;
+    private final DatasourceManager datasourceManager;
 
     /** The datasource list model component. */
-    private final ListDataProvider<DatabaseConfigurationDTO>    dataProvider        = new ListDataProvider<>();
+    private final ListDataProvider<DatabaseConfigurationDTO> dataProvider = new ListDataProvider<>();
     /** The selection model for the datasource list widget. */
     private final MultiSelectionModel<DatabaseConfigurationDTO> selectionModel;
 
     /** The i18n messages instance. */
-    private final EditDatasourceMessages                        messages;
+    private final EditDatasourceMessages messages;
 
-    private final NotificationManager                           notificationManager;
+    private final NotificationManager notificationManager;
 
     /** the event bus, used to send event "datasources list modified". */
-    private final EventBus                                      eventBus;
+    private final EventBus eventBus;
 
     /** A factory that will provide modification wizards. */
-    private final EditDatasourceLauncher                        editDatasourceLauncher;
+    private final EditDatasourceLauncher editDatasourceLauncher;
 
     /** A reference to remove handler from eventbus. */
-    private HandlerRegistration[]                               handlerRegistration = new HandlerRegistration[2];
+    private HandlerRegistration[] handlerRegistration = new HandlerRegistration[2];
 
     /** The action object to create new datasources. */
-    private final NewDatasourceWizardAction                     newDatasourceAction;
+    private final NewDatasourceWizardAction newDatasourceAction;
 
     /** Factory for confirmation and message windows. */
-    private final DialogFactory                                 dialogFactory;
+    private final DialogFactory dialogFactory;
 
     /** Metadata cache. */
-    private final DatabaseInfoStore                             databaseInfoStore;
+    private final DatabaseInfoStore databaseInfoStore;
 
-    private DatabaseConfigurationDTO                            configuration;
+    private DatabaseConfigurationDTO configuration;
 
 
     @Inject
@@ -189,10 +189,10 @@ public class EditDatasourcesPresenter implements EditDatasourcesView.ActionDeleg
         final Notification persistNotification = new Notification("Saving datasources definitions", Status.PROGRESS);
         this.notificationManager.showNotification(persistNotification);
         try {
-            this.datasourceManager.persist(new AsyncCallback<ProfileDescriptor>() {
+            this.datasourceManager.persist(new AsyncCallback<Map<String, String>>() {
 
                 @Override
-                public void onSuccess(final ProfileDescriptor result) {
+                public void onSuccess(final Map<String, String> result) {
                     Log.debug(EditDatasourcesPresenter.class, "Datasource definitions saved.");
                     persistNotification.setMessage("Datasource definitions saved");
                     persistNotification.setStatus(Notification.Status.FINISHED);
@@ -253,7 +253,7 @@ public class EditDatasourcesPresenter implements EditDatasourcesView.ActionDeleg
     /**
      * Repair the selection after the datasource list has been modified. The element with the same id as those which where selected before
      * the datasource model was changed are selected.
-     * 
+     *
      * @param oldSelection the selection before model change
      */
     private void fixSelection(final Set<DatabaseConfigurationDTO> oldSelection) {

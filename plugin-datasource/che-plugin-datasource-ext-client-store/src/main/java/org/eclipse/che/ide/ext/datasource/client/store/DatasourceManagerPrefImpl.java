@@ -10,6 +10,16 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.datasource.client.store;
 
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+
+import org.eclipse.che.ide.api.preferences.PreferencesManager;
+import org.eclipse.che.ide.dto.DtoFactory;
+import org.eclipse.che.ide.ext.datasource.shared.DatabaseConfigurationDTO;
+import org.eclipse.che.ide.ext.datasource.shared.DatasourceConfigPreferences;
+import org.eclipse.che.ide.util.loging.Log;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -18,25 +28,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.che.api.user.shared.dto.ProfileDescriptor;
-import org.eclipse.che.ide.api.preferences.PreferencesManager;
-import org.eclipse.che.ide.dto.DtoFactory;
-import org.eclipse.che.ide.ext.datasource.shared.DatabaseConfigurationDTO;
-import org.eclipse.che.ide.ext.datasource.shared.DatasourceConfigPreferences;
-import org.eclipse.che.ide.util.loging.Log;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
-
 @Singleton
 public class DatasourceManagerPrefImpl implements DatasourceManager {
 
-    private static final String                     PREFERENCE_KEY = "datasources";
+    private static final String PREFERENCE_KEY = "datasources";
 
-    private PreferencesManager                      preferencesManager;
-
-    private DtoFactory                              dtoFactory;
-
+    private   PreferencesManager                    preferencesManager;
+    private   DtoFactory                            dtoFactory;
     protected Map<String, DatabaseConfigurationDTO> inMemoryDatabaseConfigurations;
 
     @Inject
@@ -44,14 +42,14 @@ public class DatasourceManagerPrefImpl implements DatasourceManager {
                                      final DtoFactory dtoFactory) {
         preferencesManager = prefManager;
         this.dtoFactory = dtoFactory;
-        inMemoryDatabaseConfigurations = new HashMap<String, DatabaseConfigurationDTO>();
+        inMemoryDatabaseConfigurations = new HashMap<>();
     }
 
     @Override
     public Iterator<DatabaseConfigurationDTO> getDatasources() {
         List<DatabaseConfigurationDTO> newList =
-                                                 new ArrayList<DatabaseConfigurationDTO>(getDatasourceConfigPreferences().getDatasources()
-                                                                                                                         .values());
+                new ArrayList<DatabaseConfigurationDTO>(getDatasourceConfigPreferences().getDatasources()
+                                                                                        .values());
         newList.addAll(inMemoryDatabaseConfigurations.values());
         return newList.iterator();
     }
@@ -87,14 +85,14 @@ public class DatasourceManagerPrefImpl implements DatasourceManager {
     }
 
     @Override
-    public void persist(final AsyncCallback<ProfileDescriptor> callback) {
+    public void persist(final AsyncCallback<Map<String, String>> callback) {
         preferencesManager.flushPreferences(callback);
     }
 
     @Override
     public Set<String> getNames() {
         DatasourceConfigPreferences datasourcesPreferences = getDatasourceConfigPreferences();
-        HashSet<String> datasourceNames = new HashSet<String>(getDatasourceConfigPreferences().getDatasources().keySet());
+        HashSet<String> datasourceNames = new HashSet<>(getDatasourceConfigPreferences().getDatasources().keySet());
         datasourceNames.addAll(inMemoryDatabaseConfigurations.keySet());
         return datasourceNames;
     }

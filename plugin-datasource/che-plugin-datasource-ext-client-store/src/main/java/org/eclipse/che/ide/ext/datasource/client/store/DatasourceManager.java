@@ -10,12 +10,13 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.datasource.client.store;
 
-import java.util.Iterator;
-import java.util.Set;
-
-import org.eclipse.che.api.user.shared.dto.ProfileDescriptor;
-import org.eclipse.che.ide.ext.datasource.shared.DatabaseConfigurationDTO;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+
+import org.eclipse.che.ide.ext.datasource.shared.DatabaseConfigurationDTO;
+
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 public interface DatasourceManager extends Iterable<DatabaseConfigurationDTO> {
 
@@ -23,11 +24,11 @@ public interface DatasourceManager extends Iterable<DatabaseConfigurationDTO> {
 
     void add(final DatabaseConfigurationDTO configuration);
 
-    public void remove(final DatabaseConfigurationDTO configuration);
+    void remove(final DatabaseConfigurationDTO configuration);
 
-    public DatabaseConfigurationDTO getByName(final String name);
+    DatabaseConfigurationDTO getByName(final String name);
 
-    public Set<String> getNames();
+    Set<String> getNames();
 
-    public void persist(AsyncCallback<ProfileDescriptor> callback);
+    void persist(AsyncCallback<Map<String, String>> callback);
 }
