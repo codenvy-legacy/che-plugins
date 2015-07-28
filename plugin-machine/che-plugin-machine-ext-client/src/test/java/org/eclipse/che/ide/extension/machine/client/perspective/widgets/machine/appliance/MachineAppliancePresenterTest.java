@@ -230,12 +230,11 @@ public class MachineAppliancePresenterTest {
         reset(tabContainer);
         when(machine.getActiveTabName()).thenReturn(SOME_TEXT);
         when(tabContainer.getView()).thenReturn(tabContainerView);
-        when(tabContainerView.asWidget()).thenReturn(widget);
 
         presenter.showAppliance(machine);
 
         verify(tabContainer).getView();
-        verify(view, times(2)).showContainer(widget);
+        verify(view).showContainer(tabContainerView);
 
         verify(tabContainer).showTab(SOME_TEXT);
         verify(terminalContainer).addOrShowTerminal(machine);

@@ -15,6 +15,7 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 
 import javax.annotation.Nonnull;
@@ -32,6 +33,8 @@ final class TerminalViewImpl extends Composite implements TerminalView {
 
     @UiField
     FlowPanel terminalPanel;
+    @UiField
+    Label     unavailableLabel;
 
     public TerminalViewImpl() {
         initWidget(UI_BINDER.createAndBindUi(this));
@@ -40,6 +43,19 @@ final class TerminalViewImpl extends Composite implements TerminalView {
     /** {@inheritDoc} */
     @Override
     public void openTerminal(@Nonnull final TerminalJso terminal) {
+        unavailableLabel.setVisible(false);
+
+        terminalPanel.setVisible(true);
+
         terminal.open(terminalPanel.getElement());
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void showErrorMessage(@Nonnull String message) {
+        unavailableLabel.setText(message);
+        unavailableLabel.setVisible(true);
+
+        terminalPanel.setVisible(false);
     }
 }

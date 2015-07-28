@@ -13,6 +13,7 @@ package org.eclipse.che.ide.extension.machine.client.perspective.terminal;
 import com.google.gwt.core.client.Callback;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.ScriptInjector;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.gwt.user.client.ui.IsWidget;
@@ -45,16 +46,19 @@ import javax.annotation.Nonnull;
 public class TerminalPresenter implements TabPresenter {
 
     //event which is performed when user input data into terminal
-    private static final String DATA_EVENT_NAME = "data";
+    private static final String DATA_EVENT_NAME          = "data";
+    private static final int    TIME_BETWEEN_CONNECTIONS = 2_000;
 
     private final TerminalView                view;
     private final NotificationManager         notificationManager;
     private final MachineLocalizationConstant locale;
     private final Machine                     machine;
+    private final Timer                       retryConnectionTimer;
 
     private Promise<Boolean> promise;
     private WebSocket        socket;
-    private boolean          isFirstLoading;
+    private boolean          isTerminalConnected;
+    private int              countRetry;
 
     @Inject
     public TerminalPresenter(TerminalView view,
@@ -66,7 +70,7 @@ public class TerminalPresenter implements TabPresenter {
         this.locale = locale;
         this.machine = machine;
 
-        isFirstLoading = true;
+        isTerminalConnected = false;
 
         promise = AsyncPromiseHelper.createFromAsyncRequest(new AsyncPromiseHelper.RequestCall<Boolean>() {
             @Override
@@ -86,6 +90,17 @@ public class TerminalPresenter implements TabPresenter {
                               }).inject();
             }
         });
+
+        countRetry = 2;
+
+        retryConnectionTimer = new Timer() {
+            @Override
+            public void run() {
+                connect();
+
+                countRetry--;
+            }
+        };
     }
 
     /**
@@ -93,7 +108,7 @@ public class TerminalPresenter implements TabPresenter {
      * when the method is called the first time.
      */
     public void connect() {
-        if (isFirstLoading) {
+        if (!isTerminalConnected) {
             promise.then(new Operation<Boolean>() {
                 @Override
                 public void apply(Boolean arg) throws OperationException {
@@ -102,7 +117,11 @@ public class TerminalPresenter implements TabPresenter {
             }).catchError(new Operation<PromiseError>() {
                 @Override
                 public void apply(PromiseError arg) throws OperationException {
+                    isTerminalConnected = false;
+
                     notificationManager.showError(locale.terminalCanNotLoadScript());
+
+                    tryToReconnect();
 
                     if (arg != null) {
                         Log.error(TerminalViewImpl.class, arg);
@@ -110,7 +129,17 @@ public class TerminalPresenter implements TabPresenter {
                 }
             });
 
-            isFirstLoading = false;
+            isTerminalConnected = true;
+        }
+    }
+
+    private void tryToReconnect(){
+        view.showErrorMessage(locale.terminalTryRestarting());
+
+        if (countRetry <= 0) {
+            view.showErrorMessage(locale.terminalErrorStart());
+        } else {
+            retryConnectionTimer.schedule(TIME_BETWEEN_CONNECTIONS);
         }
     }
 
@@ -141,7 +170,11 @@ public class TerminalPresenter implements TabPresenter {
         socket.setOnErrorHandler(new ConnectionErrorHandler() {
             @Override
             public void onError() {
+                isTerminalConnected = false;
+
                 notificationManager.showError(locale.terminalErrorConnection());
+
+                tryToReconnect();
             }
         });
     }

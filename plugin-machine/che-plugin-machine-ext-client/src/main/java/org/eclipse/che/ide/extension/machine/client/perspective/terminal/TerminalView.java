@@ -38,4 +38,12 @@ interface TerminalView extends IsWidget {
      *         terminal which will be opened
      */
     void openTerminal(@Nonnull TerminalJso terminal);
+
+    /**
+     * Shows special error message when terminal is failed.
+     *
+     * @param message
+     *         message which will be shown
+     */
+    void showErrorMessage(@Nonnull String message);
 }

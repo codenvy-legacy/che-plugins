@@ -149,7 +149,7 @@ public class MachineAppliancePresenter extends PartStackPresenter implements Act
     public void showAppliance(@Nonnull Machine machine) {
         selectedMachine = machine;
 
-        view.showContainer(tabContainer.getView().asWidget());
+        view.showContainer(tabContainer.getView());
 
         tabContainer.showTab(machine.getActiveTabName());
 

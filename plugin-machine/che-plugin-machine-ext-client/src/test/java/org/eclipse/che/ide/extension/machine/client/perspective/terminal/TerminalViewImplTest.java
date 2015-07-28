@@ -27,6 +27,8 @@ import static org.mockito.Mockito.when;
 @RunWith(GwtMockitoTestRunner.class)
 public class TerminalViewImplTest {
 
+    private static final String SOME_TEXT = "someText";
+
     @Mock
     private TerminalJso terminalJso;
     @Mock
@@ -41,7 +43,19 @@ public class TerminalViewImplTest {
 
         view.openTerminal(terminalJso);
 
+        verify(view.unavailableLabel).setVisible(false);
+        verify(view.terminalPanel).setVisible(true);
         verify(view.terminalPanel).getElement();
         verify(terminalJso).open(element);
+    }
+
+    @Test
+    public void errorMessageShouldBeShown() {
+        view.showErrorMessage(SOME_TEXT);
+
+        verify(view.unavailableLabel).setText(SOME_TEXT);
+
+        verify(view.unavailableLabel).setVisible(true);
+        verify(view.terminalPanel).setVisible(false);
     }
 }

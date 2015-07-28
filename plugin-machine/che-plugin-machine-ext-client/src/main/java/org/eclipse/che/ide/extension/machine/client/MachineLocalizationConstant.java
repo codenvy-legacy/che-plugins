@@ -310,4 +310,10 @@ public interface MachineLocalizationConstant extends Messages {
 
     @Key("terminal.can.not.load.script")
     String terminalCanNotLoadScript();
+
+    @Key("terminal.restart.trying")
+    String terminalTryRestarting();
+
+    @Key("terminal.error.start")
+    String terminalErrorStart();
 }
