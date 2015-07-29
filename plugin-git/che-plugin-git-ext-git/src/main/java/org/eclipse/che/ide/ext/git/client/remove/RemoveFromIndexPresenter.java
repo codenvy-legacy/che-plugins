@@ -41,8 +41,7 @@ import static org.eclipse.che.ide.api.notification.Notification.Type.INFO;
 /**
  * Presenter for removing files from index and file system.
  *
- * @author <a href="mailto:zhulevaanna@gmail.com">Ann Zhuleva</a>
- * @version $Id: Mar 29, 2011 4:35:16 PM anya $
+ * @author Ann Zhuleva
  */
 public class RemoveFromIndexPresenter implements RemoveFromIndexView.ActionDelegate {
     private RemoveFromIndexView       view;
@@ -118,7 +117,12 @@ public class RemoveFromIndexPresenter implements RemoveFromIndexView.ActionDeleg
             return constant.removeFromIndexAll();
         }
 
-        if (selection != null && selection.getFirstElement() instanceof FolderNode) {
+        // Do not display path longer 40 characters
+        if (pattern.length() > 40) {
+            pattern = pattern.substring(0, 40) + "...";
+        }
+
+        if (selection != null && selection.getHeadElement() instanceof FolderNode) {
             return constant.removeFromIndexFolder(pattern).asString();
         } else {
             return constant.removeFromIndexFile(pattern).asString();
