@@ -46,7 +46,7 @@ import static org.mockito.Mockito.when;
 /**
  * Testing {@link RemoveFromIndexPresenter} functionality.
  *
- * @author <a href="mailto:aplotnikov@codenvy.com">Andrey Plotnikov</a>
+ * @author Andrey Plotnikov
  */
 public class RemoveFromIndexPresenterTest extends BaseTest {
     public static final boolean  REMOVED = true;
@@ -90,7 +90,7 @@ public class RemoveFromIndexPresenterTest extends BaseTest {
         Selection selection = mock(Selection.class);
         FileNode file = mock(FileNode.class);
         when(file.getPath()).thenReturn(filePath);
-        when(selection.getFirstElement()).thenReturn(file);
+        when(selection.getHeadElement()).thenReturn(file);
         when(selectionAgent.getSelection()).thenReturn(selection);
         when(constant.removeFromIndexFile(anyString())).thenReturn(SAFE_HTML);
         when(SAFE_HTML.asString()).thenReturn(MESSAGE);
@@ -109,7 +109,7 @@ public class RemoveFromIndexPresenterTest extends BaseTest {
         Selection selection = mock(Selection.class);
         FolderNode folder = mock(FolderNode.class);
         when(folder.getPath()).thenReturn(folderPath);
-        when(selection.getFirstElement()).thenReturn(folder);
+        when(selection.getHeadElement()).thenReturn(folder);
         when(selectionAgent.getSelection()).thenReturn(selection);
         when(constant.removeFromIndexFolder(anyString())).thenReturn(SAFE_HTML);
         when(SAFE_HTML.asString()).thenReturn(MESSAGE);
@@ -127,7 +127,7 @@ public class RemoveFromIndexPresenterTest extends BaseTest {
         Selection selection = mock(Selection.class);
         ProjectNode project = mock(ProjectNode.class);
         when(project.getPath()).thenReturn(PROJECT_PATH);
-        when(selection.getFirstElement()).thenReturn(project);
+        when(selection.getHeadElement()).thenReturn(project);
         when(selectionAgent.getSelection()).thenReturn(selection);
         when(constant.removeFromIndexAll()).thenReturn(MESSAGE);
 
@@ -197,4 +197,5 @@ public class RemoveFromIndexPresenterTest extends BaseTest {
 
         verify(view).close();
     }
+
 }
