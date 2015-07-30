@@ -41,8 +41,7 @@ import static org.eclipse.che.ide.api.notification.Notification.Type.INFO;
 /**
  * Presenter for removing files from index and file system.
  *
- * @author <a href="mailto:zhulevaanna@gmail.com">Ann Zhuleva</a>
- * @version $Id: Mar 29, 2011 4:35:16 PM anya $
+ * @author Ann Zhuleva
  */
 public class RemoveFromIndexPresenter implements RemoveFromIndexView.ActionDelegate {
     private RemoveFromIndexView       view;
@@ -104,21 +103,26 @@ public class RemoveFromIndexPresenter implements RemoveFromIndexView.ActionDeleg
         Selection<StorableNode> selection = (Selection<StorableNode>)selectionAgent.getSelection();
 
         String path;
-        if (selection == null || selection.getFirstElement() == null) {
+        if (selection == null || selection.getHeadElement() == null) {
             path = project.getRootProject().getPath();
         } else {
-            path = selection.getFirstElement().getPath();
+            path = selection.getHeadElement().getPath();
         }
 
         String pattern = path.replaceFirst(workDir, "");
         pattern = (pattern.startsWith("/")) ? pattern.replaceFirst("/", "") : pattern;
 
         // Root of the working tree:
-        if (pattern.length() == 0 || "/".equals(pattern)) {
+        if (pattern.isEmpty() || "/".equals(pattern)) {
             return constant.removeFromIndexAll();
         }
 
-        if (selection != null && selection.getFirstElement() instanceof FolderNode) {
+        // Do not display path longer 40 characters
+        if (pattern.length() > 40) {
+            pattern = pattern.substring(0, 40) + "...";
+        }
+
+        if (selection != null && selection.getHeadElement() instanceof FolderNode) {
             return constant.removeFromIndexFolder(pattern).asString();
         } else {
             return constant.removeFromIndexFile(pattern).asString();
@@ -156,8 +160,8 @@ public class RemoveFromIndexPresenter implements RemoveFromIndexView.ActionDeleg
     }
 
     private void refreshProject(Selection<StorableNode> selection) {
-        if (selection.getFirstElement() instanceof FileNode) {
-            FileNode selectFile = ((FileNode)selection.getFirstElement());
+        if (selection.getHeadElement() instanceof FileNode) {
+            FileNode selectFile = ((FileNode)selection.getHeadElement());
             for (EditorPartPresenter partPresenter : openedEditors) {
                 VirtualFile openFile = partPresenter.getEditorInput().getFile();
                 //to close selected file if it open
@@ -178,10 +182,10 @@ public class RemoveFromIndexPresenter implements RemoveFromIndexView.ActionDeleg
     private List<String> getFilePatterns() {
         Selection<StorableNode> selection = (Selection<StorableNode>)selectionAgent.getSelection();
         String path;
-        if (selection == null || selection.getFirstElement() == null) {
+        if (selection == null || selection.getHeadElement() == null) {
             path = project.getRootProject().getPath();
         } else {
-            path = selection.getFirstElement().getPath();
+            path = selection.getHeadElement().getPath();
         }
 
         String pattern = path.replaceFirst(project.getRootProject().getPath(), "");
@@ -207,4 +211,5 @@ public class RemoveFromIndexPresenter implements RemoveFromIndexView.ActionDeleg
     public void onCancelClicked() {
         view.close();
     }
+
 }

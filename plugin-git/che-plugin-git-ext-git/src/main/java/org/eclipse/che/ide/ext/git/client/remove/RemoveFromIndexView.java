@@ -17,11 +17,12 @@ import javax.annotation.Nonnull;
 /**
  * The view of {@link RemoveFromIndexPresenter}.
  *
- * @author <a href="mailto:aplotnikov@codenvy.com">Andrey Plotnikov</a>
+ * @author Andrey Plotnikov
  */
 public interface RemoveFromIndexView extends View<RemoveFromIndexView.ActionDelegate> {
-    /** Needs for delegate some function into CloneRepository view. */
-    public interface ActionDelegate {
+
+    /** Is needed to delegate some function into CloneRepository view. */
+    interface ActionDelegate {
         /** Performs any actions appropriate in response to the user having pressed the Remove button. */
         void onRemoveClicked();
 
