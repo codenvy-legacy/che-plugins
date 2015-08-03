@@ -91,10 +91,12 @@ public class SystemFileWatcher {
             return;
         }
 
-        currentProject.getCurrentTree().getNodeByPath(path, new AsyncCallback<TreeNode<?>>() {
+        String pathToParent = getPathToParent(path);
+
+        currentProject.getCurrentTree().getNodeByPath(pathToParent, new AsyncCallback<TreeNode<?>>() {
             @Override
             public void onSuccess(TreeNode<?> result) {
-                eventBus.fireEvent(new RefreshProjectTreeEvent(result.getParent()));
+                eventBus.fireEvent(new RefreshProjectTreeEvent(result));
             }
 
             @Override
@@ -102,5 +104,11 @@ public class SystemFileWatcher {
                 Log.error(getClass(), caught);
             }
         });
+    }
+
+    private String getPathToParent(@Nonnull String path) {
+        int parentPathEnd = path.lastIndexOf("/");
+
+        return path.substring(0, parentPathEnd);
     }
 }
