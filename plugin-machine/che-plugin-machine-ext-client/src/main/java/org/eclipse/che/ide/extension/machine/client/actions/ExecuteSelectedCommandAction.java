@@ -36,7 +36,7 @@ import static org.eclipse.che.ide.workspace.perspectives.project.ProjectPerspect
 public class ExecuteSelectedCommandAction extends AbstractPerspectiveAction {
     private final AppContext                  appContext;
     private final DialogFactory               dialogFactory;
-    private final SelectCommandAction         selectCommandAction;
+    private final SelectCommandComboBoxAction selectCommandAction;
     private final MachineLocalizationConstant localizationConstant;
     private final MachineManager              machineManager;
     private final AnalyticsEventLogger        eventLogger;
@@ -46,7 +46,7 @@ public class ExecuteSelectedCommandAction extends AbstractPerspectiveAction {
                                         MachineResources resources,
                                         AppContext appContext,
                                         DialogFactory dialogFactory,
-                                        SelectCommandAction selectCommandAction,
+                                        SelectCommandComboBoxAction selectCommandAction,
                                         MachineManager machineManager,
                                         AnalyticsEventLogger eventLogger) {
         super(Collections.singletonList(PROJECT_PERSPECTIVE_ID),

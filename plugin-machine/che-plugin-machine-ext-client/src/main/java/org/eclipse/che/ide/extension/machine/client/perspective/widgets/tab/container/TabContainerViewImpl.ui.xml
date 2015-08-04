@@ -35,9 +35,8 @@
             <g:FlowPanel ui:field="tabs" addStyleNames="{style.tabs}"/>
         </g:north>
 
-        <!-- TODO make it auto resizable -->
-        <g:north size="800">
+        <g:center>
             <g:FlowPanel ui:field="content" addStyleNames="{style.content}"/>
-        </g:north>
+        </g:center>
     </g:DockLayoutPanel>
 </ui:UiBinder>

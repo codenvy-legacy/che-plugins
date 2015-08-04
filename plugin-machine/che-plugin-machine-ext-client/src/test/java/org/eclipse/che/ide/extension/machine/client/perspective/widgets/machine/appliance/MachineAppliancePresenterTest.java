@@ -11,16 +11,25 @@
 package org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.appliance;
 
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
+import com.google.gwt.user.client.ui.Widget;
+import com.google.gwtmockito.GwtMockitoTestRunner;
 import com.google.web.bindery.event.shared.EventBus;
 
+import org.eclipse.che.ide.api.event.ActivePartChangedEvent;
 import org.eclipse.che.ide.client.inject.factories.TabItemFactory;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.EntityFactory;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.WidgetsFactory;
 import org.eclipse.che.ide.extension.machine.client.machine.Machine;
+import org.eclipse.che.ide.extension.machine.client.perspective.terminal.container.TerminalContainer;
+import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.appliance.recipe.RecipeTabPresenter;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.appliance.server.ServerPresenter;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.appliance.sufficientinfo.MachineInfoPresenter;
-import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.appliance.terminal.TerminalPresenter;
+import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.panel.MachinePanelPresenter;
+import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.panel.MachinePanelView;
+import org.eclipse.che.ide.extension.machine.client.perspective.widgets.recipe.RecipePartPresenter;
+import org.eclipse.che.ide.extension.machine.client.perspective.widgets.recipe.RecipePartView;
+import org.eclipse.che.ide.extension.machine.client.perspective.widgets.recipe.container.RecipesContainerPresenter;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.Tab;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.container.TabContainerPresenter;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.container.TabContainerView;
@@ -35,7 +44,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Matchers;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.reset;
@@ -45,8 +53,9 @@ import static org.mockito.Mockito.when;
 
 /**
  * @author Dmitry Shnurenko
+ * @author Valeriy Svydenko
  */
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(GwtMockitoTestRunner.class)
 public class MachineAppliancePresenterTest {
 
     private final static String SOME_TEXT = "someText";
@@ -68,35 +77,49 @@ public class MachineAppliancePresenterTest {
     private TabItemFactory              tabItemFactory;
     @Mock
     private PartsComparator             comparator;
-    //TODO un commit to test process tab
-//    @Mock
-//    private ProcessesPresenter          processesPresenter;
     @Mock
-    private TerminalPresenter           terminalPresenter;
+    private RecipesContainerPresenter   recipesContainerPresenter;
     @Mock
-    private MachineInfoPresenter        infoPresenter;
+    private RecipeTabPresenter          recipeTabPresenter;
+
     @Mock
-    private ServerPresenter             serverPresenter;
+    private TerminalContainer     terminalContainer;
     @Mock
-    private TabContainerPresenter       tabContainer;
+    private MachineInfoPresenter  infoPresenter;
+    @Mock
+    private ServerPresenter       serverPresenter;
+    @Mock
+    private TabContainerPresenter tabContainer;
 
     //additional mocks
     @Mock
-    private TabHeader        tabHeader;
-    //    @Mock
-//    private Tab              processTab;
+    private TabHeader              tabHeader;
     @Mock
-    private Tab              terminalTab;
+    private Tab                    terminalTab;
     @Mock
-    private Tab              infoTab;
+    private Tab                    infoTab;
     @Mock
-    private Tab              serverTab;
+    private Tab                    serverTab;
     @Mock
-    private TabContainerView tabContainerView;
+    private Tab                    recipeTab;
     @Mock
-    private Machine          machine;
+    private TabContainerView       tabContainerView;
     @Mock
-    private AcceptsOneWidget container;
+    private Machine                machine;
+    @Mock
+    private Widget                 widget;
+    @Mock
+    private ActivePartChangedEvent event;
+    @Mock
+    private RecipePartPresenter    recipePartPresenter;
+    @Mock
+    private MachinePanelPresenter  machinePanelPresenter;
+    @Mock
+    private MachinePanelView       machinePanelView;
+    @Mock
+    private RecipePartView         recipePartView;
+    @Mock
+    private AcceptsOneWidget       container;
 
     @Captor
     private ArgumentCaptor<TabSelectHandler> handlerCaptor;
@@ -107,19 +130,17 @@ public class MachineAppliancePresenterTest {
     public void setUp() {
         when(machine.getId()).thenReturn(SOME_TEXT);
         when(tabContainer.getView()).thenReturn(tabContainerView);
+        when(tabContainerView.asWidget()).thenReturn(widget);
 
-//        when(locale.tabProcesses()).thenReturn(SOME_TEXT);
         when(locale.tabTerminal()).thenReturn(SOME_TEXT);
         when(locale.tabInfo()).thenReturn(SOME_TEXT);
         when(locale.tabServer()).thenReturn(SOME_TEXT);
+        when(locale.tabRecipe()).thenReturn(SOME_TEXT);
 
         when(widgetsFactory.createTabHeader(SOME_TEXT)).thenReturn(tabHeader);
-//        when(entityFactory.createTab(Matchers.<TabHeader>anyObject(),
-//                                     eq(processesPresenter),
-//                                     Matchers.<TabSelectHandler>anyObject())).thenReturn(processTab);
 
         when(entityFactory.createTab(Matchers.<TabHeader>anyObject(),
-                                     eq(terminalPresenter),
+                                     eq(terminalContainer),
                                      Matchers.<TabSelectHandler>anyObject())).thenReturn(terminalTab);
 
         when(entityFactory.createTab(Matchers.<TabHeader>anyObject(),
@@ -130,6 +151,10 @@ public class MachineAppliancePresenterTest {
                                      eq(serverPresenter),
                                      Matchers.<TabSelectHandler>anyObject())).thenReturn(serverTab);
 
+        when(entityFactory.createTab(Matchers.<TabHeader>anyObject(),
+                                     eq(recipeTabPresenter),
+                                     Matchers.<TabSelectHandler>anyObject())).thenReturn(recipeTab);
+
         presenter = new MachineAppliancePresenter(eventBus,
                                                   comparator,
                                                   partStackEventHandler,
@@ -138,34 +163,35 @@ public class MachineAppliancePresenterTest {
                                                   widgetsFactory,
                                                   entityFactory,
                                                   tabItemFactory,
-                                                  terminalPresenter,
+                                                  terminalContainer,
                                                   infoPresenter,
+                                                  recipesContainerPresenter,
                                                   serverPresenter,
+                                                  recipeTabPresenter,
                                                   tabContainer);
     }
 
     @Test
     public void constructorShouldBeVerified() {
-        verify(widgetsFactory, times(3)).createTabHeader(SOME_TEXT);
+        verify(widgetsFactory, times(4)).createTabHeader(SOME_TEXT);
 
-//        verify(entityFactory).createTab(eq(tabHeader), eq(processesPresenter), Matchers.<TabSelectHandler>anyObject());
-        verify(entityFactory).createTab(eq(tabHeader), eq(terminalPresenter), Matchers.<TabSelectHandler>anyObject());
+        verify(entityFactory).createTab(eq(tabHeader), eq(terminalContainer), Matchers.<TabSelectHandler>anyObject());
         verify(entityFactory).createTab(eq(tabHeader), eq(infoPresenter), Matchers.<TabSelectHandler>anyObject());
         verify(entityFactory).createTab(eq(tabHeader), eq(serverPresenter), Matchers.<TabSelectHandler>anyObject());
+        verify(entityFactory).createTab(eq(tabHeader), eq(recipeTabPresenter), Matchers.<TabSelectHandler>anyObject());
 
-//        verify(locale).tabProcesses();
         verify(locale).tabTerminal();
         verify(locale).tabInfo();
         verify(locale).tabServer();
 
-//        verify(tabContainer).addTab(processTab);
         verify(tabContainer).addTab(terminalTab);
         verify(tabContainer).addTab(infoTab);
         verify(tabContainer).addTab(serverTab);
+        verify(tabContainer).addTab(recipeTab);
 
         verify(tabContainer).getView();
 
-        verify(view).showContainer(tabContainerView);
+        verify(view).showContainer(widget);
     }
 
     @Test
@@ -173,12 +199,13 @@ public class MachineAppliancePresenterTest {
         callAndVerifyHandler();
 
         verify(locale).tabTerminal();
+        verify(terminalContainer, times(2)).addOrShowTerminal(machine);
     }
 
     private void callAndVerifyHandler() {
         presenter.showAppliance(machine);
 
-        verify(entityFactory).createTab(eq(tabHeader), eq(terminalPresenter), handlerCaptor.capture());
+        verify(entityFactory).createTab(eq(tabHeader), eq(terminalContainer), handlerCaptor.capture());
         handlerCaptor.getValue().onTabSelected();
 
         verify(machine).setActiveTabName(SOME_TEXT);
@@ -201,18 +228,16 @@ public class MachineAppliancePresenterTest {
     @Test
     public void infoShouldBeShown() {
         reset(tabContainer);
-//        when(machine.getId()).thenReturn(SOME_TEXT);
         when(machine.getActiveTabName()).thenReturn(SOME_TEXT);
+        when(tabContainer.getView()).thenReturn(tabContainerView);
 
         presenter.showAppliance(machine);
 
-//        verify(machine).getId();
-//        verify(processesPresenter).showProcesses(SOME_TEXT);
         verify(tabContainer).getView();
         verify(view).showContainer(tabContainerView);
 
         verify(tabContainer).showTab(SOME_TEXT);
-        verify(terminalPresenter).updateTerminal(machine);
+        verify(terminalContainer).addOrShowTerminal(machine);
         verify(infoPresenter).update(machine);
         verify(serverPresenter).updateInfo(machine);
     }
@@ -222,5 +247,24 @@ public class MachineAppliancePresenterTest {
         presenter.go(container);
 
         verify(container).setWidget(view);
+    }
+
+    @Test
+    public void recipeEditorShouldBeShowed() throws Exception {
+        when(event.getActivePart()).thenReturn(recipePartPresenter);
+        when(recipePartPresenter.getView()).thenReturn(recipePartView);
+
+        presenter.onActivePartChanged(event);
+
+        verify(view).showContainer(recipePartView.asWidget());
+    }
+
+    @Test
+    public void machinesShouldBeShowed() throws Exception {
+        when(event.getActivePart()).thenReturn(machinePanelPresenter);
+
+        presenter.onActivePartChanged(event);
+
+        verify(view).showContainer(tabContainerView);
     }
 }

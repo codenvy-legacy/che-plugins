@@ -10,10 +10,10 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.appliance;
 
+import com.google.gwt.user.client.ui.IsWidget;
 import com.google.inject.ImplementedBy;
 
 import org.eclipse.che.ide.api.parts.PartStackView;
-import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.container.TabContainerView;
 
 import javax.annotation.Nullable;
 
@@ -21,6 +21,7 @@ import javax.annotation.Nullable;
  * Provides methods to control view representation of info container.
  *
  * @author Dmitry Shnurenko
+ * @author Valeriy Svydenko
  */
 @ImplementedBy(MachineApplianceViewImpl.class)
 public interface MachineApplianceView extends PartStackView {
@@ -31,5 +32,5 @@ public interface MachineApplianceView extends PartStackView {
      * @param tabContainer
      *         container which need add
      */
-    void showContainer(@Nullable TabContainerView tabContainer);
+    void showContainer(@Nullable IsWidget tabContainer);
 }

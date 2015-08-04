@@ -12,8 +12,20 @@ package org.eclipse.che.ide.ext.java.client.editor;
 
 import com.google.inject.Inject;
 
-import org.eclipse.che.ide.ext.java.jdt.text.Document;
+import org.eclipse.che.api.promises.client.Operation;
+import org.eclipse.che.api.promises.client.OperationException;
+import org.eclipse.che.api.promises.client.Promise;
+import org.eclipse.che.api.promises.client.PromiseError;
+import org.eclipse.che.ide.api.editor.EditorAgent;
+import org.eclipse.che.ide.api.editor.EditorPartPresenter;
+import org.eclipse.che.ide.api.texteditor.HandlesUndoRedo;
+import org.eclipse.che.ide.api.texteditor.UndoableEditor;
+import org.eclipse.che.ide.ext.java.shared.dto.Change;
+import org.eclipse.che.ide.jseditor.client.document.Document;
 import org.eclipse.che.ide.jseditor.client.formatter.ContentFormatter;
+import org.eclipse.che.ide.util.loging.Log;
+
+import java.util.List;
 
 /**
  * ContentFormatter implementation
@@ -22,34 +34,59 @@ import org.eclipse.che.ide.jseditor.client.formatter.ContentFormatter;
  */
 public class JavaFormatter implements ContentFormatter {
 
-    private Document document;
+    private JavaCodeAssistClient service;
+    private EditorAgent          editorAgent;
 
     @Inject
-    public JavaFormatter(/*JavaParserWorker javaParserWorker*/) {
-//        this.javaParserWorker = javaParserWorker;
+    public JavaFormatter(JavaCodeAssistClient service,
+                         EditorAgent editorAgent) {
+        this.service = service;
+        this.editorAgent = editorAgent;
     }
 
     @Override
-    public void format(org.eclipse.che.ide.jseditor.client.document.Document document) {
-//        this.document = new FormatterDocument(document);
-//
-//        int offset = document.getSelectedLinearRange().getStartOffset();
-//        int length = document.getSelectedLinearRange().getLength();
-//
-//        if (length > 0 && offset >= 0) {
-//            javaParserWorker.format(offset, length, document.getContents(), this);
-//        } else {
-//            javaParserWorker.format(0, document.getContentsCharCount(), document.getContents(), this);
-//        }
-        throw new UnsupportedOperationException("format is not supported");
+    public void format(final Document document) {
+        int offset = document.getSelectedLinearRange().getStartOffset();
+        int length = document.getSelectedLinearRange().getLength();
+
+        if (length <= 0 || offset < 0) {
+            offset = 0;
+            length = document.getContentsCharCount();
+        }
+
+        Promise<List<Change>> changesPromise = service.format(offset, length, document.getContents());
+        changesPromise.then(new Operation<List<Change>>() {
+            @Override
+            public void apply(List<Change> changes) throws OperationException {
+                applyChanges(changes, document);
+            }
+        }).catchError(new Operation<PromiseError>() {
+            @Override
+            public void apply(PromiseError arg) throws OperationException {
+                Log.error(getClass(), arg.getCause());
+            }
+        });
     }
 
-//    @Override
-//    public void onCallback(TextEdit edit) {
-//        try {
-//            edit.apply(document);
-//        } catch (BadLocationException e) {
-//            Log.error(getClass(), e);
-//        }
-//    }
+    private void applyChanges(List<Change> changes, Document document) {
+        HandlesUndoRedo undoRedo = null;
+        EditorPartPresenter editorPartPresenter = editorAgent.getActiveEditor();
+        if (editorPartPresenter instanceof UndoableEditor) {
+            undoRedo = ((UndoableEditor)editorPartPresenter).getUndoRedo();
+        }
+        try {
+            if (undoRedo != null) {
+                undoRedo.beginCompoundChange();
+            }
+            for (Change change : changes) {
+                document.replace(change.getOffset(), change.getLength(), change.getText());
+            }
+        } catch (final Exception e) {
+            Log.error(getClass(), e);
+        } finally {
+            if (undoRedo != null) {
+                undoRedo.endCompoundChange();
+            }
+        }
+    }
 }

@@ -15,7 +15,6 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.event.shared.EventBus;
 
-import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
 import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.ide.api.action.ActionManager;
 import org.eclipse.che.ide.api.action.DefaultActionGroup;
@@ -32,15 +31,14 @@ import org.eclipse.che.ide.api.project.type.wizard.PreSelectedProjectTypeManager
 import org.eclipse.che.ide.collections.Array;
 import org.eclipse.che.ide.collections.Collections;
 import org.eclipse.che.ide.ext.java.client.dependenciesupdater.DependenciesUpdater;
-import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStatusEvent;
-import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStatusHandler;
+import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateEvent;
+import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateHandler;
 import org.eclipse.che.ide.extension.maven.client.actions.CreateMavenModuleAction;
 import org.eclipse.che.ide.extension.maven.client.actions.UpdateDependencyAction;
 import org.eclipse.che.ide.extension.maven.client.event.BeforeModuleOpenEvent;
 import org.eclipse.che.ide.extension.maven.client.event.BeforeModuleOpenHandler;
 import org.eclipse.che.ide.extension.maven.client.projecttree.MavenProjectTreeStructureProvider;
 import org.eclipse.che.ide.extension.maven.shared.MavenAttributes;
-import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 
 import java.util.List;
 import java.util.Map;
@@ -57,7 +55,7 @@ import static org.eclipse.che.ide.api.action.IdeActions.GROUP_FILE_NEW;
 @Extension(title = "Maven", version = "3.0.0")
 public class MavenExtension {
     private static Array<MavenArchetype> archetypes;
-    private ProjectDescriptor project;
+    private        ProjectDescriptor     project;
 
     @Inject
     public MavenExtension(TreeStructureProviderRegistry treeStructureProviderRegistry,
@@ -78,10 +76,7 @@ public class MavenExtension {
     }
 
     @Inject
-    private void bindEvents(final EventBus eventBus,
-                            final DependenciesUpdater dependenciesUpdater,
-                            final ProjectServiceClient projectServiceClient,
-                            final DtoUnmarshallerFactory dtoUnmarshallerFactory) {
+    private void bindEvents(final EventBus eventBus, final DependenciesUpdater dependenciesUpdater) {
         eventBus.addHandler(BeforeModuleOpenEvent.TYPE, new BeforeModuleOpenHandler() {
             @Override
             public void onBeforeModuleOpen(BeforeModuleOpenEvent event) {
@@ -106,15 +101,15 @@ public class MavenExtension {
             }
         });
 
-        eventBus.addHandler(MachineStatusEvent.TYPE, new MachineStatusHandler() {
+        eventBus.addHandler(MachineStateEvent.TYPE, new MachineStateHandler() {
             @Override
-            public void onMachineRunning(MachineStatusEvent event) {
-                if(project != null) {
+            public void onMachineRunning(MachineStateEvent event) {
+                if (project != null) {
                     if (isValidForResolveDependencies(project)) {
                         new Timer() {
                             @Override
                             public void run() {
-                              dependenciesUpdater.updateDependencies(project, false);
+                                dependenciesUpdater.updateDependencies(project, false);
                             }
                         }.schedule(5000);
                     }
@@ -122,8 +117,7 @@ public class MavenExtension {
             }
 
             @Override
-            public void onMachineDestroyed(MachineStatusEvent event) {
-
+            public void onMachineDestroyed(MachineStateEvent event) {
             }
         });
     }
@@ -131,7 +125,6 @@ public class MavenExtension {
     @Inject
     private void prepareActions(ActionManager actionManager,
                                 UpdateDependencyAction updateDependencyAction,
-                                MavenLocalizationConstant mavenLocalizationConstants,
                                 CreateMavenModuleAction createMavenModuleAction) {
         // register actions
         actionManager.registerAction("updateDependency", updateDependencyAction);
@@ -159,8 +152,6 @@ public class MavenExtension {
 
     private boolean isValidForResolveDependencies(ProjectDescriptor project) {
         Map<String, List<String>> attr = project.getAttributes();
-//        BuildersDescriptor builders = project.getBuilders();
-        return /*builders != null && "maven".equals(builders.getDefault()) &&*/
-               !(attr.containsKey(MavenAttributes.PACKAGING) && "pom".equals(attr.get(MavenAttributes.PACKAGING).get(0)));
+        return !(attr.containsKey(MavenAttributes.PACKAGING) && "pom".equals(attr.get(MavenAttributes.PACKAGING).get(0)));
     }
 }

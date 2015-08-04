@@ -10,7 +10,11 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.datasource.client.newdatasource;
 
-import org.eclipse.che.api.user.shared.dto.ProfileDescriptor;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
+import com.google.web.bindery.event.shared.EventBus;
+
 import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.wizard.AbstractWizard;
@@ -19,15 +23,10 @@ import org.eclipse.che.ide.ext.datasource.client.newdatasource.connector.Abstrac
 import org.eclipse.che.ide.ext.datasource.client.store.DatasourceManager;
 import org.eclipse.che.ide.ext.datasource.shared.DatabaseConfigurationDTO;
 import org.eclipse.che.ide.util.loging.Log;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
-import com.google.inject.assistedinject.Assisted;
-import com.google.web.bindery.event.shared.EventBus;
 
 import javax.annotation.Nonnull;
+import java.util.Map;
 
-@Singleton
 public class NewDatasourceWizard extends AbstractWizard<DatabaseConfigurationDTO> {
     public static final String DATASOURCE_NAME_KEY = "DatasourceName";
 
@@ -54,10 +53,10 @@ public class NewDatasourceWizard extends AbstractWizard<DatabaseConfigurationDTO
         Log.debug(AbstractNewDatasourceConnectorPage.class, "Persisting datasources...");
         final Notification requestNotification = new Notification("Persisting datasources...",
                                                                   Notification.Status.PROGRESS);
-        datasourceManager.persist(new AsyncCallback<ProfileDescriptor>() {
+        datasourceManager.persist(new AsyncCallback<Map<String, String>>() {
 
             @Override
-            public void onSuccess(ProfileDescriptor result) {
+            public void onSuccess(Map<String, String> result) {
                 Log.debug(AbstractNewDatasourceConnectorPage.class, "Datasources persisted.");
                 requestNotification.setMessage("Datasources saved");
                 requestNotification.setStatus(Notification.Status.FINISHED);

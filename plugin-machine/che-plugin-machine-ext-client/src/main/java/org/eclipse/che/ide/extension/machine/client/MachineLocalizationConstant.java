@@ -137,11 +137,17 @@ public interface MachineLocalizationConstant extends Messages {
     @Key("view.createMachine.message.urlIsNotValid")
     String viewCreateMachineUrlIsNotValid();
 
+    @Key("view.createMachine.message.noRecipe")
+    String viewCreateMachineNoRecipe();
+
     @Key("view.createMachine.name")
     String viewCreateMachineName();
 
     @Key("view.createMachine.recipeURL")
     String viewCreateMachineRecipeURL();
+
+    @Key("view.createMachine.findByTags")
+    String viewCreateMachineFindByTags();
 
 
     /* EditConfigurationsView */
@@ -168,6 +174,15 @@ public interface MachineLocalizationConstant extends Messages {
 
     @Key("view.editConfigurations.remove.confirmation")
     String editConfigurationsRemoveConfirmation(String commandName);
+
+    @Key("view.editConfigurations.execute.text")
+    String editConfigurationsViewExecuteText();
+
+    @Key("view.editConfigurations.execute.title")
+    String editConfigurationsViewExecuteTitle();
+
+    @Key("view.editConfigurations.execute.message")
+    String editConfigurationsExecuteMessage();
 
     @Key("view.editConfigurations.saveChanges.title")
     String editConfigurationsSaveChangesTitle();
@@ -265,4 +280,40 @@ public interface MachineLocalizationConstant extends Messages {
 
     @Key("machine.restarted")
     String machineRestarted(String text);
+
+    @Key("view.recipePanel.title")
+    String viewRecipePanelTitle();
+
+    @Key("view.recipePanel.tooltip")
+    String viewRecipePanelTooltip();
+
+    @Key("editor.button.new")
+    String editorButtonNew();
+
+    @Key("editor.button.save")
+    String editorButtonSave();
+
+    @Key("editor.button.delete")
+    String editorButtonDelete();
+
+    @Key("editor.button.cancel")
+    String editorButtonCancel();
+
+    @Key("tab.recipe")
+    String tabRecipe();
+
+    @Key("editor.button.clone")
+    String editorButtonClone();
+
+    @Key("terminal.error.connection")
+    String terminalErrorConnection();
+
+    @Key("terminal.can.not.load.script")
+    String terminalCanNotLoadScript();
+
+    @Key("terminal.restart.trying")
+    String terminalTryRestarting();
+
+    @Key("terminal.error.start")
+    String terminalErrorStart();
 }

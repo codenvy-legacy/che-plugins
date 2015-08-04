@@ -10,26 +10,26 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.ant.server.inject;
 
-import org.eclipse.che.api.project.server.ProjectTypeResolver;
+import com.google.inject.AbstractModule;
+import com.google.inject.multibindings.Multibinder;
+
 import org.eclipse.che.api.project.server.ValueProviderFactory;
 import org.eclipse.che.api.project.server.handlers.ProjectHandler;
 import org.eclipse.che.api.project.server.type.ProjectType;
 import org.eclipse.che.ide.extension.ant.server.project.type.AntProjectGenerator;
 import org.eclipse.che.ide.extension.ant.server.project.type.AntProjectType;
-import org.eclipse.che.ide.extension.ant.server.project.type.AntProjectTypeResolver;
 import org.eclipse.che.ide.extension.ant.server.project.type.AntValueProviderFactory;
 import org.eclipse.che.inject.DynaModule;
-import com.google.inject.AbstractModule;
-import com.google.inject.multibindings.Multibinder;
 
-/** @author Vladyslav Zhukovskii */
+/**
+ * @author Vladyslav Zhukovskii
+ * @author Dmitry Shnurenko
+ */
 @DynaModule
 public class AntModule extends AbstractModule {
     /** {@inheritDoc} */
     @Override
     protected void configure() {
-        Multibinder.newSetBinder(binder(), ProjectTypeResolver.class).addBinding().to(AntProjectTypeResolver.class);
-
         Multibinder<ValueProviderFactory> multiBinder = Multibinder.newSetBinder(binder(), ValueProviderFactory.class);
         multiBinder.addBinding().to(AntValueProviderFactory.class);
 

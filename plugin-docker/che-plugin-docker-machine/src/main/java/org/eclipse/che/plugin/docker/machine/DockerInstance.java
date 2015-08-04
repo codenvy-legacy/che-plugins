@@ -23,6 +23,7 @@ import org.eclipse.che.api.machine.server.spi.InstanceKey;
 import org.eclipse.che.api.machine.server.spi.InstanceMetadata;
 import org.eclipse.che.api.machine.server.spi.InstanceProcess;
 import org.eclipse.che.api.machine.shared.ProjectBinding;
+import org.eclipse.che.api.machine.shared.Recipe;
 import org.eclipse.che.api.machine.shared.Server;
 import org.eclipse.che.commons.lang.NameGenerator;
 import org.eclipse.che.plugin.docker.client.DockerConnector;
@@ -68,6 +69,7 @@ public class DockerInstance extends AbstractInstance {
     private final DockerNode           node;
     private final String               workspaceId;
     private final boolean              workspaceIsBound;
+    private final int memorySizeMB;
 
     private ContainerInfo containerInfo;
 
@@ -82,8 +84,10 @@ public class DockerInstance extends AbstractInstance {
                           @Assisted("displayName") String displayName,
                           @Assisted("container") String container,
                           @Assisted DockerNode node,
-                          @Assisted LineConsumer outputConsumer) {
-        super(machineId, "docker", workspaceId, creator, workspaceIsBound, displayName);
+                          @Assisted LineConsumer outputConsumer,
+                          @Assisted Recipe recipe,
+                          @Assisted int memorySizeMB) {
+        super(machineId, "docker", workspaceId, creator, recipe, workspaceIsBound, displayName);
         this.dockerMachineFactory = dockerMachineFactory;
         this.container = container;
         this.docker = docker;
@@ -92,6 +96,7 @@ public class DockerInstance extends AbstractInstance {
         this.node = node;
         this.workspaceId = workspaceId;
         this.workspaceIsBound = workspaceIsBound;
+        this.memorySizeMB = memorySizeMB;
     }
 
     @Override
@@ -236,7 +241,7 @@ public class DockerInstance extends AbstractInstance {
     }
 
     @Override
-    public InstanceKey saveToSnapshot(String owner, String label) throws MachineException {
+    public InstanceKey saveToSnapshot(String owner) throws MachineException {
         try {
             final String repository = generateRepository();
             String comment = String.format("Suspended at %1$ta %1$tb %1$td %1$tT %1$tZ %1$tY", System.currentTimeMillis());
@@ -299,5 +304,10 @@ public class DockerInstance extends AbstractInstance {
     @Override
     public DockerNode getNode() {
         return node;
+    }
+
+    @Override
+    public int getMemorySize() {
+        return memorySizeMB;
     }
 }

@@ -26,8 +26,6 @@
  * from Codenvy S.A..
  */
 
-@CHARSET "UTF-8";
-
 .cells {
     font-family: mainFontFamily;
     font-size: fontSize;

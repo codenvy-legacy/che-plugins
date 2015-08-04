@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.machine.client.machine;
 
+import com.google.gwt.user.client.Window;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
@@ -62,6 +63,11 @@ public class Machine {
         return descriptor.getType();
     }
 
+    /** @return script of machine recipe */
+    public String getScript() {
+        return descriptor.getRecipe().getScript();
+    }
+
     /** @return special url which references on terminal content. */
     @Nonnull
     public String getTerminalUrl() {
@@ -75,6 +81,18 @@ public class Machine {
         }
 
         return "";
+    }
+
+    /** @return special url to connect to terminal web socket. */
+    @Nonnull
+    public String getWSTerminalUrl() {
+        String terminalUrl = getTerminalUrl();
+
+        terminalUrl = terminalUrl.substring(terminalUrl.indexOf(':'), terminalUrl.length());
+
+        boolean isSecureConnection = Window.Location.getProtocol().equals("https:");
+
+        return (isSecureConnection ? "wss" : "ws") + terminalUrl + "/pty";
     }
 
     /** @return active tab name for current machine */

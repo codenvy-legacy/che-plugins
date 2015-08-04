@@ -30,7 +30,7 @@ import javax.annotation.Nonnull;
 /**
  * The implementation of {@link RemoveFromIndexView}.
  *
- * @author <a href="mailto:aplotnikov@codenvy.com">Andrey Plotnikov</a>
+ * @author Andrey Plotnikov
  */
 @Singleton
 public class RemoveFromIndexViewImpl extends Window implements RemoveFromIndexView {
@@ -67,7 +67,16 @@ public class RemoveFromIndexViewImpl extends Window implements RemoveFromIndexVi
 
         this.setTitle(locale.removeFromIndexTitle());
         this.setWidget(widget);
-        
+
+        btnRemove = createButton(locale.buttonRemove(), "git-removeFromIndex-remove", new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                delegate.onRemoveClicked();
+            }
+        });
+        btnRemove.addStyleName(Window.resources.centerPanelCss().blueButton());
+        getFooter().add(btnRemove);
+
         btnCancel = createButton(locale.buttonCancel(), "git-removeFromIndex-cancel", new ClickHandler() {
 
             @Override
@@ -76,15 +85,6 @@ public class RemoveFromIndexViewImpl extends Window implements RemoveFromIndexVi
             }
         });
         getFooter().add(btnCancel);
-
-        btnRemove = createButton(locale.buttonRemove(), "git-removeFromIndex-remove", new ClickHandler() {
-
-            @Override
-            public void onClick(ClickEvent event) {
-                delegate.onRemoveClicked();
-            }
-        });
-        getFooter().add(btnRemove);
     }
 
     /** {@inheritDoc} */

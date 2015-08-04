@@ -14,16 +14,12 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.event.shared.EventBus;
 
-import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
-import org.eclipse.che.api.machine.shared.MachineStatus;
-import org.eclipse.che.api.machine.shared.dto.MachineStateDescriptor;
 import org.eclipse.che.api.machine.shared.dto.event.MachineStatusEvent;
-import org.eclipse.che.api.promises.client.Operation;
-import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.machine.MachineManager.OperationType;
+import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateEvent;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.util.loging.Log;
 import org.eclipse.che.ide.websocket.MessageBus;
@@ -35,13 +31,11 @@ import org.eclipse.che.ide.websocket.rest.Unmarshallable;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import static org.eclipse.che.api.machine.shared.MachineStatus.CREATING;
 import static org.eclipse.che.ide.api.notification.Notification.Status.FINISHED;
 import static org.eclipse.che.ide.api.notification.Notification.Status.PROGRESS;
 import static org.eclipse.che.ide.api.notification.Notification.Type.ERROR;
 import static org.eclipse.che.ide.api.notification.Notification.Type.INFO;
 import static org.eclipse.che.ide.extension.machine.client.machine.MachineManager.OperationType.RESTART;
-import static org.eclipse.che.ide.extension.machine.client.machine.MachineManager.OperationType.START;
 
 /**
  * Notifies about changing machine state.
@@ -58,91 +52,70 @@ class MachineStatusNotifier {
     private final EventBus                    eventBus;
     private final DtoUnmarshallerFactory      dtoUnmarshallerFactory;
     private final NotificationManager         notificationManager;
-    private final MachineServiceClient        service;
     private final MachineLocalizationConstant locale;
-    private final MachineNameManager          nameManager;
 
     @Inject
     MachineStatusNotifier(MessageBus messageBus,
-                         EventBus eventBus,
-                         DtoUnmarshallerFactory dtoUnmarshallerFactory,
-                         NotificationManager notificationManager,
-                         MachineServiceClient service,
-                         MachineLocalizationConstant locale,
-                         MachineNameManager nameManager) {
+                          EventBus eventBus,
+                          DtoUnmarshallerFactory dtoUnmarshallerFactory,
+                          NotificationManager notificationManager,
+                          MachineLocalizationConstant locale) {
         this.messageBus = messageBus;
         this.eventBus = eventBus;
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
         this.notificationManager = notificationManager;
-        this.service = service;
         this.locale = locale;
-        this.nameManager = nameManager;
     }
 
     /**
      * Start tracking machine state and notify about state changing.
      *
-     * @param machineId
-     *         ID of the machine to track
+     * @param machine
+     *         machine to track
      */
-    void trackMachine(@Nonnull final String machineId) {
-        trackMachine(machineId, null, START);
+    void trackMachine(@Nonnull final Machine machine, @Nonnull final OperationType operationType) {
+        trackMachine(machine, null, operationType);
     }
 
     /**
      * Start tracking machine state and notify about state changing.
      *
-     * @param machineId
-     *         ID of the machine to track
+     * @param machine
+     *         machine to track
      * @param runningListener
      *         listener that will be notified when machine is running
      */
-    void trackMachine(@Nonnull final String machineId,
+    void trackMachine(@Nonnull final Machine machine,
                       @Nullable final RunningListener runningListener,
                       @Nonnull final OperationType operationType) {
-
-        final String wsChannel = MACHINE_STATUS_WS_CHANNEL + machineId;
+        final String wsChannel = MACHINE_STATUS_WS_CHANNEL + machine.getId();
         final Notification notification = new Notification("", INFO, true);
-        final boolean isRestarting = RESTART.equals(operationType);
+        final String machineName = machine.getDisplayName();
 
         final Unmarshallable<MachineStatusEvent> unmarshaller = dtoUnmarshallerFactory.newWSUnmarshaller(MachineStatusEvent.class);
-        final MessageHandler handler = new SubscriptionHandler<MachineStatusEvent>(unmarshaller) {
+        final MessageHandler messageHandler = new SubscriptionHandler<MachineStatusEvent>(unmarshaller) {
             @Override
             protected void onMessageReceived(MachineStatusEvent result) {
-                String machineName = nameManager.getNameById(result.getMachineId());
 
                 switch (result.getEventType()) {
                     case RUNNING:
                         unsubscribe(wsChannel, this);
+
                         if (runningListener != null) {
                             runningListener.onRunning();
                         }
 
-                        notification.setMessage(isRestarting ? locale.machineRestarted(machineName)
-                                                             : locale.notificationMachineIsRunning(machineName));
-                        notification.setStatus(FINISHED);
-                        notification.setType(INFO);
-
-                        eventBus.fireEvent(org.eclipse.che.ide.extension.machine.client.machine.events.MachineStatusEvent
-                                                   .createMachineRunningEvent(result.getMachineId()));
-
+                        showInfo(RESTART.equals(operationType) ? locale.machineRestarted(machineName)
+                                                               : locale.notificationMachineIsRunning(machineName), notification);
+                        eventBus.fireEvent(MachineStateEvent.createMachineRunningEvent(machine));
                         break;
                     case DESTROYED:
                         unsubscribe(wsChannel, this);
-
-                        notification.setMessage(locale.notificationMachineDestroyed(machineName));
-                        notification.setStatus(FINISHED);
-                        notification.setType(INFO);
-
-                        eventBus.fireEvent(org.eclipse.che.ide.extension.machine.client.machine.events.MachineStatusEvent
-                                                   .createMachineDestroyedEvent(result.getMachineId()));
-
-                        nameManager.removeName(result.getMachineId());
-
+                        showInfo(locale.notificationMachineDestroyed(machineName), notification);
+                        eventBus.fireEvent(MachineStateEvent.createMachineDestroyedEvent(machine));
                         break;
                     case ERROR:
                         unsubscribe(wsChannel, this);
-
                         showError(result.getError(), notification);
                         break;
                 }
@@ -151,34 +124,36 @@ class MachineStatusNotifier {
             @Override
             protected void onErrorReceived(Throwable exception) {
                 unsubscribe(wsChannel, this);
-
                 showError(exception.getMessage(), notification);
             }
         };
 
-        service.getMachineState(machineId).then(new Operation<MachineStateDescriptor>() {
-            @Override
-            public void apply(MachineStateDescriptor arg) throws OperationException {
-                final MachineStatus state = arg.getStatus();
-                String machineName = arg.getDisplayName();
+        switch (operationType) {
+            case START:
+                notification.setMessage(locale.notificationCreatingMachine(machineName));
+                break;
+            case RESTART:
+                notification.setMessage(locale.notificationMachineRestarting(machineName));
+                break;
+            case DESTROY:
+                notification.setMessage(locale.notificationDestroyingMachine(machineName));
+                break;
+        }
 
-                if (isRestarting) {
-                    notification.setMessage(locale.notificationMachineRestarting(machineName));
-                } else {
-                    notification.setMessage(state == CREATING ? locale.notificationCreatingMachine(machineName)
-                                                              : locale.notificationDestroyingMachine(machineName));
-                }
+        notification.setStatus(PROGRESS);
+        notificationManager.showNotification(notification);
 
-                notification.setStatus(PROGRESS);
-                notificationManager.showNotification(notification);
-
-                subscribe(wsChannel, handler);
-            }
-        });
+        subscribe(wsChannel, messageHandler);
     }
 
-    private void showError(@Nonnull String error, @Nonnull Notification notification) {
-        notification.setMessage(error);
+    private void showInfo(@Nonnull String message, @Nonnull Notification notification) {
+        notification.setMessage(message);
+        notification.setStatus(FINISHED);
+        notification.setType(INFO);
+    }
+
+    private void showError(@Nonnull String message, @Nonnull Notification notification) {
+        notification.setMessage(message);
         notification.setStatus(FINISHED);
         notification.setType(ERROR);
     }

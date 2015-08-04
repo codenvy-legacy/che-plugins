@@ -24,6 +24,7 @@ import org.eclipse.che.ide.extension.machine.client.command.arbitrary.ArbitraryC
 import org.eclipse.che.ide.extension.machine.client.command.edit.EditConfigurationsView;
 import org.eclipse.che.ide.extension.machine.client.command.edit.EditConfigurationsViewImpl;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.EntityFactory;
+import org.eclipse.che.ide.extension.machine.client.inject.factories.TerminalFactory;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.WidgetsFactory;
 import org.eclipse.che.ide.extension.machine.client.machine.console.MachineConsoleToolbar;
 import org.eclipse.che.ide.extension.machine.client.machine.console.MachineConsoleView;
@@ -38,6 +39,8 @@ import org.eclipse.che.ide.extension.machine.client.outputspanel.console.Command
 import org.eclipse.che.ide.extension.machine.client.outputspanel.console.OutputConsole;
 import org.eclipse.che.ide.extension.machine.client.outputspanel.console.OutputConsoleView;
 import org.eclipse.che.ide.extension.machine.client.perspective.MachinePerspective;
+import org.eclipse.che.ide.extension.machine.client.perspective.widgets.recipe.editor.button.EditorButtonWidget;
+import org.eclipse.che.ide.extension.machine.client.perspective.widgets.recipe.editor.button.EditorButtonWidgetImpl;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.Tab;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.TabImpl;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.header.TabHeader;
@@ -51,6 +54,7 @@ import static org.eclipse.che.ide.extension.machine.client.perspective.MachinePe
  *
  * @author Artem Zatsarynnyy
  * @author Dmitry Shnurenko
+ * @author Valeriy Svydenko
  */
 @ExtensionGinModule
 public class MachineGinModule extends AbstractGinModule {
@@ -75,7 +79,10 @@ public class MachineGinModule extends AbstractGinModule {
 
         GinMultibinder.newSetBinder(binder(), CommandType.class).addBinding().to(ArbitraryCommandType.class);
 
-        install(new GinFactoryModuleBuilder().implement(TabHeader.class, TabHeaderImpl.class).build(WidgetsFactory.class));
+        install(new GinFactoryModuleBuilder().implement(TabHeader.class, TabHeaderImpl.class)
+                                             .implement(EditorButtonWidget.class, EditorButtonWidgetImpl.class)
+                                             .build(WidgetsFactory.class));
         install(new GinFactoryModuleBuilder().implement(Tab.class, TabImpl.class).build(EntityFactory.class));
+        install(new GinFactoryModuleBuilder().build(TerminalFactory.class));
     }
 }

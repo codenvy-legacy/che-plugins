@@ -39,8 +39,6 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class DestroyMachineActionTest {
-    private final static String MACHINE_ID = "ID";
-
     @Mock
     private MachineLocalizationConstant locale;
     @Mock
@@ -54,15 +52,14 @@ public class DestroyMachineActionTest {
     @Mock
     private DialogFactory               dialogFactory;
 
-    @InjectMocks
-    private DestroyMachineAction action;
-
     @Mock
     private Machine machine;
 
+    @InjectMocks
+    private DestroyMachineAction action;
+
     @Before
     public void setUp() {
-        when(machine.getId()).thenReturn(MACHINE_ID);
         when(panelPresenter.getSelectedMachine()).thenReturn(machine);
     }
 
@@ -76,7 +73,7 @@ public class DestroyMachineActionTest {
     public void actionShouldBePerformed() {
         action.actionPerformed(event);
 
-        verify(machineManager).destroyMachine(eq(MACHINE_ID));
+        verify(machineManager).destroyMachine(eq(machine));
     }
 
     @Test
@@ -89,6 +86,6 @@ public class DestroyMachineActionTest {
 
         verify(dialogFactory).createMessageDialog(anyString(), anyString(), any(ConfirmCallback.class));
         verify(dialog).show();
-        verify(machineManager, never()).destroyMachine(eq(MACHINE_ID));
+        verify(machineManager, never()).destroyMachine(eq(machine));
     }
 }

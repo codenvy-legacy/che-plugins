@@ -40,8 +40,8 @@
             margin-top: 3px;
         }
     </ui:style>
-    <g:DockLayoutPanel unit="PX" width="800px" height="400px" addStyleNames="{style.emptyBorder}">
-        <g:west size="200.0">
+    <g:DockLayoutPanel unit="PX" width="880px" height="400px" addStyleNames="{style.emptyBorder}">
+        <g:west size="280.0">
             <g:DockLayoutPanel addStyleNames="{style.emptyBorder} {style.border}">
                 <g:north size="30">
                     <g:FlowPanel>
@@ -49,6 +49,8 @@
                                   title="{locale.editConfigurationsViewAddTitle}" addStyleNames="{style.button}"/>
                         <g:Button ui:field="removeButton" text="{locale.editConfigurationsViewRemoveText}"
                                   title="{locale.editConfigurationsViewRemoveTitle}" addStyleNames="{style.button}"/>
+                        <g:Button ui:field="executeButton" text="{locale.editConfigurationsViewExecuteText}"
+                                  title="{locale.editConfigurationsViewExecuteTitle}" addStyleNames="{style.button}"/>
                     </g:FlowPanel>
                 </g:north>
                 <g:center>

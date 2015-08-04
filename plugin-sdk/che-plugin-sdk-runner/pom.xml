@@ -104,10 +104,10 @@
                                 <!-- Unzip Tomcat package -->
                                 <mkdir dir="${project.build.directory}/classes/tomcat-bundle" />
                                 <unzip dest="${project.build.directory}/classes/tomcat-bundle" src="${project.build.directory}/classes/tomcat.zip" />
-                               <delete file="${project.build.directory}/classes/tomcat.zip" />
+                                <delete file="${project.build.directory}/classes/tomcat.zip" />
                                 <!-- Move additional libraries and WAR's -->
                                 <!--<move todir="${project.build.directory}/classes/tomcat-bundle">-->
-                                    <!--<fileset dir="${project.build.directory}/classes/tomcat-resources" />-->
+                                <!--<fileset dir="${project.build.directory}/classes/tomcat-resources" />-->
                                 <!--</move>-->
                                 <!-- Copy pre-configured sh-scripts and configuration files -->
                                 <copy overwrite="true" todir="${project.build.directory}/classes/tomcat-bundle">

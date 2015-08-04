@@ -15,14 +15,20 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.event.shared.EventBus;
 
+import org.eclipse.che.ide.api.event.ActivePartChangedEvent;
+import org.eclipse.che.ide.api.event.ActivePartChangedHandler;
 import org.eclipse.che.ide.client.inject.factories.TabItemFactory;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.EntityFactory;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.WidgetsFactory;
 import org.eclipse.che.ide.extension.machine.client.machine.Machine;
+import org.eclipse.che.ide.extension.machine.client.perspective.terminal.container.TerminalContainer;
+import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.appliance.recipe.RecipeTabPresenter;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.appliance.server.ServerPresenter;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.appliance.sufficientinfo.MachineInfoPresenter;
-import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.appliance.terminal.TerminalPresenter;
+import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.panel.MachinePanelPresenter;
+import org.eclipse.che.ide.extension.machine.client.perspective.widgets.recipe.RecipePartPresenter;
+import org.eclipse.che.ide.extension.machine.client.perspective.widgets.recipe.container.RecipesContainerPresenter;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.Tab;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.container.TabContainerPresenter;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.container.TabContainerView.TabSelectHandler;
@@ -40,17 +46,20 @@ import javax.annotation.Nullable;
  * instead {@link PartStackPresenter}
  *
  * @author Dmitry Shnurenko
+ * @author Valeriy Svydenko
  */
 @Singleton
-public class MachineAppliancePresenter extends PartStackPresenter {
+public class MachineAppliancePresenter extends PartStackPresenter implements ActivePartChangedHandler {
 
-    private final MachineApplianceView  view;
-    private final TabContainerPresenter tabContainer;
-    private final TerminalPresenter     terminalPresenter;
-    private final MachineInfoPresenter  infoPresenter;
-    private final ServerPresenter       serverPresenter;
-    private final WidgetsFactory        widgetsFactory;
-    private final EntityFactory         entityFactory;
+    private final MachineApplianceView      view;
+    private final TabContainerPresenter     tabContainer;
+    private final TerminalContainer         terminalContainer;
+    private final MachineInfoPresenter      infoPresenter;
+    private final ServerPresenter           serverPresenter;
+    private final RecipeTabPresenter        recipeTabPresenter;
+    private final RecipesContainerPresenter recipesContainerPresenter;
+    private final WidgetsFactory            widgetsFactory;
+    private final EntityFactory             entityFactory;
 
     private Machine selectedMachine;
 
@@ -63,16 +72,20 @@ public class MachineAppliancePresenter extends PartStackPresenter {
                                      WidgetsFactory widgetsFactory,
                                      EntityFactory entityFactory,
                                      TabItemFactory tabItemFactory,
-                                     TerminalPresenter terminalPresenter,
+                                     final TerminalContainer terminalContainer,
                                      MachineInfoPresenter infoPresenter,
+                                     RecipesContainerPresenter recipesContainerPresenter,
                                      ServerPresenter serverPresenter,
+                                     RecipeTabPresenter recipeTabPresenter,
                                      TabContainerPresenter tabContainer) {
         super(eventBus, partStackEventHandler, tabItemFactory, partsComparator, view, null);
 
         this.view = view;
         this.tabContainer = tabContainer;
-        this.terminalPresenter = terminalPresenter;
+        this.terminalContainer = terminalContainer;
+        this.recipesContainerPresenter = recipesContainerPresenter;
         this.infoPresenter = infoPresenter;
+        this.recipeTabPresenter = recipeTabPresenter;
         this.serverPresenter = serverPresenter;
         this.widgetsFactory = widgetsFactory;
         this.entityFactory = entityFactory;
@@ -80,14 +93,17 @@ public class MachineAppliancePresenter extends PartStackPresenter {
         final String terminalTabName = locale.tabTerminal();
         final String infoTabName = locale.tabInfo();
         final String serverTabName = locale.tabServer();
+        final String recipeTabName = locale.tabRecipe();
 
         TabSelectHandler terminalHandler = new TabSelectHandler() {
             @Override
             public void onTabSelected() {
                 selectedMachine.setActiveTabName(terminalTabName);
+
+                terminalContainer.addOrShowTerminal(selectedMachine);
             }
         };
-        createAndAddTab(terminalTabName, terminalPresenter, terminalHandler);
+        createAndAddTab(terminalTabName, terminalContainer, terminalHandler);
 
         TabSelectHandler infoHandler = new TabSelectHandler() {
             @Override
@@ -105,7 +121,16 @@ public class MachineAppliancePresenter extends PartStackPresenter {
         };
         createAndAddTab(serverTabName, serverPresenter, serverHandler);
 
-        this.view.showContainer(tabContainer.getView());
+        TabSelectHandler recipeHandler = new TabSelectHandler() {
+            @Override
+            public void onTabSelected() {
+                selectedMachine.setActiveTabName(recipeTabName);
+            }
+        };
+        createAndAddTab(recipeTabName, recipeTabPresenter, recipeHandler);
+
+        this.view.showContainer(tabContainer.getView().asWidget());
+        eventBus.addHandler(ActivePartChangedEvent.TYPE, this);
     }
 
     private void createAndAddTab(@Nonnull String tabName, @Nonnull TabPresenter content, @Nullable TabSelectHandler handler) {
@@ -128,9 +153,20 @@ public class MachineAppliancePresenter extends PartStackPresenter {
 
         tabContainer.showTab(machine.getActiveTabName());
 
-        terminalPresenter.updateTerminal(machine);
+        terminalContainer.addOrShowTerminal(machine);
         infoPresenter.update(machine);
+        recipeTabPresenter.updateInfo(machine);
         serverPresenter.updateInfo(machine);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void onActivePartChanged(ActivePartChangedEvent event) {
+        if (event.getActivePart() instanceof RecipePartPresenter) {
+            view.showContainer(recipesContainerPresenter.getView());
+        } else if (event.getActivePart() instanceof MachinePanelPresenter) {
+            view.showContainer(tabContainer.getView());
+        }
     }
 
     /** {@inheritDoc} */
