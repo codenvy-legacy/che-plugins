@@ -39,9 +39,9 @@ import java.util.zip.ZipFile;
  * @author Artem Zatsarynnyy
  * @author Eugene Voevodin
  */
-public abstract class TomcatServer implements ApplicationServer {
+public abstract class AbstractTomcatServer implements ApplicationServer {
     public static final  String MEM_SIZE_PARAMETER = "runner.tomcat.memory";
-    private static final Logger LOG                = LoggerFactory.getLogger(TomcatServer.class);
+    private static final Logger LOG                = LoggerFactory.getLogger(AbstractTomcatServer.class);
     private static final String SERVER_XML         =
             "<?xml version='1.0' encoding='utf-8'?>\n" +
             "<Server port=\"-1\">\n" +
@@ -61,11 +61,11 @@ public abstract class TomcatServer implements ApplicationServer {
 
     private final int                        memSize;
     private final ApplicationUpdaterRegistry applicationUpdaterRegistry;
-    protected final EventService eventService;
+    protected final EventService             eventService;
 
     @Inject
-    public TomcatServer(@Named(MEM_SIZE_PARAMETER) int memSize, ApplicationUpdaterRegistry applicationUpdaterRegistry,
-                        EventService eventService) {
+    public AbstractTomcatServer(@Named(MEM_SIZE_PARAMETER) int memSize, ApplicationUpdaterRegistry applicationUpdaterRegistry,
+                                EventService eventService) {
         this.memSize = memSize;
         this.applicationUpdaterRegistry = applicationUpdaterRegistry;
         this.eventService = eventService;
@@ -155,7 +155,7 @@ public abstract class TomcatServer implements ApplicationServer {
      * @param appDir application directory
      * @param runnerCfg runner configuration
      * @param codeServerProcess code server process
-     * @param callback some actions after start application process
+     * @param callback some actions after createProcess application process
      * @return launched application process
      */
     protected abstract ApplicationProcess start(java.io.File appDir,
@@ -182,7 +182,7 @@ public abstract class TomcatServer implements ApplicationServer {
                 output.append(System.lineSeparator());
             }
             try {
-                codeServerProcess.getLogs(output);
+                codeServerProcess.appendLogs(output);
             } catch (Exception ignore) {
             }
         }

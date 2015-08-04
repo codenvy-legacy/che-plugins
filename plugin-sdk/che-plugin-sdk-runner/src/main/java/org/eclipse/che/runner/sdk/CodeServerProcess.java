@@ -62,11 +62,25 @@ public abstract class CodeServerProcess implements ProjectEventListener {
         this.executor = executor;
     }
 
+    /**
+     * Start CodeServerProcess
+     * @throws RunnerException
+     */
     public abstract void start() throws RunnerException ;
 
+    /**
+     * Stop CodeServerProcess
+     * @throws RunnerException
+     */
     public abstract void stop() throws RunnerException ;
 
-    public void getLogs(Appendable output) throws IOException, RunnerException {
+    /**
+     * Append some log content to output
+     * @param output target output
+     * @throws IOException
+     * @throws RunnerException
+     */
+    public void appendLogs(Appendable output) throws IOException, RunnerException {
         final String url = bindAddress + ':' + port + "/log/_app";
         final String logContent = sendGet(new URL(url.startsWith("http://") ? url : "http://" + url));
         output.append(String.format("%n====> GWT-code-server.log <===="));
@@ -125,7 +139,14 @@ public abstract class CodeServerProcess implements ProjectEventListener {
         update(event, extensionSourcesPath, projectApiBaseUrl, executor);
     }
 
-    private static void update(final ProjectEvent event, final Path projectMirrorPath, final String projectApiBaseUrl,
+    /**
+     * Update source code after changing
+     * @param event project event
+     * @param projectMirrorPath project mirror path
+     * @param projectApiBaseUrl base project api url
+     * @param executor executor service
+     */
+    private void update(final ProjectEvent event, final Path projectMirrorPath, final String projectApiBaseUrl,
                                ExecutorService executor) {
         if (event.getType() == ProjectEvent.EventType.DELETED) {
             IoUtil.deleteRecursive(projectMirrorPath.resolve(event.getPath()).toFile());

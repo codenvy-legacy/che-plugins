@@ -22,6 +22,15 @@ import java.util.concurrent.ExecutorService;
  * @author Alexander Andrienko
  */
 public interface CodeServer {
+    /**
+     * Prepare source file before launch CodeServerProcess and create new CodeServerProcess
+     * @param workDirPath work directory
+     * @param runnerConfiguration runner configuration
+     * @param extensionDescriptor extension descriptor
+     * @param executor executor service for createProcess thread
+     * @return new gwt code server process
+     * @throws RunnerException
+     */
     CodeServerProcess prepare(Path workDirPath,
                               SDKRunnerConfiguration runnerConfiguration,
                               Utils.ExtensionDescriptor extensionDescriptor,

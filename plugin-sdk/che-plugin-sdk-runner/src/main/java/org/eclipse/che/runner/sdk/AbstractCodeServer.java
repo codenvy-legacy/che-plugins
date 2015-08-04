@@ -30,7 +30,7 @@ import java.util.concurrent.ExecutorService;
  *
  * @author Artem Zatsarynnyy
  */
-public abstract class CodeServerImpl implements CodeServer {
+public abstract class AbstractCodeServer implements CodeServer {
     private static final String ADD_SOURCES_PROFILE_ID          = "customExtensionSources";
     protected static final String UNABELE_UPDATE_SCRIPT_ATTRIBUTE = "Unable to update attributes of the startup script";
     /** Id of Maven POM profile used to add (re)sources of custom extension to code server recompilation process. */
@@ -75,17 +75,27 @@ public abstract class CodeServerImpl implements CodeServer {
             final java.io.File file = Utils.exportProject(projectDescriptor, extensionSourcesPath.toFile());
             ZipUtils.unzip(file, extensionSourcesPath.toFile());
 
-            return start(workDirPath.toFile(), runnerConfiguration, extensionSourcesPath, projectDescriptor.getBaseUrl(), executor);
+            return createProcess(workDirPath.toFile(), runnerConfiguration, extensionSourcesPath, projectDescriptor.getBaseUrl(), executor);
         } catch (IOException e) {
             throw new RunnerException(e);
         }
     }
 
-    protected abstract CodeServerProcess start(File codeServerWorkDir,
-                                               SDKRunnerConfiguration runnerConfiguration,
-                                               Path extensionSourcesPath,
-                                               String projectApiBaseUrl,
-                                               ExecutorService executor) throws RunnerException;
+    /**
+     * Create new gwt CodeServerProcess
+     * @param codeServerWorkDir code server working directory
+     * @param runnerConfiguration sdk runner configuration
+     * @param extensionSourcesPath path to extension source
+     * @param projectApiBaseUrl base project api url
+     * @param executor executor service
+     * @return new CodeServerProcess
+     * @throws RunnerException
+     */
+    protected abstract CodeServerProcess createProcess(File codeServerWorkDir,
+                                                       SDKRunnerConfiguration runnerConfiguration,
+                                                       Path extensionSourcesPath,
+                                                       String projectApiBaseUrl,
+                                                       ExecutorService executor) throws RunnerException;
 
     /** Set the GWT code server configuration in the specified pom.xml file. */
     private void setCodeServerConfiguration(Path pom,

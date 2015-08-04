@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.runner.sdk;
 
+import com.google.common.collect.ImmutableList;
 import org.eclipse.che.api.core.notification.EventService;
 
 import org.eclipse.che.api.core.util.CommandLine;
@@ -35,7 +36,6 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -46,7 +46,7 @@ import java.util.List;
  * @author Alexander Andrienko
  */
 @Singleton
-public class WindowsTomcatServer extends TomcatServer {
+public class WindowsTomcatServer extends AbstractTomcatServer {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsTomcatServer.class);
     private static final String LOG_FOLDER = "logs";
@@ -71,8 +71,7 @@ public class WindowsTomcatServer extends TomcatServer {
         } catch (IOException e) {
             throw new RunnerException(e);
         }
-        final List<java.io.File> logFiles = new ArrayList<>(1);
-        logFiles.add(new java.io.File(logsDir, LOG_FILE));
+        final List<java.io.File> logFiles = ImmutableList.of(new java.io.File(logsDir, LOG_FILE));
         return new TomcatProcess(appDir, startUpScriptFile, logFiles, runnerCfg, callback, codeServerProcess, eventService);
     }
 

@@ -31,7 +31,7 @@ import java.util.concurrent.ExecutorService;
  * @author Alexander Andrienko
  */
 @Singleton
-public class UnixCodeServer extends CodeServerImpl {
+public class UnixCodeServer extends AbstractCodeServer {
 
     private static final Logger LOG = LoggerFactory.getLogger(UnixCodeServer.class);
 
@@ -40,8 +40,8 @@ public class UnixCodeServer extends CodeServerImpl {
     }
 
     @Override
-    protected CodeServerProcess start(File codeServerWorkDir, SDKRunnerConfiguration runnerConfiguration, Path extensionSourcesPath,
-                                      String projectApiBaseUrl, ExecutorService executor) throws RunnerException {
+    protected CodeServerProcess createProcess(File codeServerWorkDir, SDKRunnerConfiguration runnerConfiguration, Path extensionSourcesPath,
+                                              String projectApiBaseUrl, ExecutorService executor) throws RunnerException {
         java.io.File startUpScriptFile = genStartUpScriptUnix(codeServerWorkDir);
         return new UnixCodeServerProcess(runnerConfiguration.getCodeServerBindAddress(),
                                          runnerConfiguration.getCodeServerPort(),

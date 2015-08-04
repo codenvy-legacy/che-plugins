@@ -39,7 +39,7 @@ import java.util.List;
  * @author Alexander Andrienko
  */
 @Singleton
-public class UnixTomcatServer extends TomcatServer {
+public class UnixTomcatServer extends AbstractTomcatServer {
 
     private static final Logger LOG = LoggerFactory.getLogger(UnixTomcatServer.class);
 
