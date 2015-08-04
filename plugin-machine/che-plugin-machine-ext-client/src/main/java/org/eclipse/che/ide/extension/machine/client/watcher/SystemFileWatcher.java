@@ -22,6 +22,8 @@ import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.event.RefreshProjectTreeEvent;
 import org.eclipse.che.ide.api.project.tree.TreeNode;
+import org.eclipse.che.ide.api.project.tree.TreeStructure;
+import org.eclipse.che.ide.collections.Array;
 import org.eclipse.che.ide.util.loging.Log;
 import org.eclipse.che.ide.websocket.MessageBus;
 import org.eclipse.che.ide.websocket.WebSocketException;
@@ -91,9 +93,44 @@ public class SystemFileWatcher {
             return;
         }
 
-        String pathToParent = getPathToParent(path);
+        String pathToNode = getPathToParent(path);
 
-        currentProject.getCurrentTree().getNodeByPath(pathToParent, new AsyncCallback<TreeNode<?>>() {
+        boolean isRootNode = !pathToNode.contains("/");
+
+        TreeStructure treeStructure = currentProject.getCurrentTree();
+
+        if (isRootNode) {
+            refreshRootNode(treeStructure);
+        } else {
+            refreshChildNode(treeStructure, pathToNode);
+        }
+    }
+
+    @Nonnull
+    private String getPathToParent(@Nonnull String path) {
+        int parentPathEnd = path.lastIndexOf("/");
+
+        return parentPathEnd == -1 ? path : path.substring(0, parentPathEnd);
+    }
+
+    private void refreshRootNode(@Nonnull TreeStructure treeStructure) {
+        treeStructure.getRootNodes(new AsyncCallback<Array<TreeNode<?>>>() {
+            @Override
+            public void onSuccess(Array<TreeNode<?>> result) {
+                TreeNode<?> rootNode = result.get(0);
+
+                eventBus.fireEvent(new RefreshProjectTreeEvent(rootNode));
+            }
+
+            @Override
+            public void onFailure(Throwable caught) {
+                Log.error(getClass(), caught);
+            }
+        });
+    }
+
+    private void refreshChildNode(@Nonnull TreeStructure treeStructure, @Nonnull String pathToChild) {
+        treeStructure.getNodeByPath(pathToChild, new AsyncCallback<TreeNode<?>>() {
             @Override
             public void onSuccess(TreeNode<?> result) {
                 eventBus.fireEvent(new RefreshProjectTreeEvent(result));
@@ -104,11 +141,5 @@ public class SystemFileWatcher {
                 Log.error(getClass(), caught);
             }
         });
-    }
-
-    private String getPathToParent(@Nonnull String path) {
-        int parentPathEnd = path.lastIndexOf("/");
-
-        return path.substring(0, parentPathEnd);
     }
 }

@@ -22,6 +22,8 @@ import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.event.RefreshProjectTreeEvent;
 import org.eclipse.che.ide.api.project.tree.TreeNode;
 import org.eclipse.che.ide.api.project.tree.TreeStructure;
+import org.eclipse.che.ide.collections.Array;
+import org.eclipse.che.ide.collections.Collections;
 import org.eclipse.che.ide.websocket.MessageBus;
 import org.eclipse.che.ide.websocket.rest.SubscriptionHandler;
 import org.junit.Test;
@@ -32,6 +34,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 
+import javax.annotation.Nonnull;
 import java.lang.reflect.Method;
 
 import static org.eclipse.che.ide.extension.machine.client.watcher.SystemFileWatcher.WATCHER_WS_CHANEL;
@@ -46,6 +49,9 @@ import static org.mockito.Mockito.when;
 public class SystemFileWatcherTest {
 
     private static final String SOME_TEXT = "someText";
+
+    private static final String PATH_TO_FILE   = "parent/child/changed_file";
+    private static final String PATH_TO_PARENT = "parent/child";
 
     //constructor mocks
     @Mock
@@ -68,17 +74,30 @@ public class SystemFileWatcherTest {
     private TreeNode<?>    treeNode;
 
     @Captor
-    private ArgumentCaptor<Operation<Void>>             operationCaptor;
+    private ArgumentCaptor<Operation<Void>>                   operationCaptor;
     @Captor
-    private ArgumentCaptor<SubscriptionHandler<String>> subscriptionCaptor;
+    private ArgumentCaptor<SubscriptionHandler<String>>       subscriptionCaptor;
     @Captor
-    private ArgumentCaptor<AsyncCallback<TreeNode<?>>>  nodeCaptor;
+    private ArgumentCaptor<AsyncCallback<TreeNode<?>>>        nodeCaptor;
+    @Captor
+    private ArgumentCaptor<AsyncCallback<Array<TreeNode<?>>>> rootNodeCaptor;
 
     @InjectMocks
     private SystemFileWatcher systemFileWatcher;
 
     @Test
     public void watcherShouldBeRegistered() throws Exception {
+        callRefreshTreeMethod(PATH_TO_FILE);
+
+        verify(appContext).getCurrentProject();
+        verify(currentProject).getCurrentTree();
+        verify(treeStructure).getNodeByPath(eq(PATH_TO_PARENT), nodeCaptor.capture());
+        nodeCaptor.getValue().onSuccess(treeNode);
+
+        verify(eventBus).fireEvent(Matchers.<RefreshProjectTreeEvent>anyObject());
+    }
+
+    private void callRefreshTreeMethod(@Nonnull String pathToNode) throws Exception {
         when(appContext.getCurrentProject()).thenReturn(currentProject);
         when(currentProject.getCurrentTree()).thenReturn(treeStructure);
 
@@ -99,12 +118,17 @@ public class SystemFileWatcherTest {
 
         method.setAccessible(true);
 
-        method.invoke(handler, SOME_TEXT);
+        method.invoke(handler, pathToNode);
+    }
 
-        verify(appContext).getCurrentProject();
-        verify(currentProject).getCurrentTree();
-        verify(treeStructure).getNodeByPath(eq(SOME_TEXT), nodeCaptor.capture());
-        nodeCaptor.getValue().onSuccess(treeNode);
+    @Test
+    public void parentNodeShouldBeRefreshed() throws Exception {
+        Array<TreeNode<?>> nodes = Collections.<TreeNode<?>>createArray(treeNode);
+
+        callRefreshTreeMethod(PATH_TO_PARENT);
+
+        verify(treeStructure).getRootNodes(rootNodeCaptor.capture());
+        rootNodeCaptor.getValue().onSuccess(nodes);
 
         verify(eventBus).fireEvent(Matchers.<RefreshProjectTreeEvent>anyObject());
     }
