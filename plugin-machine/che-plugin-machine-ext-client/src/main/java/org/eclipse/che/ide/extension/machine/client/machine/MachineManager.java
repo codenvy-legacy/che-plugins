@@ -83,6 +83,7 @@ public class MachineManager implements ProjectActionHandler {
 
     /** Stores ID of the developer machine (where workspace or current project is bound). */
     private String devMachineId;
+    private Machine devMachine;
 
     @Inject
     public MachineManager(MachineServiceClient machineServiceClient,
@@ -119,6 +120,14 @@ public class MachineManager implements ProjectActionHandler {
                 for (MachineStateDescriptor machineStateDescriptor : arg) {
                     if (machineStateDescriptor.isWorkspaceBound()) {
                         devMachineId = machineStateDescriptor.getId();
+
+                        machineServiceClient.getMachine(devMachineId).then(new Operation<MachineDescriptor>() {
+                            @Override
+                            public void apply(MachineDescriptor arg) throws OperationException {
+                                devMachine = entityFactory.createMachine(arg);
+                            }
+                        });
+
                         return;
                     }
                 }
@@ -134,6 +143,7 @@ public class MachineManager implements ProjectActionHandler {
     @Override
     public void onProjectClosed(ProjectActionEvent event) {
         devMachineId = null;
+        devMachine = null;
         machineConsolePresenter.clear();
     }
 
@@ -141,10 +151,9 @@ public class MachineManager implements ProjectActionHandler {
         machineServiceClient.destroyMachine(machine.getId()).then(new Operation<Void>() {
             @Override
             public void apply(Void arg) throws OperationException {
-                String recipeUrl = recipeProvider.getRecipeUrl();
-                String displayName = machine.getDisplayName();
-
-                boolean isWSBound = machine.isWorkspaceBound();
+                final String recipeUrl = recipeProvider.getRecipeUrl();
+                final String displayName = machine.getDisplayName();
+                final boolean isWSBound = machine.isWorkspaceBound();
 
                 startMachine(recipeUrl, displayName, isWSBound, RESTART);
             }
@@ -189,7 +198,14 @@ public class MachineManager implements ProjectActionHandler {
                     runningListener = new RunningListener() {
                         @Override
                         public void onRunning() {
-                            devMachineId = machine.getId();
+                            // get updated info about machine when it already started
+                            machineServiceClient.getMachine(machineDescriptor.getId()).then(new Operation<MachineDescriptor>() {
+                                @Override
+                                public void apply(MachineDescriptor arg) throws OperationException {
+                                    devMachineId = arg.getId();
+                                    devMachine = entityFactory.createMachine(arg);
+                                }
+                            });
                         }
                     };
                 }
@@ -238,6 +254,7 @@ public class MachineManager implements ProjectActionHandler {
                 machineStatusNotifier.trackMachine(machine, DESTROY);
                 if (devMachineId != null && machine.getId().equals(devMachineId)) {
                     devMachineId = null;
+                    devMachine = null;
                 }
             }
         });
@@ -247,6 +264,12 @@ public class MachineManager implements ProjectActionHandler {
     @Nullable
     public String getDeveloperMachineId() {
         return devMachineId;
+    }
+
+    /** Returns the developer machine (where workspace or current project is bound). */
+    @Nullable
+    public Machine getDeveloperMachine() {
+        return devMachine;
     }
 
     private void subscribeToOutput(final String channel) {

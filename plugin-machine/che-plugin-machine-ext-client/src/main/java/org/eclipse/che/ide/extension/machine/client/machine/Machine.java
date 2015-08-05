@@ -130,6 +130,11 @@ public class Machine {
         return descriptor.isWorkspaceBound();
     }
 
+    /** Returns information about machine. */
+    public Map<String, String> getMetadata() {
+        return descriptor.getMetadata();
+    }
+
     @Override
     public boolean equals(Object machine) {
         return this == machine || !(machine == null || getClass() != machine.getClass()) && Objects.equals(descriptor.getId(),
