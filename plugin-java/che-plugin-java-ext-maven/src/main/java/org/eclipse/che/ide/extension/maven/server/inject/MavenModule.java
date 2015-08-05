@@ -14,9 +14,18 @@ import com.google.inject.AbstractModule;
 import com.google.inject.multibindings.Multibinder;
 
 import org.eclipse.che.api.project.server.ValueProviderFactory;
+import org.eclipse.che.api.project.server.handlers.ProjectHandler;
 import org.eclipse.che.api.project.server.type.ProjectType;
 import org.eclipse.che.ide.extension.maven.server.projecttype.MavenProjectType;
 import org.eclipse.che.ide.extension.maven.server.projecttype.MavenValueProviderFactory;
+import org.eclipse.che.ide.extension.maven.server.projecttype.handler.AddMavenModuleHandler;
+import org.eclipse.che.ide.extension.maven.server.projecttype.handler.ArchetypeGenerationStrategy;
+import org.eclipse.che.ide.extension.maven.server.projecttype.handler.GeneratorStrategy;
+import org.eclipse.che.ide.extension.maven.server.projecttype.handler.GetMavenModulesHandler;
+import org.eclipse.che.ide.extension.maven.server.projecttype.handler.MavenProjectCreatedHandler;
+import org.eclipse.che.ide.extension.maven.server.projecttype.handler.MavenProjectGenerator;
+import org.eclipse.che.ide.extension.maven.server.projecttype.handler.MavenProjectImportedHandler;
+import org.eclipse.che.ide.extension.maven.server.projecttype.handler.ProjectHasBecomeMaven;
 import org.eclipse.che.inject.DynaModule;
 
 /** @author Artem Zatsarynnyy */
@@ -26,6 +35,12 @@ public class MavenModule extends AbstractModule {
     protected void configure() {
         Multibinder.newSetBinder(binder(), ValueProviderFactory.class).addBinding().to(MavenValueProviderFactory.class);
         Multibinder.newSetBinder(binder(), ProjectType.class).addBinding().to(MavenProjectType.class);
-
+        Multibinder.newSetBinder(binder(), ProjectHandler.class).addBinding().to(MavenProjectGenerator.class);
+        Multibinder.newSetBinder(binder(), ProjectHandler.class).addBinding().to(AddMavenModuleHandler.class);
+        Multibinder.newSetBinder(binder(), ProjectHandler.class).addBinding().to(MavenProjectImportedHandler.class);
+        Multibinder.newSetBinder(binder(), ProjectHandler.class).addBinding().to(ProjectHasBecomeMaven.class);
+        Multibinder.newSetBinder(binder(), ProjectHandler.class).addBinding().to(GetMavenModulesHandler.class);
+        Multibinder.newSetBinder(binder(), ProjectHandler.class).addBinding().to(MavenProjectCreatedHandler.class);
+        Multibinder.newSetBinder(binder(), GeneratorStrategy.class).addBinding().to(ArchetypeGenerationStrategy.class);
     }
 }
