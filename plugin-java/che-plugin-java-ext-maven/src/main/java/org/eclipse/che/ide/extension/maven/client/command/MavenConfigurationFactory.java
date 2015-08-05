@@ -11,6 +11,7 @@
 package org.eclipse.che.ide.extension.maven.client.command;
 
 import org.eclipse.che.api.machine.shared.dto.CommandDescriptor;
+import org.eclipse.che.ide.CommandLine;
 import org.eclipse.che.ide.extension.machine.client.command.CommandType;
 import org.eclipse.che.ide.extension.machine.client.command.ConfigurationFactory;
 

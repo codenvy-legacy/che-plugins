@@ -51,11 +51,11 @@ public class MavenCommandConfiguration extends CommandConfiguration {
     @Override
     public String toCommandLine() {
         final StringBuilder cmd = new StringBuilder("mvn");
-        if (!workingDirectory.isEmpty()) {
-            cmd.append(" -f ").append(workingDirectory);
+        if (!workingDirectory.trim().isEmpty()) {
+            cmd.append(" -f ").append(workingDirectory.trim());
         }
-        if (!commandLine.isEmpty()) {
-            cmd.append(' ').append(commandLine);
+        if (!commandLine.trim().isEmpty()) {
+            cmd.append(' ').append(commandLine.trim());
         }
         return cmd.toString();
     }
