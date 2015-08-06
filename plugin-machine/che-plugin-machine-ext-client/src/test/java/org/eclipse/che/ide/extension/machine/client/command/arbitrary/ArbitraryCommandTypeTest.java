@@ -12,7 +12,7 @@ package org.eclipse.che.ide.extension.machine.client.command.arbitrary;
 
 import org.eclipse.che.ide.extension.machine.client.MachineResources;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
-import org.eclipse.che.ide.extension.machine.client.command.ConfigurationPage;
+import org.eclipse.che.ide.extension.machine.client.command.CommandConfigurationPage;
 import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -61,7 +61,7 @@ public class ArbitraryCommandTypeTest {
 
     @Test
     public void shouldReturnPages() throws Exception {
-        final Collection<ConfigurationPage<? extends CommandConfiguration>> pages = arbitraryCommandType.getConfigurationPages();
+        final Collection<CommandConfigurationPage<? extends CommandConfiguration>> pages = arbitraryCommandType.getConfigurationPages();
 
         assertTrue(pages.contains(arbitraryPagePresenter));
     }

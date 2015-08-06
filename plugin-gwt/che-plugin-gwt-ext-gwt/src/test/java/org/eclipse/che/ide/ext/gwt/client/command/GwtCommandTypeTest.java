@@ -15,7 +15,7 @@ import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.ext.gwt.client.GwtResources;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
-import org.eclipse.che.ide.extension.machine.client.command.ConfigurationPage;
+import org.eclipse.che.ide.extension.machine.client.command.CommandConfigurationPage;
 import org.eclipse.che.ide.extension.machine.client.machine.Machine;
 import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
 import org.junit.Test;
@@ -72,7 +72,7 @@ public class GwtCommandTypeTest {
 
     @Test
     public void shouldReturnPages() throws Exception {
-        final Collection<ConfigurationPage<? extends CommandConfiguration>> pages = gwtCommandType.getConfigurationPages();
+        final Collection<CommandConfigurationPage<? extends CommandConfiguration>> pages = gwtCommandType.getConfigurationPages();
 
         assertTrue(pages.contains(gwtCommandPagePresenter));
     }

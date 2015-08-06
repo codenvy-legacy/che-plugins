@@ -17,8 +17,8 @@ import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
 import org.eclipse.che.ide.extension.machine.client.command.CommandType;
-import org.eclipse.che.ide.extension.machine.client.command.ConfigurationFactory;
-import org.eclipse.che.ide.extension.machine.client.command.ConfigurationPage;
+import org.eclipse.che.ide.extension.machine.client.command.CommandConfigurationFactory;
+import org.eclipse.che.ide.extension.machine.client.command.CommandConfigurationPage;
 import org.eclipse.che.ide.extension.maven.client.MavenResources;
 import org.vectomatic.dom.svg.ui.SVGResource;
 
@@ -38,17 +38,17 @@ public class MavenCommandType implements CommandType {
     public static final String DISPLAY_NAME     = "Maven";
     public static final String COMMAND_TEMPLATE = "mvn clean install";
 
-    private final MavenResources            resources;
-    private final AppContext                appContext;
-    private final MavenConfigurationFactory configurationFactory;
+    private final MavenResources                   resources;
+    private final AppContext                       appContext;
+    private final MavenCommandConfigurationFactory configurationFactory;
 
-    private final Collection<ConfigurationPage<? extends CommandConfiguration>> pages;
+    private final Collection<CommandConfigurationPage<? extends CommandConfiguration>> pages;
 
     @Inject
     public MavenCommandType(MavenResources resources, MavenCommandPagePresenter page, AppContext appContext) {
         this.resources = resources;
         this.appContext = appContext;
-        configurationFactory = new MavenConfigurationFactory(this);
+        configurationFactory = new MavenCommandConfigurationFactory(this);
         pages = new LinkedList<>();
         pages.add(page);
     }
@@ -73,13 +73,13 @@ public class MavenCommandType implements CommandType {
 
     @Nonnull
     @Override
-    public Collection<ConfigurationPage<? extends CommandConfiguration>> getConfigurationPages() {
+    public Collection<CommandConfigurationPage<? extends CommandConfiguration>> getConfigurationPages() {
         return pages;
     }
 
     @Nonnull
     @Override
-    public ConfigurationFactory<MavenCommandConfiguration> getConfigurationFactory() {
+    public CommandConfigurationFactory<MavenCommandConfiguration> getConfigurationFactory() {
         return configurationFactory;
     }
 

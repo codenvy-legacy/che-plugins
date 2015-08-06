@@ -14,7 +14,7 @@ import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
-import org.eclipse.che.ide.extension.machine.client.command.ConfigurationPage;
+import org.eclipse.che.ide.extension.machine.client.command.CommandConfigurationPage;
 import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
 import org.eclipse.che.ide.extension.maven.client.MavenResources;
 import org.junit.Test;
@@ -69,7 +69,7 @@ public class MavenCommandTypeTest {
 
     @Test
     public void shouldReturnPages() throws Exception {
-        final Collection<ConfigurationPage<? extends CommandConfiguration>> pages = mavenCommandType.getConfigurationPages();
+        final Collection<CommandConfigurationPage<? extends CommandConfiguration>> pages = mavenCommandType.getConfigurationPages();
 
         assertTrue(pages.contains(mavenCommandPagePresenter));
     }

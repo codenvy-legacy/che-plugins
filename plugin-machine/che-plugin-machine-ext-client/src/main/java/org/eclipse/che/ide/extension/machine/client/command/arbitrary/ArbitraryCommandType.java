@@ -16,8 +16,8 @@ import com.google.inject.Singleton;
 import org.eclipse.che.ide.extension.machine.client.MachineResources;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
 import org.eclipse.che.ide.extension.machine.client.command.CommandType;
-import org.eclipse.che.ide.extension.machine.client.command.ConfigurationFactory;
-import org.eclipse.che.ide.extension.machine.client.command.ConfigurationPage;
+import org.eclipse.che.ide.extension.machine.client.command.CommandConfigurationFactory;
+import org.eclipse.che.ide.extension.machine.client.command.CommandConfigurationPage;
 import org.vectomatic.dom.svg.ui.SVGResource;
 
 import javax.annotation.Nonnull;
@@ -32,19 +32,19 @@ import java.util.LinkedList;
 @Singleton
 public class ArbitraryCommandType implements CommandType {
 
-    public static final  String ID               = "arbitrary";
+    public static final String ID               = "arbitrary";
     public static final String DISPLAY_NAME     = "Arbitrary";
     public static final String COMMAND_TEMPLATE = "echo \"hello\"";
 
-    private final MachineResources              resources;
-    private final ArbitraryConfigurationFactory configurationFactory;
+    private final MachineResources                     resources;
+    private final ArbitraryCommandConfigurationFactory configurationFactory;
 
-    private final Collection<ConfigurationPage<? extends CommandConfiguration>> pages;
+    private final Collection<CommandConfigurationPage<? extends CommandConfiguration>> pages;
 
     @Inject
     public ArbitraryCommandType(MachineResources resources, ArbitraryPagePresenter page) {
         this.resources = resources;
-        configurationFactory = new ArbitraryConfigurationFactory(this);
+        configurationFactory = new ArbitraryCommandConfigurationFactory(this);
         pages = new LinkedList<>();
         pages.add(page);
     }
@@ -69,13 +69,13 @@ public class ArbitraryCommandType implements CommandType {
 
     @Nonnull
     @Override
-    public Collection<ConfigurationPage<? extends CommandConfiguration>> getConfigurationPages() {
+    public Collection<CommandConfigurationPage<? extends CommandConfiguration>> getConfigurationPages() {
         return pages;
     }
 
     @Nonnull
     @Override
-    public ConfigurationFactory<ArbitraryCommandConfiguration> getConfigurationFactory() {
+    public CommandConfigurationFactory<ArbitraryCommandConfiguration> getConfigurationFactory() {
         return configurationFactory;
     }
 

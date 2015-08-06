@@ -12,7 +12,7 @@ package org.eclipse.che.ide.extension.maven.client.command;
 
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 
-import org.eclipse.che.ide.extension.machine.client.command.ConfigurationPage;
+import org.eclipse.che.ide.extension.machine.client.command.CommandConfigurationPage;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -73,7 +73,7 @@ public class MavenPagePresenterTest {
         String workDir = "project";
         when(mavenCommandPageView.getWorkingDirectory()).thenReturn(workDir);
 
-        final ConfigurationPage.DirtyStateListener listener = mock(ConfigurationPage.DirtyStateListener.class);
+        final CommandConfigurationPage.DirtyStateListener listener = mock(CommandConfigurationPage.DirtyStateListener.class);
         mavenCommandPagePresenter.setDirtyStateListener(listener);
 
         mavenCommandPagePresenter.onWorkingDirectoryChanged();
@@ -88,7 +88,7 @@ public class MavenPagePresenterTest {
         String commandLine = "commandLine";
         when(mavenCommandPageView.getCommandLine()).thenReturn(commandLine);
 
-        final ConfigurationPage.DirtyStateListener listener = mock(ConfigurationPage.DirtyStateListener.class);
+        final CommandConfigurationPage.DirtyStateListener listener = mock(CommandConfigurationPage.DirtyStateListener.class);
         mavenCommandPagePresenter.setDirtyStateListener(listener);
 
         mavenCommandPagePresenter.onCommandLineChanged();

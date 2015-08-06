@@ -18,8 +18,8 @@ import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.ext.gwt.client.GwtResources;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
 import org.eclipse.che.ide.extension.machine.client.command.CommandType;
-import org.eclipse.che.ide.extension.machine.client.command.ConfigurationFactory;
-import org.eclipse.che.ide.extension.machine.client.command.ConfigurationPage;
+import org.eclipse.che.ide.extension.machine.client.command.CommandConfigurationFactory;
+import org.eclipse.che.ide.extension.machine.client.command.CommandConfigurationPage;
 import org.eclipse.che.ide.extension.machine.client.machine.Machine;
 import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
 import org.vectomatic.dom.svg.ui.SVGResource;
@@ -41,19 +41,19 @@ public class GwtCommandType implements CommandType {
     public static final String ID               = "gwt";
     public static final String DISPLAY_NAME     = "GWT";
 
-    private final GwtResources            resources;
-    private final AppContext              appContext;
-    private final MachineManager          machineManager;
-    private final GwtConfigurationFactory configurationFactory;
+    private final GwtResources                   resources;
+    private final AppContext                     appContext;
+    private final MachineManager                 machineManager;
+    private final GwtCommandConfigurationFactory configurationFactory;
 
-    private final Collection<ConfigurationPage<? extends CommandConfiguration>> pages;
+    private final Collection<CommandConfigurationPage<? extends CommandConfiguration>> pages;
 
     @Inject
     public GwtCommandType(GwtResources resources, GwtCommandPagePresenter page, AppContext appContext, MachineManager machineManager) {
         this.resources = resources;
         this.appContext = appContext;
         this.machineManager = machineManager;
-        configurationFactory = new GwtConfigurationFactory(this);
+        configurationFactory = new GwtCommandConfigurationFactory(this);
         pages = new LinkedList<>();
         pages.add(page);
     }
@@ -78,13 +78,13 @@ public class GwtCommandType implements CommandType {
 
     @Nonnull
     @Override
-    public Collection<ConfigurationPage<? extends CommandConfiguration>> getConfigurationPages() {
+    public Collection<CommandConfigurationPage<? extends CommandConfiguration>> getConfigurationPages() {
         return pages;
     }
 
     @Nonnull
     @Override
-    public ConfigurationFactory<GwtCommandConfiguration> getConfigurationFactory() {
+    public CommandConfigurationFactory<GwtCommandConfiguration> getConfigurationFactory() {
         return configurationFactory;
     }
 

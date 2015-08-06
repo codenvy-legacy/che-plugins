@@ -13,7 +13,7 @@ package org.eclipse.che.ide.ext.gwt.client.command;
 import org.eclipse.che.api.machine.shared.dto.CommandDescriptor;
 import org.eclipse.che.ide.CommandLine;
 import org.eclipse.che.ide.extension.machine.client.command.CommandType;
-import org.eclipse.che.ide.extension.machine.client.command.ConfigurationFactory;
+import org.eclipse.che.ide.extension.machine.client.command.CommandConfigurationFactory;
 
 import javax.annotation.Nonnull;
 
@@ -22,9 +22,9 @@ import javax.annotation.Nonnull;
  *
  * @author Artem Zatsarynnyy
  */
-public class GwtConfigurationFactory extends ConfigurationFactory<GwtCommandConfiguration> {
+public class GwtCommandConfigurationFactory extends CommandConfigurationFactory<GwtCommandConfiguration> {
 
-    protected GwtConfigurationFactory(@Nonnull CommandType commandType) {
+    protected GwtCommandConfigurationFactory(@Nonnull CommandType commandType) {
         super(commandType);
     }
 

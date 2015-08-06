@@ -12,7 +12,7 @@ package org.eclipse.che.ide.extension.machine.client.command.arbitrary;
 
 import org.eclipse.che.api.machine.shared.dto.CommandDescriptor;
 import org.eclipse.che.ide.extension.machine.client.command.CommandType;
-import org.eclipse.che.ide.extension.machine.client.command.ConfigurationFactory;
+import org.eclipse.che.ide.extension.machine.client.command.CommandConfigurationFactory;
 
 import javax.annotation.Nonnull;
 
@@ -21,9 +21,9 @@ import javax.annotation.Nonnull;
  *
  * @author Artem Zatsarynnyy
  */
-public class ArbitraryConfigurationFactory extends ConfigurationFactory<ArbitraryCommandConfiguration> {
+public class ArbitraryCommandConfigurationFactory extends CommandConfigurationFactory<ArbitraryCommandConfiguration> {
 
-    protected ArbitraryConfigurationFactory(@Nonnull CommandType commandType) {
+    protected ArbitraryCommandConfigurationFactory(@Nonnull CommandType commandType) {
         super(commandType);
     }
 

@@ -20,8 +20,8 @@ import org.eclipse.che.ide.api.extension.ExtensionGinModule;
 import org.eclipse.che.ide.api.parts.Perspective;
 import org.eclipse.che.ide.extension.machine.client.command.CommandType;
 import org.eclipse.che.ide.extension.machine.client.command.arbitrary.ArbitraryCommandType;
-import org.eclipse.che.ide.extension.machine.client.command.edit.EditConfigurationsView;
-import org.eclipse.che.ide.extension.machine.client.command.edit.EditConfigurationsViewImpl;
+import org.eclipse.che.ide.extension.machine.client.command.edit.EditCommandsView;
+import org.eclipse.che.ide.extension.machine.client.command.edit.EditCommandsViewImpl;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.EntityFactory;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.TerminalFactory;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.WidgetsFactory;
@@ -74,7 +74,7 @@ public class MachineGinModule extends AbstractGinModule {
 
         bind(OutputsContainerView.class).to(OutputsContainerViewImpl.class).in(Singleton.class);
 
-        bind(EditConfigurationsView.class).to(EditConfigurationsViewImpl.class).in(Singleton.class);
+        bind(EditCommandsView.class).to(EditCommandsViewImpl.class).in(Singleton.class);
 
         GinMultibinder.newSetBinder(binder(), CommandType.class).addBinding().to(ArbitraryCommandType.class);
 

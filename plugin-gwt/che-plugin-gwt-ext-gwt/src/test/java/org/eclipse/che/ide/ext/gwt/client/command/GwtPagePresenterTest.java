@@ -12,7 +12,7 @@ package org.eclipse.che.ide.ext.gwt.client.command;
 
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 
-import org.eclipse.che.ide.extension.machine.client.command.ConfigurationPage;
+import org.eclipse.che.ide.extension.machine.client.command.CommandConfigurationPage;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -79,7 +79,7 @@ public class GwtPagePresenterTest {
         String workDir = "project";
         when(gwtCommandPageView.getWorkingDirectory()).thenReturn(workDir);
 
-        final ConfigurationPage.DirtyStateListener listener = mock(ConfigurationPage.DirtyStateListener.class);
+        final CommandConfigurationPage.DirtyStateListener listener = mock(CommandConfigurationPage.DirtyStateListener.class);
         gwtCommandPagePresenter.setDirtyStateListener(listener);
 
         gwtCommandPagePresenter.onWorkingDirectoryChanged();
@@ -94,7 +94,7 @@ public class GwtPagePresenterTest {
         String gwtModule = "module";
         when(gwtCommandPageView.getGwtModule()).thenReturn(gwtModule);
 
-        final ConfigurationPage.DirtyStateListener listener = mock(ConfigurationPage.DirtyStateListener.class);
+        final CommandConfigurationPage.DirtyStateListener listener = mock(CommandConfigurationPage.DirtyStateListener.class);
         gwtCommandPagePresenter.setDirtyStateListener(listener);
 
         gwtCommandPagePresenter.onGwtModuleChanged();
@@ -109,7 +109,7 @@ public class GwtPagePresenterTest {
         String codeServer = "localhost";
         when(gwtCommandPageView.getCodeServerAddress()).thenReturn(codeServer);
 
-        final ConfigurationPage.DirtyStateListener listener = mock(ConfigurationPage.DirtyStateListener.class);
+        final CommandConfigurationPage.DirtyStateListener listener = mock(CommandConfigurationPage.DirtyStateListener.class);
         gwtCommandPagePresenter.setDirtyStateListener(listener);
 
         gwtCommandPagePresenter.onCodeServerAddressChanged();

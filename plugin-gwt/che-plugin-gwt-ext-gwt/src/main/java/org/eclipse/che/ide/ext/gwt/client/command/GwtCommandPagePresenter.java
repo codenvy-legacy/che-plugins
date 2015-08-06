@@ -14,7 +14,7 @@ import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import org.eclipse.che.ide.extension.machine.client.command.ConfigurationPage;
+import org.eclipse.che.ide.extension.machine.client.command.CommandConfigurationPage;
 
 import javax.annotation.Nonnull;
 
@@ -24,7 +24,7 @@ import javax.annotation.Nonnull;
  * @author Artem Zatsarynnyy
  */
 @Singleton
-public class GwtCommandPagePresenter implements GwtCommandPageView.ActionDelegate, ConfigurationPage<GwtCommandConfiguration> {
+public class GwtCommandPagePresenter implements GwtCommandPageView.ActionDelegate, CommandConfigurationPage<GwtCommandConfiguration> {
 
     private final GwtCommandPageView view;
 

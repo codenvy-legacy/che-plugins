@@ -12,7 +12,7 @@ package org.eclipse.che.ide.extension.machine.client.command.arbitrary;
 
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 
-import org.eclipse.che.ide.extension.machine.client.command.ConfigurationPage;
+import org.eclipse.che.ide.extension.machine.client.command.CommandConfigurationPage;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -69,7 +69,7 @@ public class ArbitraryPagePresenterTest {
         String commandLine = "commandLine";
         when(arbitraryPageView.getCommandLine()).thenReturn(commandLine);
 
-        final ConfigurationPage.DirtyStateListener listener = mock(ConfigurationPage.DirtyStateListener.class);
+        final CommandConfigurationPage.DirtyStateListener listener = mock(CommandConfigurationPage.DirtyStateListener.class);
         arbitraryPagePresenter.setDirtyStateListener(listener);
 
         arbitraryPagePresenter.onCommandLineChanged();

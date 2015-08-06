@@ -34,7 +34,7 @@ import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
 import org.eclipse.che.ide.extension.machine.client.command.CommandType;
 import org.eclipse.che.ide.extension.machine.client.command.CommandTypeRegistry;
-import org.eclipse.che.ide.extension.machine.client.command.edit.EditConfigurationsPresenter;
+import org.eclipse.che.ide.extension.machine.client.command.edit.EditCommandsPresenter;
 import org.eclipse.che.ide.ui.dropdown.DropDownHeaderWidget;
 import org.eclipse.che.ide.ui.dropdown.DropDownListFactory;
 
@@ -57,7 +57,7 @@ import static org.eclipse.che.ide.workspace.perspectives.project.ProjectPerspect
 @Singleton
 public class SelectCommandComboBoxAction extends AbstractPerspectiveAction implements CustomComponentAction,
                                                                                       ProjectActionHandler,
-                                                                                      EditConfigurationsPresenter.ConfigurationChangedListener {
+                                                                                      EditCommandsPresenter.ConfigurationChangedListener {
 
     public static final  String                           GROUP_COMMANDS     = "CommandsGroup";
     private static final Comparator<CommandConfiguration> commandsComparator = new CommandsComparator();
@@ -78,7 +78,7 @@ public class SelectCommandComboBoxAction extends AbstractPerspectiveAction imple
                                        DropDownListFactory dropDownListFactory,
                                        CommandServiceClient commandServiceClient,
                                        CommandTypeRegistry commandTypeRegistry,
-                                       EditConfigurationsPresenter editConfigurationsPresenter) {
+                                       EditCommandsPresenter editCommandsPresenter) {
         super(Collections.singletonList(PROJECT_PERSPECTIVE_ID),
               locale.selectCommandControlTitle(),
               locale.selectCommandControlDescription(),
@@ -93,7 +93,7 @@ public class SelectCommandComboBoxAction extends AbstractPerspectiveAction imple
         commands = new LinkedList<>();
 
         eventBus.addHandler(ProjectActionEvent.TYPE, this);
-        editConfigurationsPresenter.addConfigurationsChangedListener(this);
+        editCommandsPresenter.addConfigurationsChangedListener(this);
 
         commandActions = new DefaultActionGroup(GROUP_COMMANDS, false, actionManager);
         actionManager.registerAction(GROUP_COMMANDS, commandActions);

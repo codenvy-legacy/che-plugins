@@ -49,12 +49,12 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * The implementation of {@link EditConfigurationsView}.
+ * The implementation of {@link EditCommandsView}.
  *
  * @author Artem Zatsarynnyy
  */
 @Singleton
-public class EditConfigurationsViewImpl extends Window implements EditConfigurationsView {
+public class EditCommandsViewImpl extends Window implements EditCommandsView {
 
     private static final EditConfigurationsViewImplUiBinder UI_BINDER = GWT.create(EditConfigurationsViewImplUiBinder.class);
 
@@ -82,19 +82,19 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
     private Button         applyButton;
 
     @Inject
-    protected EditConfigurationsViewImpl(org.eclipse.che.ide.Resources resources,
-                                         MachineResources machineResources,
-                                         MachineLocalizationConstant locale,
-                                         CommandDataAdapter dataAdapter,
-                                         CommandRenderer renderer) {
+    protected EditCommandsViewImpl(org.eclipse.che.ide.Resources resources,
+                                   MachineResources machineResources,
+                                   MachineLocalizationConstant locale,
+                                   CommandDataAdapter dataAdapter,
+                                   CommandRenderer renderer) {
         this.locale = locale;
         tree = Tree.create(resources, dataAdapter, renderer);
-        hintLabel = new Label(locale.editConfigurationsViewHint());
+        hintLabel = new Label(locale.editCommandsViewHint());
         hintLabel.addStyleName(machineResources.getCss().commandHint());
 
         setWidget(UI_BINDER.createAndBindUi(this));
 
-        setTitle(locale.editConfigurationsViewTitle());
+        setTitle(locale.editCommandsViewTitle());
 
         createFooterButtons();
 
@@ -391,6 +391,6 @@ public class EditConfigurationsViewImpl extends Window implements EditConfigurat
     protected void onClose() {
     }
 
-    interface EditConfigurationsViewImplUiBinder extends UiBinder<Widget, EditConfigurationsViewImpl> {
+    interface EditConfigurationsViewImplUiBinder extends UiBinder<Widget, EditCommandsViewImpl> {
     }
 }
