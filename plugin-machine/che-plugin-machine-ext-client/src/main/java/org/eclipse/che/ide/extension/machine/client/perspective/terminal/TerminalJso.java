@@ -38,6 +38,10 @@ class TerminalJso extends JavaScriptObject {
         }));
     }-*/;
 
+    public final native void resize(int x, int y) /*-{
+        this.resize(x, y);
+    }-*/;
+
     public final native void write(String data) /*-{
         this.write(data);
     }-*/;

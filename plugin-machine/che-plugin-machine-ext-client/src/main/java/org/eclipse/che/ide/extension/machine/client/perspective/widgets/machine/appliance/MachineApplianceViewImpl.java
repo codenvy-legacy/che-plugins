@@ -16,6 +16,7 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.RequiresResize;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
@@ -34,7 +35,9 @@ import java.util.List;
  *
  * @author Dmitry Shnurenko
  */
-public class MachineApplianceViewImpl extends Composite implements MachineApplianceView, PartStackView {
+public class MachineApplianceViewImpl extends Composite implements MachineApplianceView, PartStackView ,RequiresResize{
+
+
     interface MachineInfoContainerUiBinder extends UiBinder<Widget, MachineApplianceViewImpl> {
     }
 
@@ -52,6 +55,13 @@ public class MachineApplianceViewImpl extends Composite implements MachineApplia
         this.unavailableLabel = unavailableLabel;
         this.unavailableLabel.addStyleName(resources.getCss().unavailableLabel());
         this.unavailableLabel.setText(locale.unavailableMachineInfo());
+    }
+    @Override
+    public void onResize() {
+        Widget widget = container.getWidget();
+        if(widget != null && widget instanceof RequiresResize){
+            ((RequiresResize)widget).onResize();
+        }
     }
 
     /** {@inheritDoc} */

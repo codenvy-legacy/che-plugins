@@ -16,6 +16,7 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.RequiresResize;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 
@@ -32,7 +33,8 @@ import static com.google.gwt.dom.client.Style.Unit.PCT;
  * @author Dmitry Shnurenko
  * @author Valeriy Svydenko
  */
-public class TabContainerViewImpl extends Composite implements TabContainerView {
+public class TabContainerViewImpl extends Composite implements TabContainerView, RequiresResize {
+
     interface TabContainerUiBinder extends UiBinder<Widget, TabContainerViewImpl> {
     }
 
@@ -68,4 +70,15 @@ public class TabContainerViewImpl extends Composite implements TabContainerView 
     public void addContent(@Nonnull TabPresenter tabPresenter) {
         content.add(tabPresenter.getView());
     }
+
+    @Override
+    public void onResize() {
+        for (int i = 0; i < content.getWidgetCount(); i++) {
+            Widget widget = content.getWidget(i);
+            if(widget instanceof RequiresResize){
+                ((RequiresResize)widget).onResize();
+            }
+        }
+    }
+
 }

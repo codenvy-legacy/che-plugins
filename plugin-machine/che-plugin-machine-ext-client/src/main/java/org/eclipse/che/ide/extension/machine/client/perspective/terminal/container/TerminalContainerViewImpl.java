@@ -15,6 +15,7 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.RequiresResize;
 import com.google.gwt.user.client.ui.Widget;
 
 import org.eclipse.che.ide.extension.machine.client.perspective.terminal.TerminalPresenter;
@@ -28,14 +29,9 @@ import java.util.List;
  *
  * @author Dmitry Shnurenko
  */
-final class TerminalContainerViewImpl extends Composite implements TerminalContainerView {
-    interface TerminalContainerViewImplUiBinder extends UiBinder<Widget, TerminalContainerViewImpl> {
-    }
-
+final class TerminalContainerViewImpl extends Composite implements TerminalContainerView, RequiresResize {
     private static TerminalContainerViewImplUiBinder ourUiBinder = GWT.create(TerminalContainerViewImplUiBinder.class);
-
     private final List<TerminalPresenter> terminals;
-
     @UiField
     FlowPanel container;
 
@@ -43,6 +39,16 @@ final class TerminalContainerViewImpl extends Composite implements TerminalConta
         initWidget(ourUiBinder.createAndBindUi(this));
 
         this.terminals = new ArrayList<>();
+    }
+
+    @Override
+    public void onResize() {
+        for (int i = 0; i < container.getWidgetCount(); i++) {
+            Widget widget = container.getWidget(i);
+            if(widget instanceof RequiresResize){
+                ((RequiresResize)widget).onResize();
+            }
+        }
     }
 
     /** {@inheritDoc} */
@@ -61,5 +67,8 @@ final class TerminalContainerViewImpl extends Composite implements TerminalConta
         }
 
         terminal.setVisible(true);
+    }
+
+    interface TerminalContainerViewImplUiBinder extends UiBinder<Widget, TerminalContainerViewImpl> {
     }
 }
