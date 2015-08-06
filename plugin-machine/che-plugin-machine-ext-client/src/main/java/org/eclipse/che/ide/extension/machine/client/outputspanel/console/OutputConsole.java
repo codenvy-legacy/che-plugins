@@ -34,4 +34,7 @@ public interface OutputConsole extends Presenter {
 
     /** Checks whether the console is finished outputting or not. In other words - whether the process is alive or not. */
     boolean isFinished();
+
+    /** Called when console is going to close. */
+    void onClose();
 }

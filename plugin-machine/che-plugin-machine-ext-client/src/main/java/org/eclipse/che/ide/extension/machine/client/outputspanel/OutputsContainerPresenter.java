@@ -24,6 +24,8 @@ import org.eclipse.che.ide.api.parts.HasView;
 import org.eclipse.che.ide.api.parts.base.BasePresenter;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.outputspanel.console.OutputConsole;
+import org.eclipse.che.ide.ui.dialogs.ConfirmCallback;
+import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -38,14 +40,20 @@ import java.util.List;
 public class OutputsContainerPresenter extends BasePresenter implements OutputsContainerView.ActionDelegate, HasView, ProjectActionHandler {
 
     private final MachineLocalizationConstant localizationConstant;
+    private final DialogFactory               dialogFactory;
     private final OutputsContainerView        view;
 
     private final List<OutputConsole> consoles;
 
     @Inject
-    public OutputsContainerPresenter(OutputsContainerView view, MachineLocalizationConstant localizationConstant, EventBus eventBus) {
+    public OutputsContainerPresenter(OutputsContainerView view,
+                                     MachineLocalizationConstant localizationConstant,
+                                     EventBus eventBus,
+                                     DialogFactory dialogFactory) {
         this.view = view;
         this.localizationConstant = localizationConstant;
+        this.dialogFactory = dialogFactory;
+
         this.view.setTitle(localizationConstant.outputsConsoleViewTitle());
         this.view.setDelegate(this);
 
@@ -131,10 +139,32 @@ public class OutputsContainerPresenter extends BasePresenter implements OutputsC
     }
 
     @Override
-    public void onConsoleClose(int index) {
-        consoles.remove(index);
+    public void onConsoleClose(final int index) {
+        final OutputConsole console = consoles.get(index);
+        if (console.isFinished()) {
+            closeConsole(console);
+        } else {
+            final ConfirmCallback confirmCallback = new ConfirmCallback() {
+                @Override
+                public void accepted() {
+                    closeConsole(console);
+                }
+            };
 
+            dialogFactory.createConfirmDialog("",
+                                              localizationConstant.outputsConsoleViewStopProcessConfirmation(console.getTitle()),
+                                              confirmCallback, null).show();
+        }
+    }
+
+    private void closeConsole(OutputConsole console) {
+        console.onClose();
+
+        final int index = consoles.indexOf(console);
+        consoles.remove(index);
         view.removeConsole(index);
+
+        // activate previous console
         if (index > 0) {
             view.showConsole(index - 1);
         }

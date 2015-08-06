@@ -125,6 +125,11 @@ public interface MachineLocalizationConstant extends Messages {
     @Key("view.outputsConsole.tooltip")
     String outputsConsoleViewTooltip();
 
+    @Key("view.outputsConsole.stopProcessConfirmation")
+    String outputsConsoleViewStopProcessConfirmation(String processName);
+
+
+    /* CreateMachineView */
     @Key("view.createMachine.title")
     String viewCreateMachineTitle();
 
