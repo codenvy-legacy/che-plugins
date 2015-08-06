@@ -38,9 +38,8 @@ public class GwtCommandType implements CommandType {
 
     /** GWT command template. */
     public static final String COMMAND_TEMPLATE = "mvn clean gwt:run-codeserver";
-
-    private static final String ID           = "gwt";
-    private static final String DISPLAY_NAME = "GWT";
+    public static final String ID               = "gwt";
+    public static final String DISPLAY_NAME     = "GWT";
 
     private final GwtResources            resources;
     private final AppContext              appContext;

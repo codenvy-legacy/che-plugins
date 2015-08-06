@@ -26,7 +26,7 @@ import static org.eclipse.che.ide.ext.gwt.shared.Constants.GWT_PROJECT_TYPE_ID;
 import static org.eclipse.che.ide.ext.java.shared.Constants.JAVA_CATEGORY;
 
 /**
- * Provides information for registering Maven project type into project wizard.
+ * Provides information for registering GWT project type into project wizard.
  *
  * @author Artem Zatsarynnyy
  */

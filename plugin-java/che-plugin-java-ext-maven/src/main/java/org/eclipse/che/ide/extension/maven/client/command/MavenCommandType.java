@@ -34,9 +34,9 @@ import java.util.LinkedList;
 @Singleton
 public class MavenCommandType implements CommandType {
 
-    private static final String ID               = "mvn";
-    private static final String DISPLAY_NAME     = "Maven";
-    private static final String COMMAND_TEMPLATE = "mvn clean install";
+    public static final String ID               = "mvn";
+    public static final String DISPLAY_NAME     = "Maven";
+    public static final String COMMAND_TEMPLATE = "mvn clean install";
 
     private final MavenResources            resources;
     private final AppContext                appContext;
