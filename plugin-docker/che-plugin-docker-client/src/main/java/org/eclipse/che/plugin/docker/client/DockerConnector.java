@@ -10,6 +10,19 @@
  *******************************************************************************/
 package org.eclipse.che.plugin.docker.client;
 
+import com.google.common.io.CharStreams;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.sun.jna.ptr.LongByReference;
+
+import org.eclipse.che.api.core.util.FileCleaner;
+import org.eclipse.che.api.core.util.SystemInfo;
+import org.eclipse.che.api.core.util.ValueHolder;
+import org.eclipse.che.commons.json.JsonHelper;
+import org.eclipse.che.commons.json.JsonNameConvention;
+import org.eclipse.che.commons.json.JsonParseException;
+import org.eclipse.che.commons.lang.Pair;
+import org.eclipse.che.commons.lang.Size;
+import org.eclipse.che.commons.lang.TarUtils;
 import org.eclipse.che.plugin.docker.client.connection.DockerConnection;
 import org.eclipse.che.plugin.docker.client.connection.DockerResponse;
 import org.eclipse.che.plugin.docker.client.connection.TcpConnection;
@@ -29,19 +42,6 @@ import org.eclipse.che.plugin.docker.client.json.HostConfig;
 import org.eclipse.che.plugin.docker.client.json.Image;
 import org.eclipse.che.plugin.docker.client.json.ImageInfo;
 import org.eclipse.che.plugin.docker.client.json.ProgressStatus;
-import com.google.common.io.CharStreams;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import com.sun.jna.ptr.LongByReference;
-
-import org.eclipse.che.api.core.util.FileCleaner;
-import org.eclipse.che.api.core.util.SystemInfo;
-import org.eclipse.che.api.core.util.ValueHolder;
-import org.eclipse.che.commons.json.JsonHelper;
-import org.eclipse.che.commons.json.JsonNameConvention;
-import org.eclipse.che.commons.json.JsonParseException;
-import org.eclipse.che.commons.lang.Pair;
-import org.eclipse.che.commons.lang.Size;
-import org.eclipse.che.commons.lang.TarUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,8 +68,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import static org.eclipse.che.plugin.docker.client.CLibraryFactory.getCLibrary;
 import static java.io.File.separatorChar;
+import static org.eclipse.che.plugin.docker.client.CLibraryFactory.getCLibrary;
 
 /**
  * Connects to the docker daemon.
@@ -140,12 +140,12 @@ public class DockerConnector {
     }
 
     /**
-     * Gets system-wide information.
+     * Gets docker version.
      *
-     * @return system-wide information
+     * @return information about version docker
      * @throws IOException
      */
-    public org.eclipse.che.plugin.docker.client.json.SystemInfo getVersion() throws IOException {
+    public org.eclipse.che.plugin.docker.client.json.Version getVersion() throws IOException {
         final DockerConnection connection = openConnection(dockerDaemonUri);
         try {
             final DockerResponse response = connection.method("GET").path("/version").request();
@@ -154,7 +154,7 @@ public class DockerConnector {
                 final String msg = CharStreams.toString(new InputStreamReader(response.getInputStream()));
                 throw new DockerException(String.format("Error response from docker API, status: %d, message: %s", status, msg), status);
             }
-            return JsonHelper.fromJson(response.getInputStream(), org.eclipse.che.plugin.docker.client.json.SystemInfo.class, null,
+            return JsonHelper.fromJson(response.getInputStream(), org.eclipse.che.plugin.docker.client.json.Version.class, null,
                                        FIRST_LETTER_LOWERCASE);
         } catch (JsonParseException e) {
             throw new IOException(e.getMessage(), e);
@@ -976,7 +976,7 @@ public class DockerConnector {
     }
 
     // Unfortunately we can't use generated DTO here.
-    // Docker uses uppercase in first letter in names of json objects, e.g. {"Id":"123"} instead of {"id":"123"}
+// Docker uses uppercase in first letter in names of json objects, e.g. {"Id":"123"} instead of {"id":"123"}
     protected static JsonNameConvention FIRST_LETTER_LOWERCASE = new JsonNameConvention() {
         @Override
         public String toJsonName(String javaName) {
