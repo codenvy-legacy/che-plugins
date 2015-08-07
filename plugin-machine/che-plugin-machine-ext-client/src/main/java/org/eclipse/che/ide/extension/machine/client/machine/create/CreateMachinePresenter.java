@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.machine.client.machine.create;
 
-import com.google.common.base.Strings;
 import com.google.gwt.regexp.shared.RegExp;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -21,7 +20,7 @@ import org.eclipse.che.api.machine.shared.dto.MachineDescriptor;
 import org.eclipse.che.api.machine.shared.dto.recipe.RecipeDescriptor;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
-import org.eclipse.che.api.promises.client.Promise;
+import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.EntityFactory;
 import org.eclipse.che.ide.extension.machine.client.machine.Machine;
 import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
@@ -50,19 +49,22 @@ public class CreateMachinePresenter implements CreateMachineView.ActionDelegate 
 
     private final RecipeProvider       recipeProvider;
     private final CreateMachineView    view;
+    private final AppContext           appContext;
     private final MachineManager       machineManager;
     private final RecipeServiceClient  recipeServiceClient;
-    private       MachineServiceClient machineServiceClient;
-    private EntityFactory entityFactory;
+    private final MachineServiceClient machineServiceClient;
+    private final EntityFactory        entityFactory;
 
     @Inject
     public CreateMachinePresenter(CreateMachineView view,
+                                  AppContext appContext,
                                   MachineManager machineManager,
                                   RecipeProvider recipeProvider,
                                   RecipeServiceClient recipeServiceClient,
                                   MachineServiceClient machineServiceClient,
                                   EntityFactory entityFactory) {
         this.view = view;
+        this.appContext = appContext;
         this.machineManager = machineManager;
         this.recipeProvider = recipeProvider;
         this.recipeServiceClient = recipeServiceClient;
@@ -143,9 +145,8 @@ public class CreateMachinePresenter implements CreateMachineView.ActionDelegate 
     public void onReplaceDevMachineClicked() {
         final String machineName = view.getMachineName();
         final String recipeURL = view.getRecipeURL();
-        if (machineManager.getDeveloperMachineId() != null) {
-            final Promise<MachineDescriptor> promise = machineServiceClient.getMachine(machineManager.getDeveloperMachineId());
-            promise.then(new Operation<MachineDescriptor>() {
+        if (appContext.getDevMachineId() != null) {
+            machineServiceClient.getMachine(appContext.getDevMachineId()).then(new Operation<MachineDescriptor>() {
                 @Override
                 public void apply(MachineDescriptor arg) throws OperationException {
                     final Machine machine = entityFactory.createMachine(arg);
@@ -153,7 +154,7 @@ public class CreateMachinePresenter implements CreateMachineView.ActionDelegate 
                 }
             });
         }
-        machineManager.startAndBindMachine(recipeURL, machineName);
+        machineManager.startDevMachine(recipeURL, machineName);
         view.close();
     }
 

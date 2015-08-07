@@ -12,12 +12,10 @@ package org.eclipse.che.ide.extension.machine.client;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.ide.api.action.ActionManager;
 import org.eclipse.che.ide.api.action.DefaultActionGroup;
 import org.eclipse.che.ide.api.constraints.Constraints;
-import org.eclipse.che.ide.api.event.ProjectActionEvent;
 import org.eclipse.che.ide.api.extension.Extension;
 import org.eclipse.che.ide.api.parts.PartStackType;
 import org.eclipse.che.ide.api.parts.WorkspaceAgent;
@@ -28,7 +26,6 @@ import org.eclipse.che.ide.extension.machine.client.actions.ExecuteSelectedComma
 import org.eclipse.che.ide.extension.machine.client.actions.RestartMachineAction;
 import org.eclipse.che.ide.extension.machine.client.actions.SelectCommandComboBoxAction;
 import org.eclipse.che.ide.extension.machine.client.actions.SwitchPerspectiveAction;
-import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
 import org.eclipse.che.ide.extension.machine.client.machine.console.ClearConsoleAction;
 import org.eclipse.che.ide.extension.machine.client.machine.console.MachineConsoleToolbar;
 import org.eclipse.che.ide.extension.machine.client.outputspanel.OutputsContainerPresenter;
@@ -55,9 +52,8 @@ public class MachineExtension {
     public static final String GROUP_COMMANDS_LIST           = "CommandsListGroup";
 
     @Inject
-    public MachineExtension(MachineResources machineResources, EventBus eventBus, MachineManager machineManager) {
+    public MachineExtension(MachineResources machineResources) {
         machineResources.getCss().ensureInjected();
-        eventBus.addHandler(ProjectActionEvent.TYPE, machineManager);
     }
 
     @Inject

@@ -27,7 +27,6 @@ import javax.inject.Singleton;
 public class MavenProjectType extends ProjectType {
 
     public static final String DEFAULT_RECIPE =
-            //"https://gist.githubusercontent.com/azatsarynnyy/aceb43e8f71f3d14e7aa/raw/a8b23dd780c2a436a7779dbf0b6389d85a5adc56/maven";
             "https://gist.githubusercontent.com/gazarenkov/9f11a85a157ab399aca5/raw/b9f66169588f5394f84a1893cfeccd10e18d7fc8/maven";
     @Inject
     public MavenProjectType(MavenValueProviderFactory mavenValueProviderFactory, JavaProjectType javaProjectType) {

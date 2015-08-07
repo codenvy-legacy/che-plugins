@@ -79,7 +79,7 @@ public class MachineStateNotifierTest {
     @Test
     public void machineShouldBeTrackedWhenMachineStateIsCreating() throws Exception {
         when(machine.getDisplayName()).thenReturn(SOME_TEXT);
-        stateNotifier.trackMachine(machine, MachineManager.OperationType.START);
+        stateNotifier.trackMachine(machine, MachineManager.MachineOperationType.START);
 
         verify(notificationManager).showNotification(notificationCaptor.capture());
         Notification notification = notificationCaptor.getValue();
@@ -96,7 +96,7 @@ public class MachineStateNotifierTest {
     @Test
     public void machineShouldBeTrackedWhenMachineStateIsDestroying() throws Exception {
         when(machine.getDisplayName()).thenReturn(SOME_TEXT);
-        stateNotifier.trackMachine(machine, MachineManager.OperationType.DESTROY);
+        stateNotifier.trackMachine(machine, MachineManager.MachineOperationType.DESTROY);
 
         verify(notificationManager).showNotification(notificationCaptor.capture());
         Notification notification = notificationCaptor.getValue();

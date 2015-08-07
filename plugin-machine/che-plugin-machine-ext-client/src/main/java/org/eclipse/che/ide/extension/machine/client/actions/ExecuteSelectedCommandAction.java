@@ -71,7 +71,7 @@ public class ExecuteSelectedCommandAction extends AbstractPerspectiveAction {
     public void actionPerformed(ActionEvent e) {
         eventLogger.log(this);
 
-        if (machineManager.getDeveloperMachineId() != null) {
+        if (appContext.getDevMachineId() != null) {
             final CommandConfiguration commandConfiguration = selectCommandAction.getSelectedCommand();
             if (commandConfiguration != null) {
                 machineManager.execute(commandConfiguration);
