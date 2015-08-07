@@ -18,7 +18,6 @@ import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.editor.EditorPartPresenter;
 import org.eclipse.che.ide.ext.java.client.projecttree.JavaSourceFolderUtil;
-import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
 import org.eclipse.che.ide.jseditor.client.position.PositionConverter;
 import org.eclipse.che.ide.jseditor.client.texteditor.EmbeddedTextEditorPresenter;
 import org.eclipse.che.ide.util.loging.Log;
@@ -34,16 +33,13 @@ public class QuickDocPresenter implements QuickDocumentation, QuickDocView.Actio
     private AppContext   appContext;
     private String       caContext;
     private EditorAgent  editorAgent;
-    private MachineManager machineManager;
 
     @Inject
-    public QuickDocPresenter(QuickDocView view, AppContext appContext, @Named("cheExtensionPath") String caContext, EditorAgent editorAgent,
-                             MachineManager machineManager) {
+    public QuickDocPresenter(QuickDocView view, AppContext appContext, @Named("cheExtensionPath") String caContext, EditorAgent editorAgent) {
         this.view = view;
         this.appContext = appContext;
         this.caContext = caContext;
         this.editorAgent = editorAgent;
-        this.machineManager = machineManager;
     }
 
     @Override
@@ -64,7 +60,7 @@ public class QuickDocPresenter implements QuickDocumentation, QuickDocView.Actio
         view.show(caContext + "/jdt/javadoc/find?fqn=" +
                   JavaSourceFolderUtil.getFQNForFile(editor.getEditorInput().getFile()) + "&projectpath=" +
                   appContext.getCurrentProject().getProjectDescription().getPath() + "&offset=" + offset + "&machineId=" +
-                  machineManager.getDeveloperMachineId(), coordinates.getX(),
+                  appContext.getDevMachineId(), coordinates.getX(),
                   coordinates.getY());
     }
 

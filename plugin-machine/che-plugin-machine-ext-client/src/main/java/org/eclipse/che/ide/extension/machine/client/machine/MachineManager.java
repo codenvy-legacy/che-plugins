@@ -42,6 +42,7 @@ import org.eclipse.che.ide.extension.machine.client.outputspanel.OutputsContaine
 import org.eclipse.che.ide.extension.machine.client.outputspanel.console.CommandConsoleFactory;
 import org.eclipse.che.ide.extension.machine.client.outputspanel.console.OutputConsole;
 import org.eclipse.che.ide.extension.machine.client.util.RecipeProvider;
+import org.eclipse.che.ide.extension.machine.client.watcher.SystemFileWatcher;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 import org.eclipse.che.ide.util.UUID;
 import org.eclipse.che.ide.util.loging.Log;
@@ -78,6 +79,7 @@ public class MachineManager {
     private final RecipeProvider              recipeProvider;
     private final EntityFactory               entityFactory;
     private final AppContext                  appContext;
+    private final SystemFileWatcher           systemFileWatcher;
 
     private Machine devMachine;
 
@@ -94,7 +96,8 @@ public class MachineManager {
                           DialogFactory dialogFactory,
                           RecipeProvider recipeProvider,
                           EntityFactory entityFactory,
-                          AppContext appContext) {
+                          AppContext appContext,
+                          SystemFileWatcher systemFileWatcher) {
         this.machineServiceClient = machineServiceClient;
         this.messageBus = messageBus;
         this.machineConsolePresenter = machineConsolePresenter;
@@ -108,6 +111,7 @@ public class MachineManager {
         this.recipeProvider = recipeProvider;
         this.entityFactory = entityFactory;
         this.appContext = appContext;
+        this.systemFileWatcher = systemFileWatcher;
     }
 
     public void restartMachine(@Nonnull final Machine machine) {
@@ -166,6 +170,7 @@ public class MachineManager {
                                 @Override
                                 public void apply(MachineDescriptor arg) throws OperationException {
                                     appContext.setDevMachineId(arg.getId());
+                                    systemFileWatcher.registerWatcher(machineDescriptor.getWorkspaceId());
                                     devMachine = entityFactory.createMachine(arg);
                                 }
                             });
