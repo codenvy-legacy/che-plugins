@@ -15,8 +15,8 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 
+import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.ext.java.shared.dto.ReconcileResult;
-import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.AsyncRequestFactory;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
@@ -31,21 +31,21 @@ public class JavaReconcileClient {
     private final String                 javaCAPath;
     private final DtoUnmarshallerFactory dtoUnmarshallerFactory;
     private final AsyncRequestFactory    asyncRequestFactory;
-    private final MachineManager machineManager;
+    private final AppContext             appContext;
 
     @Inject
     public JavaReconcileClient(@Named("cheExtensionPath") String javaCAPath,
                                DtoUnmarshallerFactory dtoUnmarshallerFactory,
-                               MachineManager machineManager,
+                               AppContext appContext,
                                AsyncRequestFactory asyncRequestFactory) {
-        this.machineManager = machineManager;
+        this.appContext = appContext;
         this.javaCAPath = javaCAPath;
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
         this.asyncRequestFactory = asyncRequestFactory;
     }
 
     public void reconcile(String projectPath, String fqn, final ReconcileCallback callback) {
-        String url = javaCAPath +"/" +machineManager.getDeveloperMachineId() +"/jdt/reconcile/?projectpath=" + projectPath + "&fqn=" + fqn;
+        String url = javaCAPath + "/" + appContext.getDevMachineId() + "/jdt/reconcile/?projectpath=" + projectPath + "&fqn=" + fqn;
         asyncRequestFactory.createGetRequest(url)
                            .send(new AsyncRequestCallback<ReconcileResult>(dtoUnmarshallerFactory.newUnmarshaller(ReconcileResult.class)) {
                                @Override

@@ -11,15 +11,14 @@
 package org.eclipse.che.ide.ext.java.client.navigation;
 
 import com.google.inject.Inject;
-import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 
+import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.collections.Array;
 import org.eclipse.che.ide.ext.java.shared.Jar;
 import org.eclipse.che.ide.ext.java.shared.JarEntry;
 import org.eclipse.che.ide.ext.java.shared.OpenDeclarationDescriptor;
-import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.AsyncRequestFactory;
 
@@ -29,34 +28,30 @@ import org.eclipse.che.ide.rest.AsyncRequestFactory;
 @Singleton
 public class JavaNavigationServiceImpl implements JavaNavigationService {
 
-    private final String                   restContext;
-    private final AsyncRequestFactory      requestFactory;
-    private final Provider<MachineManager> managerProvider;
+    private final String              restContext;
+    private final AsyncRequestFactory requestFactory;
+    private final AppContext          appContext;
 
     @Inject
     public JavaNavigationServiceImpl(@Named("cheExtensionPath") String restContext,
                                      AsyncRequestFactory asyncRequestFactory,
-                                     Provider<MachineManager> managerProvider) {
+                                     AppContext appContext) {
         this.restContext = restContext;
         this.requestFactory = asyncRequestFactory;
-        this.managerProvider = managerProvider;
+        this.appContext = appContext;
     }
 
     @Override
     public void findDeclaration(String projectPath, String fqn, int offset, AsyncRequestCallback<OpenDeclarationDescriptor> callback) {
-        String url =
-                getContext() + "/jdt/navigation/find-declaration?projectpath=" + projectPath + "&fqn=" + fqn + "&offset=" +
-                offset;
+        String url = getContext() + "/jdt/navigation/find-declaration?projectpath=" + projectPath + "&fqn=" + fqn + "&offset=" + offset;
         requestFactory.createGetRequest(url).send(callback);
     }
 
     private String getContext() {
-        MachineManager machineManager = managerProvider.get();
-
-        if (machineManager.getDeveloperMachineId() == null) {
+        if (appContext.getDevMachineId() == null) {
             throw new IllegalStateException("Developer machine ID is null. Can't create request URL");
         }
-        return restContext + "/" + machineManager.getDeveloperMachineId();
+        return restContext + "/" + appContext.getDevMachineId();
     }
 
     public void getExternalLibraries(String projectPath, AsyncRequestCallback<Array<Jar>> callback) {

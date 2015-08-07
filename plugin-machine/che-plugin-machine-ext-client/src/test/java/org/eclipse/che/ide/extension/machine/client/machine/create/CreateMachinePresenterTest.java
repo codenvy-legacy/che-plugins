@@ -31,7 +31,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Answers.RETURNS_DEEP_STUBS;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -136,22 +135,22 @@ public class CreateMachinePresenterTest {
 
     @Test
     public void shouldReplaceDevMachine() throws Exception {
-        when(machineManager.getDeveloperMachineId()).thenReturn("dev");
+        when(appContext.getDevMachineId()).thenReturn("dev");
         when(machineServiceClient.getMachine("dev")).thenReturn(machineDescriptorPromise);
         presenter.onReplaceDevMachineClicked();
         verify(machineServiceClient).getMachine("dev");
         verify(view).getMachineName();
-        verify(machineManager).startAndBindMachine(eq(RECIPE_URL), eq(MACHINE_NAME));
+        verify(machineManager).startDevMachine(eq(RECIPE_URL), eq(MACHINE_NAME));
         verify(view).close();
     }
 
     @Test
     public void shouldStartNewDevMachine() throws Exception {
-        when(machineManager.getDeveloperMachineId()).thenReturn(null);
+        when(appContext.getDevMachineId()).thenReturn(null);
         when(machineServiceClient.getMachine("dev")).thenReturn(machineDescriptorPromise);
         presenter.onReplaceDevMachineClicked();
         verify(view).getMachineName();
-        verify(machineManager).startAndBindMachine(eq(RECIPE_URL), eq(MACHINE_NAME));
+        verify(machineManager).startDevMachine(eq(RECIPE_URL), eq(MACHINE_NAME));
         verify(view).close();
     }
 

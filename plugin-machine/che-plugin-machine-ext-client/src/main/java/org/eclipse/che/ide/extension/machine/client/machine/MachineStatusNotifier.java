@@ -18,7 +18,7 @@ import org.eclipse.che.api.machine.shared.dto.event.MachineStatusEvent;
 import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
-import org.eclipse.che.ide.extension.machine.client.machine.MachineManager.OperationType;
+import org.eclipse.che.ide.extension.machine.client.machine.MachineManager.MachineOperationType;
 import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateEvent;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.util.loging.Log;
@@ -35,7 +35,7 @@ import static org.eclipse.che.ide.api.notification.Notification.Status.FINISHED;
 import static org.eclipse.che.ide.api.notification.Notification.Status.PROGRESS;
 import static org.eclipse.che.ide.api.notification.Notification.Type.ERROR;
 import static org.eclipse.che.ide.api.notification.Notification.Type.INFO;
-import static org.eclipse.che.ide.extension.machine.client.machine.MachineManager.OperationType.RESTART;
+import static org.eclipse.che.ide.extension.machine.client.machine.MachineManager.MachineOperationType.RESTART;
 
 /**
  * Notifies about changing machine state.
@@ -73,7 +73,7 @@ class MachineStatusNotifier {
      * @param machine
      *         machine to track
      */
-    void trackMachine(@Nonnull final Machine machine, @Nonnull final OperationType operationType) {
+    void trackMachine(@Nonnull final Machine machine, @Nonnull final MachineOperationType operationType) {
         trackMachine(machine, null, operationType);
     }
 
@@ -87,7 +87,7 @@ class MachineStatusNotifier {
      */
     void trackMachine(@Nonnull final Machine machine,
                       @Nullable final RunningListener runningListener,
-                      @Nonnull final OperationType operationType) {
+                      @Nonnull final MachineOperationType operationType) {
         final String wsChannel = MACHINE_STATUS_WS_CHANNEL + machine.getId();
         final Notification notification = new Notification("", INFO, true);
         final String machineName = machine.getDisplayName();

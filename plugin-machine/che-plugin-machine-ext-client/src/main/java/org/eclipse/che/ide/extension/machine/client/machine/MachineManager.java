@@ -21,7 +21,6 @@ import com.google.inject.Singleton;
 
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
 import org.eclipse.che.api.machine.shared.dto.MachineDescriptor;
-import org.eclipse.che.api.machine.shared.dto.MachineStateDescriptor;
 import org.eclipse.che.api.machine.shared.dto.ProcessDescriptor;
 import org.eclipse.che.api.promises.client.Function;
 import org.eclipse.che.api.promises.client.FunctionException;
@@ -30,8 +29,7 @@ import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.api.promises.client.PromiseError;
 import org.eclipse.che.api.promises.client.callback.AsyncPromiseHelper;
-import org.eclipse.che.ide.api.event.ProjectActionEvent;
-import org.eclipse.che.ide.api.event.ProjectActionHandler;
+import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.parts.WorkspaceAgent;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
@@ -53,12 +51,11 @@ import org.eclipse.che.ide.websocket.rest.SubscriptionHandler;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.List;
 
 import static com.google.gwt.http.client.RequestBuilder.GET;
-import static org.eclipse.che.ide.extension.machine.client.machine.MachineManager.OperationType.DESTROY;
-import static org.eclipse.che.ide.extension.machine.client.machine.MachineManager.OperationType.RESTART;
-import static org.eclipse.che.ide.extension.machine.client.machine.MachineManager.OperationType.START;
+import static org.eclipse.che.ide.extension.machine.client.machine.MachineManager.MachineOperationType.DESTROY;
+import static org.eclipse.che.ide.extension.machine.client.machine.MachineManager.MachineOperationType.RESTART;
+import static org.eclipse.che.ide.extension.machine.client.machine.MachineManager.MachineOperationType.START;
 
 /**
  * Manager for machine operations.
@@ -66,7 +63,7 @@ import static org.eclipse.che.ide.extension.machine.client.machine.MachineManage
  * @author Artem Zatsarynnyy
  */
 @Singleton
-public class MachineManager implements ProjectActionHandler {
+public class MachineManager {
 
     private final MachineServiceClient        machineServiceClient;
     private final MessageBus                  messageBus;
@@ -80,9 +77,8 @@ public class MachineManager implements ProjectActionHandler {
     private final DialogFactory               dialogFactory;
     private final RecipeProvider              recipeProvider;
     private final EntityFactory               entityFactory;
+    private final AppContext                  appContext;
 
-    /** Stores ID of the developer machine (where workspace or current project is bound). */
-    private String devMachineId;
     private Machine devMachine;
 
     @Inject
@@ -97,7 +93,8 @@ public class MachineManager implements ProjectActionHandler {
                           MachineStatusNotifier machineStatusNotifier,
                           DialogFactory dialogFactory,
                           RecipeProvider recipeProvider,
-                          EntityFactory entityFactory) {
+                          EntityFactory entityFactory,
+                          AppContext appContext) {
         this.machineServiceClient = machineServiceClient;
         this.messageBus = messageBus;
         this.machineConsolePresenter = machineConsolePresenter;
@@ -110,41 +107,7 @@ public class MachineManager implements ProjectActionHandler {
         this.dialogFactory = dialogFactory;
         this.recipeProvider = recipeProvider;
         this.entityFactory = entityFactory;
-    }
-
-    @Override
-    public void onProjectOpened(final ProjectActionEvent event) {
-        machineServiceClient.getMachinesStates(null).then(new Operation<List<MachineStateDescriptor>>() {
-            @Override
-            public void apply(List<MachineStateDescriptor> arg) throws OperationException {
-                for (MachineStateDescriptor machineStateDescriptor : arg) {
-                    if (machineStateDescriptor.isWorkspaceBound()) {
-                        devMachineId = machineStateDescriptor.getId();
-
-                        machineServiceClient.getMachine(devMachineId).then(new Operation<MachineDescriptor>() {
-                            @Override
-                            public void apply(MachineDescriptor arg) throws OperationException {
-                                devMachine = entityFactory.createMachine(arg);
-                            }
-                        });
-
-                        return;
-                    }
-                }
-                startAndBindMachine(event.getProject().getRecipe(), "Dev");
-            }
-        });
-    }
-
-    @Override
-    public void onProjectClosing(ProjectActionEvent event) {
-    }
-
-    @Override
-    public void onProjectClosed(ProjectActionEvent event) {
-        devMachineId = null;
-        devMachine = null;
-        machineConsolePresenter.clear();
+        this.appContext = appContext;
     }
 
     public void restartMachine(@Nonnull final Machine machine) {
@@ -165,15 +128,15 @@ public class MachineManager implements ProjectActionHandler {
         startMachine(recipeURL, displayName, false, START);
     }
 
-    /** Start new machine and bind workspace to running machine. */
-    public void startAndBindMachine(String recipeURL, @Nonnull String displayName) {
+    /** Start new machine as dev-machine (bind workspace to running machine). */
+    public void startDevMachine(String recipeURL, @Nonnull String displayName) {
         startMachine(recipeURL, displayName, true, START);
     }
 
     private void startMachine(@Nonnull final String recipeURL,
                               @Nonnull final String displayName,
                               final boolean bindWorkspace,
-                              @Nonnull final OperationType operationType) {
+                              @Nonnull final MachineOperationType operationType) {
         downloadRecipe(recipeURL).thenPromise(new Function<String, Promise<MachineDescriptor>>() {
             @Override
             public Promise<MachineDescriptor> apply(String recipeScript) throws FunctionException {
@@ -202,7 +165,7 @@ public class MachineManager implements ProjectActionHandler {
                             machineServiceClient.getMachine(machineDescriptor.getId()).then(new Operation<MachineDescriptor>() {
                                 @Override
                                 public void apply(MachineDescriptor arg) throws OperationException {
-                                    devMachineId = arg.getId();
+                                    appContext.setDevMachineId(arg.getId());
                                     devMachine = entityFactory.createMachine(arg);
                                 }
                             });
@@ -252,24 +215,25 @@ public class MachineManager implements ProjectActionHandler {
             @Override
             public void apply(Void arg) throws OperationException {
                 machineStatusNotifier.trackMachine(machine, DESTROY);
+
+                final String devMachineId = appContext.getDevMachineId();
                 if (devMachineId != null && machine.getId().equals(devMachineId)) {
-                    devMachineId = null;
+                    appContext.setDevMachineId(null);
                     devMachine = null;
                 }
             }
         });
     }
 
-    /** Returns ID of the developer machine (where workspace or current project is bound). */
-    @Nullable
-    public String getDeveloperMachineId() {
-        return devMachineId;
-    }
-
-    /** Returns the developer machine (where workspace or current project is bound). */
+    // TODO: remove this method when IDEX-2858 will be done
     @Nullable
     public Machine getDeveloperMachine() {
         return devMachine;
+    }
+
+    // TODO: remove this method when IDEX-2858 will be done
+    public void setDeveloperMachine(Machine machine) {
+        devMachine = machine;
     }
 
     private void subscribeToOutput(final String channel) {
@@ -295,6 +259,7 @@ public class MachineManager implements ProjectActionHandler {
 
     /** Execute the the given command configuration on the developer machine. */
     public void execute(@Nonnull CommandConfiguration configuration) {
+        final String devMachineId = appContext.getDevMachineId();
         if (devMachineId == null) {
             notificationManager.showWarning(localizationConstant.noDevMachine());
             return;
@@ -318,7 +283,7 @@ public class MachineManager implements ProjectActionHandler {
         });
     }
 
-    enum OperationType {
+    enum MachineOperationType {
         START, RESTART, DESTROY
     }
 }

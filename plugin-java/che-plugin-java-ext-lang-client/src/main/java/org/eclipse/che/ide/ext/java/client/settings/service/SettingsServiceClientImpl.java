@@ -19,7 +19,6 @@ import org.eclipse.che.api.promises.client.callback.AsyncPromiseHelper;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.dto.JsonSerializable;
-import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
 import org.eclipse.che.ide.json.JsonHelper;
 import org.eclipse.che.ide.rest.AsyncRequestFactory;
 import org.eclipse.che.ide.rest.StringMapUnmarshaller;
@@ -40,18 +39,15 @@ public class SettingsServiceClientImpl implements SettingsServiceClient {
 
     private final String              extPath;
     private final AsyncRequestFactory asyncRequestFactory;
-    private final MachineManager      machineManager;
     private final AppContext          appContext;
 
     @Inject
     public SettingsServiceClientImpl(AppContext appContext,
-                                     MachineManager machineManager,
                                      AsyncRequestFactory asyncRequestFactory,
                                      @Named("cheExtensionPath") String extPath) {
         this.appContext = appContext;
         this.extPath = extPath;
         this.asyncRequestFactory = asyncRequestFactory;
-        this.machineManager = machineManager;
     }
 
     private String getPathToProject() {
@@ -74,7 +70,7 @@ public class SettingsServiceClientImpl implements SettingsServiceClient {
             public void makeCall(AsyncCallback<Void> callback) {
                 String url = extPath
                              + '/'
-                             + machineManager.getDeveloperMachineId()
+                             + appContext.getDevMachineId()
                              + "/jdt/compiler-settings"
                              + "/set?projectpath=" + pathToProject;
 
@@ -103,7 +99,7 @@ public class SettingsServiceClientImpl implements SettingsServiceClient {
             public void makeCall(AsyncCallback<Map<String, String>> callback) {
                 String url = extPath
                              + '/'
-                             + machineManager.getDeveloperMachineId()
+                             + appContext.getDevMachineId()
                              + "/jdt/compiler-settings"
                              + "/all?projectpath=" + pathToProject;
 
