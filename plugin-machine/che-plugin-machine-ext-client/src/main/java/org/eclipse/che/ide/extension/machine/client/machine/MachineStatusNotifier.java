@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.machine.client.machine;
 
+import com.google.gwt.core.client.Callback;
+import com.google.gwt.inject.client.multibindings.GinMapBinder;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.event.shared.EventBus;
@@ -17,6 +19,10 @@ import com.google.web.bindery.event.shared.EventBus;
 import org.eclipse.che.api.machine.shared.dto.event.MachineStatusEvent;
 import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.api.notification.NotificationManager;
+import org.eclipse.che.ide.bootstrap.ProfileComponent;
+import org.eclipse.che.ide.bootstrap.ProjectTemplatesComponent;
+import org.eclipse.che.ide.bootstrap.ProjectTypeComponent;
+import org.eclipse.che.ide.core.Component;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.machine.MachineManager.MachineOperationType;
 import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateEvent;
@@ -53,18 +59,24 @@ class MachineStatusNotifier {
     private final DtoUnmarshallerFactory      dtoUnmarshallerFactory;
     private final NotificationManager         notificationManager;
     private final MachineLocalizationConstant locale;
+    private       ProjectTypeComponent        projectTypeComponent;
+    private ProjectTemplatesComponent projectTemplatesComponent;
 
     @Inject
     MachineStatusNotifier(MessageBus messageBus,
                           EventBus eventBus,
                           DtoUnmarshallerFactory dtoUnmarshallerFactory,
                           NotificationManager notificationManager,
-                          MachineLocalizationConstant locale) {
+                          MachineLocalizationConstant locale,
+                          ProjectTypeComponent projectTypeComponent,
+                          ProjectTemplatesComponent projectTemplatesComponent) {
         this.messageBus = messageBus;
         this.eventBus = eventBus;
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
         this.notificationManager = notificationManager;
         this.locale = locale;
+        this.projectTypeComponent = projectTypeComponent;
+        this.projectTemplatesComponent = projectTemplatesComponent;
     }
 
     /**
@@ -100,7 +112,33 @@ class MachineStatusNotifier {
                 switch (result.getEventType()) {
                     case RUNNING:
                         unsubscribe(wsChannel, this);
+                        projectTypeComponent.start(new Callback<Component, Exception>() {
 
+                            @Override
+                            public void onFailure(Exception reason) {
+
+                            }
+
+                            @Override
+                            public void onSuccess(Component result) {
+                                Log.info(getClass(), "projectTypeComponent >>>>>>>>>>>>>>>>>");
+
+                            }
+                        });
+
+                        projectTemplatesComponent.start(new Callback<Component, Exception>() {
+
+                            @Override
+                            public void onFailure(Exception reason) {
+
+                            }
+
+                            @Override
+                            public void onSuccess(Component result) {
+                                Log.info(getClass(), ">>>>>>>>>>>>>>>>>>>>>> projectTemplatesComponent");
+
+                            }
+                        });
                         if (runningListener != null) {
                             runningListener.onRunning();
                         }

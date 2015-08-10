@@ -31,7 +31,7 @@ import com.google.inject.multibindings.Multibinder;
  *
  * @author andrew00x
  */
-@DynaModule
+//@DynaModule
 public class GitModule extends AbstractModule {
 
     /** {@inheritDoc} */

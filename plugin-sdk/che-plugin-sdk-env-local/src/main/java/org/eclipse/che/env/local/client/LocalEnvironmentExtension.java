@@ -22,17 +22,17 @@ import org.eclipse.che.ide.api.extension.Extension;
 /**
  * @author Vitaly Parfonov
  */
-@Singleton
-@Extension(title = "Che Local Env", version = "3.0.0")
+//@Singleton
+//@Extension(title = "Che Local Env", version = "3.0.0")
 public class LocalEnvironmentExtension {
 
-    @Inject
+//    @Inject
     public LocalEnvironmentExtension(WorkspaceLocationPresenter presenter,
                                      ActionManager actionManager,
                                      ShowWorkspaceMappingDirAction action) {
-        DefaultActionGroup fileGroup = (DefaultActionGroup)actionManager.getAction(IdeActions.GROUP_FILE);
-        actionManager.registerAction("showWorkspaceMappingDirAction", action);
-        fileGroup.add(action);
-        presenter.init();
+//        DefaultActionGroup fileGroup = (DefaultActionGroup)actionManager.getAction(IdeActions.GROUP_FILE);
+//        actionManager.registerAction("showWorkspaceMappingDirAction", action);
+//        fileGroup.add(action);
+//        presenter.init();
     }
 }

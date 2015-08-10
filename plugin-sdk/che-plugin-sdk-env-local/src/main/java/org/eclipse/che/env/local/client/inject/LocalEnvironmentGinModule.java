@@ -41,6 +41,6 @@ public class LocalEnvironmentGinModule extends AbstractGinModule {
         bind(ResourcesLockedActionPermit.class).to(ResourcesLockedActionPermitLocalEnv.class).in(Singleton.class);
         bind(DocumentTitleDecorator.class).to(SdkDocumentTitleDecorator.class).in(Singleton.class);
         bind(ConnectionClosedInformer.class).to(CheConnectionClosedInformer.class).in(Singleton.class);
-        bind(WorkspaceToDirectoryMappingServiceClient.class).to(WorkspaceToDirectoryMappingServiceClientImpl.class).in(Singleton.class);
+//        bind(WorkspaceToDirectoryMappingServiceClient.class).to(WorkspaceToDirectoryMappingServiceClientImpl.class).in(Singleton.class);
     }
 }

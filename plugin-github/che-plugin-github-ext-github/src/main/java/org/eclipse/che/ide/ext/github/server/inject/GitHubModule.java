@@ -26,7 +26,7 @@ import com.google.inject.multibindings.Multibinder;
  *
  * @author Andrey Plotnikov
  */
-@DynaModule
+//@DynaModule
 public class GitHubModule extends AbstractModule {
 
     /** {@inheritDoc} */
