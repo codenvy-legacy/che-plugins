@@ -15,9 +15,9 @@ import com.google.inject.Singleton;
 
 import org.eclipse.che.ide.extension.machine.client.MachineResources;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
-import org.eclipse.che.ide.extension.machine.client.command.CommandType;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfigurationFactory;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfigurationPage;
+import org.eclipse.che.ide.extension.machine.client.command.CommandType;
 import org.vectomatic.dom.svg.ui.SVGResource;
 
 import javax.annotation.Nonnull;
@@ -32,9 +32,9 @@ import java.util.LinkedList;
 @Singleton
 public class ArbitraryCommandType implements CommandType {
 
-    public static final String ID               = "arbitrary";
-    public static final String DISPLAY_NAME     = "Arbitrary";
-    public static final String COMMAND_TEMPLATE = "echo \"hello\"";
+    private static final String ID               = "arbitrary";
+    private static final String DISPLAY_NAME     = "Arbitrary";
+    private static final String COMMAND_TEMPLATE = "echo \"hello\"";
 
     private final MachineResources                     resources;
     private final ArbitraryCommandConfigurationFactory configurationFactory;

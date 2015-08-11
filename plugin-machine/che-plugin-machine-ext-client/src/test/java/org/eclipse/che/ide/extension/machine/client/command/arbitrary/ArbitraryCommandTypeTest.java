@@ -13,7 +13,6 @@ package org.eclipse.che.ide.extension.machine.client.command.arbitrary;
 import org.eclipse.che.ide.extension.machine.client.MachineResources;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfigurationPage;
-import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -22,9 +21,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Collection;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.verify;
 
@@ -36,21 +32,9 @@ public class ArbitraryCommandTypeTest {
     private MachineResources       machineResources;
     @Mock
     private ArbitraryPagePresenter arbitraryPagePresenter;
-    @Mock
-    private MachineManager         machineManager;
 
     @InjectMocks
     private ArbitraryCommandType arbitraryCommandType;
-
-    @Test
-    public void shouldReturnId() throws Exception {
-        assertThat(arbitraryCommandType.getId(), equalTo(ArbitraryCommandType.ID));
-    }
-
-    @Test
-    public void shouldReturnDisplayName() throws Exception {
-        assertThat(arbitraryCommandType.getDisplayName(), equalTo(ArbitraryCommandType.DISPLAY_NAME));
-    }
 
     @Test
     public void shouldReturnIcon() throws Exception {
@@ -64,10 +48,5 @@ public class ArbitraryCommandTypeTest {
         final Collection<CommandConfigurationPage<? extends CommandConfiguration>> pages = arbitraryCommandType.getConfigurationPages();
 
         assertTrue(pages.contains(arbitraryPagePresenter));
-    }
-
-    @Test
-    public void shouldReturnCommandTemplate() throws Exception {
-        assertEquals(ArbitraryCommandType.COMMAND_TEMPLATE, arbitraryCommandType.getCommandTemplate());
     }
 }

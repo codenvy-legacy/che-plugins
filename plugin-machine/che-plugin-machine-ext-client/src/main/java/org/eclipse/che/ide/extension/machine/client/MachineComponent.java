@@ -15,20 +15,20 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
-import org.eclipse.che.api.machine.shared.dto.MachineDescriptor;
 import org.eclipse.che.api.machine.shared.dto.MachineStateDescriptor;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.PromiseError;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.core.Component;
-import org.eclipse.che.ide.extension.machine.client.inject.factories.EntityFactory;
 import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
 
 import java.util.List;
 
+import static org.eclipse.che.api.machine.shared.MachineStatus.RUNNING;
+
 /**
- * {@link Component} that responsible for starting a Dev-machine.
+ * {@link Component} that provides running a Dev-machine after loading IDE.
  *
  * @author Artem Zatsarynnyy
  */
@@ -41,42 +41,31 @@ public class MachineComponent implements Component {
     private final MachineServiceClient machineServiceClient;
     private final AppContext           appContext;
     private final MachineManager       machineManager;
-    private final EntityFactory        entityFactory;
 
     @Inject
-    public MachineComponent(MachineServiceClient machineServiceClient,
-                            AppContext appContext,
-                            MachineManager machineManager,
-                            EntityFactory entityFactory) {
+    public MachineComponent(MachineServiceClient machineServiceClient, AppContext appContext, MachineManager machineManager) {
         this.machineServiceClient = machineServiceClient;
         this.appContext = appContext;
         this.machineManager = machineManager;
-        this.entityFactory = entityFactory;
     }
 
     @Override
     public void start(final Callback<Component, Exception> callback) {
-        callback.onSuccess(this);
-
         machineServiceClient.getMachinesStates(null).then(new Operation<List<MachineStateDescriptor>>() {
             @Override
             public void apply(List<MachineStateDescriptor> arg) throws OperationException {
-                for (MachineStateDescriptor machineStateDescriptor : arg) {
-                    if (machineStateDescriptor.isWorkspaceBound()) {
-                        appContext.setDevMachineId(machineStateDescriptor.getId());
+                for (MachineStateDescriptor descriptor : arg) {
+                    if (descriptor.isWorkspaceBound() && descriptor.getStatus() == RUNNING) {
+                        appContext.setDevMachineId(descriptor.getId());
 
-                        // TODO: should be removed when IDEX-2858 will be done
-                        machineServiceClient.getMachine(machineStateDescriptor.getId()).then(new Operation<MachineDescriptor>() {
-                            @Override
-                            public void apply(MachineDescriptor arg) throws OperationException {
-                                machineManager.setDeveloperMachine(entityFactory.createMachine(arg));
-                            }
-                        });
+                        callback.onSuccess(MachineComponent.this);
                         return;
                     }
                 }
 
                 machineManager.startDevMachine(DEFAULT_RECIPE, "Dev");
+
+                callback.onSuccess(MachineComponent.this);
             }
         }).catchError(new Operation<PromiseError>() {
             @Override
