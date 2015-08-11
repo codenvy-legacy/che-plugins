@@ -12,6 +12,7 @@ package org.eclipse.che.ide.extension.machine.client.perspective.terminal;
 
 import com.google.gwt.core.client.Callback;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.JsArrayInteger;
 import com.google.gwt.core.client.ScriptInjector;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -26,6 +27,7 @@ import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.api.promises.client.PromiseError;
 import org.eclipse.che.api.promises.client.callback.AsyncPromiseHelper;
 import org.eclipse.che.ide.api.notification.NotificationManager;
+import org.eclipse.che.ide.collections.Jso;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.machine.Machine;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.content.TabPresenter;
@@ -43,7 +45,7 @@ import javax.annotation.Nonnull;
  *
  * @author Dmitry Shnurenko
  */
-public class TerminalPresenter implements TabPresenter {
+public class TerminalPresenter implements TabPresenter, TerminalView.ActionDelegate {
 
     //event which is performed when user input data into terminal
     private static final String DATA_EVENT_NAME          = "data";
@@ -59,6 +61,7 @@ public class TerminalPresenter implements TabPresenter {
     private WebSocket        socket;
     private boolean          isTerminalConnected;
     private int              countRetry;
+    private TerminalJso terminal;
 
     @Inject
     public TerminalPresenter(TerminalView view,
@@ -66,6 +69,7 @@ public class TerminalPresenter implements TabPresenter {
                              MachineLocalizationConstant locale,
                              @Assisted Machine machine) {
         this.view = view;
+        view.setDelegate(this);
         this.notificationManager = notificationManager;
         this.locale = locale;
         this.machine = machine;
@@ -133,7 +137,7 @@ public class TerminalPresenter implements TabPresenter {
         }
     }
 
-    private void tryToReconnect(){
+    private void tryToReconnect() {
         view.showErrorMessage(locale.terminalTryRestarting());
 
         if (countRetry <= 0) {
@@ -148,14 +152,17 @@ public class TerminalPresenter implements TabPresenter {
         socket.setOnOpenHandler(new ConnectionOpenedHandler() {
             @Override
             public void onOpen() {
-                final TerminalJso terminal = TerminalJso.create(TerminalOptionsJso.createDefault());
+                terminal = TerminalJso.create(TerminalOptionsJso.createDefault());
 
                 view.openTerminal(terminal);
 
                 terminal.on(DATA_EVENT_NAME, new Operation<String>() {
                     @Override
                     public void apply(String arg) throws OperationException {
-                        socket.send(arg);
+                        Jso jso = Jso.create();
+                        jso.addField("type", "data");
+                        jso.addField("data", arg);
+                        socket.send(jso.serialize());
                     }
                 });
                 socket.setOnMessageHandler(new MessageReceivedHandler() {
@@ -196,5 +203,18 @@ public class TerminalPresenter implements TabPresenter {
     @Override
     public void setVisible(boolean visible) {
         view.setVisible(visible);
+    }
+
+    @Override
+    public void setTerminalSize(int x, int y) {
+        terminal.resize(x, y);
+        Jso jso = Jso.create();
+        JsArrayInteger arr = Jso.createArray().cast();
+        arr.set(0, x);
+        arr.set(1, y);
+        jso.addField("type", "resize");
+        jso.addField("data", arr);
+        socket.send(jso.serialize());
+
     }
 }

@@ -14,6 +14,7 @@ import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
+import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
 import org.eclipse.che.api.machine.shared.dto.event.MachineProcessEvent;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.extension.machine.client.OutputMessageUnmarshaller;
@@ -38,9 +39,11 @@ public class CommandOutputConsole implements OutputConsole, OutputConsoleView.Ac
     private final NotificationManager    notificationManager;
     private final DtoUnmarshallerFactory dtoUnmarshallerFactory;
 
+    private final MachineServiceClient machineServiceClient;
     private final CommandConfiguration commandConfiguration;
     private final String               machineId;
 
+    private int            pid;
     private String         outputChannel;
     private MessageHandler outputHandler;
     private boolean isFinished = false;
@@ -50,12 +53,14 @@ public class CommandOutputConsole implements OutputConsole, OutputConsoleView.Ac
                                 MessageBus messageBus,
                                 NotificationManager notificationManager,
                                 DtoUnmarshallerFactory dtoUnmarshallerFactory,
+                                MachineServiceClient machineServiceClient,
                                 @Assisted CommandConfiguration commandConfiguration,
                                 @Assisted String machineId) {
         this.view = view;
         this.messageBus = messageBus;
         this.notificationManager = notificationManager;
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
+        this.machineServiceClient = machineServiceClient;
 
         this.commandConfiguration = commandConfiguration;
         this.machineId = machineId;
@@ -101,6 +106,8 @@ public class CommandOutputConsole implements OutputConsole, OutputConsoleView.Ac
 
     @Override
     public void attachToProcess(final int pid) {
+        this.pid = pid;
+
         final Unmarshallable<MachineProcessEvent> unmarshaller = dtoUnmarshallerFactory.newWSUnmarshaller(MachineProcessEvent.class);
         final String processStateChannel = "machine:process:" + machineId;
         final MessageHandler handler = new SubscriptionHandler<MachineProcessEvent>(unmarshaller) {
@@ -148,5 +155,10 @@ public class CommandOutputConsole implements OutputConsole, OutputConsoleView.Ac
     @Override
     public boolean isFinished() {
         return isFinished;
+    }
+
+    @Override
+    public void onClose() {
+        machineServiceClient.stopProcess(machineId, pid);
     }
 }

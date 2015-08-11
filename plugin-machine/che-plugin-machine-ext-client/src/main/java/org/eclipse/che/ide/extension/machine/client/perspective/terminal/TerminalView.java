@@ -10,8 +10,9 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.machine.client.perspective.terminal;
 
-import com.google.gwt.user.client.ui.IsWidget;
 import com.google.inject.ImplementedBy;
+
+import org.eclipse.che.ide.api.mvp.View;
 
 import javax.annotation.Nonnull;
 
@@ -21,7 +22,11 @@ import javax.annotation.Nonnull;
  * @author Dmitry Shnurenko
  */
 @ImplementedBy(TerminalViewImpl.class)
-interface TerminalView extends IsWidget {
+interface TerminalView extends View<TerminalView.ActionDelegate> {
+
+    interface ActionDelegate{
+        void setTerminalSize(int x, int y);
+    }
 
     /**
      * Change visibility state of panel.

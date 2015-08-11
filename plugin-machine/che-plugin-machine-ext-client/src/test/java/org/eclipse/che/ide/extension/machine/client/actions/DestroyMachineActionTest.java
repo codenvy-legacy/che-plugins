@@ -76,16 +76,16 @@ public class DestroyMachineActionTest {
         verify(machineManager).destroyMachine(eq(machine));
     }
 
-    @Test
-    public void devMachineShouldNotBeDestroyed() {
-        when(machine.isWorkspaceBound()).thenReturn(true);
-        MessageDialog dialog = mock(MessageDialog.class);
-        when(dialogFactory.createMessageDialog(anyString(), anyString(), any(ConfirmCallback.class))).thenReturn(dialog);
-
-        action.actionPerformed(event);
-
-        verify(dialogFactory).createMessageDialog(anyString(), anyString(), any(ConfirmCallback.class));
-        verify(dialog).show();
-        verify(machineManager, never()).destroyMachine(eq(machine));
-    }
+//    @Test
+//    public void devMachineShouldNotBeDestroyed() {
+//        when(machine.isWorkspaceBound()).thenReturn(true);
+//        MessageDialog dialog = mock(MessageDialog.class);
+//        when(dialogFactory.createMessageDialog(anyString(), anyString(), any(ConfirmCallback.class))).thenReturn(dialog);
+//
+//        action.actionPerformed(event);
+//
+//        verify(dialogFactory).createMessageDialog(anyString(), anyString(), any(ConfirmCallback.class));
+//        verify(dialog).show();
+//        verify(machineManager, never()).destroyMachine(eq(machine));
+//    }
 }

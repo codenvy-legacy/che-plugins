@@ -40,13 +40,16 @@ public class SettingsServiceClientImpl implements SettingsServiceClient {
     private final String              extPath;
     private final AsyncRequestFactory asyncRequestFactory;
     private final AppContext          appContext;
+    private final String              workspaceId;
 
     @Inject
     public SettingsServiceClientImpl(AppContext appContext,
                                      AsyncRequestFactory asyncRequestFactory,
-                                     @Named("cheExtensionPath") String extPath) {
+                                     @Named("cheExtensionPath") String extPath,
+                                     @Named("workspaceId") String workspaceId) {
         this.appContext = appContext;
         this.extPath = extPath;
+        this.workspaceId = workspaceId;
         this.asyncRequestFactory = asyncRequestFactory;
     }
 
@@ -68,10 +71,7 @@ public class SettingsServiceClientImpl implements SettingsServiceClient {
         return newPromise(new AsyncPromiseHelper.RequestCall<Void>() {
             @Override
             public void makeCall(AsyncCallback<Void> callback) {
-                String url = extPath
-                             + "/jdt/compiler-settings"
-                             + "/set?projectpath=" + pathToProject
-                             +  "&machineId=" + appContext.getDevMachineId();
+                String url = extPath  + "/jdt/" + workspaceId + "/compiler-settings/set?projectpath=" + pathToProject;
 
                 JsonSerializable data = new JsonSerializable() {
                     @Override
@@ -96,10 +96,7 @@ public class SettingsServiceClientImpl implements SettingsServiceClient {
         return newPromise(new AsyncPromiseHelper.RequestCall<Map<String, String>>() {
             @Override
             public void makeCall(AsyncCallback<Map<String, String>> callback) {
-                String url = extPath
-                             + "/jdt/compiler-settings"
-                             + "/all?projectpath=" + pathToProject
-                             +  "&machineId=" + appContext.getDevMachineId();
+                String url = extPath  + "/jdt/" + workspaceId + "/compiler-settings/all?projectpath=" + pathToProject;
 
                 asyncRequestFactory.createGetRequest(url)
                                    .header(ACCEPT, APPLICATION_JSON)

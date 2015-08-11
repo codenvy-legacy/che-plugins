@@ -19,7 +19,7 @@ import org.eclipse.che.ide.api.action.ActionEvent;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.MachineResources;
-import org.eclipse.che.ide.extension.machine.client.command.edit.EditConfigurationsPresenter;
+import org.eclipse.che.ide.extension.machine.client.command.edit.EditCommandsPresenter;
 
 import javax.annotation.Nonnull;
 import java.util.Collections;
@@ -33,19 +33,19 @@ import static org.eclipse.che.ide.workspace.perspectives.project.ProjectPerspect
  */
 @Singleton
 public class EditCommandsAction extends AbstractPerspectiveAction {
-    private final AppContext                  appContext;
-    private final EditConfigurationsPresenter presenter;
-    private final AnalyticsEventLogger        eventLogger;
+    private final AppContext            appContext;
+    private final EditCommandsPresenter presenter;
+    private final AnalyticsEventLogger  eventLogger;
 
     @Inject
-    public EditCommandsAction(EditConfigurationsPresenter presenter,
+    public EditCommandsAction(EditCommandsPresenter presenter,
                               MachineLocalizationConstant localizationConstant,
                               MachineResources resources,
                               AppContext appContext,
                               AnalyticsEventLogger eventLogger) {
         super(Collections.singletonList(PROJECT_PERSPECTIVE_ID),
-              localizationConstant.editConfigurationsControlTitle(),
-              localizationConstant.editConfigurationsControlDescription(),
+              localizationConstant.editCommandsControlTitle(),
+              localizationConstant.editCommandsControlDescription(),
               null,
               resources.recipe());
 

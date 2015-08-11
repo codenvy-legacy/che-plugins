@@ -21,9 +21,12 @@ import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.PromiseError;
 import org.eclipse.che.ide.api.app.AppContext;
+import org.eclipse.che.ide.bootstrap.ProjectTemplatesComponent;
+import org.eclipse.che.ide.bootstrap.ProjectTypeComponent;
 import org.eclipse.che.ide.core.Component;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.EntityFactory;
 import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
+import org.eclipse.che.ide.util.loging.Log;
 
 import java.util.List;
 
@@ -36,22 +39,28 @@ import java.util.List;
 public class MachineComponent implements Component {
 
     public static final String DEFAULT_RECIPE =
-            "https://gist.githubusercontent.com/gazarenkov/9f11a85a157ab399aca5/raw/b9f66169588f5394f84a1893cfeccd10e18d7fc8/maven";
+            "https://gist.githubusercontent.com/gazarenkov/9f11a85a157ab399aca5/raw/3fa47eddf8068d858a3d7097fb43608ca1562e60/maven";
 
     private final MachineServiceClient machineServiceClient;
     private final AppContext           appContext;
     private final MachineManager       machineManager;
     private final EntityFactory        entityFactory;
+    private       ProjectTypeComponent projectTypeComponent;
+    private ProjectTemplatesComponent projectTemplatesComponent;
 
     @Inject
     public MachineComponent(MachineServiceClient machineServiceClient,
                             AppContext appContext,
                             MachineManager machineManager,
-                            EntityFactory entityFactory) {
+                            EntityFactory entityFactory,
+                            ProjectTypeComponent projectTypeComponent,
+                            ProjectTemplatesComponent projectTemplatesComponent) {
         this.machineServiceClient = machineServiceClient;
         this.appContext = appContext;
         this.machineManager = machineManager;
         this.entityFactory = entityFactory;
+        this.projectTypeComponent = projectTypeComponent;
+        this.projectTemplatesComponent = projectTemplatesComponent;
     }
 
     @Override
@@ -70,6 +79,33 @@ public class MachineComponent implements Component {
                             @Override
                             public void apply(MachineDescriptor arg) throws OperationException {
                                 machineManager.setDeveloperMachine(entityFactory.createMachine(arg));
+                                projectTypeComponent.start(new Callback<Component, Exception>() {
+
+                                    @Override
+                                    public void onFailure(Exception reason) {
+
+                                    }
+
+                                    @Override
+                                    public void onSuccess(Component result) {
+                                        Log.info(getClass(), "projectTypeComponent >>>>>>>>>>>>>>>>>");
+
+                                    }
+                                });
+
+                                projectTemplatesComponent.start(new Callback<Component, Exception>() {
+
+                                    @Override
+                                    public void onFailure(Exception reason) {
+
+                                    }
+
+                                    @Override
+                                    public void onSuccess(Component result) {
+                                        Log.info(getClass(), ">>>>>>>>>>>>>>>>>>>>>> projectTemplatesComponent");
+
+                                    }
+                                });
                             }
                         });
                         return;

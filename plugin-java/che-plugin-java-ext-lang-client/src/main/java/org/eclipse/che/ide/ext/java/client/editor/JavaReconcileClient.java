@@ -31,13 +31,16 @@ public class JavaReconcileClient {
     private final String                 javaCAPath;
     private final DtoUnmarshallerFactory dtoUnmarshallerFactory;
     private final AsyncRequestFactory    asyncRequestFactory;
-    private final AppContext             appContext;
+    private       String                 workspaceId;
+    private final AppContext appContext;
 
     @Inject
     public JavaReconcileClient(@Named("cheExtensionPath") String javaCAPath,
+                               @Named("workspaceId") String workspaceId,
                                DtoUnmarshallerFactory dtoUnmarshallerFactory,
                                AppContext appContext,
                                AsyncRequestFactory asyncRequestFactory) {
+        this.workspaceId = workspaceId;
         this.appContext = appContext;
         this.javaCAPath = javaCAPath;
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
@@ -45,8 +48,7 @@ public class JavaReconcileClient {
     }
 
     public void reconcile(String projectPath, String fqn, final ReconcileCallback callback) {
-        String url = javaCAPath + "/" + "/jdt/reconcile/?projectpath=" + projectPath + "&fqn=" + fqn + "&machineId=" +
-                     appContext.getDevMachineId();
+        String url = javaCAPath + "/jdt/" + workspaceId + "/reconcile/?projectpath=" + projectPath + "&fqn=" + fqn;
         asyncRequestFactory.createGetRequest(url)
                            .send(new AsyncRequestCallback<ReconcileResult>(dtoUnmarshallerFactory.newUnmarshaller(ReconcileResult.class)) {
                                @Override

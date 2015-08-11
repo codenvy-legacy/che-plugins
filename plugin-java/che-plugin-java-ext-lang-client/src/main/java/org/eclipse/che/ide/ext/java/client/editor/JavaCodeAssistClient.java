@@ -45,17 +45,20 @@ import static org.eclipse.che.ide.rest.HTTPHeader.CONTENT_TYPE;
 @Singleton
 public class JavaCodeAssistClient {
 
-    private final String                 machineExtPath;
+    private final String machineExtPath;
+    private       String workspaceId;
     private final DtoUnmarshallerFactory unmarshallerFactory;
-    private final AppContext             appContext;
-    private final AsyncRequestFactory    asyncRequestFactory;
+    private final AppContext          appContext;
+    private final AsyncRequestFactory asyncRequestFactory;
 
     @Inject
     public JavaCodeAssistClient(@Named("cheExtensionPath") String machineExtPath,
+                                @Named("workspaceId") String workspaceId,
                                 DtoUnmarshallerFactory unmarshallerFactory,
                                 AppContext appContext,
                                 AsyncRequestFactory asyncRequestFactory) {
         this.machineExtPath = machineExtPath;
+        this.workspaceId = workspaceId;
         this.unmarshallerFactory = unmarshallerFactory;
         this.appContext = appContext;
         this.asyncRequestFactory = asyncRequestFactory;
@@ -63,14 +66,14 @@ public class JavaCodeAssistClient {
 
     public void computeProposals(String projectPath, String fqn, int offset, String contents, AsyncRequestCallback<Proposals> callback) {
         String url =
-                machineExtPath + "/" + appContext.getDevMachineId() + "/jdt/code-assist/compute/completion" + "/?projectpath=" +
+                machineExtPath + "/jdt/" + workspaceId + "/code-assist/compute/completion" + "/?projectpath=" +
                 projectPath + "&fqn=" + fqn + "&offset=" + offset;
         asyncRequestFactory.createPostRequest(url, null).data(contents).send(callback);
     }
 
     public void computeAssistProposals(String projectPath, String fqn, int offset, List<Problem> problems,
                                        AsyncRequestCallback<Proposals> callback) {
-        String url = machineExtPath + "/" + appContext.getDevMachineId() + "/jdt/code-assist/compute/assist" + "/?projectpath=" +
+        String url = machineExtPath + "/jdt/" + workspaceId + "/code-assist/compute/assist" + "/?projectpath=" +
                      projectPath + "&fqn=" + fqn + "&offset=" + offset;
         Array<Problem> prob = Collections.createArray(problems);
         asyncRequestFactory.createPostRequest(url, prob).send(callback);
@@ -78,7 +81,7 @@ public class JavaCodeAssistClient {
 
 
     public void applyProposal(String sessionId, int index, boolean insert, final AsyncCallback<ProposalApplyResult> callback) {
-        String url = machineExtPath + "/" + appContext.getDevMachineId() + "/jdt/code-assist/apply/completion/?sessionid=" +
+        String url = machineExtPath + "/jdt/" + workspaceId + "/code-assist/apply/completion/?sessionid=" +
                      sessionId + "&index=" + index + "&insert=" + insert;
         Unmarshallable<ProposalApplyResult> unmarshaller =
                 unmarshallerFactory.newUnmarshaller(ProposalApplyResult.class);
@@ -96,7 +99,7 @@ public class JavaCodeAssistClient {
     }
 
     public String getProposalDocUrl(int id, String sessionId) {
-        return machineExtPath + "/" + appContext.getDevMachineId() + "/jdt/code-assist/compute/info?sessionid=" + sessionId +
+        return machineExtPath + "/jdt/" + workspaceId + "/code-assist/compute/info?sessionid=" + sessionId +
                "&index=" + id;
     }
 

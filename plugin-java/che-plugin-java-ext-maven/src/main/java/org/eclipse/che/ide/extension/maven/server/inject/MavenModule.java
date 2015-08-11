@@ -33,12 +33,12 @@ public class MavenModule extends AbstractModule {
     protected void configure() {
         Multibinder.newSetBinder(binder(), ValueProviderFactory.class).addBinding().to(MavenValueProviderFactory.class);
         Multibinder.newSetBinder(binder(), ProjectType.class).addBinding().to(MavenProjectType.class);
-//        Multibinder.newSetBinder(binder(), ProjectHandler.class).addBinding().to(MavenProjectGenerator.class);
+        Multibinder.newSetBinder(binder(), ProjectHandler.class).addBinding().to(MavenProjectGenerator.class);
         Multibinder.newSetBinder(binder(), ProjectHandler.class).addBinding().to(AddMavenModuleHandler.class);
         Multibinder.newSetBinder(binder(), ProjectHandler.class).addBinding().to(MavenProjectImportedHandler.class);
         Multibinder.newSetBinder(binder(), ProjectHandler.class).addBinding().to(ProjectHasBecomeMaven.class);
         Multibinder.newSetBinder(binder(), ProjectHandler.class).addBinding().to(GetMavenModulesHandler.class);
         Multibinder.newSetBinder(binder(), ProjectHandler.class).addBinding().to(MavenProjectCreatedHandler.class);
-//        Multibinder.newSetBinder(binder(), GeneratorStrategy.class).addBinding().to(ArchetypeGenerationStrategy.class);
+        Multibinder.newSetBinder(binder(), GeneratorStrategy.class).addBinding().to(ArchetypeGenerationStrategy.class);
     }
 }

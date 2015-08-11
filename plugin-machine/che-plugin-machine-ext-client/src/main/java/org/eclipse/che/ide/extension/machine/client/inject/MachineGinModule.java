@@ -16,18 +16,14 @@ import com.google.gwt.inject.client.multibindings.GinMapBinder;
 import com.google.gwt.inject.client.multibindings.GinMultibinder;
 import com.google.inject.Singleton;
 
-import org.eclipse.che.api.machine.gwt.client.DevMachine;
 import org.eclipse.che.ide.api.extension.ExtensionGinModule;
 import org.eclipse.che.ide.api.parts.Perspective;
-import org.eclipse.che.ide.bootstrap.ProfileComponent;
-import org.eclipse.che.ide.bootstrap.ProjectTemplatesComponent;
-import org.eclipse.che.ide.bootstrap.ProjectTypeComponent;
 import org.eclipse.che.ide.core.Component;
 import org.eclipse.che.ide.extension.machine.client.MachineComponent;
 import org.eclipse.che.ide.extension.machine.client.command.CommandType;
 import org.eclipse.che.ide.extension.machine.client.command.arbitrary.ArbitraryCommandType;
-import org.eclipse.che.ide.extension.machine.client.command.edit.EditConfigurationsView;
-import org.eclipse.che.ide.extension.machine.client.command.edit.EditConfigurationsViewImpl;
+import org.eclipse.che.ide.extension.machine.client.command.edit.EditCommandsView;
+import org.eclipse.che.ide.extension.machine.client.command.edit.EditCommandsViewImpl;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.EntityFactory;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.TerminalFactory;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.WidgetsFactory;
@@ -69,9 +65,6 @@ public class MachineGinModule extends AbstractGinModule {
     protected void configure() {
         GinMapBinder<String, Component> componentBinder = GinMapBinder.newMapBinder(binder(), String.class, Component.class);
         componentBinder.addBinding("Start Machine").to(MachineComponent.class);
-//        componentBinder.addBinding("Profile").to(ProfileComponent.class);
-//        componentBinder.addBinding("Project Types").to(ProjectTypeComponent.class);
-//        componentBinder.addBinding("Project Templates").to(ProjectTemplatesComponent.class);
 
         GinMapBinder<String, Perspective> perspectiveBinder = GinMapBinder.newMapBinder(binder(), String.class, Perspective.class);
         perspectiveBinder.addBinding(MACHINE_PERSPECTIVE_ID).to(MachinePerspective.class);
@@ -86,7 +79,7 @@ public class MachineGinModule extends AbstractGinModule {
 
         bind(OutputsContainerView.class).to(OutputsContainerViewImpl.class).in(Singleton.class);
 
-        bind(EditConfigurationsView.class).to(EditConfigurationsViewImpl.class).in(Singleton.class);
+        bind(EditCommandsView.class).to(EditCommandsViewImpl.class).in(Singleton.class);
 
         GinMultibinder.newSetBinder(binder(), CommandType.class).addBinding().to(ArbitraryCommandType.class);
 

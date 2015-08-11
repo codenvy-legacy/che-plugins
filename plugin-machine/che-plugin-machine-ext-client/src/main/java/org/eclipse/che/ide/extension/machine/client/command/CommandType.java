@@ -34,13 +34,13 @@ public interface CommandType {
     @Nonnull
     SVGResource getIcon();
 
-    /** Returns the {@link ConfigurationPage}s that allow to configure specific command parameters. */
+    /** Returns the {@link CommandConfigurationPage}s that allow to configure specific command parameters. */
     @Nonnull
-    Collection<ConfigurationPage<? extends CommandConfiguration>> getConfigurationPages();
+    Collection<CommandConfigurationPage<? extends CommandConfiguration>> getConfigurationPages();
 
     /** Returns factory for {@link CommandConfiguration} instances. */
     @Nonnull
-    ConfigurationFactory<? extends CommandConfiguration> getConfigurationFactory();
+    CommandConfigurationFactory<? extends CommandConfiguration> getConfigurationFactory();
 
     /** Returns command template that will be used for newly created command. */
     @Nonnull

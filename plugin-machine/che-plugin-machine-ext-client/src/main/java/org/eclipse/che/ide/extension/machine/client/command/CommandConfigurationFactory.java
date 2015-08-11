@@ -21,7 +21,7 @@ import javax.annotation.Nonnull;
  *         type of the command configuration which this factory produces
  * @author Artem Zatsarynnyy
  */
-public abstract class ConfigurationFactory<T extends CommandConfiguration> {
+public abstract class CommandConfigurationFactory<T extends CommandConfiguration> {
 
     private final CommandType commandType;
 
@@ -31,7 +31,7 @@ public abstract class ConfigurationFactory<T extends CommandConfiguration> {
      * @param commandType
      *         type of the command configuration which this factory should create
      */
-    protected ConfigurationFactory(@Nonnull CommandType commandType) {
+    protected CommandConfigurationFactory(@Nonnull CommandType commandType) {
         this.commandType = commandType;
     }
 

@@ -27,8 +27,8 @@ import org.eclipse.che.ide.extension.machine.client.actions.SelectCommandComboBo
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
 import org.eclipse.che.ide.extension.machine.client.command.CommandType;
 import org.eclipse.che.ide.extension.machine.client.command.CommandTypeRegistry;
-import org.eclipse.che.ide.extension.machine.client.command.ConfigurationPage;
-import org.eclipse.che.ide.extension.machine.client.command.ConfigurationPage.DirtyStateListener;
+import org.eclipse.che.ide.extension.machine.client.command.CommandConfigurationPage;
+import org.eclipse.che.ide.extension.machine.client.command.CommandConfigurationPage.DirtyStateListener;
 import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
 import org.eclipse.che.ide.ui.dialogs.ConfirmCallback;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
@@ -44,15 +44,15 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Presenter for managing command configurations.
+ * Presenter for managing commands.
  *
  * @author Artem Zatsarynnyy
  */
 @Singleton
-public class EditConfigurationsPresenter implements EditConfigurationsView.ActionDelegate {
+public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
 
-    private final EditConfigurationsView view;
-    private final MachineManager machineManager;
+    private final EditCommandsView                      view;
+    private final MachineManager                        machineManager;
     private final CommandServiceClient                  commandServiceClient;
     private final CommandTypeRegistry                   commandTypeRegistry;
     private final DialogFactory                         dialogFactory;
@@ -61,20 +61,20 @@ public class EditConfigurationsPresenter implements EditConfigurationsView.Actio
 
     private final Set<ConfigurationChangedListener> configurationChangedListeners;
 
-    private ConfigurationPage<CommandConfiguration> editedPage;
+    private CommandConfigurationPage<CommandConfiguration> editedPage;
     /** Command that being edited. */
-    private CommandConfiguration                    editedCommand;
+    private CommandConfiguration                           editedCommand;
     /** Name of the edited command before editing. */
-    private String                                  editedCommandOriginName;
+    private String                                         editedCommandOriginName;
 
     @Inject
-    protected EditConfigurationsPresenter(EditConfigurationsView view,
-                                          CommandServiceClient commandServiceClient,
-                                          CommandTypeRegistry commandTypeRegistry,
-                                          DialogFactory dialogFactory,
-                                          MachineLocalizationConstant localizationConstant,
-                                          Provider<SelectCommandComboBoxAction> selectCommandActionProvider,
-                                          MachineManager machineManager) {
+    protected EditCommandsPresenter(EditCommandsView view,
+                                    CommandServiceClient commandServiceClient,
+                                    CommandTypeRegistry commandTypeRegistry,
+                                    DialogFactory dialogFactory,
+                                    MachineLocalizationConstant localizationConstant,
+                                    Provider<SelectCommandComboBoxAction> selectCommandActionProvider,
+                                    MachineManager machineManager) {
         this.view = view;
         this.machineManager = machineManager;
         this.view.setDelegate(this);
@@ -170,10 +170,10 @@ public class EditConfigurationsPresenter implements EditConfigurationsView.Actio
         };
 
         final ChoiceDialog dialog = dialogFactory.createChoiceDialog(
-                localizationConstant.editConfigurationsSaveChangesTitle(),
-                localizationConstant.editConfigurationsSaveChangesConfirmation(editedCommand.getName()),
-                localizationConstant.editConfigurationsSaveChangesSave(),
-                localizationConstant.editConfigurationsSaveChangesDiscard(),
+                localizationConstant.editCommandsSaveChangesTitle(),
+                localizationConstant.editCommandsSaveChangesConfirmation(editedCommand.getName()),
+                localizationConstant.editCommandsSaveChangesSave(),
+                localizationConstant.editCommandsSaveChangesDiscard(),
                 saveCallback,
                 discardCallback);
         dialog.show();
@@ -217,7 +217,7 @@ public class EditConfigurationsPresenter implements EditConfigurationsView.Actio
 
         final ConfirmDialog confirmDialog = dialogFactory.createConfirmDialog(
                 "",
-                localizationConstant.editConfigurationsRemoveConfirmation(selectedConfiguration.getName()),
+                localizationConstant.editCommandsRemoveConfirmation(selectedConfiguration.getName()),
                 confirmCallback,
                 null);
         confirmDialog.show();
@@ -231,7 +231,7 @@ public class EditConfigurationsPresenter implements EditConfigurationsView.Actio
         }
 
         if (isViewModified()) {
-            dialogFactory.createMessageDialog("", localizationConstant.editConfigurationsExecuteMessage(), null).show();
+            dialogFactory.createMessageDialog("", localizationConstant.editCommandsExecuteMessage(), null).show();
             return;
         }
 
@@ -273,10 +273,10 @@ public class EditConfigurationsPresenter implements EditConfigurationsView.Actio
         };
 
         final ChoiceDialog dialog = dialogFactory.createChoiceDialog(
-                localizationConstant.editConfigurationsSaveChangesTitle(),
-                localizationConstant.editConfigurationsSaveChangesConfirmation(editedCommand.getName()),
-                localizationConstant.editConfigurationsSaveChangesSave(),
-                localizationConstant.editConfigurationsSaveChangesDiscard(),
+                localizationConstant.editCommandsSaveChangesTitle(),
+                localizationConstant.editCommandsSaveChangesConfirmation(editedCommand.getName()),
+                localizationConstant.editCommandsSaveChangesSave(),
+                localizationConstant.editCommandsSaveChangesDiscard(),
                 saveCallback,
                 discardCallback);
         dialog.show();
@@ -323,10 +323,10 @@ public class EditConfigurationsPresenter implements EditConfigurationsView.Actio
         };
 
         final ChoiceDialog dialog = dialogFactory.createChoiceDialog(
-                localizationConstant.editConfigurationsSaveChangesTitle(),
-                localizationConstant.editConfigurationsSaveChangesConfirmation(editedCommand.getName()),
-                localizationConstant.editConfigurationsSaveChangesSave(),
-                localizationConstant.editConfigurationsSaveChangesDiscard(),
+                localizationConstant.editCommandsSaveChangesTitle(),
+                localizationConstant.editCommandsSaveChangesConfirmation(editedCommand.getName()),
+                localizationConstant.editCommandsSaveChangesSave(),
+                localizationConstant.editCommandsSaveChangesDiscard(),
                 saveCallback,
                 discardCallback);
         dialog.show();
@@ -341,9 +341,9 @@ public class EditConfigurationsPresenter implements EditConfigurationsView.Actio
         view.setExecuteButtonState(true);
         view.setConfigurationName(configuration.getName());
 
-        final Collection<ConfigurationPage<? extends CommandConfiguration>> pages = configuration.getType().getConfigurationPages();
-        for (ConfigurationPage<? extends CommandConfiguration> page : pages) {
-            final ConfigurationPage<CommandConfiguration> p = ((ConfigurationPage<CommandConfiguration>)page);
+        final Collection<CommandConfigurationPage<? extends CommandConfiguration>> pages = configuration.getType().getConfigurationPages();
+        for (CommandConfigurationPage<? extends CommandConfiguration> page : pages) {
+            final CommandConfigurationPage<CommandConfiguration> p = ((CommandConfigurationPage<CommandConfiguration>)page);
 
             editedPage = p;
 

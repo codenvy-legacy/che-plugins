@@ -23,7 +23,7 @@ import javax.annotation.Nonnull;
  *         type of the command configuration which this page should edit
  * @author Artem Zatsarynnyy
  */
-public interface ConfigurationPage<T extends CommandConfiguration> extends Presenter {
+public interface CommandConfigurationPage<T extends CommandConfiguration> extends Presenter {
 
     /**
      * Resets the page from the given {@code configuration}

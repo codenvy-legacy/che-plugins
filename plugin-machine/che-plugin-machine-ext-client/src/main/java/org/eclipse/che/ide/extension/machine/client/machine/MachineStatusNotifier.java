@@ -12,6 +12,7 @@ package org.eclipse.che.ide.extension.machine.client.machine;
 
 import com.google.gwt.core.client.Callback;
 import com.google.gwt.inject.client.multibindings.GinMapBinder;
+import com.google.gwt.user.client.Timer;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.event.shared.EventBus;
@@ -112,6 +113,31 @@ class MachineStatusNotifier {
                 switch (result.getEventType()) {
                     case RUNNING:
                         unsubscribe(wsChannel, this);
+                        startProjectApiComponent();
+                        if (runningListener != null) {
+                            runningListener.onRunning();
+                        }
+
+                        showInfo(RESTART.equals(operationType) ? locale.machineRestarted(machineName)
+                                                               : locale.notificationMachineIsRunning(machineName), notification);
+                        eventBus.fireEvent(MachineStateEvent.createMachineRunningEvent(machine));
+                        break;
+                    case DESTROYED:
+                        unsubscribe(wsChannel, this);
+                        showInfo(locale.notificationMachineDestroyed(machineName), notification);
+                        eventBus.fireEvent(MachineStateEvent.createMachineDestroyedEvent(machine));
+                        break;
+                    case ERROR:
+                        unsubscribe(wsChannel, this);
+                        showError(result.getError(), notification);
+                        break;
+                }
+            }
+
+            private void startProjectApiComponent() {
+                Timer waitOnExtServerStart = new Timer() {
+                    @Override
+                    public void run() {
                         projectTypeComponent.start(new Callback<Component, Exception>() {
 
                             @Override
@@ -139,24 +165,14 @@ class MachineStatusNotifier {
 
                             }
                         });
-                        if (runningListener != null) {
-                            runningListener.onRunning();
-                        }
 
-                        showInfo(RESTART.equals(operationType) ? locale.machineRestarted(machineName)
-                                                               : locale.notificationMachineIsRunning(machineName), notification);
-                        eventBus.fireEvent(MachineStateEvent.createMachineRunningEvent(machine));
-                        break;
-                    case DESTROYED:
-                        unsubscribe(wsChannel, this);
-                        showInfo(locale.notificationMachineDestroyed(machineName), notification);
-                        eventBus.fireEvent(MachineStateEvent.createMachineDestroyedEvent(machine));
-                        break;
-                    case ERROR:
-                        unsubscribe(wsChannel, this);
-                        showError(result.getError(), notification);
-                        break;
-                }
+
+                    }
+                };
+
+                waitOnExtServerStart.schedule(10000); //wait on start extension server inside Machine
+                                                      //need to rework it we wait on improvement Machine API we will have dedicate Event
+
             }
 
             @Override

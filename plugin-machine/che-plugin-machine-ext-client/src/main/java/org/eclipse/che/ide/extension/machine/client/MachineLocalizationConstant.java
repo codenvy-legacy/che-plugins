@@ -49,11 +49,11 @@ public interface MachineLocalizationConstant extends Messages {
     @Key("control.runSelectedCommand.description")
     String executeSelectedCommandControlDescription();
 
-    @Key("control.editConfigurations.text")
-    String editConfigurationsControlTitle();
+    @Key("control.editCommands.text")
+    String editCommandsControlTitle();
 
-    @Key("control.editConfigurations.description")
-    String editConfigurationsControlDescription();
+    @Key("control.editCommands.description")
+    String editCommandsControlDescription();
 
     @Key("control.clearMachineConsole.text")
     String clearConsoleControlTitle();
@@ -125,6 +125,11 @@ public interface MachineLocalizationConstant extends Messages {
     @Key("view.outputsConsole.tooltip")
     String outputsConsoleViewTooltip();
 
+    @Key("view.outputsConsole.stopProcessConfirmation")
+    String outputsConsoleViewStopProcessConfirmation(String processName);
+
+
+    /* CreateMachineView */
     @Key("view.createMachine.title")
     String viewCreateMachineTitle();
 
@@ -150,51 +155,51 @@ public interface MachineLocalizationConstant extends Messages {
     String viewCreateMachineFindByTags();
 
 
-    /* EditConfigurationsView */
-    @Key("view.editConfigurations.title")
-    String editConfigurationsViewTitle();
+    /* EditCommandsView */
+    @Key("view.editCommands.title")
+    String editCommandsViewTitle();
 
-    @Key("view.editConfigurations.hint")
-    String editConfigurationsViewHint();
+    @Key("view.editCommands.hint")
+    String editCommandsViewHint();
 
-    @Key("view.editConfigurations.name.text")
-    String editConfigurationsViewNameText();
+    @Key("view.editCommands.name.text")
+    String editCommandsViewNameText();
 
-    @Key("view.editConfigurations.add.text")
-    String editConfigurationsViewAddText();
+    @Key("view.editCommands.add.text")
+    String editCommandsViewAddText();
 
-    @Key("view.editConfigurations.add.title")
-    String editConfigurationsViewAddTitle();
+    @Key("view.editCommands.add.title")
+    String editCommandsViewAddTitle();
 
-    @Key("view.editConfigurations.remove.text")
-    String editConfigurationsViewRemoveText();
+    @Key("view.editCommands.remove.text")
+    String editCommandsViewRemoveText();
 
-    @Key("view.editConfigurations.remove.title")
-    String editConfigurationsViewRemoveTitle();
+    @Key("view.editCommands.remove.title")
+    String editCommandsViewRemoveTitle();
 
-    @Key("view.editConfigurations.remove.confirmation")
-    String editConfigurationsRemoveConfirmation(String commandName);
+    @Key("view.editCommands.remove.confirmation")
+    String editCommandsRemoveConfirmation(String commandName);
 
-    @Key("view.editConfigurations.execute.text")
-    String editConfigurationsViewExecuteText();
+    @Key("view.editCommands.execute.text")
+    String editCommandsViewExecuteText();
 
-    @Key("view.editConfigurations.execute.title")
-    String editConfigurationsViewExecuteTitle();
+    @Key("view.editCommands.execute.title")
+    String editCommandsViewExecuteTitle();
 
-    @Key("view.editConfigurations.execute.message")
-    String editConfigurationsExecuteMessage();
+    @Key("view.editCommands.execute.message")
+    String editCommandsExecuteMessage();
 
-    @Key("view.editConfigurations.saveChanges.title")
-    String editConfigurationsSaveChangesTitle();
+    @Key("view.editCommands.saveChanges.title")
+    String editCommandsSaveChangesTitle();
 
-    @Key("view.editConfigurations.saveChanges.text")
-    String editConfigurationsSaveChangesConfirmation(String commandName);
+    @Key("view.editCommands.saveChanges.text")
+    String editCommandsSaveChangesConfirmation(String commandName);
 
-    @Key("view.editConfigurations.saveChanges.save")
-    String editConfigurationsSaveChangesSave();
+    @Key("view.editCommands.saveChanges.save")
+    String editCommandsSaveChangesSave();
 
-    @Key("view.editConfigurations.saveChanges.discard")
-    String editConfigurationsSaveChangesDiscard();
+    @Key("view.editCommands.saveChanges.discard")
+    String editCommandsSaveChangesDiscard();
 
 
     @Key("process.active")

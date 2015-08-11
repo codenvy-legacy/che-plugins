@@ -45,12 +45,12 @@
             <g:DockLayoutPanel addStyleNames="{style.emptyBorder} {style.border}">
                 <g:north size="30">
                     <g:FlowPanel>
-                        <g:Button ui:field="addButton" text="{locale.editConfigurationsViewAddText}"
-                                  title="{locale.editConfigurationsViewAddTitle}" addStyleNames="{style.button}"/>
-                        <g:Button ui:field="removeButton" text="{locale.editConfigurationsViewRemoveText}"
-                                  title="{locale.editConfigurationsViewRemoveTitle}" addStyleNames="{style.button}"/>
-                        <g:Button ui:field="executeButton" text="{locale.editConfigurationsViewExecuteText}"
-                                  title="{locale.editConfigurationsViewExecuteTitle}" addStyleNames="{style.button}"/>
+                        <g:Button ui:field="addButton" text="{locale.editCommandsViewAddText}"
+                                  title="{locale.editCommandsViewAddTitle}" addStyleNames="{style.button}"/>
+                        <g:Button ui:field="removeButton" text="{locale.editCommandsViewRemoveText}"
+                                  title="{locale.editCommandsViewRemoveTitle}" addStyleNames="{style.button}"/>
+                        <g:Button ui:field="executeButton" text="{locale.editCommandsViewExecuteText}"
+                                  title="{locale.editCommandsViewExecuteTitle}" addStyleNames="{style.button}"/>
                     </g:FlowPanel>
                 </g:north>
                 <g:center>
@@ -61,7 +61,7 @@
         <g:center>
             <g:FlowPanel addStyleNames="{style.marginTop}">
                 <g:FlowPanel ui:field="savePanel">
-                    <g:Label width="50px" text="{locale.editConfigurationsViewNameText}" styleName="{style.label}"/>
+                    <g:Label width="50px" text="{locale.editCommandsViewNameText}" styleName="{style.label}"/>
                     <g:TextBox width="527px" height="14px" ui:field="configurationName"/>
                 </g:FlowPanel>
 

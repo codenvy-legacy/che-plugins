@@ -11,8 +11,9 @@
 package org.eclipse.che.ide.extension.maven.client.command;
 
 import org.eclipse.che.api.machine.shared.dto.CommandDescriptor;
+import org.eclipse.che.ide.CommandLine;
 import org.eclipse.che.ide.extension.machine.client.command.CommandType;
-import org.eclipse.che.ide.extension.machine.client.command.ConfigurationFactory;
+import org.eclipse.che.ide.extension.machine.client.command.CommandConfigurationFactory;
 
 import javax.annotation.Nonnull;
 
@@ -21,9 +22,9 @@ import javax.annotation.Nonnull;
  *
  * @author Artem Zatsarynnyy
  */
-public class MavenConfigurationFactory extends ConfigurationFactory<MavenCommandConfiguration> {
+public class MavenCommandConfigurationFactory extends CommandConfigurationFactory<MavenCommandConfiguration> {
 
-    protected MavenConfigurationFactory(@Nonnull CommandType commandType) {
+    protected MavenCommandConfigurationFactory(@Nonnull CommandType commandType) {
         super(commandType);
     }
 

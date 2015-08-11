@@ -13,9 +13,11 @@ package org.eclipse.che.ide.extension.machine.client.perspective.terminal;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.RequiresResize;
 import com.google.gwt.user.client.ui.Widget;
 
 import javax.annotation.Nonnull;
@@ -25,19 +27,33 @@ import javax.annotation.Nonnull;
  *
  * @author Dmitry Shnurenko
  */
-final class TerminalViewImpl extends Composite implements TerminalView {
-    interface TerminalViewImplUiBinder extends UiBinder<Widget, TerminalViewImpl> {
-    }
-
+final class TerminalViewImpl extends Composite implements TerminalView, RequiresResize{
     private final static TerminalViewImplUiBinder UI_BINDER = GWT.create(TerminalViewImplUiBinder.class);
-
     @UiField
     FlowPanel terminalPanel;
     @UiField
     Label     unavailableLabel;
+    private ActionDelegate delegate;
+    private Timer resizeTimer = new Timer() {
+        @Override
+        public void run() {
+            resizeTerminal();
+        }
+    };
+
+    private void resizeTerminal() {
+        int x = (int)(Math.floor(terminalPanel.getOffsetWidth() / 6.6221374) - 1);
+        int y = (int)Math.floor(terminalPanel.getOffsetHeight() / 13);
+        delegate.setTerminalSize(x, y);
+    }
 
     public TerminalViewImpl() {
         initWidget(UI_BINDER.createAndBindUi(this));
+    }
+
+    @Override
+    public void setDelegate(ActionDelegate delegate) {
+        this.delegate = delegate;
     }
 
     /** {@inheritDoc} */
@@ -48,6 +64,7 @@ final class TerminalViewImpl extends Composite implements TerminalView {
         terminalPanel.setVisible(true);
 
         terminal.open(terminalPanel.getElement());
+        onResize();
     }
 
     /** {@inheritDoc} */
@@ -57,5 +74,15 @@ final class TerminalViewImpl extends Composite implements TerminalView {
         unavailableLabel.setVisible(true);
 
         terminalPanel.setVisible(false);
+    }
+
+    @Override
+    public void onResize() {
+        resizeTimer.cancel();
+        resizeTimer.schedule(500);
+    }
+
+
+    interface TerminalViewImplUiBinder extends UiBinder<Widget, TerminalViewImpl> {
     }
 }

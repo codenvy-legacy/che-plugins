@@ -23,8 +23,8 @@ public class UrlContextProvider {
 
     private static UriBuilder builder;
 
-    public static String get(String projectPath) {
-        return builder.path(JavadocService.class).path(JavadocService.class, "get").build().toString() + "?projectpath=" + projectPath +
+    public static String get(String wsId, String projectPath) {
+        return builder.path(JavadocService.class).path(JavadocService.class, "get").build(wsId).toString() + "?projectpath=" + projectPath +
                "&handle=";
     }
 

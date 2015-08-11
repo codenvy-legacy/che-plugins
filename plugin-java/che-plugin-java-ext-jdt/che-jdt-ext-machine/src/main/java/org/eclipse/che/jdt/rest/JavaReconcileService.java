@@ -28,7 +28,7 @@ import javax.ws.rs.QueryParam;
 /**
  * @author Evgen Vidolob
  */
-@Path("jdt/reconcile")
+@Path("jdt/{wsId}/reconcile")
 public class JavaReconcileService {
 
     private static final JavaModel model = JavaModelManager.getJavaModelManager().getJavaModel();

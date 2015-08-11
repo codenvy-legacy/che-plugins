@@ -20,11 +20,11 @@ import javax.annotation.Nullable;
 import java.util.Collection;
 
 /**
- * The view of {@link EditConfigurationsPresenter}.
+ * The view of {@link EditCommandsPresenter}.
  *
  * @author Artem Zatsarynnyy
  */
-public interface EditConfigurationsView extends View<EditConfigurationsView.ActionDelegate> {
+public interface EditCommandsView extends View<EditCommandsView.ActionDelegate> {
 
     /** Show view. */
     void show();
