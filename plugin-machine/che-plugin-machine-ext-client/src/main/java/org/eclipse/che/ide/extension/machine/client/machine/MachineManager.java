@@ -21,7 +21,6 @@ import com.google.inject.Singleton;
 
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
 import org.eclipse.che.api.machine.shared.dto.MachineDescriptor;
-import org.eclipse.che.api.machine.shared.dto.ProcessDescriptor;
 import org.eclipse.che.api.promises.client.Function;
 import org.eclipse.che.api.promises.client.FunctionException;
 import org.eclipse.che.api.promises.client.Operation;
@@ -31,16 +30,10 @@ import org.eclipse.che.api.promises.client.PromiseError;
 import org.eclipse.che.api.promises.client.callback.AsyncPromiseHelper;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.notification.NotificationManager;
-import org.eclipse.che.ide.api.parts.WorkspaceAgent;
-import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.OutputMessageUnmarshaller;
-import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.EntityFactory;
 import org.eclipse.che.ide.extension.machine.client.machine.MachineStatusNotifier.RunningListener;
 import org.eclipse.che.ide.extension.machine.client.machine.console.MachineConsolePresenter;
-import org.eclipse.che.ide.extension.machine.client.outputspanel.OutputsContainerPresenter;
-import org.eclipse.che.ide.extension.machine.client.outputspanel.console.CommandConsoleFactory;
-import org.eclipse.che.ide.extension.machine.client.outputspanel.console.OutputConsole;
 import org.eclipse.che.ide.extension.machine.client.util.RecipeProvider;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 import org.eclipse.che.ide.util.UUID;
@@ -50,7 +43,6 @@ import org.eclipse.che.ide.websocket.WebSocketException;
 import org.eclipse.che.ide.websocket.rest.SubscriptionHandler;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 import static com.google.gwt.http.client.RequestBuilder.GET;
 import static org.eclipse.che.ide.extension.machine.client.machine.MachineManager.MachineOperationType.DESTROY;
@@ -65,31 +57,21 @@ import static org.eclipse.che.ide.extension.machine.client.machine.MachineManage
 @Singleton
 public class MachineManager {
 
-    private final MachineServiceClient        machineServiceClient;
-    private final MessageBus                  messageBus;
-    private final MachineConsolePresenter     machineConsolePresenter;
-    private final OutputsContainerPresenter   outputsContainerPresenter;
-    private final CommandConsoleFactory       commandConsoleFactory;
-    private final NotificationManager         notificationManager;
-    private final MachineLocalizationConstant localizationConstant;
-    private final WorkspaceAgent              workspaceAgent;
-    private final MachineStatusNotifier       machineStatusNotifier;
-    private final DialogFactory               dialogFactory;
-    private final RecipeProvider              recipeProvider;
-    private final EntityFactory               entityFactory;
-    private final AppContext                  appContext;
-
-    private Machine devMachine;
+    private final MachineServiceClient    machineServiceClient;
+    private final MessageBus              messageBus;
+    private final MachineConsolePresenter machineConsolePresenter;
+    private final NotificationManager     notificationManager;
+    private final MachineStatusNotifier   machineStatusNotifier;
+    private final DialogFactory           dialogFactory;
+    private final RecipeProvider          recipeProvider;
+    private final EntityFactory           entityFactory;
+    private final AppContext              appContext;
 
     @Inject
     public MachineManager(MachineServiceClient machineServiceClient,
                           MessageBus messageBus,
                           MachineConsolePresenter machineConsolePresenter,
-                          OutputsContainerPresenter outputsContainerPresenter,
-                          CommandConsoleFactory commandConsoleFactory,
                           NotificationManager notificationManager,
-                          MachineLocalizationConstant localizationConstant,
-                          WorkspaceAgent workspaceAgent,
                           MachineStatusNotifier machineStatusNotifier,
                           DialogFactory dialogFactory,
                           RecipeProvider recipeProvider,
@@ -98,11 +80,7 @@ public class MachineManager {
         this.machineServiceClient = machineServiceClient;
         this.messageBus = messageBus;
         this.machineConsolePresenter = machineConsolePresenter;
-        this.outputsContainerPresenter = outputsContainerPresenter;
-        this.commandConsoleFactory = commandConsoleFactory;
         this.notificationManager = notificationManager;
-        this.localizationConstant = localizationConstant;
-        this.workspaceAgent = workspaceAgent;
         this.machineStatusNotifier = machineStatusNotifier;
         this.dialogFactory = dialogFactory;
         this.recipeProvider = recipeProvider;
@@ -153,26 +131,18 @@ public class MachineManager {
         }).then(new Operation<MachineDescriptor>() {
             @Override
             public void apply(final MachineDescriptor machineDescriptor) throws OperationException {
-                final Machine machine = entityFactory.createMachine(machineDescriptor);
-
                 RunningListener runningListener = null;
 
                 if (bindWorkspace) {
                     runningListener = new RunningListener() {
                         @Override
                         public void onRunning() {
-                            // get updated info about machine when it already started
-                            machineServiceClient.getMachine(machineDescriptor.getId()).then(new Operation<MachineDescriptor>() {
-                                @Override
-                                public void apply(MachineDescriptor arg) throws OperationException {
-                                    appContext.setDevMachineId(arg.getId());
-                                    devMachine = entityFactory.createMachine(arg);
-                                }
-                            });
+                            appContext.setDevMachineId(machineDescriptor.getId());
                         }
                     };
                 }
 
+                final Machine machine = entityFactory.createMachine(machineDescriptor);
                 machineStatusNotifier.trackMachine(machine, runningListener, operationType);
             }
         });
@@ -219,21 +189,9 @@ public class MachineManager {
                 final String devMachineId = appContext.getDevMachineId();
                 if (devMachineId != null && machine.getId().equals(devMachineId)) {
                     appContext.setDevMachineId(null);
-                    devMachine = null;
                 }
             }
         });
-    }
-
-    // TODO: remove this method when IDEX-2858 will be done
-    @Nullable
-    public Machine getDeveloperMachine() {
-        return devMachine;
-    }
-
-    // TODO: remove this method when IDEX-2858 will be done
-    public void setDeveloperMachine(Machine machine) {
-        devMachine = machine;
     }
 
     private void subscribeToOutput(final String channel) {
@@ -255,32 +213,6 @@ public class MachineManager {
             Log.error(MachineManager.class, e);
             notificationManager.showError(e.getMessage());
         }
-    }
-
-    /** Execute the the given command configuration on the developer machine. */
-    public void execute(@Nonnull CommandConfiguration configuration) {
-        final String devMachineId = appContext.getDevMachineId();
-        if (devMachineId == null) {
-            notificationManager.showWarning(localizationConstant.noDevMachine());
-            return;
-        }
-
-        final String outputChannel = "process:output:" + UUID.uuid();
-
-        final OutputConsole console = commandConsoleFactory.create(configuration, devMachineId);
-        console.listenToOutput(outputChannel);
-        outputsContainerPresenter.addConsole(console);
-        workspaceAgent.setActivePart(outputsContainerPresenter);
-
-        final Promise<ProcessDescriptor> processPromise = machineServiceClient.executeCommand(devMachineId,
-                                                                                              configuration.toCommandLine(),
-                                                                                              outputChannel);
-        processPromise.then(new Operation<ProcessDescriptor>() {
-            @Override
-            public void apply(ProcessDescriptor arg) throws OperationException {
-                console.attachToProcess(arg.getPid());
-            }
-        });
     }
 
     enum MachineOperationType {

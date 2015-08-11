@@ -16,13 +16,12 @@ import com.google.inject.Singleton;
 import org.eclipse.che.api.analytics.client.logger.AnalyticsEventLogger;
 import org.eclipse.che.ide.api.action.AbstractPerspectiveAction;
 import org.eclipse.che.ide.api.action.ActionEvent;
-import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.MachineResources;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
-import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
-import org.eclipse.che.ide.ui.dialogs.DialogFactory;
+import org.eclipse.che.ide.extension.machine.client.command.CommandManager;
 
+import javax.annotation.Nonnull;
 import java.util.Collections;
 
 import static org.eclipse.che.ide.workspace.perspectives.project.ProjectPerspective.PROJECT_PERSPECTIVE_ID;
@@ -34,50 +33,39 @@ import static org.eclipse.che.ide.workspace.perspectives.project.ProjectPerspect
  */
 @Singleton
 public class ExecuteSelectedCommandAction extends AbstractPerspectiveAction {
-    private final AppContext                  appContext;
-    private final DialogFactory               dialogFactory;
+
     private final SelectCommandComboBoxAction selectCommandAction;
-    private final MachineLocalizationConstant localizationConstant;
-    private final MachineManager              machineManager;
+    private final CommandManager              commandManager;
     private final AnalyticsEventLogger        eventLogger;
 
     @Inject
     public ExecuteSelectedCommandAction(MachineLocalizationConstant localizationConstant,
                                         MachineResources resources,
-                                        AppContext appContext,
-                                        DialogFactory dialogFactory,
                                         SelectCommandComboBoxAction selectCommandAction,
-                                        MachineManager machineManager,
+                                        CommandManager commandManager,
                                         AnalyticsEventLogger eventLogger) {
         super(Collections.singletonList(PROJECT_PERSPECTIVE_ID),
               localizationConstant.executeSelectedCommandControlTitle(),
               localizationConstant.executeSelectedCommandControlDescription(),
               null,
               resources.execute());
-        this.localizationConstant = localizationConstant;
-        this.appContext = appContext;
-        this.dialogFactory = dialogFactory;
         this.selectCommandAction = selectCommandAction;
-        this.machineManager = machineManager;
+        this.commandManager = commandManager;
         this.eventLogger = eventLogger;
     }
 
     @Override
-    public void updateInPerspective(ActionEvent e) {
-        e.getPresentation().setVisible(appContext.getCurrentProject() != null);
+    public void updateInPerspective(@Nonnull ActionEvent e) {
+        e.getPresentation().setVisible(selectCommandAction.getSelectedCommand() != null);
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
         eventLogger.log(this);
 
-        if (appContext.getDevMachineId() != null) {
-            final CommandConfiguration commandConfiguration = selectCommandAction.getSelectedCommand();
-            if (commandConfiguration != null) {
-                machineManager.execute(commandConfiguration);
-            }
-        } else {
-            dialogFactory.createMessageDialog("", localizationConstant.noDevMachine(), null).show();
+        final CommandConfiguration command = selectCommandAction.getSelectedCommand();
+        if (command != null) {
+            commandManager.execute(command);
         }
     }
 }
