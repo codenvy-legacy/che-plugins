@@ -22,6 +22,7 @@ import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.parts.WorkspaceAgent;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
+import org.eclipse.che.ide.extension.machine.client.command.valueproviders.CommandValueProvider;
 import org.eclipse.che.ide.extension.machine.client.command.valueproviders.CommandValueProviderRegistry;
 import org.eclipse.che.ide.extension.machine.client.outputspanel.OutputsContainerPresenter;
 import org.eclipse.che.ide.extension.machine.client.outputspanel.console.CommandConsoleFactory;
@@ -92,10 +93,13 @@ public class CommandManager {
         });
     }
 
-    private String processCommandLine(String commandLine) {
-        for (String key : commandValueProviderRegistry.getKeys()) {
-            commandLine = commandLine.replace(key, commandValueProviderRegistry.getValue(key));
+    private String processCommandLine(final String commandLine) {
+        String cmdLine = commandLine;
+
+        for (CommandValueProvider valueProvider : commandValueProviderRegistry.getValueProviders()) {
+            cmdLine = commandLine.replace(valueProvider.getKey(), valueProvider.getValue());
         }
-        return commandLine;
+
+        return cmdLine;
     }
 }

@@ -14,8 +14,9 @@ import com.google.inject.Inject;
 
 import org.eclipse.che.ide.util.loging.Log;
 
-import javax.annotation.Nonnull;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -44,15 +45,14 @@ public class CommandValueProviderRegistryImpl implements CommandValueProviderReg
         }
     }
 
-    @Nonnull
     @Override
-    public String getValue(String key) {
-        final CommandValueProvider commandValueProvider = valueProviders.get(key);
-        if (commandValueProvider != null) {
-            return commandValueProvider.getValue();
-        }
+    public CommandValueProvider getValueProvider(String key) {
+        return valueProviders.get(key);
+    }
 
-        return "";
+    @Override
+    public List<CommandValueProvider> getValueProviders() {
+        return new ArrayList<>(valueProviders.values());
     }
 
     @Override

@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.machine.client.command.valueproviders;
 
-import javax.annotation.Nonnull;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -23,7 +23,9 @@ public interface CommandValueProviderRegistry {
     /** Returns keys of all registered {@link CommandValueProvider}s. */
     Set<String> getKeys();
 
-    /** Returns value for the given key. */
-    @Nonnull
-    String getValue(String key);
+    /** Returns {@link CommandValueProvider} by the given key. */
+    CommandValueProvider getValueProvider(String key);
+
+    /** Returns all registered {@link CommandValueProvider}s. */
+    List<CommandValueProvider> getValueProviders();
 }

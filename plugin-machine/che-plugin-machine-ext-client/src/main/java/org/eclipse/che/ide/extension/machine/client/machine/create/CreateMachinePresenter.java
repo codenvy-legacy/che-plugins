@@ -145,6 +145,7 @@ public class CreateMachinePresenter implements CreateMachineView.ActionDelegate 
     public void onReplaceDevMachineClicked() {
         final String machineName = view.getMachineName();
         final String recipeURL = view.getRecipeURL();
+
         if (appContext.getDevMachineId() != null) {
             machineServiceClient.getMachine(appContext.getDevMachineId()).then(new Operation<MachineDescriptor>() {
                 @Override
@@ -154,6 +155,7 @@ public class CreateMachinePresenter implements CreateMachineView.ActionDelegate 
                 }
             });
         }
+
         machineManager.startDevMachine(recipeURL, machineName);
         view.close();
     }
