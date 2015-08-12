@@ -82,7 +82,7 @@ public class CommandManager {
         outputsContainerPresenter.addConsole(console);
         workspaceAgent.setActivePart(outputsContainerPresenter);
 
-        final String commandLine = processCommandLine(configuration.toCommandLine());
+        final String commandLine = processCommandLineVariables(configuration.toCommandLine());
 
         final Promise<ProcessDescriptor> processPromise = machineServiceClient.executeCommand(devMachineId, commandLine, outputChannel);
         processPromise.then(new Operation<ProcessDescriptor>() {
@@ -93,11 +93,16 @@ public class CommandManager {
         });
     }
 
-    private String processCommandLine(final String commandLine) {
+    /**
+     * Returns the given command line with values of variables.
+     *
+     * @see CommandValueProvider
+     */
+    public String processCommandLineVariables(final String commandLine) {
         String cmdLine = commandLine;
 
         for (CommandValueProvider valueProvider : commandValueProviderRegistry.getValueProviders()) {
-            cmdLine = commandLine.replace(valueProvider.getKey(), valueProvider.getValue());
+            cmdLine = cmdLine.replace(valueProvider.getKey(), valueProvider.getValue());
         }
 
         return cmdLine;
