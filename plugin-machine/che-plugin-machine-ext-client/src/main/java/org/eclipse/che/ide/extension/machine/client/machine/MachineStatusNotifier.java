@@ -60,24 +60,19 @@ class MachineStatusNotifier {
     private final DtoUnmarshallerFactory      dtoUnmarshallerFactory;
     private final NotificationManager         notificationManager;
     private final MachineLocalizationConstant locale;
-    private       ProjectTypeComponent        projectTypeComponent;
-    private ProjectTemplatesComponent projectTemplatesComponent;
+
 
     @Inject
     MachineStatusNotifier(MessageBus messageBus,
                           EventBus eventBus,
                           DtoUnmarshallerFactory dtoUnmarshallerFactory,
                           NotificationManager notificationManager,
-                          MachineLocalizationConstant locale,
-                          ProjectTypeComponent projectTypeComponent,
-                          ProjectTemplatesComponent projectTemplatesComponent) {
+                          MachineLocalizationConstant locale ) {
         this.messageBus = messageBus;
         this.eventBus = eventBus;
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
         this.notificationManager = notificationManager;
         this.locale = locale;
-        this.projectTypeComponent = projectTypeComponent;
-        this.projectTemplatesComponent = projectTemplatesComponent;
     }
 
     /**
@@ -113,7 +108,6 @@ class MachineStatusNotifier {
                 switch (result.getEventType()) {
                     case RUNNING:
                         unsubscribe(wsChannel, this);
-                        startProjectApiComponent();
                         if (runningListener != null) {
                             runningListener.onRunning();
                         }
@@ -134,46 +128,7 @@ class MachineStatusNotifier {
                 }
             }
 
-            private void startProjectApiComponent() {
-                Timer waitOnExtServerStart = new Timer() {
-                    @Override
-                    public void run() {
-                        projectTypeComponent.start(new Callback<Component, Exception>() {
 
-                            @Override
-                            public void onFailure(Exception reason) {
-
-                            }
-
-                            @Override
-                            public void onSuccess(Component result) {
-                                Log.info(getClass(), "projectTypeComponent >>>>>>>>>>>>>>>>>");
-
-                            }
-                        });
-
-                        projectTemplatesComponent.start(new Callback<Component, Exception>() {
-
-                            @Override
-                            public void onFailure(Exception reason) {
-
-                            }
-
-                            @Override
-                            public void onSuccess(Component result) {
-                                Log.info(getClass(), ">>>>>>>>>>>>>>>>>>>>>> projectTemplatesComponent");
-
-                            }
-                        });
-
-
-                    }
-                };
-
-                waitOnExtServerStart.schedule(10000); //wait on start extension server inside Machine
-                                                      //need to rework it we wait on improvement Machine API we will have dedicate Event
-
-            }
 
             @Override
             protected void onErrorReceived(Throwable exception) {

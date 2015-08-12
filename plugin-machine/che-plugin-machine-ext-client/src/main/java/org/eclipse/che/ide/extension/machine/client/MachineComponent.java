@@ -83,7 +83,7 @@ public class MachineComponent implements Component {
 
                                     @Override
                                     public void onFailure(Exception reason) {
-
+                                        Log.error(MachineManager.class, reason.getMessage());
                                     }
 
                                     @Override
@@ -97,7 +97,7 @@ public class MachineComponent implements Component {
 
                                     @Override
                                     public void onFailure(Exception reason) {
-
+                                        Log.error(MachineManager.class, reason.getMessage());
                                     }
 
                                     @Override
