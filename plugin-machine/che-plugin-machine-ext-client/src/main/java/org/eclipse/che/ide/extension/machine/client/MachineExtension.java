@@ -122,8 +122,7 @@ public class MachineExtension {
     }
 
     @Inject
-    private void setUpOutputsConsole(WorkspaceAgent workspaceAgent,
-                                     OutputsContainerPresenter outputsContainerPresenter) {
+    private void setUpOutputsConsole(WorkspaceAgent workspaceAgent, OutputsContainerPresenter outputsContainerPresenter) {
         workspaceAgent.openPart(outputsContainerPresenter, PartStackType.INFORMATION);
     }
 }

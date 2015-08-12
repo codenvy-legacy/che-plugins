@@ -19,6 +19,7 @@ import org.eclipse.che.api.machine.shared.dto.event.MachineProcessEvent;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.extension.machine.client.OutputMessageUnmarshaller;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
+import org.eclipse.che.ide.extension.machine.client.command.CommandManager;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.util.loging.Log;
 import org.eclipse.che.ide.websocket.MessageBus;
@@ -38,15 +39,14 @@ public class CommandOutputConsole implements OutputConsole, OutputConsoleView.Ac
     private final MessageBus             messageBus;
     private final NotificationManager    notificationManager;
     private final DtoUnmarshallerFactory dtoUnmarshallerFactory;
-
-    private final MachineServiceClient machineServiceClient;
-    private final CommandConfiguration commandConfiguration;
-    private final String               machineId;
+    private final MachineServiceClient   machineServiceClient;
+    private final CommandConfiguration   commandConfiguration;
+    private final String                 machineId;
 
     private int            pid;
     private String         outputChannel;
     private MessageHandler outputHandler;
-    private boolean isFinished = false;
+    private boolean        isFinished;
 
     @Inject
     public CommandOutputConsole(OutputConsoleView view,
@@ -54,6 +54,7 @@ public class CommandOutputConsole implements OutputConsole, OutputConsoleView.Ac
                                 NotificationManager notificationManager,
                                 DtoUnmarshallerFactory dtoUnmarshallerFactory,
                                 MachineServiceClient machineServiceClient,
+                                CommandManager commandManager,
                                 @Assisted CommandConfiguration commandConfiguration,
                                 @Assisted String machineId) {
         this.view = view;
@@ -61,12 +62,12 @@ public class CommandOutputConsole implements OutputConsole, OutputConsoleView.Ac
         this.notificationManager = notificationManager;
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
         this.machineServiceClient = machineServiceClient;
-
         this.commandConfiguration = commandConfiguration;
         this.machineId = machineId;
 
         view.setDelegate(this);
-        view.printCommandLine(commandConfiguration.toCommandLine());
+
+        view.printCommandLine(commandManager.processCommandLineVariables(commandConfiguration.toCommandLine()));
     }
 
     @Override
