@@ -57,6 +57,8 @@ public class JavaClasspathService {
                 IClasspathContainer container = MavenClasspathUtil.readMavenClasspath(javaProject);
                 JavaCore.setClasspathContainer(container.getPath(), new IJavaProject[]{javaProject},
                                                                   new IClasspathContainer[]{container}, null);
+                //TODO this is temp, remove when we will be use Project API
+                JavaModelManager.getIndexManager().indexAll(javaProject.getProject());
             } catch (JavaModelException e) {
                 LOG.error(e.getMessage(), e);
                 throw e;
