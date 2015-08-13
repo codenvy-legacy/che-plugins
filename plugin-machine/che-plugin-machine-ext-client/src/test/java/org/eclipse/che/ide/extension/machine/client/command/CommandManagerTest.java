@@ -18,6 +18,7 @@ import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.parts.WorkspaceAgent;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
+import org.eclipse.che.ide.extension.machine.client.command.valueproviders.CommandValueProvider;
 import org.eclipse.che.ide.extension.machine.client.command.valueproviders.CommandValueProviderRegistry;
 import org.eclipse.che.ide.extension.machine.client.outputspanel.OutputsContainerPresenter;
 import org.eclipse.che.ide.extension.machine.client.outputspanel.console.CommandConsoleFactory;
@@ -30,6 +31,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.Collections;
+
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -102,5 +106,20 @@ public class CommandManagerTest {
         verify(processPromise).then(processCaptor.capture());
         processCaptor.getValue().apply(process);
         verify(outputConsole).attachToProcess(eq(pid));
+    }
+
+    @Test
+    public void testProcessingCommandLineVariables() throws Exception {
+        String key = "$(project.name)";
+        String value = "my_project";
+        final CommandValueProvider valueProvider = mock(CommandValueProvider.class);
+        when(valueProvider.getKey()).thenReturn(key);
+        when(valueProvider.getValue()).thenReturn(value);
+        when(commandValueProviderRegistry.getValueProviders()).thenReturn(Collections.singletonList(valueProvider));
+
+        String commandLine = "mvn -f " + key + " clean install";
+        final String cmd = commandManager.processCommandLineVariables(commandLine);
+
+        assertEquals("mvn -f " + value + " clean install", cmd);
     }
 }

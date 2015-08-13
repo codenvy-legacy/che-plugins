@@ -19,10 +19,11 @@ import java.util.Map;
  */
 public class CheCodeFormatterInitializer {
 
+    @SuppressWarnings("unchecked")
     public void initializeDefaultPreferences() {
         Map<String, String> codeFormatterDefaultSettings = CheCodeFormatterOptions.getDefaultFormatSettings();
-        Hashtable<String, String> formatSettings = new Hashtable<>(codeFormatterDefaultSettings.size());
-        formatSettings.putAll(codeFormatterDefaultSettings);
-        JavaModelManager.getJavaModelManager().setOptions(formatSettings);
+        Hashtable<String, String> options = JavaModelManager.getJavaModelManager().getOptions();
+        options.putAll(codeFormatterDefaultSettings);
+        JavaModelManager.getJavaModelManager().setOptions(options);
     }
 }
