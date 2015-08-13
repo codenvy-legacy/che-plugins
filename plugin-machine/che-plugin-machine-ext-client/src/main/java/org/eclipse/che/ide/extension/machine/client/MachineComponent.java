@@ -62,7 +62,7 @@ public class MachineComponent implements Component {
             @Override
             public void apply(List<MachineStateDescriptor> arg) throws OperationException {
                 for (MachineStateDescriptor machineStateDescriptor : arg) {
-                    if (machineStateDescriptor.isWorkspaceBound()) {
+                    if (machineStateDescriptor.isDev()) {
                         appContext.setDevMachineId(machineStateDescriptor.getId());
 
                         // TODO: should be removed when IDEX-2858 will be done
