@@ -16,7 +16,6 @@ import com.google.inject.Singleton;
 import org.eclipse.che.api.analytics.client.logger.AnalyticsEventLogger;
 import org.eclipse.che.ide.api.action.AbstractPerspectiveAction;
 import org.eclipse.che.ide.api.action.ActionEvent;
-import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.MachineResources;
 import org.eclipse.che.ide.extension.machine.client.command.edit.EditCommandsPresenter;
@@ -33,15 +32,14 @@ import static org.eclipse.che.ide.workspace.perspectives.project.ProjectPerspect
  */
 @Singleton
 public class EditCommandsAction extends AbstractPerspectiveAction {
-    private final AppContext            appContext;
-    private final EditCommandsPresenter presenter;
+
+    private final EditCommandsPresenter editCommandsPresenter;
     private final AnalyticsEventLogger  eventLogger;
 
     @Inject
-    public EditCommandsAction(EditCommandsPresenter presenter,
+    public EditCommandsAction(EditCommandsPresenter editCommandsPresenter,
                               MachineLocalizationConstant localizationConstant,
                               MachineResources resources,
-                              AppContext appContext,
                               AnalyticsEventLogger eventLogger) {
         super(Collections.singletonList(PROJECT_PERSPECTIVE_ID),
               localizationConstant.editCommandsControlTitle(),
@@ -49,19 +47,17 @@ public class EditCommandsAction extends AbstractPerspectiveAction {
               null,
               resources.recipe());
 
-        this.presenter = presenter;
-        this.appContext = appContext;
+        this.editCommandsPresenter = editCommandsPresenter;
         this.eventLogger = eventLogger;
     }
 
     @Override
     public void updateInPerspective(@Nonnull ActionEvent e) {
-        e.getPresentation().setVisible(appContext.getCurrentProject() != null);
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
         eventLogger.log(this);
-        presenter.show();
+        editCommandsPresenter.show();
     }
 }

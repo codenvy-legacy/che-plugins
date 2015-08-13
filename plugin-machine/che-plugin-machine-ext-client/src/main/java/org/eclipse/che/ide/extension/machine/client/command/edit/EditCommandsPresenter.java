@@ -25,11 +25,11 @@ import org.eclipse.che.api.promises.client.PromiseError;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.actions.SelectCommandComboBoxAction;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
-import org.eclipse.che.ide.extension.machine.client.command.CommandType;
-import org.eclipse.che.ide.extension.machine.client.command.CommandTypeRegistry;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfigurationPage;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfigurationPage.DirtyStateListener;
-import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
+import org.eclipse.che.ide.extension.machine.client.command.CommandManager;
+import org.eclipse.che.ide.extension.machine.client.command.CommandType;
+import org.eclipse.che.ide.extension.machine.client.command.CommandTypeRegistry;
 import org.eclipse.che.ide.ui.dialogs.ConfirmCallback;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 import org.eclipse.che.ide.ui.dialogs.choice.ChoiceDialog;
@@ -52,7 +52,7 @@ import java.util.Set;
 public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
 
     private final EditCommandsView                      view;
-    private final MachineManager                        machineManager;
+    private final CommandManager                        commandManager;
     private final CommandServiceClient                  commandServiceClient;
     private final CommandTypeRegistry                   commandTypeRegistry;
     private final DialogFactory                         dialogFactory;
@@ -74,9 +74,9 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
                                     DialogFactory dialogFactory,
                                     MachineLocalizationConstant localizationConstant,
                                     Provider<SelectCommandComboBoxAction> selectCommandActionProvider,
-                                    MachineManager machineManager) {
+                                    CommandManager commandManager) {
         this.view = view;
-        this.machineManager = machineManager;
+        this.commandManager = commandManager;
         this.view.setDelegate(this);
         this.commandServiceClient = commandServiceClient;
         this.commandTypeRegistry = commandTypeRegistry;
@@ -235,7 +235,7 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
             return;
         }
 
-        machineManager.execute(selectedConfiguration);
+        commandManager.execute(selectedConfiguration);
         view.close();
     }
 

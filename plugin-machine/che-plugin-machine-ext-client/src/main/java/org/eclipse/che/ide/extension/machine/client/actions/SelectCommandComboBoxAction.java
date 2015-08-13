@@ -28,6 +28,7 @@ import org.eclipse.che.ide.api.action.ActionManager;
 import org.eclipse.che.ide.api.action.CustomComponentAction;
 import org.eclipse.che.ide.api.action.DefaultActionGroup;
 import org.eclipse.che.ide.api.action.Presentation;
+import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.event.ProjectActionEvent;
 import org.eclipse.che.ide.api.event.ProjectActionHandler;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
@@ -64,6 +65,7 @@ public class SelectCommandComboBoxAction extends AbstractPerspectiveAction imple
 
     private final DropDownHeaderWidget dropDownHeaderWidget;
     private final DropDownListFactory  dropDownListFactory;
+    private final AppContext           appContext;
     private final ActionManager        actionManager;
     private final CommandServiceClient commandServiceClient;
     private final CommandTypeRegistry  commandTypeRegistry;
@@ -78,7 +80,8 @@ public class SelectCommandComboBoxAction extends AbstractPerspectiveAction imple
                                        DropDownListFactory dropDownListFactory,
                                        CommandServiceClient commandServiceClient,
                                        CommandTypeRegistry commandTypeRegistry,
-                                       EditCommandsPresenter editCommandsPresenter) {
+                                       EditCommandsPresenter editCommandsPresenter,
+                                       AppContext appContext) {
         super(Collections.singletonList(PROJECT_PERSPECTIVE_ID),
               locale.selectCommandControlTitle(),
               locale.selectCommandControlDescription(),
@@ -88,6 +91,7 @@ public class SelectCommandComboBoxAction extends AbstractPerspectiveAction imple
         this.commandTypeRegistry = commandTypeRegistry;
 
         this.dropDownListFactory = dropDownListFactory;
+        this.appContext = appContext;
         this.dropDownHeaderWidget = dropDownListFactory.createList(GROUP_COMMANDS_LIST);
 
         commands = new LinkedList<>();
@@ -130,13 +134,24 @@ public class SelectCommandComboBoxAction extends AbstractPerspectiveAction imple
         return null;
     }
 
-    public void setSelectedCommand(final CommandConfiguration command) {
-        dropDownHeaderWidget.selectElement(command.getType().getIcon(), command.getName());
+    public void setSelectedCommand(CommandConfiguration command) {
+        if (appContext.getCurrentProject() != null) {
+            dropDownHeaderWidget.selectElement(command.getType().getIcon(), command.getName());
+        }
     }
 
     @Override
     public void onProjectOpened(ProjectActionEvent event) {
         loadCommands(null);
+    }
+
+    @Override
+    public void onProjectClosing(ProjectActionEvent event) {
+    }
+
+    @Override
+    public void onProjectClosed(ProjectActionEvent event) {
+        setCommandConfigurations(Collections.<CommandConfiguration>emptyList(), null);
     }
 
     /**
@@ -167,15 +182,6 @@ public class SelectCommandComboBoxAction extends AbstractPerspectiveAction imple
                 setCommandConfigurations(commandConfigurations, commandToSelect);
             }
         });
-    }
-
-    @Override
-    public void onProjectClosing(ProjectActionEvent event) {
-    }
-
-    @Override
-    public void onProjectClosed(ProjectActionEvent event) {
-        setCommandConfigurations(Collections.<CommandConfiguration>emptyList(), null);
     }
 
     /**
@@ -243,17 +249,23 @@ public class SelectCommandComboBoxAction extends AbstractPerspectiveAction imple
 
     @Override
     public void onConfigurationAdded(CommandConfiguration command) {
-        loadCommands(command);
+        if (appContext.getCurrentProject() != null) {
+            loadCommands(command);
+        }
     }
 
     @Override
     public void onConfigurationRemoved(CommandConfiguration command) {
-        loadCommands(null);
+        if (appContext.getCurrentProject() != null) {
+            loadCommands(null);
+        }
     }
 
     @Override
     public void onConfigurationsUpdated(CommandConfiguration command) {
-        loadCommands(command);
+        if (appContext.getCurrentProject() != null) {
+            loadCommands(command);
+        }
     }
 
     private static class CommandsComparator implements Comparator<CommandConfiguration> {
