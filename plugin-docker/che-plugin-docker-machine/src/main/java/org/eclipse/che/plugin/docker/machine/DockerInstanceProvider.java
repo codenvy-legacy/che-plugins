@@ -10,7 +10,9 @@
  *******************************************************************************/
 package org.eclipse.che.plugin.docker.machine;
 
+import com.google.inject.Inject;
 import org.eclipse.che.api.core.NotFoundException;
+import org.eclipse.che.api.core.ServerException;
 import org.eclipse.che.api.core.util.FileCleaner;
 import org.eclipse.che.api.core.util.LineConsumer;
 import org.eclipse.che.api.machine.server.exception.InvalidRecipeException;
@@ -21,19 +23,14 @@ import org.eclipse.che.api.machine.server.spi.InstanceKey;
 import org.eclipse.che.api.machine.server.spi.InstanceProvider;
 import org.eclipse.che.api.machine.shared.Recipe;
 import org.eclipse.che.commons.lang.IoUtil;
-import org.eclipse.che.plugin.docker.client.DockerConnector;
-import org.eclipse.che.plugin.docker.client.DockerFileException;
-import org.eclipse.che.plugin.docker.client.Dockerfile;
-import org.eclipse.che.plugin.docker.client.DockerfileParser;
-import org.eclipse.che.plugin.docker.client.ProgressLineFormatterImpl;
-import org.eclipse.che.plugin.docker.client.ProgressMonitor;
+import org.eclipse.che.plugin.docker.client.*;
 import org.eclipse.che.plugin.docker.client.json.ContainerConfig;
 import org.eclipse.che.plugin.docker.client.json.HostConfig;
 import org.eclipse.che.plugin.docker.client.json.ProgressStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
+import javax.annotation.PostConstruct;
 import javax.inject.Named;
 import java.io.File;
 import java.io.IOException;
@@ -56,6 +53,7 @@ import java.util.Set;
  * @author Alexander Garagatyi
  */
 public class DockerInstanceProvider implements InstanceProvider {
+
     private static final Logger LOG = LoggerFactory.getLogger(DockerInstanceProvider.class);
 
     private final DockerConnector                  docker;
@@ -65,11 +63,15 @@ public class DockerInstanceProvider implements InstanceProvider {
     private final Map<String, Map<String, String>> portsToExpose;
     private final Set<String>                      systemVolumes;
 
+    @Inject(optional = true)
+    private  DockerVersionVerifier versionChecker = null;
+
     @Inject
     public DockerInstanceProvider(DockerConnector docker,
                                   DockerMachineFactory dockerMachineFactory,
                                   Set<ServerConf> machineServers,
-                                  @Named("machine.docker.system_volumes") Set<String> systemVolumes) {
+                                  @Named("machine.docker.system_volumes") Set<String> systemVolumes) throws IOException {
+
         this.docker = docker;
         this.dockerMachineFactory = dockerMachineFactory;
         this.systemVolumes = systemVolumes;
@@ -82,6 +84,12 @@ public class DockerInstanceProvider implements InstanceProvider {
             containerLabels.put("che:server:" + serverConf.getPort() + ":ref", serverConf.getRef());
             containerLabels.put("che:server:" + serverConf.getPort() + ":protocol", serverConf.getProtocol());
         }
+    }
+
+    @PostConstruct
+    public void checkVersion() throws ServerException {
+        if(this.versionChecker != null)
+            this.versionChecker.checkCompatibility(docker);
     }
 
     @Override
@@ -269,9 +277,10 @@ public class DockerInstanceProvider implements InstanceProvider {
                                     LineConsumer outputConsumer)
             throws MachineException {
         try {
+
             final ContainerConfig config = new ContainerConfig().withImage(imageId)
                                                                 .withMemorySwap(-1)
-                                                                .withMemory((long)memorySizeMB * 1024 * 1024)
+                                                                .withMemory((long) memorySizeMB * 1024 * 1024)
                                                                 .withLabels(containerLabels)
                                                                 .withExposedPorts(portsToExpose);
 
@@ -288,10 +297,17 @@ public class DockerInstanceProvider implements InstanceProvider {
             volumes.addAll(systemVolumes);
             volumes.add(String.format("%s:%s", hostProjectsFolder, "/projects"));
 
-            docker.startContainer(containerId,
-                                  new HostConfig().withPublishAllPorts(true)
-                                                  .withBinds(volumes.toArray(new String[volumes.size()])),
+//            String[] extraHosts =  {"host:172.19.20.170"};
+
+            HostConfig hostConfig = new HostConfig().withPublishAllPorts(true)
+                    .withBinds(volumes.toArray(new String[volumes.size()]));
+
+//                                                  .withNetworkMode("host")
+//                                                  .withExtraHosts(extraHosts)
+
+            docker.startContainer(containerId, hostConfig,
                                   new LogMessagePrinter(outputConsumer));
+
 
             return dockerMachineFactory.createInstance(machineId,
                                                        workspaceId,
@@ -306,5 +322,12 @@ public class DockerInstanceProvider implements InstanceProvider {
         } catch (IOException e) {
             throw new MachineException(e);
         }
+    }
+
+    private boolean versionCompatible() throws IOException {
+        // TODO make algo for comparison  with COMPATIBLE_VERSION (like if version is moreThan(COMPATIBLE_VERSION))
+        String v = docker.getVersion().getVersion();
+        return (v.startsWith("1.6") || v.startsWith("1.7"));
+
     }
 }
