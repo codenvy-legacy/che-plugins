@@ -14,10 +14,9 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.RequiresResize;
-import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 
@@ -27,7 +26,7 @@ import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.MachineResources;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -35,18 +34,17 @@ import java.util.List;
  *
  * @author Dmitry Shnurenko
  */
-public class MachineApplianceViewImpl extends Composite implements MachineApplianceView, PartStackView ,RequiresResize{
-
-
+public class MachineApplianceViewImpl extends Composite implements MachineApplianceView, PartStackView {
     interface MachineInfoContainerUiBinder extends UiBinder<Widget, MachineApplianceViewImpl> {
     }
 
     private final static MachineInfoContainerUiBinder UI_BINDER = GWT.create(MachineInfoContainerUiBinder.class);
 
-    private final Label unavailableLabel;
+    private final Label          unavailableLabel;
+    private final List<IsWidget> tabContainers;
 
     @UiField
-    SimplePanel container;
+    FlowPanel mainContainer;
 
     @Inject
     public MachineApplianceViewImpl(MachineResources resources, Label unavailableLabel, MachineLocalizationConstant locale) {
@@ -55,19 +53,42 @@ public class MachineApplianceViewImpl extends Composite implements MachineApplia
         this.unavailableLabel = unavailableLabel;
         this.unavailableLabel.addStyleName(resources.getCss().unavailableLabel());
         this.unavailableLabel.setText(locale.unavailableMachineInfo());
+
+        this.tabContainers = new ArrayList<>();
+
+        addContainer(unavailableLabel);
     }
+
+    /** {@inheritDoc} */
     @Override
-    public void onResize() {
-        Widget widget = container.getWidget();
-        if(widget != null && widget instanceof RequiresResize){
-            ((RequiresResize)widget).onResize();
+    public void showContainer(@Nonnull IsWidget tabContainer) {
+        hideAllContainers();
+
+        tabContainer.asWidget().setVisible(true);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void showStub() {
+        hideAllContainers();
+
+        unavailableLabel.setVisible(true);
+    }
+
+    private void hideAllContainers() {
+        for (IsWidget widget : tabContainers) {
+            widget.asWidget().setVisible(false);
         }
     }
 
     /** {@inheritDoc} */
     @Override
-    public void showContainer(@Nullable IsWidget tabContainer) {
-        container.setWidget(tabContainer != null ? tabContainer : unavailableLabel);
+    public void addContainer(@Nonnull IsWidget tabContainer) {
+        if (!tabContainers.contains(tabContainer)) {
+            tabContainers.add(tabContainer);
+
+            mainContainer.add(tabContainer);
+        }
     }
 
     /** {@inheritDoc} */

@@ -74,7 +74,7 @@ public class MachineAppliancePresenter extends PartStackPresenter implements Act
                                      TabItemFactory tabItemFactory,
                                      final TerminalContainer terminalContainer,
                                      MachineInfoPresenter infoPresenter,
-                                     RecipesContainerPresenter recipesContainerPresenter,
+                                     RecipesContainerPresenter recipesContainer,
                                      ServerPresenter serverPresenter,
                                      RecipeTabPresenter recipeTabPresenter,
                                      TabContainerPresenter tabContainer) {
@@ -83,7 +83,7 @@ public class MachineAppliancePresenter extends PartStackPresenter implements Act
         this.view = view;
         this.tabContainer = tabContainer;
         this.terminalContainer = terminalContainer;
-        this.recipesContainerPresenter = recipesContainerPresenter;
+        this.recipesContainerPresenter = recipesContainer;
         this.infoPresenter = infoPresenter;
         this.recipeTabPresenter = recipeTabPresenter;
         this.serverPresenter = serverPresenter;
@@ -129,7 +129,9 @@ public class MachineAppliancePresenter extends PartStackPresenter implements Act
         };
         createAndAddTab(recipeTabName, recipeTabPresenter, recipeHandler);
 
-        this.view.showContainer(tabContainer.getView().asWidget());
+        this.view.addContainer(tabContainer.getView());
+        this.view.addContainer(recipesContainer.getView());
+
         eventBus.addHandler(ActivePartChangedEvent.TYPE, this);
     }
 
@@ -165,6 +167,12 @@ public class MachineAppliancePresenter extends PartStackPresenter implements Act
         if (event.getActivePart() instanceof RecipePartPresenter) {
             view.showContainer(recipesContainerPresenter.getView());
         } else if (event.getActivePart() instanceof MachinePanelPresenter) {
+            if (selectedMachine == null) {
+                view.showStub();
+
+                return;
+            }
+
             view.showContainer(tabContainer.getView());
         }
     }
@@ -177,6 +185,6 @@ public class MachineAppliancePresenter extends PartStackPresenter implements Act
 
     /** Shows special stub panel when no machine exist. */
     public void showStub() {
-        view.showContainer(null);
+        view.showStub();
     }
 }
