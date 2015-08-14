@@ -13,12 +13,11 @@ package org.eclipse.che.ide.extension.machine.client.machine.create;
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
 import org.eclipse.che.api.machine.shared.dto.MachineDescriptor;
 import org.eclipse.che.api.project.gwt.client.ProjectTypeServiceClient;
-import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
-import org.eclipse.che.api.project.shared.dto.ProjectTypeDefinition;
-import org.eclipse.che.api.promises.client.Function;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.ide.api.app.AppContext;
+import org.eclipse.che.ide.extension.machine.client.inject.factories.EntityFactory;
+import org.eclipse.che.ide.extension.machine.client.machine.Machine;
 import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
 import org.eclipse.che.ide.extension.machine.client.util.RecipeProvider;
 import org.junit.Before;
@@ -30,8 +29,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.mockito.Answers.RETURNS_DEEP_STUBS;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -56,25 +58,16 @@ public class CreateMachinePresenterTest {
     private MachineServiceClient     machineServiceClient;
     @Mock
     private RecipeProvider           recipeProvider;
+    @Mock
+    private EntityFactory            entityFactory;
 
     @InjectMocks
     private CreateMachinePresenter presenter;
 
-    @Mock(answer = RETURNS_DEEP_STUBS)
-    private ProjectDescriptor projectDescriptor;
-
     @Mock
-    private Promise<ProjectTypeDefinition> projectTypePromise;
-
-    @Mock
-    private Promise<MachineDescriptor> machineDescriptorPromise;
-    @Mock
-    private Promise<String>            recipeUrlPromise;
-
+    private Promise<MachineDescriptor>                   machineDescriptorPromise;
     @Captor
-    private ArgumentCaptor<Function<ProjectTypeDefinition, String>> functionCaptor;
-    @Captor
-    private ArgumentCaptor<Operation<String>>                       recipeUrlCaptor;
+    private ArgumentCaptor<Operation<MachineDescriptor>> machineCaptor;
 
     @Before
     public void setUp() {
@@ -135,11 +128,18 @@ public class CreateMachinePresenterTest {
 
     @Test
     public void shouldReplaceDevMachine() throws Exception {
-        when(appContext.getDevMachineId()).thenReturn("dev");
-        when(machineServiceClient.getMachine("dev")).thenReturn(machineDescriptorPromise);
+        when(appContext.getDevMachineId()).thenReturn(SOME_TEXT);
+        when(machineServiceClient.getMachine(SOME_TEXT)).thenReturn(machineDescriptorPromise);
+
         presenter.onReplaceDevMachineClicked();
-        verify(machineServiceClient).getMachine("dev");
+
         verify(view).getMachineName();
+        verify(view).getRecipeURL();
+        verify(appContext, times(2)).getDevMachineId();
+        verify(machineServiceClient).getMachine(SOME_TEXT);
+        verify(machineDescriptorPromise).then(machineCaptor.capture());
+        machineCaptor.getValue().apply(mock(MachineDescriptor.class));
+        verify(machineManager).destroyMachine(any(Machine.class));
         verify(machineManager).startDevMachine(eq(RECIPE_URL), eq(MACHINE_NAME));
         verify(view).close();
     }
@@ -147,11 +147,18 @@ public class CreateMachinePresenterTest {
     @Test
     public void shouldStartNewDevMachine() throws Exception {
         when(appContext.getDevMachineId()).thenReturn(null);
-        when(machineServiceClient.getMachine("dev")).thenReturn(machineDescriptorPromise);
+        when(machineServiceClient.getMachine(SOME_TEXT)).thenReturn(machineDescriptorPromise);
+
         presenter.onReplaceDevMachineClicked();
+
         verify(view).getMachineName();
+        verify(view).getRecipeURL();
+        verify(appContext).getDevMachineId();
         verify(machineManager).startDevMachine(eq(RECIPE_URL), eq(MACHINE_NAME));
         verify(view).close();
+        verify(machineServiceClient, never()).getMachine(SOME_TEXT);
+        verify(machineManager, never()).destroyMachine(any(Machine.class));
+        verify(machineManager).startDevMachine(eq(RECIPE_URL), eq(MACHINE_NAME));
     }
 
     @Test

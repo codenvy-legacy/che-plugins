@@ -24,6 +24,11 @@ import org.eclipse.che.ide.extension.machine.client.command.CommandType;
 import org.eclipse.che.ide.extension.machine.client.command.arbitrary.ArbitraryCommandType;
 import org.eclipse.che.ide.extension.machine.client.command.edit.EditCommandsView;
 import org.eclipse.che.ide.extension.machine.client.command.edit.EditCommandsViewImpl;
+import org.eclipse.che.ide.extension.machine.client.command.valueproviders.CommandValueProvider;
+import org.eclipse.che.ide.extension.machine.client.command.valueproviders.CommandValueProviderRegistry;
+import org.eclipse.che.ide.extension.machine.client.command.valueproviders.CommandValueProviderRegistryImpl;
+import org.eclipse.che.ide.extension.machine.client.command.valueproviders.CurrentProjectNameProvider;
+import org.eclipse.che.ide.extension.machine.client.command.valueproviders.DevMachineHostNameProvider;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.EntityFactory;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.TerminalFactory;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.WidgetsFactory;
@@ -82,6 +87,12 @@ public class MachineGinModule extends AbstractGinModule {
         bind(EditCommandsView.class).to(EditCommandsViewImpl.class).in(Singleton.class);
 
         GinMultibinder.newSetBinder(binder(), CommandType.class).addBinding().to(ArbitraryCommandType.class);
+
+        bind(CommandValueProviderRegistry.class).to(CommandValueProviderRegistryImpl.class).in(Singleton.class);
+
+        final GinMultibinder<CommandValueProvider> valueProviderBinder = GinMultibinder.newSetBinder(binder(), CommandValueProvider.class);
+        valueProviderBinder.addBinding().to(DevMachineHostNameProvider.class);
+        valueProviderBinder.addBinding().to(CurrentProjectNameProvider.class);
 
         install(new GinFactoryModuleBuilder().implement(TabHeader.class, TabHeaderImpl.class)
                                              .implement(EditorButtonWidget.class, EditorButtonWidgetImpl.class)

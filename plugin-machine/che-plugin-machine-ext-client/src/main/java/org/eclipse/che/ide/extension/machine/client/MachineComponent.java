@@ -24,14 +24,15 @@ import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.bootstrap.ProjectTemplatesComponent;
 import org.eclipse.che.ide.bootstrap.ProjectTypeComponent;
 import org.eclipse.che.ide.core.Component;
-import org.eclipse.che.ide.extension.machine.client.inject.factories.EntityFactory;
 import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
 import org.eclipse.che.ide.util.loging.Log;
 
 import java.util.List;
 
+import static org.eclipse.che.api.machine.shared.MachineStatus.RUNNING;
+
 /**
- * {@link Component} that responsible for starting a Dev-machine.
+ * {@link Component} that provides running a Dev-machine after loading IDE.
  *
  * @author Artem Zatsarynnyy
  */
@@ -44,7 +45,6 @@ public class MachineComponent implements Component {
     private final MachineServiceClient machineServiceClient;
     private final AppContext           appContext;
     private final MachineManager       machineManager;
-    private final EntityFactory        entityFactory;
     private       ProjectTypeComponent projectTypeComponent;
     private ProjectTemplatesComponent projectTemplatesComponent;
 
@@ -52,33 +52,29 @@ public class MachineComponent implements Component {
     public MachineComponent(MachineServiceClient machineServiceClient,
                             AppContext appContext,
                             MachineManager machineManager,
-                            EntityFactory entityFactory,
                             ProjectTypeComponent projectTypeComponent,
                             ProjectTemplatesComponent projectTemplatesComponent) {
         this.machineServiceClient = machineServiceClient;
         this.appContext = appContext;
         this.machineManager = machineManager;
-        this.entityFactory = entityFactory;
         this.projectTypeComponent = projectTypeComponent;
         this.projectTemplatesComponent = projectTemplatesComponent;
     }
 
     @Override
     public void start(final Callback<Component, Exception> callback) {
-        callback.onSuccess(this);
-
         machineServiceClient.getMachinesStates(null).then(new Operation<List<MachineStateDescriptor>>() {
             @Override
             public void apply(List<MachineStateDescriptor> arg) throws OperationException {
-                for (MachineStateDescriptor machineStateDescriptor : arg) {
-                    if (machineStateDescriptor.isWorkspaceBound()) {
-                        appContext.setDevMachineId(machineStateDescriptor.getId());
+                for (MachineStateDescriptor descriptor : arg) {
+                    if (descriptor.isWorkspaceBound() && descriptor.getStatus() == RUNNING) {
+                        appContext.setDevMachineId(descriptor.getId());
 
+                        callback.onSuccess(MachineComponent.this);
                         // TODO: should be removed when IDEX-2858 will be done
-                        machineServiceClient.getMachine(machineStateDescriptor.getId()).then(new Operation<MachineDescriptor>() {
+                        machineServiceClient.getMachine(descriptor.getId()).then(new Operation<MachineDescriptor>() {
                             @Override
                             public void apply(MachineDescriptor arg) throws OperationException {
-                                machineManager.setDeveloperMachine(entityFactory.createMachine(arg));
                                 projectTypeComponent.start(new Callback<Component, Exception>() {
 
                                     @Override
@@ -113,6 +109,8 @@ public class MachineComponent implements Component {
                 }
 
                 machineManager.startDevMachine(DEFAULT_RECIPE, "Dev");
+
+                callback.onSuccess(MachineComponent.this);
             }
         }).catchError(new Operation<PromiseError>() {
             @Override

@@ -43,7 +43,7 @@ import org.eclipse.che.ide.api.autocomplete.AutoCompleteResources;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.MachineResources;
 import org.eclipse.che.ide.ui.list.SimpleList;
-import org.eclipse.che.ide.ui.toolbar.Toolbar;
+import org.eclipse.che.ide.ui.toolbar.ToolbarResources;
 import org.eclipse.che.ide.ui.window.Window;
 import org.eclipse.che.ide.util.dom.Elements;
 import org.vectomatic.dom.svg.ui.SVGImage;
@@ -81,7 +81,7 @@ public class CreateMachineViewImpl extends Window implements CreateMachineView {
                     final TableCellElement group = Elements.createTDElement(css.proposalGroup());
 
                     final SVGImage image = new SVGImage(machineResources.recipe());
-                    image.getElement().setAttribute("class", Toolbar.RESOURCES.toolbar().iconButtonIcon());
+                    image.getElement().setAttribute("class", toolbarResources.toolbar().iconButtonIcon());
                     image.getElement().getStyle().setMargin(0, Style.Unit.PX);
                     icon.appendChild((Node)image.getElement());
 
@@ -114,6 +114,8 @@ public class CreateMachineViewImpl extends Window implements CreateMachineView {
     @UiField
     Label                       noRecipeHint;
 
+    private ToolbarResources    toolbarResources;
+
     private SimpleList<RecipeDescriptor> list;
     private ActionDelegate               delegate;
     private final SimpleList.ListEventDelegate<RecipeDescriptor> eventDelegate = new SimpleList.ListEventDelegate<RecipeDescriptor>() {
@@ -138,10 +140,13 @@ public class CreateMachineViewImpl extends Window implements CreateMachineView {
     public CreateMachineViewImpl(MachineLocalizationConstant localizationConstant,
                                  MachineResources machineResources,
                                  org.eclipse.che.ide.Resources coreResources,
-                                 AutoCompleteResources autoCompleteResources) {
+                                 AutoCompleteResources autoCompleteResources,
+                                 ToolbarResources toolbarResources) {
         this.localizationConstant = localizationConstant;
         this.machineResources = machineResources;
         this.coreResources = coreResources;
+        this.toolbarResources = toolbarResources;
+
         css = autoCompleteResources.autocompleteComponentCss();
         popupPanel = new PopupPanel();
 

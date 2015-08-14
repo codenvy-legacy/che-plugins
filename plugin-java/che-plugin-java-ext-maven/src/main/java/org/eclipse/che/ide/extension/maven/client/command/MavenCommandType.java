@@ -13,12 +13,11 @@ package org.eclipse.che.ide.extension.maven.client.command;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import org.eclipse.che.ide.api.app.AppContext;
-import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
-import org.eclipse.che.ide.extension.machine.client.command.CommandType;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfigurationFactory;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfigurationPage;
+import org.eclipse.che.ide.extension.machine.client.command.CommandType;
+import org.eclipse.che.ide.extension.machine.client.command.valueproviders.CurrentProjectNameProvider;
 import org.eclipse.che.ide.extension.maven.client.MavenResources;
 import org.vectomatic.dom.svg.ui.SVGResource;
 
@@ -34,20 +33,22 @@ import java.util.LinkedList;
 @Singleton
 public class MavenCommandType implements CommandType {
 
-    public static final String ID               = "mvn";
-    public static final String DISPLAY_NAME     = "Maven";
-    public static final String COMMAND_TEMPLATE = "mvn clean install";
+    private static final String ID               = "mvn";
+    private static final String DISPLAY_NAME     = "Maven";
+    private static final String COMMAND_TEMPLATE = "mvn clean install";
 
     private final MavenResources                   resources;
-    private final AppContext                       appContext;
+    private final CurrentProjectNameProvider       currentProjectNameProvider;
     private final MavenCommandConfigurationFactory configurationFactory;
 
     private final Collection<CommandConfigurationPage<? extends CommandConfiguration>> pages;
 
     @Inject
-    public MavenCommandType(MavenResources resources, MavenCommandPagePresenter page, AppContext appContext) {
+    public MavenCommandType(MavenResources resources,
+                            MavenCommandPagePresenter page,
+                            CurrentProjectNameProvider currentProjectNameProvider) {
         this.resources = resources;
-        this.appContext = appContext;
+        this.currentProjectNameProvider = currentProjectNameProvider;
         configurationFactory = new MavenCommandConfigurationFactory(this);
         pages = new LinkedList<>();
         pages.add(page);
@@ -86,10 +87,6 @@ public class MavenCommandType implements CommandType {
     @Nonnull
     @Override
     public String getCommandTemplate() {
-        final CurrentProject currentProject = appContext.getCurrentProject();
-        if (currentProject != null) {
-            return COMMAND_TEMPLATE + " -f " + currentProject.getRootProject().getName();
-        }
-        return COMMAND_TEMPLATE;
+        return COMMAND_TEMPLATE + " -f " + currentProjectNameProvider.getKey();
     }
 }
