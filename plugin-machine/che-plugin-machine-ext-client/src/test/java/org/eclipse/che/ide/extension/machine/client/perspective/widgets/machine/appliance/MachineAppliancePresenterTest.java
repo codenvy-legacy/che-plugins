@@ -46,6 +46,7 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -131,6 +132,7 @@ public class MachineAppliancePresenterTest {
         when(machine.getId()).thenReturn(SOME_TEXT);
         when(tabContainer.getView()).thenReturn(tabContainerView);
         when(tabContainerView.asWidget()).thenReturn(widget);
+        when(recipesContainerPresenter.getView()).thenReturn(recipePartView);
 
         when(locale.tabTerminal()).thenReturn(SOME_TEXT);
         when(locale.tabInfo()).thenReturn(SOME_TEXT);
@@ -191,7 +193,8 @@ public class MachineAppliancePresenterTest {
 
         verify(tabContainer).getView();
 
-        verify(view).showContainer(widget);
+        verify(view).addContainer(tabContainerView);
+        verify(view).addContainer(recipePartView);
     }
 
     @Test
@@ -256,15 +259,28 @@ public class MachineAppliancePresenterTest {
 
         presenter.onActivePartChanged(event);
 
-        verify(view).showContainer(recipePartView.asWidget());
+        verify(view).showContainer(recipePartView);
     }
 
     @Test
     public void machinesShouldBeShowed() throws Exception {
         when(event.getActivePart()).thenReturn(machinePanelPresenter);
 
+        presenter.showAppliance(machine);
+        reset(view);
+
         presenter.onActivePartChanged(event);
 
         verify(view).showContainer(tabContainerView);
+    }
+
+    @Test
+    public void stubShouldBeShownWhenMachineIsNull() {
+        when(event.getActivePart()).thenReturn(machinePanelPresenter);
+
+        presenter.onActivePartChanged(event);
+
+        verify(view, never()).showContainer(tabContainerView);
+        verify(view).showStub();
     }
 }

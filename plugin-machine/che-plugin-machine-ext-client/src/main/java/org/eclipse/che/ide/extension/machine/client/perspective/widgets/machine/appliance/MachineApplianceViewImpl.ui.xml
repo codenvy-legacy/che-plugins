@@ -20,5 +20,5 @@
         }
     </ui:style>
 
-    <g:SimplePanel ui:field="container" addStyleNames="{style.fullSize}"/>
+    <g:FlowPanel ui:field="mainContainer" addStyleNames="{style.fullSize}"/>
 </ui:UiBinder>

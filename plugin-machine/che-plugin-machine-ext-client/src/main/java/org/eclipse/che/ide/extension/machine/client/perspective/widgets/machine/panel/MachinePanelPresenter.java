@@ -80,6 +80,8 @@ public class MachinePanelPresenter extends BasePresenter implements MachinePanel
             public void apply(List<MachineDescriptor> machines) throws OperationException {
                 if (machines.isEmpty()) {
                     appliance.showStub();
+
+                    return;
                 }
 
                 isFirstNode = true;

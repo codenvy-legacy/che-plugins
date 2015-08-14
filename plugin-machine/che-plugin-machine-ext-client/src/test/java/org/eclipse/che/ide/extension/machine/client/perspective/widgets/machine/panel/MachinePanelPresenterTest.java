@@ -155,6 +155,7 @@ public class MachinePanelPresenterTest {
         operationCaptor.getValue().apply(Collections.<MachineDescriptor>emptyList());
 
         verify(appliance).showStub();
+        verify(view, never()).setData(rootNode);
     }
 
     @Test

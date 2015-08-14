@@ -15,7 +15,7 @@ import com.google.inject.ImplementedBy;
 
 import org.eclipse.che.ide.api.parts.PartStackView;
 
-import javax.annotation.Nullable;
+import javax.annotation.Nonnull;
 
 /**
  * Provides methods to control view representation of info container.
@@ -32,5 +32,16 @@ public interface MachineApplianceView extends PartStackView {
      * @param tabContainer
      *         container which need add
      */
-    void showContainer(@Nullable IsWidget tabContainer);
+    void showContainer(@Nonnull IsWidget tabContainer);
+
+    /** Shows special stub when available machines are absent. */
+    void showStub();
+
+    /**
+     * Adds container to main panel which contains all containers.
+     *
+     * @param tabContainer
+     *         container which will be added
+     */
+    void addContainer(@Nonnull IsWidget tabContainer);
 }

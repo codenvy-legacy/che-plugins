@@ -10,19 +10,22 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.appliance;
 
+import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.Widget;
 import com.google.gwtmockito.GwtMockitoTestRunner;
 
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.MachineResources;
+import org.eclipse.che.ide.extension.machine.client.perspective.widgets.recipe.container.RecipesContainerView;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.container.TabContainerView;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -44,10 +47,24 @@ public class MachineApplianceViewImplTest {
     @Mock
     private MachineLocalizationConstant locale;
 
+    //additional mocks
+    @Mock
+    private RecipesContainerView recipesView;
+    @Mock
+    private Widget               widget1;
+    @Mock
+    private Widget               widget2;
+    @Mock
+    private Widget               unavailable;
+
     private MachineApplianceViewImpl view;
 
     @Before
     public void setUp() {
+        when(tabContainerView.asWidget()).thenReturn(widget1);
+        when(recipesView.asWidget()).thenReturn(widget2);
+        when(unavailableLabel.asWidget()).thenReturn(unavailable);
+
         when(resources.getCss().unavailableLabel()).thenReturn(SOME_TEXT);
         when(locale.unavailableMachineInfo()).thenReturn(SOME_TEXT);
 
@@ -60,20 +77,53 @@ public class MachineApplianceViewImplTest {
         verify(unavailableLabel).addStyleName(SOME_TEXT);
         verify(locale).unavailableMachineInfo();
         verify(unavailableLabel).setText(SOME_TEXT);
+
+        verify(view.mainContainer).add(Matchers.<IsWidget>anyObject());
     }
 
     @Test
-    public void tabContainerShouldBeAddedWhenViewIsNotNull() {
+    public void tabContainerShouldBeAdded() {
+        view.addContainer(tabContainerView);
+
+        verify(view.mainContainer).add(tabContainerView);
+    }
+
+    @Test
+    public void tabContainerShouldBeAddedOnlyOnce() {
+        view.addContainer(tabContainerView);
+        view.addContainer(tabContainerView);
+        view.addContainer(tabContainerView);
+
+        verify(view.mainContainer).add(tabContainerView);
+    }
+
+    @Test
+    public void stubShouldBeShown() {
+        view.addContainer(tabContainerView);
+        view.addContainer(recipesView);
+
+        view.showStub();
+
+        verifyHideAll();
+
+        verify(unavailableLabel).setVisible(true);
+    }
+
+    private void verifyHideAll() {
+        verify(widget1).setVisible(false);
+        verify(widget2).setVisible(false);
+        verify(unavailable).setVisible(false);
+    }
+
+    @Test
+    public void containerShouldBeShown() {
+        view.addContainer(tabContainerView);
+        view.addContainer(recipesView);
+
         view.showContainer(tabContainerView);
 
-        verify(view.container).setWidget(tabContainerView);
-        verify(view.container, never()).setWidget(unavailableLabel);
-    }
+        verifyHideAll();
 
-    @Test
-    public void tabContainerShouldBeAddedWhenViewIsNull() {
-        view.showContainer(null);
-
-        verify(view.container, never()).setWidget(tabContainerView);
+        verify(widget1).setVisible(true);
     }
 }
