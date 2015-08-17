@@ -31,9 +31,9 @@ import javax.annotation.Nonnull;
  * @author Artem Zatsarynnyy
  */
 @Singleton
-public class DevMachineHostNameProvider implements CommandValueProvider, MachineStateHandler {
+public class DevMachineHostNameProvider implements CommandPropertyValueProvider, MachineStateHandler {
 
-    private static final String KEY = "$(machine.dev.hostname)";
+    private static final String KEY = "${machine.dev.hostname}";
 
     private final AppContext           appContext;
     private final MachineServiceClient machineServiceClient;

@@ -21,24 +21,24 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Implementation for {@link CommandValueProviderRegistry}.
+ * Implementation for {@link CommandPropertyValueProviderRegistry}.
  *
  * @author Artem Zatsarynnyy
  */
-public class CommandValueProviderRegistryImpl implements CommandValueProviderRegistry {
+public class CommandPropertyValueProviderRegistryImpl implements CommandPropertyValueProviderRegistry {
 
-    private final Map<String, CommandValueProvider> valueProviders;
+    private final Map<String, CommandPropertyValueProvider> valueProviders;
 
-    public CommandValueProviderRegistryImpl() {
+    public CommandPropertyValueProviderRegistryImpl() {
         this.valueProviders = new HashMap<>();
     }
 
     @Inject(optional = true)
-    private void register(Set<CommandValueProvider> valueProviders) {
-        for (CommandValueProvider provider : valueProviders) {
+    private void register(Set<CommandPropertyValueProvider> valueProviders) {
+        for (CommandPropertyValueProvider provider : valueProviders) {
             final String key = provider.getKey();
             if (this.valueProviders.containsKey(key)) {
-                Log.warn(CommandValueProviderRegistryImpl.class, "Value provider for key " + key + " is already registered.");
+                Log.warn(CommandPropertyValueProviderRegistryImpl.class, "Value provider for key " + key + " is already registered.");
             } else {
                 this.valueProviders.put(key, provider);
             }
@@ -46,12 +46,12 @@ public class CommandValueProviderRegistryImpl implements CommandValueProviderReg
     }
 
     @Override
-    public CommandValueProvider getValueProvider(String key) {
+    public CommandPropertyValueProvider getValueProvider(String key) {
         return valueProviders.get(key);
     }
 
     @Override
-    public List<CommandValueProvider> getValueProviders() {
+    public List<CommandPropertyValueProvider> getValueProviders() {
         return new ArrayList<>(valueProviders.values());
     }
 

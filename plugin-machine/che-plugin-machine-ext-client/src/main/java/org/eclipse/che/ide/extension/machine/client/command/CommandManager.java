@@ -22,8 +22,8 @@ import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.parts.WorkspaceAgent;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
-import org.eclipse.che.ide.extension.machine.client.command.valueproviders.CommandValueProvider;
-import org.eclipse.che.ide.extension.machine.client.command.valueproviders.CommandValueProviderRegistry;
+import org.eclipse.che.ide.extension.machine.client.command.valueproviders.CommandPropertyValueProvider;
+import org.eclipse.che.ide.extension.machine.client.command.valueproviders.CommandPropertyValueProviderRegistry;
 import org.eclipse.che.ide.extension.machine.client.outputspanel.OutputsContainerPresenter;
 import org.eclipse.che.ide.extension.machine.client.outputspanel.console.CommandConsoleFactory;
 import org.eclipse.che.ide.extension.machine.client.outputspanel.console.OutputConsole;
@@ -39,14 +39,14 @@ import javax.annotation.Nonnull;
 @Singleton
 public class CommandManager {
 
-    private final MachineServiceClient         machineServiceClient;
-    private final OutputsContainerPresenter    outputsContainerPresenter;
-    private final CommandConsoleFactory        commandConsoleFactory;
-    private final NotificationManager          notificationManager;
-    private final MachineLocalizationConstant  localizationConstant;
-    private final WorkspaceAgent               workspaceAgent;
-    private final AppContext                   appContext;
-    private final CommandValueProviderRegistry commandValueProviderRegistry;
+    private final MachineServiceClient                 machineServiceClient;
+    private final OutputsContainerPresenter            outputsContainerPresenter;
+    private final CommandConsoleFactory                commandConsoleFactory;
+    private final NotificationManager                  notificationManager;
+    private final MachineLocalizationConstant          localizationConstant;
+    private final WorkspaceAgent                       workspaceAgent;
+    private final AppContext                           appContext;
+    private final CommandPropertyValueProviderRegistry commandPropertyValueProviderRegistry;
 
     @Inject
     public CommandManager(MachineServiceClient machineServiceClient,
@@ -56,7 +56,7 @@ public class CommandManager {
                           MachineLocalizationConstant localizationConstant,
                           WorkspaceAgent workspaceAgent,
                           AppContext appContext,
-                          CommandValueProviderRegistry commandValueProviderRegistry) {
+                          CommandPropertyValueProviderRegistry commandPropertyValueProviderRegistry) {
         this.machineServiceClient = machineServiceClient;
         this.outputsContainerPresenter = outputsContainerPresenter;
         this.commandConsoleFactory = commandConsoleFactory;
@@ -64,7 +64,7 @@ public class CommandManager {
         this.localizationConstant = localizationConstant;
         this.workspaceAgent = workspaceAgent;
         this.appContext = appContext;
-        this.commandValueProviderRegistry = commandValueProviderRegistry;
+        this.commandPropertyValueProviderRegistry = commandPropertyValueProviderRegistry;
     }
 
     /** Execute the the given command configuration on the developer machine. */
@@ -96,12 +96,12 @@ public class CommandManager {
     /**
      * Returns the given command line with values of variables.
      *
-     * @see CommandValueProvider
+     * @see CommandPropertyValueProvider
      */
     public String processCommandLineVariables(final String commandLine) {
         String cmdLine = commandLine;
 
-        for (CommandValueProvider valueProvider : commandValueProviderRegistry.getValueProviders()) {
+        for (CommandPropertyValueProvider valueProvider : commandPropertyValueProviderRegistry.getValueProviders()) {
             cmdLine = cmdLine.replace(valueProvider.getKey(), valueProvider.getValue());
         }
 

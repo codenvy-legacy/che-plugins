@@ -24,9 +24,9 @@ import javax.annotation.Nonnull;
  * @author Artem Zatsarynnyy
  */
 @Singleton
-public class CurrentProjectNameProvider implements CommandValueProvider {
+public class CurrentProjectNameProvider implements CommandPropertyValueProvider {
 
-    private static final String KEY = "$(project.current.name)";
+    private static final String KEY = "${project.current.name}";
 
     private final AppContext appContext;
 

@@ -18,8 +18,8 @@ import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.parts.WorkspaceAgent;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
-import org.eclipse.che.ide.extension.machine.client.command.valueproviders.CommandValueProvider;
-import org.eclipse.che.ide.extension.machine.client.command.valueproviders.CommandValueProviderRegistry;
+import org.eclipse.che.ide.extension.machine.client.command.valueproviders.CommandPropertyValueProvider;
+import org.eclipse.che.ide.extension.machine.client.command.valueproviders.CommandPropertyValueProviderRegistry;
 import org.eclipse.che.ide.extension.machine.client.outputspanel.OutputsContainerPresenter;
 import org.eclipse.che.ide.extension.machine.client.outputspanel.console.CommandConsoleFactory;
 import org.eclipse.che.ide.extension.machine.client.outputspanel.console.OutputConsole;
@@ -46,21 +46,21 @@ import static org.mockito.Mockito.when;
 public class CommandManagerTest {
 
     @Mock
-    private MachineServiceClient         machineServiceClient;
+    private MachineServiceClient                 machineServiceClient;
     @Mock
-    private OutputsContainerPresenter    outputsContainerPresenter;
+    private OutputsContainerPresenter            outputsContainerPresenter;
     @Mock
-    private CommandConsoleFactory        commandConsoleFactory;
+    private CommandConsoleFactory                commandConsoleFactory;
     @Mock
-    private NotificationManager          notificationManager;
+    private NotificationManager                  notificationManager;
     @Mock
-    private MachineLocalizationConstant  localizationConstant;
+    private MachineLocalizationConstant          localizationConstant;
     @Mock
-    private WorkspaceAgent               workspaceAgent;
+    private WorkspaceAgent                       workspaceAgent;
     @Mock
-    private AppContext                   appContext;
+    private AppContext                           appContext;
     @Mock
-    private CommandValueProviderRegistry commandValueProviderRegistry;
+    private CommandPropertyValueProviderRegistry commandPropertyValueProviderRegistry;
 
     @Mock
     private Promise<ProcessDescriptor>                   processPromise;
@@ -112,10 +112,10 @@ public class CommandManagerTest {
     public void testProcessingCommandLineVariables() throws Exception {
         String key = "$(project.name)";
         String value = "my_project";
-        final CommandValueProvider valueProvider = mock(CommandValueProvider.class);
+        final CommandPropertyValueProvider valueProvider = mock(CommandPropertyValueProvider.class);
         when(valueProvider.getKey()).thenReturn(key);
         when(valueProvider.getValue()).thenReturn(value);
-        when(commandValueProviderRegistry.getValueProviders()).thenReturn(Collections.singletonList(valueProvider));
+        when(commandPropertyValueProviderRegistry.getValueProviders()).thenReturn(Collections.singletonList(valueProvider));
 
         String commandLine = "mvn -f " + key + " clean install";
         final String cmd = commandManager.processCommandLineVariables(commandLine);
