@@ -40,7 +40,7 @@ import static org.eclipse.che.api.machine.shared.MachineStatus.RUNNING;
 public class MachineComponent implements Component {
 
     public static final String DEFAULT_RECIPE =
-            "https://gist.githubusercontent.com/gazarenkov/9f11a85a157ab399aca5/raw/3fa47eddf8068d858a3d7097fb43608ca1562e60/maven";
+            "https://gist.githubusercontent.com/vparfonov/5c633534bfb0c127854f/raw/f176ee3428c2d39d08c7b4762aee6855dc5c8f75/jdk8_maven3_tomcat8";
 
     private final MachineServiceClient machineServiceClient;
     private final AppContext           appContext;
