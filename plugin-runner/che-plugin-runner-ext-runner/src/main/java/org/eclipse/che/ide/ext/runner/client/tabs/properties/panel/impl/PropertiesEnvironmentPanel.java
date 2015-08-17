@@ -56,7 +56,6 @@ import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.rest.Unmarshallable;
 import org.eclipse.che.ide.ui.dialogs.ConfirmCallback;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
-import org.eclipse.che.ide.util.Config;
 import org.eclipse.che.ide.util.loging.Log;
 
 import javax.annotation.Nonnegative;
@@ -166,13 +165,10 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
         this.view.setVisibleDeleteButton(isProjectScope);
         this.view.setVisibleCancelButton(isProjectScope);
 
-        if (!Config.isSdkProject()) {
-
-            if (isProjectScope) {
-                getProjectEnvironmentDocker();
-            } else {
-                getSystemEnvironmentDocker();
-            }
+        if (isProjectScope) {
+            getProjectEnvironmentDocker();
+        } else {
+            getSystemEnvironmentDocker();
         }
 
         projectDescriptor = currentProject.getProjectDescription();
