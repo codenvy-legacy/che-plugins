@@ -60,7 +60,6 @@ public class MachineExtension {
     @Inject
     private void prepareActions(MachineLocalizationConstant localizationConstant,
                                 ActionManager actionManager,
-                                ProjectApiComponentInitializer projectApiComponentInitializer,
                                 ExecuteSelectedCommandAction executeSelectedCommandAction,
                                 SelectCommandComboBoxAction selectCommandAction,
                                 EditCommandsAction editCommandsAction,
@@ -127,5 +126,10 @@ public class MachineExtension {
     private void setUpOutputsConsole(WorkspaceAgent workspaceAgent,
                                      OutputsContainerPresenter outputsContainerPresenter) {
         workspaceAgent.openPart(outputsContainerPresenter, PartStackType.INFORMATION);
+    }
+
+    @Inject
+    private void createProjectApiComponent(ProjectApiComponentInitializer projectApiComponentInitializer) {
+        //projectApiComponentInitializer has handler which will work at the right time
     }
 }
