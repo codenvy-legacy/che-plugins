@@ -21,11 +21,9 @@ import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.PromiseError;
 import org.eclipse.che.ide.api.app.AppContext;
-import org.eclipse.che.ide.bootstrap.ProjectTemplatesComponent;
-import org.eclipse.che.ide.bootstrap.ProjectTypeComponent;
+import org.eclipse.che.ide.extension.machine.client.machine.extserver.ProjectApiComponentInitializer;
 import org.eclipse.che.ide.core.Component;
 import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
-import org.eclipse.che.ide.util.loging.Log;
 
 import java.util.List;
 
@@ -42,23 +40,20 @@ public class MachineComponent implements Component {
     public static final String DEFAULT_RECIPE =
             "https://gist.githubusercontent.com/vparfonov/5c633534bfb0c127854f/raw/f176ee3428c2d39d08c7b4762aee6855dc5c8f75/jdk8_maven3_tomcat8";
 
-    private final MachineServiceClient machineServiceClient;
-    private final AppContext           appContext;
-    private final MachineManager       machineManager;
-    private       ProjectTypeComponent projectTypeComponent;
-    private ProjectTemplatesComponent projectTemplatesComponent;
+    private final MachineServiceClient           machineServiceClient;
+    private final AppContext                     appContext;
+    private final MachineManager                 machineManager;
+    private       ProjectApiComponentInitializer projectApiComponentInitializer;
 
     @Inject
     public MachineComponent(MachineServiceClient machineServiceClient,
                             AppContext appContext,
                             MachineManager machineManager,
-                            ProjectTypeComponent projectTypeComponent,
-                            ProjectTemplatesComponent projectTemplatesComponent) {
+                            ProjectApiComponentInitializer projectApiComponentInitializer) {
         this.machineServiceClient = machineServiceClient;
         this.appContext = appContext;
         this.machineManager = machineManager;
-        this.projectTypeComponent = projectTypeComponent;
-        this.projectTemplatesComponent = projectTemplatesComponent;
+        this.projectApiComponentInitializer = projectApiComponentInitializer;
     }
 
     @Override
@@ -75,33 +70,7 @@ public class MachineComponent implements Component {
                         machineServiceClient.getMachine(descriptor.getId()).then(new Operation<MachineDescriptor>() {
                             @Override
                             public void apply(MachineDescriptor arg) throws OperationException {
-                                projectTypeComponent.start(new Callback<Component, Exception>() {
-
-                                    @Override
-                                    public void onFailure(Exception reason) {
-                                        Log.error(MachineManager.class, reason.getMessage());
-                                    }
-
-                                    @Override
-                                    public void onSuccess(Component result) {
-                                        Log.info(getClass(), "projectTypeComponent >>>>>>>>>>>>>>>>>");
-
-                                    }
-                                });
-
-                                projectTemplatesComponent.start(new Callback<Component, Exception>() {
-
-                                    @Override
-                                    public void onFailure(Exception reason) {
-                                        Log.error(MachineManager.class, reason.getMessage());
-                                    }
-
-                                    @Override
-                                    public void onSuccess(Component result) {
-                                        Log.info(getClass(), ">>>>>>>>>>>>>>>>>>>>>> projectTemplatesComponent");
-
-                                    }
-                                });
+                                projectApiComponentInitializer.initialize();
                             }
                         });
                         return;

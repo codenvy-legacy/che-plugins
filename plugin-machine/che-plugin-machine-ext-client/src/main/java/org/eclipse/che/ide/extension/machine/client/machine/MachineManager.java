@@ -10,20 +10,17 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.machine.client.machine;
 
-import com.google.gwt.core.client.Callback;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
-import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
 import org.eclipse.che.api.machine.shared.dto.MachineDescriptor;
-import org.eclipse.che.api.machine.shared.dto.ProcessDescriptor;
 import org.eclipse.che.api.promises.client.Function;
 import org.eclipse.che.api.promises.client.FunctionException;
 import org.eclipse.che.api.promises.client.Operation;
@@ -33,27 +30,20 @@ import org.eclipse.che.api.promises.client.PromiseError;
 import org.eclipse.che.api.promises.client.callback.AsyncPromiseHelper;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.notification.NotificationManager;
-import org.eclipse.che.ide.bootstrap.ProjectTemplatesComponent;
-import org.eclipse.che.ide.bootstrap.ProjectTypeComponent;
-import org.eclipse.che.ide.core.Component;
 import org.eclipse.che.ide.extension.machine.client.OutputMessageUnmarshaller;
-import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.EntityFactory;
 import org.eclipse.che.ide.extension.machine.client.machine.MachineStatusNotifier.RunningListener;
 import org.eclipse.che.ide.extension.machine.client.machine.console.MachineConsolePresenter;
+import org.eclipse.che.ide.extension.machine.client.machine.extserver.ExtServerStateController;
 import org.eclipse.che.ide.extension.machine.client.util.RecipeProvider;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 import org.eclipse.che.ide.util.UUID;
 import org.eclipse.che.ide.util.loging.Log;
 import org.eclipse.che.ide.websocket.MessageBus;
-import org.eclipse.che.ide.websocket.WebSocket;
 import org.eclipse.che.ide.websocket.WebSocketException;
-import org.eclipse.che.ide.websocket.events.ConnectionErrorHandler;
-import org.eclipse.che.ide.websocket.events.ConnectionOpenedHandler;
 import org.eclipse.che.ide.websocket.rest.SubscriptionHandler;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 import static com.google.gwt.http.client.RequestBuilder.GET;
 import static org.eclipse.che.ide.extension.machine.client.machine.MachineManager.MachineOperationType.DESTROY;
@@ -68,25 +58,22 @@ import static org.eclipse.che.ide.extension.machine.client.machine.MachineManage
 @Singleton
 public class MachineManager {
 
-    private final MachineServiceClient    machineServiceClient;
-    private final MessageBus              messageBus;
-    private final MachineConsolePresenter machineConsolePresenter;
-    private final NotificationManager     notificationManager;
-    private final MachineStatusNotifier   machineStatusNotifier;
-    private final DialogFactory           dialogFactory;
-    private final RecipeProvider          recipeProvider;
-    private final EntityFactory           entityFactory;
-    private final AppContext              appContext;
-    private final ProjectTypeComponent        projectTypeComponent;
-    private final ProjectTemplatesComponent   projectTemplatesComponent;
-    private final Timer                       retryConnectionTimer;
-
+    private final ExtServerStateController extServerStateController;
+    private final MachineServiceClient     machineServiceClient;
+    private final MessageBus               messageBus;
+    private final MachineConsolePresenter  machineConsolePresenter;
+    private final NotificationManager      notificationManager;
+    private final MachineStatusNotifier    machineStatusNotifier;
+    private final DialogFactory            dialogFactory;
+    private final RecipeProvider           recipeProvider;
+    private final EntityFactory            entityFactory;
+    private final AppContext               appContext;
 
     private Machine devMachine;
-    private int     countRetry = 5;
 
     @Inject
-    public MachineManager(MachineServiceClient machineServiceClient,
+    public MachineManager(ExtServerStateController extServerStateController,
+                          MachineServiceClient machineServiceClient,
                           MessageBus messageBus,
                           MachineConsolePresenter machineConsolePresenter,
                           NotificationManager notificationManager,
@@ -94,9 +81,8 @@ public class MachineManager {
                           DialogFactory dialogFactory,
                           RecipeProvider recipeProvider,
                           EntityFactory entityFactory,
-                          AppContext appContext,
-                          ProjectTypeComponent projectTypeComponent,
-                          ProjectTemplatesComponent projectTemplatesComponent) {
+                          AppContext appContext) {
+        this.extServerStateController = extServerStateController;
         this.machineServiceClient = machineServiceClient;
         this.messageBus = messageBus;
         this.machineConsolePresenter = machineConsolePresenter;
@@ -106,17 +92,6 @@ public class MachineManager {
         this.recipeProvider = recipeProvider;
         this.entityFactory = entityFactory;
         this.appContext = appContext;
-        this.projectTypeComponent = projectTypeComponent;
-        this.projectTemplatesComponent = projectTemplatesComponent;
-
-
-        retryConnectionTimer = new Timer() {
-            @Override
-            public void run() {
-                startProjectApiComponent();
-                countRetry--;
-            }
-        };
     }
 
     public void restartMachine(@Nonnull final Machine machine) {
@@ -168,9 +143,7 @@ public class MachineManager {
                     runningListener = new RunningListener() {
                         @Override
                         public void onRunning() {
-                            appContext.setDevMachineId(machineDescriptor.getId());
-                            devMachine = entityFactory.createMachine(machineDescriptor);
-                            startProjectApiComponent();
+                            machineRunning(machineDescriptor.getId());
                         }
                     };
                 }
@@ -181,72 +154,16 @@ public class MachineManager {
         });
     }
 
-    private void openWebSocket(@Nonnull String wsUrl) {
-        WebSocket socket = WebSocket.create(wsUrl);
-        socket.setOnOpenHandler(new ConnectionOpenedHandler() {
+    private void machineRunning(final String machineId) {
+        machineServiceClient.getMachine(machineId).then(new Operation<MachineDescriptor>() {
             @Override
-            public void onOpen() {
-
-                notificationManager.showInfo("Extension server started");
-
-                projectTypeComponent.start(new Callback<Component, Exception>() {
-
-                    @Override
-                    public void onFailure(Exception reason) {
-                        Log.error(MachineManager.class, reason.getMessage());
-                    }
-
-                    @Override
-                    public void onSuccess(Component result) {
-                        Log.info(getClass(), "projectTypeComponent >>>>>>>>>>>>>>>>>");
-
-                    }
-                });
-
-                projectTemplatesComponent.start(new Callback<Component, Exception>() {
-
-                    @Override
-                    public void onFailure(Exception reason) {
-                        Log.error(MachineManager.class, reason.getMessage());
-                    }
-
-                    @Override
-                    public void onSuccess(Component result) {
-                        Log.info(getClass(), ">>>>>>>>>>>>>>>>>>>>>> projectTemplatesComponent");
-
-                    }
-                });
+            public void apply(MachineDescriptor machineDescriptor) throws OperationException {
+                appContext.setDevMachineId(machineId);
+                devMachine = entityFactory.createMachine(machineDescriptor);
+                extServerStateController
+                        .initialize(devMachine.getWsServerExtensionsUrl() + "/" + appContext.getWorkspace().getId());
             }
         });
-
-        socket.setOnErrorHandler(new ConnectionErrorHandler() {
-            @Override
-            public void onError() {
-                tryToReconnect();
-            }
-        });
-    }
-
-
-
-    private void tryToReconnect() {
-
-        if (countRetry <= 0) {
-
-        } else {
-            retryConnectionTimer.schedule(1000);
-        }
-    }
-
-
-
-
-
-    private void startProjectApiComponent() {
-        openWebSocket(devMachine.getWsServerExtensionsUrl() + "/" + appContext.getWorkspace().getId());
-       // waitOnExtServerStart.schedule(10000); //wait on start extension server inside Machine
-        //need to rework it we wait on improvement Machine API we will have dedicate Event
-
     }
 
     private Promise<String> downloadRecipe(String recipeURL) {
