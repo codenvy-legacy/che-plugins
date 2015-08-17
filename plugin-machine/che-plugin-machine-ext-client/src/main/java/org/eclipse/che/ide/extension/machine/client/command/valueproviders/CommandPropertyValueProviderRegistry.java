@@ -14,18 +14,18 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Registry for {@link CommandValueProvider}s.
+ * Registry for {@link CommandPropertyValueProvider}s.
  *
  * @author Artem Zatsarynnyy
  */
-public interface CommandValueProviderRegistry {
+public interface CommandPropertyValueProviderRegistry {
 
-    /** Returns keys of all registered {@link CommandValueProvider}s. */
+    /** Returns keys of all registered {@link CommandPropertyValueProvider}s. */
     Set<String> getKeys();
 
-    /** Returns {@link CommandValueProvider} by the given key. */
-    CommandValueProvider getValueProvider(String key);
+    /** Returns {@link CommandPropertyValueProvider} by the given key. */
+    CommandPropertyValueProvider getValueProvider(String key);
 
-    /** Returns all registered {@link CommandValueProvider}s. */
-    List<CommandValueProvider> getValueProviders();
+    /** Returns all registered {@link CommandPropertyValueProvider}s. */
+    List<CommandPropertyValueProvider> getValueProviders();
 }
