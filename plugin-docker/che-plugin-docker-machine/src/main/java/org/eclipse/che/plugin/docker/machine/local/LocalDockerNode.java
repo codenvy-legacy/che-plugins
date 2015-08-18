@@ -19,6 +19,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 
 /**
  *
@@ -35,11 +36,13 @@ public class LocalDockerNode implements DockerNode {
     public LocalDockerNode(@Named("vfs.local.fs_root_dir") String projectsFolder) throws IOException {
 
         folder = new File(projectsFolder);
-        if (!folder.exists() || folder.isFile()) {
+        if (!folder.exists()) {
+            Files.createDirectory(folder.toPath());
+        }
+        if (folder.isFile()) {
             throw new IOException(
                     "Folder " + folder.getAbsolutePath() + " does not exist. Check vfs.local.fs_root_dir configuration property.");
         }
-
 
         host = DockerConnectorConfiguration.getExpectedLocalHost();
 

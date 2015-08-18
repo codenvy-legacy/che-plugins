@@ -31,7 +31,7 @@ import java.util.List;
 /**
  * @author Evgen Vidolob
  */
-@Path("jdt/navigation")
+@Path("jdt/{wsId}/navigation")
 public class JavaNavigationService {
     JavaModel MODEL = JavaModelManager.getJavaModelManager().getJavaModel();
 

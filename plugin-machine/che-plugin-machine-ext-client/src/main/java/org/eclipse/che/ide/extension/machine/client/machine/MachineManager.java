@@ -34,6 +34,7 @@ import org.eclipse.che.ide.extension.machine.client.OutputMessageUnmarshaller;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.EntityFactory;
 import org.eclipse.che.ide.extension.machine.client.machine.MachineStatusNotifier.RunningListener;
 import org.eclipse.che.ide.extension.machine.client.machine.console.MachineConsolePresenter;
+import org.eclipse.che.ide.extension.machine.client.machine.extserver.ExtServerStateController;
 import org.eclipse.che.ide.extension.machine.client.util.RecipeProvider;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 import org.eclipse.che.ide.util.UUID;
@@ -57,18 +58,22 @@ import static org.eclipse.che.ide.extension.machine.client.machine.MachineManage
 @Singleton
 public class MachineManager {
 
-    private final MachineServiceClient    machineServiceClient;
-    private final MessageBus              messageBus;
-    private final MachineConsolePresenter machineConsolePresenter;
-    private final NotificationManager     notificationManager;
-    private final MachineStatusNotifier   machineStatusNotifier;
-    private final DialogFactory           dialogFactory;
-    private final RecipeProvider          recipeProvider;
-    private final EntityFactory           entityFactory;
-    private final AppContext              appContext;
+    private final ExtServerStateController extServerStateController;
+    private final MachineServiceClient     machineServiceClient;
+    private final MessageBus               messageBus;
+    private final MachineConsolePresenter  machineConsolePresenter;
+    private final NotificationManager      notificationManager;
+    private final MachineStatusNotifier    machineStatusNotifier;
+    private final DialogFactory            dialogFactory;
+    private final RecipeProvider           recipeProvider;
+    private final EntityFactory            entityFactory;
+    private final AppContext               appContext;
+
+    private Machine devMachine;
 
     @Inject
-    public MachineManager(MachineServiceClient machineServiceClient,
+    public MachineManager(ExtServerStateController extServerStateController,
+                          MachineServiceClient machineServiceClient,
                           MessageBus messageBus,
                           MachineConsolePresenter machineConsolePresenter,
                           NotificationManager notificationManager,
@@ -77,6 +82,7 @@ public class MachineManager {
                           RecipeProvider recipeProvider,
                           EntityFactory entityFactory,
                           AppContext appContext) {
+        this.extServerStateController = extServerStateController;
         this.machineServiceClient = machineServiceClient;
         this.messageBus = messageBus;
         this.machineConsolePresenter = machineConsolePresenter;
@@ -137,13 +143,25 @@ public class MachineManager {
                     runningListener = new RunningListener() {
                         @Override
                         public void onRunning() {
-                            appContext.setDevMachineId(machineDescriptor.getId());
+                            machineRunning(machineDescriptor.getId());
                         }
                     };
                 }
 
                 final Machine machine = entityFactory.createMachine(machineDescriptor);
                 machineStatusNotifier.trackMachine(machine, runningListener, operationType);
+            }
+        });
+    }
+
+    private void machineRunning(final String machineId) {
+        machineServiceClient.getMachine(machineId).then(new Operation<MachineDescriptor>() {
+            @Override
+            public void apply(MachineDescriptor machineDescriptor) throws OperationException {
+                appContext.setDevMachineId(machineId);
+                devMachine = entityFactory.createMachine(machineDescriptor);
+                extServerStateController
+                        .initialize(devMachine.getWsServerExtensionsUrl() + "/" + appContext.getWorkspace().getId());
             }
         });
     }

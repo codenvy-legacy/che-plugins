@@ -26,6 +26,7 @@ import org.eclipse.che.api.vfs.server.VirtualFileSystem;
 import org.eclipse.che.api.vfs.server.VirtualFileSystemRegistry;
 import org.eclipse.che.commons.lang.Pair;
 import org.eclipse.che.dto.server.DtoFactory;
+import org.eclipse.che.generator.archetype.ArchetypeGenerator;
 import org.eclipse.che.generator.archetype.dto.GenerationTaskDescriptor;
 import org.eclipse.che.generator.archetype.dto.MavenArchetype;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
@@ -61,26 +62,18 @@ import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.VERSION
 @Singleton
 public class ArchetypeGenerationStrategy implements GeneratorStrategy {
     private static final long CHECK_GENERATION_STATUS_DELAY = 1000;
-    private final String                    generatorServiceUrl;
     private final VirtualFileSystemRegistry vfsRegistry;
+    private ArchetypeGenerator archetypeGenerator;
     private final DownloadPlugin downloadPlugin = new HttpDownloadPlugin();
     private ExecutorService executor;
 
     @Inject
-    public ArchetypeGenerationStrategy(@Named("builder.slave_builder_urls") String[] slaveBuilderURLs,
-                                       VirtualFileSystemRegistry vfsRegistry) {
+    public ArchetypeGenerationStrategy(VirtualFileSystemRegistry vfsRegistry,
+                                       ArchetypeGenerator archetypeGenerator) {
         // As a temporary solution we're using first slave builder URL
         // in order to get archetype-generator service URL.
-        this.generatorServiceUrl = getGeneratorServiceUrl(slaveBuilderURLs);
         this.vfsRegistry = vfsRegistry;
-    }
-
-    private String getGeneratorServiceUrl(String[] slaveBuilderURLs) {
-        if (slaveBuilderURLs == null || slaveBuilderURLs.length == 0) {
-            return null;
-        }
-        final String slaveBuilderURL = slaveBuilderURLs[0];
-        return slaveBuilderURL.replace("/internal/builder", "/generator-archetype");
+        this.archetypeGenerator = archetypeGenerator;
     }
 
 
@@ -102,9 +95,6 @@ public class ArchetypeGenerationStrategy implements GeneratorStrategy {
     @Override
     public void generateProject(final FolderEntry baseFolder, Map<String, AttributeValue> attributes, Map<String, String> options)
             throws ForbiddenException, ConflictException, ServerException {
-        if (generatorServiceUrl == null) {
-            throw new ServerException("Generator service URL is not initialized");
-        }
 
         AttributeValue artifactId = attributes.get(ARTIFACT_ID);
         AttributeValue groupId = attributes.get(GROUP_ID);
@@ -151,72 +141,69 @@ public class ArchetypeGenerationStrategy implements GeneratorStrategy {
                                                    .withRepository(archetypeRepository)
                                                    .withProperties(archetypeProperties);
 
-        try {
-            Callable<GenerationTaskDescriptor> callable =
-                    createGenerationTask(archetype, groupId.getString(), artifactId.getString(), version.getString());
-            final GenerationTaskDescriptor task = executor.submit(callable).get();
-            if (task.getStatus() == SUCCESSFUL) {
-                final File downloadFolder = Files.createTempDirectory("generated-project-").toFile();
-                final File generatedProject = new File(downloadFolder, "project.zip");
-                downloadGeneratedProject(task, generatedProject);
-                importZipToFolder(generatedProject, baseFolder);
-                FileCleaner.addFile(downloadFolder);
-            } else if (task.getStatus() == FAILED) {
-                throw new ServerException(task.getReport().isEmpty() ? "Failed to generate project: " : task.getReport());
-            }
-        } catch (NotFoundException | InterruptedException | ExecutionException | IOException e) {
-            throw new ServerException(e.getMessage(), e);
-        }
+            archetypeGenerator.generateFromArchetype(archetype, groupId.getList().get(0), artifactId.getList().get(0), version.getList().get(0));
+//            Callable<GenerationTaskDescriptor> callable =
+//                    createGenerationTask(archetype, groupId.getString(), artifactId.getString(), version.getString());
+//            final GenerationTaskDescriptor task = executor.submit(callable).get();
+//            if (task.getStatus() == SUCCESSFUL) {
+//                final File downloadFolder = Files.createTempDirectory("generated-project-").toFile();
+//                final File generatedProject = new File(downloadFolder, "project.zip");
+//                downloadGeneratedProject(task, generatedProject);
+//                importZipToFolder(generatedProject, baseFolder);
+//                FileCleaner.addFile(downloadFolder);
+//            } else if (task.getStatus() == FAILED) {
+//                throw new ServerException(task.getReport().isEmpty() ? "Failed to generate project: " : task.getReport());
+//            }
     }
 
-    private Callable<GenerationTaskDescriptor> createGenerationTask(final MavenArchetype archetype,
-                                                                    final String groupId, final String artifactId, final String version) {
-        return new Callable<GenerationTaskDescriptor>() {
-            @Override
-            public GenerationTaskDescriptor call() throws Exception {
-                final ValueHolder<String> statusUrlHolder = new ValueHolder<>();
-                try {
-                    GenerationTaskDescriptor task =
-                            HttpJsonHelper.post(GenerationTaskDescriptor.class, generatorServiceUrl + "/generate", archetype,
-                                                Pair.of("groupId", groupId),
-                                                Pair.of("artifactId", artifactId),
-                                                Pair.of("version", version));
-                    statusUrlHolder.set(task.getStatusUrl());
-                } catch (IOException | UnauthorizedException | NotFoundException e) {
-                    throw new ServerException(e);
-                }
-
-                final String statusUrl = statusUrlHolder.get();
-                try {
-                    for (; ; ) {
-                        if (Thread.currentThread().isInterrupted()) {
-                            return null;
-                        }
-                        try {
-                            Thread.sleep(CHECK_GENERATION_STATUS_DELAY);
-                        } catch (InterruptedException e) {
-                            return null;
-                        }
-                        GenerationTaskDescriptor generateTask = HttpJsonHelper.get(GenerationTaskDescriptor.class, statusUrl);
-                        if (IN_PROGRESS != generateTask.getStatus()) {
-                            return generateTask;
-                        }
-                    }
-                } catch (IOException | ServerException | NotFoundException | UnauthorizedException | ForbiddenException |
-                        ConflictException e) {
-                    throw new ServerException(e);
-                }
-            }
-        };
-    }
-
-    private void downloadGeneratedProject(GenerationTaskDescriptor task, File file) throws IOException {
-        downloadPlugin.download(task.getDownloadUrl(), file.getParentFile(), file.getName(), true);
-    }
-
-    private void importZipToFolder(File file, FolderEntry baseFolder)
-            throws ForbiddenException, ServerException, NotFoundException, ConflictException, IOException {
-        final VirtualFileSystem vfs = vfsRegistry.getProvider(baseFolder.getWorkspace()).newInstance(null);
-        vfs.importZip(baseFolder.getVirtualFile().getId(), Files.newInputStream(file.toPath()), true, false);
-    }
+//    private Callable<GenerationTaskDescriptor> createGenerationTask(final MavenArchetype archetype,
+//                                                                    final String groupId, final String artifactId, final String version) {
+//        return new Callable<GenerationTaskDescriptor>() {
+//            @Override
+//            public GenerationTaskDescriptor call() throws Exception {
+//                final ValueHolder<String> statusUrlHolder = new ValueHolder<>();
+//                try {
+//                    GenerationTaskDescriptor task =
+//                            HttpJsonHelper.post(GenerationTaskDescriptor.class, generatorServiceUrl + "/generate", archetype,
+//                                                Pair.of("groupId", groupId),
+//                                                Pair.of("artifactId", artifactId),
+//                                                Pair.of("version", version));
+//                    statusUrlHolder.set(task.getStatusUrl());
+//                } catch (IOException | UnauthorizedException | NotFoundException e) {
+//                    throw new ServerException(e);
+//                }
+//
+//                final String statusUrl = statusUrlHolder.get();
+//                try {
+//                    for (; ; ) {
+//                        if (Thread.currentThread().isInterrupted()) {
+//                            return null;
+//                        }
+//                        try {
+//                            Thread.sleep(CHECK_GENERATION_STATUS_DELAY);
+//                        } catch (InterruptedException e) {
+//                            return null;
+//                        }
+//                        GenerationTaskDescriptor generateTask = HttpJsonHelper.get(GenerationTaskDescriptor.class, statusUrl);
+//                        if (IN_PROGRESS != generateTask.getStatus()) {
+//                            return generateTask;
+//                        }
+//                    }
+//                } catch (IOException | ServerException | NotFoundException | UnauthorizedException | ForbiddenException |
+//                        ConflictException e) {
+//                    throw new ServerException(e);
+//                }
+//            }
+//        };
+//    }
+//
+//    private void downloadGeneratedProject(GenerationTaskDescriptor task, File file) throws IOException {
+//        downloadPlugin.download(task.getDownloadUrl(), file.getParentFile(), file.getName(), true);
+//    }
+//
+//    private void importZipToFolder(File file, FolderEntry baseFolder)
+//            throws ForbiddenException, ServerException, NotFoundException, ConflictException, IOException {
+//        final VirtualFileSystem vfs = vfsRegistry.getProvider(baseFolder.getWorkspace()).newInstance(null);
+//        vfs.importZip(baseFolder.getVirtualFile().getId(), Files.newInputStream(file.toPath()), true, false);
+//    }
 }

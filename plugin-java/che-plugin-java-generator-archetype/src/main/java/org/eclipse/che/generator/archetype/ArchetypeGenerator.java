@@ -76,7 +76,7 @@ public class ArchetypeGenerator {
     /** Initialize generator. */
     @PostConstruct
     void start() {
-        projectsFolder = new File(System.getProperty("java.io.tmpdir"), "archetype-generator");
+        projectsFolder = new File("/projects");
         if (!(projectsFolder.exists() || projectsFolder.mkdirs())) {
             throw new IllegalStateException(String.format("Unable to create directory %s", projectsFolder.getAbsolutePath()));
         }

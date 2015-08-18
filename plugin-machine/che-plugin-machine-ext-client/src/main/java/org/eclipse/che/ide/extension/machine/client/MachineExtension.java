@@ -28,6 +28,7 @@ import org.eclipse.che.ide.extension.machine.client.actions.SelectCommandComboBo
 import org.eclipse.che.ide.extension.machine.client.actions.SwitchPerspectiveAction;
 import org.eclipse.che.ide.extension.machine.client.machine.console.ClearConsoleAction;
 import org.eclipse.che.ide.extension.machine.client.machine.console.MachineConsoleToolbar;
+import org.eclipse.che.ide.extension.machine.client.machine.extserver.ProjectApiComponentInitializer;
 import org.eclipse.che.ide.extension.machine.client.outputspanel.OutputsContainerPresenter;
 import org.eclipse.che.ide.ui.toolbar.ToolbarPresenter;
 
@@ -124,5 +125,10 @@ public class MachineExtension {
     @Inject
     private void setUpOutputsConsole(WorkspaceAgent workspaceAgent, OutputsContainerPresenter outputsContainerPresenter) {
         workspaceAgent.openPart(outputsContainerPresenter, PartStackType.INFORMATION);
+    }
+
+    @Inject
+    private void createProjectApiComponent(ProjectApiComponentInitializer projectApiComponentInitializer) {
+        //projectApiComponentInitializer has handler which will work at the right time
     }
 }

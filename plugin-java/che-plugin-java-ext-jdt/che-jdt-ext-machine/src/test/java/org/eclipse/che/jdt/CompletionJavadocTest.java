@@ -11,6 +11,8 @@
 
 package org.eclipse.che.jdt;
 
+import org.eclipse.che.commons.env.EnvironmentContext;
+import org.eclipse.che.commons.user.User;
 import org.eclipse.che.jdt.javaeditor.TextViewer;
 import org.eclipse.che.jdt.quickfix.QuickFixTest;
 import org.eclipse.che.jdt.rest.UrlContextProvider;
@@ -41,6 +43,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+
 /**
  * @author Evgen Vidolob
  */
@@ -59,6 +64,9 @@ public class CompletionJavadocTest extends QuickFixTest {
     @Before
     public void setUp() throws Exception {
         super.setUp();
+        EnvironmentContext customEnvironment = mock(EnvironmentContext.class);
+        doReturn("1q2w3e").when(customEnvironment).getWorkspaceId();
+        EnvironmentContext.setCurrent(customEnvironment);
         fJProject1 = Java18ProjectTestSetup.getProject();
         fSourceFolder = JavaProjectHelper.addSourceContainer(fJProject1, "src");
     }

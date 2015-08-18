@@ -19,7 +19,7 @@ import com.google.inject.multibindings.Multibinder;
  *
  * @author Sergii Kabashniuk
  */
-@DynaModule
+//@DynaModule
 public class GithubModule extends AbstractModule {
     @Override
     protected void configure() {

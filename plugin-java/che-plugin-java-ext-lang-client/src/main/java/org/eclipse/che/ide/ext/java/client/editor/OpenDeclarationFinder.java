@@ -39,16 +39,16 @@ import org.eclipse.che.ide.util.loging.Log;
 public class OpenDeclarationFinder {
 
     private final EditorAgent            editorAgent;
-    private final JavaNavigationService  service;
+    private final JavaNavigationService  navigationService;
     private       DtoUnmarshallerFactory factory;
-    private       JavaNavigationService  navigationService;
     private       AppContext             context;
 
     @Inject
-    public OpenDeclarationFinder(EditorAgent editorAgent, JavaNavigationService service,
-                                 DtoUnmarshallerFactory factory, JavaNavigationService navigationService, AppContext context) {
+    public OpenDeclarationFinder(EditorAgent editorAgent,
+                                 JavaNavigationService navigationService,
+                                 DtoUnmarshallerFactory factory,
+                                 AppContext context) {
         this.editorAgent = editorAgent;
-        this.service = service;
         this.factory = factory;
         this.navigationService = navigationService;
         this.context = context;
@@ -69,7 +69,7 @@ public class OpenDeclarationFinder {
         final VirtualFile file = editor.getEditorInput().getFile();
         Unmarshallable<OpenDeclarationDescriptor> unmarshaller =
                 factory.newUnmarshaller(OpenDeclarationDescriptor.class);
-        service.findDeclaration(file.getProject().getPath(), JavaSourceFolderUtil.getFQNForFile(file), offset,
+        navigationService.findDeclaration(file.getProject().getPath(), JavaSourceFolderUtil.getFQNForFile(file), offset,
                                 new AsyncRequestCallback<OpenDeclarationDescriptor>(unmarshaller) {
                                     @Override
                                     protected void onSuccess(OpenDeclarationDescriptor result) {

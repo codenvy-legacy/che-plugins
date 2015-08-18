@@ -26,10 +26,8 @@ import org.eclipse.che.ide.extension.maven.server.projecttype.handler.MavenProje
 import org.eclipse.che.ide.extension.maven.server.projecttype.handler.MavenProjectGenerator;
 import org.eclipse.che.ide.extension.maven.server.projecttype.handler.MavenProjectImportedHandler;
 import org.eclipse.che.ide.extension.maven.server.projecttype.handler.ProjectHasBecomeMaven;
-import org.eclipse.che.inject.DynaModule;
 
 /** @author Artem Zatsarynnyy */
-@DynaModule
 public class MavenModule extends AbstractModule {
     @Override
     protected void configure() {

@@ -32,14 +32,19 @@ public class QuickDocPresenter implements QuickDocumentation, QuickDocView.Actio
     private QuickDocView view;
     private AppContext   appContext;
     private String       caContext;
-    private EditorAgent  editorAgent;
+    private String       workspaceId;
+    private EditorAgent editorAgent;
 
     @Inject
-    public QuickDocPresenter(QuickDocView view, AppContext appContext, @Named("cheExtensionPath") String caContext,
+    public QuickDocPresenter(QuickDocView view,
+                             AppContext appContext,
+                             @Named("cheExtensionPath") String caContext,
+                             @Named("workspaceId") String workspaceId,
                              EditorAgent editorAgent) {
         this.view = view;
         this.appContext = appContext;
         this.caContext = caContext;
+        this.workspaceId = workspaceId;
         this.editorAgent = editorAgent;
     }
 
@@ -58,7 +63,7 @@ public class QuickDocPresenter implements QuickDocumentation, QuickDocView.Actio
         EmbeddedTextEditorPresenter editor = ((EmbeddedTextEditorPresenter)activeEditor);
         int offset = editor.getCursorOffset();
         final PositionConverter.PixelCoordinates coordinates = editor.getPositionConverter().offsetToPixel(offset);
-        view.show(caContext + "/" + appContext.getDevMachineId() + "/jdt/javadoc/find?fqn=" +
+        view.show(caContext + "/jdt/" + workspaceId + "/javadoc/find?fqn=" +
                   JavaSourceFolderUtil.getFQNForFile(editor.getEditorInput().getFile()) + "&projectpath=" +
                   appContext.getCurrentProject().getProjectDescription().getPath() + "&offset=" + offset, coordinates.getX(),
                   coordinates.getY());

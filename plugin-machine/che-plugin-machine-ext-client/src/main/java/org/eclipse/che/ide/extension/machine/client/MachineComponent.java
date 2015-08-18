@@ -15,11 +15,13 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
+import org.eclipse.che.api.machine.shared.dto.MachineDescriptor;
 import org.eclipse.che.api.machine.shared.dto.MachineStateDescriptor;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.PromiseError;
 import org.eclipse.che.ide.api.app.AppContext;
+import org.eclipse.che.ide.extension.machine.client.machine.extserver.ProjectApiComponentInitializer;
 import org.eclipse.che.ide.core.Component;
 import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
 
@@ -36,17 +38,22 @@ import static org.eclipse.che.api.machine.shared.MachineStatus.RUNNING;
 public class MachineComponent implements Component {
 
     public static final String DEFAULT_RECIPE =
-            "https://gist.githubusercontent.com/gazarenkov/9f11a85a157ab399aca5/raw/b9f66169588f5394f84a1893cfeccd10e18d7fc8/maven";
+            "https://gist.githubusercontent.com/vparfonov/5c633534bfb0c127854f/raw/f176ee3428c2d39d08c7b4762aee6855dc5c8f75/jdk8_maven3_tomcat8";
 
-    private final MachineServiceClient machineServiceClient;
-    private final AppContext           appContext;
-    private final MachineManager       machineManager;
+    private final MachineServiceClient           machineServiceClient;
+    private final AppContext                     appContext;
+    private final MachineManager                 machineManager;
+    private       ProjectApiComponentInitializer projectApiComponentInitializer;
 
     @Inject
-    public MachineComponent(MachineServiceClient machineServiceClient, AppContext appContext, MachineManager machineManager) {
+    public MachineComponent(MachineServiceClient machineServiceClient,
+                            AppContext appContext,
+                            MachineManager machineManager,
+                            ProjectApiComponentInitializer projectApiComponentInitializer) {
         this.machineServiceClient = machineServiceClient;
         this.appContext = appContext;
         this.machineManager = machineManager;
+        this.projectApiComponentInitializer = projectApiComponentInitializer;
     }
 
     @Override

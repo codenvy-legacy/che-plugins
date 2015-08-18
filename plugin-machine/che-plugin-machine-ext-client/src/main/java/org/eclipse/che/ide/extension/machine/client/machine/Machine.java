@@ -32,6 +32,8 @@ public class Machine {
 
     public static final String TERMINAL_REF_KEY = "terminal";
 
+    public static final String EXTENSIONS_REF_KEY = "extensions";
+
     private final MachineDescriptor descriptor;
 
     private String activeTabName;
@@ -93,6 +95,24 @@ public class Machine {
         boolean isSecureConnection = Window.Location.getProtocol().equals("https:");
 
         return (isSecureConnection ? "wss" : "ws") + terminalUrl + "/pty";
+    }
+
+    /** @return special url to connect to terminal web socket. */
+    @Nonnull
+    public String getWsServerExtensionsUrl() {
+        String url = "";
+        Map<String, ServerDescriptor> serverDescriptors = descriptor.getServers();
+        for (ServerDescriptor descriptor : serverDescriptors.values()) {
+            if (EXTENSIONS_REF_KEY.equals(descriptor.getRef())) {
+                url = descriptor.getUrl();
+            }
+        }
+
+        String extUrl = url.substring(url.indexOf(':'), url.length());
+
+        boolean isSecureConnection = Window.Location.getProtocol().equals("https:");
+
+        return (isSecureConnection ? "wss" : "ws") + extUrl + "/che/ext/ws";
     }
 
     /** @return active tab name for current machine */
