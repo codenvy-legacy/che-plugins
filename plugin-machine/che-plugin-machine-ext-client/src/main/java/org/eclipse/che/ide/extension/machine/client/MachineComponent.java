@@ -66,13 +66,6 @@ public class MachineComponent implements Component {
                         appContext.setDevMachineId(descriptor.getId());
 
                         callback.onSuccess(MachineComponent.this);
-                        // TODO: should be removed when IDEX-2858 will be done
-                        machineServiceClient.getMachine(descriptor.getId()).then(new Operation<MachineDescriptor>() {
-                            @Override
-                            public void apply(MachineDescriptor arg) throws OperationException {
-                                projectApiComponentInitializer.initialize();
-                            }
-                        });
                         return;
                     }
                 }
