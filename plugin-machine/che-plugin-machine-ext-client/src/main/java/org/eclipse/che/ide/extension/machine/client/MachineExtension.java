@@ -60,7 +60,6 @@ public class MachineExtension {
     @Inject
     private void prepareActions(MachineLocalizationConstant localizationConstant,
                                 ActionManager actionManager,
-                                ProjectApiComponentInitializer projectApiComponentInitializer,
                                 ExecuteSelectedCommandAction executeSelectedCommandAction,
                                 SelectCommandComboBoxAction selectCommandAction,
                                 EditCommandsAction editCommandsAction,
