@@ -12,6 +12,8 @@ package org.eclipse.che.ide.extension.machine.client.machine.events;
 
 import com.google.gwt.event.shared.GwtEvent;
 
+import org.eclipse.che.ide.extension.machine.client.machine.extserver.ExtServerState;
+
 /**
  * Event that describes the fact that extension server state has been changed.
  *
@@ -21,30 +23,30 @@ public class ExtServerStateEvent extends GwtEvent<ExtServerStateHandler> {
 
     /** Type class used to register this event. */
     public static Type<ExtServerStateHandler> TYPE = new Type<>();
-    private final ExtServerAction extServerAction;
+    private final ExtServerState extServerState;
 
     /**
      * Create new {@link ExtServerStateEvent}.
      *
-     * @param extServerAction
+     * @param state
      *         the type of action
      */
-    protected ExtServerStateEvent(ExtServerAction extServerAction) {
-        this.extServerAction = extServerAction;
+    protected ExtServerStateEvent(ExtServerState state) {
+        this.extServerState = state;
     }
 
     /**
-     * Creates a extension server Action Started event.
+     * Creates a extension server started event.
      */
     public static ExtServerStateEvent createExtServerStartedEvent() {
-        return new ExtServerStateEvent(ExtServerAction.STARTED);
+        return new ExtServerStateEvent(ExtServerState.STARTED);
     }
 
     /**
-     * Creates a extension server Action Stopped event.
+     * Creates a extension server stopped event.
      */
     public static ExtServerStateEvent createExtServerStoppedEvent() {
-        return new ExtServerStateEvent(ExtServerAction.STOPPED);
+        return new ExtServerStateEvent(ExtServerState.STOPPED);
     }
 
     @Override
@@ -52,14 +54,14 @@ public class ExtServerStateEvent extends GwtEvent<ExtServerStateHandler> {
         return TYPE;
     }
 
-    /** @return the type of action */
-    public ExtServerAction getExtServerAction() {
-        return extServerAction;
+    /** @return the state of extension server */
+    public ExtServerState getExtServerState() {
+        return extServerState;
     }
 
     @Override
     protected void dispatch(ExtServerStateHandler handler) {
-        switch (extServerAction) {
+        switch (extServerState) {
             case STARTED:
                 handler.onExtServerStarted(this);
                 break;
@@ -69,10 +71,5 @@ public class ExtServerStateEvent extends GwtEvent<ExtServerStateHandler> {
             default:
                 break;
         }
-    }
-
-    /** Set of possible type of machine actions. */
-    public enum ExtServerAction {
-        STARTED, STOPPED
     }
 }

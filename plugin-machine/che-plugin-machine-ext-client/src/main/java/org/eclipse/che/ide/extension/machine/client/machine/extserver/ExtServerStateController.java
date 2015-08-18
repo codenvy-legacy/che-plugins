@@ -31,8 +31,9 @@ public class ExtServerStateController implements ConnectionOpenedHandler, Connec
     private final EventBus            eventBus;
     private final NotificationManager notificationManager;
 
-    private String wsUrl;
-    private int    countRetry;
+    private ExtServerState state;
+    private String         wsUrl;
+    private int            countRetry;
 
 
     @Inject
@@ -53,14 +54,17 @@ public class ExtServerStateController implements ConnectionOpenedHandler, Connec
     public void initialize(String wsUrl) {
         this.wsUrl = wsUrl;
         this.countRetry = 5;
+        this.state = ExtServerState.STOPPED;
         connect();
     }
 
     @Override
     public void onClose(WebSocketClosedEvent event) {
-        notificationManager.showInfo("Extension server stopped");
-        eventBus.fireEvent(ExtServerStateEvent.createExtServerStoppedEvent());
-
+        if (state == ExtServerState.STARTED) {
+            state = ExtServerState.STOPPED;
+            notificationManager.showInfo("Extension server stopped");
+            eventBus.fireEvent(ExtServerStateEvent.createExtServerStoppedEvent());
+        }
     }
 
     @Override
@@ -68,6 +72,7 @@ public class ExtServerStateController implements ConnectionOpenedHandler, Connec
         if (countRetry > 0) {
             retryConnectionTimer.schedule(1000);
         } else {
+            state = ExtServerState.STOPPED;
             notificationManager.showInfo("Extension server stopped due to an error");
             eventBus.fireEvent(ExtServerStateEvent.createExtServerStoppedEvent());
         }
@@ -75,8 +80,13 @@ public class ExtServerStateController implements ConnectionOpenedHandler, Connec
 
     @Override
     public void onOpen() {
+        state = ExtServerState.STARTED;
         notificationManager.showInfo("Extension server started");
         eventBus.fireEvent(ExtServerStateEvent.createExtServerStartedEvent());
+    }
+
+    public ExtServerState getState() {
+        return state;
     }
 
     private void connect() {
