@@ -29,6 +29,6 @@ public class TerminalServerBindingProvider implements Provider<String> {
 
     @Override
     public String get() {
-        return terminalArchivePath + ":/mnt/che/terminal.zip";
+        return terminalArchivePath + ":/mnt/che/terminal";
     }
 }
