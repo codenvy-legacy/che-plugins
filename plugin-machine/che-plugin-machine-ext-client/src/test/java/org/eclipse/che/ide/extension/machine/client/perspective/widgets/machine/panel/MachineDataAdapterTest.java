@@ -20,6 +20,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -87,7 +88,7 @@ public class MachineDataAdapterTest {
     public void emptyArrayShouldBeReturnedWhenChildrenNotExist() {
         when(node1.getChildren()).thenReturn(null);
 
-        Array<MachineTreeNode> nodes = adapter.getChildren(node1);
+        List<MachineTreeNode> nodes = adapter.getChildren(node1);
 
         assertThat(nodes.isEmpty(), is(true));
     }
@@ -96,7 +97,7 @@ public class MachineDataAdapterTest {
     public void arrayWithNodesShouldBeReturned() {
         when(node1.getChildren()).thenReturn(Arrays.asList(node1, node2));
 
-        Array<MachineTreeNode> nodes = adapter.getChildren(node1);
+        List<MachineTreeNode> nodes = adapter.getChildren(node1);
 
         assertThat(nodes.size(), equalTo(2));
     }
@@ -154,7 +155,7 @@ public class MachineDataAdapterTest {
     @Test(expected = UnsupportedOperationException.class)
     public void unsupportedOperationExceptionShouldBeThrownWhenWeTryGetNodeByPath() {
         //noinspection unchecked
-        Array<String> relativeNodePath = mock(Array.class);
+        List<String> relativeNodePath = mock(List.class);
         adapter.getNodeByPath(node1, relativeNodePath);
     }
 }

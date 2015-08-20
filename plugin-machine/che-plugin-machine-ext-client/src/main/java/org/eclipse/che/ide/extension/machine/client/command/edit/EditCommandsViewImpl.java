@@ -31,7 +31,6 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import org.eclipse.che.ide.collections.Array;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.MachineResources;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
@@ -348,7 +347,7 @@ public class EditCommandsViewImpl extends Window implements EditCommandsView {
     @Nullable
     @Override
     public CommandType getSelectedCommandType() {
-        final Array<CommandTreeNode> selectedNodes = tree.getSelectionModel().getSelectedNodes();
+        final List<CommandTreeNode> selectedNodes = tree.getSelectionModel().getSelectedNodes();
         if (!selectedNodes.isEmpty()) {
             final CommandTreeNode node = selectedNodes.get(0);
 
@@ -365,7 +364,7 @@ public class EditCommandsViewImpl extends Window implements EditCommandsView {
 
     @Override
     public void selectCommand(String commandId) {
-        for (TreeNodeElement<CommandTreeNode> nodeElement : tree.getVisibleTreeNodes().asIterable()) {
+        for (TreeNodeElement<CommandTreeNode> nodeElement : tree.getVisibleTreeNodes()) {
             final CommandTreeNode treeNode = nodeElement.getData();
             if (commandId.equals(treeNode.getId())) {
                 selectNode(treeNode);
@@ -377,7 +376,7 @@ public class EditCommandsViewImpl extends Window implements EditCommandsView {
     @Nullable
     @Override
     public CommandConfiguration getSelectedConfiguration() {
-        final Array<CommandTreeNode> selectedNodes = tree.getSelectionModel().getSelectedNodes();
+        final List<CommandTreeNode> selectedNodes = tree.getSelectionModel().getSelectedNodes();
         if (!selectedNodes.isEmpty()) {
             final CommandTreeNode node = selectedNodes.get(0);
             if (node.getData() instanceof CommandConfiguration) {
