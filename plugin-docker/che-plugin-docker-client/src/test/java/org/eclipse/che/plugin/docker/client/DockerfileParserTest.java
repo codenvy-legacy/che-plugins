@@ -11,8 +11,7 @@
 package org.eclipse.che.plugin.docker.client;
 
 import org.eclipse.che.commons.lang.Pair;
-
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -23,8 +22,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
+
 
 /**
  * @author andrew00x
@@ -58,25 +59,25 @@ public class DockerfileParserTest {
         w.flush();
         w.close();
         List<DockerImage> dockerImages = DockerfileParser.parse(file).getImages();
-        assertEquals(1, dockerImages.size());
+        assertEquals( dockerImages.size(), 1);
         DockerImage dockerImage = dockerImages.get(0);
-        assertEquals("base_image", dockerImage.getFrom());
-        assertEquals(Arrays.asList("Codenvy Corp"), dockerImage.getMaintainer());
-        assertEquals(Arrays.asList("echo 1 > /dev/null", "echo 2 > /dev/null", "echo 3 > /dev/null"), dockerImage.getRun());
-        assertEquals("echo hello > /tmp/test", dockerImage.getCmd());
-        assertEquals(Arrays.asList("6000", "7000", "8000", "9000"), dockerImage.getExpose());
+        assertEquals(dockerImage.getFrom(), "base_image");
+        assertEquals(dockerImage.getMaintainer(), Arrays.asList("Codenvy Corp"));
+        assertEquals(dockerImage.getRun(), Arrays.asList("echo 1 > /dev/null", "echo 2 > /dev/null", "echo 3 > /dev/null"));
+        assertEquals(dockerImage.getCmd(), "echo hello > /tmp/test");
+        assertEquals(dockerImage.getExpose(), Arrays.asList("6000", "7000", "8000", "9000"));
         Map<String, String> env = new LinkedHashMap<>();
         env.put("ENV_VAR1", "hello world");
         env.put("ENV_VAR2", "to be or not to be");
         assertEquals(env, dockerImage.getEnv());
         assertEquals(
-                Arrays.asList(Pair.of("file1", "/tmp/file1"), Pair.of("http://example.com/folder/some_file.txt", "/tmp/file.txt")),
-                dockerImage.getAdd());
-        assertEquals("echo hello > /dev/null", dockerImage.getEntrypoint());
-        assertEquals(Arrays.asList("/data1", "/data2"), dockerImage.getVolume());
-        assertEquals("andrew", dockerImage.getUser());
-        assertEquals("/tmp", dockerImage.getWorkdir());
-        assertEquals(Arrays.asList("Comment 1", "Comment 2", "Comment 3"), dockerImage.getComments());
+                dockerImage.getAdd(),
+                Arrays.asList(Pair.of("file1", "/tmp/file1"), Pair.of("http://example.com/folder/some_file.txt", "/tmp/file.txt")));
+        assertEquals(dockerImage.getEntrypoint(), "echo hello > /dev/null");
+        assertEquals(dockerImage.getVolume(), Arrays.asList("/data1", "/data2"));
+        assertEquals(dockerImage.getUser(), "andrew");
+        assertEquals(dockerImage.getWorkdir(), "/tmp");
+        assertEquals(dockerImage.getComments(), Arrays.asList("Comment 1", "Comment 2", "Comment 3"));
     }
 
     @Test
@@ -116,37 +117,37 @@ public class DockerfileParserTest {
         List<DockerImage> dockerImages = DockerfileParser.parse(file).getImages();
         assertEquals(2, dockerImages.size());
         DockerImage dockerImage1 = dockerImages.get(0);
-        assertEquals("base_image_1", dockerImage1.getFrom());
-        assertEquals(Arrays.asList("Codenvy Corp"), dockerImage1.getMaintainer());
-        assertEquals(Arrays.asList("echo 1 > /dev/null"), dockerImage1.getRun());
-        assertEquals("echo hello > /tmp/test1", dockerImage1.getCmd());
-        assertEquals(Arrays.asList("6000", "7000"), dockerImage1.getExpose());
+        assertEquals(dockerImage1.getFrom(), "base_image_1");
+        assertEquals(dockerImage1.getMaintainer(), Arrays.asList("Codenvy Corp"));
+        assertEquals(dockerImage1.getRun(), Arrays.asList("echo 1 > /dev/null"));
+        assertEquals(dockerImage1.getCmd(), "echo hello > /tmp/test1");
+        assertEquals(dockerImage1.getExpose(), Arrays.asList("6000", "7000"));
         Map<String, String> env1 = new LinkedHashMap<>();
         env1.put("ENV_VAR", "to be or not to be");
-        assertEquals(env1, dockerImage1.getEnv());
-        assertEquals(Arrays.asList(Pair.of("http://example.com/folder/some_file.txt", "/tmp/file.txt")),
-                     dockerImage1.getAdd());
-        assertEquals("echo hello > /dev/null", dockerImage1.getEntrypoint());
-        assertEquals(Arrays.asList("/data1"), dockerImage1.getVolume());
-        assertEquals("andrew", dockerImage1.getUser());
-        assertEquals("/tmp", dockerImage1.getWorkdir());
-        assertEquals(Arrays.asList("Image 1"), dockerImage1.getComments());
+        assertEquals(dockerImage1.getEnv(), env1);
+        assertEquals(dockerImage1.getAdd(),
+                     Arrays.asList(Pair.of("http://example.com/folder/some_file.txt", "/tmp/file.txt")));
+        assertEquals(dockerImage1.getEntrypoint(), "echo hello > /dev/null");
+        assertEquals(dockerImage1.getVolume(), Arrays.asList("/data1"));
+        assertEquals(dockerImage1.getUser(), "andrew");
+        assertEquals(dockerImage1.getWorkdir(), "/tmp");
+        assertEquals(dockerImage1.getComments(), Arrays.asList("Image 1"));
 
         DockerImage dockerImage2 = dockerImages.get(1);
-        assertEquals("base_image_2", dockerImage2.getFrom());
-        assertEquals(Arrays.asList("Codenvy Corp"), dockerImage2.getMaintainer());
-        assertEquals(Arrays.asList("echo 2 > /dev/null"), dockerImage2.getRun());
-        assertEquals("echo hello > /tmp/test2", dockerImage2.getCmd());
-        assertEquals(Arrays.asList("8000", "9000"), dockerImage2.getExpose());
+        assertEquals(dockerImage2.getFrom(), "base_image_2");
+        assertEquals(dockerImage2.getMaintainer(), Arrays.asList("Codenvy Corp"));
+        assertEquals(dockerImage2.getRun(), Arrays.asList("echo 2 > /dev/null"));
+        assertEquals(dockerImage2.getCmd(), "echo hello > /tmp/test2");
+        assertEquals(dockerImage2.getExpose(), Arrays.asList("8000", "9000"));
         Map<String, String> env2 = new LinkedHashMap<>();
         env2.put("ENV_VAR", "to be or not to be");
-        assertEquals(env2, dockerImage2.getEnv());
-        assertEquals(Arrays.asList(Pair.of("file1", "/tmp/file1")), dockerImage2.getAdd());
-        assertEquals("echo test > /dev/null", dockerImage2.getEntrypoint());
-        assertEquals(Arrays.asList("/data2"), dockerImage2.getVolume());
-        assertEquals("andrew", dockerImage2.getUser());
-        assertEquals("/home/andrew", dockerImage2.getWorkdir());
-        assertEquals(Arrays.asList("Image 2"), dockerImage2.getComments());
+        assertEquals(dockerImage2.getEnv(), env2);
+        assertEquals(dockerImage2.getAdd(), Arrays.asList(Pair.of("file1", "/tmp/file1")));
+        assertEquals(dockerImage2.getEntrypoint(), "echo test > /dev/null");
+        assertEquals(dockerImage2.getVolume(), Arrays.asList("/data2"));
+        assertEquals(dockerImage2.getUser(), "andrew");
+        assertEquals(dockerImage2.getWorkdir(), "/home/andrew");
+        assertEquals(dockerImage2.getComments(), Arrays.asList("Image 2"));
     }
 
     @Test
@@ -219,12 +220,12 @@ public class DockerfileParserTest {
         String conditionTemplate = "aaa?bbb:ccc";
         Matcher m = Dockerfile.TEMPLATE_CONDITIONAL_PATTERN.matcher(conditionTemplate);
         assertTrue(m.matches());
-        assertEquals(5, m.groupCount());
-        assertEquals("aaa", m.group(1));
-        assertEquals(null, m.group(2));
-        assertEquals("", m.group(3));
-        assertEquals("bbb", m.group(4));
-        assertEquals("ccc", m.group(5));
+        assertEquals(m.groupCount(), 5);
+        assertEquals(m.group(1), "aaa");
+        assertNull(m.group(2));
+        assertEquals(m.group(3), "");
+        assertEquals(m.group(4), "bbb");
+        assertEquals(m.group(5), "ccc");
     }
 
     @Test
@@ -232,12 +233,12 @@ public class DockerfileParserTest {
         String conditionTemplate = "aaa=?bbb:ccc";
         Matcher m = Dockerfile.TEMPLATE_CONDITIONAL_PATTERN.matcher(conditionTemplate);
         assertTrue(m.matches());
-        assertEquals(5, m.groupCount());
-        assertEquals("aaa", m.group(1));
-        assertEquals("=", m.group(2));
-        assertEquals("", m.group(3));
-        assertEquals("bbb", m.group(4));
-        assertEquals("ccc", m.group(5));
+        assertEquals(m.groupCount(), 5);
+        assertEquals(m.group(1), "aaa");
+        assertEquals(m.group(2), "=");
+        assertEquals(m.group(3), "");
+        assertEquals(m.group(4), "bbb");
+        assertEquals(m.group(5), "ccc");
     }
 
     @Test
@@ -245,12 +246,12 @@ public class DockerfileParserTest {
         String conditionTemplate = "aaa>=?bbb:ccc";
         Matcher m = Dockerfile.TEMPLATE_CONDITIONAL_PATTERN.matcher(conditionTemplate);
         assertTrue(m.matches());
-        assertEquals(5, m.groupCount());
-        assertEquals("aaa", m.group(1));
-        assertEquals(">=", m.group(2));
-        assertEquals("", m.group(3));
-        assertEquals("bbb", m.group(4));
-        assertEquals("ccc", m.group(5));
+        assertEquals(m.groupCount(), 5);
+        assertEquals(m.group(1), "aaa");
+        assertEquals(m.group(2), ">=");
+        assertEquals(m.group(3), "");
+        assertEquals(m.group(4), "bbb");
+        assertEquals(m.group(5), "ccc");
     }
 
     @Test
@@ -258,12 +259,12 @@ public class DockerfileParserTest {
         String conditionTemplate = "aaa>=xxx?bbb:ccc";
         Matcher m = Dockerfile.TEMPLATE_CONDITIONAL_PATTERN.matcher(conditionTemplate);
         assertTrue(m.matches());
-        assertEquals(5, m.groupCount());
-        assertEquals("aaa", m.group(1));
-        assertEquals(">=", m.group(2));
-        assertEquals("xxx", m.group(3));
-        assertEquals("bbb", m.group(4));
-        assertEquals("ccc", m.group(5));
+        assertEquals(m.groupCount(), 5);
+        assertEquals(m.group(1), "aaa");
+        assertEquals(m.group(2), ">=");
+        assertEquals(m.group(3), "xxx");
+        assertEquals(m.group(4), "bbb");
+        assertEquals(m.group(5), "ccc");
     }
 
     @Test
@@ -271,12 +272,12 @@ public class DockerfileParserTest {
         String conditionTemplate = "aaa>=xxx?:ccc";
         Matcher m = Dockerfile.TEMPLATE_CONDITIONAL_PATTERN.matcher(conditionTemplate);
         assertTrue(m.matches());
-        assertEquals(5, m.groupCount());
-        assertEquals("aaa", m.group(1));
-        assertEquals(">=", m.group(2));
-        assertEquals("xxx", m.group(3));
-        assertEquals("", m.group(4));
-        assertEquals("ccc", m.group(5));
+        assertEquals(m.groupCount(), 5);
+        assertEquals(m.group(1), "aaa");
+        assertEquals(m.group(2), ">=");
+        assertEquals(m.group(3), "xxx");
+        assertEquals(m.group(4), "");
+        assertEquals(m.group(5), "ccc");
     }
 
     @Test
@@ -284,12 +285,12 @@ public class DockerfileParserTest {
         String conditionTemplate = "aaa>=xxx?bbb:";
         Matcher m = Dockerfile.TEMPLATE_CONDITIONAL_PATTERN.matcher(conditionTemplate);
         assertTrue(m.matches());
-        assertEquals(5, m.groupCount());
-        assertEquals("aaa", m.group(1));
-        assertEquals(">=", m.group(2));
-        assertEquals("xxx", m.group(3));
-        assertEquals("bbb", m.group(4));
-        assertEquals("", m.group(5));
+        assertEquals(m.groupCount(), 5);
+        assertEquals(m.group(1), "aaa");
+        assertEquals(m.group(2), ">=");
+        assertEquals(m.group(3), "xxx");
+        assertEquals(m.group(4), "bbb");
+        assertEquals(m.group(5), "");
     }
 
     @Test
@@ -297,11 +298,11 @@ public class DockerfileParserTest {
         String conditionTemplate = "aaa>=?:ccc";
         Matcher m = Dockerfile.TEMPLATE_CONDITIONAL_PATTERN.matcher(conditionTemplate);
         assertTrue(m.matches());
-        assertEquals(5, m.groupCount());
-        assertEquals("aaa", m.group(1));
-        assertEquals(">=", m.group(2));
-        assertEquals("", m.group(4));
-        assertEquals("ccc", m.group(5));
+        assertEquals(m.groupCount(), 5);
+        assertEquals(m.group(1), "aaa");
+        assertEquals(m.group(2), ">=");
+        assertEquals(m.group(4), "");
+        assertEquals(m.group(5), "ccc");
     }
 
     @Test
@@ -309,12 +310,12 @@ public class DockerfileParserTest {
         String conditionTemplate = "aaa=?bbb:";
         Matcher m = Dockerfile.TEMPLATE_CONDITIONAL_PATTERN.matcher(conditionTemplate);
         assertTrue(m.matches());
-        assertEquals(5, m.groupCount());
-        assertEquals("aaa", m.group(1));
-        assertEquals("=", m.group(2));
-        assertEquals("", m.group(3));
-        assertEquals("bbb", m.group(4));
-        assertEquals("", m.group(5));
+        assertEquals(m.groupCount(), 5);
+        assertEquals(m.group(1), "aaa");
+        assertEquals(m.group(2), "=");
+        assertEquals(m.group(3), "");
+        assertEquals(m.group(4), "bbb");
+        assertEquals(m.group(5), "");
     }
 
     @Test
@@ -322,11 +323,11 @@ public class DockerfileParserTest {
         String conditionTemplate = "aaa?:ccc";
         Matcher m = Dockerfile.TEMPLATE_CONDITIONAL_PATTERN.matcher(conditionTemplate);
         assertTrue(m.matches());
-        assertEquals(5, m.groupCount());
-        assertEquals("aaa", m.group(1));
-        assertEquals(null, m.group(2));
-        assertEquals("", m.group(4));
-        assertEquals("ccc", m.group(5));
+        assertEquals(m.groupCount(), 5);
+        assertEquals(m.group(1), "aaa");
+        assertNull(m.group(2));
+        assertEquals(m.group(4), "");
+        assertEquals(m.group(5), "ccc");
     }
 
     @Test
@@ -334,12 +335,12 @@ public class DockerfileParserTest {
         String conditionTemplate = "aaa?bbb:";
         Matcher m = Dockerfile.TEMPLATE_CONDITIONAL_PATTERN.matcher(conditionTemplate);
         assertTrue(m.matches());
-        assertEquals(5, m.groupCount());
-        assertEquals("aaa", m.group(1));
-        assertEquals(null, m.group(2));
-        assertEquals("", m.group(3));
-        assertEquals("bbb", m.group(4));
-        assertEquals("", m.group(5));
+        assertEquals(m.groupCount(), 5);
+        assertEquals(m.group(1), "aaa");
+        assertEquals(m.group(2), null);
+        assertEquals(m.group(3), "");
+        assertEquals(m.group(4), "bbb");
+        assertEquals(m.group(5), "");
     }
 
     @Test
@@ -501,7 +502,7 @@ public class DockerfileParserTest {
             template.getParameters().putAll(parameters);
         }
         template.writeDockerfile(buf);
-        assertEquals(expectedContent, buf.toString());
+        assertEquals(buf.toString(), expectedContent);
 
     }
 }
