@@ -109,16 +109,16 @@ public class CommandManagerTest {
     }
 
     @Test
-    public void testProcessingCommandLineVariables() throws Exception {
+    public void testSubstituteProperties() throws Exception {
         String key = "$(project.name)";
         String value = "my_project";
         final CommandPropertyValueProvider valueProvider = mock(CommandPropertyValueProvider.class);
         when(valueProvider.getKey()).thenReturn(key);
         when(valueProvider.getValue()).thenReturn(value);
-        when(commandPropertyValueProviderRegistry.getValueProviders()).thenReturn(Collections.singletonList(valueProvider));
+        when(commandPropertyValueProviderRegistry.getProviders()).thenReturn(Collections.singletonList(valueProvider));
 
         String commandLine = "mvn -f " + key + " clean install";
-        final String cmd = commandManager.processCommandLineVariables(commandLine);
+        final String cmd = commandManager.substituteProperties(commandLine);
 
         assertEquals("mvn -f " + value + " clean install", cmd);
     }

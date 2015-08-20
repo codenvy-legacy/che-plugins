@@ -13,15 +13,15 @@ package org.eclipse.che.ide.extension.machine.client.command.valueproviders;
 import javax.annotation.Nonnull;
 
 /**
- * Provides a value of some property that may be used in commands.
- * <p/>
- * Actual value will be substituted before sending command for execution to the server.
+ * Properties may be used in a command as a substitution.
+ * <p>
+ * Actual value will be substituted before sending a command for execution to the server.
  *
  * @author Artem Zatsarynnyy
  */
 public interface CommandPropertyValueProvider {
 
-    /** Get key. Key should be like ${key.name}. */
+    /** Get key. The format is ${key.name}. */
     @Nonnull
     String getKey();
 
