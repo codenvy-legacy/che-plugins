@@ -17,6 +17,7 @@ import java.util.Set;
  * Registry for {@link CommandPropertyValueProvider}s.
  *
  * @author Artem Zatsarynnyy
+ * @see CommandPropertyValueProvider
  */
 public interface CommandPropertyValueProviderRegistry {
 
@@ -24,8 +25,8 @@ public interface CommandPropertyValueProviderRegistry {
     Set<String> getKeys();
 
     /** Returns {@link CommandPropertyValueProvider} by the given key. */
-    CommandPropertyValueProvider getValueProvider(String key);
+    CommandPropertyValueProvider getProvider(String key);
 
     /** Returns all registered {@link CommandPropertyValueProvider}s. */
-    List<CommandPropertyValueProvider> getValueProviders();
+    List<CommandPropertyValueProvider> getProviders();
 }

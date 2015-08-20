@@ -82,7 +82,7 @@ public class CommandManager {
         outputsContainerPresenter.addConsole(console);
         workspaceAgent.setActivePart(outputsContainerPresenter);
 
-        final String commandLine = processCommandLineVariables(configuration.toCommandLine());
+        final String commandLine = substituteProperties(configuration.toCommandLine());
 
         final Promise<ProcessDescriptor> processPromise = machineServiceClient.executeCommand(devMachineId, commandLine, outputChannel);
         processPromise.then(new Operation<ProcessDescriptor>() {
@@ -94,15 +94,15 @@ public class CommandManager {
     }
 
     /**
-     * Returns the given command line with values of variables.
+     * Substitutes all properties with the appropriate values in the given {@code commandLine}.
      *
      * @see CommandPropertyValueProvider
      */
-    public String processCommandLineVariables(final String commandLine) {
+    public String substituteProperties(final String commandLine) {
         String cmdLine = commandLine;
 
-        for (CommandPropertyValueProvider valueProvider : commandPropertyValueProviderRegistry.getValueProviders()) {
-            cmdLine = cmdLine.replace(valueProvider.getKey(), valueProvider.getValue());
+        for (CommandPropertyValueProvider provider : commandPropertyValueProviderRegistry.getProviders()) {
+            cmdLine = cmdLine.replace(provider.getKey(), provider.getValue());
         }
 
         return cmdLine;
