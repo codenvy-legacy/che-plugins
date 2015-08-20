@@ -10,13 +10,13 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.panel;
 
-import org.eclipse.che.ide.collections.Array;
-import org.eclipse.che.ide.collections.Collections;
 import org.eclipse.che.ide.ui.tree.NodeDataAdapter;
 import org.eclipse.che.ide.ui.tree.TreeNodeElement;
 
 import javax.annotation.Nonnull;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * @author Dmitry Shnurenko
@@ -40,8 +40,8 @@ public class MachineDataAdapter implements NodeDataAdapter<MachineTreeNode> {
     /** {@inheritDoc} */
     @Override
     @Nonnull
-    public Array<MachineTreeNode> getChildren(MachineTreeNode data) {
-        Array<MachineTreeNode> children = Collections.createArray();
+    public List<MachineTreeNode> getChildren(MachineTreeNode data) {
+        List<MachineTreeNode> children = new ArrayList<>();
 
         Collection<MachineTreeNode> nodes = data.getChildren();
 
@@ -104,13 +104,13 @@ public class MachineDataAdapter implements NodeDataAdapter<MachineTreeNode> {
 
     /** {@inheritDoc} */
     @Override
-    public Array<String> getNodePath(MachineTreeNode data) {
+    public List<String> getNodePath(MachineTreeNode data) {
         throw new UnsupportedOperationException("The method isn't supported in this mode...");
     }
 
     /** {@inheritDoc} */
     @Override
-    public MachineTreeNode getNodeByPath(MachineTreeNode root, Array<String> relativeNodePath) {
+    public MachineTreeNode getNodeByPath(MachineTreeNode root, List<String> relativeNodePath) {
         throw new UnsupportedOperationException("The method isn't supported in this mode...");
     }
 }

@@ -23,7 +23,6 @@ import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.event.RefreshProjectTreeEvent;
 import org.eclipse.che.ide.api.project.tree.TreeNode;
 import org.eclipse.che.ide.api.project.tree.TreeStructure;
-import org.eclipse.che.ide.collections.Array;
 import org.eclipse.che.ide.util.loging.Log;
 import org.eclipse.che.ide.websocket.MessageBus;
 import org.eclipse.che.ide.websocket.WebSocketException;
@@ -31,6 +30,7 @@ import org.eclipse.che.ide.websocket.rest.StringUnmarshallerWS;
 import org.eclipse.che.ide.websocket.rest.SubscriptionHandler;
 
 import javax.annotation.Nonnull;
+import java.util.List;
 
 /**
  * The class contains business logic which allows describe on spacial socket and do some actions when
@@ -114,9 +114,9 @@ public class SystemFileWatcher {
     }
 
     private void refreshRootNode(@Nonnull TreeStructure treeStructure) {
-        treeStructure.getRootNodes(new AsyncCallback<Array<TreeNode<?>>>() {
+        treeStructure.getRootNodes(new AsyncCallback<List<TreeNode<?>>>() {
             @Override
-            public void onSuccess(Array<TreeNode<?>> result) {
+            public void onSuccess(List<TreeNode<?>> result) {
                 TreeNode<?> rootNode = result.get(0);
 
                 eventBus.fireEvent(new RefreshProjectTreeEvent(rootNode));

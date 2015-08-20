@@ -10,14 +10,14 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.machine.client.command.edit;
 
-import org.eclipse.che.ide.collections.Array;
-import org.eclipse.che.ide.collections.Collections;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
 import org.eclipse.che.ide.extension.machine.client.command.CommandType;
 import org.eclipse.che.ide.ui.tree.NodeDataAdapter;
 import org.eclipse.che.ide.ui.tree.TreeNodeElement;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Node data adapter for the commands tree.
@@ -43,8 +43,8 @@ public class CommandDataAdapter implements NodeDataAdapter<CommandDataAdapter.Co
     }
 
     @Override
-    public Array<CommandTreeNode> getChildren(final CommandTreeNode node) {
-        Array<CommandTreeNode> children = Collections.createArray();
+    public List<CommandTreeNode> getChildren(final CommandTreeNode node) {
+        List<CommandTreeNode> children = new ArrayList<>();
         for (CommandTreeNode treeNode : node.getChildren()) {
             children.add(treeNode);
         }
@@ -89,12 +89,12 @@ public class CommandDataAdapter implements NodeDataAdapter<CommandDataAdapter.Co
     }
 
     @Override
-    public Array<String> getNodePath(CommandTreeNode node) {
+    public List<String> getNodePath(CommandTreeNode node) {
         return null;
     }
 
     @Override
-    public CommandTreeNode getNodeByPath(final CommandTreeNode root, final Array<String> relativeNodePath) {
+    public CommandTreeNode getNodeByPath(final CommandTreeNode root, final List<String> relativeNodePath) {
         return null;
     }
 
