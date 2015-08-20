@@ -34,8 +34,6 @@ import org.eclipse.che.ide.api.parts.base.BasePresenter;
 import org.eclipse.che.ide.api.project.tree.generic.StorableNode;
 import org.eclipse.che.ide.api.selection.Selection;
 import org.eclipse.che.ide.api.selection.SelectionAgent;
-import org.eclipse.che.ide.collections.Array;
-import org.eclipse.che.ide.collections.Collections;
 import org.eclipse.che.ide.ext.git.client.GitResources;
 import org.eclipse.che.ide.ext.git.client.DateTimeFormatter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
@@ -73,7 +71,7 @@ public class HistoryPresenter extends BasePresenter implements HistoryView.Actio
     private       boolean                 showChangesInProject;
     private       DiffWith                diffType;
     private boolean isViewClosed = true;
-    private Array<Revision>     revisions;
+    private List<Revision>     revisions;
     private SelectionAgent      selectionAgent;
     private Revision            selectedRevision;
     private NotificationManager notificationManager;
@@ -156,7 +154,7 @@ public class HistoryPresenter extends BasePresenter implements HistoryView.Actio
                     new AsyncRequestCallback<LogResponse>(dtoUnmarshallerFactory.newUnmarshaller(LogResponse.class)) {
                         @Override
                         protected void onSuccess(LogResponse result) {
-                            revisions = Collections.createArray(result.getCommits());
+                            revisions = result.getCommits();
                             view.setRevisions(revisions);
                         }
 

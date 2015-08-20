@@ -21,8 +21,6 @@ import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.api.promises.client.callback.AsyncPromiseHelper;
 import org.eclipse.che.ide.MimeType;
 import org.eclipse.che.ide.api.app.AppContext;
-import org.eclipse.che.ide.collections.Array;
-import org.eclipse.che.ide.collections.Collections;
 import org.eclipse.che.ide.ext.java.shared.dto.Change;
 import org.eclipse.che.ide.ext.java.shared.dto.Problem;
 import org.eclipse.che.ide.ext.java.shared.dto.ProposalApplyResult;
@@ -75,7 +73,8 @@ public class JavaCodeAssistClient {
                                        AsyncRequestCallback<Proposals> callback) {
         String url = machineExtPath + "/jdt/" + workspaceId + "/code-assist/compute/assist" + "/?projectpath=" +
                      projectPath + "&fqn=" + fqn + "&offset=" + offset;
-        Array<Problem> prob = Collections.createArray(problems);
+        List<Problem> prob = new ArrayList<>();
+        prob.addAll(problems);
         asyncRequestFactory.createPostRequest(url, prob).send(callback);
     }
 
@@ -116,21 +115,21 @@ public class JavaCodeAssistClient {
      */
     public Promise<List<Change>> format(final int offset, final int length, final String content) {
 
-        return newPromise(new AsyncPromiseHelper.RequestCall<Array<Change>>() {
+        return newPromise(new AsyncPromiseHelper.RequestCall<List<Change>>() {
             @Override
-            public void makeCall(AsyncCallback<Array<Change>> callback) {
+            public void makeCall(AsyncCallback<List<Change>> callback) {
                 String url = machineExtPath + "/" + appContext.getDevMachineId() + "/code-formatting/format?offset=" + offset +
                              "&length=" + length;
                 asyncRequestFactory.createPostRequest(url, null)
                                    .header(CONTENT_TYPE, MimeType.TEXT_PLAIN)
                                    .data(content)
-                                   .send(newCallback(callback, unmarshallerFactory.newArrayUnmarshaller(Change.class)));
+                                   .send(newCallback(callback, unmarshallerFactory.newListUnmarshaller(Change.class)));
             }
-        }).then(new Function<Array<Change>, List<Change>>() {
+        }).then(new Function<List<Change>, List<Change>>() {
             @Override
-            public List<Change> apply(Array<Change> arg) throws FunctionException {
+            public List<Change> apply(List<Change> arg) throws FunctionException {
                 final List<Change> changes = new ArrayList<>();
-                for (Change change : arg.asIterable()) {
+                for (Change change : arg) {
                     changes.add(change);
                 }
                 return changes;

@@ -230,8 +230,7 @@ public class SshKeyManagerPresenter extends AbstractPreferencePagePresenter impl
             @Override
             public void onSuccess(List<KeyItem> result) {
                 loader.hide(constant.loaderGetSshKeysMessage());
-                for (int i = 0; i < result.size(); i++) {
-                    KeyItem key = result.get(i);
+                for (KeyItem key : result) {
                     if (key.getHost().equals(host)) {
                         removeFailedKey(key);
                         return;

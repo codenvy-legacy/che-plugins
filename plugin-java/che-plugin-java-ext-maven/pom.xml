@@ -57,7 +57,7 @@
         <!--</dependency>-->
         <dependency>
             <groupId>org.eclipse.che.plugin</groupId>
-            <artifactId>che-plugin-java-ext-client</artifactId>
+            <artifactId>che-plugin-java-ext-lang-client</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

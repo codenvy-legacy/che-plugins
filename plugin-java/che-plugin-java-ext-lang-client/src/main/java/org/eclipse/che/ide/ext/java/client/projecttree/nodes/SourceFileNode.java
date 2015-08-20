@@ -10,20 +10,21 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.java.client.projecttree.nodes;
 
+import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
+import com.google.web.bindery.event.shared.EventBus;
+
 import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
 import org.eclipse.che.api.project.shared.dto.ItemReference;
 import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.event.RefreshProjectTreeEvent;
 import org.eclipse.che.ide.api.project.tree.TreeNode;
 import org.eclipse.che.ide.api.project.tree.generic.FileNode;
-import org.eclipse.che.ide.collections.Array;
 import org.eclipse.che.ide.ext.java.client.projecttree.JavaTreeStructure;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
-import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
-import com.google.web.bindery.event.shared.EventBus;
 
 import javax.annotation.Nonnull;
+import java.util.List;
 
 /**
  * Node that represents a Java source file (class, interface, enum, etc.).
@@ -91,7 +92,7 @@ public class SourceFileNode extends FileNode {
     }
 
     private boolean hasOneChildPackageOnly(PackageNode pack) {
-        Array<TreeNode<?>> children = pack.getChildren();
+        List<TreeNode<?>> children = pack.getChildren();
         return children.size() == 1 && children.get(0) instanceof PackageNode;
     }
 }

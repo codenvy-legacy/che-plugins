@@ -14,8 +14,6 @@ import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
 
 import org.eclipse.che.ide.api.text.Position;
-import org.eclipse.che.ide.collections.Collections;
-import org.eclipse.che.ide.collections.StringMap;
 import org.eclipse.che.ide.ext.java.client.JavaCss;
 import org.eclipse.che.ide.ext.java.client.JavaResources;
 import org.eclipse.che.ide.ext.java.shared.dto.Problem;
@@ -26,7 +24,9 @@ import org.eclipse.che.ide.jseditor.client.texteditor.EditorResources;
 import org.eclipse.che.ide.jseditor.client.texteditor.EditorResources.EditorCss;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * An annotation model for java sources.
@@ -120,8 +120,8 @@ public class JavaAnnotationModel extends AnnotationModelImpl implements Annotati
     }
 
     @Override
-    public StringMap<String> getAnnotationDecorations() {
-        final StringMap<String> decorations = Collections.createStringMap();
+    public Map<String, String> getAnnotationDecorations() {
+        final Map<String, String> decorations = new HashMap<>();
         // TODO configure this
         decorations.put("org.eclipse.jdt.ui.error", this.editorCss.lineError());
         decorations.put("org.eclipse.jdt.ui.warning", this.editorCss.lineWarning());
@@ -130,8 +130,8 @@ public class JavaAnnotationModel extends AnnotationModelImpl implements Annotati
     }
 
     @Override
-    public StringMap<String> getAnnotationStyle() {
-        final StringMap<String> decorations = Collections.createStringMap();
+    public Map<String, String> getAnnotationStyle() {
+        final Map<String, String> decorations = new HashMap<>();
         // //TODO configure this
         decorations.put("org.eclipse.jdt.ui.error", javaCss.overviewMarkError());
         decorations.put("org.eclipse.jdt.ui.warning", javaCss.overviewMarkWarning());

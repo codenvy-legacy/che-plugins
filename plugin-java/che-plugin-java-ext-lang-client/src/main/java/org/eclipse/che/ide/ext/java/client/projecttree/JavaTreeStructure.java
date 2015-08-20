@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.java.client.projecttree;
 
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.web.bindery.event.shared.EventBus;
+
 import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
 import org.eclipse.che.api.project.shared.dto.ItemReference;
 import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
@@ -19,8 +22,6 @@ import org.eclipse.che.ide.api.icon.IconRegistry;
 import org.eclipse.che.ide.api.project.tree.AbstractTreeNode;
 import org.eclipse.che.ide.api.project.tree.TreeNode;
 import org.eclipse.che.ide.api.project.tree.generic.GenericTreeStructure;
-import org.eclipse.che.ide.collections.Array;
-import org.eclipse.che.ide.collections.Collections;
 import org.eclipse.che.ide.ext.java.client.navigation.JavaNavigationService;
 import org.eclipse.che.ide.ext.java.client.projecttree.nodes.ExternalLibrariesNode;
 import org.eclipse.che.ide.ext.java.client.projecttree.nodes.JarClassNode;
@@ -38,11 +39,11 @@ import org.eclipse.che.ide.ext.java.shared.JarEntry;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.rest.Unmarshallable;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.web.bindery.event.shared.EventBus;
 
 import javax.annotation.Nonnull;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -69,7 +70,7 @@ public class JavaTreeStructure extends GenericTreeStructure {
 
     /** {@inheritDoc} */
     @Override
-    public void getRootNodes(@Nonnull AsyncCallback<Array<TreeNode<?>>> callback) {
+    public void getRootNodes(@Nonnull AsyncCallback<List<TreeNode<?>>> callback) {
         if (projectNode == null) {
             final CurrentProject currentProject = appContext.getCurrentProject();
             if (currentProject != null) {
@@ -79,7 +80,7 @@ public class JavaTreeStructure extends GenericTreeStructure {
                 return;
             }
         }
-        callback.onSuccess(Collections.<TreeNode<?>>createArray(projectNode));
+        callback.onSuccess(Arrays.<TreeNode<?>>asList(projectNode));
     }
 
     @Nonnull
