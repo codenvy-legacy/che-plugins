@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.maven.client.projecttree;
 
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.web.bindery.event.shared.EventBus;
+
 import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
 import org.eclipse.che.api.project.shared.dto.ItemReference;
 import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
@@ -18,15 +21,13 @@ import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.icon.IconRegistry;
 import org.eclipse.che.ide.api.project.tree.AbstractTreeNode;
 import org.eclipse.che.ide.api.project.tree.TreeNode;
-import org.eclipse.che.ide.collections.Array;
-import org.eclipse.che.ide.collections.Collections;
 import org.eclipse.che.ide.ext.java.client.navigation.JavaNavigationService;
 import org.eclipse.che.ide.ext.java.client.projecttree.JavaTreeStructure;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.web.bindery.event.shared.EventBus;
 
 import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Tree structure for Maven project. It also respects multi-module projects.
@@ -43,7 +44,7 @@ public class MavenProjectTreeStructure extends JavaTreeStructure {
 
     /** {@inheritDoc} */
     @Override
-    public void getRootNodes(@Nonnull AsyncCallback<Array<TreeNode<?>>> callback) {
+    public void getRootNodes(@Nonnull AsyncCallback<List<TreeNode<?>>> callback) {
         if (projectNode == null) {
             final CurrentProject currentProject = appContext.getCurrentProject();
             if (currentProject != null) {
@@ -53,8 +54,12 @@ public class MavenProjectTreeStructure extends JavaTreeStructure {
                 return;
             }
         }
-        callback.onSuccess(Collections.<TreeNode<?>>createArray(projectNode));
+        List<TreeNode<?>> projectNodes = new ArrayList<>();
+        projectNodes.add(projectNode);
+        callback.onSuccess(projectNodes);
     }
+
+
 
     @Override
     public MavenNodeFactory getNodeFactory() {

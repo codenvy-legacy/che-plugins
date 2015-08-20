@@ -15,12 +15,13 @@ import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 
 import org.eclipse.che.ide.api.app.AppContext;
-import org.eclipse.che.ide.collections.Array;
 import org.eclipse.che.ide.ext.java.shared.Jar;
 import org.eclipse.che.ide.ext.java.shared.JarEntry;
 import org.eclipse.che.ide.ext.java.shared.OpenDeclarationDescriptor;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.AsyncRequestFactory;
+
+import java.util.List;
 
 /**
  * @author Evgen Vidolob
@@ -51,19 +52,19 @@ public class JavaNavigationServiceImpl implements JavaNavigationService {
     }
 
 
-    public void getExternalLibraries(String projectPath, AsyncRequestCallback<Array<Jar>> callback) {
+    public void getExternalLibraries(String projectPath, AsyncRequestCallback<List<Jar>> callback) {
         String url = restContext + "/jdt/" + workspaceId + "/navigation/libraries?projectpath=" + projectPath;
         requestFactory.createGetRequest(url).send(callback);
     }
 
     @Override
-    public void getLibraryChildren(String projectPath, int libId, AsyncRequestCallback<Array<JarEntry>> callback) {
+    public void getLibraryChildren(String projectPath, int libId, AsyncRequestCallback<List<JarEntry>> callback) {
         String url = restContext + "/jdt/" + workspaceId + "/navigation/lib/children?projectpath=" + projectPath + "&root=" + libId;
         requestFactory.createGetRequest(url).send(callback);
     }
 
     @Override
-    public void getChildren(String projectPath, int libId, String path, AsyncRequestCallback<Array<JarEntry>> callback) {
+    public void getChildren(String projectPath, int libId, String path, AsyncRequestCallback<List<JarEntry>> callback) {
         String url = restContext + "/jdt/" + workspaceId + "/navigation/children?projectpath=" + projectPath + "&root=" + libId + "&path=" + path;
         requestFactory.createGetRequest(url).send(callback);
     }

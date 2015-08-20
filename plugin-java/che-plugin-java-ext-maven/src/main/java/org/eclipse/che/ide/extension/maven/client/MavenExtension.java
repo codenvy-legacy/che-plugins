@@ -11,6 +11,7 @@
 package org.eclipse.che.ide.extension.maven.client;
 
 import com.google.gwt.user.client.Timer;
+import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.event.shared.EventBus;
@@ -28,8 +29,6 @@ import org.eclipse.che.ide.api.icon.Icon;
 import org.eclipse.che.ide.api.icon.IconRegistry;
 import org.eclipse.che.ide.api.project.tree.TreeStructureProviderRegistry;
 import org.eclipse.che.ide.api.project.type.wizard.PreSelectedProjectTypeManager;
-import org.eclipse.che.ide.collections.Array;
-import org.eclipse.che.ide.collections.Collections;
 import org.eclipse.che.ide.ext.java.client.dependenciesupdater.DependenciesUpdater;
 import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateEvent;
 import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateHandler;
@@ -40,6 +39,7 @@ import org.eclipse.che.ide.extension.maven.client.event.BeforeModuleOpenHandler;
 import org.eclipse.che.ide.extension.maven.client.projecttree.MavenProjectTreeStructureProvider;
 import org.eclipse.che.ide.extension.maven.shared.MavenAttributes;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -54,7 +54,7 @@ import static org.eclipse.che.ide.api.action.IdeActions.GROUP_FILE_NEW;
 @Singleton
 @Extension(title = "Maven", version = "3.0.0")
 public class MavenExtension {
-    private static Array<MavenArchetype> archetypes;
+    private static List<MavenArchetype> archetypes;
     private        ProjectDescriptor     project;
 
     @Inject
@@ -66,12 +66,12 @@ public class MavenExtension {
         preSelectedProjectManager.setProjectTypeIdToPreselect(MavenAttributes.MAVEN_ID, 100);
 
         archetypes =
-                Collections.createArray(new MavenArchetype("org.apache.maven.archetypes", "maven-archetype-quickstart", "RELEASE", null),
-                                        new MavenArchetype("org.apache.maven.archetypes", "maven-archetype-webapp", "RELEASE", null),
-                                        new MavenArchetype("org.apache.openejb.maven", "tomee-webapp-archetype", "1.7.1", null));
+                Arrays.asList(new MavenArchetype("org.apache.maven.archetypes", "maven-archetype-quickstart", "RELEASE", null),
+                              new MavenArchetype("org.apache.maven.archetypes", "maven-archetype-webapp", "RELEASE", null),
+                              new MavenArchetype("org.apache.openejb.maven", "tomee-webapp-archetype", "1.7.1", null));
     }
 
-    public static Array<MavenArchetype> getAvailableArchetypes() {
+    public static List<MavenArchetype> getAvailableArchetypes() {
         return archetypes;
     }
 
