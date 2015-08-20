@@ -11,10 +11,10 @@
 package org.eclipse.che.plugin.docker.client;
 
 import org.eclipse.che.plugin.docker.client.json.SystemInfo;
+import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Test;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import static org.testng.Assert.assertEquals;
 
 /**
  * @author andrew00x
@@ -22,7 +22,7 @@ import org.junit.Test;
 public class SystemInfoDriverStatusTest {
     private SystemInfo info;
 
-    @Before
+    @BeforeTest
     public void initialize() {
         info = new SystemInfo();
         String[][] driverStatus = new String[4][2];
@@ -35,21 +35,21 @@ public class SystemInfoDriverStatusTest {
 
     @Test
     public void testGetDataSpaceTotal() {
-        Assert.assertEquals((long)(107.4f * (1024 * 1024 * 1024)), info.dataSpaceTotal());
+        assertEquals(info.dataSpaceTotal(), (long)(107.4f * (1024 * 1024 * 1024)));
     }
 
     @Test
     public void testGetDataSpaceUsed() {
-        Assert.assertEquals((long)(957.6f * (1024 * 1024)), info.dataSpaceUsed());
+        assertEquals(info.dataSpaceUsed(), (long)(957.6f * (1024 * 1024)));
     }
 
     @Test
     public void testGetMetaDataSpaceTotal() {
-        Assert.assertEquals((long)(2.147f * (1024 * 1024 * 1024)), info.metadataSpaceTotal());
+        assertEquals(info.metadataSpaceTotal(), (long)(2.147f * (1024 * 1024 * 1024)));
     }
 
     @Test
     public void testGetMetaDataSpaceUsed() {
-        Assert.assertEquals((long)(1.749f * (1024 * 1024)), info.metadataSpaceUsed());
+        assertEquals(info.metadataSpaceUsed(), (long)(1.749f * (1024 * 1024)));
     }
 }
