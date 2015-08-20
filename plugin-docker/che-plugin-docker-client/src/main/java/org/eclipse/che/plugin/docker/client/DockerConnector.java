@@ -84,16 +84,40 @@ import static org.eclipse.che.plugin.docker.client.CLibraryFactory.getCLibrary;
 public class DockerConnector {
     private static final Logger LOG = LoggerFactory.getLogger(DockerConnector.class);
 
-    public static final String UNIX_SOCKET_SCHEME    = "unix";
-    public static final String UNIX_SOCKET_PATH      = "/var/run/docker.sock";
-    public static final URI    UNIX_SOCKET_URI       = URI.create(UNIX_SOCKET_SCHEME + "://" + UNIX_SOCKET_PATH);
-    public static final URI    BOOT2DOCKER_URI       = URI.create("https://192.168.59.103:2376");
-    public static final String BOOT2DOCKER_CERTS_DIR = System.getProperty("user.home")
-                                                       + separatorChar + ".boot2docker"
-                                                       + separatorChar + "certs"
-                                                       + separatorChar + "boot2docker-vm";
+    public static final String UNIX_SOCKET_SCHEME = "unix";
+    public static final String UNIX_SOCKET_PATH   = "/var/run/docker.sock";
+    public static final URI    UNIX_SOCKET_URI    = URI.create(UNIX_SOCKET_SCHEME + "://" + UNIX_SOCKET_PATH);
 
-    private final URI                      dockerDaemonUri;
+    /**
+     * System variable used to define location of certificates.
+     */
+    public static final String DOCKER_CERT_PATH_PROPERTY = "DOCKER_CERT_PATH";
+
+    /**
+     * System variable used to define if TLS is used or not.
+     */
+    public static final String DOCKER_TLS_VERIFY_PROPERTY = "DOCKER_TLS_VERIFY";
+
+    /**
+     * System variable used to define host of docker.
+     */
+    public static final String DOCKER_HOST_PROPERTY = "DOCKER_HOST";
+
+    /**
+     * Default URL of docker when using Docker Machine.
+     */
+    public static final URI DEFAULT_DOCKER_MACHINE_URI = URI.create("https://192.168.99.100:2376");
+
+    /**
+     * Default of Docker Machine certificates (machine named default)
+     */
+    public static final String DEFAULT_DOCKER_MACHINE_CERTS_DIR = System.getProperty("user.home")
+                                                                  + separatorChar + ".docker"
+                                                                  + separatorChar + "machine"
+                                                                  + separatorChar + "machines"
+                                                                  + separatorChar + "default";
+
+    private final URI dockerDaemonUri;
     private final DockerCertificates       dockerCertificates;
     private final InitialAuthConfig        initialAuthConfig;
     private final ExecutorService          executor;
