@@ -11,14 +11,14 @@
 package org.eclipse.che.plugin.docker.client;
 
 import org.eclipse.che.plugin.docker.client.json.ProgressStatus;
-
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
+
 
 /**
  * @author Eugene Voevodin
@@ -35,9 +35,9 @@ public class ProgressStatusReaderTest {
         final ProgressStatus status1 = reader.next();
         final ProgressStatus status2 = reader.next();
 
-        assertEquals("Step 0 : FROM busybox\n", status1.getStream());
-        assertEquals("The image you are pulling has been verified", status2.getStatus());
-        assertEquals("busybox:latest", status2.getId());
+        assertEquals(status1.getStream(), "Step 0 : FROM busybox\n");
+        assertEquals(status2.getStatus(), "The image you are pulling has been verified");
+        assertEquals(status2.getId(), "busybox:latest");
         assertNull(reader.next());
     }
 
