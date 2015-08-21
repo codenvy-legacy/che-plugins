@@ -14,10 +14,13 @@ import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.inject.Inject;
 
+import org.eclipse.che.api.promises.client.Operation;
+import org.eclipse.che.api.promises.client.OperationException;
+import org.eclipse.che.api.promises.client.PromiseError;
 import org.eclipse.che.api.user.gwt.client.UserProfileServiceClient;
 import org.eclipse.che.api.user.shared.dto.ProfileDescriptor;
 import org.eclipse.che.api.workspace.gwt.client.WorkspaceServiceClient;
-import org.eclipse.che.api.workspace.shared.dto.WorkspaceDescriptor;
+import org.eclipse.che.api.workspace.shared.dto.UsersWorkspaceDto;
 import org.eclipse.che.ide.extension.machine.client.machine.Machine;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.content.TabPresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
@@ -64,7 +67,6 @@ public class MachineInfoPresenter implements TabPresenter {
     public void update(@Nonnull Machine machine) {
 
         Unmarshallable<ProfileDescriptor> profileUnMarshaller = unmarshallerFactory.newUnmarshaller(ProfileDescriptor.class);
-        Unmarshallable<WorkspaceDescriptor> wsUnMarshaller = unmarshallerFactory.newUnmarshaller(WorkspaceDescriptor.class);
 
         userProfile.getCurrentProfile(new AsyncRequestCallback<ProfileDescriptor>(profileUnMarshaller) {
             @Override
@@ -89,17 +91,18 @@ public class MachineInfoPresenter implements TabPresenter {
             }
         });
 
-        wsService.getWorkspace(machine.getWorkspaceId(), new AsyncRequestCallback<WorkspaceDescriptor>(wsUnMarshaller) {
-            @Override
-            protected void onSuccess(WorkspaceDescriptor result) {
-                view.setWorkspaceName(result.getName());
-            }
-
-            @Override
-            protected void onFailure(Throwable exception) {
-                Log.error(getClass(), exception);
-            }
-        });
+        wsService.getUsersWorkspace(machine.getWorkspaceId())
+                 .then(new Operation<UsersWorkspaceDto>() {
+                     @Override
+                     public void apply(UsersWorkspaceDto ws) throws OperationException {
+                         view.setWorkspaceName(ws.getName());
+                     }
+                 }).catchError(new Operation<PromiseError>() {
+                     @Override
+                     public void apply(PromiseError err) throws OperationException {
+                         Log.error(getClass(), err.getCause());
+                     }
+                 });
 
         view.updateInfo(machine);
     }
