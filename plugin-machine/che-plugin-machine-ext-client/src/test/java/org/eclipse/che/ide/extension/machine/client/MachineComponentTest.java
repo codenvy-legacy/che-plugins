@@ -82,7 +82,7 @@ public class MachineComponentTest {
     public void shouldUseRunningDevMachine() throws Exception {
         when(machineServiceClient.getMachinesStates(anyString())).thenReturn(machinesPromise);
         when(machinesPromise.then(any(Operation.class))).thenReturn(machinesPromise);
-        when(machineStateDescriptor.isWorkspaceBound()).thenReturn(true);
+        when(machineStateDescriptor.isDev()).thenReturn(true);
         when(machineStateDescriptor.getStatus()).thenReturn(MachineStatus.RUNNING);
         when(machineStateDescriptor.getId()).thenReturn(DEV_MACHINE_ID);
 
@@ -91,7 +91,7 @@ public class MachineComponentTest {
         verify(machineServiceClient).getMachinesStates(anyString());
         verify(machinesPromise).then(machinesCaptor.capture());
         machinesCaptor.getValue().apply(Collections.singletonList(machineStateDescriptor));
-        verify(machineStateDescriptor).isWorkspaceBound();
+        verify(machineStateDescriptor).isDev();
         verify(machineStateDescriptor).getStatus();
         verify(appContext).setDevMachineId(eq(DEV_MACHINE_ID));
         verify(machineManager, never()).startDevMachine(eq(MachineComponent.DEFAULT_RECIPE), anyString());
