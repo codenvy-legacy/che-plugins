@@ -103,16 +103,23 @@ public class DockerConnector {
     /**
      * Default URL of docker when using Docker Machine.
      */
-    public static final URI DEFAULT_DOCKER_MACHINE_URI = URI.create("https://192.168.99.100:2376");
+//    public static final URI DEFAULT_DOCKER_MACHINE_URI = URI.create("https://192.168.99.100:2376");
+//
+//    /**
+//     * Default of Docker Machine certificates (machine named default)
+//     */
+//    public static final String DEFAULT_DOCKER_MACHINE_CERTS_DIR = System.getProperty("user.home")
+//                                                                  + separatorChar + ".docker"
+//                                                                  + separatorChar + "machine"
+//                                                                  + separatorChar + "machines"
+//                                                                  + separatorChar + "default";
 
-    /**
-     * Default of Docker Machine certificates (machine named default)
-     */
+
+    public static final URI  DEFAULT_DOCKER_MACHINE_URI = URI.create("https://192.168.59.103:2376");
     public static final String DEFAULT_DOCKER_MACHINE_CERTS_DIR = System.getProperty("user.home")
-                                                                  + separatorChar + ".docker"
-                                                                  + separatorChar + "machine"
-                                                                  + separatorChar + "machines"
-                                                                  + separatorChar + "default";
+            + separatorChar + ".boot2docker"
+            + separatorChar + "certs"
+            + separatorChar + "boot2docker-vm";
 
     private final URI                      dockerDaemonUri;
     private final DockerCertificates       dockerCertificates;
