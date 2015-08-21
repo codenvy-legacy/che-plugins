@@ -62,7 +62,7 @@ public class MachineComponent implements Component {
             @Override
             public void apply(List<MachineStateDescriptor> arg) throws OperationException {
                 for (MachineStateDescriptor descriptor : arg) {
-                    if (descriptor.isWorkspaceBound() && descriptor.getStatus() == RUNNING) {
+                    if (descriptor.isDev() && descriptor.getStatus() == RUNNING) {
                         appContext.setDevMachineId(descriptor.getId());
 
                         callback.onSuccess(MachineComponent.this);

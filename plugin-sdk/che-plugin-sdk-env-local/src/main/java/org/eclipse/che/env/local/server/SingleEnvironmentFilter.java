@@ -83,7 +83,7 @@ public class SingleEnvironmentFilter implements Filter {
             }
             final List<String> roles = new LinkedList<>();
             Collections.addAll(roles, "workspace/admin", "workspace/developer", "system/admin", "system/manager", "user");
-            user = new UserImpl(daoUser.getAliases().get(0), daoUser.getId(), "dummy_token", roles, false);
+            user = new UserImpl(daoUser.getName(), daoUser.getId(), "dummy_token", roles, false);
             session = httpRequest.getSession();
             session.setAttribute("codenvy_user", user);
         }

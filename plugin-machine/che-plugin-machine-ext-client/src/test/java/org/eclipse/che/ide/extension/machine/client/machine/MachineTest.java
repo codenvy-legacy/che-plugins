@@ -151,6 +151,6 @@ public class MachineTest {
     public void boundedStateShouldBeReturned() {
         machine.isWorkspaceBound();
 
-        verify(descriptor).isWorkspaceBound();
+        verify(descriptor).isDev();
     }
 }
