@@ -21,8 +21,8 @@ import org.eclipse.che.ide.MimeType;
 import org.eclipse.che.ide.api.extension.ExtensionGinModule;
 import org.eclipse.che.ide.api.filetypes.FileType;
 import org.eclipse.che.ide.ext.java.client.JavaResources;
-import org.eclipse.che.ide.ext.java.client.dependenciesupdater.JavaNameEnvironmentServiceClient;
-import org.eclipse.che.ide.ext.java.client.dependenciesupdater.JavaNameEnvironmentServiceClientImpl;
+import org.eclipse.che.ide.ext.java.client.dependenciesupdater.JavaClasspathServiceClient;
+import org.eclipse.che.ide.ext.java.client.dependenciesupdater.JavaClasspathServiceClientImpl;
 import org.eclipse.che.ide.ext.java.client.documentation.QuickDocPresenter;
 import org.eclipse.che.ide.ext.java.client.documentation.QuickDocumentation;
 import org.eclipse.che.ide.ext.java.client.inject.factories.PropertyWidgetFactory;
@@ -49,7 +49,7 @@ public class JavaGinModule extends AbstractGinModule {
         bind(NewJavaSourceFileView.class).to(NewJavaSourceFileViewImpl.class).in(Singleton.class);
         bind(QuickDocumentation.class).to(QuickDocPresenter.class).in(Singleton.class);
         bind(JavaNavigationService.class).to(JavaNavigationServiceImpl.class);
-        bind(JavaNameEnvironmentServiceClient.class).to(JavaNameEnvironmentServiceClientImpl.class);
+        bind(JavaClasspathServiceClient.class).to(JavaClasspathServiceClientImpl.class);
 
         install(new GinFactoryModuleBuilder().build(JavaNodeFactory.class));
         install(new GinFactoryModuleBuilder().implement(PropertyWidget.class, PropertyWidgetImpl.class)
