@@ -81,10 +81,11 @@ public class CsvExportService {
     private String convertDataToCsv(final RequestResultDTO requestResult, boolean withHeader) {
         LOG.debug("convertDataToCsv - called for {}, withHeader={}", requestResult, withHeader);
 
+        CSVWriter csvWriter = null;
         final StringBuilder sb = new StringBuilder();
-        try (
-            final Writer writer = new StringBuilderWriter(sb);
-            final CSVWriter csvWriter = new CSVWriter(writer)) {
+        try (final Writer writer = new StringBuilderWriter(sb)) {
+
+            csvWriter = new CSVWriter(writer);
 
             // header
             if (withHeader) {
@@ -97,6 +98,14 @@ public class CsvExportService {
             }
         } catch (final IOException e) {
             LOG.error("Close failed on resource - expect leaks and incorrect operation", e);
+        } finally {
+            if (csvWriter != null) {
+                try {
+                    csvWriter.close();
+                } catch (IOException e) {
+                    LOG.error("Close failed on resource - expect leaks and incorrect operation", e);
+                }
+            }
         }
 
         return sb.toString();
