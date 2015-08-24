@@ -20,6 +20,7 @@ import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM;
 import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope;
 import org.eclipse.che.ide.ext.runner.client.util.GetEnvironmentsUtil;
+import org.eclipse.che.ide.rest.RestContext;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -51,7 +52,8 @@ public class EnvironmentImpl implements Environment {
     private int ram;
 
     @Inject
-    public EnvironmentImpl(AppContext appContext,
+    public EnvironmentImpl(@RestContext String restContext,
+                           AppContext appContext,
                            GetEnvironmentsUtil util,
                            @Assisted @Nonnull RunnerEnvironment runnerEnvironment,
                            @Assisted @Nonnull Scope scope) {
@@ -82,7 +84,7 @@ public class EnvironmentImpl implements Environment {
 
         if (isScopeSystem) {
             String wsId = descriptor.getWorkspaceId();
-            path = getProtocol() + "//" + getHost() + "/api/runner/" + wsId + "/recipe?id=" + id;
+            path = getProtocol() + "//" + getHost() + restContext + "/runner/" + wsId + "/recipe?id=" + id;
         } else {
             path = descriptor.getPath() + ROOT_FOLDER + lastIdPart;
         }
