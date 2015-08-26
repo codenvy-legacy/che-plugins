@@ -31,6 +31,5 @@
         <module>che-plugin-datasource-ext-client</module>
         <module>che-plugin-datasource-server-war-sdk</module>
         <module>che-plugin-datasource-server-war-standalone</module>
-        <module>che-plugin-datasource-itests</module>
     </modules>
 </project>
