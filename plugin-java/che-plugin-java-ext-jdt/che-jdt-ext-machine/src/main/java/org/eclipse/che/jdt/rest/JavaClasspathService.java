@@ -17,16 +17,15 @@ import org.eclipse.che.api.core.util.LineConsumer;
 import org.eclipse.che.api.core.util.ProcessUtil;
 import org.eclipse.che.api.core.util.StreamPump;
 import org.eclipse.che.api.core.util.Watchdog;
-import org.eclipse.che.core.internal.resources.ResourcesPlugin;
 import org.eclipse.che.ide.maven.tools.MavenUtils;
+import org.eclipse.che.jdt.maven.MavenClasspathUtil;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.jdt.core.IClasspathContainer;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.core.JavaModel;
 import org.eclipse.jdt.internal.core.JavaModelManager;
-import org.eclipse.che.jdt.maven.MavenClasspathUtil;
-import org.eclipse.jdt.core.IClasspathContainer;
-import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.JavaModelException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +41,6 @@ import java.util.concurrent.TimeUnit;
  */
 @Path("jdt/{wsId}/classpath")
 public class JavaClasspathService {
-    private static final IClasspathEntry[] EMPTY = new IClasspathEntry[0];
     private static final JavaModel         model = JavaModelManager.getJavaModelManager().getJavaModel();
     private static final Logger            LOG   = LoggerFactory.getLogger(JavaClasspathService.class);
 

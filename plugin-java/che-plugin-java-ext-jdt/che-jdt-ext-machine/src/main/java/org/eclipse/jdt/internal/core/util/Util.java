@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.util;
 
-import org.eclipse.che.core.internal.resources.ResourcesPlugin;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.che.ide.runtime.Assert;
 import org.eclipse.jdt.core.JavaConventions;
 import org.eclipse.jdt.core.util.IClassFileAttribute;

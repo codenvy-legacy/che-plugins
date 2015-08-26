@@ -17,7 +17,7 @@ import com.google.inject.Singleton;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Named;
 
-import org.eclipse.che.core.internal.resources.ResourcesPlugin;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.che.inject.DynaModule;
 import org.eclipse.che.jdt.rest.CodeAssistService;
 import org.eclipse.che.jdt.rest.CompilerSetupService;

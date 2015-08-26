@@ -10,7 +10,8 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.java;
 
-import org.eclipse.che.core.internal.resources.ResourcesPlugin;
+import org.eclipse.core.internal.filebuffers.FileBuffersPlugin;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.che.jdt.javadoc.JavaElementLinks;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.codeassist.impl.AssistOptions;
@@ -35,6 +36,7 @@ public class BaseTest {
     protected static final String wsPath = BaseTest.class.getResource("/projects").getFile();
     protected static ResourcesPlugin plugin = new ResourcesPlugin(wsPath + "/index", BaseTest.class.getResource("/projects").getFile());
     protected static JavaPlugin javaPlugin = new JavaPlugin(wsPath + "/set");
+    protected static FileBuffersPlugin fileBuffersPlugin = new FileBuffersPlugin();
 
     static {
         plugin.start();
@@ -43,10 +45,10 @@ public class BaseTest {
 
 
     public BaseTest() {
-        options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_7);
+        options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_8);
         options.put(JavaCore.CORE_ENCODING, "UTF-8");
-        options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_7);
-        options.put(CompilerOptions.OPTION_TargetPlatform, JavaCore.VERSION_1_7);
+        options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_8);
+        options.put(CompilerOptions.OPTION_TargetPlatform, JavaCore.VERSION_1_8);
         options.put(AssistOptions.OPTION_PerformVisibilityCheck, AssistOptions.ENABLED);
         options.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
         options.put(CompilerOptions.OPTION_TaskTags, CompilerOptions.WARNING);

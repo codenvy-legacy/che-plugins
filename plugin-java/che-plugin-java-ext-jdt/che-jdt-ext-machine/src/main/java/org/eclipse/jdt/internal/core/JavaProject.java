@@ -11,8 +11,8 @@
 
 package org.eclipse.jdt.internal.core;
 
-import org.eclipse.che.core.internal.resources.ResourcesPlugin;
-import org.eclipse.che.core.resources.ProjectScope;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.resources.ProjectScope;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -876,7 +876,14 @@ public class JavaProject extends Openable implements IJavaProject, SuffixConstan
 
     @Override
     public IPackageFragment findPackageFragment(IPath path) throws JavaModelException {
-        throw new UnsupportedOperationException();
+        return findPackageFragment0(path);
+    }
+
+    private IPackageFragment findPackageFragment0(IPath path)
+            throws JavaModelException {
+
+        NameLookup lookup = newNameLookup((WorkingCopyOwner)null/*no need to look at working copies for pkgs*/);
+        return lookup.findPackageFragment(path);
     }
 
     @Override
@@ -1391,7 +1398,7 @@ public class JavaProject extends Openable implements IJavaProject, SuffixConstan
 
     @Override
     public Object[] getNonJavaResources() throws JavaModelException {
-        throw new UnsupportedOperationException();
+        return ((JavaProjectElementInfo) getElementInfo()).getNonJavaResources(this);
     }
 
     @Override
@@ -1469,7 +1476,15 @@ public class JavaProject extends Openable implements IJavaProject, SuffixConstan
 
     @Override
     public IPath getOutputLocation() throws JavaModelException {
-        throw new UnsupportedOperationException();
+       return defaultOutputLocation();
+    }
+
+    /**
+     * Returns a default output location.
+     * This is the project bin folder
+     */
+    protected IPath defaultOutputLocation() {
+        return this.project.getFullPath().append("bin"); //$NON-NLS-1$
     }
 
     @Override
@@ -1479,7 +1494,18 @@ public class JavaProject extends Openable implements IJavaProject, SuffixConstan
 
     @Override
     public IPackageFragmentRoot[] getPackageFragmentRoots() throws JavaModelException {
-        throw new UnsupportedOperationException();
+        Object[] children;
+        int length;
+        IPackageFragmentRoot[] roots;
+
+        System.arraycopy(
+                children = getChildren(),
+                0,
+                roots = new IPackageFragmentRoot[length = children.length],
+                0,
+                length);
+
+        return roots;
     }
 
     @Override
@@ -1671,10 +1697,6 @@ public class JavaProject extends Openable implements IJavaProject, SuffixConstan
         return false;
     }
 
-    @Override
-    public boolean isStructureKnown() throws JavaModelException {
-        throw new UnsupportedOperationException();
-    }
 
     @Override
     public Object getAdapter(Class aClass) {
@@ -1701,10 +1723,6 @@ public class JavaProject extends Openable implements IJavaProject, SuffixConstan
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    public boolean isConsistent() {
-        throw new UnsupportedOperationException();
-    }
 
 //    @Override
 //    public boolean isOpen() {

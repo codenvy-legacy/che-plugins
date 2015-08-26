@@ -11,7 +11,7 @@
 
 package org.eclipse.jdt.internal.core;
 
-import org.eclipse.che.core.internal.resources.ResourcesPlugin;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.che.jdt.core.launching.JREContainerInitializer;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.che.jdt.maven.MavenClasspathContainer;
@@ -63,7 +63,6 @@ import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
 import org.eclipse.jdt.internal.core.util.WeakHashSet;
 import org.eclipse.jdt.internal.core.util.WeakHashSetOfCharArray;
-import org.eclipse.jdt.internal.corext.format.CheCodeFormatterOptions;
 
 import java.io.File;
 import java.io.IOException;
