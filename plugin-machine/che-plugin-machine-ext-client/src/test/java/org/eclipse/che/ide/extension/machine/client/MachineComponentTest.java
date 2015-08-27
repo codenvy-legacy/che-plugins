@@ -65,20 +65,6 @@ public class MachineComponentTest {
     private ArgumentCaptor<Operation<List<MachineStateDescriptor>>> machinesCaptor;
 
     @Test
-    public void shouldStartNewDevMachine() throws Exception {
-        when(machineServiceClient.getMachinesStates(anyString())).thenReturn(machinesPromise);
-        when(machinesPromise.then(any(Operation.class))).thenReturn(machinesPromise);
-
-        machineComponent.start(componentCallback);
-
-        verify(machineServiceClient).getMachinesStates(anyString());
-        verify(machinesPromise).then(machinesCaptor.capture());
-        machinesCaptor.getValue().apply(Collections.singletonList(machineStateDescriptor));
-        verify(machineManager).startDevMachine(eq(MachineComponent.DEFAULT_RECIPE), anyString());
-        verify(componentCallback).onSuccess(eq(machineComponent));
-    }
-
-    @Test
     public void shouldUseRunningDevMachine() throws Exception {
         when(machineServiceClient.getMachinesStates(anyString())).thenReturn(machinesPromise);
         when(machinesPromise.then(any(Operation.class))).thenReturn(machinesPromise);
@@ -94,7 +80,7 @@ public class MachineComponentTest {
         verify(machineStateDescriptor).isDev();
         verify(machineStateDescriptor).getStatus();
         verify(appContext).setDevMachineId(eq(DEV_MACHINE_ID));
-        verify(machineManager, never()).startDevMachine(eq(MachineComponent.DEFAULT_RECIPE), anyString());
+        verify(machineManager, never()).startDevMachine(anyString(), anyString());
         verify(componentCallback).onSuccess(eq(machineComponent));
     }
 }
