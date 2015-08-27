@@ -61,7 +61,7 @@ public class JavaModel extends Openable implements IJavaModel {
                                      IResource underlyingResource)	/*throws JavaModelException*/ {
 
         // determine my children
-        IProject[] projects = new IProject[0];//ResourcesPlugin.getWorkspace().getRoot().getProjects();
+        IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
         int length = projects.length;
         IJavaElement[] children = new IJavaElement[length];
         int index = 0;

@@ -16,35 +16,16 @@ import org.eclipse.che.dto.shared.DTO;
 import java.util.List;
 
 /**
- * Object represent single change during refactoring.
  * @author Evgen Vidolob
  */
 @DTO
-public interface RefactoringPreview {
+public interface PackageFragmentRoot {
+    String getPath();
 
-    /**
-     * Test description of this change
-     */
-    String getText();
+    void setPath(String path);
 
-    void setText(String text);
+    List<PackageFragment> getPackageFragments();
 
-    /**
-     * image for this change
-     */
-    String getImage();
-
-    void setImage(String image);
-
-    boolean isEnabled();
-
-    void setEnabled(boolean enabled);
-
-    /**
-     * Childrens of this this change, may be null if this change doesn't contains other changes.
-     */
-    List<RefactoringPreview> getChildrens();
-
-    void setChildrens(List<RefactoringPreview> childrens);
+    void setPackageFragments(List<PackageFragment> fragments);
 
 }

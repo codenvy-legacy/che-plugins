@@ -29,12 +29,14 @@ import java.util.concurrent.ConcurrentMap;
  * @author Evgen Vidolob
  */
 public class WorkspaceRoot extends Container implements IWorkspaceRoot {
+    public static final String PROJECT_INNER_SETTING_DIR = ".codenvy";
     /**
      * As an optimization, we store a table of project handles
      * that have been requested from this root.  This maps project
      * name strings to project handles.
      */
-    private final ConcurrentMap<String, Project> projectTable = new ConcurrentHashMap<>(16);
+    private final       ConcurrentMap<String, Project>
+                               projectTable              = new ConcurrentHashMap<>(16);
 
 
     protected WorkspaceRoot(IPath path, Workspace workspace) {
@@ -112,7 +114,9 @@ public class WorkspaceRoot extends Container implements IWorkspaceRoot {
             for (int i = 0; i < files.length; i++) {
                 java.io.File pr = files[i];
                 if(!pr.getName().startsWith(".")){
-                    projects.add(new Project(new Path("/" + pr.getName()), workspace));
+                    if(new java.io.File(pr, PROJECT_INNER_SETTING_DIR).exists()) {
+                        projects.add(new Project(new Path("/" + pr.getName()), workspace));
+                    }
                 }
             }
         }
