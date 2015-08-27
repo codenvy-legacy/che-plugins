@@ -34,7 +34,6 @@ import java.util.List;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -80,7 +79,7 @@ public class MachineComponentTest {
         verify(machineStateDescriptor).isDev();
         verify(machineStateDescriptor).getStatus();
         verify(appContext).setDevMachineId(eq(DEV_MACHINE_ID));
-        verify(machineManager, never()).startDevMachine(anyString(), anyString());
+        verify(machineManager).onMachineRunning(eq(DEV_MACHINE_ID));
         verify(componentCallback).onSuccess(eq(machineComponent));
     }
 }

@@ -54,10 +54,10 @@ public class MachineComponent implements Component {
                         if (descriptor.isDev() && descriptor.getStatus() == RUNNING) {
                             appContext.setDevMachineId(descriptor.getId());
                             machineManager.onMachineRunning(descriptor.getId());
-                            callback.onSuccess(MachineComponent.this);
-                            return;
+                            break;
                         }
                     }
+                    callback.onSuccess(MachineComponent.this);
                 }
             }
         }).catchError(new Operation<PromiseError>() {
