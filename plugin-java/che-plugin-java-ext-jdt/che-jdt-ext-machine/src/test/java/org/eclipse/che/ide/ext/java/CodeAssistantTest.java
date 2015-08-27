@@ -12,9 +12,7 @@ package org.eclipse.che.ide.ext.java;
 
 import org.eclipse.che.ide.ext.java.shared.dto.Proposals;
 import org.eclipse.che.jdt.CodeAssist;
-import org.eclipse.jdt.internal.ui.JavaPlugin;
 import org.eclipse.jdt.ui.text.java.IJavaCompletionProposalComputer;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -26,11 +24,6 @@ public class CodeAssistantTest  extends BaseTest{
 
 
     private IJavaCompletionProposalComputer[] computers;
-
-    @BeforeClass
-    public static void  initStatic() throws Exception {
-        new JavaPlugin("/temp");
-    }
 
     @Test
     public void testFirst() throws Exception {

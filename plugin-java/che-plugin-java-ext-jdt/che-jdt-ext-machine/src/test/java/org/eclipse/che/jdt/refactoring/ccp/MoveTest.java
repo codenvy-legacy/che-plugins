@@ -161,9 +161,11 @@ public class MoveTest extends RefactoringTest {
 //		return new RefactoringTestSetup(someTest);
 //	}
 
+
     @BeforeClass
     public static void prepareClass() {
-        ParticipantTesting.setUp();
+        ParticipantTesting.init();
+
     }
 
     @Before

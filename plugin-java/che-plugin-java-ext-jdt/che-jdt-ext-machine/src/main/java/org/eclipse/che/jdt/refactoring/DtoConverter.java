@@ -12,9 +12,12 @@
 package org.eclipse.che.jdt.refactoring;
 
 import org.eclipse.che.dto.server.DtoFactory;
+import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringPreview;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatus;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatusEntry;
+import org.eclipse.ltk.internal.ui.refactoring.PreviewNode;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -32,5 +35,21 @@ public class DtoConverter {
         }).collect(Collectors.toList());
         status.setEntries(entryList);
         return status;
+    }
+
+    public static RefactoringPreview toRefactoringPreview(PreviewNode node) {
+        RefactoringPreview dto = DtoFactory.newDto(RefactoringPreview.class);
+        dto.setText(node.getText());
+        dto.setImage(node.getImageDescriptor().getImage());
+        dto.setEnabled(true);
+        PreviewNode[] children = node.getChildren();
+        if(children != null && children.length > 0) {
+            List<RefactoringPreview> list = new ArrayList<>(children.length);
+            for (PreviewNode child : children) {
+                list.add(toRefactoringPreview(child));
+            }
+            dto.setChildrens(list);
+        }
+        return dto;
     }
 }

@@ -29,7 +29,7 @@ import java.util.Map;
 /**
  * @author Evgen Vidolob
  */
-public class BaseTest {
+public abstract class BaseTest {
 
     protected static Map<String, String> options = new HashMap<>();
     protected static JavaProject project;
@@ -73,8 +73,10 @@ public class BaseTest {
 
     @After
     public void closeProject() throws Exception {
+        if(project != null){
+           project.close();
+        }
         File pref = new File(wsPath + "/test/.codenvy/project.preferences");
-        project.close();
         if(pref.exists()){
             pref.delete();
         }

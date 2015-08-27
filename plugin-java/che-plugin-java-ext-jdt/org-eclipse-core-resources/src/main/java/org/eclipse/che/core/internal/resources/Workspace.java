@@ -416,7 +416,7 @@ public class Workspace implements IWorkspace {
 //                    notificationManager.endAvoidNotify();
                 if (depth >= 0)
                     getWorkManager().endUnprotected(depth);
-//                endOperation(rule, false, Policy.subMonitorFor(monitor, Policy.endOpWork));
+                endOperation(rule, false, Policy.subMonitorFor(monitor, Policy.endOpWork));
             }
         } finally {
             monitor.done();

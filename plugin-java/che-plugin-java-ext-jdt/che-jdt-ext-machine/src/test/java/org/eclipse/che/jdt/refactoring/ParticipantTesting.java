@@ -24,8 +24,8 @@ import java.util.List;
 
 public class ParticipantTesting {
 
-	public static void setUp(){
-        CheRefactoringParticipantsRegistry.registerParticipant("renameParticipants", TestRenameParticipantShared.class);
+	public static void init(){
+		CheRefactoringParticipantsRegistry.registerParticipant("renameParticipants", TestRenameParticipantShared.class);
         CheRefactoringParticipantsRegistry.registerParticipant("renameParticipants", TestRenameParticipantSingle.class);
 
         CheRefactoringParticipantsRegistry.registerParticipant("moveParticipants", TestMoveParticipantShared.class);

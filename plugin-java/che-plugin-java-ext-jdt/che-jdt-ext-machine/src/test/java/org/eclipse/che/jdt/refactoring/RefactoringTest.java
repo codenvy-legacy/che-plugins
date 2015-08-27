@@ -76,6 +76,7 @@ public abstract class RefactoringTest extends BaseTest {
 
 	protected IPackageFragmentRoot fRoot;
 	protected IPackageFragment fPackageP;
+	protected IJavaProject fProject;
 
 	public boolean fIsVerbose= false;
 	public boolean fIsPreDeltaTest= false;
@@ -97,6 +98,7 @@ public abstract class RefactoringTest extends BaseTest {
 		fRoot= RefactoringTestSetup.getDefaultSourceFolder();
 		fPackageP= RefactoringTestSetup.getPackageP();
 		fIsPreDeltaTest= false;
+		fProject = RefactoringTestSetup.getProject();
 
 		if (fIsVerbose){
 			System.out.println("\n---------------------------------------------");

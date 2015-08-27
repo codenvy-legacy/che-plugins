@@ -18,6 +18,7 @@ import com.google.inject.Singleton;
 import org.eclipse.che.commons.schedule.ScheduleRate;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ChangeCreationResult;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.MoveSettings;
+import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringPreview;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatus;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ReorgDestination;
 import org.eclipse.che.ide.util.UUID;
@@ -36,8 +37,11 @@ import org.eclipse.jdt.internal.corext.refactoring.reorg.IReorgQueries;
 import org.eclipse.jdt.internal.corext.refactoring.reorg.JavaMoveProcessor;
 import org.eclipse.jdt.internal.corext.refactoring.reorg.ReorgPolicyFactory;
 import org.eclipse.ltk.core.refactoring.Change;
+import org.eclipse.ltk.core.refactoring.CompositeChange;
 import org.eclipse.ltk.core.refactoring.Refactoring;
 import org.eclipse.ltk.core.refactoring.participants.MoveRefactoring;
+import org.eclipse.ltk.internal.ui.refactoring.AbstractChangeNode;
+import org.eclipse.ltk.internal.ui.refactoring.PreviewNode;
 
 import java.util.concurrent.TimeUnit;
 
@@ -157,13 +161,28 @@ public class RefactoringManager {
         refactoring.setUpdateQualifiedNames(settings.isUpdateQualifiedNames());
     }
 
-    public Change getRefactoringChanges(String sessionId) throws RefactoringException {
+    public RefactoringPreview getRefactoringPreview(String sessionId) throws RefactoringException {
         RefactoringSession session = getRefactoringSession(sessionId);
-        return session.getChange();
+        Change change = session.getChange();
+        CompositeChange compositeChange;
+        if (change instanceof CompositeChange) {
+            compositeChange= (CompositeChange)change;
+        } else {
+            compositeChange= new CompositeChange("Dummy Change"); //$NON-NLS-1$
+            compositeChange.add(change);
+        }
+        PreviewNode node = AbstractChangeNode.createNode(null, compositeChange);
+        return DtoConverter.toRefactoringPreview(node);
     }
 
     public ChangeCreationResult createChange(String sessionId) throws RefactoringException {
         RefactoringSession session = getRefactoringSession(sessionId);
         return session.createChange();
+    }
+
+    public RefactoringStatus applyRefactoring(String sessionId) throws RefactoringException {
+        RefactoringSession session = getRefactoringSession(sessionId);
+        org.eclipse.ltk.core.refactoring.RefactoringStatus status = session.apply();
+        return DtoConverter.toRefactoringStatusDto(status);
     }
 }

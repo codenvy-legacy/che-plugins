@@ -22,9 +22,12 @@ import org.eclipse.jdt.internal.ui.JavaPlugin;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.CheckConditionsOperation;
 import org.eclipse.ltk.core.refactoring.CreateChangeOperation;
+import org.eclipse.ltk.core.refactoring.PerformChangeOperation;
 import org.eclipse.ltk.core.refactoring.Refactoring;
+import org.eclipse.ltk.core.refactoring.RefactoringCore;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.internal.core.refactoring.Messages;
+import org.eclipse.ltk.internal.ui.refactoring.FinishResult;
 
 /**
  * @author Evgen Vidolob
@@ -103,5 +106,30 @@ public abstract class RefactoringSession {
 
     public Change getChange() {
         return change;
+    }
+
+    public RefactoringStatus apply() {
+        PerformChangeOperation operation = new PerformChangeOperation(change);
+        FinishResult result = internalPerformFinish(operation);
+        if (result.isException()) {
+            return RefactoringStatus.createErrorStatus("Refactoring failed with Exception.");
+        }
+        RefactoringStatus validationStatus= operation.getValidationStatus();
+        if(validationStatus != null){
+            return validationStatus;
+        }
+
+        return new RefactoringStatus();
+    }
+
+    private final FinishResult internalPerformFinish(PerformChangeOperation op) {
+        op.setUndoManager(RefactoringCore.getUndoManager(), refactoring.getName());
+        try{
+            ResourcesPlugin.getWorkspace().run(op, new NullProgressMonitor());
+        } catch (CoreException e) {
+            JavaPlugin.log(e);
+            return FinishResult.createException();
+        }
+        return FinishResult.createOK();
     }
 }

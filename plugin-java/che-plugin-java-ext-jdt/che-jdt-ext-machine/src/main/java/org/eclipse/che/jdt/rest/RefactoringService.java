@@ -17,6 +17,7 @@ import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ChangeCreationResult;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.CreateMoveRefactoring;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.JavaElement;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.MoveSettings;
+import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringPreview;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringSession;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatus;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ReorgDestination;
@@ -111,5 +112,22 @@ public class RefactoringService {
     @Consumes("application/json")
     public ChangeCreationResult createChange(RefactoringSession refactoringSession) throws RefactoringException {
         return manager.createChange(refactoringSession.getSessionId());
+    }
+
+    @POST
+    @Path("get/preview")
+    @Produces("application/json")
+    @Consumes("application/json")
+    public RefactoringPreview getRefactoringPreview(RefactoringSession refactoringSession) throws RefactoringException {
+        return manager.getRefactoringPreview(refactoringSession.getSessionId());
+    }
+
+
+    @POST
+    @Path("apply")
+    @Produces("application/json")
+    @Consumes("application/json")
+    public RefactoringStatus applyRefactoring(RefactoringSession session) throws RefactoringException {
+        return manager.applyRefactoring(session.getSessionId());
     }
 }
