@@ -200,7 +200,7 @@ public class WorkerMessageHandler implements MessageHandler, MessageFilter.Messa
         textEdit.addField("offSet", edit.getOffset());
 
         if (edit.hasChildren()) {
-            textEdit.addField("children", edit.getChildren());
+            textEdit.addField("children", convertChildrenTextEditToJso(edit.getChildren()));
         }
         if (!(edit instanceof InsertEdit || edit instanceof MoveTargetEdit || edit instanceof CopyTargetEdit)) {
             textEdit.addField("length", edit.getLength());
