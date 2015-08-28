@@ -10,27 +10,24 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.datasource.client.ssl;
 
-import javax.validation.constraints.NotNull;
-
-import org.eclipse.che.ide.api.notification.Notification;
-import org.eclipse.che.ide.api.notification.Notification.Type;
-import org.eclipse.che.ide.api.notification.NotificationManager;
-import org.eclipse.che.ide.api.preferences.AbstractPreferencePagePresenter;
-import org.eclipse.che.ide.commons.exception.ExceptionThrownEvent;
-import org.eclipse.che.ide.ext.datasource.client.ssl.upload.UploadSslKeyDialogPresenter;
-import org.eclipse.che.ide.ext.datasource.client.ssl.upload.UploadSslTrustCertDialogPresenter;
-import org.eclipse.che.ide.ext.datasource.shared.ssl.SslKeyStoreEntry;
-
-import org.eclipse.che.ide.rest.AsyncRequestCallback;
-import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
-import org.eclipse.che.ide.util.loging.Log;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.google.web.bindery.event.shared.EventBus;
 
+import org.eclipse.che.ide.api.notification.Notification;
+import org.eclipse.che.ide.api.notification.Notification.Type;
+import org.eclipse.che.ide.api.notification.NotificationManager;
+import org.eclipse.che.ide.api.preferences.AbstractPreferencePagePresenter;
+import org.eclipse.che.ide.ext.datasource.client.ssl.upload.UploadSslKeyDialogPresenter;
+import org.eclipse.che.ide.ext.datasource.client.ssl.upload.UploadSslTrustCertDialogPresenter;
+import org.eclipse.che.ide.ext.datasource.shared.ssl.SslKeyStoreEntry;
+import org.eclipse.che.ide.rest.AsyncRequestCallback;
+import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
+import org.eclipse.che.ide.util.loging.Log;
+
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Singleton
@@ -39,7 +36,6 @@ public class SslKeyStoreManagerPresenter extends AbstractPreferencePagePresenter
     private       SslKeyStoreManagerView            view;
     private       SslKeyStoreClientService          service;
     private       SslMessages                       constant;
-    private       EventBus                          eventBus;
     private       UploadSslKeyDialogPresenter       uploadSshKeyPresenter;
     private       UploadSslTrustCertDialogPresenter uploadSshServerCertPresenter;
     private       NotificationManager               notificationManager;
@@ -49,7 +45,6 @@ public class SslKeyStoreManagerPresenter extends AbstractPreferencePagePresenter
                                        SslKeyStoreClientService service,
                                        SslResources resources,
                                        SslMessages constant,
-                                       EventBus eventBus,
                                        UploadSslKeyDialogPresenter uploadSshKeyPresenter,
                                        UploadSslTrustCertDialogPresenter uploadSshServerCertPresenter,
                                        NotificationManager notificationManager,
@@ -62,7 +57,6 @@ public class SslKeyStoreManagerPresenter extends AbstractPreferencePagePresenter
         this.view.setDelegate(this);
         this.service = service;
         this.constant = constant;
-        this.eventBus = eventBus;
         this.uploadSshKeyPresenter = uploadSshKeyPresenter;
         this.notificationManager = notificationManager;
     }
@@ -82,7 +76,6 @@ public class SslKeyStoreManagerPresenter extends AbstractPreferencePagePresenter
                 public void onFailure(Throwable exception) {
                     Notification notification = new Notification(exception.getMessage(), Type.ERROR);
                     notificationManager.showNotification(notification);
-                    eventBus.fireEvent(new ExceptionThrownEvent(exception));
                 }
             });
         }
@@ -100,7 +93,6 @@ public class SslKeyStoreManagerPresenter extends AbstractPreferencePagePresenter
                     public void onFailure(Throwable exception) {
                         Notification notification = new Notification(exception.getMessage(), Notification.Type.ERROR);
                         notificationManager.showNotification(notification);
-                        eventBus.fireEvent(new ExceptionThrownEvent(exception));
                     }
                 });
     }
@@ -135,7 +127,6 @@ public class SslKeyStoreManagerPresenter extends AbstractPreferencePagePresenter
                 public void onFailure(Throwable exception) {
                     Notification notification = new Notification(exception.getMessage(), Type.ERROR);
                     notificationManager.showNotification(notification);
-                    eventBus.fireEvent(new ExceptionThrownEvent(exception));
                 }
             });
         }
@@ -153,7 +144,6 @@ public class SslKeyStoreManagerPresenter extends AbstractPreferencePagePresenter
                     public void onFailure(Throwable exception) {
                         Notification notification = new Notification(exception.getMessage(), Notification.Type.ERROR);
                         notificationManager.showNotification(notification);
-                        eventBus.fireEvent(new ExceptionThrownEvent(exception));
                     }
                 });
     }
