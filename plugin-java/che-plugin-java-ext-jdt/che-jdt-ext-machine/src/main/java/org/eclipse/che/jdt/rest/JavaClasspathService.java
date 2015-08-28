@@ -21,6 +21,7 @@ import org.eclipse.che.ide.maven.tools.MavenUtils;
 import org.eclipse.che.jdt.maven.MavenClasspathUtil;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jdt.core.IClasspathContainer;
+import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
@@ -77,7 +78,8 @@ public class JavaClasspathService {
         String command = MavenUtils.getMavenExecCommand();
         try {
             ProcessBuilder processBuilder =
-                    new ProcessBuilder().command(command, "dependency:build-classpath", "-Dmdep.outputFile=.codenvy/classpath.maven").directory(dir).redirectErrorStream(true);
+                    new ProcessBuilder().command(command, "dependency:build-classpath", "-Dmdep.outputFile=.codenvy/classpath.maven").directory(
+                            dir).redirectErrorStream(true);
             Process process = processBuilder.start();
 
             if (timeout > 0) {

@@ -8,26 +8,11 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.ltk.internal.ui.refactoring;
-
-import org.eclipse.ltk.core.refactoring.Change;
+package org.eclipse.che.ide.ext.java.client.refactoring.move;
 
 /**
- * Implementation for a refactoring preview change filter.
- *
- * @since 3.2
+ * @author Dmitry Shnurenko
  */
-public class RefactoringPreviewChangeFilter {
-
-	/**
-	 * Is the specified change accepted by the filter?
-	 *
-	 * @param change
-	 *            the change to test
-	 * @return <code>true</code> if it is accepted for preview,
-	 *         <code>false</code> otherwise
-	 */
-	public boolean select(final Change change) {
-		return true;
-	}
+public enum MovedItemType {
+    COMPILATION_UNIT, PACKAGE
 }

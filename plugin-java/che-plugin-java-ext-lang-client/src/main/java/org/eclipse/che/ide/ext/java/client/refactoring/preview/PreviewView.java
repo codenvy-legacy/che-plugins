@@ -8,26 +8,24 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.ltk.internal.ui.refactoring;
+package org.eclipse.che.ide.ext.java.client.refactoring.preview;
 
-import org.eclipse.ltk.core.refactoring.Change;
+import com.google.inject.ImplementedBy;
+
+import org.eclipse.che.ide.api.mvp.View;
 
 /**
- * Implementation for a refactoring preview change filter.
- *
- * @since 3.2
+ * @author Dmitry Shnurenko
  */
-public class RefactoringPreviewChangeFilter {
+@ImplementedBy(PreviewViewImpl.class)
+interface PreviewView extends View<PreviewView.ActionDelegate> {
+    void hide();
 
-	/**
-	 * Is the specified change accepted by the filter?
-	 *
-	 * @param change
-	 *            the change to test
-	 * @return <code>true</code> if it is accepted for preview,
-	 *         <code>false</code> otherwise
-	 */
-	public boolean select(final Change change) {
-		return true;
-	}
+    void show();
+
+    interface ActionDelegate {
+        void onAcceptButtonClicked();
+
+        void onBackButtonClicked();
+    }
 }
