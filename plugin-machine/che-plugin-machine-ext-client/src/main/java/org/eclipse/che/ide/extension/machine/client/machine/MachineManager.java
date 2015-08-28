@@ -143,7 +143,7 @@ public class MachineManager {
                     runningListener = new RunningListener() {
                         @Override
                         public void onRunning() {
-                            machineRunning(machineDescriptor.getId());
+                            onMachineRunning(machineDescriptor.getId());
                         }
                     };
                 }
@@ -154,14 +154,13 @@ public class MachineManager {
         });
     }
 
-    private void machineRunning(final String machineId) {
+    public void onMachineRunning(final String machineId) {
         machineServiceClient.getMachine(machineId).then(new Operation<MachineDescriptor>() {
             @Override
             public void apply(MachineDescriptor machineDescriptor) throws OperationException {
                 appContext.setDevMachineId(machineId);
                 devMachine = entityFactory.createMachine(machineDescriptor);
-                extServerStateController
-                        .initialize(devMachine.getWsServerExtensionsUrl() + "/" + appContext.getWorkspace().getId());
+                extServerStateController.initialize(devMachine.getWsServerExtensionsUrl() + "/" + appContext.getWorkspace().getId());
             }
         });
     }
