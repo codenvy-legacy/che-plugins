@@ -148,7 +148,7 @@ public class DockerConnector {
      * @return system-wide information
      * @throws IOException
      */
-    public SystemInfo getSystemInfo() throws IOException {
+    public org.eclipse.che.plugin.docker.client.json.SystemInfo getSystemInfo() throws IOException {
         final DockerConnection connection = openConnection(dockerDaemonUri);
         try {
             final DockerResponse response = connection.method("GET").path("/info").request();
@@ -157,7 +157,7 @@ public class DockerConnector {
                 final String msg = CharStreams.toString(new InputStreamReader(response.getInputStream()));
                 throw new DockerException(String.format("Error response from docker API, status: %d, message: %s", status, msg), status);
             }
-            return JsonHelper.fromJson(response.getInputStream(), SystemInfo.class, null, FIRST_LETTER_LOWERCASE);
+            return JsonHelper.fromJson(response.getInputStream(), org.eclipse.che.plugin.docker.client.json.SystemInfo.class, null, FIRST_LETTER_LOWERCASE);
         } catch (JsonParseException e) {
             throw new IOException(e.getMessage(), e);
         } finally {
