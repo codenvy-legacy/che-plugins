@@ -32,7 +32,7 @@ public class JavaClasspathServiceClientImpl implements JavaClasspathServiceClien
 
     private final AsyncRequestFactory asyncRequestFactory;
     private final String              extPath;
-    private       String              workspaceId;
+    private final String              workspaceId;
 
     @Inject
     protected JavaClasspathServiceClientImpl(AsyncRequestFactory asyncRequestFactory,
