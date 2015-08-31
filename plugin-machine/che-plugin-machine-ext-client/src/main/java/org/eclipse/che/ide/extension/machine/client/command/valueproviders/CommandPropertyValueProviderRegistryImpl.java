@@ -46,12 +46,12 @@ public class CommandPropertyValueProviderRegistryImpl implements CommandProperty
     }
 
     @Override
-    public CommandPropertyValueProvider getValueProvider(String key) {
+    public CommandPropertyValueProvider getProvider(String key) {
         return valueProviders.get(key);
     }
 
     @Override
-    public List<CommandPropertyValueProvider> getValueProviders() {
+    public List<CommandPropertyValueProvider> getProviders() {
         return new ArrayList<>(valueProviders.values());
     }
 

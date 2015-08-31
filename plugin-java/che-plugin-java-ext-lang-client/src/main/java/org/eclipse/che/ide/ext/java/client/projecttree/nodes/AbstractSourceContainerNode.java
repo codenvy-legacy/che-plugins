@@ -10,23 +10,25 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.java.client.projecttree.nodes;
 
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.web.bindery.event.shared.EventBus;
+
 import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
 import org.eclipse.che.api.project.shared.dto.ItemReference;
 import org.eclipse.che.ide.api.project.tree.AbstractTreeNode;
 import org.eclipse.che.ide.api.project.tree.TreeNode;
 import org.eclipse.che.ide.api.project.tree.generic.FileNode;
 import org.eclipse.che.ide.api.project.tree.generic.FolderNode;
-import org.eclipse.che.ide.collections.Array;
-import org.eclipse.che.ide.collections.Collections;
 import org.eclipse.che.ide.ext.java.client.projecttree.JavaTreeStructure;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.util.loging.Log;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.web.bindery.event.shared.EventBus;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 
 /**
  * Abstract base class for all nodes that represent a container for Java source files and packages.
@@ -63,12 +65,12 @@ public abstract class AbstractSourceContainerNode extends FolderNode {
             // refresh children as simple folder
             super.refreshChildren(callback);
         } else {
-            getChildren(getData().getPath(), new AsyncCallback<Array<ItemReference>>() {
+            getChildren(getData().getPath(), new AsyncCallback<List<ItemReference>>() {
                 @Override
-                public void onSuccess(Array<ItemReference> childItems) {
-                    getChildNodesForItems(childItems, new AsyncCallback<Array<TreeNode<?>>>() {
+                public void onSuccess(List<ItemReference> childItems) {
+                    getChildNodesForItems(childItems, new AsyncCallback<List<TreeNode<?>>>() {
                         @Override
-                        public void onSuccess(Array<TreeNode<?>> result) {
+                        public void onSuccess(List<TreeNode<?>> result) {
                             setChildren(result);
                             callback.onSuccess(AbstractSourceContainerNode.this);
                         }
@@ -88,15 +90,15 @@ public abstract class AbstractSourceContainerNode extends FolderNode {
         }
     }
 
-    private void getChildNodesForItems(final Array<ItemReference> childItems, final AsyncCallback<Array<TreeNode<?>>> callback) {
-        final Array<TreeNode<?>> oldChildren = Collections.createArray(getChildren().asIterable());
-        final Array<TreeNode<?>> newChildren = Collections.createArray();
+    private void getChildNodesForItems(final List<ItemReference> childItems, final AsyncCallback<List<TreeNode<?>>> callback) {
+        final List<TreeNode<?>> oldChildren = getChildren();
+        final List<TreeNode<?>> newChildren = new ArrayList<>();
         if (childItems.isEmpty()) {
             callback.onSuccess(newChildren);
             return;
         }
         final int[] asyncCounter = new int[1];
-        for (final ItemReference item : childItems.asIterable()) {
+        for (final ItemReference item : childItems) {
             getCompactedPackageItemReference(item, new AsyncCallback<ItemReference>() {
                 @Override
                 public void onSuccess(ItemReference fileItemOrCompactedPackageItem) {
@@ -111,7 +113,7 @@ public abstract class AbstractSourceContainerNode extends FolderNode {
                         }
                     }
                     if (childItems.size() == asyncCounter[0]) {
-                        newChildren.sort(NODE_COMPARATOR);
+                        Collections.sort(newChildren, NODE_COMPARATOR);
                         callback.onSuccess(newChildren);
                     }
                 }
@@ -128,9 +130,9 @@ public abstract class AbstractSourceContainerNode extends FolderNode {
         if (!"folder".equals(item.getType())) {
             callback.onSuccess(item);
         } else {
-            getChildren(item.getPath(), new AsyncCallback<Array<ItemReference>>() {
+            getChildren(item.getPath(), new AsyncCallback<List<ItemReference>>() {
                 @Override
-                public void onSuccess(Array<ItemReference> children) {
+                public void onSuccess(List<ItemReference> children) {
                     if (children.size() == 1 && "folder".equals(children.get(0).getType())) {
                         final ItemReference emptyPackageItem = children.get(0);
                         getCompactedPackageItemReference(emptyPackageItem, callback);

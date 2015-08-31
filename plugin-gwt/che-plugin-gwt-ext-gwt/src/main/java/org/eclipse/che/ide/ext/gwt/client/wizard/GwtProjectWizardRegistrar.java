@@ -16,11 +16,11 @@ import com.google.inject.Provider;
 import org.eclipse.che.api.project.shared.dto.ImportProject;
 import org.eclipse.che.ide.api.project.type.wizard.ProjectWizardRegistrar;
 import org.eclipse.che.ide.api.wizard.WizardPage;
-import org.eclipse.che.ide.collections.Array;
-import org.eclipse.che.ide.collections.Collections;
 import org.eclipse.che.ide.extension.maven.client.wizard.MavenPagePresenter;
 
 import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.eclipse.che.ide.ext.gwt.shared.Constants.GWT_PROJECT_TYPE_ID;
 import static org.eclipse.che.ide.ext.java.shared.Constants.JAVA_CATEGORY;
@@ -31,11 +31,11 @@ import static org.eclipse.che.ide.ext.java.shared.Constants.JAVA_CATEGORY;
  * @author Artem Zatsarynnyy
  */
 public class GwtProjectWizardRegistrar implements ProjectWizardRegistrar {
-    private final Array<Provider<? extends WizardPage<ImportProject>>> wizardPages;
+    private final List<Provider<? extends WizardPage<ImportProject>>> wizardPages;
 
     @Inject
     public GwtProjectWizardRegistrar(Provider<MavenPagePresenter> mavenPagePresenter) {
-        wizardPages = Collections.createArray();
+        wizardPages = new ArrayList<>();
         wizardPages.add(mavenPagePresenter);
     }
 
@@ -50,7 +50,7 @@ public class GwtProjectWizardRegistrar implements ProjectWizardRegistrar {
     }
 
     @Nonnull
-    public Array<Provider<? extends WizardPage<ImportProject>>> getWizardPages() {
+    public List<Provider<? extends WizardPage<ImportProject>>> getWizardPages() {
         return wizardPages;
     }
 }

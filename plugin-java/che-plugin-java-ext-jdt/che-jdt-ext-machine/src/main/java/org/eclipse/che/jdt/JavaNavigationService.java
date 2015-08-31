@@ -91,6 +91,7 @@ public class JavaNavigationService {
         return navigation.getEntry(project, rootId, path);
     }
 
+    @GET
     @Path("get/projects/and/packages")
     @Produces("application/json")
     public List<JavaProject> getProjectsAndPackages(@QueryParam("includepackages") boolean includePackages) throws JavaModelException {

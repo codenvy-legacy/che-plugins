@@ -12,12 +12,15 @@ package org.eclipse.che.ide.ext.java.client.dependenciesupdater;
 
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 
+import java.util.List;
+
 /**
- * Client for Java Name Environment service.
+ * Client for Java classpath service.
  *
  * @author Artem Zatsarynnyy
  */
-public interface JavaNameEnvironmentServiceClient {
+public interface JavaClasspathServiceClient {
+
     /**
      * Update project dependencies.
      *
@@ -30,15 +33,5 @@ public interface JavaNameEnvironmentServiceClient {
      */
     void updateDependencies(String projectPath, boolean force, AsyncRequestCallback<Boolean> callback);
 
-//    /**
-//     * Update project dependencies and wait for ending.
-//     *
-//     * @param projectPath
-//     *         path to the project to update its dependencies
-//     * @param buildTaskDescriptor
-//     *         {@link BuildTaskDescriptor}
-//     * @param callback
-//     *         the callback to use for the response
-//     */
-//    void updateDependenciesAndWait(String projectPath, BuildTaskDescriptor buildTaskDescriptor, AsyncRequestCallback<Void> callback);
+    void getClasspath(String projectPath, AsyncRequestCallback<List<String>> callback);
 }

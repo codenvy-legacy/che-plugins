@@ -34,8 +34,6 @@ import org.eclipse.che.api.machine.shared.dto.ProcessDescriptor;
 import org.eclipse.che.api.machine.shared.dto.RecipeMachineCreationMetadata;
 import org.eclipse.che.api.machine.shared.dto.SnapshotMachineCreationMetadata;
 import org.eclipse.che.api.machine.shared.dto.recipe.MachineRecipe;
-import org.eclipse.che.api.workspace.server.dao.Member;
-import org.eclipse.che.api.workspace.server.dao.MemberDao;
 import org.eclipse.che.commons.env.EnvironmentContext;
 import org.eclipse.che.commons.user.User;
 import org.eclipse.che.dto.server.DtoFactory;
@@ -133,7 +131,7 @@ public class ServiceTest {
 
     @BeforeMethod
     public void setUp() throws Exception {
-        MemberDao memberDao = mock(MemberDao.class);
+//        MemberDao memberDao = mock(MemberDao.class);
 
         snapshotDao = mock(SnapshotDao.class);
 
@@ -154,7 +152,7 @@ public class ServiceTest {
                                             eventService,
                                             100);
 
-        machineService = spy(new MachineService(machineManager, memberDao));
+        machineService = spy(new MachineService(machineManager));
 
         EnvironmentContext.getCurrent().setUser(new User() {
             @Override
@@ -184,16 +182,12 @@ public class ServiceTest {
         });
 
         when(dockerNode.getProjectsFolder()).thenReturn(System.getProperty("user.dir"));
-        when(memberDao.getWorkspaceMember("wsId", USER)).thenReturn(new Member()
-                                                                            .withWorkspaceId("wsId")
-                                                                            .withUserId(USER)
-                                                                            .withRoles(Collections.singletonList("workspace/developer")));
     }
 
     @AfterMethod
     public void tearDown() throws Exception {
         for (MachineImpl machine : new ArrayList<>(machineManager.getMachinesStates())) {
-            machineManager.destroy(machine.getId());
+            machineManager.destroy(machine.getId(), false);
         }
     }
 
@@ -400,9 +394,9 @@ public class ServiceTest {
                                                                                           .withScript(
                                                                                                   "FROM ubuntu\nCMD tail -f " +
                                                                                                   "/dev/null\n"))
-                                                                    .withBindWorkspace(false)
+                                                                    .withDev(false)
                                                                     .withDisplayName("displayName")
-                                                         );
+                                                          , false);
         waitMachineIsRunning(machine.getId());
         return machine;
     }

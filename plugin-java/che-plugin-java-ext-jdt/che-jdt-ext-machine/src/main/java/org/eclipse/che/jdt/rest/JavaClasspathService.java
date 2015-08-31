@@ -21,6 +21,7 @@ import org.eclipse.che.ide.maven.tools.MavenUtils;
 import org.eclipse.che.jdt.maven.MavenClasspathUtil;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jdt.core.IClasspathContainer;
+import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
@@ -31,9 +32,13 @@ import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -63,10 +68,7 @@ public class JavaClasspathService {
             }
         }
         return succes;
-
     }
-
-
 
     private boolean generateClasspath(final String projectPath, File dir) {
         StreamPump output = null;
@@ -76,7 +78,8 @@ public class JavaClasspathService {
         String command = MavenUtils.getMavenExecCommand();
         try {
             ProcessBuilder processBuilder =
-                    new ProcessBuilder().command(command, "dependency:build-classpath", "-Dmdep.outputFile=.codenvy/classpath.maven").directory(dir).redirectErrorStream(true);
+                    new ProcessBuilder().command(command, "dependency:build-classpath", "-Dmdep.outputFile=.codenvy/classpath.maven").directory(
+                            dir).redirectErrorStream(true);
             Process process = processBuilder.start();
 
             if (timeout > 0) {
@@ -112,5 +115,17 @@ public class JavaClasspathService {
             }
         }
         return result == 0;
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<String> get(@QueryParam("projectpath") String projectPath) throws JavaModelException {
+        IJavaProject javaProject = model.getJavaProject(projectPath);
+        IClasspathEntry[] cp = javaProject.getResolvedClasspath(false);
+        List<String> classPath = new ArrayList<>();
+        for (IClasspathEntry cpe : cp) {
+            classPath.add(cpe.getPath().toString());
+        }
+        return classPath;
     }
 }

@@ -67,7 +67,7 @@ public class CommandOutputConsole implements OutputConsole, OutputConsoleView.Ac
 
         view.setDelegate(this);
 
-        view.printCommandLine(commandManager.processCommandLineVariables(commandConfiguration.toCommandLine()));
+        view.printCommandLine(commandManager.substituteProperties(commandConfiguration.toCommandLine()));
     }
 
     @Override

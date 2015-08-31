@@ -22,8 +22,6 @@ import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.event.RefreshProjectTreeEvent;
 import org.eclipse.che.ide.api.project.tree.TreeNode;
 import org.eclipse.che.ide.api.project.tree.TreeStructure;
-import org.eclipse.che.ide.collections.Array;
-import org.eclipse.che.ide.collections.Collections;
 import org.eclipse.che.ide.websocket.MessageBus;
 import org.eclipse.che.ide.websocket.rest.SubscriptionHandler;
 import org.junit.Test;
@@ -36,6 +34,8 @@ import org.mockito.Mock;
 
 import javax.annotation.Nonnull;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.eclipse.che.ide.extension.machine.client.watcher.SystemFileWatcher.WATCHER_WS_CHANEL;
 import static org.mockito.Matchers.eq;
@@ -80,7 +80,7 @@ public class SystemFileWatcherTest {
     @Captor
     private ArgumentCaptor<AsyncCallback<TreeNode<?>>>        nodeCaptor;
     @Captor
-    private ArgumentCaptor<AsyncCallback<Array<TreeNode<?>>>> rootNodeCaptor;
+    private ArgumentCaptor<AsyncCallback<List<TreeNode<?>>>> rootNodeCaptor;
 
     @InjectMocks
     private SystemFileWatcher systemFileWatcher;
@@ -123,7 +123,8 @@ public class SystemFileWatcherTest {
 
     @Test
     public void parentNodeShouldBeRefreshed() throws Exception {
-        Array<TreeNode<?>> nodes = Collections.<TreeNode<?>>createArray(treeNode);
+        List<TreeNode<?>> nodes = new ArrayList<>();
+        nodes.add(treeNode);
 
         callRefreshTreeMethod(PATH_TO_PARENT);
 

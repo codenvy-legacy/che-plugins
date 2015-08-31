@@ -13,7 +13,7 @@ package org.eclipse.che.ide.ext.java.client.editor.outline;
 import org.eclipse.che.ide.api.texteditor.outline.CodeBlock;
 import org.eclipse.che.ide.api.texteditor.outline.OutlineModel;
 import org.eclipse.che.ide.collections.Array;
-import org.eclipse.che.ide.collections.Collections;
+import org.eclipse.che.ide.collections.js.JsoArray;
 
 /**
  * OutlineUpdater receive messages from worker and updates OutlineModel
@@ -31,7 +31,7 @@ public class OutlineUpdater /*implements JavaParserWorker.WorkerCallback<WorkerC
         root = JavaCodeBlock.make();
         root.setType(CodeBlock.ROOT_TYPE);
         root.setOffset(0);
-        root.setChildren(Collections.<JavaCodeBlock>createArray());
+        root.setChildren(JsoArray.<JavaCodeBlock>create());
         outlineModel.updateRoot(root);
     }
 

@@ -27,6 +27,7 @@ import org.eclipse.che.jdt.refactoring.RefactoringException;
 import org.eclipse.che.jdt.refactoring.RefactoringManager;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
@@ -86,7 +87,7 @@ public class RefactoringService {
                 throw e;
             }
         }
-        if (RefactoringAvailabilityTester.isMoveAvailable(null, javaElements)) {
+        if (RefactoringAvailabilityTester.isMoveAvailable(new IResource[0], javaElements)) {
             return manager.createMoveRefactoringSession(javaElements);
         }
 
