@@ -11,13 +11,13 @@
 package org.eclipse.che.jdt.refactoring;
 
 import org.eclipse.che.ide.ext.java.BaseTest;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.che.jdt.testplugin.JavaProjectHelper;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jdt.core.IClasspathEntry;
@@ -47,6 +47,8 @@ import org.eclipse.ltk.core.refactoring.RefactoringContribution;
 import org.eclipse.ltk.core.refactoring.RefactoringCore;
 import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
+import org.junit.Rule;
+import org.junit.rules.TestName;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -74,35 +76,38 @@ public abstract class RefactoringTest extends BaseTest {
 	 */
 	private static final boolean DESCRIPTOR_TEST= false;
 
+	@Rule
+	public TestName name = new TestName();
+
 	protected IPackageFragmentRoot fRoot;
-	protected IPackageFragment fPackageP;
-	protected IJavaProject fProject;
+	protected IPackageFragment     fPackageP;
+	protected IJavaProject         fProject;
 
-	public boolean fIsVerbose= false;
-	public boolean fIsPreDeltaTest= false;
+	public boolean fIsVerbose      = false;
+	public boolean fIsPreDeltaTest = false;
 
-	public static final String TEST_PATH_PREFIX= "";
+	public static final String TEST_PATH_PREFIX = "";
 
-	protected static final String TEST_INPUT_INFIX= "/in/";
-	protected static final String TEST_OUTPUT_INFIX= "/out/";
-	protected static final String CONTAINER= "src";
+	protected static final String TEST_INPUT_INFIX  = "/in/";
+	protected static final String TEST_OUTPUT_INFIX = "/out/";
+	protected static final String CONTAINER         = "src";
 
-	protected static final List/*<String>*/ PROJECT_RESOURCE_CHILDREN= Arrays.asList(new String[] {
-			".project", ".classpath", ".settings" });
+	protected static final List/*<String>*/ PROJECT_RESOURCE_CHILDREN = Arrays.asList(new String[]{
+			".project", ".classpath", ".settings"});
 
 //	public RefactoringTest(String name) {
 //		super(name);
 //	}
 
 	public void setUp() throws Exception {
-		fRoot= RefactoringTestSetup.getDefaultSourceFolder();
-		fPackageP= RefactoringTestSetup.getPackageP();
-		fIsPreDeltaTest= false;
+		fRoot = RefactoringTestSetup.getDefaultSourceFolder();
+		fPackageP = RefactoringTestSetup.getPackageP();
+		fIsPreDeltaTest = false;
 		fProject = RefactoringTestSetup.getProject();
 
-		if (fIsVerbose){
+		if (fIsVerbose) {
 			System.out.println("\n---------------------------------------------");
-			System.out.println("\nTest:" + getClass() + "." );
+			System.out.println("\nTest:" + getClass() + ".");
 		}
 		RefactoringCore.getUndoManager().flush();
 	}
@@ -118,23 +123,23 @@ public abstract class RefactoringTest extends BaseTest {
 	/**
 	 * Removes contents of {@link #getPackageP()}, of {@link #getRoot()} (except for p) and of the
 	 * Java project (except for src and the JRE library).
-	 * 
+	 *
 	 * @throws Exception in case of errors
 	 */
 	protected void tearDown() throws Exception {
 		refreshFromLocal();
 		performDummySearch();
 
-		final boolean pExists= getPackageP().exists();
+		final boolean pExists = getPackageP().exists();
 		if (pExists) {
 			tryDeletingAllJavaChildren(getPackageP());
 			tryDeletingAllNonJavaChildResources(getPackageP());
 		}
 
-		if (getRoot().exists()){
-			IJavaElement[] packages= getRoot().getChildren();
-			for (int i= 0; i < packages.length; i++){
-				IPackageFragment pack= (IPackageFragment)packages[i];
+		if (getRoot().exists()) {
+			IJavaElement[] packages = getRoot().getChildren();
+			for (int i = 0; i < packages.length; i++) {
+				IPackageFragment pack = (IPackageFragment)packages[i];
 				if (!pack.equals(getPackageP()) && pack.exists() && !pack.isReadOnly())
 					if (pack.isDefaultPackage())
 						JavaProjectHelper.deletePackage(pack); // also delete packages with subpackages
@@ -144,7 +149,7 @@ public abstract class RefactoringTest extends BaseTest {
 			// Restore package 'p'
 			if (!pExists)
 				getRoot().createPackageFragment("p", true, null);
-			
+
 			tryDeletingAllNonJavaChildResources(getRoot());
 		}
 
@@ -152,32 +157,32 @@ public abstract class RefactoringTest extends BaseTest {
 	}
 
 	private void restoreTestProject() throws Exception {
-		IJavaProject javaProject= getRoot().getJavaProject();
+		IJavaProject javaProject = getRoot().getJavaProject();
 		if (javaProject.exists()) {
-			IClasspathEntry srcEntry= getRoot().getRawClasspathEntry();
-			IClasspathEntry jreEntry= RefactoringTestSetup.getJRELibrary().getRawClasspathEntry();
-			IClasspathEntry[] cpes= javaProject.getRawClasspath();
-			ArrayList newCPEs= new ArrayList();
-			boolean cpChanged= false;
-			for (int i= 0; i < cpes.length; i++) {
-				IClasspathEntry cpe= cpes[i];
+			IClasspathEntry srcEntry = getRoot().getRawClasspathEntry();
+			IClasspathEntry jreEntry = RefactoringTestSetup.getJRELibrary().getRawClasspathEntry();
+			IClasspathEntry[] cpes = javaProject.getRawClasspath();
+			ArrayList newCPEs = new ArrayList();
+			boolean cpChanged = false;
+			for (int i = 0; i < cpes.length; i++) {
+				IClasspathEntry cpe = cpes[i];
 				if (cpe.equals(srcEntry) || cpe.equals(jreEntry)) {
 					newCPEs.add(cpe);
 				} else {
-					cpChanged= true;
+					cpChanged = true;
 				}
 			}
 			if (cpChanged) {
-				IClasspathEntry[] newCPEsArray= (IClasspathEntry[]) newCPEs.toArray(new IClasspathEntry[newCPEs.size()]);
+				IClasspathEntry[] newCPEsArray = (IClasspathEntry[])newCPEs.toArray(new IClasspathEntry[newCPEs.size()]);
 				javaProject.setRawClasspath(newCPEsArray, null);
 			}
 
-			Object[] nonJavaResources= javaProject.getNonJavaResources();
-			for (int i= 0; i < nonJavaResources.length; i++) {
-				Object kid= nonJavaResources[i];
+			Object[] nonJavaResources = javaProject.getNonJavaResources();
+			for (int i = 0; i < nonJavaResources.length; i++) {
+				Object kid = nonJavaResources[i];
 				if (kid instanceof IResource) {
-					IResource resource= (IResource) kid;
-					if (! PROJECT_RESOURCE_CHILDREN.contains(resource.getName())) {
+					IResource resource = (IResource)kid;
+					if (!PROJECT_RESOURCE_CHILDREN.contains(resource.getName())) {
 						JavaProjectHelper.delete(resource);
 					}
 				}
@@ -386,7 +391,7 @@ public abstract class RefactoringTest extends BaseTest {
 	}
 
 	protected String createTestFileName(String cuName, String infix) {
-		return getTestPath() +/* getName() +*/ infix + cuName + ".java";
+		return getTestPath() + name.getMethodName() + infix + cuName + ".java";
 	}
 
 	protected String getInputTestFileName(String cuName) {
@@ -483,7 +488,7 @@ public abstract class RefactoringTest extends BaseTest {
 
 	public static InputStream getFileInputStream(String fileName) throws IOException {
 //		return RefactoringTestPlugin.getDefault().getTestResourceStream(fileName);
-        throw new UnsupportedOperationException("Get content: " + fileName);
+        return  RefactoringTest.class.getResource("/" + fileName).openStream();
 
     }
 

@@ -352,7 +352,9 @@ public abstract class Resource implements IResource, IPathRequestor, ICoreConsta
 
     @Override
     public IMarker[] findMarkers(String type, boolean includeSubtypes, int depth) throws CoreException {
-        throw new UnsupportedOperationException();
+//        throw new UnsupportedOperationException();
+        //TODO
+        return new IMarker[0];
     }
 
     @Override

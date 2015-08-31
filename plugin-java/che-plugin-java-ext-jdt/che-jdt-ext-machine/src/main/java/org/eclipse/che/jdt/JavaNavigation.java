@@ -173,20 +173,15 @@ public class JavaNavigation {
         IJavaElement originalElement = null;
         IType type = project.findType(fqn);
         ICodeAssist codeAssist;
-//        IBuffer buffer;
         if(type.isBinary()){
             codeAssist = type.getClassFile();
-//            buffer = type.getClassFile().getBuffer();
         } else {
             codeAssist = type.getCompilationUnit();
-//            buffer = type.getCompilationUnit().getBuffer();
         }
 
-//        DocumentAdapter adapter = new DocumentAdapter(buffer);
-//        org.eclipse.jface.text.IRegion region = JavaWordFinder.findWord(adapter, offset);
         IJavaElement[] elements = null;
         if(codeAssist != null) {
-            elements = codeAssist.codeSelect(/*region.getOffset(), region.getLength()*/ offset, 0);
+            elements = codeAssist.codeSelect(offset, 0);
         }
 
         if(elements != null && elements.length > 0){

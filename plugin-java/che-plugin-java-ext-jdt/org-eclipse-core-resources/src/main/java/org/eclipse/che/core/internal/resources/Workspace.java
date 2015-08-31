@@ -15,6 +15,7 @@ import org.eclipse.che.core.internal.utils.Policy;
 import org.eclipse.core.commands.operations.IUndoContext;
 import org.eclipse.core.commands.operations.UndoContext;
 import org.eclipse.core.internal.resources.ICoreConstants;
+import org.eclipse.core.internal.resources.OS;
 import org.eclipse.core.internal.resources.ResourceException;
 import org.eclipse.core.internal.resources.WorkspaceDescription;
 import org.eclipse.core.internal.utils.Messages;
@@ -540,8 +541,34 @@ public class Workspace implements IWorkspace {
     }
 
     @Override
-    public IStatus validateName(String s, int i) {
-        throw new UnsupportedOperationException();
+    public IStatus validateName(String segment, int type) {
+        String message;
+        /* segment must not be null */
+        if (segment == null) {
+            message = Messages.resources_nameNull;
+            return new org.eclipse.core.internal.resources.ResourceStatus(IResourceStatus.INVALID_VALUE, null, message);
+        }
+
+        // cannot be an empty string
+        if (segment.length() == 0) {
+            message = Messages.resources_nameEmpty;
+            return new org.eclipse.core.internal.resources.ResourceStatus(IResourceStatus.INVALID_VALUE, null, message);
+        }
+
+		/* test invalid characters */
+        char[] chars = OS.INVALID_RESOURCE_CHARACTERS;
+        for (int i = 0; i < chars.length; i++)
+            if (segment.indexOf(chars[i]) != -1) {
+                message = NLS.bind(Messages.resources_invalidCharInName, String.valueOf(chars[i]), segment);
+                return new org.eclipse.core.internal.resources.ResourceStatus(IResourceStatus.INVALID_VALUE, null, message);
+            }
+
+		/* test invalid OS names */
+        if (!OS.isNameValid(segment)) {
+            message = NLS.bind(Messages.resources_invalidName, segment);
+            return new org.eclipse.core.internal.resources.ResourceStatus(IResourceStatus.INVALID_VALUE, null, message);
+        }
+        return Status.OK_STATUS;
     }
 
     @Override
@@ -550,8 +577,81 @@ public class Workspace implements IWorkspace {
     }
 
     @Override
-    public IStatus validatePath(String s, int i) {
-        throw new UnsupportedOperationException();
+    public IStatus validatePath(String path, int type) {
+       /* path must not be null */
+        if (path == null) {
+            String message = Messages.resources_pathNull;
+            return new org.eclipse.core.internal.resources.ResourceStatus(IResourceStatus.INVALID_VALUE, null, message);
+        }
+        return validatePath(Path.fromOSString(path), type, false);
+    }
+
+    /**
+     * Validates that the given workspace path is valid for the given type.  If
+     * <code>lastSegmentOnly</code> is true, it is assumed that all segments except
+     * the last one have previously been validated.  This is an optimization for validating
+     * a leaf resource when it is known that the parent exists (and thus its parent path
+     * must already be valid).
+     */
+    public IStatus validatePath(IPath path, int type, boolean lastSegmentOnly) {
+        String message;
+
+		/* path must not be null */
+        if (path == null) {
+            message = Messages.resources_pathNull;
+            return new org.eclipse.core.internal.resources.ResourceStatus(IResourceStatus.INVALID_VALUE, null, message);
+        }
+
+		/* path must not have a device separator */
+        if (path.getDevice() != null) {
+            message = NLS.bind(Messages.resources_invalidCharInPath, String.valueOf(IPath.DEVICE_SEPARATOR), path);
+            return new org.eclipse.core.internal.resources.ResourceStatus(IResourceStatus.INVALID_VALUE, null, message);
+        }
+
+		/* path must not be the root path */
+        if (path.isRoot()) {
+            message = Messages.resources_invalidRoot;
+            return new org.eclipse.core.internal.resources.ResourceStatus(IResourceStatus.INVALID_VALUE, null, message);
+        }
+
+		/* path must be absolute */
+        if (!path.isAbsolute()) {
+            message = NLS.bind(Messages.resources_mustBeAbsolute, path);
+            return new org.eclipse.core.internal.resources.ResourceStatus(IResourceStatus.INVALID_VALUE, null, message);
+        }
+
+		/* validate segments */
+        int numberOfSegments = path.segmentCount();
+        if ((type & IResource.PROJECT) != 0) {
+            if (numberOfSegments == ICoreConstants.PROJECT_SEGMENT_LENGTH) {
+                return validateName(path.segment(0), IResource.PROJECT);
+            } else if (type == IResource.PROJECT) {
+                message = NLS.bind(Messages.resources_projectPath, path);
+                return new org.eclipse.core.internal.resources.ResourceStatus(IResourceStatus.INVALID_VALUE, null, message);
+            }
+        }
+        if ((type & (IResource.FILE | IResource.FOLDER)) != 0) {
+            if (numberOfSegments < ICoreConstants.MINIMUM_FILE_SEGMENT_LENGTH) {
+                message = NLS.bind(Messages.resources_resourcePath, path);
+                return new org.eclipse.core.internal.resources.ResourceStatus(IResourceStatus.INVALID_VALUE, null, message);
+            }
+            int fileFolderType = type &= ~IResource.PROJECT;
+            int segmentCount = path.segmentCount();
+            if (lastSegmentOnly)
+                return validateName(path.segment(segmentCount - 1), fileFolderType);
+            IStatus status = validateName(path.segment(0), IResource.PROJECT);
+            if (!status.isOK())
+                return status;
+            // ignore first segment (the project)
+            for (int i = 1; i < segmentCount; i++) {
+                status = validateName(path.segment(i), fileFolderType);
+                if (!status.isOK())
+                    return status;
+            }
+            return Status.OK_STATUS;
+        }
+        message = NLS.bind(Messages.resources_invalidPath, path);
+        return new org.eclipse.core.internal.resources.ResourceStatus(IResourceStatus.INVALID_VALUE, null, message);
     }
 
     @Override

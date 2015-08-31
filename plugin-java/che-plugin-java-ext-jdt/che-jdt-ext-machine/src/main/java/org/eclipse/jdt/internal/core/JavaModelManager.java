@@ -1938,6 +1938,89 @@ public class JavaModelManager {
         return container;
     }
 
+    /**
+     * Add a secondary type in temporary indexing cache for a project got from given path.
+     *
+     * Current secondary types cache is not modified as we want to wait that indexing
+     * was finished before taking new secondary types into account.
+     *
+     * Indexing cache is a specific entry in secondary types cache which key is
+     * {@link #INDEXED_SECONDARY_TYPES } and value a map with same structure than
+     * secondary types cache itself.
+     *
+     * @see #secondaryTypes(IJavaProject, boolean, IProgressMonitor)
+     */
+    public void secondaryTypeAdding(String path, char[] typeName, char[] packageName) {
+        if (VERBOSE) {
+            StringBuffer buffer = new StringBuffer("JavaModelManager.addSecondaryType("); //$NON-NLS-1$
+            buffer.append(path);
+            buffer.append(',');
+            buffer.append('[');
+            buffer.append(new String(packageName));
+            buffer.append('.');
+            buffer.append(new String(typeName));
+            buffer.append(']');
+            buffer.append(')');
+            Util.verbose(buffer.toString());
+        }
+        IWorkspaceRoot wRoot = ResourcesPlugin.getWorkspace().getRoot();
+        IResource resource = wRoot.findMember(path);
+        if (resource != null) {
+            if (org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(path) && resource.getType() == IResource.FILE) {
+                IProject project = resource.getProject();
+                try {
+                    PerProjectInfo projectInfo = getPerProjectInfoCheckExistence(project);
+                    // Get or create map to cache secondary types while indexing (can be not synchronized as indexing insure a non-concurrent usage)
+                    HashMap indexedSecondaryTypes = null;
+                    if (projectInfo.secondaryTypes == null) {
+                        projectInfo.secondaryTypes = new Hashtable(3);
+                        indexedSecondaryTypes = new HashMap(3);
+                        projectInfo.secondaryTypes.put(INDEXED_SECONDARY_TYPES, indexedSecondaryTypes);
+                    } else {
+                        indexedSecondaryTypes = (HashMap) projectInfo.secondaryTypes.get(INDEXED_SECONDARY_TYPES);
+                        if (indexedSecondaryTypes == null) {
+                            indexedSecondaryTypes = new HashMap(3);
+                            projectInfo.secondaryTypes.put(INDEXED_SECONDARY_TYPES, indexedSecondaryTypes);
+                        }
+                    }
+                    // Store the secondary type in temporary cache (these are just handles => no problem to create it now...)
+                    HashMap allTypes = (HashMap) indexedSecondaryTypes.get(resource);
+                    if (allTypes == null) {
+                        allTypes = new HashMap(3);
+                        indexedSecondaryTypes.put(resource, allTypes);
+                    }
+                    ICompilationUnit unit = JavaModelManager.createCompilationUnitFrom((IFile)resource, null);
+                    if (unit != null) {
+                        String typeString = new String(typeName);
+                        IType type = unit.getType(typeString);
+                        // String packageString = new String(packageName);
+                        // use package fragment name instead of parameter as it may be invalid...
+                        // see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=186781
+                        String packageString = type.getPackageFragment().getElementName();
+                        HashMap packageTypes = (HashMap) allTypes.get(packageString);
+                        if (packageTypes == null) {
+                            packageTypes = new HashMap(3);
+                            allTypes.put(packageString, packageTypes);
+                        }
+                        packageTypes.put(typeString, type);
+                    }
+                    if (VERBOSE) {
+                        Util.verbose("	- indexing cache:"); //$NON-NLS-1$
+                        Iterator entries = indexedSecondaryTypes.entrySet().iterator();
+                        while (entries.hasNext()) {
+                            Map.Entry entry = (Map.Entry) entries.next();
+                            IFile file = (IFile) entry.getKey();
+                            Util.verbose("		+ "+file.getFullPath()+':'+ entry.getValue()); //$NON-NLS-1$
+                        }
+                    }
+                }
+                catch (JavaModelException jme) {
+                    // do nothing
+                }
+            }
+        }
+    }
+
     public synchronized IClasspathContainer containerGet(IJavaProject project, IPath containerPath) {
 //        // check initialization in progress first
         if (containerIsInitializationInProgress(project, containerPath)) {

@@ -223,7 +223,8 @@ public class Project extends Container implements IProject {
 
     @Override
     public IProject[] getReferencedProjects() throws CoreException {
-        throw new UnsupportedOperationException();
+        //TODO need to use Project API to solve this
+        return new IProject[0];
     }
 
     @Override

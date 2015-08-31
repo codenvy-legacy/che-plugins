@@ -20,15 +20,24 @@ import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ChangeCreationResult;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.MoveSettings;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringPreview;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatus;
+import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RenameRefactoringSession;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ReorgDestination;
 import org.eclipse.che.ide.util.UUID;
 import org.eclipse.che.jdt.refactoring.session.MoveRefactoringSession;
 import org.eclipse.che.jdt.refactoring.session.RefactoringSession;
 import org.eclipse.che.jdt.refactoring.session.ReorgRefactoringSession;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.ILocalVariable;
+import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.ITypeParameter;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.corext.refactoring.reorg.IConfirmQuery;
@@ -36,6 +45,7 @@ import org.eclipse.jdt.internal.corext.refactoring.reorg.IReorgPolicy;
 import org.eclipse.jdt.internal.corext.refactoring.reorg.IReorgQueries;
 import org.eclipse.jdt.internal.corext.refactoring.reorg.JavaMoveProcessor;
 import org.eclipse.jdt.internal.corext.refactoring.reorg.ReorgPolicyFactory;
+import org.eclipse.jdt.ui.refactoring.RenameSupport;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.CompositeChange;
 import org.eclipse.ltk.core.refactoring.Refactoring;
@@ -184,5 +194,49 @@ public class RefactoringManager {
         RefactoringSession session = getRefactoringSession(sessionId);
         org.eclipse.ltk.core.refactoring.RefactoringStatus status = session.apply();
         return DtoConverter.toRefactoringStatusDto(status);
+    }
+
+    public RenameRefactoringSession createRenameRefactoring(IJavaElement element, boolean lightweight) throws CoreException, RefactoringException {
+
+//        //package fragments are always renamed with wizard
+//        if(lightweight && !(element instanceof IPackageFragment)){
+//
+//        }
+//        else {
+//            RenameSupport renameSupport = createRenameSupport(element, null, RenameSupport.UPDATE_REFERENCES);
+//            if (renameSupport != null && renameSupport.preCheck().isOK()) {
+//
+//            }
+//            throw new RefactoringException("Can't create refactoring session for element: " + element.getElementName());
+//        }
+        throw new UnsupportedOperationException();
+    }
+
+    private static RenameSupport createRenameSupport(IJavaElement element, String newName, int flags) throws CoreException {
+        switch (element.getElementType()) {
+//            case IJavaElement.JAVA_PROJECT:
+//                return RenameSupport.create((IJavaProject) element, newName, flags);
+//            case IJavaElement.PACKAGE_FRAGMENT_ROOT:
+//                return RenameSupport.create((IPackageFragmentRoot) element, newName);
+            case IJavaElement.PACKAGE_FRAGMENT:
+                return RenameSupport.create((IPackageFragment) element, newName, flags);
+            case IJavaElement.COMPILATION_UNIT:
+                return RenameSupport.create((ICompilationUnit) element, newName, flags);
+            case IJavaElement.TYPE:
+                return RenameSupport.create((IType) element, newName, flags);
+            case IJavaElement.METHOD:
+                final IMethod method= (IMethod) element;
+                if (method.isConstructor())
+                    return createRenameSupport(method.getDeclaringType(), newName, flags);
+                else
+                    return RenameSupport.create((IMethod) element, newName, flags);
+            case IJavaElement.FIELD:
+                return RenameSupport.create((IField) element, newName, flags);
+            case IJavaElement.TYPE_PARAMETER:
+                return RenameSupport.create((ITypeParameter) element, newName, flags);
+            case IJavaElement.LOCAL_VARIABLE:
+                return RenameSupport.create((ILocalVariable) element, newName, flags);
+        }
+        return null;
     }
 }

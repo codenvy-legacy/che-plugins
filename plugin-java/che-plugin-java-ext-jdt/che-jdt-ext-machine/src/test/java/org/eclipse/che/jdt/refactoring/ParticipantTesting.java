@@ -155,15 +155,15 @@ public class ParticipantTesting {
 //		}
 //	}
 //
-//	public static void testSimilarElements(List similarList, List similarNewNameList, List similarNewHandleList) {
-//		Assert.assertEquals(similarList.size(), similarNewNameList.size());
-//		if (similarList.size() == 0) {
-//			TestRenameParticipantShared.testNumberOfSimilarElements(0);
-//		} else {
-//			TestRenameParticipantShared.testSimilarElements(similarList, similarNewNameList, similarNewHandleList);
-//		}
-//
-//	}
+	public static void testSimilarElements(List similarList, List similarNewNameList, List similarNewHandleList) {
+		Assert.assertEquals(similarList.size(), similarNewNameList.size());
+		if (similarList.size() == 0) {
+			TestRenameParticipantShared.testNumberOfSimilarElements(0);
+		} else {
+			TestRenameParticipantShared.testSimilarElements(similarList, similarNewNameList, similarNewHandleList);
+		}
+
+	}
 
 	private static void testElementsShared(String[] expected, List actual) {
 		for (int i= 0; i < expected.length; i++) {

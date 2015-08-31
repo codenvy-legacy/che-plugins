@@ -165,7 +165,6 @@ public class MoveTest extends RefactoringTest {
     @BeforeClass
     public static void prepareClass() {
         ParticipantTesting.init();
-
     }
 
     @Before
