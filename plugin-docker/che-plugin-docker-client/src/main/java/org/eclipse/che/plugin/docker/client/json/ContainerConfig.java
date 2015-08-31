@@ -16,32 +16,34 @@ import java.util.Map;
 
 /** @author andrew00x */
 public class ContainerConfig {
-    private String                           domainName;
-    private long                             memory;
-    private long                             memorySwap;
-    private int                              cpuShares;
-    private String                           cpuset;
-    private boolean                          attachStdin;
-    private boolean                          attachStdout;
-    private boolean                          attachStderr;
-    private boolean                          tty;
-    private boolean                          openStdin;
-    private boolean                          stdinOnce;
-    private String[]                         env;
-    private String[]                         cmd;
-    private String                           entrypoint;
-    private String                           image;
-    private boolean                          networkDisabled;
-    private String                           macAddress;
+    private String     domainName;
+    private long       memory;
+    private long       memorySwap;
+    private int        cpuShares;
+    private String     cpuset;
+    private boolean    attachStdin;
+    private boolean    attachStdout;
+    private boolean    attachStderr;
+    private boolean    tty;
+    private boolean    openStdin;
+    private boolean    stdinOnce;
+    private String[]   env;
+    private String[]   cmd;
+    private String     entrypoint;
+    private String     image;
+    private boolean    networkDisabled;
+    private String     macAddress;
+    private String[]   securityOpts;
+    private HostConfig hostConfig;
+
     // from docs for 1.15 API https://docs.docker.com/reference/api/docker_remote_api_v1.15/#create-a-container
     // An object mapping ports to an empty object in the form of: "ExposedPorts": { "<port>/<tcp|udp>: {}" }
-    private Map<String, Map<String, String>> exposedPorts;
-    private String[]                         securityOpts;
-    private HostConfig                       hostConfig;
-    private String              hostname   = "";
-    private String              user       = "";
-    private String              workingDir = "";
-    private Map<String, Volume> volumes    = new HashMap<>();
+    private Map<String, Map<String, String>> exposedPorts = new HashMap<>();
+    private String                           user         = "";
+    private String                           hostname     = "";
+    private String                           workingDir   = "";
+    private Map<String, Volume>              volumes      = new HashMap<>();
+    private Map<String, String>              labels       = new HashMap<>();
 
     public String getHostname() {
         return hostname;
@@ -178,38 +180,6 @@ public class ContainerConfig {
     public void setNetworkDisabled(boolean networkDisabled) {
         this.networkDisabled = networkDisabled;
     }
-
-    @Override
-    public String toString() {
-        return "ContainerConfig{" +
-               "hostname='" + hostname + '\'' +
-               ", domainName='" + domainName + '\'' +
-               ", user='" + user + '\'' +
-               ", memory=" + memory +
-               ", memorySwap=" + memorySwap +
-               ", cpuShares=" + cpuShares +
-               ", cpuset='" + cpuset + '\'' +
-               ", attachStdin=" + attachStdin +
-               ", attachStdout=" + attachStdout +
-               ", attachStderr=" + attachStderr +
-               ", tty=" + tty +
-               ", openStdin=" + openStdin +
-               ", stdinOnce=" + stdinOnce +
-               ", env=" + Arrays.toString(env) +
-               ", cmd=" + Arrays.toString(cmd) +
-               ", entrypoint='" + entrypoint + '\'' +
-               ", image='" + image + '\'' +
-               ", volumes=" + volumes +
-               ", workingDir='" + workingDir + '\'' +
-               ", networkDisabled=" + networkDisabled +
-               ", macAddress='" + macAddress + '\'' +
-               ", exposedPorts=" + exposedPorts +
-               ", securityOpts=" + Arrays.toString(securityOpts) +
-               ", hostConfig=" + hostConfig +
-               '}';
-    }
-
-    // -------------------
 
     public ContainerConfig withHostname(String hostname) {
         this.hostname = hostname;
@@ -385,5 +355,49 @@ public class ContainerConfig {
     public ContainerConfig withSecurityOpts(String[] securityOpts) {
         this.securityOpts = securityOpts;
         return this;
+    }
+
+    public Map<String, String> getLabels() {
+        return labels;
+    }
+
+    public void setLabels(Map<String, String> labels) {
+        this.labels = labels;
+    }
+
+    public ContainerConfig withLabels(Map<String, String> labels) {
+        this.labels = labels;
+        return this;
+    }
+
+    @Override
+    public String toString() {
+        return "ContainerConfig{" +
+               "domainName='" + domainName + '\'' +
+               ", memory=" + memory +
+               ", memorySwap=" + memorySwap +
+               ", cpuShares=" + cpuShares +
+               ", cpuset='" + cpuset + '\'' +
+               ", attachStdin=" + attachStdin +
+               ", attachStdout=" + attachStdout +
+               ", attachStderr=" + attachStderr +
+               ", tty=" + tty +
+               ", openStdin=" + openStdin +
+               ", stdinOnce=" + stdinOnce +
+               ", env=" + Arrays.toString(env) +
+               ", cmd=" + Arrays.toString(cmd) +
+               ", entrypoint='" + entrypoint + '\'' +
+               ", image='" + image + '\'' +
+               ", networkDisabled=" + networkDisabled +
+               ", macAddress='" + macAddress + '\'' +
+               ", securityOpts=" + Arrays.toString(securityOpts) +
+               ", hostConfig=" + hostConfig +
+               ", exposedPorts=" + exposedPorts +
+               ", user='" + user + '\'' +
+               ", hostname='" + hostname + '\'' +
+               ", workingDir='" + workingDir + '\'' +
+               ", volumes=" + volumes +
+               ", labels=" + labels +
+               '}';
     }
 }

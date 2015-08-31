@@ -10,12 +10,12 @@
  *******************************************************************************/
 package org.eclipse.che.plugin.docker.client;
 
+import org.eclipse.che.plugin.docker.client.json.ProgressStatus;
 import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonStreamParser;
 
-import org.eclipse.che.plugin.docker.client.json.ProgressStatus;
 
 import java.io.IOException;
 import java.io.InputStream;

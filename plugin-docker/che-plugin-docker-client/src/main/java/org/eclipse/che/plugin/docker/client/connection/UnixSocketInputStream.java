@@ -10,9 +10,8 @@
  *******************************************************************************/
 package org.eclipse.che.plugin.docker.client.connection;
 
-import com.sun.jna.LastErrorException;
-
 import org.eclipse.che.plugin.docker.client.CLibrary;
+import com.sun.jna.LastErrorException;
 
 import java.io.IOException;
 import java.io.InputStream;

@@ -10,12 +10,11 @@
  *******************************************************************************/
 package org.eclipse.che.plugin.docker.client;
 
+import org.eclipse.che.commons.lang.Pair;
 import com.google.common.io.CharSource;
 import com.google.common.io.CharStreams;
 import com.google.common.io.Files;
 import com.google.common.io.Resources;
-
-import org.eclipse.che.commons.lang.Pair;
 
 import java.io.File;
 import java.io.IOException;

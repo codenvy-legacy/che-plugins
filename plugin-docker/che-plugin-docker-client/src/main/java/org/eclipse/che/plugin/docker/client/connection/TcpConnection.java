@@ -13,6 +13,8 @@ package org.eclipse.che.plugin.docker.client.connection;
 import org.eclipse.che.commons.lang.Pair;
 import org.eclipse.che.plugin.docker.client.DockerCertificates;
 
+import javax.inject.Inject;
+import javax.inject.Named;
 import javax.net.ssl.HttpsURLConnection;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -23,18 +25,36 @@ import java.util.List;
 
 /**
  * @author andrew00x
+ * @author Alexander Garagatyi
  */
 public class TcpConnection extends DockerConnection {
-    private final URI             baseUri;
+    private static final int DEFAULT_CONNECTION_TIMEOUT = 60000;
+    private static final int DEFAULT_READ_TIMEOUT       = 60000;
+
+    private final URI                baseUri;
     private final DockerCertificates certificates;
+    private final int                connectionTimeout;
+    private final int                readTimeout;
 
     private HttpURLConnection connection;
 
     public TcpConnection(URI baseUri) {
-        this(baseUri, null);
+        this(baseUri, null, DEFAULT_CONNECTION_TIMEOUT, DEFAULT_READ_TIMEOUT);
+    }
+
+    public TcpConnection(URI baseUri, int connectionTimeoutMs, int readTimeoutMs) {
+        this(baseUri, null, connectionTimeoutMs, readTimeoutMs);
     }
 
     public TcpConnection(URI baseUri, DockerCertificates certificates) {
+        this(baseUri, certificates, DEFAULT_CONNECTION_TIMEOUT, DEFAULT_READ_TIMEOUT);
+    }
+
+    @Inject
+    public TcpConnection(@Named("docker.connection.tcp.base_uri") URI baseUri,
+                         DockerCertificates certificates,
+                         @Named("docker.connection.tcp.connection_timeout_ms") int connectionTimeoutMs,
+                         @Named("docker.connection.tcp.read_timeout_ms") int readTimeoutMs) {
         if ("https".equals(baseUri.getScheme())) {
             if (certificates == null) {
                 throw new IllegalArgumentException("Certificates are required for https connection.");
@@ -44,6 +64,8 @@ public class TcpConnection extends DockerConnection {
         }
         this.baseUri = baseUri;
         this.certificates = certificates;
+        this.connectionTimeout = connectionTimeoutMs;
+        this.readTimeout = readTimeoutMs;
     }
 
     @Override
@@ -51,6 +73,8 @@ public class TcpConnection extends DockerConnection {
         final URL url = baseUri.resolve(path).toURL();
         final String protocol = url.getProtocol();
         connection = (HttpURLConnection)url.openConnection();
+        connection.setConnectTimeout(connectionTimeout);
+        connection.setReadTimeout(readTimeout);
         if ("https".equals(protocol)) {
             ((HttpsURLConnection)connection).setSSLSocketFactory(certificates.getSslContext().getSocketFactory());
         }

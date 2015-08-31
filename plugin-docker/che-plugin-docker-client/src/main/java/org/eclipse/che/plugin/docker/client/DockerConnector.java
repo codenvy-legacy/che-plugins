@@ -148,7 +148,7 @@ public class DockerConnector {
      * @return system-wide information
      * @throws IOException
      */
-    public org.eclipse.che.plugin.docker.client.json.SystemInfo getSystemInfo() throws IOException {
+    public SystemInfo getSystemInfo() throws IOException {
         final DockerConnection connection = openConnection(dockerDaemonUri);
         try {
             final DockerResponse response = connection.method("GET").path("/info").request();
@@ -157,7 +157,7 @@ public class DockerConnector {
                 final String msg = CharStreams.toString(new InputStreamReader(response.getInputStream()));
                 throw new DockerException(String.format("Error response from docker API, status: %d, message: %s", status, msg), status);
             }
-            return JsonHelper.fromJson(response.getInputStream(), org.eclipse.che.plugin.docker.client.json.SystemInfo.class, null, FIRST_LETTER_LOWERCASE);
+            return JsonHelper.fromJson(response.getInputStream(), SystemInfo.class, null, FIRST_LETTER_LOWERCASE);
         } catch (JsonParseException e) {
             throw new IOException(e.getMessage(), e);
         } finally {
@@ -219,6 +219,8 @@ public class DockerConnector {
      *         full repository name to be applied to newly created image
      * @param progressMonitor
      *         ProgressMonitor for images creation process
+     * @param authConfigs
+     *         Authentication configuration for private registries. Can be null.
      * @param files
      *         files that are needed for creation docker images (e.g. file of directories used in ADD instruction in Dockerfile), one of
      *         them must be Dockerfile.
@@ -238,6 +240,23 @@ public class DockerConnector {
         }
     }
 
+    /**
+     * Builds new docker image from specified tar archive that must contain Dockerfile.
+     *
+     * @param repository
+     *         full repository name to be applied to newly created image
+     * @param tar
+     *         archived files that are needed for creation docker images (e.g. file of directories used in ADD instruction in Dockerfile).
+     *         One of them must be Dockerfile.
+     * @param progressMonitor
+     *         ProgressMonitor for images creation process
+     * @param authConfigs
+     *         Authentication configuration for private registries. Can be null.
+     * @return image id
+     * @throws IOException
+     * @throws InterruptedException
+     *         if build process was interrupted
+     */
     protected String buildImage(String repository,
                                 File tar,
                                 final ProgressMonitor progressMonitor,
@@ -683,11 +702,33 @@ public class DockerConnector {
         }
     }
 
+    /**
+     * Builds new docker image from specified tar archive that must contain Dockerfile.
+     *
+     * @param repository
+     *         full repository name to be applied to newly created image
+     * @param tar
+     *         archived files that are needed for creation docker images (e.g. file of directories used in ADD instruction in Dockerfile).
+     *         One of them must be Dockerfile.
+     * @param progressMonitor
+     *         ProgressMonitor for images creation process
+     * @param dockerDaemonUri
+     *         Uri for remote access to docker API
+     * @param authConfigs
+     *         Authentication configuration for private registries. Can be null.
+     * @return image id
+     * @throws IOException
+     * @throws InterruptedException
+     *         if build process was interrupted
+     */
     protected String doBuildImage(String repository,
                                   File tar,
                                   final ProgressMonitor progressMonitor,
                                   URI dockerDaemonUri,
                                   AuthConfigs authConfigs) throws IOException, InterruptedException {
+        if (authConfigs == null) {
+            authConfigs = initialAuthConfig.getAuthConfigs();
+        }
         DockerConnection connection = openConnection(dockerDaemonUri);
         try {
             final List<Pair<String, ?>> headers = new ArrayList<>(3);

@@ -10,8 +10,9 @@
  *******************************************************************************/
 package org.eclipse.che.plugin.docker.client.connection;
 
-import org.eclipse.che.commons.lang.Pair;
 import org.eclipse.che.plugin.docker.client.CLibrary;
+
+import org.eclipse.che.commons.lang.Pair;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;

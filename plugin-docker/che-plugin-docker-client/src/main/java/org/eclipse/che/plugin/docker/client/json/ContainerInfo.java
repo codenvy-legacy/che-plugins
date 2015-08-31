@@ -26,7 +26,6 @@ public class ContainerInfo {
     private ContainerState  state;
     private String          image;
     private NetworkSettings networkSettings;
-    private String          sysInitPath;
     private String          resolvConfPath;
     private HostConfig      hostConfig;
     private String          driver;
@@ -37,6 +36,8 @@ public class ContainerInfo {
     private String          name;
     private String          processLabel;
     private String[]        execIDs;
+    private int             restartCount;
+    private String          logPath;
 
     private Map<String, String>  volumes   = new HashMap<>();
     private Map<String, Boolean> volumesRW = new HashMap<>();
@@ -103,14 +104,6 @@ public class ContainerInfo {
 
     public void setNetworkSettings(NetworkSettings networkSettings) {
         this.networkSettings = networkSettings;
-    }
-
-    public String getSysInitPath() {
-        return sysInitPath;
-    }
-
-    public void setSysInitPath(String sysInitPath) {
-        this.sysInitPath = sysInitPath;
     }
 
     public String getResolvConfPath() {
@@ -217,6 +210,22 @@ public class ContainerInfo {
         this.execIDs = execIDs;
     }
 
+    public int getRestartCount() {
+        return restartCount;
+    }
+
+    public void setRestartCount(int restartCount) {
+        this.restartCount = restartCount;
+    }
+
+    public String getLogPath() {
+        return logPath;
+    }
+
+    public void setLogPath(String logPath) {
+        this.logPath = logPath;
+    }
+
     @Override
     public String toString() {
         return "ContainerInfo{" +
@@ -229,7 +238,6 @@ public class ContainerInfo {
                ", state=" + state +
                ", image='" + image + '\'' +
                ", networkSettings=" + networkSettings +
-               ", sysInitPath='" + sysInitPath + '\'' +
                ", resolvConfPath='" + resolvConfPath + '\'' +
                ", hostConfig=" + hostConfig +
                ", driver='" + driver + '\'' +
@@ -239,6 +247,11 @@ public class ContainerInfo {
                ", mountLabel='" + mountLabel + '\'' +
                ", name='" + name + '\'' +
                ", processLabel='" + processLabel + '\'' +
+               ", execIDs=" + Arrays.toString(execIDs) +
+               ", restartCount=" + restartCount +
+               ", logPath='" + logPath + '\'' +
+               ", volumes=" + volumes +
+               ", volumesRW=" + volumesRW +
                '}';
     }
 }

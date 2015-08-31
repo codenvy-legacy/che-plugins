@@ -11,26 +11,38 @@
 package org.eclipse.che.plugin.docker.client.json;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 
 /** @author andrew00x */
 public class HostConfig {
-    private String[]                   binds;
-    private String[]                   links;
-    private LxcConfParam[]             lxcConf;
-    private Map<String, PortBinding[]> portBindings;
-    private boolean                    publishAllPorts;
-    private boolean                    privileged;
-    private String[]                   dns;
-    private String[]                   dnsSearch;
-    private String[]                   extraHosts;
-    private String[]                   volumesFrom;
-    private String[]                   capAdd;
-    private String[]                   capDrop;
-    private RestartPolicy              restartPolicy;
-    private String                     networkMode;
-    private String[]                   devices;
-    private String                     containerIDFile;
+    private String[]       binds;
+    private String[]       links;
+    private LxcConfParam[] lxcConf;
+    private boolean        publishAllPorts;
+    private boolean        privileged;
+    private String[]       dns;
+    private String[]       dnsSearch;
+    private String[]       extraHosts;
+    private String[]       volumesFrom;
+    private String[]       capAdd;
+    private String[]       capDrop;
+    private RestartPolicy  restartPolicy;
+    private String         networkMode;
+    private String[]       devices;
+    private String         containerIDFile;
+    private String         memory;
+    private int            memorySwap;
+    private LogConfig      logConfig;
+    private String         ipcMode;
+    private String         cgroupParent;
+    private int            cpuShares;
+    private String         cpusetCpus;
+    private String         pidMode;
+    private boolean        readonlyRootfs;
+    private Ulimit[]       ulimits;
+
+    private Map<String, PortBinding[]> portBindings = new HashMap<>();
 
     public String[] getBinds() {
         return binds;
@@ -71,30 +83,6 @@ public class HostConfig {
     public void setPublishAllPorts(boolean publishAllPorts) {
         this.publishAllPorts = publishAllPorts;
     }
-
-    @Override
-    public String toString() {
-        return "HostConfig{" +
-               "binds=" + Arrays.toString(binds) +
-               ", links=" + Arrays.toString(links) +
-               ", lxcConf=" + Arrays.toString(lxcConf) +
-               ", portBindings=" + portBindings +
-               ", publishAllPorts=" + publishAllPorts +
-               ", privileged=" + privileged +
-               ", dns=" + Arrays.toString(dns) +
-               ", dnsSearch=" + Arrays.toString(dnsSearch) +
-               ", extraHosts=" + Arrays.toString(extraHosts) +
-               ", volumesFrom=" + Arrays.toString(volumesFrom) +
-               ", capAdd=" + Arrays.toString(capAdd) +
-               ", capDrop=" + Arrays.toString(capDrop) +
-               ", restartPolicy=" + restartPolicy +
-               ", networkMode='" + networkMode + '\'' +
-               ", devices=" + Arrays.toString(devices) +
-               ", containerIDFile=" + containerIDFile +
-               '}';
-    }
-
-    // ----------------------
 
     public HostConfig withBinds(String... binds) {
         this.binds = binds;
@@ -257,5 +245,117 @@ public class HostConfig {
 
     public void setContainerIDFile(String containerIDFile) {
         this.containerIDFile = containerIDFile;
+    }
+
+    public String getMemory() {
+        return memory;
+    }
+
+    public void setMemory(String memory) {
+        this.memory = memory;
+    }
+
+    public int getMemorySwap() {
+        return memorySwap;
+    }
+
+    public void setMemorySwap(int memorySwap) {
+        this.memorySwap = memorySwap;
+    }
+
+    public LogConfig getLogConfig() {
+        return logConfig;
+    }
+
+    public void setLogConfig(LogConfig logConfig) {
+        this.logConfig = logConfig;
+    }
+
+    public String getIpcMode() {
+        return ipcMode;
+    }
+
+    public void setIpcMode(String ipcMode) {
+        this.ipcMode = ipcMode;
+    }
+
+    public String getCgroupParent() {
+        return cgroupParent;
+    }
+
+    public void setCgroupParent(String cgroupParent) {
+        this.cgroupParent = cgroupParent;
+    }
+
+    public int getCpuShares() {
+        return cpuShares;
+    }
+
+    public void setCpuShares(int cpuShares) {
+        this.cpuShares = cpuShares;
+    }
+
+    public String getCpusetCpus() {
+        return cpusetCpus;
+    }
+
+    public void setCpusetCpus(String cpusetCpus) {
+        this.cpusetCpus = cpusetCpus;
+    }
+
+    public String getPidMode() {
+        return pidMode;
+    }
+
+    public void setPidMode(String pidMode) {
+        this.pidMode = pidMode;
+    }
+
+    public boolean isReadonlyRootfs() {
+        return readonlyRootfs;
+    }
+
+    public void setReadonlyRootfs(boolean readonlyRootfs) {
+        this.readonlyRootfs = readonlyRootfs;
+    }
+
+    public Ulimit[] getUlimits() {
+        return ulimits;
+    }
+
+    public void setUlimits(Ulimit[] ulimits) {
+        this.ulimits = ulimits;
+    }
+
+    @Override
+    public String toString() {
+        return "HostConfig{" +
+               "binds=" + Arrays.toString(binds) +
+               ", links=" + Arrays.toString(links) +
+               ", lxcConf=" + Arrays.toString(lxcConf) +
+               ", publishAllPorts=" + publishAllPorts +
+               ", privileged=" + privileged +
+               ", dns=" + Arrays.toString(dns) +
+               ", dnsSearch=" + Arrays.toString(dnsSearch) +
+               ", extraHosts=" + Arrays.toString(extraHosts) +
+               ", volumesFrom=" + Arrays.toString(volumesFrom) +
+               ", capAdd=" + Arrays.toString(capAdd) +
+               ", capDrop=" + Arrays.toString(capDrop) +
+               ", restartPolicy=" + restartPolicy +
+               ", networkMode='" + networkMode + '\'' +
+               ", devices=" + Arrays.toString(devices) +
+               ", containerIDFile='" + containerIDFile + '\'' +
+               ", memory='" + memory + '\'' +
+               ", memorySwap=" + memorySwap +
+               ", logConfig=" + logConfig +
+               ", ipcMode='" + ipcMode + '\'' +
+               ", cgroupParent='" + cgroupParent + '\'' +
+               ", cpuShares=" + cpuShares +
+               ", cpusetCpus='" + cpusetCpus + '\'' +
+               ", pidMode='" + pidMode + '\'' +
+               ", readonlyRootfs=" + readonlyRootfs +
+               ", ulimits=" + Arrays.toString(ulimits) +
+               ", portBindings=" + portBindings +
+               '}';
     }
 }

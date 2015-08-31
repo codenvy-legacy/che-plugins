@@ -36,9 +36,6 @@ import static org.eclipse.che.plugin.docker.client.DockerConnector.UNIX_SOCKET_U
  */
 public class DockerConnectorConfiguration {
 
-    /**
-     * Logger.
-     */
     private static final Logger LOG = LoggerFactory.getLogger(DockerConnectorConfiguration.class);
 
     @Inject(optional = true)
@@ -63,6 +60,10 @@ public class DockerConnectorConfiguration {
         this.authConfigs = authConfigs;
         this.dockerDaemonUri = dockerDaemonUri;
         this.dockerCertificatesDirectoryPath = dockerCertificatesDirectoryPath;
+    }
+
+    public static String getExpectedLocalHost() {
+        return SystemInfo.isLinux() ? "localhost" : dockerDaemonUri().getHost();
     }
 
     private static URI dockerDaemonUri() {

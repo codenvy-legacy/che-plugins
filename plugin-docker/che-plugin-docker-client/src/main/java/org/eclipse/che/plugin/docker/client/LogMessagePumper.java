@@ -61,12 +61,16 @@ class LogMessagePumper {
                 for (int i = 0; i < r; i++, lineLength++) {
                     endOfLine = false;
                     if (buf[i] == '\n' || buf[i] == '\r' || lineLength > MAX_LINE_LENGTH) {
+                        int length = i - offset;
+                        if (buf[i] == '\r') {
+                            length += 1; // include <CR> char in log message
+                        }
                         if (lineBuf != null && lineBuf.length() > 0) {
-                            lineBuf.append(new String(buf, offset, i - offset));
+                            lineBuf.append(new String(buf, offset, length));
                             target.process(new LogMessage(logMessageType, lineBuf.toString()));
                             lineBuf.setLength(0);
                         } else {
-                            target.process(new LogMessage(logMessageType, new String(buf, offset, i - offset)));
+                            target.process(new LogMessage(logMessageType, new String(buf, offset, length)));
                         }
                         offset = i + 1;
                         lineLength = 0;
