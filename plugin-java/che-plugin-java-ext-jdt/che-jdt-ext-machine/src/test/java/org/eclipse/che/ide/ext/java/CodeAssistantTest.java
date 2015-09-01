@@ -36,6 +36,6 @@ public class CodeAssistantTest  extends BaseTest{
         CodeAssist codeAssist = new CodeAssist();
         Proposals proposals = codeAssist.computeProposals(project, "com.codenvy.test.MyClass", offset, b.toString());
         assertThat(proposals).isNotNull();
-        assertThat(proposals.getProposals()).isNotEmpty().hasSize(42);
+        assertThat(proposals.getProposals()).isNotEmpty();
     }
 }
