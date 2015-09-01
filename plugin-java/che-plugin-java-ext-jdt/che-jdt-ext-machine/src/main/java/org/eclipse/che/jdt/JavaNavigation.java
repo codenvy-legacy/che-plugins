@@ -644,6 +644,7 @@ public class JavaNavigation {
             if(packageFragmentRoot.getKind() == IPackageFragmentRoot.K_SOURCE){
                 PackageFragmentRoot root = DtoFactory.newDto(PackageFragmentRoot.class);
                 root.setPath(packageFragmentRoot.getPath().toOSString());
+                root.setProjectPath(packageFragmentRoot.getJavaProject().getPath().toOSString());
                 if(includePackages) {
                     root.setPackageFragments(toPackageFragments(packageFragmentRoot));
                 }
@@ -665,6 +666,7 @@ public class JavaNavigation {
                 PackageFragment fragment = DtoFactory.newDto(PackageFragment.class);
                 fragment.setName(packageFragment.getElementName());
                 fragment.setPath(packageFragment.getPath().toOSString());
+                fragment.setProjectPath(packageFragment.getJavaProject().getPath().toOSString());
                 result.add(fragment);
             }
         }

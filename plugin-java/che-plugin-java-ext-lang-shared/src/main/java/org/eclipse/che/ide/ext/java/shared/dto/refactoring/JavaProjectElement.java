@@ -11,19 +11,16 @@
 
 package org.eclipse.che.ide.ext.java.shared.dto.refactoring;
 
-import org.eclipse.che.dto.shared.DTO;
-
-import java.util.List;
-
 /**
  * @author Evgen Vidolob
  */
-@DTO
-public interface PackageFragmentRoot extends JavaProjectElement {
+public interface JavaProjectElement {
 
+    String getPath();
 
-    List<PackageFragment> getPackageFragments();
+    void setPath(String path);
 
-    void setPackageFragments(List<PackageFragment> fragments);
+    String getProjectPath();
 
+    void setProjectPath(String path);
 }

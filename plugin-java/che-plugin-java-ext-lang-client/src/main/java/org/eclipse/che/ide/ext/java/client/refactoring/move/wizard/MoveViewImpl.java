@@ -15,13 +15,18 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.user.cellview.client.CellTree;
+import com.google.gwt.user.cellview.client.TreeNode;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.view.client.SelectionChangeEvent;
+import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -30,8 +35,14 @@ import org.eclipse.che.ide.ext.java.client.JavaLocalizationConstant;
 import org.eclipse.che.ide.ext.java.client.refactoring.RefactorInfo;
 import org.eclipse.che.ide.ext.java.client.refactoring.move.MoveType;
 import org.eclipse.che.ide.ext.java.client.refactoring.move.MovedItemType;
+import org.eclipse.che.ide.ext.java.shared.dto.refactoring.JavaProject;
+import org.eclipse.che.ide.ext.java.shared.dto.refactoring.PackageFragment;
+import org.eclipse.che.ide.ext.java.shared.dto.refactoring.PackageFragmentRoot;
+import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatus;
+import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatusEntry;
 import org.eclipse.che.ide.ui.window.Window;
 
+import java.util.Iterator;
 import java.util.List;
 
 import static org.eclipse.che.ide.ext.java.client.refactoring.move.MoveType.REFACTOR_MENU;
@@ -62,13 +73,16 @@ final class MoveViewImpl extends Window implements MoveView {
     @UiField
     CheckBox    updateReferences;
     @UiField
-    FlowPanel   treePanel;
+    ScrollPanel treePanel;
     @UiField
     Label       className;
     @UiField
     FlowPanel   treePanelToHide;
     @UiField
     FlowPanel   patternsPanelToHide;
+
+    @UiField
+    Label       errorLabel;
 
     @UiField(provided = true)
     final JavaLocalizationConstant locale;
@@ -140,5 +154,96 @@ final class MoveViewImpl extends Window implements MoveView {
         className.setText(isMultiSelection ? locale.multiSelectionDestination(selectionSize) : selectedItem.getDisplayName());
 
         show();
+    }
+
+    @Override
+    public void setTreeOfDestinations(List<JavaProject> projects) {
+
+        final SingleSelectionModel<Object> selectionModel = new SingleSelectionModel<>();
+        selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
+            @Override
+            public void onSelectionChange(SelectionChangeEvent event) {
+                Object object = selectionModel.getSelectedObject();
+
+                if (object instanceof JavaProject) {
+                    JavaProject project = (JavaProject)object;
+                    delegate.setMoveDestinationPath(project.getPath(), project.getPath());
+                }
+                if (object instanceof PackageFragmentRoot) {
+                    PackageFragmentRoot fragmentRoot = (PackageFragmentRoot)object;
+                    delegate.setMoveDestinationPath(fragmentRoot.getPath(), fragmentRoot.getProjectPath());
+                }
+
+                if (object instanceof PackageFragment) {
+                    PackageFragment fragment = (PackageFragment)object;
+                    delegate.setMoveDestinationPath(fragment.getPath(), fragment.getProjectPath());
+                }
+            }
+        });
+        CellTree tree = new CellTree(new ProjectsAndPackagesModel(projects, selectionModel), null);
+        treePanel.clear();
+        treePanel.add(tree);
+        expandAll(tree.getRootTreeNode());
+    }
+
+    @Override
+    public void showStatusMessage(RefactoringStatus status) {
+        RefactoringStatusEntry statusEntry = getEntryMatchingSeverity(status.getSeverity(), status.getEntries());
+        if(statusEntry != null) {
+            errorLabel.setText(statusEntry.getMessage());
+        } else {
+            errorLabel.setText("");
+        }
+    }
+
+    @Override
+    public void clearStatusMessage() {
+        errorLabel.setText("");
+    }
+
+    @Override
+    public boolean isUpdateReferences() {
+        return updateReferences.getValue();
+    }
+
+    @Override
+    public boolean isUpdateQualifiedNames() {
+        return updateFullNames.getValue();
+    }
+
+    @Override
+    public String getFilePatterns() {
+        return patternField.getValue();
+    }
+
+    /**
+     * Returns the first entry which severity is equal or greater than the
+     * given severity. If more than one entry exists that matches the
+     * criteria the first one is returned. Returns <code>null</code> if no
+     * entry matches.
+     *
+     * @param severity the severity to search for. Must be one of <code>FATAL
+     *  </code>, <code>ERROR</code>, <code>WARNING</code> or <code>INFO</code>
+     * @param entries
+     * @return the entry that matches the search criteria
+     */
+    public RefactoringStatusEntry getEntryMatchingSeverity(int severity, List<RefactoringStatusEntry> entries) {
+
+
+        Iterator iter= entries.iterator();
+        while (iter.hasNext()) {
+            RefactoringStatusEntry entry= (RefactoringStatusEntry)iter.next();
+            if (entry.getSeverity() >= severity)
+                return entry;
+        }
+        return null;
+    }
+
+    private void expandAll(TreeNode node) {
+        for (int i = 0; i < node.getChildCount(); i++) {
+            if (!node.isChildLeaf(i)) {
+                expandAll(node.setChildOpen(i, true));
+            }
+        }
     }
 }

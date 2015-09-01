@@ -14,6 +14,10 @@ import com.google.inject.ImplementedBy;
 
 import org.eclipse.che.ide.api.mvp.View;
 import org.eclipse.che.ide.ext.java.client.refactoring.RefactorInfo;
+import org.eclipse.che.ide.ext.java.shared.dto.refactoring.JavaProject;
+import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatus;
+
+import java.util.List;
 
 /**
  * @author Dmitry Shnurenko
@@ -25,9 +29,23 @@ interface MoveView extends View<MoveView.ActionDelegate> {
 
     void hide();
 
+    void setTreeOfDestinations(List<JavaProject> projects);
+
+    void showStatusMessage(RefactoringStatus status);
+
+    void clearStatusMessage();
+
+    boolean isUpdateReferences();
+
+    boolean isUpdateQualifiedNames();
+
+    String getFilePatterns();
+
     interface ActionDelegate {
         void onPreviewButtonClicked();
 
         void onAcceptButtonClicked();
+
+        void setMoveDestinationPath(String path, String projectPath);
     }
 }

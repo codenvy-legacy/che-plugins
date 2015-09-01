@@ -34,7 +34,7 @@ import org.eclipse.che.ide.util.input.KeyCodeMap;
 
 import static org.eclipse.che.ide.api.action.IdeActions.GROUP_CODE;
 import static org.eclipse.che.ide.api.action.IdeActions.GROUP_FILE_NEW;
-import static org.eclipse.che.ide.api.action.IdeActions.REFACTOR_GROUP;
+import static org.eclipse.che.ide.api.action.IdeActions.GROUP_REFACTORING;
 
 /** @author Evgen Vidolob */
 @Extension(title = "Java", version = "3.0.0")
@@ -75,7 +75,7 @@ public class JavaExtension {
         newGroup.add(newJavaSourceFileAction);
         newGroup.add(newPackageAction);
 
-        DefaultActionGroup refactorGroup = (DefaultActionGroup)actionManager.getAction(REFACTOR_GROUP);
+        DefaultActionGroup refactorGroup = (DefaultActionGroup)actionManager.getAction(GROUP_REFACTORING);
         refactorGroup.addSeparator();
         refactorGroup.add(moveAction);
 

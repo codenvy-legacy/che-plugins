@@ -96,22 +96,22 @@
         <dependency>
             <groupId>org.eclipse.che.plugin</groupId>
             <artifactId>org.eclipse.core.filebuffers</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.plugin</groupId>
             <artifactId>org.eclipse.core.filesystem</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.plugin</groupId>
             <artifactId>org.eclipse.core.resources</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.plugin</groupId>
             <artifactId>org.eclipse.ltk.core.refactoring</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.core</groupId>
@@ -224,6 +224,7 @@
                         <exclude>**/*.rsc</exclude>
                         <exclude>**/*.json</exclude>
                         <exclude>**/readableNames</exclude>
+                        <exclude>**/RenameType/**</exclude>
                         <exclude>**/projects/**</exclude>
                         <exclude>**/org/eclipse/che/jdt/javadoc/**</exclude>
                         <exclude>**/org/eclipse/jdt/**</exclude>

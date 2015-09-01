@@ -12,12 +12,17 @@ package org.eclipse.che.ide.ext.java.client.refactoring.move.wizard;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.google.web.bindery.event.shared.EventBus;
 
+import org.eclipse.che.api.promises.client.Function;
+import org.eclipse.che.api.promises.client.FunctionException;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.Promise;
+import org.eclipse.che.api.promises.client.PromiseError;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
+import org.eclipse.che.ide.api.event.RefreshProjectTreeEvent;
 import org.eclipse.che.ide.api.project.tree.VirtualFile;
 import org.eclipse.che.ide.api.project.tree.generic.StorableNode;
 import org.eclipse.che.ide.dto.DtoFactory;
@@ -28,10 +33,14 @@ import org.eclipse.che.ide.ext.java.client.projecttree.nodes.SourceFileNode;
 import org.eclipse.che.ide.ext.java.client.refactoring.RefactorInfo;
 import org.eclipse.che.ide.ext.java.client.refactoring.preview.PreviewPresenter;
 import org.eclipse.che.ide.ext.java.client.refactoring.service.RefactoringServiceClient;
+import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ChangeCreationResult;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.CreateMoveRefactoring;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.JavaElement;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.JavaProject;
-import org.eclipse.che.ide.ext.java.shared.dto.refactoring.PackageFragmentRoot;
+import org.eclipse.che.ide.ext.java.shared.dto.refactoring.MoveSettings;
+import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringSession;
+import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatus;
+import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ReorgDestination;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,6 +52,7 @@ import java.util.List;
 public class MovePresenter implements MoveView.ActionDelegate {
 
     private final MoveView                 view;
+    private EventBus eventBus;
     private final AppContext               appContext;
     private final PreviewPresenter         previewPresenter;
     private final DtoFactory               dtoFactory;
@@ -58,8 +68,10 @@ public class MovePresenter implements MoveView.ActionDelegate {
                          PreviewPresenter previewPresenter,
                          RefactoringServiceClient refactorService,
                          JavaNavigationService navigationService,
+                         EventBus eventBus,
                          DtoFactory dtoFactory) {
         this.view = view;
+        this.eventBus = eventBus;
         this.view.setDelegate(this);
 
         this.appContext = appContext;
@@ -133,12 +145,7 @@ public class MovePresenter implements MoveView.ActionDelegate {
         projectsPromise.then(new Operation<List<JavaProject>>() {
             @Override
             public void apply(List<JavaProject> projects) throws OperationException {
-                for (JavaProject project : projects) {
-                    for (PackageFragmentRoot packageFragment : project.getPackageFragmentRoots()) {
-                        //TODO need add tree to show destinations
-                    }
-                }
-
+                view.setTreeOfDestinations(projects);
                 view.show(refactorInfo);
             }
         });
@@ -155,6 +162,67 @@ public class MovePresenter implements MoveView.ActionDelegate {
     /** {@inheritDoc} */
     @Override
     public void onAcceptButtonClicked() {
+        MoveSettings moveSettings = dtoFactory.createDto(MoveSettings.class);
+        moveSettings.setSessionId(refactoringSessionId);
+        boolean updateReferences = view.isUpdateReferences();
+        moveSettings.setUpdateReferences(updateReferences);
+        moveSettings.setUpdateQualifiedNames(view.isUpdateQualifiedNames());
+        if(moveSettings.isUpdateQualifiedNames()){
+            moveSettings.setFilePatterns(view.getFilePatterns());
+        }
+        final RefactoringSession session = dtoFactory.createDto(RefactoringSession.class);
+        session.setSessionId(refactoringSessionId);
+        refactorService.setMoveSettings(moveSettings).thenPromise(new Function<Void, Promise<ChangeCreationResult>>() {
+            @Override
+            public Promise<ChangeCreationResult> apply(Void arg) throws FunctionException {
 
+                return refactorService.createChange(session);
+            }
+        }).then(new Operation<ChangeCreationResult>() {
+            @Override
+            public void apply(ChangeCreationResult arg) throws OperationException {
+                if(arg.isCanShowPreviewPage()){
+                    refactorService.applyRefactoring(session).then(new Operation<RefactoringStatus>() {
+                        @Override
+                        public void apply(RefactoringStatus arg) throws OperationException {
+                            if(arg.getSeverity() == RefactoringStatus.OK){
+                                view.hide();
+                                eventBus.fireEvent(new RefreshProjectTreeEvent());
+                            } else {
+                                view.showStatusMessage(arg);
+                            }
+                        }
+                    });
+                } else {
+                    view.showStatusMessage(arg.getStatus());
+                }
+            }
+        });
+
+    }
+
+    @Override
+    public void setMoveDestinationPath(String path, String projectPath) {
+        ReorgDestination destination = dtoFactory.createDto(ReorgDestination.class);
+        destination.setType(ReorgDestination.DestinationType.PACKAGE);
+        destination.setSessionId(refactoringSessionId);
+        destination.setProjectPath(projectPath);
+        destination.setDestination(path);
+        Promise<RefactoringStatus> promise = refactorService.setDestination(destination);
+        promise.then(new Operation<RefactoringStatus>() {
+            @Override
+            public void apply(RefactoringStatus arg) throws OperationException {
+                if (arg.getSeverity() != RefactoringStatus.OK) {
+                    view.showStatusMessage(arg);
+                } else {
+                    view.clearStatusMessage();
+                }
+            }
+        }).catchError(new Operation<PromiseError>() {
+            @Override
+            public void apply(PromiseError arg) throws OperationException {
+
+            }
+        });
     }
 }

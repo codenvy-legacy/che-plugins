@@ -17,11 +17,7 @@ import org.eclipse.che.dto.shared.DTO;
  * @author Evgen Vidolob
  */
 @DTO
-public interface PackageFragment {
-
-    String getPath();
-
-    void setPath(String path);
+public interface PackageFragment extends JavaProjectElement {
 
     String getName();
 

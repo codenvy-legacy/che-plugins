@@ -11,10 +11,13 @@
 
 package org.eclipse.che.ide.ext.java.shared.dto.refactoring;
 
+import org.eclipse.che.dto.shared.DTO;
+
 /**
  * Base interface for all refactoring DTO's.
  * @author Evgen Vidolob
  */
+@DTO
 public interface RefactoringSession {
 
     String getSessionId();
