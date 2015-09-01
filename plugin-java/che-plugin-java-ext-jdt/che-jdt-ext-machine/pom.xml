@@ -208,6 +208,9 @@
                         <version>${version.surefire.plugin}</version>
                     </dependency>
                 </dependencies>
+                <configuration>
+                    <runOrder>random</runOrder>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>com.mycila</groupId>

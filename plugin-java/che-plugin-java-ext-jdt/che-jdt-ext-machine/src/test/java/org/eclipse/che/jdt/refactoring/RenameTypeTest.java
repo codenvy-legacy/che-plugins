@@ -56,15 +56,11 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 @Ignore
-public class RenameTypeTests extends RefactoringTest {
+public class RenameTypeTest extends RefactoringTest {
 	private final RefactoringTestSetup setup = new RefactoringTestSetup();
 	private static final boolean BUG_54948= false;
-	private static final Class clazz= RenameTypeTests.class;
 	private static final String REFACTORING_PATH= "RenameType/";
 
-	public RenameTypeTests() {
-
-	}
     @BeforeClass
     public static void prepareClass() {
         ParticipantTesting.init();

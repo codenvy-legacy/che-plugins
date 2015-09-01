@@ -628,11 +628,13 @@ public class JavaNavigation {
         IJavaProject[] javaProjects = javaModel.getJavaProjects();
         List<JavaProject> result = new ArrayList<>();
         for (IJavaProject javaProject : javaProjects) {
-            JavaProject project = DtoFactory.newDto(JavaProject.class);
-            project.setName(javaProject.getElementName());
-            project.setPath(javaProject.getPath().toOSString());
-            project.setPackageFragmentRoots(toPackageRoots(javaProject, includePackages));
-            result.add(project);
+            if(javaProject.exists()) {
+                JavaProject project = DtoFactory.newDto(JavaProject.class);
+                project.setName(javaProject.getElementName());
+                project.setPath(javaProject.getPath().toOSString());
+                project.setPackageFragmentRoots(toPackageRoots(javaProject, includePackages));
+                result.add(project);
+            }
         }
         return result;
     }
