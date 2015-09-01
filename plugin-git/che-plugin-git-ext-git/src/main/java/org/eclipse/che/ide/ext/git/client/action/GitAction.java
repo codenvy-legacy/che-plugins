@@ -31,13 +31,13 @@ import static org.eclipse.che.ide.workspace.perspectives.project.ProjectPerspect
 public abstract class GitAction extends AbstractPerspectiveAction {
 
     protected final AppContext     appContext;
-    protected       SelectionAgent selectionAgent;
+    protected       NewProjectExplorerPresenter projectExplorer;
 
     public GitAction(String text, String description, SVGResource svgIcon, AppContext appContext,
                      SelectionAgent selectionAgent) {
         super(Arrays.asList(PROJECT_PERSPECTIVE_ID), text, description, null, svgIcon);
         this.appContext = appContext;
-        this.selectionAgent = selectionAgent;
+        this.projectExplorer = projectExplorer;
     }
 
     protected boolean isGitRepository() {
