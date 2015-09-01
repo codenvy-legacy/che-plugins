@@ -73,7 +73,7 @@ public class DockerInstanceProvider implements InstanceProvider {
                                   @Named("machine.docker.machine_volumes") Set<String> systemVolumesForMachine)
             throws IOException {
 
-        this.supportedRecipeTypes = Collections.unmodifiableSet(Collections.singleton("Dockerfile"));
+        this.supportedRecipeTypes = Collections.singleton("Dockerfile");
 
         this.docker = docker;
         this.dockerMachineFactory = dockerMachineFactory;
