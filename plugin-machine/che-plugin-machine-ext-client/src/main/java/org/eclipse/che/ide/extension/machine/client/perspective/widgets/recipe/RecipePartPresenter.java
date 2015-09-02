@@ -38,6 +38,7 @@ import org.eclipse.che.ide.extension.machine.client.perspective.widgets.recipe.e
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.recipe.entry.RecipeEntry;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.recipe.entry.RecipeWidget;
 import org.eclipse.che.ide.extension.machine.client.util.NameGenerator;
+import org.vectomatic.dom.svg.ui.SVGResource;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -285,6 +286,12 @@ public class RecipePartPresenter extends BasePresenter implements RecipePartView
     @Override
     public ImageResource getTitleImage() {
         return null;
+    }
+
+    @Nullable
+    @Override
+    public SVGResource getTitleSVGImage() {
+        return resources.recipesPartIcon();
     }
 
     /** {@inheritDoc} */

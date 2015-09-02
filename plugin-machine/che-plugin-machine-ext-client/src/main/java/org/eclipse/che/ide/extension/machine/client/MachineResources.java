@@ -50,6 +50,9 @@ public interface MachineResources extends ClientBundle {
     @Source("images/machines-part-icon.svg")
     SVGResource machinesPartIcon();
 
+    @Source("images/recipes-part-icon.svg")
+    SVGResource recipesPartIcon();
+
     @Source("recipe-template.txt")
     TextResource recipeTemplate();
 
