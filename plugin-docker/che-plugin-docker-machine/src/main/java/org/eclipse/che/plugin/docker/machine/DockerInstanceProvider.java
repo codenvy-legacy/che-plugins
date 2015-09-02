@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.che.plugin.docker.machine;
 
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 
 import org.eclipse.che.api.core.NotFoundException;
@@ -42,7 +44,6 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -63,31 +64,46 @@ public class DockerInstanceProvider implements InstanceProvider {
     private final DockerConnector                  docker;
     private final Set<String>                      supportedRecipeTypes;
     private final DockerMachineFactory             dockerMachineFactory;
-    private final Map<String, String>              containerLabels;
-    private final Map<String, Map<String, String>> portsToExpose;
-    private final Set<String>                      systemVolumes;
-
-    @Inject
-    @Named("local.storage.path")
-    private String localStorage;
+    private final Map<String, String>              devMachineContainerLabels;
+    private final Map<String, String>              machineContainerLabels;
+    private final Map<String, Map<String, String>> portsToExposeOnDevMachine;
+    private final Map<String, Map<String, String>> portsToExposeOnMachine;
+    private final Set<String>                      devMachineSystemVolumes;
+    private final Set<String>                      systemVolumesForMachine;
+    private final String                           localStoragePath;
 
     @Inject
     public DockerInstanceProvider(DockerConnector docker,
                                   DockerMachineFactory dockerMachineFactory,
-                                  Set<ServerConf> machineServers,
-                                  @Named("machine.docker.system_volumes") Set<String> systemVolumes) throws IOException {
+                                  @Named("machine.docker.dev_machine.machine_servers") Set<ServerConf> devMachineServers,
+                                  @Named("machine.docker.machine_servers") Set<ServerConf> allMachineServers,
+                                  @Named("machine.docker.dev_machine.machine_volumes") Set<String> devMachineSystemVolumes,
+                                  @Named("machine.docker.machine_volumes") Set<String> systemVolumesForMachine,
+                                  @Named("local.storage.path") String localStoragePath)
+            throws IOException {
 
+        this.supportedRecipeTypes = Collections.singleton("Dockerfile");
+
+        this.localStoragePath = localStoragePath;
         this.docker = docker;
         this.dockerMachineFactory = dockerMachineFactory;
-        this.systemVolumes = systemVolumes;
-        this.supportedRecipeTypes = Collections.unmodifiableSet(Collections.singleton("Dockerfile"));
+        this.devMachineSystemVolumes = devMachineSystemVolumes;
+        this.systemVolumesForMachine = systemVolumesForMachine;
+        this.portsToExposeOnDevMachine = new HashMap<>();
+        this.portsToExposeOnMachine = new HashMap<>();
+        this.devMachineContainerLabels = new HashMap<>();
+        this.machineContainerLabels = new HashMap<>();
 
-        this.portsToExpose = new HashMap<>();
-        this.containerLabels = new HashMap<>();
-        for (ServerConf serverConf : machineServers) {
-            portsToExpose.put(serverConf.getPort(), Collections.<String, String>emptyMap());
-            containerLabels.put("che:server:" + serverConf.getPort() + ":ref", serverConf.getRef());
-            containerLabels.put("che:server:" + serverConf.getPort() + ":protocol", serverConf.getProtocol());
+        for (ServerConf serverConf : devMachineServers) {
+            portsToExposeOnDevMachine.put(serverConf.getPort(), Collections.<String, String>emptyMap());
+            devMachineContainerLabels.put("che:server:" + serverConf.getPort() + ":ref", serverConf.getRef());
+            devMachineContainerLabels.put("che:server:" + serverConf.getPort() + ":protocol", serverConf.getProtocol());
+        }
+
+        for (ServerConf serverConf : allMachineServers) {
+            portsToExposeOnMachine.put(serverConf.getPort(), Collections.<String, String>emptyMap());
+            machineContainerLabels.put("che:server:" + serverConf.getPort() + ":ref", serverConf.getRef());
+            machineContainerLabels.put("che:server:" + serverConf.getPort() + ":protocol", serverConf.getProtocol());
         }
     }
 
@@ -269,18 +285,39 @@ public class DockerInstanceProvider implements InstanceProvider {
                                     String machineId,
                                     String creator,
                                     String workspaceId,
-                                    boolean bindWorkspace,
+                                    boolean isDev,
                                     String displayName,
                                     Recipe recipe,
                                     int memorySizeMB,
                                     LineConsumer outputConsumer)
             throws MachineException {
         try {
+            final Map<String, String> labels;
+            final Map<String, Map<String, String>> portsToExpose;
+            final Set<String> volumes;
+            if (isDev) {
+                labels = Maps.newHashMapWithExpectedSize(machineContainerLabels.size() + devMachineContainerLabels.size());
+                labels.putAll(machineContainerLabels);
+                labels.putAll(devMachineContainerLabels);
+
+                portsToExpose = Maps.newHashMapWithExpectedSize(portsToExposeOnMachine.size() + portsToExposeOnDevMachine.size());
+                portsToExpose.putAll(portsToExposeOnMachine);
+                portsToExpose.putAll(portsToExposeOnDevMachine);
+
+                // 1 extra element that contains workspace FS folder will be added further
+                volumes = Sets.newHashSetWithExpectedSize(devMachineSystemVolumes.size() + systemVolumesForMachine.size() + 1);
+                volumes.addAll(devMachineSystemVolumes);
+                volumes.addAll(systemVolumesForMachine);
+            } else {
+                labels = machineContainerLabels;
+                portsToExpose = portsToExposeOnMachine;
+                volumes = systemVolumesForMachine;
+            }
 
             final ContainerConfig config = new ContainerConfig().withImage(imageId)
                                                                 .withMemorySwap(-1)
                                                                 .withMemory((long)memorySizeMB * 1024 * 1024)
-                                                                .withLabels(containerLabels)
+                                                                .withLabels(labels)
                                                                 .withExposedPorts(portsToExpose);
 
             final String containerId = docker.createContainer(config, null).getId();
@@ -288,25 +325,24 @@ public class DockerInstanceProvider implements InstanceProvider {
             final DockerNode node = dockerMachineFactory.createNode(containerId);
             String hostProjectsFolder = node.getProjectsFolder();
 
-            if (bindWorkspace) {
+            if (isDev) {
                 node.bindWorkspace(workspaceId, hostProjectsFolder);
             }
 
-            final ArrayList<String> volumes = new ArrayList<>(systemVolumes.size() + 1);
-            volumes.addAll(systemVolumes);
-            volumes.add(String.format("%s:%s", hostProjectsFolder, "/projects"));
-            volumes.add(String.format("%s:%s", localStorage, "/local-storage"));
+            // add workspace FS folder to volumes
+            if (isDev) {
+                volumes.add(String.format("%s:%s", hostProjectsFolder, "/projects"));
+                volumes.add(String.format("%s:%s", localStoragePath, "/local-storage"));
+            }
 
             HostConfig hostConfig = new HostConfig().withPublishAllPorts(true)
                                                     .withBinds(volumes.toArray(new String[volumes.size()]));
 
-            docker.startContainer(containerId, hostConfig,
-                                  new LogMessagePrinter(outputConsumer));
-
+            docker.startContainer(containerId, hostConfig, new LogMessagePrinter(outputConsumer));
 
             return dockerMachineFactory.createInstance(machineId,
                                                        workspaceId,
-                                                       bindWorkspace,
+                                                       isDev,
                                                        creator,
                                                        displayName,
                                                        containerId,
