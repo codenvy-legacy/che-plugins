@@ -10,18 +10,18 @@
  *******************************************************************************/
 package org.eclipse.che.plugin.npm.client.menu;
 
-import com.google.inject.Inject;
-import com.google.web.bindery.event.shared.EventBus;
-
 import org.eclipse.che.api.analytics.client.logger.AnalyticsEventLogger;
 import org.eclipse.che.api.builder.BuildStatus;
 import org.eclipse.che.api.builder.dto.BuildOptions;
 import org.eclipse.che.ide.api.action.ActionEvent;
 import org.eclipse.che.ide.api.app.AppContext;
+import org.eclipse.che.ide.api.event.RefreshProjectTreeEvent;
 import org.eclipse.che.ide.dto.DtoFactory;
-import org.eclipse.che.ide.part.explorer.project.NewProjectExplorerPresenter;
-import org.eclipse.che.plugin.npm.client.builder.BuildFinishedCallback;
 import org.eclipse.che.plugin.npm.client.builder.BuilderAgent;
+import org.eclipse.che.plugin.npm.client.builder.BuildFinishedCallback;
+
+import com.google.inject.Inject;
+import com.google.web.bindery.event.shared.EventBus;
 
 import java.util.Arrays;
 import java.util.List;
@@ -37,7 +37,6 @@ public class NpmInstallAction extends CustomAction implements BuildFinishedCallb
     private BuilderAgent builderAgent;
 
     private EventBus eventBus;
-    private final NewProjectExplorerPresenter projectExplorer;
 
     private boolean buildInProgress;
 
@@ -46,14 +45,12 @@ public class NpmInstallAction extends CustomAction implements BuildFinishedCallb
     @Inject
     public NpmInstallAction(LocalizationConstant localizationConstant,
                             DtoFactory dtoFactory, BuilderAgent builderAgent, AppContext appContext,
-                            AnalyticsEventLogger analyticsEventLogger, EventBus eventBus,
-                            NewProjectExplorerPresenter projectExplorer) {
+                            AnalyticsEventLogger analyticsEventLogger, EventBus eventBus) {
         super(appContext, localizationConstant.npmInstallText(), localizationConstant.npmInstallDescription());
         this.dtoFactory = dtoFactory;
         this.builderAgent = builderAgent;
         this.analyticsEventLogger = analyticsEventLogger;
         this.eventBus = eventBus;
-        this.projectExplorer = projectExplorer;
     }
 
     /** {@inheritDoc} */
@@ -76,8 +73,7 @@ public class NpmInstallAction extends CustomAction implements BuildFinishedCallb
     public void onFinished(BuildStatus buildStatus) {
         // and refresh the tree if success
         if (buildStatus == BuildStatus.SUCCESSFUL) {
-//            eventBus.fireEvent(new RefreshProjectTreeEvent());
-            projectExplorer.synchronizeTree();
+            eventBus.fireEvent(new RefreshProjectTreeEvent());
         }
 
         // build finished

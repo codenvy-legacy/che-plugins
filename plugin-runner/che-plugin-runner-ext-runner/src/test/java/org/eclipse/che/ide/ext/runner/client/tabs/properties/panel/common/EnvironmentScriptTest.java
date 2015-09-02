@@ -56,7 +56,14 @@ public class EnvironmentScriptTest {
 
     @Before
     public void setUp() {
-        environmentScript = new EnvironmentScript(data, projectServiceClient, ENVIRONMENT_NAME);
+        environmentScript = new EnvironmentScript(parent,
+                                                  data,
+                                                  treeStructure,
+                                                  eventBus,
+                                                  projectServiceClient,
+                                                  dtoUnmarshallerFactory,
+                                                  ENVIRONMENT_NAME,
+                                                  editorAgent);
         when(data.getName()).thenReturn(TEXT);
     }
 

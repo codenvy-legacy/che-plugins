@@ -27,12 +27,16 @@ import org.eclipse.che.ide.api.event.ProjectActionHandler;
 import org.eclipse.che.ide.api.extension.Extension;
 import org.eclipse.che.ide.api.icon.Icon;
 import org.eclipse.che.ide.api.icon.IconRegistry;
+import org.eclipse.che.ide.api.project.tree.TreeStructureProviderRegistry;
 import org.eclipse.che.ide.api.project.type.wizard.PreSelectedProjectTypeManager;
 import org.eclipse.che.ide.ext.java.client.dependenciesupdater.DependenciesUpdater;
 import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateEvent;
 import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateHandler;
 import org.eclipse.che.ide.extension.maven.client.actions.CreateMavenModuleAction;
 import org.eclipse.che.ide.extension.maven.client.actions.UpdateDependencyAction;
+import org.eclipse.che.ide.extension.maven.client.event.BeforeModuleOpenEvent;
+import org.eclipse.che.ide.extension.maven.client.event.BeforeModuleOpenHandler;
+import org.eclipse.che.ide.extension.maven.client.projecttree.MavenProjectTreeStructureProvider;
 import org.eclipse.che.ide.extension.maven.shared.MavenAttributes;
 
 import java.util.Arrays;
@@ -54,7 +58,10 @@ public class MavenExtension {
     private        ProjectDescriptor     project;
 
     @Inject
-    public MavenExtension(PreSelectedProjectTypeManager preSelectedProjectManager) {
+    public MavenExtension(TreeStructureProviderRegistry treeStructureProviderRegistry,
+                          PreSelectedProjectTypeManager preSelectedProjectManager) {
+
+        treeStructureProviderRegistry.associateProjectTypeToTreeProvider(MavenAttributes.MAVEN_ID, MavenProjectTreeStructureProvider.ID);
 
         preSelectedProjectManager.setProjectTypeIdToPreselect(MavenAttributes.MAVEN_ID, 100);
 

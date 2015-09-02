@@ -15,12 +15,11 @@ import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.editor.EditorInput;
 import org.eclipse.che.ide.api.editor.EditorPartPresenter;
 import org.eclipse.che.ide.api.notification.Notification;
+import org.eclipse.che.ide.api.project.tree.generic.FileNode;
+import org.eclipse.che.ide.api.project.tree.generic.FolderNode;
+import org.eclipse.che.ide.api.project.tree.generic.ProjectNode;
 import org.eclipse.che.ide.api.selection.Selection;
 import org.eclipse.che.ide.ext.git.client.BaseTest;
-import org.eclipse.che.ide.part.explorer.project.NewProjectExplorerPresenter;
-import org.eclipse.che.ide.project.node.FileReferenceNode;
-import org.eclipse.che.ide.project.node.FolderReferenceNode;
-import org.eclipse.che.ide.project.node.ProjectDescriptorNode;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.googlecode.gwt.test.utils.GwtReflectionUtils;
@@ -50,8 +49,8 @@ import static org.mockito.Mockito.when;
  * @author Andrey Plotnikov
  */
 public class RemoveFromIndexPresenterTest extends BaseTest {
-    public static final boolean  REMOVED   = true;
-    public static final String   MESSAGE   = "message";
+    public static final boolean  REMOVED = true;
+    public static final String   MESSAGE = "message";
     public static final SafeHtml SAFE_HTML = mock(SafeHtml.class);
     @Mock
     private RemoveFromIndexView      view;
@@ -63,9 +62,7 @@ public class RemoveFromIndexPresenterTest extends BaseTest {
     @Mock
     private EditorInput              editorInput;
     @Mock
-    private FileReferenceNode        file;
-    @Mock
-    private NewProjectExplorerPresenter projectExplorer;
+    private FileNode               file;
 
     @Override
     public void disarm() {
@@ -78,8 +75,7 @@ public class RemoveFromIndexPresenterTest extends BaseTest {
                                                  appContext,
                                                  selectionAgent,
                                                  notificationManager,
-                                                 editorAgent,
-                                                 projectExplorer);
+                                                 editorAgent);
         NavigableMap<String, EditorPartPresenter> partPresenterMap = new TreeMap<>();
         partPresenterMap.put("partPresenter", partPresenter);
 
@@ -92,8 +88,8 @@ public class RemoveFromIndexPresenterTest extends BaseTest {
     public void testShowDialogWhenSomeFileIsSelected() throws Exception {
         String filePath = PROJECT_PATH + PROJECT_NAME;
         Selection selection = mock(Selection.class);
-        FileReferenceNode file = mock(FileReferenceNode.class);
-        when(file.getStorablePath()).thenReturn(filePath);
+        FileNode file = mock(FileNode.class);
+        when(file.getPath()).thenReturn(filePath);
         when(selection.getHeadElement()).thenReturn(file);
         when(selectionAgent.getSelection()).thenReturn(selection);
         when(constant.removeFromIndexFile(anyString())).thenReturn(SAFE_HTML);
@@ -111,8 +107,8 @@ public class RemoveFromIndexPresenterTest extends BaseTest {
     public void testShowDialogWhenSomeFolderIsSelected() throws Exception {
         String folderPath = PROJECT_PATH + PROJECT_NAME;
         Selection selection = mock(Selection.class);
-        FolderReferenceNode folder = mock(FolderReferenceNode.class);
-        when(folder.getStorablePath()).thenReturn(folderPath);
+        FolderNode folder = mock(FolderNode.class);
+        when(folder.getPath()).thenReturn(folderPath);
         when(selection.getHeadElement()).thenReturn(folder);
         when(selectionAgent.getSelection()).thenReturn(selection);
         when(constant.removeFromIndexFolder(anyString())).thenReturn(SAFE_HTML);
@@ -129,8 +125,8 @@ public class RemoveFromIndexPresenterTest extends BaseTest {
     @Test
     public void testShowDialogWhenRootFolderIsSelected() throws Exception {
         Selection selection = mock(Selection.class);
-        ProjectDescriptorNode project = mock(ProjectDescriptorNode.class);
-        when(project.getStorablePath()).thenReturn(PROJECT_PATH);
+        ProjectNode project = mock(ProjectNode.class);
+        when(project.getPath()).thenReturn(PROJECT_PATH);
         when(selection.getHeadElement()).thenReturn(project);
         when(selectionAgent.getSelection()).thenReturn(selection);
         when(constant.removeFromIndexAll()).thenReturn(MESSAGE);

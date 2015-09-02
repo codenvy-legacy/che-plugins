@@ -31,12 +31,11 @@ import org.eclipse.che.ide.api.parts.PartPresenter;
 import org.eclipse.che.ide.api.parts.PartStackType;
 import org.eclipse.che.ide.api.parts.WorkspaceAgent;
 import org.eclipse.che.ide.api.parts.base.BasePresenter;
-import org.eclipse.che.ide.api.project.node.HasStorablePath;
+import org.eclipse.che.ide.api.project.tree.generic.StorableNode;
 import org.eclipse.che.ide.api.selection.Selection;
 import org.eclipse.che.ide.api.selection.SelectionAgent;
-import org.eclipse.che.ide.ext.git.client.DateTimeFormatter;
-import org.eclipse.che.ide.ext.git.client.GitLocalizationConstant;
 import org.eclipse.che.ide.ext.git.client.GitResources;
+import org.eclipse.che.ide.ext.git.client.DateTimeFormatter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.rest.StringUnmarshaller;
@@ -48,8 +47,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.eclipse.che.api.git.shared.DiffRequest.DiffType.RAW;
 import static org.eclipse.che.ide.api.notification.Notification.Type.ERROR;
+import static org.eclipse.che.api.git.shared.DiffRequest.DiffType.RAW;
 
 /**
  * Presenter for showing git history.
@@ -306,12 +305,12 @@ public class HistoryPresenter extends BasePresenter implements HistoryView.Actio
         if (!showChangesInProject && project != null) {
             String path;
 
-            Selection<HasStorablePath> selection = (Selection<HasStorablePath>)selectionAgent.getSelection();
+            Selection<StorableNode> selection = (Selection<StorableNode>)selectionAgent.getSelection();
 
-            if (selection == null || selection.getHeadElement() == null) {
+            if (selection == null || selection.getFirstElement() == null) {
                 path = project.getPath();
             } else {
-                path = selection.getHeadElement().getStorablePath();
+                path = selection.getFirstElement().getPath();
             }
 
             pattern = path.replaceFirst(project.getPath(), "");

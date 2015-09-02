@@ -10,18 +10,17 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.git.client.action;
 
+import org.eclipse.che.api.analytics.client.logger.AnalyticsEventLogger;
+import org.eclipse.che.ide.ext.git.client.GitLocalizationConstant;
+import org.eclipse.che.ide.api.action.ActionEvent;
+import org.eclipse.che.ide.api.app.AppContext;
+import org.eclipse.che.ide.api.selection.SelectionAgent;
+import org.eclipse.che.ide.ext.git.client.GitResources;
+import org.eclipse.che.ide.ext.git.client.reset.commit.ResetToCommitPresenter;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import org.eclipse.che.api.analytics.client.logger.AnalyticsEventLogger;
-import org.eclipse.che.ide.api.action.ActionEvent;
-import org.eclipse.che.ide.api.app.AppContext;
-import org.eclipse.che.ide.ext.git.client.GitLocalizationConstant;
-import org.eclipse.che.ide.ext.git.client.GitResources;
-import org.eclipse.che.ide.ext.git.client.reset.commit.ResetToCommitPresenter;
-import org.eclipse.che.ide.part.explorer.project.NewProjectExplorerPresenter;
-
-/** @author Andrey Plotnikov */
+/** @author <a href="mailto:aplotnikov@codenvy.com">Andrey Plotnikov</a> */
 @Singleton
 public class ResetToCommitAction extends GitAction {
     private final ResetToCommitPresenter presenter;
@@ -33,9 +32,9 @@ public class ResetToCommitAction extends GitAction {
                                GitResources resources,
                                GitLocalizationConstant constant,
                                AnalyticsEventLogger eventLogger,
-                               NewProjectExplorerPresenter projectExplorer) {
+                               SelectionAgent selectionAgent) {
         super(constant.resetToCommitControlTitle(), constant.resetToCommitControlPrompt(), resources.revert(), appContext,
-              projectExplorer);
+              selectionAgent);
         this.presenter = presenter;
         this.eventLogger = eventLogger;
     }

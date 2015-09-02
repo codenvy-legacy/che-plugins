@@ -10,16 +10,17 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.docker;
 
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
-
 import org.eclipse.che.api.core.rest.shared.dto.Link;
 import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
 import org.eclipse.che.api.project.shared.dto.ItemReference;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
-import org.eclipse.che.ide.api.project.tree.VirtualFile;
+import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.dto.DtoFactory;
+import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+import com.google.web.bindery.event.shared.EventBus;
 
 import javax.annotation.Nonnull;
 import java.util.Arrays;
@@ -39,17 +40,26 @@ public class DockerFileFactory {
     public static final String PATH = "runner_recipe";
     public static final String TYPE = "text/x-dockerfile-config";
 
+    private final EventBus               eventBus;
     private final ProjectServiceClient   projectServiceClient;
+    private final DtoUnmarshallerFactory dtoUnmarshallerFactory;
     private final DtoFactory             dtoFactory;
     private final AppContext             appContext;
+    private final EditorAgent            editorAgent;
 
     @Inject
-    public DockerFileFactory(ProjectServiceClient projectServiceClient,
+    public DockerFileFactory(EventBus eventBus,
+                             ProjectServiceClient projectServiceClient,
+                             DtoUnmarshallerFactory dtoUnmarshallerFactory,
                              DtoFactory dtoFactory,
-                             AppContext appContext) {
+                             AppContext appContext,
+                             EditorAgent editorAgent) {
+        this.eventBus = eventBus;
         this.projectServiceClient = projectServiceClient;
+        this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
         this.dtoFactory = dtoFactory;
         this.appContext = appContext;
+        this.editorAgent = editorAgent;
     }
 
     /**
@@ -62,12 +72,12 @@ public class DockerFileFactory {
      *         when no project is opened
      */
     @Nonnull
-    public VirtualFile newInstance(@Nonnull String href) {
+    public DockerFile newInstance(@Nonnull String href) {
         return newInstance(href, NAME, PATH);
     }
 
     @Nonnull
-    public VirtualFile newInstance(@Nonnull String href, @Nonnull String name, @Nonnull String path) {
+    public DockerFile newInstance(@Nonnull String href, @Nonnull String name, @Nonnull String path) {
         CurrentProject currentProject = appContext.getCurrentProject();
         if (currentProject == null) {
             throw new IllegalStateException("No project is opened");
@@ -84,7 +94,12 @@ public class DockerFileFactory {
                                                  .withMediaType(TYPE)
                                                  .withLinks(links);
 
-        return new DockerFile(projectServiceClient, recipeFileItem);
+        return new DockerFile(eventBus,
+                              projectServiceClient,
+                              dtoUnmarshallerFactory,
+                              recipeFileItem,
+                              currentProject.getCurrentTree(),
+                              editorAgent);
     }
 
 }

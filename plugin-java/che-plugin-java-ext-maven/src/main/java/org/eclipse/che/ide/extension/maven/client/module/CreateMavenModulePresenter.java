@@ -19,10 +19,10 @@ import org.eclipse.che.api.project.shared.dto.GeneratorDescription;
 import org.eclipse.che.api.project.shared.dto.NewProject;
 import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.ide.api.app.CurrentProject;
+import org.eclipse.che.ide.api.event.RefreshProjectTreeEvent;
 import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.extension.maven.client.MavenArchetype;
 import org.eclipse.che.ide.extension.maven.client.MavenExtension;
-import org.eclipse.che.ide.part.explorer.project.NewProjectExplorerPresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 import org.eclipse.che.ide.util.NameUtils;
@@ -57,8 +57,8 @@ public class CreateMavenModulePresenter implements CreateMavenModuleView.ActionD
     private CreateMavenModuleView view;
     private ProjectServiceClient  projectService;
     private DtoFactory            dtoFactory;
+    private EventBus              eventBus;
     private DialogFactory         dialogFactory;
-    private final NewProjectExplorerPresenter projectExplorer;
 
     private String moduleName;
 
@@ -67,12 +67,12 @@ public class CreateMavenModulePresenter implements CreateMavenModuleView.ActionD
 
     @Inject
     public CreateMavenModulePresenter(CreateMavenModuleView view, ProjectServiceClient projectService, DtoFactory dtoFactory,
-                                      DialogFactory dialogFactory, NewProjectExplorerPresenter projectExplorer) {
+                                      EventBus eventBus, DialogFactory dialogFactory) {
         this.view = view;
         this.projectService = projectService;
         this.dtoFactory = dtoFactory;
+        this.eventBus = eventBus;
         this.dialogFactory = dialogFactory;
-        this.projectExplorer = projectExplorer;
         view.setDelegate(this);
     }
 
@@ -126,9 +126,7 @@ public class CreateMavenModulePresenter implements CreateMavenModuleView.ActionD
                                         protected void onSuccess(ProjectDescriptor result) {
                                             view.close();
                                             view.showButtonLoader(false);
-
-//                                            eventBus.fireEvent(new RefreshProjectTreeEvent());
-                                            projectExplorer.synchronizeTree();
+                                            eventBus.fireEvent(new RefreshProjectTreeEvent());
                                         }
 
                                         @Override

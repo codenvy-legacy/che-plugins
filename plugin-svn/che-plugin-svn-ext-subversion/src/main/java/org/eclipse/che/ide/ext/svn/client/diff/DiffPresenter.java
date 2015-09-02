@@ -13,15 +13,14 @@ package org.eclipse.che.ide.ext.svn.client.diff;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.event.shared.EventBus;
-
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.notification.NotificationManager;
+import org.eclipse.che.ide.api.parts.ProjectExplorerPart;
 import org.eclipse.che.ide.api.parts.WorkspaceAgent;
 import org.eclipse.che.ide.ext.svn.client.SubversionClientService;
 import org.eclipse.che.ide.ext.svn.client.common.RawOutputPresenter;
 import org.eclipse.che.ide.ext.svn.client.common.SubversionActionPresenter;
 import org.eclipse.che.ide.ext.svn.shared.CLIOutputResponse;
-import org.eclipse.che.ide.part.explorer.project.NewProjectExplorerPresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 
@@ -46,7 +45,7 @@ public class DiffPresenter extends SubversionActionPresenter {
                             final RawOutputPresenter console,
                             final SubversionClientService service,
                             final WorkspaceAgent workspaceAgent,
-                            final NewProjectExplorerPresenter projectExplorerPart) {
+                            final ProjectExplorerPart projectExplorerPart) {
         super(appContext, eventBus, console, workspaceAgent, projectExplorerPart);
 
         this.service = service;

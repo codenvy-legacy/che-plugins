@@ -10,20 +10,17 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.git.client.commit;
 
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
-
+import org.eclipse.che.ide.ext.git.client.GitLocalizationConstant;
 import org.eclipse.che.api.git.gwt.client.GitServiceClient;
 import org.eclipse.che.api.git.shared.LogResponse;
 import org.eclipse.che.api.git.shared.Revision;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.api.notification.NotificationManager;
-import org.eclipse.che.ide.api.project.node.HasStorablePath;
+import org.eclipse.che.ide.api.project.tree.generic.StorableNode;
 import org.eclipse.che.ide.api.selection.Selection;
 import org.eclipse.che.ide.api.selection.SelectionAgent;
 import org.eclipse.che.ide.ext.git.client.DateTimeFormatter;
-import org.eclipse.che.ide.ext.git.client.GitLocalizationConstant;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.rest.Unmarshallable;
@@ -31,9 +28,13 @@ import org.eclipse.che.ide.util.loging.Log;
 import org.eclipse.che.ide.websocket.WebSocketException;
 import org.eclipse.che.ide.websocket.rest.RequestCallback;
 
-import javax.annotation.Nonnull;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.annotation.Nonnull;
 
 import static org.eclipse.che.ide.api.notification.Notification.Type.ERROR;
 import static org.eclipse.che.ide.api.notification.Notification.Type.INFO;
@@ -107,8 +108,8 @@ public class CommitPresenter implements CommitView.ActionDelegate {
     private void commitAddSelection(final String message, final boolean amend) {
         // first git-add the selection
         @SuppressWarnings("unchecked")
-        final Selection<HasStorablePath> selection = (Selection<HasStorablePath>)this.selectionAgent.getSelection();
-        if (selection.isEmpty() || !(selection.getHeadElement() instanceof HasStorablePath)) {
+        final Selection<StorableNode<?>> selection = (Selection<StorableNode<?>>)this.selectionAgent.getSelection();
+        if (selection.isEmpty() || !(selection.getFirstElement() instanceof StorableNode)) {
             doCommit(message, false, amend);
         } else {
             final List<String> filePattern = buildFileList(selection);
@@ -132,11 +133,11 @@ public class CommitPresenter implements CommitView.ActionDelegate {
         }
     }
 
-    private List<String> buildFileList(final Selection<HasStorablePath> selection) {
+    private List<String> buildFileList(final Selection<StorableNode<?>> selection) {
         final List<String> filePattern = new ArrayList<>();
-        final List<HasStorablePath> selected = selection.getAllElements();
+        final List<StorableNode<?>> selected = selection.getAll();
         final String base = appContext.getCurrentProject().getRootProject().getPath();
-        for (final HasStorablePath node : selected) {
+        for (final StorableNode<?> node : selected) {
             filePattern.add(getPath(node, base));
         }
         return filePattern;
@@ -145,8 +146,8 @@ public class CommitPresenter implements CommitView.ActionDelegate {
     private void commitOnlySelection(final String message, final boolean amend) {
         // first git-add the selection
         @SuppressWarnings("unchecked")
-        final Selection<HasStorablePath> selection = (Selection<HasStorablePath>)this.selectionAgent.getSelection();
-        if (selection != null && !selection.isEmpty() && (selection.getHeadElement() != null)) {
+        final Selection<StorableNode<?>> selection = (Selection<StorableNode<?>>)this.selectionAgent.getSelection();
+        if (!selection.isEmpty() && (selection.getFirstElement() instanceof StorableNode)) {
             final List<String> files = buildFileList(selection);
             service.commit(appContext.getCurrentProject().getRootProject(), message, files, amend,
                            new AsyncRequestCallback<Revision>(dtoUnmarshallerFactory.newUnmarshaller(Revision.class)) {
@@ -192,8 +193,8 @@ public class CommitPresenter implements CommitView.ActionDelegate {
         this.view.close();
     }
 
-    private String getPath(final HasStorablePath node, final String base) {
-        String path = node.getStorablePath();
+    private String getPath(final StorableNode<?> node, final String base) {
+        String path = node.getPath();
         if (path.startsWith(base)) {
             path = path.replaceFirst(base, "");
         }

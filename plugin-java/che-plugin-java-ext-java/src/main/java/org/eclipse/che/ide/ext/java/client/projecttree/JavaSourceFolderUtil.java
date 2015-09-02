@@ -13,7 +13,6 @@ package org.eclipse.che.ide.ext.java.client.projecttree;
 import org.eclipse.che.api.project.shared.dto.BuildersDescriptor;
 import org.eclipse.che.api.project.shared.dto.ItemReference;
 import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
-import org.eclipse.che.ide.api.project.node.HasProjectDescriptor;
 import org.eclipse.che.ide.api.project.tree.TreeNode;
 import org.eclipse.che.ide.api.project.tree.generic.ProjectNode;
 
@@ -24,9 +23,9 @@ import java.util.Map;
 /** @author Vladyslav Zhukovskii */
 public class JavaSourceFolderUtil {
     /** Tests if the specified item is a source folder. */
-    public static boolean isSourceFolder(ItemReference item, HasProjectDescriptor projectNode) {
+    public static boolean isSourceFolder(ItemReference item, ProjectNode projectNode) {
         if ("folder".equals(item.getType())) {
-            ProjectDescriptor projectDescriptor = projectNode.getProjectDescriptor();
+            ProjectDescriptor projectDescriptor = projectNode.getData();
             BuildersDescriptor builders = projectDescriptor.getBuilders();
             Map<String, List<String>> attributes = projectDescriptor.getAttributes();
             if (builders != null) {
@@ -53,22 +52,22 @@ public class JavaSourceFolderUtil {
      * Every path in the returned list starts and ends with separator char /.
      */
     public static List<String> getSourceFolders(TreeNode<?> node) {
-        final HasProjectDescriptor project = node.getProject();
-        Map<String, List<String>> attributes = project.getProjectDescriptor().getAttributes();
-        final String builderName = project.getProjectDescriptor().getBuilders().getDefault();
+        final ProjectNode project = node.getProject();
+        Map<String, List<String>> attributes = project.getData().getAttributes();
+        final String builderName = project.getData().getBuilders().getDefault();
         List<String> mySourceFolders = new LinkedList<>();
 
         List<String> sourceFolders = attributes.get(builderName + ".source.folder");
         if (sourceFolders != null) {
             for (String sourceFolder : sourceFolders) {
-                mySourceFolders.add(project.getProjectDescriptor().getPath() + '/' + sourceFolder + '/');
+                mySourceFolders.add(project.getPath() + '/' + sourceFolder + '/');
             }
         }
 
         List<String> testSourceFolders = attributes.get(builderName + ".test.source.folder");
         if (testSourceFolders != null) {
             for (String testSourceFolder : testSourceFolders) {
-                mySourceFolders.add(project.getProjectDescriptor().getPath() + '/' + testSourceFolder + '/');
+                mySourceFolders.add(project.getPath() + '/' + testSourceFolder + '/');
             }
         }
 

@@ -10,8 +10,9 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.svn.client.action;
 
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
+import org.eclipse.che.ide.ext.svn.client.SubversionExtensionLocalizationConstants;
+import org.eclipse.che.ide.ext.svn.client.SubversionExtensionResources;
+import org.eclipse.che.ide.ext.svn.client.copy.CopyPresenter;
 
 import org.eclipse.che.api.analytics.client.logger.AnalyticsEventLogger;
 import org.eclipse.che.ide.api.action.ActionEvent;
@@ -19,11 +20,11 @@ import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.project.tree.TreeNode;
 import org.eclipse.che.ide.api.project.tree.generic.StorableNode;
 import org.eclipse.che.ide.api.selection.SelectionAgent;
-import org.eclipse.che.ide.ext.svn.client.SubversionExtensionLocalizationConstants;
-import org.eclipse.che.ide.ext.svn.client.SubversionExtensionResources;
-import org.eclipse.che.ide.ext.svn.client.copy.CopyPresenter;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 /**
+ *
  * Extension of {@link SubversionAction} for implementing the "svn copy" (copy a file or directory) command.
  *
  * @author Vladyslav Zhukovskyi

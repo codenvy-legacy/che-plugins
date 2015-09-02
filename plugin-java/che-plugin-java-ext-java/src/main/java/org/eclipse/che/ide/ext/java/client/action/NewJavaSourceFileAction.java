@@ -14,18 +14,14 @@ import org.eclipse.che.api.analytics.client.logger.AnalyticsEventLogger;
 import org.eclipse.che.ide.api.action.ActionEvent;
 import org.eclipse.che.ide.api.action.ProjectAction;
 import org.eclipse.che.ide.api.selection.Selection;
+import org.eclipse.che.ide.api.selection.SelectionAgent;
 import org.eclipse.che.ide.ext.java.client.JavaLocalizationConstant;
 import org.eclipse.che.ide.ext.java.client.JavaResources;
 import org.eclipse.che.ide.ext.java.client.newsourcefile.NewJavaSourceFilePresenter;
-import org.eclipse.che.ide.ext.java.client.project.node.PackageNode;
-import org.eclipse.che.ide.part.explorer.project.NewProjectExplorerPresenter;
-import org.eclipse.che.ide.project.node.FolderReferenceNode;
-
+import org.eclipse.che.ide.ext.java.client.projecttree.nodes.PackageNode;
+import org.eclipse.che.ide.ext.java.client.projecttree.nodes.SourceFolderNode;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * Action to create new Java source file.
@@ -35,18 +31,18 @@ import java.util.Map;
 @Singleton
 public class NewJavaSourceFileAction extends ProjectAction {
     private final AnalyticsEventLogger       eventLogger;
-    private       NewProjectExplorerPresenter             projectExplorer;
+    private       SelectionAgent             selectionAgent;
     private       NewJavaSourceFilePresenter newJavaSourceFilePresenter;
 
     @Inject
-    public NewJavaSourceFileAction(NewProjectExplorerPresenter projectExplorer,
+    public NewJavaSourceFileAction(SelectionAgent selectionAgent,
                                    NewJavaSourceFilePresenter newJavaSourceFilePresenter,
                                    JavaLocalizationConstant constant,
                                    JavaResources resources,
                                    AnalyticsEventLogger eventLogger) {
         super(constant.actionNewClassTitle(), constant.actionNewClassDescription(), resources.javaFile());
         this.newJavaSourceFilePresenter = newJavaSourceFilePresenter;
-        this.projectExplorer = projectExplorer;
+        this.selectionAgent = selectionAgent;
         this.eventLogger = eventLogger;
     }
 
@@ -58,31 +54,11 @@ public class NewJavaSourceFileAction extends ProjectAction {
 
     @Override
     public void updateProjectAction(ActionEvent e) {
-        Selection<?> selection = projectExplorer.getSelection();
-
-        if (selection == null) {
-            e.getPresentation().setEnabledAndVisible(false);
-            return;
+        boolean visible = false;
+        Selection<?> selection = selectionAgent.getSelection();
+        if (selection != null) {
+            visible = selection.getFirstElement() instanceof PackageNode || selection.getFirstElement() instanceof SourceFolderNode;
         }
-
-        List<?> elements = selection.getAllElements();
-
-        if (elements == null || elements.isEmpty() || elements.size() > 1) {
-            e.getPresentation().setEnabledAndVisible(false);
-            return;
-        }
-
-        Object o = elements.get(0);
-
-        e.getPresentation().setEnabledAndVisible(isSourceFolder(o) || o instanceof PackageNode);
-    }
-
-    private boolean isSourceFolder(Object o) {
-        if (!(o instanceof FolderReferenceNode)) {
-            return false;
-        }
-
-        Map<String, List<String>> attributes = ((FolderReferenceNode)o).getAttributes();
-        return attributes.containsKey("javaContentRoot");
+        e.getPresentation().setEnabledAndVisible(visible);
     }
 }

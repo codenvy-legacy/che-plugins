@@ -10,20 +10,19 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.java.client.editor;
 
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
-import com.google.web.bindery.event.shared.EventBus;
-
 import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.editor.EditorPartPresenter;
+import org.eclipse.che.ide.api.event.ItemEvent;
+import org.eclipse.che.ide.api.event.ItemHandler;
 import org.eclipse.che.ide.api.parts.PartPresenter;
 import org.eclipse.che.ide.api.parts.PropertyListener;
 import org.eclipse.che.ide.api.project.tree.VirtualFile;
-import org.eclipse.che.ide.ext.java.client.project.node.PackageNode;
+import org.eclipse.che.ide.ext.java.client.projecttree.nodes.PackageNode;
+import org.eclipse.che.ide.ext.java.client.projecttree.nodes.SourceFileNode;
 import org.eclipse.che.ide.jseditor.client.texteditor.EmbeddedTextEditorPresenter;
-import org.eclipse.che.ide.project.event.ResourceNodeDeletedEvent;
-import org.eclipse.che.ide.project.node.FileReferenceNode;
-import org.eclipse.che.ide.project.node.ResourceBasedNode;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+import com.google.web.bindery.event.shared.EventBus;
 
 import java.util.Map;
 
@@ -41,23 +40,24 @@ public class FileWatcher {
 
     @Inject
     private void handleFileOperations(EventBus eventBus) {
-
-        eventBus.addHandler(ResourceNodeDeletedEvent.getType(), new ResourceNodeDeletedEvent.ResourceNodeDeletedHandler() {
+        eventBus.addHandler(ItemEvent.TYPE, new ItemHandler() {
             @Override
-            public void onResourceEvent(ResourceNodeDeletedEvent event) {
+            public void onItem(ItemEvent event) {
+                if (event.getOperation() == ItemEvent.ItemOperation.DELETED) {
+                    if (event.getItem() instanceof SourceFileNode) {
+                        String fqn = getFQN(((SourceFileNode)event.getItem()));
+                        worker.removeFqnFromCache(fqn);
+                        reparseAllOpenedFiles();
+                    } else if (event.getItem() instanceof PackageNode) {
+                        worker.removeFqnFromCache(((PackageNode)event.getItem()).getQualifiedName());
+                        reparseAllOpenedFiles();
+                    }
 
-                ResourceBasedNode node = event.getNode();
-                if (node instanceof PackageNode) {
-                    worker.removeFqnFromCache(((PackageNode)node).getQualifiedName());
-                    reparseAllOpenedFiles();
-                } else if (node instanceof FileReferenceNode) {
-                    String fqn = getFQN((FileReferenceNode)node);
-                    worker.removeFqnFromCache(fqn);
-                    reparseAllOpenedFiles();
                 }
             }
         });
     }
+
 
     public void editorOpened(final EditorPartPresenter editor) {
         final PropertyListener propertyListener = new PropertyListener() {
@@ -84,13 +84,9 @@ public class FileWatcher {
 
     private String getFQN(VirtualFile file) {
         String packageName = "";
-        if (file.getName().endsWith(".java")) {
-            if (((FileReferenceNode)file).getParent() instanceof PackageNode) {
-                FileReferenceNode fileNode = (FileReferenceNode)file;
-
-                if (fileNode.getParent() != null && fileNode.getParent() instanceof PackageNode) {
-                    packageName = ((PackageNode)fileNode.getParent()).getQualifiedName();
-                }
+        if(file instanceof SourceFileNode) {
+            if (((SourceFileNode)file).getParent() instanceof PackageNode) {
+                packageName = ((PackageNode)((SourceFileNode)file).getParent()).getQualifiedName() + '.';
             }
         }
         return packageName + file.getName().substring(0, file.getName().indexOf('.'));
@@ -98,9 +94,9 @@ public class FileWatcher {
 
     private void reparseAllOpenedFiles() {
         Map<String, EditorPartPresenter> openedEditors = editorAgent.getOpenedEditors();
-        for (EditorPartPresenter editorPartPresenter : openedEditors.values()) {
+        for (EditorPartPresenter editorPartPresenter: openedEditors.values()) {
             if (editorPartPresenter instanceof EmbeddedTextEditorPresenter) {
-                final EmbeddedTextEditorPresenter<?> editor = (EmbeddedTextEditorPresenter<?>)editorPartPresenter;
+                final EmbeddedTextEditorPresenter< ? > editor = (EmbeddedTextEditorPresenter< ? >)editorPartPresenter;
                 editor.refreshEditor();
             }
         }
