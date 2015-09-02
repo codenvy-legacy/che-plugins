@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.che.plugin.docker.machine;
 
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 import org.eclipse.che.api.core.NotFoundException;
 import org.eclipse.che.api.core.util.FileCleaner;
@@ -286,16 +288,16 @@ public class DockerInstanceProvider implements InstanceProvider {
             final Map<String, Map<String, String>> portsToExpose;
             final Set<String> volumes;
             if (isDev) {
-                labels = new HashMap<>(machineContainerLabels.size() + devMachineContainerLabels.size());
+                labels = Maps.newHashMapWithExpectedSize(machineContainerLabels.size() + devMachineContainerLabels.size());
                 labels.putAll(machineContainerLabels);
                 labels.putAll(devMachineContainerLabels);
 
-                portsToExpose = new HashMap<>(portsToExposeOnMachine.size() + portsToExposeOnDevMachine.size());
+                portsToExpose = Maps.newHashMapWithExpectedSize(portsToExposeOnMachine.size() + portsToExposeOnDevMachine.size());
                 portsToExpose.putAll(portsToExposeOnMachine);
                 portsToExpose.putAll(portsToExposeOnDevMachine);
 
                 // 1 extra element that contains workspace FS folder will be added further
-                volumes = new HashSet<>(devMachineSystemVolumes.size() + systemVolumesForMachine.size() + 1);
+                volumes = Sets.newHashSetWithExpectedSize(devMachineSystemVolumes.size() + systemVolumesForMachine.size() + 1);
                 volumes.addAll(devMachineSystemVolumes);
                 volumes.addAll(systemVolumesForMachine);
             } else {
