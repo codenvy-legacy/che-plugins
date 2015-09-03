@@ -40,7 +40,7 @@
         <!--<dependency>-->
         <!--<groupId>org.eclipse.che.plugin</groupId>-->
         <!--<artifactId>org.eclipse.core.resources</artifactId>-->
-        <!--<version>${che.plugins.version}</version>-->
+        <!--<version>${project.version}</version>-->
         <!--</dependency>-->
         <dependency>
             <groupId>org.eclipse.birt.runtime</groupId>
