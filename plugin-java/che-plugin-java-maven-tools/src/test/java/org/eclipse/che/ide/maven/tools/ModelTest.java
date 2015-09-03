@@ -174,6 +174,38 @@ public class ModelTest {
     }
 
     @Test
+    public void shouldRemoveModule() throws Exception {
+        final File pom = getTestPomFile();
+        write(pom, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                   "<project>\n" +
+                   "    <modelVersion>4.0.0</modelVersion>\n" +
+                   "    <artifactId>artifact-id</artifactId>\n" +
+                   "    <groupId>group-id</groupId>\n" +
+                   "    <version>x.x.x</version>\n" +
+                   "    <modules>\n" +
+                   "        <module>firstModule</module>\n" +
+                   "        <module>secondModule</module>\n" +
+                   "    </modules>\n" +
+                   "</project>");
+        final Model model = Model.readFrom(pom);
+
+        model.removeModule("firstModule");
+
+        model.writeTo(pom);
+        assertEquals(read(pom), "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                                "<project>\n" +
+                                "    <modelVersion>4.0.0</modelVersion>\n" +
+                                "    <artifactId>artifact-id</artifactId>\n" +
+                                "    <groupId>group-id</groupId>\n" +
+                                "    <version>x.x.x</version>\n" +
+                                "    <modules>\n" +
+                                "        <module>secondModule</module>\n" +
+                                "    </modules>\n" +
+                                "</project>");
+        assertEquals(model.getModules().size(), 1);
+    }
+
+    @Test
     public void shouldBeAbleToRemoveModelMembers() throws Exception {
         final File pom = getTestPomFile();
         write(pom, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
