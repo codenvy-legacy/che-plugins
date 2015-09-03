@@ -73,15 +73,15 @@
             <version>${che.core.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.che.depmgt</groupId>
-            <artifactId>che-websocket-terminal</artifactId>
-            <version>${websocket.terminal.version}</version>
-            <type>zip</type>
-        </dependency>
-        <dependency>
             <groupId>org.eclipse.che.plugin</groupId>
             <artifactId>che-plugin-orion-editor</artifactId>
             <version>${che.core.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.che.terminal</groupId>
+            <artifactId>che-websocket-terminal</artifactId>
+            <version>${websocket.terminal.version}</version>
+            <type>zip</type>
         </dependency>
         <dependency>
             <groupId>com.google.gwt</groupId>
@@ -166,7 +166,7 @@
                         <configuration>
                             <artifactItems>
                                 <artifactItem>
-                                    <groupId>org.eclipse.che.depmgt</groupId>
+                                    <groupId>org.eclipse.che.terminal</groupId>
                                     <artifactId>che-websocket-terminal</artifactId>
                                     <version>${websocket.terminal.version}</version>
                                     <type>zip</type>
