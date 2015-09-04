@@ -87,7 +87,6 @@ public interface MachineLocalizationConstant extends Messages {
     @Key("messages.devMachineCanNotBeDestroyed.title")
     String devMachineCanNotBeDestroyedTitle();
 
-
     /* MachineStateNotifier */
     @Key("notification.creatingMachine")
     String notificationCreatingMachine(String machineId);

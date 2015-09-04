@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.machine.client.machine.extserver;
 
-
 import com.google.gwt.core.client.Callback;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -19,8 +18,8 @@ import com.google.web.bindery.event.shared.EventBus;
 import org.eclipse.che.ide.bootstrap.ProjectTemplatesComponent;
 import org.eclipse.che.ide.bootstrap.ProjectTypeComponent;
 import org.eclipse.che.ide.core.Component;
-import org.eclipse.che.api.machine.gwt.client.ExtServerStateEvent;
-import org.eclipse.che.api.machine.gwt.client.ExtServerStateHandler;
+import org.eclipse.che.api.machine.gwt.client.events.ExtServerStateEvent;
+import org.eclipse.che.api.machine.gwt.client.events.ExtServerStateHandler;
 import org.eclipse.che.ide.util.loging.Log;
 
 /**

@@ -104,7 +104,6 @@ class MachineStatusNotifier {
         final MessageHandler messageHandler = new SubscriptionHandler<MachineStatusEvent>(unmarshaller) {
             @Override
             protected void onMessageReceived(MachineStatusEvent result) {
-
                 switch (result.getEventType()) {
                     case RUNNING:
                         unsubscribe(wsChannel, this);

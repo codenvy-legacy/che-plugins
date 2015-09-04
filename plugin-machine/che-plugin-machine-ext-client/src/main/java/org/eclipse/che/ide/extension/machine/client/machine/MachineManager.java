@@ -18,8 +18,11 @@ import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
+import org.eclipse.che.api.machine.gwt.client.events.DevMachineStateEvent;
+import org.eclipse.che.api.machine.gwt.client.events.DevMachineStateHandler;
 import org.eclipse.che.api.machine.shared.dto.MachineDescriptor;
 import org.eclipse.che.api.promises.client.Function;
 import org.eclipse.che.api.promises.client.FunctionException;
@@ -30,7 +33,7 @@ import org.eclipse.che.api.promises.client.PromiseError;
 import org.eclipse.che.api.promises.client.callback.AsyncPromiseHelper;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.notification.NotificationManager;
-import org.eclipse.che.ide.extension.machine.client.OutputMessageUnmarshaller;
+import org.eclipse.che.api.machine.gwt.client.OutputMessageUnmarshaller;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.EntityFactory;
 import org.eclipse.che.ide.extension.machine.client.machine.MachineStatusNotifier.RunningListener;
 import org.eclipse.che.ide.extension.machine.client.machine.console.MachineConsolePresenter;
@@ -81,6 +84,7 @@ public class MachineManager {
                           DialogFactory dialogFactory,
                           RecipeProvider recipeProvider,
                           EntityFactory entityFactory,
+                          EventBus eventBus,
                           AppContext appContext) {
         this.extServerStateController = extServerStateController;
         this.machineServiceClient = machineServiceClient;
@@ -92,6 +96,17 @@ public class MachineManager {
         this.recipeProvider = recipeProvider;
         this.entityFactory = entityFactory;
         this.appContext = appContext;
+        eventBus.addHandler(DevMachineStateEvent.TYPE, new DevMachineStateHandler() {
+            @Override
+            public void onMachineStarted(DevMachineStateEvent event) {
+                onMachineRunning(event.getMachineId());
+            }
+
+            @Override
+            public void onMachineDestroyed(DevMachineStateEvent event) {
+
+            }
+        });
     }
 
     public void restartMachine(@Nonnull final Machine machine) {
