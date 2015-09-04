@@ -15,7 +15,7 @@ import javax.inject.Named;
 import javax.inject.Provider;
 
 /**
- * Provides volumes configuration of machine for terminal
+ * Provides volumes configuration of machine for local storage
  *
  * @author Alexander Garagatyi
  */
