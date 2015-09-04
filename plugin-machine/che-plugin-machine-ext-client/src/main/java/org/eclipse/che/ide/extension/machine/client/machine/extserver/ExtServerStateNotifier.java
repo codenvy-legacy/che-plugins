@@ -13,8 +13,8 @@ package org.eclipse.che.ide.extension.machine.client.machine.extserver;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 
-import org.eclipse.che.api.machine.gwt.client.ExtServerStateEvent;
-import org.eclipse.che.api.machine.gwt.client.ExtServerStateHandler;
+import org.eclipse.che.api.machine.gwt.client.events.ExtServerStateEvent;
+import org.eclipse.che.api.machine.gwt.client.events.ExtServerStateHandler;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 
 /**
