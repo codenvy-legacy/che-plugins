@@ -25,6 +25,7 @@
     <modules>
         <module>che-plugin-docker-client</module>
         <module>che-plugin-docker-machine</module>
+        <module>che-plugin-docker-ext-client</module>
         <module>che-plugin-docker-recipes</module>
     </modules>
     <properties>
