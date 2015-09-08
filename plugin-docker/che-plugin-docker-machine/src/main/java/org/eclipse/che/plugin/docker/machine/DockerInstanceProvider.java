@@ -82,7 +82,7 @@ public class DockerInstanceProvider implements InstanceProvider {
                                   @Named("machine.docker.machine_servers") Set<ServerConf> allMachineServers,
                                   @Named("machine.docker.dev_machine.machine_volumes") Set<String> devMachineSystemVolumes,
                                   @Named("machine.docker.machine_volumes") Set<String> allMachinesSystemVolumes,
-                                  @Named("api.endpoint") String apiEndpoint)
+                                  @Named("machine.docker.che_api.endpoint") String apiEndpoint)
             throws IOException {
 
         this.docker = docker;
