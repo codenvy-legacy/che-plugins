@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.che.jdt.refactoring;
 
+import org.eclipse.che.api.project.server.notification.ProjectItemModifiedEvent;
+import org.eclipse.che.ide.ext.java.BaseTest;
+import org.eclipse.che.jdt.core.resources.ResourceChangedEvent;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
@@ -28,6 +31,7 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.refactoring.IJavaElementMapper;
 import org.eclipse.jdt.core.refactoring.IJavaRefactorings;
 import org.eclipse.jdt.core.refactoring.descriptors.RenameJavaElementDescriptor;
+import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.refactoring.descriptors.RefactoringSignatureDescriptorFactory;
 import org.eclipse.jdt.internal.corext.refactoring.rename.RenameTypeProcessor;
 import org.eclipse.jdt.internal.corext.refactoring.rename.RenamingNameSuggestor;
@@ -44,6 +48,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -1411,6 +1416,11 @@ public class RenameTypeTest extends RefactoringTest {
 		IProject project= classA.getJavaProject().getProject();
 		IFile file= project.getFile(textFileName);
 		file.create(new ByteArrayInputStream(content.getBytes()), true, null);
+        ResourceChangedEvent
+                event = new ResourceChangedEvent(new File(BaseTest.class.getResource("/projects").getFile()),new ProjectItemModifiedEvent(
+                ProjectItemModifiedEvent.EventType.CREATED, "projects",fProject.getElementName(),file.getFullPath().toOSString(), false));
+
+        JavaModelManager.getJavaModelManager().deltaState.resourceChanged(event);
 
 		RenameJavaElementDescriptor descriptor= createRefactoringDescriptor(classA, newName);
 		descriptor.setUpdateQualifiedNames(true);

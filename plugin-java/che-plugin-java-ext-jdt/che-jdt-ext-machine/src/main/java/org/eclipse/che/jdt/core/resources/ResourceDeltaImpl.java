@@ -11,6 +11,7 @@
 
 package org.eclipse.che.jdt.core.resources;
 
+import org.eclipse.che.api.project.server.ProjectCreatedEvent;
 import org.eclipse.che.api.project.server.notification.ProjectItemModifiedEvent;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.resources.IContainer;
@@ -30,12 +31,12 @@ public class ResourceDeltaImpl implements IResourceDelta {
 
     protected static int KIND_MASK = 0xFF;
     private File workspace;
-    private ProjectItemModifiedEvent event;
+    private String path;
     protected int status;
 
     public ResourceDeltaImpl(File workspace, ProjectItemModifiedEvent event) {
         this.workspace = workspace;
-        this.event = event;
+        path = event.getPath();
 //        status|= KIND_MASK;
         switch (event.getType()) {
             case UPDATED:
@@ -49,9 +50,16 @@ public class ResourceDeltaImpl implements IResourceDelta {
         }
     }
 
+    public ResourceDeltaImpl(File workspace, ProjectCreatedEvent event) {
+        this.workspace = workspace;
+        path = event.getProjectPath();
+        status |= ADDED;
+
+    }
+
     @Override
     public File getFile() {
-        return new File(workspace, event.getPath());
+        return new File(workspace, path);
     }
 
     @Override
@@ -134,8 +142,7 @@ public class ResourceDeltaImpl implements IResourceDelta {
 
     @Override
     public IResource getResource() {
-        return ResourcesPlugin.getWorkspace().getRoot().findMember(new Path(event.getPath()));
-//        throw new UnsupportedOperationException();
+        return ResourcesPlugin.getWorkspace().getRoot().findMember(new Path(path));
     }
 
     @Override

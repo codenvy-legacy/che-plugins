@@ -61,6 +61,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.util.Arrays;
 import java.util.Map;
 
 /**
@@ -735,6 +736,7 @@ public class Workspace implements IWorkspace {
                     IPath iPath = new Path(child.getPath().substring(wsPath.length()));
                     resources[i] = newResource(iPath, getType(child));
                 }
+                resources = Arrays.stream(resources).sorted((o1, o2) -> o1.getName().compareToIgnoreCase(o2.getName())).toArray(IResource[]::new);
                 return resources;
             }
         }

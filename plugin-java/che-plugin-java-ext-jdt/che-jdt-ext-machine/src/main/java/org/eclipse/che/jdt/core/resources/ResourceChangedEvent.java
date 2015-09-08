@@ -11,6 +11,7 @@
 
 package org.eclipse.che.jdt.core.resources;
 
+import org.eclipse.che.api.project.server.ProjectCreatedEvent;
 import org.eclipse.che.api.project.server.notification.ProjectItemModifiedEvent;
 import org.eclipse.core.resources.IMarkerDelta;
 import org.eclipse.core.resources.IResource;
@@ -25,11 +26,14 @@ import java.io.File;
 public class ResourceChangedEvent implements IResourceChangeEvent {
 
 
-    private ProjectItemModifiedEvent event;
     private ResourceDeltaImpl resourceDelta;
 
     public ResourceChangedEvent(File workspace, ProjectItemModifiedEvent event) {
-        this.event = event;
+        resourceDelta = new ResourceDeltaImpl(workspace, event);
+
+    }
+
+    public ResourceChangedEvent(File workspace, ProjectCreatedEvent event) {
         resourceDelta = new ResourceDeltaImpl(workspace, event);
 
     }

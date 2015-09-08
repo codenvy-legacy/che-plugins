@@ -16,7 +16,9 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceStatus;
 import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.IWorkspaceRunnable;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -32,6 +34,7 @@ import org.eclipse.jdt.core.IJavaElementDelta;
 import org.eclipse.jdt.core.IJavaModel;
 import org.eclipse.jdt.core.IJavaModelStatus;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
+import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.core.util.Messages;
@@ -272,25 +275,25 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
     protected boolean canModifyRoots() {
         return false;
     }
-//	/**
-//	 * Convenience method to copy resources
-//	 */
-//	protected void copyResources(IResource[] resources, IPath container) throws JavaModelException {
-//		IProgressMonitor subProgressMonitor = getSubProgressMonitor(resources.length);
-//		IWorkspaceRoot root =  ResourcesPlugin.getWorkspace().getRoot();
-//		try {
-//			for (int i = 0, length = resources.length; i < length; i++) {
-//				IResource resource = resources[i];
-//				IPath destination = container.append(resource.getName());
-//				if (root.findMember(destination) == null) {
-//					resource.copy(destination, false, subProgressMonitor);
-//				}
-//			}
-//			setAttribute(HAS_MODIFIED_RESOURCE_ATTR, TRUE);
-//		} catch (CoreException e) {
-//			throw new JavaModelException(e);
-//		}
-//	}
+	/**
+	 * Convenience method to copy resources
+	 */
+	protected void copyResources(IResource[] resources, IPath container) throws JavaModelException {
+		IProgressMonitor subProgressMonitor = getSubProgressMonitor(resources.length);
+		IWorkspaceRoot root =  ResourcesPlugin.getWorkspace().getRoot();
+		try {
+			for (int i = 0, length = resources.length; i < length; i++) {
+				IResource resource = resources[i];
+				IPath destination = container.append(resource.getName());
+				if (root.findMember(destination) == null) {
+					resource.copy(destination, false, subProgressMonitor);
+				}
+			}
+			setAttribute(HAS_MODIFIED_RESOURCE_ATTR, TRUE);
+		} catch (CoreException e) {
+			throw new JavaModelException(e);
+		}
+	}
 	/**
 	 * Convenience method to create a file
 	 */
@@ -322,37 +325,37 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 			throw new JavaModelException(e);
 		}
 	}
-//	/**
-//	 * Convenience method to delete an empty package fragment
-//	 */
-//	protected void deleteEmptyPackageFragment(
-//		IPackageFragment fragment,
-//		boolean forceFlag,
-//		IResource rootResource)
-//		throws JavaModelException {
-//
-//		IContainer resource = (IContainer) ((JavaElement)fragment).resource();
-//
-//		try {
-//			resource.delete(
-//				forceFlag ? IResource.FORCE | IResource.KEEP_HISTORY : IResource.KEEP_HISTORY,
-//				getSubProgressMonitor(1));
-//			setAttribute(HAS_MODIFIED_RESOURCE_ATTR, TRUE);
-//			while (resource instanceof IFolder) {
-//				// deleting a package: delete the parent if it is empty (e.g. deleting x.y where folder x doesn't have resources but y)
-//				// without deleting the package fragment root
-//				resource = resource.getParent();
-//				if (!resource.equals(rootResource) && resource.members().length == 0) {
-//					resource.delete(
-//						forceFlag ? IResource.FORCE | IResource.KEEP_HISTORY : IResource.KEEP_HISTORY,
-//						getSubProgressMonitor(1));
-//					setAttribute(HAS_MODIFIED_RESOURCE_ATTR, TRUE);
-//				}
-//			}
-//		} catch (CoreException e) {
-//			throw new JavaModelException(e);
-//		}
-//	}
+	/**
+	 * Convenience method to delete an empty package fragment
+	 */
+	protected void deleteEmptyPackageFragment(
+		IPackageFragment fragment,
+		boolean forceFlag,
+		IResource rootResource)
+		throws JavaModelException {
+
+		IContainer resource = (IContainer) ((JavaElement)fragment).resource();
+
+		try {
+			resource.delete(
+				forceFlag ? IResource.FORCE | IResource.KEEP_HISTORY : IResource.KEEP_HISTORY,
+				getSubProgressMonitor(1));
+			setAttribute(HAS_MODIFIED_RESOURCE_ATTR, TRUE);
+			while (resource instanceof IFolder) {
+				// deleting a package: delete the parent if it is empty (e.g. deleting x.y where folder x doesn't have resources but y)
+				// without deleting the package fragment root
+				resource = resource.getParent();
+				if (!resource.equals(rootResource) && resource.members().length == 0) {
+					resource.delete(
+						forceFlag ? IResource.FORCE | IResource.KEEP_HISTORY : IResource.KEEP_HISTORY,
+						getSubProgressMonitor(1));
+					setAttribute(HAS_MODIFIED_RESOURCE_ATTR, TRUE);
+				}
+			}
+		} catch (CoreException e) {
+			throw new JavaModelException(e);
+		}
+	}
 	/**
 	 * Convenience method to delete a resource
 	 */
@@ -558,8 +561,7 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
      * Subclasses can override.
      */
     protected ISchedulingRule getSchedulingRule() {
-//		return ResourcesPlugin.getWorkspace().getRoot();
-        throw new UnsupportedOperationException();
+		return ResourcesPlugin.getWorkspace().getRoot();
     }
 
     /**
@@ -624,29 +626,29 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
                 && stack.get(0) == this;
     }
 
-//	/**
-//	 * Convenience method to move resources
-//	 */
-//	protected void moveResources(IResource[] resources, IPath container) throws JavaModelException {
-//		IProgressMonitor subProgressMonitor = null;
-//		if (this.progressMonitor != null) {
-//			subProgressMonitor = new SubProgressMonitor(this.progressMonitor, resources.length, SubProgressMonitor
-// .PREPEND_MAIN_LABEL_TO_SUBTASK);
-//		}
-//		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-//		try {
-//			for (int i = 0, length = resources.length; i < length; i++) {
-//				IResource resource = resources[i];
-//				IPath destination = container.append(resource.getName());
-//				if (root.findMember(destination) == null) {
-//					resource.move(destination, false, subProgressMonitor);
-//				}
-//			}
-//			setAttribute(HAS_MODIFIED_RESOURCE_ATTR, TRUE);
-//		} catch (CoreException e) {
-//			throw new JavaModelException(e);
-//		}
-//	}
+	/**
+	 * Convenience method to move resources
+	 */
+	protected void moveResources(IResource[] resources, IPath container) throws JavaModelException {
+		IProgressMonitor subProgressMonitor = null;
+		if (this.progressMonitor != null) {
+			subProgressMonitor = new SubProgressMonitor(this.progressMonitor, resources.length, SubProgressMonitor
+ .PREPEND_MAIN_LABEL_TO_SUBTASK);
+		}
+		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+		try {
+			for (int i = 0, length = resources.length; i < length; i++) {
+				IResource resource = resources[i];
+				IPath destination = container.append(resource.getName());
+				if (root.findMember(destination) == null) {
+					resource.move(destination, false, subProgressMonitor);
+				}
+			}
+			setAttribute(HAS_MODIFIED_RESOURCE_ATTR, TRUE);
+		} catch (CoreException e) {
+			throw new JavaModelException(e);
+		}
+	}
 
     /*
      * Returns the index of the first registered action with the given id, starting from a given position.

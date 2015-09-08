@@ -227,7 +227,17 @@
                         <exclude>**/*.rsc</exclude>
                         <exclude>**/*.json</exclude>
                         <exclude>**/readableNames</exclude>
+                        <exclude>**/RenameMethodInInterface/**</exclude>
+                        <exclude>**/RenameNonPrivateField/**</exclude>
+                        <exclude>**/RenamePackage/**</exclude>
+                        <exclude>**/RenameParameters/**</exclude>
+                        <exclude>**/RenamePrivateField/**</exclude>
+                        <exclude>**/RenamePrivateMethod/**</exclude>
+                        <exclude>**/RenameStaticMethod/**</exclude>
+                        <exclude>**/RenameTests18/**</exclude>
                         <exclude>**/RenameType/**</exclude>
+                        <exclude>**/RenameTypeParameter/**</exclude>
+                        <exclude>**/RenameVirtualMethodInClass/**</exclude>
                         <exclude>**/projects/**</exclude>
                         <exclude>**/org/eclipse/che/jdt/javadoc/**</exclude>
                         <exclude>**/org/eclipse/jdt/**</exclude>
