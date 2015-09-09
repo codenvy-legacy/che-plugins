@@ -11,6 +11,8 @@
 package org.eclipse.che.ide.extension.machine.client.machine;
 
 import org.eclipse.che.api.machine.shared.dto.event.MachineStatusEvent;
+import org.eclipse.che.api.workspace.shared.dto.UsersWorkspaceDto;
+import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
@@ -32,6 +34,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -47,6 +50,8 @@ public class MachineStateNotifierTest {
     //constructor mocks
     @Mock
     private MessageBus                  messageBus;
+    @Mock
+    private AppContext                  appContext;
     @Mock
     private DtoUnmarshallerFactory      dtoUnmarshallerFactory;
     @Mock
@@ -78,6 +83,9 @@ public class MachineStateNotifierTest {
 
     @Test
     public void machineShouldBeTrackedWhenMachineStateIsCreating() throws Exception {
+        UsersWorkspaceDto workspace = mock(UsersWorkspaceDto.class);
+        when(appContext.getWorkspace()).thenReturn(workspace);
+        when(workspace.getId()).thenReturn(SOME_TEXT);
         when(machine.getDisplayName()).thenReturn(SOME_TEXT);
         stateNotifier.trackMachine(machine, MachineManager.MachineOperationType.START);
 
@@ -95,6 +103,9 @@ public class MachineStateNotifierTest {
 
     @Test
     public void machineShouldBeTrackedWhenMachineStateIsDestroying() throws Exception {
+        UsersWorkspaceDto workspace = mock(UsersWorkspaceDto.class);
+        when(appContext.getWorkspace()).thenReturn(workspace);
+        when(workspace.getId()).thenReturn(SOME_TEXT);
         when(machine.getDisplayName()).thenReturn(SOME_TEXT);
         stateNotifier.trackMachine(machine, MachineManager.MachineOperationType.DESTROY);
 
