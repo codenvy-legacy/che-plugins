@@ -1038,7 +1038,7 @@ public class DockerConnector {
                 final String msg = CharStreams.toString(new InputStreamReader(response.getInputStream()));
                 if (200 == status) {
                     // docker API 1.20 returns 200 with warning message about usage of loopback docker backend
-                    LOG.error(msg);
+                    LOG.warn(msg);
                 } else {
                     throw new DockerException(String.format("Error response from docker API, status: %d, message: %s", status, msg),
                                               status);
