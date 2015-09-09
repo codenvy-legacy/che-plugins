@@ -21,9 +21,16 @@ public class JavaNodeSettings implements NodeSettings {
 
     private boolean showExternalLibrariesNode = true;
 
+    private boolean showHiddenFiles;
+
     @Override
     public boolean isShowHiddenFiles() {
-        return false; //TODO make it configurable
+        return showHiddenFiles;
+    }
+
+    @Override
+    public void setShowHiddenFiles(boolean showHiddenFiles) {
+        this.showHiddenFiles = showHiddenFiles;
     }
 
     @Override
