@@ -117,6 +117,6 @@ public abstract class AbstractJavaContentRootInterceptor implements NodeIntercep
 
     @Override
     public Integer weightOrder() {
-        return 0;
+        return 1;
     }
 }
