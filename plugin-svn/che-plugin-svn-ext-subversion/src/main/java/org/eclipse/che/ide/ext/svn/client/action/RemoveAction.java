@@ -13,10 +13,11 @@ package org.eclipse.che.ide.ext.svn.client.action;
 import org.eclipse.che.api.analytics.client.logger.AnalyticsEventLogger;
 import org.eclipse.che.ide.api.action.ActionEvent;
 import org.eclipse.che.ide.api.app.AppContext;
-import org.eclipse.che.ide.api.selection.SelectionAgent;
 import org.eclipse.che.ide.ext.svn.client.SubversionExtensionLocalizationConstants;
 import org.eclipse.che.ide.ext.svn.client.SubversionExtensionResources;
 import org.eclipse.che.ide.ext.svn.client.remove.RemovePresenter;
+import org.eclipse.che.ide.part.explorer.project.NewProjectExplorerPresenter;
+
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -34,12 +35,12 @@ public class RemoveAction extends SubversionAction {
     @Inject
     public RemoveAction(final AnalyticsEventLogger eventLogger,
                         final AppContext appContext,
-                        final SelectionAgent selectionAgent,
+                        final NewProjectExplorerPresenter projectExplorerPresenter,
                         final SubversionExtensionLocalizationConstants constants,
                         final SubversionExtensionResources resources,
                         final RemovePresenter presenter) {
         super(constants.removeTitle(), constants.removeDescription(), resources.delete(), eventLogger, appContext,
-              constants, resources, selectionAgent);
+              constants, resources, projectExplorerPresenter);
 
         this.presenter = presenter;
     }

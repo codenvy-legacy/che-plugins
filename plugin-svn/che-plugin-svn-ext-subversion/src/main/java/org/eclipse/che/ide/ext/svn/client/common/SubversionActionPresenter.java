@@ -25,6 +25,9 @@ import org.eclipse.che.ide.api.project.tree.TreeNode;
 import org.eclipse.che.ide.api.selection.Selection;
 import org.eclipse.che.ide.ext.svn.client.action.SubversionAction;
 import org.eclipse.che.ide.part.explorer.project.NewProjectExplorerPresenter;
+import org.eclipse.che.ide.project.node.FileReferenceNode;
+import org.eclipse.che.ide.project.node.FolderReferenceNode;
+import org.eclipse.che.ide.project.node.ProjectDescriptorNode;
 
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
@@ -138,16 +141,16 @@ public class SubversionActionPresenter {
             return Collections.emptyList();
         }
 
-//            for (final Object item : selection.getAllElements()) {
-//                if (matchesFilter(item, filters)) {
-//                    final String path = relativePath((StorableNode)item);
-//                    if (!path.isEmpty()) {
-//                        paths.add(path);
-//                    } else {
-//                        paths.add("."); //it may be root path for our project
-//                    }
-//                }
-//            }
+            for (final Object item : selection) {
+                if (matchesFilter(item, filters)) {
+                    final String path = relativePath((HasStorablePath)item);
+                    if (!path.isEmpty()) {
+                        paths.add(path);
+                    } else {
+                        paths.add("."); //it may be root path for our project
+                    }
+                }
+            }
 
         return paths;
     }
@@ -157,15 +160,15 @@ public class SubversionActionPresenter {
      *
      * @return relative node path
      */
-//    protected String relativePath(final StorableNode node) {
-//        String path = node.getPath().replaceFirst(node.getProject().getPath(), ""); // TODO: Move to method
-//
-//        if (path.startsWith("/")) {
-//            path = path.substring(1);
-//        }
-//
-//        return path;
-//    }
+    protected String relativePath(final HasStorablePath node) {
+        String path = node.getStorablePath().replaceFirst(appContext.getCurrentProject().getRootProject().getPath(), ""); // TODO: Move to method
+
+        if (path.startsWith("/")) {
+            path = path.substring(1);
+        }
+
+        return path;
+    }
 
     protected List<String> getSelectedPaths() {
         return getSelectedPaths(Collections.singleton(ALL));
@@ -175,15 +178,15 @@ public class SubversionActionPresenter {
         if (filters == null || filters.isEmpty()) {
             return true;
         }
-//        for (final PathTypeFilter filter : filters) {
-//            if (filter == ALL && node instanceof StorableNode
-//                || filter == PathTypeFilter.FILE && node instanceof FileNode
-//                || filter == PathTypeFilter.FOLDER && node instanceof FolderNode
-//                || filter == PathTypeFilter.PROJECT && (node instanceof ProjectNode
-//                    || node instanceof org.eclipse.che.ide.part.projectexplorer.ProjectListStructure.ProjectNode)) {
-//                return true;
-//            }
-//        }
+        for (final PathTypeFilter filter : filters) {
+            if (filter == ALL && node instanceof HasStorablePath
+                || filter == PathTypeFilter.FILE && node instanceof FileReferenceNode
+                || filter == PathTypeFilter.FOLDER && node instanceof FolderReferenceNode
+                || filter == PathTypeFilter.PROJECT && (node instanceof ProjectDescriptorNode
+                    || node instanceof org.eclipse.che.ide.part.projectexplorer.ProjectListStructure.ProjectNode)) {
+                return true;
+            }
+        }
         return false;
     }
 

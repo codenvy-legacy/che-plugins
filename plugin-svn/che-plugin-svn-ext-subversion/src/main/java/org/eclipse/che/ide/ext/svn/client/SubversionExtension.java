@@ -22,14 +22,12 @@ import org.eclipse.che.ide.ext.svn.client.action.BranchTagAction;
 import org.eclipse.che.ide.ext.svn.client.action.ChangeCredentialsAction;
 import org.eclipse.che.ide.ext.svn.client.action.CleanupAction;
 import org.eclipse.che.ide.ext.svn.client.action.CommitAction;
-import org.eclipse.che.ide.ext.svn.client.action.CopyAction;
 import org.eclipse.che.ide.ext.svn.client.action.CreatePatchAction;
 import org.eclipse.che.ide.ext.svn.client.action.DiffAction;
 import org.eclipse.che.ide.ext.svn.client.action.ExportAction;
 import org.eclipse.che.ide.ext.svn.client.action.LockAction;
 import org.eclipse.che.ide.ext.svn.client.action.LogAction;
 import org.eclipse.che.ide.ext.svn.client.action.MergeAction;
-import org.eclipse.che.ide.ext.svn.client.action.MoveAction;
 import org.eclipse.che.ide.ext.svn.client.action.PropertiesAction;
 import org.eclipse.che.ide.ext.svn.client.action.RelocateAction;
 import org.eclipse.che.ide.ext.svn.client.action.RemoveAction;
@@ -75,8 +73,6 @@ public class SubversionExtension {
                                final ChangeCredentialsAction changeCredentialsAction,
                                final CleanupAction cleanupAction,
                                final CommitAction commitAction,
-                               final CopyAction copyAction,
-                               final MoveAction moveAction,
                                final CreatePatchAction createPatchAction,
                                final DiffAction diffAction,
                                final ExportAction exportAction,
@@ -161,10 +157,13 @@ public class SubversionExtension {
         fileCommandGroup.add(commitAction);
         actionManager.registerAction("SvnResolve", resolveAction);
         fileCommandGroup.add(resolveAction);
-        actionManager.registerAction("SvnCopy", copyAction);
-        fileCommandGroup.add(copyAction);
-        actionManager.registerAction("SvnMove", moveAction);
-        fileCommandGroup.add(moveAction);
+
+//TODO: temporary remove Copy and Move action
+// need to fix ASAP problem come with new Project Tree
+//        actionManager.registerAction("SvnCopy", copyAction);
+//        fileCommandGroup.add(copyAction);
+//        actionManager.registerAction("SvnMove", moveAction);
+//        fileCommandGroup.add(moveAction);
 
         // Commands that interact with the repository
         actionManager.registerAction("SvnMerge", mergeAction);

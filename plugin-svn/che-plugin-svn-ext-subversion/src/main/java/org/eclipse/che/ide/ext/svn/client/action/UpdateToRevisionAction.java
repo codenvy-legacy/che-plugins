@@ -18,6 +18,8 @@ import org.eclipse.che.api.analytics.client.logger.AnalyticsEventLogger;
 import org.eclipse.che.ide.api.action.ActionEvent;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.selection.SelectionAgent;
+import org.eclipse.che.ide.part.explorer.project.NewProjectExplorerPresenter;
+
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -35,12 +37,12 @@ public class UpdateToRevisionAction extends SubversionAction {
     @Inject
     public UpdateToRevisionAction(final AnalyticsEventLogger eventLogger,
                                   final AppContext appContext,
-                                  final SelectionAgent selectionAgent,
+                                  final NewProjectExplorerPresenter projectExplorerPresenter,
                                   final SubversionExtensionLocalizationConstants constants,
                                   final SubversionExtensionResources resources,
                                   final UpdateToRevisionPresenter presenter) {
         super(constants.updateToRevisionTitle(), constants.updateToRevisionDescription(), resources.update(),
-              eventLogger, appContext, constants, resources, selectionAgent);
+              eventLogger, appContext, constants, resources, projectExplorerPresenter);
 
         this.presenter = presenter;
     }

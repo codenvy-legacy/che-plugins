@@ -19,10 +19,10 @@ import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.ide.api.action.ActionEvent;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
-import org.eclipse.che.ide.api.selection.SelectionAgent;
 import org.eclipse.che.ide.ext.svn.client.SubversionExtensionLocalizationConstants;
 import org.eclipse.che.ide.ext.svn.client.SubversionExtensionResources;
 import org.eclipse.che.ide.ext.svn.client.askcredentials.AskCredentialsPresenter;
+import org.eclipse.che.ide.part.explorer.project.NewProjectExplorerPresenter;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -41,12 +41,12 @@ public class ChangeCredentialsAction extends SubversionAction {
     @Inject
     public ChangeCredentialsAction(final AnalyticsEventLogger eventLogger,
                                    final AppContext appContext,
-                                   final SelectionAgent selectionAgent,
+                                   final NewProjectExplorerPresenter projectExplorerPresenter,
                                    final SubversionExtensionLocalizationConstants constants,
                                    final SubversionExtensionResources resources,
                                    final AskCredentialsPresenter presenter) {
         super(constants.changeCredentialsTitle(), constants.changeCredentialsDescription(), resources.add(),
-              eventLogger, appContext, constants, resources, selectionAgent);
+              eventLogger, appContext, constants, resources, projectExplorerPresenter);
 
         this.presenter = presenter;
     }
