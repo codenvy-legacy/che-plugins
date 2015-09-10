@@ -15,7 +15,7 @@ import com.google.inject.Singleton;
 
 import org.eclipse.che.ide.ext.runner.client.manager.menu.SplitterState;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,7 +42,7 @@ public class PanelState {
     }
 
     /** @return current state of the panel */
-    @Nonnull
+    @NotNull
     public State getState() {
         return state;
     }
@@ -53,7 +53,7 @@ public class PanelState {
      * @param state
      *         sate that needs to be applied
      */
-    public void setState(@Nonnull State state) {
+    public void setState(@NotNull State state) {
         this.state = state;
         notifyListeners();
     }
@@ -64,12 +64,12 @@ public class PanelState {
      * @param splitterState
      *         state which need set
      */
-    public void setSplitterState(@Nonnull SplitterState splitterState) {
+    public void setSplitterState(@NotNull SplitterState splitterState) {
         this.splitterState = splitterState;
     }
 
     /** Returns splitter state. */
-    @Nonnull
+    @NotNull
     public SplitterState getSplitterState() {
         return splitterState;
     }
@@ -80,7 +80,7 @@ public class PanelState {
      * @param listener
      *         listener that needs to be added
      */
-    public void addListener(@Nonnull StateChangeListener listener) {
+    public void addListener(@NotNull StateChangeListener listener) {
         listeners.add(listener);
     }
 

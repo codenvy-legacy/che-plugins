@@ -37,7 +37,7 @@ import org.eclipse.che.ide.rest.Unmarshallable;
 import org.eclipse.che.ide.util.loging.Log;
 import org.eclipse.che.ide.websocket.rest.SubscriptionHandler;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import java.util.List;
 
@@ -133,7 +133,7 @@ public class GetRunningProcessesAction extends AbstractRunnerAction {
                 })
                 .failure(new FailureCallback() {
                     @Override
-                    public void onFailure(@Nonnull Throwable reason) {
+                    public void onFailure(@NotNull Throwable reason) {
                         Log.error(GetRunningProcessesAction.class, reason);
                     }
                 })
@@ -142,7 +142,7 @@ public class GetRunningProcessesAction extends AbstractRunnerAction {
         service.getRunningProcesses(project.getProjectDescription().getPath(), callback);
     }
 
-    private boolean isNewOrRunningProcess(@Nonnull ApplicationProcessDescriptor processDescriptor) {
+    private boolean isNewOrRunningProcess(@NotNull ApplicationProcessDescriptor processDescriptor) {
         ApplicationStatus status = processDescriptor.getStatus();
         return status == NEW || status == RUNNING;
     }
@@ -168,7 +168,7 @@ public class GetRunningProcessesAction extends AbstractRunnerAction {
         webSocketUtil.subscribeHandler(channel, processStartedHandler);
     }
 
-    private void prepareRunnerWithRunningApp(@Nonnull ApplicationProcessDescriptor processDescriptor) {
+    private void prepareRunnerWithRunningApp(@NotNull ApplicationProcessDescriptor processDescriptor) {
         Runner runner = runnerManagerPresenter.addRunner(processDescriptor);
 
         logsAction.perform(runner);

@@ -16,8 +16,8 @@ import org.eclipse.che.ide.ext.runner.client.models.Environment;
 import org.eclipse.che.ide.ext.runner.client.models.Runner;
 import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+import org.eclipse.che.commons.annotation.Nullable;
 
 /**
  * The factory for creating an instances of different models which use in the project.
@@ -35,8 +35,8 @@ public interface ModelsFactory {
      *         options which needs to be used
      * @return an instance of {@link Runner}
      */
-    @Nonnull
-    Runner createRunner(@Nonnull RunOptions runOptions);
+    @NotNull
+    Runner createRunner(@NotNull RunOptions runOptions);
 
     /**
      * Creates a runner with runner options and environment name.  It means the title of the runner will be generated with additional
@@ -50,8 +50,8 @@ public interface ModelsFactory {
      *         additional part of name for runner
      * @return an instance of {@link Runner}
      */
-    @Nonnull
-    Runner createRunner(@Nonnull RunOptions runOptions, @Nonnull Scope scope, @Nullable String environmentName);
+    @NotNull
+    Runner createRunner(@NotNull RunOptions runOptions, @NotNull Scope scope, @Nullable String environmentName);
 
     /**
      * Creates environments with environment and scope.
@@ -62,7 +62,7 @@ public interface ModelsFactory {
      *         scope which need set to environment
      * @return an instance of {@link Environment}
      */
-    @Nonnull
-    Environment createEnvironment(@Nonnull RunnerEnvironment runnerEnvironment, @Nonnull Scope scope);
+    @NotNull
+    Environment createEnvironment(@NotNull RunnerEnvironment runnerEnvironment, @NotNull Scope scope);
 
 }

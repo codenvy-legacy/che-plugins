@@ -22,7 +22,7 @@ import com.google.inject.Inject;
 import org.eclipse.che.ide.ext.runner.client.RunnerResources;
 import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.PropertiesPanel;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * @author Andrey Plotnikov
@@ -50,7 +50,7 @@ public class PropertiesContainerViewImpl extends Composite implements Properties
 
     /** {@inheritDoc} */
     @Override
-    public void showWidget(@Nonnull PropertiesPanel panel) {
+    public void showWidget(@NotNull PropertiesPanel panel) {
         panel.go(mainPanel);
     }
 

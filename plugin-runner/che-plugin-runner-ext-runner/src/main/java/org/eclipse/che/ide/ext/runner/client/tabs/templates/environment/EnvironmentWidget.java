@@ -25,8 +25,8 @@ import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope;
 import org.eclipse.che.ide.ext.runner.client.util.EnvironmentIdValidator;
 import org.vectomatic.dom.svg.ui.SVGImage;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+import org.eclipse.che.commons.annotation.Nullable;
 
 import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope.PROJECT;
 import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope.SYSTEM;
@@ -79,7 +79,7 @@ public class EnvironmentWidget implements RunnerItems<Environment> {
      * @param environmentScope
      *         scope which need set
      */
-    public void setScope(@Nonnull Scope environmentScope) {
+    public void setScope(@NotNull Scope environmentScope) {
         this.environmentScope = environmentScope;
     }
 
@@ -97,7 +97,7 @@ public class EnvironmentWidget implements RunnerItems<Environment> {
 
     /** {@inheritDoc} */
     @Override
-    public void update(@Nonnull Environment environment) {
+    public void update(@NotNull Environment environment) {
         this.environment = environment;
         this.environmentScope = environment.getScope();
 

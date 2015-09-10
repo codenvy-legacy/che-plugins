@@ -47,8 +47,8 @@ import org.eclipse.che.ide.ext.runner.client.util.RunnerUtil;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.util.loging.Log;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+import org.eclipse.che.commons.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
@@ -161,7 +161,7 @@ public class TemplatesPresenter implements TemplatesContainer, FilterWidget.Acti
 
     /** {@inheritDoc} */
     @Override
-    public List<Environment> addEnvironments(@Nonnull RunnerEnvironmentTree tree, @Nonnull Scope scope) {
+    public List<Environment> addEnvironments(@NotNull RunnerEnvironmentTree tree, @NotNull Scope scope) {
         ProjectDescriptor descriptor = getCurrentProject().getProjectDescription();
 
         List<Environment> list;
@@ -179,7 +179,7 @@ public class TemplatesPresenter implements TemplatesContainer, FilterWidget.Acti
         return environments;
     }
 
-    @Nonnull
+    @NotNull
     private CurrentProject getCurrentProject() {
         CurrentProject currentProject = appContext.getCurrentProject();
 
@@ -190,9 +190,9 @@ public class TemplatesPresenter implements TemplatesContainer, FilterWidget.Acti
         return currentProject;
     }
 
-    private void addEnvironments(@Nonnull List<Environment> sourceList,
-                                 @Nonnull List<Environment> targetList,
-                                 @Nonnull Scope scope) {
+    private void addEnvironments(@NotNull List<Environment> sourceList,
+                                 @NotNull List<Environment> targetList,
+                                 @NotNull Scope scope) {
         sourceList.clear();
         sourceList.addAll(targetList);
 
@@ -215,7 +215,7 @@ public class TemplatesPresenter implements TemplatesContainer, FilterWidget.Acti
         }
     }
 
-    private void selectNewProjectEnvironment(@Nonnull List<Environment> currentProjectEnvironments) {
+    private void selectNewProjectEnvironment(@NotNull List<Environment> currentProjectEnvironments) {
         for (Environment environment : currentProjectEnvironments) {
             if (!previousProjectEnvironments.contains(environment)) {
                 select(environment);
@@ -226,7 +226,7 @@ public class TemplatesPresenter implements TemplatesContainer, FilterWidget.Acti
     }
 
     /** {@inheritDoc} */
-    @Nonnull
+    @NotNull
     public List<Environment> getProjectEnvironments() {
         return new ArrayList<>(environmentMap.get(PROJECT));
     }
@@ -369,7 +369,7 @@ public class TemplatesPresenter implements TemplatesContainer, FilterWidget.Acti
         view.setDefaultProjectWidget(defaultEnvWidget);
     }
 
-    private void updateProject(@Nonnull ProjectDescriptor descriptor, @Nullable final EnvironmentWidget environmentWidget) {
+    private void updateProject(@NotNull ProjectDescriptor descriptor, @Nullable final EnvironmentWidget environmentWidget) {
         AsyncRequestCallback<ProjectDescriptor> asyncDescriptorCallback =
                 asyncDescriptorCallbackBuilder.success(new SuccessCallback<ProjectDescriptor>() {
                     @Override
@@ -379,7 +379,7 @@ public class TemplatesPresenter implements TemplatesContainer, FilterWidget.Acti
                     }
                 }).failure(new FailureCallback() {
                     @Override
-                    public void onFailure(@Nonnull Throwable reason) {
+                    public void onFailure(@NotNull Throwable reason) {
                         Log.error(getClass(), reason.getMessage());
 
                     }
@@ -422,7 +422,7 @@ public class TemplatesPresenter implements TemplatesContainer, FilterWidget.Acti
                                                                            })
                                                                            .failure(new FailureCallback() {
                                                                                @Override
-                                                                               public void onFailure(@Nonnull Throwable reason) {
+                                                                               public void onFailure(@NotNull Throwable reason) {
                                                                                    notificationManager.showError(reason.getMessage());
                                                                                }
                                                                            })
@@ -431,7 +431,7 @@ public class TemplatesPresenter implements TemplatesContainer, FilterWidget.Acti
         projectService.createFolder(path, callback);
     }
 
-    private void createFile(@Nonnull String content, @Nonnull String fileName) {
+    private void createFile(@NotNull String content, @NotNull String fileName) {
         String path = currentProject.getProjectDescription().getPath() + ROOT_FOLDER;
 
         AsyncRequestCallback<ItemReference> callback =
@@ -444,7 +444,7 @@ public class TemplatesPresenter implements TemplatesContainer, FilterWidget.Acti
                                     })
                                     .failure(new FailureCallback() {
                                         @Override
-                                        public void onFailure(@Nonnull Throwable reason) {
+                                        public void onFailure(@NotNull Throwable reason) {
                                             Log.error(PropertiesPanelPresenter.class, reason.getMessage());
                                         }
                                     })
@@ -455,12 +455,12 @@ public class TemplatesPresenter implements TemplatesContainer, FilterWidget.Acti
 
     /** {@inheritDoc} */
     @Override
-    public void go(@Nonnull AcceptsOneWidget container) {
+    public void go(@NotNull AcceptsOneWidget container) {
         container.setWidget(view);
     }
 
     /** {@inheritDoc} */
-    @Nonnull
+    @NotNull
     @Override
     public IsWidget getView() {
         return view;

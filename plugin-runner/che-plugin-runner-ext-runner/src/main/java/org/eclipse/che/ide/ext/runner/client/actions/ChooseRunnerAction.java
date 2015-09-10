@@ -29,8 +29,8 @@ import org.eclipse.che.ide.ext.runner.client.models.Environment;
 import org.eclipse.che.ide.ui.dropdown.DropDownHeaderWidget;
 import org.eclipse.che.ide.ui.dropdown.DropDownListFactory;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+import org.eclipse.che.commons.annotation.Nullable;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -100,7 +100,7 @@ public class ChooseRunnerAction extends AbstractRunnerActions implements CustomC
      * @param systemEnvironments
      *         list of system environments
      */
-    public void addSystemRunners(@Nonnull List<Environment> systemEnvironments) {
+    public void addSystemRunners(@NotNull List<Environment> systemEnvironments) {
         DefaultActionGroup runnersList = (DefaultActionGroup)actionManager.getAction(RUNNER_LIST);
 
         systemRunners.clear();
@@ -134,7 +134,7 @@ public class ChooseRunnerAction extends AbstractRunnerActions implements CustomC
      * @param projectEnvironments
      *         list of system environments
      */
-    public void addProjectRunners(@Nonnull List<Environment> projectEnvironments) {
+    public void addProjectRunners(@NotNull List<Environment> projectEnvironments) {
         DefaultActionGroup runnersList = (DefaultActionGroup)actionManager.getAction(RUNNER_LIST);
 
         projectRunners.clear();
@@ -162,7 +162,7 @@ public class ChooseRunnerAction extends AbstractRunnerActions implements CustomC
         selectDefaultRunner();
     }
 
-    private void clearRunnerActions(@Nonnull DefaultActionGroup runnersList) {
+    private void clearRunnerActions(@NotNull DefaultActionGroup runnersList) {
         for (Action a : projectActions.getChildActionsOrStubs()) {
             runnersList.remove(a);
         }

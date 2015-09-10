@@ -17,7 +17,7 @@ import org.eclipse.che.ide.ext.python.shared.ProjectAttributes;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,17 +34,17 @@ public class PythonProjectWizardRegistrar implements ProjectWizardRegistrar {
         wizardPages = new ArrayList<>();
     }
 
-    @Nonnull
+    @NotNull
     public String getProjectTypeId() {
         return ProjectAttributes.PYTHON_ID;
     }
 
-    @Nonnull
+    @NotNull
     public String getCategory() {
         return ProjectAttributes.PYTHON_CATEGORY;
     }
 
-    @Nonnull
+    @NotNull
     public List<Provider<? extends WizardPage<ImportProject>>> getWizardPages() {
         return wizardPages;
     }

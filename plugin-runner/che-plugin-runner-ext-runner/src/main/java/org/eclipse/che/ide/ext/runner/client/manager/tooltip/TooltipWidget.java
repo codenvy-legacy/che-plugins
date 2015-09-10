@@ -12,8 +12,8 @@ package org.eclipse.che.ide.ext.runner.client.manager.tooltip;
 
 import com.google.inject.ImplementedBy;
 
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 
 /**
  * Provides methods which allow work with tooltip widget.
@@ -29,7 +29,7 @@ public interface TooltipWidget {
      * @param description
      *         description which need set
      */
-    void setDescription(@Nonnull String description);
+    void setDescription(@NotNull String description);
 
     /**
      * Sets coordinates where will be displayed tooltip.
@@ -39,7 +39,7 @@ public interface TooltipWidget {
      * @param y
      *         value of y coordinate
      */
-    void setPopupPosition(@Nonnegative int x, @Nonnegative int y);
+    void setPopupPosition(@Min(value=0) int x, @Min(value=0) int y);
 
     /** Shows tooltip. */
     void show();

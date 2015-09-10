@@ -13,7 +13,7 @@ package org.eclipse.che.ide.ext.runner.client.util;
 import com.google.gwt.user.client.Timer;
 import com.google.inject.Inject;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * The utility class that crate instance of Timer.
@@ -27,9 +27,9 @@ public class TimerFactoryImpl implements TimerFactory {
     }
 
     /** {@inheritDoc} */
-    @Nonnull
+    @NotNull
     @Override
-    public Timer newInstance(@Nonnull final TimerCallBack timerCallBack) {
+    public Timer newInstance(@NotNull final TimerCallBack timerCallBack) {
         return new Timer() {
             @Override
             public void run() {

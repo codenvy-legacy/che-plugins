@@ -30,7 +30,7 @@ import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.util.NameUtils;
 import org.eclipse.che.security.oauth.OAuthStatus;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -89,7 +89,7 @@ public class GithubImporterPagePresenter extends AbstractWizardPage<ImportProjec
     }
 
     @Override
-    public void projectNameChanged(@Nonnull String name) {
+    public void projectNameChanged(@NotNull String name) {
         dataObject.getProject().setName(name);
         updateDelegate.updateControls();
 
@@ -108,7 +108,7 @@ public class GithubImporterPagePresenter extends AbstractWizardPage<ImportProjec
     }
 
     @Override
-    public void projectUrlChanged(@Nonnull String url) {
+    public void projectUrlChanged(@NotNull String url) {
         dataObject.getSource().getProject().setLocation(url);
         isGitUrlCorrect(url);
 
@@ -125,7 +125,7 @@ public class GithubImporterPagePresenter extends AbstractWizardPage<ImportProjec
     }
 
     @Override
-    public void projectDescriptionChanged(@Nonnull String projectDescription) {
+    public void projectDescriptionChanged(@NotNull String projectDescription) {
         dataObject.getProject().setDescription(projectDescription);
         updateDelegate.updateControls();
     }
@@ -166,7 +166,7 @@ public class GithubImporterPagePresenter extends AbstractWizardPage<ImportProjec
     }
 
     @Override
-    public void keepDirectoryNameChanged(@Nonnull String directoryName) {
+    public void keepDirectoryNameChanged(@NotNull String directoryName) {
         if (view.keepDirectory()) {
             projectParameters().put("keepDirectory", directoryName);
             view.highlightDirectoryNameField(!NameUtils.checkProjectName(view.getDirectoryName()));
@@ -177,7 +177,7 @@ public class GithubImporterPagePresenter extends AbstractWizardPage<ImportProjec
     }
 
     @Override
-    public void go(@Nonnull AcceptsOneWidget container) {
+    public void go(@NotNull AcceptsOneWidget container) {
         container.setWidget(view);
 
         updateView();
@@ -249,7 +249,7 @@ public class GithubImporterPagePresenter extends AbstractWizardPage<ImportProjec
     }
 
     @Override
-    public void onRepositorySelected(@Nonnull ProjectData repository) {
+    public void onRepositorySelected(@NotNull ProjectData repository) {
         dataObject.getProject().setName(repository.getName());
         dataObject.getProject().setDescription(repository.getDescription());
         dataObject.getSource().getProject().setLocation(repository.getRepositoryUrl());
@@ -270,7 +270,7 @@ public class GithubImporterPagePresenter extends AbstractWizardPage<ImportProjec
      * @param repositories
      *         loaded list of repositories
      */
-    private void onListLoaded(@Nonnull Map<String, List<GitHubRepository>> repositories) {
+    private void onListLoaded(@NotNull Map<String, List<GitHubRepository>> repositories) {
         this.repositories = repositories;
         view.setAccountNames(repositories.keySet());
         refreshProjectList();
@@ -318,7 +318,7 @@ public class GithubImporterPagePresenter extends AbstractWizardPage<ImportProjec
     /**
      * Gets project name from uri.
      */
-    private String extractProjectNameFromUri(@Nonnull String uri) {
+    private String extractProjectNameFromUri(@NotNull String uri) {
         int indexFinishProjectName = uri.lastIndexOf(".");
         int indexStartProjectName = uri.lastIndexOf("/") != -1 ? uri.lastIndexOf("/") + 1 : (uri.lastIndexOf(":") + 1);
 
@@ -338,7 +338,7 @@ public class GithubImporterPagePresenter extends AbstractWizardPage<ImportProjec
      *         url for validate
      * @return <code>true</code> if url is correct
      */
-    private boolean isGitUrlCorrect(@Nonnull String url) {
+    private boolean isGitUrlCorrect(@NotNull String url) {
         if (WHITE_SPACE.test(url)) {
             view.showUrlError(locale.importProjectMessageStartWithWhiteSpace());
             return false;

@@ -24,7 +24,7 @@ import org.eclipse.che.ide.ext.runner.client.inject.factories.ModelsFactory;
 import org.eclipse.che.ide.ext.runner.client.models.Environment;
 import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -50,9 +50,9 @@ public class GetEnvironmentsUtilImpl implements GetEnvironmentsUtil {
     }
 
     /** {@inheritDoc} */
-    @Nonnull
+    @NotNull
     @Override
-    public List<RunnerEnvironmentLeaf> getAllEnvironments(@Nonnull RunnerEnvironmentTree tree) {
+    public List<RunnerEnvironmentLeaf> getAllEnvironments(@NotNull RunnerEnvironmentTree tree) {
         List<RunnerEnvironmentLeaf> allEnvironments = new ArrayList<>();
 
         getEnvironments(tree, allEnvironments);
@@ -60,7 +60,7 @@ public class GetEnvironmentsUtilImpl implements GetEnvironmentsUtil {
         return allEnvironments;
     }
 
-    private void getEnvironments(@Nonnull RunnerEnvironmentTree tree, @Nonnull List<RunnerEnvironmentLeaf> allEnvironments) {
+    private void getEnvironments(@NotNull RunnerEnvironmentTree tree, @NotNull List<RunnerEnvironmentLeaf> allEnvironments) {
         for (RunnerEnvironmentLeaf environmentLeaf : tree.getLeaves()) {
             allEnvironments.add(environmentLeaf);
         }
@@ -71,9 +71,9 @@ public class GetEnvironmentsUtilImpl implements GetEnvironmentsUtil {
     }
 
     /** {@inheritDoc} */
-    @Nonnull
+    @NotNull
     @Override
-    public List<Environment> getEnvironmentsFromNodes(@Nonnull List<RunnerEnvironmentLeaf> leaves, @Nonnull Scope scope) {
+    public List<Environment> getEnvironmentsFromNodes(@NotNull List<RunnerEnvironmentLeaf> leaves, @NotNull Scope scope) {
         Set<Environment> sortEnvironment = new TreeSet<>();
 
         for (RunnerEnvironmentLeaf environmentLeaf : leaves) {
@@ -86,11 +86,11 @@ public class GetEnvironmentsUtilImpl implements GetEnvironmentsUtil {
     }
 
     /** {@inheritDoc} */
-    @Nonnull
+    @NotNull
     @Override
-    public List<Environment> getEnvironmentsByProjectType(@Nonnull RunnerEnvironmentTree tree,
-                                                          @Nonnull String projectType,
-                                                          @Nonnull Scope scope) {
+    public List<Environment> getEnvironmentsByProjectType(@NotNull RunnerEnvironmentTree tree,
+                                                          @NotNull String projectType,
+                                                          @NotNull Scope scope) {
         List<RunnerEnvironmentLeaf> leaves = new ArrayList<>();
 
         CurrentProject currentProject = appContext.getCurrentProject();
@@ -122,7 +122,7 @@ public class GetEnvironmentsUtilImpl implements GetEnvironmentsUtil {
 
     /** {@inheritDoc} */
     @Override
-    @Nonnull
+    @NotNull
     public String getType() {
         CurrentProject currentProject = appContext.getCurrentProject();
 
@@ -148,17 +148,17 @@ public class GetEnvironmentsUtilImpl implements GetEnvironmentsUtil {
     }
 
     /** {@inheritDoc} */
-    @Nonnull
+    @NotNull
     @Override
-    public String getCorrectCategoryName(@Nonnull String defaultRunner) {
+    public String getCorrectCategoryName(@NotNull String defaultRunner) {
         int index = defaultRunner.indexOf('/') + 1;
         return defaultRunner.substring(index, defaultRunner.lastIndexOf('/'));
     }
 
     /** {@inheritDoc} */
-    @Nonnull
+    @NotNull
     @Override
-    public RunnerEnvironmentTree getRunnerCategoryByProjectType(@Nonnull RunnerEnvironmentTree tree, @Nonnull String projectType) {
+    public RunnerEnvironmentTree getRunnerCategoryByProjectType(@NotNull RunnerEnvironmentTree tree, @NotNull String projectType) {
         ProjectTypeDefinition definition = projectTypeRegistry.getProjectType(projectType);
 
         List<String> categories = definition.getRunnerCategories();

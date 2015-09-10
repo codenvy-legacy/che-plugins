@@ -13,8 +13,8 @@ package org.eclipse.che.ide.ext.runner.client;
 import com.google.gwt.i18n.client.Messages;
 import com.google.inject.Singleton;
 
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 
 /**
  * Contains all names of graphical elements needed for runner plugin.
@@ -35,21 +35,21 @@ public interface RunnerLocalizationConstant extends Messages {
     @Key("accountGigabyteHoursLimit.error.message")
     String accountGigabyteHoursLimitErrorMessage();
 
-    String environmentCooking(@Nonnull String projectName);
+    String environmentCooking(@NotNull String projectName);
 
-    String applicationStarting(@Nonnull String projectName);
+    String applicationStarting(@NotNull String projectName);
 
-    String applicationStopped(@Nonnull String projectName);
+    String applicationStopped(@NotNull String projectName);
 
-    String applicationFailed(@Nonnull String projectName);
+    String applicationFailed(@NotNull String projectName);
 
-    String applicationCanceled(@Nonnull String projectName);
+    String applicationCanceled(@NotNull String projectName);
 
-    String applicationMaybeStarted(@Nonnull String projectName);
+    String applicationMaybeStarted(@NotNull String projectName);
 
-    String applicationStarted(@Nonnull String projectName);
+    String applicationStarted(@NotNull String projectName);
 
-    String startApplicationFailed(@Nonnull String projectName);
+    String startApplicationFailed(@NotNull String projectName);
 
     String applicationLogsFailed();
 
@@ -69,13 +69,13 @@ public interface RunnerLocalizationConstant extends Messages {
     String messagesOverrideMemory();
 
     @Key("messages.overrideLessRequiredMemory")
-    String messagesOverrideLessRequiredMemory(@Nonnegative int overrideRAM, @Nonnegative int requestedRAM);
+    String messagesOverrideLessRequiredMemory(@Min(value=0) int overrideRAM, @Min(value=0) int requestedRAM);
 
     @Key("messages.largeMemoryRequest")
     String messagesLargeMemoryRequest();
 
     @Key("action.project.running.now")
-    String projectRunningNow(@Nonnull String project);
+    String projectRunningNow(@NotNull String project);
 
     @Key("titles.warning")
     String titlesWarning();
@@ -101,22 +101,22 @@ public interface RunnerLocalizationConstant extends Messages {
     String removeEnvironment();
 
     @Key("remove.environment.message")
-    String removeEnvironmentMessage(@Nonnull String environmentName);
+    String removeEnvironmentMessage(@NotNull String environmentName);
 
     @Key("custom.runner.get.environment.failed")
     String customRunnerGetEnvironmentFailed();
 
     @Key("messages.un.multiple.ram.value")
-    String ramSizeMustBeMultipleOf(@Nonnegative int multiple);
+    String ramSizeMustBeMultipleOf(@Min(value=0) int multiple);
 
     @Key("messages.incorrect.value")
     String messagesIncorrectValue();
 
     @Key("messages.total.ram.less.custom")
-    String messagesTotalRamLessCustom(@Nonnegative int totalRam, @Nonnegative int customRam);
+    String messagesTotalRamLessCustom(@Min(value=0) int totalRam, @Min(value=0) int customRam);
 
     @Key("messages.available.ram.less.custom")
-    String messagesAvailableRamLessCustom(@Nonnegative int overrideRam, @Nonnegative int total, @Nonnegative int used);
+    String messagesAvailableRamLessCustom(@Min(value=0) int overrideRam, @Min(value=0) int total, @Min(value=0) int used);
 
     String runnerNotReady();
 

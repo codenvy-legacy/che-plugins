@@ -12,7 +12,7 @@ package org.eclipse.che.ide.ext.runner.client.tabs.common.item;
 
 import com.google.gwt.user.client.ui.IsWidget;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * Provides methods which are general for runner and environment widget.
@@ -33,5 +33,5 @@ public interface RunnerItems<T> extends IsWidget {
      * @param item
      *         runner or environment item which need update
      */
-    void update(@Nonnull T item);
+    void update(@NotNull T item);
 }

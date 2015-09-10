@@ -24,7 +24,7 @@ import org.eclipse.che.ide.rest.StringUnmarshaller;
 import org.eclipse.che.ide.websocket.WebSocketException;
 import org.eclipse.che.ide.websocket.rest.RequestCallback;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import javax.inject.Inject;
 import java.util.List;
 
@@ -56,7 +56,7 @@ public class GitRepositoryInitializer {
         this.projectServiceClient = projectServiceClient;
     }
 
-    public static boolean isGitRepository(@Nonnull ProjectDescriptor project) {
+    public static boolean isGitRepository(@NotNull ProjectDescriptor project) {
         List<String> listVcsProvider = project.getAttributes().get("vcs.provider.name");
 
         return listVcsProvider != null
@@ -67,7 +67,7 @@ public class GitRepositoryInitializer {
     /**
      * Initializes GIT repository.
      */
-    public void initGitRepository(@Nonnull final ProjectDescriptor project, final AsyncCallback<Void> callback) {
+    public void initGitRepository(@NotNull final ProjectDescriptor project, final AsyncCallback<Void> callback) {
         try {
             gitService.init(project, false, new RequestCallback<Void>() {
                                 @Override
@@ -99,7 +99,7 @@ public class GitRepositoryInitializer {
     /**
      * Returns git url using callback. If the project has no repository then method initializes it.
      */
-    public void getGitUrlWithAutoInit(@Nonnull final ProjectDescriptor project, final AsyncCallback<String> callback) {
+    public void getGitUrlWithAutoInit(@NotNull final ProjectDescriptor project, final AsyncCallback<String> callback) {
         if (!GitRepositoryInitializer.isGitRepository(project)) {
             initGitRepository(project, new AsyncCallback<Void>() {
                 @Override
@@ -135,7 +135,7 @@ public class GitRepositoryInitializer {
     /**
      * Update information about vcs provider name of current project in application context.
      */
-    void updateGitProvider(@Nonnull final ProjectDescriptor project, final AsyncCallback<ProjectDescriptor> callback) {
+    void updateGitProvider(@NotNull final ProjectDescriptor project, final AsyncCallback<ProjectDescriptor> callback) {
         // update 'vcs.provider.name' attribute value
         projectServiceClient.getProject(project.getPath(),
                                         new AsyncRequestCallback<ProjectDescriptor>(

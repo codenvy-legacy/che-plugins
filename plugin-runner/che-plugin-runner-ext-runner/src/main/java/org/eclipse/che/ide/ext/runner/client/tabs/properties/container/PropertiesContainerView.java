@@ -15,7 +15,7 @@ import com.google.inject.ImplementedBy;
 import org.eclipse.che.ide.api.mvp.View;
 import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.PropertiesPanel;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * @author Andrey Plotnikov
@@ -37,7 +37,7 @@ public interface PropertiesContainerView extends View<PropertiesContainerView.Ac
      * @param panel
      *         properties panel that needs to be shown
      */
-    void showWidget(@Nonnull PropertiesPanel panel);
+    void showWidget(@NotNull PropertiesPanel panel);
 
 
     /** Removes all widgets from container */

@@ -14,8 +14,8 @@ import org.eclipse.che.ide.ext.runner.client.state.State;
 import org.eclipse.che.ide.ext.runner.client.tabs.container.TabContainer.TabSelectHandler;
 import org.eclipse.che.ide.ext.runner.client.tabs.container.tab.TabType;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+import org.eclipse.che.commons.annotation.Nullable;
 import java.util.Objects;
 import java.util.Set;
 
@@ -38,12 +38,12 @@ public class Tab {
     private TabPresenter tabPresenter;
     private Set<State>   scopes;
 
-    public Tab(@Nonnull String title,
-               @Nonnull TabPresenter tabPresenter,
-               @Nonnull Set<State> scopes,
+    public Tab(@NotNull String title,
+               @NotNull TabPresenter tabPresenter,
+               @NotNull Set<State> scopes,
                @Nullable TabSelectHandler handler,
-               @Nonnull TabType tabType,
-               @Nonnull VisibleState visibleState) {
+               @NotNull TabType tabType,
+               @NotNull VisibleState visibleState) {
         this.title = title;
         this.tabPresenter = tabPresenter;
         this.scopes = scopes;
@@ -53,19 +53,19 @@ public class Tab {
     }
 
     /** @return title for the current tab */
-    @Nonnull
+    @NotNull
     public String getTitle() {
         return title;
     }
 
     /** @return widget of the current tab */
-    @Nonnull
+    @NotNull
     public TabPresenter getTab() {
         return tabPresenter;
     }
 
     /** Sets scopes to current type. */
-    public void setScopes(@Nonnull Set<State> scopes) {
+    public void setScopes(@NotNull Set<State> scopes) {
         this.scopes = scopes;
     }
 
@@ -76,7 +76,7 @@ public class Tab {
      *         current scope
      * @return <code>true</code> if need to show this tab <code>false</code> otherwise
      */
-    public boolean isAvailableScope(@Nonnull State scope) {
+    public boolean isAvailableScope(@NotNull State scope) {
         return scopes.contains(scope);
     }
 
@@ -90,7 +90,7 @@ public class Tab {
     }
 
     /** @return type of tab */
-    @Nonnull
+    @NotNull
     public TabType getTabType() {
         return tabType;
     }

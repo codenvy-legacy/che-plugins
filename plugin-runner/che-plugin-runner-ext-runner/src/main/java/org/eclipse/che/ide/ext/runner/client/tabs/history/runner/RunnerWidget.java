@@ -28,7 +28,7 @@ import org.eclipse.che.ide.ext.runner.client.tabs.common.item.ItemWidget;
 import org.eclipse.che.ide.ext.runner.client.tabs.common.item.RunnerItems;
 import org.vectomatic.dom.svg.ui.SVGImage;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import static org.eclipse.che.ide.ext.runner.client.models.Runner.Status.FAILED;
 import static org.eclipse.che.ide.ext.runner.client.models.Runner.Status.STOPPED;
@@ -122,7 +122,7 @@ public class RunnerWidget implements RunnerItems<Runner> {
 
     /** {@inheritDoc} */
     @Override
-    public void update(@Nonnull Runner runner) {
+    public void update(@NotNull Runner runner) {
         this.runner = runner;
         this.runnerStatus = runner.getStatus();
 
@@ -181,12 +181,12 @@ public class RunnerWidget implements RunnerItems<Runner> {
      * @param delegate
      *         delegate which need set
      */
-    public void setDelegate(@Nonnull ActionDelegate delegate) {
+    public void setDelegate(@NotNull ActionDelegate delegate) {
         this.delegate = delegate;
     }
 
     public interface ActionDelegate {
         /** Performs some actions in respond to user's actions. */
-        void removeRunnerWidget(@Nonnull Runner runner);
+        void removeRunnerWidget(@NotNull Runner runner);
     }
 }

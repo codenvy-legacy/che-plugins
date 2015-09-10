@@ -33,7 +33,7 @@ import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.docker
 import org.eclipse.che.ide.ext.runner.client.util.TimerFactory;
 import org.eclipse.che.ide.ext.runner.client.util.annotations.LeftPanel;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.Map;
 
 import static org.eclipse.che.ide.ext.runner.client.constants.TimeInterval.ONE_SEC;
@@ -59,7 +59,7 @@ public class PropertiesRunnerPanel extends PropertiesPanelPresenter {
                                  final DockerFileFactory dockerFileFactory,
                                  AppContext appContext,
                                  TimerFactory timerFactory,
-                                 @Assisted @Nonnull final Runner runner,
+                                 @Assisted @NotNull final Runner runner,
                                  @LeftPanel TabContainer tabContainer,
                                  RunnerLocalizationConstant locale,
                                  EventBus eventBus) {
@@ -115,7 +115,7 @@ public class PropertiesRunnerPanel extends PropertiesPanelPresenter {
     private void configureStatusRunEventHandler() {
         eventBus.addHandler(TYPE, new RunnerApplicationStatusEventHandler() {
             @Override
-            public void onRunnerStatusChanged(@Nonnull final Runner runner) {
+            public void onRunnerStatusChanged(@NotNull final Runner runner) {
                 if (currentRunner.equals(runner)) {
                     setPorts(runner);
                 }

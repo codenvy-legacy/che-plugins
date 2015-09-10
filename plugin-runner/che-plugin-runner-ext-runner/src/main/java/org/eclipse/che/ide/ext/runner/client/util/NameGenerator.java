@@ -15,7 +15,7 @@ import com.google.gwt.regexp.shared.RegExp;
 
 import org.eclipse.che.ide.ext.runner.client.models.Environment;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,8 +48,8 @@ public class NameGenerator {
      * @return environment name which consists of string 'Copy of ' and existing name with a current date. If there is an existing name,
      * add a number suffix like "Copy2 of", "Copy3 of", etc.
      */
-    @Nonnull
-    public static String generateCopy(@Nonnull String name, @Nonnull List<Environment> projectEnvironments) {
+    @NotNull
+    public static String generateCopy(@NotNull String name, @NotNull List<Environment> projectEnvironments) {
         List<String> existingNames = new ArrayList<>();
 
         for (Environment environment : projectEnvironments) {
@@ -81,7 +81,7 @@ public class NameGenerator {
      *         name of current project
      * @return name of new custom environment
      */
-    public static String generateCustomEnvironmentName(@Nonnull List<Environment> environments, @Nonnull String projectName) {
+    public static String generateCustomEnvironmentName(@NotNull List<Environment> environments, @NotNull String projectName) {
         int counter = 1;
         String name = CUSTOM_ENV_PREFIX + counter + '-' + projectName;
         for (int i = 0; i < environments.size(); i++) {

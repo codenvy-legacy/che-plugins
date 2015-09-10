@@ -22,7 +22,7 @@ import org.eclipse.che.ide.ext.runner.client.RunnerLocalizationConstant;
 import org.eclipse.che.ide.ext.runner.client.RunnerResources;
 import org.eclipse.che.ide.ext.runner.client.models.Environment;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * The class contains methods which allows change information about default runner.
@@ -57,7 +57,7 @@ public class DefaultRunnerInfoImpl extends Composite implements DefaultRunnerInf
 
     /** {@inheritDoc} */
     @Override
-    public void update(@Nonnull Environment environment) {
+    public void update(@NotNull Environment environment) {
         name.setText(environment.getName());
         type.setText(environment.getType());
         ram.setText(String.valueOf(environment.getRam()) + " mb");

@@ -21,7 +21,7 @@ import org.eclipse.che.ide.ext.runner.client.selection.Selection;
 import org.eclipse.che.ide.ext.runner.client.selection.SelectionManager;
 import org.eclipse.che.ide.ext.runner.client.tabs.console.panel.Console;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -55,28 +55,28 @@ public class ConsoleContainerPresenter implements ConsoleContainer,
 
     /** {@inheritDoc} */
     @Override
-    public void print(@Nonnull Runner runner, @Nonnull String message) {
+    public void print(@NotNull Runner runner, @NotNull String message) {
         Console console = getConsoleOrCreate(runner);
         console.print(message);
     }
 
     /** {@inheritDoc} */
     @Override
-    public void printInfo(@Nonnull Runner runner, @Nonnull String message) {
+    public void printInfo(@NotNull Runner runner, @NotNull String message) {
         Console console = getConsoleOrCreate(runner);
         console.printInfo(message);
     }
 
     /** {@inheritDoc} */
     @Override
-    public void printError(@Nonnull Runner runner, @Nonnull String message) {
+    public void printError(@NotNull Runner runner, @NotNull String message) {
         Console console = getConsoleOrCreate(runner);
         console.printError(message);
     }
 
     /** {@inheritDoc} */
     @Override
-    public void printWarn(@Nonnull Runner runner, @Nonnull String message) {
+    public void printWarn(@NotNull Runner runner, @NotNull String message) {
         Console console = getConsoleOrCreate(runner);
         console.printWarn(message);
     }
@@ -93,7 +93,7 @@ public class ConsoleContainerPresenter implements ConsoleContainer,
 
     /** {@inheritDoc} */
     @Override
-    public void onSelectionChanged(@Nonnull Selection selection) {
+    public void onSelectionChanged(@NotNull Selection selection) {
         if (Selection.ENVIRONMENT.equals(selection)) {
             return;
         }
@@ -107,8 +107,8 @@ public class ConsoleContainerPresenter implements ConsoleContainer,
         view.showWidget(selectedConsole);
     }
 
-    @Nonnull
-    private Console getConsoleOrCreate(@Nonnull Runner runner) {
+    @NotNull
+    private Console getConsoleOrCreate(@NotNull Runner runner) {
         Console result = consoles.get(runner);
         if (result == null) {
             result = widgetFactory.createConsole(runner);
@@ -119,7 +119,7 @@ public class ConsoleContainerPresenter implements ConsoleContainer,
     }
 
     /** {@inheritDoc} */
-    @Nonnull
+    @NotNull
     @Override
     public IsWidget getView() {
         return view;
@@ -170,7 +170,7 @@ public class ConsoleContainerPresenter implements ConsoleContainer,
 
     /** {@inheritDoc} */
     @Override
-    public void deleteConsoleByRunner(@Nonnull Runner runner) {
+    public void deleteConsoleByRunner(@NotNull Runner runner) {
         Console console = consoles.get(runner);
 
         view.removeWidget(console);

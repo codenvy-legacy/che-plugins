@@ -19,7 +19,7 @@ import com.google.gwt.regexp.shared.RegExp;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.inject.Inject;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -61,7 +61,7 @@ public class GitImporterPagePresenter extends AbstractWizardPage<ImportProject> 
     }
 
     @Override
-    public void projectNameChanged(@Nonnull String name) {
+    public void projectNameChanged(@NotNull String name) {
         dataObject.getProject().setName(name);
         updateDelegate.updateControls();
 
@@ -77,7 +77,7 @@ public class GitImporterPagePresenter extends AbstractWizardPage<ImportProject> 
     }
 
     @Override
-    public void projectUrlChanged(@Nonnull String url) {
+    public void projectUrlChanged(@NotNull String url) {
         dataObject.getSource().getProject().setLocation(url);
         isGitUrlCorrect(url);
 
@@ -94,7 +94,7 @@ public class GitImporterPagePresenter extends AbstractWizardPage<ImportProject> 
     }
 
     @Override
-    public void projectDescriptionChanged(@Nonnull String projectDescription) {
+    public void projectDescriptionChanged(@NotNull String projectDescription) {
         dataObject.getProject().setDescription(projectDescription);
         updateDelegate.updateControls();
     }
@@ -137,7 +137,7 @@ public class GitImporterPagePresenter extends AbstractWizardPage<ImportProject> 
     }
 
     @Override
-    public void keepDirectoryNameChanged(@Nonnull String directoryName) {
+    public void keepDirectoryNameChanged(@NotNull String directoryName) {
         if (view.keepDirectory()) {
             projectParameters().put("keepDirectory", directoryName);
             dataObject.getProject().setContentRoot(view.getDirectoryName());
@@ -152,7 +152,7 @@ public class GitImporterPagePresenter extends AbstractWizardPage<ImportProject> 
     }
 
     @Override
-    public void go(@Nonnull AcceptsOneWidget container) {
+    public void go(@NotNull AcceptsOneWidget container) {
         container.setWidget(view);
 
         view.setProjectName(dataObject.getProject().getName());
@@ -170,7 +170,7 @@ public class GitImporterPagePresenter extends AbstractWizardPage<ImportProject> 
     }
 
     /** Gets project name from uri. */
-    private String extractProjectNameFromUri(@Nonnull String uri) {
+    private String extractProjectNameFromUri(@NotNull String uri) {
         int indexFinishProjectName = uri.lastIndexOf(".");
         int indexStartProjectName = uri.lastIndexOf("/") != -1 ? uri.lastIndexOf("/") + 1 : (uri.lastIndexOf(":") + 1);
 
@@ -190,7 +190,7 @@ public class GitImporterPagePresenter extends AbstractWizardPage<ImportProject> 
      *         url for validate
      * @return <code>true</code> if url is correct
      */
-    private boolean isGitUrlCorrect(@Nonnull String url) {
+    private boolean isGitUrlCorrect(@NotNull String url) {
         if (WHITE_SPACE.test(url)) {
             view.showUrlError(locale.importProjectMessageStartWithWhiteSpace());
             return false;

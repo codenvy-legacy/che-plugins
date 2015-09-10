@@ -37,7 +37,7 @@ import org.eclipse.che.ide.ext.runner.client.util.WebSocketUtil;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.websocket.rest.SubscriptionHandler;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import static org.eclipse.che.ide.api.notification.Notification.Status.FINISHED;
 import static org.eclipse.che.ide.api.notification.Notification.Type.INFO;
@@ -85,7 +85,7 @@ public class StatusAction extends AbstractRunnerAction {
                         RunnerUtil runnerUtil,
                         ConsoleContainer consoleContainer,
                         RunnerActionFactory actionFactory,
-                        @Nonnull @Assisted Notification notification,
+                        @NotNull @Assisted Notification notification,
                         ResourcesLockedActionPermit resourcesLockedActionPermit) {
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
         this.dtoFactory = dtoFactory;
@@ -108,7 +108,7 @@ public class StatusAction extends AbstractRunnerAction {
 
     /** {@inheritDoc} */
     @Override
-    public void perform(@Nonnull final Runner runner) {
+    public void perform(@NotNull final Runner runner) {
         this.runner = runner;
         project = appContext.getCurrentProject();
         webSocketChannel = STATUS_CHANNEL + runner.getProcessId();
@@ -154,7 +154,7 @@ public class StatusAction extends AbstractRunnerAction {
         }
     }
 
-    private void onApplicationStatusUpdated(@Nonnull ApplicationProcessDescriptor descriptor) {
+    private void onApplicationStatusUpdated(@NotNull ApplicationProcessDescriptor descriptor) {
         runner.setProcessDescriptor(descriptor);
 
         switch (descriptor.getStatus()) {

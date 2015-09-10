@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.runner.client.tabs.console.panel;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * The enum contains all available list of message's type of console.
@@ -30,19 +30,19 @@ public enum MessageType {
     private final String prefix;
     private final String color;
 
-    MessageType(@Nonnull String prefix, @Nonnull String color) {
+    MessageType(@NotNull String prefix, @NotNull String color) {
         this.prefix = prefix;
         this.color = color;
     }
 
     /** @return prefix of the current message type */
-    @Nonnull
+    @NotNull
     public String getPrefix() {
         return prefix;
     }
 
     /** @return color of message type */
-    @Nonnull
+    @NotNull
     public String getColor() {
         return color;
     }
@@ -54,8 +54,8 @@ public enum MessageType {
      *         content that needs to be analyzed for detecting type of message
      * @return type of message
      */
-    @Nonnull
-    public static MessageType detect(@Nonnull String content) {
+    @NotNull
+    public static MessageType detect(@NotNull String content) {
         for (MessageType type : MessageType.values()) {
             if (content.startsWith(type.getPrefix())) {
                 return type;

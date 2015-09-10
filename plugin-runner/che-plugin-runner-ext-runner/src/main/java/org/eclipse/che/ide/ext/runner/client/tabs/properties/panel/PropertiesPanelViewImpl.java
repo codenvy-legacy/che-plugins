@@ -41,9 +41,9 @@ import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope;
 import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Shutdown;
 import org.eclipse.che.ide.ui.switcher.Switcher;
 
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+import org.eclipse.che.commons.annotation.Nullable;
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
@@ -187,16 +187,16 @@ public class PropertiesPanelViewImpl extends Composite implements PropertiesPane
         portMappingHeader.setVisible(false);
     }
 
-    private void prepareField(@Nonnull ListBox field, @Nonnull Set<? extends Enum> items) {
+    private void prepareField(@NotNull ListBox field, @NotNull Set<? extends Enum> items) {
         for (Enum item : items) {
             field.addItem(item.toString().toLowerCase());
         }
     }
 
-    @Nonnull
-    private PropertyButtonWidget createButton(@Nonnull String title,
-                                              @Nonnull PropertyButtonWidget.ActionDelegate delegate,
-                                              @Nonnull Background background) {
+    @NotNull
+    private PropertyButtonWidget createButton(@NotNull String title,
+                                              @NotNull PropertyButtonWidget.ActionDelegate delegate,
+                                              @NotNull Background background) {
         PropertyButtonWidget button = widgetFactory.createPropertyButton(title, background);
         button.setDelegate(delegate);
 
@@ -212,7 +212,7 @@ public class PropertiesPanelViewImpl extends Composite implements PropertiesPane
     }
 
     /** {@inheritDoc} */
-    @Nonnull
+    @NotNull
     @Override
     public String getName() {
         return name.getText();
@@ -220,12 +220,12 @@ public class PropertiesPanelViewImpl extends Composite implements PropertiesPane
 
     /** {@inheritDoc} */
     @Override
-    public void setName(@Nonnull String name) {
+    public void setName(@NotNull String name) {
         this.name.setText(name);
     }
 
     /** {@inheritDoc} */
-    @Nonnull
+    @NotNull
     @Override
     public RAM getRam() {
         String value = ram.getValue(ram.getSelectedIndex());
@@ -234,7 +234,7 @@ public class PropertiesPanelViewImpl extends Composite implements PropertiesPane
 
     /** {@inheritDoc} */
     @Override
-    public void selectMemory(@Nonnull RAM size) {
+    public void selectMemory(@NotNull RAM size) {
         if (DEFAULT.equals(size)) {
             selectDefaultMemory(Integer.toString(DEFAULT.getValue()));
         } else {
@@ -244,7 +244,7 @@ public class PropertiesPanelViewImpl extends Composite implements PropertiesPane
 
     /** {@inheritDoc} */
     @Override
-    public void addRamValue(@Nonnegative int value) {
+    public void addRamValue(@Min(value=0) int value) {
         for (int i = 0; i < ram.getItemCount(); i++) {
             if (ram.getValue(i).equals(value + " mb")) {
                 return;
@@ -255,7 +255,7 @@ public class PropertiesPanelViewImpl extends Composite implements PropertiesPane
 
     /** {@inheritDoc} */
     @Override
-    public void selectMemory(@Nonnegative int size) {
+    public void selectMemory(@Min(value=0) int size) {
         for (int i = 0; i < ram.getItemCount(); i++) {
             if (ram.getValue(i).equals(size + " mb")) {
                 ram.setItemSelected(i, true);
@@ -267,7 +267,7 @@ public class PropertiesPanelViewImpl extends Composite implements PropertiesPane
         selectDefaultMemory(Integer.toString(DEFAULT.getValue()));
     }
 
-    private void selectDefaultMemory(@Nonnull String size) {
+    private void selectDefaultMemory(@NotNull String size) {
         size = size + " mb";
         int amountItems = ram.getItemCount();
         for (int index = 0; index < amountItems; index++) {
@@ -279,7 +279,7 @@ public class PropertiesPanelViewImpl extends Composite implements PropertiesPane
     }
 
     /** {@inheritDoc} */
-    @Nonnull
+    @NotNull
     @Override
     public Scope getScope() {
         String value = scope.getValue(scope.getSelectedIndex());
@@ -288,25 +288,25 @@ public class PropertiesPanelViewImpl extends Composite implements PropertiesPane
 
     /** {@inheritDoc} */
     @Override
-    public void selectScope(@Nonnull Scope scope) {
+    public void selectScope(@NotNull Scope scope) {
         this.scope.setItemSelected(scope.ordinal(), true);
     }
 
     /** {@inheritDoc} */
-    @Nonnull
+    @NotNull
     @Override
     public String getType() {
         return type.getText();
     }
 
     @Override
-    public void setConfig(@Nonnull String config) {
+    public void setConfig(@NotNull String config) {
         configLink.setText(config);
     }
 
     /** {@inheritDoc} */
     @Override
-    public void setType(@Nonnull String type) {
+    public void setType(@NotNull String type) {
         this.type.setText(type);
     }
 
@@ -328,7 +328,7 @@ public class PropertiesPanelViewImpl extends Composite implements PropertiesPane
     }
 
     /** {@inheritDoc} */
-    @Nonnull
+    @NotNull
     @Override
     public Boot getBoot() {
         String value = boot.getValue(boot.getSelectedIndex());
@@ -337,12 +337,12 @@ public class PropertiesPanelViewImpl extends Composite implements PropertiesPane
 
     /** {@inheritDoc} */
     @Override
-    public void selectBoot(@Nonnull Boot boot) {
+    public void selectBoot(@NotNull Boot boot) {
         this.boot.setItemSelected(boot.ordinal(), true);
     }
 
     /** {@inheritDoc} */
-    @Nonnull
+    @NotNull
     @Override
     public Shutdown getShutdown() {
         String value = shutdown.getValue(shutdown.getSelectedIndex());
@@ -351,7 +351,7 @@ public class PropertiesPanelViewImpl extends Composite implements PropertiesPane
 
     /** {@inheritDoc} */
     @Override
-    public void selectShutdown(@Nonnull Shutdown shutdown) {
+    public void selectShutdown(@NotNull Shutdown shutdown) {
         this.shutdown.setItemSelected(shutdown.ordinal(), true);
     }
 

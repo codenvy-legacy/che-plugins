@@ -21,7 +21,7 @@ import org.eclipse.che.ide.ext.java.client.project.node.JavaNodeManager;
 import org.eclipse.che.ide.ext.java.shared.Jar;
 import org.eclipse.che.ide.ui.smartTree.presentation.NodePresentation;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -32,23 +32,23 @@ public class JarContainerNode extends AbstractJavaSyntheticNode<Jar> {
     public JarContainerNode(@Assisted Jar jar,
                             @Assisted ProjectDescriptor projectDescriptor,
                             @Assisted NodeSettings nodeSettings,
-                            @Nonnull JavaNodeManager javaResourceNodeManager) {
+                            @NotNull JavaNodeManager javaResourceNodeManager) {
         super(jar, projectDescriptor, nodeSettings, javaResourceNodeManager);
     }
 
-    @Nonnull
+    @NotNull
     @Override
     protected Promise<List<Node>> getChildrenImpl() {
         return nodeManager.getJarLibraryChildren(getProjectDescriptor(), getData().getId(), getSettings());
     }
 
     @Override
-    public void updatePresentation(@Nonnull NodePresentation presentation) {
+    public void updatePresentation(@NotNull NodePresentation presentation) {
         presentation.setPresentableIcon(nodeManager.getJavaNodesResources().jarIcon());
         presentation.setPresentableText(getData().getName());
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public String getName() {
         return getData().getName();

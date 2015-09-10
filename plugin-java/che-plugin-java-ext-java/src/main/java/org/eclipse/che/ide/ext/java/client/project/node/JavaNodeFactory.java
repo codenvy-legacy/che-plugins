@@ -21,34 +21,34 @@ import org.eclipse.che.ide.ext.java.client.project.settings.JavaNodeSettings;
 import org.eclipse.che.ide.ext.java.shared.Jar;
 import org.eclipse.che.ide.ext.java.shared.JarEntry;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * @author Vlad Zhukovskiy
  */
 public interface JavaNodeFactory {
-    ExternalLibrariesNode newExternalLibrariesNode(@Nonnull ProjectDescriptor projectDescriptor,
-                                                   @Nonnull NodeSettings nodeSettings);
+    ExternalLibrariesNode newExternalLibrariesNode(@NotNull ProjectDescriptor projectDescriptor,
+                                                   @NotNull NodeSettings nodeSettings);
 
-    JarContainerNode newJarContainerNode(@Nonnull Jar jar,
-                                         @Nonnull ProjectDescriptor projectDescriptor,
-                                         @Nonnull NodeSettings nodeSettings);
+    JarContainerNode newJarContainerNode(@NotNull Jar jar,
+                                         @NotNull ProjectDescriptor projectDescriptor,
+                                         @NotNull NodeSettings nodeSettings);
 
-    JarFileNode newJarFileNode(@Nonnull JarEntry jarEntry,
+    JarFileNode newJarFileNode(@NotNull JarEntry jarEntry,
                                int libId,
-                               @Nonnull ProjectDescriptor projectDescriptor,
-                               @Nonnull NodeSettings nodeSettings);
+                               @NotNull ProjectDescriptor projectDescriptor,
+                               @NotNull NodeSettings nodeSettings);
 
-    JarFolderNode newJarFolderNode(@Nonnull JarEntry jarEntry,
+    JarFolderNode newJarFolderNode(@NotNull JarEntry jarEntry,
                                    int libId,
-                                   @Nonnull ProjectDescriptor projectDescriptor,
-                                   @Nonnull NodeSettings nodeSettings);
+                                   @NotNull ProjectDescriptor projectDescriptor,
+                                   @NotNull NodeSettings nodeSettings);
 
-    PackageNode newPackageNode(@Nonnull ItemReference itemReference,
-                               @Nonnull ProjectDescriptor projectDescriptor,
-                               @Nonnull JavaNodeSettings nodeSettings);
+    PackageNode newPackageNode(@NotNull ItemReference itemReference,
+                               @NotNull ProjectDescriptor projectDescriptor,
+                               @NotNull JavaNodeSettings nodeSettings);
 
-    JavaFileNode newJavaFileNode(@Nonnull ItemReference itemReference,
-                                 @Nonnull ProjectDescriptor projectDescriptor,
-                                 @Nonnull JavaNodeSettings nodeSettings);
+    JavaFileNode newJavaFileNode(@NotNull ItemReference itemReference,
+                                 @NotNull ProjectDescriptor projectDescriptor,
+                                 @NotNull JavaNodeSettings nodeSettings);
 }

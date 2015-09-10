@@ -39,8 +39,8 @@ import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 import org.eclipse.che.ide.ui.dialogs.confirm.ConfirmDialog;
 import org.eclipse.che.ide.ui.dialogs.message.MessageDialog;
 
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 
 import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM.MB_4000;
 
@@ -101,7 +101,7 @@ public class CheckRamAndRunAction extends AbstractRunnerAction {
 
     /** {@inheritDoc} */
     @Override
-    public void perform(@Nonnull final Runner runner) {
+    public void perform(@NotNull final Runner runner) {
         this.runner = runner;
 
         project = appContext.getCurrentProject();
@@ -120,7 +120,7 @@ public class CheckRamAndRunAction extends AbstractRunnerAction {
                 })
                 .failure(new FailureCallback() {
                     @Override
-                    public void onFailure(@Nonnull Throwable reason) {
+                    public void onFailure(@NotNull Throwable reason) {
                         runnerUtil.showError(runner, constant.getResourcesFailed(), reason);
                     }
                 })
@@ -129,7 +129,7 @@ public class CheckRamAndRunAction extends AbstractRunnerAction {
         service.getResources(callback);
     }
 
-    private void checkRamAndRunProject(@Nonnull ResourcesDescriptor resourcesDescriptor) {
+    private void checkRamAndRunProject(@NotNull ResourcesDescriptor resourcesDescriptor) {
         int totalMemory = Integer.valueOf(resourcesDescriptor.getTotalMemory());
         int usedMemory = Integer.valueOf(resourcesDescriptor.getUsedMemory());
 
@@ -175,7 +175,7 @@ public class CheckRamAndRunAction extends AbstractRunnerAction {
         runAction.perform(runner);
     }
 
-    @Nonnegative
+    @Min(value=0)
     private int getOverrideMemory() {
         ProjectDescriptor projectDescriptor = project.getProjectDescription();
 
@@ -184,7 +184,7 @@ public class CheckRamAndRunAction extends AbstractRunnerAction {
         return runner.getRAM();
     }
 
-    private void initializeRunnerConfiguration(@Nonnull ProjectDescriptor projectDescriptor) {
+    private void initializeRunnerConfiguration(@NotNull ProjectDescriptor projectDescriptor) {
         RunnersDescriptor runners = projectDescriptor.getRunners();
 
         if (runners == null) {
@@ -198,7 +198,7 @@ public class CheckRamAndRunAction extends AbstractRunnerAction {
         }
     }
 
-    private void runProjectWithRequiredMemory(@Nonnegative final int requiredMemory, @Nonnegative int overrideMemory) {
+    private void runProjectWithRequiredMemory(@Min(value=0) final int requiredMemory, @Min(value=0) int overrideMemory) {
         /*Offer the user to run an application with requiredMemory
         * If the user selects OK, then runnerMemory = requiredMemory
         * Else we should terminate the Runner process*/
@@ -226,9 +226,9 @@ public class CheckRamAndRunAction extends AbstractRunnerAction {
         messageDialog.show();
     }
 
-    private boolean isSufficientMemory(@Nonnegative int totalMemory,
-                                       @Nonnegative int usedMemory,
-                                       @Nonnegative final int requiredMemory) {
+    private boolean isSufficientMemory(@Min(value=0) int totalMemory,
+                                       @Min(value=0) int usedMemory,
+                                       @Min(value=0) final int requiredMemory) {
         int availableMemory = totalMemory - usedMemory;
         if (availableMemory < requiredMemory) {
             dialogFactory.createChoiceDialog(constant.messagesAvailableLessOverrideMemoryTitle(),
@@ -253,9 +253,9 @@ public class CheckRamAndRunAction extends AbstractRunnerAction {
         return true;
     }
 
-    private boolean isOverrideMemoryCorrect(@Nonnegative int totalMemory,
-                                            @Nonnegative int usedMemory,
-                                            @Nonnegative final int overrideMemory) {
+    private boolean isOverrideMemoryCorrect(@Min(value=0) int totalMemory,
+                                            @Min(value=0) int usedMemory,
+                                            @Min(value=0) final int overrideMemory) {
         int availableMemory = totalMemory - usedMemory;
         if (availableMemory < overrideMemory) {
             dialogFactory.createChoiceDialog(constant.messagesAvailableLessOverrideMemoryTitle(),

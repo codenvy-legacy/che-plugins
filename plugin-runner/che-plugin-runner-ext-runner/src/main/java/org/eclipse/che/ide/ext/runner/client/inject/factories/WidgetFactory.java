@@ -31,7 +31,7 @@ import org.eclipse.che.ide.ext.runner.client.util.annotations.EnvironmentPropert
 import org.eclipse.che.ide.ext.runner.client.util.annotations.RunnerProperties;
 import org.vectomatic.dom.svg.ui.SVGResource;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * The factory for creating an instances of the widget.
@@ -49,8 +49,8 @@ public interface WidgetFactory {
      *         icon which need set to button
      * @return an instance of {@link ButtonWidget}
      */
-    @Nonnull
-    ButtonWidget createButton(@Nonnull String prompt, @Nonnull SVGResource resource);
+    @NotNull
+    ButtonWidget createButton(@NotNull String prompt, @NotNull SVGResource resource);
 
     /**
      * Creates console button widget with special icon.
@@ -61,8 +61,8 @@ public interface WidgetFactory {
      *         icon which need set to button
      * @return an instance of {@link ConsoleButton}
      */
-    @Nonnull
-    ConsoleButton createConsoleButton(@Nonnull String prompt, @Nonnull SVGResource resource);
+    @NotNull
+    ConsoleButton createConsoleButton(@NotNull String prompt, @NotNull SVGResource resource);
 
     /**
      * Creates tab widget with special title.
@@ -73,15 +73,15 @@ public interface WidgetFactory {
      *         enum which contains values of height and width
      * @return an instance of {@link TabWidget}
      */
-    @Nonnull
-    TabWidget createTab(@Nonnull String title, @Nonnull TabType tabType);
+    @NotNull
+    TabWidget createTab(@NotNull String title, @NotNull TabType tabType);
 
     /**
      * Creates runner widget.
      *
      * @return an instance of {@link RunnerWidget}
      */
-    @Nonnull
+    @NotNull
     RunnerWidget createRunner();
 
     /**
@@ -89,7 +89,7 @@ public interface WidgetFactory {
      *
      * @return an instance of {@link EnvironmentWidget}
      */
-    @Nonnull
+    @NotNull
     EnvironmentWidget createEnvironment();
 
     /**
@@ -99,15 +99,15 @@ public interface WidgetFactory {
      *         runner that needs to be bound with a widget
      * @return an instance of {@link org.eclipse.che.ide.ext.runner.client.tabs.console.panel.Console}
      */
-    @Nonnull
-    Console createConsole(@Nonnull Runner runner);
+    @NotNull
+    Console createConsole(@NotNull Runner runner);
 
     /**
      * Creates terminal widget.
      *
      * @return an instance of {@link Terminal}
      */
-    @Nonnull
+    @NotNull
     Terminal createTerminal();
 
     /**
@@ -117,9 +117,9 @@ public interface WidgetFactory {
      *         runner that needs to be bound with a widget
      * @return an instance of {@link PropertiesPanel}
      */
-    @Nonnull
+    @NotNull
     @RunnerProperties
-    PropertiesPanel createPropertiesPanel(@Nonnull Runner runner);
+    PropertiesPanel createPropertiesPanel(@NotNull Runner runner);
 
     /**
      * Creates a properties panel widget for a given environment.
@@ -128,16 +128,16 @@ public interface WidgetFactory {
      *         environment that needs to be bound with a widget
      * @return an instance of {@link PropertiesPanel}
      */
-    @Nonnull
+    @NotNull
     @EnvironmentProperties
-    PropertiesPanel createPropertiesPanel(@Nonnull Environment environment);
+    PropertiesPanel createPropertiesPanel(@NotNull Environment environment);
 
     /**
      * Creates stab of properties panel widget
      *
      * @return an instance of {@link PropertiesPanel}
      */
-    @Nonnull
+    @NotNull
     PropertiesPanel createPropertiesPanel();
 
     /**
@@ -145,7 +145,7 @@ public interface WidgetFactory {
      *
      * @return an instance of {@link MoreInfo}
      */
-    @Nonnull
+    @NotNull
     MoreInfo createMoreInfo();
 
     /**
@@ -155,8 +155,8 @@ public interface WidgetFactory {
      *         url where full log is located
      * @return an instance of {@link FullLogMessageWidget}
      */
-    @Nonnull
-    FullLogMessageWidget createFullLogMessage(@Nonnull String logUrl);
+    @NotNull
+    FullLogMessageWidget createFullLogMessage(@NotNull String logUrl);
 
     /**
      * Creates property button widget.
@@ -167,15 +167,15 @@ public interface WidgetFactory {
      *         background of button
      * @return an instance of {@link org.eclipse.che.ide.ext.runner.client.tabs.properties.button.PropertyButtonWidget}
      */
-    @Nonnull
-    PropertyButtonWidget createPropertyButton(@Nonnull String title, @Nonnull Background background);
+    @NotNull
+    PropertyButtonWidget createPropertyButton(@NotNull String title, @NotNull Background background);
 
     /**
      * Creates menu widget on which we can add different entities to control panel displaying.
      *
      * @return an instance of {@link MenuWidget}
      */
-    @Nonnull
+    @NotNull
     MenuWidget createMenuWidget();
 
     /**
@@ -185,7 +185,7 @@ public interface WidgetFactory {
      *         name which need set to entry
      * @return an instance of {@link MenuEntry}
      */
-    @Nonnull
-    MenuEntry createMenuEntry(@Nonnull String entryName);
+    @NotNull
+    MenuEntry createMenuEntry(@NotNull String entryName);
 
 }

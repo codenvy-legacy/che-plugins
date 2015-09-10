@@ -12,7 +12,7 @@ package org.eclipse.che.ide.ext.runner.client.tabs.container.tab;
 
 import org.eclipse.che.ide.api.mvp.View;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * Provides methods which allow change visual representation of tab.
@@ -27,7 +27,7 @@ public interface TabWidget extends View<TabWidget.ActionDelegate> {
      * @param background
      *         parameter which need to set correct background color
      */
-    void select(@Nonnull Background background);
+    void select(@NotNull Background background);
 
     /** Performs some actions when tab is unselected. */
     void unSelect();

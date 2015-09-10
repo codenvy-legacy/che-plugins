@@ -12,7 +12,7 @@ package org.eclipse.che.ide.ext.runner.client.tabs.console.panel;
 
 import com.google.gwt.user.client.ui.IsWidget;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * The widget that provides an ability to show different messages. It contains methods for showing messages and cleaning message (removing
@@ -29,7 +29,7 @@ public interface Console extends IsWidget {
      * @param message
      *         message that needs to be printed
      */
-    void print(@Nonnull String message);
+    void print(@NotNull String message);
 
     /**
      * Prints Info message with a given content.
@@ -38,7 +38,7 @@ public interface Console extends IsWidget {
      * @param line
      *         line that needs to be printed
      */
-    void printInfo(@Nonnull String line);
+    void printInfo(@NotNull String line);
 
     /**
      * Prints Error message with a given content.
@@ -47,7 +47,7 @@ public interface Console extends IsWidget {
      * @param line
      *         line that needs to be printed
      */
-    void printError(@Nonnull String line);
+    void printError(@NotNull String line);
 
     /**
      * Prints Warning message with a given content.
@@ -56,7 +56,7 @@ public interface Console extends IsWidget {
      * @param line
      *         line that needs to be printed
      */
-    void printWarn(@Nonnull String line);
+    void printWarn(@NotNull String line);
 
     /** Scroll to bottom of the view. */
     void scrollBottom();

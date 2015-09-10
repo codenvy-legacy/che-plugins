@@ -35,7 +35,7 @@ import org.eclipse.che.ide.ext.runner.client.tabs.console.container.ConsoleConta
 import org.eclipse.che.ide.ext.runner.client.util.RunnerUtil;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import static org.eclipse.che.ide.api.notification.Notification.Status.FINISHED;
 import static org.eclipse.che.ide.api.notification.Notification.Status.PROGRESS;
@@ -100,7 +100,7 @@ public class StopAction extends AbstractRunnerAction {
 
     /** {@inheritDoc} */
     @Override
-    public void perform(@Nonnull final Runner runner) {
+    public void perform(@NotNull final Runner runner) {
         notification = new Notification(constant.messageRunnerShuttingDown(), PROGRESS);
 
         notificationManager.showNotification(notification);
@@ -134,7 +134,7 @@ public class StopAction extends AbstractRunnerAction {
                 })
                 .failure(new FailureCallback() {
                     @Override
-                    public void onFailure(@Nonnull Throwable reason) {
+                    public void onFailure(@NotNull Throwable reason) {
                         runner.setStatus(FAILED);
                         presenter.update(runner);
                         runner.setProcessDescriptor(null);
@@ -153,7 +153,7 @@ public class StopAction extends AbstractRunnerAction {
         service.stop(stopLink, callback);
     }
 
-    private void processStoppedMessage(@Nonnull ApplicationProcessDescriptor descriptor) {
+    private void processStoppedMessage(@NotNull ApplicationProcessDescriptor descriptor) {
         runner.setProcessDescriptor(descriptor);
 
         project.setIsRunningEnabled(true);

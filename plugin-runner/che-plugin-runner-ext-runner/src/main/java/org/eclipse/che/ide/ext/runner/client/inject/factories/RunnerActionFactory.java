@@ -21,7 +21,7 @@ import org.eclipse.che.ide.ext.runner.client.runneractions.impl.launch.subaction
 import org.eclipse.che.ide.ext.runner.client.runneractions.impl.launch.subactions.StatusAction;
 import org.eclipse.che.ide.ext.runner.client.runneractions.impl.RunAction;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * The factory for creating sub-actions for Launch action.
@@ -39,8 +39,8 @@ public interface RunnerActionFactory {
      *         notification that has to show status of process
      * @return an instance of {@link org.eclipse.che.ide.ext.runner.client.runneractions.impl.launch.subactions.StatusAction}
      */
-    @Nonnull
-    StatusAction createStatus(@Nonnull Notification notification);
+    @NotNull
+    StatusAction createStatus(@NotNull Notification notification);
 
     /**
      * Create an instance of {@link org.eclipse.che.ide.ext.runner.client.runneractions.impl.launch.subactions.CheckHealthStatusAction} with a given notification for updating status of process.
@@ -49,35 +49,35 @@ public interface RunnerActionFactory {
      *         notification that has to show status of process
      * @return an instance of {@link org.eclipse.che.ide.ext.runner.client.runneractions.impl.launch.subactions.CheckHealthStatusAction}
      */
-    @Nonnull
-    CheckHealthStatusAction createCheckHealthStatus(@Nonnull Notification notification);
+    @NotNull
+    CheckHealthStatusAction createCheckHealthStatus(@NotNull Notification notification);
 
     /** @return an instance of {@link org.eclipse.che.ide.ext.runner.client.runneractions.impl.launch.subactions.OutputAction} */
-    @Nonnull
+    @NotNull
     OutputAction createOutput();
 
     /** @return an instance of {@link org.eclipse.che.ide.ext.runner.client.runneractions.impl.launch.LaunchAction} */
-    @Nonnull
+    @NotNull
     LaunchAction createLaunch();
 
     /** @return an instance of {@link org.eclipse.che.ide.ext.runner.client.runneractions.impl.CheckRamAndRunAction} */
-    @Nonnull
+    @NotNull
     CheckRamAndRunAction createCheckRamAndRun();
 
     /** @return an instance of {@link org.eclipse.che.ide.ext.runner.client.runneractions.impl.GetLogsAction} */
-    @Nonnull
+    @NotNull
     GetLogsAction createGetLogs();
 
     /** @return an instance of {@link org.eclipse.che.ide.ext.runner.client.runneractions.impl.GetRunningProcessesAction} */
-    @Nonnull
+    @NotNull
     GetRunningProcessesAction createGetRunningProcess();
 
     /** @return an instance of {@link RunAction} */
-    @Nonnull
+    @NotNull
     RunAction createRun();
 
     /** @return an instance of {@link org.eclipse.che.ide.ext.runner.client.runneractions.impl.StopAction} */
-    @Nonnull
+    @NotNull
     StopAction createStop();
 
 }

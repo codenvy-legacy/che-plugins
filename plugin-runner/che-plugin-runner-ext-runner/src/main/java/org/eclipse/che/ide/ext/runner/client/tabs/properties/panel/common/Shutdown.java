@@ -10,8 +10,8 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common;
 
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 
 /**
  * The enum represents a list of available states of shutdowning process of a runner.
@@ -25,7 +25,7 @@ public enum Shutdown {
 
     private final int timeout;
 
-    Shutdown(@Nonnegative int timeout, @Nonnull String name) {
+    Shutdown(@Min(value=0) int timeout, @NotNull String name) {
         this.timeout = timeout;
         this.name = name;
     }
@@ -46,7 +46,7 @@ public enum Shutdown {
      *         content that needs to analyze
      * @return an instance {@link Shutdown}
      */
-    public static Shutdown detect(@Nonnull String content) {
+    public static Shutdown detect(@NotNull String content) {
         for (Shutdown shutdown : Shutdown.values()) {
             if (content.equals(shutdown.toString())) {
                 return shutdown;
@@ -57,7 +57,7 @@ public enum Shutdown {
                 "You tried to detect unknown shutdown. Please, check your value. Your shutdown is " + content);
     }
 
-    public static Shutdown detect(@Nonnull int timeout) {
+    public static Shutdown detect(@NotNull int timeout) {
         for (Shutdown shutdown : Shutdown.values()) {
             if (timeout ==  shutdown.getTimeout()) {
                 return shutdown;

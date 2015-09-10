@@ -23,7 +23,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -58,14 +58,14 @@ public class SshKeyServiceImpl implements SshKeyService {
 
     /** {@inheritDoc} */
     @Override
-    public void getAllKeys(@Nonnull AsyncRequestCallback<List<KeyItem>> callback) {
+    public void getAllKeys(@NotNull AsyncRequestCallback<List<KeyItem>> callback) {
         loader.show("Getting SSH keys....");
         asyncRequestFactory.createGetRequest(baseUrl + "/ssh-keys/" + workspaceId + "/all").send(callback);
     }
 
     /** {@inheritDoc} */
     @Override
-    public void generateKey(@Nonnull String host, @Nonnull AsyncRequestCallback<Void> callback) {
+    public void generateKey(@NotNull String host, @NotNull AsyncRequestCallback<Void> callback) {
         String url = baseUrl + "/ssh-keys/" + workspaceId + "/gen";
 
         GenKeyRequest keyRequest = dtoFactory.createDto(GenKeyRequest.class).withHost(host);
@@ -77,14 +77,14 @@ public class SshKeyServiceImpl implements SshKeyService {
 
     /** {@inheritDoc} */
     @Override
-    public void getPublicKey(@Nonnull KeyItem keyItem, @Nonnull AsyncRequestCallback<PublicKey> callback) {
+    public void getPublicKey(@NotNull KeyItem keyItem, @NotNull AsyncRequestCallback<PublicKey> callback) {
         loader.show("Getting public SSH key for " + keyItem.getHost());
         asyncRequestFactory.createGetRequest(keyItem.getPublicKeyUrl()).send(callback);
     }
 
     /** {@inheritDoc} */
     @Override
-    public void deleteKey(@Nonnull KeyItem keyItem, @Nonnull AsyncRequestCallback<Void> callback) {
+    public void deleteKey(@NotNull KeyItem keyItem, @NotNull AsyncRequestCallback<Void> callback) {
         loader.show("Deleting SSH keys for " + keyItem.getHost());
         asyncRequestFactory.createGetRequest(keyItem.getRemoteKeyUrl()).send(callback);
     }
@@ -97,7 +97,7 @@ public class SshKeyServiceImpl implements SshKeyService {
 
     /** {@inheritDoc} */
     @Override
-    public void registerSshKeyProvider(@Nonnull String host, @Nonnull SshKeyProvider sshKeyProvider) {
+    public void registerSshKeyProvider(@NotNull String host, @NotNull SshKeyProvider sshKeyProvider) {
         sshKeyProviders.put(host, sshKeyProvider);
     }
 }

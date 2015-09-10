@@ -14,8 +14,8 @@ import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.websocket.rest.RequestCallback;
 import org.eclipse.che.ide.websocket.rest.Unmarshallable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+import org.eclipse.che.commons.annotation.Nullable;
 
 /**
  * Class to receive a response from a remote procedure call.
@@ -29,9 +29,9 @@ public class RunnerRequestCallback<T> extends RequestCallback<T> {
     private final SuccessCallback<T>  successCallback;
     private final NotificationManager notificationManager;
 
-    public RunnerRequestCallback(@Nonnull NotificationManager notificationManager,
+    public RunnerRequestCallback(@NotNull NotificationManager notificationManager,
                                  @Nullable Unmarshallable<T> unmarshallable,
-                                 @Nonnull SuccessCallback<T> successCallback,
+                                 @NotNull SuccessCallback<T> successCallback,
                                  @Nullable FailureCallback failureCallback) {
         super(unmarshallable);
         this.notificationManager = notificationManager;

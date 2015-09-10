@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.runner.client.tabs.console.panel;
 
-import javax.annotation.Nonnegative;
+import javax.validation.constraints.Min;
 
 /**
  * The enum that contains list of constant values of console's lines.
@@ -22,12 +22,12 @@ public enum Lines {
 
     private final int value;
 
-    Lines(@Nonnegative int value) {
+    Lines(@Min(value = 0) int value) {
         this.value = value;
     }
 
     /** @return line's count */
-    @Nonnegative
+    @Min(value = 0)
     public int getValue() {
         return value;
     }

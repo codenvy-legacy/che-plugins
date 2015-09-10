@@ -14,7 +14,7 @@ import org.eclipse.che.api.core.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
+import org.eclipse.che.commons.annotation.Nullable;
 
 import java.io.File;
 import java.io.IOException;

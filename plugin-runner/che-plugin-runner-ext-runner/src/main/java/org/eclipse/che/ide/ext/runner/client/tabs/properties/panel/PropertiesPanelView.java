@@ -19,9 +19,9 @@ import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.RAM;
 import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope;
 import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Shutdown;
 
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+import org.eclipse.che.commons.annotation.Nullable;
 import java.util.Map;
 
 /**
@@ -34,7 +34,7 @@ import java.util.Map;
 public interface PropertiesPanelView extends View<PropertiesPanelView.ActionDelegate> {
 
     /** @return content of Name field */
-    @Nonnull
+    @NotNull
     String getName();
 
     /**
@@ -43,10 +43,10 @@ public interface PropertiesPanelView extends View<PropertiesPanelView.ActionDele
      * @param name
      *         content that needs to be set
      */
-    void setName(@Nonnull String name);
+    void setName(@NotNull String name);
 
     /** @return chosen value of RAM field */
-    @Nonnull
+    @NotNull
     RAM getRam();
 
     /**
@@ -55,7 +55,7 @@ public interface PropertiesPanelView extends View<PropertiesPanelView.ActionDele
      * @param size
      *         value that needs to be chosen
      */
-    void selectMemory(@Nonnull RAM size);
+    void selectMemory(@NotNull RAM size);
 
     /**
      * Select a given value into RAM field.
@@ -63,7 +63,7 @@ public interface PropertiesPanelView extends View<PropertiesPanelView.ActionDele
      * @param size
      *         value that needs to be chosen
      */
-    void selectMemory(@Nonnegative int size);
+    void selectMemory(@Min(value=0) int size);
 
     /**
      * Add new value into the RAM list.
@@ -71,10 +71,10 @@ public interface PropertiesPanelView extends View<PropertiesPanelView.ActionDele
      * @param value
      *         value that needs to be add
      */
-    void addRamValue(@Nonnegative int value);
+    void addRamValue(@Min(value=0) int value);
 
     /** @return chosen value of Scope field */
-    @Nonnull
+    @NotNull
     Scope getScope();
 
     /**
@@ -83,10 +83,10 @@ public interface PropertiesPanelView extends View<PropertiesPanelView.ActionDele
      * @param scope
      *         value that needs to be chosen
      */
-    void selectScope(@Nonnull Scope scope);
+    void selectScope(@NotNull Scope scope);
 
     /** @return content of Type field */
-    @Nonnull
+    @NotNull
     String getType();
 
     /**
@@ -95,7 +95,7 @@ public interface PropertiesPanelView extends View<PropertiesPanelView.ActionDele
      * @param config
      *         content that needs to be set
      */
-    void setConfig(@Nonnull String config);
+    void setConfig(@NotNull String config);
 
     /**
      * Changes content of Type field.
@@ -103,7 +103,7 @@ public interface PropertiesPanelView extends View<PropertiesPanelView.ActionDele
      * @param type
      *         content that needs to be set
      */
-    void setType(@Nonnull String type);
+    void setType(@NotNull String type);
 
     /**
      * Display port mapping.
@@ -114,7 +114,7 @@ public interface PropertiesPanelView extends View<PropertiesPanelView.ActionDele
     void setPorts(Map<String, String> ports);
 
     /** @return chosen value of Boot field */
-    @Nonnull
+    @NotNull
     Boot getBoot();
 
     /**
@@ -123,10 +123,10 @@ public interface PropertiesPanelView extends View<PropertiesPanelView.ActionDele
      * @param boot
      *         value that needs to be chosen
      */
-    void selectBoot(@Nonnull Boot boot);
+    void selectBoot(@NotNull Boot boot);
 
     /** @return chosen value of Shutdown field */
-    @Nonnull
+    @NotNull
     Shutdown getShutdown();
 
     /**
@@ -135,7 +135,7 @@ public interface PropertiesPanelView extends View<PropertiesPanelView.ActionDele
      * @param shutdown
      *         value that needs to be chosen
      */
-    void selectShutdown(@Nonnull Shutdown shutdown);
+    void selectShutdown(@NotNull Shutdown shutdown);
 
     /**
      * Changes enable state of 'Save' button.

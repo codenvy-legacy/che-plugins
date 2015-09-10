@@ -15,7 +15,7 @@ import com.google.inject.ImplementedBy;
 import org.eclipse.che.ide.ext.runner.client.models.Runner;
 import org.eclipse.che.ide.ext.runner.client.tabs.common.TabPresenter;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * The common representation of console container widget. This widget provides an ability to manager many console widgets for every runner.
@@ -34,7 +34,7 @@ public interface ConsoleContainer extends TabPresenter {
      * @param message
      *         message that needs to be printed
      */
-    void print(@Nonnull Runner runner, @Nonnull String message);
+    void print(@NotNull Runner runner, @NotNull String message);
 
     /**
      * Prints a given message with info content in the console for a given runner.
@@ -45,7 +45,7 @@ public interface ConsoleContainer extends TabPresenter {
      * @param message
      *         message that needs to be printed
      */
-    void printInfo(@Nonnull Runner runner, @Nonnull String message);
+    void printInfo(@NotNull Runner runner, @NotNull String message);
 
     /**
      * Prints a given message with error content in the console for a given runner.
@@ -56,7 +56,7 @@ public interface ConsoleContainer extends TabPresenter {
      * @param message
      *         message that needs to be printed
      */
-    void printError(@Nonnull Runner runner, @Nonnull String message);
+    void printError(@NotNull Runner runner, @NotNull String message);
 
     /**
      * Prints a given message with warning content in the console for a given runner.
@@ -67,13 +67,13 @@ public interface ConsoleContainer extends TabPresenter {
      * @param message
      *         message that needs to be printed
      */
-    void printWarn(@Nonnull Runner runner, @Nonnull String message);
+    void printWarn(@NotNull Runner runner, @NotNull String message);
 
     /** Cleans the data of the console widgets. */
     void reset();
 
     /** Deletes console by Runner. */
-    void deleteConsoleByRunner(@Nonnull Runner runner);
+    void deleteConsoleByRunner(@NotNull Runner runner);
 
     /**
      * Changes visibility of the no runner label.

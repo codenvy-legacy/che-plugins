@@ -32,7 +32,7 @@ import org.eclipse.che.ide.ext.runner.client.util.GetEnvironmentsUtil;
 import org.eclipse.che.ide.ext.runner.client.util.RunnerUtil;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope.SYSTEM;
@@ -103,7 +103,7 @@ public class GetSystemEnvironmentsAction extends AbstractRunnerAction {
                 })
                 .failure(new FailureCallback() {
                     @Override
-                    public void onFailure(@Nonnull Throwable reason) {
+                    public void onFailure(@NotNull Throwable reason) {
                         notificationManager.showError(locale.customRunnerGetEnvironmentFailed());
                     }
                 })
@@ -116,7 +116,7 @@ public class GetSystemEnvironmentsAction extends AbstractRunnerAction {
         }
     }
 
-    private void getEnvironments(@Nonnull RunnerEnvironmentTree tree) {
+    private void getEnvironments(@NotNull RunnerEnvironmentTree tree) {
         CurrentProject currentProject = appContext.getCurrentProject();
 
         if (currentProject == null) {

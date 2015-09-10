@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.runner.client.constants;
 
-import javax.annotation.Nonnegative;
+import javax.validation.constraints.Min;
 
 /**
  * The class store Integer representation of time intervals in milliseconds.
@@ -23,12 +23,12 @@ public enum TimeInterval {
 
     private final int timeInterval;
 
-    TimeInterval(@Nonnegative int timeInterval) {
+    TimeInterval(@Min(value=0) int timeInterval) {
         this.timeInterval = timeInterval;
     }
 
     /** @return time interval value. */
-    @Nonnegative
+    @Min(value=0)
     public int getValue() {
         return timeInterval;
     }

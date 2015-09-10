@@ -16,7 +16,7 @@ import org.eclipse.che.ide.api.wizard.WizardPage;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,17 +38,17 @@ public class TutorialProjectWizardRegistrar implements ProjectWizardRegistrar {
         wizardPages.add(provider);
     }
 
-    @Nonnull
+    @NotNull
     public String getProjectTypeId() {
         return TUTORIAL_ID;
     }
 
-    @Nonnull
+    @NotNull
     public String getCategory() {
         return ECLIPSE_CHE_CATEGORY;
     }
 
-    @Nonnull
+    @NotNull
     public List<Provider<? extends WizardPage<ImportProject>>> getWizardPages() {
         return wizardPages;
     }

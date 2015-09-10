@@ -29,7 +29,7 @@ import org.eclipse.che.ide.ext.runner.client.RunnerResources;
 import org.eclipse.che.ide.ext.runner.client.inject.factories.WidgetFactory;
 import org.eclipse.che.ide.ext.runner.client.models.Runner;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import static org.eclipse.che.ide.ext.runner.client.tabs.console.panel.Lines.CLEANED;
 import static org.eclipse.che.ide.ext.runner.client.tabs.console.panel.Lines.MAXIMUM;
@@ -71,7 +71,7 @@ public class ConsoleImpl extends Composite implements Console {
     public ConsoleImpl(RunnerResources resources,
                        Provider<MessageBuilder> messageBuilderProvider,
                        WidgetFactory widgetFactory,
-                       @Nonnull @Assisted Runner runner) {
+                       @NotNull @Assisted Runner runner) {
         this.res = resources;
         this.messageBuilderProvider = messageBuilderProvider;
         this.widgetFactory = widgetFactory;
@@ -82,7 +82,7 @@ public class ConsoleImpl extends Composite implements Console {
 
     /** {@inheritDoc} */
     @Override
-    public void print(@Nonnull String text) {
+    public void print(@NotNull String text) {
         // nothing to display
         if (text.isEmpty()) {
             return;
@@ -112,7 +112,7 @@ public class ConsoleImpl extends Composite implements Console {
 
     /** {@inheritDoc} */
     @Override
-    public void printInfo(@Nonnull String line) {
+    public void printInfo(@NotNull String line) {
         MessageBuilder messageBuilder = messageBuilderProvider.get()
                                                               .type(INFO)
                                                               .message(INFO.getPrefix() + ' ' + line);
@@ -121,7 +121,7 @@ public class ConsoleImpl extends Composite implements Console {
 
     /** {@inheritDoc} */
     @Override
-    public void printError(@Nonnull String line) {
+    public void printError(@NotNull String line) {
         MessageBuilder messageBuilder = messageBuilderProvider.get()
                                                               .type(ERROR)
                                                               .message(ERROR.getPrefix() + ' ' + line);
@@ -130,14 +130,14 @@ public class ConsoleImpl extends Composite implements Console {
 
     /** {@inheritDoc} */
     @Override
-    public void printWarn(@Nonnull String line) {
+    public void printWarn(@NotNull String line) {
         MessageBuilder messageBuilder = messageBuilderProvider.get()
                                                               .type(WARNING)
                                                               .message(WARNING.getPrefix() + ' ' + line);
         print(messageBuilder.build());
     }
 
-    private void print(@Nonnull SafeHtml message) {
+    private void print(@NotNull SafeHtml message) {
         cleanOverHeadLinesIfAny();
 
         HTML html = new HTML(message);

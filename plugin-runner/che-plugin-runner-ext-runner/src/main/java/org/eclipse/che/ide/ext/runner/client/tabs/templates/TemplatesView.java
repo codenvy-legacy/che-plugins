@@ -18,9 +18,9 @@ import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope;
 import org.eclipse.che.ide.ext.runner.client.tabs.templates.environment.EnvironmentWidget;
 import org.eclipse.che.ide.ext.runner.client.tabs.templates.filterwidget.FilterWidget;
 
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+import org.eclipse.che.commons.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 
@@ -38,7 +38,7 @@ public interface TemplatesView extends View<TemplatesView.ActionDelegate> {
      * @param environments
      *         runner which was added
      */
-    void addEnvironment(@Nonnull Map<Scope, List<Environment>> environments);
+    void addEnvironment(@NotNull Map<Scope, List<Environment>> environments);
 
     /**
      * Sets visibility state to panel.
@@ -65,7 +65,7 @@ public interface TemplatesView extends View<TemplatesView.ActionDelegate> {
      * @param filterWidget
      *         panel which need set
      */
-    void setFilterWidget(@Nonnull FilterWidget filterWidget);
+    void setFilterWidget(@NotNull FilterWidget filterWidget);
 
     /**
      * Sets default project widget to special place on view.
@@ -81,7 +81,7 @@ public interface TemplatesView extends View<TemplatesView.ActionDelegate> {
      * @param defaultEnvironment
      *         environment for which need display info
      */
-    void showDefaultEnvironmentInfo(@Nonnull Environment defaultEnvironment);
+    void showDefaultEnvironmentInfo(@NotNull Environment defaultEnvironment);
 
     /**
      * Scroll to top of the selected environment.
@@ -89,7 +89,7 @@ public interface TemplatesView extends View<TemplatesView.ActionDelegate> {
      * @param index
      *         index of selected environment
      */
-    void scrollTop(@Nonnegative int index);
+    void scrollTop(@Min(value=0) int index);
 
     interface ActionDelegate {
 

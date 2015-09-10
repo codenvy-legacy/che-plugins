@@ -26,8 +26,8 @@ import com.google.inject.Inject;
 import org.eclipse.che.ide.ext.runner.client.RunnerResources;
 import org.vectomatic.dom.svg.ui.SVGImage;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+import org.eclipse.che.commons.annotation.Nullable;
 
 /**
  * Class provides general view representation for runners and environments.
@@ -89,7 +89,7 @@ public class ItemWidgetImpl extends Composite implements ItemWidget, ClickHandle
 
     /** {@inheritDoc} */
     @Override
-    public void setDelegate(@Nonnull ActionDelegate delegate) {
+    public void setDelegate(@NotNull ActionDelegate delegate) {
         this.delegate = delegate;
     }
 
@@ -101,7 +101,7 @@ public class ItemWidgetImpl extends Composite implements ItemWidget, ClickHandle
 
     /** {@inheritDoc} */
     @Override
-    public void setName(@Nonnull String name) {
+    public void setName(@NotNull String name) {
         this.ensureDebugId(name);
         runnerName.setText(name);
     }
@@ -114,13 +114,13 @@ public class ItemWidgetImpl extends Composite implements ItemWidget, ClickHandle
 
     /** {@inheritDoc} */
     @Override
-    public void setStartTime(@Nonnull String time) {
+    public void setStartTime(@NotNull String time) {
         startTime.setText(time);
     }
 
     /** {@inheritDoc} */
     @Override
-    public void setImage(@Nonnull SVGImage svgImageResource) {
+    public void setImage(@NotNull SVGImage svgImageResource) {
         svgImage.clear();
         svgImage.add(svgImageResource);
         svgImage.getElement().getStyle().setZIndex(-1);
@@ -130,13 +130,13 @@ public class ItemWidgetImpl extends Composite implements ItemWidget, ClickHandle
 
     /** {@inheritDoc} */
     @Override
-    public void setImage(@Nonnull ImageResource imageResource) {
+    public void setImage(@NotNull ImageResource imageResource) {
         pngImage.setResource(imageResource);
         image.setWidget(pngImage);
     }
 
     /** {@inheritDoc} */
-    @Nonnull
+    @NotNull
     @Override
     public SimpleLayoutPanel getImagePanel() {
         return imagePanel;

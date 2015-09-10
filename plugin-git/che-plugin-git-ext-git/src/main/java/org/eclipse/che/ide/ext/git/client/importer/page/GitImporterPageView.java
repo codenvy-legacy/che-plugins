@@ -13,7 +13,7 @@ package org.eclipse.che.ide.ext.git.client.importer.page;
 import org.eclipse.che.ide.api.mvp.View;
 import com.google.inject.ImplementedBy;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * @author Roman Nikitenko
@@ -23,13 +23,13 @@ public interface GitImporterPageView extends View<GitImporterPageView.ActionDele
 
     interface ActionDelegate {
         /** Performs any actions appropriate in response to the user having changed the project's name. */
-        void projectNameChanged(@Nonnull String name);
+        void projectNameChanged(@NotNull String name);
 
         /** Performs any actions appropriate in response to the user having changed the project's URL. */
-        void projectUrlChanged(@Nonnull String url);
+        void projectUrlChanged(@NotNull String url);
 
         /** Performs any actions appropriate in response to the user having changed the project's description. */
-        void projectDescriptionChanged(@Nonnull String projectDescriptionValue);
+        void projectDescriptionChanged(@NotNull String projectDescriptionValue);
 
         /** Performs any actions appropriate in response to the user having changed the project's visibility. */
         void projectVisibilityChanged(boolean aPublic);
@@ -38,7 +38,7 @@ public interface GitImporterPageView extends View<GitImporterPageView.ActionDele
         void keepDirectorySelected(boolean keepDirectory);
 
         /** Perform actions when changing the name of a directory. */
-        void keepDirectoryNameChanged(@Nonnull String url);
+        void keepDirectoryNameChanged(@NotNull String url);
     }
 
     /**
@@ -54,7 +54,7 @@ public interface GitImporterPageView extends View<GitImporterPageView.ActionDele
     /**
      * Show URL error.
      */
-    void showUrlError(@Nonnull String message);
+    void showUrlError(@NotNull String message);
 
     /**
      * Hide URL error.
@@ -67,14 +67,14 @@ public interface GitImporterPageView extends View<GitImporterPageView.ActionDele
      * @param url
      *         the project's URL to set
      */
-    void setProjectUrl(@Nonnull String url);
+    void setProjectUrl(@NotNull String url);
 
     /**
      * Get the project's name value.
      *
      * @return {@link String} project's name
      */
-    @Nonnull
+    @NotNull
     String getProjectName();
 
     /**
@@ -83,7 +83,7 @@ public interface GitImporterPageView extends View<GitImporterPageView.ActionDele
      * @param projectName
      *         project's name to set
      */
-    void setProjectName(@Nonnull String projectName);
+    void setProjectName(@NotNull String projectName);
 
     /**
      * Focuses URL field.
@@ -103,7 +103,7 @@ public interface GitImporterPageView extends View<GitImporterPageView.ActionDele
      *
      * @param projectDescription project description
      */
-    void setProjectDescription(@Nonnull String projectDescription);
+    void setProjectDescription(@NotNull String projectDescription);
 
     /**
      * Updates project visibility.

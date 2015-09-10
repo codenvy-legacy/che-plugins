@@ -30,7 +30,7 @@ import org.eclipse.che.ide.rest.Unmarshallable;
 import org.eclipse.che.ide.websocket.WebSocketException;
 import org.eclipse.che.ide.websocket.rest.RequestCallback;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -129,8 +129,8 @@ public class AddToIndexPresenter implements AddToIndexView.ActionDelegate {
      *
      * @return {@link String} message to display
      */
-    @Nonnull
-    private String formatMessage(@Nonnull final String path) {
+    @NotNull
+    private String formatMessage(@NotNull final String path) {
         String pattern = path;
 
         // Root of the working tree:
@@ -180,7 +180,7 @@ public class AddToIndexPresenter implements AddToIndexView.ActionDelegate {
      *
      * @return pattern of the files to be added
      */
-    @Nonnull
+    @NotNull
     private List<String> getMultipleFilePatterns() {
 
         final Selection<ResourceBasedNode<?>> selection = getExplorerSelection();
@@ -277,7 +277,7 @@ public class AddToIndexPresenter implements AddToIndexView.ActionDelegate {
      * @param e
      *         exception that happened
      */
-    private void handleError(@Nonnull final Throwable e) {
+    private void handleError(@NotNull final Throwable e) {
         String errorMessage = (e.getMessage() != null && !e.getMessage().isEmpty()) ? e.getMessage() : constant.addFailed();
         notificationManager.showError(errorMessage);
     }

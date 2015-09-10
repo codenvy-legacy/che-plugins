@@ -16,7 +16,7 @@ import org.eclipse.che.ide.api.project.tree.VirtualFile;
 import org.eclipse.che.ide.api.project.tree.generic.ProjectNode;
 import com.google.inject.Singleton;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,9 +26,9 @@ import java.util.List;
 @Singleton
 public class JavaFqnResolver implements FqnResolver {
     /** {@inheritDoc} */
-    @Nonnull
+    @NotNull
     @Override
-    public String resolveFqn(@Nonnull final VirtualFile file) {
+    public String resolveFqn(@NotNull final VirtualFile file) {
         final HasProjectDescriptor project = file.getProject();
         final BuildersDescriptor builders = project.getProjectDescriptor().getBuilders();
         final List<String> sourceFolders = new ArrayList<>();

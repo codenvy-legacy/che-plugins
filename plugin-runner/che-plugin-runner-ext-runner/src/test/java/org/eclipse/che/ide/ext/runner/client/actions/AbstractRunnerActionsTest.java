@@ -21,8 +21,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.vectomatic.dom.svg.ui.SVGResource;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+import org.eclipse.che.commons.annotation.Nullable;
 
 import static org.mockito.Answers.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.verify;
@@ -72,9 +72,9 @@ public class AbstractRunnerActionsTest {
 
     private class DummyAction extends AbstractRunnerActions {
 
-        public DummyAction(@Nonnull AppContext appContext,
-                           @Nonnull String actionName,
-                           @Nonnull String actionPrompt,
+        public DummyAction(@NotNull AppContext appContext,
+                           @NotNull String actionName,
+                           @NotNull String actionPrompt,
                            @Nullable SVGResource image) {
             super(appContext, actionName, actionPrompt, image);
         }

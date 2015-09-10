@@ -10,8 +10,8 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common;
 
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 
 /**
  * Enums which store information about memory size.
@@ -40,7 +40,7 @@ public enum RAM {
     }
 
     /** {@inheritDoc} */
-    @Nonnull
+    @NotNull
     @Override
     public String toString() {
         return size + " mb";
@@ -53,8 +53,8 @@ public enum RAM {
      *         value of string for which need return {@link RAM} enum
      * @return an instance {@link RAM}
      */
-    @Nonnull
-    public static RAM detect(@Nonnull String inputMemory) {
+    @NotNull
+    public static RAM detect(@NotNull String inputMemory) {
         for (RAM size : RAM.values()) {
             if (inputMemory.equals(size.toString())) {
                 return size;
@@ -71,8 +71,8 @@ public enum RAM {
      *         value of integer for which need return {@link RAM} enum
      * @return an instance {@link RAM}
      */
-    @Nonnull
-    public static RAM detect(@Nonnegative int value) {
+    @NotNull
+    public static RAM detect(@Min(value=0) int value) {
         for (RAM size : RAM.values()) {
             if (size.getValue() == value) {
                 return size;

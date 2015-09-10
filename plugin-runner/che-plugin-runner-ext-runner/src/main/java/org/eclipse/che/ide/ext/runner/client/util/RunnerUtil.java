@@ -15,9 +15,9 @@ import org.eclipse.che.ide.ext.runner.client.models.Runner;
 
 import com.google.inject.ImplementedBy;
 
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+import org.eclipse.che.commons.annotation.Nullable;
 
 /**
  * The class contains methods which are general used.
@@ -38,7 +38,7 @@ public interface RunnerUtil {
      *         value of available runner memory
      * @return <code>true</code> memory values are correct,<code>false</code> memory values are incorrect
      */
-    boolean isRunnerMemoryCorrect(@Nonnegative int totalMemory, @Nonnegative int usedMemory, @Nonnegative int availableMemory);
+    boolean isRunnerMemoryCorrect(@Min(value=0) int totalMemory, @Min(value=0) int usedMemory, @Min(value=0) int availableMemory);
 
     /**
      * Shows warning message using dialog factory.
@@ -46,7 +46,7 @@ public interface RunnerUtil {
      * @param message
      *         message which need to show
      */
-    void showWarning(@Nonnull String message);
+    void showWarning(@NotNull String message);
 
     /**
      * Show error to user. It creates a new notification and shows it. Updates Multi-runner panel and print a message on the console for a
@@ -59,7 +59,7 @@ public interface RunnerUtil {
      * @param exception
      *         exception that happened
      */
-    void showError(@Nonnull Runner runner, @Nonnull String message, @Nullable Throwable exception);
+    void showError(@NotNull Runner runner, @NotNull String message, @Nullable Throwable exception);
 
     /**
      * Show error to user. It updates a given notification, updates Multi-runner panel and print a message on the console for a
@@ -74,7 +74,7 @@ public interface RunnerUtil {
      * @param notification
      *         notification that needs to be updated with some message
      */
-    void showError(@Nonnull Runner runner, @Nonnull String message, @Nullable Throwable exception, @Nonnull Notification notification);
+    void showError(@NotNull Runner runner, @NotNull String message, @Nullable Throwable exception, @NotNull Notification notification);
 
     /**
      * Checks user permissions for running project.

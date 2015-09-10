@@ -36,7 +36,7 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import javax.annotation.Nonnegative;
+import javax.validation.constraints.Min;
 
 import java.util.Arrays;
 import java.util.List;
@@ -116,7 +116,7 @@ public class RunnerUtilImplTest {
 
     @Test
     @UseDataProvider("checkIsNonNegativeMemoryValue")
-    public void runnerMemoryShouldBeAboveZero(@Nonnegative int totalMemory, @Nonnegative int usedMemory, @Nonnegative int availableMemory) {
+    public void runnerMemoryShouldBeAboveZero(@Min(value=0) int totalMemory, @Min(value=0) int usedMemory, @Min(value=0) int availableMemory) {
         when(locale.messagesIncorrectValue()).thenReturn(SOME_TEXT);
 
         boolean isCorrect = util.isRunnerMemoryCorrect(totalMemory, usedMemory, availableMemory);

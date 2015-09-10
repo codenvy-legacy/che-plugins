@@ -16,7 +16,7 @@ import org.eclipse.che.ide.websocket.rest.RequestCallback;
 import org.eclipse.che.ide.websocket.rest.Unmarshallable;
 import com.google.inject.Inject;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * The builder that provides an ability to create an instance of {@link RequestCallback}. It has to simplify work flow of creating
@@ -49,8 +49,8 @@ public class RunnerRequestCallBackBuilder<T> {
      *         callback that has to be added
      * @return an instance of builder with changed configuration
      */
-    @Nonnull
-    public RunnerRequestCallBackBuilder<T> success(@Nonnull SuccessCallback<T> successCallback) {
+    @NotNull
+    public RunnerRequestCallBackBuilder<T> success(@NotNull SuccessCallback<T> successCallback) {
         this.successCallback = successCallback;
         return this;
     }
@@ -62,8 +62,8 @@ public class RunnerRequestCallBackBuilder<T> {
      *         unmarshaller that has to be added
      * @return an instance of builder with changed configuration
      */
-    @Nonnull
-    public RunnerRequestCallBackBuilder<T> unmarshaller(@Nonnull Unmarshallable<T> unmarshaller) {
+    @NotNull
+    public RunnerRequestCallBackBuilder<T> unmarshaller(@NotNull Unmarshallable<T> unmarshaller) {
         this.unmarshaller = unmarshaller;
         return this;
     }
@@ -75,8 +75,8 @@ public class RunnerRequestCallBackBuilder<T> {
      *         class of unmarshaller
      * @return an instance of builder with changed configuration
      */
-    @Nonnull
-    public RunnerRequestCallBackBuilder<T> unmarshaller(@Nonnull Class<T> clazz) {
+    @NotNull
+    public RunnerRequestCallBackBuilder<T> unmarshaller(@NotNull Class<T> clazz) {
         this.clazz = clazz;
         return this;
     }
@@ -88,14 +88,14 @@ public class RunnerRequestCallBackBuilder<T> {
      *         callback that has to be added
      * @return an instance of builder with changed configuration
      */
-    @Nonnull
-    public RunnerRequestCallBackBuilder<T> failure(@Nonnull FailureCallback failureCallback) {
+    @NotNull
+    public RunnerRequestCallBackBuilder<T> failure(@NotNull FailureCallback failureCallback) {
         this.failureCallback = failureCallback;
         return this;
     }
 
     /** @return an instance of {link RequestCallback} with a given configuration */
-    @Nonnull
+    @NotNull
     public RequestCallback<T> build() {
         if (successCallback == null) {
             throw new IllegalStateException("You forgot to initialize success callback parameter. Please, fix it and try again.");

@@ -24,7 +24,7 @@ import org.eclipse.che.ide.ext.runner.client.RunnerResources;
 import org.eclipse.che.ide.ext.runner.client.manager.RunnerManager;
 import org.eclipse.che.ide.ext.runner.client.models.Environment;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * Action which allows run project with default runner parameters.
@@ -64,7 +64,7 @@ public class RunAction extends AbstractRunnerActions {
 
     /** {@inheritDoc} */
     @Override
-    public void actionPerformed(@Nonnull ActionEvent event) {
+    public void actionPerformed(@NotNull ActionEvent event) {
         eventLogger.log(this);
             CurrentProject currentProject = appContext.getCurrentProject();
             if (currentProject == null) {

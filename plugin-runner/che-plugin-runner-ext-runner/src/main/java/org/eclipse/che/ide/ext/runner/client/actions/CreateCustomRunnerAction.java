@@ -33,7 +33,7 @@ import org.eclipse.che.ide.ext.runner.client.util.annotations.LeftPanel;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.util.loging.Log;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import static org.eclipse.che.ide.ext.runner.client.models.EnvironmentImpl.ROOT_FOLDER;
 
@@ -114,7 +114,7 @@ public class CreateCustomRunnerAction extends AbstractRunnerActions {
                                                                            })
                                                                            .failure(new FailureCallback() {
                                                                                @Override
-                                                                               public void onFailure(@Nonnull Throwable reason) {
+                                                                               public void onFailure(@NotNull Throwable reason) {
                                                                                    notificationManager.showError(reason.getMessage());
                                                                                }
                                                                            })
@@ -123,7 +123,7 @@ public class CreateCustomRunnerAction extends AbstractRunnerActions {
         projectService.createFolder(path, callback);
     }
 
-    private void createFile(@Nonnull String content, @Nonnull String fileName) {
+    private void createFile(@NotNull String content, @NotNull String fileName) {
         String path = currentProject.getProjectDescription().getPath() + ROOT_FOLDER;
 
         AsyncRequestCallback<ItemReference> callback =
@@ -136,7 +136,7 @@ public class CreateCustomRunnerAction extends AbstractRunnerActions {
                                     })
                                     .failure(new FailureCallback() {
                                         @Override
-                                        public void onFailure(@Nonnull Throwable reason) {
+                                        public void onFailure(@NotNull Throwable reason) {
                                             Log.error(PropertiesPanelPresenter.class, reason.getMessage());
                                         }
                                     })

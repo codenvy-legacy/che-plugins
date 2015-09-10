@@ -23,7 +23,7 @@ import org.eclipse.che.ide.ext.runner.client.runneractions.AbstractRunnerAction;
 import org.eclipse.che.ide.ext.runner.client.runneractions.RunnerAction;
 import org.eclipse.che.ide.ext.runner.client.tabs.console.container.ConsoleContainer;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import static org.eclipse.che.ide.api.notification.Notification.Status.PROGRESS;
 
@@ -58,7 +58,7 @@ public class LaunchAction extends AbstractRunnerAction {
 
     /** {@inheritDoc} */
     @Override
-    public void perform(@Nonnull Runner runner) {
+    public void perform(@NotNull Runner runner) {
         CurrentProject project = appContext.getCurrentProject();
         if (project == null) {
             return;

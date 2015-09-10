@@ -24,9 +24,9 @@ import org.eclipse.che.ide.ext.runner.client.models.Runner;
 import org.eclipse.che.ide.ext.runner.client.tabs.console.container.ConsoleContainer;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+import org.eclipse.che.commons.annotation.Nullable;
 
 import static org.eclipse.che.ide.api.notification.Notification.Status.FINISHED;
 import static org.eclipse.che.ide.api.notification.Notification.Type.ERROR;
@@ -64,7 +64,7 @@ public class RunnerUtilImpl implements RunnerUtil {
 
     /** {@inheritDoc} */
     @Override
-    public boolean isRunnerMemoryCorrect(@Nonnegative int totalMemory, @Nonnegative int usedMemory, @Nonnegative int availableMemory) {
+    public boolean isRunnerMemoryCorrect(@Min(value=0) int totalMemory, @Min(value=0) int usedMemory, @Min(value=0) int availableMemory) {
         if (usedMemory < 0 || totalMemory < 0 || availableMemory < 0) {
             showWarning(locale.messagesIncorrectValue());
             return false;
@@ -90,13 +90,13 @@ public class RunnerUtilImpl implements RunnerUtil {
 
     /** {@inheritDoc} */
     @Override
-    public void showWarning(@Nonnull String message) {
+    public void showWarning(@NotNull String message) {
         dialogFactory.createMessageDialog(locale.titlesWarning(), message, null).show();
     }
 
     /** {@inheritDoc} */
     @Override
-    public void showError(@Nonnull Runner runner, @Nonnull String message, @Nullable Throwable exception) {
+    public void showError(@NotNull Runner runner, @NotNull String message, @Nullable Throwable exception) {
         Notification notification = new Notification(message, ERROR, true);
 
         showError(runner, message, exception, notification);
@@ -106,10 +106,10 @@ public class RunnerUtilImpl implements RunnerUtil {
 
     /** {@inheritDoc} */
     @Override
-    public void showError(@Nonnull Runner runner,
-                          @Nonnull String message,
+    public void showError(@NotNull Runner runner,
+                          @NotNull String message,
                           @Nullable Throwable exception,
-                          @Nonnull Notification notification) {
+                          @NotNull Notification notification) {
         runner.setStatus(Runner.Status.FAILED);
 
         presenter.get().update(runner);

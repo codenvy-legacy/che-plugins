@@ -24,7 +24,7 @@ import org.eclipse.che.ide.ext.runner.client.tabs.console.container.ConsoleConta
 import org.eclipse.che.ide.ext.runner.client.tabs.history.runner.RunnerWidget;
 import org.eclipse.che.ide.ext.runner.client.tabs.terminal.container.TerminalContainer;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -70,7 +70,7 @@ public class HistoryPresenter implements HistoryPanel, RunnerWidget.ActionDelega
 
     /** {@inheritDoc} */
     @Override
-    public void addRunner(@Nonnull Runner runner) {
+    public void addRunner(@NotNull Runner runner) {
         if (runnerWidgets.get(runner) != null) {
             return;
         }
@@ -89,7 +89,7 @@ public class HistoryPresenter implements HistoryPanel, RunnerWidget.ActionDelega
 
     /** {@inheritDoc} */
     @Override
-    public void update(@Nonnull Runner runner) {
+    public void update(@NotNull Runner runner) {
         RunnerWidget runnerWidget = runnerWidgets.get(runner);
         if (runnerWidget == null) {
             return;
@@ -100,7 +100,7 @@ public class HistoryPresenter implements HistoryPanel, RunnerWidget.ActionDelega
 
     /** {@inheritDoc} */
     @Override
-    public void selectRunner(@Nonnull Runner runner) {
+    public void selectRunner(@NotNull Runner runner) {
         for (RunnerItems widget : runnerWidgets.values()) {
             widget.unSelect();
         }
@@ -119,7 +119,7 @@ public class HistoryPresenter implements HistoryPanel, RunnerWidget.ActionDelega
     }
 
     /** {@inheritDoc} */
-    @Nonnull
+    @NotNull
     @Override
     public IsWidget getView() {
         return view;
@@ -133,19 +133,19 @@ public class HistoryPresenter implements HistoryPanel, RunnerWidget.ActionDelega
 
     /** {@inheritDoc} */
     @Override
-    public void go(@Nonnull AcceptsOneWidget container) {
+    public void go(@NotNull AcceptsOneWidget container) {
         container.setWidget(view);
     }
 
     /** {@inheritDoc} */
     @Override
-    public boolean isRunnerExist(@Nonnull Runner runner) {
+    public boolean isRunnerExist(@NotNull Runner runner) {
         return runnerWidgets.get(runner) != null;
     }
 
     /** {@inheritDoc} */
     @Override
-    public void removeRunnerWidget(@Nonnull Runner runner) {
+    public void removeRunnerWidget(@NotNull Runner runner) {
         RunnerWidget widget = runnerWidgets.get(runner);
 
         view.removeRunner(widget);

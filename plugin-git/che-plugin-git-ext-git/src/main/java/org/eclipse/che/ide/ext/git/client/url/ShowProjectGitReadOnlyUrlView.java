@@ -13,7 +13,7 @@ package org.eclipse.che.ide.ext.git.client.url;
 import org.eclipse.che.api.git.shared.Remote;
 import org.eclipse.che.ide.api.mvp.View;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -34,7 +34,7 @@ public interface ShowProjectGitReadOnlyUrlView extends View<ShowProjectGitReadOn
      * @param url
      *         text what will be shown on view
      */
-    void setLocaleUrl(@Nonnull String url);
+    void setLocaleUrl(@NotNull String url);
 
     /**
      * Set project remote URL into field on the view.

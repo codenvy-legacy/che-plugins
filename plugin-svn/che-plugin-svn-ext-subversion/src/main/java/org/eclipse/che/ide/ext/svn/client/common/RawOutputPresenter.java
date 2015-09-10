@@ -22,7 +22,7 @@ import com.google.inject.Singleton;
 import org.eclipse.che.ide.ext.svn.client.SubversionExtensionLocalizationConstants;
 import org.vectomatic.dom.svg.ui.SVGResource;
 
-import javax.annotation.Nullable;
+import org.eclipse.che.commons.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
 /**

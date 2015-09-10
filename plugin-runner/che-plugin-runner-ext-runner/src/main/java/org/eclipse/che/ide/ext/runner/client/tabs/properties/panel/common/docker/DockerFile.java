@@ -27,8 +27,8 @@ import org.eclipse.che.ide.api.project.tree.VirtualFile;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.util.loging.Log;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+import org.eclipse.che.commons.annotation.Nullable;
 import java.util.List;
 
 /**
@@ -45,8 +45,8 @@ public class DockerFile implements VirtualFile {
     private final ProjectServiceClient projectServiceClient;
     private final ItemReference data;
 
-    public DockerFile(@Nonnull ProjectServiceClient projectServiceClient,
-                      @Nonnull ItemReference data) {
+    public DockerFile(@NotNull ProjectServiceClient projectServiceClient,
+                      @NotNull ItemReference data) {
         this.projectServiceClient = projectServiceClient;
         this.data = data;
     }
@@ -73,7 +73,7 @@ public class DockerFile implements VirtualFile {
         });
     }
 
-    private void sendRequest(@Nonnull final AsyncCallback<String> callback, @Nonnull String href) {
+    private void sendRequest(@NotNull final AsyncCallback<String> callback, @NotNull String href) {
         try {
             new RequestBuilder(RequestBuilder.GET, href).sendRequest("", new RequestCallback() {
                 @Override
@@ -91,13 +91,13 @@ public class DockerFile implements VirtualFile {
         }
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public String getPath() {
         return data.getPath();
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public String getName() {
         return data.getName();

@@ -13,7 +13,7 @@ package org.eclipse.che.ide.ext.runner.client.util;
 import com.google.gwt.user.client.Timer;
 import com.google.inject.ImplementedBy;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * The utility interface that create instance of Timer.
@@ -29,8 +29,8 @@ public interface TimerFactory {
      * @param timerCallBack
      *         callback with actions for method run of Timer
      */
-    @Nonnull
-    Timer newInstance(@Nonnull TimerCallBack timerCallBack);
+    @NotNull
+    Timer newInstance(@NotNull TimerCallBack timerCallBack);
 
     /** Callback with actions which will be launch in method run of Timer */
     interface TimerCallBack {

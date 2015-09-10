@@ -17,7 +17,7 @@ import org.eclipse.che.plugin.angularjs.core.client.share.Const;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,17 +34,17 @@ public class GruntJsProjectWizardRegistrar implements ProjectWizardRegistrar {
         wizardPages = new ArrayList<>();
     }
 
-    @Nonnull
+    @NotNull
     public String getProjectTypeId() {
         return Const.GRUNT_JS_ID;
     }
 
-    @Nonnull
+    @NotNull
     public String getCategory() {
         return Const.CATEGORY_JS;
     }
 
-    @Nonnull
+    @NotNull
     public List<Provider<? extends WizardPage<ImportProject>>> getWizardPages() {
         return wizardPages;
     }

@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.runner.client.constants;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * The class contains ids of runner components.
@@ -25,12 +25,12 @@ public enum ActionId {
 
     private final String id;
 
-    ActionId(@Nonnull String id) {
+    ActionId(@NotNull String id) {
         this.id = id;
     }
 
     /** @return id of the runner component. */
-    @Nonnull
+    @NotNull
     public String getId() {
         return id;
     }

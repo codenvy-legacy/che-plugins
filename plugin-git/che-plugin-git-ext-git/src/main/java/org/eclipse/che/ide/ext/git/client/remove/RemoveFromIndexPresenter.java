@@ -33,8 +33,8 @@ import org.eclipse.che.ide.project.node.FolderReferenceNode;
 import org.eclipse.che.ide.project.node.ResourceBasedNode;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+import org.eclipse.che.commons.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -105,8 +105,8 @@ public class RemoveFromIndexPresenter implements RemoveFromIndexView.ActionDeleg
      *
      * @return {@link String} message to display
      */
-    @Nonnull
-    private String formMessage(@Nonnull String workDir) {
+    @NotNull
+    private String formMessage(@NotNull String workDir) {
         Selection<ResourceBasedNode<?>> selection = (Selection<ResourceBasedNode<?>>)selectionAgent.getSelection();
 
         String path;
@@ -208,7 +208,7 @@ public class RemoveFromIndexPresenter implements RemoveFromIndexView.ActionDeleg
      *
      * @return pattern of the items to be removed
      */
-    @Nonnull
+    @NotNull
     private List<String> getFilePatterns() {
         Selection<ResourceBasedNode<?>> selection = (Selection<ResourceBasedNode<?>>)selectionAgent.getSelection();
         String path;
@@ -231,7 +231,7 @@ public class RemoveFromIndexPresenter implements RemoveFromIndexView.ActionDeleg
      * @param e
      *         exception what happened
      */
-    private void handleError(@Nonnull Throwable e) {
+    private void handleError(@NotNull Throwable e) {
         String errorMessage = (e.getMessage() != null && !e.getMessage().isEmpty()) ? e.getMessage() : constant.removeFilesFailed();
         Notification notification = new Notification(errorMessage, ERROR);
         notificationManager.showNotification(notification);

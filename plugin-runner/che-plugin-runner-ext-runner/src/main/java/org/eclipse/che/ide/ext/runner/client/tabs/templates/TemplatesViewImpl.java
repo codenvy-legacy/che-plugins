@@ -41,9 +41,9 @@ import org.eclipse.che.ide.ext.runner.client.tabs.templates.defaultrunnerinfo.De
 import org.eclipse.che.ide.ext.runner.client.tabs.templates.environment.EnvironmentWidget;
 import org.eclipse.che.ide.ext.runner.client.tabs.templates.filterwidget.FilterWidget;
 
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+import org.eclipse.che.commons.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -152,7 +152,7 @@ public class TemplatesViewImpl extends Composite implements TemplatesView {
 
     /** {@inheritDoc} */
     @Override
-    public void addEnvironment(@Nonnull Map<Scope, List<Environment>> environments) {
+    public void addEnvironment(@NotNull Map<Scope, List<Environment>> environments) {
         clearEnvironmentsPanel();
         int i = 0;
 
@@ -167,7 +167,7 @@ public class TemplatesViewImpl extends Composite implements TemplatesView {
         }
     }
 
-    private void addEnvironment(@Nonnull Environment environment, @Nonnull Scope scope, @Nonnegative int index) {
+    private void addEnvironment(@NotNull Environment environment, @NotNull Scope scope, @Min(value=0) int index) {
         EnvironmentWidget widget = getItem(index);
 
         widget.setScope(scope);
@@ -177,8 +177,8 @@ public class TemplatesViewImpl extends Composite implements TemplatesView {
         environmentsPanel.add(widget);
     }
 
-    @Nonnull
-    private EnvironmentWidget getItem(@Nonnegative int index) {
+    @NotNull
+    private EnvironmentWidget getItem(@Min(value=0) int index) {
         if (cacheWidgets.size() > index) {
             EnvironmentWidget widget = cacheWidgets.get(index);
             widget.unSelect();
@@ -207,7 +207,7 @@ public class TemplatesViewImpl extends Composite implements TemplatesView {
 
     /** {@inheritDoc} */
     @Override
-    public void setFilterWidget(@Nonnull FilterWidget filterWidget) {
+    public void setFilterWidget(@NotNull FilterWidget filterWidget) {
         filterPanel.setWidget(filterWidget);
     }
 
@@ -229,7 +229,7 @@ public class TemplatesViewImpl extends Composite implements TemplatesView {
 
     /** {@inheritDoc} */
     @Override
-    public void showDefaultEnvironmentInfo(@Nonnull Environment defaultEnvironment) {
+    public void showDefaultEnvironmentInfo(@NotNull Environment defaultEnvironment) {
         defaultRunnerInfo.update(defaultEnvironment);
 
         int x = defaultRunner.getAbsoluteLeft() + LEFT_SHIFT;
@@ -248,7 +248,7 @@ public class TemplatesViewImpl extends Composite implements TemplatesView {
 
     /** {@inheritDoc} */
     @Override
-    public void setDelegate(@Nonnull ActionDelegate delegate) {
+    public void setDelegate(@NotNull ActionDelegate delegate) {
         this.delegate = delegate;
     }
 }

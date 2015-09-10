@@ -17,7 +17,7 @@ import org.eclipse.che.ide.websocket.rest.SubscriptionHandler;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * @author Andrey Plotnikov
@@ -34,7 +34,7 @@ public class WebSocketUtilImpl implements WebSocketUtil {
 
     /** {@inheritDoc} */
     @Override
-    public void subscribeHandler(@Nonnull String channel, @Nonnull SubscriptionHandler handler) {
+    public void subscribeHandler(@NotNull String channel, @NotNull SubscriptionHandler handler) {
         try {
             messageBus.subscribe(channel, handler);
         } catch (WebSocketException e) {
@@ -44,7 +44,7 @@ public class WebSocketUtilImpl implements WebSocketUtil {
 
     /** {@inheritDoc} */
     @Override
-    public void unSubscribeHandler(@Nonnull String channel, @Nonnull SubscriptionHandler handler) {
+    public void unSubscribeHandler(@NotNull String channel, @NotNull SubscriptionHandler handler) {
         if (!messageBus.isHandlerSubscribed(handler, channel)) {
             return;
         }

@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.runner.client.util;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * The Validator of the environment address.
@@ -29,7 +29,7 @@ public class EnvironmentIdValidator {
      *         the address of environment
      * @return true if address is valid
      */
-    public static boolean isValid(@Nonnull String environmentId) {
+    public static boolean isValid(@NotNull String environmentId) {
         return environmentId.matches(URL_REGEX);
     }
 }

@@ -35,8 +35,8 @@ import org.eclipse.che.ide.ui.dialogs.InputCallback;
 import org.eclipse.che.ide.ui.dialogs.input.InputDialog;
 import org.eclipse.che.ide.ui.dialogs.input.InputValidator;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+import org.eclipse.che.commons.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 
@@ -161,9 +161,9 @@ public class NewPackageAction extends AbstractNewResourceAction {
         }
     }
 
-    @Nonnull
+    @NotNull
     @Override
-    protected Function<List<Node>, ItemReferenceBasedNode> iterateAndFindCreatedNode(@Nonnull final ItemReference itemReference) {
+    protected Function<List<Node>, ItemReferenceBasedNode> iterateAndFindCreatedNode(@NotNull final ItemReference itemReference) {
         return new Function<List<Node>, ItemReferenceBasedNode>() {
             @Override
             public ItemReferenceBasedNode apply(List<Node> nodes) throws FunctionException {
@@ -182,9 +182,9 @@ public class NewPackageAction extends AbstractNewResourceAction {
         };
     }
 
-    @Nonnull
+    @NotNull
     @Override
-    protected Operation<ItemReferenceBasedNode> fireNodeCreated(@Nonnull ResourceBasedNode<?> parent) {
+    protected Operation<ItemReferenceBasedNode> fireNodeCreated(@NotNull ResourceBasedNode<?> parent) {
         return new Operation<ItemReferenceBasedNode>() {
             @Override
             public void apply(ItemReferenceBasedNode arg) throws OperationException {

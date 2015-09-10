@@ -24,7 +24,7 @@ import com.google.inject.Inject;
 
 import org.eclipse.che.ide.ui.window.Window;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * Implementation of {@link InputDialogView}
@@ -57,7 +57,7 @@ public class InputDialogViewImpl extends Window implements InputDialogView {
     private ActionDelegate delegate;
 
     @Inject
-    public InputDialogViewImpl(ConfirmWindowUiBinder uiBinder, @Nonnull InputDialogFooter footer) {
+    public InputDialogViewImpl(ConfirmWindowUiBinder uiBinder, @NotNull InputDialogFooter footer) {
         Widget widget = uiBinder.createAndBindUi(this);
         setWidget(widget);
 

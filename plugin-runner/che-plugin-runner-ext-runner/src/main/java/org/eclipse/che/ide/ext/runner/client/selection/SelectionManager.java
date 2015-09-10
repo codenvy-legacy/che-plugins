@@ -17,8 +17,8 @@ import org.eclipse.che.ide.ext.runner.client.models.Environment;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+import org.eclipse.che.commons.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -79,11 +79,11 @@ public class SelectionManager {
      * @param listener
      *         listener that needs to be added
      */
-    public void addListener(@Nonnull SelectionChangeListener listener) {
+    public void addListener(@NotNull SelectionChangeListener listener) {
         listeners.add(listener);
     }
 
-    private void notifyListeners(@Nonnull Selection selection) {
+    private void notifyListeners(@NotNull Selection selection) {
         for (SelectionChangeListener listener : listeners) {
             listener.onSelectionChanged(selection);
         }
@@ -96,7 +96,7 @@ public class SelectionManager {
          * @param selection
          *         type of element that is changed
          */
-        void onSelectionChanged(@Nonnull Selection selection);
+        void onSelectionChanged(@NotNull Selection selection);
     }
 
 }

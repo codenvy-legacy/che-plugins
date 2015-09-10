@@ -34,8 +34,8 @@ import org.eclipse.che.ide.ui.smartTree.presentation.NodePresentation;
 import org.eclipse.che.ide.util.Pair;
 import org.vectomatic.dom.svg.ui.SVGImage;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+import org.eclipse.che.commons.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 
@@ -51,13 +51,13 @@ public class JarFileNode extends AbstractJarEntryNode implements VirtualFile, Ha
                        @Assisted int libId,
                        @Assisted ProjectDescriptor projectDescriptor,
                        @Assisted NodeSettings nodeSettings,
-                       @Nonnull JavaNodeManager nodeManager,
-                       @Nonnull IconRegistry iconRegistry) {
+                       @NotNull JavaNodeManager nodeManager,
+                       @NotNull IconRegistry iconRegistry) {
         super(jarEntry, libId, projectDescriptor, nodeSettings, nodeManager);
         this.iconRegistry = iconRegistry;
     }
 
-    @Nonnull
+    @NotNull
     @Override
     protected Promise<List<Node>> getChildrenImpl() {
         return Promises.resolve(Collections.<Node>emptyList());
@@ -69,7 +69,7 @@ public class JarFileNode extends AbstractJarEntryNode implements VirtualFile, Ha
     }
 
     @Override
-    public void updatePresentation(@Nonnull NodePresentation presentation) {
+    public void updatePresentation(@NotNull NodePresentation presentation) {
         presentation.setPresentableText(getDisplayName());
         presentation.setPresentableIcon(isClassFile() ? nodeManager.getJavaNodesResources().javaClassIcon()
                                                       : nodeManager.getNodesResources().file());
@@ -77,7 +77,7 @@ public class JarFileNode extends AbstractJarEntryNode implements VirtualFile, Ha
         presentation.setInfoTextWrapper(Pair.of("(", ")"));
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public String getName() {
         return getData().getName();
@@ -88,7 +88,7 @@ public class JarFileNode extends AbstractJarEntryNode implements VirtualFile, Ha
         return true;
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public String getPath() {
         return getData().getPath();

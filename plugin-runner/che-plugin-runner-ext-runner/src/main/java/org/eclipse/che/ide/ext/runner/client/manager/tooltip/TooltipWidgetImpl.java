@@ -18,7 +18,7 @@ import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * The class contains methods which allow change view representation of tooltip widget.
@@ -44,7 +44,7 @@ public class TooltipWidgetImpl extends PopupPanel implements TooltipWidget {
 
     /** {@inheritDoc} */
     @Override
-    public void setDescription(@Nonnull String description) {
+    public void setDescription(@NotNull String description) {
         this.description.setText(description);
     }
 }

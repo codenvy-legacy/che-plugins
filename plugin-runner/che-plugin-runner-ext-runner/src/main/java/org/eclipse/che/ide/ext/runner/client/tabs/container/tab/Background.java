@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.runner.client.tabs.container.tab;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * Enum contains values of background color.
@@ -22,13 +22,13 @@ public enum Background {
 
     private final String color;
 
-    Background(@Nonnull String color) {
+    Background(@NotNull String color) {
         this.color = color;
     }
 
     /** @return value of background color */
     @Override
-    @Nonnull
+    @NotNull
     public String toString() {
         return color;
     }

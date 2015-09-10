@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.ide.editor.codemirrorjso.client;
 
-import javax.annotation.Nullable;
+import org.eclipse.che.commons.annotation.Nullable;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArrayString;

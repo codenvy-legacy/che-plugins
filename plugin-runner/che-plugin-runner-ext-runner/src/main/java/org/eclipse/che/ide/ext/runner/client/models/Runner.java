@@ -15,9 +15,9 @@ import org.eclipse.che.api.runner.dto.ApplicationProcessDescriptor;
 import org.eclipse.che.api.runner.dto.RunOptions;
 import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope;
 
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+import org.eclipse.che.commons.annotation.Nullable;
 
 /**
  * It contains all necessary information for every Runner.
@@ -32,7 +32,7 @@ public interface Runner {
     ApplicationProcessDescriptor getDescriptor();
 
     /** @return title of tab which is active for current runner */
-    @Nonnull
+    @NotNull
     String getActiveTab();
 
     /**
@@ -41,10 +41,10 @@ public interface Runner {
      * @param title
      *         title of the active tab
      */
-    void setActiveTab(@Nonnull String title);
+    void setActiveTab(@NotNull String title);
 
     /** @return amount of available RAM for current runner */
-    @Nonnegative
+    @Min(value=0)
     int getRAM();
 
     /**
@@ -53,7 +53,7 @@ public interface Runner {
      * @param ram
      *         new memory value
      */
-    void setRAM(@Nonnegative int ram);
+    void setRAM(@Min(value=0) int ram);
 
     /** @return the date when this runner was launched */
     String getCreationTime();
@@ -65,19 +65,19 @@ public interface Runner {
     void resetCreationTime();
 
     /** @return string representation of runner timeout */
-    @Nonnull
+    @NotNull
     String getTimeout();
 
     /** @return string representation of runner active time */
-    @Nonnull
+    @NotNull
     String getActiveTime();
 
     /** @return string representation of time when runner was stopped */
-    @Nonnull
+    @NotNull
     String getStopTime();
 
     /** @return id of the environment */
-    @Nonnull
+    @NotNull
     String getEnvironmentId();
 
     /**
@@ -85,7 +85,7 @@ public interface Runner {
      *
      * @return title of runner
      */
-    @Nonnull
+    @NotNull
     String getTitle();
 
     /**
@@ -94,10 +94,10 @@ public interface Runner {
      * @param runnerTitle
      *         title which need set
      */
-    void setTitle(@Nonnull String runnerTitle);
+    void setTitle(@NotNull String runnerTitle);
 
     /** @return status of runner */
-    @Nonnull
+    @NotNull
     Status getStatus();
 
     /**
@@ -106,7 +106,7 @@ public interface Runner {
      * @param status
      *         new status that needs to be applied
      */
-    void setStatus(@Nonnull Status status);
+    void setStatus(@NotNull Status status);
 
     /** @return url where application is running */
     @Nullable
@@ -129,11 +129,11 @@ public interface Runner {
     Link getStopUrl();
 
     /** @return type of current runner */
-    @Nonnull
+    @NotNull
     String getType();
 
     /** @return scope of current runner */
-    @Nonnull
+    @NotNull
     Scope getScope();
 
     /**
@@ -142,7 +142,7 @@ public interface Runner {
      * @param scope
      *         scope which need set
      */
-    void setScope(@Nonnull Scope scope);
+    void setScope(@NotNull Scope scope);
 
     /**
      * @return <code>true</code> when status is IN_PROGRESS, RUNNING, DONE, IN_QUEUE, TIMEOUT
@@ -162,7 +162,7 @@ public interface Runner {
     long getProcessId();
 
     /** @return options of a runner */
-    @Nonnull
+    @NotNull
     RunOptions getOptions();
 
     /** The list of available states of a runner. */
