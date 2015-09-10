@@ -11,7 +11,6 @@
 package org.eclipse.che.ide.sdk.tools;
 
 import org.eclipse.che.commons.lang.IoUtil;
-import org.eclipse.che.ide.commons.GwtXmlUtils;
 import org.eclipse.che.ide.maven.tools.Dependency;
 import org.eclipse.che.ide.maven.tools.MavenUtils;
 import org.eclipse.che.ide.maven.tools.Model;

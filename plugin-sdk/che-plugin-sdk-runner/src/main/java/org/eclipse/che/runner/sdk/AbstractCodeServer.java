@@ -14,10 +14,10 @@ import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.api.runner.RunnerException;
 import org.eclipse.che.commons.lang.IoUtil;
 import org.eclipse.che.commons.lang.ZipUtils;
-import org.eclipse.che.ide.commons.GwtXmlUtils;
 import org.eclipse.che.ide.maven.tools.Dependency;
 import org.eclipse.che.ide.maven.tools.Model;
 import org.eclipse.che.ide.maven.tools.Plugin;
+import org.eclipse.che.ide.sdk.tools.GwtXmlUtils;
 
 import java.io.File;
 import java.io.IOException;
