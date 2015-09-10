@@ -14,7 +14,6 @@ import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.api.builder.BuildStatus;
 import org.eclipse.che.api.builder.dto.BuildOptions;
@@ -56,18 +55,15 @@ public class YeomanPartPresenter extends BasePresenter implements YeomanPartView
      */
     private Map<YeomanGeneratorType, FoldingPanel> widgetByTypes;
 
-    private EventBus eventBus;
-
     private DtoFactory   dtoFactory;
     private BuilderAgent builderAgent;
     private final NewProjectExplorerPresenter projectExplorer;
 
     @Inject
-    public YeomanPartPresenter(YeomanPartView view, EventBus eventBus, FoldingPanelFactory foldingPanelFactory,
+    public YeomanPartPresenter(YeomanPartView view, FoldingPanelFactory foldingPanelFactory,
                                GeneratedItemViewFactory generatedItemViewFactory, DtoFactory dtoFactory,
                                BuilderAgent builderAgent, NewProjectExplorerPresenter projectExplorer) {
         this.view = view;
-        this.eventBus = eventBus;
         this.foldingPanelFactory = foldingPanelFactory;
         this.generatedItemViewFactory = generatedItemViewFactory;
         this.dtoFactory = dtoFactory;
@@ -160,8 +156,7 @@ public class YeomanPartPresenter extends BasePresenter implements YeomanPartView
     public void onFinished(BuildStatus buildStatus) {
         // refresh the tree if it is successful
         if (buildStatus == BuildStatus.SUCCESSFUL) {
-//            eventBus.fireEvent(new RefreshProjectTreeEvent());
-            projectExplorer.synchronizeTree();
+            projectExplorer.reloadChildren();
             // remove what has been generated
             namesByTypes.clear();
             widgetByTypes.clear();

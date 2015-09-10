@@ -17,7 +17,6 @@ import org.eclipse.che.ide.ext.git.client.BaseTest;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.ui.window.Window;
 import org.junit.Test;
-import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -56,7 +55,7 @@ public class DeleteRepositoryPresenterTest extends BaseTest {
         when(css.glassVisible()).thenReturn("sdgsdf");
         when(css.contentVisible()).thenReturn("sdgsdf");
         when(css.animationDuration()).thenReturn(1);
-        presenter = new DeleteRepositoryPresenter(service, eventBus, constant, appContext, notificationManager, projectExplorer);
+        presenter = new DeleteRepositoryPresenter(service, constant, appContext, notificationManager, projectExplorer);
     }
 
     @Test

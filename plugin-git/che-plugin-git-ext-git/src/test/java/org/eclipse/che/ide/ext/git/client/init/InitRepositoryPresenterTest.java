@@ -10,14 +10,13 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.git.client.init;
 
-import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
-import org.eclipse.che.ide.ext.git.client.BaseTest;
-import org.eclipse.che.ide.ext.git.client.GitRepositoryInitializer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.googlecode.gwt.test.utils.GwtReflectionUtils;
 
+import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
+import org.eclipse.che.ide.ext.git.client.BaseTest;
+import org.eclipse.che.ide.ext.git.client.GitRepositoryInitializer;
 import org.junit.Test;
-import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -47,7 +46,6 @@ public class InitRepositoryPresenterTest extends BaseTest {
         super.disarm();
 
         presenter = new InitRepositoryPresenter(appContext,
-                                                eventBus,
                                                 constant,
                                                 notificationManager,
                                                 gitRepositoryInitializer,

@@ -14,7 +14,6 @@ import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.api.core.rest.shared.dto.ServiceError;
 import org.eclipse.che.api.git.gwt.client.GitServiceClient;
@@ -57,7 +56,6 @@ public class BranchPresenter implements BranchView.ActionDelegate {
     private       WorkspaceAgent              workspaceAgent;
     private       DialogFactory               dialogFactory;
     private final NewProjectExplorerPresenter projectExplorer;
-    private       EventBus                    eventBus;
     private       CurrentProject              project;
     private       GitServiceClient            service;
     private       GitLocalizationConstant     constant;
@@ -69,7 +67,6 @@ public class BranchPresenter implements BranchView.ActionDelegate {
     /** Create presenter. */
     @Inject
     public BranchPresenter(BranchView view,
-                           EventBus eventBus,
                            DtoFactory dtoFactory,
                            EditorAgent editorAgent,
                            GitServiceClient service,
@@ -88,7 +85,6 @@ public class BranchPresenter implements BranchView.ActionDelegate {
         this.dialogFactory = dialogFactory;
         this.projectExplorer = projectExplorer;
         this.view.setDelegate(this);
-        this.eventBus = eventBus;
         this.editorAgent = editorAgent;
         this.service = service;
         this.constant = constant;
@@ -215,11 +211,9 @@ public class BranchPresenter implements BranchView.ActionDelegate {
             @Override
             protected void onSuccess(String result) {
                 getBranches();
-//                String projectPath = project.getRootProject().getPath();
                 //In this case we can have unconfigured state of the project,
                 //so we must repeat the logic which is performed when we open a project
-                projectExplorer.synchronizeTree();
-//                eventBus.fireEvent(new OpenProjectEvent(projectPath));
+                projectExplorer.reloadChildren();
             }
 
             @Override

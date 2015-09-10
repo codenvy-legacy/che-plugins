@@ -12,7 +12,6 @@ package org.eclipse.che.ide.ext.git.client.delete;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.api.git.gwt.client.GitServiceClient;
 import org.eclipse.che.ide.api.app.AppContext;
@@ -30,7 +29,6 @@ import org.eclipse.che.ide.rest.AsyncRequestCallback;
 @Singleton
 public class DeleteRepositoryPresenter {
     private GitServiceClient        service;
-    private EventBus                eventBus;
     private GitLocalizationConstant constant;
     private AppContext              appContext;
     private NotificationManager     notificationManager;
@@ -40,20 +38,17 @@ public class DeleteRepositoryPresenter {
      * Create presenter.
      *
      * @param service
-     * @param eventBus
      * @param constant
      * @param appContext
      * @param notificationManager
      */
     @Inject
     public DeleteRepositoryPresenter(GitServiceClient service,
-                                     EventBus eventBus,
                                      GitLocalizationConstant constant,
                                      AppContext appContext,
                                      NotificationManager notificationManager,
                                      NewProjectExplorerPresenter projectExplorer) {
         this.service = service;
-        this.eventBus = eventBus;
         this.constant = constant;
         this.appContext = appContext;
         this.notificationManager = notificationManager;
@@ -70,7 +65,7 @@ public class DeleteRepositoryPresenter {
 
                 notificationManager.showInfo(constant.deleteGitRepositorySuccess());
                 //it's need for hide .git in project tree
-                projectExplorer.synchronizeTree();
+                projectExplorer.reloadChildren();
             }
 
             @Override
