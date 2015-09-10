@@ -11,10 +11,10 @@
 
 package org.eclipse.che.jdt.internal.core;
 
-import org.eclipse.che.ide.runtime.OperationCanceledException;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.CompletionRequestor;
 import org.eclipse.jdt.core.IAnnotation;
 import org.eclipse.jdt.core.IClassFile;
