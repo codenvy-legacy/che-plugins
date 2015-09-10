@@ -11,7 +11,6 @@
 package org.eclipse.che.plugin.npm.client.menu;
 
 import com.google.inject.Inject;
-import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.api.analytics.client.logger.AnalyticsEventLogger;
 import org.eclipse.che.api.builder.BuildStatus;
@@ -36,7 +35,6 @@ public class NpmInstallAction extends CustomAction implements BuildFinishedCallb
 
     private BuilderAgent builderAgent;
 
-    private EventBus eventBus;
     private final NewProjectExplorerPresenter projectExplorer;
 
     private boolean buildInProgress;
@@ -46,13 +44,12 @@ public class NpmInstallAction extends CustomAction implements BuildFinishedCallb
     @Inject
     public NpmInstallAction(LocalizationConstant localizationConstant,
                             DtoFactory dtoFactory, BuilderAgent builderAgent, AppContext appContext,
-                            AnalyticsEventLogger analyticsEventLogger, EventBus eventBus,
+                            AnalyticsEventLogger analyticsEventLogger,
                             NewProjectExplorerPresenter projectExplorer) {
         super(appContext, localizationConstant.npmInstallText(), localizationConstant.npmInstallDescription());
         this.dtoFactory = dtoFactory;
         this.builderAgent = builderAgent;
         this.analyticsEventLogger = analyticsEventLogger;
-        this.eventBus = eventBus;
         this.projectExplorer = projectExplorer;
     }
 
@@ -76,8 +73,7 @@ public class NpmInstallAction extends CustomAction implements BuildFinishedCallb
     public void onFinished(BuildStatus buildStatus) {
         // and refresh the tree if success
         if (buildStatus == BuildStatus.SUCCESSFUL) {
-//            eventBus.fireEvent(new RefreshProjectTreeEvent());
-            projectExplorer.synchronizeTree();
+            projectExplorer.reloadChildren();
         }
 
         // build finished

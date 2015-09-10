@@ -21,14 +21,11 @@ import org.eclipse.che.ide.api.action.ActionManager;
 import org.eclipse.che.ide.api.action.DefaultActionGroup;
 import org.eclipse.che.ide.api.constraints.Anchor;
 import org.eclipse.che.ide.api.constraints.Constraints;
-import org.eclipse.che.ide.api.event.FileEvent;
-import org.eclipse.che.ide.api.event.FileEventHandler;
 import org.eclipse.che.ide.api.event.ProjectActionEvent;
 import org.eclipse.che.ide.api.event.ProjectActionHandler;
 import org.eclipse.che.ide.api.extension.Extension;
 import org.eclipse.che.ide.api.icon.Icon;
 import org.eclipse.che.ide.api.icon.IconRegistry;
-import org.eclipse.che.ide.api.project.node.HasProjectDescriptor;
 import org.eclipse.che.ide.api.project.type.wizard.PreSelectedProjectTypeManager;
 import org.eclipse.che.ide.ext.java.client.dependenciesupdater.DependenciesUpdater;
 import org.eclipse.che.ide.extension.maven.client.actions.CreateMavenModuleAction;
@@ -92,18 +89,6 @@ public class MavenExtension {
 
             @Override
             public void onProjectClosed(ProjectActionEvent event) {
-            }
-        });
-
-        eventBus.addHandler(FileEvent.TYPE, new FileEventHandler() {
-            @Override
-            public void onFileOperation(final FileEvent event) {
-                if (event.getOperationType() == FileEvent.FileOperation.SAVE && "pom.xml".equals(event.getFile().getName())) {
-                    final HasProjectDescriptor project = event.getFile().getProject();
-                    if (isValidForResolveDependencies(project.getProjectDescriptor())) {
-                        dependenciesUpdater.updateDependencies(project.getProjectDescriptor(), true);
-                    }
-                }
             }
         });
     }

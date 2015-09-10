@@ -59,9 +59,6 @@ public class YeomanPartPresenterTest {
     private YeomanPartView yeomanPartView;
 
     @Mock
-    EventBus eventBus;
-
-    @Mock
     FoldingPanelFactory foldingPanelFactory;
 
     @Mock
@@ -116,7 +113,7 @@ public class YeomanPartPresenterTest {
 
     @Before
     public void setUp() {
-        this.presenter = new YeomanPartPresenter(yeomanPartView, eventBus, foldingPanelFactory,
+        this.presenter = new YeomanPartPresenter(yeomanPartView, foldingPanelFactory,
                                                  generatedItemViewFactory, dtoFactory, builderAgent, projectExplorer);
 
         // Mock folding panel factory
