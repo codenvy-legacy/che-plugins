@@ -26,6 +26,7 @@ import org.eclipse.ltk.core.refactoring.participants.RenameRefactoring;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -293,6 +294,7 @@ public class RenamePrivateFieldTest extends RefactoringTest {
     }
 
     @Test
+    @Ignore
     public void test10() throws Exception {
         //regression test for 81084
         if (BUG_81084) {
@@ -303,6 +305,7 @@ public class RenamePrivateFieldTest extends RefactoringTest {
     }
 
     @Test
+    @Ignore
     public void test11() throws Exception {
         if (BUG_75642_GENERIC_METHOD_SEARCH) {
             printTestDisabledMessage("BUG_75642_GENERIC_METHOD_SEARCH");

@@ -26,6 +26,7 @@ import org.eclipse.ltk.core.refactoring.participants.RenameRefactoring;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -433,6 +434,7 @@ public class RenameMethodInInterfaceTest extends RefactoringTest {
 	}
 	//anonymous inner class
 	@Test
+	@Ignore
 	public void test21() throws Exception{
 		printTestDisabledMessage("must fix - incorrect warnings");
 		//helper2_fail();

@@ -463,6 +463,7 @@ public class RenameNonPrivateFieldTest extends RefactoringTest {
 	}
 
     @Test
+	@Ignore
 	public void testGenerics3() throws Exception {
 		if (BUG_79990_CORE_SEARCH_METHOD_DECL) {
 			printTestDisabledMessage("BUG_79990_CORE_SEARCH_METHOD_DECL");
