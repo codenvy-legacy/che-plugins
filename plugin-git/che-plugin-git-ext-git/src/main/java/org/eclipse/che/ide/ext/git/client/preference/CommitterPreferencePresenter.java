@@ -18,6 +18,8 @@ import org.eclipse.che.ide.api.preferences.AbstractPreferencePagePresenter;
 import org.eclipse.che.ide.api.preferences.PreferencesManager;
 import org.eclipse.che.ide.ext.git.client.GitLocalizationConstant;
 
+import static com.google.common.base.MoreObjects.firstNonNull;
+
 /**
  * Preference page presenter for the information about git committer.
  *
@@ -46,11 +48,8 @@ public class CommitterPreferencePresenter extends AbstractPreferencePagePresente
         this.view = view;
         this.preferencesManager = preferencesManager;
 
-        String userName = preferencesManager.getValue(COMMITTER_NAME);
-        String userEmail = preferencesManager.getValue(COMMITTER_EMAIL);
-
-        name = userName == null ? DEFAULT_COMMITTER_NAME : userName;
-        email = userEmail == null ? DEFAULT_COMMITTER_EMAIL : userEmail;
+        name = firstNonNull(preferencesManager.getValue(COMMITTER_NAME), DEFAULT_COMMITTER_NAME);
+        email = firstNonNull(preferencesManager.getValue(COMMITTER_EMAIL), DEFAULT_COMMITTER_EMAIL);
 
         view.setDelegate(this);
     }
@@ -98,8 +97,11 @@ public class CommitterPreferencePresenter extends AbstractPreferencePagePresente
     /** {@inheritDoc} */
     @Override
     public void revertChanges() {
-        view.setName(preferencesManager.getValue(COMMITTER_NAME));
-        view.setEmail(preferencesManager.getValue(COMMITTER_EMAIL));
+        name = firstNonNull(preferencesManager.getValue(COMMITTER_NAME), DEFAULT_COMMITTER_NAME);
+        email = firstNonNull(preferencesManager.getValue(COMMITTER_EMAIL), DEFAULT_COMMITTER_EMAIL);
+
+        view.setName(name);
+        view.setEmail(email);
 
         dirty = false;
     }

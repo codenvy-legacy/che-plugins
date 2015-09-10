@@ -36,6 +36,11 @@
             <version>${com.googlecode.gson.version}</version>
         </dependency>
         <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava-gwt</artifactId>
+            <version>${com.google.guava.version}</version>
+        </dependency>
+        <dependency>
             <groupId>com.google.inject.extensions</groupId>
             <artifactId>guice-multibindings</artifactId>
             <version>${com.google.code.guice.version}</version>

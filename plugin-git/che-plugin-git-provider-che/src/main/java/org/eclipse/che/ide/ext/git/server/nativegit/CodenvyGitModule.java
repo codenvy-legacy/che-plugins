@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.git.server.nativegit;
 
-import org.eclipse.che.git.impl.nativegit.CredentialsProvider;
+import org.eclipse.che.api.git.CredentialsProvider;
 import org.eclipse.che.inject.DynaModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.multibindings.Multibinder;
