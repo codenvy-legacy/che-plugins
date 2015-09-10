@@ -10,49 +10,40 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.git.server.nativegit;
 
-import org.eclipse.che.api.core.ConflictException;
-import org.eclipse.che.api.core.ForbiddenException;
-import org.eclipse.che.api.core.NotFoundException;
 import org.eclipse.che.api.core.ServerException;
-import org.eclipse.che.api.core.UnauthorizedException;
-import org.eclipse.che.api.core.rest.HttpJsonHelper;
-import org.eclipse.che.api.core.rest.shared.dto.Link;
+import org.eclipse.che.api.git.CredentialsProvider;
 import org.eclipse.che.api.git.GitException;
+import org.eclipse.che.api.git.UserCredential;
 import org.eclipse.che.api.git.shared.GitUser;
-import org.eclipse.che.api.user.shared.dto.ProfileDescriptor;
+import org.eclipse.che.api.user.server.dao.PreferenceDao;
 import org.eclipse.che.commons.env.EnvironmentContext;
 import org.eclipse.che.commons.user.User;
-import org.eclipse.che.dto.server.DtoFactory;
-import org.eclipse.che.git.impl.nativegit.CredentialsProvider;
-import org.eclipse.che.git.impl.nativegit.UserCredential;
-import com.google.common.base.Joiner;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
-import javax.ws.rs.core.UriBuilder;
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Map;
+
+import static com.google.common.base.Strings.isNullOrEmpty;
+import static org.eclipse.che.dto.server.DtoFactory.newDto;
 
 /**
  * Credentials provider for Codenvy
  *
  * @author Alexander Garagatyi
+ * @author Valeriy Svydenko
  */
 @Singleton
 public class CodenvyAccessTokenCredentialProvider implements CredentialsProvider {
-    private static final Logger LOG = LoggerFactory.getLogger(CodenvyAccessTokenCredentialProvider.class);
-
-    private final String codenvyHost;
-    private final String apiEndpoint;
+    private final String        codenvyHost;
+    private       PreferenceDao preferenceDao;
 
     @Inject
-    public CodenvyAccessTokenCredentialProvider(@Named("api.endpoint") String apiEndPoint) throws URISyntaxException {
-        this.apiEndpoint = apiEndPoint;
+    public CodenvyAccessTokenCredentialProvider(@Named("api.endpoint") String apiEndPoint,
+                                                PreferenceDao preferenceDao) throws URISyntaxException {
+        this.preferenceDao = preferenceDao;
         this.codenvyHost = new URI(apiEndPoint).getHost();
     }
 
@@ -67,42 +58,28 @@ public class CodenvyAccessTokenCredentialProvider implements CredentialsProvider
 
     @Override
     public GitUser getUser() throws GitException {
-        try {
-
-            User user = EnvironmentContext.getCurrent().getUser();
-            GitUser gitUser = DtoFactory.getInstance().createDto(GitUser.class);
-            if (user.isTemporary()) {
-                return gitUser.withEmail("anonymous@noemail.com")
-                              .withName("Anonymous");
-            } else {
-
-                Link link = DtoFactory.getInstance().createDto(Link.class).withMethod("GET")
-                                      .withHref(UriBuilder.fromUri(apiEndpoint).path("profile").build().toString());
-                final ProfileDescriptor profile = HttpJsonHelper.request(ProfileDescriptor.class, link);
-
-
-                String firstName = profile.getAttributes().get("firstName");
-                String lastName = profile.getAttributes().get("lastName");
-                String email = profile.getAttributes().get("email");
-
-                String name;
-                if (firstName != null || lastName != null) {
-                    // add this temporary for fixing problem with "<none>" in last name of user from profile
-                    name = Joiner.on(" ").skipNulls().join(firstName, lastName.contains("<none>") ? "" : lastName);
-                } else {
-                    name = user.getName();
-                }
-                gitUser.setName(name != null && !name.isEmpty() ? name : "Anonymous");
-                gitUser.setEmail(email != null ? email : "anonymous@noemail.com");
-                return gitUser;
-
+        User user = EnvironmentContext.getCurrent().getUser();
+        GitUser gitUser = newDto(GitUser.class);
+        if (user.isTemporary()) {
+            gitUser.setEmail("anonymous@noemail.com");
+            gitUser.setName("Anonymous");
+        } else {
+            String name = null;
+            String email = null;
+            try {
+                Map<String, String> preferences = preferenceDao.getPreferences(EnvironmentContext.getCurrent().getUser().getId(),
+                                                                               "git.committer.\\w+");
+                name = preferences.get("git.committer.name");
+                email = preferences.get("git.committer.email");
+            } catch (ServerException e) {
+                //ignored
             }
 
-        } catch (IOException | ServerException | UnauthorizedException | ForbiddenException | NotFoundException | ConflictException e) {
-            LOG.warn(e.getLocalizedMessage());
-            // throw new GitException(e);
+            gitUser.setName(isNullOrEmpty(name) ? "Anonymous" : name);
+            gitUser.setEmail(isNullOrEmpty(email) ? "anonymous@noemail.com" : email);
         }
-        return null;
+
+        return gitUser;
     }
 
     @Override
@@ -116,4 +93,3 @@ public class CodenvyAccessTokenCredentialProvider implements CredentialsProvider
     }
 
 }
-

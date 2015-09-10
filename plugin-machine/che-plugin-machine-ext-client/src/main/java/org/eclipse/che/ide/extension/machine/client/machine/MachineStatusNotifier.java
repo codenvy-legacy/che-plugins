@@ -14,12 +14,11 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.event.shared.EventBus;
 
-import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
 import org.eclipse.che.api.machine.shared.dto.event.MachineStatusEvent;
+import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
-import org.eclipse.che.ide.extension.machine.client.inject.factories.EntityFactory;
 import org.eclipse.che.ide.extension.machine.client.machine.MachineManager.MachineOperationType;
 import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateEvent;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
@@ -50,29 +49,26 @@ class MachineStatusNotifier {
     /** WebSocket channel to receive messages about changing machine state. */
     public static final String MACHINE_STATUS_WS_CHANNEL = "machine:status:";
 
-    private final MessageBus                  messageBus;
-    private final EventBus                    eventBus;
-    private final DtoUnmarshallerFactory      dtoUnmarshallerFactory;
-    private final NotificationManager         notificationManager;
+    private final MessageBus             messageBus;
+    private final EventBus               eventBus;
+    private final DtoUnmarshallerFactory dtoUnmarshallerFactory;
+    private       AppContext             appContext;
+    private final NotificationManager notificationManager;
     private final MachineLocalizationConstant locale;
-    private final EntityFactory               entityFactory;
-    private final MachineServiceClient        machineServiceClient;
 
     @Inject
     MachineStatusNotifier(MessageBus messageBus,
                           EventBus eventBus,
                           DtoUnmarshallerFactory dtoUnmarshallerFactory,
+                          AppContext appContext,
                           NotificationManager notificationManager,
-                          MachineLocalizationConstant locale,
-                          EntityFactory entityFactory,
-                          MachineServiceClient machineServiceClient) {
+                          MachineLocalizationConstant locale) {
         this.messageBus = messageBus;
         this.eventBus = eventBus;
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
+        this.appContext = appContext;
         this.notificationManager = notificationManager;
         this.locale = locale;
-        this.entityFactory = entityFactory;
-        this.machineServiceClient = machineServiceClient;
     }
 
     /**
@@ -96,15 +92,16 @@ class MachineStatusNotifier {
     void trackMachine(@Nonnull final Machine machine,
                       @Nullable final RunningListener runningListener,
                       @Nonnull final MachineOperationType operationType) {
-        final String wsChannel = MACHINE_STATUS_WS_CHANNEL + machine.getId();
-        final Notification notification = new Notification("", INFO, true);
+
         final String machineName = machine.getDisplayName();
+        final String workspaceId = appContext.getWorkspace().getId();
+        final String wsChannel = MACHINE_STATUS_WS_CHANNEL + workspaceId + ":" + machineName;
+        final Notification notification = new Notification("", INFO, true);
 
         final Unmarshallable<MachineStatusEvent> unmarshaller = dtoUnmarshallerFactory.newWSUnmarshaller(MachineStatusEvent.class);
         final MessageHandler messageHandler = new SubscriptionHandler<MachineStatusEvent>(unmarshaller) {
             @Override
             protected void onMessageReceived(MachineStatusEvent result) {
-
                 switch (result.getEventType()) {
                     case RUNNING:
                         unsubscribe(wsChannel, this);

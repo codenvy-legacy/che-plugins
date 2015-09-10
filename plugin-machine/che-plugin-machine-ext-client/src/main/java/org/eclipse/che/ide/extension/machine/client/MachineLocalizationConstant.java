@@ -87,7 +87,6 @@ public interface MachineLocalizationConstant extends Messages {
     @Key("messages.devMachineCanNotBeDestroyed.title")
     String devMachineCanNotBeDestroyedTitle();
 
-
     /* MachineStateNotifier */
     @Key("notification.creatingMachine")
     String notificationCreatingMachine(String machineId);
@@ -247,8 +246,8 @@ public interface MachineLocalizationConstant extends Messages {
     @Key("info.type")
     String infoType();
 
-    @Key("info.ws.bound")
-    String infoWsBound();
+    @Key("info.dev")
+    String infoDev();
 
     @Key("info.ws.id")
     String infoWsId();

@@ -16,7 +16,7 @@
     <parent>
         <artifactId>che-plugin-java-parent</artifactId>
         <groupId>org.eclipse.che.plugin</groupId>
-        <version>4.0.0-SNAPSHOT</version>
+        <version>4.0.0-M2-SNAPSHOT</version>
     </parent>
     <artifactId>che-plugin-java-maven-tools</artifactId>
     <packaging>jar</packaging>
@@ -31,6 +31,12 @@
             <groupId>org.eclipse.che.core</groupId>
             <artifactId>che-core-commons-xml</artifactId>
             <version>${che.core.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.testng</groupId>
