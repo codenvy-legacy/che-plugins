@@ -34,7 +34,7 @@ import org.eclipse.ltk.internal.ui.refactoring.FinishResult;
  */
 public abstract class RefactoringSession {
 
-    private Refactoring refactoring;
+    protected Refactoring refactoring;
     private RefactoringStatus conditionCheckingStatus;
     private Change change;
 
@@ -122,7 +122,7 @@ public abstract class RefactoringSession {
         return new RefactoringStatus();
     }
 
-    private final FinishResult internalPerformFinish(PerformChangeOperation op) {
+    private FinishResult internalPerformFinish(PerformChangeOperation op) {
         op.setUndoManager(RefactoringCore.getUndoManager(), refactoring.getName());
         try{
             ResourcesPlugin.getWorkspace().run(op, new NullProgressMonitor());
