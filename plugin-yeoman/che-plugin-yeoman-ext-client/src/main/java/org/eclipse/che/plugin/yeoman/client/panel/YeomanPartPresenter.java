@@ -26,6 +26,7 @@ import org.eclipse.che.plugin.yeoman.client.builder.BuilderAgent;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 
@@ -177,7 +178,7 @@ public class YeomanPartPresenter extends BasePresenter implements YeomanPartView
             YeomanGeneratorType type = entry.getKey();
             List<String> names = entry.getValue();
             for (String name : names) {
-                targets.add("angular:".concat(type.getName().toLowerCase()));
+                targets.add("angular:".concat(type.getName().toLowerCase(Locale.ENGLISH)));
                 targets.add(name);
             }
         }

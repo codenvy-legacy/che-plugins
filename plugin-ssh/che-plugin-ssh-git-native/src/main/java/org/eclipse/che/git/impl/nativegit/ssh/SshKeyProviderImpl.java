@@ -16,6 +16,7 @@ import org.eclipse.che.api.core.UnauthorizedException;
 import org.eclipse.che.api.git.GitException;
 import org.eclipse.che.git.impl.nativegit.GitUrl;
 import org.eclipse.che.ide.ext.ssh.server.SshKey;
+import org.eclipse.che.ide.ext.ssh.server.SshKeyPair;
 import org.eclipse.che.ide.ext.ssh.server.SshKeyStore;
 import org.eclipse.che.ide.ext.ssh.server.SshKeyStoreException;
 import org.eclipse.che.ide.ext.ssh.server.SshKeyUploader;
@@ -23,7 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.Optional;
+import java.util.Iterator;
 import java.util.Set;
 
 /**
@@ -32,8 +33,8 @@ import java.util.Set;
  * @author Anton Korneta
  */
 public class SshKeyProviderImpl implements SshKeyProvider {
-    private static final Logger LOG = LoggerFactory.getLogger(SshKeyProviderImpl.class);
 
+    private static final Logger LOG = LoggerFactory.getLogger(SshKeyProviderImpl.class);
     private final SshKeyStore         sshKeyStore;
     private final Set<SshKeyUploader> sshKeyUploaders;
 
@@ -44,7 +45,7 @@ public class SshKeyProviderImpl implements SshKeyProvider {
     }
 
     /**
-     * Get private ssh key and upload public ssh key to repository hosting service.
+     * Get private ssh key and upload public ssh key to epository hosting service.
      *
      * @param url
      *         url to git repository
@@ -58,22 +59,35 @@ public class SshKeyProviderImpl implements SshKeyProvider {
         SshKey publicKey;
         SshKey privateKey;
 
-        // check keys existence
+        // check keys existence and generate if need
         try {
             if ((privateKey = sshKeyStore.getPrivateKey(host)) != null) {
                 publicKey = sshKeyStore.getPublicKey(host);
+                if (publicKey == null) {
+                    sshKeyStore.removeKeys(host);
+                    SshKeyPair sshKeyPair = sshKeyStore.genKeyPair(host, null, null);
+                    publicKey = sshKeyPair.getPublicKey();
+                    privateKey = sshKeyPair.getPrivateKey();
+                }
             } else {
-                throw new GitException("Unable get private ssh key");
+                SshKeyPair sshKeyPair = sshKeyStore.genKeyPair(host, null, null);
+                publicKey = sshKeyPair.getPublicKey();
+                privateKey = sshKeyPair.getPrivateKey();
             }
         } catch (SshKeyStoreException e) {
             throw new GitException(e.getMessage(), e);
         }
 
-        final Optional<SshKeyUploader> optionalKeyUploader = sshKeyUploaders.stream()
-                                                                            .filter(keyUploader -> keyUploader.match(url))
-                                                                            .findFirst();
-        if (optionalKeyUploader.isPresent()) {
-            final SshKeyUploader uploader = optionalKeyUploader.get();
+        SshKeyUploader uploader = null;
+
+        for (Iterator<SshKeyUploader> itr = sshKeyUploaders.iterator(); uploader == null && itr.hasNext(); ) {
+            SshKeyUploader next = itr.next();
+            if (next.match(url)) {
+                uploader = next;
+            }
+        }
+
+        if (uploader != null) {
             // upload public key
             try {
                 uploader.uploadKey(publicKey);
