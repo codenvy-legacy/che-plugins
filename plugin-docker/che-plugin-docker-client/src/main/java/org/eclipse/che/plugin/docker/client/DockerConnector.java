@@ -24,6 +24,8 @@ import org.eclipse.che.commons.json.JsonParseException;
 import org.eclipse.che.commons.lang.Pair;
 import org.eclipse.che.commons.lang.Size;
 import org.eclipse.che.commons.lang.TarUtils;
+import org.eclipse.che.commons.lang.ws.rs.ExtMediaType;
+import org.eclipse.che.plugin.docker.client.connection.CloseConnectionInputStream;
 import org.eclipse.che.plugin.docker.client.connection.DockerConnection;
 import org.eclipse.che.plugin.docker.client.connection.DockerResponse;
 import org.eclipse.che.plugin.docker.client.connection.TcpConnection;
@@ -50,6 +52,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -64,6 +67,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -72,6 +76,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import static java.io.File.separatorChar;
+import static javax.ws.rs.core.Response.Status.OK;
 import static org.eclipse.che.plugin.docker.client.CLibraryFactory.getCLibrary;
 
 /**
@@ -79,6 +84,7 @@ import static org.eclipse.che.plugin.docker.client.CLibraryFactory.getCLibrary;
  *
  * @author andrew00x
  * @author Alexander Garagatyi
+ * @author Anton Korneta
  */
 @Singleton
 public class DockerConnector {
@@ -117,7 +123,7 @@ public class DockerConnector {
                                                                   + separatorChar + "machines"
                                                                   + separatorChar + "default";
 
-    private final URI dockerDaemonUri;
+    private final URI                      dockerDaemonUri;
     private final DockerCertificates       dockerCertificates;
     private final InitialAuthConfig        initialAuthConfig;
     private final ExecutorService          executor;
@@ -157,7 +163,10 @@ public class DockerConnector {
                 final String msg = CharStreams.toString(new InputStreamReader(response.getInputStream()));
                 throw new DockerException(String.format("Error response from docker API, status: %d, message: %s", status, msg), status);
             }
-            return JsonHelper.fromJson(response.getInputStream(), org.eclipse.che.plugin.docker.client.json.SystemInfo.class, null, FIRST_LETTER_LOWERCASE);
+            return JsonHelper.fromJson(response.getInputStream(),
+                                       org.eclipse.che.plugin.docker.client.json.SystemInfo.class,
+                                       null,
+                                       FIRST_LETTER_LOWERCASE);
         } catch (JsonParseException e) {
             throw new IOException(e.getMessage(), e);
         } finally {
@@ -180,8 +189,7 @@ public class DockerConnector {
                 final String msg = CharStreams.toString(new InputStreamReader(response.getInputStream()));
                 throw new DockerException(String.format("Error response from docker API, status: %d, message: %s", status, msg), status);
             }
-            return JsonHelper.fromJson(response.getInputStream(), Version.class, null,
-                                       FIRST_LETTER_LOWERCASE);
+            return JsonHelper.fromJson(response.getInputStream(), Version.class, null, FIRST_LETTER_LOWERCASE);
         } catch (JsonParseException e) {
             throw new IOException(e.getMessage(), e);
         } finally {
@@ -475,7 +483,6 @@ public class DockerConnector {
         }
     }
 
-
     /**
      * Gets detailed information about docker container.
      *
@@ -554,7 +561,10 @@ public class DockerConnector {
      * @param hostPath
      *         path to the directory on host filesystem
      * @throws IOException
+     * @deprecated since 1.20 docker api in favor of the {@link #getResource(String, String)}
+     * and {@link #putResource(String, String, InputStream, boolean) putResource}
      */
+    @Deprecated
     public void copy(String container, String path, File hostPath) throws IOException {
         final DockerConnection connection = openConnection(dockerDaemonUri);
         try {
@@ -699,6 +709,80 @@ public class DockerConnector {
             throw new IOException(e.getMessage(), e);
         } finally {
             connection.close();
+        }
+    }
+
+    /**
+     * Gets files from the specified container.
+     *
+     * @param container
+     *         container id
+     * @param sourcePath
+     *         path to file or directory inside specified container
+     * @return stream of resources from the specified container filesystem, with retention connection
+     * @throws IOException
+     *         when problems occurs with docker api calls
+     * @apiNote this method implements 1.20 docker API and  requires docker not less than 1.8.* version
+     */
+    public InputStream getResource(String container, String sourcePath) throws IOException {
+        DockerConnection connection = openConnection(dockerDaemonUri);
+        final DockerResponse response = connection.method("GET")
+                                                  .path(String.format("/containers/%s/archive?path=%s", container, sourcePath))
+                                                  .request();
+        final int status = response.getStatus();
+        if (status != OK.getStatusCode()) {
+            final String msg = CharStreams.toString(new InputStreamReader(response.getInputStream()));
+            throw new DockerException(String.format("Error response from docker API, status: %d, message: %s", status, msg), status);
+        }
+
+        return new CloseConnectionInputStream(response.getInputStream(), connection);
+    }
+
+    /**
+     * Puts files into specified container.
+     *
+     * @param container
+     *         container id
+     * @param targetPath
+     *         path to file or directory inside specified container
+     * @param sourceStream
+     *         stream of files from source container
+     * @param overwrite
+     *         If "false" then it will be an error if unpacking the given content would cause
+     *         an existing directory to be replaced with a non-directory or other resource and vice versa.
+     * @throws IOException
+     *         when problems occurs with docker api calls, or during file system operations
+     * @apiNote this method implements 1.20 docker API and requires docker not less than 1.8 version
+     */
+    public void putResource(String container, String targetPath, InputStream sourceStream, boolean overwrite) throws IOException {
+        File tarFile;
+        long length;
+        try (InputStream sourceData = sourceStream) {
+            Path tarFilePath = Files.createTempFile("compressed-resources", ".tar");
+            tarFile = tarFilePath.toFile();
+            length = Files.copy(sourceData, tarFilePath, StandardCopyOption.REPLACE_EXISTING);
+        }
+
+        List<Pair<String, ?>> headers = Arrays.asList(Pair.of("Content-Type", ExtMediaType.APPLICATION_X_TAR),
+                                                      Pair.of("Content-Length", length));
+        DockerConnection connection = null;
+        try (InputStream tarStream = new BufferedInputStream(new FileInputStream(tarFile))) {
+            connection = openConnection(dockerDaemonUri).method("PUT")
+                                                        .path(String.format("/containers/%s/archive?path=%s&noOverwriteDirNonDir=%d",
+                                                                            container, targetPath, overwrite ? 0 : 1))
+                                                        .headers(headers)
+                                                        .entity(tarStream);
+            final DockerResponse response = connection.request();
+            final int status = response.getStatus();
+            if (status != OK.getStatusCode()) {
+                final String m = CharStreams.toString(new InputStreamReader(response.getInputStream()));
+                throw new DockerException(String.format("Error response from docker API, status: %d, message: %s", status, m), status);
+            }
+        } finally {
+            if (connection != null) {
+                connection.close();
+            }
+            FileCleaner.addFile(tarFile);
         }
     }
 
