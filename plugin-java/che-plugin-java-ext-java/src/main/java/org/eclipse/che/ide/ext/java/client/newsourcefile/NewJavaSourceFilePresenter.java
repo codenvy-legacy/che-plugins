@@ -197,10 +197,10 @@ public class NewJavaSourceFilePresenter implements NewJavaSourceFileView.ActionD
     private void createSourceFile(final String nameWithoutExtension, final FolderReferenceNode parent, String packageFragment,
                                   final String content) {
         final String parentPath = parent.getStorablePath() + (packageFragment.isEmpty() ? "" : '/' + packageFragment.replace('.', '/'));
-        ensureFolderExists(parentPath, new AsyncCallback<Void>() {
+        ensureFolderExists(parentPath, new AsyncCallback<ItemReference>() {
             @Override
-            public void onSuccess(Void result) {
-                createAndOpenFile(nameWithoutExtension, parent, content);
+            public void onSuccess(ItemReference result) {
+                createAndOpenFile(nameWithoutExtension, result, parent,  content);
             }
 
             @Override
@@ -211,11 +211,11 @@ public class NewJavaSourceFilePresenter implements NewJavaSourceFileView.ActionD
     }
 
     /** Creates folder by the specified path if it doesn't exists. */
-    private void ensureFolderExists(String path, final AsyncCallback<Void> callback) {
-        projectServiceClient.createFolder(path, new AsyncRequestCallback<ItemReference>() {
+    private void ensureFolderExists(String path, final AsyncCallback<ItemReference> callback) {
+        projectServiceClient.createFolder(path, new AsyncRequestCallback<ItemReference>(dtoUnmarshallerFactory.newUnmarshaller(ItemReference.class)) {
             @Override
             protected void onSuccess(ItemReference result) {
-                callback.onSuccess(null);
+                callback.onSuccess(result);
             }
 
             @Override
@@ -229,7 +229,7 @@ public class NewJavaSourceFilePresenter implements NewJavaSourceFileView.ActionD
         });
     }
 
-    private void createAndOpenFile(String nameWithoutExtension, FolderReferenceNode parent, String content) {
+    private void createAndOpenFile(String nameWithoutExtension, ItemReference parent, FolderReferenceNode node, String content) {
         final CurrentProject currentProject = appContext.getCurrentProject();
         if (currentProject == null) {
             throw new IllegalStateException("No opened project.");
@@ -237,11 +237,11 @@ public class NewJavaSourceFilePresenter implements NewJavaSourceFileView.ActionD
 
         final String fileName = nameWithoutExtension + ".java";
 
-        projectServiceClient.createFile(parent.getStorablePath(),
+        projectServiceClient.createFile(parent.getPath(),
                                         fileName,
                                         content,
                                         null,
-                                        createCallback(parent));
+                                        createCallback(node));
     }
 
     protected AsyncRequestCallback<ItemReference> createCallback(final ResourceBasedNode<?> parent) {
