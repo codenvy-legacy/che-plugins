@@ -17,6 +17,7 @@ import org.eclipse.che.ide.api.extension.Extension;
 import org.eclipse.che.ide.api.parts.PartStackType;
 import org.eclipse.che.ide.api.parts.WorkspaceAgent;
 import org.eclipse.che.plugin.yeoman.client.panel.YeomanPartPresenter;
+
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.event.shared.EventBus;
@@ -39,39 +40,49 @@ public class YeomanExtension {
         resources.uiCss().ensureInjected();
 
         // Display Yeoman Panel with this extension
-        eventBus.addHandler(ProjectActionEvent.TYPE, new ProjectActionHandler() {
-            @Override
-            public void onProjectOpened(ProjectActionEvent event) {
+        eventBus.addHandler(ProjectActionEvent.TYPE, new YeomanProjectActionHandler(workspaceAgent, yeomanPartPresenter));
 
-                ProjectDescriptor project = event.getProject();
-                final String projectTypeId = project.getType();
-                boolean isJSProject = projectTypeId.endsWith("JS");
-                if (isJSProject) {
-                    // add Yeoman panel
-                    workspaceAgent.openPart(yeomanPartPresenter, PartStackType.TOOLING);
-                    workspaceAgent.hidePart(yeomanPartPresenter);
-                }
+    }
+
+    private static class YeomanProjectActionHandler implements ProjectActionHandler {
+        private final WorkspaceAgent      workspaceAgent;
+        private final YeomanPartPresenter yeomanPartPresenter;
+
+        public YeomanProjectActionHandler(WorkspaceAgent workspaceAgent, YeomanPartPresenter yeomanPartPresenter) {
+            this.workspaceAgent = workspaceAgent;
+            this.yeomanPartPresenter = yeomanPartPresenter;
+        }
+
+        @Override
+        public void onProjectOpened(ProjectActionEvent event) {
+
+            ProjectDescriptor project = event.getProject();
+            final String projectTypeId = project.getType();
+            boolean isJSProject = projectTypeId.endsWith("JS");
+            if (isJSProject) {
+                // add Yeoman panel
+                workspaceAgent.openPart(yeomanPartPresenter, PartStackType.TOOLING);
+                workspaceAgent.hidePart(yeomanPartPresenter);
+            }
+        }
+
+        @Override
+        public void onProjectClosing(ProjectActionEvent event) {
+        }
+
+        /**
+         * Remove Yeoman panel when closing the project if this panel is displayed.
+         * @param event the project event
+         */
+        @Override
+        public void onProjectClosed(ProjectActionEvent event) {
+            ProjectDescriptor project = event.getProject();
+            final String projectTypeId = project.getType();
+            boolean isJSProject = projectTypeId.endsWith("JS");
+            if (isJSProject) {
+                workspaceAgent.removePart(yeomanPartPresenter);
             }
 
-            @Override
-            public void onProjectClosing(ProjectActionEvent event) {
-            }
-
-            /**
-             * Remove Yeoman panel when closing the project if this panel is displayed.
-             * @param event the project event
-             */
-            @Override
-            public void onProjectClosed(ProjectActionEvent event) {
-                ProjectDescriptor project = event.getProject();
-                final String projectTypeId = project.getType();
-                boolean isJSProject = projectTypeId.endsWith("JS");
-                if (isJSProject) {
-                    workspaceAgent.removePart(yeomanPartPresenter);
-                }
-
-            }
-        });
-
+        }
     }
 }
