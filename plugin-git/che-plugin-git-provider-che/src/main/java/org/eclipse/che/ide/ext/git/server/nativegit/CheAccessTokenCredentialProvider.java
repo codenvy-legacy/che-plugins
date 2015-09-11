@@ -53,7 +53,7 @@ public class CheAccessTokenCredentialProvider implements CredentialsProvider {
                                          .getUser()
                                          .getToken();
         if (token != null) {
-            return new UserCredential(token, "x-che", "che_password");
+            return new UserCredential(token, "x-che", "che");
         }
         return null;
     }
