@@ -39,6 +39,7 @@ import static org.eclipse.che.dto.server.DtoFactory.newDto;
 public class CheAccessTokenCredentialProvider implements CredentialsProvider {
     private final String        cheHostName;
     private       PreferenceDao preferenceDao;
+    private static String OAUTH_PROVIDER_NAME = "che";
 
     @Inject
     public CheAccessTokenCredentialProvider(@Named("api.endpoint") String apiEndPoint,
@@ -53,7 +54,7 @@ public class CheAccessTokenCredentialProvider implements CredentialsProvider {
                                          .getUser()
                                          .getToken();
         if (token != null) {
-            return new UserCredential(token, "x-che", "che");
+            return new UserCredential(token, "x-che", OAUTH_PROVIDER_NAME);
         }
         return null;
     }
@@ -86,7 +87,7 @@ public class CheAccessTokenCredentialProvider implements CredentialsProvider {
 
     @Override
     public String getId() {
-        return "che";
+        return OAUTH_PROVIDER_NAME;
     }
 
     @Override
