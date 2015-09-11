@@ -27,27 +27,7 @@
         <module>che-plugin-bower-ext-client</module>
     </modules>
     <properties>
+        <findbugs.failonerror>true</findbugs.failonerror>
         <license_years>2014</license_years>
     </properties>
-    <build>
-        <plugins>
-            <!-- FindBugs -->
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>findbugs-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <effort>Max</effort>
-                    <threshold>Low</threshold>
-                    <xmlOutput>true</xmlOutput>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 </project>
