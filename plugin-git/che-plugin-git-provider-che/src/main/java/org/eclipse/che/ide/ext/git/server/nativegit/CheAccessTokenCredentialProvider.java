@@ -30,28 +30,30 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 import static org.eclipse.che.dto.server.DtoFactory.newDto;
 
 /**
- * Credentials provider for Codenvy
+ * Credentials provider for Che
  *
  * @author Alexander Garagatyi
  * @author Valeriy Svydenko
  */
 @Singleton
-public class CodenvyAccessTokenCredentialProvider implements CredentialsProvider {
-    private final String        codenvyHost;
+public class CheAccessTokenCredentialProvider implements CredentialsProvider {
+    private final String        cheHostName;
     private       PreferenceDao preferenceDao;
 
     @Inject
-    public CodenvyAccessTokenCredentialProvider(@Named("api.endpoint") String apiEndPoint,
-                                                PreferenceDao preferenceDao) throws URISyntaxException {
+    public CheAccessTokenCredentialProvider(@Named("api.endpoint") String apiEndPoint,
+                                            PreferenceDao preferenceDao) throws URISyntaxException {
         this.preferenceDao = preferenceDao;
-        this.codenvyHost = new URI(apiEndPoint).getHost();
+        this.cheHostName = new URI(apiEndPoint).getHost();
     }
 
     @Override
     public UserCredential getUserCredential() throws GitException {
-        String token = EnvironmentContext.getCurrent().getUser().getToken();
+        String token = EnvironmentContext.getCurrent()
+                                         .getUser()
+                                         .getToken();
         if (token != null) {
-            return new UserCredential(token, "x-codenvy", "codenvy");
+            return new UserCredential(token, "x-che", "che_password");
         }
         return null;
     }
@@ -84,12 +86,12 @@ public class CodenvyAccessTokenCredentialProvider implements CredentialsProvider
 
     @Override
     public String getId() {
-        return "codenvy";
+        return "che";
     }
 
     @Override
     public boolean canProvideCredentials(String url) {
-        return url.contains(codenvyHost);
+        return url.contains(cheHostName);
     }
 
 }
