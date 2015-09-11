@@ -37,9 +37,10 @@ import static org.eclipse.che.dto.server.DtoFactory.newDto;
  */
 @Singleton
 public class CheAccessTokenCredentialProvider implements CredentialsProvider {
+
+    private static String OAUTH_PROVIDER_NAME = "che";
     private final String        cheHostName;
     private       PreferenceDao preferenceDao;
-    private static String OAUTH_PROVIDER_NAME = "che";
 
     @Inject
     public CheAccessTokenCredentialProvider(@Named("api.endpoint") String apiEndPoint,
