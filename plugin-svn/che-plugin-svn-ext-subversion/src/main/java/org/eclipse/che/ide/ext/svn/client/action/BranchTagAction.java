@@ -15,7 +15,8 @@ import org.eclipse.che.ide.ext.svn.client.SubversionExtensionResources;
 
 import org.eclipse.che.api.analytics.client.logger.AnalyticsEventLogger;
 import org.eclipse.che.ide.api.app.AppContext;
-import org.eclipse.che.ide.api.selection.SelectionAgent;
+import org.eclipse.che.ide.part.explorer.project.NewProjectExplorerPresenter;
+
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -31,11 +32,11 @@ public class BranchTagAction extends SubversionAction {
     @Inject
     public BranchTagAction(final AnalyticsEventLogger eventLogger,
                            final AppContext appContext,
-                           final SelectionAgent selectionAgent,
+                           final NewProjectExplorerPresenter projectExplorerPresenter,
                            final SubversionExtensionLocalizationConstants constants,
                            final SubversionExtensionResources resources) {
         super(constants.branchTagTitle(), constants.branchTagDescription(), resources.branchTag(), eventLogger,
-              appContext, constants, resources, selectionAgent);
+              appContext, constants, resources, projectExplorerPresenter);
     }
 
 }

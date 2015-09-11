@@ -17,7 +17,8 @@ import org.eclipse.che.ide.ext.svn.client.commit.CommitPresenter;
 import org.eclipse.che.api.analytics.client.logger.AnalyticsEventLogger;
 import org.eclipse.che.ide.api.action.ActionEvent;
 import org.eclipse.che.ide.api.app.AppContext;
-import org.eclipse.che.ide.api.selection.SelectionAgent;
+import org.eclipse.che.ide.part.explorer.project.NewProjectExplorerPresenter;
+
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -36,11 +37,11 @@ public class CommitAction extends SubversionAction {
     public CommitAction(final AnalyticsEventLogger eventLogger,
                         final AppContext appContext,
                         final CommitPresenter presenter,
-                        final SelectionAgent selectionAgent,
+                        final NewProjectExplorerPresenter projectExplorerPresenter,
                         final SubversionExtensionLocalizationConstants constants,
                         final SubversionExtensionResources resources) {
         super(constants.commitTitle(), constants.commitDescription(), resources.commit(), eventLogger, appContext,
-              constants, resources, selectionAgent);
+              constants, resources, projectExplorerPresenter);
         this.presenter = presenter;
     }
 

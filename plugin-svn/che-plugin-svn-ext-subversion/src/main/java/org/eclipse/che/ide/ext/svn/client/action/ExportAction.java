@@ -17,10 +17,10 @@ import org.eclipse.che.api.analytics.client.logger.AnalyticsEventLogger;
 import org.eclipse.che.ide.api.action.ActionEvent;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.project.node.HasStorablePath;
-import org.eclipse.che.ide.api.selection.SelectionAgent;
 import org.eclipse.che.ide.ext.svn.client.SubversionExtensionLocalizationConstants;
 import org.eclipse.che.ide.ext.svn.client.SubversionExtensionResources;
 import org.eclipse.che.ide.ext.svn.client.export.ExportPresenter;
+import org.eclipse.che.ide.part.explorer.project.NewProjectExplorerPresenter;
 
 /**
  * Extension of {@link SubversionAction} for implementing the "svn export" command.
@@ -28,6 +28,7 @@ import org.eclipse.che.ide.ext.svn.client.export.ExportPresenter;
 @Singleton
 public class ExportAction extends SubversionAction {
 
+    private NewProjectExplorerPresenter projectExplorerPresenter;
     private ExportPresenter presenter;
 
     /**
@@ -36,12 +37,13 @@ public class ExportAction extends SubversionAction {
     @Inject
     public ExportAction(final AnalyticsEventLogger eventLogger,
                         final AppContext appContext,
-                        final SelectionAgent selectionAgent,
+                        final NewProjectExplorerPresenter projectExplorerPresenter,
                         final SubversionExtensionLocalizationConstants constants,
                         final SubversionExtensionResources resources,
                         final ExportPresenter presenter) {
         super(constants.exportTitle(), constants.exportDescription(), resources.export(), eventLogger, appContext,
-              constants, resources, selectionAgent);
+              constants, resources, projectExplorerPresenter);
+        this.projectExplorerPresenter = projectExplorerPresenter;
         this.presenter = presenter;
     }
 
@@ -59,7 +61,7 @@ public class ExportAction extends SubversionAction {
     }
 
     private HasStorablePath getSelectedNode() {
-        Object selectedNode = selectionAgent.getSelection().getHeadElement();
+        Object selectedNode =projectExplorerPresenter.getSelection().getHeadElement();
         return selectedNode != null && selectedNode instanceof HasStorablePath ? (HasStorablePath)selectedNode : null;
     }
 }

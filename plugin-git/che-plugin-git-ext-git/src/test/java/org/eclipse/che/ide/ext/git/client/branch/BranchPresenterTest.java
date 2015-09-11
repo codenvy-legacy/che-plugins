@@ -106,7 +106,7 @@ public class BranchPresenterTest extends BaseTest {
     public void disarm() {
         super.disarm();
 
-        presenter = new BranchPresenter(view, eventBus, dtoFactory, editorAgent, service, constant, appContext, notificationManager,
+        presenter = new BranchPresenter(view, dtoFactory, editorAgent, service, constant, appContext, notificationManager,
                                         dtoUnmarshallerFactory, gitConsole, workspaceAgent, dialogFactory, projectExplorer);
 
         NavigableMap<String, EditorPartPresenter> partPresenterMap = new TreeMap<>();
@@ -118,7 +118,6 @@ public class BranchPresenterTest extends BaseTest {
         when(selectedBranch.isActive()).thenReturn(IS_ACTIVE);
         when(editorAgent.getOpenedEditors()).thenReturn(partPresenterMap);
         when(partPresenter.getEditorInput()).thenReturn(editorInput);
-//        when(editorInput.getFile()).thenReturn(file);
     }
 
     @Ignore

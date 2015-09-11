@@ -17,7 +17,8 @@ import org.eclipse.che.ide.ext.svn.client.log.ShowLogPresenter;
 import org.eclipse.che.api.analytics.client.logger.AnalyticsEventLogger;
 import org.eclipse.che.ide.api.action.ActionEvent;
 import org.eclipse.che.ide.api.app.AppContext;
-import org.eclipse.che.ide.api.selection.SelectionAgent;
+import org.eclipse.che.ide.part.explorer.project.NewProjectExplorerPresenter;
+
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -38,9 +39,9 @@ public class LogAction extends SubversionAction {
                      final AppContext appContext,
                      final SubversionExtensionLocalizationConstants constants,
                      final SubversionExtensionResources resources,
-                     final SelectionAgent selectionAgent) {
+                     final NewProjectExplorerPresenter projectExplorerPresenter) {
         super(constants.logTitle(), constants.logDescription(), resources.log(), eventLogger, appContext,
-              constants, resources, selectionAgent);
+              constants, resources, projectExplorerPresenter);
 
         this.presenter = presenter;
     }

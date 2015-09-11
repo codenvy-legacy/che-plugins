@@ -193,7 +193,7 @@ public class MergePresenter implements MergeView.ActionDelegate {
      *         editors that corresponds to open files
      */
     private void refreshProject(final List<EditorPartPresenter> openedEditors) {
-        projectExplorer.synchronizeTree();
+        projectExplorer.reloadChildren();
         for (EditorPartPresenter partPresenter : openedEditors) {
             final VirtualFile file = partPresenter.getEditorInput().getFile();
             eventBus.fireEvent(new FileEvent(file, FileEvent.FileOperation.CLOSE));

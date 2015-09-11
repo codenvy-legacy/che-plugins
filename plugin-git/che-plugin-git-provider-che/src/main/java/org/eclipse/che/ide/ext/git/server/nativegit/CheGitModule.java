@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.git.server.nativegit;
 
-import org.eclipse.che.git.impl.nativegit.CredentialsProvider;
+import org.eclipse.che.api.git.CredentialsProvider;
 import org.eclipse.che.inject.DynaModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.multibindings.Multibinder;
@@ -21,12 +21,12 @@ import com.google.inject.multibindings.Multibinder;
  * @author Alexander Garagatyi
  */
 @DynaModule
-public class CodenvyGitModule extends AbstractModule {
+public class CheGitModule extends AbstractModule {
 
     /** {@inheritDoc} */
     @Override
     protected void configure() {
-        Multibinder.newSetBinder(binder(), CredentialsProvider.class).addBinding().to(CodenvyAccessTokenCredentialProvider.class);
+        Multibinder.newSetBinder(binder(), CredentialsProvider.class).addBinding().to(CheAccessTokenCredentialProvider.class);
     }
 }
 

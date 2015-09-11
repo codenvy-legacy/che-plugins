@@ -14,11 +14,10 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import org.eclipse.che.api.project.shared.dto.ItemReference;
-import org.eclipse.che.api.promises.client.Function;
-import org.eclipse.che.api.promises.client.FunctionException;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.ide.api.action.ActionEvent;
+import org.eclipse.che.ide.api.project.node.HasDataObject;
 import org.eclipse.che.ide.api.project.node.Node;
 import org.eclipse.che.ide.api.selection.Selection;
 import org.eclipse.che.ide.ext.java.client.JavaLocalizationConstant;
@@ -28,7 +27,6 @@ import org.eclipse.che.ide.ext.java.client.project.node.PackageNode;
 import org.eclipse.che.ide.json.JsonHelper;
 import org.eclipse.che.ide.newresource.AbstractNewResourceAction;
 import org.eclipse.che.ide.project.node.FolderReferenceNode;
-import org.eclipse.che.ide.project.node.ItemReferenceBasedNode;
 import org.eclipse.che.ide.project.node.ResourceBasedNode;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.ui.dialogs.InputCallback;
@@ -88,10 +86,24 @@ public class NewPackageAction extends AbstractNewResourceAction {
                 parent.getChildren(false).then(new Operation<List<Node>>() {
                     @Override
                     public void apply(List<Node> cachedChildren) throws OperationException {
+                        HasDataObject dataObject = new HasDataObject() {
+                            @NotNull
+                            @Override
+                            public Object getData() {
+                                return itemReference;
+                            }
+
+                            @Override
+                            public void setData(@NotNull Object data) {
+
+                            }
+                        };
+
+
                         if (cachedChildren.size() == 1 && cachedChildren.get(0) instanceof PackageNode) {
-                            projectExplorer.reloadChildren(parent.getParent(), itemReference);
+                            projectExplorer.reloadChildren(parent.getParent(), dataObject, false, false);
                         } else {
-                            projectExplorer.reloadChildren(parent, itemReference);
+                            projectExplorer.reloadChildren(parent, dataObject, false, false);
                         }
                     }
                 });
@@ -159,37 +171,5 @@ public class NewPackageAction extends AbstractNewResourceAction {
             }
             return null;
         }
-    }
-
-    @NotNull
-    @Override
-    protected Function<List<Node>, ItemReferenceBasedNode> iterateAndFindCreatedNode(@NotNull final ItemReference itemReference) {
-        return new Function<List<Node>, ItemReferenceBasedNode>() {
-            @Override
-            public ItemReferenceBasedNode apply(List<Node> nodes) throws FunctionException {
-                if (nodes.isEmpty()) {
-                    return null;
-                }
-
-                for (Node node : nodes) {
-                    if (node instanceof PackageNode && ((PackageNode)node).getData().equals(itemReference)) {
-                        return (PackageNode)node;
-                    }
-                }
-
-                return null;
-            }
-        };
-    }
-
-    @NotNull
-    @Override
-    protected Operation<ItemReferenceBasedNode> fireNodeCreated(@NotNull ResourceBasedNode<?> parent) {
-        return new Operation<ItemReferenceBasedNode>() {
-            @Override
-            public void apply(ItemReferenceBasedNode arg) throws OperationException {
-                projectExplorer.synchronizeTree();
-            }
-        };
     }
 }

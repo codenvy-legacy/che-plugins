@@ -17,6 +17,7 @@ import org.eclipse.che.ide.api.project.tree.AbstractTreeNode;
 import org.eclipse.che.ide.api.project.tree.TreeNode;
 import org.eclipse.che.ide.part.projectexplorer.ProjectTreeNodeDataAdapter;
 import org.eclipse.che.ide.part.projectexplorer.ProjectTreeNodeRenderer;
+import org.eclipse.che.ide.project.node.ResourceBasedNode;
 import org.eclipse.che.ide.ui.Tooltip;
 import org.eclipse.che.ide.ui.menu.PositionController;
 import org.eclipse.che.ide.ui.tree.Tree;
@@ -201,13 +202,13 @@ public class CopyViewImpl extends Window implements CopyView {
             /** {@inheritDoc} */
             @Override
             public void onNodeExpanded(TreeNodeElement<TreeNode<?>> treeNodeElement) {
-                delegate.onNodeExpanded(treeNodeElement.getData());
+                //delegate.onNodeExpanded(treeNodeElement.getData());
             }
 
             /** {@inheritDoc} */
             @Override
             public void onNodeSelected(TreeNodeElement<TreeNode<?>> treeNodeElement, SignalEvent signalEvent) {
-                delegate.onNodeSelected(treeNodeElement.getData());
+               // delegate.onNodeSelected(treeNodeElement.getData());
             }
 
             /** {@inheritDoc} */
@@ -320,11 +321,11 @@ public class CopyViewImpl extends Window implements CopyView {
 
     /** {@inheritDoc} */
     @Override
-    public void setProjectNodes(List<TreeNode<?>> rootNodes) {
-        rootNode.setChildren(rootNodes);
-        for (TreeNode<?> treeNode : rootNodes) {
-            treeNode.setParent(rootNode);
-        }
+    public void setProjectNodes(List<ResourceBasedNode<?>> rootNodes) {
+//        rootNode.setChildren(rootNodes);
+//        for (TreeNode<?> treeNode : rootNodes) {
+//            treeNode.setParent(rootNode);
+//        }
 
         tree.getSelectionModel().clearSelections();
         tree.getModel().setRoot(rootNode);
@@ -332,17 +333,18 @@ public class CopyViewImpl extends Window implements CopyView {
 
         if (rootNodes.isEmpty()) {
             delegate.onNodeSelected(null);
-        } else {
-            final TreeNode<?> firstNode = rootNodes.get(0);
-            if (!firstNode.isLeaf()) {
-                // expand first node that usually represents project itself
-                tree.autoExpandAndSelectNode(firstNode, false);
-                delegate.onNodeExpanded(firstNode);
-            }
-            // auto-select first node
-            tree.getSelectionModel().selectSingleNode(firstNode);
-            delegate.onNodeSelected(firstNode);
         }
+//        else {
+//            final TreeNode<?> firstNode = rootNodes.get(0);
+//            if (!firstNode.isLeaf()) {
+                // expand first node that usually represents project itself
+//                tree.autoExpandAndSelectNode(firstNode, false);
+               // delegate.onNodeExpanded(firstNode);
+//            }
+            // auto-select first node
+//            tree.getSelectionModel().selectSingleNode(firstNode);
+           // delegate.onNodeSelected(firstNode);
+//        }
     }
 
     /** {@inheritDoc} */
@@ -363,7 +365,7 @@ public class CopyViewImpl extends Window implements CopyView {
 
     /** {@inheritDoc} */
     @Override
-    public void updateProjectNode(@NotNull TreeNode<?> oldNode, @NotNull TreeNode<?> newNode) {
+    public void updateProjectNode(@NotNull ResourceBasedNode<?> oldNode, @NotNull ResourceBasedNode<?> newNode) {
         // get currently selected node
         final List<TreeNode<?>> selectedNodes = tree.getSelectionModel().getSelectedNodes();
         TreeNode<?> selectedNode = null;
@@ -371,8 +373,8 @@ public class CopyViewImpl extends Window implements CopyView {
             selectedNode = selectedNodes.get(0);
         }
 
-        List<List<String>> pathsToExpand = tree.replaceSubtree(oldNode, newNode, false);
-        tree.expandPaths(pathsToExpand, false);
+//        List<List<String>> pathsToExpand = tree.replaceSubtree(oldNode, newNode, false);
+//        tree.expandPaths(pathsToExpand, false);
 
         // restore selected node
         if (selectedNode != null) {

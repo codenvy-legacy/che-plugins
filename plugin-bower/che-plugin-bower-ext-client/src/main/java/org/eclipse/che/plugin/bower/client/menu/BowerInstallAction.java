@@ -11,7 +11,6 @@
 package org.eclipse.che.plugin.bower.client.menu;
 
 import com.google.inject.Inject;
-import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.api.analytics.client.logger.AnalyticsEventLogger;
 import org.eclipse.che.api.builder.BuildStatus;
@@ -37,7 +36,6 @@ public class BowerInstallAction extends CustomAction implements BuildFinishedCal
 
     private BuilderAgent builderAgent;
 
-    private EventBus eventBus;
     private final NewProjectExplorerPresenter projectExplorer;
 
     private boolean buildInProgress;
@@ -50,7 +48,6 @@ public class BowerInstallAction extends CustomAction implements BuildFinishedCal
                               DtoFactory dtoFactory,
                               BuilderAgent builderAgent,
                               AppContext appContext,
-                              EventBus eventBus,
                               BowerResources bowerResources,
                               AnalyticsEventLogger analyticsEventLogger,
                               NewProjectExplorerPresenter projectExplorer) {
@@ -60,7 +57,6 @@ public class BowerInstallAction extends CustomAction implements BuildFinishedCal
         this.builderAgent = builderAgent;
         this.appContext = appContext;
         this.analyticsEventLogger = analyticsEventLogger;
-        this.eventBus = eventBus;
         this.projectExplorer = projectExplorer;
     }
 
@@ -84,7 +80,7 @@ public class BowerInstallAction extends CustomAction implements BuildFinishedCal
     public void onFinished(BuildStatus buildStatus) {
         // and refresh the tree if success
         if (buildStatus == BuildStatus.SUCCESSFUL) {
-            projectExplorer.synchronizeTree();
+            projectExplorer.reloadChildren();
         }
         buildInProgress = false;
         appContext.getCurrentProject().setIsRunningEnabled(true);

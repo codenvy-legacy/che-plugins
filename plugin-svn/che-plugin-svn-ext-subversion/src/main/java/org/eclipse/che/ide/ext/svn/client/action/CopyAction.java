@@ -16,12 +16,11 @@ import com.google.inject.Singleton;
 import org.eclipse.che.api.analytics.client.logger.AnalyticsEventLogger;
 import org.eclipse.che.ide.api.action.ActionEvent;
 import org.eclipse.che.ide.api.app.AppContext;
-import org.eclipse.che.ide.api.project.tree.TreeNode;
-import org.eclipse.che.ide.api.project.tree.generic.StorableNode;
-import org.eclipse.che.ide.api.selection.SelectionAgent;
 import org.eclipse.che.ide.ext.svn.client.SubversionExtensionLocalizationConstants;
 import org.eclipse.che.ide.ext.svn.client.SubversionExtensionResources;
 import org.eclipse.che.ide.ext.svn.client.copy.CopyPresenter;
+import org.eclipse.che.ide.part.explorer.project.NewProjectExplorerPresenter;
+import org.eclipse.che.ide.project.node.ResourceBasedNode;
 
 /**
  * Extension of {@link SubversionAction} for implementing the "svn copy" (copy a file or directory) command.
@@ -31,19 +30,19 @@ import org.eclipse.che.ide.ext.svn.client.copy.CopyPresenter;
 @Singleton
 public class CopyAction extends SubversionAction {
 
-    private       SelectionAgent selectionAgent;
-    private final CopyPresenter  presenter;
+    private NewProjectExplorerPresenter projectExplorerPresenter;
+    private final CopyPresenter presenter;
 
     @Inject
     public CopyAction(final AnalyticsEventLogger eventLogger,
                       final AppContext appContext,
-                      final SelectionAgent selectionAgent,
+                      final NewProjectExplorerPresenter projectExplorerPresenter,
                       final SubversionExtensionLocalizationConstants constants,
                       final SubversionExtensionResources resources,
                       final CopyPresenter presenter) {
         super(constants.copyTitle(), constants.copyDescription(), resources.copy(), eventLogger, appContext, constants, resources,
-              selectionAgent);
-        this.selectionAgent = selectionAgent;
+              projectExplorerPresenter);
+        this.projectExplorerPresenter = projectExplorerPresenter;
 
         this.presenter = presenter;
     }
@@ -62,8 +61,8 @@ public class CopyAction extends SubversionAction {
         return true;
     }
 
-    private TreeNode<?> getSelectedNode() {
-        Object selectedNode = selectionAgent.getSelection().getFirstElement();
-        return selectedNode != null && selectedNode instanceof StorableNode ? (StorableNode)selectedNode : null;
+    private ResourceBasedNode<?> getSelectedNode() {
+        Object selectedNode = projectExplorerPresenter.getSelection().getHeadElement();
+        return selectedNode != null && selectedNode instanceof ResourceBasedNode ? (ResourceBasedNode)selectedNode : null;
     }
 }

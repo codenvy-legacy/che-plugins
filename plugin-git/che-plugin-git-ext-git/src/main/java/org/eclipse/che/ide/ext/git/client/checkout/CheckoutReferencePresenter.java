@@ -12,7 +12,6 @@ package org.eclipse.che.ide.ext.git.client.checkout;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.api.git.gwt.client.GitServiceClient;
 import org.eclipse.che.api.git.shared.BranchCheckoutRequest;
@@ -34,7 +33,6 @@ public class CheckoutReferencePresenter implements CheckoutReferenceView.ActionD
     private final NotificationManager         notificationManager;
     private       GitServiceClient            service;
     private       AppContext                  appContext;
-    private       EventBus                    eventBus;
     private       GitLocalizationConstant     constant;
     private       CheckoutReferenceView       view;
     private final NewProjectExplorerPresenter projectExplorer;
@@ -43,7 +41,6 @@ public class CheckoutReferencePresenter implements CheckoutReferenceView.ActionD
     @Inject
     public CheckoutReferencePresenter(CheckoutReferenceView view,
                                       GitServiceClient service,
-                                      EventBus eventBus,
                                       AppContext appContext,
                                       GitLocalizationConstant constant,
                                       NotificationManager notificationManager,
@@ -56,7 +53,6 @@ public class CheckoutReferencePresenter implements CheckoutReferenceView.ActionD
         this.service = service;
         this.appContext = appContext;
         this.constant = constant;
-        this.eventBus = eventBus;
         this.notificationManager = notificationManager;
     }
 
@@ -82,10 +78,9 @@ public class CheckoutReferencePresenter implements CheckoutReferenceView.ActionD
                                new AsyncRequestCallback<String>() {
                                    @Override
                                    protected void onSuccess(String result) {
-//                                       String projectPath = project.getPath();
                                        //In this case we can have unconfigured state of the project,
                                        //so we must repeat the logic which is performed when we open a project
-                                       projectExplorer.synchronizeTree();
+                                       projectExplorer.reloadChildren();
                                    }
 
                                    @Override

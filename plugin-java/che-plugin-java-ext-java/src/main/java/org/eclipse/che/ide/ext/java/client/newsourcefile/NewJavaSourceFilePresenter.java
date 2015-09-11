@@ -13,14 +13,12 @@ package org.eclipse.che.ide.ext.java.client.newsourcefile;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
 import org.eclipse.che.api.project.shared.dto.ItemReference;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
-import org.eclipse.che.ide.api.project.node.Node;
-import org.eclipse.che.ide.ext.java.client.project.node.JavaNodeManager;
+import org.eclipse.che.ide.api.project.node.HasDataObject;
 import org.eclipse.che.ide.ext.java.client.project.node.PackageNode;
 import org.eclipse.che.ide.json.JsonHelper;
 import org.eclipse.che.ide.part.explorer.project.NewProjectExplorerPresenter;
@@ -30,8 +28,8 @@ import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 
+import javax.annotation.Nonnull;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import static org.eclipse.che.ide.ext.java.client.JavaUtils.checkCompilationUnitName;
@@ -53,11 +51,9 @@ public class NewJavaSourceFilePresenter implements NewJavaSourceFileView.ActionD
     private static final String DEFAULT_CONTENT = " {\n}\n";
 
     private final NewProjectExplorerPresenter projectExplorer;
-    private final JavaNodeManager             nodeManager;
     private final NewJavaSourceFileView       view;
     private final ProjectServiceClient        projectServiceClient;
     private final DtoUnmarshallerFactory      dtoUnmarshallerFactory;
-    private final EventBus                    eventBus;
     private final DialogFactory               dialogFactory;
     private final List<JavaSourceFileType>    sourceFileTypes;
     private final AppContext                  appContext;
@@ -67,18 +63,14 @@ public class NewJavaSourceFilePresenter implements NewJavaSourceFileView.ActionD
                                       NewProjectExplorerPresenter projectExplorer,
                                       ProjectServiceClient projectServiceClient,
                                       DtoUnmarshallerFactory dtoUnmarshallerFactory,
-                                      EventBus eventBus,
                                       DialogFactory dialogFactory,
-                                      AppContext appContext,
-                                      JavaNodeManager nodeManager) {
+                                      AppContext appContext) {
         this.appContext = appContext;
         sourceFileTypes = Arrays.asList(CLASS, INTERFACE, ENUM, ANNOTATION);
         this.view = view;
-        this.nodeManager = nodeManager;
         this.projectExplorer = projectExplorer;
         this.projectServiceClient = projectServiceClient;
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
-        this.eventBus = eventBus;
         this.dialogFactory = dialogFactory;
         this.view.setDelegate(this);
     }
@@ -205,10 +197,10 @@ public class NewJavaSourceFilePresenter implements NewJavaSourceFileView.ActionD
     private void createSourceFile(final String nameWithoutExtension, final FolderReferenceNode parent, String packageFragment,
                                   final String content) {
         final String parentPath = parent.getStorablePath() + (packageFragment.isEmpty() ? "" : '/' + packageFragment.replace('.', '/'));
-        ensureFolderExists(parentPath, new AsyncCallback<Void>() {
+        ensureFolderExists(parentPath, new AsyncCallback<ItemReference>() {
             @Override
-            public void onSuccess(Void result) {
-                createAndOpenFile(nameWithoutExtension, parent, content);
+            public void onSuccess(ItemReference result) {
+                createAndOpenFile(nameWithoutExtension, result, parent,  content);
             }
 
             @Override
@@ -219,11 +211,11 @@ public class NewJavaSourceFilePresenter implements NewJavaSourceFileView.ActionD
     }
 
     /** Creates folder by the specified path if it doesn't exists. */
-    private void ensureFolderExists(String path, final AsyncCallback<Void> callback) {
-        projectServiceClient.createFolder(path, new AsyncRequestCallback<ItemReference>() {
+    private void ensureFolderExists(String path, final AsyncCallback<ItemReference> callback) {
+        projectServiceClient.createFolder(path, new AsyncRequestCallback<ItemReference>(dtoUnmarshallerFactory.newUnmarshaller(ItemReference.class)) {
             @Override
             protected void onSuccess(ItemReference result) {
-                callback.onSuccess(null);
+                callback.onSuccess(result);
             }
 
             @Override
@@ -237,7 +229,7 @@ public class NewJavaSourceFilePresenter implements NewJavaSourceFileView.ActionD
         });
     }
 
-    private void createAndOpenFile(String nameWithoutExtension, FolderReferenceNode parent, String content) {
+    private void createAndOpenFile(String nameWithoutExtension, ItemReference parent, FolderReferenceNode node, String content) {
         final CurrentProject currentProject = appContext.getCurrentProject();
         if (currentProject == null) {
             throw new IllegalStateException("No opened project.");
@@ -245,18 +237,32 @@ public class NewJavaSourceFilePresenter implements NewJavaSourceFileView.ActionD
 
         final String fileName = nameWithoutExtension + ".java";
 
-        projectServiceClient.createFile(parent.getStorablePath(),
+        projectServiceClient.createFile(parent.getPath(),
                                         fileName,
                                         content,
                                         null,
-                                        createCallback(parent));
+                                        createCallback(node));
     }
 
     protected AsyncRequestCallback<ItemReference> createCallback(final ResourceBasedNode<?> parent) {
         return new AsyncRequestCallback<ItemReference>(dtoUnmarshallerFactory.newUnmarshaller(ItemReference.class)) {
             @Override
-            protected void onSuccess(ItemReference itemReference) {
-                projectExplorer.reloadChildren(Collections.singletonList((Node)parent), itemReference, true);
+            protected void onSuccess(final ItemReference itemReference) {
+
+                HasDataObject dataObject = new HasDataObject() {
+                    @Nonnull
+                    @Override
+                    public Object getData() {
+                        return itemReference;
+                    }
+
+                    @Override
+                    public void setData(@Nonnull Object data) {
+
+                    }
+                };
+
+                projectExplorer.reloadChildren(parent, dataObject, true, false);
             }
 
             @Override

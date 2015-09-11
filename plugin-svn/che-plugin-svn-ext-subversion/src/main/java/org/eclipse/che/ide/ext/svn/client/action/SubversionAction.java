@@ -22,6 +22,7 @@ import org.eclipse.che.ide.api.selection.SelectionAgent;
 import org.eclipse.che.ide.ext.svn.client.SubversionExtensionLocalizationConstants;
 import org.eclipse.che.ide.ext.svn.client.SubversionExtensionResources;
 import org.eclipse.che.ide.ext.svn.shared.SubversionTypeConstant;
+import org.eclipse.che.ide.part.explorer.project.NewProjectExplorerPresenter;
 import org.vectomatic.dom.svg.ui.SVGResource;
 
 import java.util.List;
@@ -31,9 +32,9 @@ import java.util.List;
  */
 public abstract class SubversionAction extends ProjectAction {
 
-    protected final AnalyticsEventLogger                     eventLogger;
+    protected final AnalyticsEventLogger eventLogger;
+    private NewProjectExplorerPresenter projectExplorerPresenter;
     protected final AppContext                               appContext;
-    protected final SelectionAgent                           selectionAgent;
     protected final SubversionExtensionLocalizationConstants constants;
     protected final SubversionExtensionResources             resources;
     protected final String                                   title;
@@ -48,14 +49,14 @@ public abstract class SubversionAction extends ProjectAction {
                             final AppContext appContext,
                             final SubversionExtensionLocalizationConstants constants,
                             final SubversionExtensionResources resources,
-                            final SelectionAgent selectionAgent) {
+                            final NewProjectExplorerPresenter projectExplorerPresenter) {
         super(title, description, svgIcon);
 
         this.constants = constants;
         this.resources = resources;
         this.appContext = appContext;
         this.eventLogger = eventLogger;
-        this.selectionAgent = selectionAgent;
+        this.projectExplorerPresenter = projectExplorerPresenter;
         this.title = title;
     }
 
@@ -85,7 +86,7 @@ public abstract class SubversionAction extends ProjectAction {
      * @return if there is currently an item selected
      */
     protected boolean isItemSelected() {
-        final Selection<?> selection = selectionAgent.getSelection();
+        final Selection<?> selection = projectExplorerPresenter.getSelection();
 
         return selection != null && selection.getHeadElement() != null &&
                selection.getHeadElement() instanceof HasStorablePath;

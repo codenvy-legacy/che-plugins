@@ -10,16 +10,10 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.git.client.remote;
 
-import org.eclipse.che.ide.ext.git.client.GitLocalizationConstant;
-import org.eclipse.che.api.git.shared.Remote;
-
-import org.eclipse.che.ide.ext.git.client.GitResources;
-import org.eclipse.che.ide.ui.dialogs.ConfirmCallback;
-import org.eclipse.che.ide.ui.dialogs.DialogFactory;
-import org.eclipse.che.ide.ui.window.Window;
 import com.google.gwt.cell.client.Cell;
 import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
@@ -34,6 +28,13 @@ import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+
+import org.eclipse.che.api.git.shared.Remote;
+import org.eclipse.che.ide.ext.git.client.GitLocalizationConstant;
+import org.eclipse.che.ide.ext.git.client.GitResources;
+import org.eclipse.che.ide.ui.dialogs.ConfirmCallback;
+import org.eclipse.che.ide.ui.dialogs.DialogFactory;
+import org.eclipse.che.ide.ui.window.Window;
 
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
@@ -57,7 +58,8 @@ public class RemoteViewImpl extends Window implements RemoteView {
     @UiField(provided = true)
     CellTable<Remote> repositories;
 
-    private Remote                  selectedObject;
+    SingleSelectionModel<Remote> repoSelectionModel;
+
     @UiField(provided = true)
     final   GitResources            res;
     @UiField(provided = true)
@@ -83,7 +85,6 @@ public class RemoteViewImpl extends Window implements RemoteView {
         this.setWidget(widget);
 
         btnClose = createButton(locale.buttonClose(), "git-remotes-remotes-close", new ClickHandler() {
-
             @Override
             public void onClick(ClickEvent event) {
                 delegate.onCloseClicked();
@@ -92,7 +93,6 @@ public class RemoteViewImpl extends Window implements RemoteView {
         getFooter().add(btnClose);
 
         btnAdd = createButton(locale.buttonAdd(), "git-remotes-remotes-add", new ClickHandler() {
-
             @Override
             public void onClick(ClickEvent event) {
                 delegate.onAddClicked();
@@ -101,11 +101,10 @@ public class RemoteViewImpl extends Window implements RemoteView {
         getFooter().add(btnAdd);
 
         btnDelete = createButton(locale.buttonRemove(), "git-remotes-remotes-remove", new ClickHandler() {
-
             @Override
             public void onClick(ClickEvent event) {
                 dialogFactory.createConfirmDialog(locale.deleteRemoteRepositoryTitle(),
-                                                  locale.deleteRemoteRepositoryQuestion(selectedObject.getName()),
+                                                  locale.deleteRemoteRepositoryQuestion(repoSelectionModel.getSelectedObject().getName()),
                                                   new ConfirmCallback() {
                                                       @Override
                                                       public void accepted() {
@@ -150,15 +149,14 @@ public class RemoteViewImpl extends Window implements RemoteView {
         repositories.addColumn(urlColumn, locale.remoteGridLocationField());
         repositories.setColumnWidth(urlColumn, "80%");
 
-        final SingleSelectionModel<Remote> selectionModel = new SingleSelectionModel<Remote>();
-        selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
+        repoSelectionModel = new SingleSelectionModel<>();
+        repoSelectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
-                selectedObject = selectionModel.getSelectedObject();
-                delegate.onRemoteSelected(selectedObject);
+                delegate.onRemoteSelected(repoSelectionModel.getSelectedObject());
             }
         });
-        repositories.setSelectionModel(selectionModel);
+        repositories.setSelectionModel(repoSelectionModel);
     }
 
     /** {@inheritDoc} */
@@ -170,6 +168,13 @@ public class RemoteViewImpl extends Window implements RemoteView {
             list.add(remote);
         }
         repositories.setRowData(list);
+
+        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+            @Override
+            public void execute() {
+                checkSelectionActuality();
+            }
+        });
     }
 
     /** {@inheritDoc} */
@@ -208,5 +213,24 @@ public class RemoteViewImpl extends Window implements RemoteView {
     @Override
     protected void onClose() {
         this.isShown = false;
+    }
+
+    private void checkSelectionActuality() {
+        final Remote selectedRemote = repoSelectionModel.getSelectedObject();
+        if (selectedRemote == null) {
+            return;
+        }
+
+        boolean existSelectedRemote = false;
+        for (Remote remote : repositories.getVisibleItems()) {
+            if (remote.getName().equals(selectedRemote.getName())) {
+                existSelectedRemote = true;
+                break;
+            }
+        }
+
+        if (!existSelectedRemote) {
+            repoSelectionModel.clear();
+        }
     }
 }

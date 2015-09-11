@@ -23,7 +23,7 @@ import java.util.List;
  */
 public interface RemoteView extends View<RemoteView.ActionDelegate> {
     /** Needs for delegate some function into Applications view. */
-    public interface ActionDelegate {
+    interface ActionDelegate {
         /** Performs any actions appropriate in response to the user having pressed the Close button. */
         void onCloseClicked();
 
@@ -37,9 +37,9 @@ public interface RemoteView extends View<RemoteView.ActionDelegate> {
          * Performs any action in response to the user having select remote.
          *
          * @param remote
-         *         selected Remote
+         *         selected remote. It can be null when user remove selected remote
          */
-        void onRemoteSelected(@NotNull Remote remote);
+        void onRemoteSelected(Remote remote);
     }
 
     /**
