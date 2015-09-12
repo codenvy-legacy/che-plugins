@@ -12,7 +12,7 @@ package org.eclipse.che.ide.ext.java.client.settings.property;
 
 import org.eclipse.che.ide.api.mvp.View;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * The interface provides methods to control property's widget which contains name of property and list box with all possible values.
@@ -27,7 +27,7 @@ public interface PropertyWidget extends View<PropertyWidget.ActionDelegate> {
      * @param value
      *         value which will be selected
      */
-    void selectPropertyValue(@Nonnull String value);
+    void selectPropertyValue(@NotNull String value);
 
     public interface ActionDelegate {
         /**
@@ -38,6 +38,6 @@ public interface PropertyWidget extends View<PropertyWidget.ActionDelegate> {
          * @param value
          *         value which was set to property
          */
-        void onPropertyChanged(@Nonnull String propertyId, @Nonnull String value);
+        void onPropertyChanged(@NotNull String propertyId, @NotNull String value);
     }
 }

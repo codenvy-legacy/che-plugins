@@ -26,7 +26,7 @@ import org.eclipse.che.api.machine.shared.dto.ProcessDescriptor;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.TableResources;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -56,7 +56,7 @@ public class ProcessesViewImpl extends Composite implements ProcessesView {
         initWidget(UI_BINDER.createAndBindUi(this));
     }
 
-    private CellTable<ProcessDescriptor> createTable(@Nonnull TableResources tableResources) {
+    private CellTable<ProcessDescriptor> createTable(@NotNull TableResources tableResources) {
         CellTable<ProcessDescriptor> table = new CellTable<>(0, tableResources);
 
         TextColumn<ProcessDescriptor> name = new TextColumn<ProcessDescriptor>() {
@@ -121,7 +121,7 @@ public class ProcessesViewImpl extends Composite implements ProcessesView {
 
     /** {@inheritDoc} */
     @Override
-    public void setProcesses(@Nonnull List<ProcessDescriptor> descriptors) {
+    public void setProcesses(@NotNull List<ProcessDescriptor> descriptors) {
         processesTable.setRowData(descriptors);
     }
 

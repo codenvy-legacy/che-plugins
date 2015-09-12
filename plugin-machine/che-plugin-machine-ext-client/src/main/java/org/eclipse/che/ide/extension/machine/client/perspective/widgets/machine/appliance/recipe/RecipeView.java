@@ -13,7 +13,7 @@ package org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.inject.ImplementedBy;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * Provides methods which allow change view representation of recipe tab.
@@ -29,7 +29,7 @@ public interface RecipeView extends IsWidget {
      * @param script
      *         script of the current machine recipe
      */
-    void setScript(@Nonnull String script);
+    void setScript(@NotNull String script);
 
     /**
      * Change visibility of Recipe tab panel.

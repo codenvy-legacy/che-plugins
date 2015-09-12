@@ -31,7 +31,7 @@ import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -99,8 +99,8 @@ public class RemoveFromIndexPresenter implements RemoveFromIndexView.ActionDeleg
      *
      * @return {@link String} message to display
      */
-    @Nonnull
-    private String formMessage(@Nonnull String workDir) {
+    @NotNull
+    private String formMessage(@NotNull String workDir) {
         Selection<StorableNode> selection = (Selection<StorableNode>)selectionAgent.getSelection();
 
         String path;
@@ -179,7 +179,7 @@ public class RemoveFromIndexPresenter implements RemoveFromIndexView.ActionDeleg
      *
      * @return pattern of the items to be removed
      */
-    @Nonnull
+    @NotNull
     private List<String> getFilePatterns() {
         Selection<StorableNode> selection = (Selection<StorableNode>)selectionAgent.getSelection();
         String path;
@@ -202,7 +202,7 @@ public class RemoveFromIndexPresenter implements RemoveFromIndexView.ActionDeleg
      * @param e
      *         exception what happened
      */
-    private void handleError(@Nonnull Throwable e) {
+    private void handleError(@NotNull Throwable e) {
         String errorMessage = (e.getMessage() != null && !e.getMessage().isEmpty()) ? e.getMessage() : constant.removeFilesFailed();
         Notification notification = new Notification(errorMessage, ERROR);
         notificationManager.showNotification(notification);

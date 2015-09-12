@@ -16,7 +16,7 @@ import com.google.inject.Singleton;
 
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfigurationPage;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * Page allows to edit arbitrary command.
@@ -39,7 +39,7 @@ public class ArbitraryPagePresenter implements ArbitraryPageView.ActionDelegate,
     }
 
     @Override
-    public void resetFrom(@Nonnull ArbitraryCommandConfiguration configuration) {
+    public void resetFrom(@NotNull ArbitraryCommandConfiguration configuration) {
         editedConfiguration = configuration;
         originCommandLine = configuration.getCommandLine();
     }
@@ -57,7 +57,7 @@ public class ArbitraryPagePresenter implements ArbitraryPageView.ActionDelegate,
     }
 
     @Override
-    public void setDirtyStateListener(@Nonnull DirtyStateListener listener) {
+    public void setDirtyStateListener(@NotNull DirtyStateListener listener) {
         this.listener = listener;
     }
 

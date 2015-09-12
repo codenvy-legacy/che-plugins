@@ -18,7 +18,7 @@ import org.eclipse.che.ide.api.parts.WorkspaceAgent;
 import org.eclipse.che.plugin.tour.client.action.ExternalAction;
 import org.eclipse.che.plugin.tour.client.log.Log;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import javax.inject.Inject;
 import java.util.List;
 
@@ -56,7 +56,7 @@ public class SetActivePanelExternalAction implements ExternalAction {
      * @param tabIdentifier the identifier based on the following : PartStackType.TITLE {@link org.eclipse.che.ide.api.parts.PartStackType}
      */
     @Override
-    public void execute(@Nonnull String tabIdentifier) {
+    public void execute(@NotNull String tabIdentifier) {
 
 
         int firstDot = tabIdentifier.indexOf('.');

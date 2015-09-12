@@ -24,7 +24,7 @@ import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.web.bindery.event.shared.EventBus;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,7 +44,7 @@ public class AntProjectTreeStructure extends JavaTreeStructure {
 
     /** {@inheritDoc} */
     @Override
-    public void getRootNodes(@Nonnull AsyncCallback<List<TreeNode<?>>> callback) {
+    public void getRootNodes(@NotNull AsyncCallback<List<TreeNode<?>>> callback) {
         if (projectNode == null) {
             final CurrentProject currentProject = appContext.getCurrentProject();
             if (currentProject != null) {
@@ -66,7 +66,7 @@ public class AntProjectTreeStructure extends JavaTreeStructure {
 
     /** {@inheritDoc} */
     @Override
-    public JavaFolderNode newJavaFolderNode(@Nonnull AbstractTreeNode parent, @Nonnull ItemReference data) {
+    public JavaFolderNode newJavaFolderNode(@NotNull AbstractTreeNode parent, @NotNull ItemReference data) {
         return getNodeFactory().newAntFolderNode(parent, data, this);
     }
 }

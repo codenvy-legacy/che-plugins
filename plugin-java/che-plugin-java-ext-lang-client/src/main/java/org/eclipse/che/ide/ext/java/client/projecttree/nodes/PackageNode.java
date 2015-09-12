@@ -23,7 +23,7 @@ import org.eclipse.che.ide.api.project.tree.generic.StorableNode;
 import org.eclipse.che.ide.ext.java.client.projecttree.JavaTreeStructure;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 import static org.eclipse.che.ide.ext.java.client.projecttree.JavaSourceFolderUtil.getSourceFolders;
@@ -47,13 +47,13 @@ public class PackageNode extends AbstractSourceContainerNode {
         setDisplayIcon(iconRegistry.getIcon("java.package").getSVGImage());
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public String getId() {
         return getDisplayName().replace('.', '/');
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public String getDisplayName() {
         if (getTreeStructure().getSettings().isCompactEmptyPackages()) {

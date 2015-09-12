@@ -18,7 +18,7 @@ import org.eclipse.che.ide.ext.java.shared.JarEntry;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import com.google.web.bindery.event.shared.EventBus;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * @author Evgen Vidolob
@@ -55,13 +55,13 @@ public abstract class JarEntryNode extends AbstractTreeNode<JarEntry> {
         }
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public String getId() {
         return getData().getName();
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public String getDisplayName() {
         return displayName;

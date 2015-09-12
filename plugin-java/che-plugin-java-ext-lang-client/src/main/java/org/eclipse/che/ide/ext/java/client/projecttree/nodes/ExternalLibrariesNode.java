@@ -25,7 +25,7 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import com.google.web.bindery.event.shared.EventBus;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,13 +58,13 @@ public class ExternalLibrariesNode extends AbstractTreeNode<Object> implements O
         setDisplayIcon(iconRegistry.getIcon("java.libraries").getSVGImage());
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public String getId() {
         return "External Libraries";
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public String getDisplayName() {
         return "External Libraries";

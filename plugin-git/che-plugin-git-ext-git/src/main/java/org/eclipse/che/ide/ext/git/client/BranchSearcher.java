@@ -12,7 +12,7 @@ package org.eclipse.che.ide.ext.git.client;
 
 import org.eclipse.che.api.git.shared.Branch;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,16 +29,16 @@ public class BranchSearcher {
      * @param remoteBranches
      *         remote branches
      */
-    @Nonnull
-    public List<String> getRemoteBranchesToDisplay(@Nonnull String remoteName, @Nonnull List<Branch> remoteBranches) {
+    @NotNull
+    public List<String> getRemoteBranchesToDisplay(@NotNull String remoteName, @NotNull List<Branch> remoteBranches) {
         return getRemoteBranchesToDisplay(new BranchFilterByRemote(remoteName), remoteBranches);
     }
 
     /**
      * Get simple names of remote branches: filter remote branches due to selected remote repository.
      */
-    @Nonnull
-    public List<String> getRemoteBranchesToDisplay(BranchFilterByRemote filterByRemote, @Nonnull List<Branch> remoteBranches) {
+    @NotNull
+    public List<String> getRemoteBranchesToDisplay(BranchFilterByRemote filterByRemote, @NotNull List<Branch> remoteBranches) {
         List<String> branches = new ArrayList<>();
 
         if (remoteBranches.isEmpty()) {
@@ -65,8 +65,8 @@ public class BranchSearcher {
      * @param localBranches
      *         local branches
      */
-    @Nonnull
-    public List<String> getLocalBranchesToDisplay(@Nonnull List<Branch> localBranches) {
+    @NotNull
+    public List<String> getLocalBranchesToDisplay(@NotNull List<Branch> localBranches) {
         List<String> branches = new ArrayList<>();
 
         if (localBranches.isEmpty()) {

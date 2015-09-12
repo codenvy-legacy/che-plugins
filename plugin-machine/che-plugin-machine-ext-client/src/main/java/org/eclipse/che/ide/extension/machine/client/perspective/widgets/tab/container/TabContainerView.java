@@ -16,7 +16,7 @@ import com.google.inject.ImplementedBy;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.content.TabPresenter;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.header.TabHeader;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * Provides methods which allows add header of tab and tab's content to special container.
@@ -31,7 +31,7 @@ public interface TabContainerView extends IsWidget {
      * @param tabHeader
      *         header which need add
      */
-    void addHeader(@Nonnull TabHeader tabHeader);
+    void addHeader(@NotNull TabHeader tabHeader);
 
     /**
      * Adds tab content to container.
@@ -39,7 +39,7 @@ public interface TabContainerView extends IsWidget {
      * @param content
      *         content which need add
      */
-    void addContent(@Nonnull TabPresenter content);
+    void addContent(@NotNull TabPresenter content);
 
     interface TabSelectHandler {
         /** Performs some actions when user clicks on tab. */

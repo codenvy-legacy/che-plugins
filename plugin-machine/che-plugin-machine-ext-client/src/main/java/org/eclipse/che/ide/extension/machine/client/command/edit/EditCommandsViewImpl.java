@@ -41,8 +41,8 @@ import org.eclipse.che.ide.ui.tree.TreeNodeElement;
 import org.eclipse.che.ide.ui.window.Window;
 import org.eclipse.che.ide.util.input.SignalEvent;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+import org.eclipse.che.commons.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -304,7 +304,7 @@ public class EditCommandsViewImpl extends Window implements EditCommandsView {
         }
     }
 
-    private CommandTreeNode getFirstNode(@Nonnull CommandTreeNode rootNode) {
+    private CommandTreeNode getFirstNode(@NotNull CommandTreeNode rootNode) {
         final Collection<CommandTreeNode> childNodes = rootNode.getChildren();
         return childNodes.isEmpty() ? null : childNodes.iterator().next();
     }

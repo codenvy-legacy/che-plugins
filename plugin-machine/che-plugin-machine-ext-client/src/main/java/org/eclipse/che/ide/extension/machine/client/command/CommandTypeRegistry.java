@@ -15,8 +15,8 @@ import com.google.inject.Singleton;
 
 import org.eclipse.che.ide.util.loging.Log;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+import org.eclipse.che.commons.annotation.Nullable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -61,7 +61,7 @@ public class CommandTypeRegistry {
     }
 
     /** Returns all registered command types. */
-    @Nonnull
+    @NotNull
     public Collection<CommandType> getCommandTypes() {
         return commandTypes.values();
     }

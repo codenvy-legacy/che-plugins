@@ -39,8 +39,8 @@ import org.eclipse.che.ide.extension.machine.client.command.edit.EditCommandsPre
 import org.eclipse.che.ide.ui.dropdown.DropDownHeaderWidget;
 import org.eclipse.che.ide.ui.dropdown.DropDownListFactory;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+import org.eclipse.che.commons.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -104,7 +104,7 @@ public class SelectCommandComboBoxAction extends AbstractPerspectiveAction imple
     }
 
     @Override
-    public void updateInPerspective(@Nonnull ActionEvent event) {
+    public void updateInPerspective(@NotNull ActionEvent event) {
     }
 
     @Override
@@ -192,7 +192,7 @@ public class SelectCommandComboBoxAction extends AbstractPerspectiveAction imple
      * @param commandToSelect
      *         command that should be selected or {@code null} if none
      */
-    private void setCommandConfigurations(@Nonnull List<CommandConfiguration> commandConfigurations,
+    private void setCommandConfigurations(@NotNull List<CommandConfiguration> commandConfigurations,
                                           @Nullable CommandConfiguration commandToSelect) {
         final DefaultActionGroup commandsList = (DefaultActionGroup)actionManager.getAction(GROUP_COMMANDS_LIST);
 
@@ -224,7 +224,7 @@ public class SelectCommandComboBoxAction extends AbstractPerspectiveAction imple
         }
     }
 
-    private void clearCommandActions(@Nonnull DefaultActionGroup commandsList) {
+    private void clearCommandActions(@NotNull DefaultActionGroup commandsList) {
         for (Action action : commandActions.getChildActionsOrStubs()) {
             commandsList.remove(action);
         }

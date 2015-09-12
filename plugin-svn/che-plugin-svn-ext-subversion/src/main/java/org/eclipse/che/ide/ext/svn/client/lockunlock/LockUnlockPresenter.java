@@ -17,7 +17,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import org.apache.commons.io.comparator.PathFileComparator;
 import org.eclipse.che.ide.api.app.AppContext;
@@ -220,7 +220,7 @@ public class LockUnlockPresenter extends SubversionActionPresenter {
         };
     }
 
-    private void handleError(@Nonnull final Throwable e) {
+    private void handleError(@NotNull final Throwable e) {
         String errorMessage;
         if (e.getMessage() != null && !e.getMessage().isEmpty()) {
             errorMessage = e.getMessage();

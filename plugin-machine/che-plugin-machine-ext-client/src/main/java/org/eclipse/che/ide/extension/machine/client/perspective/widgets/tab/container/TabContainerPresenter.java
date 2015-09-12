@@ -17,7 +17,7 @@ import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.Tab;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.content.TabPresenter;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.header.TabHeader;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,7 +50,7 @@ public class TabContainerPresenter implements TabHeader.ActionDelegate {
      * @param tab
      *         tab which need add
      */
-    public void addTab(@Nonnull Tab tab) {
+    public void addTab(@NotNull Tab tab) {
         TabHeader header = tab.getHeader();
         header.setDelegate(this);
 
@@ -68,13 +68,13 @@ public class TabContainerPresenter implements TabHeader.ActionDelegate {
      * @param tabName
      *         name of tab which need show
      */
-    public void showTab(@Nonnull String tabName) {
+    public void showTab(@NotNull String tabName) {
         onTabClicked(tabName);
     }
 
     /** {@inheritDoc} */
     @Override
-    public void onTabClicked(@Nonnull String tabName) {
+    public void onTabClicked(@NotNull String tabName) {
         for (Tab tab : tabs) {
             TabHeader header = tab.getHeader();
             TabPresenter content = tab.getContent();

@@ -15,7 +15,7 @@ import com.google.inject.ImplementedBy;
 
 import org.eclipse.che.ide.extension.machine.client.machine.Machine;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * Defines methods which allows update displaying information about current machine.
@@ -31,7 +31,7 @@ public interface MachineInfoView extends IsWidget {
      * @param machine
      *         machine for which need update view
      */
-    void updateInfo(@Nonnull Machine machine);
+    void updateInfo(@NotNull Machine machine);
 
     /**
      * Sets owner's name in special place on view.
@@ -39,7 +39,7 @@ public interface MachineInfoView extends IsWidget {
      * @param ownerName
      *         name which need set
      */
-    void setOwner(@Nonnull String ownerName);
+    void setOwner(@NotNull String ownerName);
 
     /**
      * Sets workspace in special place on view.
@@ -47,7 +47,7 @@ public interface MachineInfoView extends IsWidget {
      * @param workspaceName
      *         name which need set
      */
-    void setWorkspaceName(@Nonnull String workspaceName);
+    void setWorkspaceName(@NotNull String workspaceName);
 
     /**
      * Sets view visibility.

@@ -14,7 +14,7 @@ import org.eclipse.che.api.git.shared.Remote;
 import org.eclipse.che.ide.api.mvp.View;
 
 import java.util.List;
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * The view of {@link PushToRemotePresenter}.
@@ -43,7 +43,7 @@ public interface PushToRemoteView extends View<PushToRemoteView.ActionDelegate> 
      *
      * @return repository.
      */
-    @Nonnull
+    @NotNull
     String getRepository();
 
     /**
@@ -52,10 +52,10 @@ public interface PushToRemoteView extends View<PushToRemoteView.ActionDelegate> 
      * @param repositories
      *         available repositories
      */
-    void setRepositories(@Nonnull List<Remote> repositories);
+    void setRepositories(@NotNull List<Remote> repositories);
 
     /** @return local branch */
-    @Nonnull
+    @NotNull
     String getLocalBranch();
 
     /**
@@ -64,10 +64,10 @@ public interface PushToRemoteView extends View<PushToRemoteView.ActionDelegate> 
      * @param branches
      *         local branches
      */
-    void setLocalBranches(@Nonnull List<String> branches);
+    void setLocalBranches(@NotNull List<String> branches);
 
     /** @return remote branches */
-    @Nonnull
+    @NotNull
     String getRemoteBranch();
 
     /**
@@ -76,7 +76,7 @@ public interface PushToRemoteView extends View<PushToRemoteView.ActionDelegate> 
      * @param branches
      *         remote branches
      */
-    void setRemoteBranches(@Nonnull List<String> branches);
+    void setRemoteBranches(@NotNull List<String> branches);
 
     /**
      * Add remote branch into view.
@@ -85,7 +85,7 @@ public interface PushToRemoteView extends View<PushToRemoteView.ActionDelegate> 
      *         remote branch
      * @return {@code true} if branch added and {@code false} if branch already exist
      */
-    boolean addRemoteBranch(@Nonnull String branch);
+    boolean addRemoteBranch(@NotNull String branch);
 
     /**
      * Selects pointed local branch
@@ -93,7 +93,7 @@ public interface PushToRemoteView extends View<PushToRemoteView.ActionDelegate> 
      * @param branch
      *         local branch to select
      */
-    void selectLocalBranch(@Nonnull String branch);
+    void selectLocalBranch(@NotNull String branch);
 
     /**
      * Selects pointed remote branch
@@ -101,7 +101,7 @@ public interface PushToRemoteView extends View<PushToRemoteView.ActionDelegate> 
      * @param branch
      *         remote branch to select
      */
-    void selectRemoteBranch(@Nonnull String branch);
+    void selectRemoteBranch(@NotNull String branch);
 
     /**
      * Change the enable state of the push button.

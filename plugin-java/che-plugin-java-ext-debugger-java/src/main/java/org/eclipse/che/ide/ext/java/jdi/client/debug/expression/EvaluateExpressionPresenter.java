@@ -18,7 +18,7 @@ import org.eclipse.che.ide.rest.StringUnmarshaller;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * Presenter for evaluating an expression.
@@ -43,7 +43,7 @@ public class EvaluateExpressionPresenter implements EvaluateExpressionView.Actio
     }
 
     /** Show dialog. */
-    public void showDialog(@Nonnull DebuggerInfo debuggerInfo) {
+    public void showDialog(@NotNull DebuggerInfo debuggerInfo) {
         this.debuggerInfo = debuggerInfo;
         view.setExpression("");
         view.setResult("");

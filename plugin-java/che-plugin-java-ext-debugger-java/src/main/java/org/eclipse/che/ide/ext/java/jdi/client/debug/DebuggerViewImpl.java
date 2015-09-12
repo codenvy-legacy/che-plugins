@@ -47,8 +47,8 @@ import org.eclipse.che.ide.util.dom.Elements;
 import org.eclipse.che.ide.util.input.SignalEvent;
 import org.vectomatic.dom.svg.ui.SVGImage;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+import org.eclipse.che.commons.annotation.Nullable;
 import java.util.List;
 
 /**
@@ -178,35 +178,35 @@ public class DebuggerViewImpl extends BaseView<DebuggerView.ActionDelegate> impl
         this.variables = Tree.create(rendererResources, new VariableNodeDataAdapter(), new VariableTreeNodeRenderer(rendererResources));
         this.variables.setTreeEventHandler(new Tree.Listener<DebuggerVariable>() {
             @Override
-            public void onNodeAction(@Nonnull TreeNodeElement<DebuggerVariable> node) {
+            public void onNodeAction(@NotNull TreeNodeElement<DebuggerVariable> node) {
             }
 
             @Override
-            public void onNodeClosed(@Nonnull TreeNodeElement<DebuggerVariable> node) {
+            public void onNodeClosed(@NotNull TreeNodeElement<DebuggerVariable> node) {
                 selectedVariable = null;
             }
 
             @Override
-            public void onNodeContextMenu(int mouseX, int mouseY, @Nonnull TreeNodeElement<DebuggerVariable> node) {
+            public void onNodeContextMenu(int mouseX, int mouseY, @NotNull TreeNodeElement<DebuggerVariable> node) {
             }
 
             @Override
-            public void onNodeDragStart(@Nonnull TreeNodeElement<DebuggerVariable> node, @Nonnull MouseEvent event) {
+            public void onNodeDragStart(@NotNull TreeNodeElement<DebuggerVariable> node, @NotNull MouseEvent event) {
             }
 
             @Override
-            public void onNodeDragDrop(@Nonnull TreeNodeElement<DebuggerVariable> node, @Nonnull MouseEvent event) {
+            public void onNodeDragDrop(@NotNull TreeNodeElement<DebuggerVariable> node, @NotNull MouseEvent event) {
             }
 
             @Override
-            public void onNodeExpanded(@Nonnull final TreeNodeElement<DebuggerVariable> node) {
+            public void onNodeExpanded(@NotNull final TreeNodeElement<DebuggerVariable> node) {
                 selectedVariable = node;
                 delegate.onSelectedVariableElement(selectedVariable.getData());
                 delegate.onExpandVariablesTree();
             }
 
             @Override
-            public void onNodeSelected(@Nonnull TreeNodeElement<DebuggerVariable> node, @Nonnull SignalEvent event) {
+            public void onNodeSelected(@NotNull TreeNodeElement<DebuggerVariable> node, @NotNull SignalEvent event) {
                 selectedVariable = node;
                 delegate.onSelectedVariableElement(selectedVariable.getData());
             }
@@ -216,11 +216,11 @@ public class DebuggerViewImpl extends BaseView<DebuggerView.ActionDelegate> impl
             }
 
             @Override
-            public void onRootDragDrop(@Nonnull MouseEvent event) {
+            public void onRootDragDrop(@NotNull MouseEvent event) {
             }
 
             @Override
-            public void onKeyboard(@Nonnull KeyboardEvent event) {
+            public void onKeyboard(@NotNull KeyboardEvent event) {
             }
         });
 
@@ -246,7 +246,7 @@ public class DebuggerViewImpl extends BaseView<DebuggerView.ActionDelegate> impl
 
     /** {@inheritDoc} */
     @Override
-    public void setVariables(@Nonnull List<DebuggerVariable> variables) {
+    public void setVariables(@NotNull List<DebuggerVariable> variables) {
         DebuggerVariable root = this.variables.getModel().getRoot();
         if (root == null) {
             root = new DebuggerVariable(dtoFactory.createDto(Variable.class));
@@ -258,13 +258,13 @@ public class DebuggerViewImpl extends BaseView<DebuggerView.ActionDelegate> impl
 
     /** {@inheritDoc} */
     @Override
-    public void setBreakpoints(@Nonnull List<Breakpoint> breakpoints) {
+    public void setBreakpoints(@NotNull List<Breakpoint> breakpoints) {
         this.breakpoints.render(breakpoints);
     }
 
     /** {@inheritDoc} */
     @Override
-    public void setVMName(@Nonnull String name) {
+    public void setVMName(@NotNull String name) {
         vmName.setText(name);
     }
 
@@ -324,7 +324,7 @@ public class DebuggerViewImpl extends BaseView<DebuggerView.ActionDelegate> impl
 
     /** {@inheritDoc} */
     @Override
-    public boolean setButtonState(@Nonnull ToggleButton button, boolean state) {
+    public boolean setButtonState(@NotNull ToggleButton button, boolean state) {
         if (state) {
             if (!button.isDown()) return true;
             button.setDown(false);
@@ -356,7 +356,7 @@ public class DebuggerViewImpl extends BaseView<DebuggerView.ActionDelegate> impl
 
     /** {@inheritDoc} */
     @Override
-    public void setVariablesIntoSelectedVariable(@Nonnull List<DebuggerVariable> variables) {
+    public void setVariablesIntoSelectedVariable(@NotNull List<DebuggerVariable> variables) {
         DebuggerVariable rootVariable = selectedVariable.getData();
         rootVariable.setVariables(variables);
     }

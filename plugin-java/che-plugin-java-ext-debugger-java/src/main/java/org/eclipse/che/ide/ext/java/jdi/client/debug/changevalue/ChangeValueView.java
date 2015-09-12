@@ -12,7 +12,7 @@ package org.eclipse.che.ide.ext.java.jdi.client.debug.changevalue;
 
 import org.eclipse.che.ide.api.mvp.View;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 
 /**
@@ -34,7 +34,7 @@ public interface ChangeValueView extends View<ChangeValueView.ActionDelegate> {
     }
 
     /** @return changed value */
-    @Nonnull
+    @NotNull
     String getValue();
 
     /**
@@ -43,7 +43,7 @@ public interface ChangeValueView extends View<ChangeValueView.ActionDelegate> {
      * @param value
      *         new value
      */
-    void setValue(@Nonnull String value);
+    void setValue(@NotNull String value);
 
     /**
      * Change the enable state of the evaluate button.
@@ -65,7 +65,7 @@ public interface ChangeValueView extends View<ChangeValueView.ActionDelegate> {
      * @param title
      *         new title for value field
      */
-    void setValueTitle(@Nonnull String title);
+    void setValueTitle(@NotNull String title);
 
     /** Close dialog. */
     void close();

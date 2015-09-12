@@ -22,7 +22,7 @@ import com.google.inject.Inject;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.TableResources;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -49,8 +49,8 @@ public class ServerViewImpl extends Composite implements ServerView {
         initWidget(UI_BINDER.createAndBindUi(this));
     }
 
-    @Nonnull
-    private CellTable<Server> createTable(@Nonnull TableResources tableResources) {
+    @NotNull
+    private CellTable<Server> createTable(@NotNull TableResources tableResources) {
         CellTable<Server> table = new CellTable<>(0, tableResources);
         table.setLoadingIndicator(null);
 
@@ -92,7 +92,7 @@ public class ServerViewImpl extends Composite implements ServerView {
 
     /** {@inheritDoc} */
     @Override
-    public void setServers(@Nonnull List<Server> servers) {
+    public void setServers(@NotNull List<Server> servers) {
         this.servers.setRowData(servers);
     }
 }

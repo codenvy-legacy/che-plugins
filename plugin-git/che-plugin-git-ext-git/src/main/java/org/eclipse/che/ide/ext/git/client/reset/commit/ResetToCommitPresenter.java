@@ -29,7 +29,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.event.shared.EventBus;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -127,7 +127,7 @@ public class ResetToCommitPresenter implements ResetToCommitView.ActionDelegate 
      * {@inheritDoc}
      */
     @Override
-    public void onRevisionSelected(@Nonnull Revision revision) {
+    public void onRevisionSelected(@NotNull Revision revision) {
         selectedRevision = revision;
         view.setEnableResetButton(selectedRevision != null);
     }

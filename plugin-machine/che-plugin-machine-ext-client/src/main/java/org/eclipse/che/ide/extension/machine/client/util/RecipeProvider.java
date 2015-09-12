@@ -18,7 +18,7 @@ import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.project.type.ProjectTypeRegistry;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * The class provides business logic which allows get recipe
@@ -37,7 +37,7 @@ public class RecipeProvider {
     }
 
     /** Returns url through which we can get recipe. */
-    @Nonnull
+    @NotNull
     public String getRecipeUrl() {
         CurrentProject currentProject = appContext.getCurrentProject();
 

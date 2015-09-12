@@ -27,8 +27,8 @@ import org.eclipse.che.ide.ext.java.client.projecttree.nodes.SourceFolderNode;
 import org.eclipse.che.ide.ext.java.shared.Jar;
 import org.eclipse.che.ide.ext.java.shared.JarEntry;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+import org.eclipse.che.commons.annotation.Nullable;
 
 /**
  * Factory that helps to create nodes for {@link JavaTreeStructure}.
@@ -50,8 +50,8 @@ public interface JavaNodeFactory extends NodeFactory {
      * @return a new {@link org.eclipse.che.ide.ext.java.client.projecttree.nodes.JavaProjectNode}
      */
     JavaProjectNode newJavaProjectNode(@Nullable TreeNode<?> parent,
-                                       @Nonnull ProjectDescriptor data,
-                                       @Nonnull JavaTreeStructure treeStructure);
+                                       @NotNull ProjectDescriptor data,
+                                       @NotNull JavaTreeStructure treeStructure);
 
     /**
      * Creates a new {@link org.eclipse.che.ide.ext.java.client.projecttree.nodes.JavaFolderNode} owned by the specified {@code treeStructure}
@@ -65,9 +65,9 @@ public interface JavaNodeFactory extends NodeFactory {
      *         the {@link JavaTreeStructure} to create the node for
      * @return a new {@link org.eclipse.che.ide.ext.java.client.projecttree.nodes.JavaFolderNode}
      */
-    JavaFolderNode newJavaFolderNode(@Nonnull TreeNode<?> parent,
-                                     @Nonnull ItemReference data,
-                                     @Nonnull JavaTreeStructure treeStructure);
+    JavaFolderNode newJavaFolderNode(@NotNull TreeNode<?> parent,
+                                     @NotNull ItemReference data,
+                                     @NotNull JavaTreeStructure treeStructure);
 
     /**
      * Creates a new {@link org.eclipse.che.ide.ext.java.client.projecttree.nodes.SourceFolderNode} owned by the specified {@code treeStructure}
@@ -81,9 +81,9 @@ public interface JavaNodeFactory extends NodeFactory {
      *         the {@link JavaTreeStructure} to create the node for
      * @return a new {@link org.eclipse.che.ide.ext.java.client.projecttree.nodes.SourceFolderNode}
      */
-    SourceFolderNode newSourceFolderNode(@Nonnull TreeNode<?> parent,
-                                         @Nonnull ItemReference data,
-                                         @Nonnull JavaTreeStructure treeStructure);
+    SourceFolderNode newSourceFolderNode(@NotNull TreeNode<?> parent,
+                                         @NotNull ItemReference data,
+                                         @NotNull JavaTreeStructure treeStructure);
 
     /**
      * Creates a new {@link org.eclipse.che.ide.ext.java.client.projecttree.nodes.PackageNode} owned by the specified {@code treeStructure}
@@ -97,9 +97,9 @@ public interface JavaNodeFactory extends NodeFactory {
      *         the {@link JavaTreeStructure} to create the node for
      * @return a new {@link org.eclipse.che.ide.ext.java.client.projecttree.nodes.PackageNode}
      */
-    PackageNode newPackageNode(@Nonnull TreeNode<?> parent,
-                               @Nonnull ItemReference data,
-                               @Nonnull JavaTreeStructure treeStructure);
+    PackageNode newPackageNode(@NotNull TreeNode<?> parent,
+                               @NotNull ItemReference data,
+                               @NotNull JavaTreeStructure treeStructure);
 
     /**
      * Creates a new {@link org.eclipse.che.ide.ext.java.client.projecttree.nodes.SourceFileNode} owned by the specified {@code treeStructure}
@@ -113,9 +113,9 @@ public interface JavaNodeFactory extends NodeFactory {
      *         the {@link JavaTreeStructure} to create the node for
      * @return a new {@link org.eclipse.che.ide.ext.java.client.projecttree.nodes.SourceFileNode}
      */
-    SourceFileNode newSourceFileNode(@Nonnull TreeNode<?> parent,
-                                     @Nonnull ItemReference data,
-                                     @Nonnull JavaTreeStructure treeStructure);
+    SourceFileNode newSourceFileNode(@NotNull TreeNode<?> parent,
+                                     @NotNull ItemReference data,
+                                     @NotNull JavaTreeStructure treeStructure);
 
     /**
      * Creates a new {@link org.eclipse.che.ide.ext.java.client.projecttree.nodes.ExternalLibrariesNode} owned by the specified {@code treeStructure}
@@ -129,9 +129,9 @@ public interface JavaNodeFactory extends NodeFactory {
      *         the {@link JavaTreeStructure} to create the node for
      * @return a new {@link org.eclipse.che.ide.ext.java.client.projecttree.nodes.ExternalLibrariesNode}
      */
-    ExternalLibrariesNode newExternalLibrariesNode(@Nonnull JavaProjectNode parent,
-                                                   @Nonnull Object data,
-                                                   @Nonnull JavaTreeStructure treeStructure);
+    ExternalLibrariesNode newExternalLibrariesNode(@NotNull JavaProjectNode parent,
+                                                   @NotNull Object data,
+                                                   @NotNull JavaTreeStructure treeStructure);
 
     /**
      * Creates a new {@link org.eclipse.che.ide.ext.java.client.projecttree.nodes.JarNode} owned by the specified {@code treeStructure}
@@ -145,9 +145,9 @@ public interface JavaNodeFactory extends NodeFactory {
      *         the {@link JavaTreeStructure} to create the node for
      * @return a new {@link org.eclipse.che.ide.ext.java.client.projecttree.nodes.JarNode}
      */
-    JarNode newJarNode(@Nonnull ExternalLibrariesNode parent,
-                       @Nonnull Jar data,
-                       @Nonnull JavaTreeStructure treeStructure);
+    JarNode newJarNode(@NotNull ExternalLibrariesNode parent,
+                       @NotNull Jar data,
+                       @NotNull JavaTreeStructure treeStructure);
 
     /**
      * Creates a new {@link org.eclipse.che.ide.ext.java.client.projecttree.nodes.JarContainerNode} owned by the specified {@code treeStructure}
@@ -163,9 +163,9 @@ public interface JavaNodeFactory extends NodeFactory {
      *         lib ID
      * @return a new {@link org.eclipse.che.ide.ext.java.client.projecttree.nodes.JarContainerNode}
      */
-    JarContainerNode newJarContainerNode(@Nonnull TreeNode<?> parent,
-                                         @Nonnull JarEntry data,
-                                         @Nonnull JavaTreeStructure treeStructure,
+    JarContainerNode newJarContainerNode(@NotNull TreeNode<?> parent,
+                                         @NotNull JarEntry data,
+                                         @NotNull JavaTreeStructure treeStructure,
                                          int libId);
 
     /**
@@ -182,9 +182,9 @@ public interface JavaNodeFactory extends NodeFactory {
      *         lib ID
      * @return a new {@link org.eclipse.che.ide.ext.java.client.projecttree.nodes.JarFileNode}
      */
-    JarFileNode newJarFileNode(@Nonnull TreeNode<?> parent,
-                               @Nonnull JarEntry data,
-                               @Nonnull JavaTreeStructure treeStructure,
+    JarFileNode newJarFileNode(@NotNull TreeNode<?> parent,
+                               @NotNull JarEntry data,
+                               @NotNull JavaTreeStructure treeStructure,
                                int libId);
 
     /**
@@ -201,8 +201,8 @@ public interface JavaNodeFactory extends NodeFactory {
      *         lib ID
      * @return a new {@link org.eclipse.che.ide.ext.java.client.projecttree.nodes.JarClassNode}
      */
-    JarClassNode newJarClassNode(@Nonnull TreeNode<?> parent,
-                                 @Nonnull JarEntry data,
-                                 @Nonnull JavaTreeStructure treeStructure,
+    JarClassNode newJarClassNode(@NotNull TreeNode<?> parent,
+                                 @NotNull JarEntry data,
+                                 @NotNull JavaTreeStructure treeStructure,
                                  int libId);
 }

@@ -21,7 +21,7 @@ import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.panel.MachinePanelPresenter;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.Collections;
 
 import static org.eclipse.che.ide.extension.machine.client.perspective.MachinePerspective.MACHINE_PERSPECTIVE_ID;
@@ -59,7 +59,7 @@ public class DestroyMachineAction extends AbstractPerspectiveAction {
 
     /** {@inheritDoc} */
     @Override
-    public void updateInPerspective(@Nonnull ActionEvent event) {
+    public void updateInPerspective(@NotNull ActionEvent event) {
         final Machine selectedMachine = panelPresenter.getSelectedMachine();
         event.getPresentation().setEnabled(selectedMachine != null);
         event.getPresentation().setText(selectedMachine != null ? locale.machineDestroyTitle(selectedMachine.getDisplayName())
@@ -68,7 +68,7 @@ public class DestroyMachineAction extends AbstractPerspectiveAction {
 
     /** {@inheritDoc} */
     @Override
-    public void actionPerformed(@Nonnull ActionEvent event) {
+    public void actionPerformed(@NotNull ActionEvent event) {
         eventLogger.log(this);
 
         final Machine selectedMachine = panelPresenter.getSelectedMachine();

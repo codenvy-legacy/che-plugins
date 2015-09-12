@@ -21,7 +21,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.event.shared.EventBus;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * Tree structure provider responsible for creating tree structure instances for project.
@@ -53,7 +53,7 @@ public class AntProjectTreeStructureProvider implements TreeStructureProvider {
         this.service = service;
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public String getId() {
         return ID;

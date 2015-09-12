@@ -35,7 +35,7 @@ import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -163,7 +163,7 @@ public class RemoteViewImpl extends Window implements RemoteView {
 
     /** {@inheritDoc} */
     @Override
-    public void setRemotes(@Nonnull List<Remote> remotes) {
+    public void setRemotes(@NotNull List<Remote> remotes) {
         // Wraps Array in java.util.List
         List<Remote> list = new ArrayList<>();
         for (Remote remote : remotes) {

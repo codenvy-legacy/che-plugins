@@ -21,7 +21,7 @@ import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateH
 import org.eclipse.che.ide.extension.machine.client.perspective.terminal.TerminalPresenter;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.content.TabPresenter;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -50,7 +50,7 @@ public class TerminalContainer implements TabPresenter, MachineStateHandler {
      * @param machine
      *         machine for which terminal will be added or updated
      */
-    public void addOrShowTerminal(@Nonnull Machine machine) {
+    public void addOrShowTerminal(@NotNull Machine machine) {
         TerminalPresenter terminal = terminals.get(machine);
 
         if (terminal != null) {

@@ -18,8 +18,8 @@ import org.eclipse.che.plugin.docker.client.dto.AuthConfig;
 import org.eclipse.che.plugin.docker.ext.client.DockerLocalizationConstant;
 import org.eclipse.che.plugin.docker.ext.client.manage.input.callback.InputCallback;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+import org.eclipse.che.commons.annotation.Nullable;
 
 /**
  * {@link InputDialog} implementation.
@@ -42,7 +42,7 @@ public class InputDialogPresenter implements InputDialog, InputDialogView.Action
     @AssistedInject
     public InputDialogPresenter(@Assisted InputMode inputMode,
                                 @Nullable @Assisted InputCallback inputCallback,
-                                @Nonnull InputDialogView view,
+                                @NotNull InputDialogView view,
                                 DtoFactory dtoFactory,
                                 DockerLocalizationConstant locale) {
         this.locale = locale;

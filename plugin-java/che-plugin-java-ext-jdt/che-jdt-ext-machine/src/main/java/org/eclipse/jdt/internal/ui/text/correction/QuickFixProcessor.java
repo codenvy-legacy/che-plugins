@@ -10,7 +10,7 @@
  *     Benjamin Muskalla <b.muskalla@gmx.net> - [quick fix] Quick fix for missing synchronized modifier - https://bugs.eclipse.org/bugs/show_bug.cgi?id=245250
  *     Stephan Herrmann - Contributions for
  *								[quick fix] Add quick fixes for null annotations - https://bugs.eclipse.org/337977
- *								[quick fix] The fix change parameter type to @Nonnull generated a null change - https://bugs.eclipse.org/400668 
+ *								[quick fix] The fix change parameter type to @NotNull generated a null change - https://bugs.eclipse.org/400668 
  *								[quick fix] don't propose null annotations when those are disabled - https://bugs.eclipse.org/405086
  *								[quickfix] Update null annotation quick fixes for bug 388281 - https://bugs.eclipse.org/395555
  *     Lukas Hanke <hanke@yatta.de> - Bug 241696 [quick fix] quickfix to iterate over a collection - https://bugs.eclipse.org/bugs/show_bug.cgi?id=241696

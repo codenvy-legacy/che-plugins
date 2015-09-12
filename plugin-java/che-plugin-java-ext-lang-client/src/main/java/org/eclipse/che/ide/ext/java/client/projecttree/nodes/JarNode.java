@@ -25,7 +25,7 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import com.google.web.bindery.event.shared.EventBus;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,13 +58,13 @@ public class JarNode extends AbstractTreeNode<Jar> {
         setDisplayIcon(registry.getIcon("java.jar").getSVGImage());
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public String getId() {
         return String.valueOf(getData().getId());
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public String getDisplayName() {
         return getData().getName();

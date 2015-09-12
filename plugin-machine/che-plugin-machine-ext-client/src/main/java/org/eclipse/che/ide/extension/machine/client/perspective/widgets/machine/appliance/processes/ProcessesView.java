@@ -15,7 +15,7 @@ import com.google.inject.ImplementedBy;
 import org.eclipse.che.api.machine.shared.dto.ProcessDescriptor;
 import org.eclipse.che.ide.api.mvp.View;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -32,7 +32,7 @@ public interface ProcessesView extends View<ProcessesView.ActionDelegate> {
      * @param descriptors
      *         descriptors which need display
      */
-    void setProcesses(@Nonnull List<ProcessDescriptor> descriptors);
+    void setProcesses(@NotNull List<ProcessDescriptor> descriptors);
 
     /**
      * Change visibility state of panel.
@@ -49,6 +49,6 @@ public interface ProcessesView extends View<ProcessesView.ActionDelegate> {
          * @param descriptor
          *         process which is selected
          */
-        void onProcessClicked(@Nonnull ProcessDescriptor descriptor);
+        void onProcessClicked(@NotNull ProcessDescriptor descriptor);
     }
 }

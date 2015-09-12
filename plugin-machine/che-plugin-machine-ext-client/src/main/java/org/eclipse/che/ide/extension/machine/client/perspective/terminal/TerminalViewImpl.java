@@ -20,7 +20,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RequiresResize;
 import com.google.gwt.user.client.ui.Widget;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * The class contains methods to display terminal.
@@ -58,7 +58,7 @@ final class TerminalViewImpl extends Composite implements TerminalView, Requires
 
     /** {@inheritDoc} */
     @Override
-    public void openTerminal(@Nonnull final TerminalJso terminal) {
+    public void openTerminal(@NotNull final TerminalJso terminal) {
         unavailableLabel.setVisible(false);
 
         terminalPanel.setVisible(true);
@@ -69,7 +69,7 @@ final class TerminalViewImpl extends Composite implements TerminalView, Requires
 
     /** {@inheritDoc} */
     @Override
-    public void showErrorMessage(@Nonnull String message) {
+    public void showErrorMessage(@NotNull String message) {
         unavailableLabel.setText(message);
         unavailableLabel.setVisible(true);
 

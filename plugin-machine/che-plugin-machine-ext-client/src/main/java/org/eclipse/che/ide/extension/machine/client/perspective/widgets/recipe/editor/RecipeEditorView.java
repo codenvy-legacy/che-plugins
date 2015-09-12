@@ -15,7 +15,7 @@ import com.google.inject.ImplementedBy;
 import org.eclipse.che.ide.api.editor.EditorPartPresenter;
 import org.eclipse.che.ide.api.mvp.View;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -31,7 +31,7 @@ public interface RecipeEditorView extends View<RecipeEditorView.ActionDelegate> 
      * @param url
      *         script's url
      */
-    void setScriptUrl(@Nonnull String url);
+    void setScriptUrl(@NotNull String url);
 
     /**
      * Sets tags of the recipe which used for recipes search.
@@ -39,21 +39,21 @@ public interface RecipeEditorView extends View<RecipeEditorView.ActionDelegate> 
      * @param tags
      *         list of tags
      */
-    void setTags(@Nonnull List<String> tags);
+    void setTags(@NotNull List<String> tags);
 
     /** Returns script's url */
-    @Nonnull
+    @NotNull
     String getScriptUrl();
 
     /** Gets name of the recipe */
-    @Nonnull
+    @NotNull
     String getName();
 
     /** Sets name of the recipe */
-    void setName(@Nonnull String name);
+    void setName(@NotNull String name);
 
     /** Returns tags which used for recipes search */
-    @Nonnull
+    @NotNull
     List<String> getTags();
 
     /**
@@ -126,7 +126,7 @@ public interface RecipeEditorView extends View<RecipeEditorView.ActionDelegate> 
      * @param editor
      *         editor that needs to be shown
      */
-    void showEditor(@Nonnull EditorPartPresenter editor);
+    void showEditor(@NotNull EditorPartPresenter editor);
 
     /** Hides panel with property buttons. */
     void hideButtonsPanel();

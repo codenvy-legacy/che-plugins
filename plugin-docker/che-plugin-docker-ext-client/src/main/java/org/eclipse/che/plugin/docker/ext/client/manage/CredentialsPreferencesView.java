@@ -15,7 +15,7 @@ import com.google.inject.ImplementedBy;
 import org.eclipse.che.ide.api.mvp.View;
 import org.eclipse.che.plugin.docker.client.dto.AuthConfig;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.Collection;
 
 /**
@@ -26,7 +26,7 @@ import java.util.Collection;
 @ImplementedBy(CredentialsPreferencesViewImpl.class)
 public interface CredentialsPreferencesView extends View<CredentialsPreferencesView.ActionDelegate> {
 
-    void setKeys(@Nonnull Collection<AuthConfig> keys);
+    void setKeys(@NotNull Collection<AuthConfig> keys);
 
     interface ActionDelegate {
 

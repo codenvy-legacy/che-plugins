@@ -28,7 +28,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 
 /**
@@ -84,7 +84,7 @@ public class EvaluateExpressionViewImpl extends DialogBox implements EvaluateExp
     }
 
     /** {@inheritDoc} */
-    @Nonnull
+    @NotNull
     @Override
     public String getExpression() {
         return expression.getText();
@@ -92,13 +92,13 @@ public class EvaluateExpressionViewImpl extends DialogBox implements EvaluateExp
 
     /** {@inheritDoc} */
     @Override
-    public void setExpression(@Nonnull String expression) {
+    public void setExpression(@NotNull String expression) {
         this.expression.setText(expression);
     }
 
     /** {@inheritDoc} */
     @Override
-    public void setResult(@Nonnull String value) {
+    public void setResult(@NotNull String value) {
         this.result.setText(value);
     }
 

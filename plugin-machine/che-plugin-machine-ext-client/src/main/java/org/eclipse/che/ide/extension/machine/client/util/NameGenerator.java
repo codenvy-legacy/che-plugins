@@ -15,7 +15,7 @@ import com.google.gwt.regexp.shared.RegExp;
 
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.recipe.entry.RecipeWidget;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -50,8 +50,8 @@ public class NameGenerator {
      * @return recipe name which consists of string 'Copy of ' and existing name with a current date. If there is an existing name,
      * add a number suffix like "Copy2 of", "Copy3 of", etc.
      */
-    @Nonnull
-    public static String generateCopy(@Nonnull String name, @Nonnull Set<RecipeWidget> recipeWidgets) {
+    @NotNull
+    public static String generateCopy(@NotNull String name, @NotNull Set<RecipeWidget> recipeWidgets) {
         List<String> existingNames = new ArrayList<>();
 
         for (RecipeWidget recipe : recipeWidgets) {
@@ -80,7 +80,7 @@ public class NameGenerator {
      *         list of existing recipes
      * @return name of new recipe
      */
-    public static String generateCustomRecipeName(@Nonnull Set<RecipeWidget> recipeWidgets) {
+    public static String generateCustomRecipeName(@NotNull Set<RecipeWidget> recipeWidgets) {
         int counter = 1;
         String name = CUSTOM_RECIPE_NAME + '-' + String.valueOf(counter);
         List<Object> recipes = Arrays.asList(recipeWidgets.toArray());

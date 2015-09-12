@@ -14,7 +14,7 @@ import com.google.gwt.user.client.ui.AcceptsOneWidget;
 
 import org.eclipse.che.ide.api.mvp.Presenter;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * Page allows to configure specific command parameters.
@@ -33,7 +33,7 @@ public interface CommandConfigurationPage<T extends CommandConfiguration> extend
      * an appropriate command configuration in 'Command Configuration'
      * dialog and before actual displaying this page.
      */
-    void resetFrom(@Nonnull T configuration);
+    void resetFrom(@NotNull T configuration);
 
     /**
      * This method is called every time when user selects an appropriate
@@ -55,7 +55,7 @@ public interface CommandConfigurationPage<T extends CommandConfiguration> extend
      * Sets {@link DirtyStateListener} that should be called
      * every time when any modifications on the page has been performed.
      */
-    void setDirtyStateListener(@Nonnull DirtyStateListener listener);
+    void setDirtyStateListener(@NotNull DirtyStateListener listener);
 
     /** Listener that should be called when any modifications on page. */
     interface DirtyStateListener {

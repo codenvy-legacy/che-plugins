@@ -14,7 +14,7 @@ import com.google.inject.ImplementedBy;
 
 import org.eclipse.che.ide.api.mvp.View;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * The interface which provides methods which allow change behaviour of the widget and answer on user actions(clicks).
@@ -30,6 +30,6 @@ public interface RecipeEntry extends View<RecipeEntry.ActionDelegate> {
          * @param recipeWidget
          *         widget of the recipe which was selected
          */
-        void onRecipeClicked(@Nonnull RecipeWidget recipeWidget);
+        void onRecipeClicked(@NotNull RecipeWidget recipeWidget);
     }
 }

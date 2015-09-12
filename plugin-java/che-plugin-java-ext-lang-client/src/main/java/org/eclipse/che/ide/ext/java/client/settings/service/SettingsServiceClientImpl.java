@@ -23,7 +23,7 @@ import org.eclipse.che.ide.json.JsonHelper;
 import org.eclipse.che.ide.rest.AsyncRequestFactory;
 import org.eclipse.che.ide.rest.StringMapUnmarshaller;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.Map;
 
 import static org.eclipse.che.api.promises.client.callback.PromiseHelper.newCallback;
@@ -65,7 +65,7 @@ public class SettingsServiceClientImpl implements SettingsServiceClient {
 
     /** {@inheritDoc} */
     @Override
-    public Promise<Void> applyCompileParameters(@Nonnull final Map<String, String> parameters) {
+    public Promise<Void> applyCompileParameters(@NotNull final Map<String, String> parameters) {
         final String pathToProject = getPathToProject();
 
         return newPromise(new AsyncPromiseHelper.RequestCall<Void>() {

@@ -13,7 +13,7 @@ package org.eclipse.che.ide.ext.git.client.remote;
 import org.eclipse.che.api.git.shared.Remote;
 import org.eclipse.che.ide.api.mvp.View;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -39,7 +39,7 @@ public interface RemoteView extends View<RemoteView.ActionDelegate> {
          * @param remote
          *         selected Remote
          */
-        void onRemoteSelected(@Nonnull Remote remote);
+        void onRemoteSelected(@NotNull Remote remote);
     }
 
     /**
@@ -48,7 +48,7 @@ public interface RemoteView extends View<RemoteView.ActionDelegate> {
      * @param remotes
      *         list of available remote repositories.
      */
-    void setRemotes(@Nonnull List<Remote> remotes);
+    void setRemotes(@NotNull List<Remote> remotes);
 
     /**
      * Change the enable state of the delete button.

@@ -25,8 +25,8 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import com.google.web.bindery.event.shared.EventBus;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+import org.eclipse.che.commons.annotation.Nullable;
 
 /**
  * @author Evgen Vidolob
@@ -71,13 +71,13 @@ public class JarClassNode extends JarEntryNode implements VirtualFile {
         eventBus.fireEvent(new FileEvent(this, FileEvent.FileOperation.OPEN));
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public String getPath() {
         return getData().getPath();
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public String getName() {
         return getData().getName();
