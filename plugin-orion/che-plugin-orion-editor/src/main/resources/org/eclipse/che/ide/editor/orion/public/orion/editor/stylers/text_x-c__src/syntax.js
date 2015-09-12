@@ -61,6 +61,7 @@ define("orion/editor/stylers/text_x-c__src/syntax", ["orion/editor/stylers/lib/s
 			{include: "orion.lib#bracket_close"}, //$NON-NLS-0$
 			{include: "orion.lib#parenthesis_open"}, //$NON-NLS-0$
 			{include: "orion.lib#parenthesis_close"}, //$NON-NLS-0$
+			{include: "orion.lib#operator"}, //$NON-NLS-0$
 			{include: "orion.lib#number_decimal"}, //$NON-NLS-0$
 			{include: "orion.lib#number_hex"}, //$NON-NLS-0$
 			{
@@ -70,8 +71,8 @@ define("orion/editor/stylers/text_x-c__src/syntax", ["orion/editor/stylers/lib/s
 		],
 		repository: {
 			directive: {
-				match: "(#\\s*(?:" + directives.join("|") + "))\\b",
-				name: "keyword.operator.directive.cpp"
+				match: "#\\s*(?:" + directives.join("|") + ")\\b[^$]*", //$NON-NLS-2$ //$NON-NLS-1$ //$NON-NLS-0$
+				name: "meta.preprocessor.cpp" //$NON-NLS-0$
 			}
 		}
 	});

@@ -105,13 +105,12 @@
 }
 .textviewTooltip {
     font-family: "Consolas", "Monaco", "Vera Mono", monospace;
-    font-size: 10pt;
-    background-color: InfoBackground;
-    color: InfoText;
-    padding: 2px;
-    border-radius: 4px;
-    border: 1px solid black;
-    z-index: 100;
+    font-size: 12px;
+    background-color: #325C80;
+    color: #FAFAFA;
+    padding: 8px;
+    border-radius: 3px;
+    z-index: 101;
     position: fixed;
     overflow: hidden;
 }
@@ -658,4 +657,8 @@
 .che-hint-active {
     background: #08f;
     color: white;
+}
+
+.tooltipImage{
+    float: left;
 }

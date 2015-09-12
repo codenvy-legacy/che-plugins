@@ -68,6 +68,7 @@ define("orion/editor/stylers/text_x-swift/syntax", ["orion/editor/stylers/lib/sy
 			{include: "orion.lib#bracket_close"}, //$NON-NLS-0$
 			{include: "orion.lib#parenthesis_open"}, //$NON-NLS-0$
 			{include: "orion.lib#parenthesis_close"}, //$NON-NLS-0$
+			{include: "orion.lib#operator"}, //$NON-NLS-0$
 			{include: "#number_binary"}, //$NON-NLS-0$
 			{include: "#number_hex"}, //$NON-NLS-0$
 			{include: "#number_octal"}, //$NON-NLS-0$
@@ -188,6 +189,6 @@ define("orion/editor/stylers/text_x-swift/syntax", ["orion/editor/stylers/lib/sy
 	return {
 		id: grammars[grammars.length - 1].id,
 		grammars: grammars,
-		keywords: keywords.concat(controlKeywords)
+		keywords: keywords.concat(controlKeywords).concat(constants).concat(languageVars1).concat(languageVars2)
 	};
 });

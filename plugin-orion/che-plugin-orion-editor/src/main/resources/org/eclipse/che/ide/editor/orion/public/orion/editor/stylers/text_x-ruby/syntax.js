@@ -47,6 +47,7 @@ define("orion/editor/stylers/text_x-ruby/syntax", ["orion/editor/stylers/lib/syn
 	var constants = [
 		"false", "nil", "true" //$NON-NLS-2$ //$NON-NLS-1$ //$NON-NLS-0$
 	];
+	var languageVariables = ["self", "super"]; //$NON-NLS-1$ //$NON-NLS-0$
 
 	var grammars = [];
 	grammars.push.apply(grammars, mLib.grammars);
@@ -90,6 +91,7 @@ define("orion/editor/stylers/text_x-ruby/syntax", ["orion/editor/stylers/lib/syn
 			{include: "orion.lib#bracket_close"}, //$NON-NLS-0$
 			{include: "orion.lib#parenthesis_open"}, //$NON-NLS-0$
 			{include: "orion.lib#parenthesis_close"}, //$NON-NLS-0$
+			{include: "orion.lib#operator"}, //$NON-NLS-0$
 			{include: "orion.lib#number_decimal"}, //$NON-NLS-0$
 			{include: "orion.lib#number_hex"}, //$NON-NLS-0$
 			{include: "#variable"}, //$NON-NLS-0$
@@ -110,7 +112,7 @@ define("orion/editor/stylers/text_x-ruby/syntax", ["orion/editor/stylers/lib/syn
 				name: "constant.language.ruby" //$NON-NLS-0$
 			},
 			{
-				match: "\\b(?:self|super)\\b", //$NON-NLS-0$
+				match: "\\b(?:" + languageVariables.join("|") + ")\\b", //$NON-NLS-2$ //$NON-NLS-1$ //$NON-NLS-0$
 				name: "variable.language.ruby" //$NON-NLS-0$
 			}
 		],
@@ -139,6 +141,6 @@ define("orion/editor/stylers/text_x-ruby/syntax", ["orion/editor/stylers/lib/syn
 	return {
 		id: grammars[grammars.length - 1].id,
 		grammars: grammars,
-		keywords: keywords.concat(controlKeywords)
+		keywords: keywords.concat(controlKeywords).concat(constants).concat(languageVariables)
 	};
 });

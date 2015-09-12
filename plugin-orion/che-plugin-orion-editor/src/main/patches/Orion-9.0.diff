@@ -1,0 +1,20 @@
+diff --git a/org/eclipse/che/ide/editor/orion/public/orion-9.0/built-editor-amd.js b/org/eclipse/che/ide/editor/orion/public/orion-9.0/built-editor-amd.js
+index d81f7e1..81b2cbc 100644
+--- a/org/eclipse/che/ide/editor/orion/public/orion-9.0/built-editor-amd.js
++++ b/org/eclipse/che/ide/editor/orion/public/orion-9.0/built-editor-amd.js
+@@ -6487,6 +6487,7 @@
+ 		},
+ 		_handleMouseWheel: function (e) {
+ 			if (this._noScroll) return;
++			if(e.defaultPrevented) return;
+ 			var lineHeight = this._getLineHeight();
+ 			var pixelX = 0, pixelY = 0;
+ 			// Note: On the Mac the correct behaviour is to scroll by pixel.
+@@ -22931,6 +22932,7 @@
+ 			annotationFactory: new mEditorFeatures.AnnotationFactory(),
+ 			lineNumberRulerFactory: new mEditorFeatures.LineNumberRulerFactory(),
+ 			foldingRulerFactory: new mEditorFeatures.FoldingRulerFactory(),
++            zoomRulerFactory: new mEditorFeatures.ZoomRulerFactory(),
+ 			textDNDFactory: new mEditorFeatures.TextDNDFactory(),
+ 			contentAssistFactory: contentAssistFactory,
+ 			keyBindingFactory: new mEditorFeatures.KeyBindingsFactory(), 
