@@ -66,7 +66,9 @@ public class DockerMachineExtServerLauncher {
     public void start() {
 
         if (notExists(new File(extServerArchiveLocation).toPath())) {
-            throw new RuntimeException(String.format("Ext server archive not found at %s", extServerArchiveLocation));
+            String msg =  String.format("Ext server archive not found at %s", extServerArchiveLocation);
+            LOG.error(msg);
+            throw new RuntimeException(msg);
         }
 
         eventService.subscribe(new EventSubscriber<MachineStatusEvent>() {

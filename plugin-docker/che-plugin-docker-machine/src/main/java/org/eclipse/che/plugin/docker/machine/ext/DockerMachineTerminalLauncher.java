@@ -67,7 +67,9 @@ public class DockerMachineTerminalLauncher {
     public void start() {
 
         if (notExists(new File(terminalArchiveLocation).toPath())) {
-            throw new RuntimeException(String.format("Terminal archive not found at %s", terminalArchiveLocation));
+            String msg = String.format("Terminal archive not found at %s", terminalArchiveLocation);
+            LOG.error(msg);
+            throw new RuntimeException(msg);
         }
 
         eventService.subscribe(new EventSubscriber<MachineStatusEvent>() {
