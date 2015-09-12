@@ -71,7 +71,7 @@ public class BowerExtension {
         // Install Bower dependencies when projects is being opened and that there is no app/bower_components
         eventBus.addHandler(ProjectActionEvent.TYPE, new ProjectActionHandler() {
             @Override
-            public void onProjectOpened(ProjectActionEvent event) {
+            public void onProjectReady(ProjectActionEvent event) {
 
                 final ProjectDescriptor project = event.getProject();
                 boolean isBowerJsProject = isBowerJsProject(project);
@@ -141,6 +141,11 @@ public class BowerExtension {
 
             @Override
             public void onProjectClosed(ProjectActionEvent event) {
+
+            }
+
+            @Override
+            public void onProjectOpened(ProjectActionEvent event) {
 
             }
 

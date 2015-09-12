@@ -84,7 +84,7 @@ public class SubversionActionPresenter {
 
         eventBus.addHandler(ProjectActionEvent.TYPE, new ProjectActionHandler() {
             @Override
-            public void onProjectOpened(final ProjectActionEvent event) {
+            public void onProjectReady(final ProjectActionEvent event) {
             }
 
             @Override
@@ -96,6 +96,11 @@ public class SubversionActionPresenter {
                 isViewClosed = true;
                 console.clear();
                 workspaceAgent.hidePart(console);
+            }
+
+            @Override
+            public void onProjectOpened(ProjectActionEvent event) {
+
             }
 
         });

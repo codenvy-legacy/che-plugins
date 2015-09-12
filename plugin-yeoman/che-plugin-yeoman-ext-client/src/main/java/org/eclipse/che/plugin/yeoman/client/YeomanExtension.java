@@ -54,7 +54,7 @@ public class YeomanExtension {
         }
 
         @Override
-        public void onProjectOpened(ProjectActionEvent event) {
+        public void onProjectReady(ProjectActionEvent event) {
 
             ProjectDescriptor project = event.getProject();
             final String projectTypeId = project.getType();
@@ -82,6 +82,11 @@ public class YeomanExtension {
             if (isJSProject) {
                 workspaceAgent.removePart(yeomanPartPresenter);
             }
+
+        }
+
+        @Override
+        public void onProjectOpened(ProjectActionEvent event) {
 
         }
     }

@@ -101,7 +101,7 @@ public class HistoryPresenter extends BasePresenter implements HistoryView.Actio
         this.selectionAgent = selectionAgent;
         eventBus.addHandler(ProjectActionEvent.TYPE, new ProjectActionHandler() {
             @Override
-            public void onProjectOpened(ProjectActionEvent event) {
+            public void onProjectReady(ProjectActionEvent event) {
 
             }
 
@@ -115,6 +115,11 @@ public class HistoryPresenter extends BasePresenter implements HistoryView.Actio
                 isViewClosed = true;
                 workspaceAgent.hidePart(HistoryPresenter.this);
                 view.clear();
+            }
+
+            @Override
+            public void onProjectOpened(ProjectActionEvent event) {
+
             }
         });
     }

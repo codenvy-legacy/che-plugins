@@ -817,10 +817,10 @@ public class CreateJavaClassPresenter implements CreateJavaClassHandler, ViewClo
    }
 
    /**
-    * @see org.eclipse.che.ide.client.framework.project.ProjectOpenedHandler#onProjectOpened(org.eclipse.che.ide.client.framework.project.ProjectOpenedEvent)
+    * @see org.eclipse.che.ide.client.framework.project.ProjectOpenedHandler#onProjectReady(org.eclipse.che.ide.client.framework.project.ProjectOpenedEvent)
     */
    @Override
-   public void onProjectOpened(ProjectOpenedEvent event)
+   public void onProjectReady(ProjectOpenedEvent event)
    {
       currentProject = event.getProject();
    }

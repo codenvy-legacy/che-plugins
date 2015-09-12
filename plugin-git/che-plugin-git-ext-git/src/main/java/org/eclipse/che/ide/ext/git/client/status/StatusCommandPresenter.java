@@ -74,7 +74,7 @@ public class StatusCommandPresenter {
 
         eventBus.addHandler(ProjectActionEvent.TYPE, new ProjectActionHandler() {
             @Override
-            public void onProjectOpened(ProjectActionEvent event) {
+            public void onProjectReady(ProjectActionEvent event) {
 
             }
 
@@ -88,6 +88,11 @@ public class StatusCommandPresenter {
                 isViewClosed = true;
                 console.clear();
                 workspaceAgent.hidePart(console);
+            }
+
+            @Override
+            public void onProjectOpened(ProjectActionEvent event) {
+
             }
         });
     }

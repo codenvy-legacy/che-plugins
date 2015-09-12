@@ -115,7 +115,7 @@ public class ResolveAction extends SubversionAction implements SelectionChangedH
 
     /** {@inheritDoc} */
     @Override
-    public void onProjectOpened(ProjectActionEvent event) {
+    public void onProjectReady(ProjectActionEvent event) {
         fetchConflicts();
     }
 
@@ -129,6 +129,11 @@ public class ResolveAction extends SubversionAction implements SelectionChangedH
     @Override
     public void onProjectClosed(ProjectActionEvent event) {
         conflictsList = null;
+    }
+
+    @Override
+    public void onProjectOpened(ProjectActionEvent event) {
+
     }
 
     @Override

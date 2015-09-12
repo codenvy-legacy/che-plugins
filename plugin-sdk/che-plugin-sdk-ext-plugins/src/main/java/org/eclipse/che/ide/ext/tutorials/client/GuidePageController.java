@@ -37,7 +37,7 @@ public class GuidePageController {
 
         eventBus.addHandler(ProjectActionEvent.TYPE, new ProjectActionHandler() {
             @Override
-            public void onProjectOpened(ProjectActionEvent event) {
+            public void onProjectReady(ProjectActionEvent event) {
                 if (event.getProject().getType().equals(Constants.TUTORIAL_ID)) {
 //                    openTutorialGuide();
                 }
@@ -52,6 +52,11 @@ public class GuidePageController {
                 if (event.getProject().getDescription().equals(Constants.TUTORIAL_ID)) {
 //                    closeTutorialGuide();
                 }
+            }
+
+            @Override
+            public void onProjectOpened(ProjectActionEvent event) {
+
             }
         });
     }
