@@ -24,6 +24,7 @@ import org.eclipse.che.api.project.shared.dto.RunnerConfiguration;
 import org.eclipse.che.api.project.shared.dto.RunnersDescriptor;
 import org.eclipse.che.api.runner.dto.ApplicationProcessDescriptor;
 import org.eclipse.che.api.runner.dto.RunOptions;
+import org.eclipse.che.commons.annotation.Nullable;
 import org.eclipse.che.ide.api.action.permits.ActionDenyAccessDialog;
 import org.eclipse.che.ide.api.action.permits.ResourcesLockedActionPermit;
 import org.eclipse.che.ide.api.action.permits.Run;
@@ -69,7 +70,6 @@ import org.eclipse.che.ide.ext.runner.client.util.annotations.LeftPropertiesPane
 import org.eclipse.che.ide.ext.runner.client.util.annotations.RightPropertiesPanel;
 
 import javax.validation.constraints.NotNull;
-import org.eclipse.che.commons.annotation.Nullable;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -666,7 +666,7 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
 
     /** {@inheritDoc} */
     @Override
-    public void onProjectOpened(@NotNull ProjectActionEvent projectActionEvent) {
+    public void onProjectReady(@NotNull ProjectActionEvent projectActionEvent) {
         view.setEnableReRunButton(false);
         view.setEnableStopButton(false);
         view.setEnableLogsButton(false);
@@ -722,6 +722,11 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
 
         getRunningProcessAction.stop();
         propertiesContainer.show((Runner)null);
+    }
+
+    @Override
+    public void onProjectOpened(ProjectActionEvent event) {
+
     }
 
     /**

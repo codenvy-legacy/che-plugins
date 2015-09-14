@@ -242,7 +242,7 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
 
         eventBus.addHandler(ProjectActionEvent.TYPE, new ProjectActionHandler() {
             @Override
-            public void onProjectOpened(ProjectActionEvent event) {
+            public void onProjectReady(ProjectActionEvent event) {
                 CurrentProject currentProject = appContext.getCurrentProject();
 
                 if (currentProject == null) {
@@ -274,6 +274,11 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
                     onDebuggerDisconnected();
                     closeView();
                 }
+            }
+
+            @Override
+            public void onProjectOpened(ProjectActionEvent event) {
+
             }
         });
 

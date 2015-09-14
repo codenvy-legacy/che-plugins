@@ -129,7 +129,7 @@ public class BuildController implements Notification.OpenNotificationHandler {
 
         eventBus.addHandler(ProjectActionEvent.TYPE, new ProjectActionHandler() {
             @Override
-            public void onProjectOpened(ProjectActionEvent event) {
+            public void onProjectReady(ProjectActionEvent event) {
             }
 
             @Override
@@ -142,6 +142,11 @@ public class BuildController implements Notification.OpenNotificationHandler {
                 console.setCurrentBuilderStatus(BuilderStatus.IDLE);
                 activeProject = null;
                 lastBuildTaskDescriptor = null;
+            }
+
+            @Override
+            public void onProjectOpened(ProjectActionEvent event) {
+
             }
         });
 

@@ -386,7 +386,7 @@ public class JavaParserWorkerImpl implements JavaParserWorker, ProjectActionHand
     }
 
     @Override
-    public void onProjectOpened(ProjectActionEvent event) {
+    public void onProjectReady(ProjectActionEvent event) {
         if (worker != null) {
             worker.terminate();
         }
@@ -431,6 +431,11 @@ public class JavaParserWorkerImpl implements JavaParserWorker, ProjectActionHand
             worker.terminate();
             worker = null;
         }
+    }
+
+    @Override
+    public void onProjectOpened(ProjectActionEvent event) {
+
     }
 
     @Override

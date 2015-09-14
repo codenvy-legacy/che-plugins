@@ -76,7 +76,7 @@ public class MavenExtension {
 
         eventBus.addHandler(ProjectActionEvent.TYPE, new ProjectActionHandler() {
             @Override
-            public void onProjectOpened(ProjectActionEvent event) {
+            public void onProjectReady(ProjectActionEvent event) {
                 ProjectDescriptor project = event.getProject();
                 if (isValidForResolveDependencies(project)) {
                     dependenciesUpdater.updateDependencies(project, false);
@@ -89,6 +89,11 @@ public class MavenExtension {
 
             @Override
             public void onProjectClosed(ProjectActionEvent event) {
+            }
+
+            @Override
+            public void onProjectOpened(ProjectActionEvent event) {
+
             }
         });
     }

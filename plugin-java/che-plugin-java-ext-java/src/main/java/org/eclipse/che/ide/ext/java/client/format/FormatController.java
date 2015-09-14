@@ -34,7 +34,7 @@ public class FormatController {
         this.worker = worker;
         eventBus.addHandler(ProjectActionEvent.TYPE, new ProjectActionHandler() {
             @Override
-            public void onProjectOpened(ProjectActionEvent event) {
+            public void onProjectReady(ProjectActionEvent event) {
                 getFormattingCodenvySettings();
             }
 
@@ -45,6 +45,11 @@ public class FormatController {
 
             @Override
             public void onProjectClosed(ProjectActionEvent event) {
+
+            }
+
+            @Override
+            public void onProjectOpened(ProjectActionEvent event) {
 
             }
         });
