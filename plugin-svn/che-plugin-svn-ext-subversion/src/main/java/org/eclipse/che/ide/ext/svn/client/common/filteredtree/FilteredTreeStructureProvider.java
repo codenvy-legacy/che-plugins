@@ -19,7 +19,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.event.shared.EventBus;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * Provides an instances of {@code com.codenvy.ide.api.project.tree.TreeStructure}.
@@ -49,7 +49,7 @@ public class FilteredTreeStructureProvider implements TreeStructureProvider {
     }
 
     /** {@inheritDoc} */
-    @Nonnull
+    @NotNull
     @Override
     public String getId() {
         return ID;

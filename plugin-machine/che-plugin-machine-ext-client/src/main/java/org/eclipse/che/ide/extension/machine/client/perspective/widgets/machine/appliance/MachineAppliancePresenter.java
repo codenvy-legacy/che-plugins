@@ -37,8 +37,8 @@ import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.head
 import org.eclipse.che.ide.part.PartStackPresenter;
 import org.eclipse.che.ide.part.PartsComparator;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+import org.eclipse.che.commons.annotation.Nullable;
 
 /**
  * The class is a container for tab panels which display additional information about machine and adds ability to control machine's
@@ -135,7 +135,7 @@ public class MachineAppliancePresenter extends PartStackPresenter implements Act
         eventBus.addHandler(ActivePartChangedEvent.TYPE, this);
     }
 
-    private void createAndAddTab(@Nonnull String tabName, @Nonnull TabPresenter content, @Nullable TabSelectHandler handler) {
+    private void createAndAddTab(@NotNull String tabName, @NotNull TabPresenter content, @Nullable TabSelectHandler handler) {
         TabHeader header = widgetsFactory.createTabHeader(tabName);
         Tab tab = entityFactory.createTab(header, content, handler);
 
@@ -148,7 +148,7 @@ public class MachineAppliancePresenter extends PartStackPresenter implements Act
      * @param machine
      *         machine for which need show info
      */
-    public void showAppliance(@Nonnull Machine machine) {
+    public void showAppliance(@NotNull Machine machine) {
         selectedMachine = machine;
 
         view.showContainer(tabContainer.getView());

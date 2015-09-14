@@ -25,7 +25,7 @@ import org.eclipse.che.ide.ext.java.client.navigation.JavaNavigationService;
 import org.eclipse.che.ide.ext.java.client.projecttree.JavaTreeStructure;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,7 +44,7 @@ public class MavenProjectTreeStructure extends JavaTreeStructure {
 
     /** {@inheritDoc} */
     @Override
-    public void getRootNodes(@Nonnull AsyncCallback<List<TreeNode<?>>> callback) {
+    public void getRootNodes(@NotNull AsyncCallback<List<TreeNode<?>>> callback) {
         if (projectNode == null) {
             final CurrentProject currentProject = appContext.getCurrentProject();
             if (currentProject != null) {
@@ -71,7 +71,7 @@ public class MavenProjectTreeStructure extends JavaTreeStructure {
     }
 
     @Override
-    public MavenFolderNode newJavaFolderNode(@Nonnull AbstractTreeNode parent, @Nonnull ItemReference data) {
+    public MavenFolderNode newJavaFolderNode(@NotNull AbstractTreeNode parent, @NotNull ItemReference data) {
         if (!"folder".equals(data.getType()) && !"project".equals(data.getType())) {
             throw new IllegalArgumentException("The associated ItemReference type must be - folder or project.");
         }
@@ -88,7 +88,7 @@ public class MavenProjectTreeStructure extends JavaTreeStructure {
      *         the associated {@link ProjectDescriptor}
      * @return a new {@link ModuleNode}
      */
-    public ModuleNode newModuleNode(@Nonnull AbstractTreeNode parent, @Nonnull ProjectDescriptor data) {
+    public ModuleNode newModuleNode(@NotNull AbstractTreeNode parent, @NotNull ProjectDescriptor data) {
         return getNodeFactory().newModuleNode(parent, data, this);
     }
 }

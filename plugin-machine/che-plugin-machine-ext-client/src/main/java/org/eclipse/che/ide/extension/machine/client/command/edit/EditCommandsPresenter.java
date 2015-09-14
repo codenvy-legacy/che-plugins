@@ -36,7 +36,7 @@ import org.eclipse.che.ide.ui.dialogs.choice.ChoiceDialog;
 import org.eclipse.che.ide.ui.dialogs.confirm.ConfirmDialog;
 import org.eclipse.che.ide.util.UUID;
 
-import javax.annotation.Nullable;
+import org.eclipse.che.commons.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;

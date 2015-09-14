@@ -13,7 +13,7 @@ package org.eclipse.che.ide.ext.gwt.client.command;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
 import org.eclipse.che.ide.extension.machine.client.command.CommandType;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * Represents GWT command.
@@ -57,7 +57,7 @@ public class GwtCommandConfiguration extends CommandConfiguration {
         this.codeServerAddress = codeServerAddress;
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public String toCommandLine() {
         final StringBuilder cmd = new StringBuilder(GwtCommandType.COMMAND_TEMPLATE);

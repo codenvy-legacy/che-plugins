@@ -15,7 +15,7 @@ import org.eclipse.che.ide.CommandLine;
 import org.eclipse.che.ide.extension.machine.client.command.CommandType;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfigurationFactory;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * Factory for {@link GwtCommandConfiguration} instances.
@@ -24,7 +24,7 @@ import javax.annotation.Nonnull;
  */
 public class GwtCommandConfigurationFactory extends CommandConfigurationFactory<GwtCommandConfiguration> {
 
-    protected GwtCommandConfigurationFactory(@Nonnull CommandType commandType) {
+    protected GwtCommandConfigurationFactory(@NotNull CommandType commandType) {
         super(commandType);
     }
 
@@ -32,9 +32,9 @@ public class GwtCommandConfigurationFactory extends CommandConfigurationFactory<
         return commandLine.startsWith(GwtCommandType.COMMAND_TEMPLATE);
     }
 
-    @Nonnull
+    @NotNull
     @Override
-    public GwtCommandConfiguration createFromCommandDescriptor(@Nonnull CommandDescriptor descriptor) {
+    public GwtCommandConfiguration createFromCommandDescriptor(@NotNull CommandDescriptor descriptor) {
         if (!isGwtCommand(descriptor.getCommandLine())) {
             throw new IllegalArgumentException("Not a valid GWT command: " + descriptor.getCommandLine());
         }

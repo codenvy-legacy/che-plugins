@@ -18,7 +18,7 @@ import org.eclipse.che.api.machine.server.spi.Instance;
 import org.eclipse.che.api.machine.server.spi.InstanceProcess;
 import org.eclipse.che.api.machine.shared.Recipe;
 
-import javax.annotation.Nullable;
+import org.eclipse.che.commons.annotation.Nullable;
 
 /**
  * Provides Docker machine implementation instances.

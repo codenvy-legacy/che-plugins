@@ -14,7 +14,7 @@ import com.google.inject.ImplementedBy;
 
 import org.eclipse.che.ide.api.mvp.View;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * The interface defines methods to control displaying of terminal.
@@ -42,7 +42,7 @@ interface TerminalView extends View<TerminalView.ActionDelegate> {
      * @param terminal
      *         terminal which will be opened
      */
-    void openTerminal(@Nonnull TerminalJso terminal);
+    void openTerminal(@NotNull TerminalJso terminal);
 
     /**
      * Shows special error message when terminal is failed.
@@ -50,5 +50,5 @@ interface TerminalView extends View<TerminalView.ActionDelegate> {
      * @param message
      *         message which will be shown
      */
-    void showErrorMessage(@Nonnull String message);
+    void showErrorMessage(@NotNull String message);
 }

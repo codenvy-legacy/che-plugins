@@ -13,7 +13,7 @@ package org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine
 import org.eclipse.che.ide.ui.tree.NodeDataAdapter;
 import org.eclipse.che.ide.ui.tree.TreeNodeElement;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -39,7 +39,7 @@ public class MachineDataAdapter implements NodeDataAdapter<MachineTreeNode> {
 
     /** {@inheritDoc} */
     @Override
-    @Nonnull
+    @NotNull
     public List<MachineTreeNode> getChildren(MachineTreeNode data) {
         List<MachineTreeNode> children = new ArrayList<>();
 
@@ -58,28 +58,28 @@ public class MachineDataAdapter implements NodeDataAdapter<MachineTreeNode> {
 
     /** {@inheritDoc} */
     @Override
-    @Nonnull
+    @NotNull
     public String getNodeId(MachineTreeNode data) {
         return data.getId();
     }
 
     /** {@inheritDoc} */
     @Override
-    @Nonnull
+    @NotNull
     public String getNodeName(MachineTreeNode data) {
         return data.getName();
     }
 
     /** {@inheritDoc} */
     @Override
-    @Nonnull
+    @NotNull
     public MachineTreeNode getParent(MachineTreeNode data) {
         return data.getParent();
     }
 
     /** {@inheritDoc} */
     @Override
-    @Nonnull
+    @NotNull
     public TreeNodeElement<MachineTreeNode> getRenderedTreeNode(MachineTreeNode data) {
         return data.getTreeNodeElement();
     }

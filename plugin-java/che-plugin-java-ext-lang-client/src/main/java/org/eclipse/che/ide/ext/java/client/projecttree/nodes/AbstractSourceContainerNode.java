@@ -23,8 +23,8 @@ import org.eclipse.che.ide.ext.java.client.projecttree.JavaTreeStructure;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.util.loging.Log;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+import org.eclipse.che.commons.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -53,7 +53,7 @@ public abstract class AbstractSourceContainerNode extends FolderNode {
         super(parent, data, treeStructure, eventBus, projectServiceClient, dtoUnmarshallerFactory);
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public JavaTreeStructure getTreeStructure() {
         return (JavaTreeStructure)super.getTreeStructure();

@@ -16,7 +16,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.JavaModel;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -40,7 +40,7 @@ public class CompilerSetupService {
     @POST
     @Path("/set")
     @Consumes(APPLICATION_JSON)
-    public void setParameters(@QueryParam("projectpath") String projectPath, @Nonnull Map<String, String> changedParameters) {
+    public void setParameters(@QueryParam("projectpath") String projectPath, @NotNull Map<String, String> changedParameters) {
         IJavaProject project = JAVA_MODEL.getJavaProject(projectPath);
 
         for (Map.Entry<String, String> entry : changedParameters.entrySet()) {

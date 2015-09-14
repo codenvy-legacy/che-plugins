@@ -23,7 +23,7 @@ import org.eclipse.che.ide.api.project.type.ProjectTypeRegistry;
 import org.eclipse.che.ide.ext.java.jdi.client.JavaRuntimeLocalizationConstant;
 import org.eclipse.che.ide.ext.java.jdi.client.debug.remotedebug.RemoteDebugPresenter;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import static org.eclipse.che.ide.api.project.type.RunnerCategory.JAVA;
 
@@ -56,7 +56,7 @@ public class RemoteDebugAction extends ProjectAction {
 
     /** {@inheritDoc} */
     @Override
-    public void updateProjectAction(@Nonnull ActionEvent actionEvent) {
+    public void updateProjectAction(@NotNull ActionEvent actionEvent) {
         final CurrentProject currentProject = appContext.getCurrentProject();
         if (currentProject == null) {
             return;
@@ -74,7 +74,7 @@ public class RemoteDebugAction extends ProjectAction {
 
     /** {@inheritDoc} */
     @Override
-    public void actionPerformed(@Nonnull ActionEvent actionEvent) {
+    public void actionPerformed(@NotNull ActionEvent actionEvent) {
         eventLogger.log(this);
         presenter.showDialog();
     }

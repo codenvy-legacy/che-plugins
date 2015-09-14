@@ -37,7 +37,7 @@ import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 import org.eclipse.che.ide.ui.window.Window;
 import org.eclipse.che.ide.util.loging.Log;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.Map;
 
 /**
@@ -112,7 +112,7 @@ public class WorkspaceLocationViewImpl extends Window implements WorkspaceLocati
 
     /** {@inheritDoc} */
     @Override
-    public void setDelegate(@Nonnull ActionDelegate delegate) {
+    public void setDelegate(@NotNull ActionDelegate delegate) {
         //do nothing
     }
 
@@ -130,7 +130,7 @@ public class WorkspaceLocationViewImpl extends Window implements WorkspaceLocati
 
     /** {@inheritDoc} */
     @Override
-    public void setWorkspaceLocation(@Nonnull String workspaceLocation) {
+    public void setWorkspaceLocation(@NotNull String workspaceLocation) {
         this.workspaceLocation.setText(workspaceLocation);
     }
 

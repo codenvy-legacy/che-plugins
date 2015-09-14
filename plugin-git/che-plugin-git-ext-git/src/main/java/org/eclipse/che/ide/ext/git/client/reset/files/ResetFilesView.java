@@ -13,7 +13,7 @@ package org.eclipse.che.ide.ext.git.client.reset.files;
 import org.eclipse.che.api.git.shared.IndexFile;
 import org.eclipse.che.ide.api.mvp.View;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -39,7 +39,7 @@ public interface ResetFilesView extends View<ResetFilesView.ActionDelegate> {
      * @param indexedFiles
      *         indexed files
      */
-    void setIndexedFiles(@Nonnull List<IndexFile> indexedFiles);
+    void setIndexedFiles(@NotNull List<IndexFile> indexedFiles);
 
     /** Close dialog. */
     void close();

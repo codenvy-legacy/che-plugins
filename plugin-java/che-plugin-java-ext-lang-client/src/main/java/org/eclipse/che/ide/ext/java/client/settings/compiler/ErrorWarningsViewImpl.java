@@ -20,7 +20,7 @@ import com.google.inject.Inject;
 
 import org.eclipse.che.ide.ext.java.client.settings.property.PropertyWidget;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * The class provides special panel to store special property widgets which allow setup compiler. Also the class contains methods
@@ -44,7 +44,7 @@ public class ErrorWarningsViewImpl extends Composite implements ErrorWarningsVie
 
     /** {@inheritDoc} */
     @Override
-    public void addProperty(@Nonnull PropertyWidget propertyWidget) {
+    public void addProperty(@NotNull PropertyWidget propertyWidget) {
         properties.add(propertyWidget);
     }
 }

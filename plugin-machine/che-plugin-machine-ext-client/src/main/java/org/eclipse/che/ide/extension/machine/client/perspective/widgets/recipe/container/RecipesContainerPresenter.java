@@ -22,7 +22,7 @@ import org.eclipse.che.ide.extension.machine.client.perspective.widgets.recipe.e
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.recipe.entry.RecipeWidget;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.content.TabPresenter;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -55,7 +55,7 @@ public class RecipesContainerPresenter implements TabPresenter, RecipesContainer
      * @param recipe
      *         current recipe widget
      */
-    public void addRecipePanel(@Nonnull RecipeWidget recipe) {
+    public void addRecipePanel(@NotNull RecipeWidget recipe) {
         if (recipePanels.get(recipe) != null) {
             return;
         }
@@ -76,7 +76,7 @@ public class RecipesContainerPresenter implements TabPresenter, RecipesContainer
      * @param recipe
      *         current recipe widget
      */
-    public void removeRecipePanel(@Nonnull RecipeWidget recipe) {
+    public void removeRecipePanel(@NotNull RecipeWidget recipe) {
         if (recipePanels.get(recipe) != null) {
             recipePanels.remove(recipe);
         }
@@ -88,7 +88,7 @@ public class RecipesContainerPresenter implements TabPresenter, RecipesContainer
      * @param recipe
      *         current recipe widget
      */
-    public void showEditorPanel(@Nonnull RecipeWidget recipe) {
+    public void showEditorPanel(@NotNull RecipeWidget recipe) {
         RecipeEditorPanel recipeEditorPanel = recipePanels.get(recipe);
         recipeEditorPanel.showEditor();
 
@@ -101,8 +101,8 @@ public class RecipesContainerPresenter implements TabPresenter, RecipesContainer
      * @param recipe
      *         current recipe widget
      */
-    @Nonnull
-    public RecipeEditorPanel getEditorPanel(@Nonnull RecipeWidget recipe) {
+    @NotNull
+    public RecipeEditorPanel getEditorPanel(@NotNull RecipeWidget recipe) {
         return recipePanels.get(recipe);
     }
 

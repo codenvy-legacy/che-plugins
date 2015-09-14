@@ -12,7 +12,7 @@ package org.eclipse.che.ide.ext.git.client.remove;
 
 import org.eclipse.che.ide.api.mvp.View;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * The view of {@link RemoveFromIndexPresenter}.
@@ -36,7 +36,7 @@ public interface RemoveFromIndexView extends View<RemoveFromIndexView.ActionDele
      * @param message
      *         content of message
      */
-    void setMessage(@Nonnull String message);
+    void setMessage(@NotNull String message);
 
     /** @return <code>true</code> if files need to remove only from index, and <code>false</code> otherwise */
     boolean isRemoved();

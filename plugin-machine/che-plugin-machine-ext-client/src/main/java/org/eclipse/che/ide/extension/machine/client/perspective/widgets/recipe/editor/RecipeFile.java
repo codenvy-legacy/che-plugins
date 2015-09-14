@@ -20,7 +20,7 @@ import org.eclipse.che.ide.api.project.tree.TreeStructure;
 import org.eclipse.che.ide.api.project.tree.generic.FileNode;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * The file node that represents recipe file item in the project explorer tree. It needs just for opening recipe for editing (it is a
@@ -32,13 +32,13 @@ public class RecipeFile extends FileNode {
 
     private final String content;
 
-    public RecipeFile(@Nonnull String content,
-                      @Nonnull EventBus eventBus,
-                      @Nonnull ProjectServiceClient projectServiceClient,
-                      @Nonnull DtoUnmarshallerFactory dtoUnmarshallerFactory,
-                      @Nonnull ItemReference data,
-                      @Nonnull TreeStructure treeStructure,
-                      @Nonnull EditorAgent editorAgent) {
+    public RecipeFile(@NotNull String content,
+                      @NotNull EventBus eventBus,
+                      @NotNull ProjectServiceClient projectServiceClient,
+                      @NotNull DtoUnmarshallerFactory dtoUnmarshallerFactory,
+                      @NotNull ItemReference data,
+                      @NotNull TreeStructure treeStructure,
+                      @NotNull EditorAgent editorAgent) {
         super(null, data, treeStructure, eventBus, projectServiceClient, dtoUnmarshallerFactory, editorAgent);
 
         this.content = content;

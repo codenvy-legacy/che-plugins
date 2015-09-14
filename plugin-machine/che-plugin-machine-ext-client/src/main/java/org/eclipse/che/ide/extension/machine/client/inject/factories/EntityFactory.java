@@ -26,8 +26,8 @@ import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.cont
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.content.TabPresenter;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.header.TabHeader;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+import org.eclipse.che.commons.annotation.Nullable;
 import java.util.Collection;
 
 /**
@@ -43,14 +43,14 @@ public interface EntityFactory {
      *
      * @return an instance of {@link Machine}
      */
-    Machine createMachine(@Nonnull MachineDescriptor descriptor);
+    Machine createMachine(@NotNull MachineDescriptor descriptor);
 
     /**
      * Creates machine state object.
      *
      * @return an instance of {@link MachineState}
      */
-    MachineState createMachineState(@Nonnull MachineStateDescriptor descriptor);
+    MachineState createMachineState(@NotNull MachineStateDescriptor descriptor);
 
     /**
      * Creates tab entity using special parameters.
@@ -61,7 +61,7 @@ public interface EntityFactory {
      *         content of tab
      * @return an instance of {@link Tab}
      */
-    Tab createTab(@Nonnull TabHeader tabHeader, @Nonnull TabPresenter tabPresenter, @Nullable TabSelectHandler handler);
+    Tab createTab(@NotNull TabHeader tabHeader, @NotNull TabPresenter tabPresenter, @Nullable TabSelectHandler handler);
 
     /**
      * Creates a properties panel widget for a given environment.
@@ -70,7 +70,7 @@ public interface EntityFactory {
      *         descriptor that needs to be bound with a widget
      * @return an instance of {@link RecipeEditorPanel}
      */
-    @Nonnull
+    @NotNull
     RecipeEditorPanel createRecipeEditorPanel(@Nullable RecipeDescriptor recipeDescriptor);
 
     /**
@@ -82,7 +82,7 @@ public interface EntityFactory {
      *         server descriptor which contains information about current server
      * @return an instance of {@link Server}
      */
-    Server createServer(@Nonnull String port, @Nonnull ServerDescriptor descriptor);
+    Server createServer(@NotNull String port, @NotNull ServerDescriptor descriptor);
 
     /**
      * Creates machine node which will be displayed in special table on view.

@@ -17,7 +17,7 @@ import org.eclipse.che.ide.ext.php.shared.ProjectAttributes;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,17 +34,17 @@ public class PHPProjectWizardRegistrar implements ProjectWizardRegistrar {
         wizardPages = new ArrayList<>();
     }
 
-    @Nonnull
+    @NotNull
     public String getProjectTypeId() {
         return ProjectAttributes.PHP_ID;
     }
 
-    @Nonnull
+    @NotNull
     public String getCategory() {
         return ProjectAttributes.PHP_CATEGORY;
     }
 
-    @Nonnull
+    @NotNull
     public List<Provider<? extends WizardPage<ImportProject>>> getWizardPages() {
         return wizardPages;
     }

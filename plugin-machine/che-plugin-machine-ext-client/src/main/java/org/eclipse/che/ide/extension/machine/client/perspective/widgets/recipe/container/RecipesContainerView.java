@@ -15,7 +15,7 @@ import com.google.inject.ImplementedBy;
 
 import org.eclipse.che.ide.api.mvp.View;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * @author Valeriy Svydenko
@@ -31,5 +31,5 @@ public interface RecipesContainerView extends View<RecipesContainerView.ActionDe
      * @param panel
      *         recipes panel that needs to be shown
      */
-    void showWidget(@Nonnull IsWidget panel);
+    void showWidget(@NotNull IsWidget panel);
 }

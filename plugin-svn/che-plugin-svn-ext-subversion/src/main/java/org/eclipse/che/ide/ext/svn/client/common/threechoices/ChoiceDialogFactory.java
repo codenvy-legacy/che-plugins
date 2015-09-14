@@ -10,8 +10,8 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.svn.client.common.threechoices;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+import org.eclipse.che.commons.annotation.Nullable;
 
 import org.eclipse.che.ide.ui.dialogs.ConfirmCallback;
 import org.eclipse.che.ide.ui.dialogs.confirm.ConfirmDialog;
@@ -37,10 +37,10 @@ public interface ChoiceDialogFactory {
      *         the callback used on second choice
      * @return a {@link ConfirmDialog} instance
      */
-    ChoiceDialog createChoiceDialog(@Nonnull @Assisted("title") String title,
-                                     @Nonnull @Assisted("message") String content,
-                                     @Nonnull @Assisted("firstChoice") String firstChoiceLabel,
-                                     @Nonnull @Assisted("secondChoice") String secondChoiceLabel,
+    ChoiceDialog createChoiceDialog(@NotNull @Assisted("title") String title,
+                                     @NotNull @Assisted("message") String content,
+                                     @NotNull @Assisted("firstChoice") String firstChoiceLabel,
+                                     @NotNull @Assisted("secondChoice") String secondChoiceLabel,
                                     @Nullable @Assisted("firstCallback") ConfirmCallback firstChoiceCallback,
                                     @Nullable @Assisted("secondCallback") ConfirmCallback secondChoiceCallback);
 
@@ -61,10 +61,10 @@ public interface ChoiceDialogFactory {
      *         the callback used on second choice
      * @return a {@link ConfirmDialog} instance
      */
-    ChoiceDialog createChoiceDialog(@Nonnull @Assisted("title") String title,
-                                     @Nonnull IsWidget content,
-                                     @Nonnull @Assisted("firstChoice") String firstChoiceLabel,
-                                     @Nonnull @Assisted("secondChoice") String secondChoiceLabel,
+    ChoiceDialog createChoiceDialog(@NotNull @Assisted("title") String title,
+                                     @NotNull IsWidget content,
+                                     @NotNull @Assisted("firstChoice") String firstChoiceLabel,
+                                     @NotNull @Assisted("secondChoice") String secondChoiceLabel,
                                     @Nullable @Assisted("firstCallback") ConfirmCallback firstChoiceCallback,
                                     @Nullable @Assisted("secondCallback") ConfirmCallback secondChoiceCallback);
     
@@ -89,11 +89,11 @@ public interface ChoiceDialogFactory {
      *         the callback used on third choice
      * @return a {@link ConfirmDialog} instance
      */
-    ChoiceDialog createChoiceDialog(@Nonnull @Assisted("title") String title,
-                                     @Nonnull @Assisted("message") String content,
-                                     @Nonnull @Assisted("firstChoice") String firstChoiceLabel,
-                                     @Nonnull @Assisted("secondChoice") String secondChoiceLabel,
-                                     @Nonnull @Assisted("thirdChoice") String thirdChoiceLabel,
+    ChoiceDialog createChoiceDialog(@NotNull @Assisted("title") String title,
+                                     @NotNull @Assisted("message") String content,
+                                     @NotNull @Assisted("firstChoice") String firstChoiceLabel,
+                                     @NotNull @Assisted("secondChoice") String secondChoiceLabel,
+                                     @NotNull @Assisted("thirdChoice") String thirdChoiceLabel,
                                     @Nullable @Assisted("firstCallback") ConfirmCallback firstChoiceCallback,
                                     @Nullable @Assisted("secondCallback") ConfirmCallback secondChoiceCallback,
                                     @Nullable @Assisted("thirdCallback") ConfirmCallback thirdChoiceCallback);
@@ -119,11 +119,11 @@ public interface ChoiceDialogFactory {
      *         the callback used on third choice
      * @return a {@link ConfirmDialog} instance
      */
-    ChoiceDialog createChoiceDialog(@Nonnull @Assisted("title") String title,
-                                    @Nonnull @Assisted IsWidget content,
-                                    @Nonnull @Assisted("firstChoice") String firstChoiceLabel,
-                                    @Nonnull @Assisted("secondChoice") String secondChoiceLabel,
-                                    @Nonnull @Assisted("thirdChoice") String thirdChoiceLabel,
+    ChoiceDialog createChoiceDialog(@NotNull @Assisted("title") String title,
+                                    @NotNull @Assisted IsWidget content,
+                                    @NotNull @Assisted("firstChoice") String firstChoiceLabel,
+                                    @NotNull @Assisted("secondChoice") String secondChoiceLabel,
+                                    @NotNull @Assisted("thirdChoice") String thirdChoiceLabel,
                                     @Nullable @Assisted("firstCallback") ConfirmCallback firstChoiceCallback,
                                     @Nullable @Assisted("secondCallback") ConfirmCallback secondChoiceCallback,
                                     @Nullable @Assisted("thirdCallback") ConfirmCallback thirdChoiceCallback);

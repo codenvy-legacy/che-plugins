@@ -18,7 +18,7 @@ import org.eclipse.che.ide.api.action.ActionEvent;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.machine.create.CreateMachinePresenter;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.Collections;
 
 import static org.eclipse.che.ide.extension.machine.client.perspective.MachinePerspective.MACHINE_PERSPECTIVE_ID;
@@ -48,13 +48,13 @@ public class CreateMachineAction extends AbstractPerspectiveAction {
 
     /** {@inheritDoc} */
     @Override
-    public void updateInPerspective(@Nonnull ActionEvent event) {
+    public void updateInPerspective(@NotNull ActionEvent event) {
         //to do nothing
     }
 
     /** {@inheritDoc} */
     @Override
-    public void actionPerformed(@Nonnull ActionEvent event) {
+    public void actionPerformed(@NotNull ActionEvent event) {
         eventLogger.log(this);
         createMachinePresenter.showDialog();
     }

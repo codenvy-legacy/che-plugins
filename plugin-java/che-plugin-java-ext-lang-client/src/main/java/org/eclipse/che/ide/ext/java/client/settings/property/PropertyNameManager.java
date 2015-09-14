@@ -15,7 +15,7 @@ import com.google.inject.Inject;
 import org.eclipse.che.ide.ext.java.client.JavaLocalizationConstant;
 import org.eclipse.che.ide.ext.java.client.settings.compiler.ErrorWarningsOptions;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -78,8 +78,8 @@ class PropertyNameManager {
      *         id for which name will be returned
      * @return name of property
      */
-    @Nonnull
-    public String getName(@Nonnull ErrorWarningsOptions propertyId) {
+    @NotNull
+    public String getName(@NotNull ErrorWarningsOptions propertyId) {
         String name = names.get(propertyId);
 
         if (name == null) {

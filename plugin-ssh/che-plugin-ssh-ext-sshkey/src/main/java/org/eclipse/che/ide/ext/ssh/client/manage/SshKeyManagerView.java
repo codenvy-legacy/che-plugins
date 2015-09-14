@@ -13,7 +13,7 @@ package org.eclipse.che.ide.ext.ssh.client.manage;
 import org.eclipse.che.ide.api.mvp.View;
 import org.eclipse.che.ide.ext.ssh.dto.KeyItem;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -30,7 +30,7 @@ public interface SshKeyManagerView extends View<SshKeyManagerView.ActionDelegate
          * @param key
          *         key what need to show
          */
-        void onViewClicked(@Nonnull KeyItem key);
+        void onViewClicked(@NotNull KeyItem key);
 
         /**
          * Performs any actions appropriate in response to the user having pressed the Delete button.
@@ -38,7 +38,7 @@ public interface SshKeyManagerView extends View<SshKeyManagerView.ActionDelegate
          * @param key
          *         key what need to delete
          */
-        void onDeleteClicked(@Nonnull KeyItem key);
+        void onDeleteClicked(@NotNull KeyItem key);
 
         /** Performs any actions appropriate in response to the user having pressed the Generate button. */
         void onGenerateClicked();
@@ -56,5 +56,5 @@ public interface SshKeyManagerView extends View<SshKeyManagerView.ActionDelegate
      * @param keys
      *         available keys
      */
-    void setKeys(@Nonnull List<KeyItem> keys);
+    void setKeys(@NotNull List<KeyItem> keys);
 }

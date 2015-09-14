@@ -12,7 +12,7 @@ package org.eclipse.che.ide.ext.ssh.client.upload;
 
 import org.eclipse.che.ide.api.mvp.View;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * The view of {@link UploadSshKeyPresenter}.
@@ -34,14 +34,14 @@ public interface UploadSshKeyView extends View<UploadSshKeyView.ActionDelegate> 
          * @param result
          *         result of submit operation
          */
-        void onSubmitComplete(@Nonnull String result);
+        void onSubmitComplete(@NotNull String result);
 
         /** Performs any actions appropriate in response to the user having changed file name field. */
         void onFileNameChanged();
     }
 
     /** @return host */
-    @Nonnull
+    @NotNull
     String getHost();
 
     /**
@@ -49,10 +49,10 @@ public interface UploadSshKeyView extends View<UploadSshKeyView.ActionDelegate> 
      *
      * @param host
      */
-    void setHost(@Nonnull String host);
+    void setHost(@NotNull String host);
 
     /** @return file name */
-    @Nonnull
+    @NotNull
     String getFileName();
 
     /**
@@ -69,7 +69,7 @@ public interface UploadSshKeyView extends View<UploadSshKeyView.ActionDelegate> 
      * @param message
      *         the message
      */
-    void setMessage(@Nonnull String message);
+    void setMessage(@NotNull String message);
 
     /**
      * Sets the encoding used for submitting this form.
@@ -77,7 +77,7 @@ public interface UploadSshKeyView extends View<UploadSshKeyView.ActionDelegate> 
      * @param encodingType
      *         the form's encoding
      */
-    void setEncoding(@Nonnull String encodingType);
+    void setEncoding(@NotNull String encodingType);
 
     /**
      * Sets the 'action' associated with this form. This is the URL to which it will be submitted.
@@ -85,7 +85,7 @@ public interface UploadSshKeyView extends View<UploadSshKeyView.ActionDelegate> 
      * @param url
      *         the form's action
      */
-    void setAction(@Nonnull String url);
+    void setAction(@NotNull String url);
 
     /** Submits the form. */
     void submit();

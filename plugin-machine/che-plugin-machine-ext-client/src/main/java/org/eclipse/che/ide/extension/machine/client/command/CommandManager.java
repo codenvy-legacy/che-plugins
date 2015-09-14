@@ -29,7 +29,7 @@ import org.eclipse.che.ide.extension.machine.client.outputspanel.console.Command
 import org.eclipse.che.ide.extension.machine.client.outputspanel.console.OutputConsole;
 import org.eclipse.che.ide.util.UUID;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * Manager for command operations.
@@ -68,7 +68,7 @@ public class CommandManager {
     }
 
     /** Execute the the given command configuration on the developer machine. */
-    public void execute(@Nonnull CommandConfiguration configuration) {
+    public void execute(@NotNull CommandConfiguration configuration) {
         final String devMachineId = appContext.getDevMachineId();
         if (devMachineId == null) {
             notificationManager.showWarning(localizationConstant.noDevMachine());

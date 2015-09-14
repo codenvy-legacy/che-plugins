@@ -10,8 +10,8 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.svn.client.common.threechoices;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+import org.eclipse.che.commons.annotation.Nullable;
 
 import org.eclipse.che.ide.ui.dialogs.ConfirmCallback;
 import com.google.gwt.user.client.ui.InlineHTML;
@@ -40,11 +40,11 @@ public class ChoiceDialogPresenter implements ChoiceDialog, ChoiceDialogView.Act
     private final ConfirmCallback thirdChoiceCallback;
 
     @AssistedInject
-    public ChoiceDialogPresenter(final @Nonnull ChoiceDialogView view,
-                                 final @Nonnull @Assisted("title") String title,
-                                 final @Nonnull @Assisted("message") String message,
-                                 final @Nonnull @Assisted("firstChoice") String firstChoiceLabel,
-                                 final @Nonnull @Assisted("secondChoice") String secondChoiceLabel,
+    public ChoiceDialogPresenter(final @NotNull ChoiceDialogView view,
+                                 final @NotNull @Assisted("title") String title,
+                                 final @NotNull @Assisted("message") String message,
+                                 final @NotNull @Assisted("firstChoice") String firstChoiceLabel,
+                                 final @NotNull @Assisted("secondChoice") String secondChoiceLabel,
                                  final @Nullable @Assisted("firstCallback") ConfirmCallback firstChoiceCallback,
                                  final @Nullable @Assisted("secondCallback") ConfirmCallback secondChoiceCallback) {
         this(view, title, new InlineHTML(message),
@@ -53,11 +53,11 @@ public class ChoiceDialogPresenter implements ChoiceDialog, ChoiceDialogView.Act
     }
 
     @AssistedInject
-    public ChoiceDialogPresenter(final @Nonnull ChoiceDialogView view,
-                                 final @Nonnull @Assisted("title") String title,
-                                 final @Nonnull @Assisted IsWidget content,
-                                 final @Nonnull @Assisted("firstChoice") String firstChoiceLabel,
-                                 final @Nonnull @Assisted("secondChoice") String secondChoiceLabel,
+    public ChoiceDialogPresenter(final @NotNull ChoiceDialogView view,
+                                 final @NotNull @Assisted("title") String title,
+                                 final @NotNull @Assisted IsWidget content,
+                                 final @NotNull @Assisted("firstChoice") String firstChoiceLabel,
+                                 final @NotNull @Assisted("secondChoice") String secondChoiceLabel,
                                  final @Nullable @Assisted("firstCallback") ConfirmCallback firstChoiceCallback,
                                  final @Nullable @Assisted("secondCallback") ConfirmCallback secondChoiceCallback) {
         this(view, title, content,
@@ -66,12 +66,12 @@ public class ChoiceDialogPresenter implements ChoiceDialog, ChoiceDialogView.Act
     }
 
     @AssistedInject
-    public ChoiceDialogPresenter(final @Nonnull ChoiceDialogView view,
-                                 final @Nonnull @Assisted("title") String title,
-                                 final @Nonnull @Assisted("message") String message,
-                                 final @Nonnull @Assisted("firstChoice") String firstChoiceLabel,
-                                 final @Nonnull @Assisted("secondChoice") String secondChoiceLabel,
-                                 final @Nonnull @Assisted("thirdChoice") String thirdChoiceLabel,
+    public ChoiceDialogPresenter(final @NotNull ChoiceDialogView view,
+                                 final @NotNull @Assisted("title") String title,
+                                 final @NotNull @Assisted("message") String message,
+                                 final @NotNull @Assisted("firstChoice") String firstChoiceLabel,
+                                 final @NotNull @Assisted("secondChoice") String secondChoiceLabel,
+                                 final @NotNull @Assisted("thirdChoice") String thirdChoiceLabel,
                                  final @Nullable @Assisted("firstCallback") ConfirmCallback firstChoiceCallback,
                                  final @Nullable @Assisted("secondCallback") ConfirmCallback secondChoiceCallback,
                                  final @Nullable @Assisted("thirdCallback") ConfirmCallback thirdChoiceCallback) {
@@ -81,12 +81,12 @@ public class ChoiceDialogPresenter implements ChoiceDialog, ChoiceDialogView.Act
     }
 
     @AssistedInject
-    public ChoiceDialogPresenter(final @Nonnull ChoiceDialogView view,
-                                 final @Nonnull @Assisted("title") String title,
-                                 final @Nonnull @Assisted IsWidget content,
-                                 final @Nonnull @Assisted("firstChoice") String firstChoiceLabel,
-                                 final @Nonnull @Assisted("secondChoice") String secondChoiceLabel,
-                                 final @Nonnull @Assisted("thirdChoice") String thirdChoiceLabel,
+    public ChoiceDialogPresenter(final @NotNull ChoiceDialogView view,
+                                 final @NotNull @Assisted("title") String title,
+                                 final @NotNull @Assisted IsWidget content,
+                                 final @NotNull @Assisted("firstChoice") String firstChoiceLabel,
+                                 final @NotNull @Assisted("secondChoice") String secondChoiceLabel,
+                                 final @NotNull @Assisted("thirdChoice") String thirdChoiceLabel,
                                  final @Nullable @Assisted("firstCallback") ConfirmCallback firstChoiceCallback,
                                  final @Nullable @Assisted("secondCallback") ConfirmCallback secondChoiceCallback,
                                  final @Nullable @Assisted("thirdCallback") ConfirmCallback thirdChoiceCallback) {

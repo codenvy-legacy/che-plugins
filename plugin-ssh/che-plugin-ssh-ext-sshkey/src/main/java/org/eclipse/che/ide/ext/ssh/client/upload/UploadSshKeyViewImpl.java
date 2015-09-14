@@ -28,7 +28,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * The implementation of {@link org.eclipse.che.ide.ext.ssh.client.key.SshKeyView}.
@@ -101,7 +101,7 @@ public class UploadSshKeyViewImpl extends Window implements UploadSshKeyView {
     }
 
     /** {@inheritDoc} */
-    @Nonnull
+    @NotNull
     @Override
     public String getHost() {
         return host.getText();
@@ -109,12 +109,12 @@ public class UploadSshKeyViewImpl extends Window implements UploadSshKeyView {
 
     /** {@inheritDoc} */
     @Override
-    public void setHost(@Nonnull String host) {
+    public void setHost(@NotNull String host) {
         this.host.setText(host);
     }
 
     /** {@inheritDoc} */
-    @Nonnull
+    @NotNull
     @Override
     public String getFileName() {
         return file.getFilename();
@@ -128,19 +128,19 @@ public class UploadSshKeyViewImpl extends Window implements UploadSshKeyView {
 
     /** {@inheritDoc} */
     @Override
-    public void setMessage(@Nonnull String message) {
+    public void setMessage(@NotNull String message) {
         this.message.setText(message);
     }
 
     /** {@inheritDoc} */
     @Override
-    public void setEncoding(@Nonnull String encodingType) {
+    public void setEncoding(@NotNull String encodingType) {
         uploadForm.setEncoding(encodingType);
     }
 
     /** {@inheritDoc} */
     @Override
-    public void setAction(@Nonnull String url) {
+    public void setAction(@NotNull String url) {
         uploadForm.setAction(url);
         uploadForm.setMethod(FormPanel.METHOD_POST);
     }

@@ -23,7 +23,7 @@ import org.eclipse.che.ide.extension.maven.client.MavenLocalizationConstant;
 import org.eclipse.che.ide.extension.maven.client.module.CreateMavenModulePresenter;
 import org.eclipse.che.ide.extension.maven.shared.MavenAttributes;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.Collections;
 
 import static org.eclipse.che.ide.workspace.perspectives.project.ProjectPerspective.PROJECT_PERSPECTIVE_ID;
@@ -65,7 +65,7 @@ public class CreateMavenModuleAction extends AbstractPerspectiveAction {
     }
 
     @Override
-    public void updateInPerspective(@Nonnull ActionEvent event) {
+    public void updateInPerspective(@NotNull ActionEvent event) {
         final Presentation presentation = event.getPresentation();
         final CurrentProject currentProject = appContext.getCurrentProject();
         if (currentProject == null) {

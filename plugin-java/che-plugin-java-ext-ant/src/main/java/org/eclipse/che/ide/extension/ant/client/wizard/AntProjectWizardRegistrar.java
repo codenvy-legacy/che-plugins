@@ -18,7 +18,7 @@ import org.eclipse.che.ide.extension.ant.shared.AntAttributes;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,17 +39,17 @@ public class AntProjectWizardRegistrar implements ProjectWizardRegistrar {
         wizardPages.add(antPagePresenter);
     }
 
-    @Nonnull
+    @NotNull
     public String getProjectTypeId() {
         return AntAttributes.ANT_ID;
     }
 
-    @Nonnull
+    @NotNull
     public String getCategory() {
         return JAVA_CATEGORY;
     }
 
-    @Nonnull
+    @NotNull
     public List<Provider<? extends WizardPage<ImportProject>>> getWizardPages() {
         return wizardPages;
     }

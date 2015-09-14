@@ -23,7 +23,7 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import com.google.web.bindery.event.shared.EventBus;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -64,7 +64,7 @@ public class JarContainerNode extends JarEntryNode {
         return false;
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public JavaTreeStructure getTreeStructure() {
         return (JavaTreeStructure)super.getTreeStructure();

@@ -15,7 +15,7 @@ import org.eclipse.che.ide.CommandLine;
 import org.eclipse.che.ide.extension.machine.client.command.CommandType;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfigurationFactory;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * Factory for {@link MavenCommandConfiguration} instances.
@@ -24,7 +24,7 @@ import javax.annotation.Nonnull;
  */
 public class MavenCommandConfigurationFactory extends CommandConfigurationFactory<MavenCommandConfiguration> {
 
-    protected MavenCommandConfigurationFactory(@Nonnull CommandType commandType) {
+    protected MavenCommandConfigurationFactory(@NotNull CommandType commandType) {
         super(commandType);
     }
 
@@ -32,9 +32,9 @@ public class MavenCommandConfigurationFactory extends CommandConfigurationFactor
         return commandLine.startsWith("mvn");
     }
 
-    @Nonnull
+    @NotNull
     @Override
-    public MavenCommandConfiguration createFromCommandDescriptor(@Nonnull CommandDescriptor descriptor) {
+    public MavenCommandConfiguration createFromCommandDescriptor(@NotNull CommandDescriptor descriptor) {
         if (!isMavenCommand(descriptor.getCommandLine())) {
             throw new IllegalArgumentException("Not a valid Maven command: " + descriptor.getCommandLine());
         }

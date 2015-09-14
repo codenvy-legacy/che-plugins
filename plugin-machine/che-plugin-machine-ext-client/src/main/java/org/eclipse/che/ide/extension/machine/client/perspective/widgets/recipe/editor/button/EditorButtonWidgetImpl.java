@@ -24,7 +24,7 @@ import com.google.inject.assistedinject.Assisted;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.MachineResources;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * Class provides view representation of property button on properties panel.
@@ -81,7 +81,7 @@ public class EditorButtonWidgetImpl extends Composite implements EditorButtonWid
 
     /** {@inheritDoc} */
     @Override
-    public void setDelegate(@Nonnull ActionDelegate delegate) {
+    public void setDelegate(@NotNull ActionDelegate delegate) {
         this.delegate = delegate;
     }
 
@@ -98,13 +98,13 @@ public class EditorButtonWidgetImpl extends Composite implements EditorButtonWid
 
         private final String color;
 
-        Background(@Nonnull String color) {
+        Background(@NotNull String color) {
             this.color = color;
         }
 
         /** @return value of background color */
         @Override
-        @Nonnull
+        @NotNull
         public String toString() {
             return color;
         }

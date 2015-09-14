@@ -28,7 +28,7 @@ import org.eclipse.che.ide.websocket.rest.RequestCallback;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -106,7 +106,7 @@ public class FetchPresenter implements FetchView.ActionDelegate {
                            });
     }
 
-    private void handleError(@Nonnull String errorMessage) {
+    private void handleError(@NotNull String errorMessage) {
         notificationManager.showError(errorMessage);
     }
 
@@ -116,7 +116,7 @@ public class FetchPresenter implements FetchView.ActionDelegate {
      * @param remoteMode
      *         is a remote mode
      */
-    private void getBranches(@Nonnull final String remoteMode) {
+    private void getBranches(@NotNull final String remoteMode) {
         service.branchList(project.getRootProject(), remoteMode,
                            new AsyncRequestCallback<List<Branch>>(dtoUnmarshallerFactory.newListUnmarshaller(Branch.class)) {
                                @Override
@@ -173,7 +173,7 @@ public class FetchPresenter implements FetchView.ActionDelegate {
     }
 
     /** @return list of refs to fetch */
-    @Nonnull
+    @NotNull
     private List<String> getRefs() {
         if (view.isFetchAllBranches()) {
             return new ArrayList<>();
@@ -193,7 +193,7 @@ public class FetchPresenter implements FetchView.ActionDelegate {
      * @param throwable
      *         exception what happened
      */
-    private void handleError(@Nonnull Throwable throwable, @Nonnull String remoteUrl) {
+    private void handleError(@NotNull Throwable throwable, @NotNull String remoteUrl) {
         String errorMessage = throwable.getMessage();
         if (errorMessage == null) {
             notificationManager.showError(constant.fetchFail(remoteUrl));

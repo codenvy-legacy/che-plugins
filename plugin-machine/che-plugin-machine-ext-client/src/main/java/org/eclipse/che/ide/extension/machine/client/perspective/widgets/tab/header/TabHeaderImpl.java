@@ -24,7 +24,7 @@ import com.google.inject.assistedinject.Assisted;
 
 import org.eclipse.che.ide.extension.machine.client.MachineResources;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * The class provides methods to control view representation of tab's header.
@@ -66,7 +66,7 @@ public class TabHeaderImpl extends Composite implements TabHeader, ClickHandler 
 
     /** {@inheritDoc} */
     @Override
-    public void setDelegate(@Nonnull ActionDelegate delegate) {
+    public void setDelegate(@NotNull ActionDelegate delegate) {
         this.delegate = delegate;
     }
 
@@ -88,7 +88,7 @@ public class TabHeaderImpl extends Composite implements TabHeader, ClickHandler 
 
     /** {@inheritDoc} */
     @Override
-    @Nonnull
+    @NotNull
     public String getName() {
         return name;
     }

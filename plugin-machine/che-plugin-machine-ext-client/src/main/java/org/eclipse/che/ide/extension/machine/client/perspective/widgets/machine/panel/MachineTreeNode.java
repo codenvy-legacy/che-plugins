@@ -16,8 +16,8 @@ import com.google.inject.assistedinject.Assisted;
 import org.eclipse.che.ide.extension.machine.client.machine.Machine;
 import org.eclipse.che.ide.ui.tree.TreeNodeElement;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+import org.eclipse.che.commons.annotation.Nullable;
 import java.util.Collection;
 
 /**
@@ -51,22 +51,22 @@ public class MachineTreeNode {
         name = isMachine ? ((Machine)data).getDisplayName() : ROOT;
     }
 
-    @Nonnull
+    @NotNull
     public String getId() {
         return id;
     }
 
-    @Nonnull
+    @NotNull
     public String getName() {
         return name;
     }
 
-    @Nonnull
+    @NotNull
     public MachineTreeNode getParent() {
         return parent;
     }
 
-    @Nonnull
+    @NotNull
     public Object getData() {
         return data;
     }
@@ -76,12 +76,12 @@ public class MachineTreeNode {
         return children;
     }
 
-    @Nonnull
+    @NotNull
     public TreeNodeElement<MachineTreeNode> getTreeNodeElement() {
         return treeNodeElement;
     }
 
-    public void setTreeNodeElement(@Nonnull TreeNodeElement<MachineTreeNode> treeNodeElement) {
+    public void setTreeNodeElement(@NotNull TreeNodeElement<MachineTreeNode> treeNodeElement) {
         this.treeNodeElement = treeNodeElement;
     }
 }

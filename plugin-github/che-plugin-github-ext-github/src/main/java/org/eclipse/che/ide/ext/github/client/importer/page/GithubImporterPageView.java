@@ -14,7 +14,7 @@ import org.eclipse.che.ide.api.mvp.View;
 import org.eclipse.che.ide.ext.github.client.load.ProjectData;
 import com.google.inject.ImplementedBy;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Set;
 
@@ -28,17 +28,17 @@ public interface GithubImporterPageView extends View<GithubImporterPageView.Acti
         /**
          * Performs any actions appropriate in response to the user having changed the project's name.
          */
-        void projectNameChanged(@Nonnull String name);
+        void projectNameChanged(@NotNull String name);
 
         /**
          * Performs any actions appropriate in response to the user having changed the project's URL.
          */
-        void projectUrlChanged(@Nonnull String url);
+        void projectUrlChanged(@NotNull String url);
 
         /**
          * Performs any actions appropriate in response to the user having changed the project's description.
          */
-        void projectDescriptionChanged(@Nonnull String projectDescriptionValue);
+        void projectDescriptionChanged(@NotNull String projectDescriptionValue);
 
         /**
          * Performs any actions appropriate in response to the user having changed the project's visibility.
@@ -56,7 +56,7 @@ public interface GithubImporterPageView extends View<GithubImporterPageView.Acti
          * @param repository
          *         selected repository
          */
-        void onRepositorySelected(@Nonnull ProjectData repository);
+        void onRepositorySelected(@NotNull ProjectData repository);
 
         /**
          * Performs any actions appropriate in response to the user having changed account field.
@@ -67,7 +67,7 @@ public interface GithubImporterPageView extends View<GithubImporterPageView.Acti
         void keepDirectorySelected(boolean keepDirectory);
 
         /** Perform actions when changing the name of a directory. */
-        void keepDirectoryNameChanged(@Nonnull String url);
+        void keepDirectoryNameChanged(@NotNull String url);
     }
 
     /**
@@ -83,7 +83,7 @@ public interface GithubImporterPageView extends View<GithubImporterPageView.Acti
     /**
      * Show URL error.
      */
-    void showUrlError(@Nonnull String message);
+    void showUrlError(@NotNull String message);
 
     /**
      * Hide URL error.
@@ -96,7 +96,7 @@ public interface GithubImporterPageView extends View<GithubImporterPageView.Acti
      * @param url
      *         the project's URL to set
      */
-    void setProjectUrl(@Nonnull String url);
+    void setProjectUrl(@NotNull String url);
 
     /**
      * Updates project visibility.
@@ -110,7 +110,7 @@ public interface GithubImporterPageView extends View<GithubImporterPageView.Acti
      *
      * @return {@link String} project's name
      */
-    @Nonnull
+    @NotNull
     String getProjectName();
 
     /**
@@ -119,7 +119,7 @@ public interface GithubImporterPageView extends View<GithubImporterPageView.Acti
      * @param projectName
      *         project's name to set
      */
-    void setProjectName(@Nonnull String projectName);
+    void setProjectName(@NotNull String projectName);
 
     /**
      * Set the project's description value.
@@ -127,7 +127,7 @@ public interface GithubImporterPageView extends View<GithubImporterPageView.Acti
      * @param projectDescription
      *         project's description to set
      */
-    void setProjectDescription(@Nonnull String projectDescription);
+    void setProjectDescription(@NotNull String projectDescription);
 
     /**
      * Focuses URL field.
@@ -148,10 +148,10 @@ public interface GithubImporterPageView extends View<GithubImporterPageView.Acti
      * @param repositories
      *         available repositories
      */
-    void setRepositories(@Nonnull List<ProjectData> repositories);
+    void setRepositories(@NotNull List<ProjectData> repositories);
 
     /** @return account name */
-    @Nonnull
+    @NotNull
     String getAccountName();
 
     /**
@@ -160,7 +160,7 @@ public interface GithubImporterPageView extends View<GithubImporterPageView.Acti
      * @param names
      *         available names
      */
-    void setAccountNames(@Nonnull Set<String> names);
+    void setAccountNames(@NotNull Set<String> names);
 
     /**
      * Close github panel.

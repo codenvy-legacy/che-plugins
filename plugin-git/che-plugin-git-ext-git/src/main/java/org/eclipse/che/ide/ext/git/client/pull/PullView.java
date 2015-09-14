@@ -13,7 +13,7 @@ package org.eclipse.che.ide.ext.git.client.pull;
 import org.eclipse.che.api.git.shared.Remote;
 import org.eclipse.che.ide.api.mvp.View;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -39,7 +39,7 @@ public interface PullView extends View<PullView.ActionDelegate> {
      *
      * @return repository name.
      */
-    @Nonnull
+    @NotNull
     String getRepositoryName();
 
     /**
@@ -47,7 +47,7 @@ public interface PullView extends View<PullView.ActionDelegate> {
      *
      * @return repository url.
      */
-    @Nonnull
+    @NotNull
     String getRepositoryUrl();
 
     /**
@@ -56,10 +56,10 @@ public interface PullView extends View<PullView.ActionDelegate> {
      * @param repositories
      *         available repositories
      */
-    void setRepositories(@Nonnull List<Remote> repositories);
+    void setRepositories(@NotNull List<Remote> repositories);
 
     /** @return local branch */
-    @Nonnull
+    @NotNull
     String getLocalBranch();
     
     /** 
@@ -67,14 +67,14 @@ public interface PullView extends View<PullView.ActionDelegate> {
      * 
      * @param branch local branch to select
      */
-    void selectLocalBranch(@Nonnull String branch);
+    void selectLocalBranch(@NotNull String branch);
     
     /** 
      * Selects pointed remote branch
      * 
      * @param branch remote branch to select
      */
-    void selectRemoteBranch(@Nonnull String branch);
+    void selectRemoteBranch(@NotNull String branch);
 
     /**
      * Set local branches into view.
@@ -82,10 +82,10 @@ public interface PullView extends View<PullView.ActionDelegate> {
      * @param branches
      *         local branches
      */
-    void setLocalBranches(@Nonnull List<String> branches);
+    void setLocalBranches(@NotNull List<String> branches);
 
     /** @return remote branches */
-    @Nonnull
+    @NotNull
     String getRemoteBranch();
 
     /**
@@ -94,7 +94,7 @@ public interface PullView extends View<PullView.ActionDelegate> {
      * @param branches
      *         remote branches
      */
-    void setRemoteBranches(@Nonnull List<String> branches);
+    void setRemoteBranches(@NotNull List<String> branches);
 
     /**
      * Change the enable state of the push button.

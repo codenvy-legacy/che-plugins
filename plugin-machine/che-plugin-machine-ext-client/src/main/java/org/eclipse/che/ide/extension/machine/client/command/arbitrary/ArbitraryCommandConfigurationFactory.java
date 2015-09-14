@@ -14,7 +14,7 @@ import org.eclipse.che.api.machine.shared.dto.CommandDescriptor;
 import org.eclipse.che.ide.extension.machine.client.command.CommandType;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfigurationFactory;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * Factory for {@link ArbitraryCommandConfiguration} instances.
@@ -23,13 +23,13 @@ import javax.annotation.Nonnull;
  */
 public class ArbitraryCommandConfigurationFactory extends CommandConfigurationFactory<ArbitraryCommandConfiguration> {
 
-    protected ArbitraryCommandConfigurationFactory(@Nonnull CommandType commandType) {
+    protected ArbitraryCommandConfigurationFactory(@NotNull CommandType commandType) {
         super(commandType);
     }
 
-    @Nonnull
+    @NotNull
     @Override
-    public ArbitraryCommandConfiguration createFromCommandDescriptor(@Nonnull CommandDescriptor descriptor) {
+    public ArbitraryCommandConfiguration createFromCommandDescriptor(@NotNull CommandDescriptor descriptor) {
         final ArbitraryCommandConfiguration configuration = new ArbitraryCommandConfiguration(descriptor.getId(),
                                                                                               getCommandType(),
                                                                                               descriptor.getName());

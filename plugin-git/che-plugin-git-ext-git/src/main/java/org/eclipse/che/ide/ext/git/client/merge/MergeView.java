@@ -12,7 +12,7 @@ package org.eclipse.che.ide.ext.git.client.merge;
 
 import org.eclipse.che.ide.api.mvp.View;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -35,7 +35,7 @@ public interface MergeView extends View<MergeView.ActionDelegate> {
          * @param reference
          *         selected reference
          */
-        void onReferenceSelected(@Nonnull Reference reference);
+        void onReferenceSelected(@NotNull Reference reference);
     }
 
     /**
@@ -44,7 +44,7 @@ public interface MergeView extends View<MergeView.ActionDelegate> {
      * @param references
      *         local branches
      */
-    void setLocalBranches(@Nonnull List<Reference> references);
+    void setLocalBranches(@NotNull List<Reference> references);
 
     /**
      * Set remote branches.
@@ -52,7 +52,7 @@ public interface MergeView extends View<MergeView.ActionDelegate> {
      * @param references
      *         remote branches
      */
-    void setRemoteBranches(@Nonnull List<Reference> references);
+    void setRemoteBranches(@NotNull List<Reference> references);
 
     /**
      * Change the enable state of the merge button.

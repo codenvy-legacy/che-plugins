@@ -13,7 +13,7 @@ package org.eclipse.che.ide.ext.git.client.add;
 import org.eclipse.che.ide.api.mvp.View;
 import java.util.List;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 
 /**
@@ -37,7 +37,7 @@ public interface AddToIndexView extends View<AddToIndexView.ActionDelegate> {
      * @param message
      *         content of message
      */
-    void setMessage(@Nonnull String message, @Nonnull List<String> items);
+    void setMessage(@NotNull String message, @NotNull List<String> items);
 
     /** @return <code>true</code> if new file must be added to index, and <code>false</code> otherwise */
     boolean isUpdated();

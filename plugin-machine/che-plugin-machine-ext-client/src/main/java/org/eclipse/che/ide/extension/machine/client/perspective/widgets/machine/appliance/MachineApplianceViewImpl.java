@@ -25,7 +25,7 @@ import org.eclipse.che.ide.api.parts.PartStackView;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.MachineResources;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -61,7 +61,7 @@ public class MachineApplianceViewImpl extends Composite implements MachineApplia
 
     /** {@inheritDoc} */
     @Override
-    public void showContainer(@Nonnull IsWidget tabContainer) {
+    public void showContainer(@NotNull IsWidget tabContainer) {
         hideAllContainers();
 
         tabContainer.asWidget().setVisible(true);
@@ -83,7 +83,7 @@ public class MachineApplianceViewImpl extends Composite implements MachineApplia
 
     /** {@inheritDoc} */
     @Override
-    public void addContainer(@Nonnull IsWidget tabContainer) {
+    public void addContainer(@NotNull IsWidget tabContainer) {
         if (!tabContainers.contains(tabContainer)) {
             tabContainers.add(tabContainer);
 
@@ -93,19 +93,19 @@ public class MachineApplianceViewImpl extends Composite implements MachineApplia
 
     /** {@inheritDoc} */
     @Override
-    public void addTab(@Nonnull TabItem tabItem, @Nonnull PartPresenter presenter) {
+    public void addTab(@NotNull TabItem tabItem, @NotNull PartPresenter presenter) {
         //to do nothing
     }
 
     /** {@inheritDoc} */
     @Override
-    public void removeTab(@Nonnull PartPresenter partPresenter) {
+    public void removeTab(@NotNull PartPresenter partPresenter) {
         //to do nothing
     }
 
     /** {@inheritDoc} */
     @Override
-    public void selectTab(@Nonnull PartPresenter partPresenter) {
+    public void selectTab(@NotNull PartPresenter partPresenter) {
         //to do nothing
     }
 
@@ -123,7 +123,7 @@ public class MachineApplianceViewImpl extends Composite implements MachineApplia
 
     /** {@inheritDoc} */
     @Override
-    public void updateTabItem(@Nonnull PartPresenter partPresenter) {
+    public void updateTabItem(@NotNull PartPresenter partPresenter) {
         //to do nothing
     }
 

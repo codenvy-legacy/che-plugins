@@ -18,7 +18,7 @@ import org.eclipse.che.ide.api.project.type.wizard.ProjectWizardRegistrar;
 import org.eclipse.che.ide.api.wizard.WizardPage;
 import org.eclipse.che.ide.extension.maven.client.wizard.MavenPagePresenter;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,17 +39,17 @@ public class GwtProjectWizardRegistrar implements ProjectWizardRegistrar {
         wizardPages.add(mavenPagePresenter);
     }
 
-    @Nonnull
+    @NotNull
     public String getProjectTypeId() {
         return GWT_PROJECT_TYPE_ID;
     }
 
-    @Nonnull
+    @NotNull
     public String getCategory() {
         return JAVA_CATEGORY;
     }
 
-    @Nonnull
+    @NotNull
     public List<Provider<? extends WizardPage<ImportProject>>> getWizardPages() {
         return wizardPages;
     }

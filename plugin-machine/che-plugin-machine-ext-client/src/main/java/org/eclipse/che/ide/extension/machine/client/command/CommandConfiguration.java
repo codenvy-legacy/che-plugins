@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.machine.client.command;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * Abstract command which can be configured and executed in machine.
@@ -33,36 +33,36 @@ public abstract class CommandConfiguration {
      * @param name
      *         command name
      */
-    protected CommandConfiguration(@Nonnull String id, @Nonnull CommandType type, @Nonnull String name) {
+    protected CommandConfiguration(@NotNull String id, @NotNull CommandType type, @NotNull String name) {
         this.id = id;
         this.type = type;
         this.name = name;
     }
 
     /** Returns unique identifier for this command configuration. */
-    @Nonnull
+    @NotNull
     public String getId() {
         return id;
     }
 
     /** Returns command configuration name. */
-    @Nonnull
+    @NotNull
     public String getName() {
         return name;
     }
 
     /** Sets command configuration name. */
-    public void setName(@Nonnull String name) {
+    public void setName(@NotNull String name) {
         this.name = name;
     }
 
     /** Returns command configuration type. */
-    @Nonnull
+    @NotNull
     public CommandType getType() {
         return type;
     }
 
     /** Returns command line to execute in machine. */
-    @Nonnull
+    @NotNull
     public abstract String toCommandLine();
 }

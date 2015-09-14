@@ -24,7 +24,7 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
@@ -176,8 +176,8 @@ public class ArchetypeGenerator {
      * @throws ServerException
      *         if an error occurs while generating project
      */
-    public GenerationTask generateFromArchetype(@Nonnull MavenArchetype archetype, @Nonnull String groupId, @Nonnull String artifactId,
-                                                @Nonnull String version) throws ServerException {
+    public GenerationTask generateFromArchetype(@NotNull MavenArchetype archetype, @NotNull String groupId, @NotNull String artifactId,
+                                                @NotNull String version) throws ServerException {
         Map<String, String> archetypeProperties = new HashMap<>();
         archetypeProperties.put("-DinteractiveMode", "false"); // get rid of the interactivity of the archetype plugin
         archetypeProperties.put("-DarchetypeGroupId", archetype.getGroupId());

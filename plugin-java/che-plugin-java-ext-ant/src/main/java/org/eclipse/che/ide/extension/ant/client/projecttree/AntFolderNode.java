@@ -21,8 +21,8 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import com.google.web.bindery.event.shared.EventBus;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+import org.eclipse.che.commons.annotation.Nullable;
 
 /**
  * {@link AntFolderNode} that may contains {@link JavaFolderNode}s.
@@ -39,7 +39,7 @@ public class AntFolderNode extends JavaFolderNode {
         super(parent, data, treeStructure, eventBus, projectServiceClient, dtoUnmarshallerFactory);
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public AntProjectTreeStructure getTreeStructure() {
         return (AntProjectTreeStructure)super.getTreeStructure();

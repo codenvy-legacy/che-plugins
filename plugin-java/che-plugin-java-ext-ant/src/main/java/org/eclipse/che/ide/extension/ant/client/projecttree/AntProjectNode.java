@@ -22,8 +22,8 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import com.google.web.bindery.event.shared.EventBus;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+import org.eclipse.che.commons.annotation.Nullable;
 import java.util.List;
 
 /**
@@ -45,7 +45,7 @@ public class AntProjectNode extends JavaProjectNode {
     }
 
     /** {@inheritDoc} */
-    @Nonnull
+    @NotNull
     @Override
     public AntProjectTreeStructure getTreeStructure() {
         return (AntProjectTreeStructure)super.getTreeStructure();

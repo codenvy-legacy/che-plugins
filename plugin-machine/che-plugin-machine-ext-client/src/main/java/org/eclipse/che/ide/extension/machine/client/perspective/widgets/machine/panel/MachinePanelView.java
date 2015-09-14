@@ -16,8 +16,8 @@ import org.eclipse.che.ide.api.mvp.View;
 import org.eclipse.che.ide.api.parts.base.BaseActionDelegate;
 import org.eclipse.che.ide.extension.machine.client.machine.Machine;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+import org.eclipse.che.commons.annotation.Nullable;
 
 /**
  * Provides methods to control view representation of machine panel.
@@ -33,7 +33,7 @@ public interface MachinePanelView extends View<MachinePanelView.ActionDelegate> 
      * @param root
      *         data which will be displayed
      */
-    void setData(@Nonnull MachineTreeNode root);
+    void setData(@NotNull MachineTreeNode root);
 
     /**
      * Calls special method which adds special styles to selected element.
@@ -52,6 +52,6 @@ public interface MachinePanelView extends View<MachinePanelView.ActionDelegate> 
          * @param selectedMachine
          *         machine which was selected
          */
-        void onMachineSelected(@Nonnull Machine selectedMachine);
+        void onMachineSelected(@NotNull Machine selectedMachine);
     }
 }

@@ -25,7 +25,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * The implementation of {@link RemoveFromIndexView}.
@@ -89,7 +89,7 @@ public class RemoveFromIndexViewImpl extends Window implements RemoveFromIndexVi
 
     /** {@inheritDoc} */
     @Override
-    public void setMessage(@Nonnull String message) {
+    public void setMessage(@NotNull String message) {
         this.message.getElement().setInnerHTML(message);
     }
 

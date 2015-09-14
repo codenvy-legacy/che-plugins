@@ -27,7 +27,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import java.util.List;
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 /**
  * The implementation of {@link AddToIndexView}.
  *
@@ -89,7 +89,7 @@ public class AddToIndexViewImpl extends Window implements AddToIndexView {
 
     /** {@inheritDoc} */
     @Override
-    public void setMessage(@Nonnull String message, @Nonnull List<String> items) {
+    public void setMessage(@NotNull String message, @NotNull List<String> items) {
         this.message.setHTML(message);
         if (items == null || items.isEmpty()) {
             this.items.setVisible(false);

@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.Nullable;
+import org.eclipse.che.commons.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Named;
 

@@ -12,7 +12,7 @@ package org.eclipse.che.ide.ext.git.client.commit;
 
 import org.eclipse.che.ide.api.mvp.View;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * The view of {@link CommitPresenter}.
@@ -38,7 +38,7 @@ public interface CommitView extends View<CommitView.ActionDelegate> {
     }
 
     /** @return entered message */
-    @Nonnull
+    @NotNull
     String getMessage();
 
     /**
@@ -47,7 +47,7 @@ public interface CommitView extends View<CommitView.ActionDelegate> {
      * @param message
      *         text what need to insert
      */
-    void setMessage(@Nonnull String message);
+    void setMessage(@NotNull String message);
 
     /** @return <code>true</code> if need to include all changes except from new files, and <code>false</code> otherwise */
     boolean isAllFilesInclued();

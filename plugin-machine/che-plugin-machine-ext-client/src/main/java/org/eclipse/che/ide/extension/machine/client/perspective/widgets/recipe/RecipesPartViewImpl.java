@@ -20,7 +20,7 @@ import com.google.inject.Singleton;
 
 import org.eclipse.che.ide.api.parts.base.BaseView;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * @author Valeriy Svydenko
@@ -44,13 +44,13 @@ public class RecipesPartViewImpl extends BaseView<RecipePartView.ActionDelegate>
 
     /** {@inheritDoc} */
     @Override
-    public void addRecipe(@Nonnull Widget recipe) {
+    public void addRecipe(@NotNull Widget recipe) {
         widgets.add(recipe);
     }
 
     /** {@inheritDoc} */
     @Override
-    public void removeRecipe(@Nonnull Widget recipe) {
+    public void removeRecipe(@NotNull Widget recipe) {
         widgets.remove(recipe);
     }
 

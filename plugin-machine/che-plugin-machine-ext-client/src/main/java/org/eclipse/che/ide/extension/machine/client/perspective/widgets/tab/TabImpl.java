@@ -17,8 +17,8 @@ import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.cont
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.content.TabPresenter;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.header.TabHeader;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+import org.eclipse.che.commons.annotation.Nullable;
 
 /**
  * The class describes tab entity which contains header and associated content, and provides methods to get tab's header or content.
@@ -39,14 +39,14 @@ public class TabImpl implements Tab {
     }
 
     /** {@inheritDoc} */
-    @Nonnull
+    @NotNull
     @Override
     public TabHeader getHeader() {
         return tabHeader;
     }
 
     /** {@inheritDoc} */
-    @Nonnull
+    @NotNull
     @Override
     public TabPresenter getContent() {
         return tabPresenter;

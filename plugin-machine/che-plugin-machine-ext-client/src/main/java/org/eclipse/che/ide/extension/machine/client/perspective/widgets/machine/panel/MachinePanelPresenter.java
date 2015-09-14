@@ -32,8 +32,8 @@ import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateH
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.appliance.MachineAppliancePresenter;
 import org.vectomatic.dom.svg.ui.SVGResource;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+import org.eclipse.che.commons.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -122,7 +122,7 @@ public class MachinePanelPresenter extends BasePresenter implements MachinePanel
 
     /** {@inheritDoc} */
     @Override
-    public void onMachineSelected(@Nonnull Machine selectedMachine) {
+    public void onMachineSelected(@NotNull Machine selectedMachine) {
         if (this.selectedMachine != null && this.selectedMachine.equals(selectedMachine)) {
             return;
         }
@@ -132,7 +132,7 @@ public class MachinePanelPresenter extends BasePresenter implements MachinePanel
     }
 
     /** {@inheritDoc} */
-    @Nonnull
+    @NotNull
     @Override
     public String getTitle() {
         return locale.machinePanelTitle();

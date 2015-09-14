@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.java.client.settings.compiler;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * The interface contains constants' ids to setup compiler.
@@ -57,12 +57,12 @@ public enum ErrorWarningsOptions {
 
     private final String value;
 
-    ErrorWarningsOptions(@Nonnull String value) {
+    ErrorWarningsOptions(@NotNull String value) {
         this.value = value;
     }
 
     /** Returns value which associated with enum */
-    @Nonnull
+    @NotNull
     @Override
     public String toString() {
         return value;

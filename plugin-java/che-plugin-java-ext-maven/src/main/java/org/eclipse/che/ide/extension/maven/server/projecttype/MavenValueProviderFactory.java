@@ -27,7 +27,7 @@ import org.eclipse.che.ide.extension.maven.shared.MavenAttributes;
 import org.eclipse.che.ide.maven.tools.Build;
 import org.eclipse.che.ide.maven.tools.Model;
 
-import javax.annotation.Nullable;
+import org.eclipse.che.commons.annotation.Nullable;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Arrays;
