@@ -40,8 +40,8 @@ import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.rest.StringUnmarshaller;
 import org.vectomatic.dom.svg.ui.SVGResource;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+import org.eclipse.che.commons.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -153,7 +153,7 @@ public class HistoryPresenter extends BasePresenter implements HistoryView.Actio
     }
 
     /** Get the log of the commits. If successfully received, then display in revision grid, otherwise - show error in output panel. */
-    private void getCommitsLog(@Nonnull ProjectDescriptor project) {
+    private void getCommitsLog(@NotNull ProjectDescriptor project) {
         service.log(project, false,
                     new AsyncRequestCallback<LogResponse>(dtoUnmarshallerFactory.newUnmarshaller(LogResponse.class)) {
                         @Override
@@ -290,7 +290,7 @@ public class HistoryPresenter extends BasePresenter implements HistoryView.Actio
 
     /** {@inheritDoc} */
     @Override
-    public void onRevisionSelected(@Nonnull Revision revision) {
+    public void onRevisionSelected(@NotNull Revision revision) {
         selectedRevision = revision;
         update();
     }
@@ -341,7 +341,7 @@ public class HistoryPresenter extends BasePresenter implements HistoryView.Actio
      * @param isCached
      *         if <code>true</code> compare with index, else - with working tree
      */
-    private void doDiffWithNotCommitted(@Nonnull List<String> filePatterns, @Nullable final Revision revision, final boolean isCached) {
+    private void doDiffWithNotCommitted(@NotNull List<String> filePatterns, @Nullable final Revision revision, final boolean isCached) {
         if (revision == null) {
             return;
         }
@@ -375,7 +375,7 @@ public class HistoryPresenter extends BasePresenter implements HistoryView.Actio
      * @param revisionB
      *         selected commit
      */
-    private void doDiffWithPrevVersion(@Nonnull List<String> filePatterns, @Nullable final Revision revisionB) {
+    private void doDiffWithPrevVersion(@NotNull List<String> filePatterns, @Nullable final Revision revisionB) {
         if (revisionB == null) {
             return;
         }

@@ -17,7 +17,7 @@ import org.eclipse.che.api.project.shared.dto.RunnerEnvironmentTree;
 import org.eclipse.che.ide.ext.runner.client.models.Environment;
 import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -42,8 +42,8 @@ public interface GetEnvironmentsUtil {
      *         node which contains environments
      * @return list environments.
      */
-    @Nonnull
-    List<RunnerEnvironmentLeaf> getAllEnvironments(@Nonnull RunnerEnvironmentTree tree);
+    @NotNull
+    List<RunnerEnvironmentLeaf> getAllEnvironments(@NotNull RunnerEnvironmentTree tree);
 
     /**
      * Gets all environments from nodes and adds them to list.
@@ -54,8 +54,8 @@ public interface GetEnvironmentsUtil {
      *         scope of runner environments
      * @return list of environments
      */
-    @Nonnull
-    List<Environment> getEnvironmentsFromNodes(@Nonnull List<RunnerEnvironmentLeaf> leaves, @Nonnull Scope scope);
+    @NotNull
+    List<Environment> getEnvironmentsFromNodes(@NotNull List<RunnerEnvironmentLeaf> leaves, @NotNull Scope scope);
 
     /**
      * Returns list of environments from environments tree which relate to current project type.
@@ -68,10 +68,10 @@ public interface GetEnvironmentsUtil {
      *         scope of runner environments
      * @return list environments
      */
-    @Nonnull
-    List<Environment> getEnvironmentsByProjectType(@Nonnull RunnerEnvironmentTree tree,
-                                                   @Nonnull String projectType,
-                                                   @Nonnull Scope scope);
+    @NotNull
+    List<Environment> getEnvironmentsByProjectType(@NotNull RunnerEnvironmentTree tree,
+                                                   @NotNull String projectType,
+                                                   @NotNull Scope scope);
 
     /**
      * Returns category of runner for current project type.
@@ -82,8 +82,8 @@ public interface GetEnvironmentsUtil {
      *         type of project
      * @return tree which contains all runner environments for current project type
      */
-    @Nonnull
-    RunnerEnvironmentTree getRunnerCategoryByProjectType(@Nonnull RunnerEnvironmentTree tree, @Nonnull String projectType);
+    @NotNull
+    RunnerEnvironmentTree getRunnerCategoryByProjectType(@NotNull RunnerEnvironmentTree tree, @NotNull String projectType);
 
     /**
      * Returns correct category name when default runner is defined for project.
@@ -92,14 +92,14 @@ public interface GetEnvironmentsUtil {
      *         runner from which need get category
      * @return string representation of runner category
      */
-    @Nonnull
-    String getCorrectCategoryName(@Nonnull String defaultRunner);
+    @NotNull
+    String getCorrectCategoryName(@NotNull String defaultRunner);
 
     /**
      * Returns correct project type.
      *
      * @return string representation of project type
      */
-    @Nonnull
+    @NotNull
     String getType();
 }

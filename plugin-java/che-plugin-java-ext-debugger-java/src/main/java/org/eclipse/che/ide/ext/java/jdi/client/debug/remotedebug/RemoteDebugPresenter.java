@@ -14,8 +14,8 @@ import com.google.inject.Inject;
 
 import org.eclipse.che.ide.ext.java.jdi.client.debug.DebuggerPresenter;
 
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 
 /**
  * Contains methods which allows control of remote debugging.
@@ -42,7 +42,7 @@ public class RemoteDebugPresenter implements RemoteDebugView.ActionDelegate {
 
     /** {@inheritDoc} */
     @Override
-    public void onConfirmClicked(@Nonnull String host, @Nonnegative int port) {
+    public void onConfirmClicked(@NotNull String host, @Min(value=0) int port) {
         debuggerPresenter.attachDebugger(host, port);
     }
 }

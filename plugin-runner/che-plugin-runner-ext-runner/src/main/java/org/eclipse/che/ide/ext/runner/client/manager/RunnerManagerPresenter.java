@@ -24,6 +24,7 @@ import org.eclipse.che.api.project.shared.dto.RunnerConfiguration;
 import org.eclipse.che.api.project.shared.dto.RunnersDescriptor;
 import org.eclipse.che.api.runner.dto.ApplicationProcessDescriptor;
 import org.eclipse.che.api.runner.dto.RunOptions;
+import org.eclipse.che.commons.annotation.Nullable;
 import org.eclipse.che.ide.api.action.permits.ActionDenyAccessDialog;
 import org.eclipse.che.ide.api.action.permits.ResourcesLockedActionPermit;
 import org.eclipse.che.ide.api.action.permits.Run;
@@ -68,8 +69,7 @@ import org.eclipse.che.ide.ext.runner.client.util.annotations.LeftPanel;
 import org.eclipse.che.ide.ext.runner.client.util.annotations.LeftPropertiesPanel;
 import org.eclipse.che.ide.ext.runner.client.util.annotations.RightPropertiesPanel;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -252,10 +252,10 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
         view.updateMoreInfoPopup(selectedRunner);
     }
 
-    private void initializeLeftPanel(@Nonnull final PanelState panelState,
-                                     @Nonnull Provider<TabBuilder> tabBuilderProvider,
-                                     @Nonnull HistoryPanel historyPanel,
-                                     @Nonnull final TemplatesContainer templatesContainer) {
+    private void initializeLeftPanel(@NotNull final PanelState panelState,
+                                     @NotNull Provider<TabBuilder> tabBuilderProvider,
+                                     @NotNull HistoryPanel historyPanel,
+                                     @NotNull final TemplatesContainer templatesContainer) {
         TabSelectHandler historyHandler = new TabSelectHandler() {
             @Override
             public void onTabSelected() {
@@ -299,7 +299,7 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
         leftTabContainer.addTab(templateTab);
     }
 
-    private void initializeLeftPropertiesPanel(@Nonnull Provider<TabBuilder> tabBuilderProvider) {
+    private void initializeLeftPropertiesPanel(@NotNull Provider<TabBuilder> tabBuilderProvider) {
         final TabSelectHandler consoleHandler = new TabSelectHandler() {
             @Override
             public void onTabSelected() {
@@ -347,7 +347,7 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
         leftPropertiesContainer.addTab(propertiesTab);
     }
 
-    private void initializeRightPropertiesPanel(@Nonnull Provider<TabBuilder> tabBuilderProvider) {
+    private void initializeRightPropertiesPanel(@NotNull Provider<TabBuilder> tabBuilderProvider) {
         rightPropertiesContainer.addTab(consoleTab);
 
         TabSelectHandler terminalHandler = new TabSelectHandler() {
@@ -378,7 +378,7 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
     }
 
     /** @return the GWT widget that is controlled by the presenter */
-    @Nonnull
+    @NotNull
     public RunnerManagerView getView() {
         return view;
     }
@@ -389,7 +389,7 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
      * @param runner
      *         runner which was changed
      */
-    public void update(@Nonnull Runner runner) {
+    public void update(@NotNull Runner runner) {
         history.update(runner);
 
         if (runner.equals(selectedRunner) && history.isRunnerExist(runner)) {
@@ -398,7 +398,7 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
         }
     }
 
-    private void changeURLDependingOnState(@Nonnull Runner runner) {
+    private void changeURLDependingOnState(@NotNull Runner runner) {
         switch (runner.getStatus()) {
             case IN_PROGRESS:
                 view.setApplicationURl(locale.uplAppWaitingForBoot());
@@ -486,7 +486,7 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
 
     /** {@inheritDoc} */
     @Override
-    public void stopRunner(@Nonnull Runner runner) {
+    public void stopRunner(@NotNull Runner runner) {
         RunnerAction runnerAction = runnerActions.get(runner);
         if (runnerAction != null) {
             runnerAction.stop();
@@ -584,21 +584,21 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
     }
 
     /** {@inheritDoc} */
-    @Nonnull
+    @NotNull
     @Override
-    public Runner launchRunner(@Nonnull RunOptions runOptions) {
+    public Runner launchRunner(@NotNull RunOptions runOptions) {
         return launchRunner(modelsFactory.createRunner(runOptions));
     }
 
     /** {@inheritDoc} */
     @Override
-    @Nonnull
-    public Runner launchRunner(@Nonnull RunOptions runOptions, @Nonnull Scope scope, @Nonnull String environmentName) {
+    @NotNull
+    public Runner launchRunner(@NotNull RunOptions runOptions, @NotNull Scope scope, @NotNull String environmentName) {
         return launchRunner(modelsFactory.createRunner(runOptions, scope, environmentName));
     }
 
-    @Nonnull
-    private Runner launchRunner(@Nonnull Runner runner) {
+    @NotNull
+    private Runner launchRunner(@NotNull Runner runner) {
         if (runActionPermit.isAllowed()) {
 
             CurrentProject currentProject = appContext.getCurrentProject();
@@ -631,7 +631,7 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
 
     /** {@inheritDoc} */
     @Override
-    public void go(@Nonnull AcceptsOneWidget container) {
+    public void go(@NotNull AcceptsOneWidget container) {
         container.setWidget(view);
     }
 
@@ -644,7 +644,7 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
     }
 
     /** {@inheritDoc} */
-    @Nonnull
+    @NotNull
     @Override
     public String getTitle() {
         return locale.runnerTitle();
@@ -666,7 +666,7 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
 
     /** {@inheritDoc} */
     @Override
-    public void onProjectReady(@Nonnull ProjectActionEvent projectActionEvent) {
+    public void onProjectReady(@NotNull ProjectActionEvent projectActionEvent) {
         view.setEnableReRunButton(false);
         view.setEnableStopButton(false);
         view.setEnableLogsButton(false);
@@ -696,7 +696,7 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
 
     /** {@inheritDoc} */
     @Override
-    public void onProjectClosed(@Nonnull ProjectActionEvent projectActionEvent) {
+    public void onProjectClosed(@NotNull ProjectActionEvent projectActionEvent) {
         partStack.hidePart(this);
 
         selectionManager.setRunner(null);
@@ -736,8 +736,8 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
      *         The descriptor of new runner
      * @return instance of new runner
      */
-    @Nonnull
-    public Runner addRunner(@Nonnull ApplicationProcessDescriptor processDescriptor) {
+    @NotNull
+    public Runner addRunner(@NotNull ApplicationProcessDescriptor processDescriptor) {
         RunOptions runOptions = dtoFactory.createDto(RunOptions.class);
         Runner runner = modelsFactory.createRunner(runOptions);
 
@@ -776,7 +776,7 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
      * @param runnerId
      *         process id of runner
      */
-    public void addRunnerId(@Nonnull Long runnerId) {
+    public void addRunnerId(@NotNull Long runnerId) {
         runnersId.add(runnerId);
     }
 
@@ -786,13 +786,13 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
      * @param runnerId
      *         ID of runner
      */
-    public boolean isRunnerExist(@Nonnull Long runnerId) {
+    public boolean isRunnerExist(@NotNull Long runnerId) {
         return runnersId.contains(runnerId);
     }
 
     /** {@inheritDoc} */
     @Override
-    public void onSelectionChanged(@Nonnull Selection selection) {
+    public void onSelectionChanged(@NotNull Selection selection) {
         if (RUNNER.equals(selection)) {
             runnerSelected();
         } else {

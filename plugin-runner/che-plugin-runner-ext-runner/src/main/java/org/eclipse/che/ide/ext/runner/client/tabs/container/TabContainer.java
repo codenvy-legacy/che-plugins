@@ -15,7 +15,7 @@ import com.google.inject.ImplementedBy;
 import org.eclipse.che.ide.api.mvp.Presenter;
 import org.eclipse.che.ide.ext.runner.client.tabs.common.Tab;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * Provides methods which allow work with tab container.
@@ -32,7 +32,7 @@ public interface TabContainer extends Presenter {
      * @param title
      *         title of the tab
      */
-    void showTab(@Nonnull String title);
+    void showTab(@NotNull String title);
 
     /**
      * Adds tab to tab container and saves tab visibility.
@@ -40,7 +40,7 @@ public interface TabContainer extends Presenter {
      * @param tab
      *         tab which need add
      */
-    void addTab(@Nonnull Tab tab);
+    void addTab(@NotNull Tab tab);
 
     /**
      * Changes visibility of tabs titles.
@@ -50,7 +50,7 @@ public interface TabContainer extends Presenter {
      * @param isShown
      *         <code>true</code> shows tabs title, <code>false</code> hides tab titles
      */
-    void showTabTitle(@Nonnull String tabName, boolean isShown);
+    void showTabTitle(@NotNull String tabName, boolean isShown);
 
     /**
      * Sets location of panel. There are three panel location LEFT, LEFT_PROPERTIES, RIGHT_PROPERTIES. This panel states are stored
@@ -59,7 +59,7 @@ public interface TabContainer extends Presenter {
      * @param panelLocation
      *         location which need set
      */
-    void setLocation(@Nonnull PanelLocation panelLocation);
+    void setLocation(@NotNull PanelLocation panelLocation);
 
     interface TabSelectHandler {
         /** Performs some actions when user clicks on tab. */

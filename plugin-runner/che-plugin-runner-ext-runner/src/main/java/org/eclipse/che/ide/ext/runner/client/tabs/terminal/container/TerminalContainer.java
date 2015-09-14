@@ -15,7 +15,7 @@ import com.google.inject.ImplementedBy;
 import org.eclipse.che.ide.ext.runner.client.models.Runner;
 import org.eclipse.che.ide.ext.runner.client.tabs.common.TabPresenter;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * The common representation of terminal container widget. This widget provides an ability to manager many terminal widgets for every
@@ -31,7 +31,7 @@ public interface TerminalContainer extends TabPresenter {
      * @param runner
      *         runner which need update
      */
-    void update(@Nonnull Runner runner);
+    void update(@NotNull Runner runner);
 
     /** Cleans the data of console widgets. */
     void reset();
@@ -42,7 +42,7 @@ public interface TerminalContainer extends TabPresenter {
      * @param runner
      *         instance of Runner which contains iframe with terminal
      */
-    void removeTerminalUrl(@Nonnull Runner runner);
+    void removeTerminalUrl(@NotNull Runner runner);
 
     /**
      * Changes visibility of the no runner label.

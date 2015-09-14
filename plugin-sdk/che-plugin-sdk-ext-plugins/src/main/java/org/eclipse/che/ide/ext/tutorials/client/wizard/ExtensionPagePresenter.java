@@ -21,7 +21,7 @@ import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -192,7 +192,7 @@ public class ExtensionPagePresenter extends AbstractWizardPage<ImportProject> im
     }
 
     /** Reads single value of attribute from data-object. */
-    @Nonnull
+    @NotNull
     private String getAttribute(String attrId) {
         Map<String, List<String>> attributes = dataObject.getProject().getAttributes();
         List<String> values = attributes.get(attrId);

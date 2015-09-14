@@ -17,7 +17,7 @@ import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.rest.Unmarshallable;
 import com.google.inject.Inject;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * The builder that provides an ability to create an instance of {@link AsyncRequestCallback}. It has to simplify work flow of creating
@@ -54,8 +54,8 @@ public class AsyncCallbackBuilder<T> {
      *         callback that has to be added
      * @return an instance of builder with changed configuration
      */
-    @Nonnull
-    public AsyncCallbackBuilder<T> success(@Nonnull SuccessCallback<T> successCallback) {
+    @NotNull
+    public AsyncCallbackBuilder<T> success(@NotNull SuccessCallback<T> successCallback) {
         this.successCallback = successCallback;
         return this;
     }
@@ -67,8 +67,8 @@ public class AsyncCallbackBuilder<T> {
      *         unmarshaller that has to be added
      * @return an instance of builder with changed configuration
      */
-    @Nonnull
-    public AsyncCallbackBuilder<T> unmarshaller(@Nonnull Unmarshallable<T> unmarshaller) {
+    @NotNull
+    public AsyncCallbackBuilder<T> unmarshaller(@NotNull Unmarshallable<T> unmarshaller) {
         this.unmarshaller = unmarshaller;
         return this;
     }
@@ -80,8 +80,8 @@ public class AsyncCallbackBuilder<T> {
      *         class of unmarshaller
      * @return an instance of builder with changed configuration
      */
-    @Nonnull
-    public AsyncCallbackBuilder<T> unmarshaller(@Nonnull Class<T> clazz) {
+    @NotNull
+    public AsyncCallbackBuilder<T> unmarshaller(@NotNull Class<T> clazz) {
         this.clazz = clazz;
         return this;
     }
@@ -93,14 +93,14 @@ public class AsyncCallbackBuilder<T> {
      *         callback that has to be added
      * @return an instance of builder with changed configuration
      */
-    @Nonnull
-    public AsyncCallbackBuilder<T> failure(@Nonnull FailureCallback failureCallback) {
+    @NotNull
+    public AsyncCallbackBuilder<T> failure(@NotNull FailureCallback failureCallback) {
         this.failureCallback = failureCallback;
         return this;
     }
 
     /** @return an instance of {link AsyncRequestCallback} with a given configuration */
-    @Nonnull
+    @NotNull
     public AsyncRequestCallback<T> build() {
         if (successCallback == null) {
             throw new IllegalStateException("You forgot to initialize success callback parameter. Please, fix it and try again.");

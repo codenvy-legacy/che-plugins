@@ -30,7 +30,7 @@ import org.eclipse.che.ide.part.explorer.project.NewProjectExplorerPresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -207,8 +207,8 @@ public class MergePresenter implements MergeView.ActionDelegate {
      *         result of merge operation
      * @return {@link String} merge result message
      */
-    @Nonnull
-    private String formMergeMessage(@Nonnull MergeResult mergeResult) {
+    @NotNull
+    private String formMergeMessage(@NotNull MergeResult mergeResult) {
         if (mergeResult.getMergeStatus().equals(ALREADY_UP_TO_DATE)) {
             return mergeResult.getMergeStatus().getValue();
         }
@@ -241,7 +241,7 @@ public class MergePresenter implements MergeView.ActionDelegate {
 
     /** {@inheritDoc} */
     @Override
-    public void onReferenceSelected(@Nonnull Reference reference) {
+    public void onReferenceSelected(@NotNull Reference reference) {
         selectedReference = reference;
         String displayName = selectedReference.getDisplayName();
         boolean isEnabled = !displayName.equals(LOCAL_BRANCHES_TITLE) && !displayName.equals(REMOTE_BRANCHES_TITLE);

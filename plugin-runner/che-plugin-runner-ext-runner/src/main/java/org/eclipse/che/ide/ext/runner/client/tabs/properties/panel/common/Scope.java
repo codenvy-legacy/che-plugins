@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * The enum represents a list of available scope of runner configurations.
@@ -24,7 +24,7 @@ public enum Scope {
 
     private final String name;
 
-    Scope(@Nonnull String name) {
+    Scope(@NotNull String name) {
         this.name = name;
     }
 
@@ -41,7 +41,7 @@ public enum Scope {
      *         content that needs to analyze
      * @return an instance {@link Scope}
      */
-    public static Scope detect(@Nonnull String content) {
+    public static Scope detect(@NotNull String content) {
         for (Scope scope : Scope.values()) {
             if (content.equals(scope.toString())) {
                 return scope;

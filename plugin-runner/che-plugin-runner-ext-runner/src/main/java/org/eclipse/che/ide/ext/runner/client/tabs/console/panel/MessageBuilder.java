@@ -15,7 +15,7 @@ import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.safehtml.shared.SimpleHtmlSanitizer;
 import com.google.inject.Inject;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -47,8 +47,8 @@ public class MessageBuilder {
      *         type that needs to apply
      * @return an instance of {@link MessageBuilder}
      */
-    @Nonnull
-    public MessageBuilder type(@Nonnull MessageType type) {
+    @NotNull
+    public MessageBuilder type(@NotNull MessageType type) {
         types.add(type);
         return this;
     }
@@ -61,14 +61,14 @@ public class MessageBuilder {
      *         message that needs to show
      * @return an instance of {@link MessageBuilder}
      */
-    @Nonnull
-    public MessageBuilder message(@Nonnull String message) {
+    @NotNull
+    public MessageBuilder message(@NotNull String message) {
         this.message = message;
         return this;
     }
 
     /** @return an instance of {@link SafeHtml} with all given information */
-    @Nonnull
+    @NotNull
     public SafeHtml build() {
         SafeHtmlBuilder builder = new SafeHtmlBuilder().appendHtmlConstant("<pre style='margin:0px;'>");
         StringBuilder prefixes = new StringBuilder();

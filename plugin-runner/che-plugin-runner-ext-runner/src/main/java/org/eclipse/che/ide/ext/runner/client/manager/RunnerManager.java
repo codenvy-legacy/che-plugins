@@ -16,7 +16,7 @@ import org.eclipse.che.api.runner.dto.RunOptions;
 import org.eclipse.che.ide.ext.runner.client.models.Runner;
 import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * It is the main class of structure. It provides an ability to launch a new runner. It can launch default runner or custom runner. Default
@@ -43,8 +43,8 @@ public interface RunnerManager {
      *         configuration of the runner
      * @return new instance of the runner
      */
-    @Nonnull
-    Runner launchRunner(@Nonnull RunOptions runOptions);
+    @NotNull
+    Runner launchRunner(@NotNull RunOptions runOptions);
 
     /**
      * Launch a new runner with given configurations.
@@ -57,8 +57,8 @@ public interface RunnerManager {
      *         configuration of the runner
      * @return new instance of the runner
      */
-    @Nonnull
-    Runner launchRunner(@Nonnull RunOptions runOptions, @Nonnull Scope scope, @Nonnull String environmentName);
+    @NotNull
+    Runner launchRunner(@NotNull RunOptions runOptions, @NotNull Scope scope, @NotNull String environmentName);
 
     /**
      * Stops launch and run actions.
@@ -66,6 +66,6 @@ public interface RunnerManager {
      * @param runner
      *         runner which performs actions
      */
-    void stopRunner(@Nonnull Runner runner);
+    void stopRunner(@NotNull Runner runner);
 
 }

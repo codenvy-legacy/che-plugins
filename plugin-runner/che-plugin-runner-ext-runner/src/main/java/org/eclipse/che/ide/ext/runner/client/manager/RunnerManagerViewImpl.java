@@ -45,8 +45,8 @@ import org.eclipse.che.ide.ext.runner.client.models.Runner;
 import org.eclipse.che.ide.ext.runner.client.tabs.container.TabContainer;
 import org.vectomatic.dom.svg.ui.SVGResource;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+import org.eclipse.che.commons.annotation.Nullable;
 
 /**
  * Class provides view representation of runner panel.
@@ -184,7 +184,7 @@ public class RunnerManagerViewImpl extends BaseView<RunnerManagerView.ActionDele
         }, MouseOutEvent.getType());
     }
 
-    private void changeSplitterStyle(@Nonnull SplitLayoutPanel panel, @Nonnull String style) {
+    private void changeSplitterStyle(@NotNull SplitLayoutPanel panel, @NotNull String style) {
         int widgetCount = panel.getWidgetCount();
 
         for (int i = 0; i < widgetCount; i++) {
@@ -237,7 +237,7 @@ public class RunnerManagerViewImpl extends BaseView<RunnerManagerView.ActionDele
         logs = createButton(resources.logs(), locale.tooltipLogsButton(), logsDelegate, otherButtonsPanel);
     }
 
-    private void initializeMenu(@Nonnull final PopupPanel menuPopup) {
+    private void initializeMenu(@NotNull final PopupPanel menuPopup) {
         menuPopup.removeStyleName(GWT_POPUP_STANDARD_STYLE);
 
         MenuWidget menuWidget = widgetFactory.createMenuWidget();
@@ -280,11 +280,11 @@ public class RunnerManagerViewImpl extends BaseView<RunnerManagerView.ActionDele
         }, ClickEvent.getType());
     }
 
-    @Nonnull
-    private ButtonWidget createButton(@Nonnull SVGResource icon,
-                                      @Nonnull String prompt,
-                                      @Nonnull ButtonWidget.ActionDelegate delegate,
-                                      @Nonnull FlowPanel buttonPanel) {
+    @NotNull
+    private ButtonWidget createButton(@NotNull SVGResource icon,
+                                      @NotNull String prompt,
+                                      @NotNull ButtonWidget.ActionDelegate delegate,
+                                      @NotNull FlowPanel buttonPanel) {
         ButtonWidget button = widgetFactory.createButton(prompt, icon);
         button.setDelegate(delegate);
         button.setDisable();
@@ -296,14 +296,14 @@ public class RunnerManagerViewImpl extends BaseView<RunnerManagerView.ActionDele
 
     /** {@inheritDoc} */
     @Override
-    public void update(@Nonnull Runner runner) {
+    public void update(@NotNull Runner runner) {
         changeButtonsState(runner);
 
         moreInfoWidget.update(runner);
         debugPanel.setVisible(false);
     }
 
-    private void changeButtonsState(@Nonnull Runner runner) {
+    private void changeButtonsState(@NotNull Runner runner) {
         if (appContext.getCurrentProject() == null) {
             run.setDisable();
             stop.setDisable();
@@ -362,7 +362,7 @@ public class RunnerManagerViewImpl extends BaseView<RunnerManagerView.ActionDele
 
     /** {@inheritDoc} */
     @Override
-    public void setTimeout(@Nonnull String timeoutValue) {
+    public void setTimeout(@NotNull String timeoutValue) {
         timeout.setText(timeoutValue);
     }
 
@@ -380,19 +380,19 @@ public class RunnerManagerViewImpl extends BaseView<RunnerManagerView.ActionDele
 
     /** {@inheritDoc} */
     @Override
-    public void updateMoreInfoPopup(@Nonnull Runner runner) {
+    public void updateMoreInfoPopup(@NotNull Runner runner) {
         moreInfoWidget.update(runner);
     }
 
     /** {@inheritDoc} */
     @Override
-    public void setLeftPanel(@Nonnull TabContainer containerPresenter) {
+    public void setLeftPanel(@NotNull TabContainer containerPresenter) {
         containerPresenter.go(leftTabsPanel);
     }
 
     /** {@inheritDoc} */
     @Override
-    public void setRightPropertiesPanel(@Nonnull TabContainer containerPresenter) {
+    public void setRightPropertiesPanel(@NotNull TabContainer containerPresenter) {
         containerPresenter.showTabTitle(locale.runnerTabConsole(), false);
         containerPresenter.showTabTitle(locale.runnerTabProperties(), false);
 
@@ -403,7 +403,7 @@ public class RunnerManagerViewImpl extends BaseView<RunnerManagerView.ActionDele
 
     /** {@inheritDoc} */
     @Override
-    public void setLeftPropertiesPanel(@Nonnull TabContainer containerPresenter) {
+    public void setLeftPropertiesPanel(@NotNull TabContainer containerPresenter) {
         containerPresenter.showTab(locale.runnerTabConsole());
 
         Element leftContainer = leftPropertiesPanel.getElement().getParentElement();
@@ -419,14 +419,14 @@ public class RunnerManagerViewImpl extends BaseView<RunnerManagerView.ActionDele
         containerPresenter.go(leftPropertiesPanel);
     }
 
-    private void changeStyle(@Nonnull Element element, @Nonnull String styleToRemove, @Nonnull String styleToAdd) {
+    private void changeStyle(@NotNull Element element, @NotNull String styleToRemove, @NotNull String styleToAdd) {
         element.removeClassName(styleToRemove);
         element.addClassName(styleToAdd);
     }
 
     /** {@inheritDoc} */
     @Override
-    public void setGeneralPropertiesPanel(@Nonnull TabContainer containerPresenter) {
+    public void setGeneralPropertiesPanel(@NotNull TabContainer containerPresenter) {
         containerPresenter.showTabTitle(locale.runnerTabConsole(), true);
         containerPresenter.showTabTitle(locale.runnerTabProperties(), true);
         containerPresenter.showTab(locale.runnerTabConsole());
@@ -500,7 +500,7 @@ public class RunnerManagerViewImpl extends BaseView<RunnerManagerView.ActionDele
 
     /** {@inheritDoc} */
     @Override
-    public void showLog(@Nonnull String url) {
+    public void showLog(@NotNull String url) {
         Window.open(url, "_blank", "");
     }
 

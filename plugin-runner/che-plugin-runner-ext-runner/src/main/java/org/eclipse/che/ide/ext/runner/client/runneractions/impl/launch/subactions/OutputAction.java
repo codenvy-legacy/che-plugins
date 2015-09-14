@@ -17,7 +17,7 @@ import org.eclipse.che.ide.ext.runner.client.runneractions.impl.launch.common.Lo
 import org.eclipse.che.ide.ext.runner.client.util.WebSocketUtil;
 import com.google.inject.Inject;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * The action for analyzing output messages.
@@ -42,7 +42,7 @@ public class OutputAction extends AbstractRunnerAction implements LogMessagesHan
 
     /** {@inheritDoc} */
     @Override
-    public void perform(@Nonnull Runner runner) {
+    public void perform(@NotNull Runner runner) {
         runnerOutputHandler = handlerFactory.createLogMessageHandler(runner, this);
         webSocketChannel = OUTPUT_CHANNEL + runner.getProcessId();
 

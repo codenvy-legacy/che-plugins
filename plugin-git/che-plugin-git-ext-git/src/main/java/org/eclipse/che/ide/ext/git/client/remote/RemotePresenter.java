@@ -25,7 +25,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import java.util.List;
 
@@ -159,7 +159,7 @@ public class RemotePresenter implements RemoteView.ActionDelegate {
         view.setEnableDeleteButton(remote != null);
     }
 
-    private void handleError(@Nonnull String errorMessage) {
+    private void handleError(@NotNull String errorMessage) {
         Notification notification = new Notification(errorMessage, ERROR);
         notificationManager.showNotification(notification);
     }

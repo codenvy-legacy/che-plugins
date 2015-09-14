@@ -18,7 +18,7 @@ import org.eclipse.che.ide.ext.runner.client.state.PanelState;
 import org.eclipse.che.ide.ext.runner.client.state.State;
 import org.eclipse.che.ide.ext.runner.client.tabs.common.Tab;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -63,13 +63,13 @@ public class TabContainerPresenter implements TabContainer, TabContainerView.Act
 
     /** {@inheritDoc} */
     @Override
-    public void showTab(@Nonnull String title) {
+    public void showTab(@NotNull String title) {
         onTabClicked(title);
     }
 
     /** {@inheritDoc} */
     @Override
-    public void addTab(@Nonnull Tab tab) {
+    public void addTab(@NotNull Tab tab) {
         String title = tab.getTitle();
 
         if (tabs.containsKey(title)) {
@@ -91,19 +91,19 @@ public class TabContainerPresenter implements TabContainer, TabContainerView.Act
 
     /** {@inheritDoc} */
     @Override
-    public void showTabTitle(@Nonnull String tabName, boolean isShown) {
+    public void showTabTitle(@NotNull String tabName, boolean isShown) {
         view.showTabTitle(tabName, isShown);
     }
 
     /** {@inheritDoc} */
     @Override
-    public void setLocation(@Nonnull PanelLocation panelLocation) {
+    public void setLocation(@NotNull PanelLocation panelLocation) {
         this.panelLocation = panelLocation;
     }
 
     /** {@inheritDoc} */
     @Override
-    public void onTabClicked(@Nonnull String title) {
+    public void onTabClicked(@NotNull String title) {
         Tab tab = tabs.get(title);
 
         if (tab != null && title.equals(tab.getTitle())) {

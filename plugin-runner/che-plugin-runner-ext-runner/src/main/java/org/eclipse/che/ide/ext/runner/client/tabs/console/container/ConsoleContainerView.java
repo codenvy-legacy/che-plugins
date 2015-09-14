@@ -15,7 +15,7 @@ import com.google.inject.ImplementedBy;
 
 import org.eclipse.che.ide.api.mvp.View;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * The abstract representation of console container widget UI part.
@@ -32,7 +32,7 @@ public interface ConsoleContainerView extends View<ConsoleContainerView.ActionDe
      * @param console
      *         console that needs to be shown
      */
-    void showWidget(@Nonnull IsWidget console);
+    void showWidget(@NotNull IsWidget console);
 
     /**
      * Remove a given widget from the container.
@@ -40,7 +40,7 @@ public interface ConsoleContainerView extends View<ConsoleContainerView.ActionDe
      * @param console
      *         widget that needs to be remove
      */
-    void removeWidget(@Nonnull IsWidget console);
+    void removeWidget(@NotNull IsWidget console);
 
     /**
      * Changes visibility of the widget.

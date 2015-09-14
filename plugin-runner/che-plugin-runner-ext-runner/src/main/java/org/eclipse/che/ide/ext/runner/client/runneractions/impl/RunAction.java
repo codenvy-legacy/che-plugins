@@ -32,7 +32,7 @@ import org.eclipse.che.ide.ext.runner.client.util.EnvironmentIdValidator;
 import org.eclipse.che.ide.ext.runner.client.util.RunnerUtil;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * This action executes a request on the server side for running a runner. Then it adds handlers for listening WebSocket messages from
@@ -77,7 +77,7 @@ public class RunAction extends AbstractRunnerAction {
 
     /** {@inheritDoc} */
     @Override
-    public void perform(@Nonnull final Runner runner) {
+    public void perform(@NotNull final Runner runner) {
         eventLogger.log(this);
         final CurrentProject project = appContext.getCurrentProject();
         if (project == null) {
@@ -104,7 +104,7 @@ public class RunAction extends AbstractRunnerAction {
                 })
                 .failure(new FailureCallback() {
                     @Override
-                    public void onFailure(@Nonnull Throwable reason) {
+                    public void onFailure(@NotNull Throwable reason) {
 
                         if (project.getRunner() == null) {
                             runnerUtil.showError(runner, locale.defaultRunnerAbsent(), null);

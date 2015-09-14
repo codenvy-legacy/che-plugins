@@ -18,8 +18,8 @@ import com.google.inject.ImplementedBy;
 import org.eclipse.che.ide.api.mvp.View;
 import org.vectomatic.dom.svg.ui.SVGImage;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+import org.eclipse.che.commons.annotation.Nullable;
 
 /**
  * Provides methods which allow change visual representation of runner.
@@ -42,7 +42,7 @@ public interface ItemWidget extends View<ItemWidget.ActionDelegate> {
      * @param name
      *         name which need set
      */
-    void setName(@Nonnull String name);
+    void setName(@NotNull String name);
 
     /**
      * Sets description to special place on widget.
@@ -58,7 +58,7 @@ public interface ItemWidget extends View<ItemWidget.ActionDelegate> {
      * @param time
      *         time which need set
      */
-    void setStartTime(@Nonnull String time);
+    void setStartTime(@NotNull String time);
 
     /**
      * Sets svg image to special place on widget.
@@ -66,7 +66,7 @@ public interface ItemWidget extends View<ItemWidget.ActionDelegate> {
      * @param image
      *         image which need set
      */
-    void setImage(@Nonnull SVGImage image);
+    void setImage(@NotNull SVGImage image);
 
     /**
      * Sets image to special place on widget.
@@ -74,10 +74,10 @@ public interface ItemWidget extends View<ItemWidget.ActionDelegate> {
      * @param imageResource
      *         image which need set
      */
-    void setImage(@Nonnull ImageResource imageResource);
+    void setImage(@NotNull ImageResource imageResource);
 
     /** @return an instance of {@link FlowPanel} on which is displayed runner status icon. */
-    @Nonnull
+    @NotNull
     SimpleLayoutPanel getImagePanel();
 
     interface ActionDelegate {

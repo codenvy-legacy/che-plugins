@@ -14,8 +14,8 @@ import com.google.inject.ImplementedBy;
 
 import org.eclipse.che.ide.api.mvp.View;
 
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 
 /**
  * Provides methods which allow control of remote debugging.
@@ -37,7 +37,7 @@ public interface RemoteDebugView extends View<RemoteDebugView.ActionDelegate> {
          * @param port
          *         port via which we connect to remote server
          */
-        void onConfirmClicked(@Nonnull String host, @Nonnegative int port);
+        void onConfirmClicked(@NotNull String host, @Min(value=0) int port);
     }
 
 }

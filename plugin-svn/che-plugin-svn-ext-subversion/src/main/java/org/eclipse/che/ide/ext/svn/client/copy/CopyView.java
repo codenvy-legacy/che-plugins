@@ -14,7 +14,7 @@ import org.eclipse.che.ide.api.mvp.View;
 import org.eclipse.che.ide.api.parts.base.BaseActionDelegate;
 import org.eclipse.che.ide.project.node.ResourceBasedNode;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -61,7 +61,7 @@ public interface CopyView extends View<CopyView.ActionDelegate> {
     void setProjectNodes(List<ResourceBasedNode<?>> rootNodes);
 
     /** Update project tree node. */
-    void updateProjectNode(@Nonnull ResourceBasedNode<?> oldNode, @Nonnull ResourceBasedNode<?> newNode);
+    void updateProjectNode(@NotNull ResourceBasedNode<?> oldNode, @NotNull ResourceBasedNode<?> newNode);
 
     /** Show error marker with specified message. */
     void showErrorMarker(String message);

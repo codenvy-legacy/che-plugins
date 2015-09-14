@@ -14,8 +14,8 @@ import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.ide.api.project.tree.TreeNode;
 import org.eclipse.che.ide.api.project.tree.generic.NodeFactory;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+import org.eclipse.che.commons.annotation.Nullable;
 
 /**
  * Factory that helps to create nodes for {@link FilteredTreeStructure}.
@@ -38,6 +38,6 @@ public interface FilteredNodeFactory extends NodeFactory {
      * @return a new {@link FilteredProjectNode}
      */
     FilteredProjectNode newFilteredProjectNode(@Nullable TreeNode<?> parent,
-                                               @Nonnull ProjectDescriptor data,
-                                               @Nonnull FilteredTreeStructure treeStructure);
+                                               @NotNull ProjectDescriptor data,
+                                               @NotNull FilteredTreeStructure treeStructure);
 }

@@ -13,7 +13,7 @@ package org.eclipse.che.ide.ext.runner.client.runneractions.impl.launch.common;
 import org.eclipse.che.ide.ext.runner.client.models.Runner;
 import com.google.web.bindery.event.shared.Event;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * Client event sent by the runner extension when running application status is updated.
@@ -28,7 +28,7 @@ public class RunnerApplicationStatusEvent extends Event<RunnerApplicationStatusE
 
     private final Runner runner;
 
-    public RunnerApplicationStatusEvent(@Nonnull Runner runner) {
+    public RunnerApplicationStatusEvent(@NotNull Runner runner) {
         this.runner = runner;
     }
 

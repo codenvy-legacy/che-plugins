@@ -26,7 +26,7 @@ import org.eclipse.che.ide.ext.runner.client.tabs.container.tab.Background;
 import org.eclipse.che.ide.ext.runner.client.tabs.container.tab.TabType;
 import org.eclipse.che.ide.ext.runner.client.tabs.container.tab.TabWidget;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -73,7 +73,7 @@ public class TabContainerViewImpl extends Composite implements TabContainerView 
 
     /** {@inheritDoc} */
     @Override
-    public void showTab(@Nonnull Tab tab) {
+    public void showTab(@NotNull Tab tab) {
         for (TabPresenter tabPresenter : visiblePresenters) {
             tabPresenter.setVisible(false);
         }
@@ -96,7 +96,7 @@ public class TabContainerViewImpl extends Composite implements TabContainerView 
 
     /** {@inheritDoc} */
     @Override
-    public void selectTab(@Nonnull Tab tab) {
+    public void selectTab(@NotNull Tab tab) {
         for (TabWidget widget : titles.values()) {
             widget.unSelect();
         }
@@ -108,7 +108,7 @@ public class TabContainerViewImpl extends Composite implements TabContainerView 
 
     /** {@inheritDoc} */
     @Override
-    public void setVisibleTitle(@Nonnull Map<String, Boolean> tabVisibilities) {
+    public void setVisibleTitle(@NotNull Map<String, Boolean> tabVisibilities) {
         tabs.clear();
 
         for (Map.Entry<String, Boolean> entry : tabVisibilities.entrySet()) {
@@ -123,7 +123,7 @@ public class TabContainerViewImpl extends Composite implements TabContainerView 
 
     /** {@inheritDoc} */
     @Override
-    public void addTab(@Nonnull Tab tab) {
+    public void addTab(@NotNull Tab tab) {
         final String title = tab.getTitle();
         TabType tabType = tab.getTabType();
 
@@ -145,7 +145,7 @@ public class TabContainerViewImpl extends Composite implements TabContainerView 
 
     /** {@inheritDoc} */
     @Override
-    public void showTabTitle(@Nonnull String tabName, boolean isShown) {
+    public void showTabTitle(@NotNull String tabName, boolean isShown) {
         titles.get(tabName).setVisible(isShown);
     }
 

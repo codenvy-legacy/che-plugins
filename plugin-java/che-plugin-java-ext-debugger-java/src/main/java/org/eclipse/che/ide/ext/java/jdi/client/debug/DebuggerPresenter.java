@@ -83,9 +83,9 @@ import org.eclipse.che.ide.websocket.rest.SubscriptionHandler;
 import org.eclipse.che.ide.websocket.rest.exceptions.ServerException;
 import org.vectomatic.dom.svg.ui.SVGResource;
 
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+import org.eclipse.che.commons.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -288,7 +288,7 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
     private void configureStatusRunEventHandler() {
         eventBus.addHandler(RunnerApplicationStatusEvent.TYPE, new RunnerApplicationStatusEventHandler() {
             @Override
-            public void onRunnerStatusChanged(@Nonnull Runner changedRunner) {
+            public void onRunnerStatusChanged(@NotNull Runner changedRunner) {
                 CurrentProject currentProject = appContext.getCurrentProject();
                 ApplicationProcessDescriptor changedDescriptor = changedRunner.getDescriptor();
                 ApplicationProcessDescriptor existingDescriptor = null;
@@ -316,7 +316,7 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
 
     /** {@inheritDoc} */
     @Override
-    @Nonnull
+    @NotNull
     public String getTitle() {
         return TITLE;
     }
@@ -347,7 +347,7 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
         container.setWidget(view);
     }
 
-    private void onEventListReceived(@Nonnull DebuggerEventList eventList) {
+    private void onEventListReceived(@NotNull DebuggerEventList eventList) {
         if (eventList.getEvents().size() == 0) {
             return;
         }
@@ -406,8 +406,8 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
      *         location of class
      * @return file path
      */
-    @Nonnull
-    private String resolveFilePathByLocation(@Nonnull Location location, @Nullable VirtualFile activeFile) {
+    @NotNull
+    private String resolveFilePathByLocation(@NotNull Location location, @Nullable VirtualFile activeFile) {
         if (activeFile == null) {
             return "";
         }
@@ -415,7 +415,7 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
         return activeFile.getProject().getProjectDescriptor().getPath() + "/" + srcFolder + "/" + location.getClassName().replace(".", "/") + ".java";
     }
 
-    private void openFile(@Nonnull Location location, @Nullable VirtualFile activeFile, final AsyncCallback<VirtualFile> callback) {
+    private void openFile(@NotNull Location location, @Nullable VirtualFile activeFile, final AsyncCallback<VirtualFile> callback) {
         final String filePath = resolveFilePathByLocation(location, activeFile);
         CurrentProject currentProject = appContext.getCurrentProject();
 
@@ -424,7 +424,7 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
         }
 
         HasStorablePath path = new HasStorablePath() {
-            @Nonnull
+            @NotNull
             @Override
             public String getStorablePath() {
                 return filePath;
@@ -495,8 +495,8 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
                                  );
     }
 
-    @Nonnull
-    private List<DebuggerVariable> getDebuggerVariables(@Nonnull List<Variable> variables) {
+    @NotNull
+    private List<DebuggerVariable> getDebuggerVariables(@NotNull List<Variable> variables) {
         List<DebuggerVariable> debuggerVariables = new ArrayList<>();
 
         for (Variable variable : variables) {
@@ -677,7 +677,7 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
 
     /** {@inheritDoc} */
     @Override
-    public void onSelectedVariableElement(@Nonnull DebuggerVariable variable) {
+    public void onSelectedVariableElement(@NotNull DebuggerVariable variable) {
         this.selectedVariable = variable;
         updateChangeValueButtonEnableState();
     }
@@ -695,7 +695,7 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
         breakpointManager.unmarkCurrentBreakpoint();
     }
 
-    private void showDialog(@Nonnull DebuggerInfo debuggerInfo) {
+    private void showDialog(@NotNull DebuggerInfo debuggerInfo) {
         view.setVMName(debuggerInfo.getVmName() + " " + debuggerInfo.getVmVersion());
         selectedVariable = null;
         updateChangeValueButtonEnableState();
@@ -752,7 +752,7 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
      * @param port
      *         port which need to connect to debugger
      */
-    public void attachDebugger(@Nonnull final String host, @Nonnegative final int port) {
+    public void attachDebugger(@NotNull final String host, @Min(value=0) final int port) {
         this.host = host;
         this.port = port;
 
@@ -848,7 +848,7 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
 
     /** {@inheritDoc} */
     @Override
-    public void addBreakpoint(@Nonnull final VirtualFile file, final int lineNumber, final AsyncCallback<Breakpoint> callback) {
+    public void addBreakpoint(@NotNull final VirtualFile file, final int lineNumber, final AsyncCallback<Breakpoint> callback) {
         if (debuggerInfo != null) {
             Location location = dtoFactory.createDto(Location.class);
             location.setLineNumber(lineNumber + 1);
@@ -883,7 +883,7 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
 
     /** {@inheritDoc} */
     @Override
-    public void deleteBreakpoint(@Nonnull VirtualFile file, int lineNumber, final AsyncCallback<Void> callback) {
+    public void deleteBreakpoint(@NotNull VirtualFile file, int lineNumber, final AsyncCallback<Void> callback) {
         if (debuggerInfo != null) {
             Location location = dtoFactory.createDto(Location.class);
             location.setLineNumber(lineNumber + 1);

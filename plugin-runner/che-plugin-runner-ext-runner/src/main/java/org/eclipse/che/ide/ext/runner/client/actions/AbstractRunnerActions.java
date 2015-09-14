@@ -17,8 +17,8 @@ import org.eclipse.che.ide.api.app.CurrentProject;
 
 import org.vectomatic.dom.svg.ui.SVGResource;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+import org.eclipse.che.commons.annotation.Nullable;
 
 /**
  * The class contains general actions business logic of runners.
@@ -29,9 +29,9 @@ public abstract class AbstractRunnerActions extends ProjectAction {
 
     private final AppContext appContext;
 
-    public AbstractRunnerActions(@Nonnull AppContext appContext,
-                                 @Nonnull String actionName,
-                                 @Nonnull String actionPrompt,
+    public AbstractRunnerActions(@NotNull AppContext appContext,
+                                 @NotNull String actionName,
+                                 @NotNull String actionPrompt,
                                  @Nullable SVGResource image) {
         super(actionName, actionPrompt, image);
 

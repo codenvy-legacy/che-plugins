@@ -21,7 +21,7 @@ import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.project.tree.VirtualFile;
 import org.eclipse.che.ide.dto.DtoFactory;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.Arrays;
 import java.util.List;
 
@@ -61,13 +61,13 @@ public class DockerFileFactory {
      * @throws IllegalStateException
      *         when no project is opened
      */
-    @Nonnull
-    public VirtualFile newInstance(@Nonnull String href) {
+    @NotNull
+    public VirtualFile newInstance(@NotNull String href) {
         return newInstance(href, NAME, PATH);
     }
 
-    @Nonnull
-    public VirtualFile newInstance(@Nonnull String href, @Nonnull String name, @Nonnull String path) {
+    @NotNull
+    public VirtualFile newInstance(@NotNull String href, @NotNull String name, @NotNull String path) {
         CurrentProject currentProject = appContext.getCurrentProject();
         if (currentProject == null) {
             throw new IllegalStateException("No project is opened");

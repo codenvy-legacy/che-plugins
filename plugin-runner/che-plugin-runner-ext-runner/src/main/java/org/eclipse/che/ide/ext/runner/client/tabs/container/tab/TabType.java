@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.runner.client.tabs.container.tab;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * The class contains values of tabs size
@@ -25,19 +25,19 @@ public enum TabType {
     private final String height;
     private final String width;
 
-    TabType(@Nonnull String height, @Nonnull String width) {
+    TabType(@NotNull String height, @NotNull String width) {
         this.height = height;
         this.width = width;
     }
 
     /** @return string value of height. */
-    @Nonnull
+    @NotNull
     public String getHeight() {
         return height;
     }
 
     /** @return string value of width. */
-    @Nonnull
+    @NotNull
     public String getWidth() {
         return width;
     }

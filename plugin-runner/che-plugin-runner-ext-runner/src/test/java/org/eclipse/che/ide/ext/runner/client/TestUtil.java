@@ -12,8 +12,8 @@ package org.eclipse.che.ide.ext.runner.client;
 
 import com.google.common.io.Resources;
 
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -37,7 +37,7 @@ public class TestUtil {
      * @return value of field by name
      * @throws Exception
      */
-    public static <T> Object getFieldValueByName(@Nonnull T object, @Nonnull String fieldName) throws Exception {
+    public static <T> Object getFieldValueByName(@NotNull T object, @NotNull String fieldName) throws Exception {
         Field field;
         try {
             field = object.getClass().getDeclaredField(fieldName);
@@ -62,7 +62,7 @@ public class TestUtil {
      *         argument of method
      * @throws Exception
      */
-    public static <T> void invokeMethodByName(@Nonnull T object, @Nonnull String name, Object arg) throws Exception {
+    public static <T> void invokeMethodByName(@NotNull T object, @NotNull String name, Object arg) throws Exception {
         Method method = object.getClass().getDeclaredMethod(name, Object.class);
 
         method.setAccessible(true);
@@ -83,8 +83,8 @@ public class TestUtil {
      *         argument of method
      * @throws Exception
      */
-    public static <T> void invokeMethodByName(@Nonnull T object,
-                                              @Nonnull String name,
+    public static <T> void invokeMethodByName(@NotNull T object,
+                                              @NotNull String name,
                                               Class typeArg,
                                               Object arg) throws Exception {
         Method method = object.getClass().getDeclaredMethod(name, typeArg);
@@ -104,7 +104,7 @@ public class TestUtil {
      * @return value of field by index
      * @throws Exception
      */
-    public static <T> Object getFieldValueByIndex(@Nonnull T object, @Nonnegative int index) throws Exception {
+    public static <T> Object getFieldValueByIndex(@NotNull T object, @Min(value=0) int index) throws Exception {
         Field[] fields = object.getClass().getDeclaredFields();
 
         Field field = fields[index];
@@ -123,8 +123,8 @@ public class TestUtil {
      *         path to content which need to read
      * @return string representation of content which located by current path
      */
-    @Nonnull
-    public static String getContentByPath(@Nonnull Class clazz, @Nonnull String path) throws IOException {
+    @NotNull
+    public static String getContentByPath(@NotNull Class clazz, @NotNull String path) throws IOException {
         return Resources.toString(Resources.getResource(clazz, path), Charset.defaultCharset());
     }
 }

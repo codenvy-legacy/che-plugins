@@ -31,7 +31,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.event.shared.EventBus;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import java.util.List;
 import java.util.Map;
@@ -154,7 +154,7 @@ public class BowerExtension {
     }
 
 
-    private boolean isBowerJsProject(@Nonnull ProjectDescriptor projectDescriptor) {
+    private boolean isBowerJsProject(@NotNull ProjectDescriptor projectDescriptor) {
         Map<String, List<String>> attributes = projectDescriptor.getAttributes();
         if (attributes.containsKey(Constants.FRAMEWORK)) {
             List<String> frameworks = attributes.get(Constants.FRAMEWORK);

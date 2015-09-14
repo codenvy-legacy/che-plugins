@@ -33,8 +33,8 @@ import org.eclipse.che.ide.ui.dialogs.InputCallback;
 import org.eclipse.che.ide.ui.dialogs.input.InputDialog;
 import org.eclipse.che.ide.ui.dialogs.input.InputValidator;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+import org.eclipse.che.commons.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 
@@ -87,14 +87,14 @@ public class NewPackageAction extends AbstractNewResourceAction {
                     @Override
                     public void apply(List<Node> cachedChildren) throws OperationException {
                         HasDataObject dataObject = new HasDataObject() {
-                            @Nonnull
+                            @NotNull
                             @Override
                             public Object getData() {
                                 return itemReference;
                             }
 
                             @Override
-                            public void setData(@Nonnull Object data) {
+                            public void setData(@NotNull Object data) {
 
                             }
                         };

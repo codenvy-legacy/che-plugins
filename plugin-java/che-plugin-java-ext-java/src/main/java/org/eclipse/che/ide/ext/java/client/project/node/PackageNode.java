@@ -30,7 +30,7 @@ import org.eclipse.che.ide.project.node.resource.ItemReferenceProcessor;
 import org.eclipse.che.ide.ui.smartTree.presentation.NodePresentation;
 import org.eclipse.che.ide.util.loging.Log;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -46,14 +46,14 @@ public class PackageNode extends FolderReferenceNode {
     public PackageNode(@Assisted ItemReference itemReference,
                        @Assisted ProjectDescriptor projectDescriptor,
                        @Assisted JavaNodeSettings nodeSettings,
-                       @Nonnull EventBus eventBus,
-                       @Nonnull JavaNodeManager nodeManager,
-                       @Nonnull ItemReferenceProcessor resourceProcessor) {
+                       @NotNull EventBus eventBus,
+                       @NotNull JavaNodeManager nodeManager,
+                       @NotNull ItemReferenceProcessor resourceProcessor) {
         super(itemReference, projectDescriptor, nodeSettings, eventBus, nodeManager, resourceProcessor);
         this.nodeManager = nodeManager;
     }
 
-    @Nonnull
+    @NotNull
     @Override
     protected Promise<List<Node>> getChildrenImpl() {
         return nodeManager.getChildren(getData(),
@@ -137,7 +137,7 @@ public class PackageNode extends FolderReferenceNode {
     }
 
     @Override
-    public void updatePresentation(@Nonnull NodePresentation presentation) {
+    public void updatePresentation(@NotNull NodePresentation presentation) {
         presentation.setPresentableText(getDisplayFqn());
         presentation.setPresentableIcon(nodeManager.getJavaNodesResources().packageFolder());
     }

@@ -20,7 +20,7 @@ import com.google.gwt.user.client.Timer;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -47,8 +47,8 @@ public class LogMessagesHandler extends SubscriptionHandler<LogMessage> {
     public LogMessagesHandler(LogMessageUnmarshaller unmarshaller,
                               ConsoleContainer consoleContainer,
                               TimerFactory timerFactory,
-                              @Nonnull @Assisted Runner runner,
-                              @Nonnull @Assisted ErrorHandler errorHandler) {
+                              @NotNull @Assisted Runner runner,
+                              @NotNull @Assisted ErrorHandler errorHandler) {
         super(unmarshaller);
 
         this.runner = runner;
@@ -111,7 +111,7 @@ public class LogMessagesHandler extends SubscriptionHandler<LogMessage> {
         }
     }
 
-    private void printLine(@Nonnull LogMessage logMessage) {
+    private void printLine(@NotNull LogMessage logMessage) {
         consoleContainer.print(runner, logMessage.getText());
         lastPrintedMessageNum = logMessage.getNumber();
     }

@@ -46,7 +46,7 @@ import org.eclipse.che.ide.ext.svn.client.SubversionExtensionLocalizationConstan
 import org.eclipse.che.ide.ext.svn.client.SubversionExtensionResources;
 import org.vectomatic.dom.svg.OMSVGSVGElement;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -147,14 +147,14 @@ public class CopyViewImpl extends Window implements CopyView {
 
         rootNode = new AbstractTreeNode<Void>(null, null, null, null) {
             /** {@inheritDoc} */
-            @Nonnull
+            @NotNull
             @Override
             public String getId() {
                 return "ROOT";
             }
 
             /** {@inheritDoc} */
-            @Nonnull
+            @NotNull
             @Override
             public String getDisplayName() {
                 return "ROOT";
@@ -365,7 +365,7 @@ public class CopyViewImpl extends Window implements CopyView {
 
     /** {@inheritDoc} */
     @Override
-    public void updateProjectNode(@Nonnull ResourceBasedNode<?> oldNode, @Nonnull ResourceBasedNode<?> newNode) {
+    public void updateProjectNode(@NotNull ResourceBasedNode<?> oldNode, @NotNull ResourceBasedNode<?> newNode) {
         // get currently selected node
         final List<TreeNode<?>> selectedNodes = tree.getSelectionModel().getSelectedNodes();
         TreeNode<?> selectedNode = null;

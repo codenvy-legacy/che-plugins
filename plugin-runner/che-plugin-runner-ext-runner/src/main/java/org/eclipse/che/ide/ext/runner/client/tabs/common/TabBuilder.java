@@ -17,7 +17,7 @@ import org.eclipse.che.ide.ext.runner.client.tabs.common.Tab.VisibleState;
 import org.eclipse.che.ide.ext.runner.client.tabs.container.TabContainer.TabSelectHandler;
 import org.eclipse.che.ide.ext.runner.client.tabs.container.tab.TabType;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.Set;
 
 import static org.eclipse.che.ide.ext.runner.client.tabs.common.Tab.VisibleState.REMOVABLE;
@@ -51,8 +51,8 @@ public class TabBuilder {
      *         title that needs to be used
      * @return an instance of {@link TabBuilder}
      */
-    @Nonnull
-    public TabBuilder title(@Nonnull String title) {
+    @NotNull
+    public TabBuilder title(@NotNull String title) {
         this.title = title;
         return this;
     }
@@ -64,8 +64,8 @@ public class TabBuilder {
      *         presenter of widget that needs to be shown
      * @return an instance of {@link TabBuilder}
      */
-    @Nonnull
-    public TabBuilder presenter(@Nonnull TabPresenter presenter) {
+    @NotNull
+    public TabBuilder presenter(@NotNull TabPresenter presenter) {
         this.presenter = presenter;
         return this;
     }
@@ -77,8 +77,8 @@ public class TabBuilder {
      *         scope these need to be used
      * @return an instance of {@link TabBuilder}
      */
-    @Nonnull
-    public TabBuilder scope(@Nonnull Set<State> scopes) {
+    @NotNull
+    public TabBuilder scope(@NotNull Set<State> scopes) {
         this.scopes = scopes;
         return this;
     }
@@ -90,8 +90,8 @@ public class TabBuilder {
      *         handler that needs to be added
      * @return an instance of {@link TabBuilder}
      */
-    @Nonnull
-    public TabBuilder selectHandler(@Nonnull TabSelectHandler handler) {
+    @NotNull
+    public TabBuilder selectHandler(@NotNull TabSelectHandler handler) {
         this.handler = handler;
         return this;
     }
@@ -103,8 +103,8 @@ public class TabBuilder {
      *         height of tab that needs to be added
      * @return an instance of {@link TabBuilder}
      */
-    @Nonnull
-    public TabBuilder tabType(@Nonnull TabType tabType) {
+    @NotNull
+    public TabBuilder tabType(@NotNull TabType tabType) {
         this.tabType = tabType;
         return this;
     }
@@ -116,14 +116,14 @@ public class TabBuilder {
      *         visibility state that needs to be applied for tab
      * @return an instance of {@link TabBuilder}
      */
-    @Nonnull
-    public TabBuilder visible(@Nonnull VisibleState visibleState) {
+    @NotNull
+    public TabBuilder visible(@NotNull VisibleState visibleState) {
         this.visibleState = visibleState;
         return this;
     }
 
     /** @return an instance of {@link Tab} with given parameters */
-    @Nonnull
+    @NotNull
     public Tab build() {
         if (title == null) {
             throw new IllegalStateException("You forgot to initialize 'Title' value. Please, initialize it and try again.");

@@ -46,8 +46,8 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+import org.eclipse.che.commons.annotation.Nullable;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
@@ -354,7 +354,7 @@ public class RestNameEnvironment {
     }
 
     @Nullable
-    private Link findLink(@Nonnull String rel, List<Link> links) {
+    private Link findLink(@NotNull String rel, List<Link> links) {
         for (Link link : links) {
             if (link.getRel().equals(rel)) {
                 return link;
@@ -363,8 +363,8 @@ public class RestNameEnvironment {
         return null;
     }
 
-    @Nonnull
-    private BuildTaskDescriptor waitTaskFinish(@Nonnull BuildTaskDescriptor buildDescription) throws Exception {
+    @NotNull
+    private BuildTaskDescriptor waitTaskFinish(@NotNull BuildTaskDescriptor buildDescription) throws Exception {
         BuildTaskDescriptor request = buildDescription;
         final int sleepTime = 500;
 
@@ -384,8 +384,8 @@ public class RestNameEnvironment {
     }
 
 
-    @Nonnull
-    private BuildTaskDescriptor getDependencies(@Nonnull String url, @Nonnull String projectName, @Nonnull String analyzeType, @Nullable
+    @NotNull
+    private BuildTaskDescriptor getDependencies(@NotNull String url, @NotNull String projectName, @NotNull String analyzeType, @Nullable
     BuildOptions options)
             throws Exception {
         Pair<String, String> projectParam = Pair.of("project", projectName);

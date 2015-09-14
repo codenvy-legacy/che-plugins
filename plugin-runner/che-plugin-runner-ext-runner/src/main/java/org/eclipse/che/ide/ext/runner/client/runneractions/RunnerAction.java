@@ -12,7 +12,7 @@ package org.eclipse.che.ide.ext.runner.client.runneractions;
 
 import org.eclipse.che.ide.ext.runner.client.models.Runner;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * The general representation of runner manager action. It provides different actions which were bound to this action.
@@ -28,7 +28,7 @@ public interface RunnerAction {
      * @param runner
      *         runner that execute this action
      */
-    void perform(@Nonnull Runner runner);
+    void perform(@NotNull Runner runner);
 
     /** Perform any actions which were bound to this action. */
     void perform();
@@ -42,7 +42,7 @@ public interface RunnerAction {
      * @param listener
      *         listener that has to detect stop process
      */
-    void setListener(@Nonnull StopActionListener listener);
+    void setListener(@NotNull StopActionListener listener);
 
     /** Remove a listener that detects a stop process of action. */
     void removeListener();

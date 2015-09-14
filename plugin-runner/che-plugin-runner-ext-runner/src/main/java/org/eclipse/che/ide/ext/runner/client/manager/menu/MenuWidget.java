@@ -16,7 +16,7 @@ import com.google.inject.ImplementedBy;
 
 import org.eclipse.che.ide.ext.runner.client.manager.menu.entry.MenuEntry;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * The interface provides methods to control header menu.
@@ -35,5 +35,5 @@ public interface MenuWidget extends IsWidget {
      * @param entry
      *         entry which need add
      */
-    void addEntry(@Nonnull MenuEntry entry);
+    void addEntry(@NotNull MenuEntry entry);
 }

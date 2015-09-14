@@ -13,7 +13,7 @@ package org.eclipse.che.ide.extension.maven.client.build;
 import org.eclipse.che.ide.api.mvp.View;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 
 /**
@@ -40,7 +40,7 @@ public interface MavenBuildView extends View<MavenBuildView.ActionDelegate> {
     }
 
     /** @return entered buildCommand */
-    @Nonnull
+    @NotNull
     String getBuildCommand();
 
     /**
@@ -49,7 +49,7 @@ public interface MavenBuildView extends View<MavenBuildView.ActionDelegate> {
      * @param message
      *         text what need to insert
      */
-    void setBuildCommand(@Nonnull String message);
+    void setBuildCommand(@NotNull String message);
 
 
     /** Close dialog. */

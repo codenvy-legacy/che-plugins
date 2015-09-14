@@ -30,7 +30,7 @@ import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Shutdo
 import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.docker.DockerFileEditorInput;
 import org.eclipse.che.ide.util.loging.Log;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import static org.eclipse.che.ide.api.editor.EditorPartPresenter.PROP_DIRTY;
 import static org.eclipse.che.ide.api.editor.EditorPartPresenter.PROP_INPUT;
@@ -53,7 +53,7 @@ public abstract class PropertiesPanelPresenter implements PropertiesPanelView.Ac
     private final AppContext          appContext;
 
 
-    public PropertiesPanelPresenter(@Nonnull PropertiesPanelView view, @Nonnull AppContext appContext) {
+    public PropertiesPanelPresenter(@NotNull PropertiesPanelView view, @NotNull AppContext appContext) {
         this.view = view;
         this.appContext = appContext;
         this.view.setDelegate(this);
@@ -74,9 +74,9 @@ public abstract class PropertiesPanelPresenter implements PropertiesPanelView.Ac
         view.setEnableDeleteButton(enable);
     }
 
-    protected void initializeEditor(@Nonnull final VirtualFile file,
-                                    @Nonnull EditorProvider provider,
-                                    @Nonnull FileTypeRegistry fileTypeRegistry) {
+    protected void initializeEditor(@NotNull final VirtualFile file,
+                                    @NotNull EditorProvider provider,
+                                    @NotNull FileTypeRegistry fileTypeRegistry) {
         FileType fileType = fileTypeRegistry.getFileTypeByFile(file);
         editor = provider.getEditor();
 
@@ -106,7 +106,7 @@ public abstract class PropertiesPanelPresenter implements PropertiesPanelView.Ac
         }
     }
 
-    @Nonnull
+    @NotNull
     protected Shutdown getTimeout() {
         if (appContext.getWorkspace().getAttributes().containsKey(Constants.RUNNER_LIFETIME)) {
             String value = appContext.getWorkspace().getAttributes().get(Constants.RUNNER_LIFETIME);
@@ -162,7 +162,7 @@ public abstract class PropertiesPanelPresenter implements PropertiesPanelView.Ac
 
     /** {@inheritDoc} */
     @Override
-    public void update(@Nonnull Runner runner) {
+    public void update(@NotNull Runner runner) {
         view.setName(runner.getTitle());
         view.setType(runner.getType());
         view.selectMemory(runner.getRAM());
@@ -171,13 +171,13 @@ public abstract class PropertiesPanelPresenter implements PropertiesPanelView.Ac
 
     /** {@inheritDoc} */
     @Override
-    public void update(@Nonnull Environment environment) {
+    public void update(@NotNull Environment environment) {
         throw new UnsupportedOperationException(UNSUPPORTED_METHOD);
     }
 
     /** {@inheritDoc} */
     @Override
-    public void addListener(@Nonnull RemovePanelListener listener) {
+    public void addListener(@NotNull RemovePanelListener listener) {
         throw new UnsupportedOperationException(UNSUPPORTED_METHOD);
     }
 

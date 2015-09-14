@@ -15,7 +15,7 @@ import com.google.inject.ImplementedBy;
 import org.eclipse.che.ide.api.mvp.View;
 import org.eclipse.che.ide.ext.runner.client.tabs.history.runner.RunnerWidget;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * Provides methods which allow change history panel.
@@ -32,7 +32,7 @@ public interface HistoryView extends View<HistoryView.ActionDelegate> {
      * @param runnerWidget
      *         runner which was added
      */
-    void addRunner(@Nonnull RunnerWidget runnerWidget);
+    void addRunner(@NotNull RunnerWidget runnerWidget);
 
     /**
      * Removes runner from panel.
@@ -40,7 +40,7 @@ public interface HistoryView extends View<HistoryView.ActionDelegate> {
      * @param runnerWidget
      *         widget which need remove
      */
-    void removeRunner(@Nonnull RunnerWidget runnerWidget);
+    void removeRunner(@NotNull RunnerWidget runnerWidget);
 
     /**
      * Sets visibility state to panel.

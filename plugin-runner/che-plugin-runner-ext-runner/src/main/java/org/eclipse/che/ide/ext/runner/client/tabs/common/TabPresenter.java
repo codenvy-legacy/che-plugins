@@ -14,7 +14,7 @@ import com.google.gwt.user.client.ui.IsWidget;
 
 import org.eclipse.che.ide.api.mvp.Presenter;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * Provides general methods which must be implemented by all presenters which are added in tab container.
@@ -25,7 +25,7 @@ import javax.annotation.Nonnull;
 public interface TabPresenter extends Presenter {
 
     /** @return view representation of current tab. */
-    @Nonnull
+    @NotNull
     IsWidget getView();
 
     /**

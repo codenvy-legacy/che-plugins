@@ -15,7 +15,7 @@ import com.google.inject.ImplementedBy;
 import org.eclipse.che.ide.api.mvp.View;
 import org.eclipse.che.ide.ext.runner.client.tabs.common.Tab;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.Map;
 
 /**
@@ -32,7 +32,7 @@ public interface TabContainerView extends View<TabContainerView.ActionDelegate> 
      * @param tab
      *         tab that needs to be shown
      */
-    void showTab(@Nonnull Tab tab);
+    void showTab(@NotNull Tab tab);
 
     /**
      * Change visibility state of tab's titles.
@@ -40,7 +40,7 @@ public interface TabContainerView extends View<TabContainerView.ActionDelegate> 
      * @param tabVisibilities
      *         visibility states for all tabs
      */
-    void setVisibleTitle(@Nonnull Map<String, Boolean> tabVisibilities);
+    void setVisibleTitle(@NotNull Map<String, Boolean> tabVisibilities);
 
     /**
      * Add tab's title in the special container for it.
@@ -48,7 +48,7 @@ public interface TabContainerView extends View<TabContainerView.ActionDelegate> 
      * @param tab
      *         tab that needs to be added
      */
-    void addTab(@Nonnull Tab tab);
+    void addTab(@NotNull Tab tab);
 
     /**
      * Changes visibility of tabs titles.
@@ -58,7 +58,7 @@ public interface TabContainerView extends View<TabContainerView.ActionDelegate> 
      * @param isShown
      *         <code>true</code> shows tabs title, <code>false</code> hides tab titles
      */
-    void showTabTitle(@Nonnull String tabName, boolean isShown);
+    void showTabTitle(@NotNull String tabName, boolean isShown);
 
     /**
      * Select a given tab.
@@ -66,7 +66,7 @@ public interface TabContainerView extends View<TabContainerView.ActionDelegate> 
      * @param tab
      *         tab that needs to be selected
      */
-    void selectTab(@Nonnull Tab tab);
+    void selectTab(@NotNull Tab tab);
 
     interface ActionDelegate {
         /**
@@ -75,7 +75,7 @@ public interface TabContainerView extends View<TabContainerView.ActionDelegate> 
          * @param title
          *         title of clicked tab
          */
-        void onTabClicked(@Nonnull String title);
+        void onTabClicked(@NotNull String title);
     }
 
 }

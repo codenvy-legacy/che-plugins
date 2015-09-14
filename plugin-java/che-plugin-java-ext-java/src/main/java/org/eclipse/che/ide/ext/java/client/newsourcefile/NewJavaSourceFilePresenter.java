@@ -28,7 +28,7 @@ import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.Arrays;
 import java.util.List;
 
@@ -250,14 +250,14 @@ public class NewJavaSourceFilePresenter implements NewJavaSourceFileView.ActionD
             protected void onSuccess(final ItemReference itemReference) {
 
                 HasDataObject dataObject = new HasDataObject() {
-                    @Nonnull
+                    @NotNull
                     @Override
                     public Object getData() {
                         return itemReference;
                     }
 
                     @Override
-                    public void setData(@Nonnull Object data) {
+                    public void setData(@NotNull Object data) {
 
                     }
                 };

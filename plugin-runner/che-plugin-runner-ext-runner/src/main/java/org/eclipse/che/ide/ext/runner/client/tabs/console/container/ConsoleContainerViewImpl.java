@@ -27,7 +27,7 @@ import org.eclipse.che.ide.ext.runner.client.inject.factories.WidgetFactory;
 import org.eclipse.che.ide.ext.runner.client.tabs.console.button.ConsoleButton;
 import org.vectomatic.dom.svg.ui.SVGResource;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * @author Andrey Plotnikov
@@ -86,10 +86,10 @@ public class ConsoleContainerViewImpl extends Composite implements ConsoleContai
         createButton(resources.erase(), locale.consoleTooltipClear(), cleanDelegate);
     }
 
-    @Nonnull
-    private ConsoleButton createButton(@Nonnull SVGResource icon,
-                                       @Nonnull String prompt,
-                                       @Nonnull ConsoleButton.ActionDelegate delegate) {
+    @NotNull
+    private ConsoleButton createButton(@NotNull SVGResource icon,
+                                       @NotNull String prompt,
+                                       @NotNull ConsoleButton.ActionDelegate delegate) {
         ConsoleButton button = widgetFactory.createConsoleButton(prompt, icon);
         button.setDelegate(delegate);
 
@@ -106,13 +106,13 @@ public class ConsoleContainerViewImpl extends Composite implements ConsoleContai
 
     /** {@inheritDoc} */
     @Override
-    public void showWidget(@Nonnull IsWidget console) {
+    public void showWidget(@NotNull IsWidget console) {
         mainPanel.setWidget(console);
     }
 
     /** {@inheritDoc} */
     @Override
-    public void removeWidget(@Nonnull IsWidget console) {
+    public void removeWidget(@NotNull IsWidget console) {
         mainPanel.remove(console);
     }
 

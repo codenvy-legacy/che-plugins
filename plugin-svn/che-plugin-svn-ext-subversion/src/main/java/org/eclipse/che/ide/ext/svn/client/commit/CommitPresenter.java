@@ -34,7 +34,7 @@ import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.rest.Unmarshallable;
 import org.eclipse.che.ide.util.loging.Log;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import javax.inject.Inject;
 import java.util.Collections;
 import java.util.HashMap;
@@ -215,7 +215,7 @@ public class CommitPresenter extends SubversionActionPresenter implements Action
         view.onClose();
     }
 
-    private void handleError(@Nonnull final Throwable e) {
+    private void handleError(@NotNull final Throwable e) {
         String errorMessage;
         if (e.getMessage() != null && !e.getMessage().isEmpty()) {
             errorMessage = e.getMessage();

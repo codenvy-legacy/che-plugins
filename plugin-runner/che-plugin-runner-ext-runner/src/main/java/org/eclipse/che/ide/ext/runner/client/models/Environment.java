@@ -12,9 +12,9 @@ package org.eclipse.che.ide.ext.runner.client.models;
 
 import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope;
 
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+import org.eclipse.che.commons.annotation.Nullable;
 import java.util.Map;
 
 /**
@@ -26,11 +26,11 @@ import java.util.Map;
 public interface Environment extends Comparable<Environment> {
 
     /** @return name of current environment */
-    @Nonnull
+    @NotNull
     String getName();
 
     /** @return id of current environment */
-    @Nonnull
+    @NotNull
     String getId();
 
     /** @return description of current environment */
@@ -38,15 +38,15 @@ public interface Environment extends Comparable<Environment> {
     String getDescription();
 
     /** @return scope of current environment */
-    @Nonnull
+    @NotNull
     Scope getScope();
 
     /** @return path to current environment */
-    @Nonnull
+    @NotNull
     String getPath();
 
     /** @return value of ram for current environment */
-    @Nonnegative
+    @Min(value=0)
     int getRam();
 
     /**
@@ -55,14 +55,14 @@ public interface Environment extends Comparable<Environment> {
      * @param ram
      *         ram which need set
      */
-    void setRam(@Nonnegative int ram);
+    void setRam(@Min(value=0) int ram);
 
     /** @return type of current environment */
-    @Nonnull
+    @NotNull
     String getType();
 
     /** @return map which contains options for current environment */
-    @Nonnull
+    @NotNull
     Map<String, String> getOptions();
 
 }

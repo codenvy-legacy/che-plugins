@@ -25,7 +25,7 @@ import com.google.inject.assistedinject.Assisted;
 import org.eclipse.che.ide.ext.runner.client.RunnerResources;
 import org.vectomatic.dom.svg.ui.SVGImage;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * The class describes special widget which is entry in header menu.
@@ -52,7 +52,7 @@ public class MenuEntryWidget extends Composite implements MenuEntry, ClickHandle
     private boolean        isSplitterHidden;
 
     @Inject
-    public MenuEntryWidget(RunnerResources resources, @Nonnull @Assisted String entryName) {
+    public MenuEntryWidget(RunnerResources resources, @NotNull @Assisted String entryName) {
         this.resources = resources;
 
         initWidget(UI_BINDER.createAndBindUi(this));
@@ -68,7 +68,7 @@ public class MenuEntryWidget extends Composite implements MenuEntry, ClickHandle
 
     /** {@inheritDoc} */
     @Override
-    public void onClick(@Nonnull ClickEvent event) {
+    public void onClick(@NotNull ClickEvent event) {
         image.getElement().setInnerHTML(isSplitterHidden ? icon.toString() : "");
 
         delegate.onEntryClicked(isSplitterHidden);
@@ -78,7 +78,7 @@ public class MenuEntryWidget extends Composite implements MenuEntry, ClickHandle
 
     /** {@inheritDoc} */
     @Override
-    public void setDelegate(@Nonnull ActionDelegate delegate) {
+    public void setDelegate(@NotNull ActionDelegate delegate) {
         this.delegate = delegate;
     }
 

@@ -10,8 +10,8 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.runner.client.runneractions.impl.launch.common;
 
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 
 /**
  * It contains information about received message from server.
@@ -23,19 +23,19 @@ public class LogMessage {
     private final int    lineNumber;
     private final String text;
 
-    public LogMessage(@Nonnegative int lineNumber, @Nonnull String text) {
+    public LogMessage(@Min(value=0) int lineNumber, @NotNull String text) {
         this.lineNumber = lineNumber;
         this.text = text;
     }
 
     /** @return number of message line */
-    @Nonnegative
+    @Min(value=0)
     public int getNumber() {
         return lineNumber;
     }
 
     /** @return content that needs to shown in the line */
-    @Nonnull
+    @NotNull
     public String getText() {
         return text;
     }

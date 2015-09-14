@@ -15,7 +15,7 @@ import com.google.inject.ImplementedBy;
 
 import org.eclipse.che.ide.ext.runner.client.models.Environment;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * Provides methods which allows change information about default environment.
@@ -31,5 +31,5 @@ public interface DefaultRunnerInfo extends IsWidget {
      * @param environment
      *         default environment for which need displays info
      */
-    void update(@Nonnull Environment environment);
+    void update(@NotNull Environment environment);
 }

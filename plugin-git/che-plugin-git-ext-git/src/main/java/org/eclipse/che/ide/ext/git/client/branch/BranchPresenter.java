@@ -36,7 +36,7 @@ import org.eclipse.che.ide.ui.dialogs.ConfirmCallback;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 import org.eclipse.che.ide.ui.dialogs.InputCallback;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -295,7 +295,7 @@ public class BranchPresenter implements BranchView.ActionDelegate {
 
     /** {@inheritDoc} */
     @Override
-    public void onBranchSelected(@Nonnull Branch branch) {
+    public void onBranchSelected(@NotNull Branch branch) {
         selectedBranch = branch;
         boolean isActive = selectedBranch.isActive();
 
@@ -310,7 +310,7 @@ public class BranchPresenter implements BranchView.ActionDelegate {
      * @param throwable
      *         exception what happened
      */
-    void handleError(@Nonnull Throwable throwable) {
+    void handleError(@NotNull Throwable throwable) {
         String errorMessage = throwable.getMessage();
         if (errorMessage == null) {
             notificationManager.showError(constant.branchDeleteFailed());

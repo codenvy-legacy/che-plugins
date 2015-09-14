@@ -23,8 +23,8 @@ import org.eclipse.che.ide.project.node.resource.ItemReferenceProcessor;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+import org.eclipse.che.commons.annotation.Nullable;
 
 /**
  * @author Vlad Zhukovskiy
@@ -43,13 +43,13 @@ public class JavaItemReferenceProcessor extends ItemReferenceProcessor {
     }
 
     @Override
-    public Promise<ItemReference> delete(@Nonnull HasDataObject<ItemReference> node) {
+    public Promise<ItemReference> delete(@NotNull HasDataObject<ItemReference> node) {
         return super.delete(node);
     }
 
     @Override
-    public Promise<ItemReference> rename(@Nullable HasStorablePath parent, @Nonnull HasDataObject<ItemReference> node,
-                                         @Nonnull String newName) {
+    public Promise<ItemReference> rename(@Nullable HasStorablePath parent, @NotNull HasDataObject<ItemReference> node,
+                                         @NotNull String newName) {
         dialogFactory.createMessageDialog("Unsupported operation",
                                           "At this moment we don't support to rename java files",
                                           null).show();

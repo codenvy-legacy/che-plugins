@@ -14,7 +14,7 @@ import org.eclipse.che.ide.api.mvp.Presenter;
 import org.eclipse.che.ide.ext.runner.client.models.Environment;
 import org.eclipse.che.ide.ext.runner.client.models.Runner;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * The common representation of properties panel widget.
@@ -30,7 +30,7 @@ public interface PropertiesPanel extends Presenter {
      * @param runner
      *         runner for which need update panel
      */
-    void update(@Nonnull Runner runner);
+    void update(@NotNull Runner runner);
 
     /**
      * Updates properties panel using values from current environment.
@@ -38,7 +38,7 @@ public interface PropertiesPanel extends Presenter {
      * @param environment
      *         environment for which need update panel
      */
-    void update(@Nonnull Environment environment);
+    void update(@NotNull Environment environment);
 
     /**
      * Adds a new listener for detecting removing panel.
@@ -46,7 +46,7 @@ public interface PropertiesPanel extends Presenter {
      * @param listener
      *         listener that needs to be added
      */
-    void addListener(@Nonnull RemovePanelListener listener);
+    void addListener(@NotNull RemovePanelListener listener);
 
     /** Hides panel with property buttons. */
     void hideButtonsPanel();
@@ -59,7 +59,7 @@ public interface PropertiesPanel extends Presenter {
          * @param environment
          *         environment which was deleted
          */
-        void onPanelRemoved(@Nonnull Environment environment);
+        void onPanelRemoved(@NotNull Environment environment);
     }
 
 }

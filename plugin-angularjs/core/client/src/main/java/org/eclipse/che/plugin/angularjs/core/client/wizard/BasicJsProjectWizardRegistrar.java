@@ -16,7 +16,7 @@ import org.eclipse.che.ide.api.wizard.WizardPage;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import static org.eclipse.che.plugin.angularjs.core.client.share.Const.BASIC_JS_ID;
@@ -35,17 +35,17 @@ public class BasicJsProjectWizardRegistrar implements ProjectWizardRegistrar {
         wizardPages = new ArrayList<>();
     }
 
-    @Nonnull
+    @NotNull
     public String getProjectTypeId() {
         return BASIC_JS_ID;
     }
 
-    @Nonnull
+    @NotNull
     public String getCategory() {
         return CATEGORY_JS;
     }
 
-    @Nonnull
+    @NotNull
     public List<Provider<? extends WizardPage<ImportProject>>> getWizardPages() {
         return wizardPages;
     }

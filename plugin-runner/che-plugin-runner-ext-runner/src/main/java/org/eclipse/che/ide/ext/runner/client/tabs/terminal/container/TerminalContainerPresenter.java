@@ -23,7 +23,7 @@ import org.eclipse.che.ide.ext.runner.client.selection.Selection;
 import org.eclipse.che.ide.ext.runner.client.selection.SelectionManager;
 import org.eclipse.che.ide.ext.runner.client.tabs.terminal.panel.Terminal;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -69,7 +69,7 @@ public class TerminalContainerPresenter implements TerminalContainer,
     private void configureStatusRunEventHandler() {
         eventBus.addHandler(TYPE, new RunnerApplicationStatusEventHandler() {
                                 @Override
-                                public void onRunnerStatusChanged(@Nonnull final Runner runner) {
+                                public void onRunnerStatusChanged(@NotNull final Runner runner) {
                                     final Terminal terminal = terminals.get(runner);
                                     if (terminal == null) {
                                         return;
@@ -94,7 +94,7 @@ public class TerminalContainerPresenter implements TerminalContainer,
     }
 
     /** {@inheritDoc} */
-    public void onSelectionChanged(@Nonnull Selection selection) {
+    public void onSelectionChanged(@NotNull Selection selection) {
         if (ENVIRONMENT.equals(selection)) {
             return;
         }
@@ -107,7 +107,7 @@ public class TerminalContainerPresenter implements TerminalContainer,
         showTerminal(runner);
     }
 
-    private void showTerminal(@Nonnull Runner runner) {
+    private void showTerminal(@NotNull Runner runner) {
         for (Terminal terminal : terminals.values()) {
             terminal.setVisible(false);
             terminal.setUnavailableLabelVisible(false);
@@ -129,7 +129,7 @@ public class TerminalContainerPresenter implements TerminalContainer,
     }
 
     /** {@inheritDoc} */
-    @Nonnull
+    @NotNull
     @Override
     public IsWidget getView() {
         return view;
@@ -149,7 +149,7 @@ public class TerminalContainerPresenter implements TerminalContainer,
 
     /** {@inheritDoc} */
     @Override
-    public void update(@Nonnull Runner runner) {
+    public void update(@NotNull Runner runner) {
         Terminal terminal = terminals.get(runner);
         if (terminal != null) {
             terminal.update(runner);
@@ -168,7 +168,7 @@ public class TerminalContainerPresenter implements TerminalContainer,
 
     /** {@inheritDoc} */
     @Override
-    public void removeTerminalUrl(@Nonnull Runner runner) {
+    public void removeTerminalUrl(@NotNull Runner runner) {
         Terminal terminal = terminals.get(runner);
         if (terminal != null) {
             terminal.removeUrl();

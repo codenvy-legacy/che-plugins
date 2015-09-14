@@ -29,7 +29,7 @@ import org.eclipse.che.ide.ext.runner.client.RunnerResources;
 import org.eclipse.che.ide.ext.runner.client.manager.tooltip.TooltipWidget;
 import org.vectomatic.dom.svg.ui.SVGResource;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * Class provides view representation of button.
@@ -58,8 +58,8 @@ public class ButtonWidgetImpl extends Composite implements ButtonWidget, ClickHa
     @Inject
     public ButtonWidgetImpl(RunnerResources resources,
                             TooltipWidget tooltip,
-                            @Nonnull @Assisted String prompt,
-                            @Nonnull @Assisted SVGResource image) {
+                            @NotNull @Assisted String prompt,
+                            @NotNull @Assisted SVGResource image) {
         this.resources = resources;
         this.tooltip = tooltip;
         this.tooltip.setDescription(prompt);
@@ -91,7 +91,7 @@ public class ButtonWidgetImpl extends Composite implements ButtonWidget, ClickHa
 
     /** {@inheritDoc} */
     @Override
-    public void setDelegate(@Nonnull ActionDelegate delegate) {
+    public void setDelegate(@NotNull ActionDelegate delegate) {
         this.delegate = delegate;
     }
 

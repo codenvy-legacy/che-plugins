@@ -12,7 +12,7 @@ package org.eclipse.che.ide.ext.runner.client.runneractions;
 
 import org.eclipse.che.ide.ext.runner.client.models.Runner;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,7 +38,7 @@ public abstract class AbstractRunnerAction implements RunnerAction, RunnerAction
      * @param action
      *         sub-action that needs to be added
      */
-    protected void addAction(@Nonnull RunnerAction action) {
+    protected void addAction(@NotNull RunnerAction action) {
         actions.add(action);
         action.setListener(this);
     }
@@ -60,7 +60,7 @@ public abstract class AbstractRunnerAction implements RunnerAction, RunnerAction
 
     /** {@inheritDoc} */
     @Override
-    public void setListener(@Nonnull StopActionListener listener) {
+    public void setListener(@NotNull StopActionListener listener) {
         this.listener = listener;
     }
 
@@ -84,7 +84,7 @@ public abstract class AbstractRunnerAction implements RunnerAction, RunnerAction
 
     /** {@inheritDoc} */
     @Override
-    public void perform(@Nonnull Runner runner) {
+    public void perform(@NotNull Runner runner) {
         throw new UnsupportedOperationException("Not supported");
     }
 

@@ -14,7 +14,7 @@ import org.eclipse.che.ide.ext.runner.client.models.Runner;
 import org.eclipse.che.ide.ext.runner.client.runneractions.impl.launch.common.LogMessagesHandler;
 import org.eclipse.che.ide.ext.runner.client.runneractions.impl.launch.common.LogMessagesHandler.ErrorHandler;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * The factory for creating an instances of different handlers.
@@ -31,6 +31,6 @@ public interface HandlerFactory {
      *         handler that delegate actions which need to perform when error happened
      * @return an instance of {@link LogMessagesHandler}
      */
-    @Nonnull
-    LogMessagesHandler createLogMessageHandler(@Nonnull Runner runner, @Nonnull ErrorHandler errorHandler);
+    @NotNull
+    LogMessagesHandler createLogMessageHandler(@NotNull Runner runner, @NotNull ErrorHandler errorHandler);
 }

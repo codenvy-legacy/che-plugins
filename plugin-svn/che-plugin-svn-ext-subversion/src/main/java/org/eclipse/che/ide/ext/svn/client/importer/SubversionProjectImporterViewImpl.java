@@ -27,7 +27,7 @@ import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.inject.Inject;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import org.eclipse.che.ide.ext.svn.client.SubversionExtensionResources;
 
@@ -79,13 +79,13 @@ public class SubversionProjectImporterViewImpl extends Composite implements Subv
 
     /** {@inheritDoc} */
     @Override
-    public void setDelegate(@Nonnull ActionDelegate delegate) {
+    public void setDelegate(@NotNull ActionDelegate delegate) {
         this.delegate = delegate;
     }
 
     /** {@inheritDoc} */
     @Override
-    public void setProjectUrl(@Nonnull String url) {
+    public void setProjectUrl(@NotNull String url) {
         projectUrl.setText(url);
         delegate.onProjectUrlChanged();
     }
@@ -97,7 +97,7 @@ public class SubversionProjectImporterViewImpl extends Composite implements Subv
     }
 
     /** {@inheritDoc} */
-    @Nonnull
+    @NotNull
     @Override
     public String getProjectRelativePath() {
         return this.projectRelativePath.getValue();
@@ -115,7 +115,7 @@ public class SubversionProjectImporterViewImpl extends Composite implements Subv
 
     /** {@inheritDoc} */
     @Override
-    public void setProjectDescription(@Nonnull String text) {
+    public void setProjectDescription(@NotNull String text) {
         projectDescription.setText(text);
     }
 
@@ -126,7 +126,7 @@ public class SubversionProjectImporterViewImpl extends Composite implements Subv
     }
 
     /** {@inheritDoc} */
-    @Nonnull
+    @NotNull
     @Override
     public String getProjectName() {
         return projectName.getValue();
@@ -134,7 +134,7 @@ public class SubversionProjectImporterViewImpl extends Composite implements Subv
 
     /** {@inheritDoc} */
     @Override
-    public void setProjectName(@Nonnull String projectName) {
+    public void setProjectName(@NotNull String projectName) {
         this.projectName.setValue(projectName);
         delegate.onProjectNameChanged();
     }

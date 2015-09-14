@@ -31,7 +31,7 @@ import org.eclipse.che.ide.ext.runner.client.manager.tooltip.TooltipWidget;
 import org.vectomatic.dom.svg.ui.SVGImage;
 import org.vectomatic.dom.svg.ui.SVGResource;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * @author Andrey Plotnikov
@@ -60,8 +60,8 @@ public class ConsoleButtonImpl extends Composite implements ConsoleButton, Click
     @Inject
     public ConsoleButtonImpl(RunnerResources resources,
                              TooltipWidget tooltip,
-                             @Nonnull @Assisted String prompt,
-                             @Nonnull @Assisted SVGResource image) {
+                             @NotNull @Assisted String prompt,
+                             @NotNull @Assisted SVGResource image) {
         this.resources = resources;
         this.tooltip = tooltip;
         this.tooltip.setDescription(prompt);

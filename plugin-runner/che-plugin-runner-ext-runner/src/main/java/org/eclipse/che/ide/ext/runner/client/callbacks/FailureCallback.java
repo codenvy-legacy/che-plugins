@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.runner.client.callbacks;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * Class which describes methods to receive a failure response from a remote procedure call.
@@ -25,5 +25,5 @@ public interface FailureCallback {
      * @param reason
      *         exception which was thrown
      */
-    void onFailure(@Nonnull Throwable reason);
+    void onFailure(@NotNull Throwable reason);
 }

@@ -21,7 +21,7 @@ import org.eclipse.che.ide.ext.java.client.project.node.JavaNodeManager;
 import org.eclipse.che.ide.ext.java.shared.JarEntry;
 import org.eclipse.che.ide.ui.smartTree.presentation.NodePresentation;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 import static org.eclipse.che.ide.ext.java.shared.JarEntry.JarEntryType.PACKAGE;
@@ -35,24 +35,24 @@ public class JarFolderNode extends AbstractJarEntryNode {
                          @Assisted int libId,
                          @Assisted ProjectDescriptor projectDescriptor,
                          @Assisted NodeSettings nodeSettings,
-                         @Nonnull JavaNodeManager nodeManager) {
+                         @NotNull JavaNodeManager nodeManager) {
         super(jarEntry, libId, projectDescriptor, nodeSettings, nodeManager);
     }
 
-    @Nonnull
+    @NotNull
     @Override
     protected Promise<List<Node>> getChildrenImpl() {
         return nodeManager.getJarChildren(getProjectDescriptor(), libId, getData().getPath(), getSettings());
     }
 
     @Override
-    public void updatePresentation(@Nonnull NodePresentation presentation) {
+    public void updatePresentation(@NotNull NodePresentation presentation) {
         presentation.setPresentableText(getData().getName());
         presentation.setPresentableIcon(getData().getType() == PACKAGE ? nodeManager.getJavaNodesResources().packageFolder()
                                                                        : nodeManager.getNodesResources().simpleRoot());
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public String getName() {
         return getData().getName();

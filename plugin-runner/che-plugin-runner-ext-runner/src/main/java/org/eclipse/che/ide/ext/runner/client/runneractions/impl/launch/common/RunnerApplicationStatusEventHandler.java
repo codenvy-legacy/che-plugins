@@ -12,7 +12,7 @@ package org.eclipse.che.ide.ext.runner.client.runneractions.impl.launch.common;
 
 import org.eclipse.che.ide.ext.runner.client.models.Runner;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * Handler to listen to runner extension {@link RunnerApplicationStatusEvent} events.
@@ -28,5 +28,5 @@ public interface RunnerApplicationStatusEventHandler {
      * @param runner
      *         current runner
      */
-    void onRunnerStatusChanged(@Nonnull Runner runner);
+    void onRunnerStatusChanged(@NotNull Runner runner);
 }

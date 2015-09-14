@@ -31,7 +31,7 @@ import org.eclipse.che.ide.ext.svn.client.update.SubversionProjectUpdatedEvent;
 import org.eclipse.che.ide.ext.svn.client.update.SubversionProjectUpdatedHandler;
 import org.eclipse.che.ide.part.explorer.project.NewProjectExplorerPresenter;
 
-import javax.annotation.Nullable;
+import org.eclipse.che.commons.annotation.Nullable;
 import java.util.List;
 
 /**

@@ -15,7 +15,7 @@ import com.google.inject.ImplementedBy;
 import org.eclipse.che.ide.ext.runner.client.models.Runner;
 import org.eclipse.che.ide.ext.runner.client.tabs.common.TabPresenter;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * Provides methods which allow work with history panel.
@@ -31,7 +31,7 @@ public interface HistoryPanel extends TabPresenter {
      * @param runner
      *         runner which need add
      */
-    void addRunner(@Nonnull Runner runner);
+    void addRunner(@NotNull Runner runner);
 
     /**
      * The method update state of current runner.
@@ -39,7 +39,7 @@ public interface HistoryPanel extends TabPresenter {
      * @param runner
      *         runner which need update
      */
-    void update(@Nonnull Runner runner);
+    void update(@NotNull Runner runner);
 
     /**
      * Selects runner widget using current runner.
@@ -47,7 +47,7 @@ public interface HistoryPanel extends TabPresenter {
      * @param runner
      *         runner which was selected
      */
-    void selectRunner(@Nonnull Runner runner);
+    void selectRunner(@NotNull Runner runner);
 
     /**
      * Checks if runner exist on the Runners tab
@@ -56,7 +56,7 @@ public interface HistoryPanel extends TabPresenter {
      *         the runner which need to check
      * @return true if the runner exist else false
      */
-    boolean isRunnerExist(@Nonnull Runner runner);
+    boolean isRunnerExist(@NotNull Runner runner);
 
     /** Clears runner widgets. */
     void clear();

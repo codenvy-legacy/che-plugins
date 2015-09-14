@@ -31,7 +31,7 @@ import org.eclipse.che.ide.util.loging.Log;
 import org.eclipse.che.ide.websocket.WebSocketException;
 import org.eclipse.che.ide.websocket.rest.RequestCallback;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -212,7 +212,7 @@ public class CommitPresenter implements CommitView.ActionDelegate {
      * @param revision
      *         a {@link Revision}
      */
-    private void onCommitSuccess(@Nonnull final Revision revision) {
+    private void onCommitSuccess(@NotNull final Revision revision) {
         String date = dateTimeFormatter.getFormattedDate(revision.getCommitTime());
         String message = constant.commitMessage(revision.getId(), date);
 
@@ -232,7 +232,7 @@ public class CommitPresenter implements CommitView.ActionDelegate {
      * @param e
      *         exception what happened
      */
-    private void handleError(@Nonnull Throwable e) {
+    private void handleError(@NotNull Throwable e) {
         String errorMessage = (e.getMessage() != null && !e.getMessage().isEmpty()) ? e.getMessage() : constant.commitFailed();
         Notification notification = new Notification(errorMessage, ERROR);
         notificationManager.showNotification(notification);

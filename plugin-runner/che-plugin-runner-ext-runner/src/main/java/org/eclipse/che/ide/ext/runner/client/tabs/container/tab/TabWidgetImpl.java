@@ -24,7 +24,7 @@ import com.google.inject.assistedinject.Assisted;
 
 import org.eclipse.che.ide.ext.runner.client.RunnerResources;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * Class provides view representation of tab.
@@ -51,8 +51,8 @@ public class TabWidgetImpl extends Composite implements TabWidget, ClickHandler 
 
     @Inject
     public TabWidgetImpl(RunnerResources resources,
-                         @Nonnull @Assisted String title,
-                         @Nonnull @Assisted TabType tabType) {
+                         @NotNull @Assisted String title,
+                         @NotNull @Assisted TabType tabType) {
         this.resources = resources;
 
         initWidget(UI_BINDER.createAndBindUi(this));
@@ -68,7 +68,7 @@ public class TabWidgetImpl extends Composite implements TabWidget, ClickHandler 
 
     /** {@inheritDoc} */
     @Override
-    public void select(@Nonnull Background background) {
+    public void select(@NotNull Background background) {
         getElement().getStyle().setBackgroundColor(background.toString());
 
         tabTitle.addStyleName(resources.runnerCss().activeTabText());
@@ -88,7 +88,7 @@ public class TabWidgetImpl extends Composite implements TabWidget, ClickHandler 
 
     /** {@inheritDoc} */
     @Override
-    public void setDelegate(@Nonnull ActionDelegate delegate) {
+    public void setDelegate(@NotNull ActionDelegate delegate) {
         this.delegate = delegate;
     }
 

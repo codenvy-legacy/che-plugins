@@ -15,7 +15,7 @@ import org.eclipse.che.ide.api.project.node.settings.NodeSettings;
 import org.eclipse.che.ide.ext.java.client.project.node.JavaNodeManager;
 import org.eclipse.che.ide.ext.java.shared.JarEntry;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * @author Vlad Zhukovskiy
@@ -24,11 +24,11 @@ public abstract class AbstractJarEntryNode extends AbstractJavaSyntheticNode<Jar
 
     protected final int libId;
 
-    public AbstractJarEntryNode(@Nonnull JarEntry jarEntry,
+    public AbstractJarEntryNode(@NotNull JarEntry jarEntry,
                                 int libId,
-                                @Nonnull ProjectDescriptor projectDescriptor,
-                                @Nonnull NodeSettings nodeSettings,
-                                @Nonnull JavaNodeManager nodeManager) {
+                                @NotNull ProjectDescriptor projectDescriptor,
+                                @NotNull NodeSettings nodeSettings,
+                                @NotNull JavaNodeManager nodeManager) {
         super(jarEntry, projectDescriptor, nodeSettings, nodeManager);
         this.libId = libId;
     }

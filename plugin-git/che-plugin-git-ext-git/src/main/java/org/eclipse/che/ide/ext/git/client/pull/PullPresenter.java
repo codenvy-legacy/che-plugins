@@ -33,7 +33,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.event.shared.EventBus;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -128,7 +128,7 @@ public class PullPresenter implements PullView.ActionDelegate {
      * @param remoteMode
      *         is a remote mode
      */
-    private void getBranches(@Nonnull final String remoteMode) {
+    private void getBranches(@NotNull final String remoteMode) {
         gitServiceClient.branchList(project.getRootProject(), remoteMode,
                                     new AsyncRequestCallback<List<Branch>>(dtoUnmarshallerFactory.newListUnmarshaller(Branch.class)) {
                                         @Override
@@ -207,7 +207,7 @@ public class PullPresenter implements PullView.ActionDelegate {
     }
 
     /** @return list of refs to fetch */
-    @Nonnull
+    @NotNull
     private String getRefs() {
         String remoteName = view.getRepositoryName();
         String localBranch = view.getLocalBranch();
@@ -223,7 +223,7 @@ public class PullPresenter implements PullView.ActionDelegate {
      * @param throwable
      *         exception what happened
      */
-    private void handleError(@Nonnull Throwable throwable, @Nonnull String remoteUrl) {
+    private void handleError(@NotNull Throwable throwable, @NotNull String remoteUrl) {
         String errorMessage = throwable.getMessage();
         if (errorMessage == null) {
             notificationManager.showError(constant.pullFail(remoteUrl));

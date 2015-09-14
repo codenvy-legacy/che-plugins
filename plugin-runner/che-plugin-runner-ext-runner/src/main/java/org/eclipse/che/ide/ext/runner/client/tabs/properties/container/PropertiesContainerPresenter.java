@@ -24,8 +24,8 @@ import org.eclipse.che.ide.ext.runner.client.selection.SelectionManager;
 import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.PropertiesPanel;
 import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.PropertiesPanelPresenter;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+import org.eclipse.che.commons.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -117,7 +117,7 @@ public class PropertiesContainerPresenter implements PropertiesContainer,
     }
 
     /** {@inheritDoc} */
-    @Nonnull
+    @NotNull
     @Override
     public IsWidget getView() {
         return view;
@@ -140,7 +140,7 @@ public class PropertiesContainerPresenter implements PropertiesContainer,
 
     /** {@inheritDoc} */
     @Override
-    public void onSelectionChanged(@Nonnull Selection selection) {
+    public void onSelectionChanged(@NotNull Selection selection) {
         if (ENVIRONMENT.equals(selection)) {
             return;
         }
@@ -155,7 +155,7 @@ public class PropertiesContainerPresenter implements PropertiesContainer,
 
     /** {@inheritDoc} */
     @Override
-    public void onPanelRemoved(@Nonnull Environment environment) {
+    public void onPanelRemoved(@NotNull Environment environment) {
         environmentsPanels.remove(environment);
     }
 

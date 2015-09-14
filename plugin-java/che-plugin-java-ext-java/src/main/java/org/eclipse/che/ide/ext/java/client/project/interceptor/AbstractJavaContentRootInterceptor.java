@@ -19,7 +19,7 @@ import org.eclipse.che.ide.ext.java.client.project.node.JavaNodeManager;
 import org.eclipse.che.ide.ext.java.shared.ContentRoot;
 import org.eclipse.che.ide.project.node.FolderReferenceNode;
 
-import javax.annotation.Nullable;
+import org.eclipse.che.commons.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 

@@ -19,7 +19,7 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * THe widget that show url where full log is located.
@@ -28,7 +28,7 @@ import javax.annotation.Nonnull;
  */
 public class FullLogMessageWidget extends HTML {
     @Inject
-    public FullLogMessageWidget(RunnerResources resources, RunnerLocalizationConstant locale, @Nonnull @Assisted String logUrl) {
+    public FullLogMessageWidget(RunnerResources resources, RunnerLocalizationConstant locale, @NotNull @Assisted String logUrl) {
         addStyleName(resources.runnerCss().logLink());
 
         Element text = DOM.createSpan();

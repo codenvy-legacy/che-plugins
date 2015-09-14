@@ -22,7 +22,7 @@ import com.google.inject.Inject;
 
 import org.eclipse.che.ide.ext.runner.client.RunnerResources;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * @author Valeriy Svydenko
@@ -56,13 +56,13 @@ public class TerminalContainerViewImpl extends Composite implements TerminalCont
 
     /** {@inheritDoc} */
     @Override
-    public void addWidget(@Nonnull IsWidget terminal) {
+    public void addWidget(@NotNull IsWidget terminal) {
         mainPanel.add(terminal);
     }
 
     /** {@inheritDoc} */
     @Override
-    public void removeWidget(@Nonnull IsWidget terminal) {
+    public void removeWidget(@NotNull IsWidget terminal) {
         mainPanel.remove(terminal);
     }
 

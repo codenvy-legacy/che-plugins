@@ -30,7 +30,7 @@ import org.eclipse.che.ide.ext.runner.client.util.RunnerUtil;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.StringUnmarshaller;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * Action for getting  logs from current runner.
@@ -69,7 +69,7 @@ public class GetLogsAction extends AbstractRunnerAction {
 
     /** {@inheritDoc} */
     @Override
-    public void perform(@Nonnull final Runner runner) {
+    public void perform(@NotNull final Runner runner) {
         eventLogger.log(this);
 
         CurrentProject project = appContext.getCurrentProject();
@@ -95,7 +95,7 @@ public class GetLogsAction extends AbstractRunnerAction {
                 })
                 .failure(new FailureCallback() {
                     @Override
-                    public void onFailure(@Nonnull Throwable reason) {
+                    public void onFailure(@NotNull Throwable reason) {
                         runnerUtil.showError(runner, constant.applicationLogsFailed(), reason);
                     }
                 })

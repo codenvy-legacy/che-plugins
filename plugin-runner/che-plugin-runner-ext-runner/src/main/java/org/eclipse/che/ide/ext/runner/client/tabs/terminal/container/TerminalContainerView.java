@@ -15,7 +15,7 @@ import com.google.inject.ImplementedBy;
 
 import org.eclipse.che.ide.api.mvp.View;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * The abstract representation of console container widget UI part.
@@ -31,7 +31,7 @@ public interface TerminalContainerView extends View<TerminalContainerView.Action
      * @param terminal
      *         terminal that needs to be shown
      */
-    void addWidget(@Nonnull IsWidget terminal);
+    void addWidget(@NotNull IsWidget terminal);
 
     /**
      * Remove a given widget from the container.
@@ -39,7 +39,7 @@ public interface TerminalContainerView extends View<TerminalContainerView.Action
      * @param terminal
      *         terminal that needs to be remove
      */
-    void removeWidget(@Nonnull IsWidget terminal);
+    void removeWidget(@NotNull IsWidget terminal);
 
     /**
      * Changes visibility of the widget.

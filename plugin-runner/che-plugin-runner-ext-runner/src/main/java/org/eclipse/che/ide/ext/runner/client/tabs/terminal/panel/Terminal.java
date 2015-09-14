@@ -14,8 +14,8 @@ import com.google.gwt.user.client.ui.IsWidget;
 
 import org.eclipse.che.ide.ext.runner.client.models.Runner;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+import org.eclipse.che.commons.annotation.Nullable;
 
 /**
  * The widget that provides an ability to work like terminal. It contains methods for updating visual components.
@@ -54,7 +54,7 @@ public interface Terminal extends IsWidget {
      * @param runner
      *         which contains current terminal
      */
-    void setUrl(@Nonnull Runner runner);
+    void setUrl(@NotNull Runner runner);
 
     /**
      * Removes url from terminal.

@@ -21,7 +21,7 @@ import com.google.inject.Inject;
 
 import org.eclipse.che.ide.ext.runner.client.manager.menu.entry.MenuEntry;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * The class describes special widget which is header menu and contains menu entries.
@@ -54,7 +54,7 @@ public class MenuWidgetImpl extends Composite implements MenuWidget {
 
     /** {@inheritDoc} */
     @Override
-    public void addEntry(@Nonnull MenuEntry entry) {
+    public void addEntry(@NotNull MenuEntry entry) {
         entityPanel.add(entry);
     }
 }

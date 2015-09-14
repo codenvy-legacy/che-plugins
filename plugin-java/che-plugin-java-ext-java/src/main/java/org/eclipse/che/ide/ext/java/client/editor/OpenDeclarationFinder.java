@@ -34,7 +34,7 @@ import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.rest.Unmarshallable;
 import org.eclipse.che.ide.util.loging.Log;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.Map;
 
 /**
@@ -142,7 +142,7 @@ public class OpenDeclarationFinder {
                            });
         } else {
             HasStorablePath path = new HasStorablePath() {
-                @Nonnull
+                @NotNull
                 @Override
                 public String getStorablePath() {
                     return descriptor.getPath();

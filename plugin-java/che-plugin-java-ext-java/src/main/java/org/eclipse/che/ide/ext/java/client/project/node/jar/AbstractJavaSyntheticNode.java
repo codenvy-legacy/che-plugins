@@ -15,7 +15,7 @@ import org.eclipse.che.ide.api.project.node.settings.NodeSettings;
 import org.eclipse.che.ide.ext.java.client.project.node.JavaNodeManager;
 import org.eclipse.che.ide.project.node.SyntheticBasedNode;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * @author Vlad Zhukovskiy
@@ -23,10 +23,10 @@ import javax.annotation.Nonnull;
 public abstract class AbstractJavaSyntheticNode<DataObject> extends SyntheticBasedNode<DataObject> {
     protected final JavaNodeManager nodeManager;
 
-    public AbstractJavaSyntheticNode(@Nonnull DataObject dataObject,
-                                     @Nonnull ProjectDescriptor projectDescriptor,
-                                     @Nonnull NodeSettings nodeSettings,
-                                     @Nonnull JavaNodeManager nodeManager) {
+    public AbstractJavaSyntheticNode(@NotNull DataObject dataObject,
+                                     @NotNull ProjectDescriptor projectDescriptor,
+                                     @NotNull NodeSettings nodeSettings,
+                                     @NotNull JavaNodeManager nodeManager) {
         super(dataObject, projectDescriptor, nodeSettings);
         this.nodeManager = nodeManager;
     }

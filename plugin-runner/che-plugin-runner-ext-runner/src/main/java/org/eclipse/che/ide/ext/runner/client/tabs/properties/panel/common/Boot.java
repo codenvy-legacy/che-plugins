@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * The enum represents a list of available states of booting process of a runner.
@@ -22,7 +22,7 @@ public enum Boot {
 
     private final String name;
 
-    Boot(@Nonnull String name) {
+    Boot(@NotNull String name) {
         this.name = name;
     }
 
@@ -39,7 +39,7 @@ public enum Boot {
      *         content that needs to analyze
      * @return an instance {@link Boot}
      */
-    public static Boot detect(@Nonnull String content) {
+    public static Boot detect(@NotNull String content) {
         for (Boot boot : Boot.values()) {
             if (content.equals(boot.toString())) {
                 return boot;

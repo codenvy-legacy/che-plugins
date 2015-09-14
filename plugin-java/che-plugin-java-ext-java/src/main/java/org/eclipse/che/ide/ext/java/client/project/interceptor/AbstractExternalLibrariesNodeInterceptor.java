@@ -24,8 +24,8 @@ import org.eclipse.che.ide.ext.java.client.project.node.JavaNodeManager;
 import org.eclipse.che.ide.ext.java.client.project.settings.JavaNodeSettings;
 import org.eclipse.che.ide.project.node.AbstractProjectBasedNode;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+import org.eclipse.che.commons.annotation.Nullable;
 import java.util.List;
 
 import static org.eclipse.che.ide.project.node.NodeManager.isProjectOrModuleNode;
@@ -61,7 +61,7 @@ public abstract class AbstractExternalLibrariesNodeInterceptor implements NodeIn
 
     public abstract boolean show(HasProjectDescriptor node);
 
-    private void insertExternalLibrariesNode(@Nonnull List<Node> children, @Nullable Node externalLibrariesNode) {
+    private void insertExternalLibrariesNode(@NotNull List<Node> children, @Nullable Node externalLibrariesNode) {
         if (externalLibrariesNode != null) {
             children.add(externalLibrariesNode);
         }

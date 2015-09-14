@@ -27,8 +27,8 @@ import org.eclipse.che.ide.ext.runner.client.models.Runner.Status;
 import org.eclipse.che.ide.ext.runner.client.selection.SelectionManager;
 import org.eclipse.che.ide.ext.runner.client.util.TimerFactory;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+import org.eclipse.che.commons.annotation.Nullable;
 import java.util.EnumSet;
 import java.util.Set;
 
@@ -115,7 +115,7 @@ public class TerminalImpl extends Composite implements Terminal {
         updateTerminalContent(url);
     }
 
-    private void showStub(@Nonnull String content) {
+    private void showStub(@NotNull String content) {
         unavailableLabel.setText(content);
         unavailableLabel.setVisible(true);
         terminal.setVisible(false);
@@ -150,7 +150,7 @@ public class TerminalImpl extends Composite implements Terminal {
 
     /** {@inheritDoc} */
     @Override
-    public void setUrl(@Nonnull Runner runner) {
+    public void setUrl(@NotNull Runner runner) {
         String terminalUrl = runner.getTerminalURL();
 
         if (terminalUrl == null) {

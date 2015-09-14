@@ -26,7 +26,7 @@ import com.google.inject.Singleton;
 import org.eclipse.che.ide.ext.runner.client.RunnerResources;
 import org.eclipse.che.ide.ext.runner.client.tabs.history.runner.RunnerWidget;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * The class contains methods which allow change view representation of history panel.
@@ -69,14 +69,14 @@ public class HistoryViewImpl extends Composite implements HistoryView {
 
     /** {@inheritDoc} */
     @Override
-    public void addRunner(@Nonnull RunnerWidget runnerWidget) {
+    public void addRunner(@NotNull RunnerWidget runnerWidget) {
         runnersPanel.add(runnerWidget);
         scrollPanel.getElement().setScrollTop(scrollPanel.getElement().getScrollHeight());
     }
 
     /** {@inheritDoc} */
     @Override
-    public void removeRunner(@Nonnull RunnerWidget runnerWidget) {
+    public void removeRunner(@NotNull RunnerWidget runnerWidget) {
         runnersPanel.remove(runnerWidget);
     }
 
@@ -88,7 +88,7 @@ public class HistoryViewImpl extends Composite implements HistoryView {
 
     /** {@inheritDoc} */
     @Override
-    public void setDelegate(@Nonnull ActionDelegate delegate) {
+    public void setDelegate(@NotNull ActionDelegate delegate) {
         this.actionDelegate = delegate;
     }
 }

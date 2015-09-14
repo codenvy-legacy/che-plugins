@@ -16,8 +16,8 @@ import org.eclipse.che.ide.ext.runner.client.RunnerLocalizationConstant;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.Unmarshallable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+import org.eclipse.che.commons.annotation.Nullable;
 
 /**
  * Class to receive a response from a remote procedure call.
@@ -34,10 +34,10 @@ public class RunnerAsyncRequestCallback<T> extends AsyncRequestCallback<T> {
     private final SuccessCallback<T>         successCallback;
     private final FailureCallback            failureCallback;
 
-    public RunnerAsyncRequestCallback(@Nonnull NotificationManager notificationManager,
-                                      @Nonnull RunnerLocalizationConstant locale,
+    public RunnerAsyncRequestCallback(@NotNull NotificationManager notificationManager,
+                                      @NotNull RunnerLocalizationConstant locale,
                                       @Nullable Unmarshallable<T> unmarshaller,
-                                      @Nonnull SuccessCallback<T> successCallback,
+                                      @NotNull SuccessCallback<T> successCallback,
                                       @Nullable FailureCallback failureCallback) {
         super(unmarshaller);
         this.notificationManager = notificationManager;
@@ -48,13 +48,13 @@ public class RunnerAsyncRequestCallback<T> extends AsyncRequestCallback<T> {
 
     /** {@inheritDoc} */
     @Override
-    protected void onSuccess(@Nonnull T result) {
+    protected void onSuccess(@NotNull T result) {
         successCallback.onSuccess(result);
     }
 
     /** {@inheritDoc} */
     @Override
-    protected void onFailure(@Nonnull Throwable exception) {
+    protected void onFailure(@NotNull Throwable exception) {
         if (failureCallback != null) {
             failureCallback.onFailure(exception);
             return;

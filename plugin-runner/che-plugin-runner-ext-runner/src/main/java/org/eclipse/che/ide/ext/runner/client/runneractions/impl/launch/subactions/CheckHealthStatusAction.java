@@ -29,7 +29,7 @@ import com.google.gwt.user.client.Timer;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import static org.eclipse.che.ide.api.notification.Notification.Status.FINISHED;
 import static org.eclipse.che.ide.api.notification.Notification.Type.INFO;
@@ -75,7 +75,7 @@ public class CheckHealthStatusAction extends AbstractRunnerAction {
                                    WebSocketUtil webSocketUtil,
                                    ConsoleContainer consoleContainer,
                                    TimerFactory timerFactory,
-                                   @Nonnull @Assisted Notification notification) {
+                                   @NotNull @Assisted Notification notification) {
         this.appContext = appContext;
         this.locale = locale;
         this.presenter = presenter;
@@ -87,7 +87,7 @@ public class CheckHealthStatusAction extends AbstractRunnerAction {
 
     /** {@inheritDoc} */
     @Override
-    public void perform(@Nonnull final Runner runner) {
+    public void perform(@NotNull final Runner runner) {
         project = appContext.getCurrentProject();
 
         if (runner.getApplicationURL() == null) {

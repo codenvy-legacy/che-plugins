@@ -22,9 +22,9 @@ import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope;
 import org.eclipse.che.ide.ext.runner.client.util.GetEnvironmentsUtil;
 import org.eclipse.che.ide.rest.RestContext;
 
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+import org.eclipse.che.commons.annotation.Nullable;
 import java.util.Collections;
 import java.util.Map;
 
@@ -55,8 +55,8 @@ public class EnvironmentImpl implements Environment {
     public EnvironmentImpl(@RestContext String restContext,
                            AppContext appContext,
                            GetEnvironmentsUtil util,
-                           @Assisted @Nonnull RunnerEnvironment runnerEnvironment,
-                           @Assisted @Nonnull Scope scope) {
+                           @Assisted @NotNull RunnerEnvironment runnerEnvironment,
+                           @Assisted @NotNull Scope scope) {
         this.runnerEnvironment = runnerEnvironment;
         this.scope = scope;
         this.ram = RAM.DEFAULT.getValue();
@@ -99,14 +99,14 @@ public class EnvironmentImpl implements Environment {
     }
 
     /** {@inheritDoc} */
-    @Nonnull
+    @NotNull
     @Override
     public String getName() {
         return name;
     }
 
     /** {@inheritDoc} */
-    @Nonnull
+    @NotNull
     @Override
     public String getId() {
         return id;
@@ -120,14 +120,14 @@ public class EnvironmentImpl implements Environment {
     }
 
     /** {@inheritDoc} */
-    @Nonnull
+    @NotNull
     @Override
     public Scope getScope() {
         return scope;
     }
 
     /** {@inheritDoc} */
-    @Nonnull
+    @NotNull
     @Override
     public String getPath() {
         return path;
@@ -141,19 +141,19 @@ public class EnvironmentImpl implements Environment {
 
     /** {@inheritDoc} */
     @Override
-    public void setRam(@Nonnegative int ram) {
+    public void setRam(@Min(value=0) int ram) {
         this.ram = ram;
     }
 
     /** {@inheritDoc} */
-    @Nonnull
+    @NotNull
     @Override
     public String getType() {
         return type;
     }
 
     /** {@inheritDoc} */
-    @Nonnull
+    @NotNull
     @Override
     public Map<String, String> getOptions() {
         return options;
@@ -161,7 +161,7 @@ public class EnvironmentImpl implements Environment {
 
     /** {@inheritDoc} */
     @Override
-    public int compareTo(@Nonnull Environment otherEnvironment) {
+    public int compareTo(@NotNull Environment otherEnvironment) {
         return name.toLowerCase().compareTo(otherEnvironment.getName().toLowerCase());
     }
 

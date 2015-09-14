@@ -22,8 +22,8 @@ import org.eclipse.che.ide.api.project.tree.VirtualFile;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.StringUnmarshaller;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+import org.eclipse.che.commons.annotation.Nullable;
 import java.util.List;
 
 /**
@@ -48,20 +48,20 @@ public class EnvironmentScript implements VirtualFile {
         this.environmentName = environmentName;
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public String getPath() {
         return data.getPath();
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public String getName() {
         return data.getName();
     }
 
     /** {@inheritDoc} */
-    @Nonnull
+    @NotNull
     @Override
     public String getDisplayName() {
         return '[' + environmentName + "] " + data.getName();

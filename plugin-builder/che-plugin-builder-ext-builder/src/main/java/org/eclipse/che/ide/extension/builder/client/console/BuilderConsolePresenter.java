@@ -29,7 +29,7 @@ import org.eclipse.che.ide.ui.toolbar.ToolbarPresenter;
 import org.vectomatic.dom.svg.ui.SVGImage;
 import org.vectomatic.dom.svg.ui.SVGResource;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * Builder console.
@@ -81,7 +81,7 @@ public class BuilderConsolePresenter extends BasePresenter implements BuilderCon
     }
 
     /** {@inheritDoc} */
-    @Nonnull
+    @NotNull
     @Override
     public String getTitle() {
         return builderLocalizationConstant.builderConsoleViewTitle() + (isUnread ? " *" : "");

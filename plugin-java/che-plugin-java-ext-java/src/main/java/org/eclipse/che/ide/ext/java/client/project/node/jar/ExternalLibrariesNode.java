@@ -21,7 +21,7 @@ import org.eclipse.che.ide.ext.java.client.project.node.JavaNodeManager;
 import org.eclipse.che.ide.project.node.SyntheticBasedNode;
 import org.eclipse.che.ide.ui.smartTree.presentation.NodePresentation;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -39,19 +39,19 @@ public class ExternalLibrariesNode extends SyntheticBasedNode<String> {
         this.javaNodeManager = javaNodeManager;
     }
 
-    @Nonnull
+    @NotNull
     @Override
     protected Promise<List<Node>> getChildrenImpl() {
         return javaNodeManager.getExternalLibraries(getProjectDescriptor());
     }
 
     @Override
-    public void updatePresentation(@Nonnull NodePresentation presentation) {
+    public void updatePresentation(@NotNull NodePresentation presentation) {
         presentation.setPresentableIcon(javaNodeManager.getJavaNodesResources().librariesIcon());
         presentation.setPresentableText(getName());
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public String getName() {
         return "External Libraries";

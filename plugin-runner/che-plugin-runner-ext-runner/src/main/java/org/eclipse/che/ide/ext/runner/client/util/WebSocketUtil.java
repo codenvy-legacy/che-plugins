@@ -13,7 +13,7 @@ package org.eclipse.che.ide.ext.runner.client.util;
 import org.eclipse.che.ide.websocket.rest.SubscriptionHandler;
 import com.google.inject.ImplementedBy;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * The utility class that simplify work flow of WebSocket.
@@ -31,7 +31,7 @@ public interface WebSocketUtil {
      * @param handler
      *         handler that has to analyze messages from WebSocket
      */
-    void subscribeHandler(@Nonnull String channel, @Nonnull SubscriptionHandler handler);
+    void subscribeHandler(@NotNull String channel, @NotNull SubscriptionHandler handler);
 
     /**
      * Unsubsribe a given handler from WebSocket. It means new messages from this chanel will be not analyzed.
@@ -41,6 +41,6 @@ public interface WebSocketUtil {
      * @param handler
      *         handler that analyzes messages from WebSocket
      */
-    void unSubscribeHandler(@Nonnull String channel, @Nonnull SubscriptionHandler handler);
+    void unSubscribeHandler(@NotNull String channel, @NotNull SubscriptionHandler handler);
 
 }

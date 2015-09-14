@@ -25,9 +25,9 @@ import org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope;
 import org.eclipse.che.ide.ext.runner.client.util.GetEnvironmentsUtil;
 import org.eclipse.che.ide.util.StringUtils;
 
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+import org.eclipse.che.commons.annotation.Nullable;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.Objects;
@@ -83,10 +83,10 @@ public class RunnerImpl implements Runner {
      *         options which needs to be used
      */
     @AssistedInject
-    public RunnerImpl(@Nonnull RunnerLocalizationConstant locale,
-                      @Nonnull RunnerCounter runnerCounter,
-                      @Nonnull GetEnvironmentsUtil util,
-                      @Nonnull @Assisted RunOptions runOptions) {
+    public RunnerImpl(@NotNull RunnerLocalizationConstant locale,
+                      @NotNull RunnerCounter runnerCounter,
+                      @NotNull GetEnvironmentsUtil util,
+                      @NotNull @Assisted RunOptions runOptions) {
         this(locale, runnerCounter, util, runOptions, SYSTEM, null);
     }
 
@@ -104,11 +104,11 @@ public class RunnerImpl implements Runner {
      *         name of custom configuration
      */
     @AssistedInject
-    public RunnerImpl(@Nonnull RunnerLocalizationConstant locale,
-                      @Nonnull RunnerCounter runnerCounter,
-                      @Nonnull GetEnvironmentsUtil util,
-                      @Nonnull @Assisted RunOptions runOptions,
-                      @Nonnull @Assisted Scope environmentScope,
+    public RunnerImpl(@NotNull RunnerLocalizationConstant locale,
+                      @NotNull RunnerCounter runnerCounter,
+                      @NotNull GetEnvironmentsUtil util,
+                      @NotNull @Assisted RunOptions runOptions,
+                      @NotNull @Assisted Scope environmentScope,
                       @Nullable @Assisted String environmentName) {
         this.runOptions = runOptions;
         this.ram = runOptions.getMemorySize();
@@ -136,8 +136,8 @@ public class RunnerImpl implements Runner {
 
     }
 
-    @Nonnull
-    private String getCorrectName(@Nonnull String environmentName) {
+    @NotNull
+    private String getCorrectName(@NotNull String environmentName) {
         int lastIndex = environmentName.lastIndexOf("/") + 1;
 
         return environmentName.substring(lastIndex, environmentName.length());
@@ -151,7 +151,7 @@ public class RunnerImpl implements Runner {
     }
 
     /** {@inheritDoc} */
-    @Nonnull
+    @NotNull
     @Override
     public String getActiveTab() {
         return activeTab;
@@ -159,7 +159,7 @@ public class RunnerImpl implements Runner {
 
     /** {@inheritDoc} */
     @Override
-    public void setActiveTab(@Nonnull String tab) {
+    public void setActiveTab(@NotNull String tab) {
         activeTab = tab;
     }
 
@@ -171,7 +171,7 @@ public class RunnerImpl implements Runner {
 
     /** {@inheritDoc} */
     @Override
-    public void setRAM(@Nonnegative int ram) {
+    public void setRAM(@Min(value=0) int ram) {
         this.ram = ram;
     }
 
@@ -194,7 +194,7 @@ public class RunnerImpl implements Runner {
 
     /** {@inheritDoc} */
     @Override
-    @Nonnull
+    @NotNull
     public String getTimeout() {
         if (!(DONE.equals(status) || RUNNING.equals(status))) {
             return TIMER_STUB;
@@ -215,8 +215,8 @@ public class RunnerImpl implements Runner {
         return TIMER_STUB;
     }
 
-    @Nonnull
-    private String getTimeOut(@Nonnull RunnerMetric timeoutMetric) {
+    @NotNull
+    private String getTimeOut(@NotNull RunnerMetric timeoutMetric) {
         String timeout = timeoutMetric.getValue();
 
         if (RunnerMetric.ALWAYS_ON.equals(timeout)) {
@@ -237,8 +237,8 @@ public class RunnerImpl implements Runner {
         return StringUtils.timeMlsToHumanReadable((long)terminationTimeout);
     }
 
-    @Nonnull
-    private String getLifeTime(@Nonnull RunnerMetric lifeTimeMetric) {
+    @NotNull
+    private String getLifeTime(@NotNull RunnerMetric lifeTimeMetric) {
         String lifeTimeValue = lifeTimeMetric.getValue();
 
         if (RunnerMetric.ALWAYS_ON.equals(lifeTimeValue)) {
@@ -254,7 +254,7 @@ public class RunnerImpl implements Runner {
     }
 
     /** {@inheritDoc} */
-    @Nonnull
+    @NotNull
     @Override
     public String getActiveTime() {
         return isAlive() ? StringUtils.timeSecToHumanReadable((System.currentTimeMillis() - creationTime) / ONE_SEC.getValue())
@@ -262,7 +262,7 @@ public class RunnerImpl implements Runner {
     }
 
     /** {@inheritDoc} */
-    @Nonnull
+    @NotNull
     @Override
     public String getStopTime() {
         if (isAlive()) {
@@ -286,14 +286,14 @@ public class RunnerImpl implements Runner {
     }
 
     /** {@inheritDoc} */
-    @Nonnull
+    @NotNull
     @Override
     public String getEnvironmentId() {
         return runOptions.getEnvironmentId();
     }
 
     /** {@inheritDoc} */
-    @Nonnull
+    @NotNull
     @Override
     public String getTitle() {
         return title;
@@ -301,12 +301,12 @@ public class RunnerImpl implements Runner {
 
     /** {@inheritDoc} */
     @Override
-    public void setTitle(@Nonnull String title) {
+    public void setTitle(@NotNull String title) {
         this.title = title;
     }
 
     /** {@inheritDoc} */
-    @Nonnull
+    @NotNull
     @Override
     public Status getStatus() {
         return status;
@@ -314,7 +314,7 @@ public class RunnerImpl implements Runner {
 
     /** {@inheritDoc} */
     @Override
-    public void setStatus(@Nonnull Status status) {
+    public void setStatus(@NotNull Status status) {
         this.status = status;
     }
 
@@ -334,7 +334,7 @@ public class RunnerImpl implements Runner {
         return appUrl + getCodeServerParam();
     }
 
-    @Nonnull
+    @NotNull
     private String getCodeServerParam() {
         String codeServerHref = getUrlByName("code server");
         if (codeServerHref == null) {
@@ -382,14 +382,14 @@ public class RunnerImpl implements Runner {
     }
 
     /** {@inheritDoc} */
-    @Nonnull
+    @NotNull
     @Override
     public String getType() {
         return type;
     }
 
     /** {@inheritDoc} */
-    @Nonnull
+    @NotNull
     @Override
     public Scope getScope() {
         return scope;
@@ -397,7 +397,7 @@ public class RunnerImpl implements Runner {
 
     /** {@inheritDoc} */
     @Override
-    public void setScope(@Nonnull Scope scope) {
+    public void setScope(@NotNull Scope scope) {
         this.scope = scope;
     }
 
@@ -408,7 +408,7 @@ public class RunnerImpl implements Runner {
     }
 
     @Nullable
-    private String getUrlByName(@Nonnull String name) {
+    private String getUrlByName(@NotNull String name) {
         Link link = RunnerUtils.getLink(descriptor, name);
         return link == null ? null : link.getHref();
     }
@@ -427,7 +427,7 @@ public class RunnerImpl implements Runner {
     }
 
     @Nullable
-    private RunnerMetric getRunnerMetricByName(@Nonnull String name) {
+    private RunnerMetric getRunnerMetricByName(@NotNull String name) {
         if (descriptor == null) {
             return null;
         }
@@ -442,7 +442,7 @@ public class RunnerImpl implements Runner {
     }
 
     /** {@inheritDoc} */
-    @Nonnull
+    @NotNull
     @Override
     public RunOptions getOptions() {
         return runOptions;

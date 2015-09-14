@@ -32,7 +32,7 @@ import org.eclipse.che.ide.ext.runner.client.tabs.templates.TemplatesContainer;
 import org.eclipse.che.ide.ext.runner.client.util.RunnerUtil;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 import static org.eclipse.che.ide.ext.runner.client.tabs.properties.panel.common.Scope.PROJECT;
@@ -106,7 +106,7 @@ public class GetProjectEnvironmentsAction extends AbstractRunnerAction {
                 })
                 .failure(new FailureCallback() {
                     @Override
-                    public void onFailure(@Nonnull Throwable reason) {
+                    public void onFailure(@NotNull Throwable reason) {
                         notificationManager.showError(locale.customRunnerGetEnvironmentFailed());
                     }
                 })
@@ -115,9 +115,9 @@ public class GetProjectEnvironmentsAction extends AbstractRunnerAction {
         projectService.getRunnerEnvironments(descriptor.getPath(), callback);
     }
 
-    private void setDefaultRunner(@Nonnull String defaultRunner,
-                                  @Nonnull List<Environment> projectEnvironments,
-                                  @Nonnull TemplatesContainer panel) {
+    private void setDefaultRunner(@NotNull String defaultRunner,
+                                  @NotNull List<Environment> projectEnvironments,
+                                  @NotNull TemplatesContainer panel) {
         if (!defaultRunner.startsWith(ENVIRONMENT_PREFIX)) {
             return;
         }

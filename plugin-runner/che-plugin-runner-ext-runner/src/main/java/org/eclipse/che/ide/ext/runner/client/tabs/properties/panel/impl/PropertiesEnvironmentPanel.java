@@ -58,8 +58,8 @@ import org.eclipse.che.ide.ui.dialogs.ConfirmCallback;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 import org.eclipse.che.ide.util.loging.Log;
 
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -110,7 +110,7 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
     public PropertiesEnvironmentPanel(final PropertiesPanelView view,
                                       DtoFactory dtoFactory,
                                       @Named("DefaultEditorProvider") EditorProvider editorProvider,
-                                      @Nonnull final FileTypeRegistry fileTypeRegistry,
+                                      @NotNull final FileTypeRegistry fileTypeRegistry,
                                       final DockerFileFactory dockerFileFactory,
                                       final ProjectServiceClient projectService,
                                       EventBus eventBus,
@@ -127,7 +127,7 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
                                       AsyncCallbackBuilder<ProjectDescriptor> asyncDescriptorCallbackBuilder,
                                       TemplatesContainer templatesContainer,
                                       EditorAgent editorAgent,
-                                      @Assisted @Nonnull final Environment environment) {
+                                      @Assisted @NotNull final Environment environment) {
         super(view, appContext);
         this.dtoFactory = dtoFactory;
         this.editorProvider = editorProvider;
@@ -178,8 +178,8 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
         currentRam = getRam(environment.getId());
     }
 
-    @Nonnegative
-    private int getRam(@Nonnull String environmentId) {
+    @Min(value=0)
+    private int getRam(@NotNull String environmentId) {
         boolean isConfigExist = runnerConfigs.containsKey(environmentId) || runnerConfigs.containsKey(URL.encode(environmentId));
 
         if (!isConfigExist) {
@@ -201,7 +201,7 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
      *         the environment to check
      * @return the type of the provided environment
      */
-    private String getType(@Nonnull Environment environment) {
+    private String getType(@NotNull Environment environment) {
         String envId = URL.encode(environment.getId());
         RunnerConfiguration runnerConfiguration = runnerConfigs.get(envId);
         if (runnerConfiguration != null) {
@@ -230,7 +230,7 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
                                          })
                                          .failure(new FailureCallback() {
                                              @Override
-                                             public void onFailure(@Nonnull Throwable exception) {
+                                             public void onFailure(@NotNull Throwable exception) {
                                                  Log.error(getClass(), exception.getMessage());
                                              }
                                          })
@@ -263,7 +263,7 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
                                                                            })
                                                                            .failure(new FailureCallback() {
                                                                                @Override
-                                                                               public void onFailure(@Nonnull Throwable reason) {
+                                                                               public void onFailure(@NotNull Throwable reason) {
                                                                                    notificationManager.showError(reason.getMessage());
                                                                                }
                                                                            })
@@ -272,7 +272,7 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
         projectService.createFolder(path, callback);
     }
 
-    private void getEditorContent(@Nonnull final String fileName) {
+    private void getEditorContent(@NotNull final String fileName) {
 
         editor.getEditorInput().getFile().getContent().then(new Operation<String>() {
             @Override
@@ -287,7 +287,7 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
         });
     }
 
-    private void createFile(@Nonnull String content, @Nonnull String fileName) {
+    private void createFile(@NotNull String content, @NotNull String fileName) {
         String path = currentProject.getProjectDescription().getPath() + ROOT_FOLDER;
 
         AsyncRequestCallback<ItemReference> callback =
@@ -305,7 +305,7 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
                                     })
                                     .failure(new FailureCallback() {
                                         @Override
-                                        public void onFailure(@Nonnull Throwable reason) {
+                                        public void onFailure(@NotNull Throwable reason) {
                                             Log.error(PropertiesPanelPresenter.class, reason.getMessage());
                                         }
                                     })
@@ -314,7 +314,7 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
         projectService.createFile(path, fileName + DOCKER_SCRIPT_NAME, content, null, callback);
     }
 
-    private void updateRunnerConfig(@Nonnull ItemReference result) {
+    private void updateRunnerConfig(@NotNull ItemReference result) {
         boolean isConfigExist = runnerConfigs.containsKey(environment.getId());
         view.selectShutdown(getTimeout());
         String newEnvironmentName = getNewEnvironmentName(result.getPath());
@@ -342,14 +342,14 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
         }
     }
 
-    @Nonnull
-    private String getNewEnvironmentName(@Nonnull String path) {
+    @NotNull
+    private String getNewEnvironmentName(@NotNull String path) {
         String withoutDocker = path.substring(0, path.lastIndexOf('/'));
 
         return withoutDocker.substring(withoutDocker.lastIndexOf('/') + 1);
     }
 
-    private String generateEnvironmentId(@Nonnull String environmentName) {
+    private String generateEnvironmentId(@NotNull String environmentName) {
         String newName = URL.encode(ENVIRONMENT_ID_PREFIX + environmentName);
         // with GWT mocks, native methods can be empty
         if (newName.isEmpty()) {
@@ -411,7 +411,7 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
                 })
                 .failure(new FailureCallback() {
                     @Override
-                    public void onFailure(@Nonnull Throwable reason) {
+                    public void onFailure(@NotNull Throwable reason) {
                         notificationManager.showError(reason.getMessage());
                     }
                 })
@@ -466,7 +466,7 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
                     }
                 }).failure(new FailureCallback() {
                     @Override
-                    public void onFailure(@Nonnull Throwable reason) {
+                    public void onFailure(@NotNull Throwable reason) {
                         Log.error(getClass(), reason.getMessage());
 
                     }
@@ -519,7 +519,7 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
                 })
                 .failure(new FailureCallback() {
                     @Override
-                    public void onFailure(@Nonnull Throwable reason) {
+                    public void onFailure(@NotNull Throwable reason) {
                         notificationManager.showError(reason.getMessage());
                     }
                 })
@@ -528,7 +528,7 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
         projectService.delete(environment.getPath(), asyncRequestCallback);
     }
 
-    private void notifyListeners(@Nonnull Environment environment) {
+    private void notifyListeners(@NotNull Environment environment) {
         for (RemovePanelListener listener : listeners) {
             listener.onPanelRemoved(environment);
         }
@@ -562,7 +562,7 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
 
     /** {@inheritDoc} */
     @Override
-    public void update(@Nonnull Environment environment) {
+    public void update(@NotNull Environment environment) {
         view.setEnableCancelButton(isParameterChanged);
         view.setEnableSaveButton(isParameterChanged);
 
@@ -613,7 +613,7 @@ public class PropertiesEnvironmentPanel extends PropertiesPanelPresenter {
 
     /** {@inheritDoc} */
     @Override
-    public void addListener(@Nonnull RemovePanelListener listener) {
+    public void addListener(@NotNull RemovePanelListener listener) {
         listeners.add(listener);
     }
 }

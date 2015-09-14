@@ -18,8 +18,8 @@ import org.eclipse.che.ide.api.parts.base.BaseActionDelegate;
 import org.eclipse.che.ide.ext.runner.client.models.Runner;
 import org.eclipse.che.ide.ext.runner.client.tabs.container.TabContainer;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+import org.eclipse.che.commons.annotation.Nullable;
 
 /**
  * This is abstract representation of widget that provides an ability to show runners and manage them.
@@ -38,7 +38,7 @@ public interface RunnerManagerView extends View<RunnerManagerView.ActionDelegate
      * @param runner
      *         runner which was changed
      */
-    void update(@Nonnull Runner runner);
+    void update(@NotNull Runner runner);
 
     /**
      * Shows application url on the view.
@@ -62,7 +62,7 @@ public interface RunnerManagerView extends View<RunnerManagerView.ActionDelegate
      * @param timeout
      *         timeout that needs to be shown
      */
-    void setTimeout(@Nonnull String timeout);
+    void setTimeout(@NotNull String timeout);
 
     /**
      * Shows special popup panel which displays additional information about runner.
@@ -78,7 +78,7 @@ public interface RunnerManagerView extends View<RunnerManagerView.ActionDelegate
      * @param runner
      *         runner for which need update info
      */
-    void updateMoreInfoPopup(@Nonnull Runner runner);
+    void updateMoreInfoPopup(@NotNull Runner runner);
 
     /**
      * Sets left panel view representation to container. This panel contains history and templates containers.
@@ -86,7 +86,7 @@ public interface RunnerManagerView extends View<RunnerManagerView.ActionDelegate
      * @param containerPresenter
      *         container to which need set panel
      */
-    void setLeftPanel(@Nonnull TabContainer containerPresenter);
+    void setLeftPanel(@NotNull TabContainer containerPresenter);
 
     /**
      * Sets right properties panel view representation to container. This panel contains terminal container.
@@ -94,7 +94,7 @@ public interface RunnerManagerView extends View<RunnerManagerView.ActionDelegate
      * @param containerPresenter
      *         container to which need set panel
      */
-    void setRightPropertiesPanel(@Nonnull TabContainer containerPresenter);
+    void setRightPropertiesPanel(@NotNull TabContainer containerPresenter);
 
     /**
      * Sets left panel view representation to container. This panel contains console and properties containers.
@@ -102,7 +102,7 @@ public interface RunnerManagerView extends View<RunnerManagerView.ActionDelegate
      * @param containerPresenter
      *         container to which need set panel
      */
-    void setLeftPropertiesPanel(@Nonnull TabContainer containerPresenter);
+    void setLeftPropertiesPanel(@NotNull TabContainer containerPresenter);
 
     /**
      * Sets all tabs in one panel.
@@ -110,7 +110,7 @@ public interface RunnerManagerView extends View<RunnerManagerView.ActionDelegate
      * @param containerPresenter
      *         container which contains all tabs
      */
-    void setGeneralPropertiesPanel(@Nonnull TabContainer containerPresenter);
+    void setGeneralPropertiesPanel(@NotNull TabContainer containerPresenter);
 
     /** Hides all buttons on buttons panel except run button. */
     void hideOtherButtons();
@@ -156,7 +156,7 @@ public interface RunnerManagerView extends View<RunnerManagerView.ActionDelegate
      * @param url
      *         url where logs are located
      */
-    void showLog(@Nonnull String url);
+    void showLog(@NotNull String url);
 
     interface ActionDelegate extends BaseActionDelegate {
 

@@ -44,7 +44,7 @@ import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.rest.Unmarshallable;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -91,14 +91,14 @@ public class JavaNodeManager extends NodeManager {
 
     /** **************** External Libraries operations ********************* */
 
-    @Nonnull
-    public Promise<List<Node>> getExternalLibraries(@Nonnull ProjectDescriptor descriptor) {
+    @NotNull
+    public Promise<List<Node>> getExternalLibraries(@NotNull ProjectDescriptor descriptor) {
         return AsyncPromiseHelper.createFromAsyncRequest(getExternalLibrariesRC(descriptor.getPath()))
                                  .then(createJarNodes(descriptor, settingsProvider.getSettings()));
     }
 
-    @Nonnull
-    private RequestCall<List<Jar>> getExternalLibrariesRC(@Nonnull final String projectPath) {
+    @NotNull
+    private RequestCall<List<Jar>> getExternalLibrariesRC(@NotNull final String projectPath) {
         return new RequestCall<List<Jar>>() {
             @Override
             public void makeCall(AsyncCallback<List<Jar>> callback) {
@@ -107,9 +107,9 @@ public class JavaNodeManager extends NodeManager {
         };
     }
 
-    @Nonnull
-    private Function<List<Jar>, List<Node>> createJarNodes(@Nonnull final ProjectDescriptor descriptor,
-                                                            @Nonnull final NodeSettings nodeSettings) {
+    @NotNull
+    private Function<List<Jar>, List<Node>> createJarNodes(@NotNull final ProjectDescriptor descriptor,
+                                                            @NotNull final NodeSettings nodeSettings) {
         return new Function<List<Jar>, List<Node>>() {
             @Override
             public List<Node> apply(List<Jar> jars) throws FunctionException {
@@ -127,14 +127,14 @@ public class JavaNodeManager extends NodeManager {
 
     /** **************** Jar Library Children operations ********************* */
 
-    @Nonnull
-    public Promise<List<Node>> getJarLibraryChildren(@Nonnull ProjectDescriptor descriptor, int libId, @Nonnull NodeSettings nodeSettings) {
+    @NotNull
+    public Promise<List<Node>> getJarLibraryChildren(@NotNull ProjectDescriptor descriptor, int libId, @NotNull NodeSettings nodeSettings) {
         return AsyncPromiseHelper.createFromAsyncRequest(getLibraryChildrenRC(descriptor.getPath(), libId))
                                  .then(createJarEntryNodes(libId, descriptor, nodeSettings));
     }
 
-    @Nonnull
-    private RequestCall<List<JarEntry>> getLibraryChildrenRC(@Nonnull final String projectPath, final int libId) {
+    @NotNull
+    private RequestCall<List<JarEntry>> getLibraryChildrenRC(@NotNull final String projectPath, final int libId) {
         return new RequestCall<List<JarEntry>>() {
             @Override
             public void makeCall(AsyncCallback<List<JarEntry>> callback) {
@@ -144,14 +144,14 @@ public class JavaNodeManager extends NodeManager {
         };
     }
 
-    @Nonnull
-    public Promise<List<Node>> getJarChildren(@Nonnull ProjectDescriptor descriptor, int libId, @Nonnull String path, @Nonnull NodeSettings nodeSettings) {
+    @NotNull
+    public Promise<List<Node>> getJarChildren(@NotNull ProjectDescriptor descriptor, int libId, @NotNull String path, @NotNull NodeSettings nodeSettings) {
         return AsyncPromiseHelper.createFromAsyncRequest(getChildrenRC(descriptor.getPath(), libId, path))
                                  .then(createJarEntryNodes(libId, descriptor, nodeSettings));
     }
 
-    @Nonnull
-    private RequestCall<List<JarEntry>> getChildrenRC(@Nonnull final String projectPath, final int libId, @Nonnull final String path) {
+    @NotNull
+    private RequestCall<List<JarEntry>> getChildrenRC(@NotNull final String projectPath, final int libId, @NotNull final String path) {
         return new RequestCall<List<JarEntry>>() {
             @Override
             public void makeCall(AsyncCallback<List<JarEntry>> callback) {
@@ -161,9 +161,9 @@ public class JavaNodeManager extends NodeManager {
         };
     }
 
-    @Nonnull
-    private Function<List<JarEntry>, List<Node>> createJarEntryNodes(final int libId, @Nonnull final ProjectDescriptor descriptor,
-                                                                      @Nonnull final NodeSettings nodeSettings) {
+    @NotNull
+    private Function<List<JarEntry>, List<Node>> createJarEntryNodes(final int libId, @NotNull final ProjectDescriptor descriptor,
+                                                                      @NotNull final NodeSettings nodeSettings) {
         return new Function<List<JarEntry>, List<Node>>() {
             @Override
             public List<Node> apply(List<JarEntry> entries) throws FunctionException {
