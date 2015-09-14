@@ -44,11 +44,6 @@ public class DockerMachineTerminalLauncherTest {
         eventService = new EventService();
     }
 
-
-    public DockerMachineTerminalLauncherTest() {
-        super();
-    }
-
     @Test(expectedExceptions = RuntimeException.class)
     public void shouldThrowRuntimeExceptionIfNoTerminalArchivePresent() {
         launcher = new DockerMachineTerminalLauncher(eventService,docker,machineManager,"", "/no/such/path");
