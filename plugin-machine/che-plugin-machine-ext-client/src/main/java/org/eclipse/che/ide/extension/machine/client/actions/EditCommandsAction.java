@@ -60,4 +60,5 @@ public class EditCommandsAction extends AbstractPerspectiveAction {
         eventLogger.log(this);
         editCommandsPresenter.show();
     }
+
 }
