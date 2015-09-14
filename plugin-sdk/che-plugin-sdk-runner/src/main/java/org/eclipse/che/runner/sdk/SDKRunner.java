@@ -237,7 +237,10 @@ public class SDKRunner extends Runner {
                                      extension.version));
             model.writeTo(pom);
 
-            GwtXmlUtils.inheritGwtModule(IoUtil.findFile(IDE_GWT_XML_FILE_NAME, workDirPath.toFile()).toPath(), extension.gwtModuleName);
+            // Add GWT module if there is one
+            if (extension.gwtModuleName != null) {
+                GwtXmlUtils.inheritGwtModule(IoUtil.findFile(IDE_GWT_XML_FILE_NAME, workDirPath.toFile()).toPath(), extension.gwtModuleName);
+            }
 
             warPath = Utils.buildProjectFromSources(workDirPath, "*.war");
         } catch (Exception e) {

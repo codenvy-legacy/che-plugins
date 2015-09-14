@@ -159,22 +159,27 @@ class Utils {
             }
 
             // TODO: consider Codenvy extensions validator
-            if (gwtXmlEntry == null || pomEntry == null) {
+            if (pomEntry == null) {
                 throw new IllegalArgumentException(String.format("%s is not a valid Codenvy Extension", zipFile.getName()));
             }
 
-            String gwtModuleName = gwtXmlEntry.getName();
-            gwtModuleName = gwtModuleName.substring(0, gwtModuleName.length() - GwtXmlUtils.GWT_MODULE_XML_SUFFIX.length());
+            String gwtModuleName = null;
             Model pom = Model.readFrom(zipFile.getInputStream(pomEntry));
             List<String> sourceDirectories = MavenUtils.getSourceDirectories(pom);
             sourceDirectories.addAll(MavenUtils.getResourceDirectories(pom));
-            for (String src : sourceDirectories) {
-                if (gwtModuleName.startsWith(src))
-                    gwtModuleName = gwtModuleName.replace(src,"");
+            if (gwtXmlEntry != null) {
+                gwtModuleName = gwtXmlEntry.getName();
+                gwtModuleName = gwtModuleName.substring(0, gwtModuleName.length() - GwtXmlUtils.GWT_MODULE_XML_SUFFIX.length());
+                for (String src : sourceDirectories) {
+                    if (gwtModuleName.startsWith(src))
+                        gwtModuleName = gwtModuleName.replace(src,"");
+                }
+
+                gwtModuleName = gwtModuleName.replace(java.io.File.separatorChar, '.');
+                if (gwtModuleName.startsWith(".")) {
+                    gwtModuleName = gwtModuleName.substring(1);
+                }
             }
-            gwtModuleName = gwtModuleName.replace(java.io.File.separatorChar, '.');
-            if (gwtModuleName.startsWith("."))
-                gwtModuleName = gwtModuleName.substring(1);
             return new ExtensionDescriptor(gwtModuleName, MavenUtils.getGroupId(pom), pom.getArtifactId(), MavenUtils.getVersion(pom));
         } finally {
             zipFile.close();
