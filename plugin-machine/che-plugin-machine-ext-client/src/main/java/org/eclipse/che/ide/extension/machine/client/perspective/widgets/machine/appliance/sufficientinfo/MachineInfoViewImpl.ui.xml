@@ -27,6 +27,9 @@
             float: left;
             margin-top: 12px;
             margin-left: 12px;
+            -moz-user-select: all;
+            -webkit-user-select: auto;
+            user-select: text;
         }
 
         .block {
