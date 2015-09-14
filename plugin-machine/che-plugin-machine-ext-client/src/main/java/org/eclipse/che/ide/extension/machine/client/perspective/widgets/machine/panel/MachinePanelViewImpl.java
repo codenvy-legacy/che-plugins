@@ -27,8 +27,8 @@ import org.eclipse.che.ide.ui.tree.Tree;
 import org.eclipse.che.ide.ui.tree.TreeNodeElement;
 import org.eclipse.che.ide.util.input.SignalEvent;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+import org.eclipse.che.commons.annotation.Nullable;
 
 /**
  * Provides implementation of view to display machines on special panel.
@@ -115,7 +115,7 @@ public class MachinePanelViewImpl extends BaseView<MachinePanelView.ActionDelega
 
     /** {@inheritDoc} */
     @Override
-    public void setData(@Nonnull MachineTreeNode root) {
+    public void setData(@NotNull MachineTreeNode root) {
         tree.asWidget().setVisible(true);
         tree.getModel().setRoot(root);
         tree.renderTree(-1);

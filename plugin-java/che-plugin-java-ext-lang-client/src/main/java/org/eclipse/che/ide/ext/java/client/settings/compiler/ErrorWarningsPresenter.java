@@ -23,7 +23,7 @@ import org.eclipse.che.ide.ext.java.client.settings.property.PropertyWidget;
 import org.eclipse.che.ide.ext.java.client.settings.service.SettingsServiceClient;
 import org.eclipse.che.ide.settings.common.AbstractSettingsPagePresenter;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -118,7 +118,7 @@ public class ErrorWarningsPresenter extends AbstractSettingsPagePresenter implem
 
     /** {@inheritDoc} */
     @Override
-    public void onPropertyChanged(@Nonnull String propertyId, @Nonnull String value) {
+    public void onPropertyChanged(@NotNull String propertyId, @NotNull String value) {
         changedProperties.put(propertyId, value);
 
         delegate.onDirtyChanged();
@@ -179,7 +179,7 @@ public class ErrorWarningsPresenter extends AbstractSettingsPagePresenter implem
         });
     }
 
-    private void createAndAddWidget(@Nonnull ErrorWarningsOptions option) {
+    private void createAndAddWidget(@NotNull ErrorWarningsOptions option) {
         String parameterId = option.toString();
 
         if (widgets.containsKey(parameterId)) {

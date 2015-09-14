@@ -29,7 +29,7 @@ import org.eclipse.che.security.oauth.OAuthCallback;
 import org.eclipse.che.security.oauth.OAuthStatus;
 import org.eclipse.che.ide.util.Config;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -70,7 +70,7 @@ public class GitHubAuthenticatorImpl implements GitHubAuthenticator, OAuthCallba
     }
 
     @Override
-    public void authorize(@Nonnull final AsyncCallback<OAuthStatus> callback) {
+    public void authorize(@NotNull final AsyncCallback<OAuthStatus> callback) {
         this.callback = callback;
         view.showDialog();
     }
@@ -159,7 +159,7 @@ public class GitHubAuthenticatorImpl implements GitHubAuthenticator, OAuthCallba
      * @param key
      *         failed key
      */
-    private void removeFailedKey(@Nonnull final KeyItem key) {
+    private void removeFailedKey(@NotNull final KeyItem key) {
         sshKeyService.deleteKey(key, new AsyncRequestCallback<Void>() {
             @Override
             public void onFailure(Throwable caught) {

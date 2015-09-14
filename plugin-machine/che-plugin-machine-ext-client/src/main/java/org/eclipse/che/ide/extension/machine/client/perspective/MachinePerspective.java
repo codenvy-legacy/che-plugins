@@ -27,7 +27,7 @@ import org.eclipse.che.ide.workspace.WorkBenchControllerFactory;
 import org.eclipse.che.ide.workspace.perspectives.general.AbstractPerspective;
 import org.eclipse.che.ide.workspace.perspectives.general.PerspectiveViewImpl;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import static org.eclipse.che.ide.api.constraints.Constraints.FIRST;
 import static org.eclipse.che.ide.api.parts.PartStackType.EDITING;
@@ -78,7 +78,7 @@ public class MachinePerspective extends AbstractPerspective {
 
     /** {@inheritDoc} */
     @Override
-    public void go(@Nonnull AcceptsOneWidget container) {
+    public void go(@NotNull AcceptsOneWidget container) {
         machinePanel.showMachines();
 
         PartStack information = getPartStack(INFORMATION);

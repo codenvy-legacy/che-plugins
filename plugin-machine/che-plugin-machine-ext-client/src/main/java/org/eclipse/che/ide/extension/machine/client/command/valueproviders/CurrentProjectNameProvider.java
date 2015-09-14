@@ -16,7 +16,7 @@ import com.google.inject.Singleton;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * Provides current project's name.
@@ -35,13 +35,13 @@ public class CurrentProjectNameProvider implements CommandPropertyValueProvider 
         this.appContext = appContext;
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public String getKey() {
         return KEY;
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public String getValue() {
         final CurrentProject currentProject = appContext.getCurrentProject();

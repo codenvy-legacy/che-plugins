@@ -20,7 +20,7 @@ import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.MachineResources;
 import org.eclipse.che.ide.extension.machine.client.command.edit.EditCommandsPresenter;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.Collections;
 
 import static org.eclipse.che.ide.workspace.perspectives.project.ProjectPerspective.PROJECT_PERSPECTIVE_ID;
@@ -52,7 +52,7 @@ public class EditCommandsAction extends AbstractPerspectiveAction {
     }
 
     @Override
-    public void updateInPerspective(@Nonnull ActionEvent e) {
+    public void updateInPerspective(@NotNull ActionEvent e) {
     }
 
     @Override

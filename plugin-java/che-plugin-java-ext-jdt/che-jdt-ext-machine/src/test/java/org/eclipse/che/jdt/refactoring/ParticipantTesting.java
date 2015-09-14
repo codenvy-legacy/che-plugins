@@ -31,7 +31,7 @@ public class ParticipantTesting {
         CheRefactoringParticipantsRegistry.registerParticipant("moveParticipants", TestMoveParticipantShared.class);
         CheRefactoringParticipantsRegistry.registerParticipant("moveParticipants", TestMoveParticipantSingle.class);
         CheRefactoringParticipantsRegistry.registerParticipant("createParticipants", TestCreateParticipantSingle.class);
-//        CheRefactoringParticipantsRegistry.registerParticipant("createParticipants", TestCreateParticipantShared.class);
+        CheRefactoringParticipantsRegistry.registerParticipant("createParticipants", TestCreateParticipantShared.class);
 
         CheRefactoringParticipantsRegistry.registerParticipant("deleteParticipants", TestDeleteParticipantShared.class);
         CheRefactoringParticipantsRegistry.registerParticipant("deleteParticipants", TestDeleteParticipantSingle.class);
@@ -117,30 +117,30 @@ public class ParticipantTesting {
 		}
 	}
 
-//	public static void testDelete(String[] expectedHandles) {
-//		if (expectedHandles.length == 0) {
-//			TestDeleteParticipantShared.testNumberOfElements(0);
-//			TestDeleteParticipantSingle.testNumberOfInstances(0);
-//		} else {
-//			testElementsShared(expectedHandles, TestDeleteParticipantShared.fgInstance.fHandles);
-//
-//			TestDeleteParticipantSingle.testNumberOfInstances(expectedHandles.length);
-//			TestDeleteParticipantSingle.testElements(expectedHandles);
-//		}
-//	}
-//
-//	public static void testCreate(String[] expectedHandles) {
-//		if (expectedHandles.length == 0)  {
-//			TestCreateParticipantShared.testNumberOfElements(0);
-//			TestCreateParticipantSingle.testNumberOfInstances(0);
-//		} else {
-//			testElementsShared(expectedHandles, TestCreateParticipantShared.fgInstance.fHandles);
-//
-//			TestCreateParticipantSingle.testNumberOfInstances(expectedHandles.length);
-//			TestCreateParticipantSingle.testElements(expectedHandles);
-//		}
-//	}
-//
+	public static void testDelete(String[] expectedHandles) {
+		if (expectedHandles.length == 0) {
+			TestDeleteParticipantShared.testNumberOfElements(0);
+			TestDeleteParticipantSingle.testNumberOfInstances(0);
+		} else {
+			testElementsShared(expectedHandles, TestDeleteParticipantShared.fgInstance.fHandles);
+
+			TestDeleteParticipantSingle.testNumberOfInstances(expectedHandles.length);
+			TestDeleteParticipantSingle.testElements(expectedHandles);
+		}
+	}
+
+	public static void testCreate(String[] expectedHandles) {
+		if (expectedHandles.length == 0)  {
+			TestCreateParticipantShared.testNumberOfElements(0);
+			TestCreateParticipantSingle.testNumberOfInstances(0);
+		} else {
+			testElementsShared(expectedHandles, TestCreateParticipantShared.fgInstance.fHandles);
+
+			TestCreateParticipantSingle.testNumberOfInstances(expectedHandles.length);
+			TestCreateParticipantSingle.testElements(expectedHandles);
+		}
+	}
+
 //	public static void testCopy(String[] expectedHandles, CopyArguments[] arguments) {
 //		if (expectedHandles.length == 0)  {
 //			TestCopyParticipantShared.testNumberOfElements(0);
@@ -154,7 +154,7 @@ public class ParticipantTesting {
 //			TestCopyParticipantSingle.testArguments(arguments);
 //		}
 //	}
-//
+
 	public static void testSimilarElements(List similarList, List similarNewNameList, List similarNewHandleList) {
 		Assert.assertEquals(similarList.size(), similarNewNameList.size());
 		if (similarList.size() == 0) {

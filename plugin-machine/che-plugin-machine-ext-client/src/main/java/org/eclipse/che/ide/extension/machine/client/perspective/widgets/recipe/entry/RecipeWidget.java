@@ -25,7 +25,7 @@ import org.eclipse.che.api.machine.shared.dto.recipe.RecipeDescriptor;
 import org.eclipse.che.ide.extension.machine.client.MachineResources;
 import org.vectomatic.dom.svg.ui.SVGImage;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * The class describes special widget which is entry in list of recipes.
@@ -65,20 +65,20 @@ public class RecipeWidget extends Composite implements RecipeEntry, ClickHandler
     }
 
     /** Returns the descriptor of current recipe */
-    @Nonnull
+    @NotNull
     public RecipeDescriptor getDescriptor() {
         return descriptor;
     }
 
     /** {@inheritDoc} */
     @Override
-    public void onClick(@Nonnull ClickEvent event) {
+    public void onClick(@NotNull ClickEvent event) {
         delegate.onRecipeClicked(this);
     }
 
     /** {@inheritDoc} */
     @Override
-    public void setDelegate(@Nonnull ActionDelegate delegate) {
+    public void setDelegate(@NotNull ActionDelegate delegate) {
         this.delegate = delegate;
     }
 
@@ -95,7 +95,7 @@ public class RecipeWidget extends Composite implements RecipeEntry, ClickHandler
     }
 
     /** Sets name of the Recipe. */
-    public void setName(@Nonnull String name) {
+    public void setName(@NotNull String name) {
         this.name.setText(name);
     }
 

@@ -33,8 +33,8 @@ import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.ui.tree.TreeNodeElement;
 import org.vectomatic.dom.svg.ui.SVGImage;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+import org.eclipse.che.commons.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -327,25 +327,25 @@ public class MergePresenter extends SubversionActionPresenter implements MergeVi
             this.data = data;
         }
 
-        @Nonnull
+        @NotNull
         @Override
         public String getId() {
             return data.getURL();
         }
 
-        @Nonnull
+        @NotNull
         @Override
         public TreeStructure getTreeStructure() {
             return null;
         }
 
-        @Nonnull
+        @NotNull
         @Override
         public ProjectNode getProject() {
             return null;
         }
 
-        @Nonnull
+        @NotNull
         @Override
         public String getDisplayName() {
             if (data.getRepositoryRoot().equals(data.getURL())) {
@@ -378,7 +378,7 @@ public class MergePresenter extends SubversionActionPresenter implements MergeVi
             return false;
         }
 
-        @Nonnull
+        @NotNull
         @Override
         public List<TreeNode<?>> getChildren() {
             return children;

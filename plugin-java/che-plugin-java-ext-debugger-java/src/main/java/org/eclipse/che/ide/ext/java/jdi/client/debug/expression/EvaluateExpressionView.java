@@ -12,7 +12,7 @@ package org.eclipse.che.ide.ext.java.jdi.client.debug.expression;
 
 import org.eclipse.che.ide.api.mvp.View;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 
 /**
@@ -38,7 +38,7 @@ public interface EvaluateExpressionView extends View<EvaluateExpressionView.Acti
      *
      * @return {@link String}
      */
-    @Nonnull
+    @NotNull
     String getExpression();
 
     /**
@@ -46,7 +46,7 @@ public interface EvaluateExpressionView extends View<EvaluateExpressionView.Acti
      *
      * @param expression
      */
-    void setExpression(@Nonnull String expression);
+    void setExpression(@NotNull String expression);
 
     /**
      * Set result field value.
@@ -54,7 +54,7 @@ public interface EvaluateExpressionView extends View<EvaluateExpressionView.Acti
      * @param value
      *         result field value
      */
-    void setResult(@Nonnull String value);
+    void setResult(@NotNull String value);
 
     /**
      * Change the enable state of the evaluate button.

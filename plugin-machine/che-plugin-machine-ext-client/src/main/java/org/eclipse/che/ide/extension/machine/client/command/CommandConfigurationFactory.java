@@ -12,7 +12,7 @@ package org.eclipse.che.ide.extension.machine.client.command;
 
 import org.eclipse.che.api.machine.shared.dto.CommandDescriptor;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * Factory for {@link CommandConfiguration} instances.
@@ -31,12 +31,12 @@ public abstract class CommandConfigurationFactory<T extends CommandConfiguration
      * @param commandType
      *         type of the command configuration which this factory should create
      */
-    protected CommandConfigurationFactory(@Nonnull CommandType commandType) {
+    protected CommandConfigurationFactory(@NotNull CommandType commandType) {
         this.commandType = commandType;
     }
 
     /** Returns type of the command configuration which this factory creates. */
-    @Nonnull
+    @NotNull
     public CommandType getCommandType() {
         return commandType;
     }
@@ -49,6 +49,6 @@ public abstract class CommandConfigurationFactory<T extends CommandConfiguration
      * @throws IllegalArgumentException
      *         if <code>descriptor</code> represents not a valid command.
      */
-    @Nonnull
-    public abstract T createFromCommandDescriptor(@Nonnull CommandDescriptor descriptor);
+    @NotNull
+    public abstract T createFromCommandDescriptor(@NotNull CommandDescriptor descriptor);
 }

@@ -15,7 +15,7 @@ import com.google.inject.ImplementedBy;
 
 import org.eclipse.che.ide.extension.machine.client.perspective.terminal.TerminalPresenter;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * Provides methods which allows control view representation of container with terminals.
@@ -31,7 +31,7 @@ interface TerminalContainerView extends IsWidget {
      * @param terminal
      *         terminal which will be added
      */
-    void addTerminal(@Nonnull TerminalPresenter terminal);
+    void addTerminal(@NotNull TerminalPresenter terminal);
 
     /**
      * Shows current terminal in container.
@@ -39,7 +39,7 @@ interface TerminalContainerView extends IsWidget {
      * @param terminal
      *         terminal which will be shown
      */
-    void showTerminal(@Nonnull TerminalPresenter terminal);
+    void showTerminal(@NotNull TerminalPresenter terminal);
 
     /**
      * Change visibility of terminals' container.

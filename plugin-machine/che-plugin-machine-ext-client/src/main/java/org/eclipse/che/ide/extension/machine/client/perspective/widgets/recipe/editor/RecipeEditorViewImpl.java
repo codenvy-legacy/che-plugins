@@ -30,7 +30,7 @@ import org.eclipse.che.ide.extension.machine.client.inject.factories.WidgetsFact
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.recipe.editor.button.EditorButtonWidget;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.recipe.editor.button.EditorButtonWidgetImpl;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -123,10 +123,10 @@ public class RecipeEditorViewImpl extends Composite implements RecipeEditorView 
         cancelBtn = createButton(locale.editorButtonCancel(), cancelDelegate, EditorButtonWidgetImpl.Background.GREY);
     }
 
-    @Nonnull
-    private EditorButtonWidget createButton(@Nonnull String title,
-                                            @Nonnull EditorButtonWidget.ActionDelegate delegate,
-                                            @Nonnull EditorButtonWidgetImpl.Background background) {
+    @NotNull
+    private EditorButtonWidget createButton(@NotNull String title,
+                                            @NotNull EditorButtonWidget.ActionDelegate delegate,
+                                            @NotNull EditorButtonWidgetImpl.Background background) {
         EditorButtonWidget button = widgetFactory.createEditorButton(title, background);
         button.setDelegate(delegate);
 
@@ -143,13 +143,13 @@ public class RecipeEditorViewImpl extends Composite implements RecipeEditorView 
 
     /** {@inheritDoc} */
     @Override
-    public void setScriptUrl(@Nonnull String url) {
+    public void setScriptUrl(@NotNull String url) {
         scriptUrl.setText(url);
     }
 
     /** {@inheritDoc} */
     @Override
-    public void setTags(@Nonnull List<String> tags) {
+    public void setTags(@NotNull List<String> tags) {
         StringBuilder stringTags = new StringBuilder();
         for (String tag : tags) {
             stringTags.append(tag).append(" ");
@@ -158,14 +158,14 @@ public class RecipeEditorViewImpl extends Composite implements RecipeEditorView 
     }
 
     /** {@inheritDoc} */
-    @Nonnull
+    @NotNull
     @Override
     public String getScriptUrl() {
         return scriptUrl.getText();
     }
 
     /** {@inheritDoc} */
-    @Nonnull
+    @NotNull
     @Override
     public String getName() {
         return name.getText();
@@ -173,12 +173,12 @@ public class RecipeEditorViewImpl extends Composite implements RecipeEditorView 
 
     /** {@inheritDoc} */
     @Override
-    public void setName(@Nonnull String name) {
+    public void setName(@NotNull String name) {
         this.name.setText(name);
     }
 
     /** {@inheritDoc} */
-    @Nonnull
+    @NotNull
     @Override
     public List<String> getTags() {
         List<String> tagList = new ArrayList<>();
@@ -242,7 +242,7 @@ public class RecipeEditorViewImpl extends Composite implements RecipeEditorView 
 
     /** {@inheritDoc} */
     @Override
-    public void showEditor(@Nonnull EditorPartPresenter editor) {
+    public void showEditor(@NotNull EditorPartPresenter editor) {
         editor.go(editorPanel);
     }
 

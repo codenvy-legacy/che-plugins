@@ -110,7 +110,7 @@ public class JsJavaEditorConfiguration extends DefaultTextEditorConfiguration {
     }
 
 //    @Override
-//    @Nonnull
+//    @NotNull
 //    public DocumentPartitioner getPartitioner() {
 //        return this.partitioner;
 //    }

@@ -17,7 +17,7 @@ import org.eclipse.che.ide.api.filetypes.FileType;
 import org.eclipse.che.ide.api.project.tree.VirtualFile;
 import org.vectomatic.dom.svg.ui.SVGResource;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * This class is copy of com.codenvy.ide.core.editor.EditorInputImpl.
@@ -29,7 +29,7 @@ public class RecipeEditorInput implements EditorInput {
     private final FileType    fileType;
     private       VirtualFile file;
 
-    public RecipeEditorInput(@Nonnull FileType fileType, @Nonnull VirtualFile file) {
+    public RecipeEditorInput(@NotNull FileType fileType, @NotNull VirtualFile file) {
         this.fileType = fileType;
         this.file = file;
     }
@@ -41,35 +41,35 @@ public class RecipeEditorInput implements EditorInput {
     }
 
     /** {@inheritDoc} */
-    @Nonnull
+    @NotNull
     @Override
     public String getToolTipText() {
         return "";
     }
 
     /** {@inheritDoc} */
-    @Nonnull
+    @NotNull
     @Override
     public String getName() {
         return file.getDisplayName();
     }
 
     /** {@inheritDoc} */
-    @Nonnull
+    @NotNull
     @Override
     public ImageResource getImageResource() {
         return fileType.getImage();
     }
 
     /** {@inheritDoc} */
-    @Nonnull
+    @NotNull
     @Override
     public SVGResource getSVGResource() {
         return fileType.getSVGImage();
     }
 
     /** {@inheritDoc} */
-    @Nonnull
+    @NotNull
     @Override
     public VirtualFile getFile() {
         return file;
@@ -77,7 +77,7 @@ public class RecipeEditorInput implements EditorInput {
 
     /** {@inheritDoc} */
     @Override
-    public void setFile(@Nonnull VirtualFile file) {
+    public void setFile(@NotNull VirtualFile file) {
         this.file = file;
     }
 

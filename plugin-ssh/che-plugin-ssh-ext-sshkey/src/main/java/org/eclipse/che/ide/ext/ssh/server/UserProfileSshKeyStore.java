@@ -10,15 +10,16 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.ssh.server;
 
-import org.eclipse.che.api.core.NotFoundException;
-import org.eclipse.che.api.core.ServerException;
-import org.eclipse.che.api.user.server.dao.PreferenceDao;
-import org.eclipse.che.api.user.server.dao.UserDao;
-import org.eclipse.che.api.user.server.dao.User;
-import org.eclipse.che.commons.env.EnvironmentContext;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.KeyPair;
+
+import org.eclipse.che.api.core.NotFoundException;
+import org.eclipse.che.api.core.ServerException;
+import org.eclipse.che.api.user.server.dao.PreferenceDao;
+import org.eclipse.che.api.user.server.dao.User;
+import org.eclipse.che.api.user.server.dao.UserDao;
+import org.eclipse.che.commons.env.EnvironmentContext;
 
 import javax.inject.Inject;
 import java.io.ByteArrayOutputStream;
@@ -213,7 +214,7 @@ public class UserProfileSshKeyStore implements SshKeyStore {
     private User getUser(String userId) throws SshKeyStoreException {
         User user;
         try {
-            user = userDao.getByAlias(userId);
+            user = userDao.getById(userId);
         } catch (NotFoundException | ServerException e) {
             throw new SshKeyStoreException(String.format("Failed to get user. %s", e.getMessage()));
         }

@@ -26,7 +26,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 
 /**
@@ -73,7 +73,7 @@ public class ChangeValueViewImpl extends DialogBox implements ChangeValueView {
     }
 
     /** {@inheritDoc} */
-    @Nonnull
+    @NotNull
     @Override
     public String getValue() {
         return value.getText();
@@ -81,7 +81,7 @@ public class ChangeValueViewImpl extends DialogBox implements ChangeValueView {
 
     /** {@inheritDoc} */
     @Override
-    public void setValue(@Nonnull String value) {
+    public void setValue(@NotNull String value) {
         this.value.setText(value);
     }
 
@@ -105,7 +105,7 @@ public class ChangeValueViewImpl extends DialogBox implements ChangeValueView {
 
     /** {@inheritDoc} */
     @Override
-    public void setValueTitle(@Nonnull String title) {
+    public void setValueTitle(@NotNull String title) {
         changeValueLabel.getElement().setInnerHTML(title);
     }
 

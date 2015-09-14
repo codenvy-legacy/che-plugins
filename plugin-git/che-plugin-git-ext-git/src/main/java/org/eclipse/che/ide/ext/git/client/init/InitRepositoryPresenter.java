@@ -22,7 +22,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.event.shared.EventBus;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * Presenter for Git command Init Repository.
@@ -80,7 +80,7 @@ public class InitRepositoryPresenter {
      * @param e
      *         exception what happened
      */
-    private void handleError(@Nonnull Throwable e) {
+    private void handleError(@NotNull Throwable e) {
         String errorMessage = (e.getMessage() != null && !e.getMessage().isEmpty()) ? e.getMessage() : constant.initFailed();
         notificationManager.showError(errorMessage);
     }

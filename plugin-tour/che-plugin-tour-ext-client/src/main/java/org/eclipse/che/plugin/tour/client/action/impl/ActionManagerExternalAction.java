@@ -17,7 +17,7 @@ import org.eclipse.che.ide.api.action.ActionManager;
 import org.eclipse.che.ide.api.action.Presentation;
 import org.eclipse.che.plugin.tour.client.action.ExternalAction;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import javax.inject.Inject;
 
 /**
@@ -48,7 +48,7 @@ public class ActionManagerExternalAction implements ExternalAction {
      * @param actionId the id of action
      */
     @Override
-    public void execute(@Nonnull String actionId) {
+    public void execute(@NotNull String actionId) {
         Action action = actionManager.getAction(actionId);
         if (action != null) {
             ActionEvent e = new ActionEvent("", new Presentation(), actionManager, 0);

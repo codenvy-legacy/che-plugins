@@ -16,7 +16,7 @@ import com.google.inject.ImplementedBy;
 import org.eclipse.che.ide.api.mvp.View;
 import org.eclipse.che.ide.api.parts.base.BaseActionDelegate;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * The interface defines methods to control displaying recipes.
@@ -34,7 +34,7 @@ public interface RecipePartView extends View<RecipePartView.ActionDelegate> {
      * @param recipe
      *         the base view of recipes
      */
-    void addRecipe(@Nonnull Widget recipe);
+    void addRecipe(@NotNull Widget recipe);
 
     /**
      * Removes recipe on Permissions panel.
@@ -42,7 +42,7 @@ public interface RecipePartView extends View<RecipePartView.ActionDelegate> {
      * @param recipe
      *         the base view of recipes
      */
-    void removeRecipe(@Nonnull Widget recipe);
+    void removeRecipe(@NotNull Widget recipe);
 
     /** Removes all recipes from view */
     void clear();

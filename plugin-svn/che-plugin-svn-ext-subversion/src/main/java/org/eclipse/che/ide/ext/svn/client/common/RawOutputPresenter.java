@@ -23,8 +23,8 @@ import org.eclipse.che.ide.ext.svn.client.SubversionExtensionLocalizationConstan
 import org.eclipse.che.ide.workspace.WorkBenchPartControllerImpl;
 import org.vectomatic.dom.svg.ui.SVGResource;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+import org.eclipse.che.commons.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
 /**
@@ -82,7 +82,7 @@ public class RawOutputPresenter extends BasePresenter implements RawOutputView.A
     }
 
     @Override
-    @Nonnull
+    @NotNull
     public String getTitle() {
         return title;
     }

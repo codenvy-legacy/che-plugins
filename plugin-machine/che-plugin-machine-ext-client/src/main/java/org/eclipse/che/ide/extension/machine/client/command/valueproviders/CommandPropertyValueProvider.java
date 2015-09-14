@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.machine.client.command.valueproviders;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * Properties may be used in a command as a substitution.
@@ -22,10 +22,10 @@ import javax.annotation.Nonnull;
 public interface CommandPropertyValueProvider {
 
     /** Get key. The format is ${key.name}. */
-    @Nonnull
+    @NotNull
     String getKey();
 
     /** Get value. */
-    @Nonnull
+    @NotNull
     String getValue();
 }

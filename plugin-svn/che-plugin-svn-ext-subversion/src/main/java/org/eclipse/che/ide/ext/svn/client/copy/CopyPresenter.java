@@ -39,7 +39,7 @@ import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.util.RegExpUtils;
 import org.eclipse.che.ide.util.loging.Log;
 
-import javax.annotation.Nullable;
+import org.eclipse.che.commons.annotation.Nullable;
 import java.util.List;
 
 import static org.eclipse.che.ide.api.notification.Notification.Status.FINISHED;

@@ -9,7 +9,7 @@
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
  *								[quick fix] Add quick fixes for null annotations - https://bugs.eclipse.org/337977
- *								[quick fix] The fix change parameter type to @Nonnull generated a null change - https://bugs.eclipse.org/400668
+ *								[quick fix] The fix change parameter type to @NotNull generated a null change - https://bugs.eclipse.org/400668
  *******************************************************************************/
 package org.eclipse.jdt.internal.corext.fix;
 

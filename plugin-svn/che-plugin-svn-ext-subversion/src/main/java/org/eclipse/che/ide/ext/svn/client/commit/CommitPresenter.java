@@ -17,7 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import javax.inject.Inject;
 
 import org.eclipse.che.ide.api.parts.ProjectExplorerPart;
@@ -217,7 +217,7 @@ public class CommitPresenter extends SubversionActionPresenter implements Action
         view.onClose();
     }
 
-    private void handleError(@Nonnull final Throwable e) {
+    private void handleError(@NotNull final Throwable e) {
         String errorMessage;
         if (e.getMessage() != null && !e.getMessage().isEmpty()) {
             errorMessage = e.getMessage();

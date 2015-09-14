@@ -223,6 +223,21 @@ public class Util {
     }
 
     /**
+     * Returns whether the given resource is read-only or not.
+     * @param resource
+     * @return <code>true</code> if the resource is read-only, <code>false</code> if it is not or
+     * 	if the file system does not support the read-only attribute.
+     */
+    public static boolean isReadOnly(IResource resource) {
+//        if (isReadOnlySupported()) {
+//            ResourceAttributes resourceAttributes = resource.getResourceAttributes();
+//            if (resourceAttributes == null) return false; // not supported on this platform for this resource
+//            return resourceAttributes.isReadOnly();
+//        }
+        return false;
+    }
+
+    /**
      * Simple replacement for clone() method for GWT
      *
      * @param array

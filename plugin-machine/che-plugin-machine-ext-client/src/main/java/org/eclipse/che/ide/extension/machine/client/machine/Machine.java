@@ -19,7 +19,7 @@ import org.eclipse.che.api.machine.shared.dto.MachineDescriptor;
 import org.eclipse.che.api.machine.shared.dto.ServerDescriptor;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.Map;
 import java.util.Objects;
 
@@ -71,7 +71,7 @@ public class Machine {
     }
 
     /** @return special url which references on terminal content. */
-    @Nonnull
+    @NotNull
     public String getTerminalUrl() {
         Map<String, ServerDescriptor> serverDescriptors = descriptor.getServers();
 
@@ -86,7 +86,7 @@ public class Machine {
     }
 
     /** @return special url to connect to terminal web socket. */
-    @Nonnull
+    @NotNull
     public String getWSTerminalUrl() {
         String terminalUrl = getTerminalUrl();
 
@@ -98,7 +98,7 @@ public class Machine {
     }
 
     /** @return special url to connect to terminal web socket. */
-    @Nonnull
+    @NotNull
     public String getWsServerExtensionsUrl() {
         String url = "";
         Map<String, ServerDescriptor> serverDescriptors = descriptor.getServers();

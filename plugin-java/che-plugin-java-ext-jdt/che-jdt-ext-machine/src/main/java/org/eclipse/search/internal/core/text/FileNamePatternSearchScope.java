@@ -166,9 +166,9 @@ public class FileNamePatternSearchScope extends TextSearchScope {
 	}
 
 	private static void addToList(ArrayList res, IResource curr, boolean includeDerived) {
-		if (!includeDerived && curr.isDerived(IResource.CHECK_ANCESTORS)) {
-			return;
-		}
+//		if (!includeDerived && curr.isDerived(IResource.CHECK_ANCESTORS)) {
+//			return;
+//		}
 		IPath currPath= curr.getFullPath();
 		for (int k= res.size() - 1; k >= 0 ; k--) {
 			IResource other= (IResource) res.get(k);

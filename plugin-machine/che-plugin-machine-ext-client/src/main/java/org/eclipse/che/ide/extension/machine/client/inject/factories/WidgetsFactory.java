@@ -14,7 +14,7 @@ import org.eclipse.che.ide.extension.machine.client.perspective.widgets.recipe.e
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.recipe.editor.button.EditorButtonWidgetImpl;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.header.TabHeader;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * Special factory for creating different widgets.
@@ -31,7 +31,7 @@ public interface WidgetsFactory {
      *         name which need set to tab
      * @return an instance of {@link TabHeader}
      */
-    TabHeader createTabHeader(@Nonnull String tabName);
+    TabHeader createTabHeader(@NotNull String tabName);
 
     /**
      * Creates property button widget.
@@ -42,7 +42,7 @@ public interface WidgetsFactory {
      *         background of button
      * @return an instance of {@link EditorButtonWidget}
      */
-    @Nonnull
-    EditorButtonWidget createEditorButton(@Nonnull String title, @Nonnull EditorButtonWidgetImpl.Background background);
+    @NotNull
+    EditorButtonWidget createEditorButton(@NotNull String title, @NotNull EditorButtonWidgetImpl.Background background);
 
 }

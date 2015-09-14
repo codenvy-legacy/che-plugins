@@ -15,8 +15,8 @@ import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.ide.api.project.tree.TreeNode;
 import org.eclipse.che.ide.ext.java.client.projecttree.JavaNodeFactory;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+import org.eclipse.che.commons.annotation.Nullable;
 
 /**
  * Factory that helps to create nodes for {@link AntProjectTreeStructure}.
@@ -37,9 +37,9 @@ public interface AntNodeFactory extends JavaNodeFactory {
      *         the {@link AntProjectTreeStructure} to create the node for
      * @return a new {@link AntFolderNode}
      */
-    AntFolderNode newAntFolderNode(@Nonnull TreeNode<?> parent,
-                                   @Nonnull ItemReference data,
-                                   @Nonnull AntProjectTreeStructure treeStructure);
+    AntFolderNode newAntFolderNode(@NotNull TreeNode<?> parent,
+                                   @NotNull ItemReference data,
+                                   @NotNull AntProjectTreeStructure treeStructure);
 
     /**
      * Creates a new {@link AntProjectNode} owned by the specified {@code treeStructure}
@@ -54,6 +54,6 @@ public interface AntNodeFactory extends JavaNodeFactory {
      * @return a new {@link AntProjectNode}
      */
     AntProjectNode newAntProjectNode(@Nullable TreeNode<?> parent,
-                                     @Nonnull ProjectDescriptor data,
-                                     @Nonnull AntProjectTreeStructure treeStructure);
+                                     @NotNull ProjectDescriptor data,
+                                     @NotNull AntProjectTreeStructure treeStructure);
 }

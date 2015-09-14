@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.svn.server.credentials;
 
-import javax.annotation.Nullable;
+import org.eclipse.che.commons.annotation.Nullable;
 
 public interface CredentialsProvider {
 

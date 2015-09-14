@@ -20,7 +20,7 @@ import org.eclipse.che.ide.extension.machine.client.machine.Machine;
 import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.panel.MachinePanelPresenter;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.Collections;
 
 import static org.eclipse.che.ide.extension.machine.client.perspective.MachinePerspective.MACHINE_PERSPECTIVE_ID;
@@ -57,7 +57,7 @@ public class RestartMachineAction extends AbstractPerspectiveAction {
 
     /** {@inheritDoc} */
     @Override
-    public void updateInPerspective(@Nonnull ActionEvent event) {
+    public void updateInPerspective(@NotNull ActionEvent event) {
         selectedMachine = panelPresenter.getSelectedMachine();
         event.getPresentation().setEnabled(selectedMachine != null);
         event.getPresentation().setText(selectedMachine != null ? locale.machineRestartTextByName(selectedMachine.getDisplayName())

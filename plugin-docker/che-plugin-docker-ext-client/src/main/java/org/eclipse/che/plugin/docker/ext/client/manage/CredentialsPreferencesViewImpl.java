@@ -31,7 +31,7 @@ import com.google.inject.Inject;
 import org.eclipse.che.ide.ui.cellview.CellTableResources;
 import org.eclipse.che.plugin.docker.client.dto.AuthConfig;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -140,7 +140,7 @@ public class CredentialsPreferencesViewImpl implements CredentialsPreferencesVie
     }
 
     @Override
-    public void setKeys(@Nonnull Collection<AuthConfig> keys) {
+    public void setKeys(@NotNull Collection<AuthConfig> keys) {
         List<AuthConfig> appList = new ArrayList<>();
         for (AuthConfig key : keys) {
             appList.add(key);

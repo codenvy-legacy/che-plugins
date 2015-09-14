@@ -30,7 +30,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -112,7 +112,7 @@ public class FetchViewImpl extends Window implements FetchView {
     }
 
     /** {@inheritDoc} */
-    @Nonnull
+    @NotNull
     @Override
     public String getRepositoryName() {
         int index = repository.getSelectedIndex();
@@ -120,7 +120,7 @@ public class FetchViewImpl extends Window implements FetchView {
     }
 
     /** {@inheritDoc} */
-    @Nonnull
+    @NotNull
     @Override
     public String getRepositoryUrl() {
         int index = repository.getSelectedIndex();
@@ -129,7 +129,7 @@ public class FetchViewImpl extends Window implements FetchView {
 
     /** {@inheritDoc} */
     @Override
-    public void setRepositories(@Nonnull List<Remote> repositories) {
+    public void setRepositories(@NotNull List<Remote> repositories) {
         this.repository.clear();
         for (int i = 0; i < repositories.size(); i++) {
             Remote repository = repositories.get(i);
@@ -138,7 +138,7 @@ public class FetchViewImpl extends Window implements FetchView {
     }
 
     /** {@inheritDoc} */
-    @Nonnull
+    @NotNull
     @Override
     public String getLocalBranch() {
         int index = localBranch.getSelectedIndex();
@@ -147,7 +147,7 @@ public class FetchViewImpl extends Window implements FetchView {
 
     /** {@inheritDoc} */
     @Override
-    public void setLocalBranches(@Nonnull List<String> branches) {
+    public void setLocalBranches(@NotNull List<String> branches) {
         this.localBranch.clear();
         for (String branch : branches) {
             this.localBranch.addItem(branch);
@@ -155,7 +155,7 @@ public class FetchViewImpl extends Window implements FetchView {
     }
 
     /** {@inheritDoc} */
-    @Nonnull
+    @NotNull
     @Override
     public String getRemoteBranch() {
         int index = remoteBranch.getSelectedIndex();
@@ -164,7 +164,7 @@ public class FetchViewImpl extends Window implements FetchView {
 
     /** {@inheritDoc} */
     @Override
-    public void setRemoteBranches(@Nonnull List<String> branches) {
+    public void setRemoteBranches(@NotNull List<String> branches) {
         this.remoteBranch.clear();
         for (String branch : branches) {
             this.remoteBranch.addItem(branch);

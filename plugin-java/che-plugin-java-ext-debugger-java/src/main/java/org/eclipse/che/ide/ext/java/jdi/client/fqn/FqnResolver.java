@@ -12,12 +12,12 @@ package org.eclipse.che.ide.ext.java.jdi.client.fqn;
 
 import org.eclipse.che.ide.api.project.tree.VirtualFile;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * @author Evgen Vidolob
  */
 public interface FqnResolver {
-    @Nonnull
-    String resolveFqn(@Nonnull VirtualFile file);
+    @NotNull
+    String resolveFqn(@NotNull VirtualFile file);
 }

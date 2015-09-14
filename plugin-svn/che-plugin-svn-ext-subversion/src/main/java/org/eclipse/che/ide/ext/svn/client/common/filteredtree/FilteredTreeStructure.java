@@ -22,7 +22,7 @@ import org.eclipse.che.ide.api.project.tree.generic.NodeFactory;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import com.google.web.bindery.event.shared.EventBus;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * Builds a currently opened project's tree structure that reflects the project's physical structure which shows filtered content.
@@ -44,19 +44,19 @@ public class FilteredTreeStructure extends GenericTreeStructure {
 
     /** {@inheritDoc} */
     @Override
-    public FileNode newFileNode(@Nonnull TreeNode parent, @Nonnull ItemReference data) {
+    public FileNode newFileNode(@NotNull TreeNode parent, @NotNull ItemReference data) {
         return null;
     }
 
     /** {@inheritDoc} */
     @Override
-    public FilteredProjectNode newProjectNode(@Nonnull ProjectDescriptor data) {
+    public FilteredProjectNode newProjectNode(@NotNull ProjectDescriptor data) {
         return getNodeFactory().newFilteredProjectNode(null, data, this);
     }
 
     /** {@inheritDoc} */
     @Override
-    public FolderNode newFolderNode(@Nonnull TreeNode parent, @Nonnull ItemReference data) {
+    public FolderNode newFolderNode(@NotNull TreeNode parent, @NotNull ItemReference data) {
         return getNodeFactory().newFolderNode(parent, data, this);
     }
 }

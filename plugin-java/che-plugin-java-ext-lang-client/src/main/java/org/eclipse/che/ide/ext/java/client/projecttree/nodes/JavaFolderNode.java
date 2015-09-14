@@ -22,8 +22,8 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import com.google.web.bindery.event.shared.EventBus;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+import org.eclipse.che.commons.annotation.Nullable;
 
 /**
  * {@link FolderNode} that may contains {@link SourceFolderNode}s.
@@ -43,7 +43,7 @@ public class JavaFolderNode extends FolderNode {
         super(parent, data, treeStructure, eventBus, projectServiceClient, dtoUnmarshallerFactory);
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public JavaTreeStructure getTreeStructure() {
         return (JavaTreeStructure)super.getTreeStructure();

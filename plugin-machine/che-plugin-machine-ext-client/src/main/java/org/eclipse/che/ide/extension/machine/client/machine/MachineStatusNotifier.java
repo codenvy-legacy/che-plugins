@@ -29,8 +29,8 @@ import org.eclipse.che.ide.websocket.events.MessageHandler;
 import org.eclipse.che.ide.websocket.rest.SubscriptionHandler;
 import org.eclipse.che.ide.websocket.rest.Unmarshallable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+import org.eclipse.che.commons.annotation.Nullable;
 
 import static org.eclipse.che.ide.api.notification.Notification.Status.FINISHED;
 import static org.eclipse.che.ide.api.notification.Notification.Status.PROGRESS;
@@ -77,7 +77,7 @@ class MachineStatusNotifier {
      * @param machine
      *         machine to track
      */
-    void trackMachine(@Nonnull final Machine machine, @Nonnull final MachineOperationType operationType) {
+    void trackMachine(@NotNull final Machine machine, @NotNull final MachineOperationType operationType) {
         trackMachine(machine, null, operationType);
     }
 
@@ -89,9 +89,9 @@ class MachineStatusNotifier {
      * @param runningListener
      *         listener that will be notified when machine is running
      */
-    void trackMachine(@Nonnull final Machine machine,
+    void trackMachine(@NotNull final Machine machine,
                       @Nullable final RunningListener runningListener,
-                      @Nonnull final MachineOperationType operationType) {
+                      @NotNull final MachineOperationType operationType) {
 
         final String machineName = machine.getDisplayName();
         final String workspaceId = appContext.getWorkspace().getId();
@@ -151,19 +151,19 @@ class MachineStatusNotifier {
         subscribe(wsChannel, messageHandler);
     }
 
-    private void showInfo(@Nonnull String message, @Nonnull Notification notification) {
+    private void showInfo(@NotNull String message, @NotNull Notification notification) {
         notification.setMessage(message);
         notification.setStatus(FINISHED);
         notification.setType(INFO);
     }
 
-    private void showError(@Nonnull String message, @Nonnull Notification notification) {
+    private void showError(@NotNull String message, @NotNull Notification notification) {
         notification.setMessage(message);
         notification.setStatus(FINISHED);
         notification.setType(ERROR);
     }
 
-    private void subscribe(@Nonnull String wsChannel, @Nonnull MessageHandler handler) {
+    private void subscribe(@NotNull String wsChannel, @NotNull MessageHandler handler) {
         try {
             messageBus.subscribe(wsChannel, handler);
         } catch (WebSocketException e) {
@@ -171,7 +171,7 @@ class MachineStatusNotifier {
         }
     }
 
-    private void unsubscribe(@Nonnull String wsChannel, @Nonnull MessageHandler handler) {
+    private void unsubscribe(@NotNull String wsChannel, @NotNull MessageHandler handler) {
         try {
             messageBus.unsubscribe(wsChannel, handler);
         } catch (WebSocketException e) {

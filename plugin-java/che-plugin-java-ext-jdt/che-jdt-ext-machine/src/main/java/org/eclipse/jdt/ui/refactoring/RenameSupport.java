@@ -37,8 +37,12 @@ import org.eclipse.jdt.internal.corext.refactoring.tagging.IReferenceUpdating;
 import org.eclipse.jdt.internal.corext.refactoring.tagging.ITextUpdating;
 import org.eclipse.jdt.internal.corext.util.JdtFlags;
 import org.eclipse.jdt.internal.ui.JavaUIMessages;
+import org.eclipse.jdt.internal.ui.refactoring.RefactoringExecutionHelper;
+import org.eclipse.ltk.core.refactoring.RefactoringCore;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.participants.RenameRefactoring;
+
+import java.lang.reflect.InvocationTargetException;
 
 /**
  * Central access point to execute rename refactorings.
@@ -77,6 +81,10 @@ public class RenameSupport {
 		else
 			return Status.OK_STATUS;
 	}
+
+    public RenameRefactoring getfRefactoring() {
+        return fRefactoring;
+    }
 
 //	/**
 //	 * Opens the refactoring dialog for this rename support.
@@ -135,48 +143,37 @@ public class RenameSupport {
 //		return starter.activate(fRefactoring, parent, getJavaRenameProcessor().getSaveMode());
 //	}
 //
-//	/**
-//	 * Executes the rename refactoring without showing a dialog to gather
-//	 * additional user input (for example the new name of the <tt>IJavaElement</tt>).
-//	 * Only an error dialog is shown (if necessary) to present the result
-//	 * of the refactoring's full precondition checking.
-//	 * <p>
-//	 * The method has to be called from within the UI thread.
-//	 * </p>
-//	 *
-//	 * @param parent a shell used as a parent for the error dialog.
-//	 * @param context a {@link IRunnableContext} to execute the operation.
-//	 *
-//	 * @throws InterruptedException if the operation has been canceled by the
-//	 * user.
-//	 * @throws InvocationTargetException if an error occurred while executing the
-//	 * operation.
-//	 *
-//	 * @see #openDialog(Shell)
-//	 * @see IRunnableContext#run(boolean, boolean, org.eclipse.jface.operation.IRunnableWithProgress)
-//	 */
-//	public void perform(Shell parent, IRunnableContext context) throws InterruptedException, InvocationTargetException {
-//		try {
-//			ensureChecked();
-//			if (fPreCheckStatus.hasFatalError()) {
-//				showInformation(parent, fPreCheckStatus);
-//				return;
-//			}
-//
-//			RenameSelectionState state= createSelectionState();
-//
-//			RefactoringExecutionHelper helper= new RefactoringExecutionHelper(fRefactoring,
-//					RefactoringCore.getConditionCheckingFailedSeverity(),
-//					getJavaRenameProcessor().getSaveMode(),
-//					parent,
-//					context);
-//			helper.perform(true, true);
-//
-//			restoreSelectionState(state);
-//		} catch (CoreException e) {
-//			throw new InvocationTargetException(e);
-//		}
-//	}
+	/**
+	 * Executes the rename refactoring without showing a dialog to gather
+	 * additional user input (for example the new name of the <tt>IJavaElement</tt>).
+	 * Only an error dialog is shown (if necessary) to present the result
+	 * of the refactoring's full precondition checking.
+	 * <p>
+	 * The method has to be called from within the UI thread.
+	 * </p>
+	 *
+	 *
+	 * @throws InterruptedException if the operation has been canceled by the
+	 * user.
+	 * @throws InvocationTargetException if an error occurred while executing the
+	 * operation.
+	 */
+	public RefactoringStatus perform() throws InterruptedException, InvocationTargetException {
+		try {
+			ensureChecked();
+			if (fPreCheckStatus.hasFatalError()) {
+				return fPreCheckStatus;
+			}
+
+			RefactoringExecutionHelper helper= new RefactoringExecutionHelper(fRefactoring,
+					RefactoringCore.getConditionCheckingFailedSeverity(),
+					getJavaRenameProcessor().getSaveMode());
+			return helper.perform(true, true);
+
+		} catch (CoreException e) {
+			throw new InvocationTargetException(e);
+		}
+	}
 
 	/** Flag indication that no additional update is to be performed. */
 	public static final int NONE= 0;

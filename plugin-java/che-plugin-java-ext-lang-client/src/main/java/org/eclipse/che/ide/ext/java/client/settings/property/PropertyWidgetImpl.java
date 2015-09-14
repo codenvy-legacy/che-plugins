@@ -24,7 +24,7 @@ import com.google.inject.assistedinject.Assisted;
 
 import org.eclipse.che.ide.ext.java.client.settings.compiler.ErrorWarningsOptions;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * @author Dmitry Shnurenko
@@ -63,7 +63,7 @@ public class PropertyWidgetImpl extends Composite implements PropertyWidget {
 
     /** {@inheritDoc} */
     @Override
-    public void selectPropertyValue(@Nonnull String value) {
+    public void selectPropertyValue(@NotNull String value) {
         for (int i = 0; i < property.getItemCount(); i++) {
             if (property.getValue(i).equals(value)) {
                 property.setItemSelected(i, true);
@@ -87,7 +87,7 @@ public class PropertyWidgetImpl extends Composite implements PropertyWidget {
 
     /** {@inheritDoc} */
     @Override
-    public void setDelegate(@Nonnull ActionDelegate delegate) {
+    public void setDelegate(@NotNull ActionDelegate delegate) {
         this.delegate = delegate;
     }
 }

@@ -656,7 +656,7 @@ public abstract class Resource implements IResource, IPathRequestor, ICoreConsta
 
     @Override
     public void revertModificationStamp(long value) throws CoreException {
-        throw new UnsupportedOperationException();
+//        throw new UnsupportedOperationException();
     }
 
     @Override

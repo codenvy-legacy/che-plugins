@@ -99,7 +99,8 @@ public class BuilderAgent {
      * @param prefixConsole the prefix to show in the console
      * @param buildFinishedCallback an optional callback to call when the build has finished
      */
-    public void build(final BuildOptions buildOptions, final String waitMessage, final String successMessage, final String errorMessage, final String prefixConsole,
+    public void build(final BuildOptions buildOptions, final String waitMessage, final String successMessage, final String errorMessage,
+                      final String prefixConsole,
                       final BuildFinishedCallback buildFinishedCallback) {
 
         // Start a build so print a new notification message
@@ -155,10 +156,10 @@ public class BuilderAgent {
      * @param buildFinishedCallback
      */
     protected void startChecking(final Notification notification, final BuildTaskDescriptor buildTaskDescriptor,
-                                     final String successMessage, final String errorMessage, final String prefixConsole,
-                                     final BuildFinishedCallback buildFinishedCallback) {
+                                 final String successMessage, final String errorMessage, final String prefixConsole,
+                                 final BuildFinishedCallback buildFinishedCallback) {
 
-        final SubscriptionHandler<String>  buildOutputHandler = new SubscriptionHandler<String>(new LineUnmarshaller()) {
+        final SubscriptionHandler<String> buildOutputHandler = new SubscriptionHandler<String>(new LineUnmarshaller()) {
             @Override
             protected void onMessageReceived(String result) {
                 console.print(prefixConsole + "::" + result);
@@ -178,7 +179,8 @@ public class BuilderAgent {
         final SubscriptionHandler<String> buildStatusHandler = new SubscriptionHandler<String>(new StringUnmarshallerWS()) {
             @Override
             protected void onMessageReceived(String result) {
-                updateBuildStatus(notification, dtoFactory.createDtoFromJson(result, BuildTaskDescriptor.class), this, buildOutputHandler, successMessage,
+                updateBuildStatus(notification, dtoFactory.createDtoFromJson(result, BuildTaskDescriptor.class), this, buildOutputHandler,
+                                  successMessage,
                                   errorMessage, prefixConsole, buildFinishedCallback);
             }
 
@@ -213,7 +215,6 @@ public class BuilderAgent {
     }
 
 
-
     /**
      * Check for status and display necessary messages.
      *
@@ -221,14 +222,16 @@ public class BuilderAgent {
      *         status of build
      */
     protected void updateBuildStatus(Notification notification, BuildTaskDescriptor descriptor,
-                                   SubscriptionHandler<String> buildStatusHandler, SubscriptionHandler<String> buildOutputHandler, final String successMessage, final String errorMessage, final String prefixConsole,
-                                   final BuildFinishedCallback buildFinishedCallback) {
+                                     SubscriptionHandler<String> buildStatusHandler, SubscriptionHandler<String> buildOutputHandler,
+                                     final String successMessage, final String errorMessage, final String prefixConsole,
+                                     final BuildFinishedCallback buildFinishedCallback) {
         BuildStatus status = descriptor.getStatus();
         if (status == BuildStatus.IN_PROGRESS || status == BuildStatus.IN_QUEUE) {
             return;
         }
         if (status == BuildStatus.CANCELLED || status == BuildStatus.FAILED || status == BuildStatus.SUCCESSFUL) {
-            afterBuildFinished(notification, descriptor, buildStatusHandler, buildOutputHandler, successMessage, errorMessage, prefixConsole, buildFinishedCallback);
+            afterBuildFinished(notification, descriptor, buildStatusHandler, buildOutputHandler, successMessage, errorMessage,
+                               prefixConsole, buildFinishedCallback);
         }
     }
 
@@ -239,8 +242,9 @@ public class BuilderAgent {
      *         status of build job
      */
     protected void afterBuildFinished(Notification notification, BuildTaskDescriptor descriptor,
-                                    SubscriptionHandler<String> buildStatusHandler, SubscriptionHandler<String> buildOutputHandler, final String successMessage, final String errorMessage, final String prefixConsole,
-                                    BuildFinishedCallback buildFinishedCallback) {
+                                      SubscriptionHandler<String> buildStatusHandler, SubscriptionHandler<String> buildOutputHandler,
+                                      final String successMessage, final String errorMessage, final String prefixConsole,
+                                      BuildFinishedCallback buildFinishedCallback) {
         try {
             messageBus.unsubscribe(BuilderExtension.BUILD_STATUS_CHANNEL + descriptor.getTaskId(), buildStatusHandler);
         } catch (Exception e) {
@@ -274,7 +278,8 @@ public class BuilderAgent {
      * @param descriptor the build descriptor
      * @param buildFinishedCallback the callback to call
      */
-    protected void importZipResult(final BuildTaskDescriptor descriptor, final BuildFinishedCallback buildFinishedCallback, final Notification notification, final String errorMessage) {
+    protected void importZipResult(final BuildTaskDescriptor descriptor, final BuildFinishedCallback buildFinishedCallback,
+                                   final Notification notification, final String errorMessage) {
         Link downloadLink = null;
         List<Link> links = descriptor.getLinks();
         for (Link link : links) {
@@ -285,29 +290,13 @@ public class BuilderAgent {
 
         if (downloadLink != null) {
 
-            ImportProject importProject = dtoFactory.createDto(ImportProject.class).withSource(dtoFactory.createDto(Source.class).withProject(
-                    dtoFactory.createDto(ImportSourceDescriptor.class).withLocation(downloadLink.getHref()).withType("zip")));
+            ImportProject importProject =
+                    dtoFactory.createDto(ImportProject.class).withSource(dtoFactory.createDto(Source.class).withProject(
+                            dtoFactory.createDto(ImportSourceDescriptor.class).withLocation(downloadLink.getHref()).withType("zip")));
 
-            projectServiceClient.importProject(appContext.getCurrentProject().getProjectDescription().getPath(), true,  importProject,
-                                               new AsyncRequestCallback<ImportResponse>() {
-                @Override
-                protected void onSuccess(ImportResponse projectDescriptor) {
-                    // notify callback
-                    if (buildFinishedCallback != null) {
-                        buildFinishedCallback.onFinished(descriptor.getStatus());
-                    }
-                }
-
-                @Override
-                protected void onFailure(Throwable throwable) {
-                    notification.setMessage(errorMessage + ":" + throwable.getMessage());
-                    notification.setStatus(FINISHED);
-                    notification.setType(ERROR);
-                    if (buildFinishedCallback != null) {
-                        buildFinishedCallback.onFinished(descriptor.getStatus());
-                    }
-                }
-            });
+            projectServiceClient.importProject(appContext.getCurrentProject().getProjectDescription().getPath(), true, importProject,
+                                               new ImportResponseAsyncRequestCallback(buildFinishedCallback, descriptor, notification,
+                                                                                      errorMessage));
         } else {
             // notify callback
             if (buildFinishedCallback != null) {
@@ -334,6 +323,40 @@ public class BuilderAgent {
         @Override
         public String getPayload() {
             return line;
+        }
+    }
+
+    private static class ImportResponseAsyncRequestCallback extends AsyncRequestCallback<ImportResponse> {
+        private final BuildFinishedCallback buildFinishedCallback;
+        private final BuildTaskDescriptor   descriptor;
+        private final Notification          notification;
+        private final String                errorMessage;
+
+        public ImportResponseAsyncRequestCallback(BuildFinishedCallback buildFinishedCallback, BuildTaskDescriptor descriptor,
+                                                  Notification notification,
+                                                  String errorMessage) {
+            this.buildFinishedCallback = buildFinishedCallback;
+            this.descriptor = descriptor;
+            this.notification = notification;
+            this.errorMessage = errorMessage;
+        }
+
+        @Override
+        protected void onSuccess(ImportResponse projectDescriptor) {
+            // notify callback
+            if (buildFinishedCallback != null) {
+                buildFinishedCallback.onFinished(descriptor.getStatus());
+            }
+        }
+
+        @Override
+        protected void onFailure(Throwable throwable) {
+            notification.setMessage(errorMessage + ":" + throwable.getMessage());
+            notification.setStatus(FINISHED);
+            notification.setType(ERROR);
+            if (buildFinishedCallback != null) {
+                buildFinishedCallback.onFinished(descriptor.getStatus());
+            }
         }
     }
 }

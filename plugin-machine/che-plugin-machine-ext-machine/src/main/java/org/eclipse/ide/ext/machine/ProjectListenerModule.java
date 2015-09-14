@@ -18,6 +18,5 @@ import org.eclipse.che.inject.DynaModule;
 @DynaModule
 public class ProjectListenerModule extends AbstractModule {
     protected void configure() {
-        bind(MachineProjectEventService.class);
     }
 }

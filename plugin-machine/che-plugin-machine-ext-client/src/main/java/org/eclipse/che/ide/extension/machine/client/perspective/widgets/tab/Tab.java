@@ -13,7 +13,7 @@ package org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.content.TabPresenter;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.header.TabHeader;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * Special entity which represent tab and contains special header of tab and it's content.
@@ -23,11 +23,11 @@ import javax.annotation.Nonnull;
 public interface Tab {
 
     /** @return tab's header. */
-    @Nonnull
+    @NotNull
     TabHeader getHeader();
 
     /** @return tab's content. */
-    @Nonnull
+    @NotNull
     TabPresenter getContent();
 
     /** Performs handler when user clicks on tab. */

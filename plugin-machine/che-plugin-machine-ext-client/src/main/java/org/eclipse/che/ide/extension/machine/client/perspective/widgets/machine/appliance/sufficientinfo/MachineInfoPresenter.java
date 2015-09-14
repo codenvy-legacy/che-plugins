@@ -28,7 +28,7 @@ import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.rest.Unmarshallable;
 import org.eclipse.che.ide.util.loging.Log;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.Map;
 
 /**
@@ -64,7 +64,7 @@ public class MachineInfoPresenter implements TabPresenter {
      * @param machine
      *         machine for which need update panel
      */
-    public void update(@Nonnull Machine machine) {
+    public void update(@NotNull Machine machine) {
 
         Unmarshallable<ProfileDescriptor> profileUnMarshaller = unmarshallerFactory.newUnmarshaller(ProfileDescriptor.class);
 

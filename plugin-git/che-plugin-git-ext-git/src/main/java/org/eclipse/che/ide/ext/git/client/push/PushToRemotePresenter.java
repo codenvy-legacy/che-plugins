@@ -31,7 +31,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -240,7 +240,7 @@ public class PushToRemotePresenter implements PushToRemoteView.ActionDelegate {
      * @param remoteMode
      *         is a remote mode
      */
-    void getBranchesForCurrentProject(@Nonnull final String remoteMode,
+    void getBranchesForCurrentProject(@NotNull final String remoteMode,
                                       final AsyncCallback<List<Branch>> asyncResult) {
         service.branchList(project.getRootProject(),
                            remoteMode,
@@ -278,7 +278,7 @@ public class PushToRemotePresenter implements PushToRemoteView.ActionDelegate {
     }
 
     /** @return list of refs to push */
-    @Nonnull
+    @NotNull
     private List<String> getRefs() {
         String localBranch = view.getLocalBranch();
         String remoteBranch = view.getRemoteBranch();
@@ -309,7 +309,7 @@ public class PushToRemotePresenter implements PushToRemoteView.ActionDelegate {
      * @param throwable
      *         exception what happened
      */
-    void handleError(@Nonnull Throwable throwable) {
+    void handleError(@NotNull Throwable throwable) {
         if (throwable instanceof UnauthorizedException) {
             notificationManager.showError(constant.messagesNotAuthorized());
             return;

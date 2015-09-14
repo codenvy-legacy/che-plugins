@@ -210,6 +210,9 @@
                 </dependencies>
                 <configuration>
                     <runOrder>random</runOrder>
+                    <excludes>
+                        <exclude>**/jdt/**/*.java</exclude>
+                    </excludes>
                 </configuration>
             </plugin>
             <plugin>
@@ -227,7 +230,17 @@
                         <exclude>**/*.rsc</exclude>
                         <exclude>**/*.json</exclude>
                         <exclude>**/readableNames</exclude>
+                        <exclude>**/RenameMethodInInterface/**</exclude>
+                        <exclude>**/RenameNonPrivateField/**</exclude>
+                        <exclude>**/RenamePackage/**</exclude>
+                        <exclude>**/RenameParameters/**</exclude>
+                        <exclude>**/RenamePrivateField/**</exclude>
+                        <exclude>**/RenamePrivateMethod/**</exclude>
+                        <exclude>**/RenameStaticMethod/**</exclude>
+                        <exclude>**/RenameTests18/**</exclude>
                         <exclude>**/RenameType/**</exclude>
+                        <exclude>**/RenameTypeParameter/**</exclude>
+                        <exclude>**/RenameVirtualMethodInClass/**</exclude>
                         <exclude>**/projects/**</exclude>
                         <exclude>**/org/eclipse/che/jdt/javadoc/**</exclude>
                         <exclude>**/org/eclipse/jdt/**</exclude>
@@ -287,4 +300,32 @@
             </plugin>
         </plugins>
     </build>
+    <profiles>
+        <profile>
+            <id>jdt-tests</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <dependencies>
+                            <dependency>
+                                <groupId>org.apache.maven.surefire</groupId>
+                                <artifactId>surefire-junit47</artifactId>
+                                <version>${version.surefire.plugin}</version>
+                            </dependency>
+                        </dependencies>
+                        <configuration>
+                            <excludes>
+                                <exclude>none</exclude>
+                            </excludes>
+                            <includes>
+                                <include>**/jdt/**/*.java</include>
+                            </includes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

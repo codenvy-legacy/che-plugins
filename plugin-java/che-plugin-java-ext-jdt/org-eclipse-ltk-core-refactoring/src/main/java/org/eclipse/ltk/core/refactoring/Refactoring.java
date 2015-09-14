@@ -245,7 +245,8 @@ public abstract class Refactoring extends PlatformObject {
 	public Object getAdapter(Class adapter) {
 		if (adapter.isInstance(this))
 			return this;
-		return super.getAdapter(adapter);
+//		return super.getAdapter(adapter);
+		return null;
 	}
 
 	/* (non-Javadoc)

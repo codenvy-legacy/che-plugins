@@ -22,7 +22,7 @@ import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.google.web.bindery.event.shared.EventBus;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * Main appointment of this class is upload private SSH key to the server.
@@ -59,7 +59,7 @@ public class UploadSshKeyPresenter implements UploadSshKeyView.ActionDelegate {
     }
 
     /** Show dialog. */
-    public void showDialog(@Nonnull AsyncCallback<Void> callback) {
+    public void showDialog(@NotNull AsyncCallback<Void> callback) {
         this.callback = callback;
         view.setMessage("");
         view.setHost("");
@@ -88,7 +88,7 @@ public class UploadSshKeyPresenter implements UploadSshKeyView.ActionDelegate {
 
     /** {@inheritDoc} */
     @Override
-    public void onSubmitComplete(@Nonnull String result) {
+    public void onSubmitComplete(@NotNull String result) {
         if (result.isEmpty()) {
             view.close();
             callback.onSuccess(null);

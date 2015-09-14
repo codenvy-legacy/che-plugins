@@ -56,6 +56,7 @@ import java.util.regex.Pattern;
  *
  * @author andrew00x
  * @author Alexander Garagatyi
+ * @author Anton Korneta
  */
 public class DockerInstance extends AbstractInstance {
     private static final   AtomicInteger pidSequence           = new AtomicInteger(1);
@@ -356,6 +357,36 @@ public class DockerInstance extends AbstractInstance {
             throw new MachineException("File with path " + filePath + " not found");
         }
         return content;
+    }
+
+    /**
+     * Copies files from specified container.
+     *
+     * @param sourceMachine
+     *         source machine
+     * @param sourcePath
+     *         path to file or directory inside specified container
+     * @param targetPath
+     *         path to destination file or directory inside container
+     * @param overwrite
+     *         If "false" then it will be an error if unpacking the given content would cause
+     *         an existing directory to be replaced with a non-directory and vice versa.
+     * @throws MachineException
+     *         if any error occurs when files are being copied
+     */
+    @Override
+    public void copy(Instance sourceMachine, String sourcePath, String targetPath, boolean overwrite) throws MachineException {
+        if (!(sourceMachine instanceof DockerInstance)) {
+            throw new MachineException("Unsupported copying between not docker machines");
+        }
+        try {
+            docker.putResource(container,
+                               targetPath,
+                               docker.getResource(((DockerInstance)sourceMachine).container, sourcePath),
+                               overwrite);
+        } catch (IOException e) {
+            throw new MachineException(e.getLocalizedMessage());
+        }
     }
 
     @Override

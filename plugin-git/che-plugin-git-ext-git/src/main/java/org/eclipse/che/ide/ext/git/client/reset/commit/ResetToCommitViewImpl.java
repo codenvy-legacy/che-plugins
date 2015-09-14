@@ -34,7 +34,7 @@ import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -199,7 +199,7 @@ public class ResetToCommitViewImpl extends Window implements ResetToCommitView {
 
     /** {@inheritDoc} */
     @Override
-    public void setRevisions(@Nonnull List<Revision> revisions) {
+    public void setRevisions(@NotNull List<Revision> revisions) {
         // Wraps Array in java.util.List
         List<Revision> list = new ArrayList<Revision>();
         for (int i = 0; i < revisions.size(); i++) {

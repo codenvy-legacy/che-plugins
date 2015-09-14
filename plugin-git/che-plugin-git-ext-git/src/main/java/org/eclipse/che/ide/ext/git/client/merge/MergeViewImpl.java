@@ -30,7 +30,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -173,14 +173,14 @@ public class MergeViewImpl extends Window implements MergeView {
 
     /** {@inheritDoc} */
     @Override
-    public void setLocalBranches(@Nonnull List<Reference> references) {
+    public void setLocalBranches(@NotNull List<Reference> references) {
         localBranch.setBranches(references);
         this.references.renderTree(0);
     }
 
     /** {@inheritDoc} */
     @Override
-    public void setRemoteBranches(@Nonnull List<Reference> references) {
+    public void setRemoteBranches(@NotNull List<Reference> references) {
         remoteBranch.setBranches(references);
         this.references.renderTree(0);
     }

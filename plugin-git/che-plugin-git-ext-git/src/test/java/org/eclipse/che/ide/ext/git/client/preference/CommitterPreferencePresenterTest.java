@@ -31,9 +31,11 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class CommitterPreferencePresenterTest {
-    public static final String SOME_TEXT       = "text";
-    public static final String COMMITTER_NAME  = "git.committer.name";
-    public static final String COMMITTER_EMAIL = "git.committer.email";
+    public static final String SOME_TEXT               = "text";
+    public static final String COMMITTER_NAME          = "git.committer.name";
+    public static final String COMMITTER_EMAIL         = "git.committer.email";
+    public static final String DEFAULT_COMMITTER_NAME  = "Anonymous";
+    public static final String DEFAULT_COMMITTER_EMAIL = "anonymous@noemail.com";
 
     @Mock
     private CommitterPreferenceView view;
@@ -82,8 +84,24 @@ public class CommitterPreferencePresenterTest {
     public void changesShouldBeRestored() throws Exception {
         presenter.revertChanges();
 
-        verify(preferencesManager,times(2)).getValue(COMMITTER_NAME);
+        verify(preferencesManager, times(2)).getValue(COMMITTER_NAME);
         verify(preferencesManager, times(2)).getValue(COMMITTER_EMAIL);
+
+        assertFalse(presenter.isDirty());
+    }
+
+    @Test
+    public void defaultUserNameAndEmailShouldBeRestored() throws Exception {
+        when(preferencesManager.getValue(COMMITTER_EMAIL)).thenReturn(null);
+        when(preferencesManager.getValue(COMMITTER_NAME)).thenReturn(null);
+
+        presenter.revertChanges();
+
+        verify(preferencesManager, times(2)).getValue(COMMITTER_NAME);
+        verify(preferencesManager, times(2)).getValue(COMMITTER_EMAIL);
+
+        verify(view).setEmail(DEFAULT_COMMITTER_EMAIL);
+        verify(view).setName(DEFAULT_COMMITTER_NAME);
 
         assertFalse(presenter.isDirty());
     }

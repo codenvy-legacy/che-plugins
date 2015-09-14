@@ -23,7 +23,7 @@ import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * The factory that provides an ability to create instances of {@link RecipeFile}. The main idea of this class is to simplify work flow of
@@ -69,13 +69,13 @@ public class RecipeFileFactory {
      * @throws IllegalStateException
      *         when no project is opened
      */
-    @Nonnull
-    public RecipeFile newInstance(@Nonnull String content) {
+    @NotNull
+    public RecipeFile newInstance(@NotNull String content) {
         return newInstance(content, NAME, PATH);
     }
 
-    @Nonnull
-    private RecipeFile newInstance(@Nonnull String content, @Nonnull String name, @Nonnull String path) {
+    @NotNull
+    private RecipeFile newInstance(@NotNull String content, @NotNull String name, @NotNull String path) {
         CurrentProject currentProject = appContext.getCurrentProject();
         if (currentProject == null) {
             throw new IllegalStateException("No project is opened");

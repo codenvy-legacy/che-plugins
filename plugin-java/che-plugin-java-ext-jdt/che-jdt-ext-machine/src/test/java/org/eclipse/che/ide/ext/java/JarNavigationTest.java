@@ -17,6 +17,7 @@ import org.eclipse.che.ide.ext.java.shared.dto.refactoring.PackageFragmentRoot;
 import org.eclipse.che.jdt.JavaNavigation;
 import org.eclipse.che.jdt.SourcesFromBytecodeGenerator;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -121,6 +122,7 @@ public class JarNavigationTest extends BaseTest {
     }
 
     @Test
+    @Ignore
     public void testJavaSource() throws Exception {
         String javaHome = System.getProperty("java.home") + "/lib/rt.jar";
         IPackageFragmentRoot root = project.getPackageFragmentRoot(new File(javaHome).getPath());
@@ -190,6 +192,7 @@ public class JarNavigationTest extends BaseTest {
     }
 
     @Test
+    @Ignore
     public void testGetClassByPath() throws Exception {
         String javaHome = System.getProperty("java.home") + "/lib/rt.jar";
         IPackageFragmentRoot root = project.getPackageFragmentRoot(new File(javaHome).getPath());

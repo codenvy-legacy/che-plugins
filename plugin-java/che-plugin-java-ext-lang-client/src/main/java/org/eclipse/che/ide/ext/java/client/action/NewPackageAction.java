@@ -39,8 +39,8 @@ import org.eclipse.che.ide.ui.dialogs.input.InputDialog;
 import org.eclipse.che.ide.ui.dialogs.input.InputValidator;
 import org.eclipse.che.ide.util.loging.Log;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+import org.eclipse.che.commons.annotation.Nullable;
 
 import static org.eclipse.che.ide.api.event.ItemEvent.ItemOperation.CREATED;
 
@@ -130,7 +130,7 @@ public class NewPackageAction extends AbstractNewResourceAction {
     }
 
     @Override
-    public void updateInPerspective(@Nonnull ActionEvent event) {
+    public void updateInPerspective(@NotNull ActionEvent event) {
         boolean enabled = false;
         Selection<?> selection = selectionAgent.getSelection();
         if (selection != null) {

@@ -17,12 +17,15 @@ import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ChangeCreationResult;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.CreateMoveRefactoring;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.CreateRenameRefactoring;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.JavaElement;
+import org.eclipse.che.ide.ext.java.shared.dto.refactoring.LinkedRenameRefactoringApply;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.MoveSettings;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringPreview;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringSession;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatus;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RenameRefactoringSession;
+import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RenameSettings;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ReorgDestination;
+import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ValidateNewName;
 import org.eclipse.che.jdt.refactoring.RefactoringException;
 import org.eclipse.che.jdt.refactoring.RefactoringManager;
 import org.eclipse.core.runtime.CoreException;
@@ -144,6 +147,7 @@ public class RefactoringService {
             throws CoreException, RefactoringException {
         IJavaProject javaProject = model.getJavaProject(refactoring.getProjectPath());
         IJavaElement elementToRename;
+        ICompilationUnit cu = null;
         switch (refactoring.getType()){
             case COMPILATION_UNIT:
                 elementToRename = javaProject.findType(refactoring.getPath()).getCompilationUnit();
@@ -153,6 +157,7 @@ public class RefactoringService {
                 break;
             case JAVA_ELEMENT:
                 ICompilationUnit compilationUnit = javaProject.findType(refactoring.getPath()).getCompilationUnit();
+                cu = compilationUnit;
                 elementToRename = getSelectionElement(compilationUnit, refactoring.getOffset());
                 break;
             default:
@@ -162,7 +167,31 @@ public class RefactoringService {
             throw new RefactoringException("Can't find java element to rename.");
         }
 
-        return manager.createRenameRefactoring(elementToRename, refactoring.isRefactorLightweight());
+        return manager.createRenameRefactoring(elementToRename, cu, refactoring.getOffset(), refactoring.isRefactorLightweight());
+    }
+
+    @POST
+    @Path("rename/linked/apply")
+    @Consumes("application/json")
+    @Produces("application/json")
+    public RefactoringStatus applyLinkedModeRename(LinkedRenameRefactoringApply refactoringApply) throws RefactoringException,
+                                                                                                         CoreException {
+        return manager.applyLinkedRename(refactoringApply);
+    }
+
+    @POST
+    @Path("rename/validate/name")
+    @Consumes("application/json")
+    @Produces("application/json")
+    public RefactoringStatus validateNewName(ValidateNewName newName) throws RefactoringException {
+        return manager.renameValidateNewName(newName);
+    }
+
+    @POST
+    @Path("set/rename/settings")
+    @Consumes("application/json")
+    public void setRenameSettings(RenameSettings settings) throws RefactoringException {
+        manager.setRenameSettings(settings);
     }
 
     private IJavaElement getSelectionElement(ICompilationUnit compilationUnit, int offset) throws JavaModelException, RefactoringException {

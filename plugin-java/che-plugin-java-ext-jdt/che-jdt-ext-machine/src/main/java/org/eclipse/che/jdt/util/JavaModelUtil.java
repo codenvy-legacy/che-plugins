@@ -46,6 +46,15 @@ import java.util.Map;
  */
 public class JavaModelUtil {
     /**
+     * The latest available {@link JavaCore}{@code #VERSION_*} level.
+     * @since 3.7
+     */
+    public static final String VERSION_LATEST;
+    static {
+        VERSION_LATEST= JavaCore.VERSION_1_8; // make sure it is not inlined
+    }
+
+    /**
      * The name of the package-info.java file.
      *
      * @since 3.8
@@ -656,4 +665,32 @@ public class JavaModelUtil {
     public static void setComplianceOptions(Map<String, String> map, String compliance) {
         JavaCore.setComplianceOptions(compliance, map);
     }
+
+    /**
+     * Evaluates if a member (possible from another package) is visible from
+     * elements in a package.
+     * @param member The member to test the visibility for
+     * @param pack The package in focus
+     * @return returns <code>true</code> if the member is visible from the package
+     * @throws JavaModelException thrown when the member can not be accessed
+     */
+    public static boolean isVisible(IMember member, IPackageFragment pack) throws JavaModelException {
+
+        int type= member.getElementType();
+        if  (type == IJavaElement.INITIALIZER ||  (type == IJavaElement.METHOD && member.getElementName().startsWith("<"))) { //$NON-NLS-1$
+            return false;
+        }
+
+        int otherflags= member.getFlags();
+        IType declaringType= member.getDeclaringType();
+        if (Flags.isPublic(otherflags) || (declaringType != null && isInterfaceOrAnnotation(declaringType))) {
+            return true;
+        } else if (Flags.isPrivate(otherflags)) {
+            return false;
+        }
+
+        IPackageFragment otherpack= (IPackageFragment) member.getAncestor(IJavaElement.PACKAGE_FRAGMENT);
+        return (pack != null && otherpack != null && isSamePackage(pack, otherpack));
+    }
+
 }

@@ -15,8 +15,8 @@ import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.ide.api.project.tree.TreeNode;
 import org.eclipse.che.ide.ext.java.client.projecttree.JavaNodeFactory;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+import org.eclipse.che.commons.annotation.Nullable;
 
 /**
  * Factory that helps to create nodes for {@link MavenProjectTreeStructure}.
@@ -38,8 +38,8 @@ public interface MavenNodeFactory extends JavaNodeFactory {
      * @return a new {@link MavenProjectNode}
      */
     MavenProjectNode newMavenProjectNode(@Nullable TreeNode<?> parent,
-                                         @Nonnull ProjectDescriptor data,
-                                         @Nonnull MavenProjectTreeStructure treeStructure);
+                                         @NotNull ProjectDescriptor data,
+                                         @NotNull MavenProjectTreeStructure treeStructure);
 
     /**
      * Creates a new {@link MavenFolderNode} owned by the specified {@code treeStructure}
@@ -53,9 +53,9 @@ public interface MavenNodeFactory extends JavaNodeFactory {
      *         the {@link MavenProjectTreeStructure} to create the node for
      * @return a new {@link MavenFolderNode}
      */
-    MavenFolderNode newMavenFolderNode(@Nonnull TreeNode<?> parent,
-                                       @Nonnull ItemReference data,
-                                       @Nonnull MavenProjectTreeStructure treeStructure);
+    MavenFolderNode newMavenFolderNode(@NotNull TreeNode<?> parent,
+                                       @NotNull ItemReference data,
+                                       @NotNull MavenProjectTreeStructure treeStructure);
 
     /**
      * Creates a new {@link ModuleNode} owned by the specified {@code treeStructure}
@@ -69,7 +69,7 @@ public interface MavenNodeFactory extends JavaNodeFactory {
      *         the {@link MavenProjectTreeStructure} to create the node for
      * @return a new {@link ModuleNode}
      */
-    ModuleNode newModuleNode(@Nonnull TreeNode<?> parent,
-                             @Nonnull ProjectDescriptor data,
-                             @Nonnull MavenProjectTreeStructure treeStructure);
+    ModuleNode newModuleNode(@NotNull TreeNode<?> parent,
+                             @NotNull ProjectDescriptor data,
+                             @NotNull MavenProjectTreeStructure treeStructure);
 }

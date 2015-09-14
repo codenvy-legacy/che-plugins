@@ -36,7 +36,7 @@ import org.eclipse.che.ide.jseditor.client.texteditor.EmbeddedTextEditorPresente
 import org.eclipse.che.ide.jseditor.client.texteditor.TextEditor;
 import org.eclipse.che.ide.util.loging.Log;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 import static org.eclipse.che.ide.api.editor.EditorPartPresenter.PROP_DIRTY;
@@ -67,7 +67,7 @@ public class RecipeEditorPanel implements TabPresenter, RecipeEditorView.ActionD
                              OrionTextEditorFactory orionTextEditorFactory,
                              NotificationManager notificationManager,
                              RecipeEditorView view,
-                             @Assisted @Nonnull RecipeDescriptor recipeDescriptor) {
+                             @Assisted @NotNull RecipeDescriptor recipeDescriptor) {
         this.view = view;
         this.notificationManager = notificationManager;
         this.recipeFileFactory = recipeFileFactory;
@@ -101,30 +101,30 @@ public class RecipeEditorPanel implements TabPresenter, RecipeEditorView.ActionD
     }
 
     /** Returns a script of recipe */
-    @Nonnull
+    @NotNull
     public String getScript() {
         return ((TextEditor)editor).getDocument().getContents();
     }
 
     /** Returns list of tags. */
-    @Nonnull
+    @NotNull
     public List<String> getTags() {
         return view.getTags();
     }
 
     /** Returns name of the recipe. */
-    @Nonnull
+    @NotNull
     public String getName() {
         return view.getName();
     }
 
     /** Sets name of the recipe. */
-    public void setName(@Nonnull String name) {
+    public void setName(@NotNull String name) {
         view.setName(name);
     }
 
     /** Sets list of tags. */
-    public void setTags(@Nonnull List<String> tags) {
+    public void setTags(@NotNull List<String> tags) {
         view.setTags(tags);
     }
 
@@ -144,7 +144,7 @@ public class RecipeEditorPanel implements TabPresenter, RecipeEditorView.ActionD
         view.setEnableCancelButton(isEnable);
     }
 
-    private void initializeEditor(@Nonnull final FileNode file) {
+    private void initializeEditor(@NotNull final FileNode file) {
         FileType fileType = fileTypeRegistry.getFileTypeByFile(file);
         editor = getEditor();
         editor.activate();

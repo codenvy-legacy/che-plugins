@@ -13,7 +13,7 @@ package org.eclipse.che.ide.extension.machine.client.command.arbitrary;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
 import org.eclipse.che.ide.extension.machine.client.command.CommandType;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * Represents command that is defined by arbitrary command line.
@@ -37,7 +37,7 @@ public class ArbitraryCommandConfiguration extends CommandConfiguration {
         this.commandLine = commandLine;
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public String toCommandLine() {
         return getCommandLine();

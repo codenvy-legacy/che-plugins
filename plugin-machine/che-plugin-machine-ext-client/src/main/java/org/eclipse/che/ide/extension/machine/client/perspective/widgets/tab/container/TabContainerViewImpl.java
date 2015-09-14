@@ -23,7 +23,7 @@ import com.google.inject.Inject;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.content.TabPresenter;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.header.TabHeader;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import static com.google.gwt.dom.client.Style.Unit.PCT;
 
@@ -61,13 +61,13 @@ public class TabContainerViewImpl extends Composite implements TabContainerView,
 
     /** {@inheritDoc} */
     @Override
-    public void addHeader(@Nonnull TabHeader tabHeader) {
+    public void addHeader(@NotNull TabHeader tabHeader) {
         tabs.add(tabHeader);
     }
 
     /** {@inheritDoc} */
     @Override
-    public void addContent(@Nonnull TabPresenter tabPresenter) {
+    public void addContent(@NotNull TabPresenter tabPresenter) {
         content.add(tabPresenter.getView());
     }
 

@@ -22,7 +22,7 @@ import org.eclipse.che.ide.ui.tree.Tree;
 import org.eclipse.che.ide.ui.tree.TreeNodeElement;
 import org.eclipse.che.ide.util.dom.Elements;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * The rendered for debug variable node.
@@ -52,20 +52,20 @@ public class VariableTreeNodeRenderer implements NodeRenderer<DebuggerVariable> 
 
     private final Css css;
 
-    public VariableTreeNodeRenderer(@Nonnull Resources res) {
+    public VariableTreeNodeRenderer(@NotNull Resources res) {
         this.css = res.variableCss();
         this.css.ensureInjected();
     }
 
     /** {@inheritDoc} */
     @Override
-    public Element getNodeKeyTextContainer(@Nonnull SpanElement treeNodeLabel) {
+    public Element getNodeKeyTextContainer(@NotNull SpanElement treeNodeLabel) {
         return (Element)treeNodeLabel.getChildNodes().item(1);
     }
 
     /** {@inheritDoc} */
     @Override
-    public SpanElement renderNodeContents(@Nonnull DebuggerVariable data) {
+    public SpanElement renderNodeContents(@NotNull DebuggerVariable data) {
         SpanElement root = Elements.createSpanElement(css.variableRoot());
         DivElement icon = Elements.createDivElement(css.variableIcon());
         SpanElement label = Elements.createSpanElement(css.variableLabel());
@@ -80,7 +80,7 @@ public class VariableTreeNodeRenderer implements NodeRenderer<DebuggerVariable> 
 
     /** {@inheritDoc} */
     @Override
-    public void updateNodeContents(@Nonnull TreeNodeElement<DebuggerVariable> treeNode) {
+    public void updateNodeContents(@NotNull TreeNodeElement<DebuggerVariable> treeNode) {
         // do nothing
     }
 }

@@ -22,7 +22,7 @@ import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.content.TabPresenter;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -50,7 +50,7 @@ public class ProcessesPresenter implements TabPresenter, ProcessesView.ActionDel
      * @param machineId
      *         machine identifier for which need get processes
      */
-    public void showProcesses(@Nonnull String machineId) {
+    public void showProcesses(@NotNull String machineId) {
         Promise<List<ProcessDescriptor>> processesPromise = service.getProcesses(machineId);
 
         processesPromise.then(new Operation<List<ProcessDescriptor>>() {
@@ -69,7 +69,7 @@ public class ProcessesPresenter implements TabPresenter, ProcessesView.ActionDel
 
     /** {@inheritDoc} */
     @Override
-    public void onProcessClicked(@Nonnull ProcessDescriptor descriptor) {
+    public void onProcessClicked(@NotNull ProcessDescriptor descriptor) {
         //TODO need add implementation
     }
 

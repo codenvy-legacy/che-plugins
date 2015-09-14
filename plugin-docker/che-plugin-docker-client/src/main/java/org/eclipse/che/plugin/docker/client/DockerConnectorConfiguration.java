@@ -17,7 +17,7 @@ import org.eclipse.che.api.core.util.SystemInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -81,7 +81,7 @@ public class DockerConnectorConfiguration {
      *         should contain System environment
      * @return URI to connect to docker
      */
-    protected static URI dockerDaemonUri(final boolean isLinux, @Nonnull final Map<String, String> env) {
+    protected static URI dockerDaemonUri(final boolean isLinux, @NotNull final Map<String, String> env) {
         if (isLinux) {
             return UNIX_SOCKET_URI;
         }
@@ -131,7 +131,7 @@ public class DockerConnectorConfiguration {
      *         should contain System environment
      * @return local path of the docker certificates
      */
-    protected static String dockerMachineCertsDirectoryPath(boolean isLinux, @Nonnull Map<String, String> env) {
+    protected static String dockerMachineCertsDirectoryPath(boolean isLinux, @NotNull Map<String, String> env) {
         if (isLinux) {
             return null;
         }

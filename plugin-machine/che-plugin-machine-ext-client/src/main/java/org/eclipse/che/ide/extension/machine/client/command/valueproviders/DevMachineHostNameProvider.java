@@ -23,7 +23,7 @@ import org.eclipse.che.ide.extension.machine.client.machine.Machine;
 import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateEvent;
 import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateHandler;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * Provides dev-machine's host name.
@@ -52,13 +52,13 @@ public class DevMachineHostNameProvider implements CommandPropertyValueProvider,
         updateValue();
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public String getKey() {
         return KEY;
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public String getValue() {
         return value;

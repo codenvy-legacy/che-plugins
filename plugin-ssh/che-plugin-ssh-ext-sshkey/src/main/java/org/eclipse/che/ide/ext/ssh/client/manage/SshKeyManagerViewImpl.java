@@ -38,7 +38,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -175,7 +175,7 @@ public class SshKeyManagerViewImpl extends Composite implements SshKeyManagerVie
 
     /** {@inheritDoc} */
     @Override
-    public void setKeys(@Nonnull List<KeyItem> keys) {
+    public void setKeys(@NotNull List<KeyItem> keys) {
         // Wraps Array in java.util.List
         List<KeyItem> appList = new ArrayList<KeyItem>();
         for (int i = 0; i < keys.size(); i++) {

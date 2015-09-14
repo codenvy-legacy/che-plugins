@@ -46,7 +46,7 @@ import org.eclipse.che.ide.websocket.MessageBus;
 import org.eclipse.che.ide.websocket.WebSocketException;
 import org.eclipse.che.ide.websocket.rest.SubscriptionHandler;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import static com.google.gwt.http.client.RequestBuilder.GET;
 import static org.eclipse.che.ide.extension.machine.client.machine.MachineManager.MachineOperationType.DESTROY;
@@ -109,7 +109,7 @@ public class MachineManager {
         });
     }
 
-    public void restartMachine(@Nonnull final Machine machine) {
+    public void restartMachine(@NotNull final Machine machine) {
         machineServiceClient.destroyMachine(machine.getId()).then(new Operation<Void>() {
             @Override
             public void apply(Void arg) throws OperationException {
@@ -123,19 +123,19 @@ public class MachineManager {
     }
 
     /** Start new machine. */
-    public void startMachine(String recipeURL, @Nonnull String displayName) {
+    public void startMachine(String recipeURL, @NotNull String displayName) {
         startMachine(recipeURL, displayName, false, START);
     }
 
     /** Start new machine as dev-machine (bind workspace to running machine). */
-    public void startDevMachine(String recipeURL, @Nonnull String displayName) {
+    public void startDevMachine(String recipeURL, @NotNull String displayName) {
         startMachine(recipeURL, displayName, true, START);
     }
 
-    private void startMachine(@Nonnull final String recipeURL,
-                              @Nonnull final String displayName,
+    private void startMachine(@NotNull final String recipeURL,
+                              @NotNull final String displayName,
                               final boolean bindWorkspace,
-                              @Nonnull final MachineOperationType operationType) {
+                              @NotNull final MachineOperationType operationType) {
         downloadRecipe(recipeURL).thenPromise(new Function<String, Promise<MachineDescriptor>>() {
             @Override
             public Promise<MachineDescriptor> apply(String recipeScript) throws FunctionException {

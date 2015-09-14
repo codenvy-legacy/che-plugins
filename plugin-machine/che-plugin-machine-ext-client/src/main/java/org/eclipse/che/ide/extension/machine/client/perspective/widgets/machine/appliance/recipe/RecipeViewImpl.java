@@ -18,7 +18,7 @@ import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import static com.google.gwt.dom.client.Style.Display.TABLE;
 
@@ -44,7 +44,7 @@ public class RecipeViewImpl extends Composite implements RecipeView {
 
     /** {@inheritDoc} */
     @Override
-    public void setScript(@Nonnull String script) {
+    public void setScript(@NotNull String script) {
         this.script.setText(script);
     }
 }

@@ -12,7 +12,7 @@ package org.eclipse.che.env.local.client.location;
 
 import com.google.inject.ImplementedBy;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  *  The visual part of workspace localization window.
@@ -30,7 +30,7 @@ public interface WorkspaceLocationView extends org.eclipse.che.ide.api.mvp.View<
      * @param workspaceLocation
      *         location path
      */
-    void setWorkspaceLocation(@Nonnull String workspaceLocation);
+    void setWorkspaceLocation(@NotNull String workspaceLocation);
 
     /** Show dialog. */
     void showDialog();

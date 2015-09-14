@@ -21,7 +21,7 @@ import com.google.inject.Inject;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.machine.Machine;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * The class contains methods which allow change view representation of machine's information.
@@ -61,7 +61,7 @@ public class MachineInfoViewImpl extends Composite implements MachineInfoView {
 
     /** {@inheritDoc} */
     @Override
-    public void updateInfo(@Nonnull Machine machine) {
+    public void updateInfo(@NotNull Machine machine) {
         name.setText(machine.getDisplayName());
         machineId.setText(machine.getId());
         status.setText(String.valueOf(machine.getStatus()));
@@ -71,13 +71,13 @@ public class MachineInfoViewImpl extends Composite implements MachineInfoView {
 
     /** {@inheritDoc} */
     @Override
-    public void setOwner(@Nonnull String ownerName) {
+    public void setOwner(@NotNull String ownerName) {
         owner.setText(ownerName);
     }
 
     /** {@inheritDoc} */
     @Override
-    public void setWorkspaceName(@Nonnull String workspaceName) {
+    public void setWorkspaceName(@NotNull String workspaceName) {
         workspaceId.setText(workspaceName);
     }
 

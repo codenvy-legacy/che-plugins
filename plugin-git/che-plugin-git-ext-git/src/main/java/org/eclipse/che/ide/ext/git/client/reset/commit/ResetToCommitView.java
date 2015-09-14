@@ -13,7 +13,7 @@ package org.eclipse.che.ide.ext.git.client.reset.commit;
 import org.eclipse.che.api.git.shared.Revision;
 import org.eclipse.che.ide.api.mvp.View;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -36,7 +36,7 @@ public interface ResetToCommitView extends View<ResetToCommitView.ActionDelegate
          * @param revision
          *         selected revision
          */
-        void onRevisionSelected(@Nonnull Revision revision);
+        void onRevisionSelected(@NotNull Revision revision);
     }
 
     /**
@@ -45,7 +45,7 @@ public interface ResetToCommitView extends View<ResetToCommitView.ActionDelegate
      * @param revisions
      *         git revisions
      */
-    void setRevisions(@Nonnull List<Revision> revisions);
+    void setRevisions(@NotNull List<Revision> revisions);
 
     /** @return <code>true</code> if soft mode is chosen, and <code>false</code> otherwise */
     boolean isSoftMode();

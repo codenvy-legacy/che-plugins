@@ -14,7 +14,7 @@ import org.eclipse.che.ide.api.mvp.View;
 import org.eclipse.che.ide.api.parts.base.BaseActionDelegate;
 import org.eclipse.che.ide.api.project.tree.TreeNode;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -44,7 +44,7 @@ public interface MoveView extends View<MoveView.ActionDelegate> {
     void setProjectNodes(List<TreeNode<?>> rootNodes);
 
     /** Update project tree node. */
-    void updateProjectNode(@Nonnull TreeNode<?> oldNode, @Nonnull TreeNode<?> newNode);
+    void updateProjectNode(@NotNull TreeNode<?> oldNode, @NotNull TreeNode<?> newNode);
 
     /** Show error marker with specified message. */
     void showErrorMarker(String message);

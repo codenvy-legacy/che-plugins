@@ -21,7 +21,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import static com.google.gwt.dom.client.Style.Unit.PCT;
 
@@ -56,7 +56,7 @@ public class RecipesContainerViewImpl extends Composite implements RecipesContai
 
     /** {@inheritDoc} */
     @Override
-    public void showWidget(@Nonnull IsWidget panel) {
+    public void showWidget(@NotNull IsWidget panel) {
         mainPanel.setWidget(panel);
     }
 
