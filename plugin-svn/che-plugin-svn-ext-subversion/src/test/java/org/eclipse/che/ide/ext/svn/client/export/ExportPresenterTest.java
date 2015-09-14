@@ -10,17 +10,13 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.svn.client.export;
 
-import com.google.gwt.user.client.rpc.AsyncCallback;
-
-import org.eclipse.che.ide.api.project.tree.TreeNode;
-import org.eclipse.che.ide.api.project.tree.generic.FileNode;
-import org.eclipse.che.ide.collections.Array;
+import org.eclipse.che.ide.api.project.node.HasStorablePath;
 import org.eclipse.che.ide.ext.svn.client.common.BaseSubversionPresenterTest;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.Mock;
+
+import java.util.List;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -31,8 +27,6 @@ import static org.mockito.Mockito.verify;
  * @author Vladyslav Zhukovskyi
  */
 public class ExportPresenterTest extends BaseSubversionPresenterTest {
-    @Captor
-    private ArgumentCaptor<AsyncCallback<Array<TreeNode<?>>>> asyncRequestCallbackStatusCaptor;
 
     private ExportPresenter presenter;
 
@@ -52,8 +46,8 @@ public class ExportPresenterTest extends BaseSubversionPresenterTest {
 
     @Test
     public void testExportViewShouldBeShowed() throws Exception {
-        presenter.showExport(mock(FileNode.class));
+        presenter.showExport(mock(HasStorablePath.class));
 
         verify(exportView).onShow();
     }
- }
+}

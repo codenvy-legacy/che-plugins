@@ -17,7 +17,9 @@ import org.eclipse.che.ide.ext.svn.client.add.AddPresenter;
 import org.eclipse.che.api.analytics.client.logger.AnalyticsEventLogger;
 import org.eclipse.che.ide.api.action.ActionEvent;
 import org.eclipse.che.ide.api.app.AppContext;
-import org.eclipse.che.ide.api.selection.SelectionAgent;
+import org.eclipse.che.ide.part.explorer.project.NewProjectExplorerPresenter;
+
+import com.google.gwt.user.client.Window;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -35,13 +37,12 @@ public class AddAction extends SubversionAction {
     @Inject
     public AddAction(final AnalyticsEventLogger eventLogger,
                      final AppContext appContext,
-                     final SelectionAgent selectionAgent,
+                     final NewProjectExplorerPresenter projectExplorerPresenter,
                      final SubversionExtensionLocalizationConstants constants,
                      final SubversionExtensionResources resources,
                      final AddPresenter presenter) {
         super(constants.addTitle(), constants.addDescription(), resources.add(), eventLogger, appContext,
-              constants, resources, selectionAgent);
-
+              constants, resources, projectExplorerPresenter);
         this.presenter = presenter;
     }
 

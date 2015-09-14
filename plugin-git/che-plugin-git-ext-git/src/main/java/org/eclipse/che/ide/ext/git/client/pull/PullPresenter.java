@@ -21,12 +21,11 @@ import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.editor.EditorPartPresenter;
 import org.eclipse.che.ide.api.event.FileEvent;
-import org.eclipse.che.ide.api.event.RefreshProjectTreeEvent;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.project.tree.VirtualFile;
-import org.eclipse.che.ide.collections.Array;
 import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.ext.git.client.BranchSearcher;
+import org.eclipse.che.ide.part.explorer.project.NewProjectExplorerPresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 
@@ -48,17 +47,18 @@ import static org.eclipse.che.api.git.shared.BranchListRequest.LIST_REMOTE;
  */
 @Singleton
 public class PullPresenter implements PullView.ActionDelegate {
-    private final PullView                view;
-    private final GitServiceClient        gitServiceClient;
-    private final EventBus                eventBus;
-    private final GitLocalizationConstant constant;
-    private final EditorAgent             editorAgent;
-    private final AppContext              appContext;
-    private final NotificationManager     notificationManager;
-    private final DtoUnmarshallerFactory  dtoUnmarshallerFactory;
-    private final DtoFactory              dtoFactory;
-    private final BranchSearcher          branchSearcher;
-    private       CurrentProject          project;
+    private final PullView                    view;
+    private final GitServiceClient            gitServiceClient;
+    private final EventBus                    eventBus;
+    private final GitLocalizationConstant     constant;
+    private final EditorAgent                 editorAgent;
+    private final AppContext                  appContext;
+    private final NotificationManager         notificationManager;
+    private final DtoUnmarshallerFactory      dtoUnmarshallerFactory;
+    private final DtoFactory                  dtoFactory;
+    private final BranchSearcher              branchSearcher;
+    private final NewProjectExplorerPresenter projectExplorer;
+    private       CurrentProject              project;
 
 
     @Inject
@@ -71,10 +71,12 @@ public class PullPresenter implements PullView.ActionDelegate {
                          NotificationManager notificationManager,
                          DtoUnmarshallerFactory dtoUnmarshallerFactory,
                          DtoFactory dtoFactory,
-                         BranchSearcher branchSearcher) {
+                         BranchSearcher branchSearcher,
+                         NewProjectExplorerPresenter projectExplorer) {
         this.view = view;
         this.dtoFactory = dtoFactory;
         this.branchSearcher = branchSearcher;
+        this.projectExplorer = projectExplorer;
         this.view.setDelegate(this);
         this.gitServiceClient = gitServiceClient;
         this.eventBus = eventBus;
@@ -99,9 +101,9 @@ public class PullPresenter implements PullView.ActionDelegate {
         view.setEnablePullButton(true);
 
         gitServiceClient.remoteList(project.getRootProject(), null, true,
-                                    new AsyncRequestCallback<Array<Remote>>(dtoUnmarshallerFactory.newArrayUnmarshaller(Remote.class)) {
+                                    new AsyncRequestCallback<List<Remote>>(dtoUnmarshallerFactory.newListUnmarshaller(Remote.class)) {
                                         @Override
-                                        protected void onSuccess(Array<Remote> result) {
+                                        protected void onSuccess(List<Remote> result) {
                                             getBranches(LIST_REMOTE);
                                             view.setRepositories(result);
                                             view.setEnablePullButton(!result.isEmpty());
@@ -128,16 +130,16 @@ public class PullPresenter implements PullView.ActionDelegate {
      */
     private void getBranches(@Nonnull final String remoteMode) {
         gitServiceClient.branchList(project.getRootProject(), remoteMode,
-                                    new AsyncRequestCallback<Array<Branch>>(dtoUnmarshallerFactory.newArrayUnmarshaller(Branch.class)) {
+                                    new AsyncRequestCallback<List<Branch>>(dtoUnmarshallerFactory.newListUnmarshaller(Branch.class)) {
                                         @Override
-                                        protected void onSuccess(Array<Branch> result) {
+                                        protected void onSuccess(List<Branch> result) {
                                             if (LIST_REMOTE.equals(remoteMode)) {
                                                 view.setRemoteBranches(branchSearcher.getRemoteBranchesToDisplay(view.getRepositoryName(),
                                                                                                                  result));
                                                 getBranches(LIST_LOCAL);
                                             } else {
                                                 view.setLocalBranches(branchSearcher.getLocalBranchesToDisplay(result));
-                                                for (Branch branch : result.asIterable()) {
+                                                for (Branch branch : result) {
                                                     if (branch.isActive()) {
                                                         view.selectRemoteBranch(branch.getDisplayName());
                                                         break;
@@ -166,7 +168,7 @@ public class PullPresenter implements PullView.ActionDelegate {
         view.close();
 
         final List<EditorPartPresenter> openedEditors = new ArrayList<>();
-        for (EditorPartPresenter partPresenter : editorAgent.getOpenedEditors().getValues().asIterable()) {
+        for (EditorPartPresenter partPresenter : editorAgent.getOpenedEditors().values()) {
             openedEditors.add(partPresenter);
         }
 
@@ -197,7 +199,7 @@ public class PullPresenter implements PullView.ActionDelegate {
      *         editors that corresponds to open files
      */
     private void refreshProject(final List<EditorPartPresenter> openedEditors) {
-        eventBus.fireEvent(new RefreshProjectTreeEvent());
+        projectExplorer.reloadChildren();
         for (EditorPartPresenter partPresenter : openedEditors) {
             final VirtualFile file = partPresenter.getEditorInput().getFile();
             eventBus.fireEvent(new FileEvent(file, FileEvent.FileOperation.CLOSE));

@@ -10,24 +10,23 @@
  *******************************************************************************/
 package org.eclipse.che.plugin.yeoman.client.panel;
 
-import org.eclipse.che.api.builder.BuildStatus;
-import org.eclipse.che.api.builder.dto.BuildOptions;
-import org.eclipse.che.ide.api.app.AppContext;
-import org.eclipse.che.ide.api.event.RefreshProjectTreeEvent;
-import org.eclipse.che.ide.api.parts.base.BasePresenter;
-import org.eclipse.che.ide.dto.DtoFactory;
-import org.eclipse.che.plugin.yeoman.client.builder.BuilderAgent;
-import org.eclipse.che.plugin.yeoman.client.builder.BuildFinishedCallback;
-
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.google.web.bindery.event.shared.EventBus;
+
+import org.eclipse.che.api.builder.BuildStatus;
+import org.eclipse.che.api.builder.dto.BuildOptions;
+import org.eclipse.che.ide.api.parts.base.BasePresenter;
+import org.eclipse.che.ide.dto.DtoFactory;
+import org.eclipse.che.ide.part.explorer.project.NewProjectExplorerPresenter;
+import org.eclipse.che.plugin.yeoman.client.builder.BuildFinishedCallback;
+import org.eclipse.che.plugin.yeoman.client.builder.BuilderAgent;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 
@@ -57,21 +56,20 @@ public class YeomanPartPresenter extends BasePresenter implements YeomanPartView
      */
     private Map<YeomanGeneratorType, FoldingPanel> widgetByTypes;
 
-    private EventBus eventBus;
-
     private DtoFactory   dtoFactory;
     private BuilderAgent builderAgent;
+    private final NewProjectExplorerPresenter projectExplorer;
 
     @Inject
-    public YeomanPartPresenter(YeomanPartView view, EventBus eventBus, FoldingPanelFactory foldingPanelFactory,
-                               GeneratedItemViewFactory generatedItemViewFactory, AppContext appContext, DtoFactory dtoFactory,
-                               BuilderAgent builderAgent) {
+    public YeomanPartPresenter(YeomanPartView view, FoldingPanelFactory foldingPanelFactory,
+                               GeneratedItemViewFactory generatedItemViewFactory, DtoFactory dtoFactory,
+                               BuilderAgent builderAgent, NewProjectExplorerPresenter projectExplorer) {
         this.view = view;
-        this.eventBus = eventBus;
         this.foldingPanelFactory = foldingPanelFactory;
         this.generatedItemViewFactory = generatedItemViewFactory;
         this.dtoFactory = dtoFactory;
         this.builderAgent = builderAgent;
+        this.projectExplorer = projectExplorer;
         this.namesByTypes = new HashMap<>();
         this.widgetByTypes = new HashMap<>();
 
@@ -159,7 +157,7 @@ public class YeomanPartPresenter extends BasePresenter implements YeomanPartView
     public void onFinished(BuildStatus buildStatus) {
         // refresh the tree if it is successful
         if (buildStatus == BuildStatus.SUCCESSFUL) {
-            eventBus.fireEvent(new RefreshProjectTreeEvent());
+            projectExplorer.reloadChildren();
             // remove what has been generated
             namesByTypes.clear();
             widgetByTypes.clear();
@@ -180,7 +178,7 @@ public class YeomanPartPresenter extends BasePresenter implements YeomanPartView
             YeomanGeneratorType type = entry.getKey();
             List<String> names = entry.getValue();
             for (String name : names) {
-                targets.add("angular:".concat(type.getName().toLowerCase()));
+                targets.add("angular:".concat(type.getName().toLowerCase(Locale.ENGLISH)));
                 targets.add(name);
             }
         }

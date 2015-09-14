@@ -20,6 +20,7 @@ import org.eclipse.che.ide.api.selection.SelectionAgent;
 import org.eclipse.che.ide.ext.svn.client.SubversionExtensionLocalizationConstants;
 import org.eclipse.che.ide.ext.svn.client.SubversionExtensionResources;
 import org.eclipse.che.ide.ext.svn.client.move.MovePresenter;
+import org.eclipse.che.ide.part.explorer.project.NewProjectExplorerPresenter;
 
 /**
  * Extension of {@link SubversionAction} for implementing the "svn move" command.
@@ -36,10 +37,10 @@ public class MoveAction extends SubversionAction {
                       AppContext appContext,
                       SubversionExtensionLocalizationConstants constants,
                       SubversionExtensionResources resources,
-                      SelectionAgent selectionAgent,
+                      final NewProjectExplorerPresenter projectExplorerPresenter,
                       MovePresenter presenter) {
         super(constants.moveActionTitle(), constants.moveActionDescription(), resources.move(), eventLogger, appContext, constants,
-              resources, selectionAgent);
+              resources, projectExplorerPresenter);
         this.presenter = presenter;
     }
 

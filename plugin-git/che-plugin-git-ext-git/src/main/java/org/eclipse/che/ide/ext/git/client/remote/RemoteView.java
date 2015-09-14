@@ -12,9 +12,9 @@ package org.eclipse.che.ide.ext.git.client.remote;
 
 import org.eclipse.che.api.git.shared.Remote;
 import org.eclipse.che.ide.api.mvp.View;
-import org.eclipse.che.ide.collections.Array;
 
 import javax.annotation.Nonnull;
+import java.util.List;
 
 /**
  * The view of {@link RemotePresenter}.
@@ -23,7 +23,7 @@ import javax.annotation.Nonnull;
  */
 public interface RemoteView extends View<RemoteView.ActionDelegate> {
     /** Needs for delegate some function into Applications view. */
-    public interface ActionDelegate {
+    interface ActionDelegate {
         /** Performs any actions appropriate in response to the user having pressed the Close button. */
         void onCloseClicked();
 
@@ -37,9 +37,9 @@ public interface RemoteView extends View<RemoteView.ActionDelegate> {
          * Performs any action in response to the user having select remote.
          *
          * @param remote
-         *         selected Remote
+         *         selected remote. It can be null when user remove selected remote
          */
-        void onRemoteSelected(@Nonnull Remote remote);
+        void onRemoteSelected(Remote remote);
     }
 
     /**
@@ -48,7 +48,7 @@ public interface RemoteView extends View<RemoteView.ActionDelegate> {
      * @param remotes
      *         list of available remote repositories.
      */
-    void setRemotes(@Nonnull Array<Remote> remotes);
+    void setRemotes(@Nonnull List<Remote> remotes);
 
     /**
      * Change the enable state of the delete button.

@@ -126,10 +126,12 @@ public class GitImporterPagePresenter extends AbstractWizardPage<ImportProject> 
 
         if (keepDirectory) {
             projectParameters().put("keepDirectory", view.getDirectoryName());
+            dataObject.getProject().withType("blank");
             view.highlightDirectoryNameField(!NameUtils.checkProjectName(view.getDirectoryName()));
             view.focusDirectoryNameFiend();
         } else {
             projectParameters().remove("keepDirectory");
+            dataObject.getProject().withType(null);
             view.highlightDirectoryNameField(false);
         }
     }
@@ -138,9 +140,13 @@ public class GitImporterPagePresenter extends AbstractWizardPage<ImportProject> 
     public void keepDirectoryNameChanged(@Nonnull String directoryName) {
         if (view.keepDirectory()) {
             projectParameters().put("keepDirectory", directoryName);
+            dataObject.getProject().setContentRoot(view.getDirectoryName());
+            dataObject.getProject().withType("blank");
             view.highlightDirectoryNameField(!NameUtils.checkProjectName(view.getDirectoryName()));
         } else {
             projectParameters().remove("keepDirectory");
+            dataObject.getProject().setContentRoot(null);
+            dataObject.getProject().withType(null);
             view.highlightDirectoryNameField(false);
         }
     }

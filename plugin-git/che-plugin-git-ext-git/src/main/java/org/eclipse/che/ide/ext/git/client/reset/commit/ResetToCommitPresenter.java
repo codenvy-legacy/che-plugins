@@ -19,15 +19,14 @@ import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.editor.EditorPartPresenter;
-import org.eclipse.che.ide.api.event.OpenProjectEvent;
 import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.api.notification.NotificationManager;
+import org.eclipse.che.ide.part.explorer.project.NewProjectExplorerPresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.google.web.bindery.event.shared.EventBus;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -39,20 +38,20 @@ import static org.eclipse.che.ide.api.notification.Notification.Type.INFO;
 /**
  * Presenter for resetting head to commit.
  *
- * @author <a href="mailto:zhulevaanna@gmail.com">Ann Zhuleva</a>
+ * @author Ann Zhuleva
  */
 @Singleton
 public class ResetToCommitPresenter implements ResetToCommitView.ActionDelegate {
-    private final DtoUnmarshallerFactory    dtoUnmarshallerFactory;
-    private       ResetToCommitView         view;
-    private       GitServiceClient          service;
-    private       Revision                  selectedRevision;
-    private       AppContext                appContext;
-    private       GitLocalizationConstant   constant;
-    private       NotificationManager       notificationManager;
-    private       EditorAgent               editorAgent;
-    private       EventBus                  eventBus;
-    private       List<EditorPartPresenter> openedEditors;
+    private final DtoUnmarshallerFactory      dtoUnmarshallerFactory;
+    private       ResetToCommitView           view;
+    private final NewProjectExplorerPresenter projectExplorer;
+    private       GitServiceClient            service;
+    private       Revision                    selectedRevision;
+    private       AppContext                  appContext;
+    private       GitLocalizationConstant     constant;
+    private       NotificationManager         notificationManager;
+    private       EditorAgent                 editorAgent;
+    private       List<EditorPartPresenter>   openedEditors;
 
     /**
      * Create presenter.
@@ -61,16 +60,16 @@ public class ResetToCommitPresenter implements ResetToCommitView.ActionDelegate 
     public ResetToCommitPresenter(ResetToCommitView view,
                                   GitServiceClient service,
                                   GitLocalizationConstant constant,
-                                  EventBus eventBus,
                                   EditorAgent editorAgent,
                                   AppContext appContext,
                                   NotificationManager notificationManager,
-                                  DtoUnmarshallerFactory dtoUnmarshallerFactory) {
+                                  DtoUnmarshallerFactory dtoUnmarshallerFactory,
+                                  NewProjectExplorerPresenter projectExplorer) {
         this.view = view;
+        this.projectExplorer = projectExplorer;
         this.view.setDelegate(this);
         this.service = service;
         this.constant = constant;
-        this.eventBus = eventBus;
         this.editorAgent = editorAgent;
         this.appContext = appContext;
         this.notificationManager = notificationManager;
@@ -109,7 +108,7 @@ public class ResetToCommitPresenter implements ResetToCommitView.ActionDelegate 
         view.close();
 
         openedEditors = new ArrayList<>();
-        for (EditorPartPresenter partPresenter : editorAgent.getOpenedEditors().getValues().asIterable()) {
+        for (EditorPartPresenter partPresenter : editorAgent.getOpenedEditors().values()) {
             openedEditors.add(partPresenter);
         }
         reset();
@@ -153,7 +152,7 @@ public class ResetToCommitPresenter implements ResetToCommitView.ActionDelegate 
                                   // must change the workdir
                                   //In this case we can have unconfigured state of the project,
                                   //so we must repeat the logic which is performed when we open a project
-                                  eventBus.fireEvent(new OpenProjectEvent(project.getPath()));
+                                  projectExplorer.reloadChildren();
                               }
                               Notification notification = new Notification(constant.resetSuccessfully(), INFO);
                               notificationManager.showNotification(notification);

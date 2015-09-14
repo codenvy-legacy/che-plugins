@@ -17,7 +17,8 @@ import org.eclipse.che.ide.ext.svn.client.status.StatusPresenter;
 import org.eclipse.che.api.analytics.client.logger.AnalyticsEventLogger;
 import org.eclipse.che.ide.api.action.ActionEvent;
 import org.eclipse.che.ide.api.app.AppContext;
-import org.eclipse.che.ide.api.selection.SelectionAgent;
+import org.eclipse.che.ide.part.explorer.project.NewProjectExplorerPresenter;
+
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -34,12 +35,12 @@ public class StatusAction extends SubversionAction {
     @Inject
     public StatusAction(final AnalyticsEventLogger eventLogger,
                         final AppContext appContext,
-                        final SelectionAgent selectionAgent,
+                        final NewProjectExplorerPresenter projectExplorerPresenter,
                         final SubversionExtensionLocalizationConstants constants,
                         final SubversionExtensionResources resources,
                         final StatusPresenter presenter) {
         super(constants.statusTitle(), constants.statusDescription(), resources.status(), eventLogger,
-              appContext, constants, resources, selectionAgent);
+              appContext, constants, resources, projectExplorerPresenter);
 
         this.presenter = presenter;
     }

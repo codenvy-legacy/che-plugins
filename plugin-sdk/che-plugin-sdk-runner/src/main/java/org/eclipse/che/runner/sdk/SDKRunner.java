@@ -28,10 +28,10 @@ import org.eclipse.che.api.runner.internal.RunnerConfigurationFactory;
 import org.eclipse.che.commons.lang.IoUtil;
 import org.eclipse.che.commons.lang.ZipUtils;
 import org.eclipse.che.dto.server.DtoFactory;
-import org.eclipse.che.ide.commons.GwtXmlUtils;
 import org.eclipse.che.ide.maven.tools.Dependency;
 import org.eclipse.che.ide.maven.tools.Model;
 
+import org.eclipse.che.ide.sdk.tools.GwtXmlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

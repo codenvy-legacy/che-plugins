@@ -10,6 +10,10 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.maven.client;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+import com.google.web.bindery.event.shared.EventBus;
+
 import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
 import org.eclipse.che.api.project.shared.dto.BuildersDescriptor;
 import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
@@ -17,36 +21,20 @@ import org.eclipse.che.ide.api.action.ActionManager;
 import org.eclipse.che.ide.api.action.DefaultActionGroup;
 import org.eclipse.che.ide.api.constraints.Anchor;
 import org.eclipse.che.ide.api.constraints.Constraints;
-import org.eclipse.che.ide.api.event.FileEvent;
-import org.eclipse.che.ide.api.event.FileEventHandler;
 import org.eclipse.che.ide.api.event.ProjectActionEvent;
 import org.eclipse.che.ide.api.event.ProjectActionHandler;
-import org.eclipse.che.ide.api.event.RefreshProjectTreeEvent;
 import org.eclipse.che.ide.api.extension.Extension;
 import org.eclipse.che.ide.api.icon.Icon;
 import org.eclipse.che.ide.api.icon.IconRegistry;
-import org.eclipse.che.ide.api.project.tree.TreeStructureProviderRegistry;
-import org.eclipse.che.ide.api.project.tree.generic.ProjectNode;
 import org.eclipse.che.ide.api.project.type.wizard.PreSelectedProjectTypeManager;
-import org.eclipse.che.ide.collections.Array;
-import org.eclipse.che.ide.collections.Collections;
 import org.eclipse.che.ide.ext.java.client.dependenciesupdater.DependenciesUpdater;
 import org.eclipse.che.ide.extension.maven.client.actions.CreateMavenModuleAction;
 import org.eclipse.che.ide.extension.maven.client.actions.CustomBuildAction;
 import org.eclipse.che.ide.extension.maven.client.actions.UpdateDependencyAction;
-import org.eclipse.che.ide.extension.maven.client.event.BeforeModuleOpenEvent;
-import org.eclipse.che.ide.extension.maven.client.event.BeforeModuleOpenHandler;
-import org.eclipse.che.ide.extension.maven.client.projecttree.MavenProjectTreeStructureProvider;
 import org.eclipse.che.ide.extension.maven.shared.MavenAttributes;
-import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
-import org.eclipse.che.ide.rest.Unmarshallable;
-import org.eclipse.che.ide.util.loging.Log;
 
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
-import com.google.web.bindery.event.shared.EventBus;
-
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -62,25 +50,21 @@ import static org.eclipse.che.ide.api.action.IdeActions.GROUP_FILE_NEW;
 @Singleton
 @Extension(title = "Maven", version = "3.0.0")
 public class MavenExtension {
-    private static Array<MavenArchetype> archetypes;
+    private static List<MavenArchetype> archetypes;
 
     @Inject
-    public MavenExtension(TreeStructureProviderRegistry treeStructureProviderRegistry,
-                          PreSelectedProjectTypeManager preSelectedProjectManager) {
-
-        treeStructureProviderRegistry.associateProjectTypeToTreeProvider(MavenAttributes.MAVEN_ID, MavenProjectTreeStructureProvider.ID);
+    public MavenExtension(PreSelectedProjectTypeManager preSelectedProjectManager) {
 
         preSelectedProjectManager.setProjectTypeIdToPreselect(MavenAttributes.MAVEN_ID, 100);
 
-        archetypes =
-                Collections.createArray(new MavenArchetype("org.apache.maven.archetypes", "maven-archetype-quickstart", "RELEASE", null),
-                                        new MavenArchetype("org.apache.maven.archetypes", "maven-archetype-webapp", "RELEASE", null),
-                                        new MavenArchetype("org.apache.openejb.maven", "tomee-webapp-archetype", "1.7.1", null),
-                                        new MavenArchetype("org.apache.cxf.archetype", "cxf-jaxws-javafirst", "RELEASE", null),
-                                        new MavenArchetype("org.apache.cxf.archetype", "cxf-jaxrs-service", "RELEASE", null));
+        archetypes = Arrays.asList(new MavenArchetype("org.apache.maven.archetypes", "maven-archetype-quickstart", "RELEASE", null),
+                                   new MavenArchetype("org.apache.maven.archetypes", "maven-archetype-webapp", "RELEASE", null),
+                                   new MavenArchetype("org.apache.openejb.maven", "tomee-webapp-archetype", "1.7.1", null),
+                                   new MavenArchetype("org.apache.cxf.archetype", "cxf-jaxws-javafirst", "RELEASE", null),
+                                   new MavenArchetype("org.apache.cxf.archetype", "cxf-jaxrs-service", "RELEASE", null));
     }
 
-    public static Array<MavenArchetype> getAvailableArchetypes() {
+    public static List<MavenArchetype> getAvailableArchetypes() {
         return archetypes;
     }
 
@@ -89,18 +73,10 @@ public class MavenExtension {
                             final DependenciesUpdater dependenciesUpdater,
                             final ProjectServiceClient projectServiceClient,
                             final DtoUnmarshallerFactory dtoUnmarshallerFactory) {
-        eventBus.addHandler(BeforeModuleOpenEvent.TYPE, new BeforeModuleOpenHandler() {
-            @Override
-            public void onBeforeModuleOpen(BeforeModuleOpenEvent event) {
-                if (isValidForResolveDependencies(event.getModule().getProject().getData())) {
-                    dependenciesUpdater.updateDependencies(event.getModule().getData(), false);
-                }
-            }
-        });
 
         eventBus.addHandler(ProjectActionEvent.TYPE, new ProjectActionHandler() {
             @Override
-            public void onProjectOpened(ProjectActionEvent event) {
+            public void onProjectReady(ProjectActionEvent event) {
                 ProjectDescriptor project = event.getProject();
                 if (isValidForResolveDependencies(project)) {
                     dependenciesUpdater.updateDependencies(project, false);
@@ -113,6 +89,11 @@ public class MavenExtension {
 
             @Override
             public void onProjectClosed(ProjectActionEvent event) {
+            }
+
+            @Override
+            public void onProjectOpened(ProjectActionEvent event) {
+
             }
         });
     }

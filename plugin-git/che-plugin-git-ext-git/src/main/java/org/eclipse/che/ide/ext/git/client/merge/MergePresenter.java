@@ -10,7 +10,10 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.git.client.merge;
 
-import org.eclipse.che.ide.ext.git.client.GitLocalizationConstant;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+import com.google.web.bindery.event.shared.EventBus;
+
 import org.eclipse.che.api.git.gwt.client.GitServiceClient;
 import org.eclipse.che.api.git.shared.Branch;
 import org.eclipse.che.api.git.shared.MergeResult;
@@ -19,30 +22,25 @@ import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.editor.EditorPartPresenter;
 import org.eclipse.che.ide.api.event.FileEvent;
-import org.eclipse.che.ide.api.event.RefreshProjectTreeEvent;
 import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.project.tree.VirtualFile;
-import org.eclipse.che.ide.collections.Array;
-import org.eclipse.che.ide.collections.Collections;
-import org.eclipse.che.ide.commons.exception.ExceptionThrownEvent;
+import org.eclipse.che.ide.ext.git.client.GitLocalizationConstant;
+import org.eclipse.che.ide.part.explorer.project.NewProjectExplorerPresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
-import com.google.web.bindery.event.shared.EventBus;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.eclipse.che.api.git.shared.BranchListRequest.LIST_LOCAL;
+import static org.eclipse.che.api.git.shared.BranchListRequest.LIST_REMOTE;
+import static org.eclipse.che.api.git.shared.MergeResult.MergeStatus.ALREADY_UP_TO_DATE;
 import static org.eclipse.che.ide.api.notification.Notification.Type.ERROR;
 import static org.eclipse.che.ide.api.notification.Notification.Type.INFO;
 import static org.eclipse.che.ide.ext.git.client.merge.Reference.RefType.LOCAL_BRANCH;
 import static org.eclipse.che.ide.ext.git.client.merge.Reference.RefType.REMOTE_BRANCH;
-import static org.eclipse.che.api.git.shared.BranchListRequest.LIST_LOCAL;
-import static org.eclipse.che.api.git.shared.BranchListRequest.LIST_REMOTE;
-import static org.eclipse.che.api.git.shared.MergeResult.MergeStatus.ALREADY_UP_TO_DATE;
 
 /**
  * Presenter to perform merge reference with current HEAD commit.
@@ -53,15 +51,16 @@ import static org.eclipse.che.api.git.shared.MergeResult.MergeStatus.ALREADY_UP_
 public class MergePresenter implements MergeView.ActionDelegate {
     public static final String LOCAL_BRANCHES_TITLE  = "Local Branches";
     public static final String REMOTE_BRANCHES_TITLE = "Remote Branches";
-    private final DtoUnmarshallerFactory  dtoUnmarshallerFactory;
-    private       MergeView               view;
-    private       GitServiceClient        service;
-    private       EventBus                eventBus;
-    private       GitLocalizationConstant constant;
-    private       EditorAgent             editorAgent;
-    private       AppContext              appContext;
-    private       Reference               selectedReference;
-    private       NotificationManager     notificationManager;
+    private final DtoUnmarshallerFactory      dtoUnmarshallerFactory;
+    private       MergeView                   view;
+    private final NewProjectExplorerPresenter projectExplorer;
+    private       GitServiceClient            service;
+    private       EventBus                    eventBus;
+    private       GitLocalizationConstant     constant;
+    private       EditorAgent                 editorAgent;
+    private       AppContext                  appContext;
+    private       Reference                   selectedReference;
+    private       NotificationManager         notificationManager;
 
     /**
      * Create presenter.
@@ -81,8 +80,10 @@ public class MergePresenter implements MergeView.ActionDelegate {
                           GitLocalizationConstant constant,
                           AppContext appContext,
                           NotificationManager notificationManager,
-                          DtoUnmarshallerFactory dtoUnmarshallerFactory) {
+                          DtoUnmarshallerFactory dtoUnmarshallerFactory,
+                          NewProjectExplorerPresenter projectExplorer) {
         this.view = view;
+        this.projectExplorer = projectExplorer;
         this.view.setDelegate(this);
         this.service = service;
         this.eventBus = eventBus;
@@ -100,16 +101,15 @@ public class MergePresenter implements MergeView.ActionDelegate {
         view.setEnableMergeButton(false);
 
         service.branchList(project, LIST_LOCAL,
-                           new AsyncRequestCallback<Array<Branch>>(dtoUnmarshallerFactory.newArrayUnmarshaller(Branch.class)) {
+                           new AsyncRequestCallback<List<Branch>>(dtoUnmarshallerFactory.newListUnmarshaller(Branch.class)) {
                                @Override
-                               protected void onSuccess(Array<Branch> result) {
+                               protected void onSuccess(List<Branch> result) {
                                    if (result.isEmpty()) {
                                        return;
                                    }
 
-                                   Array<Reference> references = Collections.createArray();
-                                   for (int i = 0; i < result.size(); i++) {
-                                       Branch branch = result.get(i);
+                                   List<Reference> references = new ArrayList<>();
+                                   for (Branch branch : result) {
                                        if (!branch.isActive()) {
                                            Reference reference = new Reference(branch.getName(), branch.getDisplayName(), LOCAL_BRANCH);
                                            references.add(reference);
@@ -120,23 +120,21 @@ public class MergePresenter implements MergeView.ActionDelegate {
 
                                @Override
                                protected void onFailure(Throwable exception) {
-                                   eventBus.fireEvent(new ExceptionThrownEvent(exception));
                                    Notification notification = new Notification(exception.getMessage(), ERROR);
                                    notificationManager.showNotification(notification);
                                }
                            });
 
         service.branchList(project, LIST_REMOTE,
-                           new AsyncRequestCallback<Array<Branch>>(dtoUnmarshallerFactory.newArrayUnmarshaller(Branch.class)) {
+                           new AsyncRequestCallback<List<Branch>>(dtoUnmarshallerFactory.newListUnmarshaller(Branch.class)) {
                                @Override
-                               protected void onSuccess(Array<Branch> result) {
+                               protected void onSuccess(List<Branch> result) {
                                    if (result.isEmpty()) {
                                        return;
                                    }
 
-                                   Array<Reference> references = Collections.createArray();
-                                   for (int i = 0; i < result.size(); i++) {
-                                       Branch branch = result.get(i);
+                                   List<Reference> references = new ArrayList<>();
+                                   for (Branch branch : result) {
                                        if (!branch.isActive()) {
                                            Reference reference =
                                                    new Reference(branch.getName(), branch.getDisplayName(), REMOTE_BRANCH);
@@ -148,7 +146,6 @@ public class MergePresenter implements MergeView.ActionDelegate {
 
                                @Override
                                protected void onFailure(Throwable exception) {
-                                   eventBus.fireEvent(new ExceptionThrownEvent(exception));
                                    Notification notification = new Notification(exception.getMessage(), ERROR);
                                    notificationManager.showNotification(notification);
                                }
@@ -169,7 +166,7 @@ public class MergePresenter implements MergeView.ActionDelegate {
         view.close();
 
         final List<EditorPartPresenter> openedEditors = new ArrayList<>();
-        for (EditorPartPresenter partPresenter : editorAgent.getOpenedEditors().getValues().asIterable()) {
+        for (EditorPartPresenter partPresenter : editorAgent.getOpenedEditors().values()) {
             openedEditors.add(partPresenter);
         }
         service.merge(appContext.getCurrentProject().getRootProject(), selectedReference.getDisplayName(),
@@ -196,7 +193,7 @@ public class MergePresenter implements MergeView.ActionDelegate {
      *         editors that corresponds to open files
      */
     private void refreshProject(final List<EditorPartPresenter> openedEditors) {
-        eventBus.fireEvent(new RefreshProjectTreeEvent());
+        projectExplorer.reloadChildren();
         for (EditorPartPresenter partPresenter : openedEditors) {
             final VirtualFile file = partPresenter.getEditorInput().getFile();
             eventBus.fireEvent(new FileEvent(file, FileEvent.FileOperation.CLOSE));
@@ -237,7 +234,7 @@ public class MergePresenter implements MergeView.ActionDelegate {
 
 
         String commitText = commitsMessage.toString();
-        message += (!commitText.isEmpty()) ? " " +constant.mergedCommits(commitText) : "";
+        message += (!commitText.isEmpty()) ? " " + constant.mergedCommits(commitText) : "";
         message += (mergeResult.getNewHead() != null) ? " " + constant.mergedNewHead(mergeResult.getNewHead()) : "";
         return message;
     }

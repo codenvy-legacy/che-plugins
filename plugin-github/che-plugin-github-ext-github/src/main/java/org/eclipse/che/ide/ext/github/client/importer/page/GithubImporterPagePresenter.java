@@ -10,14 +10,14 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.github.client.importer.page;
 
+import com.google.gwt.regexp.shared.RegExp;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.AcceptsOneWidget;
+import com.google.inject.Inject;
+
 import org.eclipse.che.api.project.shared.dto.ImportProject;
-import org.eclipse.che.api.project.shared.dto.NewProject;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.wizard.AbstractWizardPage;
-import org.eclipse.che.ide.collections.Array;
-import org.eclipse.che.ide.collections.Collections;
-import org.eclipse.che.ide.collections.StringMap;
-import org.eclipse.che.ide.commons.exception.ExceptionThrownEvent;
 import org.eclipse.che.ide.commons.exception.UnauthorizedException;
 import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.ext.github.client.GitHubClientService;
@@ -29,15 +29,13 @@ import org.eclipse.che.ide.ext.github.shared.GitHubRepository;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.util.NameUtils;
 import org.eclipse.che.security.oauth.OAuthStatus;
-import com.google.gwt.regexp.shared.RegExp;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.AcceptsOneWidget;
-import com.google.inject.Inject;
-import com.google.web.bindery.event.shared.EventBus;
 
 import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -64,8 +62,7 @@ public class GithubImporterPagePresenter extends AbstractWizardPage<ImportProjec
     private final DtoFactory                         dtoFactory;
     private       NotificationManager                notificationManager;
     private       GitHubClientService                gitHubClientService;
-    private       EventBus                           eventBus;
-    private       StringMap<Array<GitHubRepository>> repositories;
+    private       Map<String, List<GitHubRepository>> repositories;
     private       GitHubLocalizationConstant         locale;
     private       GithubImporterPageView             view;
     private       GitHubAuthenticator                gitHubAuthenticator;
@@ -76,14 +73,12 @@ public class GithubImporterPagePresenter extends AbstractWizardPage<ImportProjec
                                        NotificationManager notificationManager,
                                        GitHubClientService gitHubClientService,
                                        DtoFactory dtoFactory,
-                                       EventBus eventBus,
                                        GitHubLocalizationConstant locale) {
         this.view = view;
         this.gitHubAuthenticator = gitHubAuthenticator;
         this.notificationManager = notificationManager;
         this.gitHubClientService = gitHubClientService;
         this.dtoFactory = dtoFactory;
-        this.eventBus = eventBus;
         this.view.setDelegate(this);
         this.locale = locale;
     }
@@ -162,10 +157,12 @@ public class GithubImporterPagePresenter extends AbstractWizardPage<ImportProjec
 
         if (keepDirectory) {
             projectParameters().put("keepDirectory", view.getDirectoryName());
+            dataObject.getProject().withType("blank");
             view.highlightDirectoryNameField(!NameUtils.checkProjectName(view.getDirectoryName()));
             view.focusDirectoryNameFiend();
         } else {
             projectParameters().remove("keepDirectory");
+            dataObject.getProject().withType(null);
             view.highlightDirectoryNameField(false);
         }
     }
@@ -174,9 +171,13 @@ public class GithubImporterPagePresenter extends AbstractWizardPage<ImportProjec
     public void keepDirectoryNameChanged(@Nonnull String directoryName) {
         if (view.keepDirectory()) {
             projectParameters().put("keepDirectory", directoryName);
+            dataObject.getProject().setContentRoot(view.getDirectoryName());
+            dataObject.getProject().withType("blank");
             view.highlightDirectoryNameField(!NameUtils.checkProjectName(view.getDirectoryName()));
         } else {
             projectParameters().remove("keepDirectory");
+            dataObject.getProject().setContentRoot(null);
+            dataObject.getProject().withType(null);
             view.highlightDirectoryNameField(false);
         }
     }
@@ -215,9 +216,9 @@ public class GithubImporterPagePresenter extends AbstractWizardPage<ImportProjec
     private void getUserRepos() {
         showProcessing(true);
         gitHubClientService.getAllRepositories(
-                new AsyncRequestCallback<StringMap<Array<GitHubRepository>>>(new AllRepositoriesUnmarshaller(dtoFactory)) {
+                new AsyncRequestCallback<Map<String, List<GitHubRepository>>>(new AllRepositoriesUnmarshaller(dtoFactory)) {
                     @Override
-                    protected void onSuccess(StringMap<Array<GitHubRepository>> result) {
+                    protected void onSuccess(Map<String, List<GitHubRepository>> result) {
                         showProcessing(false);
                         onListLoaded(result);
                     }
@@ -228,7 +229,6 @@ public class GithubImporterPagePresenter extends AbstractWizardPage<ImportProjec
                         if (exception instanceof UnauthorizedException) {
                             authorize();
                         } else {
-                            eventBus.fireEvent(new ExceptionThrownEvent(exception));
                             notificationManager.showError(exception.getMessage());
                         }
                     }
@@ -276,9 +276,9 @@ public class GithubImporterPagePresenter extends AbstractWizardPage<ImportProjec
      * @param repositories
      *         loaded list of repositories
      */
-    private void onListLoaded(@Nonnull StringMap<Array<GitHubRepository>> repositories) {
+    private void onListLoaded(@Nonnull Map<String, List<GitHubRepository>> repositories) {
         this.repositories = repositories;
-        view.setAccountNames(repositories.getKeys());
+        view.setAccountNames(repositories.keySet());
         refreshProjectList();
         view.showGithubPanel();
     }
@@ -287,20 +287,20 @@ public class GithubImporterPagePresenter extends AbstractWizardPage<ImportProjec
      * Refresh project list on view.
      */
     private void refreshProjectList() {
-        Array<ProjectData> projectsData = Collections.createArray();
+        List<ProjectData> projectsData = new ArrayList<>();
 
         String accountName = view.getAccountName();
         if (repositories.containsKey(accountName)) {
-            Array<GitHubRepository> repo = repositories.get(accountName);
+            List<GitHubRepository> repo = repositories.get(accountName);
 
-            for (GitHubRepository repository : repo.asIterable()) {
+            for (GitHubRepository repository : repo) {
                 ProjectData projectData =
                         new ProjectData(repository.getName(), repository.getDescription(), null, null, repository.getSshUrl(),
                                         repository.getGitUrl());
                 projectsData.add(projectData);
             }
 
-            projectsData.sort(new Comparator<ProjectData>() {
+            Collections.sort(projectsData, new Comparator<ProjectData>() {
                 @Override
                 public int compare(ProjectData o1, ProjectData o2) {
                     return o1.getName().compareTo(o2.getName());

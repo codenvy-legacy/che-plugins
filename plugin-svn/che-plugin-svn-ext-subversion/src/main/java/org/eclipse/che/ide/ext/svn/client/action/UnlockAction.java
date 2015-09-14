@@ -16,7 +16,7 @@ import org.eclipse.che.ide.ext.svn.client.lockunlock.LockUnlockPresenter;
 import org.eclipse.che.api.analytics.client.logger.AnalyticsEventLogger;
 import org.eclipse.che.ide.api.action.ActionEvent;
 import org.eclipse.che.ide.api.app.AppContext;
-import org.eclipse.che.ide.api.selection.SelectionAgent;
+import org.eclipse.che.ide.part.explorer.project.NewProjectExplorerPresenter;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -36,11 +36,11 @@ public class UnlockAction extends SubversionAction {
     public UnlockAction(final AnalyticsEventLogger eventLogger,
                         final AppContext appContext,
                         final LockUnlockPresenter presenter,
-                        final SelectionAgent selectionAgent,
+                        final NewProjectExplorerPresenter projectExplorerPresenter,
                         final SubversionExtensionLocalizationConstants constants,
                         final SubversionExtensionResources resources) {
         super(constants.unlockTitle(), constants.unlockDescription(), resources.unlock(), eventLogger, appContext,
-              constants, resources, selectionAgent);
+              constants, resources, projectExplorerPresenter);
         this.presenter = presenter;
     }
 

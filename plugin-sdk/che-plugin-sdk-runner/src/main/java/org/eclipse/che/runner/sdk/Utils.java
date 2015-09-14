@@ -21,9 +21,9 @@ import org.eclipse.che.api.core.util.ValueHolder;
 import org.eclipse.che.api.project.server.Constants;
 import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.commons.lang.IoUtil;
-import org.eclipse.che.ide.commons.GwtXmlUtils;
 import org.eclipse.che.ide.maven.tools.MavenUtils;
 import org.eclipse.che.ide.maven.tools.Model;
+import org.eclipse.che.ide.sdk.tools.GwtXmlUtils;
 
 import java.io.IOException;
 import java.net.URL;

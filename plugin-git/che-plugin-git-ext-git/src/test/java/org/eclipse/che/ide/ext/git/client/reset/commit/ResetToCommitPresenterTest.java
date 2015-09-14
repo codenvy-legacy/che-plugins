@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.git.client.reset.commit;
 
+import com.google.web.bindery.event.shared.Event;
+import com.googlecode.gwt.test.utils.GwtReflectionUtils;
+
 import org.eclipse.che.api.git.shared.LogResponse;
 import org.eclipse.che.api.git.shared.ResetRequest;
 import org.eclipse.che.api.git.shared.Revision;
@@ -17,19 +20,12 @@ import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.editor.EditorInput;
 import org.eclipse.che.ide.api.editor.EditorPartPresenter;
-import org.eclipse.che.ide.api.event.OpenProjectEvent;
 import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.api.project.tree.generic.FileNode;
-import org.eclipse.che.ide.collections.Collections;
-import org.eclipse.che.ide.collections.StringMap;
 import org.eclipse.che.ide.ext.git.client.BaseTest;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
-import com.google.web.bindery.event.shared.Event;
-import com.googlecode.gwt.test.utils.GwtReflectionUtils;
-
 import org.junit.Test;
 import org.mockito.InjectMocks;
-import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -37,6 +33,8 @@ import org.mockito.stubbing.Answer;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NavigableMap;
+import java.util.TreeMap;
 
 import static org.eclipse.che.api.git.shared.ResetRequest.ResetType.HARD;
 import static org.eclipse.che.api.git.shared.ResetRequest.ResetType.MIXED;
@@ -53,7 +51,7 @@ import static org.mockito.Mockito.when;
 /**
  * Testing {@link ResetToCommitPresenter} functionality.
  *
- * @author <a href="mailto:aplotnikov@codenvy.com">Andrey Plotnikov</a>
+ * @author Andrey Plotnikov
  */
 public class ResetToCommitPresenterTest extends BaseTest {
     public static final boolean IS_TEXT_FORMATTED = true;
@@ -82,13 +80,13 @@ public class ResetToCommitPresenterTest extends BaseTest {
         presenter = new ResetToCommitPresenter(view,
                                                service,
                                                constant,
-                                               eventBus,
                                                editorAgent,
                                                appContext,
                                                notificationManager,
-                                               dtoUnmarshallerFactory);
+                                               dtoUnmarshallerFactory,
+                                               projectExplorer);
 
-        StringMap<EditorPartPresenter> partPresenterMap = Collections.createStringMap();
+        NavigableMap<String, EditorPartPresenter> partPresenterMap = new TreeMap<>();
         partPresenterMap.put("partPresenter", partPresenter);
 
         when(view.isMixMode()).thenReturn(IS_MIXED);
@@ -174,7 +172,6 @@ public class ResetToCommitPresenterTest extends BaseTest {
         verify(appContext).getCurrentProject();
         verify(service).reset((ProjectDescriptor)anyObject(), eq(PROJECT_PATH), eq(HARD), (List<String>)anyObject(),
                               (AsyncRequestCallback<Void>)anyObject());
-        verify(eventBus).fireEvent(Matchers.<Event<OpenProjectEvent>>anyObject());
         verify(notificationManager).showNotification((Notification)anyObject());
     }
 
@@ -207,7 +204,6 @@ public class ResetToCommitPresenterTest extends BaseTest {
         verify(appContext).getCurrentProject();
         verify(service).reset((ProjectDescriptor)anyObject(), eq(PROJECT_PATH), eq(HARD), (List<String>)anyObject(),
                               (AsyncRequestCallback<Void>)anyObject());
-        verify(eventBus).fireEvent(Matchers.<Event<OpenProjectEvent>>anyObject());
         verify(notificationManager).showNotification((Notification)anyObject());
     }
 

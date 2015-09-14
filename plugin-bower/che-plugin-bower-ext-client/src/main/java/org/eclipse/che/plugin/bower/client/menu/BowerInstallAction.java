@@ -10,19 +10,18 @@
  *******************************************************************************/
 package org.eclipse.che.plugin.bower.client.menu;
 
+import com.google.inject.Inject;
+
 import org.eclipse.che.api.analytics.client.logger.AnalyticsEventLogger;
 import org.eclipse.che.api.builder.BuildStatus;
 import org.eclipse.che.api.builder.dto.BuildOptions;
 import org.eclipse.che.ide.api.action.ActionEvent;
 import org.eclipse.che.ide.api.app.AppContext;
-import org.eclipse.che.ide.api.event.RefreshProjectTreeEvent;
 import org.eclipse.che.ide.dto.DtoFactory;
+import org.eclipse.che.ide.part.explorer.project.NewProjectExplorerPresenter;
 import org.eclipse.che.plugin.bower.client.BowerResources;
 import org.eclipse.che.plugin.bower.client.builder.BuildFinishedCallback;
 import org.eclipse.che.plugin.bower.client.builder.BuilderAgent;
-
-import com.google.inject.Inject;
-import com.google.web.bindery.event.shared.EventBus;
 
 import java.util.Arrays;
 import java.util.List;
@@ -37,7 +36,7 @@ public class BowerInstallAction extends CustomAction implements BuildFinishedCal
 
     private BuilderAgent builderAgent;
 
-    private EventBus eventBus;
+    private final NewProjectExplorerPresenter projectExplorer;
 
     private boolean buildInProgress;
 
@@ -49,16 +48,16 @@ public class BowerInstallAction extends CustomAction implements BuildFinishedCal
                               DtoFactory dtoFactory,
                               BuilderAgent builderAgent,
                               AppContext appContext,
-                              EventBus eventBus,
                               BowerResources bowerResources,
-                              AnalyticsEventLogger analyticsEventLogger) {
+                              AnalyticsEventLogger analyticsEventLogger,
+                              NewProjectExplorerPresenter projectExplorer) {
         super(appContext, localizationConstant.bowerInstallText(), localizationConstant.bowerInstallDescription(),
               bowerResources.buildIcon());
         this.dtoFactory = dtoFactory;
         this.builderAgent = builderAgent;
         this.appContext = appContext;
         this.analyticsEventLogger = analyticsEventLogger;
-        this.eventBus = eventBus;
+        this.projectExplorer = projectExplorer;
     }
 
     /** {@inheritDoc} */
@@ -81,7 +80,7 @@ public class BowerInstallAction extends CustomAction implements BuildFinishedCal
     public void onFinished(BuildStatus buildStatus) {
         // and refresh the tree if success
         if (buildStatus == BuildStatus.SUCCESSFUL) {
-            eventBus.fireEvent(new RefreshProjectTreeEvent());
+            projectExplorer.reloadChildren();
         }
         buildInProgress = false;
         appContext.getCurrentProject().setIsRunningEnabled(true);

@@ -36,7 +36,6 @@ import org.eclipse.che.ide.api.event.ProjectActionHandler;
 import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.parts.WorkspaceAgent;
-import org.eclipse.che.ide.collections.Array;
 import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.extension.builder.client.BuilderLocalizationConstant;
 import org.eclipse.che.ide.extension.builder.client.console.BuilderConsolePresenter;
@@ -130,7 +129,7 @@ public class BuildController implements Notification.OpenNotificationHandler {
 
         eventBus.addHandler(ProjectActionEvent.TYPE, new ProjectActionHandler() {
             @Override
-            public void onProjectOpened(ProjectActionEvent event) {
+            public void onProjectReady(ProjectActionEvent event) {
             }
 
             @Override
@@ -143,6 +142,11 @@ public class BuildController implements Notification.OpenNotificationHandler {
                 console.setCurrentBuilderStatus(BuilderStatus.IDLE);
                 activeProject = null;
                 lastBuildTaskDescriptor = null;
+            }
+
+            @Override
+            public void onProjectOpened(ProjectActionEvent event) {
+
             }
         });
 
@@ -167,7 +171,7 @@ public class BuildController implements Notification.OpenNotificationHandler {
      */
     public void buildActiveProject(final boolean isUserAction) {
         //Save the files before building if necessary
-        Array<EditorPartPresenter> dirtyEditors = editorAgent.getDirtyEditors();
+        List<EditorPartPresenter> dirtyEditors = editorAgent.getDirtyEditors();
         if (dirtyEditors.isEmpty()) {
             buildActiveProject(null, isUserAction);
         } else {

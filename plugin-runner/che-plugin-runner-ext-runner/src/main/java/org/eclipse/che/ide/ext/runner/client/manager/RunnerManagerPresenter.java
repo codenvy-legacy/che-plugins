@@ -67,7 +67,6 @@ import org.eclipse.che.ide.ext.runner.client.util.TimerFactory;
 import org.eclipse.che.ide.ext.runner.client.util.annotations.LeftPanel;
 import org.eclipse.che.ide.ext.runner.client.util.annotations.LeftPropertiesPanel;
 import org.eclipse.che.ide.ext.runner.client.util.annotations.RightPropertiesPanel;
-import org.eclipse.che.ide.util.Config;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -370,9 +369,7 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
                                         .scope(EnumSet.of(RUNNERS))
                                         .tabType(RIGHT)
                                         .build();
-        if (!Config.isSdkProject()) {
-            rightPropertiesContainer.addTab(terminalTab);
-        }
+        rightPropertiesContainer.addTab(terminalTab);
 
         rightPropertiesContainer.addTab(propertiesTab);
 
@@ -669,7 +666,7 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
 
     /** {@inheritDoc} */
     @Override
-    public void onProjectOpened(@Nonnull ProjectActionEvent projectActionEvent) {
+    public void onProjectReady(@Nonnull ProjectActionEvent projectActionEvent) {
         view.setEnableReRunButton(false);
         view.setEnableStopButton(false);
         view.setEnableLogsButton(false);
@@ -725,6 +722,11 @@ public class RunnerManagerPresenter extends BasePresenter implements RunnerManag
 
         getRunningProcessAction.stop();
         propertiesContainer.show((Runner)null);
+    }
+
+    @Override
+    public void onProjectOpened(ProjectActionEvent event) {
+
     }
 
     /**

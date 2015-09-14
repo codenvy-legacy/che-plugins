@@ -11,12 +11,15 @@
       Codenvy, S.A. - initial API and implementation
 
 -->
-<!DOCTYPE module PUBLIC "-//Google Inc.//DTD Google Web Toolkit 2.7.0//EN" "http://gwtproject.org/doctype/2.7.0/gwt-module.dtd">
 <module rename-to='_app'>
     <!-- Inherit the core Web Toolkit stuff.                        -->
     <inherits name='com.google.gwt.user.User'/>
     <inherits name="com.google.gwt.inject.Inject"/>
     <inherits name="com.google.gwt.json.JSON"/>
+
+    <!-- We need the JUnit module in the main module,               -->
+    <!-- otherwise eclipse complains (Google plugin bug?)           -->
+    <inherits name='com.google.gwt.junit.JUnit'/>
 
     <!-- Inherit the default GWT style sheet.  You can change       -->
     <!-- the theme of your GWT application by uncommenting          -->
@@ -24,23 +27,46 @@
     <inherits name='com.google.gwt.user.theme.standard.Standard'/>
     <!-- <inherits name='com.google.gwt.user.theme.chrome.Chrome'/> -->
     <!-- <inherits name='com.google.gwt.user.theme.dark.Dark'/>     -->
-    <!-- Other module inherits                                      -->
+
+    <!-- Core module inherits                                       -->
     <inherits name='org.eclipse.che.ide.Api'/>
     <inherits name="org.eclipse.che.ide.Core"/>
     <inherits name="org.eclipse.che.ide.ui.CodenvyUI"/>
 
+    <!-- Extensions                                                 -->
+    <inherits name='org.eclipse.che.ide.ext.help.HelpAboutExtension'/>
+    <inherits name='org.eclipse.che.ide.editor.codemirror.CodeMirrorEditor'/>
+    <inherits name='org.eclipse.che.ide.editor.orion.OrionEditor'/>
+
+
+    <inherits name='org.eclipse.che.env.local.LocalEnvironment'/>
+
+    <!--
+        Don't remove  SVN extension in some reason app not compile without it.
+        We get strange error :
+              [ERROR] Error injecting org.eclipse.che.ide.part.explorer.project.NewProjectExplorerViewImpl$ProjectExplorerResources:
+              Unable to create or inherit binding: No @Inject or default constructor found for
+              org.eclipse.che.ide.part.explorer.project.NewProjectExplorerViewImpl$ProjectExplorerResources
+
+        I can't figure out for now will see later.
+
+    -->
+    <inherits name='org.eclipse.che.ide.ext.svn.Subversion'/>
+
+
+
+    <!-- Platform API GWT client dependencies                       -->
+    <inherits name='org.eclipse.che.api.Analytics'/>
+    <inherits name='org.eclipse.che.api.Builder'/>
     <inherits name='org.eclipse.che.api.Core'/>
     <inherits name='org.eclipse.che.api.Project'/>
-    <inherits name='org.eclipse.che.api.Factory'/>
-    <inherits name='org.eclipse.che.api.Builder'/>
     <inherits name='org.eclipse.che.api.Runner'/>
-    <inherits name='org.eclipse.che.api.Workspace'/>
     <inherits name='org.eclipse.che.api.User'/>
     <inherits name='org.eclipse.che.api.Account'/>
+    <inherits name='org.eclipse.che.api.Factory'/>
     <inherits name='org.eclipse.che.api.VFS'/>
-    <inherits name='org.eclipse.che.api.Analytics'/>
-    <inherits name='org.eclipse.che.ide.editor.codemirror.CodeMirrorEditor'/>
-    <inherits name='org.eclipse.che.env.local.LocalEnvironment'/>
+    <inherits name="org.eclipse.che.api.Workspace"/>
+    <inherits name='org.eclipse.che.api.Git'/>
 
     <stylesheet src="IDE.css"/>
 
@@ -51,3 +77,4 @@
     <source path='client'/>
     <source path='shared'/>
 </module>
+

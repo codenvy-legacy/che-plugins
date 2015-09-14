@@ -86,7 +86,7 @@ public class EnvironmentImplTest {
         when(runnerEnvironment.getDescription()).thenReturn(TEXT);
         when(runnerEnvironment.getDisplayName()).thenReturn(DISPLAY_NAME);
 
-        environment = new EnvironmentImpl(appContext, util, runnerEnvironment, SYSTEM);
+        environment = new EnvironmentImpl("/api", appContext, util, runnerEnvironment, SYSTEM);
     }
 
     @Test
@@ -112,7 +112,7 @@ public class EnvironmentImplTest {
 
     @Test
     public void prepareActionShouldBePerformedWhenScopeIsProject() {
-        environment = new EnvironmentImpl(appContext, util, runnerEnvironment, PROJECT);
+        environment = new EnvironmentImpl("/api", appContext, util, runnerEnvironment, PROJECT);
 
         verify(runnerEnvironment, times(2)).getId();
         verify(appContext, times(2)).getCurrentProject();
@@ -131,7 +131,7 @@ public class EnvironmentImplTest {
     public void prepareActionShouldBePerformedWhenDisplayNameIsNull() {
         when(runnerEnvironment.getDisplayName()).thenReturn(null);
 
-        environment = new EnvironmentImpl(appContext, util, runnerEnvironment, PROJECT);
+        environment = new EnvironmentImpl("/api", appContext, util, runnerEnvironment, PROJECT);
 
         verify(runnerEnvironment, times(2)).getId();
         verify(appContext, times(2)).getCurrentProject();
@@ -150,7 +150,7 @@ public class EnvironmentImplTest {
     public void prepareActionShouldBePerformedWhenDisplayNameIsEmpty() {
         when(runnerEnvironment.getDisplayName()).thenReturn("");
 
-        environment = new EnvironmentImpl(appContext, util, runnerEnvironment, PROJECT);
+        environment = new EnvironmentImpl("/api", appContext, util, runnerEnvironment, PROJECT);
 
         verify(runnerEnvironment, times(2)).getId();
         verify(appContext, times(2)).getCurrentProject();
@@ -169,7 +169,7 @@ public class EnvironmentImplTest {
     public void shouldBeThrownExceptionInConstructorWhenCurrentProjectIsNull() {
         when(appContext.getCurrentProject()).thenReturn(null);
 
-        environment = new EnvironmentImpl(appContext, util, runnerEnvironment, SYSTEM);
+        environment = new EnvironmentImpl("/api", appContext, util, runnerEnvironment, SYSTEM);
     }
 
     @Test
@@ -202,7 +202,7 @@ public class EnvironmentImplTest {
     public void environmentIdShouldBeEqualsDefaultRunnerCategoryWhenScopeIsProject() throws Exception {
         when(util.getType()).thenReturn(FIRST_PART);
 
-        environment = new EnvironmentImpl(appContext, util, runnerEnvironment, PROJECT);
+        environment = new EnvironmentImpl("/api", appContext, util, runnerEnvironment, PROJECT);
 
         verify(util).getType();
 
@@ -214,7 +214,7 @@ public class EnvironmentImplTest {
         when(util.getCorrectCategoryName(TEXT)).thenReturn(FIRST_PART);
         when(runnerEnvironment.getId()).thenReturn(TEXT);
 
-        environment = new EnvironmentImpl(appContext, util, runnerEnvironment, SYSTEM);
+        environment = new EnvironmentImpl("/api", appContext, util, runnerEnvironment, SYSTEM);
 
         verify(util, times(2)).getCorrectCategoryName(TEXT);
 
