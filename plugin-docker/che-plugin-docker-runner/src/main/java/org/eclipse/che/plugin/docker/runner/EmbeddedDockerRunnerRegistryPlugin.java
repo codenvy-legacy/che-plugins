@@ -103,7 +103,7 @@ public class EmbeddedDockerRunnerRegistryPlugin {
                 final Path relEnvPath = dockerFilesDirPath.relativize(environmentDir.toPath());
                 try {
                     final int nameCount = relEnvPath.getNameCount();
-                    final String runner = relEnvPath.subpath(0, nameCount - 1).toString();
+                    final String runner = relEnvPath.subpath(0, nameCount - 1).toString().replace('\\', '/');
                     final String environment = relEnvPath.subpath(nameCount - 1, nameCount).toString();
                     EmbeddedDockerRunner dockerRunner = runnersMap.get(runner);
                     if (dockerRunner == null) {
