@@ -13,42 +13,20 @@ package org.eclipse.che.ide.ext.java.shared.dto.refactoring;
 
 import org.eclipse.che.dto.shared.DTO;
 
-import java.util.List;
-
 /**
- * Object represent single change during refactoring.
  * @author Evgen Vidolob
  */
 @DTO
-public interface RefactoringPreview {
+public interface ChangePreview {
+    String getOldContent();
 
-    String getId();
+    void setOldContent(String oldContent);
 
-    void setId(String id);
+    String getNewContent();
 
-    /**
-     * Test description of this change
-     */
-    String getText();
+    void setNewContent(String newContent);
 
-    void setText(String text);
+    String getFileName();
 
-    /**
-     * image for this change
-     */
-    String getImage();
-
-    void setImage(String image);
-
-    boolean isEnabled();
-
-    void setEnabled(boolean enabled);
-
-    /**
-     * Childrens of this this change, may be null if this change doesn't contains other changes.
-     */
-    List<RefactoringPreview> getChildrens();
-
-    void setChildrens(List<RefactoringPreview> childrens);
-
+    void setFileName(String name);
 }

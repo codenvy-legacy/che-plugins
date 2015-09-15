@@ -39,6 +39,7 @@ public class DtoConverter {
 
     public static RefactoringPreview toRefactoringPreview(PreviewNode node) {
         RefactoringPreview dto = DtoFactory.newDto(RefactoringPreview.class);
+        dto.setId(node.getId());
         dto.setText(node.getText());
         dto.setImage(node.getImageDescriptor().getImage());
         dto.setEnabled(true);

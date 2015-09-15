@@ -14,6 +14,7 @@ import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.resource.ImageDescriptor;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Instances of <code>PreviewNode</code> are used to present <code>
@@ -29,6 +30,8 @@ public abstract class PreviewNode {
 
 	/** Flage indicating that the change element is active */
 	final static int ACTIVE=			2;
+
+	private final String id;
 
 	final static int[][] ACTIVATION_TABLE= new int[][] {
 								/*INACTIVE*/	/*PARTLY_ACTIVE */	/*ACTIVE */
@@ -50,6 +53,7 @@ public abstract class PreviewNode {
 	 */
 	protected PreviewNode(PreviewNode parent) {
 		fParent = parent;
+        id = UUID.randomUUID().toString();
 	}
 
 	/**
@@ -72,6 +76,10 @@ public abstract class PreviewNode {
 	public PreviewNode getParent() {
 		return fParent;
 	}
+
+    public String getId() {
+        return id;
+    }
 
 	/**
 	 * Returns the text used to render this node in the

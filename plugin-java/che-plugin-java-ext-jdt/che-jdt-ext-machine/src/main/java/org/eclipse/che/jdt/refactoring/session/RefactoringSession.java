@@ -21,13 +21,16 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jdt.internal.ui.JavaPlugin;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.CheckConditionsOperation;
+import org.eclipse.ltk.core.refactoring.CompositeChange;
 import org.eclipse.ltk.core.refactoring.CreateChangeOperation;
 import org.eclipse.ltk.core.refactoring.PerformChangeOperation;
 import org.eclipse.ltk.core.refactoring.Refactoring;
 import org.eclipse.ltk.core.refactoring.RefactoringCore;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.internal.core.refactoring.Messages;
+import org.eclipse.ltk.internal.ui.refactoring.AbstractChangeNode;
 import org.eclipse.ltk.internal.ui.refactoring.FinishResult;
+import org.eclipse.ltk.internal.ui.refactoring.PreviewNode;
 
 /**
  * @author Evgen Vidolob
@@ -35,6 +38,7 @@ import org.eclipse.ltk.internal.ui.refactoring.FinishResult;
 public abstract class RefactoringSession {
 
     protected Refactoring refactoring;
+    protected PreviewNode previewNode;
     private RefactoringStatus conditionCheckingStatus;
     private Change change;
 
@@ -131,5 +135,44 @@ public abstract class RefactoringSession {
             return FinishResult.createException();
         }
         return FinishResult.createOK();
+    }
+
+    public PreviewNode getChangePreview() {
+        CompositeChange compositeChange;
+        if (change instanceof CompositeChange) {
+            compositeChange = (CompositeChange)change;
+        } else {
+            compositeChange = new CompositeChange("Dummy Change"); //$NON-NLS-1$
+            compositeChange.add(change);
+        }
+        previewNode = AbstractChangeNode.createNode(null, compositeChange);
+        return previewNode;
+    }
+
+    public void updateChangeEnabled(String changeId, boolean enabled) throws RefactoringException{
+        PreviewNode node = findNode(previewNode, changeId);
+        if(node == null) {
+            throw new RefactoringException("Can't find refactoring change to update enabled state.");
+        }
+
+        node.setEnabled(enabled);
+    }
+
+    private PreviewNode findNode(PreviewNode node, String id) {
+        if (node.getId().equals(id)) {
+            return node;
+        }
+
+        PreviewNode[] children = node.getChildren();
+        if(children != null){
+            PreviewNode found;
+            for (PreviewNode child : children) {
+                found = findNode(child, id);
+                if(found != null){
+                    return found;
+                }
+            }
+        }
+        return  null;
     }
 }

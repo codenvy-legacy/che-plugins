@@ -14,6 +14,7 @@ package org.eclipse.che.jdt.rest;
 import com.google.inject.Inject;
 
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ChangeCreationResult;
+import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ChangeEnabledState;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.CreateMoveRefactoring;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.CreateRenameRefactoring;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.JavaElement;
@@ -28,9 +29,9 @@ import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ReorgDestination;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ValidateNewName;
 import org.eclipse.che.jdt.refactoring.RefactoringException;
 import org.eclipse.che.jdt.refactoring.RefactoringManager;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
@@ -129,6 +130,13 @@ public class RefactoringService {
     public RefactoringPreview getRefactoringPreview(RefactoringSession refactoringSession) throws RefactoringException {
         return manager.getRefactoringPreview(refactoringSession.getSessionId());
     }
+
+    @POST
+    @Path("change/enabled")
+    public void changeChangeEnabledState(ChangeEnabledState state) throws RefactoringException {
+        manager.changeChangeEnabled(state);
+    }
+
 
 
     @POST
