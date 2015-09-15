@@ -15,7 +15,7 @@ import com.google.inject.ImplementedBy;
 
 import org.eclipse.che.ide.api.parts.PartStackView;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * Provides methods to control view representation of info container.
@@ -32,7 +32,7 @@ public interface MachineApplianceView extends PartStackView {
      * @param tabContainer
      *         container which need add
      */
-    void showContainer(@Nonnull IsWidget tabContainer);
+    void showContainer(@NotNull IsWidget tabContainer);
 
     /** Shows special stub when available machines are absent. */
     void showStub();
@@ -43,5 +43,5 @@ public interface MachineApplianceView extends PartStackView {
      * @param tabContainer
      *         container which will be added
      */
-    void addContainer(@Nonnull IsWidget tabContainer);
+    void addContainer(@NotNull IsWidget tabContainer);
 }

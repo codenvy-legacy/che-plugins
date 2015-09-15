@@ -23,7 +23,7 @@ import org.eclipse.che.ide.ext.git.client.init.InitRepositoryPresenter;
 import org.eclipse.che.ide.ui.dialogs.ConfirmCallback;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * @author Andrey Plotnikov
@@ -67,7 +67,7 @@ public class InitRepositoryAction extends GitAction {
     }
 
     @Override
-    public void updateInPerspective(@Nonnull ActionEvent event) {
+    public void updateInPerspective(@NotNull ActionEvent event) {
         event.getPresentation().setVisible(getActiveProject() != null);
         event.getPresentation().setEnabled(!isGitRepository());
     }

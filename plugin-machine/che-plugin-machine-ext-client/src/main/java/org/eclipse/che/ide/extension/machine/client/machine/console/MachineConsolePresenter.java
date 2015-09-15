@@ -25,7 +25,7 @@ import org.eclipse.che.ide.api.parts.base.BasePresenter;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.ui.toolbar.ToolbarPresenter;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * Machine console.
@@ -74,7 +74,7 @@ public class MachineConsolePresenter extends BasePresenter implements MachineCon
     }
 
     /** {@inheritDoc} */
-    @Nonnull
+    @NotNull
     @Override
     public String getTitle() {
         return machineLocalizationConstant.machineConsoleViewTitle() + (hasUnreadMessages ? " *" : "");

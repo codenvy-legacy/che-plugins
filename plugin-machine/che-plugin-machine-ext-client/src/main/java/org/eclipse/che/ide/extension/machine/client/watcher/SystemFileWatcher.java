@@ -29,7 +29,7 @@ import org.eclipse.che.ide.websocket.WebSocketException;
 import org.eclipse.che.ide.websocket.rest.StringUnmarshallerWS;
 import org.eclipse.che.ide.websocket.rest.SubscriptionHandler;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -61,7 +61,7 @@ public class SystemFileWatcher {
      * @param workspaceId
      *         workspace id need to add watcher for current workspace
      */
-    public void registerWatcher(@Nonnull String workspaceId) {
+    public void registerWatcher(@NotNull String workspaceId) {
         Promise<Void> watcherPromise = watcherService.registerRecursiveWatcher(workspaceId);
 
         watcherPromise.then(new Operation<Void>() {
@@ -86,7 +86,7 @@ public class SystemFileWatcher {
         });
     }
 
-    private void refreshTree(@Nonnull String path) {
+    private void refreshTree(@NotNull String path) {
         CurrentProject currentProject = appContext.getCurrentProject();
 
         if (currentProject == null) {
@@ -106,14 +106,14 @@ public class SystemFileWatcher {
         }
     }
 
-    @Nonnull
-    private String getPathToParent(@Nonnull String path) {
+    @NotNull
+    private String getPathToParent(@NotNull String path) {
         int parentPathEnd = path.lastIndexOf("/");
 
         return parentPathEnd == -1 ? path : path.substring(0, parentPathEnd);
     }
 
-    private void refreshRootNode(@Nonnull TreeStructure treeStructure) {
+    private void refreshRootNode(@NotNull TreeStructure treeStructure) {
         treeStructure.getRootNodes(new AsyncCallback<List<TreeNode<?>>>() {
             @Override
             public void onSuccess(List<TreeNode<?>> result) {
@@ -129,7 +129,7 @@ public class SystemFileWatcher {
         });
     }
 
-    private void refreshChildNode(@Nonnull TreeStructure treeStructure, @Nonnull String pathToChild) {
+    private void refreshChildNode(@NotNull TreeStructure treeStructure, @NotNull String pathToChild) {
         treeStructure.getNodeByPath(pathToChild, new AsyncCallback<TreeNode<?>>() {
             @Override
             public void onSuccess(TreeNode<?> result) {

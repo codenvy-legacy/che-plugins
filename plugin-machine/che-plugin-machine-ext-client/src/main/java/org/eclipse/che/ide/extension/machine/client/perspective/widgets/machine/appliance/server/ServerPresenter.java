@@ -19,7 +19,7 @@ import org.eclipse.che.ide.extension.machine.client.inject.factories.EntityFacto
 import org.eclipse.che.ide.extension.machine.client.machine.Machine;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.content.TabPresenter;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -47,7 +47,7 @@ public class ServerPresenter implements TabPresenter {
      * @param machine
      *         machine for which need update information
      */
-    public void updateInfo(@Nonnull Machine machine) {
+    public void updateInfo(@NotNull Machine machine) {
         List<Server> serversList = new ArrayList<>();
 
         Map<String, ServerDescriptor> servers = machine.getServers();

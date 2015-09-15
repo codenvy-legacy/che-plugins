@@ -13,7 +13,7 @@ package org.eclipse.che.ide.ext.java.jdi.client.debug;
 import org.eclipse.che.ide.ext.java.jdi.shared.Variable;
 import org.eclipse.che.ide.ext.java.jdi.shared.VariablePath;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -27,43 +27,43 @@ public class DebuggerVariable {
 
     private final Variable variable;
 
-    public DebuggerVariable(@Nonnull Variable variable) {
+    public DebuggerVariable(@NotNull Variable variable) {
         this.variable = variable;
     }
 
-    @Nonnull
+    @NotNull
     public Variable getVariable() {
         return variable;
     }
 
-    @Nonnull
+    @NotNull
     public String getName() {
         return variable.getName();
     }
 
-    public void setName(@Nonnull String name) {
+    public void setName(@NotNull String name) {
         variable.setName(name);
     }
 
-    @Nonnull
+    @NotNull
     public String getValue() {
         return variable.getValue();
     }
 
-    public void setValue(@Nonnull String value) {
+    public void setValue(@NotNull String value) {
         variable.setValue(value);
     }
 
-    @Nonnull
+    @NotNull
     public String getType() {
         return variable.getType();
     }
 
-    public void setType(@Nonnull String type) {
+    public void setType(@NotNull String type) {
         variable.setType(type);
     }
 
-    @Nonnull
+    @NotNull
     public VariablePath getVariablePath() {
         return variable.getVariablePath();
     }
@@ -72,7 +72,7 @@ public class DebuggerVariable {
         return variable.isPrimitive();
     }
 
-    @Nonnull
+    @NotNull
     public List<DebuggerVariable> getVariables() {
         List<DebuggerVariable> variables = new ArrayList<>();
 
@@ -83,7 +83,7 @@ public class DebuggerVariable {
         return variables;
     }
 
-    public void setVariables(@Nonnull List<DebuggerVariable> debuggerVariables) {
+    public void setVariables(@NotNull List<DebuggerVariable> debuggerVariables) {
         List<Variable> variables = new ArrayList<>();
 
         for (DebuggerVariable debuggerVariable : debuggerVariables) {

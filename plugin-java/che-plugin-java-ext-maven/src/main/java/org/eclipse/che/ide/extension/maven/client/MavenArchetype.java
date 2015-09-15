@@ -10,8 +10,8 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.maven.client;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+import org.eclipse.che.commons.annotation.Nullable;
 
 /**
  * Describes the Maven archetype.
@@ -38,24 +38,24 @@ public class MavenArchetype {
      * @param repository
      *         the repository where need to find the archetype
      */
-    public MavenArchetype(@Nonnull String groupId, @Nonnull String artifactId, @Nonnull String version, @Nullable String repository) {
+    public MavenArchetype(@NotNull String groupId, @NotNull String artifactId, @NotNull String version, @Nullable String repository) {
         this.groupId = groupId;
         this.artifactId = artifactId;
         this.version = version;
         this.repository = repository;
     }
 
-    @Nonnull
+    @NotNull
     public String getGroupId() {
         return groupId;
     }
 
-    @Nonnull
+    @NotNull
     public String getArtifactId() {
         return artifactId;
     }
 
-    @Nonnull
+    @NotNull
     public String getVersion() {
         return version;
     }

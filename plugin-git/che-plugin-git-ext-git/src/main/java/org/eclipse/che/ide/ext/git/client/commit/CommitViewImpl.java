@@ -28,7 +28,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * The implementation of {@link CommitView}.
@@ -115,7 +115,7 @@ public class CommitViewImpl extends Window implements CommitView {
     }
 
     /** {@inheritDoc} */
-    @Nonnull
+    @NotNull
     @Override
     public String getMessage() {
         return message.getText();
@@ -123,7 +123,7 @@ public class CommitViewImpl extends Window implements CommitView {
 
     /** {@inheritDoc} */
     @Override
-    public void setMessage(@Nonnull String message) {
+    public void setMessage(@NotNull String message) {
         this.message.setText(message);
     }
 

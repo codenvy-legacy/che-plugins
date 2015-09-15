@@ -50,7 +50,7 @@ import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.inject.Inject;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -241,7 +241,7 @@ public class GithubImporterPageViewImpl extends Composite implements GithubImpor
     }
 
     @Override
-    public void setProjectUrl(@Nonnull String url) {
+    public void setProjectUrl(@NotNull String url) {
         projectUrl.setText(url);
         delegate.projectUrlChanged(url);
     }
@@ -275,7 +275,7 @@ public class GithubImporterPageViewImpl extends Composite implements GithubImpor
     }
 
     @Override
-    public void showUrlError(@Nonnull String message) {
+    public void showUrlError(@NotNull String message) {
         projectUrl.addStyleName(style.inputError());
         labelUrlError.setText(message);
     }
@@ -286,20 +286,20 @@ public class GithubImporterPageViewImpl extends Composite implements GithubImpor
         labelUrlError.setText("");
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public String getProjectName() {
         return projectName.getValue();
     }
 
     @Override
-    public void setProjectName(@Nonnull String projectName) {
+    public void setProjectName(@NotNull String projectName) {
         this.projectName.setValue(projectName);
         delegate.projectNameChanged(projectName);
     }
 
     @Override
-    public void setProjectDescription(@Nonnull String projectDescription) {
+    public void setProjectDescription(@NotNull String projectDescription) {
         this.projectDescription.setText(projectDescription);
         delegate.projectDescriptionChanged(projectDescription);
     }
@@ -366,12 +366,12 @@ public class GithubImporterPageViewImpl extends Composite implements GithubImpor
     }
 
     @Override
-    public void setDelegate(@Nonnull ActionDelegate delegate) {
+    public void setDelegate(@NotNull ActionDelegate delegate) {
         this.delegate = delegate;
     }
 
     @Override
-    public void setRepositories(@Nonnull List<ProjectData> repositories) {
+    public void setRepositories(@NotNull List<ProjectData> repositories) {
         // Wraps Array in java.util.List
         List<ProjectData> list = new ArrayList<ProjectData>();
         for (ProjectData repository : repositories) {
@@ -380,7 +380,7 @@ public class GithubImporterPageViewImpl extends Composite implements GithubImpor
         this.repositories.setRowData(list);
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public String getAccountName() {
         int index = accountName.getSelectedIndex();
@@ -388,7 +388,7 @@ public class GithubImporterPageViewImpl extends Composite implements GithubImpor
     }
 
     @Override
-    public void setAccountNames(@Nonnull Set<String> names) {
+    public void setAccountNames(@NotNull Set<String> names) {
         this.accountName.clear();
         for (String name : names) {
             this.accountName.addItem(name);

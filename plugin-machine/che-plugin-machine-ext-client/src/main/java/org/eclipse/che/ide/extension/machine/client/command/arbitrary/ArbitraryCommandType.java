@@ -20,7 +20,7 @@ import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration
 import org.eclipse.che.ide.extension.machine.client.command.CommandType;
 import org.vectomatic.dom.svg.ui.SVGResource;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.Collection;
 import java.util.LinkedList;
 
@@ -49,37 +49,37 @@ public class ArbitraryCommandType implements CommandType {
         pages.add(page);
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public String getId() {
         return ID;
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public String getDisplayName() {
         return DISPLAY_NAME;
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public SVGResource getIcon() {
         return resources.arbitraryCommandType();
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public Collection<CommandConfigurationPage<? extends CommandConfiguration>> getConfigurationPages() {
         return pages;
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public CommandConfigurationFactory<ArbitraryCommandConfiguration> getConfigurationFactory() {
         return configurationFactory;
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public String getCommandTemplate() {
         return COMMAND_TEMPLATE;

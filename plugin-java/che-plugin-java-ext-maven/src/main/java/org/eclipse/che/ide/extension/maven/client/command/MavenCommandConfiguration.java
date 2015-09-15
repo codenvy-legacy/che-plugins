@@ -13,7 +13,7 @@ package org.eclipse.che.ide.extension.maven.client.command;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
 import org.eclipse.che.ide.extension.machine.client.command.CommandType;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * Represents Maven command.
@@ -47,7 +47,7 @@ public class MavenCommandConfiguration extends CommandConfiguration {
         this.commandLine = commandLine;
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public String toCommandLine() {
         final StringBuilder cmd = new StringBuilder("mvn");

@@ -40,7 +40,7 @@ import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.rest.Unmarshallable;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -70,7 +70,7 @@ public class JavaTreeStructure extends GenericTreeStructure {
 
     /** {@inheritDoc} */
     @Override
-    public void getRootNodes(@Nonnull AsyncCallback<List<TreeNode<?>>> callback) {
+    public void getRootNodes(@NotNull AsyncCallback<List<TreeNode<?>>> callback) {
         if (projectNode == null) {
             final CurrentProject currentProject = appContext.getCurrentProject();
             if (currentProject != null) {
@@ -83,7 +83,7 @@ public class JavaTreeStructure extends GenericTreeStructure {
         callback.onSuccess(Arrays.<TreeNode<?>>asList(projectNode));
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public JavaTreeSettings getSettings() {
         return settings;
@@ -123,7 +123,7 @@ public class JavaTreeStructure extends GenericTreeStructure {
         return null;
     }
 
-    private JavaProjectNode newJavaProjectNode(@Nonnull ProjectDescriptor data) {
+    private JavaProjectNode newJavaProjectNode(@NotNull ProjectDescriptor data) {
         return getNodeFactory().newJavaProjectNode(null, data, this);
     }
 
@@ -139,7 +139,7 @@ public class JavaTreeStructure extends GenericTreeStructure {
      * @throws IllegalStateException
      *         when the specified {@link ItemReference} hasn't type folder
      */
-    public JavaFolderNode newJavaFolderNode(@Nonnull AbstractTreeNode parent, @Nonnull ItemReference data) {
+    public JavaFolderNode newJavaFolderNode(@NotNull AbstractTreeNode parent, @NotNull ItemReference data) {
         if (!"folder".equals(data.getType())) {
             throw new IllegalArgumentException("The associated ItemReference type must be - folder.");
         }
@@ -158,7 +158,7 @@ public class JavaTreeStructure extends GenericTreeStructure {
      * @throws IllegalStateException
      *         when the specified {@link ItemReference} hasn't type folder
      */
-    public SourceFolderNode newSourceFolderNode(@Nonnull AbstractTreeNode parent, @Nonnull ItemReference data) {
+    public SourceFolderNode newSourceFolderNode(@NotNull AbstractTreeNode parent, @NotNull ItemReference data) {
         if (!"folder".equals(data.getType())) {
             throw new IllegalArgumentException("The associated ItemReference type must be - folder.");
         }
@@ -177,7 +177,7 @@ public class JavaTreeStructure extends GenericTreeStructure {
      * @throws IllegalStateException
      *         when the specified {@link ItemReference} hasn't type folder
      */
-    public PackageNode newPackageNode(@Nonnull AbstractTreeNode parent, @Nonnull ItemReference data) {
+    public PackageNode newPackageNode(@NotNull AbstractTreeNode parent, @NotNull ItemReference data) {
         if (!"folder".equals(data.getType())) {
             throw new IllegalArgumentException("The associated ItemReference type must be - folder.");
         }
@@ -196,7 +196,7 @@ public class JavaTreeStructure extends GenericTreeStructure {
      * @throws IllegalStateException
      *         when the specified {@link ItemReference} hasn't type file
      */
-    public SourceFileNode newSourceFileNode(@Nonnull AbstractTreeNode parent, @Nonnull ItemReference data) {
+    public SourceFileNode newSourceFileNode(@NotNull AbstractTreeNode parent, @NotNull ItemReference data) {
         if (!"file".equals(data.getType())) {
             throw new IllegalArgumentException("The associated ItemReference type must be - file.");
         }
@@ -210,7 +210,7 @@ public class JavaTreeStructure extends GenericTreeStructure {
      *         the parent node
      * @return a new {@link ExternalLibrariesNode}
      */
-    public ExternalLibrariesNode newExternalLibrariesNode(@Nonnull JavaProjectNode parent) {
+    public ExternalLibrariesNode newExternalLibrariesNode(@NotNull JavaProjectNode parent) {
         ExternalLibrariesNode librariesNode = getNodeFactory().newExternalLibrariesNode(parent, new Object(), this);
         librariesNodeMap.put(parent.getData().getPath(), librariesNode);
         return librariesNode;
@@ -226,7 +226,7 @@ public class JavaTreeStructure extends GenericTreeStructure {
      *         the associated {@link Jar}
      * @return a new {@link org.eclipse.che.ide.ext.java.client.projecttree.nodes.JarNode}
      */
-    public JarNode newJarNode(@Nonnull ExternalLibrariesNode parent, @Nonnull Jar data) {
+    public JarNode newJarNode(@NotNull ExternalLibrariesNode parent, @NotNull Jar data) {
         return getNodeFactory().newJarNode(parent, data, this);
     }
 
@@ -242,7 +242,7 @@ public class JavaTreeStructure extends GenericTreeStructure {
      *         lib ID
      * @return a new {@link org.eclipse.che.ide.ext.java.client.projecttree.nodes.JarContainerNode}
      */
-    public JarContainerNode newJarContainerNode(@Nonnull AbstractTreeNode<?> parent, @Nonnull JarEntry data, int libId) {
+    public JarContainerNode newJarContainerNode(@NotNull AbstractTreeNode<?> parent, @NotNull JarEntry data, int libId) {
         return getNodeFactory().newJarContainerNode(parent, data, this, libId);
     }
 
@@ -258,7 +258,7 @@ public class JavaTreeStructure extends GenericTreeStructure {
      *         lib ID
      * @return a new {@link org.eclipse.che.ide.ext.java.client.projecttree.nodes.JarFileNode}
      */
-    public JarFileNode newJarFileNode(@Nonnull AbstractTreeNode<?> parent, @Nonnull JarEntry data, int libId) {
+    public JarFileNode newJarFileNode(@NotNull AbstractTreeNode<?> parent, @NotNull JarEntry data, int libId) {
         return getNodeFactory().newJarFileNode(parent, data, this, libId);
     }
 
@@ -274,7 +274,7 @@ public class JavaTreeStructure extends GenericTreeStructure {
      *         lib ID
      * @return a new {@link org.eclipse.che.ide.ext.java.client.projecttree.nodes.JarClassNode}
      */
-    public JarClassNode newJarClassNode(@Nonnull AbstractTreeNode<?> parent, @Nonnull JarEntry data, int libId) {
+    public JarClassNode newJarClassNode(@NotNull AbstractTreeNode<?> parent, @NotNull JarEntry data, int libId) {
         return getNodeFactory().newJarClassNode(parent, data, this, libId);
     }
 
@@ -285,7 +285,7 @@ public class JavaTreeStructure extends GenericTreeStructure {
      *         the path of the project for which need to get {@link ExternalLibrariesNode}
      * @return an {@link ExternalLibrariesNode} of the project with the specified {@code projectPath}
      */
-    public ExternalLibrariesNode getExternalLibrariesNode(@Nonnull String projectPath) {
+    public ExternalLibrariesNode getExternalLibrariesNode(@NotNull String projectPath) {
         return librariesNodeMap.get(projectPath);
     }
 }

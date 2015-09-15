@@ -13,7 +13,7 @@ package org.eclipse.che.ide.ext.java.client.inject.factories;
 import org.eclipse.che.ide.ext.java.client.settings.compiler.ErrorWarningsOptions;
 import org.eclipse.che.ide.ext.java.client.settings.property.PropertyWidget;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * The factory which creates instances of {@link PropertyWidget}.
@@ -29,5 +29,5 @@ public interface PropertyWidgetFactory {
      *         property id which need set to property. Each property has unique id which we get from server.
      * @return an instance of {@link PropertyWidget}
      */
-    PropertyWidget create(@Nonnull ErrorWarningsOptions optionId);
+    PropertyWidget create(@NotNull ErrorWarningsOptions optionId);
 }

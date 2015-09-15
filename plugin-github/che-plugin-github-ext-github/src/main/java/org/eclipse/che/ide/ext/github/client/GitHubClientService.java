@@ -21,7 +21,7 @@ import org.eclipse.che.ide.ext.github.shared.GitHubRepositoryList;
 import org.eclipse.che.ide.ext.github.shared.GitHubUser;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Map;
 
@@ -42,7 +42,7 @@ public interface GitHubClientService {
      * @param callback
      *         callback called when operation is done.
      */
-    void getRepository(@Nonnull String user, @Nonnull String repository, @Nonnull AsyncRequestCallback<GitHubRepository> callback);
+    void getRepository(@NotNull String user, @NotNull String repository, @NotNull AsyncRequestCallback<GitHubRepository> callback);
 
     /**
      * Get list of available public and private repositories of the authorized user.
@@ -50,7 +50,7 @@ public interface GitHubClientService {
      * @param callback
      *         callback called when operation is done.
      */
-    void getRepositoriesList(@Nonnull AsyncRequestCallback<GitHubRepositoryList> callback);
+    void getRepositoriesList(@NotNull AsyncRequestCallback<GitHubRepositoryList> callback);
 
     /**
      * Get list of forks for given repository
@@ -62,7 +62,7 @@ public interface GitHubClientService {
      * @param callback
      *         callback called when operation is done.
      */
-    void getForks(@Nonnull String user, @Nonnull String repository, @Nonnull AsyncRequestCallback<GitHubRepositoryList> callback);
+    void getForks(@NotNull String user, @NotNull String repository, @NotNull AsyncRequestCallback<GitHubRepositoryList> callback);
 
     /**
      * Fork the given repository for the authorized user.
@@ -74,7 +74,7 @@ public interface GitHubClientService {
      * @param callback
      *         callback called when operation is done.
      */
-    void fork(@Nonnull String user, @Nonnull String repository, @Nonnull AsyncRequestCallback<GitHubRepository> callback);
+    void fork(@NotNull String user, @NotNull String repository, @NotNull AsyncRequestCallback<GitHubRepository> callback);
 
     /**
      * Add a comment to the issue on the given repository.
@@ -90,8 +90,8 @@ public interface GitHubClientService {
      * @param callback
      *         callback called when operation is done.
      */
-    void commentIssue(@Nonnull String user, @Nonnull String repository, @Nonnull String issue, @Nonnull GitHubIssueCommentInput input,
-                      @Nonnull AsyncRequestCallback<GitHubIssueComment> callback);
+    void commentIssue(@NotNull String user, @NotNull String repository, @NotNull String issue, @NotNull GitHubIssueCommentInput input,
+                      @NotNull AsyncRequestCallback<GitHubIssueComment> callback);
 
     /**
      * Get pull requests for given repository.
@@ -103,7 +103,7 @@ public interface GitHubClientService {
      * @param callback
      *         callback called when operation is done.
      */
-    void getPullRequests(@Nonnull String owner, @Nonnull String repository, @Nonnull AsyncRequestCallback<GitHubPullRequestList> callback);
+    void getPullRequests(@NotNull String owner, @NotNull String repository, @NotNull AsyncRequestCallback<GitHubPullRequestList> callback);
 
     /**
      * Get a pull request by id for a given repository.
@@ -113,10 +113,10 @@ public interface GitHubClientService {
      * @param pullRequestId the Id of the pull request
      * @param callback the callback with either the pull request as argument or null if it doesn't exist
      */
-    void getPullRequest(@Nonnull String owner,
-                        @Nonnull String repository,
-                        @Nonnull String pullRequestId,
-                        @Nonnull AsyncRequestCallback<GitHubPullRequest> callback);
+    void getPullRequest(@NotNull String owner,
+                        @NotNull String repository,
+                        @NotNull String pullRequestId,
+                        @NotNull AsyncRequestCallback<GitHubPullRequest> callback);
 
     /**
      * Create a pull request on origin repository
@@ -130,8 +130,8 @@ public interface GitHubClientService {
      * @param callback
      *         callback called when operation is done.
      */
-    void createPullRequest(@Nonnull String user, @Nonnull String repository, @Nonnull GitHubPullRequestCreationInput input,
-                           @Nonnull AsyncRequestCallback<GitHubPullRequest> callback);
+    void createPullRequest(@NotNull String user, @NotNull String repository, @NotNull GitHubPullRequestCreationInput input,
+                           @NotNull AsyncRequestCallback<GitHubPullRequest> callback);
 
     /**
      * Get the list of available public repositories for a GitHub user.
@@ -141,7 +141,7 @@ public interface GitHubClientService {
      * @param callback
      *         callback called when operation is done.
      */
-    void getRepositoriesByUser(String userName, @Nonnull AsyncRequestCallback<GitHubRepositoryList> callback);
+    void getRepositoriesByUser(String userName, @NotNull AsyncRequestCallback<GitHubRepositoryList> callback);
 
     /**
      * Get the list of available repositories by GitHub organization.
@@ -151,7 +151,7 @@ public interface GitHubClientService {
      * @param callback
      *         callback called when operation is done.
      */
-    void getRepositoriesByOrganization(String organization, @Nonnull AsyncRequestCallback<GitHubRepositoryList> callback);
+    void getRepositoriesByOrganization(String organization, @NotNull AsyncRequestCallback<GitHubRepositoryList> callback);
 
     /**
      * Get list of available public repositories for GitHub account.
@@ -161,7 +161,7 @@ public interface GitHubClientService {
      * @param callback
      *         callback called when operation is done.
      */
-    void getRepositoriesByAccount(String account, @Nonnull AsyncRequestCallback<GitHubRepositoryList> callback);
+    void getRepositoriesByAccount(String account, @NotNull AsyncRequestCallback<GitHubRepositoryList> callback);
 
     /**
      * Get list of collaborators of GitHub repository. For detail see GitHub REST API http://developer.github.com/v3/repos/collaborators/.
@@ -173,7 +173,7 @@ public interface GitHubClientService {
      * @param callback
      *         callback called when operation is done.
      */
-    void getCollaborators(@Nonnull String user, @Nonnull String repository, @Nonnull AsyncRequestCallback<Collaborators> callback);
+    void getCollaborators(@NotNull String user, @NotNull String repository, @NotNull AsyncRequestCallback<Collaborators> callback);
 
     /**
      * Get the GitHub oAuth token for the pointed user.
@@ -183,7 +183,7 @@ public interface GitHubClientService {
      * @param callback
      *         callback called when operation is done.
      */
-    void getUserToken(@Nonnull String user, @Nonnull AsyncRequestCallback<String> callback);
+    void getUserToken(@NotNull String user, @NotNull AsyncRequestCallback<String> callback);
 
     /**
      * Get the map of available public and private repositories of the authorized user and organizations he exists in.
@@ -191,7 +191,7 @@ public interface GitHubClientService {
      * @param callback
      *         callback called when operation is done.
      */
-    void getAllRepositories(@Nonnull AsyncRequestCallback<Map<String, List<GitHubRepository>>> callback);
+    void getAllRepositories(@NotNull AsyncRequestCallback<Map<String, List<GitHubRepository>>> callback);
 
     /**
      * Get the list of the organizations, where authorized user is a member.
@@ -199,7 +199,7 @@ public interface GitHubClientService {
      * @param callback
      *         callback called when operation is done.
      */
-    void getOrganizations(@Nonnull AsyncRequestCallback<List<String>> callback);
+    void getOrganizations(@NotNull AsyncRequestCallback<List<String>> callback);
 
     /**
      * Get authorized user information.
@@ -207,7 +207,7 @@ public interface GitHubClientService {
      * @param callback
      *         callback called when operation is done.
      */
-    void getUserInfo(@Nonnull AsyncRequestCallback<GitHubUser> callback);
+    void getUserInfo(@NotNull AsyncRequestCallback<GitHubUser> callback);
 
     /**
      * Generate and upload new public key if not exist on github.com.
@@ -215,5 +215,5 @@ public interface GitHubClientService {
      * @param callback
      *         callback called when operation is done.
      */
-    void updatePublicKey(@Nonnull AsyncRequestCallback<Void> callback);
+    void updatePublicKey(@NotNull AsyncRequestCallback<Void> callback);
 }

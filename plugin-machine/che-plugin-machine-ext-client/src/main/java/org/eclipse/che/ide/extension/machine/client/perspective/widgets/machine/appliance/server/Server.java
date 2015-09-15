@@ -15,7 +15,7 @@ import com.google.inject.assistedinject.Assisted;
 
 import org.eclipse.che.api.machine.shared.dto.ServerDescriptor;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * The class which describes entity which store information of current server.
@@ -33,22 +33,22 @@ public class Server {
         this.descriptor = descriptor;
     }
 
-    @Nonnull
+    @NotNull
     public String getPort() {
         return port;
     }
 
-    @Nonnull
+    @NotNull
     public String getAddress() {
         return descriptor.getAddress();
     }
 
-    @Nonnull
+    @NotNull
     public String getUrl() {
         return descriptor.getUrl();
     }
 
-    @Nonnull
+    @NotNull
     public String getRef() {
         return descriptor.getRef();
     }

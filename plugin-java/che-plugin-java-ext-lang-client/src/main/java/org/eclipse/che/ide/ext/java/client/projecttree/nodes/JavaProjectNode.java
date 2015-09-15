@@ -21,7 +21,7 @@ import org.eclipse.che.ide.api.project.tree.generic.ProjectNode;
 import org.eclipse.che.ide.ext.java.client.projecttree.JavaTreeStructure;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -44,7 +44,7 @@ public class JavaProjectNode extends ProjectNode {
         super(parent, data, treeStructure, eventBus, projectServiceClient, dtoUnmarshallerFactory);
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public JavaTreeStructure getTreeStructure() {
         return (JavaTreeStructure)super.getTreeStructure();

@@ -15,7 +15,7 @@ import com.google.inject.ImplementedBy;
 
 import org.eclipse.che.ide.ext.java.client.settings.property.PropertyWidget;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * Provides methods to control panel of properties.
@@ -31,5 +31,5 @@ public interface ErrorWarningsView extends IsWidget {
      * @param propertyWidget
      *         widget which will be added
      */
-    void addProperty(@Nonnull PropertyWidget propertyWidget);
+    void addProperty(@NotNull PropertyWidget propertyWidget);
 }

@@ -44,7 +44,7 @@ import org.eclipse.che.ide.ui.window.Window;
 import org.eclipse.che.ide.util.input.SignalEvent;
 import org.vectomatic.dom.svg.OMSVGSVGElement;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -151,14 +151,14 @@ public class MergeViewImpl extends Window implements MergeView {
 
         rootNode = new AbstractTreeNode<Void>(null, null, null, null) {
             /** {@inheritDoc} */
-            @Nonnull
+            @NotNull
             @Override
             public String getId() {
                 return "ROOT";
             }
 
             /** {@inheritDoc} */
-            @Nonnull
+            @NotNull
             @Override
             public String getDisplayName() {
                 return "ROOT";

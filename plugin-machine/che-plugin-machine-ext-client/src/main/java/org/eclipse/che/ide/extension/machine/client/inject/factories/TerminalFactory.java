@@ -13,7 +13,7 @@ package org.eclipse.che.ide.extension.machine.client.inject.factories;
 import org.eclipse.che.ide.extension.machine.client.machine.Machine;
 import org.eclipse.che.ide.extension.machine.client.perspective.terminal.TerminalPresenter;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * Special factory for creating {@link TerminalPresenter} instances.
@@ -29,5 +29,5 @@ public interface TerminalFactory {
      *         machine for which terminal will be created
      * @return an instance of {@link TerminalPresenter}
      */
-    TerminalPresenter create(@Nonnull Machine machine);
+    TerminalPresenter create(@NotNull Machine machine);
 }

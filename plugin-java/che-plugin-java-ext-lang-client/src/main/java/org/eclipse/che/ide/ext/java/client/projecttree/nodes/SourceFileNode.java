@@ -23,7 +23,7 @@ import org.eclipse.che.ide.api.project.tree.generic.FileNode;
 import org.eclipse.che.ide.ext.java.client.projecttree.JavaTreeStructure;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -44,7 +44,7 @@ public class SourceFileNode extends FileNode {
         super(parent, data, treeStructure, eventBus, projectServiceClient, dtoUnmarshallerFactory, editorAgent);
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public String getDisplayName() {
         final String name = getName();
@@ -54,7 +54,7 @@ public class SourceFileNode extends FileNode {
         return name.substring(0, name.length() - "java".length() - 1);
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public JavaTreeStructure getTreeStructure() {
         return (JavaTreeStructure)super.getTreeStructure();

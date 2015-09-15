@@ -13,7 +13,7 @@ package org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.hea
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.inject.ImplementedBy;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * The interface provides methods which allow control displaying of tab's header.There is ability to use default tab header, or
@@ -30,7 +30,7 @@ public interface TabHeader extends IsWidget {
     void setDisable();
 
     /** @return name of tab. */
-    @Nonnull
+    @NotNull
     String getName();
 
     /**
@@ -39,7 +39,7 @@ public interface TabHeader extends IsWidget {
      * @param delegate
      *         delegate which need set
      */
-    void setDelegate(@Nonnull ActionDelegate delegate);
+    void setDelegate(@NotNull ActionDelegate delegate);
 
     interface ActionDelegate {
         /**
@@ -48,6 +48,6 @@ public interface TabHeader extends IsWidget {
          * @param tabName
          *         name of tab on which was clicked
          */
-        void onTabClicked(@Nonnull String tabName);
+        void onTabClicked(@NotNull String tabName);
     }
 }

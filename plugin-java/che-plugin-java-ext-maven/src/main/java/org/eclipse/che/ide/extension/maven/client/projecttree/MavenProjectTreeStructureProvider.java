@@ -21,7 +21,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.event.shared.EventBus;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /** @author Artem Zatsarynnyy */
 @Singleton
@@ -48,7 +48,7 @@ public class MavenProjectTreeStructureProvider implements TreeStructureProvider 
         this.service = service;
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public String getId() {
         return ID;

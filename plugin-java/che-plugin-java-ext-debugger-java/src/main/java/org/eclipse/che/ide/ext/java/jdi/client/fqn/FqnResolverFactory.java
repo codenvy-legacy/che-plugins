@@ -13,8 +13,8 @@ package org.eclipse.che.ide.ext.java.jdi.client.fqn;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+import org.eclipse.che.commons.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,16 +29,16 @@ public class FqnResolverFactory {
         this.resolvers = new HashMap<>();
     }
 
-    public void addResolver(@Nonnull String mimeType, @Nonnull FqnResolver resolver) {
+    public void addResolver(@NotNull String mimeType, @NotNull FqnResolver resolver) {
         resolvers.put(mimeType, resolver);
     }
 
     @Nullable
-    public FqnResolver getResolver(@Nonnull String mimeType) {
+    public FqnResolver getResolver(@NotNull String mimeType) {
         return resolvers.get(mimeType);
     }
 
-    public boolean isResolverExist(@Nonnull String mimeType) {
+    public boolean isResolverExist(@NotNull String mimeType) {
         return resolvers.containsKey(mimeType);
     }
 }

@@ -20,7 +20,7 @@ import com.google.gwt.user.client.ui.Widget;
 
 import org.eclipse.che.ide.extension.machine.client.perspective.terminal.TerminalPresenter;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,7 +53,7 @@ final class TerminalContainerViewImpl extends Composite implements TerminalConta
 
     /** {@inheritDoc} */
     @Override
-    public void addTerminal(@Nonnull TerminalPresenter terminal) {
+    public void addTerminal(@NotNull TerminalPresenter terminal) {
         terminals.add(terminal);
 
         container.add(terminal.getView());
@@ -61,7 +61,7 @@ final class TerminalContainerViewImpl extends Composite implements TerminalConta
 
     /** {@inheritDoc} */
     @Override
-    public void showTerminal(@Nonnull TerminalPresenter terminal) {
+    public void showTerminal(@NotNull TerminalPresenter terminal) {
         for (TerminalPresenter presenter : terminals) {
             presenter.setVisible(false);
         }

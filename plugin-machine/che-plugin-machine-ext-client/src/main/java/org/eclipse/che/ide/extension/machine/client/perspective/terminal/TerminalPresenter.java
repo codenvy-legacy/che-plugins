@@ -38,7 +38,7 @@ import org.eclipse.che.ide.websocket.events.ConnectionOpenedHandler;
 import org.eclipse.che.ide.websocket.events.MessageReceivedEvent;
 import org.eclipse.che.ide.websocket.events.MessageReceivedHandler;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * The class defines methods which contains business logic to control machine's terminal.
@@ -147,7 +147,7 @@ public class TerminalPresenter implements TabPresenter, TerminalView.ActionDeleg
         }
     }
 
-    private void openWebSocket(@Nonnull String wsUrl) {
+    private void openWebSocket(@NotNull String wsUrl) {
         socket = WebSocket.create(wsUrl);
         socket.setOnOpenHandler(new ConnectionOpenedHandler() {
             @Override
@@ -194,7 +194,7 @@ public class TerminalPresenter implements TabPresenter, TerminalView.ActionDeleg
 
     /** {@inheritDoc} */
     @Override
-    @Nonnull
+    @NotNull
     public IsWidget getView() {
         return view;
     }

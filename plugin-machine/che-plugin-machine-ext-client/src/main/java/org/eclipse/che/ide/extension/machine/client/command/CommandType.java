@@ -12,7 +12,7 @@ package org.eclipse.che.ide.extension.machine.client.command;
 
 import org.vectomatic.dom.svg.ui.SVGResource;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.Collection;
 
 /**
@@ -23,26 +23,26 @@ import java.util.Collection;
 public interface CommandType {
 
     /** Returns unique identifier for this command type. */
-    @Nonnull
+    @NotNull
     String getId();
 
     /** Returns the display name of the command type. */
-    @Nonnull
+    @NotNull
     String getDisplayName();
 
     /** Returns the icon used to represent the command type. */
-    @Nonnull
+    @NotNull
     SVGResource getIcon();
 
     /** Returns the {@link CommandConfigurationPage}s that allow to configure specific command parameters. */
-    @Nonnull
+    @NotNull
     Collection<CommandConfigurationPage<? extends CommandConfiguration>> getConfigurationPages();
 
     /** Returns factory for {@link CommandConfiguration} instances. */
-    @Nonnull
+    @NotNull
     CommandConfigurationFactory<? extends CommandConfiguration> getConfigurationFactory();
 
     /** Returns command template that will be used for newly created command. */
-    @Nonnull
+    @NotNull
     String getCommandTemplate();
 }

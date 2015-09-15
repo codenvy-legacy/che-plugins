@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.ide.editor.codemirrorjso.client;
 
-import javax.annotation.Nullable;
+import org.eclipse.che.commons.annotation.Nullable;
 
 import org.eclipse.che.ide.editor.codemirrorjso.client.hints.CMHintFunctionOverlay;
 import org.eclipse.che.ide.editor.codemirrorjso.client.options.CMEditorOptionsOverlay;

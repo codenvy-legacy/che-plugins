@@ -20,7 +20,7 @@ import org.eclipse.che.api.machine.shared.ProjectBinding;
 import org.eclipse.che.api.machine.shared.Recipe;
 import org.eclipse.che.plugin.docker.client.DockerConnector;
 
-import javax.annotation.Nullable;
+import org.eclipse.che.commons.annotation.Nullable;
 
 /**
  * @author Alexander Garagatyi

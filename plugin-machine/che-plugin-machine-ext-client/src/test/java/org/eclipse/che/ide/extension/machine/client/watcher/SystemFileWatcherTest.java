@@ -32,7 +32,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -97,7 +97,7 @@ public class SystemFileWatcherTest {
         verify(eventBus).fireEvent(Matchers.<RefreshProjectTreeEvent>anyObject());
     }
 
-    private void callRefreshTreeMethod(@Nonnull String pathToNode) throws Exception {
+    private void callRefreshTreeMethod(@NotNull String pathToNode) throws Exception {
         when(appContext.getCurrentProject()).thenReturn(currentProject);
         when(currentProject.getCurrentTree()).thenReturn(treeStructure);
 

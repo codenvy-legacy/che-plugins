@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import org.eclipse.che.ide.ext.git.client.GitLocalizationConstant;
 import org.eclipse.che.api.git.shared.Revision;
@@ -204,7 +204,7 @@ public class HistoryViewImpl extends BaseView<HistoryView.ActionDelegate> implem
 
     /** {@inheritDoc} */
     @Override
-    public void setRevisions(@Nonnull List<Revision> revisions) {
+    public void setRevisions(@NotNull List<Revision> revisions) {
         // Wraps Array in java.util.List
         List<Revision> list = new ArrayList<>();
         for (Revision revision : revisions) {
@@ -245,37 +245,37 @@ public class HistoryViewImpl extends BaseView<HistoryView.ActionDelegate> implem
 
     /** {@inheritDoc} */
     @Override
-    public void setCommitADate(@Nonnull String date) {
+    public void setCommitADate(@NotNull String date) {
         commitADate.setText(date);
     }
 
     /** {@inheritDoc} */
     @Override
-    public void setCommitBDate(@Nonnull String date) {
+    public void setCommitBDate(@NotNull String date) {
         commitBDate.setText(date);
     }
 
     /** {@inheritDoc} */
     @Override
-    public void setCommitARevision(@Nonnull String revision) {
+    public void setCommitARevision(@NotNull String revision) {
         commitARevision.setText(revision);
     }
 
     /** {@inheritDoc} */
     @Override
-    public void setCommitBRevision(@Nonnull String revision) {
+    public void setCommitBRevision(@NotNull String revision) {
         commitBRevision.setText(revision);
     }
 
     /** {@inheritDoc} */
     @Override
-    public void setCompareType(@Nonnull String type) {
+    public void setCompareType(@NotNull String type) {
         compareType.setHTML(type);
     }
 
     /** {@inheritDoc} */
     @Override
-    public void setDiffContext(@Nonnull String diffContext) {
+    public void setDiffContext(@NotNull String diffContext) {
         if (this.hightlighter == null) {
             this.delayedDiffContext = diffContext;
         } else {

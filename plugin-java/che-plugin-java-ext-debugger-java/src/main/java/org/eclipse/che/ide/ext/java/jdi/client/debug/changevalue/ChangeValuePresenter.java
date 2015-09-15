@@ -24,7 +24,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import static org.eclipse.che.ide.api.notification.Notification.Type.ERROR;
 
@@ -59,7 +59,7 @@ public class ChangeValuePresenter implements ChangeValueView.ActionDelegate {
     }
 
     /** Show dialog. */
-    public void showDialog(@Nonnull DebuggerInfo debuggerInfo, @Nonnull Variable variable, @Nonnull AsyncCallback<String> callback) {
+    public void showDialog(@NotNull DebuggerInfo debuggerInfo, @NotNull Variable variable, @NotNull AsyncCallback<String> callback) {
         this.debuggerInfo = debuggerInfo;
         this.variable = variable;
         this.callback = callback;

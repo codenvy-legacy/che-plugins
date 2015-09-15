@@ -29,7 +29,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -93,7 +93,7 @@ public class ShowProjectGitReadOnlyUrlViewImpl extends Window implements ShowPro
 
     /** {@inheritDoc} */
     @Override
-    public void setLocaleUrl(@Nonnull String url) {
+    public void setLocaleUrl(@NotNull String url) {
         localUrl.setText(url);
     }
 

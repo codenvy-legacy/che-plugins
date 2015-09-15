@@ -13,7 +13,7 @@ package org.eclipse.che.ide.ext.git.client.branch;
 import org.eclipse.che.api.git.shared.Branch;
 import org.eclipse.che.ide.api.mvp.View;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -45,7 +45,7 @@ public interface BranchView extends View<BranchView.ActionDelegate> {
          * @param branch
          *         selected revision
          */
-        void onBranchSelected(@Nonnull Branch branch);
+        void onBranchSelected(@NotNull Branch branch);
     }
 
     /**
@@ -54,7 +54,7 @@ public interface BranchView extends View<BranchView.ActionDelegate> {
      * @param branches
      *         git branches
      */
-    void setBranches(@Nonnull List<Branch> branches);
+    void setBranches(@NotNull List<Branch> branches);
 
     /**
      * Change the enable state of the delete button.

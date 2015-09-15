@@ -18,7 +18,7 @@ import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.selection.SelectionAgent;
 import org.vectomatic.dom.svg.ui.SVGResource;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.Arrays;
 import java.util.List;
 
@@ -59,7 +59,7 @@ public abstract class GitAction extends AbstractPerspectiveAction {
     }
 
     @Override
-    public void updateInPerspective(@Nonnull ActionEvent event) {
+    public void updateInPerspective(@NotNull ActionEvent event) {
         event.getPresentation().setVisible(getActiveProject() != null);
         event.getPresentation().setEnabled(isGitRepository());
     }

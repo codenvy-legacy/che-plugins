@@ -12,7 +12,7 @@ package org.eclipse.che.ide.ext.git.client.remote.add;
 
 import org.eclipse.che.ide.api.mvp.View;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * The view of {@link AddRemoteRepositoryPresenter}.
@@ -33,7 +33,7 @@ public interface AddRemoteRepositoryView extends View<AddRemoteRepositoryView.Ac
     }
 
     /** @return repository name */
-    @Nonnull
+    @NotNull
     String getName();
 
     /**
@@ -42,10 +42,10 @@ public interface AddRemoteRepositoryView extends View<AddRemoteRepositoryView.Ac
      * @param name
      *         repository name
      */
-    void setName(@Nonnull String name);
+    void setName(@NotNull String name);
 
     /** @return repository url */
-    @Nonnull
+    @NotNull
     String getUrl();
 
     /**
@@ -54,7 +54,7 @@ public interface AddRemoteRepositoryView extends View<AddRemoteRepositoryView.Ac
      * @param url
      *         repository url
      */
-    void setUrl(@Nonnull String url);
+    void setUrl(@NotNull String url);
 
     /**
      * Change the enable state of the ok button.

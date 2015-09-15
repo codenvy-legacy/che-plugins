@@ -40,8 +40,8 @@ import org.eclipse.che.ide.extension.machine.client.perspective.widgets.recipe.e
 import org.eclipse.che.ide.extension.machine.client.util.NameGenerator;
 import org.vectomatic.dom.svg.ui.SVGResource;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+import org.eclipse.che.commons.annotation.Nullable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -118,8 +118,8 @@ public class RecipePartPresenter extends BasePresenter implements RecipePartView
      * @param recipeDescriptor
      *         a descriptor of new recipe
      */
-    @Nonnull
-    private RecipeWidget addRecipe(@Nonnull RecipeDescriptor recipeDescriptor) {
+    @NotNull
+    private RecipeWidget addRecipe(@NotNull RecipeDescriptor recipeDescriptor) {
         RecipeWidget recipe = new RecipeWidget(recipeDescriptor, resources);
         recipe.setDelegate(this);
         view.addRecipe(recipe);
@@ -189,7 +189,7 @@ public class RecipePartPresenter extends BasePresenter implements RecipePartView
         createRecipe(newRecipe);
     }
 
-    private void createRecipe(@Nonnull NewRecipe newRecipe) {
+    private void createRecipe(@NotNull NewRecipe newRecipe) {
         Promise<RecipeDescriptor> createRecipe = service.createRecipe(newRecipe);
         createRecipe.then(new Operation<RecipeDescriptor>() {
             @Override
@@ -263,7 +263,7 @@ public class RecipePartPresenter extends BasePresenter implements RecipePartView
     }
 
     /** {@inheritDoc} */
-    @Nonnull
+    @NotNull
     @Override
     public String getTitle() {
         return locale.viewRecipePanelTitle();
@@ -310,7 +310,7 @@ public class RecipePartPresenter extends BasePresenter implements RecipePartView
 
     /** {@inheritDoc} */
     @Override
-    public void onRecipeClicked(@Nonnull RecipeWidget recipeWidget) {
+    public void onRecipeClicked(@NotNull RecipeWidget recipeWidget) {
         if (selectedRecipe != null && selectedRecipe.equals(recipeWidget)) {
             return;
         }

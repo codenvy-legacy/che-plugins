@@ -14,7 +14,7 @@ import com.google.inject.ImplementedBy;
 
 import org.eclipse.che.api.promises.client.Promise;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.Map;
 
 /**
@@ -32,7 +32,7 @@ public interface SettingsServiceClient {
      *         parameters which will be applied
      * @return an instance of {@link Promise} which contains response.
      */
-    Promise<Void> applyCompileParameters(@Nonnull Map<String, String> parameters);
+    Promise<Void> applyCompileParameters(@NotNull Map<String, String> parameters);
 
     /**
      * Sends special request to CompilerService to get all compiler parameters.

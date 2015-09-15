@@ -17,7 +17,7 @@ import com.google.inject.Inject;
 import org.eclipse.che.ide.extension.machine.client.machine.Machine;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.content.TabPresenter;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 /**
  * The class contains business logic which allows update a recipe for current machine. The class is a tab presenter and
@@ -40,7 +40,7 @@ public class RecipeTabPresenter implements TabPresenter {
      * @param machine
      *         machine for which need update information
      */
-    public void updateInfo(@Nonnull Machine machine) {
+    public void updateInfo(@NotNull Machine machine) {
         view.setScript(machine.getScript());
     }
 

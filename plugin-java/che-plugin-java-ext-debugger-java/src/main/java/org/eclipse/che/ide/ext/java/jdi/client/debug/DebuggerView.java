@@ -17,7 +17,7 @@ import org.eclipse.che.ide.api.parts.base.BaseActionDelegate;
 import org.eclipse.che.ide.debug.Breakpoint;
 import org.eclipse.che.ide.ext.java.jdi.shared.Location;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -63,7 +63,7 @@ public interface DebuggerView extends View<DebuggerView.ActionDelegate> {
          * @param variable
          *         variable that is selected
          */
-        void onSelectedVariableElement(@Nonnull DebuggerVariable variable);
+        void onSelectedVariableElement(@NotNull DebuggerVariable variable);
     }
 
     /**
@@ -74,7 +74,7 @@ public interface DebuggerView extends View<DebuggerView.ActionDelegate> {
      * @param location
      *         information about the execution point
      */
-    public void setExecutionPoint(boolean absentInformation, @Nonnull Location location);
+    public void setExecutionPoint(boolean absentInformation, @NotNull Location location);
 
     /**
      * Sets variables.
@@ -82,7 +82,7 @@ public interface DebuggerView extends View<DebuggerView.ActionDelegate> {
      * @param variables
      *         available variables
      */
-    void setVariables(@Nonnull List<DebuggerVariable> variables);
+    void setVariables(@NotNull List<DebuggerVariable> variables);
 
     /**
      * Sets breakpoints.
@@ -90,7 +90,7 @@ public interface DebuggerView extends View<DebuggerView.ActionDelegate> {
      * @param breakPoints
      *         available breakpoints
      */
-    void setBreakpoints(@Nonnull List<Breakpoint> breakPoints);
+    void setBreakpoints(@NotNull List<Breakpoint> breakPoints);
 
     /**
      * Sets java virtual machine name and version.
@@ -98,7 +98,7 @@ public interface DebuggerView extends View<DebuggerView.ActionDelegate> {
      * @param name
      *         virtual machine name
      */
-    void setVMName(@Nonnull String name);
+    void setVMName(@NotNull String name);
 
     /**
      * Sets whether Resume button is enabled.
@@ -165,7 +165,7 @@ public interface DebuggerView extends View<DebuggerView.ActionDelegate> {
      * @param state
      *         the new state of button
      */
-    public boolean setButtonState(@Nonnull ToggleButton button, boolean state);
+    public boolean setButtonState(@NotNull ToggleButton button, boolean state);
 
     /**
      * Sets whether Change value button is enabled.
@@ -189,7 +189,7 @@ public interface DebuggerView extends View<DebuggerView.ActionDelegate> {
      * @param title
      *         title of view
      */
-    void setTitle(@Nonnull String title);
+    void setTitle(@NotNull String title);
 
     /** Update contents for selected variable. */
     void updateSelectedVariable();
@@ -200,5 +200,5 @@ public interface DebuggerView extends View<DebuggerView.ActionDelegate> {
      * @param variables
      *         variable what need to add into
      */
-    void setVariablesIntoSelectedVariable(@Nonnull List<DebuggerVariable> variables);
+    void setVariablesIntoSelectedVariable(@NotNull List<DebuggerVariable> variables);
 }

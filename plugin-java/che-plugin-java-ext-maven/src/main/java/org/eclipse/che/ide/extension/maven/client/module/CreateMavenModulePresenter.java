@@ -28,7 +28,7 @@ import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 import org.eclipse.che.ide.util.NameUtils;
 import org.eclipse.che.ide.util.loging.Log;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -76,7 +76,7 @@ public class CreateMavenModulePresenter implements CreateMavenModuleView.ActionD
         view.setDelegate(this);
     }
 
-    public void showDialog(@Nonnull CurrentProject project) {
+    public void showDialog(@NotNull CurrentProject project) {
         parentProject = project;
         view.setParentArtifactId(project.getAttributeValue(ARTIFACT_ID));
         view.setGroupId(project.getAttributeValue(GROUP_ID));

@@ -13,7 +13,7 @@ package org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.inject.ImplementedBy;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -30,7 +30,7 @@ public interface ServerView extends IsWidget {
      * @param servers
      *         servers which need save
      */
-    void setServers(@Nonnull List<Server> servers);
+    void setServers(@NotNull List<Server> servers);
 
     /**
      * Change visibility of server tab panel.

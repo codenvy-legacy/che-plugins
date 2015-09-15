@@ -18,7 +18,7 @@ import org.eclipse.che.ide.ext.git.client.importer.page.GitImporterPagePresenter
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,12 +37,12 @@ public class GitImportWizardRegistrar implements ImportWizardRegistrar {
         wizardPages.add(provider);
     }
 
-    @Nonnull
+    @NotNull
     public String getImporterId() {
         return ID;
     }
 
-    @Nonnull
+    @NotNull
     public List<Provider<? extends WizardPage<ImportProject>>> getWizardPages() {
         return wizardPages;
     }

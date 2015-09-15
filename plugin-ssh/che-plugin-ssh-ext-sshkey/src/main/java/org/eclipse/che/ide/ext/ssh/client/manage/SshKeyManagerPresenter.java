@@ -34,7 +34,7 @@ import org.eclipse.che.ide.ui.dialogs.ConfirmCallback;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 import org.eclipse.che.ide.ui.dialogs.InputCallback;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -84,7 +84,7 @@ public class SshKeyManagerPresenter extends AbstractPreferencePagePresenter impl
 
     /** {@inheritDoc} */
     @Override
-    public void onViewClicked(@Nonnull final KeyItem key) {
+    public void onViewClicked(@NotNull final KeyItem key) {
         service.getPublicKey(key, new AsyncRequestCallback<PublicKey>(dtoUnmarshallerFactory.newUnmarshaller(PublicKey.class)) {
             @Override
             public void onSuccess(PublicKey result) {
@@ -102,14 +102,14 @@ public class SshKeyManagerPresenter extends AbstractPreferencePagePresenter impl
 
     /** {@inheritDoc} */
     @Override
-    public void onDeleteClicked(@Nonnull final KeyItem key) {
+    public void onDeleteClicked(@NotNull final KeyItem key) {
         dialogFactory.createConfirmDialog(constant.deleteSshKeyTitle(),
                                           constant.deleteSshKeyQuestion(key.getHost()).asString(),
                                           getConfirmCallbackForDelete(key),
                                           getCancelCallback()).show();
     }
 
-    private ConfirmCallback getConfirmCallbackForDelete(@Nonnull final KeyItem key) {
+    private ConfirmCallback getConfirmCallbackForDelete(@NotNull final KeyItem key) {
         return new ConfirmCallback() {
             @Override
             public void accepted() {
@@ -246,7 +246,7 @@ public class SshKeyManagerPresenter extends AbstractPreferencePagePresenter impl
      * @param key
      *         failed key
      */
-    private void removeFailedKey(@Nonnull final KeyItem key) {
+    private void removeFailedKey(@NotNull final KeyItem key) {
         service.deleteKey(key, new AsyncRequestCallback<Void>() {
             @Override
             public void onFailure(Throwable caught) {
