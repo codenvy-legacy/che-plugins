@@ -15,7 +15,9 @@ import com.google.gwt.inject.client.multibindings.GinMultibinder;
 import com.google.inject.Singleton;
 
 import org.eclipse.che.ide.api.extension.ExtensionGinModule;
+import org.eclipse.che.ide.api.project.node.interceptor.NodeInterceptor;
 import org.eclipse.che.ide.api.project.type.wizard.ProjectWizardRegistrar;
+import org.eclipse.che.ide.extension.ant.client.project.AntContentRootInterceptor;
 import org.eclipse.che.ide.extension.ant.client.wizard.AntPageView;
 import org.eclipse.che.ide.extension.ant.client.wizard.AntPageViewImpl;
 import org.eclipse.che.ide.extension.ant.client.wizard.AntProjectWizardRegistrar;
@@ -29,5 +31,7 @@ public class AntGinModule extends AbstractGinModule {
         bind(AntPageView.class).to(AntPageViewImpl.class).in(Singleton.class);
 
         GinMultibinder.newSetBinder(binder(), ProjectWizardRegistrar.class).addBinding().to(AntProjectWizardRegistrar.class);
+
+        GinMultibinder.newSetBinder(binder(), NodeInterceptor.class).addBinding().to(AntContentRootInterceptor.class);
     }
 }
