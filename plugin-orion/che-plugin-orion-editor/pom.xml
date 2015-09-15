@@ -85,7 +85,7 @@
                         <configuration>
                             <patchDirectory>${patches.location}</patchDirectory>
                             <patches>
-                                <patch>Orion.diff</patch>
+                                <patch>Orion-9.0.diff</patch>
                             </patches>
                             <optimizations>false</optimizations>
                             <strictPatching>true</strictPatching>
@@ -102,8 +102,7 @@
                     <excludes>
                         <!-- Orion - EPL License -->
                         <exclude>**/org/eclipse/che/ide/editor/orion/public/orion/**</exclude>
-                        <exclude>**/org/eclipse/che/ide/editor/orion/public/orion-6.0/**</exclude>
-                        <exclude>**/org/eclipse/che/ide/editor/orion/public/orion-8.0/**</exclude>
+                        <exclude>**/org/eclipse/che/ide/editor/orion/public/orion-9.0/**</exclude>
                         <exclude>**/org/eclipse/che/ide/editor/orion/public/built-editor-compat.css</exclude>
                         <exclude>**/patches/Orion.diff</exclude>
                     </excludes>

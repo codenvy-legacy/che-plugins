@@ -19,6 +19,7 @@ import org.eclipse.che.commons.schedule.ScheduleRate;
 import org.eclipse.che.dto.server.DtoFactory;
 import org.eclipse.che.ide.ext.java.shared.dto.LinkedModeModel;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ChangeCreationResult;
+import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ChangeEnabledState;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.LinkedRenameRefactoringApply;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.MoveSettings;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringPreview;
@@ -53,12 +54,9 @@ import org.eclipse.jdt.internal.corext.refactoring.reorg.IReorgQueries;
 import org.eclipse.jdt.internal.corext.refactoring.reorg.JavaMoveProcessor;
 import org.eclipse.jdt.internal.corext.refactoring.reorg.ReorgPolicyFactory;
 import org.eclipse.jdt.ui.refactoring.RenameSupport;
-import org.eclipse.ltk.core.refactoring.Change;
-import org.eclipse.ltk.core.refactoring.CompositeChange;
 import org.eclipse.ltk.core.refactoring.Refactoring;
 import org.eclipse.ltk.core.refactoring.participants.MoveRefactoring;
 import org.eclipse.ltk.core.refactoring.participants.RenameRefactoring;
-import org.eclipse.ltk.internal.ui.refactoring.AbstractChangeNode;
 import org.eclipse.ltk.internal.ui.refactoring.PreviewNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,10 +83,6 @@ public class RefactoringManager {
 
     private static RenameSupport createRenameSupport(IJavaElement element, String newName, int flags) throws CoreException {
         switch (element.getElementType()) {
-//            case IJavaElement.JAVA_PROJECT:
-//                return RenameSupport.create((IJavaProject) element, newName, flags);
-//            case IJavaElement.PACKAGE_FRAGMENT_ROOT:
-//                return RenameSupport.create((IPackageFragmentRoot) element, newName);
             case IJavaElement.PACKAGE_FRAGMENT:
                 return RenameSupport.create((IPackageFragment)element, newName, flags);
             case IJavaElement.COMPILATION_UNIT:
@@ -211,15 +205,7 @@ public class RefactoringManager {
 
     public RefactoringPreview getRefactoringPreview(String sessionId) throws RefactoringException {
         RefactoringSession session = getRefactoringSession(sessionId);
-        Change change = session.getChange();
-        CompositeChange compositeChange;
-        if (change instanceof CompositeChange) {
-            compositeChange = (CompositeChange)change;
-        } else {
-            compositeChange = new CompositeChange("Dummy Change"); //$NON-NLS-1$
-            compositeChange.add(change);
-        }
-        PreviewNode node = AbstractChangeNode.createNode(null, compositeChange);
+        PreviewNode node = session.getChangePreview();
         return DtoConverter.toRefactoringPreview(node);
     }
 
@@ -246,6 +232,7 @@ public class RefactoringManager {
         RenameRefactoringSession session = DtoFactory.newDto(RenameRefactoringSession.class);
         String uuid = UUID.uuid();
         session.setSessionId(uuid);
+        session.setWizardType(getWizardType(element));
         if (lightweight && !(element instanceof IPackageFragment)) {
             RenameLinkedModeRefactoringSession refactoringSession =
                     new RenameLinkedModeRefactoringSession(element, cu, offset);
@@ -253,7 +240,6 @@ public class RefactoringManager {
             if (model == null) {
                 //we don't find edits for this element, so show wizard
                 session.setMastShowWizard(true);
-                session.setWizardType(getWizardType(element));
             } else {
                 session.setMastShowWizard(false);
                 session.setLinkedModeModel(model);
@@ -266,7 +252,6 @@ public class RefactoringManager {
                 RenameRefactoring refactoring = renameSupport.getfRefactoring();
                 RenameSession renameSession = new RenameSession(refactoring);
                 session.setMastShowWizard(true);
-                session.setWizardType(getWizardType(element));
                 sessions.put(uuid, renameSession);
                 return session;
 
@@ -335,5 +320,10 @@ public class RefactoringManager {
         } else {
             throw new RefactoringException("Validating of new name only available on RenameSession.");
         }
+    }
+
+    public void changeChangeEnabled(ChangeEnabledState state) throws RefactoringException {
+        RefactoringSession session = getRefactoringSession(state.getSessionId());
+        session.updateChangeEnabled(state.getChangeId(), state.isEnabled());
     }
 }

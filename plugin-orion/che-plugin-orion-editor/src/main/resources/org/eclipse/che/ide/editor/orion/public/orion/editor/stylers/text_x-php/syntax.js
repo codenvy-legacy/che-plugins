@@ -49,6 +49,7 @@ define("orion/editor/stylers/text_x-php/syntax", ["orion/editor/stylers/lib/synt
 	var constants = [
 		"false", "FALSE", "null", "NULL", "true", "TRUE" //$NON-NLS-5$ //$NON-NLS-4$ //$NON-NLS-3$ //$NON-NLS-2$ //$NON-NLS-1$ //$NON-NLS-0$
 	];
+	var languageVariables = ["self"]; //$NON-NLS-0$
 
 	var grammars = [];
 	grammars.push.apply(grammars, mLib.grammars);
@@ -90,6 +91,7 @@ define("orion/editor/stylers/text_x-php/syntax", ["orion/editor/stylers/lib/synt
 					{include: "orion.lib#bracket_close"}, //$NON-NLS-0$
 					{include: "orion.lib#parenthesis_open"}, //$NON-NLS-0$
 					{include: "orion.lib#parenthesis_close"}, //$NON-NLS-0$
+					{include: "orion.lib#operator"}, //$NON-NLS-0$
 					{
 						match: "\\b0[bB][01]+\\b", //$NON-NLS-0$
 						name: "constant.numeric.binary.php" //$NON-NLS-0$
@@ -109,7 +111,7 @@ define("orion/editor/stylers/text_x-php/syntax", ["orion/editor/stylers/lib/synt
 						name: "constant.language.php" //$NON-NLS-0$
 					},
 					{
-						match: "\\bself\\b", //$NON-NLS-0$
+						match: "\\b(?:" + languageVariables.join("|") + ")\\b", //$NON-NLS-2$ //$NON-NLS-1$ //$NON-NLS-0$
 						name: "variable.language.php" //$NON-NLS-0$
 					}
 				]
@@ -122,6 +124,6 @@ define("orion/editor/stylers/text_x-php/syntax", ["orion/editor/stylers/lib/synt
 	return {
 		id: grammars[grammars.length - 1].id,
 		grammars: grammars,
-		keywords: keywords.concat(controlKeywords)
+		keywords: keywords.concat(controlKeywords).concat(constants).concat(languageVariables)
 	};
 });

@@ -22,6 +22,10 @@ import java.util.List;
 @DTO
 public interface RefactoringPreview {
 
+    String getId();
+
+    void setId(String id);
+
     /**
      * Test description of this change
      */
