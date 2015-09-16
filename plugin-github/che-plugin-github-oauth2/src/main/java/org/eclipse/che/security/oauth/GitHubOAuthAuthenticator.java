@@ -10,12 +10,12 @@
  *******************************************************************************/
 package org.eclipse.che.security.oauth;
 
+import com.google.api.client.util.store.MemoryDataStoreFactory;
+
 import org.eclipse.che.api.auth.shared.dto.OAuthToken;
 import org.eclipse.che.commons.json.JsonHelper;
 import org.eclipse.che.commons.json.JsonParseException;
 import org.eclipse.che.security.oauth.shared.User;
-
-import com.google.api.client.util.store.MemoryDataStoreFactory;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -27,11 +27,14 @@ import java.io.InputStream;
 import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.Optional;
+
+import static com.google.api.client.repackaged.com.google.common.base.Strings.isNullOrEmpty;
 
 /** OAuth authentication  for github account. */
 @Singleton
 public class GitHubOAuthAuthenticator extends OAuthAuthenticator {
-
 
     @Inject
     public GitHubOAuthAuthenticator(@Named("oauth.github.clientid") String clientId,
@@ -50,23 +53,21 @@ public class GitHubOAuthAuthenticator extends OAuthAuthenticator {
         GithubEmail[] result = getJson2("https://api.github.com/user/emails?access_token=" + accessToken.getToken(),
                                         GithubEmail[].class, null);
 
-        GithubEmail verifiedEmail = null;
-        for (GithubEmail email : result) {
-            if (email.isPrimary() && email.isVerified()) {
-                verifiedEmail = email;
-                break;
-            }
-        }
-        if (verifiedEmail == null || verifiedEmail.getEmail() == null || verifiedEmail.getEmail().isEmpty()) {
+        final Optional<GithubEmail> verifiedEmail = Arrays.stream(result)
+                                                          .filter(githubEmail -> githubEmail.isPrimary()
+                                                                                 && githubEmail.isVerified()
+                                                                                 && !isNullOrEmpty(githubEmail.getEmail()))
+                                                          .findFirst();
+        if (!verifiedEmail.isPresent()) {
             throw new OAuthAuthenticationException(
                     "Sorry, we failed to find any verified emails associated with your GitHub account." +
                     " Please, verify at least one email in your GitHub account and try to connect with GitHub again.");
 
         }
-        user.setEmail(verifiedEmail.getEmail());
-        final String email = user.getEmail();
+        user.setEmail(verifiedEmail.get().getEmail());
+        //validation of user email
         try {
-            new InternetAddress(email).validate();
+            new InternetAddress(user.getEmail()).validate();
         } catch (AddressException e) {
             throw new OAuthAuthenticationException(e.getMessage());
         }
@@ -82,9 +83,7 @@ public class GitHubOAuthAuthenticator extends OAuthAuthenticator {
             urlConnection.setRequestProperty("Accept", "application/vnd.github.v3.html+json");
             urlInputStream = urlConnection.getInputStream();
             return JsonHelper.fromJson(urlInputStream, userClass, type);
-        } catch (JsonParseException e) {
-            throw new OAuthAuthenticationException(e.getMessage(), e);
-        } catch (IOException e) {
+        } catch (JsonParseException | IOException e) {
             throw new OAuthAuthenticationException(e.getMessage(), e);
         } finally {
             if (urlInputStream != null) {
