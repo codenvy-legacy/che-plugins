@@ -322,9 +322,11 @@ public class DockerInstanceProvider implements InstanceProvider {
                 env = new String[0];
             }
 
-            final ContainerConfig config = new ContainerConfig().withImage(imageId)
-                                                                .withMemorySwap(-1)
-                                                                .withMemory((long)memorySizeMB * 1024 * 1024)
+            final ContainerConfig config = new ContainerConfig().withImage(imageId).withHostConfig(new HostConfig()
+                                                                                                           .withMemorySwap(-1)
+                                                                                                           .withMemory(Long.toString(
+                                                                                                                   (long)memorySizeMB *
+                                                                                                                   1024 * 1024)))
                                                                 .withLabels(labels)
                                                                 .withExposedPorts(portsToExpose)
                                                                 .withEnv(env);
