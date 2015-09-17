@@ -14,12 +14,21 @@ package org.eclipse.che.ide.ext.java.shared.dto.refactoring;
 import org.eclipse.che.dto.shared.DTO;
 
 /**
+ * DTO represents java package fragment.
  * @author Evgen Vidolob
  */
 @DTO
 public interface PackageFragment extends JavaProjectElement {
 
+    /**
+     * name of this package ("foo.bar.goo")
+     * @return name
+     */
     String getName();
 
+    /**
+     * Set package name
+     * @param name of the package
+     */
     void setName(String name);
 }

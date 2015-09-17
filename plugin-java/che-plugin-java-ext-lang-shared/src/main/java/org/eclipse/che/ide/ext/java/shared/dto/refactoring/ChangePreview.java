@@ -14,18 +14,28 @@ package org.eclipse.che.ide.ext.java.shared.dto.refactoring;
 import org.eclipse.che.dto.shared.DTO;
 
 /**
+ * DTO represents refactoring change preview.
  * @author Evgen Vidolob
  */
 @DTO
 public interface ChangePreview {
+    /**
+     * @return part of the old content
+     */
     String getOldContent();
 
     void setOldContent(String oldContent);
 
+    /**
+     * @return part of the new content
+     */
     String getNewContent();
 
     void setNewContent(String newContent);
 
+    /**
+     * @return name of the file which has corresponding change
+     */
     String getFileName();
 
     void setFileName(String name);

@@ -11,9 +11,23 @@
 
 package org.eclipse.che.ide.ext.java.shared.dto.refactoring;
 
+import org.eclipse.che.dto.shared.DTO;
+
 /**
+ * DTO represents refactoring change.
  * @author Evgen Vidolob
  */
+@DTO
+public interface RefactoringChange extends RefactoringSession {
 
-public interface RefactoringChange {
+    /**
+     * @return refactoring change id.
+     */
+    String getChangeId();
+
+    /**
+     * Set refactoring change id.
+     * @param id the id of this change.
+     */
+    void setChangeId(String id);
 }

@@ -16,14 +16,22 @@ import org.eclipse.che.dto.shared.DTO;
 import java.util.List;
 
 /**
+ * DTO represents package fragment root.
  * @author Evgen Vidolob
  */
 @DTO
 public interface PackageFragmentRoot extends JavaProjectElement {
 
-
+    /**
+     * All package fragments in this package fragment root.
+     * @return list of the package fragments
+     */
     List<PackageFragment> getPackageFragments();
 
+    /**
+     * Set package fragments
+     * @param fragments list of the package fragments
+     */
     void setPackageFragments(List<PackageFragment> fragments);
 
 }
