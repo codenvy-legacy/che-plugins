@@ -10,8 +10,11 @@
  *******************************************************************************/
 package org.eclipse.ltk.internal.ui.refactoring;
 
+import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ChangePreview;
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.ltk.ui.refactoring.IChangePreviewViewer;
 
 import java.util.List;
 import java.util.UUID;
@@ -97,27 +100,27 @@ public abstract class PreviewNode {
 	 */
 	public abstract ImageDescriptor getImageDescriptor();
 
-//	/**
-//	 * Returns the viewer descriptor used to present a preview of this change element
-//	 *
-//	 * @return the viewer suitable to present a preview of this change or
-//	 *  <code>null</code> if no previewer is configured.
-//	 *
-//	 * @throws CoreException if an error occurred while creating the descriptor
-//	 */
-//	abstract ChangePreviewViewerDescriptor getChangePreviewViewerDescriptor() throws CoreException;
-//
-//	/**
-//	 * Feeds the input that corresponds to this change element into the
-//	 * given viewer.
-//	 *
-//	 * @param viewer the viewer to feed the input into
-//	 * @param categories the group categories to filter for or
-//	 *  <code>null</code> if no filtering should take place
-//	 *
-//	 * @throws CoreException if an error occurred while feeding the input
-//	 */
-//	abstract void feedInput(IChangePreviewViewer viewer, List/*<GroupCategory>*/ categories) throws CoreException;
+	/**
+	 * Returns the viewer descriptor used to present a preview of this change element
+	 *
+	 * @return the viewer suitable to present a preview of this change or
+	 *  <code>null</code> if no previewer is configured.
+	 *
+	 * @throws CoreException if an error occurred while creating the descriptor
+	 */
+	public abstract ChangePreviewViewerDescriptor getChangePreviewViewerDescriptor() throws CoreException;
+
+	/**
+	 * Feeds the input that corresponds to this change element into the
+	 * given viewer.
+	 *
+	 * @param viewer the viewer to feed the input into
+	 * @param categories the group categories to filter for or
+	 *  <code>null</code> if no filtering should take place
+	 *
+	 * @throws CoreException if an error occurred while feeding the input
+	 */
+	public abstract ChangePreview feedInput(IChangePreviewViewer viewer, List/*<GroupCategory>*/ categories) throws CoreException;
 
 	/**
 	 * Sets the activation status for this <code>PreviewNode</code>. When a

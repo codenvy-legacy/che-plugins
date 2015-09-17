@@ -20,7 +20,15 @@ import org.eclipse.che.dto.shared.DTO;
 @DTO
 public interface RefactoringSession {
 
+    /**
+     * Refactoring session id.
+     * @return the id of this session.
+     */
     String getSessionId();
 
+    /**
+     * Set id for this session.
+     * @param sessionId the id of this session.
+     */
     void setSessionId(String sessionId);
 }

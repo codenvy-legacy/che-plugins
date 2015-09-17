@@ -28,6 +28,10 @@ public interface RenameRefactoringSession extends RefactoringSession {
 
     void setMastShowWizard(boolean showWizard);
 
+    /**
+     * Rename refactoring wizard type
+     * @return the wizard type
+     */
     RenameWizard getWizardType();
 
     void setWizardType(RenameWizard type);

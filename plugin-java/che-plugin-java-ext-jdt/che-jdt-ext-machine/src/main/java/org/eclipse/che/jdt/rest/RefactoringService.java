@@ -15,11 +15,13 @@ import com.google.inject.Inject;
 
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ChangeCreationResult;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ChangeEnabledState;
+import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ChangePreview;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.CreateMoveRefactoring;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.CreateRenameRefactoring;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.JavaElement;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.LinkedRenameRefactoringApply;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.MoveSettings;
+import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringChange;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringPreview;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringSession;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatus;
@@ -38,8 +40,6 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.core.JavaModel;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringAvailabilityTester;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -48,12 +48,12 @@ import javax.ws.rs.Produces;
 import java.util.function.Function;
 
 /**
+ * Service for all Java refactorings
  * @author Evgen Vidolob
  */
 @Path("/jdt/{ws-id}/refactoring")
 public class RefactoringService {
     private static final JavaModel model = JavaModelManager.getJavaModelManager().getJavaModel();
-    private static final Logger    LOG   = LoggerFactory.getLogger(RefactoringService.class);
     private RefactoringManager manager;
 
     @Inject
@@ -61,6 +61,13 @@ public class RefactoringService {
         this.manager = manager;
     }
 
+    /**
+     * Create move refactoring session.
+     * @param cmr move settings, contains resource paths to move.
+     * @return refactoring session id.
+     * @throws JavaModelException when JavaModel has a failure
+     * @throws RefactoringException when impossible to create move refactoring session
+     */
     @POST
     @Path("move/create")
     @Consumes("application/json")
@@ -95,10 +102,17 @@ public class RefactoringService {
             return manager.createMoveRefactoringSession(javaElements);
         }
 
-        throw new IllegalArgumentException("Can't create move refactoring.");
+        throw new RefactoringException("Can't create move refactoring.");
     }
 
 
+    /**
+     * Set destination for reorg refactorings.
+     * @param destination the destination for reorg refactoring
+     * @return refactoring status
+     * @throws RefactoringException when there are no corresponding refactoring session
+     * @throws JavaModelException when JavaModel has a failure
+     */
     @POST
     @Path("set/destination")
     @Produces("application/json")
@@ -107,6 +121,11 @@ public class RefactoringService {
         return manager.setRefactoringDestination(destination);
     }
 
+    /**
+     * Set move refactoring wizard setting.
+     * @param settings the move settings
+     * @throws RefactoringException when there are no corresponding refactoring session
+     */
     @POST
     @Path("set/move/setting")
     @Consumes("application/json")
@@ -114,7 +133,13 @@ public class RefactoringService {
         manager.setMoveSettings(settings);
     }
 
-
+    /**
+     * Create refactoring change.
+     * Creation of the change starts final checking for refactoring. Without creating change refactoring can't be applied.
+     * @param refactoringSession the refactoring session.
+     * @return result of creation of the change.
+     * @throws RefactoringException when there are no corresponding refactoring session
+     */
     @POST
     @Path("create/change")
     @Produces("application/json")
@@ -123,6 +148,12 @@ public class RefactoringService {
         return manager.createChange(refactoringSession.getSessionId());
     }
 
+    /**
+     * Get refactoring preview. Preview is tree of refactoring changes.
+     * @param refactoringSession the refactoring session.
+     * @return refactoring preview tree
+     * @throws RefactoringException when there are no corresponding refactoring session
+     */
     @POST
     @Path("get/preview")
     @Produces("application/json")
@@ -131,14 +162,37 @@ public class RefactoringService {
         return manager.getRefactoringPreview(refactoringSession.getSessionId());
     }
 
+    /**
+     * Change enabled/disabled state of the corresponding refactoring change.
+     * @param state the state of refactoring change
+     * @throws RefactoringException when there are no corresponding refactoring session or refactoring change
+     */
     @POST
     @Path("change/enabled")
     public void changeChangeEnabledState(ChangeEnabledState state) throws RefactoringException {
         manager.changeChangeEnabled(state);
     }
 
+    /**
+     * Get refactoring change preview. Preview contains new and old content of the file
+     * @param change the change to get preview
+     * @return refactoring change preview
+     * @throws RefactoringException
+     */
+    @POST
+    @Path("change/preview")
+    @Produces("application/json")
+    @Consumes("application/json")
+    public ChangePreview getChangePreview(RefactoringChange change) throws RefactoringException {
+        return manager.getChangePreview(change);
+    }
 
-
+    /**
+     * Apply refactoring.
+     * @param session the refactoring session
+     * @return the status fo applied refactoring
+     * @throws RefactoringException when there are no corresponding refactoring session
+     */
     @POST
     @Path("apply")
     @Produces("application/json")
@@ -147,26 +201,33 @@ public class RefactoringService {
         return manager.applyRefactoring(session.getSessionId());
     }
 
+    /**
+     * Create rename refactoring session.
+     * @param settings rename settings
+     * @return the rename refactoring session
+     * @throws CoreException when RenameSupport can't be created
+     * @throws RefactoringException when Java element was not found
+     */
     @POST
     @Path("rename/create")
     @Produces("application/json")
     @Consumes("application/json")
-    public RenameRefactoringSession createRenameRefactoring(CreateRenameRefactoring refactoring)
+    public RenameRefactoringSession createRenameRefactoring(CreateRenameRefactoring settings)
             throws CoreException, RefactoringException {
-        IJavaProject javaProject = model.getJavaProject(refactoring.getProjectPath());
+        IJavaProject javaProject = model.getJavaProject(settings.getProjectPath());
         IJavaElement elementToRename;
         ICompilationUnit cu = null;
-        switch (refactoring.getType()){
+        switch (settings.getType()) {
             case COMPILATION_UNIT:
-                elementToRename = javaProject.findType(refactoring.getPath()).getCompilationUnit();
+                elementToRename = javaProject.findType(settings.getPath()).getCompilationUnit();
                 break;
             case PACKAGE:
-                elementToRename = javaProject.findPackageFragment(new org.eclipse.core.runtime.Path(refactoring.getPath()));
+                elementToRename = javaProject.findPackageFragment(new org.eclipse.core.runtime.Path(settings.getPath()));
                 break;
             case JAVA_ELEMENT:
-                ICompilationUnit compilationUnit = javaProject.findType(refactoring.getPath()).getCompilationUnit();
+                ICompilationUnit compilationUnit = javaProject.findType(settings.getPath()).getCompilationUnit();
                 cu = compilationUnit;
-                elementToRename = getSelectionElement(compilationUnit, refactoring.getOffset());
+                elementToRename = getSelectionElement(compilationUnit, settings.getOffset());
                 break;
             default:
                 elementToRename = null;
@@ -175,9 +236,16 @@ public class RefactoringService {
             throw new RefactoringException("Can't find java element to rename.");
         }
 
-        return manager.createRenameRefactoring(elementToRename, cu, refactoring.getOffset(), refactoring.isRefactorLightweight());
+        return manager.createRenameRefactoring(elementToRename, cu, settings.getOffset(), settings.isRefactorLightweight());
     }
 
+    /**
+     * Apply linked mode rename refactoring.
+     * @param refactoringApply linked mode setting and refactoring session id
+     * @return the status fo applied refactoring
+     * @throws RefactoringException when there are no corresponding refactoring session
+     * @throws CoreException  when impossible to apply rename refactoring
+     */
     @POST
     @Path("rename/linked/apply")
     @Consumes("application/json")
@@ -187,6 +255,12 @@ public class RefactoringService {
         return manager.applyLinkedRename(refactoringApply);
     }
 
+    /**
+     * Validate new name. Used for validation new name in rename refactoring wizard.
+     * @param newName the new element name
+     * @return the status of validation
+     * @throws RefactoringException  when there are no corresponding refactoring session
+     */
     @POST
     @Path("rename/validate/name")
     @Consumes("application/json")
@@ -195,6 +269,11 @@ public class RefactoringService {
         return manager.renameValidateNewName(newName);
     }
 
+    /**
+     * Set rename refactoring wizard settings.
+     * @param settings refactoring wizard settings
+     * @throws RefactoringException  when there are no corresponding refactoring session
+     */
     @POST
     @Path("set/rename/settings")
     @Consumes("application/json")

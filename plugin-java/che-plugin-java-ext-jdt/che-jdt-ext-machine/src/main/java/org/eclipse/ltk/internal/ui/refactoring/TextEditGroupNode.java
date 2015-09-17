@@ -1,21 +1,26 @@
 /*******************************************************************************
- * Copyright (c) 2012-2015 Codenvy, S.A.
+ * Copyright (c) 2000, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *   Codenvy, S.A. - initial API and implementation
+ *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.ltk.internal.ui.refactoring;
 
+import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ChangePreview;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.text.IRegion;
+import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.GroupCategorySet;
+import org.eclipse.ltk.core.refactoring.TextEditBasedChange;
 import org.eclipse.ltk.core.refactoring.TextEditBasedChangeGroup;
+import org.eclipse.ltk.ui.refactoring.ChangePreviewViewerInput;
+import org.eclipse.ltk.ui.refactoring.IChangePreviewViewer;
 import org.eclipse.ltk.ui.refactoring.TextEditChangeNode;
 
 import java.util.List;
@@ -47,31 +52,32 @@ public final class TextEditGroupNode extends TextEditChangeNode.ChildNode {
 		return RefactoringPluginImages.DESC_OBJS_TEXT_EDIT;
 	}
 
-//	ChangePreviewViewerDescriptor getChangePreviewViewerDescriptor() throws CoreException {
-//		InternalTextEditChangeNode element = getTextEditChangeNode();
-//		if (element == null)
-//			return null;
-//		return element.getChangePreviewViewerDescriptor();
-//	}
-//
-//	void feedInput(IChangePreviewViewer viewer, List categories) throws CoreException {
-//		InternalTextEditChangeNode element = getTextEditChangeNode();
-//		if (element != null) {
-//			Change change = element.getChange();
-//			if (change instanceof TextEditBasedChange) {
-//				IRegion range = getTextRange(this);
-//				ChangePreviewViewerInput input = null;
-//				if (range != null) {
-//					input = TextEditChangePreviewViewer.createInput(change, new TextEditBasedChangeGroup[]{fChangeGroup}, range);
-//				} else {
-//					input = TextEditChangePreviewViewer.createInput(change, fChangeGroup, 2);
-//				}
-//				viewer.setInput(input);
-//			}
-//		} else {
-//			viewer.setInput(null);
-//		}
-//	}
+	public ChangePreviewViewerDescriptor getChangePreviewViewerDescriptor() throws CoreException {
+		InternalTextEditChangeNode element = getTextEditChangeNode();
+		if (element == null)
+			return null;
+		return element.getChangePreviewViewerDescriptor();
+	}
+
+	public ChangePreview feedInput(IChangePreviewViewer viewer, List categories) throws CoreException {
+		InternalTextEditChangeNode element = getTextEditChangeNode();
+		if (element != null) {
+			Change change = element.getChange();
+			if (change instanceof TextEditBasedChange) {
+				IRegion range = getTextRange(this);
+				ChangePreviewViewerInput input = null;
+				if (range != null) {
+					input = TextEditChangePreviewViewer.createInput(change, new TextEditBasedChangeGroup[]{fChangeGroup}, range);
+				} else {
+					input = TextEditChangePreviewViewer.createInput(change, fChangeGroup, 2);
+				}
+				return viewer.setInput(input);
+			}
+		} else {
+			return viewer.setInput(null);
+		}
+		return null;
+	}
 
 	public void setEnabled(boolean enabled) {
 		fChangeGroup.setEnabled(enabled);

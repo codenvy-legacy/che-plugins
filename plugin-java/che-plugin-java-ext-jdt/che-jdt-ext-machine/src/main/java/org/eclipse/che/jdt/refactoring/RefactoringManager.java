@@ -13,6 +13,8 @@ package org.eclipse.che.jdt.refactoring;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.RemovalListener;
+import com.google.common.cache.RemovalNotification;
 import com.google.inject.Singleton;
 
 import org.eclipse.che.commons.schedule.ScheduleRate;
@@ -20,8 +22,10 @@ import org.eclipse.che.dto.server.DtoFactory;
 import org.eclipse.che.ide.ext.java.shared.dto.LinkedModeModel;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ChangeCreationResult;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ChangeEnabledState;
+import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ChangePreview;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.LinkedRenameRefactoringApply;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.MoveSettings;
+import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringChange;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringPreview;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatus;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RenameRefactoringSession;
@@ -48,26 +52,29 @@ import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.ITypeParameter;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.core.JavaModelManager;
-import org.eclipse.jdt.internal.corext.refactoring.reorg.IConfirmQuery;
 import org.eclipse.jdt.internal.corext.refactoring.reorg.IReorgPolicy;
-import org.eclipse.jdt.internal.corext.refactoring.reorg.IReorgQueries;
 import org.eclipse.jdt.internal.corext.refactoring.reorg.JavaMoveProcessor;
+import org.eclipse.jdt.internal.corext.refactoring.reorg.NullReorgQueries;
 import org.eclipse.jdt.internal.corext.refactoring.reorg.ReorgPolicyFactory;
 import org.eclipse.jdt.ui.refactoring.RenameSupport;
 import org.eclipse.ltk.core.refactoring.Refactoring;
 import org.eclipse.ltk.core.refactoring.participants.MoveRefactoring;
 import org.eclipse.ltk.core.refactoring.participants.RenameRefactoring;
+import org.eclipse.ltk.internal.ui.refactoring.ChangePreviewViewerDescriptor;
 import org.eclipse.ltk.internal.ui.refactoring.PreviewNode;
+import org.eclipse.ltk.ui.refactoring.IChangePreviewViewer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
 import static org.eclipse.che.ide.ext.java.shared.dto.refactoring.RenameRefactoringSession.RenameWizard;
 import static org.eclipse.che.ide.ext.java.shared.dto.refactoring.ReorgDestination.DestinationType;
 
 /**
+ * Manager for all refactoring sessions. Handles creating caching and applying refactorings.
  * @author Evgen Vidolob
  */
 @Singleton
@@ -76,9 +83,16 @@ public class RefactoringManager {
     private final Cache<String, RefactoringSession> sessions;
 
     public RefactoringManager() {
-        sessions = CacheBuilder.newBuilder().expireAfterAccess(15, TimeUnit.MINUTES).removalListener(notification -> {
-
-        }).build();
+        sessions = CacheBuilder.newBuilder().expireAfterAccess(15, TimeUnit.MINUTES).removalListener(
+                new RemovalListener<String, RefactoringSession>() {
+                    @Override
+                    public void onRemoval(RemovalNotification<String, RefactoringSession> notification) {
+                        RefactoringSession value = notification.getValue();
+                        if (value != null) {
+                            value.dispose();
+                        }
+                    }
+                }).build();
     }
 
     private static RenameSupport createRenameSupport(IJavaElement element, String newName, int flags) throws CoreException {
@@ -115,22 +129,8 @@ public class RefactoringManager {
         IReorgPolicy.IMovePolicy policy = ReorgPolicyFactory.createMovePolicy(new IResource[0], javaElements);
         if (policy.canEnable()) {
             JavaMoveProcessor processor = new JavaMoveProcessor(policy);
-            processor.setReorgQueries(new IReorgQueries() {
-                @Override
-                public IConfirmQuery createSkipQuery(String queryTitle, int queryID) {
-                    return null;
-                }
-
-                @Override
-                public IConfirmQuery createYesNoQuery(String queryTitle, boolean allowCancel, int queryID) {
-                    return null;
-                }
-
-                @Override
-                public IConfirmQuery createYesYesToAllNoNoToAllQuery(String queryTitle, boolean allowCancel, int queryID) {
-                    return null;
-                }
-            });
+            //TODO this may overwrite existing sources.
+            processor.setReorgQueries(new NullReorgQueries());
             processor.setCreateTargetQueries(() -> null);
             Refactoring refactoring = new MoveRefactoring(processor);
             MoveRefactoringSession session = new MoveRefactoringSession(refactoring, processor);
@@ -189,6 +189,12 @@ public class RefactoringManager {
         }
     }
 
+    /**
+     * Sets move refactoring settings.
+     * update references, update qualified names, files pattern
+     * @param settings the move refactoring settings
+     * @throws RefactoringException when move refactoring session not found.
+     */
     public void setMoveSettings(MoveSettings settings) throws RefactoringException {
         RefactoringSession session = getRefactoringSession(settings.getSessionId());
         if (!(session instanceof MoveRefactoringSession)) {
@@ -203,17 +209,35 @@ public class RefactoringManager {
         refactoring.setUpdateQualifiedNames(settings.isUpdateQualifiedNames());
     }
 
+    /**
+     * Get refactoring preview tree.
+     * @param sessionId id of the refactoring session
+     * @return refactoring preview
+     * @throws RefactoringException  when refactoring session not found.
+     */
     public RefactoringPreview getRefactoringPreview(String sessionId) throws RefactoringException {
         RefactoringSession session = getRefactoringSession(sessionId);
         PreviewNode node = session.getChangePreview();
         return DtoConverter.toRefactoringPreview(node);
     }
 
+    /**
+     * Create refactoring change and return status of creating changes.
+     * @param sessionId id of the refactoring session
+     * @return change creations result
+     * @throws RefactoringException when refactoring session not found.
+     */
     public ChangeCreationResult createChange(String sessionId) throws RefactoringException {
         RefactoringSession session = getRefactoringSession(sessionId);
         return session.createChange();
     }
 
+    /**
+     * Apply refactoring.
+     * @param sessionId id of the refactoring session
+     * @return refactoring status
+     * @throws RefactoringException  when refactoring session not found.
+     */
     public RefactoringStatus applyRefactoring(String sessionId) throws RefactoringException {
         RefactoringSession session = getRefactoringSession(sessionId);
         org.eclipse.ltk.core.refactoring.RefactoringStatus status = session.apply();
@@ -225,6 +249,17 @@ public class RefactoringManager {
         sessions.invalidate(sessionId);
     }
 
+    /**
+     * Create rename refactoring. It can create two rename refactoring types.
+     * First is linked mode rename refactoring, second is classic rename refactoring with wizard.
+     * @param element element to rename
+     * @param cu compilation unit which element belongs. null if element is IPackageFragment.
+     * @param offset cursor position inside editor, used only for linked mode
+     * @param lightweight if true try to create linked mode refactoring
+     * @return rename refactoring session
+     * @throws CoreException when impossible to create RenameSupport
+     * @throws RefactoringException when we don't support renaming provided element
+     */
     public RenameRefactoringSession createRenameRefactoring(IJavaElement element, ICompilationUnit cu, int offset, boolean lightweight)
             throws CoreException, RefactoringException {
 
@@ -284,6 +319,13 @@ public class RefactoringManager {
         return null;
     }
 
+    /**
+     * Apply linked mode rename refactoring.
+     * @param apply  contains new element name
+     * @return refactoring status
+     * @throws RefactoringException  when refactoring session not found.
+     * @throws CoreException when impossible to apply rename refactoring
+     */
     public RefactoringStatus applyLinkedRename(LinkedRenameRefactoringApply apply)
             throws RefactoringException, CoreException {
         RefactoringSession session = getRefactoringSession(apply.getSessionId());
@@ -304,26 +346,65 @@ public class RefactoringManager {
 
     }
 
+    /**
+     * Set rename refactoring wizard setting. This settings common for all 8 rename wizards.
+     * @param settings refactoring wizard settings
+     * @throws RefactoringException when refactoring session not found or corresponding session is not RenameSession.
+     */
     public void setRenameSettings(RenameSettings settings) throws RefactoringException {
         RefactoringSession session = getRefactoringSession(settings.getSessionId());
-        if(session instanceof RenameSession){
+        if (session instanceof RenameSession) {
             ((RenameSession)session).setSettings(settings);
         } else {
             throw new RefactoringException("Rename settings may be applied only to RenameSession");
         }
     }
 
+    /**
+     * Validate new name for rename refactoring. Uses from wizard.
+     * @param newName the new element name
+     * @return validation status
+     * @throws RefactoringException when corresponding session is not RenameSession.
+     */
     public RefactoringStatus renameValidateNewName(ValidateNewName newName) throws RefactoringException {
         RefactoringSession session = getRefactoringSession(newName.getSessionId());
-        if(session instanceof RenameSession){
+        if (session instanceof RenameSession) {
             return DtoConverter.toRefactoringStatusDto(((RenameSession)session).validateNewName(newName.getNewName()));
         } else {
             throw new RefactoringException("Validating of new name only available on RenameSession.");
         }
     }
 
+    /**
+     * Include/exclude refactoring change from refactoring
+     * @param state updating state
+     * @throws RefactoringException when refactoring session not found.
+     */
     public void changeChangeEnabled(ChangeEnabledState state) throws RefactoringException {
         RefactoringSession session = getRefactoringSession(state.getSessionId());
         session.updateChangeEnabled(state.getChangeId(), state.isEnabled());
+    }
+
+    /**
+     * generate preview for refactoring change
+     * @param change the refactoring change
+     * @return refactoring change preview
+     * @throws RefactoringException when refactoring session or change not found.
+     */
+    public ChangePreview getChangePreview(RefactoringChange change) throws RefactoringException {
+        RefactoringSession session = getRefactoringSession(change.getSessionId());
+        PreviewNode previewNode = session.getChangePreview(change.getChangeId());
+        try {
+            ChangePreviewViewerDescriptor descriptor = previewNode.getChangePreviewViewerDescriptor();
+            if (descriptor != null) {
+                IChangePreviewViewer viewer = descriptor.createViewer();
+                if (viewer != null) {
+                    return previewNode.feedInput(viewer, Collections.EMPTY_LIST);
+                }
+            }
+        } catch (CoreException e) {
+            throw new RefactoringException(e.getMessage());
+        }
+        return null;
     }
 }

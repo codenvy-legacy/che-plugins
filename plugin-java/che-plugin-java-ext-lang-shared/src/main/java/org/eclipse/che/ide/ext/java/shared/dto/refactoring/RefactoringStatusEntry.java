@@ -19,7 +19,6 @@ import org.eclipse.che.dto.shared.DTO;
  * (represented by a tuple(plug-in identifier and code number)).
  * @author Evgen Vidolob
  */
-//TODO add RefactoringStatusContext DTO
 @DTO
 public interface RefactoringStatusEntry {
 

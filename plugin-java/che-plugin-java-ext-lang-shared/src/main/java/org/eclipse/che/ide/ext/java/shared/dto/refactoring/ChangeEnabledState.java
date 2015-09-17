@@ -14,14 +14,11 @@ package org.eclipse.che.ide.ext.java.shared.dto.refactoring;
 import org.eclipse.che.dto.shared.DTO;
 
 /**
+ * DTO for disable/enable corresponding refactoring change.
  * @author Evgen Vidolob
  */
 @DTO
-public interface ChangeEnabledState extends RefactoringSession {
-
-    String getChangeId();
-
-    void setChangeId(String id);
+public interface ChangeEnabledState extends RefactoringChange {
 
     boolean isEnabled();
 

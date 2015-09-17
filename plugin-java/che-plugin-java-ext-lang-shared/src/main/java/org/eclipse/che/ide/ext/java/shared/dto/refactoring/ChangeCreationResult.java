@@ -14,7 +14,7 @@ package org.eclipse.che.ide.ext.java.shared.dto.refactoring;
 import org.eclipse.che.dto.shared.DTO;
 
 /**
- *
+ * DTO that represents creation refactoring change.
  * @author Evgen Vidolob
  */
 @DTO
@@ -28,6 +28,9 @@ public interface ChangeCreationResult {
 
     void setCanShowPreviewPage(boolean preview);
 
+    /**
+     * @return status of creation refactoring change.
+     */
     RefactoringStatus getStatus();
 
     void setStatus(RefactoringStatus status);
