@@ -247,12 +247,22 @@ public class HostConfig {
         this.containerIDFile = containerIDFile;
     }
 
+    public HostConfig withContainerIDFile(String containerIDFile) {
+        this.containerIDFile = containerIDFile;
+        return this;
+    }
+
     public String getMemory() {
         return memory;
     }
 
     public void setMemory(String memory) {
         this.memory = memory;
+    }
+
+    public HostConfig withMemory(String memory) {
+        this.memory = memory;
+        return this;
     }
 
     public int getMemorySwap() {
@@ -263,12 +273,22 @@ public class HostConfig {
         this.memorySwap = memorySwap;
     }
 
+    public HostConfig withMemorySwap(int memorySwap) {
+        this.memorySwap = memorySwap;
+        return this;
+    }
+
     public LogConfig getLogConfig() {
         return logConfig;
     }
 
     public void setLogConfig(LogConfig logConfig) {
         this.logConfig = logConfig;
+    }
+
+    public HostConfig withLogConfig(LogConfig logConfig) {
+        this.logConfig = logConfig;
+        return this;
     }
 
     public String getIpcMode() {
@@ -279,12 +299,22 @@ public class HostConfig {
         this.ipcMode = ipcMode;
     }
 
+    public HostConfig withIpcMode(String ipcMode) {
+        this.ipcMode = ipcMode;
+        return this;
+    }
+
     public String getCgroupParent() {
         return cgroupParent;
     }
 
     public void setCgroupParent(String cgroupParent) {
         this.cgroupParent = cgroupParent;
+    }
+
+    public HostConfig withCgroupParent(String cgroupParent) {
+        this.cgroupParent = cgroupParent;
+        return this;
     }
 
     public int getCpuShares() {
@@ -295,12 +325,22 @@ public class HostConfig {
         this.cpuShares = cpuShares;
     }
 
+    public HostConfig withCpuShares(int cpuShares) {
+        this.cpuShares = cpuShares;
+        return this;
+    }
+
     public String getCpusetCpus() {
         return cpusetCpus;
     }
 
     public void setCpusetCpus(String cpusetCpus) {
         this.cpusetCpus = cpusetCpus;
+    }
+
+    public HostConfig withCpusetCpus(String cpusetCpus) {
+        this.cpusetCpus = cpusetCpus;
+        return this;
     }
 
     public String getPidMode() {
@@ -311,6 +351,11 @@ public class HostConfig {
         this.pidMode = pidMode;
     }
 
+    public HostConfig withPidMode(String pidMode) {
+        this.pidMode = pidMode;
+        return this;
+    }
+
     public boolean isReadonlyRootfs() {
         return readonlyRootfs;
     }
@@ -319,12 +364,22 @@ public class HostConfig {
         this.readonlyRootfs = readonlyRootfs;
     }
 
+    public HostConfig withReadonlyRootfs(boolean readonlyRootfs) {
+        this.readonlyRootfs = readonlyRootfs;
+        return this;
+    }
+
     public Ulimit[] getUlimits() {
         return ulimits;
     }
 
     public void setUlimits(Ulimit[] ulimits) {
         this.ulimits = ulimits;
+    }
+
+    public HostConfig withUlimits(Ulimit[] ulimits) {
+        this.ulimits = ulimits;
+        return this;
     }
 
     @Override
