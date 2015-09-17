@@ -31,6 +31,7 @@ import java.net.URI;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
@@ -53,6 +54,7 @@ public class DockerConnectorTest {
         when(dockerConnection.method(any())).thenReturn(dockerConnection);
         when(dockerConnection.entity(any(InputStream.class))).thenReturn(dockerConnection);
         when(dockerConnection.headers(any())).thenReturn(dockerConnection);
+        when(dockerConnection.query(any(), anyVararg())).thenReturn(dockerConnection);
         when(dockerConnection.path(anyString())).thenReturn(dockerConnection);
         when(dockerConnection.request()).thenReturn(dockerResponse);
     }
