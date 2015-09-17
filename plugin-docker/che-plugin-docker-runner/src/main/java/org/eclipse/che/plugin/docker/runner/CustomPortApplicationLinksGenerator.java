@@ -10,9 +10,14 @@
  *******************************************************************************/
 package org.eclipse.che.plugin.docker.runner;
 
+import org.eclipse.che.plugin.docker.client.DockerConnectorConfiguration;
+
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
+
+import static org.eclipse.che.api.core.util.SystemInfo.isMacOS;
+import static org.eclipse.che.api.core.util.SystemInfo.isWindows;
 
 /**
  * Link generator that uses predefined URL template that allows to customize application port.
@@ -29,8 +34,19 @@ public class CustomPortApplicationLinksGenerator implements ApplicationLinksGene
     @Inject
     public CustomPortApplicationLinksGenerator(@Named("runner.docker.application_link_template") String applicationLinkTemplate,
                                                @Named("runner.docker.web_shell_link_template") String webShellLinkTemplate) {
+
+        // update localhost links to docker machine IP on Windows and MacOS
+        if (isWindows() || isMacOS()) {
+            if (applicationLinkTemplate.contains("localhost")) {
+                applicationLinkTemplate = applicationLinkTemplate.replace("localhost", DockerConnectorConfiguration.getExpectedLocalHost());
+            }
+            if (webShellLinkTemplate.contains("localhost")) {
+                webShellLinkTemplate = webShellLinkTemplate.replace("localhost", DockerConnectorConfiguration.getExpectedLocalHost());
+            }
+        }
         this.applicationLinkTemplate = applicationLinkTemplate;
         this.webShellLinkTemplate = webShellLinkTemplate;
+
     }
 
     @Override
