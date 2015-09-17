@@ -11,7 +11,12 @@
 package org.eclipse.che.ide.ext.git.client.checkout;
 
 import org.eclipse.che.api.git.shared.BranchCheckoutRequest;
+import org.eclipse.che.ide.api.editor.EditorAgent;
+import org.eclipse.che.ide.api.editor.EditorInput;
+import org.eclipse.che.ide.api.editor.EditorPartPresenter;
+import org.eclipse.che.ide.api.event.FileContentUpdateEvent;
 import org.eclipse.che.ide.api.event.OpenProjectEvent;
+import org.eclipse.che.ide.api.project.tree.VirtualFile;
 import org.eclipse.che.ide.ext.git.client.BaseTest;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.test.GwtReflectionUtils;
@@ -21,6 +26,9 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Matchers;
 import org.mockito.Mock;
+
+import java.util.NavigableMap;
+import java.util.TreeMap;
 
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyObject;
@@ -49,6 +57,14 @@ public class CheckoutReferenceTest extends BaseTest {
     private CheckoutReferenceView      view;
     @Mock
     private BranchCheckoutRequest      branchCheckoutRequest;
+
+    @Mock
+    private EditorPartPresenter    partPresenter;
+    @Mock
+    private EditorInput            editorInput;
+    @Mock
+    private EditorAgent            editorAgent;
+
     @InjectMocks
     private CheckoutReferencePresenter presenter;
 
@@ -120,25 +136,35 @@ public class CheckoutReferenceTest extends BaseTest {
 
     @Test
     public void testOnCheckoutClickedWhenCheckoutIsSuccessful() throws Exception {
-//        when(dtoFactory.createDto(BranchCheckoutRequest.class)).thenReturn(branchCheckoutRequest);
-//        when(branchCheckoutRequest.withName(anyString())).thenReturn(branchCheckoutRequest);
-//        when(branchCheckoutRequest.withCreateNew(anyBoolean())).thenReturn(branchCheckoutRequest);
-//        reset(service);
-//        when(view.getReference()).thenReturn(CORRECT_REFERENCE);
-//        when(rootProjectDescriptor.getPath()).thenReturn(PROJECT_PATH);
-//
-//        presenter.onEnterClicked();
-//
-//        verify(service).branchCheckout(anyObject(), anyObject(), asyncCallbackCaptor.capture());
-//        AsyncRequestCallback<String> callback = asyncCallbackCaptor.getValue();
-//        GwtReflectionUtils.callOnSuccess(callback, "");
-//
-//        verify(branchCheckoutRequest).withName(CORRECT_REFERENCE);
-//        verify(branchCheckoutRequest).withCreateNew(false);
-//        verifyNoMoreInteractions(branchCheckoutRequest);
-//        verify(view).close();
-//        verify(rootProjectDescriptor).getPath();
-//        verify(eventBus).fireEvent(Matchers.<OpenProjectEvent>anyObject());
+        VirtualFile virtualFile = mock(VirtualFile.class);
+
+        NavigableMap<String, EditorPartPresenter> partPresenterMap = new TreeMap<>();
+        partPresenterMap.put("partPresenter", partPresenter);
+
+        when(editorAgent.getOpenedEditors()).thenReturn(partPresenterMap);
+        when(partPresenter.getEditorInput()).thenReturn(editorInput);
+
+        when(editorInput.getFile()).thenReturn(virtualFile);
+        when(virtualFile.getPath()).thenReturn("/foo");
+
+        when(dtoFactory.createDto(BranchCheckoutRequest.class)).thenReturn(branchCheckoutRequest);
+        when(branchCheckoutRequest.withName(anyString())).thenReturn(branchCheckoutRequest);
+        when(branchCheckoutRequest.withCreateNew(anyBoolean())).thenReturn(branchCheckoutRequest);
+        reset(service);
+        when(view.getReference()).thenReturn(CORRECT_REFERENCE);
+        when(rootProjectDescriptor.getPath()).thenReturn(PROJECT_PATH);
+
+        presenter.onEnterClicked();
+
+        verify(service).branchCheckout(anyObject(), anyObject(), asyncCallbackCaptor.capture());
+        AsyncRequestCallback<String> callback = asyncCallbackCaptor.getValue();
+        GwtReflectionUtils.callOnSuccess(callback, "");
+
+        verify(branchCheckoutRequest).withName(CORRECT_REFERENCE);
+        verify(branchCheckoutRequest).withCreateNew(false);
+        verifyNoMoreInteractions(branchCheckoutRequest);
+        verify(view).close();
+        verify(eventBus).fireEvent(Matchers.<FileContentUpdateEvent>anyObject());
     }
 
     @Test

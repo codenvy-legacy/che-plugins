@@ -18,6 +18,8 @@ import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
 import org.eclipse.che.api.project.shared.dto.ItemReference;
 import org.eclipse.che.api.promises.client.Function;
 import org.eclipse.che.api.promises.client.FunctionException;
+import org.eclipse.che.api.promises.client.Operation;
+import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.api.promises.client.PromiseError;
 import org.eclipse.che.api.promises.client.callback.AsyncPromiseHelper;
@@ -31,6 +33,7 @@ import org.eclipse.che.ide.project.node.FolderReferenceNode;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.rest.Unmarshallable;
+import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 
 import javax.validation.constraints.NotNull;
 import java.util.Arrays;
@@ -59,12 +62,15 @@ public class NewJavaSourceFilePresenter implements NewJavaSourceFileView.ActionD
     private final ProjectServiceClient        projectServiceClient;
     private final DtoUnmarshallerFactory      dtoUnmarshaller;
     private final List<JavaSourceFileType>    sourceFileTypes;
+    private final DialogFactory               dialogFactory;
 
     @Inject
     public NewJavaSourceFilePresenter(NewJavaSourceFileView view,
                                       NewProjectExplorerPresenter projectExplorer,
                                       ProjectServiceClient projectServiceClient,
-                                      DtoUnmarshallerFactory dtoUnmarshaller) {
+                                      DtoUnmarshallerFactory dtoUnmarshaller,
+                                      DialogFactory dialogFactory) {
+        this.dialogFactory = dialogFactory;
         sourceFileTypes = Arrays.asList(CLASS, INTERFACE, ENUM, ANNOTATION);
         this.view = view;
         this.projectExplorer = projectExplorer;
@@ -199,7 +205,17 @@ public class NewJavaSourceFilePresenter implements NewJavaSourceFileView.ActionD
         getOrCreateFolder(path).thenPromise(createFile(nameWithoutExtension, content))
                                .thenPromise(navigateToNode())
                                .then(selectNode())
-                               .then(openNode());
+                               .then(openNode())
+                               .catchError(onFailedFileCreation());
+    }
+
+    private Operation<PromiseError> onFailedFileCreation() {
+        return new Operation<PromiseError>() {
+            @Override
+            public void apply(PromiseError arg) throws OperationException {
+                dialogFactory.createMessageDialog("Cannot create java file", arg.getMessage(), null).show();
+            }
+        };
     }
 
     private Function<ItemReference, Promise<Node>> navigateToNode() {
@@ -222,7 +238,8 @@ public class NewJavaSourceFilePresenter implements NewJavaSourceFileView.ActionD
         };
     }
 
-    private AsyncPromiseHelper.RequestCall<ItemReference> createFileRC(final ItemReference folder, final String nameWithoutExtension, final String content) {
+    private AsyncPromiseHelper.RequestCall<ItemReference> createFileRC(final ItemReference folder, final String nameWithoutExtension,
+                                                                       final String content) {
         return new AsyncPromiseHelper.RequestCall<ItemReference>() {
             @Override
             public void makeCall(AsyncCallback<ItemReference> callback) {

@@ -14,6 +14,7 @@ import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.api.core.rest.shared.dto.ServiceError;
 import org.eclipse.che.api.git.gwt.client.GitServiceClient;
@@ -23,9 +24,11 @@ import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.editor.EditorPartPresenter;
+import org.eclipse.che.ide.api.event.FileContentUpdateEvent;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.parts.PartStackType;
 import org.eclipse.che.ide.api.parts.WorkspaceAgent;
+import org.eclipse.che.ide.api.project.tree.VirtualFile;
 import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.ext.git.client.GitLocalizationConstant;
 import org.eclipse.che.ide.ext.git.client.GitOutputPartPresenter;
@@ -37,7 +40,6 @@ import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 import org.eclipse.che.ide.ui.dialogs.InputCallback;
 
 import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.eclipse.che.api.git.shared.BranchListRequest.LIST_ALL;
@@ -56,6 +58,7 @@ public class BranchPresenter implements BranchView.ActionDelegate {
     private       WorkspaceAgent              workspaceAgent;
     private       DialogFactory               dialogFactory;
     private final NewProjectExplorerPresenter projectExplorer;
+    private final EventBus                    eventBus;
     private       CurrentProject              project;
     private       GitServiceClient            service;
     private       GitLocalizationConstant     constant;
@@ -77,13 +80,15 @@ public class BranchPresenter implements BranchView.ActionDelegate {
                            GitOutputPartPresenter gitConsole,
                            WorkspaceAgent workspaceAgent,
                            DialogFactory dialogFactory,
-                           NewProjectExplorerPresenter projectExplorer) {
+                           NewProjectExplorerPresenter projectExplorer,
+                           EventBus eventBus) {
         this.view = view;
         this.dtoFactory = dtoFactory;
         this.gitConsole = gitConsole;
         this.workspaceAgent = workspaceAgent;
         this.dialogFactory = dialogFactory;
         this.projectExplorer = projectExplorer;
+        this.eventBus = eventBus;
         this.view.setDelegate(this);
         this.editorAgent = editorAgent;
         this.service = service;
@@ -189,11 +194,6 @@ public class BranchPresenter implements BranchView.ActionDelegate {
     /** {@inheritDoc} */
     @Override
     public void onCheckoutClicked() {
-        final List<EditorPartPresenter> openedEditors = new ArrayList<>();
-        for (EditorPartPresenter partPresenter : editorAgent.getOpenedEditors().values()) {
-            openedEditors.add(partPresenter);
-        }
-
         String name = selectedBranch.getDisplayName();
 
         if (name == null) {
@@ -214,6 +214,8 @@ public class BranchPresenter implements BranchView.ActionDelegate {
                 //In this case we can have unconfigured state of the project,
                 //so we must repeat the logic which is performed when we open a project
                 projectExplorer.reloadChildren();
+
+                updateOpenedFiles();
             }
 
             @Override
@@ -221,6 +223,14 @@ public class BranchPresenter implements BranchView.ActionDelegate {
                 printGitMessage(exception.getMessage());
             }
         });
+    }
+
+    private void updateOpenedFiles() {
+        for (EditorPartPresenter editorPartPresenter : editorAgent.getOpenedEditors().values()) {
+            VirtualFile file = editorPartPresenter.getEditorInput().getFile();
+
+            eventBus.fireEvent(new FileContentUpdateEvent(file.getPath()));
+        }
     }
 
     private void printGitMessage(String messageText) {
