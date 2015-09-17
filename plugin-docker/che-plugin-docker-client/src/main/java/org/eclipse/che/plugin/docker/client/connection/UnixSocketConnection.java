@@ -10,9 +10,10 @@
  *******************************************************************************/
 package org.eclipse.che.plugin.docker.client.connection;
 
-import org.eclipse.che.plugin.docker.client.CLibrary;
+import com.google.common.base.Strings;
 
 import org.eclipse.che.commons.lang.Pair;
+import org.eclipse.che.plugin.docker.client.CLibrary;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -31,6 +32,7 @@ import static org.eclipse.che.plugin.docker.client.CLibraryFactory.getCLibrary;
 
 /**
  * @author andrew00x
+ * @author Alexander Garagatyi
  */
 public class UnixSocketConnection extends DockerConnection {
     private final String dockerSocketPath;
@@ -42,10 +44,11 @@ public class UnixSocketConnection extends DockerConnection {
     }
 
     @Override
-    protected DockerResponse request(String method, String path, List<Pair<String, ?>> headers, Entity entity) throws IOException {
+    protected DockerResponse request(String method, String path, String query, List<Pair<String, ?>> headers, Entity entity)
+            throws IOException {
         fd = connect();
         final OutputStream output = new BufferedOutputStream(openOutputStream(fd));
-        writeHttpHeaders(output, method, path, headers);
+        writeHttpHeaders(output, method, path, query, headers);
         if (entity != null) {
             entity.writeTo(output);
         }
@@ -74,11 +77,16 @@ public class UnixSocketConnection extends DockerConnection {
         return fd;
     }
 
-    private void writeHttpHeaders(OutputStream output, String method, String path, List<Pair<String, ?>> headers) throws IOException {
+    private void writeHttpHeaders(OutputStream output, String method, String path, String query, List<Pair<String, ?>> headers)
+            throws IOException {
         final Writer writer = new OutputStreamWriter(output);
         writer.write(method);
         writer.write(' ');
         writer.write(path);
+        if (!Strings.isNullOrEmpty(query)) {
+            writer.write("?");
+            writer.write(query);
+        }
         writer.write(" HTTP/1.1\r\n");
         for (Pair<String, ?> header : headers) {
             writer.write(header.first);

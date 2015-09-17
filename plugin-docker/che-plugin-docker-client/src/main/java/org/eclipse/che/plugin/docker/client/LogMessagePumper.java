@@ -21,20 +21,22 @@ import java.io.InputStream;
 /**
  * @author andrew00x
  */
-class LogMessagePumper {
+class LogMessagePumper extends MessagePumper<LogMessage> {
     private static final Logger LOG = LoggerFactory.getLogger(LogMessagePumper.class);
 
     private static final int STREAM_HEADER_LENGTH = 8;
     private static final int MAX_LINE_LENGTH      = 1024;
 
-    private final InputStream         source;
-    private final LogMessageProcessor target;
+    private final InputStream                  source;
+    private final MessageProcessor<LogMessage> target;
 
-    LogMessagePumper(InputStream source, LogMessageProcessor target) {
+    LogMessagePumper(InputStream source, MessageProcessor<LogMessage> target) {
+        super(null, null);
         this.source = source;
         this.target = target;
     }
 
+    @Override
     void start() throws IOException {
         final byte[] buf = new byte[MAX_LINE_LENGTH];
         StringBuilder lineBuf = null;

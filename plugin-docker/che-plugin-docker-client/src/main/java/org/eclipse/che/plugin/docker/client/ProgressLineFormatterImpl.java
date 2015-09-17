@@ -13,11 +13,11 @@ package org.eclipse.che.plugin.docker.client;
 import org.eclipse.che.plugin.docker.client.json.ProgressStatus;
 
 /**
- * Default implementation of {@link ProgressLineFormatter}
+ * Beatify {@link ProgressStatus} messages.
  *
  * @author Alexander Garagatyi
  */
-public class ProgressLineFormatterImpl implements ProgressLineFormatter {
+public class ProgressLineFormatterImpl implements MessageFormatter<ProgressStatus> {
     @Override
     public String format(ProgressStatus progressStatus) {
         final StringBuilder sb = new StringBuilder();

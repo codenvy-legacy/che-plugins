@@ -10,21 +10,26 @@
  *******************************************************************************/
 package org.eclipse.che.plugin.docker.client;
 
-import org.eclipse.che.plugin.docker.client.json.ProgressStatus;
+import java.io.IOException;
 
 /**
- * Receives updated progress statuses to be able to show user beatified progress info.
+ * Pumps messages from {@code JsonMessageReader} to {@code MessageProcessor}.
  *
- * @author andrew00x
  * @author Alexander Garagatyi
  */
-public interface ProgressMonitor {
-    void updateProgress(ProgressStatus currentProgressStatus);
+class MessagePumper<T> {
+    private final JsonMessageReader<T> messageReader;
+    private final MessageProcessor<T> messageProcessor;
 
-    ProgressMonitor DEV_NULL = new ProgressMonitor() {
-        @Override
-        public void updateProgress(ProgressStatus currentProgressStatus) {
+    MessagePumper(JsonMessageReader<T> messageReader, MessageProcessor<T> messageProcessor) {
+        this.messageReader = messageReader;
+        this.messageProcessor = messageProcessor;
+    }
+
+    void start() throws IOException {
+        T message;
+        for (;(message = messageReader.next()) != null;) {
+            messageProcessor.process(message);
         }
-    };
-
+    }
 }
