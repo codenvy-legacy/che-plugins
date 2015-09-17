@@ -319,7 +319,19 @@ public abstract class BaseDockerRunner extends Runner {
                         unpackedApplication = unpackArchive(application, workDir, applicationFilename + "_unpack");
                     }
                 }
-                hostConfig.setBinds(new String[]{String.format("%s:%s", unpackedApplication.getAbsolutePath(), applicationBindDir)});
+
+                // On Windows binding directory needs to follow URL convention with first / and no colon :
+                // instead of C:\\Users\\user it needs to be /c/Users/user (note as well the lowercase c at first)
+                // Details on https://github.com/boot2docker/boot2docker/blob/master/README.md#virtualbox-guest-additions
+                String bindingDir;
+                if (org.eclipse.che.api.core.util.SystemInfo.isWindows()) {
+                    bindingDir =  unpackedApplication.getAbsolutePath().replace(":", "").replace('\\', '/');
+                    bindingDir = "/" + Character.toLowerCase(bindingDir.charAt(0)) + bindingDir.substring(1);
+                } else {
+                    bindingDir = unpackedApplication.getAbsolutePath();
+                }
+
+                hostConfig.setBinds(new String[]{String.format("%s:%s", bindingDir, applicationBindDir)});
                 if (watchUpdateProjectTypes.contains(projectDescriptor.getType())) {
                     updaterHolder.set(new ApplicationUpdater(unpackedApplication, projectDescriptor.getPath(),
                                                              projectDescriptor.getBaseUrl(), request.getUserToken(), getExecutor()));
