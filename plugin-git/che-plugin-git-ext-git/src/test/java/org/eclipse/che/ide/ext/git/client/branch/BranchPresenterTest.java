@@ -15,7 +15,9 @@ import org.eclipse.che.api.git.shared.BranchCheckoutRequest;
 import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.editor.EditorInput;
 import org.eclipse.che.ide.api.editor.EditorPartPresenter;
+import org.eclipse.che.ide.api.event.FileContentUpdateEvent;
 import org.eclipse.che.ide.api.parts.WorkspaceAgent;
+import org.eclipse.che.ide.api.project.tree.VirtualFile;
 import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.ext.git.client.BaseTest;
 import org.eclipse.che.ide.ext.git.client.GitOutputPartPresenter;
@@ -31,6 +33,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 
 import java.util.ArrayList;
@@ -107,7 +110,7 @@ public class BranchPresenterTest extends BaseTest {
         super.disarm();
 
         presenter = new BranchPresenter(view, dtoFactory, editorAgent, service, constant, appContext, notificationManager,
-                                        dtoUnmarshallerFactory, gitConsole, workspaceAgent, dialogFactory, projectExplorer);
+                                        dtoUnmarshallerFactory, gitConsole, workspaceAgent, dialogFactory, projectExplorer, eventBus);
 
         NavigableMap<String, EditorPartPresenter> partPresenterMap = new TreeMap<>();
         partPresenterMap.put("partPresenter", partPresenter);
@@ -324,6 +327,11 @@ public class BranchPresenterTest extends BaseTest {
     public void testOnCheckoutClickedWhenBranchCheckoutRequestAndRefreshProjectIsSuccessful() throws Exception {
         when(dtoFactory.createDto(BranchCheckoutRequest.class)).thenReturn(branchCheckoutRequest);
 
+        VirtualFile virtualFile = mock(VirtualFile.class);
+
+        when(editorInput.getFile()).thenReturn(virtualFile);
+        when(virtualFile.getPath()).thenReturn("/foo");
+
         selectBranch();
         presenter.onCheckoutClicked();
 
@@ -345,6 +353,7 @@ public class BranchPresenterTest extends BaseTest {
         verify(service, times(2)).branchList(eq(rootProjectDescriptor), eq(LIST_ALL), anyObject());
         verify(appContext).getCurrentProject();
         verify(notificationManager, never()).showError(anyString());
+        verify(eventBus).fireEvent(Matchers.<FileContentUpdateEvent>anyObject());
         verify(constant, never()).branchCheckoutFailed();
     }
 
@@ -352,6 +361,11 @@ public class BranchPresenterTest extends BaseTest {
     public void testOnCheckoutClickedWhenBranchCheckoutRequestAndRefreshProjectIsSuccessfulButOpenFileIsNotExistInBranch()
             throws Exception {
         when(dtoFactory.createDto(BranchCheckoutRequest.class)).thenReturn(branchCheckoutRequest);
+
+        VirtualFile virtualFile = mock(VirtualFile.class);
+
+        when(editorInput.getFile()).thenReturn(virtualFile);
+        when(virtualFile.getPath()).thenReturn("/foo");
 
         selectBranch();
         presenter.onCheckoutClicked();
@@ -368,6 +382,7 @@ public class BranchPresenterTest extends BaseTest {
         verify(selectedBranch, times(2)).getDisplayName();
         verify(selectedBranch).isRemote();
         verify(service, times(2)).branchList(eq(rootProjectDescriptor), eq(LIST_ALL), anyObject());
+        verify(eventBus).fireEvent(Matchers.<FileContentUpdateEvent>anyObject());
         verify(appContext).getCurrentProject();
     }
 
