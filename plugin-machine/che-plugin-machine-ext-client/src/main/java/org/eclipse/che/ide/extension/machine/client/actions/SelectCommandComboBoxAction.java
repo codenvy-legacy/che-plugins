@@ -10,13 +10,18 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.machine.client.actions;
 
+import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.HTML;
+
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.api.machine.gwt.client.CommandServiceClient;
+import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
 import org.eclipse.che.api.machine.shared.dto.CommandDescriptor;
+import org.eclipse.che.api.machine.shared.dto.MachineDescriptor;
 import org.eclipse.che.api.promises.client.Function;
 import org.eclipse.che.api.promises.client.FunctionException;
 import org.eclipse.che.api.promises.client.Operation;
@@ -32,15 +37,19 @@ import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.event.ProjectActionEvent;
 import org.eclipse.che.ide.api.event.ProjectActionHandler;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
+import org.eclipse.che.ide.extension.machine.client.MachineResources;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
 import org.eclipse.che.ide.extension.machine.client.command.CommandType;
 import org.eclipse.che.ide.extension.machine.client.command.CommandTypeRegistry;
 import org.eclipse.che.ide.extension.machine.client.command.edit.EditCommandsPresenter;
 import org.eclipse.che.ide.ui.dropdown.DropDownHeaderWidget;
 import org.eclipse.che.ide.ui.dropdown.DropDownListFactory;
+import org.vectomatic.dom.svg.ui.SVGImage;
 
 import javax.validation.constraints.NotNull;
+
 import org.eclipse.che.commons.annotation.Nullable;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -64,21 +73,27 @@ public class SelectCommandComboBoxAction extends AbstractPerspectiveAction imple
     private static final Comparator<CommandConfiguration> commandsComparator = new CommandsComparator();
 
     private final DropDownHeaderWidget dropDownHeaderWidget;
+    private final HTML                 devMachineLabelWidget;
     private final DropDownListFactory  dropDownListFactory;
     private final AppContext           appContext;
     private final ActionManager        actionManager;
     private final CommandServiceClient commandServiceClient;
+    private final MachineServiceClient machineServiceClient;
     private final CommandTypeRegistry  commandTypeRegistry;
+    private final MachineResources     resources;
 
     private List<CommandConfiguration> commands;
     private DefaultActionGroup         commandActions;
+    private String                     lastDevMachineId;
 
     @Inject
     public SelectCommandComboBoxAction(MachineLocalizationConstant locale,
+                                       MachineResources resources,
                                        ActionManager actionManager,
                                        EventBus eventBus,
                                        DropDownListFactory dropDownListFactory,
                                        CommandServiceClient commandServiceClient,
+                                       MachineServiceClient machineServiceClient,
                                        CommandTypeRegistry commandTypeRegistry,
                                        EditCommandsPresenter editCommandsPresenter,
                                        AppContext appContext) {
@@ -86,13 +101,16 @@ public class SelectCommandComboBoxAction extends AbstractPerspectiveAction imple
               locale.selectCommandControlTitle(),
               locale.selectCommandControlDescription(),
               null, null);
+        this.resources = resources;
         this.actionManager = actionManager;
         this.commandServiceClient = commandServiceClient;
+        this.machineServiceClient = machineServiceClient;
         this.commandTypeRegistry = commandTypeRegistry;
 
         this.dropDownListFactory = dropDownListFactory;
         this.appContext = appContext;
         this.dropDownHeaderWidget = dropDownListFactory.createList(GROUP_COMMANDS_LIST);
+        this.devMachineLabelWidget = new HTML();
 
         commands = new LinkedList<>();
 
@@ -101,10 +119,26 @@ public class SelectCommandComboBoxAction extends AbstractPerspectiveAction imple
 
         commandActions = new DefaultActionGroup(GROUP_COMMANDS, false, actionManager);
         actionManager.registerAction(GROUP_COMMANDS, commandActions);
+
+        lastDevMachineId = null;
     }
 
     @Override
     public void updateInPerspective(@NotNull ActionEvent event) {
+        final String currentDevMachineId = appContext.getDevMachineId();
+        if (currentDevMachineId == null) {
+            return;
+        }
+        if (lastDevMachineId == null || !currentDevMachineId.equals(lastDevMachineId)) {
+            //Gets DevMachine name by ID.
+            machineServiceClient.getMachine(currentDevMachineId).then(new Operation<MachineDescriptor>() {
+                @Override
+                public void apply(MachineDescriptor arg) throws OperationException {
+                    devMachineLabelWidget.setText(arg.getDisplayName());
+                }
+            });
+            lastDevMachineId = currentDevMachineId;
+        }
     }
 
     @Override
@@ -113,7 +147,22 @@ public class SelectCommandComboBoxAction extends AbstractPerspectiveAction imple
 
     @Override
     public Widget createCustomComponent(Presentation presentation) {
-        return (Widget)dropDownHeaderWidget;
+        // Create widgets for custom component 'select command'.
+        FlowPanel customComponentHeader = new FlowPanel();
+        FlowPanel devMachineIconPanel = new FlowPanel();
+        FlowPanel commandIconPanel = new FlowPanel();
+
+        customComponentHeader.setStyleName(resources.getCss().selectCommandBox());
+        devMachineIconPanel.setStyleName(resources.getCss().selectCommandBoxIconPanel());
+        devMachineIconPanel.add(new SVGImage(resources.devMachine()));
+        customComponentHeader.add(devMachineIconPanel);
+        customComponentHeader.add(this.devMachineLabelWidget);
+        commandIconPanel.setStyleName(resources.getCss().selectCommandBoxIconPanel());
+        commandIconPanel.add(new SVGImage(resources.cmdIcon()));
+        customComponentHeader.add(commandIconPanel);
+        customComponentHeader.add((Widget)dropDownHeaderWidget);
+
+        return customComponentHeader;
     }
 
     /** Returns selected command. */
@@ -136,7 +185,7 @@ public class SelectCommandComboBoxAction extends AbstractPerspectiveAction imple
 
     public void setSelectedCommand(CommandConfiguration command) {
         if (appContext.getCurrentProject() != null) {
-            dropDownHeaderWidget.selectElement(command.getType().getIcon(), command.getName());
+            dropDownHeaderWidget.selectElement(command.getName());
         }
     }
 
@@ -238,13 +287,13 @@ public class SelectCommandComboBoxAction extends AbstractPerspectiveAction imple
             // TODO: consider to saving last used command ID somewhere
             // for now, we always select first command
             final CommandConfiguration command = commands.get(0);
-            dropDownHeaderWidget.selectElement(command.getType().getIcon(), command.getName());
+            dropDownHeaderWidget.selectElement(command.getName());
         }
     }
 
     /** Clears the selected element in the 'Select Command' menu. */
     private void setEmptyCommand() {
-        dropDownHeaderWidget.selectElement(null, "");
+        dropDownHeaderWidget.selectElement("");
     }
 
     @Override
