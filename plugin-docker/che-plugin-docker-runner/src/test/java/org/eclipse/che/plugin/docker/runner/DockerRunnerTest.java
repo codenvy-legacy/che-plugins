@@ -16,6 +16,7 @@ import org.eclipse.che.api.core.util.CustomPortService;
 import org.eclipse.che.api.runner.dto.RunRequest;
 import org.eclipse.che.api.runner.internal.ResourceAllocators;
 import org.eclipse.che.plugin.docker.client.DockerConnector;
+import org.eclipse.che.plugin.docker.client.DockerOOMDetector;
 import org.eclipse.che.plugin.docker.client.InitialAuthConfig;
 import org.junit.Assert;
 import org.junit.Before;
@@ -84,7 +85,8 @@ public class DockerRunnerTest {
         this.dockerRunner =
                 new DockerRunner(deployDirectoryRoot, 5, HOSTNAME, "localhost:8080/api", new String[]{}, allocators, portService,
                                  initialAuthConfig, dockerConnector, eventService,
-                                 applicationLinksGenerator);
+                                 applicationLinksGenerator,
+                                 DockerOOMDetector.NOOP_DETECTOR);
 
         this.env = new ArrayList<>();
         doReturn(HOSTNAME).when(dockerRunnerConfiguration).getHost();

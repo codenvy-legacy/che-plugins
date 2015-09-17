@@ -18,6 +18,7 @@ import org.eclipse.che.api.runner.dto.RunRequest;
 import org.eclipse.che.api.runner.internal.ResourceAllocators;
 import org.eclipse.che.dto.server.DtoFactory;
 import org.eclipse.che.plugin.docker.client.DockerConnector;
+import org.eclipse.che.plugin.docker.client.DockerOOMDetector;
 import org.eclipse.che.plugin.docker.client.dto.AuthConfigs;
 
 import java.io.IOException;
@@ -47,7 +48,8 @@ public class EmbeddedDockerRunner extends BaseDockerRunner {
                          DockerConnector dockerConnector,
                          EventService eventService,
                          ApplicationLinksGenerator applicationLinksGenerator,
-                         String name) {
+                         String name,
+                         DockerOOMDetector oomDetector) {
         super(deployDirectoryRoot,
               cleanupTime,
               hostName,
@@ -56,7 +58,8 @@ public class EmbeddedDockerRunner extends BaseDockerRunner {
               portService,
               dockerConnector,
               eventService,
-              applicationLinksGenerator);
+              applicationLinksGenerator,
+              oomDetector);
         this.name = name;
         this.dockerEnvironments = new HashMap<>();
     }

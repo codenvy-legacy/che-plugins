@@ -31,6 +31,7 @@ import org.eclipse.che.commons.json.JsonParseException;
 import org.eclipse.che.commons.lang.Pair;
 import org.eclipse.che.dto.server.DtoFactory;
 import org.eclipse.che.plugin.docker.client.DockerConnector;
+import org.eclipse.che.plugin.docker.client.DockerOOMDetector;
 import org.eclipse.che.plugin.docker.client.InitialAuthConfig;
 import org.eclipse.che.plugin.docker.client.dto.AuthConfig;
 import org.eclipse.che.plugin.docker.client.dto.AuthConfigs;
@@ -68,7 +69,8 @@ public class DockerRunner extends BaseDockerRunner {
                         InitialAuthConfig initialAuthConfig,
                         DockerConnector dockerConnector,
                         EventService eventService,
-                        ApplicationLinksGenerator applicationLinksGenerator) {
+                        ApplicationLinksGenerator applicationLinksGenerator,
+                        DockerOOMDetector oomDetector) {
         super(deployDirectoryRoot,
               cleanupTime,
               hostName,
@@ -77,7 +79,8 @@ public class DockerRunner extends BaseDockerRunner {
               portService,
               dockerConnector,
               eventService,
-              applicationLinksGenerator);
+              applicationLinksGenerator,
+              oomDetector);
         this.apiEndPoint = apiEndpoint;
         this.initialAuthConfig = initialAuthConfig;
     }

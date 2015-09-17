@@ -14,6 +14,8 @@ import com.google.inject.AbstractModule;
 import com.google.inject.multibindings.Multibinder;
 
 import org.eclipse.che.api.runner.internal.Runner;
+import org.eclipse.che.plugin.docker.client.CgroupOOMDetector;
+import org.eclipse.che.plugin.docker.client.DockerOOMDetector;
 
 /**
  * Docker runner deployer.
@@ -26,5 +28,6 @@ public class DockerRunnerModule extends AbstractModule {
         Multibinder.newSetBinder(binder(), Runner.class).addBinding().to(DockerRunner.class);
         bind(EmbeddedDockerRunnerRegistryPlugin.class).asEagerSingleton();
         bind(ApplicationLinksGenerator.class).to(CustomPortApplicationLinksGenerator.class);
+        bind(DockerOOMDetector.class).to(CgroupOOMDetector.class);
     }
 }

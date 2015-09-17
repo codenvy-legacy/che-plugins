@@ -46,6 +46,7 @@ import org.eclipse.che.plugin.docker.client.DockerConnector;
 import org.eclipse.che.plugin.docker.client.DockerException;
 import org.eclipse.che.plugin.docker.client.DockerFileException;
 import org.eclipse.che.plugin.docker.client.DockerImage;
+import org.eclipse.che.plugin.docker.client.DockerOOMDetector;
 import org.eclipse.che.plugin.docker.client.Dockerfile;
 import org.eclipse.che.plugin.docker.client.ProgressLineFormatterImpl;
 import org.eclipse.che.plugin.docker.client.ProgressMonitor;
@@ -152,6 +153,7 @@ public abstract class BaseDockerRunner extends Runner {
     private final Set<String>               watchUpdateProjectTypes;
     private final ProjectEventService       projectEventService;
     private final DockerConnector           dockerConnector;
+    private final DockerOOMDetector         oomDetector;
 
     /**
      * Allow to hash with sha-1
@@ -166,13 +168,15 @@ public abstract class BaseDockerRunner extends Runner {
                                CustomPortService portService,
                                DockerConnector dockerConnector,
                                EventService eventService,
-                               ApplicationLinksGenerator applicationLinksGenerator) {
+                               ApplicationLinksGenerator applicationLinksGenerator,
+                               DockerOOMDetector oomDetector) {
         super(deployDirectoryRoot, cleanupDelay, allocators, eventService);
         this.hostName = hostName;
         this.watchUpdateProjectTypes = watchUpdateProjectTypes;
         this.portService = portService;
         this.applicationLinksGenerator = applicationLinksGenerator;
         this.dockerConnector = dockerConnector;
+        this.oomDetector = oomDetector;
         projectEventService = new ProjectEventService(eventService);
     }
 
@@ -890,7 +894,8 @@ public abstract class BaseDockerRunner extends Runner {
             if (started.compareAndSet(false, true)) {
                 try {
                     final ContainerCreated response = dockerConnector.createContainer(containerCfg, null);
-                    dockerConnector.startContainer(response.getId(), hostCfg, new LogMessagePrinter(logsPublisher));
+                    dockerConnector.startContainer(response.getId(), hostCfg);
+                    oomDetector.startDetection(response.getId(), new LogMessagePrinter(logsPublisher));
                     container = response.getId();
                     LOG.info("EVENT#configure-docker-started# WS#{}# USER#{}# ID#{}#", request.getWorkspace(), request.getUserId(),
                              container);
@@ -925,6 +930,7 @@ public abstract class BaseDockerRunner extends Runner {
         public void stop() throws RunnerException {
             if (started.get()) {
                 try {
+                    oomDetector.stopDetection(container);
                     dockerConnector.stopContainer(container, 3, TimeUnit.SECONDS);
                     LOG.info("EVENT#configure-docker-finished# WS#{}# USER#{}# ID#{}#", request.getWorkspace(), request.getUserId(),
                              container);

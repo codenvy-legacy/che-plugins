@@ -16,6 +16,7 @@ import org.eclipse.che.api.runner.internal.Constants;
 import org.eclipse.che.api.runner.internal.ResourceAllocators;
 import org.eclipse.che.api.runner.internal.RunnerRegistry;
 import org.eclipse.che.plugin.docker.client.DockerConnector;
+import org.eclipse.che.plugin.docker.client.DockerOOMDetector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,7 +80,8 @@ public class EmbeddedDockerRunnerRegistryPlugin {
                                               DockerConnector dockerConnector,
                                               EventService eventService,
                                               ApplicationLinksGenerator applicationLinksGenerator,
-                                              @Nullable @Named(DOCKERFILES_REPO) String dockerfilesRepository) {
+                                              @Nullable @Named(DOCKERFILES_REPO) String dockerfilesRepository,
+                                              DockerOOMDetector oomDetector) {
         this.registry = registry;
         this.myRunners = new LinkedList<>();
         File dockerFilesDir = null;
@@ -116,7 +118,8 @@ public class EmbeddedDockerRunnerRegistryPlugin {
                                                                                        dockerConnector,
                                                                                        eventService,
                                                                                        applicationLinksGenerator,
-                                                                                       runner));
+                                                                                       runner,
+                                                                                       oomDetector));
                     }
                     dockerRunner.registerEnvironment(new EmbeddedDockerEnvironment(environment, environmentDir));
                 } catch (RuntimeException e) {
