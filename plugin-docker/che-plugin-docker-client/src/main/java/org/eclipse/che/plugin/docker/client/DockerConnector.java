@@ -20,8 +20,6 @@ import org.eclipse.che.commons.json.JsonHelper;
 import org.eclipse.che.commons.json.JsonNameConvention;
 import org.eclipse.che.commons.json.JsonParseException;
 import org.eclipse.che.commons.lang.Pair;
-
-
 import org.eclipse.che.commons.lang.TarUtils;
 import org.eclipse.che.commons.lang.ws.rs.ExtMediaType;
 import org.eclipse.che.plugin.docker.client.connection.CloseConnectionInputStream;
@@ -48,11 +46,13 @@ import org.eclipse.che.plugin.docker.client.json.Image;
 import org.eclipse.che.plugin.docker.client.json.ImageInfo;
 import org.eclipse.che.plugin.docker.client.json.ProgressStatus;
 import org.eclipse.che.plugin.docker.client.json.Version;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.ws.rs.core.MediaType;
 import java.io.BufferedInputStream;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -72,6 +72,9 @@ import java.util.concurrent.TimeUnit;
 
 import static com.google.common.net.UrlEscapers.urlPathSegmentEscaper;
 import static java.io.File.separatorChar;
+import static javax.ws.rs.core.Response.Status.CREATED;
+import static javax.ws.rs.core.Response.Status.NOT_MODIFIED;
+import static javax.ws.rs.core.Response.Status.NO_CONTENT;
 import static javax.ws.rs.core.Response.Status.OK;
 
 /**
@@ -116,11 +119,7 @@ public class DockerConnector {
                                                                   + separatorChar + "machines"
                                                                   + separatorChar + "default";
 
-    private final URI                      dockerDaemonUri;
-    private final DockerCertificates       dockerCertificates;
-    private final InitialAuthConfig        initialAuthConfig;
-    private final ExecutorService          executor;
-    private final Map<String, OOMDetector> oomDetectors;
+    private static final Logger LOG = LoggerFactory.getLogger(DockerConnector.class);
 
     private final URI                dockerDaemonUri;
     private final DockerCertificates dockerCertificates;
@@ -164,10 +163,7 @@ public class DockerConnector {
             if (OK.getStatusCode() != status) {
                 throw new DockerException(getDockerExceptionMessage(response), status);
             }
-            return JsonHelper.fromJson(response.getInputStream(),
-                                       org.eclipse.che.plugin.docker.client.json.SystemInfo.class,
-                                       null,
-                                       FIRST_LETTER_LOWERCASE);
+            return parseResponseStreamAndClose(response.getInputStream(), org.eclipse.che.plugin.docker.client.json.SystemInfo.class);
         } catch (JsonParseException e) {
             throw new IOException(e.getLocalizedMessage(), e);
         }
@@ -187,7 +183,7 @@ public class DockerConnector {
             if (OK.getStatusCode() != status) {
                 throw new DockerException(getDockerExceptionMessage(response), status);
             }
-            return JsonHelper.fromJson(response.getInputStream(), Version.class, null, FIRST_LETTER_LOWERCASE);
+            return parseResponseStreamAndClose(response.getInputStream(), Version.class);
         } catch (JsonParseException e) {
             throw new IOException(e.getLocalizedMessage(), e);
         }
@@ -444,7 +440,6 @@ public class DockerConnector {
         }
     }
 
-
     /**
      * Gets detailed information about docker container.
      *
@@ -669,20 +664,20 @@ public class DockerConnector {
      * @return stream of resources from the specified container filesystem, with retention connection
      * @throws IOException
      *         when problems occurs with docker api calls
-     * @apiNote this method implements 1.20 docker API and  requires docker not less than 1.8.* version
+     * @apiNote this method implements 1.20 docker API and requires docker not less than 1.8.0 version
      */
     public InputStream getResource(String container, String sourcePath) throws IOException {
-        DockerConnection connection = openConnection(dockerDaemonUri);
-        final DockerResponse response = connection.method("GET")
-                                                  .path(String.format("/containers/%s/archive?path=%s", container, sourcePath))
-                                                  .request();
-        final int status = response.getStatus();
-        if (status != OK.getStatusCode()) {
-            final String msg = CharStreams.toString(new InputStreamReader(response.getInputStream()));
-            throw new DockerException(String.format("Error response from docker API, status: %d, message: %s", status, msg), status);
-        }
+        try (DockerConnection connection = openConnection(dockerDaemonUri).method("GET")
+                                                                          .path("/containers/" + container + "/archive")
+                                                                          .query("path", sourcePath)) {
+            final DockerResponse response = connection.request();
+            final int status = response.getStatus();
+            if (status != OK.getStatusCode()) {
+                throw new DockerException(getDockerExceptionMessage(response), status);
+            }
 
-        return new CloseConnectionInputStream(response.getInputStream(), connection);
+            return new CloseConnectionInputStream(response.getInputStream(), connection);
+        }
     }
 
     /**
@@ -694,14 +689,17 @@ public class DockerConnector {
      *         path to file or directory inside specified container
      * @param sourceStream
      *         stream of files from source container
-     * @param overwrite
+     * @param noOverwriteDirNonDir
      *         If "false" then it will be an error if unpacking the given content would cause
      *         an existing directory to be replaced with a non-directory or other resource and vice versa.
      * @throws IOException
      *         when problems occurs with docker api calls, or during file system operations
      * @apiNote this method implements 1.20 docker API and requires docker not less than 1.8 version
      */
-    public void putResource(String container, String targetPath, InputStream sourceStream, boolean overwrite) throws IOException {
+    public void putResource(String container,
+                            String targetPath,
+                            InputStream sourceStream,
+                            boolean noOverwriteDirNonDir) throws IOException {
         File tarFile;
         long length;
         try (InputStream sourceData = sourceStream) {
@@ -712,23 +710,19 @@ public class DockerConnector {
 
         List<Pair<String, ?>> headers = Arrays.asList(Pair.of("Content-Type", ExtMediaType.APPLICATION_X_TAR),
                                                       Pair.of("Content-Length", length));
-        DockerConnection connection = null;
-        try (InputStream tarStream = new BufferedInputStream(new FileInputStream(tarFile))) {
-            connection = openConnection(dockerDaemonUri).method("PUT")
-                                                        .path(String.format("/containers/%s/archive?path=%s&noOverwriteDirNonDir=%d",
-                                                                            container, targetPath, overwrite ? 0 : 1))
-                                                        .headers(headers)
-                                                        .entity(tarStream);
+        try (InputStream tarStream = new BufferedInputStream(new FileInputStream(tarFile));
+             DockerConnection connection = openConnection(dockerDaemonUri).method("PUT")
+                                                                          .path("/containers/" + container + "/archive")
+                                                                          .query("path", targetPath)
+                                                                          .query("noOverwriteDirNonDir", noOverwriteDirNonDir ? 0 : 1)
+                                                                          .headers(headers)
+                                                                          .entity(tarStream)) {
             final DockerResponse response = connection.request();
             final int status = response.getStatus();
             if (status != OK.getStatusCode()) {
-                final String m = CharStreams.toString(new InputStreamReader(response.getInputStream()));
-                throw new DockerException(String.format("Error response from docker API, status: %d, message: %s", status, m), status);
+                throw new DockerException(getDockerExceptionMessage(response), status);
             }
         } finally {
-            if (connection != null) {
-                connection.close();
-            }
             FileCleaner.addFile(tarFile);
         }
     }
