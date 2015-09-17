@@ -19,6 +19,7 @@ import org.eclipse.che.api.machine.server.spi.Instance;
 import org.eclipse.che.api.machine.shared.dto.event.MachineStatusEvent;
 import org.eclipse.che.plugin.docker.client.DockerConnector;
 import org.eclipse.che.plugin.docker.client.Exec;
+import org.eclipse.che.plugin.docker.client.MessageProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,9 +85,8 @@ public class DockerMachineExtServerLauncher {
                             final String containerId = machine.getMetadata().getProperties().get("id");
 
                             final Exec exec = docker.createExec(containerId, true, "/bin/sh", "-c", extServerStartCommand);
-                            docker.startExec(exec.getId(), logMessage -> {
-                                // TODO check that ext server starts successfully
-                            });
+                            // TODO check that ext server starts successfully
+                            docker.startExec(exec.getId(), MessageProcessor.DEV_NULL);
                         }
                     } catch (IOException | MachineException | NotFoundException e) {
                         LOG.error(e.getLocalizedMessage(), e);

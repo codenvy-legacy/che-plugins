@@ -31,7 +31,7 @@ import org.eclipse.che.commons.lang.NameGenerator;
 import org.eclipse.che.plugin.docker.client.DockerConnector;
 import org.eclipse.che.plugin.docker.client.Exec;
 import org.eclipse.che.plugin.docker.client.LogMessage;
-import org.eclipse.che.plugin.docker.client.LogMessageProcessor;
+import org.eclipse.che.plugin.docker.client.MessageProcessor;
 import org.eclipse.che.plugin.docker.client.ProgressLineFormatterImpl;
 import org.eclipse.che.plugin.docker.client.ProgressMonitor;
 import org.eclipse.che.plugin.docker.client.json.ContainerInfo;
@@ -192,7 +192,7 @@ public class DockerInstance extends AbstractInstance {
         try {
             final Exec exec = docker.createExec(container, false, "/bin/bash", "-c", findPidFilesCmd);
             final ValueHolder<InstanceProcess> dockerProcess = new ValueHolder<>();
-            docker.startExec(exec.getId(), new LogMessageProcessor() {
+            docker.startExec(exec.getId(), new MessageProcessor<LogMessage>() {
                 @Override
                 public void process(LogMessage logMessage) {
                     final String pidFilePath = logMessage.getContent();
@@ -218,7 +218,7 @@ public class DockerInstance extends AbstractInstance {
         try {
             final Exec exec = docker.createExec(container, false, "/bin/bash", "-c", findPidFilesCmd);
             final List<InstanceProcess> processes = new LinkedList<>();
-            docker.startExec(exec.getId(), new LogMessageProcessor() {
+            docker.startExec(exec.getId(), new MessageProcessor<LogMessage>() {
                 @Override
                 public void process(LogMessage logMessage) {
                     final String pidFilePath = logMessage.getContent().trim();

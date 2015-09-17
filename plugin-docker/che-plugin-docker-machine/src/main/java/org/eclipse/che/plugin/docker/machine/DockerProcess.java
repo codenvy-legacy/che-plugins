@@ -15,7 +15,6 @@ import com.google.inject.assistedinject.Assisted;
 import org.eclipse.che.plugin.docker.client.DockerConnector;
 import org.eclipse.che.plugin.docker.client.Exec;
 import org.eclipse.che.plugin.docker.client.LogMessage;
-import org.eclipse.che.plugin.docker.client.LogMessageProcessor;
 
 import org.eclipse.che.api.core.ConflictException;
 import org.eclipse.che.api.core.util.LineConsumer;
@@ -23,6 +22,7 @@ import org.eclipse.che.api.core.util.ListLineConsumer;
 import org.eclipse.che.api.core.util.ValueHolder;
 import org.eclipse.che.api.machine.server.exception.MachineException;
 import org.eclipse.che.api.machine.server.spi.InstanceProcess;
+import org.eclipse.che.plugin.docker.client.MessageProcessor;
 
 import org.eclipse.che.commons.annotation.Nullable;
 import javax.inject.Inject;
@@ -143,7 +143,7 @@ public class DockerProcess implements InstanceProcess {
                                                          Arrays.toString(command), container, e.getMessage()), e);
             }
             try {
-                docker.startExec(exec.getId(), LogMessageProcessor.DEV_NULL);
+                docker.startExec(exec.getId(), MessageProcessor.DEV_NULL);
             } catch (IOException e) {
                 throw new MachineException(String.format("Error occurs while executing command %s in docker container %s: %s",
                                                          Arrays.toString(exec.getCommand()), container, e.getMessage()), e);
@@ -164,7 +164,7 @@ public class DockerProcess implements InstanceProcess {
                                                            Arrays.toString(command), container, e.getMessage()), e);
         }
         try {
-            docker.startExec(exec.getId(), new LogMessageProcessor() {
+            docker.startExec(exec.getId(), new MessageProcessor<LogMessage>() {
                 @Override
                 public void process(LogMessage logMessage) {
                     cmdLineHolder.set(logMessage.getContent());

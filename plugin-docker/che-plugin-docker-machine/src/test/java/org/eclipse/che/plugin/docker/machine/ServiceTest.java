@@ -56,12 +56,14 @@ import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -103,7 +105,7 @@ public class ServiceTest {
 
     @BeforeClass
     public void setUpClass() throws Exception {
-        //authConfigs = new AuthConfigs(Collections.singleton(new AuthConfig("localhost:5000", "codenvy", "password1")));
+        when(configurationProperties.getProperties(anyString())).thenReturn(Collections.EMPTY_MAP);
         InitialAuthConfig authConfigs = new InitialAuthConfig(configurationProperties);
 
         docker = new DockerConnector(authConfigs);
@@ -119,8 +121,7 @@ public class ServiceTest {
 
         docker.startContainer(registryContainerId, new HostConfig()
                                       .withPortBindings(Collections.singletonMap("5000/tcp", new PortBinding[]{
-                                              new PortBinding().withHostPort("5000")})),
-                              new LogMessagePrinter(lineConsumer));
+                                              new PortBinding().withHostPort("5000")})));
     }
 
     @AfterClass
@@ -396,7 +397,7 @@ public class ServiceTest {
                                                                                                   "FROM ubuntu\nCMD tail -f " +
                                                                                                   "/dev/null\n"))
                                                                     .withDev(false)
-                                                                    .withDisplayName("displayName")
+                                                                    .withDisplayName("displayName" + System.currentTimeMillis())
                                                           , false);
         waitMachineIsRunning(machine.getId());
         return machine;

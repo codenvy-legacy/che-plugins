@@ -16,7 +16,6 @@ import org.eclipse.che.api.machine.server.exception.MachineException;
 import org.eclipse.che.api.machine.server.recipe.RecipeImpl;
 import org.eclipse.che.api.machine.shared.Recipe;
 import org.eclipse.che.plugin.docker.client.DockerConnector;
-import org.eclipse.che.plugin.docker.client.LogMessageProcessor;
 import org.eclipse.che.plugin.docker.client.ProgressMonitor;
 import org.eclipse.che.plugin.docker.client.dto.AuthConfigs;
 import org.eclipse.che.plugin.docker.client.json.ContainerConfig;
@@ -144,7 +143,7 @@ public class DockerInstanceProviderTest {
         createInstanceFromRecipe();
 
 
-        verify(dockerConnector).startContainer(eq(containerId), any(HostConfig.class), any(LogMessageProcessor.class));
+        verify(dockerConnector).startContainer(eq(containerId), any(HostConfig.class));
     }
 
     @Test
@@ -169,7 +168,7 @@ public class DockerInstanceProviderTest {
         createInstanceFromSnapshot();
 
 
-        verify(dockerConnector).startContainer(eq(containerId), any(HostConfig.class), any(LogMessageProcessor.class));
+        verify(dockerConnector).startContainer(eq(containerId), any(HostConfig.class));
     }
 
     @Test
@@ -722,7 +721,7 @@ public class DockerInstanceProviderTest {
 
 
         ArgumentCaptor<HostConfig> argumentCaptor = ArgumentCaptor.forClass(HostConfig.class);
-        verify(dockerConnector).startContainer(anyString(), argumentCaptor.capture(), any(LogMessageProcessor.class));
+        verify(dockerConnector).startContainer(anyString(), argumentCaptor.capture());
 
         assertEquals(argumentCaptor.getValue().getBinds(), expectedVolumes);
     }
@@ -751,7 +750,7 @@ public class DockerInstanceProviderTest {
 
 
         ArgumentCaptor<HostConfig> argumentCaptor = ArgumentCaptor.forClass(HostConfig.class);
-        verify(dockerConnector).startContainer(anyString(), argumentCaptor.capture(), any(LogMessageProcessor.class));
+        verify(dockerConnector).startContainer(anyString(), argumentCaptor.capture());
 
         assertEquals(argumentCaptor.getValue().getBinds(), expectedVolumes);
     }
@@ -779,7 +778,7 @@ public class DockerInstanceProviderTest {
 
 
         ArgumentCaptor<HostConfig> argumentCaptor = ArgumentCaptor.forClass(HostConfig.class);
-        verify(dockerConnector).startContainer(anyString(), argumentCaptor.capture(), any(LogMessageProcessor.class));
+        verify(dockerConnector).startContainer(anyString(), argumentCaptor.capture());
 
         assertEquals(argumentCaptor.getValue().getBinds(), expectedVolumes);
     }
@@ -807,7 +806,7 @@ public class DockerInstanceProviderTest {
 
 
         ArgumentCaptor<HostConfig> argumentCaptor = ArgumentCaptor.forClass(HostConfig.class);
-        verify(dockerConnector).startContainer(anyString(), argumentCaptor.capture(), any(LogMessageProcessor.class));
+        verify(dockerConnector).startContainer(anyString(), argumentCaptor.capture());
 
         assertEquals(argumentCaptor.getValue().getBinds(), expectedVolumes);
     }
@@ -842,7 +841,7 @@ public class DockerInstanceProviderTest {
 
 
         ArgumentCaptor<HostConfig> argumentCaptor = ArgumentCaptor.forClass(HostConfig.class);
-        verify(dockerConnector).startContainer(anyString(), argumentCaptor.capture(), any(LogMessageProcessor.class));
+        verify(dockerConnector).startContainer(anyString(), argumentCaptor.capture());
 
         final String[] actualBinds = argumentCaptor.getValue().getBinds();
         assertEquals(actualBinds.length, expectedVolumes.size());
@@ -879,7 +878,7 @@ public class DockerInstanceProviderTest {
 
 
         ArgumentCaptor<HostConfig> argumentCaptor = ArgumentCaptor.forClass(HostConfig.class);
-        verify(dockerConnector).startContainer(anyString(), argumentCaptor.capture(), any(LogMessageProcessor.class));
+        verify(dockerConnector).startContainer(anyString(), argumentCaptor.capture());
 
         final String[] actualBinds = argumentCaptor.getValue().getBinds();
         assertEquals(actualBinds.length, expectedVolumes.size());
@@ -914,7 +913,7 @@ public class DockerInstanceProviderTest {
 
 
         ArgumentCaptor<HostConfig> argumentCaptor = ArgumentCaptor.forClass(HostConfig.class);
-        verify(dockerConnector).startContainer(anyString(), argumentCaptor.capture(), any(LogMessageProcessor.class));
+        verify(dockerConnector).startContainer(anyString(), argumentCaptor.capture());
 
         final String[] actualBinds = argumentCaptor.getValue().getBinds();
         assertEquals(actualBinds.length, expectedVolumes.size());
@@ -949,7 +948,7 @@ public class DockerInstanceProviderTest {
 
 
         ArgumentCaptor<HostConfig> argumentCaptor = ArgumentCaptor.forClass(HostConfig.class);
-        verify(dockerConnector).startContainer(anyString(), argumentCaptor.capture(), any(LogMessageProcessor.class));
+        verify(dockerConnector).startContainer(anyString(), argumentCaptor.capture());
 
         final String[] actualBinds = argumentCaptor.getValue().getBinds();
         assertEquals(actualBinds.length, expectedVolumes.size());

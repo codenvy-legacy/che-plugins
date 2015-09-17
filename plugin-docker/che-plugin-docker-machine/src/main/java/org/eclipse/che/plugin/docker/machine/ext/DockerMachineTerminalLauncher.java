@@ -20,6 +20,7 @@ import org.eclipse.che.api.machine.shared.dto.event.MachineStatusEvent;
 import org.eclipse.che.plugin.docker.client.DockerConnector;
 import org.eclipse.che.plugin.docker.client.Exec;
 import org.eclipse.che.plugin.docker.client.LogMessage;
+import org.eclipse.che.plugin.docker.client.MessageProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,11 +82,14 @@ public class DockerMachineTerminalLauncher {
                         final String containerId = machine.getMetadata().getProperties().get("id");
 
                         final Exec exec = docker.createExec(containerId, true, "/bin/bash", "-c", terminalStartCommand);
-                        docker.startExec(exec.getId(), logMessage -> {
-                            if (logMessage.getType() == LogMessage.Type.STDERR) {
-                                try {
-                                    machine.getLogger().writeLine("Terminal error. %s" + logMessage.getContent());
-                                } catch (IOException ignore) {
+                        docker.startExec(exec.getId(), new MessageProcessor<LogMessage>() {
+                            @Override
+                            public void process(LogMessage logMessage) {
+                                if (logMessage.getType() == LogMessage.Type.STDERR) {
+                                    try {
+                                        machine.getLogger().writeLine("Terminal error. %s" + logMessage.getContent());
+                                    } catch (IOException ignore) {
+                                    }
                                 }
                             }
                         });

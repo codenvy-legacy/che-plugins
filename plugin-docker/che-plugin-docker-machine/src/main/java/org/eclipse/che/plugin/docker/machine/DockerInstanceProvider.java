@@ -346,7 +346,7 @@ public class DockerInstanceProvider implements InstanceProvider {
             HostConfig hostConfig = new HostConfig().withPublishAllPorts(true)
                                                     .withBinds(volumes.toArray(new String[volumes.size()]));
 
-            docker.startContainer(containerId, hostConfig, new LogMessagePrinter(outputConsumer));
+            docker.startContainer(containerId, hostConfig);
 
             return dockerMachineFactory.createInstance(machineId,
                                                        workspaceId,

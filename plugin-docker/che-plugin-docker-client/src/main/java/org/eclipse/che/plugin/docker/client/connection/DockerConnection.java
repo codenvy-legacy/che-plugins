@@ -14,6 +14,7 @@ import com.google.common.io.ByteStreams;
 
 import org.eclipse.che.commons.lang.Pair;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -22,12 +23,14 @@ import java.util.List;
 
 /**
  * @author andrew00x
+ * @author Alexander Garagatyi
  */
-public abstract class DockerConnection {
-    private String method;
-    private String path;
-    private List<Pair<String, ?>> headers = Collections.emptyList();
+public abstract class DockerConnection implements Closeable {
+    private String    method;
+    private String    path;
     private Entity<?> entity;
+    private StringBuilder         query   = new StringBuilder();
+    private List<Pair<String, ?>> headers = Collections.emptyList();
 
     public DockerConnection method(String method) {
         this.method = method;
@@ -36,6 +39,25 @@ public abstract class DockerConnection {
 
     public DockerConnection path(String path) {
         this.path = path;
+        return this;
+    }
+
+    public DockerConnection query(String name, Object... values) {
+        if (name == null) {
+            throw new NullPointerException("Name is null");
+        }
+        if (values == null) {
+            throw new NullPointerException("Values are null");
+        }
+        for (Object value : values) {
+            if (value == null) {
+                throw new NullPointerException("Value is null");
+            }
+            if (query.length() > 0) {
+                query.append('&');
+            }
+            query.append(name).append('=').append(value.toString());
+        }
         return this;
     }
 
@@ -60,10 +82,14 @@ public abstract class DockerConnection {
     }
 
     public DockerResponse request() throws IOException {
-        return request(method, path, headers, entity);
+        return request(method, path, query.toString(), headers, entity);
     }
 
-    protected abstract DockerResponse request(String method, String path, List<Pair<String, ?>> headers, Entity entity) throws IOException;
+    protected abstract DockerResponse request(String method,
+                                              String path,
+                                              String query,
+                                              List<Pair<String, ?>> headers,
+                                              Entity entity) throws IOException;
 
     public abstract void close();
 
