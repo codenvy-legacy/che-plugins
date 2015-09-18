@@ -89,6 +89,8 @@ public class MachinePerspective extends AbstractPerspective {
             return;
         }
 
+        information.updateStack();
+
         information.go(view.getInformationPanel());
         navigation.go(view.getNavigationPanel());
         editing.go(view.getEditorPanel());
