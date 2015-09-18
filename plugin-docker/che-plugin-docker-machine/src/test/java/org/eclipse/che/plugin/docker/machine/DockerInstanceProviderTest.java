@@ -361,7 +361,7 @@ public class DockerInstanceProviderTest {
         ArgumentCaptor<ContainerConfig> argumentCaptor = ArgumentCaptor.forClass(ContainerConfig.class);
         verify(dockerConnector).createContainer(argumentCaptor.capture(), anyString());
         // docker accepts memory size in bytes
-        assertEquals(argumentCaptor.getValue().getMemory(), memorySizeMB * 1024 * 1024);
+        assertEquals(argumentCaptor.getValue().getHostConfig().getMemory(), Long.toString(memorySizeMB * 1024 * 1024));
     }
 
     @Test
@@ -378,7 +378,7 @@ public class DockerInstanceProviderTest {
         ArgumentCaptor<ContainerConfig> argumentCaptor = ArgumentCaptor.forClass(ContainerConfig.class);
         verify(dockerConnector).createContainer(argumentCaptor.capture(), anyString());
         // docker accepts memory size in bytes
-        assertEquals(argumentCaptor.getValue().getMemory(), memorySizeMB * 1024 * 1024);
+        assertEquals(argumentCaptor.getValue().getHostConfig().getMemory(), Long.toString(memorySizeMB * 1024 * 1024));
     }
 
     @Test
@@ -392,7 +392,7 @@ public class DockerInstanceProviderTest {
 
         ArgumentCaptor<ContainerConfig> argumentCaptor = ArgumentCaptor.forClass(ContainerConfig.class);
         verify(dockerConnector).createContainer(argumentCaptor.capture(), anyString());
-        assertEquals(argumentCaptor.getValue().getMemorySwap(), -1);
+        assertEquals(argumentCaptor.getValue().getHostConfig().getMemorySwap(), -1);
     }
 
     @Test
@@ -406,7 +406,7 @@ public class DockerInstanceProviderTest {
 
         ArgumentCaptor<ContainerConfig> argumentCaptor = ArgumentCaptor.forClass(ContainerConfig.class);
         verify(dockerConnector).createContainer(argumentCaptor.capture(), anyString());
-        assertEquals(argumentCaptor.getValue().getMemorySwap(), -1);
+        assertEquals(argumentCaptor.getValue().getHostConfig().getMemorySwap(), -1);
     }
 
     @Test
