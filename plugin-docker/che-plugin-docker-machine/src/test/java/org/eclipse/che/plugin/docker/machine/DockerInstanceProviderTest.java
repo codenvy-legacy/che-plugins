@@ -15,6 +15,10 @@ import org.eclipse.che.api.core.util.LineConsumer;
 import org.eclipse.che.api.machine.server.exception.MachineException;
 import org.eclipse.che.api.machine.server.recipe.RecipeImpl;
 import org.eclipse.che.api.machine.shared.Recipe;
+import org.eclipse.che.api.workspace.server.RuntimeWorkspaceRegistry;
+import org.eclipse.che.api.workspace.server.model.impl.RuntimeWorkspaceImpl;
+import org.eclipse.che.commons.env.EnvironmentContext;
+import org.eclipse.che.commons.user.UserImpl;
 import org.eclipse.che.plugin.docker.client.DockerConnector;
 import org.eclipse.che.plugin.docker.client.ProgressMonitor;
 import org.eclipse.che.plugin.docker.client.dto.AuthConfigs;
@@ -24,6 +28,7 @@ import org.eclipse.che.plugin.docker.client.json.HostConfig;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.testng.MockitoTestNGListener;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
@@ -40,10 +45,12 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 @Listeners(MockitoTestNGListener.class)
 public class DockerInstanceProviderTest {
@@ -59,19 +66,36 @@ public class DockerInstanceProviderTest {
     @Mock
     private DockerNode dockerNode;
 
+    @Mock
+    RuntimeWorkspaceRegistry runtimeWorkspaceRegistry;
+
     private DockerInstanceProvider dockerInstanceProvider;
 
     @BeforeMethod
     public void setUp() throws Exception {
+
         dockerInstanceProvider = new DockerInstanceProvider(dockerConnector,
                                                             dockerMachineFactory,
+                                                            runtimeWorkspaceRegistry,
                                                             Collections.<ServerConf>emptySet(),
                                                             Collections.<ServerConf>emptySet(),
                                                             Collections.<String>emptySet(),
                                                             Collections.<String>emptySet(),
                                                             API_ENDPOINT_VALUE);
 
+        EnvironmentContext envCont = new EnvironmentContext();
+        envCont.setUser(new UserImpl("user", null, null, null, false));
+        EnvironmentContext.setCurrent(envCont);
+        RuntimeWorkspaceImpl runtimeWorkspaceImpl = mock(RuntimeWorkspaceImpl.class);
+        when(runtimeWorkspaceRegistry.get(any())).thenReturn(runtimeWorkspaceImpl);
+        when(runtimeWorkspaceImpl.getName()).thenReturn("workspace");
+
         when(dockerMachineFactory.createNode(anyString())).thenReturn(dockerNode);
+    }
+
+    @AfterMethod
+    public void tearDown() throws Exception {
+        EnvironmentContext.reset();
     }
 
     @Test
@@ -428,6 +452,7 @@ public class DockerInstanceProviderTest {
 
         dockerInstanceProvider = new DockerInstanceProvider(dockerConnector,
                                                             dockerMachineFactory,
+                                                            runtimeWorkspaceRegistry,
                                                             devServers,
                                                             commonServers,
                                                             Collections.<String>emptySet(),
@@ -463,6 +488,7 @@ public class DockerInstanceProviderTest {
 
         dockerInstanceProvider = new DockerInstanceProvider(dockerConnector,
                                                             dockerMachineFactory,
+                                                            runtimeWorkspaceRegistry,
                                                             devServers,
                                                             commonServers,
                                                             Collections.<String>emptySet(),
@@ -502,6 +528,7 @@ public class DockerInstanceProviderTest {
 
         dockerInstanceProvider = new DockerInstanceProvider(dockerConnector,
                                                             dockerMachineFactory,
+                                                            runtimeWorkspaceRegistry,
                                                             devServers,
                                                             commonServers,
                                                             Collections.<String>emptySet(),
@@ -537,6 +564,7 @@ public class DockerInstanceProviderTest {
 
         dockerInstanceProvider = new DockerInstanceProvider(dockerConnector,
                                                             dockerMachineFactory,
+                                                            runtimeWorkspaceRegistry,
                                                             devServers,
                                                             commonServers,
                                                             Collections.<String>emptySet(),
@@ -574,6 +602,7 @@ public class DockerInstanceProviderTest {
 
         dockerInstanceProvider = new DockerInstanceProvider(dockerConnector,
                                                             dockerMachineFactory,
+                                                            runtimeWorkspaceRegistry,
                                                             devServers,
                                                             commonServers,
                                                             Collections.<String>emptySet(),
@@ -606,6 +635,7 @@ public class DockerInstanceProviderTest {
 
         dockerInstanceProvider = new DockerInstanceProvider(dockerConnector,
                                                             dockerMachineFactory,
+                                                            runtimeWorkspaceRegistry,
                                                             Collections.emptySet(),
                                                             commonServers,
                                                             Collections.emptySet(),
@@ -644,6 +674,7 @@ public class DockerInstanceProviderTest {
 
         dockerInstanceProvider = new DockerInstanceProvider(dockerConnector,
                                                             dockerMachineFactory,
+                                                            runtimeWorkspaceRegistry,
                                                             devServers,
                                                             commonServers,
                                                             Collections.<String>emptySet(),
@@ -676,6 +707,7 @@ public class DockerInstanceProviderTest {
 
         dockerInstanceProvider = new DockerInstanceProvider(dockerConnector,
                                                             dockerMachineFactory,
+                                                            runtimeWorkspaceRegistry,
                                                             Collections.emptySet(),
                                                             commonServers,
                                                             Collections.emptySet(),
@@ -704,6 +736,7 @@ public class DockerInstanceProviderTest {
 
         dockerInstanceProvider = new DockerInstanceProvider(dockerConnector,
                                                             dockerMachineFactory,
+                                                            runtimeWorkspaceRegistry,
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
@@ -733,6 +766,7 @@ public class DockerInstanceProviderTest {
 
         dockerInstanceProvider = new DockerInstanceProvider(dockerConnector,
                                                             dockerMachineFactory,
+                                                            runtimeWorkspaceRegistry,
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
@@ -761,6 +795,7 @@ public class DockerInstanceProviderTest {
 
         dockerInstanceProvider = new DockerInstanceProvider(dockerConnector,
                                                             dockerMachineFactory,
+                                                            runtimeWorkspaceRegistry,
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
@@ -789,6 +824,7 @@ public class DockerInstanceProviderTest {
 
         dockerInstanceProvider = new DockerInstanceProvider(dockerConnector,
                                                             dockerMachineFactory,
+                                                            runtimeWorkspaceRegistry,
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
@@ -824,6 +860,7 @@ public class DockerInstanceProviderTest {
 
         dockerInstanceProvider = new DockerInstanceProvider(dockerConnector,
                                                             dockerMachineFactory,
+                                                            runtimeWorkspaceRegistry,
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
                                                             devVolumes,
@@ -861,6 +898,7 @@ public class DockerInstanceProviderTest {
 
         dockerInstanceProvider = new DockerInstanceProvider(dockerConnector,
                                                             dockerMachineFactory,
+                                                            runtimeWorkspaceRegistry,
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
                                                             devVolumes,
@@ -896,6 +934,7 @@ public class DockerInstanceProviderTest {
 
         dockerInstanceProvider = new DockerInstanceProvider(dockerConnector,
                                                             dockerMachineFactory,
+                                                            runtimeWorkspaceRegistry,
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
                                                             devVolumes,
@@ -931,6 +970,7 @@ public class DockerInstanceProviderTest {
 
         dockerInstanceProvider = new DockerInstanceProvider(dockerConnector,
                                                             dockerMachineFactory,
+                                                            runtimeWorkspaceRegistry,
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
                                                             devVolumes,
@@ -954,6 +994,36 @@ public class DockerInstanceProviderTest {
         assertEquals(actualBinds.length, expectedVolumes.size());
         assertEquals(new HashSet<>(asList(actualBinds)), new HashSet<>(expectedVolumes));
     }
+
+    @Test
+    public void shouldGenerateValidNameForContainerFromPrefixWithValidCharacters() throws Exception {
+        final String workspaceName = "workspace";
+        final String userName = "user";
+        final String displayName = "displayName";
+        final String expectedPrefix = String.format("%s_%s_%s_", userName, workspaceName, displayName);
+
+        assertTrue(dockerInstanceProvider.generateContainerName("workspaceId", displayName).startsWith(expectedPrefix));
+    }
+
+    @Test
+    public void shouldGenerateValidNameForContainerFromPrefixWithInvalidCharacters() throws Exception {
+        final String userName = "{use}r+";
+        final String displayName = "displ{[ayName@";
+        EnvironmentContext.getCurrent().setUser(new UserImpl(userName));
+        final String expectedPrefix = String.format("%s_%s_%s_", "user", "workspace", "displayName");
+
+        assertTrue(dockerInstanceProvider.generateContainerName("workspaceId", displayName).startsWith(expectedPrefix));
+    }
+
+    @Test(expectedExceptions = MachineException.class, expectedExceptionsMessageRegExp = "Impossible to find running workspace for machine ")
+    public void shouldThrowExceptionWhenNotFoundRunningWorkspaceForMachine() throws Exception {
+        final String displayName = "displayName";
+
+        when(runtimeWorkspaceRegistry.get(any())).thenThrow(new NotFoundException("message"));
+
+        dockerInstanceProvider.generateContainerName("workspaceId", displayName);
+    }
+
 
     private void createInstanceFromRecipe() throws Exception {
         createInstanceFromRecipe(false, 64, "machineId", "userId", "workspaceId", "Display Name", new RecipeImpl().withType("Dockerfile")

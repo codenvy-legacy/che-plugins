@@ -10,10 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.plugin.docker.machine;
 
-import org.eclipse.che.api.core.ConflictException;
-import org.eclipse.che.api.core.ForbiddenException;
 import org.eclipse.che.api.core.NotFoundException;
-import org.eclipse.che.api.core.ServerException;
 import org.eclipse.che.api.core.notification.EventService;
 import org.eclipse.che.api.core.util.LineConsumer;
 import org.eclipse.che.api.core.util.ValueHolder;
@@ -34,8 +31,11 @@ import org.eclipse.che.api.machine.shared.dto.ProcessDescriptor;
 import org.eclipse.che.api.machine.shared.dto.RecipeMachineCreationMetadata;
 import org.eclipse.che.api.machine.shared.dto.SnapshotMachineCreationMetadata;
 import org.eclipse.che.api.machine.shared.dto.recipe.MachineRecipe;
+import org.eclipse.che.api.workspace.server.RuntimeWorkspaceRegistry;
+import org.eclipse.che.api.workspace.server.model.impl.RuntimeWorkspaceImpl;
 import org.eclipse.che.commons.env.EnvironmentContext;
 import org.eclipse.che.commons.user.User;
+import org.eclipse.che.commons.user.UserImpl;
 import org.eclipse.che.dto.server.DtoFactory;
 import org.eclipse.che.inject.ConfigurationProperties;
 import org.eclipse.che.plugin.docker.client.DockerConnector;
@@ -56,13 +56,13 @@ import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -137,10 +137,18 @@ public class ServiceTest {
         DockerNode dockerNode = mock(DockerNode.class);
 
         EventService eventService = mock(EventService.class);
+        RuntimeWorkspaceRegistry runtimeWorkspaceRegistry = mock(RuntimeWorkspaceRegistry.class);
+        EnvironmentContext envCont = new EnvironmentContext();
+        envCont.setUser(new UserImpl("user", null, null, null, false));
+        EnvironmentContext.setCurrent(envCont);
+        RuntimeWorkspaceImpl runtimeWorkspaceImpl = mock(RuntimeWorkspaceImpl.class);
+        when(runtimeWorkspaceRegistry.get(any())).thenReturn(runtimeWorkspaceImpl);
+        when(runtimeWorkspaceImpl.getName()).thenReturn("workspace");
 
 
         InstanceProvider dockerInstanceProvider = new DockerInstanceProvider(docker,
                                                                              dockerMachineFactory,
+                                                                             runtimeWorkspaceRegistry,
                                                                              Collections.emptySet(),
                                                                              Collections.emptySet(),
                                                                              Collections.emptySet(),
@@ -191,6 +199,7 @@ public class ServiceTest {
         for (MachineImpl machine : new ArrayList<>(machineManager.getMachinesStates())) {
             machineManager.destroy(machine.getId(), false);
         }
+        EnvironmentContext.reset();
     }
 
     @Test
@@ -386,8 +395,7 @@ public class ServiceTest {
         machineService.stopProcess(machine.getId(), processes.get(0).getPid() + 100);
     }
 
-    private MachineImpl createMachineAndWaitRunningState()
-            throws ServerException, NotFoundException, ForbiddenException, InterruptedException, ConflictException {
+    private MachineImpl createMachineAndWaitRunningState() throws Exception {
         final MachineImpl machine = machineManager.create(DtoFactory.newDto(RecipeMachineCreationMetadata.class)
                                                                     .withWorkspaceId("wsId")
                                                                     .withType("docker")
