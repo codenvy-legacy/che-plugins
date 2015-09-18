@@ -31,7 +31,7 @@ public class HostConfig {
     private String         networkMode;
     private String[]       devices;
     private String         containerIDFile;
-    private String         memory;
+    private long           memory;
     private int            memorySwap;
     private LogConfig      logConfig;
     private String         ipcMode;
@@ -252,15 +252,15 @@ public class HostConfig {
         return this;
     }
 
-    public String getMemory() {
+    public long getMemory() {
         return memory;
     }
 
-    public void setMemory(String memory) {
+    public void setMemory(long memory) {
         this.memory = memory;
     }
 
-    public HostConfig withMemory(String memory) {
+    public HostConfig withMemory(long memory) {
         this.memory = memory;
         return this;
     }
