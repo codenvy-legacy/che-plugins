@@ -102,7 +102,7 @@ public class DockerInstanceMetadata implements InstanceMetadata {
         md.put("hostConfig.containerIDFile", info.getHostConfig().getContainerIDFile());
         md.put("hostConfig.cpusetCpus", info.getHostConfig().getCpusetCpus());
         md.put("hostConfig.ipcMode", info.getHostConfig().getIpcMode());
-        md.put("hostConfig.memory", info.getHostConfig().getMemory());
+        md.put("hostConfig.memory", Long.toString(info.getHostConfig().getMemory()));
         md.put("hostConfig.networkMode", info.getHostConfig().getNetworkMode());
         md.put("hostConfig.pidMode", info.getHostConfig().getPidMode());
         md.put("hostConfig.binds", Arrays.toString(info.getHostConfig().getBinds()));
