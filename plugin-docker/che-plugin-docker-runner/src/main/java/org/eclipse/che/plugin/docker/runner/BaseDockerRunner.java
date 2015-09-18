@@ -342,12 +342,11 @@ public abstract class BaseDockerRunner extends Runner {
                 }
             }
             final ContainerConfig containerConfig = new ContainerConfig().withImage(imageIdentifier.id)
-                                                                         .withHostConfig(new HostConfig()
-                                                                                                 .withMemory(
-                                                                                                         (long)runnerCfg.getMemory() *
-                                                                                                         1024 * 1024)
-                                                                                                 .withCpuShares(1))
+                                                                         .withMemory((long)runnerCfg.getMemory() * 1024 * 1024)
+                                                                         .withCpuShares(1)
+                                                                         .withHostConfig(hostConfig)
                                                                          .withEnv(env.toArray(new String[env.size()]));
+
             // Listens start and stop.
             final ApplicationProcess.Callback callback = new ApplicationProcess.Callback() {
                 @Override
@@ -377,8 +376,12 @@ public abstract class BaseDockerRunner extends Runner {
                     }
                 }
             };
-            final DockerProcess docker =
-                    new DockerProcess(request, containerConfig, hostConfig, logsPublisher, imageIdentifier, initImageTime, callback);
+            final DockerProcess docker = new DockerProcess(request,
+                                                           containerConfig,
+                                                           logsPublisher,
+                                                           imageIdentifier,
+                                                           initImageTime,
+                                                           callback);
             registerDisposer(docker, new Disposer() {
                 @Override
                 public void dispose() {
@@ -866,7 +869,6 @@ public abstract class BaseDockerRunner extends Runner {
     private class DockerProcess extends ApplicationProcess {
         final RunRequest               request;
         final ContainerConfig          containerCfg;
-        final HostConfig               hostCfg;
         final ApplicationLogsPublisher logsPublisher;
         final ImageIdentifier          imageIdentifier;
         final Callback                 callback;
@@ -877,14 +879,12 @@ public abstract class BaseDockerRunner extends Runner {
 
         DockerProcess(RunRequest request,
                       ContainerConfig containerCfg,
-                      HostConfig hostCfg,
                       ApplicationLogsPublisher logsPublisher,
                       ImageIdentifier imageIdentifier,
                       long imageInitDuration,
                       Callback callback) {
             this.request = request;
             this.containerCfg = containerCfg;
-            this.hostCfg = hostCfg;
             this.logsPublisher = logsPublisher;
             this.imageIdentifier = imageIdentifier;
             this.callback = callback;
@@ -897,7 +897,7 @@ public abstract class BaseDockerRunner extends Runner {
             if (started.compareAndSet(false, true)) {
                 try {
                     final ContainerCreated response = dockerConnector.createContainer(containerCfg, null);
-                    dockerConnector.startContainer(response.getId(), hostCfg);
+                    dockerConnector.startContainer(response.getId());
                     oomDetector.startDetection(response.getId(), new LogMessagePrinter(logsPublisher));
                     container = response.getId();
                     LOG.info("EVENT#configure-docker-started# WS#{}# USER#{}# ID#{}#", request.getWorkspace(), request.getUserId(),
