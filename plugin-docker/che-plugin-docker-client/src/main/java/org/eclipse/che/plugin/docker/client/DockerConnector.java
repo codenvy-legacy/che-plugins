@@ -321,8 +321,8 @@ public class DockerConnector {
         return doCreateContainer(containerConfig, containerName, dockerDaemonUri);
     }
 
-    public void startContainer(String container) throws IOException {
-        doStartContainer(container, dockerDaemonUri);
+    public void startContainer(String container, HostConfig hostConfig) throws IOException {
+        doStartContainer(container, hostConfig, dockerDaemonUri);
     }
 
     /**
@@ -1085,10 +1085,17 @@ public class DockerConnector {
     }
 
     protected void doStartContainer(String container,
+                                    HostConfig hostConfig,
                                     URI dockerDaemonUri) throws IOException {
+        final List<Pair<String, ?>> headers = new ArrayList<>(2);
+        headers.add(Pair.of("Content-Type", MediaType.APPLICATION_JSON));
+        final String entity = hostConfig == null ? "{}" : JsonHelper.toJson(hostConfig, FIRST_LETTER_LOWERCASE);
+        headers.add(Pair.of("Content-Length", entity.getBytes().length));
 
         try (DockerConnection connection = openConnection(dockerDaemonUri).method("POST")
-                                                                          .path("/containers/" + container + "/start")) {
+                                                                          .path("/containers/" + container + "/start")
+                                                                          .headers(headers)
+                                                                          .entity(entity)) {
             final DockerResponse response = connection.request();
             final int status = response.getStatus();
             if (!(NO_CONTENT.getStatusCode() == status || NOT_MODIFIED.getStatusCode() == status)) {
