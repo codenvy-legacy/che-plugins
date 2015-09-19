@@ -897,7 +897,7 @@ public abstract class BaseDockerRunner extends Runner {
             if (started.compareAndSet(false, true)) {
                 try {
                     final ContainerCreated response = dockerConnector.createContainer(containerCfg, null);
-                    dockerConnector.startContainer(response.getId());
+                    dockerConnector.startContainer(response.getId(), null);
                     oomDetector.startDetection(response.getId(), new LogMessagePrinter(logsPublisher));
                     container = response.getId();
                     LOG.info("EVENT#configure-docker-started# WS#{}# USER#{}# ID#{}#", request.getWorkspace(), request.getUserId(),
