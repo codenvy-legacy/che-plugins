@@ -11,10 +11,10 @@
 package org.eclipse.che.plugin.docker.machine;
 
 import org.eclipse.che.api.core.NotFoundException;
+import org.eclipse.che.api.core.model.machine.Recipe;
 import org.eclipse.che.api.core.util.LineConsumer;
 import org.eclipse.che.api.machine.server.exception.MachineException;
 import org.eclipse.che.api.machine.server.recipe.RecipeImpl;
-import org.eclipse.che.api.machine.shared.Recipe;
 import org.eclipse.che.api.workspace.server.RuntimeWorkspaceRegistry;
 import org.eclipse.che.api.workspace.server.model.impl.RuntimeWorkspaceImpl;
 import org.eclipse.che.commons.env.EnvironmentContext;

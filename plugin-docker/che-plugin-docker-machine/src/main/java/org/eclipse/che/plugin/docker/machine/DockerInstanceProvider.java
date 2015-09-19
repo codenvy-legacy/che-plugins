@@ -15,6 +15,7 @@ import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 
 import org.eclipse.che.api.core.NotFoundException;
+import org.eclipse.che.api.core.model.machine.Recipe;
 import org.eclipse.che.api.core.util.FileCleaner;
 import org.eclipse.che.api.core.util.LineConsumer;
 import org.eclipse.che.api.machine.server.exception.InvalidRecipeException;
@@ -23,7 +24,6 @@ import org.eclipse.che.api.machine.server.exception.SnapshotException;
 import org.eclipse.che.api.machine.server.spi.Instance;
 import org.eclipse.che.api.machine.server.spi.InstanceKey;
 import org.eclipse.che.api.machine.server.spi.InstanceProvider;
-import org.eclipse.che.api.machine.shared.Recipe;
 import org.eclipse.che.api.workspace.server.RuntimeWorkspaceRegistry;
 import org.eclipse.che.commons.env.EnvironmentContext;
 import org.eclipse.che.commons.lang.IoUtil;
