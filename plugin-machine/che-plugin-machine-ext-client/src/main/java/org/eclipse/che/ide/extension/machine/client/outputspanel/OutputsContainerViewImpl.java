@@ -128,6 +128,7 @@ public class OutputsContainerViewImpl extends BaseView<OutputsContainerView.Acti
             initWidget(tabPanel);
 
             setStyleName(resources.getCss().outputsContainerConsoleTab());
+            addStyleName(resources.getCss().outputsContainerConsoleTabPanel());
 
             if (icon != null) {
                 tabPanel.add(icon);
@@ -153,10 +154,6 @@ public class OutputsContainerViewImpl extends BaseView<OutputsContainerView.Acti
             return addDomHandler(handler, ClickEvent.getType());
         }
 
-        @Override
-        protected void onLoad() {
-            super.onLoad();
-            tabPanel.addStyleName(resources.getCss().outputsContainerConsoleTabPanel());
-        }
     }
+
 }

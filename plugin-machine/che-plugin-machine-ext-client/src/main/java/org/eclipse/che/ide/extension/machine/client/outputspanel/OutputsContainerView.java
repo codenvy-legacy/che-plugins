@@ -55,4 +55,5 @@ public interface OutputsContainerView extends View<OutputsContainerView.ActionDe
         /** Called when console with the given {@code index} going to close. */
         void onConsoleClose(int index);
     }
+
 }

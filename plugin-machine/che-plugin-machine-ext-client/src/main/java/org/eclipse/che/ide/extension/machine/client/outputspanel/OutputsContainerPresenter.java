@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.machine.client.outputspanel;
 
-import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.inject.Inject;
@@ -106,6 +105,8 @@ public class OutputsContainerPresenter extends BasePresenter implements OutputsC
                 }
             });
         }
+
+        firePropertyChange(TITLE_PROPERTY);
     }
 
     @Override
@@ -124,15 +125,15 @@ public class OutputsContainerPresenter extends BasePresenter implements OutputsC
         view.setVisible(visible);
     }
 
-    @Override
-    public ImageResource getTitleImage() {
-        return null;
-    }
-
     @Nullable
     @Override
     public SVGResource getTitleSVGImage() {
         return resources.outputPartIcon();
+    }
+
+    @Override
+    public int getUnreadNotificationsCount() {
+        return consoles.size();
     }
 
     @Override
@@ -180,10 +181,13 @@ public class OutputsContainerPresenter extends BasePresenter implements OutputsC
         if (index > 0) {
             view.showConsole(index - 1);
         }
+
+        firePropertyChange(TITLE_PROPERTY);
     }
 
     @Override
     public void onProjectOpened(ProjectActionEvent event) {
+        firePropertyChange(TITLE_PROPERTY);
     }
 
     @Override
@@ -194,5 +198,6 @@ public class OutputsContainerPresenter extends BasePresenter implements OutputsC
     public void onProjectClosed(ProjectActionEvent event) {
         consoles.clear();
         view.removeAllConsoles();
+        firePropertyChange(TITLE_PROPERTY);
     }
 }
