@@ -343,7 +343,7 @@ public abstract class BaseDockerRunner extends Runner {
             }
             final ContainerConfig containerConfig = new ContainerConfig().withImage(imageIdentifier.id)
                                                                          .withMemory((long)runnerCfg.getMemory() * 1024 * 1024)
-                                                                         .withCpuShares(1)
+                                                                         .withCpuShares(2)
                                                                          .withHostConfig(hostConfig)
                                                                          .withEnv(env.toArray(new String[env.size()]));
 
