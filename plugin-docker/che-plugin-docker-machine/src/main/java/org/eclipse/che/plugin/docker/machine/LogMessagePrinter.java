@@ -12,9 +12,9 @@ package org.eclipse.che.plugin.docker.machine;
 
 import org.eclipse.che.plugin.docker.client.LogMessage;
 import org.eclipse.che.plugin.docker.client.LogMessageFormatter;
-import org.eclipse.che.plugin.docker.client.LogMessageProcessor;
 
 import org.eclipse.che.api.core.util.LineConsumer;
+import org.eclipse.che.plugin.docker.client.MessageProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +23,7 @@ import java.io.IOException;
 /**
  * @author andrew00x
  */
-public class LogMessagePrinter implements LogMessageProcessor {
+public class LogMessagePrinter implements MessageProcessor<LogMessage> {
     private static final Logger LOG = LoggerFactory.getLogger(LogMessagePrinter.class);
 
     private final LineConsumer        output;

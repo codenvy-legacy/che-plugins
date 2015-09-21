@@ -15,6 +15,7 @@ import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 
 import org.eclipse.che.api.core.NotFoundException;
+import org.eclipse.che.api.core.model.machine.Recipe;
 import org.eclipse.che.api.core.util.FileCleaner;
 import org.eclipse.che.api.core.util.LineConsumer;
 import org.eclipse.che.api.machine.server.exception.InvalidRecipeException;
@@ -23,8 +24,10 @@ import org.eclipse.che.api.machine.server.exception.SnapshotException;
 import org.eclipse.che.api.machine.server.spi.Instance;
 import org.eclipse.che.api.machine.server.spi.InstanceKey;
 import org.eclipse.che.api.machine.server.spi.InstanceProvider;
-import org.eclipse.che.api.machine.shared.Recipe;
+import org.eclipse.che.api.workspace.server.RuntimeWorkspaceRegistry;
+import org.eclipse.che.commons.env.EnvironmentContext;
 import org.eclipse.che.commons.lang.IoUtil;
+import org.eclipse.che.commons.lang.NameGenerator;
 import org.eclipse.che.plugin.docker.client.DockerConnector;
 import org.eclipse.che.plugin.docker.client.DockerFileException;
 import org.eclipse.che.plugin.docker.client.Dockerfile;
@@ -65,6 +68,7 @@ public class DockerInstanceProvider implements InstanceProvider {
     public static final String API_ENDPOINT_URL_VARIABLE = "CHE_API_ENDPOINT";
 
     private final DockerConnector                  docker;
+    private final RuntimeWorkspaceRegistry         runtimeWorkspaceRegistry;
     private final Set<String>                      supportedRecipeTypes;
     private final DockerMachineFactory             dockerMachineFactory;
     private final Map<String, String>              devMachineContainerLabels;
@@ -78,6 +82,7 @@ public class DockerInstanceProvider implements InstanceProvider {
     @Inject
     public DockerInstanceProvider(DockerConnector docker,
                                   DockerMachineFactory dockerMachineFactory,
+                                  RuntimeWorkspaceRegistry runtimeWorkspaceRegistry,
                                   @Named("machine.docker.dev_machine.machine_servers") Set<ServerConf> devMachineServers,
                                   @Named("machine.docker.machine_servers") Set<ServerConf> allMachineServers,
                                   @Named("machine.docker.dev_machine.machine_volumes") Set<String> devMachineSystemVolumes,
@@ -87,6 +92,7 @@ public class DockerInstanceProvider implements InstanceProvider {
 
         this.docker = docker;
         this.dockerMachineFactory = dockerMachineFactory;
+        this.runtimeWorkspaceRegistry = runtimeWorkspaceRegistry;
         this.devMachineSystemVolumes = new HashSet<>(devMachineSystemVolumes);
         this.systemVolumesForMachine = new HashSet<>(allMachinesSystemVolumes);
         this.portsToExposeOnDevMachine = new HashMap<>();
@@ -329,7 +335,7 @@ public class DockerInstanceProvider implements InstanceProvider {
                                                                 .withExposedPorts(portsToExpose)
                                                                 .withEnv(env);
 
-            final String containerId = docker.createContainer(config, null).getId();
+            final String containerId = docker.createContainer(config, generateContainerName(workspaceId, displayName)).getId();
 
             final DockerNode node = dockerMachineFactory.createNode(containerId);
             String hostProjectsFolder = node.getProjectsFolder();
@@ -344,9 +350,11 @@ public class DockerInstanceProvider implements InstanceProvider {
             }
 
             HostConfig hostConfig = new HostConfig().withPublishAllPorts(true)
-                                                    .withBinds(volumes.toArray(new String[volumes.size()]));
+                                                    .withBinds(volumes.toArray(new String[volumes.size()]))
+                                                    .withMemory((long)memorySizeMB * 1024 * 1024)
+                                                    .withMemorySwap(-1);
 
-            docker.startContainer(containerId, hostConfig, new LogMessagePrinter(outputConsumer));
+            docker.startContainer(containerId, hostConfig);
 
             return dockerMachineFactory.createInstance(machineId,
                                                        workspaceId,
@@ -361,5 +369,19 @@ public class DockerInstanceProvider implements InstanceProvider {
         } catch (IOException e) {
             throw new MachineException(e);
         }
+    }
+
+    String generateContainerName(String workspaceId, String displayName) throws MachineException {
+        String workspaceName;
+        try {
+            workspaceName = runtimeWorkspaceRegistry.get(workspaceId).getName();
+        } catch (NotFoundException e) {
+            throw new MachineException("Workspace "+ workspaceId + " does not exist", e);
+        }
+        String userName = EnvironmentContext.getCurrent().getUser().getName();
+        final String containerName = userName + '_' + workspaceName + '_' + displayName + '_';
+
+        // removing all not allowed characters + generating random name suffix
+        return NameGenerator.generate(containerName.replaceAll("[^a-zA-Z0-9_-]+", ""), 5);
     }
 }

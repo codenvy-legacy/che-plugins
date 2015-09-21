@@ -33,6 +33,14 @@ public interface MachineResources extends ClientBundle {
     @Source("images/execute.svg")
     SVGResource execute();
 
+    /** Returns the new icon for command bar. */
+    @Source("images/cmd-icon.svg")
+    SVGResource cmdIcon();
+
+    /** Returns the new icon for devmachine. */
+    @Source("images/cube.svg")
+    SVGResource devMachine();
+
     /** Returns the icon for 'Edit Commands...' action. */
     @Source("images/recipe.svg")
     SVGResource recipe();
@@ -108,5 +116,9 @@ public interface MachineResources extends ClientBundle {
         String opacityButton();
 
         String unSelectRecipe();
+
+        String selectCommandBox();
+
+        String selectCommandBoxIconPanel();
     }
 }

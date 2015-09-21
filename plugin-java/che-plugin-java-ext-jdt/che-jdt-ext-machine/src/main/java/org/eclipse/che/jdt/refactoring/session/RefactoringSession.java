@@ -175,4 +175,17 @@ public abstract class RefactoringSession {
         }
         return  null;
     }
+
+    public PreviewNode getChangePreview(String changeId) {
+        return findNode(previewNode, changeId);
+    }
+
+    /**
+     * Disposes this refactoring session.
+     */
+    public void dispose() {
+        if (change != null) {
+            change.dispose();
+        }
+    }
 }

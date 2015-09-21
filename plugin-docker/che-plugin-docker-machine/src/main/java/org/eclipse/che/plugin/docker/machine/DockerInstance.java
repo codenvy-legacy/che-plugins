@@ -14,6 +14,7 @@ package org.eclipse.che.plugin.docker.machine;
 import com.google.inject.assistedinject.Assisted;
 
 import org.eclipse.che.api.core.NotFoundException;
+import org.eclipse.che.api.core.model.machine.Recipe;
 import org.eclipse.che.api.core.util.LineConsumer;
 import org.eclipse.che.api.core.util.ListLineConsumer;
 import org.eclipse.che.api.core.util.ValueHolder;
@@ -25,13 +26,12 @@ import org.eclipse.che.api.machine.server.spi.InstanceKey;
 import org.eclipse.che.api.machine.server.spi.InstanceMetadata;
 import org.eclipse.che.api.machine.server.spi.InstanceProcess;
 import org.eclipse.che.api.machine.shared.ProjectBinding;
-import org.eclipse.che.api.machine.shared.Recipe;
 import org.eclipse.che.api.machine.shared.Server;
 import org.eclipse.che.commons.lang.NameGenerator;
 import org.eclipse.che.plugin.docker.client.DockerConnector;
 import org.eclipse.che.plugin.docker.client.Exec;
 import org.eclipse.che.plugin.docker.client.LogMessage;
-import org.eclipse.che.plugin.docker.client.LogMessageProcessor;
+import org.eclipse.che.plugin.docker.client.MessageProcessor;
 import org.eclipse.che.plugin.docker.client.ProgressLineFormatterImpl;
 import org.eclipse.che.plugin.docker.client.ProgressMonitor;
 import org.eclipse.che.plugin.docker.client.json.ContainerInfo;
@@ -192,7 +192,7 @@ public class DockerInstance extends AbstractInstance {
         try {
             final Exec exec = docker.createExec(container, false, "/bin/bash", "-c", findPidFilesCmd);
             final ValueHolder<InstanceProcess> dockerProcess = new ValueHolder<>();
-            docker.startExec(exec.getId(), new LogMessageProcessor() {
+            docker.startExec(exec.getId(), new MessageProcessor<LogMessage>() {
                 @Override
                 public void process(LogMessage logMessage) {
                     final String pidFilePath = logMessage.getContent();
@@ -218,7 +218,7 @@ public class DockerInstance extends AbstractInstance {
         try {
             final Exec exec = docker.createExec(container, false, "/bin/bash", "-c", findPidFilesCmd);
             final List<InstanceProcess> processes = new LinkedList<>();
-            docker.startExec(exec.getId(), new LogMessageProcessor() {
+            docker.startExec(exec.getId(), new MessageProcessor<LogMessage>() {
                 @Override
                 public void process(LogMessage logMessage) {
                     final String pidFilePath = logMessage.getContent().trim();

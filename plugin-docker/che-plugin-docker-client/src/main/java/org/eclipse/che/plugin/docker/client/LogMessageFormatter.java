@@ -11,9 +11,12 @@
 package org.eclipse.che.plugin.docker.client;
 
 /**
+ * Format/beautify string representation of log messages returned by docker.
+ *
  * @author andrew00x
+ * @author Alexander Garagatyi
  */
-public interface LogMessageFormatter {
+public interface LogMessageFormatter extends MessageFormatter<LogMessage> {
     String format(LogMessage logMessage);
 
     LogMessageFormatter DEFAULT = new LogMessageFormatter() {
@@ -38,8 +41,6 @@ public interface LogMessageFormatter {
                 sb.append(content);
             }
             return sb.toString();
-
         }
     };
-
 }

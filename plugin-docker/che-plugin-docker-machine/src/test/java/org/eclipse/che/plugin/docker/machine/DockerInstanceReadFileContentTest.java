@@ -10,13 +10,12 @@
  *******************************************************************************/
 package org.eclipse.che.plugin.docker.machine;
 
-
 import org.eclipse.che.api.core.ConflictException;
 import org.eclipse.che.api.machine.server.exception.MachineException;
 import org.eclipse.che.plugin.docker.client.DockerConnector;
 import org.eclipse.che.plugin.docker.client.Exec;
 import org.eclipse.che.plugin.docker.client.LogMessage;
-import org.eclipse.che.plugin.docker.client.LogMessageProcessor;
+import org.eclipse.che.plugin.docker.client.MessageProcessor;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.testng.MockitoTestNGListener;
@@ -90,7 +89,7 @@ public class DockerInstanceReadFileContentTest {
 
         when(dockerConnector.createExec(anyString(), anyBoolean(), Matchers.<String>anyVararg())).thenReturn(exec);
         doAnswer(invocationOnMock -> {
-            LogMessageProcessor processor = (LogMessageProcessor)invocationOnMock.getArguments()[1];
+            MessageProcessor<LogMessage> processor = (MessageProcessor<LogMessage>)invocationOnMock.getArguments()[1];
             processor.process(logMessage);
             return processor;
         }).when(dockerConnector).startExec(anyString(), any());
@@ -105,7 +104,7 @@ public class DockerInstanceReadFileContentTest {
 
         when(dockerConnector.createExec(anyString(), anyBoolean(), Matchers.<String>anyVararg())).thenReturn(exec);
         doAnswer(invocationOnMock -> {
-            LogMessageProcessor processor = (LogMessageProcessor)invocationOnMock.getArguments()[1];
+            MessageProcessor<LogMessage> processor = (MessageProcessor<LogMessage>)invocationOnMock.getArguments()[1];
             processor.process(logMessage);
             return processor;
         }).when(dockerConnector).startExec(anyString(), any());
@@ -121,7 +120,7 @@ public class DockerInstanceReadFileContentTest {
 
         when(dockerConnector.createExec(anyString(), anyBoolean(), Matchers.<String>anyVararg())).thenReturn(exec);
         doAnswer(invocationOnMock -> {
-            LogMessageProcessor processor = (LogMessageProcessor)invocationOnMock.getArguments()[1];
+            MessageProcessor<LogMessage> processor = (MessageProcessor<LogMessage>)invocationOnMock.getArguments()[1];
             processor.process(logMessage);
             return processor;
         }).when(dockerConnector).startExec(anyString(), any());

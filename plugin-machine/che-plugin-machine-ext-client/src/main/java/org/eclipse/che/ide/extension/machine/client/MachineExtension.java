@@ -35,6 +35,7 @@ import org.eclipse.che.ide.ui.toolbar.ToolbarPresenter;
 
 import static org.eclipse.che.ide.api.action.IdeActions.GROUP_CODE;
 import static org.eclipse.che.ide.api.action.IdeActions.GROUP_MAIN_MENU;
+import static org.eclipse.che.ide.api.action.IdeActions.GROUP_CENTER_TOOLBAR;
 import static org.eclipse.che.ide.api.action.IdeActions.GROUP_RIGHT_TOOLBAR;
 import static org.eclipse.che.ide.api.constraints.Anchor.AFTER;
 import static org.eclipse.che.ide.api.constraints.Constraints.FIRST;
@@ -96,15 +97,19 @@ public class MachineExtension {
         machineMenu.add(restartMachine);
         machineMenu.add(destroyMachine);
 
-        // add actions on right toolbar
-        final DefaultActionGroup rightToolbarGroup = (DefaultActionGroup)actionManager.getAction(GROUP_RIGHT_TOOLBAR);
+        // add actions on center part of toolbar
+        final DefaultActionGroup centerToolbarGroup = (DefaultActionGroup)actionManager.getAction(GROUP_CENTER_TOOLBAR);
         final DefaultActionGroup machineToolbarGroup = new DefaultActionGroup(GROUP_MACHINE_TOOLBAR, false, actionManager);
         actionManager.registerAction(GROUP_MACHINE_TOOLBAR, machineToolbarGroup);
-        rightToolbarGroup.add(machineToolbarGroup);
-        rightToolbarGroup.addSeparator();
-        rightToolbarGroup.add(switchPerspectiveAction);
+        centerToolbarGroup.add(machineToolbarGroup);
         machineToolbarGroup.add(selectCommandAction);
-        machineToolbarGroup.add(executeSelectedCommandAction);
+        final DefaultActionGroup executeToolbarGroup = new DefaultActionGroup(actionManager);
+        executeToolbarGroup.add(executeSelectedCommandAction);
+        machineToolbarGroup.add(executeToolbarGroup);
+
+        // add actions on right part of toolbar
+        final DefaultActionGroup rightToolbarGroup = (DefaultActionGroup)actionManager.getAction(GROUP_RIGHT_TOOLBAR);
+        rightToolbarGroup.add(switchPerspectiveAction);
 
         // add group for command list
         final DefaultActionGroup commandList = new DefaultActionGroup(GROUP_COMMANDS_LIST, false, actionManager);

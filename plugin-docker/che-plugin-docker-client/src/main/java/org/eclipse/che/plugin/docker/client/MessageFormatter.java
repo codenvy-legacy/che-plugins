@@ -10,14 +10,11 @@
  *******************************************************************************/
 package org.eclipse.che.plugin.docker.client;
 
-import org.eclipse.che.plugin.docker.client.json.ProgressStatus;
-
 /**
- * Format/beautify string representation of docker build statuses
+ * Format/beautify string representation of docker messages
  *
- * @author andrew00x
  * @author Alexander Garagatyi
  */
-public interface ProgressLineFormatter {
-    String format(ProgressStatus progressStatus);
+public interface MessageFormatter<T> {
+    String format(T message);
 }

@@ -23,14 +23,15 @@ import static org.testng.Assert.assertNull;
 /**
  * @author Eugene Voevodin
  */
-public class ProgressStatusReaderTest {
+public class JsonMessageReaderTest {
 
     @Test
     public void shouldParseSequenceOfProcessStatusObjects() throws IOException {
         final String src = "{\"stream\":\"Step 0 : FROM busybox\\n\"}\n" +
                            "{\"status\":\"The image you are pulling has been verified\",\"id\":\"busybox:latest\"}\n";
 
-        final ProgressStatusReader reader = new ProgressStatusReader(new ByteArrayInputStream(src.getBytes()));
+        final JsonMessageReader<ProgressStatus> reader = new JsonMessageReader<>(new ByteArrayInputStream(src.getBytes()),
+                                                                                 ProgressStatus.class);
 
         final ProgressStatus status1 = reader.next();
         final ProgressStatus status2 = reader.next();
@@ -45,7 +46,8 @@ public class ProgressStatusReaderTest {
     public void shouldReturnNullIfJsonIsIncorrect() throws IOException {
         final String src = "not json";
 
-        final ProgressStatusReader reader = new ProgressStatusReader(new ByteArrayInputStream(src.getBytes()));
+        final JsonMessageReader<ProgressStatus> reader = new JsonMessageReader<>(new ByteArrayInputStream(src.getBytes()),
+                                                                                 ProgressStatus.class);
 
         assertNull(reader.next());
     }

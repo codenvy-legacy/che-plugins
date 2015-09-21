@@ -13,7 +13,10 @@ package org.eclipse.che.jdt.refactoring;
 
 import org.eclipse.che.ide.ext.java.server.dto.DtoServerImpls;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ChangeCreationResult;
+import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ChangePreview;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.LinkedRenameRefactoringApply;
+import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringChange;
+import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringPreview;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatus;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RenameRefactoringSession;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RenameSettings;
@@ -138,6 +141,34 @@ public class RenameRefactoringTest extends RefactoringTest {
         RefactoringStatus status = manager.renameValidateNewName(validateNewName);
         assertThat(status).isNotNull();
         assertThat(status.getSeverity()).isEqualTo(RefactoringStatus.OK);
+    }
+
+    @Test
+    public void testRenamePreviewChanges() throws Exception {
+        StringBuilder b = new StringBuilder();
+        b.append("package p;\n");
+        b.append("public class A{\n private A a; \n}\n");
+
+        ICompilationUnit unit = getPackageP().createCompilationUnit("A.java", b.toString(), false, null);
+        IType type = unit.getAllTypes()[0];
+        RenameRefactoringSession refactoring = manager.createRenameRefactoring(type, unit, b.indexOf("A"), false);
+        DtoServerImpls.ValidateNewNameImpl validateNewName = new DtoServerImpls.ValidateNewNameImpl();
+        validateNewName.setSessionId(refactoring.getSessionId());
+        validateNewName.setNewName("MyClass");
+        RefactoringStatus status = manager.renameValidateNewName(validateNewName);
+        manager.createChange(refactoring.getSessionId());
+        RefactoringPreview preview = manager.getRefactoringPreview(refactoring.getSessionId());
+
+        RefactoringChange change1 = new DtoServerImpls.ChangeEnabledStateImpl();
+        change1.setSessionId(refactoring.getSessionId());
+        change1.setChangeId(preview.getChildrens().get(0).getId());
+        ChangePreview changePreview = manager.getChangePreview(change1);
+
+        assertThat(changePreview).isNotNull();
+        assertThat(changePreview.getFileName()).isNotNull().isNotEmpty();
+        assertThat(changePreview.getOldContent()).isNotNull().isNotEmpty();
+        assertThat(changePreview.getNewContent()).isNotNull().isNotEmpty();
+        assertThat(changePreview.getNewContent()).isNotEqualTo(changePreview.getOldContent());
     }
 
     @Test

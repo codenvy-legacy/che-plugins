@@ -16,19 +16,32 @@ import org.eclipse.che.dto.shared.DTO;
 import java.util.List;
 
 /**
+ * DTO represents Java project in terms of JavaModel
  * @author Evgen Vidolob
  */
 @DTO
 public interface JavaProject {
 
+    /**
+     * Project workspace path
+     * @return the path
+     */
     String getPath();
 
     void setPath(String path);
 
+    /**
+     * Project name;
+     * @return name of the project
+     */
     String getName();
 
     void setName(String name);
 
+    /**
+     * Get all package fragment roots from this project
+     * @return list of the package fragment roots
+     */
     List<PackageFragmentRoot> getPackageFragmentRoots();
 
     void setPackageFragmentRoots(List<PackageFragmentRoot> roots);

@@ -10,13 +10,17 @@
  *******************************************************************************/
 package org.eclipse.ltk.internal.ui.refactoring;
 
+import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ChangePreview;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.CompositeChange;
 import org.eclipse.ltk.core.refactoring.TextEditBasedChange;
+import org.eclipse.ltk.ui.refactoring.ChangePreviewViewerInput;
+import org.eclipse.ltk.ui.refactoring.IChangePreviewViewer;
 import org.eclipse.ltk.ui.refactoring.TextEditChangeNode;
 
 import java.util.List;
@@ -85,13 +89,13 @@ public abstract class AbstractChangeNode extends PreviewNode {
 		return RefactoringPluginImages.DESC_OBJS_DEFAULT_CHANGE;
 	}
 
-//	ChangePreviewViewerDescriptor getChangePreviewViewerDescriptor() throws CoreException {
-//		return ChangePreviewViewerDescriptor.get(fChange);
-//	}
-//
-//	void feedInput(IChangePreviewViewer viewer, List categories) throws CoreException {
-//		viewer.setInput(new ChangePreviewViewerInput(fChange));
-//	}
+	public ChangePreviewViewerDescriptor getChangePreviewViewerDescriptor() throws CoreException {
+		return ChangePreviewViewerDescriptor.get(fChange);
+	}
+
+	public ChangePreview feedInput(IChangePreviewViewer viewer, List categories) throws CoreException {
+		return viewer.setInput(new ChangePreviewViewerInput(fChange));
+	}
 
 	public void setEnabled(boolean enabled) {
 		fChange.setEnabled(enabled);

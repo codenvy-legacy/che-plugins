@@ -13,7 +13,9 @@ package org.eclipse.che.jdt.refactoring;
 
 import org.eclipse.che.ide.ext.java.server.dto.DtoServerImpls;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ChangeCreationResult;
+import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ChangePreview;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.MoveSettings;
+import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringChange;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringPreview;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatus;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ReorgDestination;
@@ -127,6 +129,36 @@ public class MoveRefactoringSessionTest extends RefactoringTest {
         assertThat(change).isNotNull();
         assertThat(change.getText()).isEqualTo("Move");
         assertThat(change.getChildrens()).isNotNull().hasSize(2);
+
+    }
+
+    @Test
+    public void testPreviewChanges() throws Exception {
+        IType type = fProject.findType("p.A");
+        ICompilationUnit unit = type.getCompilationUnit();
+        String sessionId = manager.createMoveRefactoringSession(new IJavaElement[]{unit});
+        ReorgDestination destination = new DtoServerImpls.ReorgDestinationImpl();
+        destination.setSessionId(sessionId);
+        destination.setProjectPath(RefactoringTestSetup.getProject().getPath().toOSString());
+        destination.setDestination(p1.getPath().toOSString());
+        destination.setType(ReorgDestination.DestinationType.PACKAGE);
+        manager.setRefactoringDestination(destination);
+        MoveSettings settings = new DtoServerImpls.MoveSettingsImpl();
+        settings.setUpdateReferences(true);
+        settings.setSessionId(sessionId);
+        manager.setMoveSettings(settings);
+        manager.createChange(sessionId);
+        RefactoringPreview change = manager.getRefactoringPreview(sessionId);
+
+        RefactoringChange change1 = new DtoServerImpls.ChangeEnabledStateImpl();
+        change1.setSessionId(sessionId);
+        change1.setChangeId(change.getChildrens().get(0).getId());
+        ChangePreview preview = manager.getChangePreview(change1);
+
+        assertThat(preview).isNotNull();
+        assertThat(preview.getFileName()).isNotNull().isNotEmpty();
+        assertThat(preview.getOldContent()).isNotNull().isNotEmpty();
+        assertThat(preview.getNewContent()).isNotNull().isNotEmpty();
 
     }
 

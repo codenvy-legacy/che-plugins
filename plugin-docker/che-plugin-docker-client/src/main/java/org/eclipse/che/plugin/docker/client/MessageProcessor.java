@@ -11,14 +11,14 @@
 package org.eclipse.che.plugin.docker.client;
 
 /**
- * @author andrew00x
+ * @author Alexander Garagatyi
  */
-public interface LogMessageProcessor {
-    void process(LogMessage logMessage);
+public interface MessageProcessor<T> {
+    void process(T message);
 
-    LogMessageProcessor DEV_NULL = new LogMessageProcessor() {
+    MessageProcessor DEV_NULL = new MessageProcessor() {
         @Override
-        public void process(LogMessage logMessage) {
+        public void process(Object Message) {
         }
     };
 

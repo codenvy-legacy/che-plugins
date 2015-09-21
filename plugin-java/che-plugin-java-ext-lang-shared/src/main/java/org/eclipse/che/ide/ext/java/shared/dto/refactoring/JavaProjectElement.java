@@ -12,14 +12,23 @@
 package org.eclipse.che.ide.ext.java.shared.dto.refactoring;
 
 /**
+ * Children of the {@link JavaProject}
  * @author Evgen Vidolob
  */
 public interface JavaProjectElement {
 
+    /**
+     * Workspace path of this element
+     * @return the path
+     */
     String getPath();
 
     void setPath(String path);
 
+    /**
+     * Project workspace path
+     * @return the path
+     */
     String getProjectPath();
 
     void setProjectPath(String path);
