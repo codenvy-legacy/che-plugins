@@ -16,7 +16,7 @@
     <parent>
         <artifactId>che-plugin-docker-parent</artifactId>
         <groupId>org.eclipse.che.plugin</groupId>
-        <version>3.12.5.1-SNAPSHOT</version>
+        <version>3.12.5.1</version>
     </parent>
     <artifactId>che-plugin-docker-runner</artifactId>
     <packaging>jar</packaging>
