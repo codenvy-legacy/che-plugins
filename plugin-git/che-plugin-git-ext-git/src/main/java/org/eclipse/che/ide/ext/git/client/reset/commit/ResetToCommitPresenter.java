@@ -10,6 +10,12 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.git.client.reset.commit;
 
+import com.google.web.bindery.event.shared.EventBus;
+
+import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
+import org.eclipse.che.ide.api.event.FileContentUpdateEvent;
+import org.eclipse.che.ide.api.event.OpenProjectEvent;
+import org.eclipse.che.ide.api.project.tree.VirtualFile;
 import org.eclipse.che.ide.ext.git.client.GitLocalizationConstant;
 import org.eclipse.che.api.git.gwt.client.GitServiceClient;
 import org.eclipse.che.api.git.shared.LogResponse;
@@ -28,9 +34,10 @@ import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
+import org.eclipse.che.ide.rest.Unmarshallable;
+import org.eclipse.che.ide.util.loging.Log;
+
 import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.eclipse.che.ide.api.notification.Notification.Type.ERROR;
 import static org.eclipse.che.ide.api.notification.Notification.Type.INFO;
@@ -51,7 +58,8 @@ public class ResetToCommitPresenter implements ResetToCommitView.ActionDelegate 
     private       GitLocalizationConstant     constant;
     private       NotificationManager         notificationManager;
     private       EditorAgent                 editorAgent;
-    private       List<EditorPartPresenter>   openedEditors;
+    private final EventBus                    eventBus;
+    private final ProjectServiceClient        projectService;
 
     /**
      * Create presenter.
@@ -64,7 +72,9 @@ public class ResetToCommitPresenter implements ResetToCommitView.ActionDelegate 
                                   AppContext appContext,
                                   NotificationManager notificationManager,
                                   DtoUnmarshallerFactory dtoUnmarshallerFactory,
-                                  NewProjectExplorerPresenter projectExplorer) {
+                                  NewProjectExplorerPresenter projectExplorer,
+                                  EventBus eventBus,
+                                  ProjectServiceClient projectService) {
         this.view = view;
         this.projectExplorer = projectExplorer;
         this.view.setDelegate(this);
@@ -74,6 +84,8 @@ public class ResetToCommitPresenter implements ResetToCommitView.ActionDelegate 
         this.appContext = appContext;
         this.notificationManager = notificationManager;
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
+        this.eventBus = eventBus;
+        this.projectService = projectService;
     }
 
     /**
@@ -107,10 +119,6 @@ public class ResetToCommitPresenter implements ResetToCommitView.ActionDelegate 
     public void onResetClicked() {
         view.close();
 
-        openedEditors = new ArrayList<>();
-        for (EditorPartPresenter partPresenter : editorAgent.getOpenedEditors().values()) {
-            openedEditors.add(partPresenter);
-        }
         reset();
     }
 
@@ -152,7 +160,25 @@ public class ResetToCommitPresenter implements ResetToCommitView.ActionDelegate 
                                   // must change the workdir
                                   //In this case we can have unconfigured state of the project,
                                   //so we must repeat the logic which is performed when we open a project
-                                  projectExplorer.reloadChildren();
+                                  Unmarshallable<ProjectDescriptor> unmarshaller =
+                                          dtoUnmarshallerFactory.newUnmarshaller(ProjectDescriptor.class);
+                                  projectService.getProject(project.getPath(), new AsyncRequestCallback<ProjectDescriptor>(unmarshaller) {
+                                              @Override
+                                              protected void onSuccess(final ProjectDescriptor result) {
+                                                  if (!result.getProblems().isEmpty()) {
+                                                      eventBus.fireEvent(new OpenProjectEvent(result.getPath()));
+                                                  } else {
+                                                      projectExplorer.reloadChildren();
+
+                                                      updateOpenedEditors();
+                                                  }
+                                              }
+
+                                              @Override
+                                              protected void onFailure(Throwable exception) {
+                                                  Log.error(getClass(), "Can't get project by path");
+                                              }
+                                          });
                               }
                               Notification notification = new Notification(constant.resetSuccessfully(), INFO);
                               notificationManager.showNotification(notification);
@@ -166,6 +192,14 @@ public class ResetToCommitPresenter implements ResetToCommitView.ActionDelegate 
                               notificationManager.showNotification(notification);
                           }
                       });
+    }
+
+    private void updateOpenedEditors() {
+        for (EditorPartPresenter editorPartPresenter : editorAgent.getOpenedEditors().values()) {
+            VirtualFile file = editorPartPresenter.getEditorInput().getFile();
+
+            eventBus.fireEvent(new FileContentUpdateEvent(file.getPath()));
+        }
     }
 }
 
