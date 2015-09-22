@@ -16,7 +16,7 @@
     <parent>
         <artifactId>che-sdk-parent</artifactId>
         <groupId>org.eclipse.che.sdk</groupId>
-        <version>3.12.3-SNAPSHOT</version>
+        <version>$current_version$</version>
     </parent>
     <artifactId>che-application-war</artifactId>
     <packaging>war</packaging>
