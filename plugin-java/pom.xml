@@ -28,11 +28,11 @@
         <module>che-plugin-java-ext-maven</module>
         <module>che-plugin-java-ext-jdt</module>
         <module>che-plugin-java-ext-lang-shared</module>
-        <module>che-plugin-java-ext-debugger-java-shared</module>
         <module>che-plugin-java-ext-lang-server</module>
         <module>che-plugin-java-ext-lang-client</module>
         <module>che-plugin-java-ext-debugger-java-server</module>
         <module>che-plugin-java-ext-debugger-java-client</module>
+        <module>che-plugin-java-ext-debugger-java-shared</module>
     </modules>
     <build>
         <pluginManagement>

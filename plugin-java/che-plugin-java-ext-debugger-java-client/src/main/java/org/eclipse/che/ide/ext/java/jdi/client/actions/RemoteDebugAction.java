@@ -60,6 +60,9 @@ public class RemoteDebugAction extends ProjectAction {
     @Override
     public void updateProjectAction(@NotNull ActionEvent actionEvent) {
         final CurrentProject currentProject = appContext.getCurrentProject();
+        if (currentProject == null) {
+            return;
+        }
 
         String language = getProjectLanguage(currentProject);
         boolean debuggable = isDebuggable(language);
@@ -68,17 +71,15 @@ public class RemoteDebugAction extends ProjectAction {
     }
 
     private String getProjectLanguage(CurrentProject currentProject) {
-        if (currentProject != null) {
-            String projectType = currentProject.getProjectDescription().getType();
-            ProjectTypeDefinition definition = typeRegistry.getProjectType(projectType);
+        String projectType = currentProject.getProjectDescription().getType();
+        ProjectTypeDefinition definition = typeRegistry.getProjectType(projectType);
 
-            if (definition != null) {
-                for (AttributeDescriptor attr : definition.getAttributeDescriptors()) {
-                    if (attr.getName().equals(Constants.LANGUAGE)) {
-                        List<String> values = attr.getValues();
-                        if (!values.isEmpty()) {
-                            return values.get(0);
-                        }
+        if (definition != null) {
+            for (AttributeDescriptor attr : definition.getAttributeDescriptors()) {
+                if (attr.getName().equals(Constants.LANGUAGE)) {
+                    List<String> values = attr.getValues();
+                    if (!values.isEmpty()) {
+                        return values.get(0);
                     }
                 }
             }

@@ -10,9 +10,11 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.java.jdi.client.actions;
 
+import com.google.common.collect.ImmutableList;
 import com.google.gwtmockito.GwtMockitoTestRunner;
 
 import org.eclipse.che.api.analytics.client.logger.AnalyticsEventLogger;
+import org.eclipse.che.api.project.shared.dto.AttributeDescriptor;
 import org.eclipse.che.api.project.shared.dto.ProjectTypeDefinition;
 import org.eclipse.che.ide.api.action.ActionEvent;
 import org.eclipse.che.ide.api.app.AppContext;
@@ -20,6 +22,7 @@ import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.project.type.ProjectTypeRegistry;
 import org.eclipse.che.ide.ext.java.jdi.client.JavaRuntimeLocalizationConstant;
 import org.eclipse.che.ide.ext.java.jdi.client.debug.remotedebug.RemoteDebugPresenter;
+import org.eclipse.che.ide.ext.java.shared.Constants;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,7 +40,7 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(GwtMockitoTestRunner.class)
 public class RemoteDebugActionTest {
-    private static final String SOME_TEXT = "someText";
+    private static final String PROJECT_TYPE = "maven";
 
     //constructor mocks
     @Mock
@@ -58,6 +61,8 @@ public class RemoteDebugActionTest {
     private CurrentProject        currentProject;
     @Mock
     private ProjectTypeDefinition definition;
+    @Mock
+    private AttributeDescriptor   attributeDescriptor;
 
     @InjectMocks
     private RemoteDebugAction action;
@@ -65,9 +70,11 @@ public class RemoteDebugActionTest {
     @Before
     public void setUp() {
         when(appContext.getCurrentProject()).thenReturn(currentProject);
-        when(currentProject.getProjectDescription().getType()).thenReturn(SOME_TEXT);
-        when(typeRegistry.getProjectType(SOME_TEXT)).thenReturn(definition);
-//        when(definition.getRunnerCategories()).thenReturn(Arrays.asList(JAVA.toString()));
+        when(currentProject.getProjectDescription().getType()).thenReturn(PROJECT_TYPE);
+        when(typeRegistry.getProjectType(PROJECT_TYPE)).thenReturn(definition);
+        when(definition.getAttributeDescriptors()).thenReturn(ImmutableList.of(attributeDescriptor));
+        when(attributeDescriptor.getName()).thenReturn(Constants.LANGUAGE);
+        when(attributeDescriptor.getValues()).thenReturn(ImmutableList.of("java"));
     }
 
     @Test
@@ -82,7 +89,7 @@ public class RemoteDebugActionTest {
 
         action.updateProjectAction(actionEvent);
 
-        verify(typeRegistry, never()).getProjectType(SOME_TEXT);
+        verify(typeRegistry, never()).getProjectType(PROJECT_TYPE);
         verify(actionEvent, never()).getPresentation();
     }
 
@@ -92,21 +99,19 @@ public class RemoteDebugActionTest {
 
         verify(appContext).getCurrentProject();
         verify(currentProject, times(2)).getProjectDescription();
-        verify(typeRegistry).getProjectType(SOME_TEXT);
-//        verify(definition).getRunnerCategories();
+        verify(typeRegistry).getProjectType(PROJECT_TYPE);
         verify(actionEvent.getPresentation()).setEnabledAndVisible(true);
     }
 
     @Test
     public void actionShouldBeUpdatedWhenProjectTypeIsNotJava() {
-//        when(definition.getRunnerCategories()).thenReturn(Arrays.asList(SOME_TEXT));
+        when(attributeDescriptor.getValues()).thenReturn(ImmutableList.of("cpp"));
 
         action.updateProjectAction(actionEvent);
 
         verify(appContext).getCurrentProject();
         verify(currentProject, times(2)).getProjectDescription();
-        verify(typeRegistry).getProjectType(SOME_TEXT);
-//        verify(definition).getRunnerCategories();
+        verify(typeRegistry).getProjectType(PROJECT_TYPE);
         verify(actionEvent.getPresentation(), never()).setEnabledAndVisible(true);
     }
 
