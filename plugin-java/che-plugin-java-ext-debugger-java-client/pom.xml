@@ -11,8 +11,7 @@
       Codenvy, S.A. - initial API and implementation
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>che-plugin-java-parent</artifactId>
@@ -27,9 +26,24 @@
     </properties>
     <dependencies>
         <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${com.google.guava.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.gwt</groupId>
+            <artifactId>gwt-elemental</artifactId>
+            <version>${com.google.gwt.version}</version>
+        </dependency>
+        <dependency>
             <groupId>com.google.gwt.inject</groupId>
             <artifactId>gin</artifactId>
             <version>${com.google.gwt.gin.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.inject</groupId>
+            <artifactId>guice</artifactId>
+            <version>${com.google.code.guice.version}</version>
         </dependency>
         <dependency>
             <groupId>javax.validation</groupId>
@@ -37,18 +51,23 @@
             <version>${javax.validation.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.antlr</groupId>
-            <artifactId>antlr-runtime</artifactId>
-            <version>${org.antlr.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.eclipse.che.core</groupId>
-            <artifactId>che-core-api-machine</artifactId>
+            <artifactId>che-core-api-analytics</artifactId>
             <version>${che.core.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.core</groupId>
-            <artifactId>che-core-client-gwt-project</artifactId>
+            <artifactId>che-core-api-project</artifactId>
+            <version>${che.core.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.che.core</groupId>
+            <artifactId>che-core-commons-annotations</artifactId>
+            <version>${che.core.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.che.core</groupId>
+            <artifactId>che-core-commons-gwt</artifactId>
             <version>${che.core.version}</version>
         </dependency>
         <dependency>
@@ -62,9 +81,9 @@
             <version>${che.core.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.che.plugin</groupId>
-            <artifactId>che-jdt-ext-machine</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.eclipse.che.core</groupId>
+            <artifactId>che-core-ide-ui</artifactId>
+            <version>${che.core.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.plugin</groupId>
@@ -73,32 +92,24 @@
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.plugin</groupId>
+            <artifactId>che-plugin-java-ext-lang-client</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.che.plugin</groupId>
             <artifactId>che-plugin-java-ext-maven</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.everrest</groupId>
-            <artifactId>everrest-websockets</artifactId>
-            <version>${org.everrest.version}</version>
+            <groupId>org.vectomatic</groupId>
+            <artifactId>lib-gwt-svg</artifactId>
+            <version>${org.vectomatic.lib-gwt-svg.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.gwt</groupId>
             <artifactId>gwt-user</artifactId>
             <version>${com.google.gwt.version}</version>
             <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>javax.websocket</groupId>
-            <artifactId>javax.websocket-api</artifactId>
-            <version>${javax.websocket.api.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>sun.jdt</groupId>
-            <artifactId>tools</artifactId>
-            <version>${java.vm.version}</version>
-            <scope>system</scope>
-            <systemPath>${java.home}/../lib/tools.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>com.google.gwt.gwtmockito</groupId>
@@ -126,6 +137,12 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-core</artifactId>
+            <version>${org.hamcrest.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
