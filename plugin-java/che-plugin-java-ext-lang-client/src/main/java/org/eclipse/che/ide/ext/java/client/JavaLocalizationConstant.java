@@ -173,4 +173,10 @@ public interface JavaLocalizationConstant extends Messages {
 
     @Key("multi.selection.references")
     String multiSelectionReferences(int count);
+
+    @Key("move.preview.title")
+    String movePreviewTitle();
+
+    @Key("move.no.preview")
+    String moveNoPreview();
 }

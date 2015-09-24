@@ -16,7 +16,7 @@
 
     <ui:style>
         .main {
-            width: 600px;
+            width: 515px;
         }
 
         .label {
@@ -34,7 +34,7 @@
         .patternsInfoLabel {
             float: left;
             margin-top: 6px;
-            margin-left: 145px;
+            margin-left: 27px;
         }
 
         .patternTextBox {

@@ -20,8 +20,6 @@ import com.google.inject.Inject;
 
 import javax.validation.constraints.NotNull;
 
-import static com.google.gwt.dom.client.Style.Display.TABLE;
-
 /**
  * The class displays current machine recipe.
  *
@@ -38,8 +36,6 @@ public class RecipeViewImpl extends Composite implements RecipeView {
     @Inject
     public RecipeViewImpl() {
         initWidget(UI_BINDER.createAndBindUi(this));
-
-        script.getElement().getStyle().setDisplay(TABLE);
     }
 
     /** {@inheritDoc} */

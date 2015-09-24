@@ -104,6 +104,9 @@ public class JavaReconcilerStrategy implements ReconcilingStrategy {
         client.reconcile(file.getProject().getPath(), fqn, new JavaReconcileClient.ReconcileCallback() {
             @Override
             public void onReconcile(ReconcileResult result) {
+                if (result == null) {
+                    return;
+                }
                 doReconcile(result.getProblems());
                 highlighter.reconcile(result.getHighlightedPositions());
             }

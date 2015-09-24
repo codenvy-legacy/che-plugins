@@ -15,20 +15,29 @@
     <ui:with field="locale" type="org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant"/>
 
     <ui:style>
-        .fullSize {
-            background: #474747;
+        @eval partBackground org.eclipse.che.ide.api.theme.Style.getPartBackground();
+        @eval fontColor org.eclipse.che.ide.api.theme.Style.getMainFontColor();
+
+        .recipeContent {
+            opacity: 0.5;
             border: none;
             width: 100%;
             height: 100%;
+            background-color: partBackground !important;
+            color: fontColor !important;
             padding-top: 5px;
             padding-left: 5px;
         }
+
+        .recipePanel {
+            width: 100%;
+            height: 100%;
+        }
+
     </ui:style>
 
-    <g:ScrollPanel addStyleNames="{style.fullSize}">
-
-        <g:TextArea enabled="false" ui:field="script" addStyleNames="{style.fullSize}"/>
-
-    </g:ScrollPanel>
+    <g:SimplePanel addStyleNames="{style.recipePanel}">
+        <g:TextArea enabled="false" ui:field="script" addStyleNames="{style.recipeContent}"/>
+    </g:SimplePanel>
 
 </ui:UiBinder>

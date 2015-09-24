@@ -14,10 +14,13 @@ import com.google.inject.ImplementedBy;
 
 import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ChangeCreationResult;
+import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ChangeEnabledState;
+import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ChangePreview;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.CreateMoveRefactoring;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.CreateRenameRefactoring;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.LinkedRenameRefactoringApply;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.MoveSettings;
+import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringChange;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringPreview;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringSession;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatus;
@@ -28,6 +31,7 @@ import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ReorgDestination;
  * Provides methods which allow send requests to special refactoring service to do refactoring.
  *
  * @author Dmitry Shnurenko
+ * @author Valeriy Svydenko
  */
 @ImplementedBy(RefactoringServiceClientImpl.class)
 public interface RefactoringServiceClient {
@@ -55,13 +59,67 @@ public interface RefactoringServiceClient {
      */
     Promise<RefactoringStatus> applyLinkedModeRename(LinkedRenameRefactoringApply refactoringApply);
 
+    /**
+     * Sets destination for reorg refactorings.
+     *
+     * @param destination
+     *         the destination for reorg refactorings
+     * @return status of refactoring operation
+     */
     Promise<RefactoringStatus> setDestination(ReorgDestination destination);
 
+    /**
+     * Set move refactoring wizard setting.
+     *
+     * @param settings
+     *         the move settings
+     * @return empty promise result
+     */
     Promise<Void> setMoveSettings(MoveSettings settings);
 
+    /**
+     * Create refactoring change.
+     * Creation of the change starts final checking for refactoring. Without creating change refactoring can't be applied.
+     *
+     * @param session
+     *         the refactoring session.
+     * @return result of creation of the change.
+     */
     Promise<ChangeCreationResult> createChange(RefactoringSession session);
 
+    /**
+     * Get refactoring preview. Preview is tree of refactoring changes.
+     *
+     * @param session
+     *         the refactoring session.
+     * @return refactoring preview tree
+     */
     Promise<RefactoringPreview> getRefactoringPreview(RefactoringSession session);
 
+    /**
+     * Applies refactoring.
+     *
+     * @param session
+     *         the refactoring session
+     * @return the status fo applied refactoring
+     */
     Promise<RefactoringStatus> applyRefactoring(RefactoringSession session);
+
+    /**
+     * Change enabled/disabled state of the corresponding refactoring change.
+     *
+     * @param state
+     *         the state of refactoring change
+     * @return empty promise result
+     */
+    Promise<Void> changeChangeEnabledState(ChangeEnabledState state);
+
+    /**
+     * Get refactoring change preview. Preview contains new and old content of the file.
+     *
+     * @param change
+     *         the change to get preview
+     * @return refactoring change preview
+     */
+    Promise<ChangePreview> getChangePreview(RefactoringChange change);
 }
