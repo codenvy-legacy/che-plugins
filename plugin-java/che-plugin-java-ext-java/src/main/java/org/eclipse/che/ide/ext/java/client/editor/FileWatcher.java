@@ -89,7 +89,7 @@ public class FileWatcher {
                 FileReferenceNode fileNode = (FileReferenceNode)file;
 
                 if (fileNode.getParent() != null && fileNode.getParent() instanceof PackageNode) {
-                    packageName = ((PackageNode)fileNode.getParent()).getQualifiedName();
+                    packageName = ((PackageNode)fileNode.getParent()).getQualifiedName() + '.';
                 }
             }
         }
