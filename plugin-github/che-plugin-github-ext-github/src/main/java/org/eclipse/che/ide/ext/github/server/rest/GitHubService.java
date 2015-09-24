@@ -308,17 +308,6 @@ public class GitHubService {
         }
     }
 
-    /**
-     * @deprecated use necessary method from rest service
-     */
-    @GET
-    @Deprecated
-    @Path("token/{userid}")
-    @Produces(MediaType.TEXT_PLAIN)
-    public String getToken(@PathParam("userid") String userId) throws ApiException {
-        return gitHubFactory.getToken(userId);
-    }
-
     @POST
     @Path("ssh/generate")
     public void updateSSHKey() throws ApiException {
