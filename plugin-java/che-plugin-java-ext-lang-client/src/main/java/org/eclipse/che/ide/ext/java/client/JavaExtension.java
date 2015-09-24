@@ -85,6 +85,7 @@ public class JavaExtension {
         actionManager.registerAction("showQuickDoc", quickDocumentationAction);
         actionManager.registerAction("openJavaDeclaration", openDeclarationAction);
         actionManager.registerAction("javaRenameRefactoring", renameRefactoringAction);
+        actionManager.registerAction("javaMoveRefactoring", moveAction);
 
         DefaultActionGroup codeGroup = (DefaultActionGroup)actionManager.getAction(GROUP_CODE);
         codeGroup.add(quickDocumentationAction, Constraints.LAST);
@@ -96,6 +97,7 @@ public class JavaExtension {
         }
         keyBinding.getGlobal().addKey(new KeyBuilder().none().charCode(KeyCodeMap.F4).build(), "openJavaDeclaration");
         keyBinding.getGlobal().addKey(new KeyBuilder().shift().charCode(KeyCodeMap.F6).build(), "javaRenameRefactoring");
+        keyBinding.getGlobal().addKey(new KeyBuilder().charCode(KeyCodeMap.F6).build(), "javaMoveRefactoring");
     }
 
     @Inject
