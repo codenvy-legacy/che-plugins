@@ -33,7 +33,6 @@ import org.eclipse.che.ide.jseditor.client.defaulteditor.EditorBuilder;
 import org.eclipse.che.ide.jseditor.client.editorconfig.AutoSaveTextEditorConfiguration;
 import org.eclipse.che.ide.jseditor.client.editortype.EditorType;
 import org.eclipse.che.ide.jseditor.client.editortype.EditorTypeRegistry;
-import org.eclipse.che.ide.jseditor.client.requirejs.ModuleHolder;
 import org.eclipse.che.ide.jseditor.client.requirejs.RequireJsLoader;
 import org.eclipse.che.ide.jseditor.client.requirejs.RequirejsErrorHandler.RequireError;
 import org.eclipse.che.ide.jseditor.client.texteditor.AbstractEditorModule.EditorInitializer;
@@ -57,10 +56,8 @@ public class OrionEditorExtension implements Provider<OrionKeyBindingModule>{
     public static final String ORION_EDITOR_KEY = "orion";
 
     private final NotificationManager    notificationManager;
-    private final ModuleHolder           moduleHolder;
     private final EditorTypeRegistry     editorTypeRegistry;
     private final RequireJsLoader        requireJsLoader;
-    private final OrionEditorModule      editorModule;
 
     private final OrionTextEditorFactory orionTextEditorFactory;
 
@@ -73,16 +70,13 @@ public class OrionEditorExtension implements Provider<OrionKeyBindingModule>{
 
     @Inject
     public OrionEditorExtension(final EditorTypeRegistry editorTypeRegistry,
-                                final ModuleHolder moduleHolder,
                                 final NotificationManager notificationManager,
                                 final RequireJsLoader requireJsLoader,
                                 final OrionEditorModule editorModule,
                                 final OrionTextEditorFactory orionTextEditorFactory,
                                 final OrionResource orionResource) {
         this.notificationManager = notificationManager;
-        this.moduleHolder = moduleHolder;
         this.editorTypeRegistry = editorTypeRegistry;
-        this.editorModule = editorModule;
         this.requireJsLoader = requireJsLoader;
         this.orionTextEditorFactory = orionTextEditorFactory;
         this.orionResource = orionResource;
@@ -142,8 +136,6 @@ public class OrionEditorExtension implements Provider<OrionKeyBindingModule>{
                 initializationFailed(callback, "Unable to inject Orion", e);
             }
         }, scripts, new String[0]);
-
-        injectCssLink(GWT.getModuleBaseForStaticFiles() + "built-editor-compat.css");
     }
 
     private static void injectCssLink(final String url) {
@@ -191,6 +183,8 @@ public class OrionEditorExtension implements Provider<OrionKeyBindingModule>{
 
     private void registerEditor() {
         LOG.fine("Registering Orion editor type.");
+        injectCssLink(GWT.getModuleBaseForStaticFiles() + "built-editor-compat.css");
+        orionResource.editorStyle().ensureInjected();
         this.editorTypeRegistry.registerEditorType(EditorType.fromKey(ORION_EDITOR_KEY), "Orion", new EditorBuilder() {
 
             @Override
@@ -204,7 +198,6 @@ public class OrionEditorExtension implements Provider<OrionKeyBindingModule>{
 
     private void defineDefaultTheme() {
         // The codenvy theme uses both an orion css file and a CssResource
-        this.orionResource.editorStyle().ensureInjected();
         OrionTextThemeOverlay.setDefaultTheme("orionCodenvy", "orion-codenvy.css");
     }
 

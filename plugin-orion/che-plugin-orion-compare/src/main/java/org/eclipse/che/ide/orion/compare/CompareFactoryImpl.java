@@ -25,6 +25,7 @@ import org.eclipse.che.api.promises.client.FunctionException;
 import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.api.promises.client.callback.AsyncPromiseHelper;
 import org.eclipse.che.api.promises.client.callback.PromiseHelper;
+import org.eclipse.che.ide.editor.orion.client.jso.OrionTextThemeOverlay;
 import org.eclipse.che.ide.jseditor.client.requirejs.ModuleHolder;
 import org.eclipse.che.ide.jseditor.client.requirejs.RequireJsLoader;
 import org.eclipse.che.ide.orion.compare.jso.CompareConfigJs;
@@ -38,8 +39,7 @@ import org.eclipse.che.ide.orion.compare.jso.FileOptionsJs;
 class CompareFactoryImpl implements CompareFactory {
 
     private final Promise<Boolean> loadPromise;
-    private JavaScriptObject module;
-
+    private       JavaScriptObject module;
 
     @Inject
     public CompareFactoryImpl(final RequireJsLoader loader, final ModuleHolder moduleHolder) {
@@ -76,6 +76,8 @@ class CompareFactoryImpl implements CompareFactory {
 
                             @Override
                             public void onSuccess(JavaScriptObject[] result) {
+                                OrionTextThemeOverlay.setDefaultTheme("orionCodenvy", "orion-codenvy.css");
+
                                 module = moduleHolder.getModule("Compare");
                                 callback.onSuccess(Boolean.TRUE);
                             }
@@ -136,7 +138,10 @@ class CompareFactoryImpl implements CompareFactory {
     }
 
     @Override
-    public Promise<Compare> createCompare(final CompareConfig config, final String commandSpanId, final String viewType, final  boolean toggleable) {
+    public Promise<Compare> createCompare(final CompareConfig config,
+                                          final String commandSpanId,
+                                          final String viewType,
+                                          final boolean toggleable) {
         return loadPromise.thenPromise(new Function<Boolean, Promise<Compare>>() {
             @Override
             public Promise<Compare> apply(Boolean arg) throws FunctionException {
@@ -152,7 +157,10 @@ class CompareFactoryImpl implements CompareFactory {
     }
 
     @Override
-    public Promise<Compare> createCompare(final CompareConfig config, final String commandSpanId, final String viewType, final boolean toggleable,
+    public Promise<Compare> createCompare(final CompareConfig config,
+                                          final String commandSpanId,
+                                          final String viewType,
+                                          final boolean toggleable,
                                           final String toggleCommandSpanId) {
         return loadPromise.thenPromise(new Function<Boolean, Promise<Compare>>() {
             @Override

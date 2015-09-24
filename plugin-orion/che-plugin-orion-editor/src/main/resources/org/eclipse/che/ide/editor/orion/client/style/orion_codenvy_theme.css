@@ -11,9 +11,9 @@
  @external *;
 
 .orionCodenvy {
-    font-family: editorFontFamily;
-    font-size: 13px;
-    color: editorDefaultFontColor
+    font-family: editorFontFamily !important;
+    font-size: 13px !important;
+    color: editorDefaultFontColor !important;
 }
 .orionCodenvy.textview {
     background-color: editorBackgroundColor;
@@ -85,7 +85,6 @@
     color: comment;
 }
 
-
 .orionCodenvy .textViewFind {
     background-color: activeTabBackground;
     color: mainFontColor;
@@ -115,10 +114,7 @@
 }
 .orionCodenvy .textViewFindCloseButton {
     border: 1px solid transparent;
-    background: none;
-    background-color: transparent;
-    background-repeat: no-repeat;
-    background-image: url(data:image/gif;base64,R0lGODlhEAAQAJEAAAAAAP///4CAgP///yH5BAEAAAMALAAAAAAQABAAAAIdnI+py+1vhECSyTluu9px+HkctnSdUh0pxLYuVAAAOw==);
+    background: transparent url(data:image/gif;base64,R0lGODlhEAAQAJEAAAAAAP///4CAgP///yH5BAEAAAMALAAAAAAQABAAAAIdnI+py+1vhECSyTluu9px+HkctnSdUh0pxLYuVAAAOw==) no-repeat;
 }
 .orionCodenvy .textViewFindCloseButton:hover {
 	/* from Core.css gwt:TextButton:hover */

@@ -18,10 +18,13 @@ import com.google.inject.name.Named;
 import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.api.promises.client.callback.AsyncPromiseHelper;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ChangeCreationResult;
+import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ChangeEnabledState;
+import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ChangePreview;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.CreateMoveRefactoring;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.CreateRenameRefactoring;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.LinkedRenameRefactoringApply;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.MoveSettings;
+import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringChange;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringPreview;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringSession;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatus;
@@ -40,6 +43,7 @@ import static org.eclipse.che.ide.rest.HTTPHeader.CONTENT_TYPE;
 
 /**
  * @author Dmitry Shnurenko
+ * @author Valeriy Svydenko
  */
 @Singleton
 final class RefactoringServiceClientImpl implements RefactoringServiceClient {
@@ -185,6 +189,40 @@ final class RefactoringServiceClientImpl implements RefactoringServiceClient {
                                    .header(ACCEPT, APPLICATION_JSON)
                                    .header(CONTENT_TYPE, APPLICATION_JSON)
                                    .send(newCallback(callback, unmarshallerFactory.newUnmarshaller(RefactoringStatus.class)));
+            }
+        });
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public Promise<Void> changeChangeEnabledState(final ChangeEnabledState state) {
+        final String url = pathToService + "change/enabled";
+
+        return newPromise(new AsyncPromiseHelper.RequestCall<Void>() {
+            @Override
+            public void makeCall(AsyncCallback<Void> callback) {
+
+                asyncRequestFactory.createPostRequest(url, state)
+                                   .header(ACCEPT, APPLICATION_JSON)
+                                   .header(CONTENT_TYPE, APPLICATION_JSON)
+                                   .send(newCallback(callback));
+            }
+        });
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public Promise<ChangePreview> getChangePreview(final RefactoringChange change) {
+        final String url = pathToService + "change/preview";
+
+        return newPromise(new AsyncPromiseHelper.RequestCall<ChangePreview>() {
+            @Override
+            public void makeCall(AsyncCallback<ChangePreview> callback) {
+
+                asyncRequestFactory.createPostRequest(url, change)
+                                   .header(ACCEPT, APPLICATION_JSON)
+                                   .header(CONTENT_TYPE, APPLICATION_JSON)
+                                   .send(newCallback(callback, unmarshallerFactory.newUnmarshaller(ChangePreview.class)));
             }
         });
     }
