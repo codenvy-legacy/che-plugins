@@ -14,10 +14,9 @@ import com.google.inject.Inject;
 
 import org.eclipse.che.api.auth.oauth.OAuthTokenProvider;
 import org.eclipse.che.api.auth.shared.dto.OAuthToken;
-import org.eclipse.che.api.core.NotFoundException;
 import org.eclipse.che.api.core.ServerException;
-import org.eclipse.che.commons.env.EnvironmentContext;
 import org.eclipse.che.api.core.UnauthorizedException;
+import org.eclipse.che.commons.env.EnvironmentContext;
 import org.kohsuke.github.GitHub;
 
 import java.io.IOException;
@@ -26,6 +25,7 @@ import java.io.IOException;
  * Factory class used to generate connection to GitHub
  *
  * @author Igor Vinokur
+ * @author Sergii Leschenko
  */
 public class GitHubFactory {
 
@@ -38,41 +38,30 @@ public class GitHubFactory {
 
     /**
      * Connect to GitHub API
+     *
      * @return connected GitHub API class
-     * @throws IOException
      */
     public GitHub connect() throws ServerException, UnauthorizedException {
         try {
-            return GitHub.connectUsingOAuth(getToken(getUserId()));
-        } catch (IOException e ) {
-            throw new UnauthorizedException(e.getMessage());
-        }
-    }
-
-    /**
-     * Get user's token
-     * @param user user's ID
-     * @return authentication token
-     * @throws IOException
-     * @deprecated Use getToken method from rest service
-     */
-    @Deprecated
-    public String getToken(String user) throws ServerException {
-        OAuthToken token = null;
-        try {
-            token = oauthTokenProvider.getToken("github", user);
+            return GitHub.connectUsingOAuth(getToken());
         } catch (IOException e) {
             throw new ServerException(e.getMessage());
         }
-        String oauthToken = token != null ? token.getToken() : null;
-        if (oauthToken == null || oauthToken.isEmpty()) {
-            //throw new NotFoundException("Token not found");
-            return "";
-        }
-        return oauthToken;
     }
 
-    private static String getUserId() {
-        return EnvironmentContext.getCurrent().getUser().getId();
+    private String getToken() throws ServerException, UnauthorizedException {
+        OAuthToken token;
+        try {
+            token = oauthTokenProvider.getToken("github", EnvironmentContext.getCurrent().getUser().getId());
+        } catch (IOException e) {
+            throw new ServerException(e.getMessage());
+        }
+
+        String oauthToken = token != null ? token.getToken() : null;
+        if (oauthToken == null || oauthToken.isEmpty()) {
+            throw new UnauthorizedException("User doesn't have access token to github");
+        }
+
+        return oauthToken;
     }
 }

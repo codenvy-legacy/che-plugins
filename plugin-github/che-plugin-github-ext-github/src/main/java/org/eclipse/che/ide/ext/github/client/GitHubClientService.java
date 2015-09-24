@@ -176,16 +176,6 @@ public interface GitHubClientService {
     void getCollaborators(@NotNull String user, @NotNull String repository, @NotNull AsyncRequestCallback<Collaborators> callback);
 
     /**
-     * Get the GitHub oAuth token for the pointed user.
-     *
-     * @param user
-     *         user's id
-     * @param callback
-     *         callback called when operation is done.
-     */
-    void getUserToken(@NotNull String user, @NotNull AsyncRequestCallback<String> callback);
-
-    /**
      * Get the map of available public and private repositories of the authorized user and organizations he exists in.
      *
      * @param callback
