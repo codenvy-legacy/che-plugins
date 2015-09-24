@@ -25,7 +25,6 @@ import org.eclipse.che.ide.ext.java.jdi.shared.Variable;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.AsyncRequestFactory;
 import org.eclipse.che.ide.rest.AsyncRequestLoader;
-import org.eclipse.che.ide.rest.RestContext;
 import org.eclipse.che.ide.ui.loaders.requestLoader.EmptyLoader;
 
 import javax.validation.constraints.NotNull;
@@ -48,7 +47,7 @@ public class DebuggerServiceClientImpl implements DebuggerServiceClient {
     private final JavaRuntimeLocalizationConstant localizationConstant;
 
     @Inject
-    protected DebuggerServiceClientImpl(@RestContext String baseUrl,
+    protected DebuggerServiceClientImpl(@Named("cheExtensionPath") String extPath,
                                         @Named("workspaceId") String workspaceId,
                                         AsyncRequestLoader loader,
                                         AsyncRequestFactory asyncRequestFactory,
@@ -56,7 +55,7 @@ public class DebuggerServiceClientImpl implements DebuggerServiceClient {
         this.loader = loader;
         this.asyncRequestFactory = asyncRequestFactory;
         this.localizationConstant = localizationConstant;
-        this.baseUrl = baseUrl + "/debug-java/" + workspaceId;
+        this.baseUrl = extPath + "/debug-java/" + workspaceId;
     }
 
     /** {@inheritDoc} */
