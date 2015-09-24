@@ -140,7 +140,11 @@ public class JavaSourceFolderUtil {
     }
 
     @Null
-    public static String getProjectBuilder(String projectType) {
+    public static String getProjectBuilder(@Null String projectType) {
+        if (projectType == null) {
+            return null;
+        }
+
         switch (projectType) {
             case "maven":
             case "ant":
