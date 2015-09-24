@@ -46,7 +46,6 @@ public class GitHubClientServiceImpl implements GitHubClientService {
     private static final String LIST_ALL       = "/list/available";
     private static final String COLLABORATORS  = "/collaborators";
     private static final String ORGANIZATIONS  = "/orgs";
-    private static final String TOKEN          = "/token";
     private static final String USER           = "/user";
     private static final String SSH_GEN        = "/ssh/generate";
     private static final String FORKS          = "/forks";
@@ -146,13 +145,6 @@ public class GitHubClientServiceImpl implements GitHubClientService {
     @Override
     public void getCollaborators(@NotNull String user, @NotNull String repository, @NotNull AsyncRequestCallback<Collaborators> callback) {
         String url = baseUrl + COLLABORATORS + "/" + user + "/" + repository;
-        asyncRequestFactory.createGetRequest(url).loader(loader).send(callback);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void getUserToken(@NotNull String user, @NotNull AsyncRequestCallback<String> callback) {
-        String url = baseUrl + TOKEN + "/" + user;
         asyncRequestFactory.createGetRequest(url).loader(loader).send(callback);
     }
 
