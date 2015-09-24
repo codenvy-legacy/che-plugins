@@ -100,6 +100,8 @@ public class ServiceTest {
     private String                  registryContainerId;
     @Mock
     private ConfigurationProperties configurationProperties;
+    @Mock
+    private DockerInstanceStopDetector dockerInstanceStopDetector;
 
     private DockerMachineFactory dockerMachineFactory;
 
@@ -149,6 +151,7 @@ public class ServiceTest {
         InstanceProvider dockerInstanceProvider = new DockerInstanceProvider(docker,
                                                                              dockerMachineFactory,
                                                                              runtimeWorkspaceRegistry,
+                                                                             dockerInstanceStopDetector,
                                                                              Collections.emptySet(),
                                                                              Collections.emptySet(),
                                                                              Collections.emptySet(),

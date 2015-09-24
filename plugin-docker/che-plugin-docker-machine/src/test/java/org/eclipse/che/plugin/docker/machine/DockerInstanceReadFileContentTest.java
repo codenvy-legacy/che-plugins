@@ -43,6 +43,8 @@ public class DockerInstanceReadFileContentTest {
 
     @Mock
     private DockerConnector dockerConnector;
+    @Mock
+    private DockerInstanceStopDetector dockerInstanceStopDetector;
 
     @Mock
     private LogMessage logMessage;
@@ -64,7 +66,8 @@ public class DockerInstanceReadFileContentTest {
                                                 null,
                                                 null,
                                                 null,
-                                                10));
+                                                10,
+                                                dockerInstanceStopDetector));
     }
 
 

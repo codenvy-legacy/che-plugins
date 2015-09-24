@@ -22,6 +22,8 @@ import org.eclipse.che.plugin.docker.client.DockerConnector;
 
 import org.eclipse.che.commons.annotation.Nullable;
 
+import static org.mockito.Mockito.mock;
+
 /**
  * @author Alexander Garagatyi
  */
@@ -65,7 +67,8 @@ public class TestDockerMachineFactory implements DockerMachineFactory {
                                   node,
                                   outputConsumer,
                                   recipe,
-                                  memorySizeMB);
+                                  memorySizeMB,
+                                  mock(DockerInstanceStopDetector.class));
     }
 
     @Override
