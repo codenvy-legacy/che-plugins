@@ -103,25 +103,20 @@ public class MergePresenterTest extends BaseTest {
         final List<Branch> branches = new ArrayList<>();
         branches.add(mock(Branch.class));
 
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                Object[] arguments = invocation.getArguments();
-                AsyncRequestCallback<List<Branch>> callback = (AsyncRequestCallback<List<Branch>>)arguments[2];
-                Method onSuccess = GwtReflectionUtils.getMethod(callback.getClass(), "onSuccess");
-                onSuccess.invoke(callback, branches);
-                return callback;
-            }
+        doAnswer(invocation -> {
+            Object[] arguments = invocation.getArguments();
+            AsyncRequestCallback<List<Branch>> callback = (AsyncRequestCallback<List<Branch>>)arguments[2];
+            Method onSuccess = GwtReflectionUtils.getMethod(callback.getClass(), "onSuccess");
+            onSuccess.invoke(callback, branches);
+            return callback;
         }).when(service).branchList((ProjectDescriptor)anyObject(), eq(LIST_LOCAL), (AsyncRequestCallback<List<Branch>>)anyObject());
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                Object[] arguments = invocation.getArguments();
-                AsyncRequestCallback<List<Branch>> callback = (AsyncRequestCallback<List<Branch>>)arguments[2];
-                Method onSuccess = GwtReflectionUtils.getMethod(callback.getClass(), "onSuccess");
-                onSuccess.invoke(callback, branches);
-                return callback;
-            }
+
+        doAnswer(invocation -> {
+            Object[] arguments = invocation.getArguments();
+            AsyncRequestCallback<List<Branch>> callback = (AsyncRequestCallback<List<Branch>>)arguments[2];
+            Method onSuccess = GwtReflectionUtils.getMethod(callback.getClass(), "onSuccess");
+            onSuccess.invoke(callback, branches);
+            return callback;
         }).when(service).branchList((ProjectDescriptor)anyObject(), eq(LIST_REMOTE), (AsyncRequestCallback<List<Branch>>)anyObject());
 
         presenter.showDialog();
@@ -129,40 +124,35 @@ public class MergePresenterTest extends BaseTest {
         verify(appContext).getCurrentProject();
         verify(view).setEnableMergeButton(eq(DISABLE_BUTTON));
         verify(view).showDialog();
-        verify(service).branchList(eq(rootProjectDescriptor), eq(LIST_LOCAL), (AsyncRequestCallback<List<Branch>>)anyObject());
-        verify(service).branchList(eq(rootProjectDescriptor), eq(LIST_REMOTE), (AsyncRequestCallback<List<Branch>>)anyObject());
-        verify(view).setRemoteBranches((List<Reference>)anyObject());
-        verify(view).setLocalBranches((List<Reference>)anyObject());
-        verify(notificationManager, never()).showNotification((Notification)anyObject());
+        verify(service).branchList(eq(rootProjectDescriptor), eq(LIST_LOCAL), (AsyncRequestCallback<List<Branch>>) anyObject());
+        verify(service).branchList(eq(rootProjectDescriptor), eq(LIST_REMOTE), (AsyncRequestCallback<List<Branch>>) anyObject());
+        verify(view).setRemoteBranches((List<Reference>) anyObject());
+        verify(view).setLocalBranches((List<Reference>) anyObject());
+        verify(notificationManager, never()).showNotification((Notification) anyObject());
     }
 
     @Test
     public void testShowDialogWhenAllOperationsAreFailed() throws Exception {
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                Object[] arguments = invocation.getArguments();
-                AsyncRequestCallback<List<Branch>> callback = (AsyncRequestCallback<List<Branch>>)arguments[2];
-                Method onFailure = GwtReflectionUtils.getMethod(callback.getClass(), "onFailure");
-                onFailure.invoke(callback, mock(Throwable.class));
-                return callback;
-            }
-        }).when(service).branchList((ProjectDescriptor)anyObject(), eq(LIST_LOCAL), (AsyncRequestCallback<List<Branch>>)anyObject());
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                Object[] arguments = invocation.getArguments();
-                AsyncRequestCallback<List<Branch>> callback = (AsyncRequestCallback<List<Branch>>)arguments[2];
-                Method onFailure = GwtReflectionUtils.getMethod(callback.getClass(), "onFailure");
-                onFailure.invoke(callback, mock(Throwable.class));
-                return callback;
-            }
+        doAnswer(invocation -> {
+            Object[] arguments = invocation.getArguments();
+            AsyncRequestCallback<List<Branch>> callback = (AsyncRequestCallback<List<Branch>>)arguments[2];
+            Method onFailure = GwtReflectionUtils.getMethod(callback.getClass(), "onFailure");
+            onFailure.invoke(callback, mock(Throwable.class));
+            return callback;
+        }).when(service).branchList((ProjectDescriptor) anyObject(), eq(LIST_LOCAL), (AsyncRequestCallback<List<Branch>>) anyObject());
+
+        doAnswer(invocation -> {
+            Object[] arguments = invocation.getArguments();
+            AsyncRequestCallback<List<Branch>> callback = (AsyncRequestCallback<List<Branch>>)arguments[2];
+            Method onFailure = GwtReflectionUtils.getMethod(callback.getClass(), "onFailure");
+            onFailure.invoke(callback, mock(Throwable.class));
+            return callback;
         }).when(service).branchList((ProjectDescriptor)anyObject(), eq(LIST_REMOTE), (AsyncRequestCallback<List<Branch>>)anyObject());
 
         presenter.showDialog();
 
-        verify(service).branchList(eq(rootProjectDescriptor), eq(LIST_LOCAL), (AsyncRequestCallback<List<Branch>>)anyObject());
-        verify(service).branchList(eq(rootProjectDescriptor), eq(LIST_REMOTE), (AsyncRequestCallback<List<Branch>>)anyObject());
+        verify(service).branchList(eq(rootProjectDescriptor), eq(LIST_LOCAL), (AsyncRequestCallback<List<Branch>>) anyObject());
+        verify(service).branchList(eq(rootProjectDescriptor), eq(LIST_REMOTE), (AsyncRequestCallback<List<Branch>>) anyObject());
         verify(notificationManager, times(2)).showNotification((Notification)anyObject());
     }
 
@@ -175,15 +165,12 @@ public class MergePresenterTest extends BaseTest {
 
     @Test
     public void testOnMergeClickedWhenMergeRequestIsSuccessful() throws Exception {
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                Object[] arguments = invocation.getArguments();
-                AsyncRequestCallback<MergeResult> callback = (AsyncRequestCallback<MergeResult>)arguments[2];
-                Method onSuccess = GwtReflectionUtils.getMethod(callback.getClass(), "onSuccess");
-                onSuccess.invoke(callback, mergeResult);
-                return callback;
-            }
+        doAnswer(invocation -> {
+            Object[] arguments = invocation.getArguments();
+            AsyncRequestCallback<MergeResult> callback = (AsyncRequestCallback<MergeResult>)arguments[2];
+            Method onSuccess = GwtReflectionUtils.getMethod(callback.getClass(), "onSuccess");
+            onSuccess.invoke(callback, mergeResult);
+            return callback;
         }).when(service).merge((ProjectDescriptor)anyObject(), anyString(), (AsyncRequestCallback<MergeResult>)anyObject());
 
         presenter.onReferenceSelected(selectedReference);
@@ -194,7 +181,7 @@ public class MergePresenterTest extends BaseTest {
         verify(service).merge(eq(rootProjectDescriptor), eq(DISPLAY_NAME), (AsyncRequestCallback<MergeResult>)anyObject());
         verify(appContext).getCurrentProject();
         verify(partPresenter).getEditorInput();
-        verify(notificationManager).showNotification((Notification)anyObject());
+        verify(notificationManager).showNotification((Notification) anyObject());
     }
 
     @Test
@@ -204,7 +191,7 @@ public class MergePresenterTest extends BaseTest {
         presenter.onReferenceSelected(selectedReference);
         presenter.onMergeClicked();
 
-        verify(service).merge((ProjectDescriptor)anyObject(), eq(DISPLAY_NAME), (AsyncRequestCallback<MergeResult>)anyObject());
+        verify(service).merge((ProjectDescriptor) anyObject(), eq(DISPLAY_NAME), (AsyncRequestCallback<MergeResult>) anyObject());
     }
 
     @Test
@@ -215,5 +202,33 @@ public class MergePresenterTest extends BaseTest {
         presenter.onMergeClicked();
 
         verify(service).merge((ProjectDescriptor)anyObject(), eq(DISPLAY_NAME), (AsyncRequestCallback<MergeResult>)anyObject());
+    }
+
+    @Test
+    public void testDialogWhenListOfBranchesAreEmpty() throws Exception {
+        final ArrayList<Reference> emptyReferenceList = new ArrayList<>();
+        final List<Branch> emptyBranchList = new ArrayList<>();
+
+        doAnswer(invocation -> {
+            Object[] arguments = invocation.getArguments();
+            AsyncRequestCallback<List<Branch>> callback = (AsyncRequestCallback<List<Branch>>)arguments[2];
+            Method onSuccess = GwtReflectionUtils.getMethod(callback.getClass(), "onSuccess");
+            onSuccess.invoke(callback, emptyBranchList);
+            return callback;
+        }).when(service).branchList((ProjectDescriptor)anyObject(), eq(LIST_LOCAL), (AsyncRequestCallback<List<Branch>>)anyObject());
+
+        doAnswer(invocation -> {
+            Object[] arguments = invocation.getArguments();
+            AsyncRequestCallback<List<Branch>> callback = (AsyncRequestCallback<List<Branch>>)arguments[2];
+            Method onSuccess = GwtReflectionUtils.getMethod(callback.getClass(), "onSuccess");
+            onSuccess.invoke(callback, emptyBranchList);
+            return callback;
+        }).when(service).branchList((ProjectDescriptor) anyObject(), eq(LIST_REMOTE), (AsyncRequestCallback<List<Branch>>) anyObject());
+
+        presenter.showDialog();
+
+        verify(view).showDialog();
+        verify(view).setLocalBranches(eq(emptyReferenceList));
+        verify(view).setRemoteBranches(eq(emptyReferenceList));
     }
 }

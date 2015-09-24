@@ -29,6 +29,7 @@ import org.eclipse.che.ide.ext.git.client.GitLocalizationConstant;
 import org.eclipse.che.ide.part.explorer.project.NewProjectExplorerPresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
+import org.eclipse.che.ide.util.loging.Log;
 
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
@@ -104,10 +105,6 @@ public class MergePresenter implements MergeView.ActionDelegate {
                            new AsyncRequestCallback<List<Branch>>(dtoUnmarshallerFactory.newListUnmarshaller(Branch.class)) {
                                @Override
                                protected void onSuccess(List<Branch> result) {
-                                   if (result.isEmpty()) {
-                                       return;
-                                   }
-
                                    List<Reference> references = new ArrayList<>();
                                    for (Branch branch : result) {
                                        if (!branch.isActive()) {
@@ -129,10 +126,6 @@ public class MergePresenter implements MergeView.ActionDelegate {
                            new AsyncRequestCallback<List<Branch>>(dtoUnmarshallerFactory.newListUnmarshaller(Branch.class)) {
                                @Override
                                protected void onSuccess(List<Branch> result) {
-                                   if (result.isEmpty()) {
-                                       return;
-                                   }
-
                                    List<Reference> references = new ArrayList<>();
                                    for (Branch branch : result) {
                                        if (!branch.isActive()) {
