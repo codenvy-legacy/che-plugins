@@ -42,7 +42,7 @@ public class DebuggerEventListUnmarshallerWS implements Unmarshallable<DebuggerE
     /** {@inheritDoc} */
     @Override
     public void unmarshal(Message response) throws UnmarshallerException {
-        this.events.setEvents(new ArrayList<>());
+        this.events.setEvents(new ArrayList<DebuggerEvent>());
 
         JSONObject jsonObject = JSONParser.parseStrict(response.getBody()).isObject();
         if (jsonObject == null) {
