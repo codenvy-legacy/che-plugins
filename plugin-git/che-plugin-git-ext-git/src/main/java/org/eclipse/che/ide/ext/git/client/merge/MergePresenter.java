@@ -104,10 +104,6 @@ public class MergePresenter implements MergeView.ActionDelegate {
                            new AsyncRequestCallback<List<Branch>>(dtoUnmarshallerFactory.newListUnmarshaller(Branch.class)) {
                                @Override
                                protected void onSuccess(List<Branch> result) {
-                                   if (result.isEmpty()) {
-                                       return;
-                                   }
-
                                    List<Reference> references = new ArrayList<>();
                                    for (Branch branch : result) {
                                        if (!branch.isActive()) {
@@ -129,10 +125,6 @@ public class MergePresenter implements MergeView.ActionDelegate {
                            new AsyncRequestCallback<List<Branch>>(dtoUnmarshallerFactory.newListUnmarshaller(Branch.class)) {
                                @Override
                                protected void onSuccess(List<Branch> result) {
-                                   if (result.isEmpty()) {
-                                       return;
-                                   }
-
                                    List<Reference> references = new ArrayList<>();
                                    for (Branch branch : result) {
                                        if (!branch.isActive()) {
