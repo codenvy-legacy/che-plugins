@@ -79,7 +79,6 @@ public class DockerInstanceProviderTest {
 
         dockerInstanceProvider = new DockerInstanceProvider(dockerConnector,
                                                             dockerMachineFactory,
-                                                            runtimeWorkspaceRegistry,
                                                             dockerInstanceStopDetector,
                                                             Collections.<ServerConf>emptySet(),
                                                             Collections.<ServerConf>emptySet(),
@@ -456,7 +455,6 @@ public class DockerInstanceProviderTest {
 
         dockerInstanceProvider = new DockerInstanceProvider(dockerConnector,
                                                             dockerMachineFactory,
-                                                            runtimeWorkspaceRegistry,
                                                             dockerInstanceStopDetector,
                                                             devServers,
                                                             commonServers,
@@ -493,7 +491,6 @@ public class DockerInstanceProviderTest {
 
         dockerInstanceProvider = new DockerInstanceProvider(dockerConnector,
                                                             dockerMachineFactory,
-                                                            runtimeWorkspaceRegistry,
                                                             dockerInstanceStopDetector,
                                                             devServers,
                                                             commonServers,
@@ -534,7 +531,6 @@ public class DockerInstanceProviderTest {
 
         dockerInstanceProvider = new DockerInstanceProvider(dockerConnector,
                                                             dockerMachineFactory,
-                                                            runtimeWorkspaceRegistry,
                                                             dockerInstanceStopDetector,
                                                             devServers,
                                                             commonServers,
@@ -571,7 +567,6 @@ public class DockerInstanceProviderTest {
 
         dockerInstanceProvider = new DockerInstanceProvider(dockerConnector,
                                                             dockerMachineFactory,
-                                                            runtimeWorkspaceRegistry,
                                                             dockerInstanceStopDetector,
                                                             devServers,
                                                             commonServers,
@@ -610,7 +605,6 @@ public class DockerInstanceProviderTest {
 
         dockerInstanceProvider = new DockerInstanceProvider(dockerConnector,
                                                             dockerMachineFactory,
-                                                            runtimeWorkspaceRegistry,
                                                             dockerInstanceStopDetector,
                                                             devServers,
                                                             commonServers,
@@ -644,7 +638,6 @@ public class DockerInstanceProviderTest {
 
         dockerInstanceProvider = new DockerInstanceProvider(dockerConnector,
                                                             dockerMachineFactory,
-                                                            runtimeWorkspaceRegistry,
                                                             dockerInstanceStopDetector,
                                                             Collections.emptySet(),
                                                             commonServers,
@@ -684,7 +677,6 @@ public class DockerInstanceProviderTest {
 
         dockerInstanceProvider = new DockerInstanceProvider(dockerConnector,
                                                             dockerMachineFactory,
-                                                            runtimeWorkspaceRegistry,
                                                             dockerInstanceStopDetector,
                                                             devServers,
                                                             commonServers,
@@ -718,7 +710,6 @@ public class DockerInstanceProviderTest {
 
         dockerInstanceProvider = new DockerInstanceProvider(dockerConnector,
                                                             dockerMachineFactory,
-                                                            runtimeWorkspaceRegistry,
                                                             dockerInstanceStopDetector,
                                                             Collections.emptySet(),
                                                             commonServers,
@@ -748,7 +739,6 @@ public class DockerInstanceProviderTest {
 
         dockerInstanceProvider = new DockerInstanceProvider(dockerConnector,
                                                             dockerMachineFactory,
-                                                            runtimeWorkspaceRegistry,
                                                             dockerInstanceStopDetector,
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
@@ -779,7 +769,6 @@ public class DockerInstanceProviderTest {
 
         dockerInstanceProvider = new DockerInstanceProvider(dockerConnector,
                                                             dockerMachineFactory,
-                                                            runtimeWorkspaceRegistry,
                                                             dockerInstanceStopDetector,
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
@@ -809,7 +798,6 @@ public class DockerInstanceProviderTest {
 
         dockerInstanceProvider = new DockerInstanceProvider(dockerConnector,
                                                             dockerMachineFactory,
-                                                            runtimeWorkspaceRegistry,
                                                             dockerInstanceStopDetector,
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
@@ -839,7 +827,6 @@ public class DockerInstanceProviderTest {
 
         dockerInstanceProvider = new DockerInstanceProvider(dockerConnector,
                                                             dockerMachineFactory,
-                                                            runtimeWorkspaceRegistry,
                                                             dockerInstanceStopDetector,
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
@@ -876,7 +863,6 @@ public class DockerInstanceProviderTest {
 
         dockerInstanceProvider = new DockerInstanceProvider(dockerConnector,
                                                             dockerMachineFactory,
-                                                            runtimeWorkspaceRegistry,
                                                             dockerInstanceStopDetector,
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
@@ -915,7 +901,6 @@ public class DockerInstanceProviderTest {
 
         dockerInstanceProvider = new DockerInstanceProvider(dockerConnector,
                                                             dockerMachineFactory,
-                                                            runtimeWorkspaceRegistry,
                                                             dockerInstanceStopDetector,
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
@@ -952,7 +937,6 @@ public class DockerInstanceProviderTest {
 
         dockerInstanceProvider = new DockerInstanceProvider(dockerConnector,
                                                             dockerMachineFactory,
-                                                            runtimeWorkspaceRegistry,
                                                             dockerInstanceStopDetector,
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
@@ -989,7 +973,6 @@ public class DockerInstanceProviderTest {
 
         dockerInstanceProvider = new DockerInstanceProvider(dockerConnector,
                                                             dockerMachineFactory,
-                                                            runtimeWorkspaceRegistry,
                                                             dockerInstanceStopDetector,
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),

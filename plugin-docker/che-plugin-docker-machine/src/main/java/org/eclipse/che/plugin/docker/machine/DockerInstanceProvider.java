@@ -24,7 +24,6 @@ import org.eclipse.che.api.machine.server.exception.SnapshotException;
 import org.eclipse.che.api.machine.server.spi.Instance;
 import org.eclipse.che.api.machine.server.spi.InstanceKey;
 import org.eclipse.che.api.machine.server.spi.InstanceProvider;
-import org.eclipse.che.api.workspace.server.RuntimeWorkspaceRegistry;
 import org.eclipse.che.commons.env.EnvironmentContext;
 import org.eclipse.che.commons.lang.IoUtil;
 import org.eclipse.che.commons.lang.NameGenerator;
@@ -68,7 +67,6 @@ public class DockerInstanceProvider implements InstanceProvider {
     public static final String API_ENDPOINT_URL_VARIABLE = "CHE_API_ENDPOINT";
 
     private final DockerConnector                  docker;
-    private final RuntimeWorkspaceRegistry         runtimeWorkspaceRegistry;
     private final DockerInstanceStopDetector       dockerInstanceStopDetector;
     private final Set<String>                      supportedRecipeTypes;
     private final DockerMachineFactory             dockerMachineFactory;
@@ -83,7 +81,6 @@ public class DockerInstanceProvider implements InstanceProvider {
     @Inject
     public DockerInstanceProvider(DockerConnector docker,
                                   DockerMachineFactory dockerMachineFactory,
-                                  RuntimeWorkspaceRegistry runtimeWorkspaceRegistry,
                                   DockerInstanceStopDetector dockerInstanceStopDetector,
                                   @Named("machine.docker.dev_machine.machine_servers") Set<ServerConf> devMachineServers,
                                   @Named("machine.docker.machine_servers") Set<ServerConf> allMachineServers,
@@ -94,7 +91,6 @@ public class DockerInstanceProvider implements InstanceProvider {
 
         this.docker = docker;
         this.dockerMachineFactory = dockerMachineFactory;
-        this.runtimeWorkspaceRegistry = runtimeWorkspaceRegistry;
         this.dockerInstanceStopDetector = dockerInstanceStopDetector;
         this.devMachineSystemVolumes = new HashSet<>(devMachineSystemVolumes);
         this.systemVolumesForMachine = new HashSet<>(allMachinesSystemVolumes);
@@ -376,15 +372,9 @@ public class DockerInstanceProvider implements InstanceProvider {
         }
     }
 
-    String generateContainerName(String workspaceId, String displayName) throws MachineException {
-        String workspaceName;
-        try {
-            workspaceName = runtimeWorkspaceRegistry.get(workspaceId).getName();
-        } catch (NotFoundException e) {
-            throw new MachineException("Workspace "+ workspaceId + " does not exist", e);
-        }
+    String generateContainerName(String workspaceId, String displayName) {
         String userName = EnvironmentContext.getCurrent().getUser().getName();
-        final String containerName = userName + '_' + workspaceName + '_' + displayName + '_';
+        final String containerName = userName + '_' + workspaceId + '_' + displayName + '_';
 
         // removing all not allowed characters + generating random name suffix
         return NameGenerator.generate(containerName.replaceAll("[^a-zA-Z0-9_-]+", ""), 5);
