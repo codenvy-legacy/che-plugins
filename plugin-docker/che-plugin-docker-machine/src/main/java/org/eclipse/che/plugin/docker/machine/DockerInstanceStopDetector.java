@@ -108,7 +108,7 @@ public class DockerInstanceStopDetector {
                     instanceStateChangeType = InstanceStateEvent.Type.DIE;
                     break;
                 default:
-                    LOG.error("Unknown state. " + message.toString());
+                    // we don't care about other event types
                     return;
             }
             final String instanceId = instances.get(message.getId());
