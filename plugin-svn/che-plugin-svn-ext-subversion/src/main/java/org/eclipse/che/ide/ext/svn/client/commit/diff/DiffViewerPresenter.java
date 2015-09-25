@@ -20,7 +20,7 @@ import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.parts.WorkspaceAgent;
 import org.eclipse.che.ide.ext.svn.client.common.RawOutputPresenter;
 import org.eclipse.che.ide.ext.svn.client.common.SubversionActionPresenter;
-import org.eclipse.che.ide.part.explorer.project.NewProjectExplorerPresenter;
+import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -49,7 +49,7 @@ public class DiffViewerPresenter extends SubversionActionPresenter implements Di
                                   EventBus eventBus,
                                   RawOutputPresenter console,
                                   WorkspaceAgent workspaceAgent,
-                                  NewProjectExplorerPresenter projectExplorerPart,
+                                  ProjectExplorerPresenter projectExplorerPart,
                                   DiffViewerView view) {
         super(appContext, eventBus, console, workspaceAgent, projectExplorerPart);
         this.view = view;

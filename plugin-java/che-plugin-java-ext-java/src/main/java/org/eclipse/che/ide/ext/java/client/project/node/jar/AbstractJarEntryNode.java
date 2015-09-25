@@ -32,4 +32,24 @@ public abstract class AbstractJarEntryNode extends AbstractJavaSyntheticNode<Jar
         super(jarEntry, projectDescriptor, nodeSettings, nodeManager);
         this.libId = libId;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof AbstractJarEntryNode)) return false;
+        if (!super.equals(o)) return false;
+
+        AbstractJarEntryNode that = (AbstractJarEntryNode)o;
+
+        if (libId != that.libId) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + libId;
+        return result;
+    }
 }

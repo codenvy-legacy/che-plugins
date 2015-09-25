@@ -10,16 +10,9 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.github.client.importer.page;
 
-import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.user.client.ui.CheckBox;
-import org.eclipse.che.ide.Resources;
-import org.eclipse.che.ide.ext.github.client.GitHubLocalizationConstant;
-import org.eclipse.che.ide.ext.github.client.GitHubResources;
-import org.eclipse.che.ide.ext.github.client.load.ProjectData;
-
-import org.eclipse.che.ide.ui.Styles;
 import com.google.gwt.cell.client.ImageResourceCell;
 import com.google.gwt.cell.client.SafeHtmlCell;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -38,6 +31,7 @@ import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.FlowPanel;
@@ -49,6 +43,12 @@ import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.inject.Inject;
+
+import org.eclipse.che.ide.Resources;
+import org.eclipse.che.ide.ext.github.client.GitHubLocalizationConstant;
+import org.eclipse.che.ide.ext.github.client.GitHubResources;
+import org.eclipse.che.ide.ext.github.client.load.ProjectData;
+import org.eclipse.che.ide.ui.Styles;
 
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
@@ -145,7 +145,7 @@ public class GithubImporterPageViewImpl extends Composite implements GithubImpor
         Column<ProjectData, ImageResource> iconColumn = new Column<ProjectData, ImageResource>(new ImageResourceCell()) {
             @Override
             public ImageResource getValue(ProjectData item) {
-                return resources.project();
+                return null;
             }
         };
 

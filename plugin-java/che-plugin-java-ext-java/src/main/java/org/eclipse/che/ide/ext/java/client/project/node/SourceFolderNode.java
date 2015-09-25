@@ -18,6 +18,7 @@ import org.eclipse.che.api.project.shared.dto.ItemReference;
 import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.ide.api.project.node.Node;
+import org.eclipse.che.ide.api.project.node.resource.RenameProcessor;
 import org.eclipse.che.ide.ext.java.client.project.settings.JavaNodeSettings;
 import org.eclipse.che.ide.ext.java.shared.ContentRoot;
 import org.eclipse.che.ide.project.node.FolderReferenceNode;
@@ -74,5 +75,10 @@ public class SourceFolderNode extends FolderReferenceNode {
         }
 
         presentation.setPresentableText(getData().getName());
+    }
+
+    @Override
+    public RenameProcessor<ItemReference> getRenameProcessor() {
+        return null;
     }
 }

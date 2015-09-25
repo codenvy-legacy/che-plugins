@@ -30,7 +30,7 @@ import org.eclipse.che.ide.ext.java.client.project.node.jar.ExternalLibrariesNod
 import org.eclipse.che.ide.extension.builder.client.build.BuildController;
 import org.eclipse.che.ide.extension.builder.client.console.BuilderConsolePresenter;
 import org.eclipse.che.ide.jseditor.client.texteditor.EmbeddedTextEditorPresenter;
-import org.eclipse.che.ide.part.explorer.project.NewProjectExplorerPresenter;
+import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.rest.Unmarshallable;
@@ -53,8 +53,8 @@ import static org.eclipse.che.ide.api.notification.Notification.Type.ERROR;
  */
 @Singleton
 public class DependenciesUpdater {
-    private final BuilderConsolePresenter builderConsole;
-    private final NewProjectExplorerPresenter projectExplorer;
+    private final BuilderConsolePresenter          builderConsole;
+    private final ProjectExplorerPresenter         projectExplorer;
     private final NotificationManager              notificationManager;
     private final BuildContext                     buildContext;
     private final JavaParserWorker                 parserWorker;
@@ -68,7 +68,7 @@ public class DependenciesUpdater {
 
     private Queue<Pair<ProjectDescriptor, Boolean>> projects = new LinkedList<>();
     private boolean                                 updating = false;
-    private Notification      notification;
+    private Notification notification;
 
     @Inject
     public DependenciesUpdater(JavaLocalizationConstant javaLocalizationConstant,
@@ -82,7 +82,7 @@ public class DependenciesUpdater {
                                AppContext context,
                                JavaNameEnvironmentServiceClient nameEnvironmentServiceClient,
                                BuilderConsolePresenter builderConsole,
-                               NewProjectExplorerPresenter projectExplorer) {
+                               ProjectExplorerPresenter projectExplorer) {
         this.javaLocalizationConstant = javaLocalizationConstant;
         this.notificationManager = notificationManager;
         this.buildContext = buildContext;

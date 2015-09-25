@@ -30,7 +30,7 @@ import org.eclipse.che.ide.ext.java.messages.JavadocHandleComputed;
 import org.eclipse.che.ide.ext.java.shared.OpenDeclarationDescriptor;
 import org.eclipse.che.ide.jseditor.client.text.LinearRange;
 import org.eclipse.che.ide.jseditor.client.texteditor.EmbeddedTextEditorPresenter;
-import org.eclipse.che.ide.part.explorer.project.NewProjectExplorerPresenter;
+import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.eclipse.che.ide.project.node.FileReferenceNode;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
@@ -45,13 +45,13 @@ import java.util.Map;
 @Singleton
 public class OpenDeclarationFinder {
 
-    private final JavaParserWorker            worker;
-    private final EditorAgent                 editorAgent;
-    private final JavaNavigationService       service;
-    private       DtoUnmarshallerFactory      factory;
-    private       AppContext                  context;
-    private final NewProjectExplorerPresenter projectExplorer;
-    private final JavaNodeManager             javaNodeManager;
+    private final JavaParserWorker         worker;
+    private final EditorAgent              editorAgent;
+    private final JavaNavigationService    service;
+    private       DtoUnmarshallerFactory   factory;
+    private       AppContext               context;
+    private final ProjectExplorerPresenter projectExplorer;
+    private final JavaNodeManager          javaNodeManager;
 
     @Inject
     public OpenDeclarationFinder(JavaParserWorker worker,
@@ -59,7 +59,7 @@ public class OpenDeclarationFinder {
                                  JavaNavigationService service,
                                  DtoUnmarshallerFactory factory,
                                  AppContext context,
-                                 NewProjectExplorerPresenter projectExplorer,
+                                 ProjectExplorerPresenter projectExplorer,
                                  JavaNodeManager javaNodeManager) {
         this.worker = worker;
         this.editorAgent = editorAgent;

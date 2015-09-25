@@ -19,7 +19,7 @@ import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.ext.svn.client.SubversionExtensionLocalizationConstants;
 import org.eclipse.che.ide.ext.svn.client.SubversionExtensionResources;
 import org.eclipse.che.ide.ext.svn.client.copy.CopyPresenter;
-import org.eclipse.che.ide.part.explorer.project.NewProjectExplorerPresenter;
+import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.eclipse.che.ide.project.node.ResourceBasedNode;
 
 /**
@@ -30,13 +30,13 @@ import org.eclipse.che.ide.project.node.ResourceBasedNode;
 @Singleton
 public class CopyAction extends SubversionAction {
 
-    private NewProjectExplorerPresenter projectExplorerPresenter;
-    private final CopyPresenter presenter;
+    private       ProjectExplorerPresenter projectExplorerPresenter;
+    private final CopyPresenter            presenter;
 
     @Inject
     public CopyAction(final AnalyticsEventLogger eventLogger,
                       final AppContext appContext,
-                      final NewProjectExplorerPresenter projectExplorerPresenter,
+                      final ProjectExplorerPresenter projectExplorerPresenter,
                       final SubversionExtensionLocalizationConstants constants,
                       final SubversionExtensionResources resources,
                       final CopyPresenter presenter) {

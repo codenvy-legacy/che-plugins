@@ -18,11 +18,10 @@ import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.project.node.HasStorablePath;
 import org.eclipse.che.ide.api.selection.Selection;
-import org.eclipse.che.ide.api.selection.SelectionAgent;
 import org.eclipse.che.ide.ext.svn.client.SubversionExtensionLocalizationConstants;
 import org.eclipse.che.ide.ext.svn.client.SubversionExtensionResources;
 import org.eclipse.che.ide.ext.svn.shared.SubversionTypeConstant;
-import org.eclipse.che.ide.part.explorer.project.NewProjectExplorerPresenter;
+import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.vectomatic.dom.svg.ui.SVGResource;
 
 import java.util.List;
@@ -32,8 +31,8 @@ import java.util.List;
  */
 public abstract class SubversionAction extends ProjectAction {
 
-    protected final AnalyticsEventLogger eventLogger;
-    private NewProjectExplorerPresenter projectExplorerPresenter;
+    protected final AnalyticsEventLogger                     eventLogger;
+    private         ProjectExplorerPresenter                 projectExplorerPresenter;
     protected final AppContext                               appContext;
     protected final SubversionExtensionLocalizationConstants constants;
     protected final SubversionExtensionResources             resources;
@@ -49,7 +48,7 @@ public abstract class SubversionAction extends ProjectAction {
                             final AppContext appContext,
                             final SubversionExtensionLocalizationConstants constants,
                             final SubversionExtensionResources resources,
-                            final NewProjectExplorerPresenter projectExplorerPresenter) {
+                            final ProjectExplorerPresenter projectExplorerPresenter) {
         super(title, description, svgIcon);
 
         this.constants = constants;

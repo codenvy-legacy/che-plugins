@@ -19,7 +19,7 @@ import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.ext.git.client.GitLocalizationConstant;
 import org.eclipse.che.ide.ext.git.client.GitResources;
 import org.eclipse.che.ide.ext.git.client.init.InitRepositoryPresenter;
-import org.eclipse.che.ide.part.explorer.project.NewProjectExplorerPresenter;
+import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.eclipse.che.ide.ui.dialogs.ConfirmCallback;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 
@@ -37,7 +37,7 @@ public class InitRepositoryAction extends GitAction {
                                 GitLocalizationConstant constant,
                                 AppContext appContext,
                                 AnalyticsEventLogger eventLogger,
-                                NewProjectExplorerPresenter projectExplorer,
+                                ProjectExplorerPresenter projectExplorer,
                                 DialogFactory dialogFactory) {
         super(constant.initControlTitle(), constant.initControlPrompt(), resources.initRepo(), appContext, projectExplorer);
         this.presenter = presenter;

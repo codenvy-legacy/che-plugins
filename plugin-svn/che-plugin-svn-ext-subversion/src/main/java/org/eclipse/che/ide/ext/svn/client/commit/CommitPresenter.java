@@ -28,7 +28,7 @@ import org.eclipse.che.ide.ext.svn.shared.CLIOutputParser;
 import org.eclipse.che.ide.ext.svn.shared.CLIOutputResponse;
 import org.eclipse.che.ide.ext.svn.shared.CLIOutputWithRevisionResponse;
 import org.eclipse.che.ide.ext.svn.shared.StatusItem;
-import org.eclipse.che.ide.part.explorer.project.NewProjectExplorerPresenter;
+import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.rest.Unmarshallable;
@@ -75,7 +75,7 @@ public class CommitPresenter extends SubversionActionPresenter implements Action
                            final SubversionExtensionLocalizationConstants constants,
                            final SubversionClientService subversionService,
                            final WorkspaceAgent workspaceAgent,
-                           final NewProjectExplorerPresenter projectExplorerPart,
+                           final ProjectExplorerPresenter projectExplorerPart,
                            final DiffViewerPresenter diffViewerPresenter) {
         super(appContext, eventBus, console, workspaceAgent, projectExplorerPart);
         this.subversionService = subversionService;

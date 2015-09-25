@@ -10,9 +10,8 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.svn.client.action;
 
-import static org.eclipse.che.ide.ext.svn.shared.SubversionTypeConstant.SUBVERSION_ATTRIBUTE_REPOSITORY_URL;
-
-import java.util.List;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 import org.eclipse.che.api.analytics.client.logger.AnalyticsEventLogger;
 import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
@@ -22,10 +21,11 @@ import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.ext.svn.client.SubversionExtensionLocalizationConstants;
 import org.eclipse.che.ide.ext.svn.client.SubversionExtensionResources;
 import org.eclipse.che.ide.ext.svn.client.askcredentials.AskCredentialsPresenter;
-import org.eclipse.che.ide.part.explorer.project.NewProjectExplorerPresenter;
+import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
+import java.util.List;
+
+import static org.eclipse.che.ide.ext.svn.shared.SubversionTypeConstant.SUBVERSION_ATTRIBUTE_REPOSITORY_URL;
 
 /**
  * Extension of {@link SubversionAction} for changing username/password.
@@ -41,7 +41,7 @@ public class ChangeCredentialsAction extends SubversionAction {
     @Inject
     public ChangeCredentialsAction(final AnalyticsEventLogger eventLogger,
                                    final AppContext appContext,
-                                   final NewProjectExplorerPresenter projectExplorerPresenter,
+                                   final ProjectExplorerPresenter projectExplorerPresenter,
                                    final SubversionExtensionLocalizationConstants constants,
                                    final SubversionExtensionResources resources,
                                    final AskCredentialsPresenter presenter) {

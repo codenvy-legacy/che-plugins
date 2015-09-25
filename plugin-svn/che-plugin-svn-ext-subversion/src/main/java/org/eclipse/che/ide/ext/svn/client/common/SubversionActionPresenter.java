@@ -21,10 +21,9 @@ import org.eclipse.che.ide.api.event.ProjectActionHandler;
 import org.eclipse.che.ide.api.parts.PartStackType;
 import org.eclipse.che.ide.api.parts.WorkspaceAgent;
 import org.eclipse.che.ide.api.project.node.HasStorablePath;
-import org.eclipse.che.ide.api.project.tree.TreeNode;
 import org.eclipse.che.ide.api.selection.Selection;
 import org.eclipse.che.ide.ext.svn.client.action.SubversionAction;
-import org.eclipse.che.ide.part.explorer.project.NewProjectExplorerPresenter;
+import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.eclipse.che.ide.project.node.FileReferenceNode;
 import org.eclipse.che.ide.project.node.FolderReferenceNode;
 import org.eclipse.che.ide.project.node.ProjectDescriptorNode;
@@ -63,7 +62,7 @@ public class SubversionActionPresenter {
     private final   RawOutputPresenter console;
     private         boolean            isViewClosed;
 
-    private final NewProjectExplorerPresenter projectExplorerPart;
+    private final ProjectExplorerPresenter projectExplorerPart;
 
     /**
      * Constructor.
@@ -72,7 +71,7 @@ public class SubversionActionPresenter {
                                         final EventBus eventBus,
                                         final RawOutputPresenter console,
                                         final WorkspaceAgent workspaceAgent,
-                                        final NewProjectExplorerPresenter projectExplorerPart) {
+                                        final ProjectExplorerPresenter projectExplorerPart) {
         this.appContext = appContext;
         this.workspaceAgent = workspaceAgent;
         this.console = console;
@@ -187,8 +186,7 @@ public class SubversionActionPresenter {
             if (filter == ALL && node instanceof HasStorablePath
                 || filter == PathTypeFilter.FILE && node instanceof FileReferenceNode
                 || filter == PathTypeFilter.FOLDER && node instanceof FolderReferenceNode
-                || filter == PathTypeFilter.PROJECT && (node instanceof ProjectDescriptorNode
-                    || node instanceof org.eclipse.che.ide.part.projectexplorer.ProjectListStructure.ProjectNode)) {
+                || filter == PathTypeFilter.PROJECT && (node instanceof ProjectDescriptorNode)) {
                 return true;
             }
         }

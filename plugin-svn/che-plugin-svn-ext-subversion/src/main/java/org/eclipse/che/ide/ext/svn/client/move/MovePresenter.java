@@ -31,7 +31,7 @@ import org.eclipse.che.ide.ext.svn.client.common.RawOutputPresenter;
 import org.eclipse.che.ide.ext.svn.client.common.SubversionActionPresenter;
 import org.eclipse.che.ide.ext.svn.client.common.filteredtree.FilteredTreeStructureProvider;
 import org.eclipse.che.ide.ext.svn.shared.CLIOutputResponse;
-import org.eclipse.che.ide.part.explorer.project.NewProjectExplorerPresenter;
+import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.rest.Unmarshallable;
@@ -54,7 +54,7 @@ import static org.eclipse.che.ide.api.notification.Notification.Type.INFO;
 @Singleton
 public class MovePresenter extends SubversionActionPresenter implements MoveView.ActionDelegate {
 
-    private NewProjectExplorerPresenter              projectExplorerPart;
+    private ProjectExplorerPresenter                 projectExplorerPart;
     private MoveView                                 view;
     private SubversionExtensionLocalizationConstants locale;
     private FilteredTreeStructureProvider            treeStructureProvider;
@@ -70,7 +70,7 @@ public class MovePresenter extends SubversionActionPresenter implements MoveView
                          EventBus eventBus,
                          RawOutputPresenter console,
                          WorkspaceAgent workspaceAgent,
-                         NewProjectExplorerPresenter projectExplorerPart,
+                         ProjectExplorerPresenter projectExplorerPart,
                          MoveView view,
                          FilteredTreeStructureProvider treeStructureProvider,
                          NotificationManager notificationManager,

@@ -19,7 +19,7 @@ import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.ext.git.client.GitLocalizationConstant;
 import org.eclipse.che.ide.ext.git.client.GitRepositoryInitializer;
-import org.eclipse.che.ide.part.explorer.project.NewProjectExplorerPresenter;
+import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.eclipse.che.ide.util.loging.Log;
 
 import javax.validation.constraints.NotNull;
@@ -33,17 +33,17 @@ import javax.validation.constraints.NotNull;
 @Singleton
 public class InitRepositoryPresenter {
     private final GitRepositoryInitializer gitRepositoryInitializer;
-    private final NewProjectExplorerPresenter projectExplorer;
-    private final AppContext              appContext;
-    private final GitLocalizationConstant constant;
-    private final NotificationManager     notificationManager;
+    private final ProjectExplorerPresenter projectExplorer;
+    private final AppContext               appContext;
+    private final GitLocalizationConstant  constant;
+    private final NotificationManager      notificationManager;
 
     @Inject
     public InitRepositoryPresenter(AppContext appContext,
                                    GitLocalizationConstant constant,
                                    NotificationManager notificationManager,
                                    GitRepositoryInitializer gitRepositoryInitializer,
-                                   NewProjectExplorerPresenter projectExplorer) {
+                                   ProjectExplorerPresenter projectExplorer) {
         this.appContext = appContext;
         this.constant = constant;
         this.notificationManager = notificationManager;

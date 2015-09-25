@@ -21,7 +21,7 @@ import org.eclipse.che.ide.api.project.tree.VirtualFile;
 import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.ext.git.client.BaseTest;
 import org.eclipse.che.ide.ext.git.client.GitOutputPartPresenter;
-import org.eclipse.che.ide.part.explorer.project.NewProjectExplorerPresenter;
+import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.ui.dialogs.ConfirmCallback;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
@@ -79,29 +79,27 @@ public class BranchPresenterTest extends BaseTest {
     public static final boolean IS_REMOTE          = true;
     public static final boolean IS_ACTIVE          = true;
     @Mock
-    private BranchView             view;
-//    @Mock
-//    private FileNode               file;
+    private BranchView               view;
     @Mock
-    private EditorInput            editorInput;
+    private EditorInput              editorInput;
     @Mock
-    private EditorAgent            editorAgent;
+    private EditorAgent              editorAgent;
     @Mock
-    private Branch                 selectedBranch;
+    private Branch                   selectedBranch;
     @Mock
-    private EditorPartPresenter    partPresenter;
+    private EditorPartPresenter      partPresenter;
     @Mock
-    private GitOutputPartPresenter gitConsole;
+    private GitOutputPartPresenter   gitConsole;
     @Mock
-    private WorkspaceAgent         workspaceAgent;
+    private WorkspaceAgent           workspaceAgent;
     @Mock
-    private DialogFactory          dialogFactory;
+    private DialogFactory            dialogFactory;
     @Mock
-    private DtoFactory             dtoFactory;
+    private DtoFactory               dtoFactory;
     @Mock
-    private NewProjectExplorerPresenter projectExplorer;
+    private ProjectExplorerPresenter projectExplorer;
     @Mock
-    private BranchCheckoutRequest  branchCheckoutRequest;
+    private BranchCheckoutRequest    branchCheckoutRequest;
 
     private BranchPresenter presenter;
 

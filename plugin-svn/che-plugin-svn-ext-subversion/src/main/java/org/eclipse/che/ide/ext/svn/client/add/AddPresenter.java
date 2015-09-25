@@ -23,7 +23,7 @@ import org.eclipse.che.ide.ext.svn.client.SubversionExtensionLocalizationConstan
 import org.eclipse.che.ide.ext.svn.client.common.RawOutputPresenter;
 import org.eclipse.che.ide.ext.svn.client.common.SubversionActionPresenter;
 import org.eclipse.che.ide.ext.svn.shared.CLIOutputResponse;
-import org.eclipse.che.ide.part.explorer.project.NewProjectExplorerPresenter;
+import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 
@@ -60,7 +60,7 @@ public class AddPresenter extends SubversionActionPresenter {
                            final SubversionExtensionLocalizationConstants constants,
                            final SubversionClientService service,
                            final WorkspaceAgent workspaceAgent,
-                           final NewProjectExplorerPresenter projectExplorerPart) {
+                           final ProjectExplorerPresenter projectExplorerPart) {
         super(appContext, eventBus, console, workspaceAgent, projectExplorerPart);
 
         this.service = service;

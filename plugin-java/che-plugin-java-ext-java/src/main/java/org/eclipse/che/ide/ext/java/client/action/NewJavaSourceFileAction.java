@@ -22,7 +22,7 @@ import org.eclipse.che.ide.ext.java.client.JavaResources;
 import org.eclipse.che.ide.ext.java.client.newsourcefile.NewJavaSourceFilePresenter;
 import org.eclipse.che.ide.ext.java.client.project.node.PackageNode;
 import org.eclipse.che.ide.ext.java.client.project.node.SourceFolderNode;
-import org.eclipse.che.ide.part.explorer.project.NewProjectExplorerPresenter;
+import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 
 import java.util.List;
 
@@ -34,11 +34,11 @@ import java.util.List;
 @Singleton
 public class NewJavaSourceFileAction extends ProjectAction {
     private final AnalyticsEventLogger       eventLogger;
-    private       NewProjectExplorerPresenter             projectExplorer;
+    private       ProjectExplorerPresenter   projectExplorer;
     private       NewJavaSourceFilePresenter newJavaSourceFilePresenter;
 
     @Inject
-    public NewJavaSourceFileAction(NewProjectExplorerPresenter projectExplorer,
+    public NewJavaSourceFileAction(ProjectExplorerPresenter projectExplorer,
                                    NewJavaSourceFilePresenter newJavaSourceFilePresenter,
                                    JavaLocalizationConstant constant,
                                    JavaResources resources,

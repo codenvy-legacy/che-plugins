@@ -18,7 +18,7 @@ import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.ext.git.client.GitLocalizationConstant;
-import org.eclipse.che.ide.part.explorer.project.NewProjectExplorerPresenter;
+import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 
 /**
@@ -28,11 +28,11 @@ import org.eclipse.che.ide.rest.AsyncRequestCallback;
  */
 @Singleton
 public class DeleteRepositoryPresenter {
-    private GitServiceClient        service;
-    private GitLocalizationConstant constant;
-    private AppContext              appContext;
-    private NotificationManager     notificationManager;
-    private final NewProjectExplorerPresenter projectExplorer;
+    private       GitServiceClient         service;
+    private       GitLocalizationConstant  constant;
+    private       AppContext               appContext;
+    private       NotificationManager      notificationManager;
+    private final ProjectExplorerPresenter projectExplorer;
 
     /**
      * Create presenter.
@@ -47,7 +47,7 @@ public class DeleteRepositoryPresenter {
                                      GitLocalizationConstant constant,
                                      AppContext appContext,
                                      NotificationManager notificationManager,
-                                     NewProjectExplorerPresenter projectExplorer) {
+                                     ProjectExplorerPresenter projectExplorer) {
         this.service = service;
         this.constant = constant;
         this.appContext = appContext;

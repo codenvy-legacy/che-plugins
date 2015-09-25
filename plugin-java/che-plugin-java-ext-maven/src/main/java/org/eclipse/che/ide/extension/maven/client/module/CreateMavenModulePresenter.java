@@ -22,7 +22,7 @@ import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.extension.maven.client.MavenArchetype;
 import org.eclipse.che.ide.extension.maven.client.MavenExtension;
-import org.eclipse.che.ide.part.explorer.project.NewProjectExplorerPresenter;
+import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 import org.eclipse.che.ide.util.NameUtils;
@@ -54,11 +54,11 @@ import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.VERSION
 @Singleton
 public class CreateMavenModulePresenter implements CreateMavenModuleView.ActionDelegate {
 
-    private CreateMavenModuleView view;
-    private ProjectServiceClient  projectService;
-    private DtoFactory            dtoFactory;
-    private DialogFactory         dialogFactory;
-    private final NewProjectExplorerPresenter projectExplorer;
+    private       CreateMavenModuleView    view;
+    private       ProjectServiceClient     projectService;
+    private       DtoFactory               dtoFactory;
+    private       DialogFactory            dialogFactory;
+    private final ProjectExplorerPresenter projectExplorer;
 
     private String moduleName;
 
@@ -67,7 +67,7 @@ public class CreateMavenModulePresenter implements CreateMavenModuleView.ActionD
 
     @Inject
     public CreateMavenModulePresenter(CreateMavenModuleView view, ProjectServiceClient projectService, DtoFactory dtoFactory,
-                                      DialogFactory dialogFactory, NewProjectExplorerPresenter projectExplorer) {
+                                      DialogFactory dialogFactory, ProjectExplorerPresenter projectExplorer) {
         this.view = view;
         this.projectService = projectService;
         this.dtoFactory = dtoFactory;

@@ -19,7 +19,7 @@ import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.parts.WorkspaceAgent;
 import org.eclipse.che.ide.ext.svn.client.SubversionClientService;
 import org.eclipse.che.ide.ext.svn.client.SubversionExtensionLocalizationConstants;
-import org.eclipse.che.ide.part.explorer.project.NewProjectExplorerPresenter;
+import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.junit.Before;
 import org.junit.runner.RunWith;
@@ -61,7 +61,7 @@ public abstract class BaseSubversionPresenterTest {
     @Mock
     protected WorkspaceAgent                           workspaceAgent;
     @Mock
-    protected NewProjectExplorerPresenter              projectExplorerPart;
+    protected ProjectExplorerPresenter                 projectExplorerPart;
 
     @Before
     public void setUp() throws Exception {

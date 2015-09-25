@@ -18,7 +18,7 @@ import org.eclipse.che.api.builder.dto.BuildOptions;
 import org.eclipse.che.ide.api.action.ActionEvent;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.dto.DtoFactory;
-import org.eclipse.che.ide.part.explorer.project.NewProjectExplorerPresenter;
+import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.eclipse.che.plugin.bower.client.BowerResources;
 import org.eclipse.che.plugin.bower.client.builder.BuildFinishedCallback;
 import org.eclipse.che.plugin.bower.client.builder.BuilderAgent;
@@ -36,7 +36,7 @@ public class BowerInstallAction extends CustomAction implements BuildFinishedCal
 
     private BuilderAgent builderAgent;
 
-    private final NewProjectExplorerPresenter projectExplorer;
+    private final ProjectExplorerPresenter projectExplorer;
 
     private boolean buildInProgress;
 
@@ -50,7 +50,7 @@ public class BowerInstallAction extends CustomAction implements BuildFinishedCal
                               AppContext appContext,
                               BowerResources bowerResources,
                               AnalyticsEventLogger analyticsEventLogger,
-                              NewProjectExplorerPresenter projectExplorer) {
+                              ProjectExplorerPresenter projectExplorer) {
         super(appContext, localizationConstant.bowerInstallText(), localizationConstant.bowerInstallDescription(),
               bowerResources.buildIcon());
         this.dtoFactory = dtoFactory;

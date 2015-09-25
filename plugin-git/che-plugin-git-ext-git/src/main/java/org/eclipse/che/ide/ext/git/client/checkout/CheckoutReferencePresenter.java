@@ -27,7 +27,7 @@ import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.project.tree.VirtualFile;
 import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.ext.git.client.GitLocalizationConstant;
-import org.eclipse.che.ide.part.explorer.project.NewProjectExplorerPresenter;
+import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.rest.Unmarshallable;
@@ -40,17 +40,17 @@ import org.eclipse.che.ide.util.loging.Log;
  */
 @Singleton
 public class CheckoutReferencePresenter implements CheckoutReferenceView.ActionDelegate {
-    private final NotificationManager               notificationManager;
-    private final GitServiceClient                  service;
-    private final AppContext                        appContext;
-    private final GitLocalizationConstant           constant;
-    private final CheckoutReferenceView             view;
-    private final NewProjectExplorerPresenter       projectExplorer;
-    private final DtoFactory                        dtoFactory;
-    private final EditorAgent                       editorAgent;
-    private final EventBus                          eventBus;
-    private final ProjectServiceClient              projectService;
-    private final DtoUnmarshallerFactory            dtoUnmarshallerFactory;
+    private final NotificationManager      notificationManager;
+    private final GitServiceClient         service;
+    private final AppContext               appContext;
+    private final GitLocalizationConstant  constant;
+    private final CheckoutReferenceView    view;
+    private final ProjectExplorerPresenter projectExplorer;
+    private final DtoFactory               dtoFactory;
+    private final EditorAgent              editorAgent;
+    private final EventBus                 eventBus;
+    private final ProjectServiceClient     projectService;
+    private final DtoUnmarshallerFactory   dtoUnmarshallerFactory;
 
     @Inject
     public CheckoutReferencePresenter(CheckoutReferenceView view,
@@ -58,7 +58,7 @@ public class CheckoutReferencePresenter implements CheckoutReferenceView.ActionD
                                       AppContext appContext,
                                       GitLocalizationConstant constant,
                                       NotificationManager notificationManager,
-                                      NewProjectExplorerPresenter projectExplorer,
+                                      ProjectExplorerPresenter projectExplorer,
                                       DtoFactory dtoFactory,
                                       EditorAgent editorAgent,
                                       EventBus eventBus,

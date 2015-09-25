@@ -21,7 +21,7 @@ import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.project.node.HasStorablePath;
 import org.eclipse.che.ide.api.selection.Selection;
 import org.eclipse.che.ide.ext.git.client.GitLocalizationConstant;
-import org.eclipse.che.ide.part.explorer.project.NewProjectExplorerPresenter;
+import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.eclipse.che.ide.project.node.FolderReferenceNode;
 import org.eclipse.che.ide.project.node.ResourceBasedNode;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
@@ -47,13 +47,13 @@ public class AddToIndexPresenter implements AddToIndexView.ActionDelegate {
 
     private static final String ROOT_FOLDER = ".";
 
-    private AddToIndexView              view;
-    private GitServiceClient            service;
-    private GitLocalizationConstant     constant;
-    private AppContext                  appContext;
-    private CurrentProject              project;
-    private NewProjectExplorerPresenter projectExplorer;
-    private NotificationManager         notificationManager;
+    private AddToIndexView           view;
+    private GitServiceClient         service;
+    private GitLocalizationConstant  constant;
+    private AppContext               appContext;
+    private CurrentProject           project;
+    private ProjectExplorerPresenter projectExplorer;
+    private NotificationManager      notificationManager;
 
     private final DtoUnmarshallerFactory dtoUnmarshallerFactory;
 
@@ -73,7 +73,7 @@ public class AddToIndexPresenter implements AddToIndexView.ActionDelegate {
                                GitLocalizationConstant constant,
                                GitServiceClient service,
                                NotificationManager notificationManager,
-                               NewProjectExplorerPresenter projectExplorer) {
+                               ProjectExplorerPresenter projectExplorer) {
         this.view = view;
         this.view.setDelegate(this);
         this.service = service;
