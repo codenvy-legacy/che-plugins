@@ -175,10 +175,10 @@ public class OrionTextViewOverlay extends JavaScriptObject {
         var func = function (param) {
             handler.@org.eclipse.che.ide.editor.orion.client.jso.OrionTextViewOverlay.EventHandler::onEvent(*)(param);
         };
-        if(this.handels === undefined){
-            this.handels = {};
+        if($wnd.che_handels === undefined){
+            $wnd.che_handels = {};
         }
-        this.handels[handler] = func;
+        $wnd.che_handels[handler] = func;
         this.addEventListener(eventType, func , useCapture);
     }-*/;
 
@@ -281,6 +281,6 @@ public class OrionTextViewOverlay extends JavaScriptObject {
 
 
     public final native <T extends OrionEventOverlay> void removeEventListener(String eventType, EventHandler<T> handler,boolean useCapture) /*-{
-        this.removeEventListener(eventType, this.handels[handler], useCapture)
+        this.removeEventListener(eventType, $wnd.che_handels[handler], useCapture)
     }-*/;
 }

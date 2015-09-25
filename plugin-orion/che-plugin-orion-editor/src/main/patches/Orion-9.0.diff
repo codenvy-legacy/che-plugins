@@ -2,6 +2,17 @@ diff --git a/org/eclipse/che/ide/editor/orion/public/orion-9.0/built-editor-amd.
 index d81f7e1..81b2cbc 100644
 --- a/org/eclipse/che/ide/editor/orion/public/orion-9.0/built-editor-amd.js
 +++ b/org/eclipse/che/ide/editor/orion/public/orion-9.0/built-editor-amd.js
+@@ -4746,8 +4746,8 @@
+ 		 *
+ 		 * @property {Number} x The pointer location on the x axis, relative to the document the user is editing.
+ 		 * @property {Number} y The pointer location on the y axis, relative to the document the user is editing.
+-		 * @property {Number} screenX The pointer location on the x axis, relative to the screen. This is copied from the DOM contextmenu event.screenX property.
+-		 * @property {Number} screenY The pointer location on the y axis, relative to the screen. This is copied from the DOM contextmenu event.screenY property.
++		 * @property {Number} screenX The pointer location on the x axis, relative to the screen. This is copied from the DOM contextmenu event.screenX property.
++		 * @property {Number} screenY The pointer location on the y axis, relative to the screen. This is copied from the DOM contextmenu event.screenY property.
+ 		 * @property {Boolean} defaultPrevented Determines whether the user agent context menu should be shown. It is shown by default.
+ 		 * @property {Function} preventDefault If called prevents the user agent context menu from showing.
+ 		 */
 @@ -6487,6 +6487,7 @@
  		},
  		_handleMouseWheel: function (e) {
@@ -10,7 +21,73 @@ index d81f7e1..81b2cbc 100644
  			var lineHeight = this._getLineHeight();
  			var pixelX = 0, pixelY = 0;
  			// Note: On the Mac the correct behaviour is to scroll by pixel.
-@@ -22931,6 +22932,7 @@
+@@ -18884,8 +18885,9 @@
+ 	'orion/editor/keyModes', //$NON-NLS-0$
+ 	'orion/editor/annotations', //$NON-NLS-0$
+ 	'orion/objects', //$NON-NLS-0$
++	'orion/editor/eventTarget',
+ 	'orion/util' //$NON-NLS-0$
+-], function(messages, mKeyBinding, mKeyModes, mAnnotations, objects) {
++], function(messages, mKeyBinding, mKeyModes, mAnnotations, objects, mEventTarget) {
+
+ 	var exports = {};
+
+@@ -18954,11 +18956,11 @@
+ 		this.linkedModeModel = null;
+
+ 		textView.setAction("linkedModeEnter", function() { //$NON-NLS-0$
+-			this.exitLinkedMode(true);
++			this.exitLinkedMode(true, true);
+ 			return true;
+ 		}.bind(this));
+ 		textView.setAction("linkedModeCancel", function() { //$NON-NLS-0$
+-			this.exitLinkedMode(false);
++			this.exitLinkedMode(false, false);
+ 			return true;
+ 		}.bind(this));
+ 		textView.setAction("linkedModeNextGroup", function() { //$NON-NLS-0$
+@@ -18996,7 +18998,7 @@
+ 					changed = positionChanged.position;
+ 					if (changed === undefined || changed.model !== model) {
+ 						// The change has been done outside of the positions, exit the Linked Mode
+-						this.exitLinkedMode(false);
++						this.exitLinkedMode(false, false);
+ 						model = this.linkedModeModel;
+ 					} else {
+ 						break;
+@@ -19042,7 +19044,7 @@
+ 					changed = positionChanged.position;
+ 					if (changed === undefined || changed.model !== model) {
+ 						// The change has been done outside of the positions, exit the Linked Mode
+-						this.exitLinkedMode(false);
++						this.exitLinkedMode(false, false);
+ 						model = this.linkedModeModel;
+ 					} else {
+ 						break;
+@@ -19169,10 +19171,13 @@
+ 		 * Exits Linked Mode. Optionally places the caret at linkedMode escapePosition.
+ 		 * @param {Boolean} [escapePosition=false] if true, place the caret at the  escape position.
+ 		 */
+-		exitLinkedMode: function(escapePosition) {
++		exitLinkedMode: function(escapePosition, successful) {
+ 			if (!this.isActive()) {
+ 				return;
+ 			}
++
++			this.dispatchEvent({type:"LinkedModeExit", isSuccessful: successful});
++
+ 			if (this._compoundChange) {
+ 				this.endUndo();
+ 				this._compoundChange = null;
+@@ -19361,6 +19366,7 @@
+ 			annotationModel.replaceAnnotations(remove, add);
+ 		}
+ 	});
++	mEventTarget.EventTarget.addMixin(LinkedMode.prototype);
+ 	exports.LinkedMode = LinkedMode;
+
+ 	return exports;
+@@ -22931,6 +22937,7 @@
  			annotationFactory: new mEditorFeatures.AnnotationFactory(),
  			lineNumberRulerFactory: new mEditorFeatures.LineNumberRulerFactory(),
  			foldingRulerFactory: new mEditorFeatures.FoldingRulerFactory(),

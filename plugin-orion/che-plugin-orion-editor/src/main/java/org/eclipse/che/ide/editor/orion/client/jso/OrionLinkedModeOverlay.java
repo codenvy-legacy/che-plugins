@@ -64,14 +64,64 @@ public class OrionLinkedModeOverlay extends JavaScriptObject implements LinkedMo
         this.exitLinkedMode(escapePosition);
     }-*/;
 
+    /**
+     * Exits Linked Mode. Optionally places the caret at linkedMode escapePosition.
+     * @param escapePosition if true, place the caret at the  escape position.
+     * @param successful successful or not exit linked mode
+     */
+    @Override
+    public final native void exitLinkedMode(boolean escapePosition, boolean successful) /*-{
+        this.exitLinkedMode(escapePosition, successful);
+    }-*/;
+
     @Override
     public final native void selectLinkedGroup(int index) /*-{
         this.selectLinkedGroup(index);
     }-*/;
 
     @Override
+    public final native void addListener(LinkedModeListener listener) /*-{
+        if ($wnd.che_handels === undefined) {
+            $wnd.che_handels = {};
+        }
+        var start, end;
+        var model = this._annotationModel
+        var annotationListener = function () {
+            var annotations = model.getAnnotations(), annotation;
+            while (annotations.hasNext()) {
+                annotation = annotations.next();
+                switch (annotation.type) {
+
+                    case "orion.annotation.linkedGroup":
+                    case "orion.annotation.selectedLinkedGroup":
+                    case "orion.annotation.currentLinkedGroup":
+                    {
+                        start = annotation.start;
+                        end = annotation.end;
+                    }
+                }
+            }
+
+        };
+        this._annotationModel.addEventListener("Changed", annotationListener, true);
+        this.annotationListener = annotationListener;
+        var func = function (param) {
+            listener.@org.eclipse.che.ide.jseditor.client.link.LinkedMode.LinkedModeListener::onLinkedModeExited(*)(param.isSuccessful,
+                start, end);
+        };
+        $wnd.che_handels[listener] = func;
+        this.addEventListener("LinkedModeExit", func, true);
+    }-*/;
+
+    @Override
+    public final native void removeListener(LinkedModeListener listener) /*-{
+        this._annotationModel.removeEventListener("Changed", this.annotationListener, true);
+        this.removeEventListener("LinkedModeExit", $wnd.che_handels[listener], true);
+    }-*/;
+
+    @Override
     public final void enterLinkedMode(LinkedModel model) {
-        if(model instanceof OrionLinkedModelOverlay){
+        if (model instanceof OrionLinkedModelOverlay) {
             enterLinkedMode((OrionLinkedModelOverlay)model);
         } else {
             throw new IllegalArgumentException("This implementation supports only OrionLinkedModelOverlay model");

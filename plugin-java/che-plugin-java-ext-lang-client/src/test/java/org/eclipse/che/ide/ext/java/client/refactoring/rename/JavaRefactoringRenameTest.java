@@ -23,23 +23,29 @@ import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.editor.EditorInput;
 import org.eclipse.che.ide.api.editor.EditorPartPresenter;
+import org.eclipse.che.ide.api.editor.EditorWithAutoSave;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.project.tree.VirtualFile;
 import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.ext.java.client.JavaLocalizationConstant;
 import org.eclipse.che.ide.ext.java.client.refactoring.service.RefactoringServiceClient;
+import org.eclipse.che.ide.ext.java.shared.dto.LinkedModeModel;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.CreateRenameRefactoring;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.LinkedRenameRefactoringApply;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatus;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatusEntry;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RenameRefactoringSession;
-import org.eclipse.che.ide.ext.java.shared.dto.LinkedModeModel;
+import org.eclipse.che.ide.jseditor.client.document.EmbeddedDocument;
+import org.eclipse.che.ide.jseditor.client.link.HasLinkedMode;
+import org.eclipse.che.ide.jseditor.client.link.LinkedMode;
+import org.eclipse.che.ide.jseditor.client.link.LinkedModel;
 import org.eclipse.che.ide.jseditor.client.texteditor.TextEditor;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.ui.dialogs.CancelCallback;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 import org.eclipse.che.ide.ui.dialogs.InputCallback;
 import org.eclipse.che.ide.ui.dialogs.input.InputDialog;
+import org.eclipse.che.ide.ui.loaders.requestLoader.IdeLoader;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -57,9 +63,11 @@ import static org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringSta
 import static org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatus.OK;
 import static org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatus.WARNING;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isNull;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -104,7 +112,7 @@ public class JavaRefactoringRenameTest {
     private CreateRenameRefactoring           createRenameRefactoringDto;
     @Mock
     private LinkedRenameRefactoringApply      linkedRenameRefactoringApplyDto;
-    @Mock
+    @Mock(extraInterfaces = {HasLinkedMode.class, EditorWithAutoSave.class})
     private TextEditor                        textEditor;
     @Mock
     private EditorInput                       editorInput;
@@ -134,9 +142,21 @@ public class JavaRefactoringRenameTest {
     @Captor
     private ArgumentCaptor<Operation<RenameRefactoringSession>> renameRefCaptor;
     @Captor
-    private ArgumentCaptor<InputCallback>                       inputArgumentCaptor;
+    private ArgumentCaptor<LinkedMode.LinkedModeListener>       inputArgumentCaptor;
     @Captor
     private ArgumentCaptor<Operation<RefactoringStatus>>        refactoringStatusCaptor;
+
+    @Mock
+    private LinkedMode linkedMode;
+
+    @Mock
+    private LinkedModel editorLinkedModel;
+
+    @Mock
+    private EmbeddedDocument document;
+
+    @Mock
+    private IdeLoader loader;
 
     @InjectMocks
     private JavaRefactoringRename refactoringRename;
@@ -152,6 +172,7 @@ public class JavaRefactoringRenameTest {
         when(projectDescriptor.getPath()).thenReturn(TEXT);
         when(virtualFile.getName()).thenReturn(JAVA_CLASS_FULL_NAME);
         when(refactoringServiceClient.createRenameRefactoring(createRenameRefactoringDto)).thenReturn(createRenamePromise);
+        when(applyModelPromise.then((Operation<RefactoringStatus>)any())).thenReturn(applyModelPromise);
         when(session.getLinkedModeModel()).thenReturn(linkedModel);
         when(session.getSessionId()).thenReturn(SESSION_ID);
         when(locale.renameDialogTitle()).thenReturn(TEXT);
@@ -163,6 +184,10 @@ public class JavaRefactoringRenameTest {
         when(activeEditor.getEditorInput()).thenReturn(editorInput);
         when(virtualFile.getPath()).thenReturn(PATH);
         when(textEditor.getCursorOffset()).thenReturn(CURSOR_OFFSET);
+        when(textEditor.getDocument()).thenReturn(document);
+        when(document.getContentRange(anyInt(),anyInt())).thenReturn(NEW_JAVA_CLASS_NAME);
+        when(((HasLinkedMode)textEditor).getLinkedMode()).thenReturn(linkedMode);
+        when(((HasLinkedMode)textEditor).createLinkedModel()).thenReturn(editorLinkedModel);
 
         when(status.getEntries()).thenReturn(Collections.singletonList(entry));
     }
@@ -243,11 +268,10 @@ public class JavaRefactoringRenameTest {
         verify(createRenamePromise).then(renameRefCaptor.capture());
         renameRefCaptor.getValue().apply(session);
         verify(session).isMastShowWizard();
-        verify(session).getLinkedModeModel();
-        verify(session).getSessionId();
+        verify(session, times(2)).getLinkedModeModel();
 
-        verify(dialogFactory).createInputDialog(eq(TEXT), eq(TEXT), inputArgumentCaptor.capture(), isNull(CancelCallback.class));
-        inputArgumentCaptor.getValue().accepted(NEW_JAVA_CLASS_NAME);
+        verify(linkedMode).addListener(inputArgumentCaptor.capture());
+        inputArgumentCaptor.getValue().onLinkedModeExited(true, 0, 1);
         verify(dtoFactory).createDto(LinkedRenameRefactoringApply.class);
         linkedRenameRefactoringApplyDto.setNewName(NEW_JAVA_CLASS_NAME);
         linkedRenameRefactoringApplyDto.setSessionId(SESSION_ID);

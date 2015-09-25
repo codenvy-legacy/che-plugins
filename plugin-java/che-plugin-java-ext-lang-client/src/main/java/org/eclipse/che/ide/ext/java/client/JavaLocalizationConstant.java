@@ -174,6 +174,12 @@ public interface JavaLocalizationConstant extends Messages {
     @Key("multi.selection.references")
     String multiSelectionReferences(int count);
 
+    @Key("rename.error.editor")
+    String renameErrorEditor();
+
+    @Key("rename.loader")
+    String renameLoader();
+
     @Key("move.preview.title")
     String movePreviewTitle();
 
