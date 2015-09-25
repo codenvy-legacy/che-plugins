@@ -124,11 +124,17 @@ public interface GitLocalizationConstant extends Messages {
     @Key("messages.init_failed")
     String initFailed();
 
+    @Key("messages.push.process")
+    String pushProcess();
+
     @Key("messages.push_success")
     String pushSuccess(String remote);
 
     @Key("messages.push_fail")
     String pushFail();
+
+    @Key("messages.pull.process")
+    String pullProcess();
 
     @Key("messages.pull_success")
     String pullSuccess(String remoteUrl);
@@ -138,6 +144,9 @@ public interface GitLocalizationConstant extends Messages {
 
     @Key("messages.checkout_failed")
     String checkoutFailed(String reference);
+
+    @Key("messages.fetch.process")
+    String fetchProcess();
 
     @Key("messages.fetch_success")
     String fetchSuccess(String remoteUrl);
