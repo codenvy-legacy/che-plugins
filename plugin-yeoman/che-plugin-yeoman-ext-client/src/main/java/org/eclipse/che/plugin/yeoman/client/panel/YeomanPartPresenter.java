@@ -19,7 +19,7 @@ import org.eclipse.che.api.builder.BuildStatus;
 import org.eclipse.che.api.builder.dto.BuildOptions;
 import org.eclipse.che.ide.api.parts.base.BasePresenter;
 import org.eclipse.che.ide.dto.DtoFactory;
-import org.eclipse.che.ide.part.explorer.project.NewProjectExplorerPresenter;
+import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.eclipse.che.plugin.yeoman.client.builder.BuildFinishedCallback;
 import org.eclipse.che.plugin.yeoman.client.builder.BuilderAgent;
 
@@ -56,14 +56,14 @@ public class YeomanPartPresenter extends BasePresenter implements YeomanPartView
      */
     private Map<YeomanGeneratorType, FoldingPanel> widgetByTypes;
 
-    private DtoFactory   dtoFactory;
-    private BuilderAgent builderAgent;
-    private final NewProjectExplorerPresenter projectExplorer;
+    private       DtoFactory               dtoFactory;
+    private       BuilderAgent             builderAgent;
+    private final ProjectExplorerPresenter projectExplorer;
 
     @Inject
     public YeomanPartPresenter(YeomanPartView view, FoldingPanelFactory foldingPanelFactory,
                                GeneratedItemViewFactory generatedItemViewFactory, DtoFactory dtoFactory,
-                               BuilderAgent builderAgent, NewProjectExplorerPresenter projectExplorer) {
+                               BuilderAgent builderAgent, ProjectExplorerPresenter projectExplorer) {
         this.view = view;
         this.foldingPanelFactory = foldingPanelFactory;
         this.generatedItemViewFactory = generatedItemViewFactory;

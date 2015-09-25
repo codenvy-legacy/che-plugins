@@ -19,7 +19,7 @@ import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.ext.git.client.GitLocalizationConstant;
 import org.eclipse.che.ide.ext.git.client.GitResources;
 import org.eclipse.che.ide.ext.git.client.fetch.FetchPresenter;
-import org.eclipse.che.ide.part.explorer.project.NewProjectExplorerPresenter;
+import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 
 /** @author Andrey Plotnikov */
 @Singleton
@@ -33,7 +33,7 @@ public class FetchAction extends GitAction {
                        GitResources resources,
                        GitLocalizationConstant constant,
                        AnalyticsEventLogger eventLogger,
-                       NewProjectExplorerPresenter projectExplorer) {
+                       ProjectExplorerPresenter projectExplorer) {
         super(constant.fetchControlTitle(), constant.fetchControlPrompt(), resources.fetch(), appContext, projectExplorer);
         this.presenter = presenter;
         this.eventLogger = eventLogger;

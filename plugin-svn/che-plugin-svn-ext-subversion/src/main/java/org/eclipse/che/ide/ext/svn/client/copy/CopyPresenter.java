@@ -28,7 +28,7 @@ import org.eclipse.che.ide.ext.svn.client.SubversionExtensionLocalizationConstan
 import org.eclipse.che.ide.ext.svn.client.common.RawOutputPresenter;
 import org.eclipse.che.ide.ext.svn.client.common.SubversionActionPresenter;
 import org.eclipse.che.ide.ext.svn.shared.CLIOutputResponse;
-import org.eclipse.che.ide.part.explorer.project.NewProjectExplorerPresenter;
+import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.eclipse.che.ide.project.node.FileReferenceNode;
 import org.eclipse.che.ide.project.node.FolderReferenceNode;
 import org.eclipse.che.ide.project.node.ProjectDescriptorNode;
@@ -98,7 +98,7 @@ public class CopyPresenter extends SubversionActionPresenter implements CopyView
                             SubversionClientService service,
                             DtoUnmarshallerFactory dtoUnmarshallerFactory,
                             SubversionExtensionLocalizationConstants constants,
-                            final NewProjectExplorerPresenter projectExplorerPart) {
+                            final ProjectExplorerPresenter projectExplorerPart) {
         super(appContext, eventBus, console, workspaceAgent, projectExplorerPart);
         this.appContext = appContext;
         this.eventBus = eventBus;

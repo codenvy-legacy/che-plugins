@@ -20,7 +20,7 @@ import org.eclipse.che.ide.api.project.node.HasStorablePath;
 import org.eclipse.che.ide.ext.svn.client.SubversionExtensionLocalizationConstants;
 import org.eclipse.che.ide.ext.svn.client.SubversionExtensionResources;
 import org.eclipse.che.ide.ext.svn.client.export.ExportPresenter;
-import org.eclipse.che.ide.part.explorer.project.NewProjectExplorerPresenter;
+import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 
 /**
  * Extension of {@link SubversionAction} for implementing the "svn export" command.
@@ -28,8 +28,8 @@ import org.eclipse.che.ide.part.explorer.project.NewProjectExplorerPresenter;
 @Singleton
 public class ExportAction extends SubversionAction {
 
-    private NewProjectExplorerPresenter projectExplorerPresenter;
-    private ExportPresenter presenter;
+    private ProjectExplorerPresenter projectExplorerPresenter;
+    private ExportPresenter          presenter;
 
     /**
      * Constructor.
@@ -37,7 +37,7 @@ public class ExportAction extends SubversionAction {
     @Inject
     public ExportAction(final AnalyticsEventLogger eventLogger,
                         final AppContext appContext,
-                        final NewProjectExplorerPresenter projectExplorerPresenter,
+                        final ProjectExplorerPresenter projectExplorerPresenter,
                         final SubversionExtensionLocalizationConstants constants,
                         final SubversionExtensionResources resources,
                         final ExportPresenter presenter) {
@@ -61,7 +61,7 @@ public class ExportAction extends SubversionAction {
     }
 
     private HasStorablePath getSelectedNode() {
-        Object selectedNode =projectExplorerPresenter.getSelection().getHeadElement();
+        Object selectedNode = projectExplorerPresenter.getSelection().getHeadElement();
         return selectedNode != null && selectedNode instanceof HasStorablePath ? (HasStorablePath)selectedNode : null;
     }
 }

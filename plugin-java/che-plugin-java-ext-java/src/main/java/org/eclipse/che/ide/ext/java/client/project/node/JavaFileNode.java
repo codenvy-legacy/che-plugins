@@ -16,6 +16,7 @@ import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.api.project.shared.dto.ItemReference;
 import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
+import org.eclipse.che.commons.annotation.Nullable;
 import org.eclipse.che.ide.api.project.node.MutableNode;
 import org.eclipse.che.ide.api.project.node.resource.DeleteProcessor;
 import org.eclipse.che.ide.api.project.node.resource.RenameProcessor;
@@ -24,7 +25,6 @@ import org.eclipse.che.ide.project.node.FileReferenceNode;
 import org.eclipse.che.ide.ui.smartTree.presentation.NodePresentation;
 
 import javax.validation.constraints.NotNull;
-import org.eclipse.che.commons.annotation.Nullable;
 
 /**
  * @author Vlad Zhukovskiy
@@ -59,7 +59,7 @@ public class JavaFileNode extends FileReferenceNode implements MutableNode {
     @Nullable
     @Override
     public RenameProcessor<ItemReference> getRenameProcessor() {
-        return resourceProcessor;
+        return null;
     }
 
     @Nullable
@@ -87,4 +87,6 @@ public class JavaFileNode extends FileReferenceNode implements MutableNode {
     public void setLeaf(boolean leaf) {
         throw new UnsupportedOperationException("Not implemented");
     }
+
+
 }

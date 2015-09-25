@@ -10,30 +10,28 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.git.client.reset.commit;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import com.google.web.bindery.event.shared.EventBus;
 
-import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
-import org.eclipse.che.ide.api.event.FileContentUpdateEvent;
-import org.eclipse.che.ide.api.event.OpenProjectEvent;
-import org.eclipse.che.ide.api.project.tree.VirtualFile;
-import org.eclipse.che.ide.ext.git.client.GitLocalizationConstant;
 import org.eclipse.che.api.git.gwt.client.GitServiceClient;
 import org.eclipse.che.api.git.shared.LogResponse;
 import org.eclipse.che.api.git.shared.ResetRequest;
 import org.eclipse.che.api.git.shared.Revision;
+import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
 import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.editor.EditorPartPresenter;
+import org.eclipse.che.ide.api.event.FileContentUpdateEvent;
+import org.eclipse.che.ide.api.event.OpenProjectEvent;
 import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.api.notification.NotificationManager;
-import org.eclipse.che.ide.part.explorer.project.NewProjectExplorerPresenter;
+import org.eclipse.che.ide.api.project.tree.VirtualFile;
+import org.eclipse.che.ide.ext.git.client.GitLocalizationConstant;
+import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
-
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
-
 import org.eclipse.che.ide.rest.Unmarshallable;
 import org.eclipse.che.ide.util.loging.Log;
 
@@ -49,17 +47,17 @@ import static org.eclipse.che.ide.api.notification.Notification.Type.INFO;
  */
 @Singleton
 public class ResetToCommitPresenter implements ResetToCommitView.ActionDelegate {
-    private final DtoUnmarshallerFactory      dtoUnmarshallerFactory;
-    private final ResetToCommitView           view;
-    private final NewProjectExplorerPresenter projectExplorer;
-    private final GitServiceClient            service;
-    private final AppContext                  appContext;
-    private final GitLocalizationConstant     constant;
-    private final NotificationManager         notificationManager;
-    private final EditorAgent                 editorAgent;
-    private final EventBus                    eventBus;
-    private final ProjectServiceClient        projectService;
-    private       Revision                    selectedRevision;
+    private final DtoUnmarshallerFactory   dtoUnmarshallerFactory;
+    private final ResetToCommitView        view;
+    private final ProjectExplorerPresenter projectExplorer;
+    private final GitServiceClient         service;
+    private final AppContext               appContext;
+    private final GitLocalizationConstant  constant;
+    private final NotificationManager      notificationManager;
+    private final EditorAgent              editorAgent;
+    private final EventBus                 eventBus;
+    private final ProjectServiceClient     projectService;
+    private       Revision                 selectedRevision;
 
     /**
      * Create presenter.
@@ -72,7 +70,7 @@ public class ResetToCommitPresenter implements ResetToCommitView.ActionDelegate 
                                   AppContext appContext,
                                   NotificationManager notificationManager,
                                   DtoUnmarshallerFactory dtoUnmarshallerFactory,
-                                  NewProjectExplorerPresenter projectExplorer,
+                                  ProjectExplorerPresenter projectExplorer,
                                   EventBus eventBus,
                                   ProjectServiceClient projectService) {
         this.view = view;

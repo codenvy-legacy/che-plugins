@@ -19,7 +19,7 @@ import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.ext.git.client.GitLocalizationConstant;
 import org.eclipse.che.ide.ext.git.client.GitResources;
 import org.eclipse.che.ide.ext.git.client.checkout.CheckoutReferencePresenter;
-import org.eclipse.che.ide.part.explorer.project.NewProjectExplorerPresenter;
+import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 
 /**
  * Checkout reference(branch, tag) name or commit hash Action
@@ -36,7 +36,7 @@ public class CheckoutReferenceAction extends GitAction {
                                    GitResources resources,
                                    GitLocalizationConstant constant,
                                    AnalyticsEventLogger eventLogger,
-                                   NewProjectExplorerPresenter projectExplorer,
+                                   ProjectExplorerPresenter projectExplorer,
                                    CheckoutReferencePresenter presenter) {
         super(constant.checkoutReferenceTitle(), constant.checkoutReferenceDescription(), resources.checkoutReference(), appContext,
               projectExplorer);

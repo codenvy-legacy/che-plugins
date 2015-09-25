@@ -16,6 +16,7 @@ import com.google.inject.Singleton;
 import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
+import org.eclipse.che.commons.annotation.Nullable;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.parts.WorkspaceAgent;
@@ -30,14 +31,13 @@ import org.eclipse.che.ide.ext.svn.client.common.filteredtree.FilteredTreeStruct
 import org.eclipse.che.ide.ext.svn.shared.CLIOutputResponse;
 import org.eclipse.che.ide.ext.svn.shared.InfoResponse;
 import org.eclipse.che.ide.ext.svn.shared.SubversionItem;
-import org.eclipse.che.ide.part.explorer.project.NewProjectExplorerPresenter;
+import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.ui.tree.TreeNodeElement;
 import org.vectomatic.dom.svg.ui.SVGImage;
 
 import javax.validation.constraints.NotNull;
-import org.eclipse.che.commons.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -76,7 +76,7 @@ public class MergePresenter extends SubversionActionPresenter implements MergeVi
                           final EventBus eventBus,
                           final RawOutputPresenter console,
                           final WorkspaceAgent workspaceAgent,
-                          final NewProjectExplorerPresenter projectExplorerPart,
+                          final ProjectExplorerPresenter projectExplorerPart,
                           final NotificationManager notificationManager,
                           final FilteredTreeStructureProvider treeStructureProvider) {
         super(appContext, eventBus, console, workspaceAgent, projectExplorerPart);

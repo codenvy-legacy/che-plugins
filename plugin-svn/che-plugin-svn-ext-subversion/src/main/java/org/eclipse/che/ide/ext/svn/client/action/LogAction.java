@@ -10,17 +10,16 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.svn.client.action;
 
-import org.eclipse.che.ide.ext.svn.client.SubversionExtensionLocalizationConstants;
-import org.eclipse.che.ide.ext.svn.client.SubversionExtensionResources;
-import org.eclipse.che.ide.ext.svn.client.log.ShowLogPresenter;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 import org.eclipse.che.api.analytics.client.logger.AnalyticsEventLogger;
 import org.eclipse.che.ide.api.action.ActionEvent;
 import org.eclipse.che.ide.api.app.AppContext;
-import org.eclipse.che.ide.part.explorer.project.NewProjectExplorerPresenter;
-
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
+import org.eclipse.che.ide.ext.svn.client.SubversionExtensionLocalizationConstants;
+import org.eclipse.che.ide.ext.svn.client.SubversionExtensionResources;
+import org.eclipse.che.ide.ext.svn.client.log.ShowLogPresenter;
+import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 
 /**
  * Extension of {@link SubversionAction} for implementing the "svn log" command.
@@ -39,7 +38,7 @@ public class LogAction extends SubversionAction {
                      final AppContext appContext,
                      final SubversionExtensionLocalizationConstants constants,
                      final SubversionExtensionResources resources,
-                     final NewProjectExplorerPresenter projectExplorerPresenter) {
+                     final ProjectExplorerPresenter projectExplorerPresenter) {
         super(constants.logTitle(), constants.logDescription(), resources.log(), eventLogger, appContext,
               constants, resources, projectExplorerPresenter);
 

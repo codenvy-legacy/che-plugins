@@ -29,7 +29,7 @@ import org.eclipse.che.ide.ext.svn.client.SubversionExtensionResources;
 import org.eclipse.che.ide.ext.svn.client.resolve.ResolvePresenter;
 import org.eclipse.che.ide.ext.svn.client.update.SubversionProjectUpdatedEvent;
 import org.eclipse.che.ide.ext.svn.client.update.SubversionProjectUpdatedHandler;
-import org.eclipse.che.ide.part.explorer.project.NewProjectExplorerPresenter;
+import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 
 import org.eclipse.che.commons.annotation.Nullable;
 import java.util.List;
@@ -44,8 +44,8 @@ public class ResolveAction extends SubversionAction implements SelectionChangedH
                                                                ProjectActionHandler,
                                                                SubversionProjectUpdatedHandler {
 
-    private NewProjectExplorerPresenter projectExplorerPresenter;
-    private final ResolvePresenter presenter;
+    private       ProjectExplorerPresenter projectExplorerPresenter;
+    private final ResolvePresenter         presenter;
 
     private List<String> conflictsList;
     private boolean enable = false;
@@ -55,7 +55,7 @@ public class ResolveAction extends SubversionAction implements SelectionChangedH
                          final AppContext appContext,
                          final SubversionExtensionLocalizationConstants constants,
                          final SubversionExtensionResources resources,
-                         final NewProjectExplorerPresenter projectExplorerPresenter,
+                         final ProjectExplorerPresenter projectExplorerPresenter,
                          final ResolvePresenter presenter,
                          final EventBus eventBus) {
         super(constants.resolvedTitle(), constants.resolvedDescription(), resources.resolved(), eventLogger,

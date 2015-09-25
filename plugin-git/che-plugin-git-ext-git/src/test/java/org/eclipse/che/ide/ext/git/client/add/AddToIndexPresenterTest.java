@@ -17,7 +17,7 @@ import org.eclipse.che.api.git.shared.Status;
 import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.ide.api.selection.Selection;
 import org.eclipse.che.ide.ext.git.client.BaseTest;
-import org.eclipse.che.ide.part.explorer.project.NewProjectExplorerPresenter;
+import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.eclipse.che.ide.project.node.ProjectDescriptorNode;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.websocket.WebSocketException;
@@ -57,11 +57,11 @@ public class AddToIndexPresenterTest extends BaseTest {
     private ArgumentCaptor<AsyncRequestCallback<Status>> asyncRequestCallbackStatusCaptor;
 
     @Mock
-    private AddToIndexView              view;
+    private AddToIndexView           view;
     @Mock
-    private NewProjectExplorerPresenter projectExplorer;
+    private ProjectExplorerPresenter projectExplorer;
     @Mock
-    private Status                      statusResponse;
+    private Status                   statusResponse;
 
     private AddToIndexPresenter presenter;
 

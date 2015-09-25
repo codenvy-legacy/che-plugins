@@ -10,7 +10,8 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.git.client;
 
-import org.eclipse.che.ide.ext.git.client.GitLocalizationConstant;
+import com.google.web.bindery.event.shared.EventBus;
+
 import org.eclipse.che.api.git.gwt.client.GitServiceClient;
 import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
 import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
@@ -20,11 +21,9 @@ import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.parts.ConsolePart;
 import org.eclipse.che.ide.api.selection.SelectionAgent;
 import org.eclipse.che.ide.dto.DtoFactory;
-import org.eclipse.che.ide.part.explorer.project.NewProjectExplorerPresenter;
+import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
-import com.google.web.bindery.event.shared.EventBus;
-
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -56,37 +55,37 @@ public abstract class BaseTest {
     public static final String  LOCAL_BRANCH    = "localBranch";
     public static final String  REMOTE_BRANCH   = "remoteBranch";
     @Mock
-    protected CurrentProject          currentProject;
+    protected CurrentProject           currentProject;
     @Mock
-    protected ProjectDescriptor       projectDescriptor;
+    protected ProjectDescriptor        projectDescriptor;
     @Mock
-    protected ProjectDescriptor       rootProjectDescriptor;
+    protected ProjectDescriptor        rootProjectDescriptor;
     @Mock
-    protected AppContext              appContext;
+    protected AppContext               appContext;
     @Mock
-    protected GitServiceClient        service;
+    protected GitServiceClient         service;
     @Mock
-    protected GitLocalizationConstant constant;
+    protected GitLocalizationConstant  constant;
     @Mock
-    protected ConsolePart             console;
+    protected ConsolePart              console;
     @Mock
-    protected GitResources            resources;
+    protected GitResources             resources;
     @Mock
-    protected EventBus                eventBus;
+    protected EventBus                 eventBus;
     @Mock
-    protected SelectionAgent          selectionAgent;
+    protected SelectionAgent           selectionAgent;
     @Mock
-    protected NotificationManager     notificationManager;
+    protected NotificationManager      notificationManager;
     @Mock
-    protected DtoFactory              dtoFactory;
+    protected DtoFactory               dtoFactory;
     @Mock
-    protected DtoUnmarshallerFactory  dtoUnmarshallerFactory;
+    protected DtoUnmarshallerFactory   dtoUnmarshallerFactory;
     @Mock
-    protected DialogFactory           dialogFactory;
+    protected DialogFactory            dialogFactory;
     @Mock
-    protected ProjectServiceClient    projectServiceClient;
+    protected ProjectServiceClient     projectServiceClient;
     @Mock
-    protected NewProjectExplorerPresenter projectExplorer;
+    protected ProjectExplorerPresenter projectExplorer;
 
     @Before
     public void disarm() {

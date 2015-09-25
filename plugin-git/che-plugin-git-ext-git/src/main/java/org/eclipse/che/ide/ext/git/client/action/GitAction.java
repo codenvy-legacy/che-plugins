@@ -17,7 +17,7 @@ import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.project.node.HasStorablePath;
 import org.eclipse.che.ide.api.selection.Selection;
-import org.eclipse.che.ide.part.explorer.project.NewProjectExplorerPresenter;
+import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.vectomatic.dom.svg.ui.SVGResource;
 
 import java.util.List;
@@ -27,11 +27,11 @@ import java.util.List;
  */
 public abstract class GitAction extends ProjectAction {
 
-    protected final AppContext     appContext;
-    protected       NewProjectExplorerPresenter projectExplorer;
+    protected final AppContext               appContext;
+    protected       ProjectExplorerPresenter projectExplorer;
 
     public GitAction(String text, String description, SVGResource svgIcon, AppContext appContext,
-                     NewProjectExplorerPresenter projectExplorer) {
+                     ProjectExplorerPresenter projectExplorer) {
         super(text, description, svgIcon);
         this.appContext = appContext;
         this.projectExplorer = projectExplorer;

@@ -10,9 +10,11 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.git.client.pull;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+import com.google.web.bindery.event.shared.EventBus;
+
 import org.eclipse.che.api.core.rest.shared.dto.ServiceError;
-import org.eclipse.che.ide.api.event.FileContentUpdateEvent;
-import org.eclipse.che.ide.ext.git.client.GitLocalizationConstant;
 import org.eclipse.che.api.git.gwt.client.GitServiceClient;
 import org.eclipse.che.api.git.shared.Branch;
 import org.eclipse.che.api.git.shared.PullResponse;
@@ -21,17 +23,15 @@ import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.editor.EditorPartPresenter;
+import org.eclipse.che.ide.api.event.FileContentUpdateEvent;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.project.tree.VirtualFile;
 import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.ext.git.client.BranchSearcher;
-import org.eclipse.che.ide.part.explorer.project.NewProjectExplorerPresenter;
+import org.eclipse.che.ide.ext.git.client.GitLocalizationConstant;
+import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
-
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
-import com.google.web.bindery.event.shared.EventBus;
 
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
@@ -47,18 +47,18 @@ import static org.eclipse.che.api.git.shared.BranchListRequest.LIST_REMOTE;
  */
 @Singleton
 public class PullPresenter implements PullView.ActionDelegate {
-    private final PullView                    view;
-    private final GitServiceClient            gitServiceClient;
-    private final EventBus                    eventBus;
-    private final GitLocalizationConstant     constant;
-    private final EditorAgent                 editorAgent;
-    private final AppContext                  appContext;
-    private final NotificationManager         notificationManager;
-    private final DtoUnmarshallerFactory      dtoUnmarshallerFactory;
-    private final DtoFactory                  dtoFactory;
-    private final BranchSearcher              branchSearcher;
-    private final NewProjectExplorerPresenter projectExplorer;
-    private       CurrentProject              project;
+    private final PullView                 view;
+    private final GitServiceClient         gitServiceClient;
+    private final EventBus                 eventBus;
+    private final GitLocalizationConstant  constant;
+    private final EditorAgent              editorAgent;
+    private final AppContext               appContext;
+    private final NotificationManager      notificationManager;
+    private final DtoUnmarshallerFactory   dtoUnmarshallerFactory;
+    private final DtoFactory               dtoFactory;
+    private final BranchSearcher           branchSearcher;
+    private final ProjectExplorerPresenter projectExplorer;
+    private       CurrentProject           project;
 
 
     @Inject
@@ -72,7 +72,7 @@ public class PullPresenter implements PullView.ActionDelegate {
                          DtoUnmarshallerFactory dtoUnmarshallerFactory,
                          DtoFactory dtoFactory,
                          BranchSearcher branchSearcher,
-                         NewProjectExplorerPresenter projectExplorer) {
+                         ProjectExplorerPresenter projectExplorer) {
         this.view = view;
         this.dtoFactory = dtoFactory;
         this.branchSearcher = branchSearcher;

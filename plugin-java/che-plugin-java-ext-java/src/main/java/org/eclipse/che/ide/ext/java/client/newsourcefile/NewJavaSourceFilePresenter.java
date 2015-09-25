@@ -27,7 +27,7 @@ import org.eclipse.che.ide.api.project.node.HasStorablePath;
 import org.eclipse.che.ide.api.project.node.HasStorablePath.StorablePath;
 import org.eclipse.che.ide.api.project.node.Node;
 import org.eclipse.che.ide.ext.java.client.project.node.PackageNode;
-import org.eclipse.che.ide.part.explorer.project.NewProjectExplorerPresenter;
+import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.eclipse.che.ide.project.node.FileReferenceNode;
 import org.eclipse.che.ide.project.node.FolderReferenceNode;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
@@ -57,16 +57,16 @@ import static org.eclipse.che.ide.ext.java.client.newsourcefile.JavaSourceFileTy
 public class NewJavaSourceFilePresenter implements NewJavaSourceFileView.ActionDelegate {
     private static final String DEFAULT_CONTENT = " {\n}\n";
 
-    private final NewProjectExplorerPresenter projectExplorer;
-    private final NewJavaSourceFileView       view;
-    private final ProjectServiceClient        projectServiceClient;
-    private final DtoUnmarshallerFactory      dtoUnmarshaller;
-    private final List<JavaSourceFileType>    sourceFileTypes;
-    private final DialogFactory               dialogFactory;
+    private final ProjectExplorerPresenter projectExplorer;
+    private final NewJavaSourceFileView    view;
+    private final ProjectServiceClient     projectServiceClient;
+    private final DtoUnmarshallerFactory   dtoUnmarshaller;
+    private final List<JavaSourceFileType> sourceFileTypes;
+    private final DialogFactory            dialogFactory;
 
     @Inject
     public NewJavaSourceFilePresenter(NewJavaSourceFileView view,
-                                      NewProjectExplorerPresenter projectExplorer,
+                                      ProjectExplorerPresenter projectExplorer,
                                       ProjectServiceClient projectServiceClient,
                                       DtoUnmarshallerFactory dtoUnmarshaller,
                                       DialogFactory dialogFactory) {

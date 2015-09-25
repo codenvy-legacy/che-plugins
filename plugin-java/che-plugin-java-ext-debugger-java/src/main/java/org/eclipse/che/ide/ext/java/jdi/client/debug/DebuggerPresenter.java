@@ -25,6 +25,7 @@ import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.runner.dto.ApplicationProcessDescriptor;
 import org.eclipse.che.api.runner.dto.RunOptions;
+import org.eclipse.che.commons.annotation.Nullable;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.editor.EditorAgent;
@@ -70,7 +71,7 @@ import org.eclipse.che.ide.ext.runner.client.models.Environment;
 import org.eclipse.che.ide.ext.runner.client.models.Runner;
 import org.eclipse.che.ide.ext.runner.client.runneractions.impl.launch.common.RunnerApplicationStatusEvent;
 import org.eclipse.che.ide.ext.runner.client.runneractions.impl.launch.common.RunnerApplicationStatusEventHandler;
-import org.eclipse.che.ide.part.explorer.project.NewProjectExplorerPresenter;
+import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.eclipse.che.ide.project.node.FileReferenceNode;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
@@ -84,7 +85,6 @@ import org.vectomatic.dom.svg.ui.SVGResource;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-import org.eclipse.che.commons.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -139,7 +139,7 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
     private       Location                               executionPoint;
     private       Runner                                 runner;
     private final ChooseRunnerAction                     chooseRunnerAction;
-    private final NewProjectExplorerPresenter projectExplorer;
+    private final ProjectExplorerPresenter               projectExplorer;
 
     private String host;
     private int    port;
@@ -163,7 +163,7 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
                              DtoUnmarshallerFactory dtoUnmarshallerFactory,
                              final AppContext appContext,
                              ChooseRunnerAction chooseRunnerAction,
-                             NewProjectExplorerPresenter projectExplorer) {
+                             ProjectExplorerPresenter projectExplorer) {
         this.view = view;
         this.eventBus = eventBus;
         this.runnerManager = runnerManager;

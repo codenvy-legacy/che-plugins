@@ -23,12 +23,10 @@ import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.parts.WorkspaceAgent;
 import org.eclipse.che.ide.api.project.node.HasStorablePath;
-import org.eclipse.che.ide.api.project.tree.TreeNode;
-import org.eclipse.che.ide.api.project.tree.generic.StorableNode;
 import org.eclipse.che.ide.ext.svn.client.SubversionExtensionLocalizationConstants;
 import org.eclipse.che.ide.ext.svn.client.common.RawOutputPresenter;
 import org.eclipse.che.ide.ext.svn.client.common.SubversionActionPresenter;
-import org.eclipse.che.ide.part.explorer.project.NewProjectExplorerPresenter;
+import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.eclipse.che.ide.rest.RestContext;
 
 import static org.eclipse.che.ide.api.notification.Notification.Status.PROGRESS;
@@ -53,7 +51,7 @@ public class ExportPresenter extends SubversionActionPresenter implements Export
                            EventBus eventBus,
                            RawOutputPresenter console,
                            WorkspaceAgent workspaceAgent,
-                           NewProjectExplorerPresenter projectExplorerPart,
+                           ProjectExplorerPresenter projectExplorerPart,
                            ExportView view,
                            NotificationManager notificationManager,
                            SubversionExtensionLocalizationConstants constants,

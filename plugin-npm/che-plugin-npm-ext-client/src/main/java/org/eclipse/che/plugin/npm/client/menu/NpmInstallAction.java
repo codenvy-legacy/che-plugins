@@ -18,7 +18,7 @@ import org.eclipse.che.api.builder.dto.BuildOptions;
 import org.eclipse.che.ide.api.action.ActionEvent;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.dto.DtoFactory;
-import org.eclipse.che.ide.part.explorer.project.NewProjectExplorerPresenter;
+import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.eclipse.che.plugin.npm.client.builder.BuildFinishedCallback;
 import org.eclipse.che.plugin.npm.client.builder.BuilderAgent;
 
@@ -35,7 +35,7 @@ public class NpmInstallAction extends CustomAction implements BuildFinishedCallb
 
     private BuilderAgent builderAgent;
 
-    private final NewProjectExplorerPresenter projectExplorer;
+    private final ProjectExplorerPresenter projectExplorer;
 
     private boolean buildInProgress;
 
@@ -45,7 +45,7 @@ public class NpmInstallAction extends CustomAction implements BuildFinishedCallb
     public NpmInstallAction(LocalizationConstant localizationConstant,
                             DtoFactory dtoFactory, BuilderAgent builderAgent, AppContext appContext,
                             AnalyticsEventLogger analyticsEventLogger,
-                            NewProjectExplorerPresenter projectExplorer) {
+                            ProjectExplorerPresenter projectExplorer) {
         super(appContext, localizationConstant.npmInstallText(), localizationConstant.npmInstallDescription());
         this.dtoFactory = dtoFactory;
         this.builderAgent = builderAgent;

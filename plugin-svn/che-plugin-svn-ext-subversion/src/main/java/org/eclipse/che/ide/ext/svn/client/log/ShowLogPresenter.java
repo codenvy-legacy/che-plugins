@@ -10,21 +10,21 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.svn.client.log;
 
-import org.eclipse.che.ide.ext.svn.client.SubversionClientService;
-import org.eclipse.che.ide.ext.svn.client.common.RawOutputPresenter;
-import org.eclipse.che.ide.ext.svn.client.common.SubversionActionPresenter;
-import org.eclipse.che.ide.ext.svn.shared.CLIOutputResponse;
+import com.google.inject.Inject;
+import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.parts.WorkspaceAgent;
+import org.eclipse.che.ide.ext.svn.client.SubversionClientService;
+import org.eclipse.che.ide.ext.svn.client.common.RawOutputPresenter;
+import org.eclipse.che.ide.ext.svn.client.common.SubversionActionPresenter;
+import org.eclipse.che.ide.ext.svn.shared.CLIOutputResponse;
 import org.eclipse.che.ide.ext.svn.shared.InfoResponse;
 import org.eclipse.che.ide.ext.svn.shared.SubversionItem;
-import org.eclipse.che.ide.part.explorer.project.NewProjectExplorerPresenter;
+import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
-import com.google.inject.Inject;
-import com.google.web.bindery.event.shared.EventBus;
 
 /**
  * Manages the displaying commit log messages for specified period.
@@ -49,7 +49,7 @@ public class ShowLogPresenter extends SubversionActionPresenter {
                                final RawOutputPresenter console,
                                final SubversionClientService subversionClientService,
                                final NotificationManager notificationManager,
-                               final NewProjectExplorerPresenter projectExplorerPart,
+                               final ProjectExplorerPresenter projectExplorerPart,
                                final ShowLogsView view) {
         super(appContext, eventBus, console, workspaceAgent, projectExplorerPart);
 

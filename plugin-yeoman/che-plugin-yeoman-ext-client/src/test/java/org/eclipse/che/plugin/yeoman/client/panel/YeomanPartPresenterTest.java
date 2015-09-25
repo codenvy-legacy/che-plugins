@@ -11,14 +11,13 @@
 package org.eclipse.che.plugin.yeoman.client.panel;
 
 import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.api.builder.BuildStatus;
 import org.eclipse.che.api.builder.dto.BuildOptions;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.dto.DtoFactory;
-import org.eclipse.che.ide.part.explorer.project.NewProjectExplorerPresenter;
+import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.eclipse.che.plugin.yeoman.client.builder.BuilderAgent;
 import org.junit.Before;
 import org.junit.Test;
@@ -102,7 +101,7 @@ public class YeomanPartPresenterTest {
     private CurrentProject activeProject;
 
     @Mock
-    private NewProjectExplorerPresenter projectExplorer;
+    private ProjectExplorerPresenter projectExplorer;
 
     @Captor
     ArgumentCaptor<BuildOptions> buildOptionsArgumentCaptor;

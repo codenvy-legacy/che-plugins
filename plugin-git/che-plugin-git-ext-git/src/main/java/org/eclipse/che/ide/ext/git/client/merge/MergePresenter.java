@@ -26,7 +26,7 @@ import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.project.tree.VirtualFile;
 import org.eclipse.che.ide.ext.git.client.GitLocalizationConstant;
-import org.eclipse.che.ide.part.explorer.project.NewProjectExplorerPresenter;
+import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 
@@ -51,16 +51,16 @@ import static org.eclipse.che.ide.ext.git.client.merge.Reference.RefType.REMOTE_
 public class MergePresenter implements MergeView.ActionDelegate {
     public static final String LOCAL_BRANCHES_TITLE  = "Local Branches";
     public static final String REMOTE_BRANCHES_TITLE = "Remote Branches";
-    private final DtoUnmarshallerFactory      dtoUnmarshallerFactory;
-    private       MergeView                   view;
-    private final NewProjectExplorerPresenter projectExplorer;
-    private       GitServiceClient            service;
-    private       EventBus                    eventBus;
-    private       GitLocalizationConstant     constant;
-    private       EditorAgent                 editorAgent;
-    private       AppContext                  appContext;
-    private       Reference                   selectedReference;
-    private       NotificationManager         notificationManager;
+    private final DtoUnmarshallerFactory   dtoUnmarshallerFactory;
+    private       MergeView                view;
+    private final ProjectExplorerPresenter projectExplorer;
+    private       GitServiceClient         service;
+    private       EventBus                 eventBus;
+    private       GitLocalizationConstant  constant;
+    private       EditorAgent              editorAgent;
+    private       AppContext               appContext;
+    private       Reference                selectedReference;
+    private       NotificationManager      notificationManager;
 
     /**
      * Create presenter.
@@ -81,7 +81,7 @@ public class MergePresenter implements MergeView.ActionDelegate {
                           AppContext appContext,
                           NotificationManager notificationManager,
                           DtoUnmarshallerFactory dtoUnmarshallerFactory,
-                          NewProjectExplorerPresenter projectExplorer) {
+                          ProjectExplorerPresenter projectExplorer) {
         this.view = view;
         this.projectExplorer = projectExplorer;
         this.view.setDelegate(this);
