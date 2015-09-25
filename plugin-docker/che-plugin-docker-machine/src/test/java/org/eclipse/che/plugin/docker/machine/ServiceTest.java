@@ -150,7 +150,6 @@ public class ServiceTest {
 
         InstanceProvider dockerInstanceProvider = new DockerInstanceProvider(docker,
                                                                              dockerMachineFactory,
-                                                                             runtimeWorkspaceRegistry,
                                                                              dockerInstanceStopDetector,
                                                                              Collections.emptySet(),
                                                                              Collections.emptySet(),
