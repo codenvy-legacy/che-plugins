@@ -14,6 +14,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.event.shared.EventBus;
+
 import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
 import org.eclipse.che.api.project.shared.dto.ItemReference;
 import org.eclipse.che.api.promises.client.Operation;
@@ -25,27 +26,41 @@ import org.eclipse.che.api.promises.client.callback.PromiseHelper;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.editor.EditorPartPresenter;
+import org.eclipse.che.ide.api.editor.EditorWithAutoSave;
 import org.eclipse.che.ide.api.event.FileContentUpdateEvent;
 import org.eclipse.che.ide.api.event.RefreshProjectTreeEvent;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.project.tree.VirtualFile;
 import org.eclipse.che.ide.api.project.tree.generic.FileNode;
+import org.eclipse.che.ide.api.text.Position;
 import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.ext.java.client.JavaLocalizationConstant;
 import org.eclipse.che.ide.ext.java.client.projecttree.JavaSourceFolderUtil;
 import org.eclipse.che.ide.ext.java.client.refactoring.service.RefactoringServiceClient;
+import org.eclipse.che.ide.ext.java.shared.dto.LinkedData;
+import org.eclipse.che.ide.ext.java.shared.dto.LinkedModeModel;
+import org.eclipse.che.ide.ext.java.shared.dto.LinkedPositionGroup;
+import org.eclipse.che.ide.ext.java.shared.dto.Region;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.CreateRenameRefactoring;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.LinkedRenameRefactoringApply;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatus;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatusEntry;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RenameRefactoringSession;
+import org.eclipse.che.ide.jseditor.client.document.EmbeddedDocument;
+import org.eclipse.che.ide.jseditor.client.link.HasLinkedMode;
+import org.eclipse.che.ide.jseditor.client.link.LinkedMode;
+import org.eclipse.che.ide.jseditor.client.link.LinkedModel;
+import org.eclipse.che.ide.jseditor.client.link.LinkedModelData;
+import org.eclipse.che.ide.jseditor.client.link.LinkedModelGroup;
 import org.eclipse.che.ide.jseditor.client.texteditor.TextEditor;
 import org.eclipse.che.ide.json.JsonHelper;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
-import org.eclipse.che.ide.ui.dialogs.InputCallback;
+import org.eclipse.che.ide.ui.loaders.requestLoader.IdeLoader;
 
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.eclipse.che.api.promises.client.callback.PromiseHelper.newCallback;
 import static org.eclipse.che.ide.ext.java.shared.dto.refactoring.CreateRenameRefactoring.RenameType.JAVA_ELEMENT;
@@ -71,6 +86,7 @@ public class JavaRefactoringRename {
     private final EventBus                 eventBus;
     private final DtoUnmarshallerFactory   unmarshallerFactory;
     private final NotificationManager      notificationManager;
+    private final IdeLoader                loader;
 
     @Inject
     public JavaRefactoringRename(EditorAgent editorAgent,
@@ -82,7 +98,8 @@ public class JavaRefactoringRename {
                                  AppContext appContext,
                                  EventBus eventBus,
                                  DtoUnmarshallerFactory unmarshallerFactory,
-                                 NotificationManager notificationManager) {
+                                 NotificationManager notificationManager,
+                                 IdeLoader loader) {
         this.editorAgent = editorAgent;
         this.locale = locale;
         this.dialogFactory = dialogFactory;
@@ -93,13 +110,14 @@ public class JavaRefactoringRename {
         this.eventBus = eventBus;
         this.unmarshallerFactory = unmarshallerFactory;
         this.notificationManager = notificationManager;
+        this.loader = loader;
     }
 
     /**
      * Launch java rename refactoring process
      * @param textEditorPresenter editor where user refactors code
      */
-    public void refactor(TextEditor textEditorPresenter) {
+    public void refactor(final TextEditor textEditorPresenter) {
         final CreateRenameRefactoring createRenameRefactoring = createRenameRefactoringDto(textEditorPresenter, appContext);
 
         Promise<RenameRefactoringSession> createRenamePromise = refactoringServiceClient.createRenameRefactoring(createRenameRefactoring);
@@ -108,55 +126,111 @@ public class JavaRefactoringRename {
             public void apply(RenameRefactoringSession session) throws OperationException {
                 if (session.isMastShowWizard()) {
                     //todo should add Wizard
-                } else if (session.getLinkedModeModel() != null) {
-                    activateLinkedModeIntoEditor(session.getSessionId());
+                } else if (session.getLinkedModeModel() != null && textEditorPresenter instanceof HasLinkedMode) {
+                    activateLinkedModeIntoEditor(session, ((HasLinkedMode)textEditorPresenter), textEditorPresenter.getDocument());
+                } else {
+                    notificationManager.showError(locale.renameErrorEditor());
                 }
             }
         });
     }
 
-    private void activateLinkedModeIntoEditor(final String session) {
-        //todo Warning: temporary decision, now we using dialog box instead of linked mode into editor!
-        dialogFactory.createInputDialog(locale.renameDialogTitle(),
-                locale.renameDialogLabel(),
-                new InputCallback() {
-                    @Override
-                    public void accepted(final String newName) {
-                        final LinkedRenameRefactoringApply dto = createLinkedRenameRefactoringApplyDto(newName, session);
+    private void activateLinkedModeIntoEditor(final RenameRefactoringSession session, final HasLinkedMode linkedEditor,
+                                              final EmbeddedDocument document) {
+        final LinkedMode mode = linkedEditor.getLinkedMode();
+        LinkedModel model = linkedEditor.createLinkedModel();
+        LinkedModeModel linkedModeModel = session.getLinkedModeModel();
+        List<LinkedModelGroup> groups = new ArrayList<>();
+        for (LinkedPositionGroup positionGroup : linkedModeModel.getGroups()) {
+            LinkedModelGroup group = linkedEditor.createLinkedGroup();
+            LinkedData data = positionGroup.getData();
+            if (data != null) {
+                LinkedModelData modelData = linkedEditor.createLinkedModelData();
+                modelData.setType("link");
+                modelData.setValues(data.getValues());
+                group.setData(modelData);
+            }
+            List<Position> positions = new ArrayList<>();
+            for (Region region : positionGroup.getPositions()) {
+                positions.add(new Position(region.getOffset(), region.getLength()));
+            }
+            group.setPositions(positions);
+            groups.add(group);
+        }
+        model.setGroups(groups);
+        if(linkedEditor instanceof EditorWithAutoSave){
+           ((EditorWithAutoSave)linkedEditor).disableAutoSave();
+        }
 
-                        Promise<RefactoringStatus> applyModelPromise = refactoringServiceClient.applyLinkedModeRename(dto);
-                        applyModelPromise.then(new Operation<RefactoringStatus>() {
-                            @Override
-                            public void apply(RefactoringStatus status) throws OperationException {
-                                onTargetRenamed(status, newName);
-                            }
-                        });
+        mode.enterLinkedMode(model);
+
+        mode.addListener(new LinkedMode.LinkedModeListener() {
+            @Override
+            public void onLinkedModeExited(boolean successful, int start, int end) {
+                try {
+                    if (successful) {
+                        loader.show(locale.renameLoader());
+                        String newName = document.getContentRange(start, end - start);
+                        performRename(newName, session, linkedEditor);
                     }
-                }, null).show();
+                } finally {
+                    mode.removeListener(this);
+                }
+            }
+        });
+
     }
 
-    private void onTargetRenamed(RefactoringStatus status, String newName) {
+    private void performRename(final String newName, RenameRefactoringSession session, final HasLinkedMode linkedEditor) {
+        final LinkedRenameRefactoringApply dto = createLinkedRenameRefactoringApplyDto(newName, session.getSessionId());
+
+        Promise<RefactoringStatus> applyModelPromise = refactoringServiceClient.applyLinkedModeRename(dto);
+        applyModelPromise.then(new Operation<RefactoringStatus>() {
+            @Override
+            public void apply(RefactoringStatus status) throws OperationException {
+                onTargetRenamed(status, newName, linkedEditor);
+            }
+        }).catchError(new Operation<PromiseError>() {
+            @Override
+            public void apply(PromiseError arg) throws OperationException {
+                if(linkedEditor instanceof EditorWithAutoSave){
+                    ((EditorWithAutoSave)linkedEditor).enableAutoSave();
+                }
+                loader.hide();
+                notificationManager.showError(arg.getMessage());
+            }
+        });
+    }
+
+    private void onTargetRenamed(RefactoringStatus status, String newName, HasLinkedMode linkedEditor) {
+        if(linkedEditor instanceof EditorWithAutoSave){
+            ((EditorWithAutoSave)linkedEditor).enableAutoSave();
+        }
         switch (status.getSeverity()) {
             case OK:
                 updateAfterRefactoring(newName);
                 break;
             case INFO:
+                loader.hide();
                 notificationManager.showInfo(getNotification(status));
                 break;
             case WARNING:
+                loader.hide();
                 notificationManager.showWarning(getNotification(status));
                 break;
             case ERROR:
+                loader.hide();
                 notificationManager.showError(getNotification(status));
                 break;
             case FATAL:
+                loader.hide();
                 notificationManager.showError(getNotification(status));
         }
     }
 
     private String getNotification(RefactoringStatus status) {
         StringBuilder notificationMessage = new StringBuilder();
-        for (RefactoringStatusEntry entry: status.getEntries()) {
+        for (RefactoringStatusEntry entry : status.getEntries()) {
             String message = JsonHelper.parseJsonMessage(entry.getMessage());
             notificationMessage.append(message);
             notificationMessage.append(". ");
@@ -199,6 +273,7 @@ public class JavaRefactoringRename {
             String path = editor.getEditorInput().getFile().getPath();
             eventBus.fireEvent(new FileContentUpdateEvent(path));
         }
+        loader.hide();
     }
 
     @NotNull

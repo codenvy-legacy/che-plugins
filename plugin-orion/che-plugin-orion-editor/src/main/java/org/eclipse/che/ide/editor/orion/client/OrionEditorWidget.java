@@ -43,6 +43,7 @@ import org.eclipse.che.ide.api.text.Region;
 import org.eclipse.che.ide.api.text.RegionImpl;
 import org.eclipse.che.ide.api.text.annotation.Annotation;
 import org.eclipse.che.ide.api.texteditor.HandlesUndoRedo;
+import org.eclipse.che.ide.editor.orion.client.jso.OrionAnnotationModelOverlay;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionAnnotationOverlay;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionEditorOverlay;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionKeyBindingModule;
@@ -616,13 +617,17 @@ public class OrionEditorWidget extends CompositeEditorWidget implements HasChang
     }
 
     public LinkedMode getLinkedMode() {
-        return editorOverlay.getLinkedMode();
+        return editorOverlay.getLinkedMode(editorOverlay.getAnnotationModel());
     }
 
     public void showCompletionInformation() {
         if(assistWidget.isActive()){
             assistWidget.showCompletionInfo();
         }
+    }
+
+    public OrionAnnotationModelOverlay getAnnotationModel() {
+        return editorOverlay.getAnnotationModel();
     }
 
     /**

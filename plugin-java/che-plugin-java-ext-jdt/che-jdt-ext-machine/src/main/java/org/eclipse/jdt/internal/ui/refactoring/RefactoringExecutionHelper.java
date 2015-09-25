@@ -153,7 +153,7 @@ public class RefactoringExecutionHelper {
 		} else {
 			rule= ResourcesPlugin.getWorkspace().getRoot();
 		}
-        final Operation op;
+        Operation op = null;
 		try {
 //			try {
 //				Runnable r= new Runnable() {
@@ -170,11 +170,11 @@ public class RefactoringExecutionHelper {
 //			if (!saveHelper.saveEditors(fParent))
 //				throw new InterruptedException();
 
-            op = new Operation(fork, forkChangeExecution);
-            op.run(new NullProgressMonitor());
-//			fRefactoring.setValidationContext(fParent);
 			try{
-                if(op.fPerformChangeOperation != null) {
+				op = new Operation(fork, forkChangeExecution);
+				op.run(new NullProgressMonitor());
+//			fRefactoring.setValidationContext(fParent);
+				if(op.fPerformChangeOperation != null) {
                     ResourcesPlugin.getWorkspace().run(op.fPerformChangeOperation, new NullProgressMonitor());
                 }
 //				if (fork && !forkChangeExecution && op.fPerformChangeOperation != null)
@@ -192,9 +192,11 @@ public class RefactoringExecutionHelper {
 					}
 				}
 			} catch (OperationCanceledException e) {
-                if(op.allConditions != null){
-                    return op.allConditions;
-                }
+				if(op != null) {
+					if (op.allConditions != null) {
+						return op.allConditions;
+					}
+				}
 				throw new InterruptedException(e.getMessage());
 			} finally {
 //				saveHelper.triggerIncrementalBuild();

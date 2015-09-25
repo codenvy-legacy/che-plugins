@@ -39,6 +39,7 @@ import org.eclipse.che.jdt.refactoring.session.RenameLinkedModeRefactoringSessio
 import org.eclipse.che.jdt.refactoring.session.RenameSession;
 import org.eclipse.che.jdt.refactoring.session.ReorgRefactoringSession;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.AssertionFailedException;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -335,7 +336,7 @@ public class RefactoringManager {
                 org.eclipse.ltk.core.refactoring.RefactoringStatus refactoringStatus = renameSession.doRename(apply.getNewName());
                 deleteRefactoringSession(apply.getSessionId());
                 return DtoConverter.toRefactoringStatusDto(refactoringStatus);
-            } catch (InvocationTargetException | InterruptedException e) {
+            } catch (InvocationTargetException | InterruptedException | AssertionFailedException e) {
                 LOG.error(e.getMessage(), e);
                 return DtoConverter
                         .toRefactoringStatusDto(org.eclipse.ltk.core.refactoring.RefactoringStatus.createFatalErrorStatus(e.getMessage()));
