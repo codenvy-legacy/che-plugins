@@ -17,6 +17,7 @@ import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.editor.EditorInput;
 import org.eclipse.che.ide.api.editor.EditorPartPresenter;
+import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.ext.git.client.BaseTest;
 import org.eclipse.che.ide.ext.git.client.BranchSearcher;
 import org.eclipse.che.ide.project.node.FileReferenceNode;
@@ -294,7 +295,7 @@ public class PullPresenterTest extends BaseTest {
         verify(view).close();
         verify(editorAgent).getOpenedEditors();
         verify(service).pull(eq(rootProjectDescriptor), anyString(), eq(REPOSITORY_NAME), (AsyncRequestCallback)anyObject());
-        verify(notificationManager).showInfo(anyString());
+        verify(notificationManager).showNotification((Notification) anyObject());
         verify(appContext).getCurrentProject();
         verify(eventBus, times(1)).fireEvent(Matchers.<Event<GwtEvent>>anyObject());
         verify(partPresenter).getEditorInput();
@@ -321,7 +322,7 @@ public class PullPresenterTest extends BaseTest {
 
         verify(service).pull(eq(rootProjectDescriptor), anyString(), eq(REPOSITORY_NAME), (AsyncRequestCallback<PullResponse>)anyObject());
         verify(view).close();
-        verify(notificationManager).showError(anyString());
+        verify(notificationManager).showNotification((Notification) anyObject());
     }
 
     @Test
@@ -345,7 +346,7 @@ public class PullPresenterTest extends BaseTest {
 
         verify(view).close();
         verify(service).pull(eq(rootProjectDescriptor), anyString(), eq(REPOSITORY_NAME), (AsyncRequestCallback)anyObject());
-        verify(notificationManager).showError(anyString());
+        verify(notificationManager).showNotification((Notification)anyObject());
         verify(appContext).getCurrentProject();
         verify(eventBus, times(1)).fireEvent(Matchers.<Event<GwtEvent>>anyObject());
         verify(partPresenter).getEditorInput();
@@ -370,7 +371,7 @@ public class PullPresenterTest extends BaseTest {
         presenter.onPullClicked();
 
         verify(view).close();
-        verify(notificationManager).showInfo("Already up-to-date");
+        verify(notificationManager).showNotification((Notification) anyObject());
         //check Refresh project is not called
         verify(eventBus, never()).fireEvent(Matchers.<Event<GwtEvent>>anyObject());
     }

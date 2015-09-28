@@ -24,6 +24,7 @@ import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.editor.EditorPartPresenter;
 import org.eclipse.che.ide.api.event.FileContentUpdateEvent;
+import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.project.tree.VirtualFile;
 import org.eclipse.che.ide.dto.DtoFactory;
@@ -39,6 +40,9 @@ import java.util.List;
 
 import static org.eclipse.che.api.git.shared.BranchListRequest.LIST_LOCAL;
 import static org.eclipse.che.api.git.shared.BranchListRequest.LIST_REMOTE;
+import static org.eclipse.che.ide.api.notification.Notification.Status.PROGRESS;
+import static org.eclipse.che.ide.api.notification.Notification.Status.FINISHED;
+import static org.eclipse.che.ide.api.notification.Notification.Type.ERROR;
 
 /**
  * Presenter pulling changes from remote repository.
@@ -171,11 +175,14 @@ public class PullPresenter implements PullView.ActionDelegate {
             openedEditors.add(partPresenter);
         }
 
+        final Notification notification = new Notification(constant.pullProcess(), PROGRESS, true);
+        notificationManager.showNotification(notification);
         gitServiceClient.pull(project.getRootProject(), getRefs(), remoteName,
                               new AsyncRequestCallback<PullResponse>(dtoUnmarshallerFactory.newUnmarshaller(PullResponse.class)) {
                                   @Override
                                   protected void onSuccess(PullResponse result) {
-                                      notificationManager.showInfo(result.getCommandOutput());
+                                      notification.setStatus(FINISHED);
+                                      notification.setMessage(result.getCommandOutput());
                                       if (!result.getCommandOutput().contains("Already up-to-date")) {
                                           refreshProject(openedEditors);
                                       }
@@ -186,7 +193,7 @@ public class PullPresenter implements PullView.ActionDelegate {
                                       if (throwable.getMessage().contains("Merge conflict")) {
                                           refreshProject(openedEditors);
                                       }
-                                      handleError(throwable, remoteUrl);
+                                      handleError(throwable, remoteUrl, notification);
                                   }
                               });
     }
@@ -222,22 +229,23 @@ public class PullPresenter implements PullView.ActionDelegate {
      * @param throwable
      *         exception what happened
      */
-    private void handleError(@NotNull Throwable throwable, @NotNull String remoteUrl) {
+    private void handleError(@NotNull Throwable throwable, @NotNull String remoteUrl, Notification notification) {
         String errorMessage = throwable.getMessage();
+        notification.setType(ERROR);
         if (errorMessage == null) {
-            notificationManager.showError(constant.pullFail(remoteUrl));
+            notification.setMessage(constant.pullFail(remoteUrl));
             return;
         }
 
         try {
             errorMessage = dtoFactory.createDtoFromJson(errorMessage, ServiceError.class).getMessage();
             if (errorMessage.equals("Unable get private ssh key")) {
-                notificationManager.showError(constant.messagesUnableGetSshKey());
+                notification.setMessage(constant.messagesUnableGetSshKey());
                 return;
             }
-            notificationManager.showError(errorMessage);
+            notification.setMessage(errorMessage);
         } catch (Exception e) {
-            notificationManager.showError(errorMessage);
+            notification.setMessage(errorMessage);
         }
     }
 

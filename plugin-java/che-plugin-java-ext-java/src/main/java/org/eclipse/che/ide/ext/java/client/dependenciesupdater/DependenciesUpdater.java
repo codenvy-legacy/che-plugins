@@ -110,7 +110,7 @@ public class DependenciesUpdater {
 
         builderConsole.clear();
 
-        notification = new Notification(javaLocalizationConstant.updatingDependencies(), PROGRESS);
+        notification = new Notification(javaLocalizationConstant.updatingDependencies(), PROGRESS, true);
         notificationManager.showNotification(notification);
 
         buildContext.setBuilding(true);
