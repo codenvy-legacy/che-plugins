@@ -13,6 +13,7 @@ package org.eclipse.che.ide.ext.git.client.fetch;
 import org.eclipse.che.api.git.shared.Branch;
 import org.eclipse.che.api.git.shared.Remote;
 import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
+import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.ext.git.client.BaseTest;
 import org.eclipse.che.ide.ext.git.client.BranchSearcher;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
@@ -214,7 +215,7 @@ public class FetchPresenterTest extends BaseTest {
         verify(service).fetch(eq(rootProjectDescriptor), eq(REPOSITORY_NAME), (List<String>)anyObject(),
                               eq(NO_REMOVE_DELETE_REFS), (RequestCallback<String>)anyObject());
         verify(view).close();
-        verify(notificationManager).showInfo(anyString());
+        verify(notificationManager).showNotification((Notification) anyObject());
         verify(constant).fetchSuccess(eq(REMOTE_URI));
     }
 
@@ -244,7 +245,7 @@ public class FetchPresenterTest extends BaseTest {
                               eq(NO_REMOVE_DELETE_REFS), (RequestCallback<String>)anyObject());
         verify(view).close();
         verify(constant).fetchFail(eq(REMOTE_URI));
-        verify(notificationManager).showError(anyString());
+        verify(notificationManager).showNotification((Notification) anyObject());
     }
 
     @Test

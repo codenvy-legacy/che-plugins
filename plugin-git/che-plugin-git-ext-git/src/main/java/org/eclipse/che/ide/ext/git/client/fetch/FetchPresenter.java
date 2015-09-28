@@ -11,6 +11,7 @@
 package org.eclipse.che.ide.ext.git.client.fetch;
 
 import org.eclipse.che.api.core.rest.shared.dto.ServiceError;
+import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.ext.git.client.GitLocalizationConstant;
 import org.eclipse.che.api.git.gwt.client.GitServiceClient;
 import org.eclipse.che.api.git.shared.Branch;
@@ -35,6 +36,9 @@ import java.util.List;
 
 import static org.eclipse.che.api.git.shared.BranchListRequest.LIST_LOCAL;
 import static org.eclipse.che.api.git.shared.BranchListRequest.LIST_REMOTE;
+import static org.eclipse.che.ide.api.notification.Notification.Status.FINISHED;
+import static org.eclipse.che.ide.api.notification.Notification.Status.PROGRESS;
+import static org.eclipse.che.ide.api.notification.Notification.Type.ERROR;
 
 /**
  * Presenter for fetching changes from remote repository.
@@ -151,22 +155,25 @@ public class FetchPresenter implements FetchView.ActionDelegate {
         String remoteName = view.getRepositoryName();
         boolean removeDeletedRefs = view.isRemoveDeletedRefs();
 
+        final Notification notification = new Notification(constant.fetchProcess(), PROGRESS, true);
+        notificationManager.showNotification(notification);
         try {
             service.fetch(project.getRootProject(), remoteName, getRefs(), removeDeletedRefs,
                           new RequestCallback<String>() {
                               @Override
                               protected void onSuccess(String result) {
-                                  notificationManager.showInfo(constant.fetchSuccess(remoteUrl));
+                                  notification.setStatus(FINISHED);
+                                  notification.setMessage(constant.fetchSuccess(remoteUrl));
                               }
 
                               @Override
                               protected void onFailure(Throwable exception) {
-                                  handleError(exception, remoteUrl);
+                                  handleError(exception, remoteUrl, notification);
                               }
                           }
                          );
         } catch (WebSocketException e) {
-            handleError(e, remoteUrl);
+            handleError(e, remoteUrl, notification);
         }
         view.close();
     }
@@ -192,22 +199,23 @@ public class FetchPresenter implements FetchView.ActionDelegate {
      * @param throwable
      *         exception what happened
      */
-    private void handleError(@NotNull Throwable throwable, @NotNull String remoteUrl) {
+    private void handleError(@NotNull Throwable throwable, @NotNull String remoteUrl, Notification notification) {
         String errorMessage = throwable.getMessage();
+        notification.setType(ERROR);
         if (errorMessage == null) {
-            notificationManager.showError(constant.fetchFail(remoteUrl));
+            notification.setMessage(constant.fetchFail(remoteUrl));
             return;
         }
 
         try {
             errorMessage = dtoFactory.createDtoFromJson(errorMessage, ServiceError.class).getMessage();
             if (errorMessage.equals("Unable get private ssh key")) {
-                notificationManager.showError(constant.messagesUnableGetSshKey());
+                notification.setMessage(constant.messagesUnableGetSshKey());
                 return;
             }
-            notificationManager.showError(errorMessage);
+            notification.setMessage(errorMessage);
         } catch (Exception e) {
-            notificationManager.showError(errorMessage);
+            notification.setMessage(errorMessage);
         }
     }
 

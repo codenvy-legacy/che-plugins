@@ -66,7 +66,7 @@ public class DependenciesUpdater {
             return;
         }
 
-        notification = new Notification(javaLocalizationConstant.updatingDependencies(), PROGRESS);
+        notification = new Notification(javaLocalizationConstant.updatingDependencies(), PROGRESS, true);
         notificationManager.showNotification(notification);
         updating = true;
 
