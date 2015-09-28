@@ -86,7 +86,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <excludes>
-                        <exclude>**/docker/**</exclude>
+                        <exclude>**/integration/**</exclude>
                     </excludes>
                 </configuration>
             </plugin>
@@ -94,7 +94,7 @@
     </build>
     <profiles>
         <profile>
-            <id>docker-tests</id>
+            <id>docker-integration-tests</id>
             <activation>
                 <activeByDefault>false</activeByDefault>
             </activation>
@@ -112,7 +112,7 @@
                         </executions>
                         <configuration>
                             <includes>
-                                <include>**/docker/**</include>
+                                <include>**/integration/**</include>
                             </includes>
                         </configuration>
                     </plugin>

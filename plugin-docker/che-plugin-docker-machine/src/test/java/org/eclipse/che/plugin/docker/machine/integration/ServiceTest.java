@@ -8,7 +8,7 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.plugin.docker.machine;
+package org.eclipse.che.plugin.docker.machine.integration;
 
 import org.eclipse.che.api.core.NotFoundException;
 import org.eclipse.che.api.core.notification.EventService;
@@ -46,6 +46,12 @@ import org.eclipse.che.plugin.docker.client.json.ContainerConfig;
 import org.eclipse.che.plugin.docker.client.json.HostConfig;
 import org.eclipse.che.plugin.docker.client.json.PortBinding;
 import org.eclipse.che.plugin.docker.client.json.ProgressStatus;
+import org.eclipse.che.plugin.docker.machine.DockerInstanceKey;
+import org.eclipse.che.plugin.docker.machine.DockerInstanceProvider;
+import org.eclipse.che.plugin.docker.machine.DockerInstanceStopDetector;
+import org.eclipse.che.plugin.docker.machine.DockerMachineFactory;
+import org.eclipse.che.plugin.docker.machine.DockerNode;
+import org.eclipse.che.plugin.docker.machine.TestDockerMachineFactory;
 import org.mockito.Mock;
 import org.mockito.testng.MockitoTestNGListener;
 import org.testng.annotations.AfterClass;
@@ -92,14 +98,14 @@ public class ServiceTest {
     // used in methods {@link createMachineFromSnapshotTest} and {@link removeSnapshotTest}
     private DockerInstanceKey pushedImage;
 
-    private SnapshotDao             snapshotDao;
-    private MachineRegistry         machineRegistry;
-    private DockerConnector         docker;
-    private MachineManager          machineManager;
-    private MachineService          machineService;
-    private String                  registryContainerId;
+    private SnapshotDao                snapshotDao;
+    private MachineRegistry            machineRegistry;
+    private DockerConnector            docker;
+    private MachineManager             machineManager;
+    private MachineService             machineService;
+    private String                     registryContainerId;
     @Mock
-    private ConfigurationProperties configurationProperties;
+    private ConfigurationProperties    configurationProperties;
     @Mock
     private DockerInstanceStopDetector dockerInstanceStopDetector;
 
@@ -122,8 +128,8 @@ public class ServiceTest {
                 Collections.singletonMap("5000/tcp", Collections.<String, String>emptyMap())), null).getId();
 
         docker.startContainer(registryContainerId, new HostConfig()
-                                      .withPortBindings(Collections.singletonMap("5000/tcp", new PortBinding[]{
-                                              new PortBinding().withHostPort("5000")})));
+                .withPortBindings(Collections.singletonMap("5000/tcp", new PortBinding[]{
+                        new PortBinding().withHostPort("5000")})));
     }
 
     @AfterClass

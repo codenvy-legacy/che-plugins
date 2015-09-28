@@ -15,8 +15,6 @@ import org.eclipse.che.api.core.model.machine.Recipe;
 import org.eclipse.che.api.core.util.LineConsumer;
 import org.eclipse.che.api.machine.server.exception.MachineException;
 import org.eclipse.che.api.machine.server.recipe.RecipeImpl;
-import org.eclipse.che.api.workspace.server.RuntimeWorkspaceRegistry;
-import org.eclipse.che.api.workspace.server.model.impl.RuntimeWorkspaceImpl;
 import org.eclipse.che.commons.env.EnvironmentContext;
 import org.eclipse.che.commons.user.UserImpl;
 import org.eclipse.che.plugin.docker.client.DockerConnector;
@@ -34,6 +32,7 @@ import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -45,7 +44,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -69,9 +67,6 @@ public class DockerInstanceProviderTest {
     @Mock
     private DockerNode dockerNode;
 
-    @Mock
-    RuntimeWorkspaceRegistry runtimeWorkspaceRegistry;
-
     private DockerInstanceProvider dockerInstanceProvider;
 
     @BeforeMethod
@@ -89,9 +84,6 @@ public class DockerInstanceProviderTest {
         EnvironmentContext envCont = new EnvironmentContext();
         envCont.setUser(new UserImpl("user", null, null, null, false));
         EnvironmentContext.setCurrent(envCont);
-        RuntimeWorkspaceImpl runtimeWorkspaceImpl = mock(RuntimeWorkspaceImpl.class);
-        when(runtimeWorkspaceRegistry.get(any())).thenReturn(runtimeWorkspaceImpl);
-        when(runtimeWorkspaceImpl.getName()).thenReturn("workspace");
 
         when(dockerMachineFactory.createNode(anyString())).thenReturn(dockerNode);
     }
@@ -327,8 +319,11 @@ public class DockerInstanceProviderTest {
 
         ArgumentCaptor<ContainerConfig> argumentCaptor = ArgumentCaptor.forClass(ContainerConfig.class);
         verify(dockerConnector).createContainer(argumentCaptor.capture(), anyString());
-        assertEquals(argumentCaptor.getValue().getEnv(),
-                     new String[]{DockerInstanceProvider.API_ENDPOINT_URL_VARIABLE + "=" + API_ENDPOINT_VALUE});
+        assertTrue(Arrays.asList(argumentCaptor.getValue().getEnv())
+                         .contains(DockerInstanceProvider.API_ENDPOINT_URL_VARIABLE + "=" + API_ENDPOINT_VALUE),
+                   "Api endpoint variable is missing. Required " +
+                   DockerInstanceProvider.API_ENDPOINT_URL_VARIABLE + "=" + API_ENDPOINT_VALUE +
+                  ". Found " + Arrays.toString(argumentCaptor.getValue().getEnv()));
     }
 
     @Test
@@ -342,8 +337,11 @@ public class DockerInstanceProviderTest {
 
         ArgumentCaptor<ContainerConfig> argumentCaptor = ArgumentCaptor.forClass(ContainerConfig.class);
         verify(dockerConnector).createContainer(argumentCaptor.capture(), anyString());
-        assertEquals(argumentCaptor.getValue().getEnv(),
-                     new String[]{DockerInstanceProvider.API_ENDPOINT_URL_VARIABLE + "=" + API_ENDPOINT_VALUE});
+        assertTrue(Arrays.asList(argumentCaptor.getValue().getEnv())
+                         .contains(DockerInstanceProvider.API_ENDPOINT_URL_VARIABLE + "=" + API_ENDPOINT_VALUE),
+                   "Api endpoint variable is missing. Required " +
+                   DockerInstanceProvider.API_ENDPOINT_URL_VARIABLE + "=" + API_ENDPOINT_VALUE +
+                   ". Found " + Arrays.toString(argumentCaptor.getValue().getEnv()));
     }
 
     @Test
@@ -385,10 +383,13 @@ public class DockerInstanceProviderTest {
         createInstanceFromRecipe(memorySizeMB);
 
 
-        ArgumentCaptor<ContainerConfig> argumentCaptor = ArgumentCaptor.forClass(ContainerConfig.class);
-        verify(dockerConnector).createContainer(argumentCaptor.capture(), anyString());
+        ArgumentCaptor<ContainerConfig> createContainerCaptor = ArgumentCaptor.forClass(ContainerConfig.class);
+        verify(dockerConnector).createContainer(createContainerCaptor.capture(), anyString());
+        ArgumentCaptor<HostConfig> startContainerCaptor = ArgumentCaptor.forClass(HostConfig.class);
+        verify(dockerConnector).startContainer(anyString(), startContainerCaptor.capture());
         // docker accepts memory size in bytes
-        assertEquals(argumentCaptor.getValue().getHostConfig().getMemory(), Long.toString(memorySizeMB * 1024 * 1024));
+        assertEquals(createContainerCaptor.getValue().getMemory(), memorySizeMB * 1024 * 1024);
+        assertEquals(startContainerCaptor.getValue().getMemory(), memorySizeMB * 1024 * 1024);
     }
 
     @Test
@@ -402,10 +403,13 @@ public class DockerInstanceProviderTest {
         createInstanceFromSnapshot(memorySizeMB);
 
 
-        ArgumentCaptor<ContainerConfig> argumentCaptor = ArgumentCaptor.forClass(ContainerConfig.class);
-        verify(dockerConnector).createContainer(argumentCaptor.capture(), anyString());
+        ArgumentCaptor<ContainerConfig> createContainerCaptor = ArgumentCaptor.forClass(ContainerConfig.class);
+        verify(dockerConnector).createContainer(createContainerCaptor.capture(), anyString());
+        ArgumentCaptor<HostConfig> startContainerCaptor = ArgumentCaptor.forClass(HostConfig.class);
+        verify(dockerConnector).startContainer(anyString(), startContainerCaptor.capture());
         // docker accepts memory size in bytes
-        assertEquals(argumentCaptor.getValue().getHostConfig().getMemory(), Long.toString(memorySizeMB * 1024 * 1024));
+        assertEquals(createContainerCaptor.getValue().getMemory(), memorySizeMB * 1024 * 1024);
+        assertEquals(startContainerCaptor.getValue().getMemory(), memorySizeMB * 1024 * 1024);
     }
 
     @Test
@@ -417,9 +421,12 @@ public class DockerInstanceProviderTest {
         createInstanceFromRecipe();
 
 
-        ArgumentCaptor<ContainerConfig> argumentCaptor = ArgumentCaptor.forClass(ContainerConfig.class);
-        verify(dockerConnector).createContainer(argumentCaptor.capture(), anyString());
-        assertEquals(argumentCaptor.getValue().getHostConfig().getMemorySwap(), -1);
+        ArgumentCaptor<ContainerConfig> createContainerCaptor = ArgumentCaptor.forClass(ContainerConfig.class);
+        verify(dockerConnector).createContainer(createContainerCaptor.capture(), anyString());
+        ArgumentCaptor<HostConfig> startContainerCaptor = ArgumentCaptor.forClass(HostConfig.class);
+        verify(dockerConnector).startContainer(anyString(), startContainerCaptor.capture());
+        assertEquals(createContainerCaptor.getValue().getMemorySwap(), -1);
+        assertEquals(startContainerCaptor.getValue().getMemorySwap(), -1);
     }
 
     @Test
@@ -431,9 +438,12 @@ public class DockerInstanceProviderTest {
         createInstanceFromSnapshot();
 
 
-        ArgumentCaptor<ContainerConfig> argumentCaptor = ArgumentCaptor.forClass(ContainerConfig.class);
-        verify(dockerConnector).createContainer(argumentCaptor.capture(), anyString());
-        assertEquals(argumentCaptor.getValue().getHostConfig().getMemorySwap(), -1);
+        ArgumentCaptor<ContainerConfig> createContainerCaptor = ArgumentCaptor.forClass(ContainerConfig.class);
+        verify(dockerConnector).createContainer(createContainerCaptor.capture(), anyString());
+        ArgumentCaptor<HostConfig> startContainerCaptor = ArgumentCaptor.forClass(HostConfig.class);
+        verify(dockerConnector).startContainer(anyString(), startContainerCaptor.capture());
+        assertEquals(createContainerCaptor.getValue().getMemorySwap(), -1);
+        assertEquals(startContainerCaptor.getValue().getMemorySwap(), -1);
     }
 
     @Test
@@ -1000,12 +1010,14 @@ public class DockerInstanceProviderTest {
 
     @Test
     public void shouldGenerateValidNameForContainerFromPrefixWithValidCharacters() throws Exception {
-        final String workspaceName = "workspace";
         final String userName = "user";
         final String displayName = "displayName";
-        final String expectedPrefix = String.format("%s_%s_%s_", userName, workspaceName, displayName);
+        final String expectedPrefix = String.format("%s_%s_%s_", userName, "workspaceId", displayName);
 
-        assertTrue(dockerInstanceProvider.generateContainerName("workspaceId", displayName).startsWith(expectedPrefix));
+        final String containerName = dockerInstanceProvider.generateContainerName("workspaceId", displayName);
+
+        assertTrue(containerName.startsWith(expectedPrefix),
+                   "Unexpected container name " + containerName + " while expected " + expectedPrefix + "*");
     }
 
     @Test
@@ -1013,20 +1025,13 @@ public class DockerInstanceProviderTest {
         final String userName = "{use}r+";
         final String displayName = "displ{[ayName@";
         EnvironmentContext.getCurrent().setUser(new UserImpl(userName));
-        final String expectedPrefix = String.format("%s_%s_%s_", "user", "workspace", "displayName");
+        final String expectedPrefix = String.format("%s_%s_%s_", "user", "workspaceId", "displayName");
 
-        assertTrue(dockerInstanceProvider.generateContainerName("workspaceId", displayName).startsWith(expectedPrefix));
+        final String containerName = dockerInstanceProvider.generateContainerName("workspaceId", displayName);
+
+        assertTrue(containerName.startsWith(expectedPrefix),
+                   "Unexpected container name " + containerName + " while expected " + expectedPrefix + "*");
     }
-
-    @Test(expectedExceptions = MachineException.class, expectedExceptionsMessageRegExp = "Impossible to find running workspace for machine ")
-    public void shouldThrowExceptionWhenNotFoundRunningWorkspaceForMachine() throws Exception {
-        final String displayName = "displayName";
-
-        when(runtimeWorkspaceRegistry.get(any())).thenThrow(new NotFoundException("message"));
-
-        dockerInstanceProvider.generateContainerName("workspaceId", displayName);
-    }
-
 
     private void createInstanceFromRecipe() throws Exception {
         createInstanceFromRecipe(false, 64, "machineId", "userId", "workspaceId", "Display Name", new RecipeImpl().withType("Dockerfile")
