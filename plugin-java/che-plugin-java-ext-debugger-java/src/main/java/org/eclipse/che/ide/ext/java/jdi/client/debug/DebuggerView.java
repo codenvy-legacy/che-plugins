@@ -29,7 +29,7 @@ import java.util.List;
  */
 public interface DebuggerView extends View<DebuggerView.ActionDelegate> {
     /** Needs for delegate some function into Debugger view. */
-    public interface ActionDelegate extends BaseActionDelegate {
+    interface ActionDelegate extends BaseActionDelegate {
         /** Performs any actions appropriate in response to the user having pressed the Resume button. */
         void onResumeButtonClicked();
 
@@ -74,7 +74,12 @@ public interface DebuggerView extends View<DebuggerView.ActionDelegate> {
      * @param location
      *         information about the execution point
      */
-    public void setExecutionPoint(boolean absentInformation, @NotNull Location location);
+    void setExecutionPoint(boolean absentInformation, @NotNull Location location);
+
+    /**
+     * Clears information about the execution point.
+     */
+    void clearExecutionPoint();
 
     /**
      * Sets variables.
@@ -165,7 +170,7 @@ public interface DebuggerView extends View<DebuggerView.ActionDelegate> {
      * @param state
      *         the new state of button
      */
-    public boolean setButtonState(@NotNull ToggleButton button, boolean state);
+    boolean setButtonState(@NotNull ToggleButton button, boolean state);
 
     /**
      * Sets whether Change value button is enabled.
