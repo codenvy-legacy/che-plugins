@@ -55,6 +55,8 @@ public class DockerInstanceProviderTest {
 
     private static final String API_ENDPOINT_VALUE = "apiEndpoint";
 
+    private static final String CONTAINER_ID = "containerId";
+
     @Mock
     private DockerConnector dockerConnector;
 
@@ -86,6 +88,8 @@ public class DockerInstanceProviderTest {
         EnvironmentContext.setCurrent(envCont);
 
         when(dockerMachineFactory.createNode(anyString())).thenReturn(dockerNode);
+        when(dockerConnector.createContainer(any(ContainerConfig.class), anyString()))
+                .thenReturn(new ContainerCreated(CONTAINER_ID, new String[0]));
     }
 
     @AfterMethod
@@ -109,8 +113,6 @@ public class DockerInstanceProviderTest {
     public void shouldBuildDockerfileOnInstanceCreationFromRecipe() throws Exception {
         when(dockerConnector.buildImage(anyString(), any(ProgressMonitor.class), any(AuthConfigs.class), anyVararg()))
                 .thenReturn("builtImageId");
-        when(dockerConnector.createContainer(any(ContainerConfig.class), anyString()))
-                .thenReturn(new ContainerCreated("containerId", new String[0]));
 
 
         createInstanceFromRecipe();
@@ -121,9 +123,6 @@ public class DockerInstanceProviderTest {
 
     @Test
     public void shouldPullDockerImageOnInstanceCreationFromSnapshot() throws Exception {
-        when(dockerConnector.createContainer(any(ContainerConfig.class), anyString()))
-                .thenReturn(new ContainerCreated("containerId", new String[0]));
-
         String repo = "repo";
         String tag = "tag";
         String registry = "localhost:1234";
@@ -140,8 +139,6 @@ public class DockerInstanceProviderTest {
         String builtImageId = "builtImageId";
         when(dockerConnector.buildImage(anyString(), any(ProgressMonitor.class), any(AuthConfigs.class), anyVararg()))
                 .thenReturn(builtImageId);
-        when(dockerConnector.createContainer(any(ContainerConfig.class), anyString()))
-                .thenReturn(new ContainerCreated("containerId", new String[0]));
 
 
         createInstanceFromRecipe();
@@ -154,40 +151,23 @@ public class DockerInstanceProviderTest {
 
     @Test
     public void shouldStartContainerOnCreateInstanceFromRecipe() throws Exception {
-        String containerId = "containerId";
-        when(dockerConnector.createContainer(any(ContainerConfig.class), anyString()))
-                .thenReturn(new ContainerCreated(containerId, new String[0]));
-
-
         createInstanceFromRecipe();
 
-
-        verify(dockerConnector).startContainer(eq(containerId), any(HostConfig.class));
+        verify(dockerConnector).startContainer(eq(CONTAINER_ID), any(HostConfig.class));
     }
 
     @Test
     public void shouldCreateContainerOnInstanceCreationFromSnapshot() throws Exception {
-        when(dockerConnector.createContainer(any(ContainerConfig.class), anyString()))
-                .thenReturn(new ContainerCreated("containerId", new String[0]));
-
-
         createInstanceFromSnapshot();
-
 
         verify(dockerConnector).createContainer(any(ContainerConfig.class), anyString());
     }
 
     @Test
     public void shouldStartContainerOnCreateInstanceFromSnapshot() throws Exception {
-        String containerId = "containerId";
-        when(dockerConnector.createContainer(any(ContainerConfig.class), anyString()))
-                .thenReturn(new ContainerCreated(containerId, new String[0]));
-
-
         createInstanceFromSnapshot();
 
-
-        verify(dockerConnector).startContainer(eq(containerId), any(HostConfig.class));
+        verify(dockerConnector).startContainer(eq(CONTAINER_ID), any(HostConfig.class));
     }
 
     @Test
@@ -198,11 +178,7 @@ public class DockerInstanceProviderTest {
         final boolean isDev = false;
         final int memorySizeInMB = 64;
         final String displayName = "Display name";
-        final String containerId = "containerId";
         final Recipe recipe = new RecipeImpl().withType("Dockerfile").withScript("FROM busybox");
-
-        when(dockerConnector.createContainer(any(ContainerConfig.class), anyString()))
-                .thenReturn(new ContainerCreated(containerId, new String[0]));
 
 
         createInstanceFromSnapshot(isDev, memorySizeInMB, machineId, userId, workspaceId, displayName, recipe);
@@ -213,7 +189,7 @@ public class DockerInstanceProviderTest {
                                                     eq(isDev),
                                                     eq(userId),
                                                     eq(displayName),
-                                                    eq(containerId),
+                                                    eq(CONTAINER_ID),
                                                     eq(dockerNode),
                                                     any(LineConsumer.class),
                                                     eq(recipe),
@@ -228,11 +204,7 @@ public class DockerInstanceProviderTest {
         final boolean isDev = false;
         final int memorySizeInMB = 64;
         final String displayName = "Display name";
-        final String containerId = "containerId";
         final Recipe recipe = new RecipeImpl().withType("Dockerfile").withScript("FROM busybox");
-
-        when(dockerConnector.createContainer(any(ContainerConfig.class), anyString()))
-                .thenReturn(new ContainerCreated(containerId, new String[0]));
 
 
         createInstanceFromRecipe(isDev, memorySizeInMB, machineId, userId, workspaceId, displayName, recipe);
@@ -243,7 +215,7 @@ public class DockerInstanceProviderTest {
                                                     eq(isDev),
                                                     eq(userId),
                                                     eq(displayName),
-                                                    eq(containerId),
+                                                    eq(CONTAINER_ID),
                                                     eq(dockerNode),
                                                     any(LineConsumer.class),
                                                     eq(recipe),
@@ -256,8 +228,6 @@ public class DockerInstanceProviderTest {
         final String workspaceId = "workspaceId";
         final String hostProjectsFolder = "/tmp/projects";
 
-        when(dockerConnector.createContainer(any(ContainerConfig.class), anyString()))
-                .thenReturn(new ContainerCreated("containerId", new String[0]));
         when(dockerNode.getProjectsFolder()).thenReturn(hostProjectsFolder);
 
         createInstanceFromRecipe(isDev, workspaceId);
@@ -271,8 +241,6 @@ public class DockerInstanceProviderTest {
         final String workspaceId = "workspaceId";
         final String hostProjectsFolder = "/tmp/projects";
 
-        when(dockerConnector.createContainer(any(ContainerConfig.class), anyString()))
-                .thenReturn(new ContainerCreated("containerId", new String[0]));
         when(dockerNode.getProjectsFolder()).thenReturn(hostProjectsFolder);
 
         createInstanceFromSnapshot(isDev, workspaceId);
@@ -285,8 +253,6 @@ public class DockerInstanceProviderTest {
         final boolean isDev = false;
         final String workspaceId = "workspaceId";
 
-        when(dockerConnector.createContainer(any(ContainerConfig.class), anyString()))
-                .thenReturn(new ContainerCreated("containerId", new String[0]));
         when(dockerNode.getProjectsFolder()).thenReturn("/tmp/projects");
 
         createInstanceFromRecipe(isDev, workspaceId);
@@ -299,8 +265,6 @@ public class DockerInstanceProviderTest {
         final boolean isDev = false;
         final String workspaceId = "workspaceId";
 
-        when(dockerConnector.createContainer(any(ContainerConfig.class), anyString()))
-                .thenReturn(new ContainerCreated("containerId", new String[0]));
         when(dockerNode.getProjectsFolder()).thenReturn("/tmp/projects");
 
         createInstanceFromSnapshot(isDev, workspaceId);
@@ -310,12 +274,7 @@ public class DockerInstanceProviderTest {
 
     @Test
     public void shouldAddApiEndpointEnvVariableOnDevInstanceCreationFromRecipe() throws Exception {
-        when(dockerConnector.createContainer(any(ContainerConfig.class), anyString()))
-                .thenReturn(new ContainerCreated("containerId", new String[0]));
-
-
         createInstanceFromRecipe(true);
-
 
         ArgumentCaptor<ContainerConfig> argumentCaptor = ArgumentCaptor.forClass(ContainerConfig.class);
         verify(dockerConnector).createContainer(argumentCaptor.capture(), anyString());
@@ -328,12 +287,7 @@ public class DockerInstanceProviderTest {
 
     @Test
     public void shouldAddApiEndpointEnvVariableOnDevInstanceCreationFromSnapshot() throws Exception {
-        when(dockerConnector.createContainer(any(ContainerConfig.class), anyString()))
-                .thenReturn(new ContainerCreated("containerId", new String[0]));
-
-
         createInstanceFromSnapshot(true);
-
 
         ArgumentCaptor<ContainerConfig> argumentCaptor = ArgumentCaptor.forClass(ContainerConfig.class);
         verify(dockerConnector).createContainer(argumentCaptor.capture(), anyString());
@@ -346,12 +300,7 @@ public class DockerInstanceProviderTest {
 
     @Test
     public void shouldNotAddApiEndpointEnvVariableOnNonDevInstanceCreationFromRecipe() throws Exception {
-        when(dockerConnector.createContainer(any(ContainerConfig.class), anyString()))
-                .thenReturn(new ContainerCreated("containerId", new String[0]));
-
-
         createInstanceFromRecipe(false);
-
 
         ArgumentCaptor<ContainerConfig> argumentCaptor = ArgumentCaptor.forClass(ContainerConfig.class);
         verify(dockerConnector).createContainer(argumentCaptor.capture(), anyString());
@@ -360,12 +309,7 @@ public class DockerInstanceProviderTest {
 
     @Test
     public void shouldNotAddApiEndpointEnvVariableOnNonDevInstanceCreationFromSnapshot() throws Exception {
-        when(dockerConnector.createContainer(any(ContainerConfig.class), anyString()))
-                .thenReturn(new ContainerCreated("containerId", new String[0]));
-
-
         createInstanceFromSnapshot(false);
-
 
         ArgumentCaptor<ContainerConfig> argumentCaptor = ArgumentCaptor.forClass(ContainerConfig.class);
         verify(dockerConnector).createContainer(argumentCaptor.capture(), anyString());
@@ -374,9 +318,6 @@ public class DockerInstanceProviderTest {
 
     @Test
     public void shouldSetMemorySizeInContainersOnInstanceCreationFromRecipe() throws Exception {
-        when(dockerConnector.createContainer(any(ContainerConfig.class), anyString()))
-                .thenReturn(new ContainerCreated("containerId", new String[0]));
-
         int memorySizeMB = 234;
 
 
@@ -394,9 +335,6 @@ public class DockerInstanceProviderTest {
 
     @Test
     public void shouldSetMemorySizeInContainersOnInstanceCreationFromSnapshot() throws Exception {
-        when(dockerConnector.createContainer(any(ContainerConfig.class), anyString()))
-                .thenReturn(new ContainerCreated("containerId", new String[0]));
-
         int memorySizeMB = 234;
 
 
@@ -414,12 +352,7 @@ public class DockerInstanceProviderTest {
 
     @Test
     public void shouldDisableSwapMemorySizeInContainersOnInstanceCreationFromRecipe() throws Exception {
-        when(dockerConnector.createContainer(any(ContainerConfig.class), anyString()))
-                .thenReturn(new ContainerCreated("containerId", new String[0]));
-
-
         createInstanceFromRecipe();
-
 
         ArgumentCaptor<ContainerConfig> createContainerCaptor = ArgumentCaptor.forClass(ContainerConfig.class);
         verify(dockerConnector).createContainer(createContainerCaptor.capture(), anyString());
@@ -431,12 +364,7 @@ public class DockerInstanceProviderTest {
 
     @Test
     public void shouldDisableSwapMemorySizeInContainersOnInstanceCreationFromSnapshot() throws Exception {
-        when(dockerConnector.createContainer(any(ContainerConfig.class), anyString()))
-                .thenReturn(new ContainerCreated("containerId", new String[0]));
-
-
         createInstanceFromSnapshot();
-
 
         ArgumentCaptor<ContainerConfig> createContainerCaptor = ArgumentCaptor.forClass(ContainerConfig.class);
         verify(dockerConnector).createContainer(createContainerCaptor.capture(), anyString());
@@ -472,9 +400,6 @@ public class DockerInstanceProviderTest {
                                                             Collections.<String>emptySet(),
                                                             API_ENDPOINT_VALUE);
 
-        when(dockerConnector.createContainer(any(ContainerConfig.class), anyString()))
-                .thenReturn(new ContainerCreated("containerId", new String[0]));
-
         final boolean isDev = true;
 
 
@@ -507,9 +432,6 @@ public class DockerInstanceProviderTest {
                                                             Collections.<String>emptySet(),
                                                             Collections.<String>emptySet(),
                                                             API_ENDPOINT_VALUE);
-
-        when(dockerConnector.createContainer(any(ContainerConfig.class), anyString()))
-                .thenReturn(new ContainerCreated("containerId", new String[0]));
 
         final boolean isDev = false;
 
@@ -548,9 +470,6 @@ public class DockerInstanceProviderTest {
                                                             Collections.<String>emptySet(),
                                                             API_ENDPOINT_VALUE);
 
-        when(dockerConnector.createContainer(any(ContainerConfig.class), anyString()))
-                .thenReturn(new ContainerCreated("containerId", new String[0]));
-
         final boolean isDev = true;
 
 
@@ -583,9 +502,6 @@ public class DockerInstanceProviderTest {
                                                             Collections.<String>emptySet(),
                                                             Collections.<String>emptySet(),
                                                             API_ENDPOINT_VALUE);
-
-        when(dockerConnector.createContainer(any(ContainerConfig.class), anyString()))
-                .thenReturn(new ContainerCreated("containerId", new String[0]));
 
         final boolean isDev = false;
 
@@ -622,9 +538,6 @@ public class DockerInstanceProviderTest {
                                                             Collections.<String>emptySet(),
                                                             API_ENDPOINT_VALUE);
 
-        when(dockerConnector.createContainer(any(ContainerConfig.class), anyString()))
-                .thenReturn(new ContainerCreated("containerId", new String[0]));
-
         final boolean isDev = true;
 
 
@@ -654,9 +567,6 @@ public class DockerInstanceProviderTest {
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
                                                             API_ENDPOINT_VALUE);
-
-        when(dockerConnector.createContainer(any(ContainerConfig.class), anyString()))
-                .thenReturn(new ContainerCreated("containerId", new String[0]));
 
         final boolean isDev = false;
 
@@ -694,9 +604,6 @@ public class DockerInstanceProviderTest {
                                                             Collections.<String>emptySet(),
                                                             API_ENDPOINT_VALUE);
 
-        when(dockerConnector.createContainer(any(ContainerConfig.class), anyString()))
-                .thenReturn(new ContainerCreated("containerId", new String[0]));
-
         final boolean isDev = true;
 
 
@@ -727,9 +634,6 @@ public class DockerInstanceProviderTest {
                                                             Collections.emptySet(),
                                                             API_ENDPOINT_VALUE);
 
-        when(dockerConnector.createContainer(any(ContainerConfig.class), anyString()))
-                .thenReturn(new ContainerCreated("containerId", new String[0]));
-
         final boolean isDev = false;
 
 
@@ -756,8 +660,6 @@ public class DockerInstanceProviderTest {
                                                             Collections.emptySet(),
                                                             API_ENDPOINT_VALUE);
 
-        when(dockerConnector.createContainer(any(ContainerConfig.class), anyString()))
-                .thenReturn(new ContainerCreated("containerId", new String[0]));
         when(dockerNode.getProjectsFolder()).thenReturn(expectedHostPathOfProjects);
 
         final boolean isDev = true;
@@ -786,8 +688,6 @@ public class DockerInstanceProviderTest {
                                                             Collections.emptySet(),
                                                             API_ENDPOINT_VALUE);
 
-        when(dockerConnector.createContainer(any(ContainerConfig.class), anyString()))
-                .thenReturn(new ContainerCreated("containerId", new String[0]));
         when(dockerNode.getProjectsFolder()).thenReturn(expectedHostPathOfProjects);
 
         final boolean isDev = true;
@@ -815,8 +715,6 @@ public class DockerInstanceProviderTest {
                                                             Collections.emptySet(),
                                                             API_ENDPOINT_VALUE);
 
-        when(dockerConnector.createContainer(any(ContainerConfig.class), anyString()))
-                .thenReturn(new ContainerCreated("containerId", new String[0]));
         when(dockerNode.getProjectsFolder()).thenReturn("/tmp/projects");
 
         final boolean isDev = false;
@@ -844,8 +742,6 @@ public class DockerInstanceProviderTest {
                                                             Collections.emptySet(),
                                                             API_ENDPOINT_VALUE);
 
-        when(dockerConnector.createContainer(any(ContainerConfig.class), anyString()))
-                .thenReturn(new ContainerCreated("containerId", new String[0]));
         when(dockerNode.getProjectsFolder()).thenReturn("/tmp/projects");
 
         final boolean isDev = false;
@@ -880,8 +776,6 @@ public class DockerInstanceProviderTest {
                                                             commonVolumes,
                                                             API_ENDPOINT_VALUE);
 
-        when(dockerConnector.createContainer(any(ContainerConfig.class), anyString()))
-                .thenReturn(new ContainerCreated("containerId", new String[0]));
         when(dockerNode.getProjectsFolder()).thenReturn(expectedHostPathOfProjects);
 
         final boolean isDev = true;
@@ -918,8 +812,6 @@ public class DockerInstanceProviderTest {
                                                             commonVolumes,
                                                             API_ENDPOINT_VALUE);
 
-        when(dockerConnector.createContainer(any(ContainerConfig.class), anyString()))
-                .thenReturn(new ContainerCreated("containerId", new String[0]));
         when(dockerNode.getProjectsFolder()).thenReturn(expectedHostPathOfProjects);
 
         final boolean isDev = true;
@@ -954,8 +846,6 @@ public class DockerInstanceProviderTest {
                                                             commonVolumes,
                                                             API_ENDPOINT_VALUE);
 
-        when(dockerConnector.createContainer(any(ContainerConfig.class), anyString()))
-                .thenReturn(new ContainerCreated("containerId", new String[0]));
         when(dockerNode.getProjectsFolder()).thenReturn(expectedHostPathOfProjects);
 
         final boolean isDev = false;
@@ -990,8 +880,6 @@ public class DockerInstanceProviderTest {
                                                             commonVolumes,
                                                             API_ENDPOINT_VALUE);
 
-        when(dockerConnector.createContainer(any(ContainerConfig.class), anyString()))
-                .thenReturn(new ContainerCreated("containerId", new String[0]));
         when(dockerNode.getProjectsFolder()).thenReturn(expectedHostPathOfProjects);
 
         final boolean isDev = false;
@@ -1034,9 +922,14 @@ public class DockerInstanceProviderTest {
     }
 
     private void createInstanceFromRecipe() throws Exception {
-        createInstanceFromRecipe(false, 64, "machineId", "userId", "workspaceId", "Display Name", new RecipeImpl().withType("Dockerfile")
-                                                                                                                  .withScript(
-                                                                                                                          "FROM busybox"));
+        createInstanceFromRecipe(false,
+                                 64,
+                                 "machineId",
+                                 "userId",
+                                 "workspaceId",
+                                 "Display Name",
+                                 new RecipeImpl().withType("Dockerfile")
+                                                 .withScript("FROM busybox"));
     }
 
     private void createInstanceFromRecipe(boolean isDev) throws Exception {
@@ -1065,7 +958,8 @@ public class DockerInstanceProviderTest {
                                  userId == null ? "userId" : userId,
                                  workspaceId == null ? "workspaceId" : workspaceId,
                                  displayName == null ? "Display Name" : displayName,
-                                 recipe == null ? new RecipeImpl().withType("Dockerfile").withScript("FROM busybox") : recipe);
+                                 recipe == null ? new RecipeImpl().withType("Dockerfile")
+                                                                  .withScript("FROM busybox") : recipe);
     }
 
     private void createInstanceFromRecipe(boolean isDev,
