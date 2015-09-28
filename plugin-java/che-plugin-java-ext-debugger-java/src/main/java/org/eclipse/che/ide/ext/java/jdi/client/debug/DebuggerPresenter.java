@@ -1,4 +1,3 @@
-
 /*******************************************************************************
  * Copyright (c) 2012-2015 Codenvy, S.A.
  * All rights reserved. This program and the accompanying materials
@@ -415,13 +414,13 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
     }
 
     private void openFile(@NotNull Location location, @Nullable VirtualFile activeFile, final AsyncCallback<VirtualFile> callback) {
-        final String filePath = resolveFilePathByLocation(location, activeFile);
         CurrentProject currentProject = appContext.getCurrentProject();
 
         if (currentProject == null) {
             return;
         }
 
+        final String filePath = resolveFilePathByLocation(location, activeFile);
         projectExplorer.getNodeByPath(new HasStorablePath.StorablePath(filePath)).then(new Operation<Node>() {
             public HandlerRegistration handlerRegistration;
 
@@ -477,8 +476,7 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
                                           Notification notification = new Notification(exception.getMessage(), ERROR);
                                           notificationManager.showNotification(notification);
                                       }
-                                  }
-                                 );
+                                  });
     }
 
     @NotNull
@@ -505,6 +503,7 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
     @Override
     public void onResumeButtonClicked() {
         changeButtonsEnableState(false);
+        breakpointManager.unmarkCurrentBreakpoint();
         service.resume(debuggerInfo.getId(), new AsyncRequestCallback<Void>() {
             @Override
             protected void onSuccess(Void result) {
@@ -550,6 +549,7 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
     @Override
     public void onStepIntoButtonClicked() {
         if (!view.resetStepIntoButton(false)) return;
+        breakpointManager.unmarkCurrentBreakpoint();
         service.stepInto(debuggerInfo.getId(), new AsyncRequestCallback<Void>() {
             @Override
             protected void onSuccess(Void result) {
@@ -570,6 +570,7 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
     @Override
     public void onStepOverButtonClicked() {
         if (!view.resetStepOverButton(false)) return;
+        breakpointManager.unmarkCurrentBreakpoint();
         service.stepOver(debuggerInfo.getId(), new AsyncRequestCallback<Void>() {
             @Override
             protected void onSuccess(Void result) {
@@ -591,6 +592,7 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
     @Override
     public void onStepReturnButtonClicked() {
         if (!view.resetStepReturnButton(false)) return;
+        breakpointManager.unmarkCurrentBreakpoint();
         service.stepReturn(debuggerInfo.getId(), new AsyncRequestCallback<Void>() {
             @Override
             protected void onSuccess(Void result) {
@@ -676,9 +678,9 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
     private void resetStates() {
         variables.clear();
         view.setVariables(variables);
+        view.clearExecutionPoint();
         selectedVariable = null;
         updateChangeValueButtonEnableState();
-        breakpointManager.unmarkCurrentBreakpoint();
     }
 
     private void showDialog(@NotNull DebuggerInfo debuggerInfo) {
