@@ -59,8 +59,14 @@ public class RemotePresenterTest extends BaseTest {
     public void disarm() {
         super.disarm();
 
-        presenter = new RemotePresenter(view, service, appContext, constant, addRemoteRepositoryPresenter, notificationManager,
-                                        dtoUnmarshallerFactory);
+        presenter = new RemotePresenter(view,
+                                        service,
+                                        appContext,
+                                        constant,
+                                        addRemoteRepositoryPresenter,
+                                        notificationManager,
+                                        dtoUnmarshallerFactory,
+                                        console);
 
         when(selectedRemote.getName()).thenReturn(REPOSITORY_NAME);
     }
@@ -137,6 +143,7 @@ public class RemotePresenterTest extends BaseTest {
 
         verify(service).remoteList((ProjectDescriptor)anyObject(), anyString(), eq(SHOW_ALL_INFORMATION),
                                    (AsyncRequestCallback<List<Remote>>)anyObject());
+        verify(console, never()).printError(anyString());
         verify(notificationManager, never()).showNotification((Notification)anyObject());
     }
 
@@ -156,6 +163,7 @@ public class RemotePresenterTest extends BaseTest {
 
         verify(service, never()).remoteList((ProjectDescriptor)anyObject(), anyString(), eq(SHOW_ALL_INFORMATION),
                                             (AsyncRequestCallback<List<Remote>>)anyObject());
+        verify(console).printError(anyString());
         verify(notificationManager).showNotification((Notification)anyObject());
         verify(constant).remoteAddFailed();
     }
@@ -201,6 +209,7 @@ public class RemotePresenterTest extends BaseTest {
 
         verify(service).remoteDelete(eq(rootProjectDescriptor), eq(REPOSITORY_NAME), (AsyncRequestCallback<String>)anyObject());
         verify(constant).remoteDeleteFailed();
+        verify(console).printError(anyString());
         verify(notificationManager).showNotification((Notification)anyObject());
     }
 

@@ -245,6 +245,7 @@ public class PullPresenterTest extends BaseTest {
         verify(service).remoteList(eq(rootProjectDescriptor), anyString(), eq(SHOW_ALL_INFORMATION),
                                    (AsyncRequestCallback<List<Remote>>)anyObject());
         verify(constant).branchesListFailed();
+        verify(console).printError(anyString());
         verify(notificationManager).showError(anyString());
         verify(view).setEnablePullButton(eq(DISABLE_BUTTON));
     }
@@ -295,6 +296,7 @@ public class PullPresenterTest extends BaseTest {
         verify(view).close();
         verify(editorAgent).getOpenedEditors();
         verify(service).pull(eq(rootProjectDescriptor), anyString(), eq(REPOSITORY_NAME), (AsyncRequestCallback)anyObject());
+        verify(console).printInfo(anyString());
         verify(notificationManager).showNotification((Notification) anyObject());
         verify(appContext).getCurrentProject();
         verify(eventBus, times(1)).fireEvent(Matchers.<Event<GwtEvent>>anyObject());
@@ -322,6 +324,7 @@ public class PullPresenterTest extends BaseTest {
 
         verify(service).pull(eq(rootProjectDescriptor), anyString(), eq(REPOSITORY_NAME), (AsyncRequestCallback<PullResponse>)anyObject());
         verify(view).close();
+        verify(console).printError(anyString());
         verify(notificationManager).showNotification((Notification) anyObject());
     }
 
@@ -346,6 +349,7 @@ public class PullPresenterTest extends BaseTest {
 
         verify(view).close();
         verify(service).pull(eq(rootProjectDescriptor), anyString(), eq(REPOSITORY_NAME), (AsyncRequestCallback)anyObject());
+        verify(console).printError(anyString());
         verify(notificationManager).showNotification((Notification)anyObject());
         verify(appContext).getCurrentProject();
         verify(eventBus, times(1)).fireEvent(Matchers.<Event<GwtEvent>>anyObject());
@@ -371,6 +375,7 @@ public class PullPresenterTest extends BaseTest {
         presenter.onPullClicked();
 
         verify(view).close();
+        verify(console).printInfo(anyString());
         verify(notificationManager).showNotification((Notification) anyObject());
         //check Refresh project is not called
         verify(eventBus, never()).fireEvent(Matchers.<Event<GwtEvent>>anyObject());

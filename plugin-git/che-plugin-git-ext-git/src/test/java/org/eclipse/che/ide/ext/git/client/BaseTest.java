@@ -67,7 +67,7 @@ public abstract class BaseTest {
     @Mock
     protected GitLocalizationConstant  constant;
     @Mock
-    protected ConsolePart              console;
+    protected GitOutputPartPresenter   console;
     @Mock
     protected GitResources             resources;
     @Mock

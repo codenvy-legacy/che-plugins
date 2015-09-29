@@ -59,6 +59,7 @@ public class BranchPresenter implements BranchView.ActionDelegate {
     private       DialogFactory            dialogFactory;
     private final ProjectExplorerPresenter projectExplorer;
     private final EventBus                 eventBus;
+    private final GitOutputPartPresenter   console;
     private       CurrentProject           project;
     private       GitServiceClient         service;
     private       GitLocalizationConstant  constant;
@@ -74,6 +75,7 @@ public class BranchPresenter implements BranchView.ActionDelegate {
                            EditorAgent editorAgent,
                            GitServiceClient service,
                            GitLocalizationConstant constant,
+                           GitOutputPartPresenter console,
                            AppContext appContext,
                            NotificationManager notificationManager,
                            DtoUnmarshallerFactory dtoUnmarshallerFactory,
@@ -92,6 +94,7 @@ public class BranchPresenter implements BranchView.ActionDelegate {
         this.view.setDelegate(this);
         this.editorAgent = editorAgent;
         this.service = service;
+        this.console = console;
         this.constant = constant;
         this.appContext = appContext;
         this.notificationManager = notificationManager;
@@ -160,6 +163,7 @@ public class BranchPresenter implements BranchView.ActionDelegate {
             protected void onFailure(Throwable exception) {
                 String errorMessage =
                         (exception.getMessage() != null) ? exception.getMessage() : constant.branchRenameFailed();
+                console.printError(errorMessage);
                 notificationManager.showError(errorMessage);
                 getBranches();//rename of remote branch occurs in three stages, so needs update list of branches on view
             }
@@ -268,6 +272,7 @@ public class BranchPresenter implements BranchView.ActionDelegate {
                                protected void onFailure(Throwable exception) {
                                    final String errorMessage =
                                            (exception.getMessage() != null) ? exception.getMessage() : constant.branchesListFailed();
+                                   console.printError(errorMessage);
                                    notificationManager.showError(errorMessage);
                                }
                            }
@@ -293,6 +298,7 @@ public class BranchPresenter implements BranchView.ActionDelegate {
                                                  final String errorMessage = (exception.getMessage() != null)
                                                                              ? exception.getMessage()
                                                                              : constant.branchCreateFailed();
+                                                 console.printError(errorMessage);
                                                  notificationManager.showError(errorMessage);
                                              }
                                          }
@@ -323,6 +329,7 @@ public class BranchPresenter implements BranchView.ActionDelegate {
     void handleError(@NotNull Throwable throwable) {
         String errorMessage = throwable.getMessage();
         if (errorMessage == null) {
+            console.printError(constant.branchDeleteFailed());
             notificationManager.showError(constant.branchDeleteFailed());
             return;
         }
@@ -330,11 +337,14 @@ public class BranchPresenter implements BranchView.ActionDelegate {
         try {
             errorMessage = dtoFactory.createDtoFromJson(errorMessage, ServiceError.class).getMessage();
             if (errorMessage.equals("Unable get private ssh key")) {
+                console.printError(constant.messagesUnableGetSshKey());
                 notificationManager.showError(constant.messagesUnableGetSshKey());
                 return;
             }
+            console.printError(errorMessage);
             notificationManager.showError(errorMessage);
         } catch (Exception e) {
+            console.printError(errorMessage);
             notificationManager.showError(errorMessage);
         }
     }

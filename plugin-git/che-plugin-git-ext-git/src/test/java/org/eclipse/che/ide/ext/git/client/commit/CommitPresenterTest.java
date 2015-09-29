@@ -122,6 +122,7 @@ public class CommitPresenterTest extends BaseTest {
 
         verify(service).commit(eq(rootProjectDescriptor), eq(COMMIT_TEXT), eq(ALL_FILE_INCLUDES), eq(IS_OVERWRITTEN),
                                (AsyncRequestCallback<Revision>)anyObject());
+        verify(console).printInfo(anyString());
         verify(notificationManager).showNotification((Notification)anyObject());
     }
 
@@ -154,6 +155,7 @@ public class CommitPresenterTest extends BaseTest {
         verify(service).commit(eq(rootProjectDescriptor), eq(COMMIT_TEXT), eq(ALL_FILE_INCLUDES), eq(IS_OVERWRITTEN),
                                (AsyncRequestCallback<Revision>)anyObject());
         verify(constant).commitFailed();
+        verify(console).printError(anyString());
         verify(notificationManager).showNotification((Notification)anyObject());
     }
 

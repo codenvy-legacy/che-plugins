@@ -22,6 +22,7 @@ import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.dto.DtoFactory;
+import org.eclipse.che.ide.ext.git.client.GitOutputPartPresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
@@ -45,6 +46,7 @@ import static org.eclipse.che.ide.api.notification.Notification.Type.INFO;
  */
 @Singleton
 public class ResetFilesPresenter implements ResetFilesView.ActionDelegate {
+    private final GitOutputPartPresenter console;
     private final DtoFactory              dtoFactory;
     private final DtoUnmarshallerFactory  dtoUnmarshallerFactory;
     private       DialogFactory           dialogFactory;
@@ -58,10 +60,17 @@ public class ResetFilesPresenter implements ResetFilesView.ActionDelegate {
 
     /** Create presenter. */
     @Inject
-    public ResetFilesPresenter(ResetFilesView view, GitServiceClient service, AppContext appContext,
-                               GitLocalizationConstant constant, NotificationManager notificationManager,
-                               DtoFactory dtoFactory, DtoUnmarshallerFactory dtoUnmarshallerFactory, DialogFactory dialogFactory) {
+    public ResetFilesPresenter(ResetFilesView view,
+                               GitServiceClient service,
+                               AppContext appContext,
+                               GitOutputPartPresenter console,
+                               GitLocalizationConstant constant,
+                               NotificationManager notificationManager,
+                               DtoFactory dtoFactory,
+                               DtoUnmarshallerFactory dtoUnmarshallerFactory,
+                               DialogFactory dialogFactory) {
         this.view = view;
+        this.console = console;
         this.dtoFactory = dtoFactory;
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
         this.dialogFactory = dialogFactory;
@@ -112,6 +121,7 @@ public class ResetFilesPresenter implements ResetFilesView.ActionDelegate {
                            @Override
                            protected void onFailure(Throwable exception) {
                                String errorMassage = exception.getMessage() != null ? exception.getMessage() : constant.statusFailed();
+                               console.printError(errorMassage);
                                Notification notification = new Notification(errorMassage, ERROR);
                                notificationManager.showNotification(notification);
                            }
@@ -130,6 +140,7 @@ public class ResetFilesPresenter implements ResetFilesView.ActionDelegate {
 
         if (files.isEmpty()) {
             view.close();
+            console.printInfo(constant.nothingToReset());
             Notification notification = new Notification(constant.nothingToReset(), INFO);
             notificationManager.showNotification(notification);
             return;
@@ -139,6 +150,7 @@ public class ResetFilesPresenter implements ResetFilesView.ActionDelegate {
         service.reset(project.getRootProject(), "HEAD", ResetType.MIXED, files, new AsyncRequestCallback<Void>() {
             @Override
             protected void onSuccess(Void result) {
+                console.printInfo(constant.resetFilesSuccessfully());
                 Notification notification = new Notification(constant.resetFilesSuccessfully(), INFO);
                 notificationManager.showNotification(notification);
             }
@@ -146,6 +158,7 @@ public class ResetFilesPresenter implements ResetFilesView.ActionDelegate {
             @Override
             protected void onFailure(Throwable exception) {
                 String errorMassage = exception.getMessage() != null ? exception.getMessage() : constant.resetFilesFailed();
+                console.printError(errorMassage);
                 Notification notification = new Notification(errorMassage, ERROR);
                 notificationManager.showNotification(notification);
             }

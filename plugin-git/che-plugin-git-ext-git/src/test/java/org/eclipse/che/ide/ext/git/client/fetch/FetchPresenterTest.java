@@ -163,6 +163,7 @@ public class FetchPresenterTest extends BaseTest {
         verify(service).remoteList(eq(rootProjectDescriptor), anyString(), eq(SHOW_ALL_INFORMATION),
                                    (AsyncRequestCallback<List<Remote>>)anyObject());
         verify(constant).branchesListFailed();
+        verify(console).printError(anyString());
         verify(notificationManager).showError(anyString());
         verify(view).setEnableFetchButton(eq(DISABLE_BUTTON));
     }
@@ -215,8 +216,9 @@ public class FetchPresenterTest extends BaseTest {
         verify(service).fetch(eq(rootProjectDescriptor), eq(REPOSITORY_NAME), (List<String>)anyObject(),
                               eq(NO_REMOVE_DELETE_REFS), (RequestCallback<String>)anyObject());
         verify(view).close();
+        verify(console).printInfo(anyString());
         verify(notificationManager).showNotification((Notification) anyObject());
-        verify(constant).fetchSuccess(eq(REMOTE_URI));
+        verify(constant, times(2)).fetchSuccess(eq(REMOTE_URI));
     }
 
     @Test
@@ -244,7 +246,8 @@ public class FetchPresenterTest extends BaseTest {
         verify(service).fetch(eq(rootProjectDescriptor), eq(REPOSITORY_NAME), (List<String>)anyObject(),
                               eq(NO_REMOVE_DELETE_REFS), (RequestCallback<String>)anyObject());
         verify(view).close();
-        verify(constant).fetchFail(eq(REMOTE_URI));
+        verify(constant, times(2)).fetchFail(eq(REMOTE_URI));
+        verify(console).printError(anyString());
         verify(notificationManager).showNotification((Notification) anyObject());
     }
 

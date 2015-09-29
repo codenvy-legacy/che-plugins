@@ -95,6 +95,7 @@ public class ResetToCommitPresenterTest extends BaseTest {
         presenter = new ResetToCommitPresenter(view,
                                                service,
                                                constant,
+                                               console,
                                                editorAgent,
                                                appContext,
                                                notificationManager,
@@ -155,6 +156,7 @@ public class ResetToCommitPresenterTest extends BaseTest {
         verify(appContext).getCurrentProject();
         verify(service).log(eq(rootProjectDescriptor), eq(!IS_TEXT_FORMATTED), Matchers.<AsyncRequestCallback<LogResponse>>anyObject());
         verify(constant).logFailed();
+        verify(console).printError(anyString());
         verify(notificationManager).showNotification(any(Notification.class));
     }
 
@@ -190,6 +192,7 @@ public class ResetToCommitPresenterTest extends BaseTest {
                               eq(HARD),
                               Matchers.<List<String>>anyObject(),
                               Matchers.<AsyncRequestCallback<Void>>anyObject());
+        verify(console).printInfo(anyString());
         verify(notificationManager).showNotification(any(Notification.class));
         verify(projectServiceClient).getProject(eq(PROJECT_PATH), argumentCaptor.capture());
         GwtReflectionUtils.callOnSuccess(argumentCaptor.getValue(), projectDescriptor);
@@ -232,6 +235,7 @@ public class ResetToCommitPresenterTest extends BaseTest {
                               eq(HARD),
                               Matchers.<List<String>>anyObject(),
                               Matchers.<AsyncRequestCallback<Void>>anyObject());
+        verify(console).printInfo(anyString());
         verify(notificationManager).showNotification(any(Notification.class));
     }
 
@@ -260,6 +264,7 @@ public class ResetToCommitPresenterTest extends BaseTest {
                               eq(MIXED),
                               Matchers.<List<String>>anyObject(),
                               Matchers.<AsyncRequestCallback<Void>>anyObject());
+        verify(console).printError(anyString());
         verify(notificationManager).showNotification(any(Notification.class));
         verify(eventBus, never()).fireEvent((Event<?>)anyObject());
     }

@@ -26,6 +26,7 @@ import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.project.tree.VirtualFile;
 import org.eclipse.che.ide.ext.git.client.GitLocalizationConstant;
+import org.eclipse.che.ide.ext.git.client.GitOutputPartPresenter;
 import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
@@ -53,6 +54,7 @@ public class MergePresenter implements MergeView.ActionDelegate {
     public static final String REMOTE_BRANCHES_TITLE = "Remote Branches";
     private final DtoUnmarshallerFactory   dtoUnmarshallerFactory;
     private       MergeView                view;
+    private final GitOutputPartPresenter   console;
     private final ProjectExplorerPresenter projectExplorer;
     private       GitServiceClient         service;
     private       EventBus                 eventBus;
@@ -77,12 +79,14 @@ public class MergePresenter implements MergeView.ActionDelegate {
                           EventBus eventBus,
                           EditorAgent editorAgent,
                           GitServiceClient service,
+                          GitOutputPartPresenter console,
                           GitLocalizationConstant constant,
                           AppContext appContext,
                           NotificationManager notificationManager,
                           DtoUnmarshallerFactory dtoUnmarshallerFactory,
                           ProjectExplorerPresenter projectExplorer) {
         this.view = view;
+        this.console = console;
         this.projectExplorer = projectExplorer;
         this.view.setDelegate(this);
         this.service = service;
@@ -116,6 +120,7 @@ public class MergePresenter implements MergeView.ActionDelegate {
 
                                @Override
                                protected void onFailure(Throwable exception) {
+                                   console.printError(exception.getMessage());
                                    Notification notification = new Notification(exception.getMessage(), ERROR);
                                    notificationManager.showNotification(notification);
                                }
@@ -138,6 +143,7 @@ public class MergePresenter implements MergeView.ActionDelegate {
 
                                @Override
                                protected void onFailure(Throwable exception) {
+                                   console.printError(exception.getMessage());
                                    Notification notification = new Notification(exception.getMessage(), ERROR);
                                    notificationManager.showNotification(notification);
                                }
@@ -165,6 +171,7 @@ public class MergePresenter implements MergeView.ActionDelegate {
                       new AsyncRequestCallback<MergeResult>(dtoUnmarshallerFactory.newUnmarshaller(MergeResult.class)) {
                           @Override
                           protected void onSuccess(final MergeResult result) {
+                              console.printInfo(formMergeMessage(result));
                               Notification notification = new Notification(formMergeMessage(result), INFO);
                               notificationManager.showNotification(notification);
                               refreshProject(openedEditors);
@@ -172,6 +179,7 @@ public class MergePresenter implements MergeView.ActionDelegate {
 
                           @Override
                           protected void onFailure(Throwable exception) {
+                              console.printError(exception.getMessage());
                               Notification notification = new Notification(exception.getMessage(), ERROR);
                               notificationManager.showNotification(notification);
                           }

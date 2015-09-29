@@ -17,6 +17,7 @@ import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.api.notification.NotificationManager;
+import org.eclipse.che.ide.ext.git.client.GitOutputPartPresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.rest.StringUnmarshaller;
@@ -37,6 +38,7 @@ import static org.eclipse.che.ide.api.notification.Notification.Type.ERROR;
 @Singleton
 public class ShowProjectGitReadOnlyUrlPresenter implements ShowProjectGitReadOnlyUrlView.ActionDelegate {
     private final DtoUnmarshallerFactory        dtoUnmarshallerFactory;
+    private final GitOutputPartPresenter        console;
     private       ShowProjectGitReadOnlyUrlView view;
     private       GitServiceClient              service;
     private       AppContext                    appContext;
@@ -53,10 +55,15 @@ public class ShowProjectGitReadOnlyUrlPresenter implements ShowProjectGitReadOnl
      * @param notificationManager
      */
     @Inject
-    public ShowProjectGitReadOnlyUrlPresenter(ShowProjectGitReadOnlyUrlView view, GitServiceClient service,
-                                              AppContext appContext, GitLocalizationConstant constant,
-                                              NotificationManager notificationManager, DtoUnmarshallerFactory dtoUnmarshallerFactory) {
+    public ShowProjectGitReadOnlyUrlPresenter(ShowProjectGitReadOnlyUrlView view,
+                                              GitServiceClient service,
+                                              AppContext appContext,
+                                              GitLocalizationConstant constant,
+                                              GitOutputPartPresenter console,
+                                              NotificationManager notificationManager,
+                                              DtoUnmarshallerFactory dtoUnmarshallerFactory) {
         this.view = view;
+        this.console = console;
         this.view.setDelegate(this);
         this.service = service;
         this.appContext = appContext;
@@ -82,6 +89,7 @@ public class ShowProjectGitReadOnlyUrlPresenter implements ShowProjectGitReadOnl
                                    String errorMessage =
                                            exception.getMessage() != null ? exception.getMessage()
                                                                           : constant.remoteListFailed();
+                                   console.printError(errorMessage);
                                    Notification notification = new Notification(errorMessage, ERROR);
                                    notificationManager.showNotification(notification);
                                }
@@ -98,6 +106,7 @@ public class ShowProjectGitReadOnlyUrlPresenter implements ShowProjectGitReadOnl
                                       protected void onFailure(Throwable exception) {
                                           String errorMessage = exception.getMessage() != null && !exception.getMessage().isEmpty()
                                                                 ? exception.getMessage() : constant.initFailed();
+                                          console.printError(errorMessage);
                                           Notification notification = new Notification(errorMessage, ERROR);
                                           notificationManager.showNotification(notification);
                                       }

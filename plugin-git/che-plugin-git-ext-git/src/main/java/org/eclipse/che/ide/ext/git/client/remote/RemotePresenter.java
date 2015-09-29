@@ -17,6 +17,7 @@ import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.api.notification.NotificationManager;
+import org.eclipse.che.ide.ext.git.client.GitOutputPartPresenter;
 import org.eclipse.che.ide.ext.git.client.remote.add.AddRemoteRepositoryPresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
@@ -39,6 +40,7 @@ import static org.eclipse.che.ide.api.notification.Notification.Type.ERROR;
 @Singleton
 public class RemotePresenter implements RemoteView.ActionDelegate {
     private final DtoUnmarshallerFactory dtoUnmarshallerFactory;
+    private final GitOutputPartPresenter console;
 
     private RemoteView                   view;
     private GitServiceClient             service;
@@ -50,11 +52,17 @@ public class RemotePresenter implements RemoteView.ActionDelegate {
     private ProjectDescriptor            project;
 
     @Inject
-    public RemotePresenter(RemoteView view, GitServiceClient service, AppContext appContext, GitLocalizationConstant constant,
-                           AddRemoteRepositoryPresenter addRemoteRepositoryPresenter, NotificationManager notificationManager,
-                           DtoUnmarshallerFactory dtoUnmarshallerFactory) {
+    public RemotePresenter(RemoteView view,
+                           GitServiceClient service,
+                           AppContext appContext,
+                           GitLocalizationConstant constant,
+                           AddRemoteRepositoryPresenter addRemoteRepositoryPresenter,
+                           NotificationManager notificationManager,
+                           DtoUnmarshallerFactory dtoUnmarshallerFactory,
+                           GitOutputPartPresenter console) {
         this.view = view;
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
+        this.console = console;
         this.view.setDelegate(this);
         this.service = service;
         this.appContext = appContext;
@@ -118,6 +126,7 @@ public class RemotePresenter implements RemoteView.ActionDelegate {
             @Override
             public void onFailure(Throwable caught) {
                 String errorMessage = caught.getMessage() != null ? caught.getMessage() : constant.remoteAddFailed();
+                console.printError(errorMessage);
                 Notification notification = new Notification(errorMessage, ERROR);
                 notificationManager.showNotification(notification);
             }
@@ -144,6 +153,7 @@ public class RemotePresenter implements RemoteView.ActionDelegate {
             @Override
             protected void onFailure(Throwable exception) {
                 String errorMessage = exception.getMessage() != null ? exception.getMessage() : constant.remoteDeleteFailed();
+                console.printError(errorMessage);
                 Notification notification = new Notification(errorMessage, ERROR);
                 notificationManager.showNotification(notification);
             }
@@ -160,6 +170,7 @@ public class RemotePresenter implements RemoteView.ActionDelegate {
     }
 
     private void handleError(@NotNull String errorMessage) {
+        console.printError(errorMessage);
         Notification notification = new Notification(errorMessage, ERROR);
         notificationManager.showNotification(notification);
     }

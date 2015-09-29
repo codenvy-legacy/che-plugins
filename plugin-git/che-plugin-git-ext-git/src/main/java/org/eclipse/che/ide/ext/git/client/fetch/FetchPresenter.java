@@ -21,6 +21,7 @@ import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.ext.git.client.BranchSearcher;
+import org.eclipse.che.ide.ext.git.client.GitOutputPartPresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.websocket.WebSocketException;
@@ -48,6 +49,7 @@ import static org.eclipse.che.ide.api.notification.Notification.Type.ERROR;
 @Singleton
 public class FetchPresenter implements FetchView.ActionDelegate {
     private final DtoFactory              dtoFactory;
+    private final GitOutputPartPresenter  console;
     private final DtoUnmarshallerFactory  dtoUnmarshallerFactory;
     private final NotificationManager     notificationManager;
     private final BranchSearcher          branchSearcher;
@@ -60,6 +62,7 @@ public class FetchPresenter implements FetchView.ActionDelegate {
     @Inject
     public FetchPresenter(DtoFactory dtoFactory,
                           FetchView view,
+                          GitOutputPartPresenter console,
                           GitServiceClient service,
                           AppContext appContext,
                           GitLocalizationConstant constant,
@@ -68,6 +71,7 @@ public class FetchPresenter implements FetchView.ActionDelegate {
                           BranchSearcher branchSearcher) {
         this.dtoFactory = dtoFactory;
         this.view = view;
+        this.console = console;
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
         this.branchSearcher = branchSearcher;
         this.view.setDelegate(this);
@@ -111,6 +115,7 @@ public class FetchPresenter implements FetchView.ActionDelegate {
     }
 
     private void handleError(@NotNull String errorMessage) {
+        console.printError(errorMessage);
         notificationManager.showError(errorMessage);
     }
 
@@ -142,6 +147,7 @@ public class FetchPresenter implements FetchView.ActionDelegate {
                                protected void onFailure(Throwable exception) {
                                    String errorMessage =
                                            exception.getMessage() != null ? exception.getMessage() : constant.branchesListFailed();
+                                   console.printError(errorMessage);
                                    notificationManager.showError(errorMessage);
                                    view.setEnableFetchButton(false);
                                }
@@ -162,6 +168,7 @@ public class FetchPresenter implements FetchView.ActionDelegate {
                           new RequestCallback<String>() {
                               @Override
                               protected void onSuccess(String result) {
+                                  console.printInfo(constant.fetchSuccess(remoteUrl));
                                   notification.setStatus(FINISHED);
                                   notification.setMessage(constant.fetchSuccess(remoteUrl));
                               }
@@ -203,6 +210,7 @@ public class FetchPresenter implements FetchView.ActionDelegate {
         String errorMessage = throwable.getMessage();
         notification.setType(ERROR);
         if (errorMessage == null) {
+            console.printError(constant.fetchFail(remoteUrl));
             notification.setMessage(constant.fetchFail(remoteUrl));
             return;
         }
@@ -210,11 +218,14 @@ public class FetchPresenter implements FetchView.ActionDelegate {
         try {
             errorMessage = dtoFactory.createDtoFromJson(errorMessage, ServiceError.class).getMessage();
             if (errorMessage.equals("Unable get private ssh key")) {
+                console.printError(constant.messagesUnableGetSshKey());
                 notification.setMessage(constant.messagesUnableGetSshKey());
                 return;
             }
+            console.printError(errorMessage);
             notification.setMessage(errorMessage);
         } catch (Exception e) {
+            console.printError(errorMessage);
             notification.setMessage(errorMessage);
         }
     }

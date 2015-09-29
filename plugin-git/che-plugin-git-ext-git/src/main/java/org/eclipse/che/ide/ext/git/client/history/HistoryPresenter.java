@@ -34,6 +34,7 @@ import org.eclipse.che.ide.api.selection.Selection;
 import org.eclipse.che.ide.api.selection.SelectionAgent;
 import org.eclipse.che.ide.ext.git.client.DateTimeFormatter;
 import org.eclipse.che.ide.ext.git.client.GitLocalizationConstant;
+import org.eclipse.che.ide.ext.git.client.GitOutputPartPresenter;
 import org.eclipse.che.ide.ext.git.client.GitResources;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
@@ -65,6 +66,7 @@ public class HistoryPresenter extends BasePresenter implements HistoryView.Actio
     private final GitResources            resources;
     private final AppContext              appContext;
     private final WorkspaceAgent          workspaceAgent;
+    private final GitOutputPartPresenter  console;
     private final DateTimeFormatter       dateTimeFormatter;
     /** If <code>true</code> then show all changes in project, if <code>false</code> then show changes of the selected resource. */
     private       boolean                 showChangesInProject;
@@ -82,12 +84,14 @@ public class HistoryPresenter extends BasePresenter implements HistoryView.Actio
                             GitServiceClient service,
                             final WorkspaceAgent workspaceAgent,
                             GitLocalizationConstant constant,
+                            GitOutputPartPresenter console,
                             AppContext appContext,
                             NotificationManager notificationManager,
                             DtoUnmarshallerFactory dtoUnmarshallerFactory,
                             DateTimeFormatter dateTimeFormatter,
                             SelectionAgent selectionAgent) {
         this.view = view;
+        this.console = console;
         this.dateTimeFormatter = dateTimeFormatter;
         this.view.setDelegate(this);
         this.view.setTitle(constant.historyTitle());
@@ -166,6 +170,7 @@ public class HistoryPresenter extends BasePresenter implements HistoryView.Actio
                         protected void onFailure(Throwable exception) {
                             nothingToDisplay(null);
                             String errorMessage = exception.getMessage() != null ? exception.getMessage() : constant.logFailed();
+                            console.printError(errorMessage);
                             Notification notification = new Notification(errorMessage, ERROR);
                             notificationManager.showNotification(notification);
                         }
@@ -361,6 +366,7 @@ public class HistoryPresenter extends BasePresenter implements HistoryView.Actio
                          protected void onFailure(Throwable exception) {
                              nothingToDisplay(revision);
                              String errorMessage = exception.getMessage() != null ? exception.getMessage() : constant.diffFailed();
+                             console.printError(errorMessage);
                              Notification notification = new Notification(errorMessage, ERROR);
                              notificationManager.showNotification(notification);
                          }
@@ -399,6 +405,7 @@ public class HistoryPresenter extends BasePresenter implements HistoryView.Actio
                              protected void onFailure(Throwable exception) {
                                  nothingToDisplay(revisionB);
                                  String errorMessage = exception.getMessage() != null ? exception.getMessage() : constant.diffFailed();
+                                 console.printError(errorMessage);
                                  Notification notification = new Notification(errorMessage, ERROR);
                                  notificationManager.showNotification(notification);
                              }

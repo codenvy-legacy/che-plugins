@@ -24,6 +24,7 @@ import org.eclipse.che.ide.api.selection.Selection;
 import org.eclipse.che.ide.api.selection.SelectionAgent;
 import org.eclipse.che.ide.ext.git.client.DateTimeFormatter;
 import org.eclipse.che.ide.ext.git.client.GitLocalizationConstant;
+import org.eclipse.che.ide.ext.git.client.GitOutputPartPresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.rest.Unmarshallable;
@@ -45,6 +46,7 @@ import static org.eclipse.che.ide.api.notification.Notification.Type.INFO;
  */
 @Singleton
 public class CommitPresenter implements CommitView.ActionDelegate {
+    private final GitOutputPartPresenter  console;
     private final DtoUnmarshallerFactory  dtoUnmarshallerFactory;
     private final AppContext              appContext;
     private final CommitView              view;
@@ -58,12 +60,14 @@ public class CommitPresenter implements CommitView.ActionDelegate {
     public CommitPresenter(CommitView view,
                            GitServiceClient service,
                            GitLocalizationConstant constant,
+                           GitOutputPartPresenter console,
                            NotificationManager notificationManager,
                            DtoUnmarshallerFactory dtoUnmarshallerFactory,
                            AppContext appContext,
                            DateTimeFormatter dateTimeFormatter,
                            final SelectionAgent selectionAgent) {
         this.view = view;
+        this.console = console;
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
         this.appContext = appContext;
         this.dateTimeFormatter = dateTimeFormatter;
@@ -155,6 +159,7 @@ public class CommitPresenter implements CommitView.ActionDelegate {
                                    if (!result.isFake()) {
                                        onCommitSuccess(result);
                                    } else {
+                                       console.printError(result.getMessage());
                                        final Notification notification = new Notification(result.getMessage(), ERROR);
                                        notificationManager.showNotification(notification);
                                    }
@@ -178,6 +183,7 @@ public class CommitPresenter implements CommitView.ActionDelegate {
                                if (!result.isFake()) {
                                    onCommitSuccess(result);
                                } else {
+                                   console.printError(result.getMessage());
                                    final Notification notification = new Notification(result.getMessage(), ERROR);
                                    notificationManager.showNotification(notification);
                                }
@@ -221,6 +227,7 @@ public class CommitPresenter implements CommitView.ActionDelegate {
             message += " " + constant.commitUser(revision.getCommitter().getName());
         }
 
+        console.printInfo(message);
         Notification notification = new Notification(message, INFO);
         notificationManager.showNotification(notification);
         view.setMessage("");
@@ -234,6 +241,7 @@ public class CommitPresenter implements CommitView.ActionDelegate {
      */
     private void handleError(@NotNull Throwable e) {
         String errorMessage = (e.getMessage() != null && !e.getMessage().isEmpty()) ? e.getMessage() : constant.commitFailed();
+        console.printError(errorMessage);
         Notification notification = new Notification(errorMessage, ERROR);
         notificationManager.showNotification(notification);
     }

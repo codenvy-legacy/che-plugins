@@ -36,6 +36,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -52,7 +53,14 @@ public class ResetFilesPresenterTest extends BaseTest {
     @Override
     public void disarm() {
         super.disarm();
-        presenter = new ResetFilesPresenter(view, service, appContext, constant, notificationManager, dtoFactory, dtoUnmarshallerFactory,
+        presenter = new ResetFilesPresenter(view,
+                                            service,
+                                            appContext,
+                                            console,
+                                            constant,
+                                            notificationManager,
+                                            dtoFactory,
+                                            dtoUnmarshallerFactory,
                                             dialogFactory);
         when(dtoFactory.createDto(IndexFile.class)).thenReturn(mock(IndexFile.class));
     }
@@ -136,6 +144,7 @@ public class ResetFilesPresenterTest extends BaseTest {
 
         verify(appContext).getCurrentProject();
         verify(service).status(eq(rootProjectDescriptor), (AsyncRequestCallback<Status>)anyObject());
+        verify(console).printError(anyString());
         verify(notificationManager).showNotification((Notification)anyObject());
         verify(constant).statusFailed();
     }
@@ -173,8 +182,9 @@ public class ResetFilesPresenterTest extends BaseTest {
         verify(view).close();
         verify(service, never()).reset(eq(projectDescriptor), anyString(), (ResetRequest.ResetType)anyObject(), (List<String>)anyObject(),
                                        (AsyncRequestCallback<Void>)anyObject());
+        verify(console).printInfo(anyString());
         verify(notificationManager).showNotification((Notification)anyObject());
-        verify(constant).nothingToReset();
+        verify(constant, times(2)).nothingToReset();
     }
 
     @Test
@@ -215,7 +225,8 @@ public class ResetFilesPresenterTest extends BaseTest {
         verify(service).reset(eq(rootProjectDescriptor), anyString(), (ResetRequest.ResetType)anyObject(), (List<String>)anyObject(),
                               (AsyncRequestCallback<Void>)anyObject());
         verify(notificationManager).showNotification((Notification)anyObject());
-        verify(constant).resetFilesSuccessfully();
+        verify(console).printInfo(anyString());
+        verify(constant, times(2)).resetFilesSuccessfully();
     }
 
     @Test
@@ -255,6 +266,7 @@ public class ResetFilesPresenterTest extends BaseTest {
         verify(service).reset(eq(rootProjectDescriptor), anyString(), (ResetRequest.ResetType)anyObject(), (List<String>)anyObject(),
                               (AsyncRequestCallback<Void>)anyObject());
         verify(constant).resetFilesFailed();
+        verify(console).printError(anyString());
         verify(notificationManager).showNotification((Notification)anyObject());
     }
 

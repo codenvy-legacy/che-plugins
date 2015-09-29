@@ -231,6 +231,7 @@ public class CheckoutReferenceTest extends BaseTest {
         verifyNoMoreInteractions(branchCheckoutRequest);
         verify(view).close();
         verify(eventBus, never()).fireEvent(Matchers.<OpenProjectEvent>anyObject());
+        verify(console).printError(anyString());
         verify(notificationManager).showError(anyString());
     }
 }

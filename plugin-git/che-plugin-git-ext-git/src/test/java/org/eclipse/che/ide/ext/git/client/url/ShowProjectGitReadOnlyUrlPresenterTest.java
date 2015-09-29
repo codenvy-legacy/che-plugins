@@ -55,8 +55,13 @@ public class ShowProjectGitReadOnlyUrlPresenterTest extends BaseTest {
     public void disarm() {
         super.disarm();
 
-        presenter = new ShowProjectGitReadOnlyUrlPresenter(view, service, appContext, constant,
-                                                           notificationManager, dtoUnmarshallerFactory);
+        presenter = new ShowProjectGitReadOnlyUrlPresenter(view,
+                                                           service,
+                                                           appContext,
+                                                           constant,
+                                                           console,
+                                                           notificationManager,
+                                                           dtoUnmarshallerFactory);
     }
 
     @Test
@@ -85,6 +90,7 @@ public class ShowProjectGitReadOnlyUrlPresenterTest extends BaseTest {
         verify(appContext).getCurrentProject();
         verify(service).getGitReadOnlyUrl(eq(rootProjectDescriptor), (AsyncRequestCallback<String>)anyObject());
         verify(notificationManager).showNotification((Notification)anyObject());
+        verify(console).printError(anyString());
         verify(constant).initFailed();
     }
 
@@ -120,6 +126,7 @@ public class ShowProjectGitReadOnlyUrlPresenterTest extends BaseTest {
         verify(appContext).getCurrentProject();
         verify(service).remoteList(eq(rootProjectDescriptor), anyString(), eq(true), (AsyncRequestCallback<List<Remote>>)anyObject());
         verify(view).setRemotes(null);
+        verify(console).printError(anyString());
         verify(notificationManager).showNotification((Notification)anyObject());
     }
 

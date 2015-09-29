@@ -55,7 +55,12 @@ public class DeleteRepositoryPresenterTest extends BaseTest {
         when(css.glassVisible()).thenReturn("sdgsdf");
         when(css.contentVisible()).thenReturn("sdgsdf");
         when(css.animationDuration()).thenReturn(1);
-        presenter = new DeleteRepositoryPresenter(service, constant, appContext, notificationManager, projectExplorer);
+        presenter = new DeleteRepositoryPresenter(service,
+                                                  constant,
+                                                  console,
+                                                  appContext,
+                                                  notificationManager,
+                                                  projectExplorer);
     }
 
     @Test
@@ -79,6 +84,7 @@ public class DeleteRepositoryPresenterTest extends BaseTest {
 
         verify(appContext).getCurrentProject();
         verify(service).deleteRepository(eq(rootProjectDescriptor), (AsyncRequestCallback<Void>)anyObject());
+        verify(console).printInfo(anyString());
         verify(notificationManager).showInfo(eq(constant.deleteGitRepositorySuccess()));
         verify(rootProjectDescriptor).getAttributes();
         verify(attributes).get(anyString());
@@ -102,6 +108,7 @@ public class DeleteRepositoryPresenterTest extends BaseTest {
 
         verify(appContext).getCurrentProject();
         verify(service).deleteRepository(eq(rootProjectDescriptor), (AsyncRequestCallback<Void>)anyObject());
+        verify(console).printError(anyString());
         verify(notificationManager).showError(anyString());
     }
 }
