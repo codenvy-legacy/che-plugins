@@ -16,10 +16,8 @@ import com.google.inject.Singleton;
 import org.eclipse.che.ide.Constants;
 import org.eclipse.che.ide.api.action.ActionManager;
 import org.eclipse.che.ide.api.action.DefaultActionGroup;
-import org.eclipse.che.ide.api.constraints.Constraints;
 import org.eclipse.che.ide.api.extension.Extension;
 import org.eclipse.che.ide.debug.DebuggerManager;
-import org.eclipse.che.ide.ext.java.jdi.client.actions.RemoteDebugAction;
 import org.eclipse.che.ide.ext.java.jdi.client.debug.DebuggerPresenter;
 import org.eclipse.che.ide.ext.java.jdi.client.fqn.FqnResolverFactory;
 import org.eclipse.che.ide.ext.java.jdi.client.fqn.JavaFqnResolver;
@@ -27,11 +25,7 @@ import org.eclipse.che.ide.extension.maven.shared.MavenAttributes;
 
 import static org.eclipse.che.ide.MimeType.TEXT_X_JAVA;
 import static org.eclipse.che.ide.MimeType.TEXT_X_JAVA_SOURCE;
-import static org.eclipse.che.ide.api.action.IdeActions.GROUP_CENTER_TOOLBAR;
-import static org.eclipse.che.ide.api.action.IdeActions.GROUP_CODE;
 import static org.eclipse.che.ide.api.action.IdeActions.GROUP_MAIN_MENU;
-import static org.eclipse.che.ide.api.action.IdeActions.GROUP_RUN_CONTEXT_MENU;
-import static org.eclipse.che.ide.api.constraints.Anchor.AFTER;
 
 /**
  * Extension allows debug Java web applications.
@@ -54,32 +48,32 @@ public class JavaRuntimeExtension {
 
     @Inject
     public JavaRuntimeExtension(ActionManager actionManager,
-                                RemoteDebugAction remoteDebugAction,
+//                                RemoteDebugAction remoteDebugAction,
                                 DebuggerManager debuggerManager,
                                 DebuggerPresenter debuggerPresenter,
                                 FqnResolverFactory resolverFactory,
                                 JavaFqnResolver javaFqnResolver,
                                 JavaRuntimeLocalizationConstant localizationConstant) {
         final DefaultActionGroup mainMenu = (DefaultActionGroup)actionManager.getAction(GROUP_MAIN_MENU);
-        final DefaultActionGroup debugMenu = new DefaultActionGroup(localizationConstant.mainMenuDebugName(), true, actionManager);
+//        final DefaultActionGroup debugMenu = new DefaultActionGroup(localizationConstant.mainMenuDebugName(), true, actionManager);
 
         // register actions
-        actionManager.registerAction(REMOTE_DEBUG_ID, remoteDebugAction);
+//        actionManager.registerAction(REMOTE_DEBUG_ID, remoteDebugAction);
 
         // add actions in main menu
-        mainMenu.add(debugMenu, new Constraints(AFTER, GROUP_CODE));
-        debugMenu.add(remoteDebugAction);
+//        mainMenu.add(debugMenu, new Constraints(AFTER, GROUP_CODE));
+//        debugMenu.add(remoteDebugAction);
 
         // add actions on center part of toolbar
-        final DefaultActionGroup debugToolbarGroup = new DefaultActionGroup(GROUP_DEBUG_TOOLBAR, false, actionManager);
-        actionManager.registerAction(GROUP_DEBUG_TOOLBAR, debugToolbarGroup);
-        debugToolbarGroup.add(remoteDebugAction);
-        final DefaultActionGroup centerToolbarGroup = (DefaultActionGroup)actionManager.getAction(GROUP_CENTER_TOOLBAR);
-        centerToolbarGroup.add(debugToolbarGroup);
+//        final DefaultActionGroup debugToolbarGroup = new DefaultActionGroup(GROUP_DEBUG_TOOLBAR, false, actionManager);
+//        actionManager.registerAction(GROUP_DEBUG_TOOLBAR, debugToolbarGroup);
+//        debugToolbarGroup.add(remoteDebugAction);
+//        final DefaultActionGroup centerToolbarGroup = (DefaultActionGroup)actionManager.getAction(GROUP_CENTER_TOOLBAR);
+//        centerToolbarGroup.add(debugToolbarGroup);
 
         // add actions in context menu
-        DefaultActionGroup runContextGroup = (DefaultActionGroup)actionManager.getAction(GROUP_RUN_CONTEXT_MENU);
-        runContextGroup.add(remoteDebugAction);
+//        DefaultActionGroup runContextGroup = (DefaultActionGroup)actionManager.getAction(GROUP_RUN_CONTEXT_MENU);
+//        runContextGroup.add(remoteDebugAction);
 
         debuggerManager.registeredDebugger(MavenAttributes.MAVEN_ID, debuggerPresenter);
         debuggerManager.registeredDebugger(Constants.CODENVY_PLUGIN_ID, debuggerPresenter);
