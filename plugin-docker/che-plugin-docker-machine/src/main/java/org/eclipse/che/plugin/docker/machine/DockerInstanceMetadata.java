@@ -15,6 +15,7 @@ import org.eclipse.che.api.machine.server.spi.InstanceMetadata;
 import org.eclipse.che.plugin.docker.client.json.ContainerInfo;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -25,6 +26,8 @@ import java.util.Map;
  * @author Alexander Garagatyi
  */
 public class DockerInstanceMetadata implements InstanceMetadata {
+    static final String PROJECTS_ROOT_VARIABLE = "CHE_PROJECTS_ROOT";
+
     private final ContainerInfo info;
 
     public DockerInstanceMetadata(ContainerInfo containerInfo) throws MachineException {
@@ -123,6 +126,21 @@ public class DockerInstanceMetadata implements InstanceMetadata {
         md.put("hostConfig.volumesFrom", Arrays.toString(info.getHostConfig().getVolumesFrom()));
 
         return md;
+    }
+
+    @Override
+    public Map<String, String> getEnvVariables() {
+        final Map<String, String> envVariables = new HashMap<>();
+        for (String envVariable : info.getConfig().getEnv()) {
+            final String[] variableNameValue = envVariable.split("=", 2);
+            envVariables.put(variableNameValue[0], variableNameValue[1]);
+        }
+        return envVariables;
+    }
+
+    @Override
+    public String getProjectsRoot() {
+        return getEnvVariables().get(PROJECTS_ROOT_VARIABLE);
     }
 
     @Override

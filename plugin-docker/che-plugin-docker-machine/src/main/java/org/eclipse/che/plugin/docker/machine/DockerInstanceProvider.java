@@ -47,8 +47,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -66,6 +64,8 @@ public class DockerInstanceProvider implements InstanceProvider {
 
     public static final String API_ENDPOINT_URL_VARIABLE = "CHE_API_ENDPOINT";
 
+    public static final String PROJECTS_FOLDER_PATH = "/projects";
+
     private final DockerConnector                  docker;
     private final DockerInstanceStopDetector       dockerInstanceStopDetector;
     private final Set<String>                      supportedRecipeTypes;
@@ -74,9 +74,10 @@ public class DockerInstanceProvider implements InstanceProvider {
     private final Map<String, String>              machineContainerLabels;
     private final Map<String, Map<String, String>> portsToExposeOnDevMachine;
     private final Map<String, Map<String, String>> portsToExposeOnMachine;
-    private final Set<String>                      devMachineSystemVolumes;
+    private final Set<String>                      systemVolumesForDevMachine;
     private final Set<String>                      systemVolumesForMachine;
-    private final String                           apiEndpointEnvVariable;
+    private final String[]                         devMachineEnvVariables;
+    private final String[]                         commonEnvVariables;
 
     @Inject
     public DockerInstanceProvider(DockerConnector docker,
@@ -84,7 +85,7 @@ public class DockerInstanceProvider implements InstanceProvider {
                                   DockerInstanceStopDetector dockerInstanceStopDetector,
                                   @Named("machine.docker.dev_machine.machine_servers") Set<ServerConf> devMachineServers,
                                   @Named("machine.docker.machine_servers") Set<ServerConf> allMachineServers,
-                                  @Named("machine.docker.dev_machine.machine_volumes") Set<String> devMachineSystemVolumes,
+                                  @Named("machine.docker.dev_machine.machine_volumes") Set<String> systemVolumesForDevMachine,
                                   @Named("machine.docker.machine_volumes") Set<String> allMachinesSystemVolumes,
                                   @Named("machine.docker.che_api.endpoint") String apiEndpoint)
             throws IOException {
@@ -92,15 +93,15 @@ public class DockerInstanceProvider implements InstanceProvider {
         this.docker = docker;
         this.dockerMachineFactory = dockerMachineFactory;
         this.dockerInstanceStopDetector = dockerInstanceStopDetector;
-        this.devMachineSystemVolumes = new HashSet<>(devMachineSystemVolumes);
-        this.systemVolumesForMachine = new HashSet<>(allMachinesSystemVolumes);
-        this.portsToExposeOnDevMachine = new HashMap<>();
-        this.portsToExposeOnMachine = new HashMap<>();
-        this.devMachineContainerLabels = new HashMap<>();
-        this.machineContainerLabels = new HashMap<>();
-
         this.supportedRecipeTypes = Collections.singleton("Dockerfile");
-        this.apiEndpointEnvVariable = API_ENDPOINT_URL_VARIABLE + "=" + apiEndpoint;
+
+        this.systemVolumesForDevMachine = Sets.newHashSetWithExpectedSize(allMachinesSystemVolumes.size()
+                                                                          + systemVolumesForDevMachine.size());
+        this.systemVolumesForMachine = allMachinesSystemVolumes;
+        this.portsToExposeOnDevMachine = Maps.newHashMapWithExpectedSize(allMachineServers.size() + devMachineServers.size());
+        this.portsToExposeOnMachine = Maps.newHashMapWithExpectedSize(allMachineServers.size());
+        this.devMachineContainerLabels = Maps.newHashMapWithExpectedSize(2 * allMachineServers.size() + 2 * devMachineServers.size());
+        this.machineContainerLabels = Maps.newHashMapWithExpectedSize(2 * allMachineServers.size());
 
         for (ServerConf serverConf : devMachineServers) {
             portsToExposeOnDevMachine.put(serverConf.getPort(), Collections.<String, String>emptyMap());
@@ -110,9 +111,19 @@ public class DockerInstanceProvider implements InstanceProvider {
 
         for (ServerConf serverConf : allMachineServers) {
             portsToExposeOnMachine.put(serverConf.getPort(), Collections.<String, String>emptyMap());
+            portsToExposeOnDevMachine.put(serverConf.getPort(), Collections.<String, String>emptyMap());
             machineContainerLabels.put("che:server:" + serverConf.getPort() + ":ref", serverConf.getRef());
+            devMachineContainerLabels.put("che:server:" + serverConf.getPort() + ":ref", serverConf.getRef());
             machineContainerLabels.put("che:server:" + serverConf.getPort() + ":protocol", serverConf.getProtocol());
+            devMachineContainerLabels.put("che:server:" + serverConf.getPort() + ":protocol", serverConf.getProtocol());
         }
+
+        this.systemVolumesForDevMachine.addAll(allMachinesSystemVolumes);
+        this.systemVolumesForDevMachine.addAll(systemVolumesForDevMachine);
+
+        commonEnvVariables = new String[0];
+        devMachineEnvVariables = new String[] {API_ENDPOINT_URL_VARIABLE + '=' + apiEndpoint,
+                                               DockerInstanceMetadata.PROJECTS_ROOT_VARIABLE + '=' + PROJECTS_FOLDER_PATH};
     }
 
     @Override
@@ -306,25 +317,19 @@ public class DockerInstanceProvider implements InstanceProvider {
             final Set<String> volumes;
             final String[] env;
             if (isDev) {
-                labels = Maps.newHashMapWithExpectedSize(machineContainerLabels.size() + devMachineContainerLabels.size());
-                labels.putAll(machineContainerLabels);
-                labels.putAll(devMachineContainerLabels);
-
-                portsToExpose = Maps.newHashMapWithExpectedSize(portsToExposeOnMachine.size() + portsToExposeOnDevMachine.size());
-                portsToExpose.putAll(portsToExposeOnMachine);
-                portsToExpose.putAll(portsToExposeOnDevMachine);
+                labels = devMachineContainerLabels;
+                portsToExpose = portsToExposeOnDevMachine;
 
                 // 1 extra element that contains workspace FS folder will be added further
-                volumes = Sets.newHashSetWithExpectedSize(devMachineSystemVolumes.size() + systemVolumesForMachine.size() + 1);
-                volumes.addAll(devMachineSystemVolumes);
-                volumes.addAll(systemVolumesForMachine);
+                volumes = Sets.newHashSetWithExpectedSize(systemVolumesForDevMachine.size() + 1);
+                volumes.addAll(systemVolumesForDevMachine);
 
-                env = new String[] { apiEndpointEnvVariable };
+                env = devMachineEnvVariables;
             } else {
                 labels = machineContainerLabels;
                 portsToExpose = portsToExposeOnMachine;
                 volumes = systemVolumesForMachine;
-                env = new String[0];
+                env = commonEnvVariables;
             }
 
             final ContainerConfig config = new ContainerConfig().withImage(imageId)
@@ -345,7 +350,7 @@ public class DockerInstanceProvider implements InstanceProvider {
 
             // add workspace FS folder to volumes
             if (isDev) {
-                volumes.add(String.format("%s:%s", hostProjectsFolder, "/projects"));
+                volumes.add(String.format("%s:%s", hostProjectsFolder, PROJECTS_FOLDER_PATH));
             }
 
             HostConfig hostConfig = new HostConfig().withPublishAllPorts(true)

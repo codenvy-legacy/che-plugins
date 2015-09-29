@@ -151,8 +151,8 @@ public class Machine {
     }
 
     /** Returns information about machine. */
-    public Map<String, String> getMetadata() {
-        return descriptor.getMetadata();
+    public Map<String, String> getProperties() {
+        return descriptor.getProperties();
     }
 
     @Override

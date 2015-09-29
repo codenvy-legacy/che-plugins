@@ -68,7 +68,7 @@ public class DevMachineHostNameProvider implements CommandPropertyValueProvider,
     public void onMachineRunning(MachineStateEvent event) {
         final Machine machine = event.getMachine();
         if (machine.isDev()) {
-            final String hostName = machine.getMetadata().get("config.hostname");
+            final String hostName = machine.getProperties().get("config.hostname");
             if (hostName != null) {
                 value = hostName;
             }
@@ -92,7 +92,7 @@ public class DevMachineHostNameProvider implements CommandPropertyValueProvider,
         machineServiceClient.getMachine(devMachineId).then(new Operation<MachineDescriptor>() {
             @Override
             public void apply(MachineDescriptor arg) throws OperationException {
-                final String hostName = arg.getMetadata().get("config.hostname");
+                final String hostName = arg.getProperties().get("config.hostname");
                 if (hostName != null) {
                     value = hostName;
                 }

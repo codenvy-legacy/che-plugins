@@ -215,6 +215,7 @@ public class ServiceTest {
         final MachineStateDescriptor machine = machineService.createMachineFromRecipe(
                 DtoFactory.newDto(RecipeMachineCreationMetadata.class)
                           .withType("docker")
+                          .withDisplayName("MachineDisplayName")
                           .withWorkspaceId("wsId")
                           .withRecipe(DtoFactory.newDto(MachineRecipe.class)
                                                 .withType("Dockerfile")
@@ -407,6 +408,7 @@ public class ServiceTest {
         final MachineImpl machine = machineManager.create(DtoFactory.newDto(RecipeMachineCreationMetadata.class)
                                                                     .withWorkspaceId("wsId")
                                                                     .withType("docker")
+                                                                    .withDisplayName("MachineDisplayName")
                                                                     .withRecipe(DtoFactory.newDto(MachineRecipe.class)
                                                                                           .withType("Dockerfile")
                                                                                           .withScript(
