@@ -129,8 +129,8 @@ public class MergeViewImpl extends Window implements MergeView {
                 delegate.mergeClicked();
             }
         });
-        mergeButton.addStyleName(super.resources.centerPanelCss().blueButton());
-        getFooter().add(mergeButton);
+        mergeButton.addStyleName(super.resources.windowCss().primaryButton());
+        addButtonToFooter(mergeButton);
 
         cancelButton = createButton(constants.buttonCancel(), "plugin-svn-merge-dialog-cancel-button", new ClickHandler() {
             @Override
@@ -138,7 +138,7 @@ public class MergeViewImpl extends Window implements MergeView {
                 delegate.cancelClicked();
             }
         });
-        getFooter().add(cancelButton);
+        addButtonToFooter(cancelButton);
 
         alertMarker = resources.alert().getSvg();
         alertMarker.getStyle().setWidth(22, Style.Unit.PX);

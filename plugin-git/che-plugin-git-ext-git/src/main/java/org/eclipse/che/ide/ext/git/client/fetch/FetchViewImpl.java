@@ -87,7 +87,7 @@ public class FetchViewImpl extends Window implements FetchView {
                 delegate.onCancelClicked();
             }
         });
-        getFooter().add(btnCancel);
+        addButtonToFooter(btnCancel);
 
         btnFetch = createButton(locale.buttonFetch(), "git-remotes-fetch-fetch", new ClickHandler() {
 
@@ -96,7 +96,7 @@ public class FetchViewImpl extends Window implements FetchView {
                 delegate.onFetchClicked();
             }
         });
-        getFooter().add(btnFetch);
+        addButtonToFooter(btnFetch);
     }
 
     /** {@inheritDoc} */

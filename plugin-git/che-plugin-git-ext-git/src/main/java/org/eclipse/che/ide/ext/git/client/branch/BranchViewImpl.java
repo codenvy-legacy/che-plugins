@@ -139,7 +139,7 @@ public class BranchViewImpl extends Window implements BranchView {
                 delegate.onCloseClicked();
             }
         });
-        getFooter().add(btnClose);
+        addButtonToFooter(btnClose);
 
         btnRename = createButton(locale.buttonRename(), "git-branches-rename", new ClickHandler() {
 
@@ -148,7 +148,7 @@ public class BranchViewImpl extends Window implements BranchView {
                 delegate.onRenameClicked();
             }
         });
-        getFooter().add(btnRename);
+        addButtonToFooter(btnRename);
 
         btnDelete = createButton(locale.buttonDelete(), "git-branches-delete", new ClickHandler() {
 
@@ -164,7 +164,7 @@ public class BranchViewImpl extends Window implements BranchView {
                                                   }, null).show();
             }
         });
-        getFooter().add(btnDelete);
+        addButtonToFooter(btnDelete);
 
         btnCreate = createButton(locale.buttonCreate(), "git-branches-create", new ClickHandler() {
 
@@ -173,7 +173,7 @@ public class BranchViewImpl extends Window implements BranchView {
                 delegate.onCreateClicked();
             }
         });
-        getFooter().add(btnCreate);
+        addButtonToFooter(btnCreate);
 
         btnCheckout = createButton(locale.buttonCheckout(), "git-branches-checkout", new ClickHandler() {
 
@@ -182,7 +182,7 @@ public class BranchViewImpl extends Window implements BranchView {
                 delegate.onCheckoutClicked();
             }
         });
-        getFooter().add(btnCheckout);
+        addButtonToFooter(btnCheckout);
     }
 
     /** {@inheritDoc} */

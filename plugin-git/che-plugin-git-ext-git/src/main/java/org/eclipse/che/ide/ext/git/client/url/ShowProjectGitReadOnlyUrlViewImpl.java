@@ -86,7 +86,7 @@ public class ShowProjectGitReadOnlyUrlViewImpl extends Window implements ShowPro
             }
         });
         btnClose.ensureDebugId("projectReadOnlyGitUrl-btnClose");
-        getFooter().add(btnClose);
+        addButtonToFooter(btnClose);
 
         buttonBuilder.withResourceWidget(localUrl).build();
     }

@@ -75,8 +75,8 @@ public class AddToIndexViewImpl extends Window implements AddToIndexView {
                 delegate.onAddClicked();
             }
         });
-        btnAdd.addStyleName(Window.resources.centerPanelCss().blueButton());
-        getFooter().add(btnAdd);
+        btnAdd.addStyleName(Window.resources.windowCss().primaryButton());
+        addButtonToFooter(btnAdd);
 
         btnCancel = createButton(locale.buttonCancel(), "git-addToIndex-btnCancel", new ClickHandler() {
             @Override
@@ -84,7 +84,7 @@ public class AddToIndexViewImpl extends Window implements AddToIndexView {
                 delegate.onCancelClicked();
             }
         });
-        getFooter().add(btnCancel);
+        addButtonToFooter(btnCancel);
     }
 
     /** {@inheritDoc} */

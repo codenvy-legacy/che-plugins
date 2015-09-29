@@ -137,9 +137,9 @@ final class MoveViewImpl extends Window implements MoveView {
             }
         });
 
-        getFooter().add(accept);
-        getFooter().add(cancel);
-        getFooter().add(preview);
+        addButtonToFooter(accept);
+        addButtonToFooter(cancel);
+        addButtonToFooter(preview);
     }
 
     /** {@inheritDoc} */

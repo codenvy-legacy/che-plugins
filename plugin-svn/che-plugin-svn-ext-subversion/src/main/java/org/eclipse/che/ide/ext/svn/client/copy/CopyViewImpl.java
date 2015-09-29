@@ -127,7 +127,7 @@ public class CopyViewImpl extends Window implements CopyView {
                 delegate.onCancelClicked();
             }
         });
-        getFooter().add(btnCancel);
+        addButtonToFooter(btnCancel);
 
         btnCopy = createButton("Copy", "svn-copy-copy", new ClickHandler() {
             @Override
@@ -135,7 +135,7 @@ public class CopyViewImpl extends Window implements CopyView {
                 delegate.onCopyClicked();
             }
         });
-        getFooter().add(btnCopy);
+        addButtonToFooter(btnCopy);
 
         alertMarker = resources.alert().getSvg();
         alertMarker.getStyle().setWidth(22, Style.Unit.PX);

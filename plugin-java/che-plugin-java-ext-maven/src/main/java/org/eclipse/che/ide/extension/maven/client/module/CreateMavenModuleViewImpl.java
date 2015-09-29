@@ -70,7 +70,7 @@ public class CreateMavenModuleViewImpl extends Window implements CreateMavenModu
     private ActionDelegate        delegate;
 
     @Inject
-    public CreateMavenModuleViewImpl(ProjectWizardResources wizardResources, CreateMavenModuleResources resources,
+    public CreateMavenModuleViewImpl(CreateMavenModuleResources resources,
                                      ButtonLoaderResources buttonLoaderResources) {
         super(true);
         styles = resources.css();
@@ -79,16 +79,13 @@ public class CreateMavenModuleViewImpl extends Window implements CreateMavenModu
         setTitle("Create Maven Module");
         FlowPanel rootElement = ourUiBinder.createAndBindUi(this);
         setWidget(rootElement);
-        createButton = new Button();
-        createButton.setText(CREATE);
-        createButton.addStyleName(wizardResources.wizardCss().blueButton());
-        createButton.addClickHandler(new ClickHandler() {
+        createButton = createPrimaryButton(CREATE, "mavenPageView-createButton", new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 delegate.create();
             }
         });
-        getFooter().add(createButton);
+        addButtonToFooter(createButton);
         createButton.addStyleName(buttonLoaderResources.Css().buttonLoader());
     }
 

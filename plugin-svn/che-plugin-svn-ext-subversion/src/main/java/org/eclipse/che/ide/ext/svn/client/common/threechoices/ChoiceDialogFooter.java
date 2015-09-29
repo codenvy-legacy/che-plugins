@@ -47,11 +47,11 @@ public class ChoiceDialogFooter extends Composite {
     public ChoiceDialogFooter() {
         initWidget(uiBinder.createAndBindUi(this));
 
-        firstChoiceButton.addStyleName(resources.centerPanelCss().blueButton());
+        firstChoiceButton.addStyleName(resources.windowCss().primaryButton());
         firstChoiceButton.getElement().setId("ask-dialog-first");
-        secondChoiceButton.addStyleName(resources.centerPanelCss().button());
+        secondChoiceButton.addStyleName(resources.windowCss().button());
         secondChoiceButton.getElement().setId("ask-dialog-second");
-        thirdChoiceButton.addStyleName(resources.centerPanelCss().button());
+        thirdChoiceButton.addStyleName(resources.windowCss().button());
         thirdChoiceButton.getElement().setId("ask-dialog-third");
     }
 

@@ -91,7 +91,7 @@ public class UpdateToRevisionViewImpl extends Window implements UpdateToRevision
                 delegate.onCancelClicked();
             }
         });
-        getFooter().add(btnCancel);
+        addButtonToFooter(btnCancel);
 
         btnUpdate = createButton(constants.buttonUpdate(), "svn-update-update", new ClickHandler() {
             @Override
@@ -99,7 +99,7 @@ public class UpdateToRevisionViewImpl extends Window implements UpdateToRevision
                 delegate.onUpdateClicked();
             }
         });
-        getFooter().add(btnUpdate);
+        addButtonToFooter(btnUpdate);
     }
 
     @Override

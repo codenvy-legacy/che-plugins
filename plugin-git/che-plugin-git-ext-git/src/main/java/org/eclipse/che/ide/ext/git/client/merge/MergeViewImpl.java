@@ -159,7 +159,7 @@ public class MergeViewImpl extends Window implements MergeView {
                 delegate.onCancelClicked();
             }
         });
-        getFooter().add(btnCancel);
+        addButtonToFooter(btnCancel);
 
         btnMerge = createButton(locale.buttonMerge(), "git-merge-merge", new ClickHandler() {
 
@@ -168,7 +168,7 @@ public class MergeViewImpl extends Window implements MergeView {
                 delegate.onMergeClicked();
             }
         });
-        getFooter().add(btnMerge);
+        addButtonToFooter(btnMerge);
     }
 
     /** {@inheritDoc} */

@@ -195,9 +195,9 @@ public class CreateMachineViewImpl extends Window implements CreateMachineView {
                                         }
                                     });
 
-        getFooter().add(createButton);
-        getFooter().add(replaceButton);
-        getFooter().add(cancelButton);
+        addButtonToFooter(createButton);
+        addButtonToFooter(replaceButton);
+        addButtonToFooter(cancelButton);
     }
 
     @Override

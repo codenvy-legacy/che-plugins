@@ -89,7 +89,7 @@ public class RemoteViewImpl extends Window implements RemoteView {
                 delegate.onCloseClicked();
             }
         });
-        getFooter().add(btnClose);
+        addButtonToFooter(btnClose);
 
         btnAdd = createButton(locale.buttonAdd(), "git-remotes-remotes-add", new ClickHandler() {
 
@@ -98,7 +98,7 @@ public class RemoteViewImpl extends Window implements RemoteView {
                 delegate.onAddClicked();
             }
         });
-        getFooter().add(btnAdd);
+        addButtonToFooter(btnAdd);
 
         btnDelete = createButton(locale.buttonRemove(), "git-remotes-remotes-remove", new ClickHandler() {
 
@@ -114,7 +114,7 @@ public class RemoteViewImpl extends Window implements RemoteView {
                                                   }, null).show();
             }
         });
-        getFooter().add(btnDelete);
+        addButtonToFooter(btnDelete);
     }
 
     /**

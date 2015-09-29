@@ -116,9 +116,9 @@ final class PreviewViewImpl extends Window implements PreviewView {
             }
         });
 
-        getFooter().add(acceptButton);
-        getFooter().add(cancelButton);
-        getFooter().add(backButton);
+        addButtonToFooter(acceptButton);
+        addButtonToFooter(cancelButton);
+        addButtonToFooter(backButton);
 
         diff.getElement().setId(Document.get().createUniqueId());
         showDiff(null);

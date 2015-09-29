@@ -77,7 +77,7 @@ public class SelectGruntTaskPageViewImpl extends Window implements SelectGruntTa
                 delegate.onCancelClicked();
             }
         });
-        getFooter().add(btnCancel);
+        addButtonToFooter(btnCancel);
 
         btnRun = createButton("Run", "project-customGruntRun-startRun", new ClickHandler() {
 
@@ -86,7 +86,7 @@ public class SelectGruntTaskPageViewImpl extends Window implements SelectGruntTa
                 delegate.onStartRunClicked();
             }
         });
-        getFooter().add(btnRun);
+        addButtonToFooter(btnRun);
     }
 
 

@@ -81,7 +81,7 @@ public class PullViewImpl extends Window implements PullView {
                 delegate.onCancelClicked();
             }
         });
-        getFooter().add(btnCancel);
+        addButtonToFooter(btnCancel);
 
         btnPull = createButton(locale.buttonPull(), "git-remotes-pull-pull", new ClickHandler() {
 
@@ -90,7 +90,7 @@ public class PullViewImpl extends Window implements PullView {
                 delegate.onPullClicked();
             }
         });
-        getFooter().add(btnPull);
+        addButtonToFooter(btnPull);
     }
 
     /** {@inheritDoc} */
