@@ -48,6 +48,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 
 @Listeners(MockitoTestNGListener.class)
@@ -304,7 +305,11 @@ public class DockerInstanceProviderTest {
 
         ArgumentCaptor<ContainerConfig> argumentCaptor = ArgumentCaptor.forClass(ContainerConfig.class);
         verify(dockerConnector).createContainer(argumentCaptor.capture(), anyString());
-        assertEquals(argumentCaptor.getValue().getEnv(), new String[0]);
+        assertFalse(Arrays.asList(argumentCaptor.getValue().getEnv())
+                          .contains(DockerInstanceProvider.API_ENDPOINT_URL_VARIABLE + "=" + API_ENDPOINT_VALUE),
+                    "Api endpoint variable is missing. Required " +
+                    DockerInstanceProvider.API_ENDPOINT_URL_VARIABLE + "=" + API_ENDPOINT_VALUE +
+                    ". Found " + Arrays.toString(argumentCaptor.getValue().getEnv()));
     }
 
     @Test
@@ -313,7 +318,11 @@ public class DockerInstanceProviderTest {
 
         ArgumentCaptor<ContainerConfig> argumentCaptor = ArgumentCaptor.forClass(ContainerConfig.class);
         verify(dockerConnector).createContainer(argumentCaptor.capture(), anyString());
-        assertEquals(argumentCaptor.getValue().getEnv(), new String[0]);
+        assertFalse(Arrays.asList(argumentCaptor.getValue().getEnv())
+                          .contains(DockerInstanceProvider.API_ENDPOINT_URL_VARIABLE + "=" + API_ENDPOINT_VALUE),
+                    "Api endpoint variable is missing. Required " +
+                    DockerInstanceProvider.API_ENDPOINT_URL_VARIABLE + "=" + API_ENDPOINT_VALUE +
+                    ". Found " + Arrays.toString(argumentCaptor.getValue().getEnv()));
     }
 
     @Test
@@ -920,6 +929,59 @@ public class DockerInstanceProviderTest {
         assertTrue(containerName.startsWith(expectedPrefix),
                    "Unexpected container name " + containerName + " while expected " + expectedPrefix + "*");
     }
+
+    @Test
+    public void shouldAddProjectsRootEnvVariableOnDevInstanceCreationFromRecipe() throws Exception {
+        createInstanceFromRecipe(true);
+
+        ArgumentCaptor<ContainerConfig> argumentCaptor = ArgumentCaptor.forClass(ContainerConfig.class);
+        verify(dockerConnector).createContainer(argumentCaptor.capture(), anyString());
+        assertTrue(Arrays.asList(argumentCaptor.getValue().getEnv())
+                         .contains(DockerInstanceMetadata.PROJECTS_ROOT_VARIABLE + "=" + DockerInstanceProvider.PROJECTS_FOLDER_PATH),
+                   "Api endpoint variable is missing. Required " +
+                   DockerInstanceProvider.API_ENDPOINT_URL_VARIABLE + "=" + API_ENDPOINT_VALUE +
+                   ". Found " + Arrays.toString(argumentCaptor.getValue().getEnv()));
+    }
+
+    @Test
+    public void shouldAddProjectsRootEnvVariableOnDevInstanceCreationFromSnapshot() throws Exception {
+        createInstanceFromSnapshot(true);
+
+        ArgumentCaptor<ContainerConfig> argumentCaptor = ArgumentCaptor.forClass(ContainerConfig.class);
+        verify(dockerConnector).createContainer(argumentCaptor.capture(), anyString());
+        assertTrue(Arrays.asList(argumentCaptor.getValue().getEnv())
+                         .contains(DockerInstanceMetadata.PROJECTS_ROOT_VARIABLE + "=" + DockerInstanceProvider.PROJECTS_FOLDER_PATH),
+                   "Api endpoint variable is missing. Required " +
+                   DockerInstanceProvider.API_ENDPOINT_URL_VARIABLE + "=" + API_ENDPOINT_VALUE +
+                   ". Found " + Arrays.toString(argumentCaptor.getValue().getEnv()));
+    }
+
+    @Test
+    public void shouldNotAddProjectsRootEnvVariableOnNonDevInstanceCreationFromRecipe() throws Exception {
+        createInstanceFromRecipe(false);
+
+        ArgumentCaptor<ContainerConfig> argumentCaptor = ArgumentCaptor.forClass(ContainerConfig.class);
+        verify(dockerConnector).createContainer(argumentCaptor.capture(), anyString());
+        assertFalse(Arrays.asList(argumentCaptor.getValue().getEnv())
+                          .contains(DockerInstanceMetadata.PROJECTS_ROOT_VARIABLE + "=" + DockerInstanceProvider.PROJECTS_FOLDER_PATH),
+                    "Api endpoint variable is missing. Required " +
+                    DockerInstanceProvider.API_ENDPOINT_URL_VARIABLE + "=" + API_ENDPOINT_VALUE +
+                    ". Found " + Arrays.toString(argumentCaptor.getValue().getEnv()));
+    }
+
+    @Test
+    public void shouldNotAddProjectsRootEnvVariableOnNonDevInstanceCreationFromSnapshot() throws Exception {
+        createInstanceFromSnapshot(false);
+
+        ArgumentCaptor<ContainerConfig> argumentCaptor = ArgumentCaptor.forClass(ContainerConfig.class);
+        verify(dockerConnector).createContainer(argumentCaptor.capture(), anyString());
+        assertFalse(Arrays.asList(argumentCaptor.getValue().getEnv())
+                          .contains(DockerInstanceMetadata.PROJECTS_ROOT_VARIABLE + "=" + DockerInstanceProvider.PROJECTS_FOLDER_PATH),
+                    "Api endpoint variable is missing. Required " +
+                    DockerInstanceProvider.API_ENDPOINT_URL_VARIABLE + "=" + API_ENDPOINT_VALUE +
+                    ". Found " + Arrays.toString(argumentCaptor.getValue().getEnv()));
+    }
+
 
     private void createInstanceFromRecipe() throws Exception {
         createInstanceFromRecipe(false,

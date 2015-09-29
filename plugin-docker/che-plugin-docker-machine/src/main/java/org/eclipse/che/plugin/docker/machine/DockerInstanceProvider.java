@@ -66,6 +66,8 @@ public class DockerInstanceProvider implements InstanceProvider {
 
     public static final String API_ENDPOINT_URL_VARIABLE = "CHE_API_ENDPOINT";
 
+    public static final String PROJECTS_FOLDER_PATH = "/projects";
+
     private final DockerConnector                  docker;
     private final DockerInstanceStopDetector       dockerInstanceStopDetector;
     private final Set<String>                      supportedRecipeTypes;
@@ -319,7 +321,8 @@ public class DockerInstanceProvider implements InstanceProvider {
                 volumes.addAll(devMachineSystemVolumes);
                 volumes.addAll(systemVolumesForMachine);
 
-                env = new String[] { apiEndpointEnvVariable };
+                env = new String[] { apiEndpointEnvVariable,
+                                     DockerInstanceMetadata.PROJECTS_ROOT_VARIABLE + "=" + PROJECTS_FOLDER_PATH };
             } else {
                 labels = machineContainerLabels;
                 portsToExpose = portsToExposeOnMachine;
@@ -345,7 +348,7 @@ public class DockerInstanceProvider implements InstanceProvider {
 
             // add workspace FS folder to volumes
             if (isDev) {
-                volumes.add(String.format("%s:%s", hostProjectsFolder, "/projects"));
+                volumes.add(String.format("%s:%s", hostProjectsFolder, PROJECTS_FOLDER_PATH));
             }
 
             HostConfig hostConfig = new HostConfig().withPublishAllPorts(true)
