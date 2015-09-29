@@ -25,6 +25,7 @@ import org.eclipse.che.ide.api.project.tree.TreeNode;
 import org.eclipse.che.ide.api.project.tree.TreeStructure;
 import org.eclipse.che.ide.util.loging.Log;
 import org.eclipse.che.ide.websocket.MessageBus;
+import org.eclipse.che.ide.websocket.MessageBusImpl;
 import org.eclipse.che.ide.websocket.WebSocketException;
 import org.eclipse.che.ide.websocket.rest.StringUnmarshallerWS;
 import org.eclipse.che.ide.websocket.rest.SubscriptionHandler;
@@ -48,10 +49,12 @@ public class SystemFileWatcher {
     private final AppContext           appContext;
 
     @Inject
-    public SystemFileWatcher(WatcherServiceClient watcherService, EventBus eventBus, MessageBus messageBus, AppContext appContext) {
+    public SystemFileWatcher(WatcherServiceClient watcherService,
+                             EventBus eventBus,
+                             AppContext appContext) {
         this.watcherService = watcherService;
         this.eventBus = eventBus;
-        this.messageBus = messageBus;
+        this.messageBus = MessageBusImpl.create(appContext.getWorkspace().getId());
         this.appContext = appContext;
     }
 

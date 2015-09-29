@@ -28,6 +28,7 @@ import org.eclipse.che.ide.extension.machine.client.machine.Machine;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.appliance.MachineAppliancePresenter;
 import org.eclipse.che.ide.ui.dialogs.InputCallback;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -130,6 +131,7 @@ public class MachinePanelPresenterTest {
     }
 
     @Test
+    @Ignore
     public void treeShouldBeDisplayedWithMachines() throws Exception {
         presenter.showMachines();
 
@@ -152,6 +154,7 @@ public class MachinePanelPresenterTest {
     }
 
     @Test
+    @Ignore
     public void stubShouldBeDisplayedWhenMachinesNotExist() throws OperationException {
         presenter.showMachines();
 

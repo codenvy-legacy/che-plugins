@@ -15,14 +15,16 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
-import org.eclipse.che.api.machine.shared.dto.event.MachineProcessEvent;
-import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.api.machine.gwt.client.OutputMessageUnmarshaller;
+import org.eclipse.che.api.machine.shared.dto.event.MachineProcessEvent;
+import org.eclipse.che.ide.api.app.AppContext;
+import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
 import org.eclipse.che.ide.extension.machine.client.command.CommandManager;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.util.loging.Log;
 import org.eclipse.che.ide.websocket.MessageBus;
+import org.eclipse.che.ide.websocket.MessageBusImpl;
 import org.eclipse.che.ide.websocket.WebSocketException;
 import org.eclipse.che.ide.websocket.events.MessageHandler;
 import org.eclipse.che.ide.websocket.rest.SubscriptionHandler;
@@ -50,15 +52,15 @@ public class CommandOutputConsole implements OutputConsole, OutputConsoleView.Ac
 
     @Inject
     public CommandOutputConsole(OutputConsoleView view,
-                                MessageBus messageBus,
                                 NotificationManager notificationManager,
                                 DtoUnmarshallerFactory dtoUnmarshallerFactory,
+                                AppContext appContext,
                                 MachineServiceClient machineServiceClient,
                                 CommandManager commandManager,
                                 @Assisted CommandConfiguration commandConfiguration,
                                 @Assisted String machineId) {
         this.view = view;
-        this.messageBus = messageBus;
+        this.messageBus = MessageBusImpl.create(appContext.getWorkspace().getId());
         this.notificationManager = notificationManager;
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
         this.machineServiceClient = machineServiceClient;

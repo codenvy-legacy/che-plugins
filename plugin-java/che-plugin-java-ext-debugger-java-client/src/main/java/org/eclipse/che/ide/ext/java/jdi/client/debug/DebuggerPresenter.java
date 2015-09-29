@@ -66,6 +66,7 @@ import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.rest.HTTPStatus;
 import org.eclipse.che.ide.util.loging.Log;
 import org.eclipse.che.ide.websocket.MessageBus;
+import org.eclipse.che.ide.websocket.MessageBusImpl;
 import org.eclipse.che.ide.websocket.WebSocketException;
 import org.eclipse.che.ide.websocket.rest.SubscriptionHandler;
 import org.eclipse.che.ide.websocket.rest.exceptions.ServerException;
@@ -131,7 +132,6 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
     public DebuggerPresenter(DebuggerView view,
                              final DebuggerServiceClient service,
                              final EventBus eventBus,
-                             final MessageBus messageBus,
                              final JavaRuntimeLocalizationConstant constant,
                              WorkspaceAgent workspaceAgent,
                              final BreakpointManager breakpointManager,
@@ -151,7 +151,7 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
         this.view.setDelegate(this);
         this.view.setTitle(TITLE);
         this.service = service;
-        this.messageBus = messageBus;
+        this.messageBus = MessageBusImpl.create(appContext.getWorkspace().getId());
         this.constant = constant;
         this.workspaceAgent = workspaceAgent;
         this.breakpointManager = breakpointManager;

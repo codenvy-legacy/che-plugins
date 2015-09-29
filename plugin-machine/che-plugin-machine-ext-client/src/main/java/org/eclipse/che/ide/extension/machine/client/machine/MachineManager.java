@@ -20,7 +20,9 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.event.shared.EventBus;
 
+import org.eclipse.che.api.machine.gwt.client.ExtServerStateController;
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
+import org.eclipse.che.api.machine.gwt.client.OutputMessageUnmarshaller;
 import org.eclipse.che.api.machine.gwt.client.events.DevMachineStateEvent;
 import org.eclipse.che.api.machine.gwt.client.events.DevMachineStateHandler;
 import org.eclipse.che.api.machine.shared.dto.MachineDescriptor;
@@ -33,16 +35,15 @@ import org.eclipse.che.api.promises.client.PromiseError;
 import org.eclipse.che.api.promises.client.callback.AsyncPromiseHelper;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.notification.NotificationManager;
-import org.eclipse.che.api.machine.gwt.client.OutputMessageUnmarshaller;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.EntityFactory;
 import org.eclipse.che.ide.extension.machine.client.machine.MachineStatusNotifier.RunningListener;
 import org.eclipse.che.ide.extension.machine.client.machine.console.MachineConsolePresenter;
-import org.eclipse.che.api.machine.gwt.client.ExtServerStateController;
 import org.eclipse.che.ide.extension.machine.client.util.RecipeProvider;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 import org.eclipse.che.ide.util.UUID;
 import org.eclipse.che.ide.util.loging.Log;
 import org.eclipse.che.ide.websocket.MessageBus;
+import org.eclipse.che.ide.websocket.MessageBusImpl;
 import org.eclipse.che.ide.websocket.WebSocketException;
 import org.eclipse.che.ide.websocket.rest.SubscriptionHandler;
 
@@ -77,7 +78,6 @@ public class MachineManager {
     @Inject
     public MachineManager(ExtServerStateController extServerStateController,
                           MachineServiceClient machineServiceClient,
-                          MessageBus messageBus,
                           MachineConsolePresenter machineConsolePresenter,
                           NotificationManager notificationManager,
                           MachineStatusNotifier machineStatusNotifier,
@@ -88,7 +88,7 @@ public class MachineManager {
                           AppContext appContext) {
         this.extServerStateController = extServerStateController;
         this.machineServiceClient = machineServiceClient;
-        this.messageBus = messageBus;
+        this.messageBus = MessageBusImpl.create(appContext.getWorkspace().getId());
         this.machineConsolePresenter = machineConsolePresenter;
         this.notificationManager = notificationManager;
         this.machineStatusNotifier = machineStatusNotifier;

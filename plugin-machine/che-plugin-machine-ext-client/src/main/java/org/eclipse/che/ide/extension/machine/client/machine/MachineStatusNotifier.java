@@ -15,6 +15,7 @@ import com.google.inject.Singleton;
 import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.api.machine.shared.dto.event.MachineStatusEvent;
+import org.eclipse.che.commons.annotation.Nullable;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.api.notification.NotificationManager;
@@ -24,13 +25,13 @@ import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateE
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.util.loging.Log;
 import org.eclipse.che.ide.websocket.MessageBus;
+import org.eclipse.che.ide.websocket.MessageBusImpl;
 import org.eclipse.che.ide.websocket.WebSocketException;
 import org.eclipse.che.ide.websocket.events.MessageHandler;
 import org.eclipse.che.ide.websocket.rest.SubscriptionHandler;
 import org.eclipse.che.ide.websocket.rest.Unmarshallable;
 
 import javax.validation.constraints.NotNull;
-import org.eclipse.che.commons.annotation.Nullable;
 
 import static org.eclipse.che.ide.api.notification.Notification.Status.FINISHED;
 import static org.eclipse.che.ide.api.notification.Notification.Status.PROGRESS;
@@ -49,21 +50,20 @@ class MachineStatusNotifier {
     /** WebSocket channel to receive messages about changing machine state. */
     public static final String MACHINE_STATUS_WS_CHANNEL = "machine:status:";
 
-    private final MessageBus             messageBus;
-    private final EventBus               eventBus;
-    private final DtoUnmarshallerFactory dtoUnmarshallerFactory;
-    private       AppContext             appContext;
-    private final NotificationManager notificationManager;
+    private final MessageBus                  messageBus;
+    private final EventBus                    eventBus;
+    private final DtoUnmarshallerFactory      dtoUnmarshallerFactory;
+    private       AppContext                  appContext;
+    private final NotificationManager         notificationManager;
     private final MachineLocalizationConstant locale;
 
     @Inject
-    MachineStatusNotifier(MessageBus messageBus,
-                          EventBus eventBus,
+    MachineStatusNotifier(EventBus eventBus,
                           DtoUnmarshallerFactory dtoUnmarshallerFactory,
                           AppContext appContext,
                           NotificationManager notificationManager,
                           MachineLocalizationConstant locale) {
-        this.messageBus = messageBus;
+        this.messageBus = MessageBusImpl.create(appContext.getWorkspace().getId());
         this.eventBus = eventBus;
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
         this.appContext = appContext;
