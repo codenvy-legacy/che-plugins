@@ -11,7 +11,6 @@
 package org.eclipse.che.ide.ext.java.jdi.client.debug;
 
 import com.google.gwt.resources.client.ImageResource;
-import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.inject.Inject;
@@ -430,25 +429,29 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
                     return;
                 }
 
-                handlerRegistration = eventBus.addHandler(ActivePartChangedEvent.TYPE, new ActivePartChangedHandler() {
-                    @Override
-                    public void onActivePartChanged(ActivePartChangedEvent event) {
-                        if (event.getActivePart() instanceof EditorPartPresenter) {
-                            final VirtualFile openedFile = ((EditorPartPresenter)event.getActivePart()).getEditorInput().getFile();
-                            if (((FileReferenceNode)node).getStorablePath().equals(openedFile.getPath())) {
-                                handlerRegistration.removeHandler();
-                                // give the editor some time to fully render it's view
-                                new Timer() {
-                                    @Override
-                                    public void run() {
-                                        callback.onSuccess((VirtualFile)node);
-                                    }
-                                }.schedule(300);
+                final FileReferenceNode fileNode = (FileReferenceNode)node;
+                if (!editorAgent.getOpenedEditors().containsKey(filePath)) {
+                    editorAgent.openEditor(fileNode, new EditorAgent.OpenEditorCallback() {
+                        @Override
+                        public void onEditorOpened(EditorPartPresenter editor) {
+                            callback.onSuccess(fileNode);
+                        }
+                    });
+                } else {
+                    handlerRegistration = eventBus.addHandler(ActivePartChangedEvent.TYPE, new ActivePartChangedHandler() {
+                        @Override
+                        public void onActivePartChanged(ActivePartChangedEvent event) {
+                            if (event.getActivePart() instanceof EditorPartPresenter) {
+                                final VirtualFile openedFile = ((EditorPartPresenter)event.getActivePart()).getEditorInput().getFile();
+                                if ((fileNode).getStorablePath().equals(openedFile.getPath())) {
+                                    handlerRegistration.removeHandler();
+                                    callback.onSuccess(fileNode);
+                                }
                             }
                         }
-                    }
-                });
-                eventBus.fireEvent(new FileEvent((VirtualFile)node, OPEN));
+                    });
+                    eventBus.fireEvent(new FileEvent(fileNode, OPEN));
+                }
             }
         });
     }
