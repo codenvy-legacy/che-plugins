@@ -16,16 +16,13 @@ import org.eclipse.che.ide.orion.compare.CompareConfig;
 import org.eclipse.che.ide.orion.compare.FileOptions;
 
 /**
+ * JSO implementation for {@link CompareConfig}
  * @author Evgen Vidolob
  */
 public class CompareConfigJs extends JavaScriptObject implements CompareConfig {
     protected CompareConfigJs() {
     }
 
-    @Override
-    public final native void setElementId(String id)/*-{
-        this.parentDivId = id;
-    }-*/;
 
     @Override
     public final native void setOldFile(FileOptions oldFile)/*-{
@@ -45,5 +42,10 @@ public class CompareConfigJs extends JavaScriptObject implements CompareConfig {
     @Override
     public final native void setShowLineStatus(boolean showLineStatus)/*-{
         this.showLineStatus = showLineStatus;
+    }-*/;
+
+    @Override
+    public final native String toJson()/*-{
+        return JSON.stringify(this);
     }-*/;
 }

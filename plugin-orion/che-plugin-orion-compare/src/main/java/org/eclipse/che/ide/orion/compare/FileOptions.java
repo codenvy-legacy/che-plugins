@@ -12,6 +12,7 @@ package org.eclipse.che.ide.orion.compare;
 
 /**
  * his object describes options of a file. Two instances of this object construct the core parameters of a compare view.
+ *
  * @author Evgen Vidolob
  */
 public interface FileOptions {
