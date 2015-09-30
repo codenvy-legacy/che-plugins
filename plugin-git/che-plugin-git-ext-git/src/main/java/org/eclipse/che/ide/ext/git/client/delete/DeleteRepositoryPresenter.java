@@ -18,6 +18,7 @@ import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.ext.git.client.GitLocalizationConstant;
+import org.eclipse.che.ide.ext.git.client.GitOutputPartPresenter;
 import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 
@@ -32,6 +33,7 @@ public class DeleteRepositoryPresenter {
     private       GitLocalizationConstant  constant;
     private       AppContext               appContext;
     private       NotificationManager      notificationManager;
+    private final GitOutputPartPresenter   console;
     private final ProjectExplorerPresenter projectExplorer;
 
     /**
@@ -45,11 +47,13 @@ public class DeleteRepositoryPresenter {
     @Inject
     public DeleteRepositoryPresenter(GitServiceClient service,
                                      GitLocalizationConstant constant,
+                                     GitOutputPartPresenter console,
                                      AppContext appContext,
                                      NotificationManager notificationManager,
                                      ProjectExplorerPresenter projectExplorer) {
         this.service = service;
         this.constant = constant;
+        this.console = console;
         this.appContext = appContext;
         this.notificationManager = notificationManager;
         this.projectExplorer = projectExplorer;
@@ -63,6 +67,7 @@ public class DeleteRepositoryPresenter {
             protected void onSuccess(Void result) {
                 project.getRootProject().getAttributes().get("vcs.provider.name").clear();
 
+                console.printInfo(constant.deleteGitRepositorySuccess());
                 notificationManager.showInfo(constant.deleteGitRepositorySuccess());
                 //it's need for hide .git in project tree
                 projectExplorer.reloadChildren();
@@ -70,6 +75,7 @@ public class DeleteRepositoryPresenter {
 
             @Override
             protected void onFailure(Throwable exception) {
+                console.printError(exception.getMessage());
                 notificationManager.showError(exception.getMessage());
             }
         });

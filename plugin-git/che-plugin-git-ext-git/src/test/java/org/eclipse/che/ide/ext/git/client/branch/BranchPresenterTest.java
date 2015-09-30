@@ -107,8 +107,20 @@ public class BranchPresenterTest extends BaseTest {
     public void disarm() {
         super.disarm();
 
-        presenter = new BranchPresenter(view, dtoFactory, editorAgent, service, constant, appContext, notificationManager,
-                                        dtoUnmarshallerFactory, gitConsole, workspaceAgent, dialogFactory, projectExplorer, eventBus);
+        presenter = new BranchPresenter(view,
+                                        dtoFactory,
+                                        editorAgent,
+                                        service,
+                                        constant,
+                                        console,
+                                        appContext,
+                                        notificationManager,
+                                        dtoUnmarshallerFactory,
+                                        gitConsole,
+                                        workspaceAgent,
+                                        dialogFactory,
+                                        projectExplorer,
+                                        eventBus);
 
         NavigableMap<String, EditorPartPresenter> partPresenterMap = new TreeMap<>();
         partPresenterMap.put("partPresenter", partPresenter);
@@ -137,6 +149,7 @@ public class BranchPresenterTest extends BaseTest {
         verify(view).setEnableRenameButton(eq(DISABLE_BUTTON));
         verify(view).showDialog();
         verify(view).setBranches(eq(branches));
+        verify(console, never()).printError(anyString());
         verify(notificationManager, never()).showError(anyString());
         verify(constant, never()).branchesListFailed();
     }
@@ -154,6 +167,7 @@ public class BranchPresenterTest extends BaseTest {
         verify(view).setEnableDeleteButton(eq(DISABLE_BUTTON));
         verify(view).setEnableRenameButton(eq(DISABLE_BUTTON));
         verify(view).showDialog();
+        verify(console).printError(anyString());
         verify(notificationManager).showError(anyString());
         verify(constant).branchesListFailed();
     }
@@ -191,6 +205,7 @@ public class BranchPresenterTest extends BaseTest {
         verify(selectedBranch, times(2)).getDisplayName();
         verify(service, times(2)).branchList(eq(rootProjectDescriptor), eq(LIST_ALL), anyObject());
         verify(dialogFactory, never()).createConfirmDialog(anyString(), anyString(), anyObject(), anyObject());
+        verify(console, never()).printError(anyString());
         verify(notificationManager, never()).showError(anyString());
         verify(constant, never()).branchRenameFailed();
     }
@@ -227,6 +242,7 @@ public class BranchPresenterTest extends BaseTest {
         verify(selectedBranch, times(2)).getDisplayName();
         verify(service, times(2))
                 .branchList(eq(rootProjectDescriptor), eq(LIST_ALL), anyObject());
+        verify(console, never()).printError(anyString());
         verify(notificationManager, never()).showError(anyString());
         verify(constant, never()).branchRenameFailed();
     }
@@ -259,6 +275,7 @@ public class BranchPresenterTest extends BaseTest {
         GwtReflectionUtils.callOnFailure(renameBranchCallback, mock(Throwable.class));
 
         verify(selectedBranch, times(2)).getDisplayName();
+        verify(console).printError(anyString());
         verify(notificationManager).showError(anyString());
         verify(constant).branchRenameFailed();
     }
@@ -275,6 +292,7 @@ public class BranchPresenterTest extends BaseTest {
         verify(selectedBranch).getName();
         verify(service, times(2)).branchList(eq(rootProjectDescriptor), eq(LIST_ALL), anyObject());
         verify(constant, never()).branchDeleteFailed();
+        verify(console, never()).printError(anyString());
         verify(notificationManager, never()).showError(anyString());
     }
 
@@ -288,7 +306,8 @@ public class BranchPresenterTest extends BaseTest {
         GwtReflectionUtils.callOnFailure(deleteBranchCallback, mock(Throwable.class));
 
         verify(selectedBranch).getName();
-        verify(constant).branchDeleteFailed();
+        verify(constant, times(2)).branchDeleteFailed();
+        verify(console).printError(anyString());
         verify(notificationManager).showError(anyString());
     }
 
@@ -350,6 +369,7 @@ public class BranchPresenterTest extends BaseTest {
                                        anyObject());
         verify(service, times(2)).branchList(eq(rootProjectDescriptor), eq(LIST_ALL), anyObject());
         verify(appContext).getCurrentProject();
+        verify(console, never()).printError(anyString());
         verify(notificationManager, never()).showError(anyString());
         verify(eventBus).fireEvent(Matchers.<FileContentUpdateEvent>anyObject());
         verify(constant, never()).branchCheckoutFailed();
@@ -441,6 +461,7 @@ public class BranchPresenterTest extends BaseTest {
         GwtReflectionUtils.callOnFailure(createBranchCallback, exception);
 
         verify(constant).branchCreateFailed();
+        verify(console).printError(anyString());
         verify(notificationManager).showError(anyString());
     }
 

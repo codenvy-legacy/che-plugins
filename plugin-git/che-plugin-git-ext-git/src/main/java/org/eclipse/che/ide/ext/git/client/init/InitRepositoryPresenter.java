@@ -18,6 +18,7 @@ import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.ext.git.client.GitLocalizationConstant;
+import org.eclipse.che.ide.ext.git.client.GitOutputPartPresenter;
 import org.eclipse.che.ide.ext.git.client.GitRepositoryInitializer;
 import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.eclipse.che.ide.util.loging.Log;
@@ -36,16 +37,19 @@ public class InitRepositoryPresenter {
     private final ProjectExplorerPresenter projectExplorer;
     private final AppContext               appContext;
     private final GitLocalizationConstant  constant;
+    private final GitOutputPartPresenter   console;
     private final NotificationManager      notificationManager;
 
     @Inject
     public InitRepositoryPresenter(AppContext appContext,
                                    GitLocalizationConstant constant,
+                                   GitOutputPartPresenter console,
                                    NotificationManager notificationManager,
                                    GitRepositoryInitializer gitRepositoryInitializer,
                                    ProjectExplorerPresenter projectExplorer) {
         this.appContext = appContext;
         this.constant = constant;
+        this.console = console;
         this.notificationManager = notificationManager;
         this.gitRepositoryInitializer = gitRepositoryInitializer;
         this.projectExplorer = projectExplorer;
@@ -67,6 +71,7 @@ public class InitRepositoryPresenter {
 
             @Override
             public void onSuccess(Void result) {
+                console.printInfo(constant.initSuccess());
                 notificationManager.showInfo(constant.initSuccess());
                 //it's need for show .git in project tree
                 projectExplorer.reloadChildren();
@@ -82,6 +87,7 @@ public class InitRepositoryPresenter {
      */
     private void handleError(@NotNull Throwable e) {
         String errorMessage = (e.getMessage() != null && !e.getMessage().isEmpty()) ? e.getMessage() : constant.initFailed();
+        console.printError(errorMessage);
         notificationManager.showError(errorMessage);
     }
 }

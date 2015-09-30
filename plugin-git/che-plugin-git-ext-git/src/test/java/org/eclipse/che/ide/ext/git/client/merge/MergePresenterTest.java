@@ -90,8 +90,16 @@ public class MergePresenterTest extends BaseTest {
     public void disarm() {
         super.disarm();
 
-        presenter = new MergePresenter(view, eventBus, editorAgent, service, constant, appContext, notificationManager,
-                                       dtoUnmarshallerFactory, projectExplorer);
+        presenter = new MergePresenter(view,
+                                       eventBus,
+                                       editorAgent,
+                                       service,
+                                       console,
+                                       constant,
+                                       appContext,
+                                       notificationManager,
+                                       dtoUnmarshallerFactory,
+                                       projectExplorer);
         NavigableMap<String, EditorPartPresenter> partPresenterMap = new TreeMap<>();
         partPresenterMap.put("partPresenter", partPresenter);
 
@@ -133,6 +141,7 @@ public class MergePresenterTest extends BaseTest {
         verify(service).branchList(eq(rootProjectDescriptor), eq(LIST_REMOTE), (AsyncRequestCallback<List<Branch>>)anyObject());
         verify(view).setRemoteBranches((List<Reference>)anyObject());
         verify(view).setLocalBranches((List<Reference>)anyObject());
+        verify(console, never()).printError(anyString());
         verify(notificationManager, never()).showNotification((Notification) anyObject());
     }
 
@@ -158,6 +167,7 @@ public class MergePresenterTest extends BaseTest {
 
         verify(service).branchList(eq(rootProjectDescriptor), eq(LIST_LOCAL), (AsyncRequestCallback<List<Branch>>)anyObject());
         verify(service).branchList(eq(rootProjectDescriptor), eq(LIST_REMOTE), (AsyncRequestCallback<List<Branch>>)anyObject());
+        verify(console, times(2)).printError(anyString());
         verify(notificationManager, times(2)).showNotification((Notification)anyObject());
     }
 
@@ -187,6 +197,7 @@ public class MergePresenterTest extends BaseTest {
         verify(appContext).getCurrentProject();
         verify(partPresenter).getEditorInput();
         verify(file).getPath();
+        verify(console).printInfo(anyString());
         verify(notificationManager).showNotification((Notification) anyObject());
     }
 

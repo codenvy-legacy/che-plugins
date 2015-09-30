@@ -21,6 +21,7 @@ import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.project.node.HasStorablePath;
 import org.eclipse.che.ide.api.selection.Selection;
 import org.eclipse.che.ide.ext.git.client.GitLocalizationConstant;
+import org.eclipse.che.ide.ext.git.client.GitOutputPartPresenter;
 import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.eclipse.che.ide.project.node.FolderReferenceNode;
 import org.eclipse.che.ide.project.node.ResourceBasedNode;
@@ -47,6 +48,8 @@ public class AddToIndexPresenter implements AddToIndexView.ActionDelegate {
 
     private static final String ROOT_FOLDER = ".";
 
+    private final GitOutputPartPresenter console;
+
     private AddToIndexView           view;
     private GitServiceClient         service;
     private GitLocalizationConstant  constant;
@@ -71,12 +74,14 @@ public class AddToIndexPresenter implements AddToIndexView.ActionDelegate {
                                AppContext appContext,
                                DtoUnmarshallerFactory dtoUnmarshallerFactory,
                                GitLocalizationConstant constant,
+                               GitOutputPartPresenter console,
                                GitServiceClient service,
                                NotificationManager notificationManager,
                                ProjectExplorerPresenter projectExplorer) {
         this.view = view;
         this.view.setDelegate(this);
         this.service = service;
+        this.console = console;
         this.constant = constant;
         this.appContext = appContext;
         this.projectExplorer = projectExplorer;
@@ -100,6 +105,7 @@ public class AddToIndexPresenter implements AddToIndexView.ActionDelegate {
                                if (!result.isClean()) {
                                    addSelection();
                                } else {
+                                   console.printInfo(constant.nothingAddToIndex());
                                    notificationManager.showInfo(constant.nothingAddToIndex());
                                }
                            }
@@ -107,6 +113,7 @@ public class AddToIndexPresenter implements AddToIndexView.ActionDelegate {
                            @Override
                            protected void onFailure(Throwable exception) {
                                String errorMessage = exception.getMessage() != null ? exception.getMessage() : constant.statusFailed();
+                               console.printError(errorMessage);
                                notificationManager.showError(errorMessage);
                            }
                        });
@@ -161,6 +168,7 @@ public class AddToIndexPresenter implements AddToIndexView.ActionDelegate {
             service.add(project.getRootProject(), update, getMultipleFilePatterns(), new RequestCallback<Void>() {
                 @Override
                 protected void onSuccess(final Void result) {
+                    console.printInfo(constant.addSuccess());
                     notificationManager.showInfo(constant.addSuccess());
                 }
 
@@ -279,6 +287,7 @@ public class AddToIndexPresenter implements AddToIndexView.ActionDelegate {
      */
     private void handleError(@NotNull final Throwable e) {
         String errorMessage = (e.getMessage() != null && !e.getMessage().isEmpty()) ? e.getMessage() : constant.addFailed();
+        console.printError(errorMessage);
         notificationManager.showError(errorMessage);
     }
 
