@@ -73,7 +73,7 @@ public class ApiModule extends AbstractModule {
         bind(LocalFSMountStrategy.class).to(MappedDirectoryLocalFSMountStrategy.class);
         bind(WorkspaceToDirectoryMappingService.class);
         bind(AsynchronousJobPool.class).to(CodenvyAsynchronousJobPool.class);
-        bind(new PathKey<>(AsynchronousJobService.class, "/async/{ws-id}")).to(AsynchronousJobService.class);
+        bind(ServiceBindingHelper.bindingKey(AsynchronousJobService.class, "/async/{ws-id}")).to(AsynchronousJobService.class);
 
         Multibinder<ProjectType> projectTypeMultibinder = Multibinder.newSetBinder(binder(), ProjectType.class);
         projectTypeMultibinder.addBinding().to(BaseProjectType.class);
