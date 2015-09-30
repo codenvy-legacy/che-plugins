@@ -17,7 +17,6 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.cellview.client.CellTree;
-import com.google.gwt.user.cellview.client.TreeNode;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Label;
@@ -45,7 +44,6 @@ import org.eclipse.che.ide.ui.cellview.CellTreeResources;
 import org.eclipse.che.ide.ui.window.Window;
 
 import javax.validation.constraints.NotNull;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -54,8 +52,6 @@ import java.util.List;
  */
 @Singleton
 final class PreviewViewImpl extends Window implements PreviewView {
-
-    private CompareWidget compareWidget;
 
     interface PreviewViewImplUiBinder extends UiBinder<Widget, PreviewViewImpl> {
     }
@@ -79,11 +75,10 @@ final class PreviewViewImpl extends Window implements PreviewView {
     private FileOptions    newFile;
     private FileOptions    oldFile;
     private CompareWidget  compare;
-    private CellTree       tree;
+    private ThemeAgent     themeAgent;
 
     private final CellTreeResources cellTreeResources;
     private final CompareFactory    compareFactory;
-    private ThemeAgent themeAgent;
 
     @Inject
     public PreviewViewImpl(JavaLocalizationConstant locale,
@@ -135,6 +130,15 @@ final class PreviewViewImpl extends Window implements PreviewView {
 
     /** {@inheritDoc} */
     @Override
+    public void show() {
+        diff.clear();
+        compare = null;
+
+        super.show();
+    }
+
+    /** {@inheritDoc} */
+    @Override
     public void setTreeOfChanges(final RefactoringPreview changes) {
         showDiffPanel(false);
 
@@ -147,23 +151,14 @@ final class PreviewViewImpl extends Window implements PreviewView {
             }
         });
 
-        tree = new CellTree(new PreviewChangesModel(changes, selectionModel, delegate), null, cellTreeResources);
+        CellTree tree = new CellTree(new PreviewChangesModel(changes, selectionModel, delegate), null, cellTreeResources);
         treePanel.clear();
         treePanel.add(tree);
-        expandAll(tree.getRootTreeNode());
     }
 
     private void showDiffPanel(boolean isVisible) {
         diffPanelToHide.setVisible(isVisible);
         noPreviewToHide.setVisible(!isVisible);
-    }
-
-    private void expandAll(TreeNode node) {
-        for (int i = 0; i < node.getChildCount(); i++) {
-            if (!node.isChildLeaf(i)) {
-                expandAll(node.setChildOpen(i, true));
-            }
-        }
     }
 
     /** {@inheritDoc} */
@@ -213,7 +208,7 @@ final class PreviewViewImpl extends Window implements PreviewView {
         compareConfig.setShowTitle(true);
         compareConfig.setShowLineStatus(true);
 
-        compare= new CompareWidget(compareConfig, themeAgent.getCurrentThemeId());
+        compare = new CompareWidget(compareConfig, themeAgent.getCurrentThemeId());
         diff.add(compare);
     }
 
@@ -236,12 +231,11 @@ final class PreviewViewImpl extends Window implements PreviewView {
      *         the severity to search for. Must be one of <code>FATAL
      *         </code>, <code>ERROR</code>, <code>WARNING</code> or <code>INFO</code>
      * @param entries
+     *         list of the refactoring status entries
      * @return the entry that matches the search criteria
      */
     private RefactoringStatusEntry getEntryMatchingSeverity(int severity, List<RefactoringStatusEntry> entries) {
-        Iterator iter = entries.iterator();
-        while (iter.hasNext()) {
-            RefactoringStatusEntry entry = (RefactoringStatusEntry)iter.next();
+        for (RefactoringStatusEntry entry : entries) {
             if (entry.getSeverity() >= severity)
                 return entry;
         }
