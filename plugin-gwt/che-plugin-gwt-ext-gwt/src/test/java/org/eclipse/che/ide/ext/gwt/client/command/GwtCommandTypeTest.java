@@ -13,7 +13,7 @@ package org.eclipse.che.ide.ext.gwt.client.command;
 import org.eclipse.che.ide.ext.gwt.client.GwtResources;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfigurationPage;
-import org.eclipse.che.ide.extension.machine.client.command.valueproviders.CurrentProjectNameProvider;
+import org.eclipse.che.ide.extension.machine.client.command.valueproviders.CurrentProjectPathProvider;
 import org.eclipse.che.ide.extension.machine.client.command.valueproviders.DevMachineHostNameProvider;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,7 +35,7 @@ public class GwtCommandTypeTest {
     @Mock
     private GwtCommandPagePresenter    gwtCommandPagePresenter;
     @Mock
-    private CurrentProjectNameProvider currentProjectNameProvider;
+    private CurrentProjectPathProvider currentProjectPathProvider;
     @Mock
     private DevMachineHostNameProvider devMachineHostNameProvider;
 
@@ -60,7 +60,7 @@ public class GwtCommandTypeTest {
     public void shouldReturnCommandTemplate() throws Exception {
         gwtCommandType.getCommandTemplate();
 
-        verify(currentProjectNameProvider).getKey();
+        verify(currentProjectPathProvider).getKey();
         verify(devMachineHostNameProvider).getKey();
     }
 }

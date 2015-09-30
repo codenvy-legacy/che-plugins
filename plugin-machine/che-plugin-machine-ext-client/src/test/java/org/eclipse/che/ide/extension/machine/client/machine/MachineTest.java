@@ -13,6 +13,7 @@ package org.eclipse.che.ide.extension.machine.client.machine;
 import org.eclipse.che.api.machine.shared.dto.MachineDescriptor;
 import org.eclipse.che.api.machine.shared.dto.ServerDescriptor;
 import org.eclipse.che.api.machine.shared.dto.recipe.MachineRecipe;
+import org.eclipse.che.api.workspace.shared.dto.MachineMetadataDto;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.junit.Before;
 import org.junit.Test;
@@ -152,5 +153,18 @@ public class MachineTest {
         machine.isDev();
 
         verify(descriptor).isDev();
+    }
+
+    @Test
+    public void projectsRootShouldBeReturned() {
+        MachineMetadataDto machineMetadata = mock(MachineMetadataDto.class);
+        when(machineMetadata.projectsRoot()).thenReturn(SOME_TEXT);
+        when(descriptor.getMetadata()).thenReturn(machineMetadata);
+
+        String projectsRoot = machine.getProjectsRoot();
+
+        verify(descriptor).getMetadata();
+        verify(machineMetadata).projectsRoot();
+        assertThat(projectsRoot, equalTo(SOME_TEXT));
     }
 }
