@@ -26,6 +26,12 @@
             <groupId>com.google.inject</groupId>
             <artifactId>guice</artifactId>
             <version>${com.google.code.guice.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>guava</artifactId>
+                    <groupId>com.google.guava</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.core</groupId>
