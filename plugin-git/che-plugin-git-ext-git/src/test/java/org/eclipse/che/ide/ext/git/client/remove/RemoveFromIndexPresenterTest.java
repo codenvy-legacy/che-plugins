@@ -40,6 +40,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.anyBoolean;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -71,6 +72,7 @@ public class RemoveFromIndexPresenterTest extends BaseTest {
         presenter = new RemoveFromIndexPresenter(view,
                                                  eventBus,
                                                  service,
+                                                 console,
                                                  constant,
                                                  appContext,
                                                  selectionAgent,
@@ -161,7 +163,8 @@ public class RemoveFromIndexPresenterTest extends BaseTest {
         verify(service).remove(eq(rootProjectDescriptor), (List<String>)anyObject(), eq(REMOVED),
                                (AsyncRequestCallback<String>)anyObject());
         verify(notificationManager).showNotification((Notification)anyObject());
-        verify(constant).removeFilesSuccessfull();
+        verify(console).printInfo(anyString());
+        verify(constant, times(2)).removeFilesSuccessfull();
         verify(view).close();
     }
 
@@ -187,6 +190,7 @@ public class RemoveFromIndexPresenterTest extends BaseTest {
         verify(service).remove(eq(rootProjectDescriptor), (List<String>)anyObject(), eq(REMOVED),
                                (AsyncRequestCallback<String>)anyObject());
         verify(constant).removeFilesFailed();
+        verify(console).printError(anyString());
         verify(notificationManager).showNotification((Notification)anyObject());
         verify(view).close();
     }

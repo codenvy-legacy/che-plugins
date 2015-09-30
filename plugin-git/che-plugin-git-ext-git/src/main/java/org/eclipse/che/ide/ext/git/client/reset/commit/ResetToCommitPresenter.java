@@ -22,6 +22,7 @@ import org.eclipse.che.ide.api.editor.EditorPartPresenter;
 import org.eclipse.che.ide.api.event.OpenProjectEvent;
 import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.api.notification.NotificationManager;
+import org.eclipse.che.ide.ext.git.client.GitOutputPartPresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 
@@ -44,6 +45,7 @@ import static org.eclipse.che.ide.api.notification.Notification.Type.INFO;
 @Singleton
 public class ResetToCommitPresenter implements ResetToCommitView.ActionDelegate {
     private final DtoUnmarshallerFactory    dtoUnmarshallerFactory;
+    private final GitOutputPartPresenter    console;
     private       ResetToCommitView         view;
     private       GitServiceClient          service;
     private       Revision                  selectedRevision;
@@ -62,11 +64,13 @@ public class ResetToCommitPresenter implements ResetToCommitView.ActionDelegate 
                                   GitServiceClient service,
                                   GitLocalizationConstant constant,
                                   EventBus eventBus,
+                                  GitOutputPartPresenter console,
                                   EditorAgent editorAgent,
                                   AppContext appContext,
                                   NotificationManager notificationManager,
                                   DtoUnmarshallerFactory dtoUnmarshallerFactory) {
         this.view = view;
+        this.console = console;
         this.view.setDelegate(this);
         this.service = service;
         this.constant = constant;
@@ -94,6 +98,7 @@ public class ResetToCommitPresenter implements ResetToCommitView.ActionDelegate 
                         @Override
                         protected void onFailure(Throwable exception) {
                             String errorMessage = (exception.getMessage() != null) ? exception.getMessage() : constant.logFailed();
+                            console.printError(errorMessage);
                             Notification notification = new Notification(errorMessage, ERROR);
                             notificationManager.showNotification(notification);
                         }
@@ -155,6 +160,7 @@ public class ResetToCommitPresenter implements ResetToCommitView.ActionDelegate 
                                   //so we must repeat the logic which is performed when we open a project
                                   eventBus.fireEvent(new OpenProjectEvent(project.getPath()));
                               }
+                              console.printInfo(constant.resetSuccessfully());
                               Notification notification = new Notification(constant.resetSuccessfully(), INFO);
                               notificationManager.showNotification(notification);
 
@@ -163,6 +169,7 @@ public class ResetToCommitPresenter implements ResetToCommitView.ActionDelegate 
                           @Override
                           protected void onFailure(Throwable exception) {
                               String errorMessage = (exception.getMessage() != null) ? exception.getMessage() : constant.resetFail();
+                              console.printError(errorMessage);
                               Notification notification = new Notification(errorMessage, ERROR);
                               notificationManager.showNotification(notification);
                           }

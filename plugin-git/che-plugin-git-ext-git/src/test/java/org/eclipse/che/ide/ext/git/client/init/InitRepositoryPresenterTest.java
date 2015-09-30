@@ -50,6 +50,7 @@ public class InitRepositoryPresenterTest extends BaseTest {
         presenter = new InitRepositoryPresenter(appContext,
                                                 eventBus,
                                                 constant,
+                                                console,
                                                 notificationManager,
                                                 gitRepositoryInitializer);
     }
@@ -70,6 +71,7 @@ public class InitRepositoryPresenterTest extends BaseTest {
         presenter.initRepository();
 
         verify(gitRepositoryInitializer).initGitRepository(eq(rootProjectDescriptor), (AsyncCallback<Void>)anyObject());
+        verify(console).printInfo(eq(constant.initSuccess()));
         verify(notificationManager).showInfo(eq(constant.initSuccess()));
         verify(eventBus).fireEvent(Matchers.<RefreshProjectTreeEvent>anyObject());
     }
@@ -91,6 +93,7 @@ public class InitRepositoryPresenterTest extends BaseTest {
 
         verify(gitRepositoryInitializer).initGitRepository(eq(rootProjectDescriptor), (AsyncCallback<Void>)anyObject());
         verify(constant).initFailed();
+        verify(console).printError(eq(constant.initFailed()));
         verify(notificationManager).showError(eq(constant.initFailed()));
     }
 }

@@ -10,14 +10,12 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.git.client;
 
-import org.eclipse.che.ide.ext.git.client.GitLocalizationConstant;
 import org.eclipse.che.api.git.gwt.client.GitServiceClient;
 import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
 import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.notification.NotificationManager;
-import org.eclipse.che.ide.api.parts.ConsolePart;
 import org.eclipse.che.ide.api.selection.SelectionAgent;
 import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
@@ -67,7 +65,7 @@ public abstract class BaseTest {
     @Mock
     protected GitLocalizationConstant constant;
     @Mock
-    protected ConsolePart             console;
+    protected GitOutputPartPresenter  console;
     @Mock
     protected GitResources            resources;
     @Mock

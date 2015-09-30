@@ -27,6 +27,7 @@ import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.project.tree.VirtualFile;
 import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.ext.git.client.BranchSearcher;
+import org.eclipse.che.ide.ext.git.client.GitOutputPartPresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 
@@ -59,6 +60,7 @@ public class PullPresenter implements PullView.ActionDelegate {
     private final AppContext              appContext;
     private final NotificationManager     notificationManager;
     private final DtoUnmarshallerFactory  dtoUnmarshallerFactory;
+    private final GitOutputPartPresenter  console;
     private final DtoFactory              dtoFactory;
     private final BranchSearcher          branchSearcher;
     private       CurrentProject          project;
@@ -68,6 +70,7 @@ public class PullPresenter implements PullView.ActionDelegate {
     public PullPresenter(PullView view,
                          EditorAgent editorAgent,
                          GitServiceClient gitServiceClient,
+                         GitOutputPartPresenter console,
                          EventBus eventBus,
                          AppContext appContext,
                          GitLocalizationConstant constant,
@@ -76,6 +79,7 @@ public class PullPresenter implements PullView.ActionDelegate {
                          DtoFactory dtoFactory,
                          BranchSearcher branchSearcher) {
         this.view = view;
+        this.console = console;
         this.dtoFactory = dtoFactory;
         this.branchSearcher = branchSearcher;
         this.view.setDelegate(this);
@@ -116,6 +120,7 @@ public class PullPresenter implements PullView.ActionDelegate {
                                             String errorMessage =
                                                     exception.getMessage() != null ? exception.getMessage()
                                                                                    : constant.remoteListFailed();
+                                            console.printError(errorMessage);
                                             notificationManager.showError(errorMessage);
                                             view.setEnablePullButton(false);
                                         }
@@ -153,6 +158,7 @@ public class PullPresenter implements PullView.ActionDelegate {
                                             String errorMessage =
                                                     exception.getMessage() != null ? exception.getMessage()
                                                                                    : constant.branchesListFailed();
+                                            console.printError(errorMessage);
                                             notificationManager.showError(errorMessage);
                                             view.setEnablePullButton(false);
                                         }
@@ -178,6 +184,7 @@ public class PullPresenter implements PullView.ActionDelegate {
                               new AsyncRequestCallback<PullResponse>(dtoUnmarshallerFactory.newUnmarshaller(PullResponse.class)) {
                                   @Override
                                   protected void onSuccess(PullResponse result) {
+                                      console.printInfo(result.getCommandOutput());
                                       notification.setStatus(FINISHED);
                                       notification.setMessage(result.getCommandOutput());
                                       if (!result.getCommandOutput().contains("Already up-to-date")) {
@@ -230,6 +237,7 @@ public class PullPresenter implements PullView.ActionDelegate {
         String errorMessage = throwable.getMessage();
         notification.setType(ERROR);
         if (errorMessage == null) {
+            console.printError(constant.pullFail(remoteUrl));
             notification.setMessage(constant.pullFail(remoteUrl));
             return;
         }
@@ -237,11 +245,14 @@ public class PullPresenter implements PullView.ActionDelegate {
         try {
             errorMessage = dtoFactory.createDtoFromJson(errorMessage, ServiceError.class).getMessage();
             if (errorMessage.equals("Unable get private ssh key")) {
+                console.printError(constant.messagesUnableGetSshKey());
                 notification.setMessage(constant.messagesUnableGetSshKey());
                 return;
             }
+            console.printError(errorMessage);
             notification.setMessage(errorMessage);
         } catch (Exception e) {
+            console.printError(errorMessage);
             notification.setMessage(errorMessage);
         }
     }

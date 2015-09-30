@@ -89,9 +89,18 @@ public class HistoryPresenterTest extends BaseTest {
     public void disarm() {
         super.disarm();
 
-        presenter =
-                new HistoryPresenter(view, eventBus, resources, service, workspaceAgent, constant, appContext, notificationManager,
-                                     dtoUnmarshallerFactory, dateTimeFormatter, selectionAgent);
+        presenter = new HistoryPresenter(view,
+                                         eventBus,
+                                         resources,
+                                         service,
+                                         workspaceAgent,
+                                         constant,
+                                         console,
+                                         appContext,
+                                         notificationManager,
+                                         dtoUnmarshallerFactory,
+                                         dateTimeFormatter,
+                                         selectionAgent);
         presenter.setPartStack(partStack);
 
         when(partStack.getActivePart()).thenReturn(activePart);
@@ -159,6 +168,7 @@ public class HistoryPresenterTest extends BaseTest {
         verify(partStack).setActivePart(eq(presenter));
         verify(constant, times(2)).historyNothingToDisplay();
         verify(constant).logFailed();
+        verify(console).printError(anyString());
         verify(notificationManager).showNotification((Notification)anyObject());
     }
 
@@ -229,6 +239,7 @@ public class HistoryPresenterTest extends BaseTest {
                 .diff(eq(rootProjectDescriptor), (List<String>)anyObject(), eq(RAW), eq(NO_RENAMES), eq(RENAME_LIMIT),
                       eq(REVISION_ID), anyBoolean(), (AsyncRequestCallback<String>)anyObject());
         verify(constant, times(2)).diffFailed();
+        verify(console, times(2)).printError(anyString());
         verify(notificationManager, times(2)).showNotification((Notification)anyObject());
         verify(view).setCommitADate(anyString());
         verify(view).setCommitARevision(anyString());

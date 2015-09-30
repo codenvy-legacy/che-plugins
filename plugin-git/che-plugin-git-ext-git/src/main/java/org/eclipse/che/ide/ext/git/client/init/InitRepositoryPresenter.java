@@ -15,6 +15,7 @@ import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.event.RefreshProjectTreeEvent;
 import org.eclipse.che.ide.api.notification.NotificationManager;
+import org.eclipse.che.ide.ext.git.client.GitOutputPartPresenter;
 import org.eclipse.che.ide.ext.git.client.GitRepositoryInitializer;
 import org.eclipse.che.ide.util.loging.Log;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -36,17 +37,20 @@ public class InitRepositoryPresenter {
     private final EventBus                 eventBus;
     private final AppContext               appContext;
     private final GitLocalizationConstant  constant;
+    private final GitOutputPartPresenter   console;
     private final NotificationManager      notificationManager;
 
     @Inject
     public InitRepositoryPresenter(AppContext appContext,
                                    EventBus eventBus,
                                    GitLocalizationConstant constant,
+                                   GitOutputPartPresenter console,
                                    NotificationManager notificationManager,
                                    GitRepositoryInitializer gitRepositoryInitializer) {
         this.appContext = appContext;
         this.eventBus = eventBus;
         this.constant = constant;
+        this.console = console;
         this.notificationManager = notificationManager;
         this.gitRepositoryInitializer = gitRepositoryInitializer;
     }
@@ -67,6 +71,7 @@ public class InitRepositoryPresenter {
 
             @Override
             public void onSuccess(Void result) {
+                console.printInfo(constant.initSuccess());
                 notificationManager.showInfo(constant.initSuccess());
                 //it's need for show .git in project tree
                 eventBus.fireEvent(new RefreshProjectTreeEvent());
@@ -82,6 +87,7 @@ public class InitRepositoryPresenter {
      */
     private void handleError(@NotNull Throwable e) {
         String errorMessage = (e.getMessage() != null && !e.getMessage().isEmpty()) ? e.getMessage() : constant.initFailed();
+        console.printError(errorMessage);
         notificationManager.showError(errorMessage);
     }
 }

@@ -21,6 +21,7 @@ import org.eclipse.che.ide.api.event.OpenProjectEvent;
 import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.api.project.tree.generic.FileNode;
 import org.eclipse.che.ide.ext.git.client.BaseTest;
+import org.eclipse.che.ide.ext.git.client.GitOutputPartPresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import com.google.web.bindery.event.shared.Event;
 import com.googlecode.gwt.test.utils.GwtReflectionUtils;
@@ -83,6 +84,7 @@ public class ResetToCommitPresenterTest extends BaseTest {
                                                service,
                                                constant,
                                                eventBus,
+                                               console,
                                                editorAgent,
                                                appContext,
                                                notificationManager,
@@ -142,6 +144,7 @@ public class ResetToCommitPresenterTest extends BaseTest {
         verify(appContext).getCurrentProject();
         verify(service).log(eq(rootProjectDescriptor), eq(!IS_TEXT_FORMATTED), (AsyncRequestCallback<LogResponse>)anyObject());
         verify(constant).logFailed();
+        verify(console).printError(anyString());
         verify(notificationManager).showNotification((Notification)anyObject());
     }
 
@@ -175,6 +178,7 @@ public class ResetToCommitPresenterTest extends BaseTest {
         verify(service).reset((ProjectDescriptor)anyObject(), eq(PROJECT_PATH), eq(HARD), (List<String>)anyObject(),
                               (AsyncRequestCallback<Void>)anyObject());
         verify(eventBus).fireEvent(Matchers.<Event<OpenProjectEvent>>anyObject());
+        verify(console).printInfo(anyString());
         verify(notificationManager).showNotification((Notification)anyObject());
     }
 
@@ -208,6 +212,7 @@ public class ResetToCommitPresenterTest extends BaseTest {
         verify(service).reset((ProjectDescriptor)anyObject(), eq(PROJECT_PATH), eq(HARD), (List<String>)anyObject(),
                               (AsyncRequestCallback<Void>)anyObject());
         verify(eventBus).fireEvent(Matchers.<Event<OpenProjectEvent>>anyObject());
+        verify(console).printInfo(anyString());
         verify(notificationManager).showNotification((Notification)anyObject());
     }
 
@@ -233,6 +238,7 @@ public class ResetToCommitPresenterTest extends BaseTest {
         verify(appContext).getCurrentProject();
         verify(service).reset((ProjectDescriptor)anyObject(), eq(PROJECT_PATH), eq(MIXED), (java.util.List<String>)anyObject(),
                               (AsyncRequestCallback<Void>)anyObject());
+        verify(console).printError(anyString());
         verify(notificationManager).showNotification((Notification)anyObject());
         verify(eventBus, never()).fireEvent((Event<?>)anyObject());
     }

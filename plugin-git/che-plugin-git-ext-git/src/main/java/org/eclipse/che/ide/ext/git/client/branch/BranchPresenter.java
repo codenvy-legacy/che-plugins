@@ -156,6 +156,7 @@ public class BranchPresenter implements BranchView.ActionDelegate {
             protected void onFailure(Throwable exception) {
                 String errorMessage =
                         (exception.getMessage() != null) ? exception.getMessage() : constant.branchRenameFailed();
+                gitConsole.printError(errorMessage);
                 notificationManager.showError(errorMessage);
                 getBranches();//rename of remote branch occurs in three stages, so needs update list of branches on view
             }
@@ -260,6 +261,7 @@ public class BranchPresenter implements BranchView.ActionDelegate {
                                protected void onFailure(Throwable exception) {
                                    final String errorMessage =
                                            (exception.getMessage() != null) ? exception.getMessage() : constant.branchesListFailed();
+                                   gitConsole.printError(errorMessage);
                                    notificationManager.showError(errorMessage);
                                }
                            }
@@ -285,6 +287,7 @@ public class BranchPresenter implements BranchView.ActionDelegate {
                                                  final String errorMessage = (exception.getMessage() != null)
                                                                              ? exception.getMessage()
                                                                              : constant.branchCreateFailed();
+                                                 gitConsole.printError(errorMessage);
                                                  notificationManager.showError(errorMessage);
                                              }
                                          }
@@ -315,6 +318,7 @@ public class BranchPresenter implements BranchView.ActionDelegate {
     void handleError(@NotNull Throwable throwable) {
         String errorMessage = throwable.getMessage();
         if (errorMessage == null) {
+            gitConsole.printError(constant.branchDeleteFailed());
             notificationManager.showError(constant.branchDeleteFailed());
             return;
         }
@@ -322,11 +326,14 @@ public class BranchPresenter implements BranchView.ActionDelegate {
         try {
             errorMessage = dtoFactory.createDtoFromJson(errorMessage, ServiceError.class).getMessage();
             if (errorMessage.equals("Unable get private ssh key")) {
+                gitConsole.printError(constant.messagesUnableGetSshKey());
                 notificationManager.showError(constant.messagesUnableGetSshKey());
                 return;
             }
+            gitConsole.printError(errorMessage);
             notificationManager.showError(errorMessage);
         } catch (Exception e) {
+            gitConsole.printError(errorMessage);
             notificationManager.showError(errorMessage);
         }
     }

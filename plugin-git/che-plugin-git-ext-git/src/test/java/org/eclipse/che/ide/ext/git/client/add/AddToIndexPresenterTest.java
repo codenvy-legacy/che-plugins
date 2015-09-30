@@ -43,6 +43,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -77,6 +78,7 @@ public class AddToIndexPresenterTest extends BaseTest {
                                             appContext,
                                             dtoUnmarshallerFactory,
                                             constant,
+                                            console,
                                             service,
                                             notificationManager,
                                             selectionAgent);
@@ -93,6 +95,7 @@ public class AddToIndexPresenterTest extends BaseTest {
         Method onFailure = GwtReflectionUtils.getMethod(callback.getClass(), "onFailure");
         onFailure.invoke(callback, mock(Throwable.class));
 
+        verify(console).printError(anyString());
         verify(notificationManager).showError(anyString());
         verify(view, never()).showDialog();
         verify(constant).statusFailed();
@@ -111,9 +114,10 @@ public class AddToIndexPresenterTest extends BaseTest {
         Method onSuccess = GwtReflectionUtils.getMethod(callback.getClass(), "onSuccess");
         onSuccess.invoke(callback, this.statusResponse);
 
+        verify(console).printInfo(anyString());
         verify(notificationManager).showInfo(anyString());
         verify(view, never()).showDialog();
-        verify(constant).nothingAddToIndex();
+        verify(constant,times(2)).nothingAddToIndex();
     }
 
     @Test
@@ -265,8 +269,9 @@ public class AddToIndexPresenterTest extends BaseTest {
         verify(view).close();
         verify(service).add(eq(rootProjectDescriptor), eq(NEED_UPDATING), (List<String>)anyObject(),
                             (RequestCallback<Void>)anyObject());
+        verify(console).printInfo(anyString());
         verify(notificationManager).showInfo(anyString());
-        verify(constant).addSuccess();
+        verify(constant, times(2)).addSuccess();
     }
 
     @Test
@@ -286,6 +291,7 @@ public class AddToIndexPresenterTest extends BaseTest {
 
         verify(view).isUpdated();
         verify(view).close();
+        verify(console).printError(anyString());
         verify(notificationManager).showError(anyString());
         verify(constant).addFailed();
     }
@@ -305,6 +311,7 @@ public class AddToIndexPresenterTest extends BaseTest {
                 .add(eq(rootProjectDescriptor), eq(NEED_UPDATING), (List<String>)anyObject(),
                      (RequestCallback<Void>)anyObject());
         verify(view).close();
+        verify(console).printError(anyString());
         verify(notificationManager).showError(anyString());
         verify(constant).addFailed();
     }

@@ -22,6 +22,7 @@ import org.eclipse.che.ide.api.event.OpenProjectEvent;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.ext.git.client.GitLocalizationConstant;
+import org.eclipse.che.ide.ext.git.client.GitOutputPartPresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 
 /**
@@ -32,6 +33,7 @@ import org.eclipse.che.ide.rest.AsyncRequestCallback;
 @Singleton
 public class CheckoutReferencePresenter implements CheckoutReferenceView.ActionDelegate {
     private final NotificationManager     notificationManager;
+    private final GitOutputPartPresenter  console;
     private final DtoFactory              dtoFactory;
     private final GitServiceClient        service;
     private final AppContext              appContext;
@@ -45,9 +47,11 @@ public class CheckoutReferencePresenter implements CheckoutReferenceView.ActionD
                                       EventBus eventBus,
                                       AppContext appContext,
                                       GitLocalizationConstant constant,
+                                      GitOutputPartPresenter console,
                                       NotificationManager notificationManager,
                                       DtoFactory dtoFactory) {
         this.view = view;
+        this.console = console;
         this.dtoFactory = dtoFactory;
         this.view.setDelegate(this);
         this.service = service;
@@ -90,6 +94,7 @@ public class CheckoutReferencePresenter implements CheckoutReferenceView.ActionD
                                        final String errorMessage = (exception.getMessage() != null)
                                                                    ? exception.getMessage()
                                                                    : constant.checkoutFailed(reference);
+                                       console.printError(errorMessage);
                                        notificationManager.showError(errorMessage);
                                    }
                                }
