@@ -8,11 +8,12 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.jdt.internal.corext.format;
+package org.eclipse.che.jdt.rest;
 
 import com.google.inject.Inject;
 
 import org.eclipse.che.ide.ext.java.shared.dto.Change;
+import org.eclipse.jdt.internal.corext.format.Formatter;
 import org.eclipse.jface.text.BadLocationException;
 
 import javax.ws.rs.Consumes;
@@ -26,7 +27,7 @@ import java.util.List;
 /**
  * @author Roman Nikitenko
  */
-@Path("code-formatting/")
+@Path("code-formatting/{wsId}")
 public class FormatService {
     private Formatter formatter;
 

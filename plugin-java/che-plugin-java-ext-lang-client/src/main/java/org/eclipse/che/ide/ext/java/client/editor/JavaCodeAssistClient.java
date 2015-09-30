@@ -43,11 +43,11 @@ import static org.eclipse.che.ide.rest.HTTPHeader.CONTENT_TYPE;
 @Singleton
 public class JavaCodeAssistClient {
 
-    private final String machineExtPath;
-    private       String workspaceId;
+    private final String              machineExtPath;
     private final DtoUnmarshallerFactory unmarshallerFactory;
     private final AppContext          appContext;
     private final AsyncRequestFactory asyncRequestFactory;
+    private       String              workspaceId;
 
     @Inject
     public JavaCodeAssistClient(@Named("cheExtensionPath") String machineExtPath,
@@ -118,7 +118,7 @@ public class JavaCodeAssistClient {
         return newPromise(new AsyncPromiseHelper.RequestCall<List<Change>>() {
             @Override
             public void makeCall(AsyncCallback<List<Change>> callback) {
-                String url = machineExtPath + "/" + appContext.getDevMachineId() + "/code-formatting/format?offset=" + offset +
+                String url = machineExtPath + "/code-formatting/" + workspaceId + "/format?offset=" + offset +
                              "&length=" + length;
                 asyncRequestFactory.createPostRequest(url, null)
                                    .header(CONTENT_TYPE, MimeType.TEXT_PLAIN)
