@@ -20,12 +20,12 @@ import org.eclipse.che.inject.DynaModule;
 import org.eclipse.che.jdt.refactoring.RefactoringManager;
 import org.eclipse.che.jdt.rest.CodeAssistService;
 import org.eclipse.che.jdt.rest.CompilerSetupService;
+import org.eclipse.che.jdt.rest.FormatService;
 import org.eclipse.che.jdt.rest.JavaClasspathService;
 import org.eclipse.che.jdt.rest.JavaReconcileService;
 import org.eclipse.che.jdt.rest.RefactoringService;
 import org.eclipse.core.internal.filebuffers.FileBuffersPlugin;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.jdt.internal.corext.format.FormatService;
 import org.eclipse.jdt.internal.ui.JavaPlugin;
 
 /**
