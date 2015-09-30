@@ -17,11 +17,6 @@ package org.eclipse.che.ide.orion.compare;
 public interface CompareConfig {
 
     /**
-     * set the parent element id for the compare view
-     */
-    void setElementId(String id);
-
-    /**
      * the options of the file that is original.
      * @param oldFile
      */
@@ -44,4 +39,10 @@ public interface CompareConfig {
      * @param showLineStatus
      */
     void setShowLineStatus(boolean showLineStatus);
+
+    /**
+     * Convert this object to JSON.
+     * @return JSON string
+     */
+    String toJson();
 }

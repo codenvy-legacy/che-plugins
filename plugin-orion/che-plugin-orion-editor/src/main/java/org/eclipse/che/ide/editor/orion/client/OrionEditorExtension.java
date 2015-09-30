@@ -136,6 +136,7 @@ public class OrionEditorExtension implements Provider<OrionKeyBindingModule>{
                 initializationFailed(callback, "Unable to inject Orion", e);
             }
         }, scripts, new String[0]);
+        injectCssLink(GWT.getModuleBaseForStaticFiles() + "built-editor-compat.css");
     }
 
     private static void injectCssLink(final String url) {
@@ -183,8 +184,6 @@ public class OrionEditorExtension implements Provider<OrionKeyBindingModule>{
 
     private void registerEditor() {
         LOG.fine("Registering Orion editor type.");
-        injectCssLink(GWT.getModuleBaseForStaticFiles() + "built-editor-compat.css");
-        orionResource.editorStyle().ensureInjected();
         this.editorTypeRegistry.registerEditorType(EditorType.fromKey(ORION_EDITOR_KEY), "Orion", new EditorBuilder() {
 
             @Override
@@ -198,6 +197,7 @@ public class OrionEditorExtension implements Provider<OrionKeyBindingModule>{
 
     private void defineDefaultTheme() {
         // The codenvy theme uses both an orion css file and a CssResource
+        this.orionResource.editorStyle().ensureInjected();
         OrionTextThemeOverlay.setDefaultTheme("orionCodenvy", "orion-codenvy.css");
     }
 

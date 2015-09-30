@@ -30,18 +30,16 @@ import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import org.eclipse.che.api.promises.client.Operation;
-import org.eclipse.che.api.promises.client.OperationException;
-import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.commons.annotation.Nullable;
+import org.eclipse.che.ide.api.theme.ThemeAgent;
 import org.eclipse.che.ide.ext.java.client.JavaLocalizationConstant;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ChangePreview;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringPreview;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatus;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatusEntry;
-import org.eclipse.che.ide.orion.compare.Compare;
 import org.eclipse.che.ide.orion.compare.CompareConfig;
 import org.eclipse.che.ide.orion.compare.CompareFactory;
+import org.eclipse.che.ide.orion.compare.CompareWidget;
 import org.eclipse.che.ide.orion.compare.FileOptions;
 import org.eclipse.che.ide.ui.cellview.CellTreeResources;
 import org.eclipse.che.ide.ui.window.Window;
@@ -56,6 +54,9 @@ import java.util.List;
  */
 @Singleton
 final class PreviewViewImpl extends Window implements PreviewView {
+
+    private CompareWidget compareWidget;
+
     interface PreviewViewImplUiBinder extends UiBinder<Widget, PreviewViewImpl> {
     }
 
@@ -77,19 +78,21 @@ final class PreviewViewImpl extends Window implements PreviewView {
     private ActionDelegate delegate;
     private FileOptions    newFile;
     private FileOptions    oldFile;
-    private Compare        compare;
+    private CompareWidget  compare;
     private CellTree       tree;
 
     private final CellTreeResources cellTreeResources;
     private final CompareFactory    compareFactory;
+    private ThemeAgent themeAgent;
 
     @Inject
     public PreviewViewImpl(JavaLocalizationConstant locale,
                            CellTreeResources cellTreeResources,
-                           CompareFactory compareFactory) {
+                           CompareFactory compareFactory, ThemeAgent themeAgent) {
         this.locale = locale;
         this.cellTreeResources = cellTreeResources;
         this.compareFactory = compareFactory;
+        this.themeAgent = themeAgent;
 
         setTitle(locale.moveDialogTitle());
 
@@ -209,15 +212,9 @@ final class PreviewViewImpl extends Window implements PreviewView {
         compareConfig.setOldFile(oldFile);
         compareConfig.setShowTitle(true);
         compareConfig.setShowLineStatus(true);
-        compareConfig.setElementId(diff.getElement().getId());
 
-        Promise<Compare> comparePromise = compareFactory.createCompare(compareConfig);
-        comparePromise.then(new Operation<Compare>() {
-            @Override
-            public void apply(Compare arg) throws OperationException {
-                compare = arg;
-            }
-        });
+        compare= new CompareWidget(compareConfig, themeAgent.getCurrentThemeId());
+        diff.add(compare);
     }
 
     private void showMessage(RefactoringStatus status) {

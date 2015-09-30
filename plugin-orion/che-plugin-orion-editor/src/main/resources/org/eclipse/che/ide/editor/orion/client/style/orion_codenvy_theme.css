@@ -11,9 +11,9 @@
  @external *;
 
 .orionCodenvy {
-    font-family: editorFontFamily !important;
-    font-size: 13px !important;
-    color: editorDefaultFontColor !important;
+    font-family: editorFontFamily;
+    font-size: 13px;
+    color: editorDefaultFontColor;
 }
 .orionCodenvy.textview {
     background-color: editorBackgroundColor;
