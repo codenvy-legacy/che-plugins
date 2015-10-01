@@ -72,6 +72,7 @@ public class JavaRuntimeExtension {
             DefaultActionGroup rightToolbarGroup = (DefaultActionGroup)actionManager.getAction(GROUP_RIGHT_TOOLBAR);
             runToolbarGroup = new DefaultActionGroup(IdeActions.GROUP_RUN_TOOLBAR, false, actionManager);
             rightToolbarGroup.add(runToolbarGroup);
+            actionManager.registerAction(GROUP_RUN_TOOLBAR, runToolbarGroup);
         }
         runToolbarGroup.add(debugAction, new Constraints(Anchor.BEFORE, "chooseRunner"));
 
