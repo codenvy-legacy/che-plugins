@@ -33,6 +33,7 @@ import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.api.promises.client.PromiseError;
 import org.eclipse.che.api.promises.client.callback.AsyncPromiseHelper;
+import org.eclipse.che.api.workspace.shared.dto.UsersWorkspaceDto;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.EntityFactory;
@@ -43,9 +44,11 @@ import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 import org.eclipse.che.ide.util.UUID;
 import org.eclipse.che.ide.util.loging.Log;
 import org.eclipse.che.ide.websocket.MessageBus;
-import org.eclipse.che.ide.websocket.MessageBusImpl;
+import org.eclipse.che.ide.websocket.MessageBusProvider;
 import org.eclipse.che.ide.websocket.WebSocketException;
 import org.eclipse.che.ide.websocket.rest.SubscriptionHandler;
+import org.eclipse.che.ide.workspace.start.StartWorkspaceEvent;
+import org.eclipse.che.ide.workspace.start.StartWorkspaceHandler;
 
 import javax.validation.constraints.NotNull;
 
@@ -64,7 +67,6 @@ public class MachineManager {
 
     private final ExtServerStateController extServerStateController;
     private final MachineServiceClient     machineServiceClient;
-    private final MessageBus               messageBus;
     private final MachineConsolePresenter  machineConsolePresenter;
     private final NotificationManager      notificationManager;
     private final MachineStatusNotifier    machineStatusNotifier;
@@ -73,7 +75,8 @@ public class MachineManager {
     private final EntityFactory            entityFactory;
     private final AppContext               appContext;
 
-    private Machine devMachine;
+    private MessageBus messageBus;
+    private Machine    devMachine;
 
     @Inject
     public MachineManager(ExtServerStateController extServerStateController,
@@ -81,6 +84,7 @@ public class MachineManager {
                           MachineConsolePresenter machineConsolePresenter,
                           NotificationManager notificationManager,
                           MachineStatusNotifier machineStatusNotifier,
+                          final MessageBusProvider messageBusProvider,
                           DialogFactory dialogFactory,
                           RecipeProvider recipeProvider,
                           EntityFactory entityFactory,
@@ -88,7 +92,6 @@ public class MachineManager {
                           AppContext appContext) {
         this.extServerStateController = extServerStateController;
         this.machineServiceClient = machineServiceClient;
-        this.messageBus = MessageBusImpl.create(appContext.getWorkspace().getId());
         this.machineConsolePresenter = machineConsolePresenter;
         this.notificationManager = notificationManager;
         this.machineStatusNotifier = machineStatusNotifier;
@@ -96,6 +99,14 @@ public class MachineManager {
         this.recipeProvider = recipeProvider;
         this.entityFactory = entityFactory;
         this.appContext = appContext;
+
+        eventBus.addHandler(StartWorkspaceEvent.TYPE, new StartWorkspaceHandler() {
+            @Override
+            public void onWorkspaceStarted(UsersWorkspaceDto workspace) {
+                messageBus = messageBusProvider.getMessageBus();
+            }
+        });
+
         eventBus.addHandler(DevMachineStateEvent.TYPE, new DevMachineStateHandler() {
             @Override
             public void onMachineStarted(DevMachineStateEvent event) {

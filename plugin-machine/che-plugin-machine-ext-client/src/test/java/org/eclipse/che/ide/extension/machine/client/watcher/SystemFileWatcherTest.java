@@ -17,15 +17,18 @@ import com.google.web.bindery.event.shared.EventBus;
 import org.eclipse.che.api.project.gwt.client.watcher.WatcherServiceClient;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.Promise;
+import org.eclipse.che.api.workspace.shared.dto.UsersWorkspaceDto;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.event.RefreshProjectTreeEvent;
 import org.eclipse.che.ide.api.project.tree.TreeNode;
 import org.eclipse.che.ide.api.project.tree.TreeStructure;
 import org.eclipse.che.ide.websocket.MessageBus;
+import org.eclipse.che.ide.websocket.MessageBusProvider;
 import org.eclipse.che.ide.websocket.rest.SubscriptionHandler;
+import org.eclipse.che.ide.workspace.start.StartWorkspaceEvent;
+import org.eclipse.che.ide.workspace.start.StartWorkspaceHandler;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -63,16 +66,20 @@ public class SystemFileWatcherTest {
     private MessageBus           messageBus;
     @Mock
     private AppContext           appContext;
+    @Mock
+    private MessageBusProvider   messageBusProvider;
 
     //additional mocks
     @Mock
-    private Promise<Void>  registerPromise;
+    private Promise<Void>     registerPromise;
     @Mock
-    private CurrentProject currentProject;
+    private CurrentProject    currentProject;
     @Mock
-    private TreeStructure  treeStructure;
+    private TreeStructure     treeStructure;
     @Mock
-    private TreeNode<?>    treeNode;
+    private TreeNode<?>       treeNode;
+    @Mock
+    private UsersWorkspaceDto workspace;
 
     @Captor
     private ArgumentCaptor<Operation<Void>>                  operationCaptor;
@@ -82,18 +89,22 @@ public class SystemFileWatcherTest {
     private ArgumentCaptor<AsyncCallback<TreeNode<?>>>       nodeCaptor;
     @Captor
     private ArgumentCaptor<AsyncCallback<List<TreeNode<?>>>> rootNodeCaptor;
+    @Captor
+    private ArgumentCaptor<StartWorkspaceHandler>            startWorkspaceCaptor;
 
     private SystemFileWatcher systemFileWatcher;
 
     @Before
     public void setUp() {
-//        when(messageBusFactory.create(anyString())).thenReturn(messageBus);
-//
-//        systemFileWatcher = new SystemFileWatcher(watcherService, eventBus, messageBusFactory, appContext);
+        when(messageBusProvider.getMessageBus()).thenReturn(messageBus);
+
+        systemFileWatcher = new SystemFileWatcher(watcherService, eventBus, appContext, messageBusProvider);
+
+        verify(eventBus).addHandler(eq(StartWorkspaceEvent.TYPE), startWorkspaceCaptor.capture());
+        startWorkspaceCaptor.getValue().onWorkspaceStarted(workspace);
     }
 
     @Test
-    @Ignore
     public void watcherShouldBeRegistered() throws Exception {
         callRefreshTreeMethod(PATH_TO_FILE);
 
@@ -130,7 +141,6 @@ public class SystemFileWatcherTest {
     }
 
     @Test
-    @Ignore
     public void parentNodeShouldBeRefreshed() throws Exception {
         List<TreeNode<?>> nodes = new ArrayList<>();
         nodes.add(treeNode);
