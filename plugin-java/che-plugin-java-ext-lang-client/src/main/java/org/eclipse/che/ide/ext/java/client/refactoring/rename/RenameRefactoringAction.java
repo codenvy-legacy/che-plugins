@@ -76,8 +76,11 @@ public class RenameRefactoringAction extends Action {
 
             if (mediaType != null && ((mediaType.equals(MimeType.TEXT_X_JAVA) ||
                     mediaType.equals(MimeType.TEXT_X_JAVA_SOURCE) ||
-                    mediaType.equals(MimeType.APPLICATION_JAVA_CLASS))))
+                    mediaType.equals(MimeType.APPLICATION_JAVA_CLASS)))) {
                 event.getPresentation().setEnabled(true);
+            } else {
+                event.getPresentation().setEnabled(false);
+            }
 
         } else {
             event.getPresentation().setEnabled(false);
