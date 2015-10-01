@@ -28,14 +28,13 @@ import org.eclipse.che.ide.extension.machine.client.actions.SelectCommandComboBo
 import org.eclipse.che.ide.extension.machine.client.actions.SwitchPerspectiveAction;
 import org.eclipse.che.ide.extension.machine.client.machine.console.ClearConsoleAction;
 import org.eclipse.che.ide.extension.machine.client.machine.console.MachineConsoleToolbar;
-import org.eclipse.che.ide.extension.machine.client.machine.extserver.ExtServerStateNotifier;
 import org.eclipse.che.ide.extension.machine.client.machine.extserver.ProjectApiComponentInitializer;
 import org.eclipse.che.ide.extension.machine.client.outputspanel.OutputsContainerPresenter;
 import org.eclipse.che.ide.ui.toolbar.ToolbarPresenter;
 
+import static org.eclipse.che.ide.api.action.IdeActions.GROUP_CENTER_TOOLBAR;
 import static org.eclipse.che.ide.api.action.IdeActions.GROUP_CODE;
 import static org.eclipse.che.ide.api.action.IdeActions.GROUP_MAIN_MENU;
-import static org.eclipse.che.ide.api.action.IdeActions.GROUP_CENTER_TOOLBAR;
 import static org.eclipse.che.ide.api.action.IdeActions.GROUP_RIGHT_TOOLBAR;
 import static org.eclipse.che.ide.api.constraints.Anchor.AFTER;
 import static org.eclipse.che.ide.api.constraints.Constraints.FIRST;
@@ -66,8 +65,6 @@ public class MachineExtension {
                                 SelectCommandComboBoxAction selectCommandAction,
                                 EditCommandsAction editCommandsAction,
                                 CreateMachineAction createMachine,
-                                //Don't remove it's need for initialization
-                                ExtServerStateNotifier extServerStateNotifier,
                                 RestartMachineAction restartMachine,
                                 StopWorkspaceAction stopWorkspaceAction,
                                 SwitchPerspectiveAction switchPerspectiveAction) {
