@@ -74,8 +74,8 @@ public class RemoveFromIndexViewImpl extends Window implements RemoveFromIndexVi
                 delegate.onRemoveClicked();
             }
         });
-        btnRemove.addStyleName(Window.resources.centerPanelCss().blueButton());
-        getFooter().add(btnRemove);
+        btnRemove.addStyleName(Window.resources.windowCss().primaryButton());
+        addButtonToFooter(btnRemove);
 
         btnCancel = createButton(locale.buttonCancel(), "git-removeFromIndex-cancel", new ClickHandler() {
 
@@ -84,7 +84,7 @@ public class RemoveFromIndexViewImpl extends Window implements RemoveFromIndexVi
                 delegate.onCancelClicked();
             }
         });
-        getFooter().add(btnCancel);
+        addButtonToFooter(btnCancel);
     }
 
     /** {@inheritDoc} */

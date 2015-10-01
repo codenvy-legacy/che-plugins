@@ -77,10 +77,10 @@ public class ResolveViewImpl extends Window implements ResolveView {
                 delegate.onResolveClicked();
             }
         });
-        btnResolve.addStyleName(resources.centerPanelCss().blueButton());
+        btnResolve.addStyleName(resources.windowCss().primaryButton());
 
-        getFooter().add(btnResolve);
-        getFooter().add(btnCancel);
+        addButtonToFooter(btnResolve);
+        addButtonToFooter(btnCancel);
     }
 
     @Override

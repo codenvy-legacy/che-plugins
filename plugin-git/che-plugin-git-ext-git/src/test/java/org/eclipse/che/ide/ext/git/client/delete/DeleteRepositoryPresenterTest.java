@@ -52,7 +52,7 @@ public class DeleteRepositoryPresenterTest extends BaseTest {
     @Override
     public void disarm() {
         super.disarm();
-        when(resources.centerPanelCss()).thenReturn(css);
+        when(resources.windowCss()).thenReturn(css);
         when(css.alignBtn()).thenReturn("sdgsdf");
         when(css.glassVisible()).thenReturn("sdgsdf");
         when(css.contentVisible()).thenReturn("sdgsdf");

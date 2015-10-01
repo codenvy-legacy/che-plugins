@@ -108,10 +108,10 @@ public class CommitViewImpl extends Window implements CommitView {
                 delegate.onCommitClicked();
             }
         });
-        btnCommit.addStyleName(resources.centerPanelCss().blueButton());
+        btnCommit.addStyleName(resources.windowCss().primaryButton());
 
-        getFooter().add(btnCommit);
-        getFooter().add(btnCancel);
+        addButtonToFooter(btnCommit);
+        addButtonToFooter(btnCancel);
     }
 
     /** {@inheritDoc} */

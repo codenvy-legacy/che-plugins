@@ -58,7 +58,7 @@ public class NewJavaSourceFileViewImpl extends Window implements NewJavaSourceFi
                 delegate.onCancelClicked();
             }
         });
-        getFooter().add(btnCancel);
+        addButtonToFooter(btnCancel);
 
         btnOk = createButton(constant.buttonOk(), "newJavaClass-dialog-ok", new ClickHandler() {
             @Override
@@ -66,7 +66,7 @@ public class NewJavaSourceFileViewImpl extends Window implements NewJavaSourceFi
                 delegate.onOkClicked();
             }
         });
-        getFooter().add(btnOk);
+        addButtonToFooter(btnOk);
 
         Widget widget = uiBinder.createAndBindUi(this);
         this.setWidget(widget);

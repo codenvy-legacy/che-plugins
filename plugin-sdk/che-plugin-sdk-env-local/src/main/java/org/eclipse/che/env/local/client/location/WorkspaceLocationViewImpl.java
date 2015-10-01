@@ -107,7 +107,7 @@ public class WorkspaceLocationViewImpl extends Window implements WorkspaceLocati
                                      });
             }
         });
-        getFooter().add(okButton);
+        addButtonToFooter(okButton);
     }
 
     /** {@inheritDoc} */

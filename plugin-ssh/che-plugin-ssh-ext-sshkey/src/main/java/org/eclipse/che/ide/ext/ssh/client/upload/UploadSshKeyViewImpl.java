@@ -78,7 +78,7 @@ public class UploadSshKeyViewImpl extends Window implements UploadSshKeyView {
                 delegate.onCancelClicked();
             }
         });
-        getFooter().add(btnCancel);
+        addButtonToFooter(btnCancel);
 
         btnUpload = createButton(locale.uploadButton(), "preferences-sshKeys-upload", new ClickHandler() {
 
@@ -87,7 +87,7 @@ public class UploadSshKeyViewImpl extends Window implements UploadSshKeyView {
                 delegate.onUploadClicked();
             }
         });
-        getFooter().add(btnUpload);
+        addButtonToFooter(btnUpload);
     }
 
     /** Bind handlers. */

@@ -60,7 +60,7 @@ public class AboutViewImpl extends Window implements AboutView {
                 delegate.onOkClicked();
             }
         });
-        getFooter().add(btnOk);
+        addButtonToFooter(btnOk);
     }
 
     /** {@inheritDoc} */

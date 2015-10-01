@@ -76,7 +76,7 @@ public class AddRemoteRepositoryViewImpl extends Window implements AddRemoteRepo
                 delegate.onCancelClicked();
             }
         });
-        getFooter().add(btnCancel);
+        addButtonToFooter(btnCancel);
 
         btnOk = createButton(locale.buttonOk(), "git-addRemoteRepository-btnOk", new ClickHandler() {
 
@@ -85,7 +85,7 @@ public class AddRemoteRepositoryViewImpl extends Window implements AddRemoteRepo
                 delegate.onOkClicked();
             }
         });
-        getFooter().add(btnOk);
+        addButtonToFooter(btnOk);
     }
 
     /** {@inheritDoc} */

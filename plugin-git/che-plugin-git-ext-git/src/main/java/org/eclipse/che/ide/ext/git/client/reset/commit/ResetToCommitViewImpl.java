@@ -100,7 +100,7 @@ public class ResetToCommitViewImpl extends Window implements ResetToCommitView {
                 delegate.onCancelClicked();
             }
         });
-        getFooter().add(btnCancel);
+        addButtonToFooter(btnCancel);
 
         btnReset = createButton(locale.buttonReset(), "git-reset-reset", new ClickHandler() {
 
@@ -109,7 +109,7 @@ public class ResetToCommitViewImpl extends Window implements ResetToCommitView {
                 delegate.onResetClicked();
             }
         });
-        getFooter().add(btnReset);
+        addButtonToFooter(btnReset);
     }
 
     /** Add description to buttons. */

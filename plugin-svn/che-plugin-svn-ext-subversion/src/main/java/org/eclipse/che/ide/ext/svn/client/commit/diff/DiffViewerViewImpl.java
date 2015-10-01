@@ -53,7 +53,7 @@ public class DiffViewerViewImpl extends Window implements DiffViewerView {
             }
         });
 
-        getFooter().add(btnClose);
+        addButtonToFooter(btnClose);
 
         diffViewer.setEnabled(false);
     }

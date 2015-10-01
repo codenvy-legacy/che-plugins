@@ -72,10 +72,10 @@ public class AskCredentialsViewImpl extends Window implements AskCredentialsView
                 delegate.onSaveClicked();
             }
         });
-        btnSave.addStyleName(windowResources.centerPanelCss().blueButton());
+        btnSave.addStyleName(windowResources.windowCss().primaryButton());
 
-        getFooter().add(btnSave);
-        getFooter().add(btnCancel);
+        addButtonToFooter(btnSave);
+        addButtonToFooter(btnCancel);
     }
 
     @Override

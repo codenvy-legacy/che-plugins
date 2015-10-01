@@ -75,7 +75,7 @@ public class PushToRemoteViewImpl extends Window implements PushToRemoteView {
                 delegate.onCancelClicked();
             }
         });
-        getFooter().add(btnCancel);
+        addButtonToFooter(btnCancel);
 
         btnPush = createButton(locale.buttonPush(), "git-remotes-push-push", new ClickHandler() {
 
@@ -84,7 +84,7 @@ public class PushToRemoteViewImpl extends Window implements PushToRemoteView {
                 delegate.onPushClicked();
             }
         });
-        getFooter().add(btnPush);
+        addButtonToFooter(btnPush);
     }
 
     /** {@inheritDoc} */

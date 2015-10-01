@@ -41,9 +41,9 @@ public class InputDialogFooter extends Composite {
     public InputDialogFooter(Resources resources, ConfirmWindowFooterUiBinder uiBinder) {
         initWidget(uiBinder.createAndBindUi(this));
 
-        saveButton.addStyleName(resources.centerPanelCss().blueButton());
+        saveButton.addStyleName(resources.windowCss().primaryButton());
         saveButton.getElement().setId("inputCredentials-dialog-save");
-        cancelButton.addStyleName(resources.centerPanelCss().button());
+        cancelButton.addStyleName(resources.windowCss().button());
         cancelButton.getElement().setId("inputCredentials-dialog-cancel");
     }
 

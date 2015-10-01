@@ -231,11 +231,11 @@ public class EditCommandsViewImpl extends Window implements EditCommandsView {
             }
         });
 
-        okButton.addStyleName(resources.centerPanelCss().blueButton());
+        okButton.addStyleName(resources.windowCss().primaryButton());
 
-        getFooter().add(okButton);
-        getFooter().add(applyButton);
-        getFooter().add(cancelButton);
+        addButtonToFooter(okButton);
+        addButtonToFooter(applyButton);
+        addButtonToFooter(cancelButton);
     }
 
     @Override
