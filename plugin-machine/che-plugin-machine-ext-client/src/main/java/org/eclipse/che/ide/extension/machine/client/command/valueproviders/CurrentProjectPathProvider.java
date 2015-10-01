@@ -20,6 +20,9 @@ import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.PromiseError;
 import org.eclipse.che.ide.api.app.AppContext;
+import org.eclipse.che.ide.api.app.CurrentProject;
+import org.eclipse.che.ide.api.event.ProjectActionEvent;
+import org.eclipse.che.ide.api.event.ProjectActionHandler;
 import org.eclipse.che.ide.extension.machine.client.machine.Machine;
 import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateEvent;
 import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateHandler;
@@ -27,14 +30,14 @@ import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateH
 import javax.validation.constraints.NotNull;
 
 /**
- * Provides dev-machine's host name.
+ * Provides current project's path.
  *
  * @author Artem Zatsarynnyy
  */
 @Singleton
-public class DevMachineHostNameProvider implements CommandPropertyValueProvider, MachineStateHandler {
+public class CurrentProjectPathProvider implements CommandPropertyValueProvider, MachineStateHandler, ProjectActionHandler {
 
-    private static final String KEY = "${machine.dev.hostname}";
+    private static final String KEY = "${project.current.path}";
 
     private final AppContext           appContext;
     private final MachineServiceClient machineServiceClient;
@@ -42,12 +45,13 @@ public class DevMachineHostNameProvider implements CommandPropertyValueProvider,
     private String value;
 
     @Inject
-    public DevMachineHostNameProvider(EventBus eventBus, AppContext appContext, MachineServiceClient machineServiceClient) {
+    public CurrentProjectPathProvider(EventBus eventBus, AppContext appContext, MachineServiceClient machineServiceClient) {
         this.appContext = appContext;
         this.machineServiceClient = machineServiceClient;
         this.value = "";
 
         eventBus.addHandler(MachineStateEvent.TYPE, this);
+        eventBus.addHandler(ProjectActionEvent.TYPE, this);
         updateValue();
     }
 
@@ -65,36 +69,49 @@ public class DevMachineHostNameProvider implements CommandPropertyValueProvider,
 
     @Override
     public void onMachineRunning(MachineStateEvent event) {
+        final CurrentProject currentProject = appContext.getCurrentProject();
         final Machine machine = event.getMachine();
-        if (machine.isDev()) {
-            final String hostName = machine.getProperties().get("config.hostname");
-            if (hostName != null) {
-                value = hostName;
-            }
+        if (currentProject == null || !machine.isDev()) {
+            return;
         }
+
+        final String projectsRoot = machine.getProjectsRoot();
+        value = projectsRoot + currentProject.getProjectDescription().getPath();
     }
 
     @Override
     public void onMachineDestroyed(MachineStateEvent event) {
-        final Machine machine = event.getMachine();
-        if (machine.isDev()) {
+        if (event.getMachine().isDev()) {
             value = "";
         }
     }
 
+    @Override
+    public void onProjectOpened(ProjectActionEvent event) {
+        updateValue();
+    }
+
+    @Override
+    public void onProjectClosing(ProjectActionEvent event) {
+    }
+
+    @Override
+    public void onProjectClosed(ProjectActionEvent event) {
+        value = "";
+    }
+
     private void updateValue() {
         final String devMachineId = appContext.getDevMachineId();
-        if (devMachineId == null) {
+        final CurrentProject currentProject = appContext.getCurrentProject();
+        if (devMachineId == null || currentProject == null) {
             return;
         }
 
         machineServiceClient.getMachine(devMachineId).then(new Operation<MachineDescriptor>() {
             @Override
             public void apply(MachineDescriptor arg) throws OperationException {
-                final String hostName = arg.getProperties().get("config.hostname");
-                if (hostName != null) {
-                    value = hostName;
-                }
+                final String projectsRoot = arg.getMetadata().projectsRoot();
+                value = projectsRoot + currentProject.getProjectDescription().getPath();
             }
         }).catchError(new Operation<PromiseError>() {
             @Override

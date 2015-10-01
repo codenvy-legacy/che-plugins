@@ -12,7 +12,7 @@ package org.eclipse.che.ide.extension.maven.client.command;
 
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfigurationPage;
-import org.eclipse.che.ide.extension.machine.client.command.valueproviders.CurrentProjectNameProvider;
+import org.eclipse.che.ide.extension.machine.client.command.valueproviders.CurrentProjectPathProvider;
 import org.eclipse.che.ide.extension.maven.client.MavenResources;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,7 +34,7 @@ public class MavenCommandTypeTest {
     @Mock
     private MavenCommandPagePresenter  mavenCommandPagePresenter;
     @Mock
-    private CurrentProjectNameProvider currentProjectNameProvider;
+    private CurrentProjectPathProvider currentProjectPathProvider;
 
     @InjectMocks
     private MavenCommandType mavenCommandType;
@@ -57,6 +57,6 @@ public class MavenCommandTypeTest {
     public void testGettingCommandTemplate() throws Exception {
         mavenCommandType.getCommandTemplate();
 
-        verify(currentProjectNameProvider).getKey();
+        verify(currentProjectPathProvider).getKey();
     }
 }

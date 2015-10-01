@@ -18,7 +18,7 @@ import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfigurationFactory;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfigurationPage;
 import org.eclipse.che.ide.extension.machine.client.command.CommandType;
-import org.eclipse.che.ide.extension.machine.client.command.valueproviders.CurrentProjectNameProvider;
+import org.eclipse.che.ide.extension.machine.client.command.valueproviders.CurrentProjectPathProvider;
 import org.eclipse.che.ide.extension.machine.client.command.valueproviders.DevMachineHostNameProvider;
 import org.vectomatic.dom.svg.ui.SVGResource;
 
@@ -40,7 +40,7 @@ public class GwtCommandType implements CommandType {
     private static final String DISPLAY_NAME = "GWT";
 
     private final GwtResources                   resources;
-    private final CurrentProjectNameProvider     currentProjectNameProvider;
+    private final CurrentProjectPathProvider     currentProjectPathProvider;
     private final DevMachineHostNameProvider     devMachineHostNameProvider;
     private final GwtCommandConfigurationFactory configurationFactory;
 
@@ -49,10 +49,10 @@ public class GwtCommandType implements CommandType {
     @Inject
     public GwtCommandType(GwtResources resources,
                           GwtCommandPagePresenter page,
-                          CurrentProjectNameProvider currentProjectNameProvider,
+                          CurrentProjectPathProvider currentProjectPathProvider,
                           DevMachineHostNameProvider devMachineHostNameProvider) {
         this.resources = resources;
-        this.currentProjectNameProvider = currentProjectNameProvider;
+        this.currentProjectPathProvider = currentProjectPathProvider;
         this.devMachineHostNameProvider = devMachineHostNameProvider;
         configurationFactory = new GwtCommandConfigurationFactory(this);
         pages = new LinkedList<>();
@@ -92,7 +92,7 @@ public class GwtCommandType implements CommandType {
     @NotNull
     @Override
     public String getCommandTemplate() {
-        return COMMAND_TEMPLATE + " -f " + currentProjectNameProvider.getKey() + " -Dgwt.bindAddress=" +
+        return COMMAND_TEMPLATE + " -f " + currentProjectPathProvider.getKey() + " -Dgwt.bindAddress=" +
                devMachineHostNameProvider.getKey();
     }
 }

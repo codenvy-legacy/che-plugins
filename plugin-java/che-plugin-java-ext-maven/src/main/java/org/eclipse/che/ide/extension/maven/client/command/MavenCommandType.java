@@ -17,7 +17,7 @@ import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfigurationFactory;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfigurationPage;
 import org.eclipse.che.ide.extension.machine.client.command.CommandType;
-import org.eclipse.che.ide.extension.machine.client.command.valueproviders.CurrentProjectNameProvider;
+import org.eclipse.che.ide.extension.machine.client.command.valueproviders.CurrentProjectPathProvider;
 import org.eclipse.che.ide.extension.maven.client.MavenResources;
 import org.vectomatic.dom.svg.ui.SVGResource;
 
@@ -38,7 +38,7 @@ public class MavenCommandType implements CommandType {
     private static final String COMMAND_TEMPLATE = "mvn clean install";
 
     private final MavenResources                   resources;
-    private final CurrentProjectNameProvider       currentProjectNameProvider;
+    private final CurrentProjectPathProvider       currentProjectPathProvider;
     private final MavenCommandConfigurationFactory configurationFactory;
 
     private final Collection<CommandConfigurationPage<? extends CommandConfiguration>> pages;
@@ -46,9 +46,9 @@ public class MavenCommandType implements CommandType {
     @Inject
     public MavenCommandType(MavenResources resources,
                             MavenCommandPagePresenter page,
-                            CurrentProjectNameProvider currentProjectNameProvider) {
+                            CurrentProjectPathProvider currentProjectPathProvider) {
         this.resources = resources;
-        this.currentProjectNameProvider = currentProjectNameProvider;
+        this.currentProjectPathProvider = currentProjectPathProvider;
         configurationFactory = new MavenCommandConfigurationFactory(this);
         pages = new LinkedList<>();
         pages.add(page);
@@ -87,6 +87,6 @@ public class MavenCommandType implements CommandType {
     @NotNull
     @Override
     public String getCommandTemplate() {
-        return COMMAND_TEMPLATE + " -f " + currentProjectNameProvider.getKey();
+        return COMMAND_TEMPLATE + " -f " + currentProjectPathProvider.getKey();
     }
 }

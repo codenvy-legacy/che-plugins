@@ -155,6 +155,11 @@ public class Machine {
         return descriptor.getProperties();
     }
 
+    /** Returns path to the projects root folder. */
+    public String getProjectsRoot() {
+        return descriptor.getMetadata().projectsRoot();
+    }
+
     @Override
     public boolean equals(Object machine) {
         return this == machine || !(machine == null || getClass() != machine.getClass()) && Objects.equals(descriptor.getId(),
