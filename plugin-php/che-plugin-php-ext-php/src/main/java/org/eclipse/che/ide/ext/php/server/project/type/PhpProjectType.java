@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.php.server.project.type;
 
+import com.google.inject.Inject;
+
 import org.eclipse.che.api.project.server.type.ProjectType;
 import org.eclipse.che.api.project.shared.Constants;
 import org.eclipse.che.ide.ext.php.shared.ProjectAttributes;
@@ -24,9 +26,11 @@ import static org.eclipse.che.ide.api.project.type.RunnerCategory.PHP;
  */
 public class PhpProjectType extends ProjectType {
 
-    public PhpProjectType() {
+    @Inject
+    public PhpProjectType(PhpValueProviderFactory phpValueProviderFactory) {
         super(ProjectAttributes.PHP_ID, ProjectAttributes.PHP_NAME, true, false);
         addConstantDefinition(Constants.LANGUAGE, "language", ProjectAttributes.PROGRAMMING_LANGUAGE);
+        addVariableDefinition(ProjectAttributes.HAS_PHP_FILES, "project has php files", false, phpValueProviderFactory);
         addRunnerCategories(Arrays.asList(PHP.toString()));
     }
 }

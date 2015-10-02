@@ -14,6 +14,7 @@ import org.eclipse.che.api.project.server.type.ProjectType;
 import org.eclipse.che.api.project.shared.Constants;
 import org.eclipse.che.ide.ext.python.shared.ProjectAttributes;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.Arrays;
 
@@ -26,9 +27,11 @@ import static org.eclipse.che.ide.api.project.type.RunnerCategory.PYTHON;
 @Singleton
 public class PythonProjectType extends ProjectType {
 
-    public PythonProjectType() {
+    @Inject
+    public PythonProjectType(PythonValueProviderFactory pythonValueProviderFactory) {
         super(ProjectAttributes.PYTHON_ID, ProjectAttributes.PYTHON_NAME, true, false);
         addConstantDefinition(Constants.LANGUAGE, "language", ProjectAttributes.PROGRAMMING_LANGUAGE);
+        addVariableDefinition(ProjectAttributes.HAS_PYTHON_FILES, "project has python files", false, pythonValueProviderFactory);
         addRunnerCategories(Arrays.asList(PYTHON.toString()));
     }
 }

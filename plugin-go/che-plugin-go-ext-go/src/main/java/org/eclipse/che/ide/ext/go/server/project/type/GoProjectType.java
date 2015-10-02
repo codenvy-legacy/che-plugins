@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.go.server.project.type;
 
+import com.google.inject.Inject;
+
 import org.eclipse.che.api.project.server.type.ProjectType;
 import org.eclipse.che.api.project.shared.Constants;
 import org.eclipse.che.ide.ext.go.shared.ProjectAttributes;
@@ -24,9 +26,11 @@ import static org.eclipse.che.ide.api.project.type.RunnerCategory.GO;
  */
 public class GoProjectType extends ProjectType {
 
-    public GoProjectType() {
+    @Inject
+    public GoProjectType(GoValueProviderFactory goValueProviderFactory) {
         super(ProjectAttributes.GO_ID, ProjectAttributes.GO_NAME, true, false);
         addConstantDefinition(Constants.LANGUAGE, "language", ProjectAttributes.PROGRAMMING_LANGUAGE);
+        addVariableDefinition(ProjectAttributes.HAS_GO_FILES, "project has go files", false, goValueProviderFactory);
         addRunnerCategories(Arrays.asList(GO.toString()));
     }
 }

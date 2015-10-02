@@ -12,8 +12,9 @@ package org.eclipse.che.ide.ext.python.shared;
 
 /** @author Vladyslav Zhukovskii */
 public interface ProjectAttributes {
-    String PYTHON_ID             = "python";
-    String PYTHON_NAME           = "Python Project";
-    String PYTHON_CATEGORY       = "Python";
-    String PROGRAMMING_LANGUAGE  = "python";
+    String PYTHON_ID            = "python";
+    String PYTHON_NAME          = "Python Project";
+    String PYTHON_CATEGORY      = "Python";
+    String PROGRAMMING_LANGUAGE = "python";
+    String HAS_PYTHON_FILES     = "hasPythonFiles";
 }

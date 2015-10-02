@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.eclipse.che.ide.extension.ant.shared.AntAttributes.BUILD_FILE;
+import static org.eclipse.che.ide.extension.ant.shared.AntAttributes.DEF_SRC_PATH;
 import static org.eclipse.che.ide.extension.ant.shared.AntAttributes.DEF_TEST_SRC_PATH;
 import static org.eclipse.che.ide.extension.ant.shared.AntAttributes.SOURCE_FOLDER;
 import static org.eclipse.che.ide.extension.ant.shared.AntAttributes.TEST_SOURCE_FOLDER;
@@ -94,7 +95,7 @@ public class AntValueProviderFactory implements ValueProviderFactory {
                 if (SOURCE_FOLDER.equals(attributeName)) {
                     String srcDir = antProject.getProperty("src.dir");
                     if (srcDir == null) {
-                        srcDir = DEF_TEST_SRC_PATH;
+                        srcDir = DEF_SRC_PATH;
                     } else {
                         // Don't show absolute path (seems Ant parser resolves it automatically). User shouldn't know any absolute paths on our
                         // file system. This is temporary solution, this shouldn't be actual when get rid form ant parsers for build.xml files.

@@ -16,4 +16,5 @@ public interface ProjectAttributes {
     String CPP_NAME             = "C/C++ Project";
     String CPP_CATEGORY         = "CPP";
     String PROGRAMMING_LANGUAGE = "cpp";
+    String HAS_CPP_FILES        = "hasCppFiles";
 }

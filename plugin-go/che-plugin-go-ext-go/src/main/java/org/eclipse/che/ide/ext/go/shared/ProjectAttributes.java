@@ -16,4 +16,5 @@ public interface ProjectAttributes {
     String GO_NAME              = "Go Project";
     String GO_CATEGORY          = "Go";
     String PROGRAMMING_LANGUAGE = "go";
+    String HAS_GO_FILES         = "hasGoFiles";
 }

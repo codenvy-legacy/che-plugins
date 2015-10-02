@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.cpp.server.project.type;
 
+import com.google.inject.Inject;
+
 import org.eclipse.che.api.project.server.type.ProjectType;
 import org.eclipse.che.api.project.shared.Constants;
 import org.eclipse.che.ide.ext.cpp.shared.ProjectAttributes;
@@ -24,9 +26,11 @@ import static org.eclipse.che.ide.api.project.type.RunnerCategory.CPP;
  */
 public class CPPProjectType extends ProjectType {
 
-    public CPPProjectType() {
+    @Inject
+    public CPPProjectType(CPPValueProviderFactory cppValueProviderFactory) {
         super(ProjectAttributes.CPP_ID, ProjectAttributes.CPP_NAME, true, false);
         addConstantDefinition(Constants.LANGUAGE, "language", ProjectAttributes.PROGRAMMING_LANGUAGE);
+        addVariableDefinition(ProjectAttributes.HAS_CPP_FILES, "project has cpp files", false, cppValueProviderFactory);
         addRunnerCategories(Arrays.asList(CPP.toString()));
     }
 }

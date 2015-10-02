@@ -10,8 +10,10 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.ruby.server.inject;
 
+import org.eclipse.che.api.project.server.ValueProviderFactory;
 import org.eclipse.che.api.project.server.type.ProjectType;
 import org.eclipse.che.ide.ext.ruby.server.project.type.RubyProjectType;
+import org.eclipse.che.ide.ext.ruby.server.project.type.RubyValueProviderFactory;
 import org.eclipse.che.inject.DynaModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.multibindings.Multibinder;
@@ -22,6 +24,7 @@ public class RubyModule extends AbstractModule {
     /** {@inheritDoc} */
     @Override
     protected void configure() {
+        Multibinder.newSetBinder(binder(), ValueProviderFactory.class).addBinding().to(RubyValueProviderFactory.class);
         Multibinder.newSetBinder(binder(), ProjectType.class).addBinding().to(RubyProjectType.class);
     }
 }

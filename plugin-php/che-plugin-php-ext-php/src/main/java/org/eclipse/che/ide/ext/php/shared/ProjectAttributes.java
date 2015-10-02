@@ -16,4 +16,5 @@ public interface ProjectAttributes {
     String PHP_NAME             = "PHP Project";
     String PHP_CATEGORY         = "PHP";
     String PROGRAMMING_LANGUAGE = "php";
+    String HAS_PHP_FILES        = "hasPhpFiles";
 }

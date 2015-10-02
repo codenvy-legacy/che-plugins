@@ -16,4 +16,5 @@ public interface ProjectAttributes {
     String RUBY_NAME            = "Ruby Project";
     String RUBY_CATEGORY        = "Ruby";
     String PROGRAMMING_LANGUAGE = "ruby";
+    String HAS_RUBY_FILES       = "hasRubyFiles";
 }
