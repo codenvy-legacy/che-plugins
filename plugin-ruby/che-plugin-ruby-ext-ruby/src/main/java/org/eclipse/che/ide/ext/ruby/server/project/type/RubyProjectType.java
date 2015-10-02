@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.ruby.server.project.type;
 
+import com.google.inject.Inject;
+
 import org.eclipse.che.api.project.server.type.ProjectType;
 import org.eclipse.che.api.project.shared.Constants;
 import org.eclipse.che.ide.ext.ruby.shared.ProjectAttributes;
@@ -24,9 +26,11 @@ import static org.eclipse.che.ide.api.project.type.RunnerCategory.RUBY;
  */
 public class RubyProjectType extends ProjectType {
 
-    public RubyProjectType() {
+    @Inject
+    public RubyProjectType(RubyValueProviderFactory rubyValueProviderFactory) {
         super(ProjectAttributes.RUBY_ID, ProjectAttributes.RUBY_NAME, true, false);
         addConstantDefinition(Constants.LANGUAGE, "language", ProjectAttributes.PROGRAMMING_LANGUAGE);
+        addVariableDefinition(ProjectAttributes.HAS_RUBY_FILES, "project has ruby files", false, rubyValueProviderFactory);
         addRunnerCategories(Arrays.asList(RUBY.toString()));
     }
 }

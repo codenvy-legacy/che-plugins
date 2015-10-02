@@ -10,8 +10,10 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.php.server.inject;
 
+import org.eclipse.che.api.project.server.ValueProviderFactory;
 import org.eclipse.che.api.project.server.type.ProjectType;
 import org.eclipse.che.ide.ext.php.server.project.type.PhpProjectType;
+import org.eclipse.che.ide.ext.php.server.project.type.PhpValueProviderFactory;
 import org.eclipse.che.inject.DynaModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.multibindings.Multibinder;
@@ -24,5 +26,6 @@ public class PHPModule extends AbstractModule {
     protected void configure() {
         Multibinder<ProjectType> projectTypeMultibinder = Multibinder.newSetBinder(binder(), ProjectType.class);
         projectTypeMultibinder.addBinding().to(PhpProjectType.class);
+        Multibinder.newSetBinder(binder(), ValueProviderFactory.class).addBinding().to(PhpValueProviderFactory.class);
     }
 }

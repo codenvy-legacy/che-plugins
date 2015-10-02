@@ -10,8 +10,10 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.cpp.server.inject;
 
+import org.eclipse.che.api.project.server.ValueProviderFactory;
 import org.eclipse.che.api.project.server.type.ProjectType;
 import org.eclipse.che.ide.ext.cpp.server.project.type.CPPProjectType;
+import org.eclipse.che.ide.ext.cpp.server.project.type.CPPValueProviderFactory;
 import org.eclipse.che.inject.DynaModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.multibindings.Multibinder;
@@ -21,5 +23,6 @@ public class CPPModule extends AbstractModule {
     @Override
     protected void configure() {
         Multibinder.newSetBinder(binder(), ProjectType.class).addBinding().to(CPPProjectType.class);
+        Multibinder.newSetBinder(binder(), ValueProviderFactory.class).addBinding().to(CPPValueProviderFactory.class);
     }
 }
