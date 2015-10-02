@@ -18,6 +18,7 @@ import org.eclipse.che.api.core.NotFoundException;
 import org.eclipse.che.api.core.model.machine.Recipe;
 import org.eclipse.che.api.core.util.FileCleaner;
 import org.eclipse.che.api.core.util.LineConsumer;
+import org.eclipse.che.api.core.util.SystemInfo;
 import org.eclipse.che.api.machine.server.exception.InvalidRecipeException;
 import org.eclipse.che.api.machine.server.exception.MachineException;
 import org.eclipse.che.api.machine.server.exception.SnapshotException;
@@ -51,6 +52,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Docker implementation of {@link InstanceProvider}
@@ -118,13 +120,47 @@ public class DockerInstanceProvider implements InstanceProvider {
             devMachineContainerLabels.put("che:server:" + serverConf.getPort() + ":protocol", serverConf.getProtocol());
         }
 
-        this.systemVolumesForDevMachine.addAll(allMachinesSystemVolumes);
-        this.systemVolumesForDevMachine.addAll(systemVolumesForDevMachine);
+        this.systemVolumesForDevMachine.addAll(SystemInfo.isWindows() ? escapePaths(allMachinesSystemVolumes) : allMachinesSystemVolumes);
+        this.systemVolumesForDevMachine.addAll(SystemInfo.isWindows() ? escapePaths(systemVolumesForDevMachine) : systemVolumesForDevMachine);
 
         commonEnvVariables = new String[0];
         devMachineEnvVariables = new String[] {API_ENDPOINT_URL_VARIABLE + '=' + apiEndpoint,
                                                DockerInstanceMetadata.PROJECTS_ROOT_VARIABLE + '=' + PROJECTS_FOLDER_PATH};
     }
+
+
+    /**
+     * Escape paths for Windows system with boot@docker according to rules given here :
+     * https://github.com/boot2docker/boot2docker/blob/master/README.md#virtualbox-guest-additions
+     * @param paths
+     * @return set of escaped path
+     */
+    protected Set<String> escapePaths(Set<String> paths) {
+        return paths.stream().map(s -> escapePath(s)).collect(Collectors.toSet());
+    }
+
+    /**
+     * Escape path for Windows system with boot@docker according to rules given here :
+     * https://github.com/boot2docker/boot2docker/blob/master/README.md#virtualbox-guest-additions
+     * @param path
+     * @return escaped path
+     */
+    protected String escapePath(String path) {
+        String esc;
+        if (path.indexOf(":") == 1) { //check and replace only occurrence of ":" after disk label on Windows host (e.g. C:/)
+                                      // but keep other occurrences it can be marker for docker mount volumes
+                                      // (e.g. /path/dir/from/host:/name/of/dir/in/container                                               )
+            esc = path.replaceFirst(":", "").replace('\\', '/');
+            esc = Character.toLowerCase(esc.charAt(0)) + esc.substring(1); //letter of disk mark must be lower case
+        } else {
+            esc = path.replace('\\', '/');
+        }
+        if (!esc.startsWith("/")) {
+            esc = "/" + esc;
+        }
+        return esc;
+    }
+
 
     @Override
     public String getType() {
@@ -350,7 +386,8 @@ public class DockerInstanceProvider implements InstanceProvider {
 
             // add workspace FS folder to volumes
             if (isDev) {
-                volumes.add(String.format("%s:%s", hostProjectsFolder, PROJECTS_FOLDER_PATH));
+                final String projectFolderVolume = String.format("%s:%s", hostProjectsFolder, PROJECTS_FOLDER_PATH);
+                volumes.add(SystemInfo.isWindows() ? escapePath(projectFolderVolume) : projectFolderVolume);
             }
 
             HostConfig hostConfig = new HostConfig().withPublishAllPorts(true)
