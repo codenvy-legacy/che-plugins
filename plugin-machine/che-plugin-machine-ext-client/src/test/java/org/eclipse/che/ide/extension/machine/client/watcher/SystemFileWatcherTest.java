@@ -30,8 +30,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.mockito.InjectMocks;
-import org.mockito.Matchers;
 import org.mockito.Mock;
 
 import javax.validation.constraints.NotNull;
@@ -71,9 +69,6 @@ public class SystemFileWatcherTest {
     private CurrentProject    currentProject;
     @Mock
     private ProjectExplorerPresenter projectExplorer;
-    private TreeStructure     treeStructure;
-    @Mock
-    private TreeNode<?>       treeNode;
     @Mock
     private UsersWorkspaceDto workspace;
 
@@ -92,7 +87,7 @@ public class SystemFileWatcherTest {
     public void setUp() {
         when(messageBusProvider.getMessageBus()).thenReturn(messageBus);
 
-        systemFileWatcher = new SystemFileWatcher(watcherService, eventBus, appContext, messageBusProvider);
+        systemFileWatcher = new SystemFileWatcher(watcherService, eventBus, appContext, messageBusProvider, projectExplorer);
 
         verify(eventBus).addHandler(eq(StartWorkspaceEvent.TYPE), startWorkspaceCaptor.capture());
         startWorkspaceCaptor.getValue().onWorkspaceStarted(workspace);
