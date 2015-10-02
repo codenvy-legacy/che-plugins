@@ -19,30 +19,20 @@ import javax.validation.constraints.NotNull;
  */
 public abstract class CommandConfiguration {
 
-    private final String      id;
     private final CommandType type;
     private       String      name;
 
     /**
-     * Creates new command configuration of the specified type with the given name and ID.
+     * Creates new command configuration of the specified type with the given name.
      *
-     * @param id
-     *         command ID
      * @param type
      *         type of the command
      * @param name
      *         command name
      */
-    protected CommandConfiguration(@NotNull String id, @NotNull CommandType type, @NotNull String name) {
-        this.id = id;
+    protected CommandConfiguration(@NotNull CommandType type, @NotNull String name) {
         this.type = type;
         this.name = name;
-    }
-
-    /** Returns unique identifier for this command configuration. */
-    @NotNull
-    public String getId() {
-        return id;
     }
 
     /** Returns command configuration name. */

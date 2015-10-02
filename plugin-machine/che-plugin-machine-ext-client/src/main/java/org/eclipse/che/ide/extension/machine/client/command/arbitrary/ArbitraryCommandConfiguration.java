@@ -24,8 +24,8 @@ public class ArbitraryCommandConfiguration extends CommandConfiguration {
 
     private String commandLine;
 
-    protected ArbitraryCommandConfiguration(String id, CommandType type, String name) {
-        super(id, type, name);
+    protected ArbitraryCommandConfiguration(CommandType type, String name) {
+        super(type, name);
         commandLine = "";
     }
 

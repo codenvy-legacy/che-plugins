@@ -13,15 +13,18 @@ package org.eclipse.che.ide.extension.machine.client.command.edit;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
+import com.google.inject.name.Named;
 
-import org.eclipse.che.api.machine.gwt.client.CommandServiceClient;
-import org.eclipse.che.api.machine.shared.dto.CommandDescriptor;
 import org.eclipse.che.api.promises.client.Function;
 import org.eclipse.che.api.promises.client.FunctionException;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
-import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.api.promises.client.PromiseError;
+import org.eclipse.che.api.workspace.gwt.client.WorkspaceServiceClient;
+import org.eclipse.che.api.workspace.shared.dto.CommandDto;
+import org.eclipse.che.api.workspace.shared.dto.UsersWorkspaceDto;
+import org.eclipse.che.commons.annotation.Nullable;
+import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.actions.SelectCommandComboBoxAction;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
@@ -36,7 +39,6 @@ import org.eclipse.che.ide.ui.dialogs.choice.ChoiceDialog;
 import org.eclipse.che.ide.ui.dialogs.confirm.ConfirmDialog;
 import org.eclipse.che.ide.util.UUID;
 
-import org.eclipse.che.commons.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -52,8 +54,10 @@ import java.util.Set;
 public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
 
     private final EditCommandsView                      view;
+    private final WorkspaceServiceClient                workspaceServiceClient;
     private final CommandManager                        commandManager;
-    private final CommandServiceClient                  commandServiceClient;
+    private final String                                workspaceId;
+    private final DtoFactory                            dtoFactory;
     private final CommandTypeRegistry                   commandTypeRegistry;
     private final DialogFactory                         dialogFactory;
     private final MachineLocalizationConstant           localizationConstant;
@@ -69,20 +73,24 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
 
     @Inject
     protected EditCommandsPresenter(EditCommandsView view,
-                                    CommandServiceClient commandServiceClient,
+                                    WorkspaceServiceClient workspaceServiceClient,
                                     CommandTypeRegistry commandTypeRegistry,
                                     DialogFactory dialogFactory,
                                     MachineLocalizationConstant localizationConstant,
                                     Provider<SelectCommandComboBoxAction> selectCommandActionProvider,
-                                    CommandManager commandManager) {
+                                    CommandManager commandManager,
+                                    @Named("workspaceId") String workspaceId,
+                                    DtoFactory dtoFactory) {
         this.view = view;
+        this.workspaceServiceClient = workspaceServiceClient;
         this.commandManager = commandManager;
-        this.view.setDelegate(this);
-        this.commandServiceClient = commandServiceClient;
+        this.workspaceId = workspaceId;
+        this.dtoFactory = dtoFactory;
         this.commandTypeRegistry = commandTypeRegistry;
         this.dialogFactory = dialogFactory;
         this.localizationConstant = localizationConstant;
         this.selectCommandActionProvider = selectCommandActionProvider;
+        this.view.setDelegate(this);
 
         configurationChangedListeners = new HashSet<>();
     }
@@ -98,11 +106,13 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
             return;
         }
 
-        commandServiceClient.updateCommand(selectedConfiguration.getId(),
-                                           selectedConfiguration.getName(),
-                                           selectedConfiguration.toCommandLine()).then(new Operation<CommandDescriptor>() {
+        final CommandDto commandDto = dtoFactory.createDto(CommandDto.class)
+                                                .withName(selectedConfiguration.getName())
+                                                .withCommandLine(selectedConfiguration.toCommandLine())
+                                                .withType(selectedConfiguration.getType().getId());
+        workspaceServiceClient.updateCommand(workspaceId, commandDto).then(new Operation<UsersWorkspaceDto>() {
             @Override
-            public void apply(CommandDescriptor arg) throws OperationException {
+            public void apply(UsersWorkspaceDto arg) throws OperationException {
                 view.close();
                 fireConfigurationUpdated(selectedConfiguration);
             }
@@ -120,12 +130,14 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
             return;
         }
 
-        commandServiceClient.updateCommand(selectedConfiguration.getId(),
-                                           selectedConfiguration.getName(),
-                                           selectedConfiguration.toCommandLine()).then(new Operation<CommandDescriptor>() {
+        final CommandDto commandDto = dtoFactory.createDto(CommandDto.class)
+                                                .withName(selectedConfiguration.getName())
+                                                .withCommandLine(selectedConfiguration.toCommandLine())
+                                                .withType(selectedConfiguration.getType().getId());
+        workspaceServiceClient.updateCommand(workspaceId, commandDto).then(new Operation<UsersWorkspaceDto>() {
             @Override
-            public void apply(CommandDescriptor arg) throws OperationException {
-                fetchCommands(arg.getId());
+            public void apply(UsersWorkspaceDto arg) throws OperationException {
+                fetchCommands(arg.getName());
                 fireConfigurationUpdated(selectedConfiguration);
             }
         });
@@ -151,11 +163,13 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
         final ConfirmCallback saveCallback = new ConfirmCallback() {
             @Override
             public void accepted() {
-                commandServiceClient.updateCommand(editedCommand.getId(),
-                                                   editedCommand.getName(),
-                                                   editedCommand.toCommandLine()).then(new Operation<CommandDescriptor>() {
+                final CommandDto commandDto = dtoFactory.createDto(CommandDto.class)
+                                                        .withName(editedCommand.getName())
+                                                        .withCommandLine(editedCommand.toCommandLine())
+                                                        .withType(editedCommand.getType().getId());
+                workspaceServiceClient.updateCommand(workspaceId, commandDto).then(new Operation<UsersWorkspaceDto>() {
                     @Override
-                    public void apply(CommandDescriptor arg) throws OperationException {
+                    public void apply(UsersWorkspaceDto arg) throws OperationException {
                         createCommand(selectedType);
                     }
                 });
@@ -181,16 +195,17 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
 
     private void createCommand(CommandType type) {
         final String name = type.getDisplayName() + " (" + UUID.uuid(2, 10) + ')';
-        final Promise<CommandDescriptor> commandPromise = commandServiceClient.createCommand(name,
-                                                                                             type.getCommandTemplate(),
-                                                                                             type.getId());
-        commandPromise.then(new Operation<CommandDescriptor>() {
+        final CommandDto commandDto = dtoFactory.createDto(CommandDto.class)
+                                                .withName(name)
+                                                .withCommandLine(type.getCommandTemplate())
+                                                .withType(type.getId());
+        workspaceServiceClient.addCommand(workspaceId, commandDto).then(new Operation<UsersWorkspaceDto>() {
             @Override
-            public void apply(CommandDescriptor arg) throws OperationException {
-                fetchCommands(arg.getId());
+            public void apply(UsersWorkspaceDto arg) throws OperationException {
+                fetchCommands(arg.getName());
 
-                final CommandType type = commandTypeRegistry.getCommandTypeById(arg.getType());
-                fireConfigurationAdded(type.getConfigurationFactory().createFromCommandDescriptor(arg));
+                final CommandType type = commandTypeRegistry.getCommandTypeById(commandDto.getType());
+                fireConfigurationAdded(type.getConfigurationFactory().createFromDto(commandDto));
             }
         });
     }
@@ -205,9 +220,9 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
         final ConfirmCallback confirmCallback = new ConfirmCallback() {
             @Override
             public void accepted() {
-                commandServiceClient.removeCommand(selectedConfiguration.getId()).then(new Operation<Void>() {
+                workspaceServiceClient.deleteCommand(workspaceId, selectedConfiguration.getName()).then(new Operation<UsersWorkspaceDto>() {
                     @Override
-                    public void apply(Void arg) throws OperationException {
+                    public void apply(UsersWorkspaceDto arg) throws OperationException {
                         fetchCommands(null);
                         fireConfigurationRemoved(selectedConfiguration);
                     }
@@ -253,11 +268,13 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
         final ConfirmCallback saveCallback = new ConfirmCallback() {
             @Override
             public void accepted() {
-                commandServiceClient.updateCommand(editedCommand.getId(),
-                                                   editedCommand.getName(),
-                                                   editedCommand.toCommandLine()).then(new Operation<CommandDescriptor>() {
+                final CommandDto commandDto = dtoFactory.createDto(CommandDto.class)
+                                                        .withName(editedCommand.getName())
+                                                        .withCommandLine(editedCommand.toCommandLine())
+                                                        .withType(editedCommand.getType().getId());
+                workspaceServiceClient.updateCommand(workspaceId, commandDto).then(new Operation<UsersWorkspaceDto>() {
                     @Override
-                    public void apply(CommandDescriptor arg) throws OperationException {
+                    public void apply(UsersWorkspaceDto arg) throws OperationException {
                         fetchCommands(null);
                         fireConfigurationUpdated(editedCommand);
                     }
@@ -301,12 +318,14 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
         final ConfirmCallback saveCallback = new ConfirmCallback() {
             @Override
             public void accepted() {
-                commandServiceClient.updateCommand(editedCommand.getId(),
-                                                   editedCommand.getName(),
-                                                   editedCommand.toCommandLine()).then(new Operation<CommandDescriptor>() {
+                final CommandDto commandDto = dtoFactory.createDto(CommandDto.class)
+                                                        .withName(editedCommand.getName())
+                                                        .withCommandLine(editedCommand.toCommandLine())
+                                                        .withType(editedCommand.getType().getId());
+                workspaceServiceClient.updateCommand(workspaceId, commandDto).then(new Operation<UsersWorkspaceDto>() {
                     @Override
-                    public void apply(CommandDescriptor arg) throws OperationException {
-                        fetchCommands(configuration.getId());
+                    public void apply(UsersWorkspaceDto arg) throws OperationException {
+                        fetchCommands(configuration.getName());
                         fireConfigurationUpdated(editedCommand);
                         handleCommandSelection(configuration);
                     }
@@ -317,7 +336,7 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
         final ConfirmCallback discardCallback = new ConfirmCallback() {
             @Override
             public void accepted() {
-                fetchCommands(configuration.getId());
+                fetchCommands(configuration.getName());
                 handleCommandSelection(configuration);
             }
         };
@@ -382,10 +401,10 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
     /**
      * Fetch commands from server and update view.
      *
-     * @param commandToSelect
-     *         ID of the command to select
+     * @param commandNameToSelect
+     *         name of the command to select
      */
-    private void fetchCommands(@Nullable final String commandToSelect) {
+    private void fetchCommands(@Nullable final String commandNameToSelect) {
         reset();
 
         view.setAddButtonState(false);
@@ -394,16 +413,16 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
         view.setCancelButtonState(false);
         view.setApplyButtonState(false);
 
-        commandServiceClient.getCommands().then(new Function<List<CommandDescriptor>, List<CommandConfiguration>>() {
+        workspaceServiceClient.getCommands(workspaceId).then(new Function<List<CommandDto>, List<CommandConfiguration>>() {
             @Override
-            public List<CommandConfiguration> apply(List<CommandDescriptor> arg) throws FunctionException {
+            public List<CommandConfiguration> apply(List<CommandDto> arg) throws FunctionException {
                 final List<CommandConfiguration> configurationList = new ArrayList<>();
 
-                for (CommandDescriptor descriptor : arg) {
+                for (CommandDto descriptor : arg) {
                     final CommandType type = commandTypeRegistry.getCommandTypeById(descriptor.getType());
                     // skip command if it's type isn't registered
                     if (type != null) {
-                        configurationList.add(type.getConfigurationFactory().createFromCommandDescriptor(descriptor));
+                        configurationList.add(type.getConfigurationFactory().createFromDto(descriptor));
                     }
                 }
 
@@ -414,8 +433,8 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
             public void apply(List<CommandConfiguration> commandConfigurations) throws OperationException {
                 view.setData(commandTypeRegistry.getCommandTypes(), commandConfigurations);
 
-                if (commandToSelect != null) {
-                    view.selectCommand(commandToSelect);
+                if (commandNameToSelect != null) {
+                    view.selectCommand(commandNameToSelect);
                 }
             }
         }).catchError(new Operation<PromiseError>() {

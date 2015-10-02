@@ -12,20 +12,21 @@ package org.eclipse.che.ide.extension.machine.client.actions;
 
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTML;
-
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.google.inject.name.Named;
 import com.google.web.bindery.event.shared.EventBus;
 
-import org.eclipse.che.api.machine.gwt.client.CommandServiceClient;
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
-import org.eclipse.che.api.machine.shared.dto.CommandDescriptor;
 import org.eclipse.che.api.machine.shared.dto.MachineDescriptor;
 import org.eclipse.che.api.promises.client.Function;
 import org.eclipse.che.api.promises.client.FunctionException;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
+import org.eclipse.che.api.workspace.gwt.client.WorkspaceServiceClient;
+import org.eclipse.che.api.workspace.shared.dto.CommandDto;
+import org.eclipse.che.commons.annotation.Nullable;
 import org.eclipse.che.ide.api.action.AbstractPerspectiveAction;
 import org.eclipse.che.ide.api.action.Action;
 import org.eclipse.che.ide.api.action.ActionEvent;
@@ -47,9 +48,6 @@ import org.eclipse.che.ide.ui.dropdown.DropDownListFactory;
 import org.vectomatic.dom.svg.ui.SVGImage;
 
 import javax.validation.constraints.NotNull;
-
-import org.eclipse.che.commons.annotation.Nullable;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -77,8 +75,9 @@ public class SelectCommandComboBoxAction extends AbstractPerspectiveAction imple
     private final HTML                        devMachineLabelWidget;
     private final DropDownListFactory         dropDownListFactory;
     private final AppContext                  appContext;
+    private final String                      workspaceId;
     private final ActionManager               actionManager;
-    private final CommandServiceClient        commandServiceClient;
+    private final WorkspaceServiceClient      workspaceServiceClient;
     private final MachineServiceClient        machineServiceClient;
     private final CommandTypeRegistry         commandTypeRegistry;
     private final MachineResources            resources;
@@ -93,11 +92,12 @@ public class SelectCommandComboBoxAction extends AbstractPerspectiveAction imple
                                        ActionManager actionManager,
                                        EventBus eventBus,
                                        DropDownListFactory dropDownListFactory,
-                                       CommandServiceClient commandServiceClient,
+                                       WorkspaceServiceClient workspaceServiceClient,
                                        MachineServiceClient machineServiceClient,
                                        CommandTypeRegistry commandTypeRegistry,
                                        EditCommandsPresenter editCommandsPresenter,
-                                       AppContext appContext) {
+                                       AppContext appContext,
+                                       @Named("workspaceId") String workspaceId) {
         super(Collections.singletonList(PROJECT_PERSPECTIVE_ID),
               locale.selectCommandControlTitle(),
               locale.selectCommandControlDescription(),
@@ -105,12 +105,13 @@ public class SelectCommandComboBoxAction extends AbstractPerspectiveAction imple
         this.locale = locale;
         this.resources = resources;
         this.actionManager = actionManager;
-        this.commandServiceClient = commandServiceClient;
+        this.workspaceServiceClient = workspaceServiceClient;
         this.machineServiceClient = machineServiceClient;
         this.commandTypeRegistry = commandTypeRegistry;
 
         this.dropDownListFactory = dropDownListFactory;
         this.appContext = appContext;
+        this.workspaceId = workspaceId;
         this.dropDownHeaderWidget = dropDownListFactory.createList(GROUP_COMMANDS_LIST);
         this.devMachineLabelWidget = new HTML(locale.selectCommandEmptyCurrentDevMachineText());
 
@@ -212,16 +213,16 @@ public class SelectCommandComboBoxAction extends AbstractPerspectiveAction imple
      *         command that should be selected after loading all commands
      */
     private void loadCommands(@Nullable final CommandConfiguration commandToSelect) {
-        commandServiceClient.getCommands().then(new Function<List<CommandDescriptor>, List<CommandConfiguration>>() {
+        workspaceServiceClient.getCommands(workspaceId).then(new Function<List<CommandDto>, List<CommandConfiguration>>() {
             @Override
-            public List<CommandConfiguration> apply(List<CommandDescriptor> arg) throws FunctionException {
+            public List<CommandConfiguration> apply(List<CommandDto> arg) throws FunctionException {
                 final List<CommandConfiguration> configurationList = new ArrayList<>();
 
-                for (CommandDescriptor descriptor : arg) {
-                    final CommandType type = commandTypeRegistry.getCommandTypeById(descriptor.getType());
+                for (CommandDto command : arg) {
+                    final CommandType type = commandTypeRegistry.getCommandTypeById(command.getType());
                     // skip command if it's type isn't registered
                     if (type != null) {
-                        configurationList.add(type.getConfigurationFactory().createFromCommandDescriptor(descriptor));
+                        configurationList.add(type.getConfigurationFactory().createFromDto(command));
                     }
                 }
 

@@ -10,9 +10,9 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.machine.client.command.arbitrary;
 
-import org.eclipse.che.api.machine.shared.dto.CommandDescriptor;
-import org.eclipse.che.ide.extension.machine.client.command.CommandType;
+import org.eclipse.che.api.workspace.shared.dto.CommandDto;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfigurationFactory;
+import org.eclipse.che.ide.extension.machine.client.command.CommandType;
 
 import javax.validation.constraints.NotNull;
 
@@ -29,10 +29,8 @@ public class ArbitraryCommandConfigurationFactory extends CommandConfigurationFa
 
     @NotNull
     @Override
-    public ArbitraryCommandConfiguration createFromCommandDescriptor(@NotNull CommandDescriptor descriptor) {
-        final ArbitraryCommandConfiguration configuration = new ArbitraryCommandConfiguration(descriptor.getId(),
-                                                                                              getCommandType(),
-                                                                                              descriptor.getName());
+    public ArbitraryCommandConfiguration createFromDto(@NotNull CommandDto descriptor) {
+        final ArbitraryCommandConfiguration configuration = new ArbitraryCommandConfiguration(getCommandType(), descriptor.getName());
         configuration.setCommandLine(descriptor.getCommandLine());
         return configuration;
     }

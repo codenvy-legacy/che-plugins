@@ -10,10 +10,10 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.maven.client.command;
 
-import org.eclipse.che.api.machine.shared.dto.CommandDescriptor;
+import org.eclipse.che.api.workspace.shared.dto.CommandDto;
 import org.eclipse.che.ide.CommandLine;
-import org.eclipse.che.ide.extension.machine.client.command.CommandType;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfigurationFactory;
+import org.eclipse.che.ide.extension.machine.client.command.CommandType;
 
 import javax.validation.constraints.NotNull;
 
@@ -34,14 +34,12 @@ public class MavenCommandConfigurationFactory extends CommandConfigurationFactor
 
     @NotNull
     @Override
-    public MavenCommandConfiguration createFromCommandDescriptor(@NotNull CommandDescriptor descriptor) {
+    public MavenCommandConfiguration createFromDto(@NotNull CommandDto descriptor) {
         if (!isMavenCommand(descriptor.getCommandLine())) {
             throw new IllegalArgumentException("Not a valid Maven command: " + descriptor.getCommandLine());
         }
 
-        final MavenCommandConfiguration configuration = new MavenCommandConfiguration(descriptor.getId(),
-                                                                                      getCommandType(),
-                                                                                      descriptor.getName());
+        final MavenCommandConfiguration configuration = new MavenCommandConfiguration(getCommandType(), descriptor.getName());
 
         final CommandLine cmd = new CommandLine(descriptor.getCommandLine());
 

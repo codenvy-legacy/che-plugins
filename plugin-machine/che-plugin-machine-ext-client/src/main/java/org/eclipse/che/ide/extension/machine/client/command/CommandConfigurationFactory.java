@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.machine.client.command;
 
-import org.eclipse.che.api.machine.shared.dto.CommandDescriptor;
+import org.eclipse.che.api.workspace.shared.dto.CommandDto;
 
 import javax.validation.constraints.NotNull;
 
@@ -42,13 +42,13 @@ public abstract class CommandConfigurationFactory<T extends CommandConfiguration
     }
 
     /**
-     * Creates a new command configuration based on the given {@link CommandDescriptor}.
+     * Creates a new command configuration based on the given {@link CommandDto}.
      *
      * @param descriptor
-     *         command descriptor
+     *         {@link CommandDto}
      * @throws IllegalArgumentException
      *         if <code>descriptor</code> represents not a valid command.
      */
     @NotNull
-    public abstract T createFromCommandDescriptor(@NotNull CommandDescriptor descriptor);
+    public abstract T createFromDto(@NotNull CommandDto descriptor);
 }

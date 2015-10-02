@@ -53,7 +53,7 @@ public class CommandDataAdapter implements NodeDataAdapter<CommandDataAdapter.Co
 
     @Override
     public String getNodeId(final CommandTreeNode node) {
-        return node.getId();
+        return node.getName();
     }
 
     @Override
@@ -101,7 +101,6 @@ public class CommandDataAdapter implements NodeDataAdapter<CommandDataAdapter.Co
     /** Data node fot the commands tree. */
     public static class CommandTreeNode {
 
-        private final String                      id;
         private final String                      name;
         private final CommandTreeNode             parent;
         private final Object                      data;
@@ -116,13 +115,10 @@ public class CommandDataAdapter implements NodeDataAdapter<CommandDataAdapter.Co
             this.children = children;
 
             if (data instanceof CommandType) {
-                id = ((CommandType)data).getId();
                 name = ((CommandType)data).getDisplayName();
             } else if (data instanceof CommandConfiguration) {
-                id = ((CommandConfiguration)data).getId();
                 name = ((CommandConfiguration)data).getName();
             } else {
-                id = "ROOT";
                 name = "ROOT";
             }
         }
@@ -137,10 +133,6 @@ public class CommandDataAdapter implements NodeDataAdapter<CommandDataAdapter.Co
 
         public Collection<CommandTreeNode> getChildren() {
             return children;
-        }
-
-        public String getId() {
-            return id;
         }
 
         public String getName() {

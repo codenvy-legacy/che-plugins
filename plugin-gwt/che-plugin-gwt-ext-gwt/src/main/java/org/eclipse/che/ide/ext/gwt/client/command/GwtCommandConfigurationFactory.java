@@ -10,10 +10,10 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.gwt.client.command;
 
-import org.eclipse.che.api.machine.shared.dto.CommandDescriptor;
+import org.eclipse.che.api.workspace.shared.dto.CommandDto;
 import org.eclipse.che.ide.CommandLine;
-import org.eclipse.che.ide.extension.machine.client.command.CommandType;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfigurationFactory;
+import org.eclipse.che.ide.extension.machine.client.command.CommandType;
 
 import javax.validation.constraints.NotNull;
 
@@ -34,14 +34,12 @@ public class GwtCommandConfigurationFactory extends CommandConfigurationFactory<
 
     @NotNull
     @Override
-    public GwtCommandConfiguration createFromCommandDescriptor(@NotNull CommandDescriptor descriptor) {
+    public GwtCommandConfiguration createFromDto(@NotNull CommandDto descriptor) {
         if (!isGwtCommand(descriptor.getCommandLine())) {
             throw new IllegalArgumentException("Not a valid GWT command: " + descriptor.getCommandLine());
         }
 
-        final GwtCommandConfiguration configuration = new GwtCommandConfiguration(descriptor.getId(),
-                                                                                  getCommandType(),
-                                                                                  descriptor.getName());
+        final GwtCommandConfiguration configuration = new GwtCommandConfiguration(getCommandType(), descriptor.getName());
         final CommandLine cmd = new CommandLine(descriptor.getCommandLine());
 
         if (cmd.hasArgument("-f")) {

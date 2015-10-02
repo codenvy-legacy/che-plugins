@@ -363,10 +363,10 @@ public class EditCommandsViewImpl extends Window implements EditCommandsView {
     }
 
     @Override
-    public void selectCommand(String commandId) {
+    public void selectCommand(String commandName) {
         for (TreeNodeElement<CommandTreeNode> nodeElement : tree.getVisibleTreeNodes()) {
             final CommandTreeNode treeNode = nodeElement.getData();
-            if (commandId.equals(treeNode.getId())) {
+            if (commandName.equals(treeNode.getName())) {
                 selectNode(treeNode);
                 break;
             }
