@@ -283,7 +283,7 @@ public class DockerInstanceProviderTest {
                          .contains(DockerInstanceProvider.API_ENDPOINT_URL_VARIABLE + "=" + API_ENDPOINT_VALUE),
                    "Api endpoint variable is missing. Required " +
                    DockerInstanceProvider.API_ENDPOINT_URL_VARIABLE + "=" + API_ENDPOINT_VALUE +
-                  ". Found " + Arrays.toString(argumentCaptor.getValue().getEnv()));
+                   ". Found " + Arrays.toString(argumentCaptor.getValue().getEnv()));
     }
 
     @Test
@@ -980,6 +980,29 @@ public class DockerInstanceProviderTest {
                     "Api endpoint variable is missing. Required " +
                     DockerInstanceProvider.API_ENDPOINT_URL_VARIABLE + "=" + API_ENDPOINT_VALUE +
                     ". Found " + Arrays.toString(argumentCaptor.getValue().getEnv()));
+    }
+
+
+    @Test
+    /**
+     * E.g from https://github.com/boot2docker/boot2docker/blob/master/README.md#virtualbox-guest-additions
+     *
+     *   Users should be /Users
+     *   /Users should be /Users
+     *   c/Users should be /c/Users
+     *   /c/Users should be /c/Users
+     *   c:/Users should be /c/Users
+     */
+    public void shouldEscapePathForWindowsHost() {
+        assertEquals(dockerInstanceProvider.escapePath("Users"), "/Users");
+        assertEquals(dockerInstanceProvider.escapePath("/Users"), "/Users");
+        assertEquals(dockerInstanceProvider.escapePath("c/Users"), "/c/Users");
+        assertEquals(dockerInstanceProvider.escapePath("/c/Users"), "/c/Users");
+        assertEquals(dockerInstanceProvider.escapePath("c:/Users"), "/c/Users");
+        assertEquals(dockerInstanceProvider.escapePath("C:/Users"), "/c/Users");
+
+        assertEquals(dockerInstanceProvider.escapePath("C:/Users/path/dir/from/host:/name/of/dir/in/container"),
+                                                       "/c/Users/path/dir/from/host:/name/of/dir/in/container");
     }
 
 
