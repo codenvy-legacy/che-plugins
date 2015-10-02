@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.machine.client.watcher;
 
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 
@@ -20,10 +19,7 @@ import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.api.workspace.shared.dto.UsersWorkspaceDto;
 import org.eclipse.che.ide.api.app.AppContext;
-import org.eclipse.che.ide.api.app.CurrentProject;
-import org.eclipse.che.ide.api.event.RefreshProjectTreeEvent;
-import org.eclipse.che.ide.api.project.tree.TreeNode;
-import org.eclipse.che.ide.api.project.tree.TreeStructure;
+import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.eclipse.che.ide.util.loging.Log;
 import org.eclipse.che.ide.websocket.MessageBus;
 import org.eclipse.che.ide.websocket.MessageBusProvider;
@@ -34,7 +30,6 @@ import org.eclipse.che.ide.workspace.start.StartWorkspaceEvent;
 import org.eclipse.che.ide.workspace.start.StartWorkspaceHandler;
 
 import javax.validation.constraints.NotNull;
-import java.util.List;
 
 /**
  * The class contains business logic which allows describe on spacial socket and do some actions when
@@ -49,6 +44,7 @@ public class SystemFileWatcher {
     private final WatcherServiceClient watcherService;
     private final EventBus             eventBus;
     private final AppContext           appContext;
+    private final ProjectExplorerPresenter projectExplorer;
 
     private MessageBus messageBus;
 
@@ -56,11 +52,13 @@ public class SystemFileWatcher {
     public SystemFileWatcher(WatcherServiceClient watcherService,
                              EventBus eventBus,
                              AppContext appContext,
-                             final MessageBusProvider messageBusProvider) {
+                             final MessageBusProvider messageBusProvider,
+                             ProjectExplorerPresenter projectExplorer) {
         this.watcherService = watcherService;
         this.eventBus = eventBus;
         this.messageBus = messageBusProvider.getMessageBus();
         this.appContext = appContext;
+        this.projectExplorer = projectExplorer;
 
         eventBus.addHandler(StartWorkspaceEvent.TYPE, new StartWorkspaceHandler() {
             @Override
@@ -86,7 +84,7 @@ public class SystemFileWatcher {
                     messageBus.subscribe(WATCHER_WS_CHANEL, new SubscriptionHandler<String>(new StringUnmarshallerWS()) {
                         @Override
                         protected void onMessageReceived(String path) {
-                            refreshTree(path);
+                            projectExplorer.reloadChildren();
                         }
 
                         @Override
@@ -97,62 +95,6 @@ public class SystemFileWatcher {
                 } catch (WebSocketException e) {
                     Log.error(getClass(), e);
                 }
-            }
-        });
-    }
-
-    private void refreshTree(@NotNull String path) {
-        CurrentProject currentProject = appContext.getCurrentProject();
-
-        if (currentProject == null) {
-            return;
-        }
-
-        String pathToNode = getPathToParent(path);
-
-        boolean isRootNode = !pathToNode.contains("/");
-
-        TreeStructure treeStructure = currentProject.getCurrentTree();
-
-        if (isRootNode) {
-            refreshRootNode(treeStructure);
-        } else {
-            refreshChildNode(treeStructure, pathToNode);
-        }
-    }
-
-    private String getPathToParent(@NotNull String path) {
-        int parentPathEnd = path.lastIndexOf("/");
-
-        return parentPathEnd == -1 ? path : path.substring(0, parentPathEnd);
-    }
-
-    private void refreshRootNode(@NotNull TreeStructure treeStructure) {
-        treeStructure.getRootNodes(new AsyncCallback<List<TreeNode<?>>>() {
-            @Override
-            public void onSuccess(List<TreeNode<?>> result) {
-                TreeNode<?> rootNode = result.get(0);
-
-                eventBus.fireEvent(new RefreshProjectTreeEvent(rootNode));
-            }
-
-            @Override
-            public void onFailure(Throwable caught) {
-                Log.error(getClass(), caught);
-            }
-        });
-    }
-
-    private void refreshChildNode(@NotNull TreeStructure treeStructure, @NotNull String pathToChild) {
-        treeStructure.getNodeByPath(pathToChild, new AsyncCallback<TreeNode<?>>() {
-            @Override
-            public void onSuccess(TreeNode<?> result) {
-                eventBus.fireEvent(new RefreshProjectTreeEvent(result));
-            }
-
-            @Override
-            public void onFailure(Throwable caught) {
-                Log.error(getClass(), caught);
             }
         });
     }
