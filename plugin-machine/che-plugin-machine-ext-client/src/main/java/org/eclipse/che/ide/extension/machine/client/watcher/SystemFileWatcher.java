@@ -18,6 +18,7 @@ import org.eclipse.che.api.project.gwt.client.watcher.WatcherServiceClient;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.Promise;
+import org.eclipse.che.api.workspace.shared.dto.UsersWorkspaceDto;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.event.RefreshProjectTreeEvent;
@@ -25,9 +26,12 @@ import org.eclipse.che.ide.api.project.tree.TreeNode;
 import org.eclipse.che.ide.api.project.tree.TreeStructure;
 import org.eclipse.che.ide.util.loging.Log;
 import org.eclipse.che.ide.websocket.MessageBus;
+import org.eclipse.che.ide.websocket.MessageBusProvider;
 import org.eclipse.che.ide.websocket.WebSocketException;
 import org.eclipse.che.ide.websocket.rest.StringUnmarshallerWS;
 import org.eclipse.che.ide.websocket.rest.SubscriptionHandler;
+import org.eclipse.che.ide.workspace.start.StartWorkspaceEvent;
+import org.eclipse.che.ide.workspace.start.StartWorkspaceHandler;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -44,15 +48,26 @@ public class SystemFileWatcher {
 
     private final WatcherServiceClient watcherService;
     private final EventBus             eventBus;
-    private final MessageBus           messageBus;
     private final AppContext           appContext;
 
+    private MessageBus messageBus;
+
     @Inject
-    public SystemFileWatcher(WatcherServiceClient watcherService, EventBus eventBus, MessageBus messageBus, AppContext appContext) {
+    public SystemFileWatcher(WatcherServiceClient watcherService,
+                             EventBus eventBus,
+                             AppContext appContext,
+                             final MessageBusProvider messageBusProvider) {
         this.watcherService = watcherService;
         this.eventBus = eventBus;
-        this.messageBus = messageBus;
+        this.messageBus = messageBusProvider.getMessageBus();
         this.appContext = appContext;
+
+        eventBus.addHandler(StartWorkspaceEvent.TYPE, new StartWorkspaceHandler() {
+            @Override
+            public void onWorkspaceStarted(UsersWorkspaceDto workspace) {
+                messageBus = messageBusProvider.getMessageBus();
+            }
+        });
     }
 
     /**
@@ -106,7 +121,6 @@ public class SystemFileWatcher {
         }
     }
 
-    @NotNull
     private String getPathToParent(@NotNull String path) {
         int parentPathEnd = path.lastIndexOf("/");
 
