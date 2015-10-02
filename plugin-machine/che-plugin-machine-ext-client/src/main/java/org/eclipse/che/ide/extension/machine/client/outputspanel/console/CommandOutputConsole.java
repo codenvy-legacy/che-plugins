@@ -13,12 +13,10 @@ package org.eclipse.che.ide.extension.machine.client.outputspanel.console;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
 import org.eclipse.che.api.machine.gwt.client.OutputMessageUnmarshaller;
 import org.eclipse.che.api.machine.shared.dto.event.MachineProcessEvent;
-import org.eclipse.che.api.workspace.shared.dto.UsersWorkspaceDto;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
 import org.eclipse.che.ide.extension.machine.client.command.CommandManager;
@@ -30,8 +28,6 @@ import org.eclipse.che.ide.websocket.WebSocketException;
 import org.eclipse.che.ide.websocket.events.MessageHandler;
 import org.eclipse.che.ide.websocket.rest.SubscriptionHandler;
 import org.eclipse.che.ide.websocket.rest.Unmarshallable;
-import org.eclipse.che.ide.workspace.start.StartWorkspaceEvent;
-import org.eclipse.che.ide.workspace.start.StartWorkspaceHandler;
 
 /**
  * Console for command output.
@@ -60,7 +56,6 @@ public class CommandOutputConsole implements OutputConsole, OutputConsoleView.Ac
                                 final MessageBusProvider messageBusProvider,
                                 MachineServiceClient machineServiceClient,
                                 CommandManager commandManager,
-                                EventBus eventBus,
                                 @Assisted CommandConfiguration commandConfiguration,
                                 @Assisted String machineId) {
         this.view = view;
@@ -69,17 +64,11 @@ public class CommandOutputConsole implements OutputConsole, OutputConsoleView.Ac
         this.machineServiceClient = machineServiceClient;
         this.commandConfiguration = commandConfiguration;
         this.machineId = machineId;
+        messageBus = messageBusProvider.getMessageBus();
 
         view.setDelegate(this);
 
         view.printCommandLine(commandManager.substituteProperties(commandConfiguration.toCommandLine()));
-
-        eventBus.addHandler(StartWorkspaceEvent.TYPE, new StartWorkspaceHandler() {
-            @Override
-            public void onWorkspaceStarted(UsersWorkspaceDto workspace) {
-                messageBus = messageBusProvider.getMessageBus();
-            }
-        });
     }
 
     @Override
