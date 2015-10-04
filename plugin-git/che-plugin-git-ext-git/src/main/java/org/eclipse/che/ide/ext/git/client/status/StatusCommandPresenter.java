@@ -39,62 +39,27 @@ import static org.eclipse.che.api.git.shared.StatusFormat.LONG;
 @Singleton
 public class StatusCommandPresenter {
 
-    private boolean isViewClosed = true;
+    private final GitOutputPartPresenter  console;
 
-    private WorkspaceAgent          workspaceAgent;
     private GitServiceClient        service;
     private AppContext              appContext;
     private GitLocalizationConstant constant;
-    private GitOutputPartPresenter  console;
     private NotificationManager     notificationManager;
 
     /**
      * Create presenter.
-     *
-     * @param service
-     * @param appContext
-     * @param console
-     * @param constant
-     * @param notificationManager
      */
     @Inject
-    public StatusCommandPresenter(final WorkspaceAgent workspaceAgent,
-                                  GitServiceClient service,
-                                  EventBus eventBus,
+    public StatusCommandPresenter(GitServiceClient service,
                                   AppContext appContext,
-                                  final GitOutputPartPresenter console,
+                                  GitOutputPartPresenter console,
                                   GitLocalizationConstant constant,
                                   NotificationManager notificationManager) {
-        this.workspaceAgent = workspaceAgent;
         this.service = service;
         this.appContext = appContext;
         this.console = console;
         this.constant = constant;
         this.notificationManager = notificationManager;
-
-        eventBus.addHandler(ProjectActionEvent.TYPE, new ProjectActionHandler() {
-            @Override
-            public void onProjectReady(ProjectActionEvent event) {
-
-            }
-
-            @Override
-            public void onProjectClosing(ProjectActionEvent event) {
-
-            }
-
-            @Override
-            public void onProjectClosed(ProjectActionEvent event) {
-                isViewClosed = true;
-                console.clear();
-                workspaceAgent.hidePart(console);
-            }
-
-            @Override
-            public void onProjectOpened(ProjectActionEvent event) {
-
-            }
-        });
     }
 
     /** Show status. */
@@ -126,10 +91,6 @@ public class StatusCommandPresenter {
      * @param statusText text to be printed
      */
     private void printGitStatus(String statusText) {
-        if (isViewClosed) {
-            workspaceAgent.openPart(console, PartStackType.INFORMATION);
-            isViewClosed = false;
-        }
 
         console.print("");
         String[] lines = statusText.split("\n");
