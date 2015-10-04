@@ -40,20 +40,7 @@
 
 
     <inherits name='org.eclipse.che.env.local.LocalEnvironment'/>
-
-    <!--
-        Don't remove  SVN extension in some reason app not compile without it.
-        We get strange error :
-              [ERROR] Error injecting org.eclipse.che.ide.part.explorer.project.NewProjectExplorerViewImpl$ProjectExplorerResources:
-              Unable to create or inherit binding: No @Inject or default constructor found for
-              org.eclipse.che.ide.part.explorer.project.NewProjectExplorerViewImpl$ProjectExplorerResources
-
-        I can't figure out for now will see later.
-
-    -->
-    <inherits name='org.eclipse.che.ide.ext.svn.Subversion'/>
-
-
+    <inherits name='com.google.common.collect.Collect'/>
 
     <!-- Platform API GWT client dependencies                       -->
     <inherits name='org.eclipse.che.api.Analytics'/>

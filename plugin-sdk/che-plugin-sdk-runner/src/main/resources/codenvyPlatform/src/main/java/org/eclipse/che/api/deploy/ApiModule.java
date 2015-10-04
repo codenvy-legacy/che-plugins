@@ -46,7 +46,7 @@ import com.google.inject.multibindings.Multibinder;
 import org.eclipse.che.vfs.impl.fs.WorkspaceToDirectoryMappingService;
 import org.everrest.core.impl.async.AsynchronousJobPool;
 import org.everrest.core.impl.async.AsynchronousJobService;
-import org.everrest.guice.PathKey;
+import org.everrest.guice.ServiceBindingHelper;
 
 /** @author andrew00x */
 @DynaModule
