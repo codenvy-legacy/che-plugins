@@ -44,7 +44,7 @@ public class JarContainerNode extends AbstractJavaSyntheticNode<Jar> {
 
     @Override
     public void updatePresentation(@NotNull NodePresentation presentation) {
-        presentation.setPresentableIcon(nodeManager.getJavaNodesResources().jarIcon());
+        presentation.setPresentableIcon(nodeManager.getJavaNodesResources().jarFileIcon());
         presentation.setPresentableText(getData().getName());
     }
 

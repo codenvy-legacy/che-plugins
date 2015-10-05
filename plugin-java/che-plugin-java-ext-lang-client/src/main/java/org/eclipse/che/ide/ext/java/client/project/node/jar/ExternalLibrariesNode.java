@@ -47,7 +47,7 @@ public class ExternalLibrariesNode extends SyntheticBasedNode<String> {
 
     @Override
     public void updatePresentation(@NotNull NodePresentation presentation) {
-        presentation.setPresentableIcon(javaNodeManager.getJavaNodesResources().librariesIcon());
+        presentation.setPresentableIcon(javaNodeManager.getJavaNodesResources().externalLibraries());
         presentation.setPresentableText(getName());
     }
 

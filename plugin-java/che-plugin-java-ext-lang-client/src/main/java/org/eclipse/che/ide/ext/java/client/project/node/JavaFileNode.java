@@ -46,8 +46,8 @@ public class JavaFileNode extends FileReferenceNode implements MutableNode {
 
     @Override
     public void updatePresentation(@NotNull NodePresentation presentation) {
+        super.updatePresentation(presentation);
         presentation.setPresentableText(getDisplayName());
-        presentation.setPresentableIcon(nodeManager.getJavaNodesResources().fileJava());
     }
 
     @Override

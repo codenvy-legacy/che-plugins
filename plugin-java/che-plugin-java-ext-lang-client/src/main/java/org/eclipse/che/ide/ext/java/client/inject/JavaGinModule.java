@@ -85,7 +85,7 @@ public class JavaGinModule extends AbstractGinModule {
     @Singleton
     @Named("JavaClassFileType")
     protected FileType provideJavaClassFile() {
-        return new FileType("Java Class", JavaResources.INSTANCE.javaClassIcon(), MimeType.APPLICATION_JAVA_CLASS, "class");
+        return new FileType("Java Class", JavaResources.INSTANCE.javaFile(), MimeType.APPLICATION_JAVA_CLASS, "class");
     }
 
     @Provides
