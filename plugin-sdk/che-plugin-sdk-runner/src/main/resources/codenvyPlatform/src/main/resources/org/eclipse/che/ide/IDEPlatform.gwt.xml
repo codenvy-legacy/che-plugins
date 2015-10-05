@@ -39,7 +39,6 @@
     <inherits name='org.eclipse.che.api.Account'/>
     <inherits name='org.eclipse.che.api.VFS'/>
     <inherits name='org.eclipse.che.api.Analytics'/>
-    <inherits name='org.eclipse.che.ide.editor.codemirror.CodeMirrorEditor'/>
     <inherits name='org.eclipse.che.env.local.LocalEnvironment'/>
     <inherits name='org.eclipse.che.api.Git'/>
     <inherits name='org.eclipse.che.security.OAuth'/>

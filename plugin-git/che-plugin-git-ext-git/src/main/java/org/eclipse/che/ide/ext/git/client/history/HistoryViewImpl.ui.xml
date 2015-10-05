@@ -151,11 +151,13 @@
                             <g:HTML ui:field="compareType" addStyleNames="{res.gitCSS.textFont}" debugId="git-showHistory-compareType"/>
                         </g:north>
                         <g:center>
-                            <g:HTMLPanel width="100%" height="100%">
-                                <div ui:field="editor" width="100%" height="100%"
-                                            class="{res.gitCSS.textFont} {style.withoutPadding}"
-                                            debugId="git-showHistory-editor"/>
-                            </g:HTMLPanel>
+                            <g:FlowPanel addStyleNames="{style.emptyBorder}">
+                                <g:SimplePanel width="100%" height="100%">
+                                    <g:TextArea ui:field="editor" width="100%" height="100%" readOnly="true"
+                                                addStyleNames="{res.gitCSS.textFont} {style.withoutPadding}"
+                                                debugId="git-showHistory-editor"/>
+                                </g:SimplePanel>
+                            </g:FlowPanel>
                         </g:center>
                     </g:DockLayoutPanel>
                 </g:center>
