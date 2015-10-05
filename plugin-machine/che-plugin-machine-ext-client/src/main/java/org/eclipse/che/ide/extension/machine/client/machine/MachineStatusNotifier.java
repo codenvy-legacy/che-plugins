@@ -74,6 +74,8 @@ class MachineStatusNotifier {
         this.notificationManager = notificationManager;
         this.locale = locale;
 
+        this.messageBus = messageBusProvider.getMessageBus();
+
         eventBus.addHandler(StartWorkspaceEvent.TYPE, new StartWorkspaceHandler() {
             @Override
             public void onWorkspaceStarted(UsersWorkspaceDto workspace) {
