@@ -100,6 +100,8 @@ public class MachineManager {
         this.entityFactory = entityFactory;
         this.appContext = appContext;
 
+        this.messageBus = messageBusProvider.getMessageBus();
+
         eventBus.addHandler(StartWorkspaceEvent.TYPE, new StartWorkspaceHandler() {
             @Override
             public void onWorkspaceStarted(UsersWorkspaceDto workspace) {
