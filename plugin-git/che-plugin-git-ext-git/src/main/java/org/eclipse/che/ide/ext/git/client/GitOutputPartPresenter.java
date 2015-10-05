@@ -17,9 +17,14 @@ import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.google.web.bindery.event.shared.EventBus;
 
+import org.eclipse.che.ide.api.event.ProjectActionEvent;
+import org.eclipse.che.ide.api.event.ProjectActionHandler;
 import org.eclipse.che.ide.api.parts.ConsolePart;
 import org.eclipse.che.ide.api.parts.PartPresenter;
+import org.eclipse.che.ide.api.parts.PartStackType;
+import org.eclipse.che.ide.api.parts.WorkspaceAgent;
 import org.eclipse.che.ide.api.parts.base.BasePresenter;
 import org.eclipse.che.ide.workspace.WorkBenchPartControllerImpl;
 import org.vectomatic.dom.svg.ui.SVGResource;
@@ -32,14 +37,44 @@ import org.vectomatic.dom.svg.ui.SVGResource;
 @Singleton
 public class GitOutputPartPresenter extends BasePresenter implements GitOutputPartView.ActionDelegate, ConsolePart {
     private static final String TITLE = "Git";
-    private GitOutputPartView view;
+    private       GitOutputPartView view;
+    private final WorkspaceAgent    workspaceAgent;
+    private boolean isTabPresent = false;
 
     /** Construct empty Part */
     @Inject
-    public GitOutputPartPresenter(GitOutputPartView view) {
+    public GitOutputPartPresenter(GitOutputPartView view,
+                                  final EventBus eventBus,
+                                  final WorkspaceAgent workspaceAgent) {
         this.view = view;
+        this.workspaceAgent = workspaceAgent;
         this.view.setTitle(TITLE);
         this.view.setDelegate(this);
+
+        eventBus.addHandler(ProjectActionEvent.TYPE, new ProjectActionHandler() {
+            @Override
+            public void onProjectReady(ProjectActionEvent event) {
+
+            }
+
+            @Override
+            public void onProjectClosing(ProjectActionEvent event) {
+
+            }
+
+            @Override
+            public void onProjectClosed(ProjectActionEvent event) {
+                clear();
+                workspaceAgent.hidePart(GitOutputPartPresenter.this);
+                workspaceAgent.removePart(GitOutputPartPresenter.this);
+                isTabPresent = false;
+            }
+
+            @Override
+            public void onProjectOpened(ProjectActionEvent event) {
+
+            }
+        });
     }
 
     /** {@inheritDoc} */
@@ -83,9 +118,15 @@ public class GitOutputPartPresenter extends BasePresenter implements GitOutputPa
     }
 
     private void performPostOutputActions() {
-        PartPresenter activePart = partStack.getActivePart();
-        if (activePart == null || !activePart.equals(this)) {
+        if (isTabPresent) {
+            PartPresenter activePart = partStack.getActivePart();
+            if (activePart == null || !activePart.equals(this)) {
+                partStack.setActivePart(this);
+            }
+        } else {
+            workspaceAgent.openPart(GitOutputPartPresenter.this, PartStackType.INFORMATION);
             partStack.setActivePart(this);
+            isTabPresent = true;
         }
         view.scrollBottom();
     }
