@@ -19,6 +19,7 @@ import org.eclipse.che.api.promises.client.Function;
 import org.eclipse.che.api.promises.client.FunctionException;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
+import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.api.promises.client.PromiseError;
 import org.eclipse.che.api.workspace.gwt.client.WorkspaceServiceClient;
 import org.eclipse.che.api.workspace.shared.dto.CommandDto;
@@ -106,11 +107,7 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
             return;
         }
 
-        final CommandDto commandDto = dtoFactory.createDto(CommandDto.class)
-                                                .withName(selectedConfiguration.getName())
-                                                .withCommandLine(selectedConfiguration.toCommandLine())
-                                                .withType(selectedConfiguration.getType().getId());
-        workspaceServiceClient.updateCommand(workspaceId, commandDto).then(new Operation<UsersWorkspaceDto>() {
+        updateCommand(selectedConfiguration).then(new Operation<UsersWorkspaceDto>() {
             @Override
             public void apply(UsersWorkspaceDto arg) throws OperationException {
                 view.close();
@@ -130,17 +127,32 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
             return;
         }
 
-        final CommandDto commandDto = dtoFactory.createDto(CommandDto.class)
-                                                .withName(selectedConfiguration.getName())
-                                                .withCommandLine(selectedConfiguration.toCommandLine())
-                                                .withType(selectedConfiguration.getType().getId());
-        workspaceServiceClient.updateCommand(workspaceId, commandDto).then(new Operation<UsersWorkspaceDto>() {
+        updateCommand(selectedConfiguration).then(new Operation<UsersWorkspaceDto>() {
             @Override
             public void apply(UsersWorkspaceDto arg) throws OperationException {
                 fetchCommands(arg.getName());
                 fireConfigurationUpdated(selectedConfiguration);
             }
         });
+    }
+
+    private Promise<UsersWorkspaceDto> updateCommand(CommandConfiguration selectedConfiguration) {
+        final CommandDto commandDto = dtoFactory.createDto(CommandDto.class)
+                                                .withName(selectedConfiguration.getName())
+                                                .withCommandLine(selectedConfiguration.toCommandLine())
+                                                .withType(selectedConfiguration.getType().getId());
+
+        if (editedCommandOriginName.equals(selectedConfiguration.getName())) {
+            return workspaceServiceClient.updateCommand(workspaceId, commandDto);
+        } else {
+            return workspaceServiceClient.deleteCommand(workspaceId, editedCommandOriginName)
+                                         .thenPromise(new Function<UsersWorkspaceDto, Promise<UsersWorkspaceDto>>() {
+                                             @Override
+                                             public Promise<UsersWorkspaceDto> apply(UsersWorkspaceDto arg) throws FunctionException {
+                                                 return workspaceServiceClient.addCommand(workspaceId, commandDto);
+                                             }
+                                         });
+        }
     }
 
     @Override
@@ -163,11 +175,7 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
         final ConfirmCallback saveCallback = new ConfirmCallback() {
             @Override
             public void accepted() {
-                final CommandDto commandDto = dtoFactory.createDto(CommandDto.class)
-                                                        .withName(editedCommand.getName())
-                                                        .withCommandLine(editedCommand.toCommandLine())
-                                                        .withType(editedCommand.getType().getId());
-                workspaceServiceClient.updateCommand(workspaceId, commandDto).then(new Operation<UsersWorkspaceDto>() {
+                updateCommand(editedCommand).then(new Operation<UsersWorkspaceDto>() {
                     @Override
                     public void apply(UsersWorkspaceDto arg) throws OperationException {
                         createCommand(selectedType);
@@ -268,11 +276,7 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
         final ConfirmCallback saveCallback = new ConfirmCallback() {
             @Override
             public void accepted() {
-                final CommandDto commandDto = dtoFactory.createDto(CommandDto.class)
-                                                        .withName(editedCommand.getName())
-                                                        .withCommandLine(editedCommand.toCommandLine())
-                                                        .withType(editedCommand.getType().getId());
-                workspaceServiceClient.updateCommand(workspaceId, commandDto).then(new Operation<UsersWorkspaceDto>() {
+                updateCommand(editedCommand).then(new Operation<UsersWorkspaceDto>() {
                     @Override
                     public void apply(UsersWorkspaceDto arg) throws OperationException {
                         fetchCommands(null);
@@ -318,11 +322,7 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
         final ConfirmCallback saveCallback = new ConfirmCallback() {
             @Override
             public void accepted() {
-                final CommandDto commandDto = dtoFactory.createDto(CommandDto.class)
-                                                        .withName(editedCommand.getName())
-                                                        .withCommandLine(editedCommand.toCommandLine())
-                                                        .withType(editedCommand.getType().getId());
-                workspaceServiceClient.updateCommand(workspaceId, commandDto).then(new Operation<UsersWorkspaceDto>() {
+                updateCommand(editedCommand).then(new Operation<UsersWorkspaceDto>() {
                     @Override
                     public void apply(UsersWorkspaceDto arg) throws OperationException {
                         fetchCommands(configuration.getName());
