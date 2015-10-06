@@ -10,16 +10,17 @@
  *******************************************************************************/
 package org.eclipse.che.security.oauth;
 
-import org.eclipse.che.inject.DynaModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.multibindings.Multibinder;
+
+import org.eclipse.che.inject.DynaModule;
 
 /**
  * Setup GitHubOAuthAuthenticator in guice container.
  *
  * @author Sergii Kabashniuk
  */
-//@DynaModule
+@DynaModule
 public class GithubModule extends AbstractModule {
     @Override
     protected void configure() {
