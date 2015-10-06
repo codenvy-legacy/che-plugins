@@ -56,6 +56,8 @@ public class DockerInstanceProviderTest {
 
     private static final String API_ENDPOINT_VALUE = "apiEndpoint";
 
+    private static final String PROJECTS_ROOT = "/projects";
+
     private static final String CONTAINER_ID = "containerId";
 
     @Mock
@@ -930,6 +932,53 @@ public class DockerInstanceProviderTest {
                    "Unexpected container name " + containerName + " while expected " + expectedPrefix + "*");
     }
 
+
+    @Test
+    public void shouldAddWorkspaceIdEnvVariableOnDevInstanceCreationFromRecipe() throws Exception {
+        String wsId = "myWs";
+        createInstanceFromRecipe(true, wsId);
+        ArgumentCaptor<ContainerConfig> argumentCaptor = ArgumentCaptor.forClass(ContainerConfig.class);
+        verify(dockerConnector).createContainer(argumentCaptor.capture(), anyString());
+        assertTrue(Arrays.asList(argumentCaptor.getValue().getEnv())
+                         .contains(DockerInstanceProvider.CHE_WORKSPACE_ID + "=" + wsId),
+                   "Workspace Id variable is missing. Required " +  DockerInstanceProvider.CHE_WORKSPACE_ID + "=" + wsId +
+                   ". Found " + Arrays.toString(argumentCaptor.getValue().getEnv()));
+    }
+
+    @Test
+    public void shouldAddWorkspaceIdEnvVariableOnDevInstanceCreationFromSnapshot() throws Exception {
+        String wsId = "myWs";
+        createInstanceFromSnapshot(true, wsId);
+        ArgumentCaptor<ContainerConfig> argumentCaptor = ArgumentCaptor.forClass(ContainerConfig.class);
+        verify(dockerConnector).createContainer(argumentCaptor.capture(), anyString());
+        assertTrue(Arrays.asList(argumentCaptor.getValue().getEnv())
+                         .contains(DockerInstanceProvider.CHE_WORKSPACE_ID + "=" + wsId),
+                   "Workspace Id variable is missing. Required " +  DockerInstanceProvider.CHE_WORKSPACE_ID + "=" + wsId +
+                   ". Found " + Arrays.toString(argumentCaptor.getValue().getEnv()));
+    }
+
+    @Test
+    public void shouldNotAddWorkspaceIdEnvVariableOnNonDevInstanceCreationFromRecipe() throws Exception {
+        String wsId = "myWs";
+        createInstanceFromRecipe(false, wsId);
+        ArgumentCaptor<ContainerConfig> argumentCaptor = ArgumentCaptor.forClass(ContainerConfig.class);
+        verify(dockerConnector).createContainer(argumentCaptor.capture(), anyString());
+        assertFalse(Arrays.asList(argumentCaptor.getValue().getEnv())
+                          .contains(DockerInstanceProvider.CHE_WORKSPACE_ID + "=" + wsId),
+                    "Non dev machine should not contains " + DockerInstanceProvider.CHE_WORKSPACE_ID);
+    }
+
+    @Test
+    public void shouldNotAddWorkspaceIdEnvVariableOnNonDevInstanceCreationFromSnapshot() throws Exception {
+        String wsId = "myWs";
+        createInstanceFromSnapshot(false, wsId);
+        ArgumentCaptor<ContainerConfig> argumentCaptor = ArgumentCaptor.forClass(ContainerConfig.class);
+        verify(dockerConnector).createContainer(argumentCaptor.capture(), anyString());
+        assertFalse(Arrays.asList(argumentCaptor.getValue().getEnv())
+                         .contains(DockerInstanceProvider.CHE_WORKSPACE_ID + "=" + wsId),
+                   "Non dev machine should not contains " + DockerInstanceProvider.CHE_WORKSPACE_ID);
+    }
+
     @Test
     public void shouldAddProjectsRootEnvVariableOnDevInstanceCreationFromRecipe() throws Exception {
         createInstanceFromRecipe(true);
@@ -937,9 +986,9 @@ public class DockerInstanceProviderTest {
         ArgumentCaptor<ContainerConfig> argumentCaptor = ArgumentCaptor.forClass(ContainerConfig.class);
         verify(dockerConnector).createContainer(argumentCaptor.capture(), anyString());
         assertTrue(Arrays.asList(argumentCaptor.getValue().getEnv())
-                         .contains(DockerInstanceMetadata.PROJECTS_ROOT_VARIABLE + "=" + DockerInstanceProvider.PROJECTS_FOLDER_PATH),
-                   "Api endpoint variable is missing. Required " +
-                   DockerInstanceProvider.API_ENDPOINT_URL_VARIABLE + "=" + API_ENDPOINT_VALUE +
+                         .contains(DockerInstanceMetadata.PROJECTS_ROOT_VARIABLE +  "=" + DockerInstanceProvider.PROJECTS_FOLDER_PATH),
+                   "Projects root variable is missing. Required " +
+                   DockerInstanceMetadata.PROJECTS_ROOT_VARIABLE + "=" + DockerInstanceProvider.PROJECTS_FOLDER_PATH +
                    ". Found " + Arrays.toString(argumentCaptor.getValue().getEnv()));
     }
 
@@ -951,8 +1000,8 @@ public class DockerInstanceProviderTest {
         verify(dockerConnector).createContainer(argumentCaptor.capture(), anyString());
         assertTrue(Arrays.asList(argumentCaptor.getValue().getEnv())
                          .contains(DockerInstanceMetadata.PROJECTS_ROOT_VARIABLE + "=" + DockerInstanceProvider.PROJECTS_FOLDER_PATH),
-                   "Api endpoint variable is missing. Required " +
-                   DockerInstanceProvider.API_ENDPOINT_URL_VARIABLE + "=" + API_ENDPOINT_VALUE +
+                   "Projects root variable is missing. Required " +
+                   DockerInstanceMetadata.PROJECTS_ROOT_VARIABLE + "=" + DockerInstanceProvider.PROJECTS_FOLDER_PATH +
                    ". Found " + Arrays.toString(argumentCaptor.getValue().getEnv()));
     }
 
@@ -964,9 +1013,7 @@ public class DockerInstanceProviderTest {
         verify(dockerConnector).createContainer(argumentCaptor.capture(), anyString());
         assertFalse(Arrays.asList(argumentCaptor.getValue().getEnv())
                           .contains(DockerInstanceMetadata.PROJECTS_ROOT_VARIABLE + "=" + DockerInstanceProvider.PROJECTS_FOLDER_PATH),
-                    "Api endpoint variable is missing. Required " +
-                    DockerInstanceProvider.API_ENDPOINT_URL_VARIABLE + "=" + API_ENDPOINT_VALUE +
-                    ". Found " + Arrays.toString(argumentCaptor.getValue().getEnv()));
+                    "Non dev machine should not contains " + DockerInstanceMetadata.PROJECTS_ROOT_VARIABLE);
     }
 
     @Test
@@ -977,9 +1024,7 @@ public class DockerInstanceProviderTest {
         verify(dockerConnector).createContainer(argumentCaptor.capture(), anyString());
         assertFalse(Arrays.asList(argumentCaptor.getValue().getEnv())
                           .contains(DockerInstanceMetadata.PROJECTS_ROOT_VARIABLE + "=" + DockerInstanceProvider.PROJECTS_FOLDER_PATH),
-                    "Api endpoint variable is missing. Required " +
-                    DockerInstanceProvider.API_ENDPOINT_URL_VARIABLE + "=" + API_ENDPOINT_VALUE +
-                    ". Found " + Arrays.toString(argumentCaptor.getValue().getEnv()));
+                    "Non dev machine should not contains " + DockerInstanceMetadata.PROJECTS_ROOT_VARIABLE);
     }
 
 

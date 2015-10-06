@@ -11,6 +11,7 @@
 package org.eclipse.che.plugin.docker.machine;
 
 import com.google.common.collect.Maps;
+import com.google.common.collect.ObjectArrays;
 import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 
@@ -47,10 +48,12 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -65,6 +68,14 @@ public class DockerInstanceProvider implements InstanceProvider {
     private static final Logger LOG = LoggerFactory.getLogger(DockerInstanceProvider.class);
 
     public static final String API_ENDPOINT_URL_VARIABLE = "CHE_API_ENDPOINT";
+
+    /**
+     *
+     * Environment variable that will be setup in developer machine
+     * will contain ID of a workspace for which this machine has been created
+     *
+     */
+    public static final String CHE_WORKSPACE_ID = "CHE_WORKSPACE_ID";
 
     public static final String PROJECTS_FOLDER_PATH = "/projects";
 
@@ -359,8 +370,7 @@ public class DockerInstanceProvider implements InstanceProvider {
                 // 1 extra element that contains workspace FS folder will be added further
                 volumes = Sets.newHashSetWithExpectedSize(systemVolumesForDevMachine.size() + 1);
                 volumes.addAll(systemVolumesForDevMachine);
-
-                env = devMachineEnvVariables;
+                env = ObjectArrays.concat(devMachineEnvVariables, CHE_WORKSPACE_ID + '=' + workspaceId);
             } else {
                 labels = machineContainerLabels;
                 portsToExpose = portsToExposeOnMachine;
