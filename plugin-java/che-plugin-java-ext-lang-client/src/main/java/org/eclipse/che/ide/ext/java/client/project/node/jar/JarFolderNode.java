@@ -48,8 +48,8 @@ public class JarFolderNode extends AbstractJarEntryNode {
     @Override
     public void updatePresentation(@NotNull NodePresentation presentation) {
         presentation.setPresentableText(getData().getName());
-        presentation.setPresentableIcon(getData().getType() == PACKAGE ? nodeManager.getJavaNodesResources().packageFolder()
-                                                                       : nodeManager.getNodesResources().simpleRoot());
+        presentation.setPresentableIcon(getData().getType() == PACKAGE ? nodeManager.getJavaNodesResources().packageIcon()
+                                                                       : nodeManager.getNodesResources().simpleFolder());
     }
 
     @NotNull

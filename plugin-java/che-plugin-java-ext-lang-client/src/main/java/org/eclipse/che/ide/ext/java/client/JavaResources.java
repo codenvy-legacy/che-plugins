@@ -17,12 +17,11 @@ import com.google.gwt.resources.client.ImageResource;
 import org.vectomatic.dom.svg.ui.SVGResource;
 
 /**
- * @author <a href="mailto:evidolob@exoplatform.com">Evgen Vidolob</a>
- * @version $Id: $
+ * @author Evgen Vidolob
+ * @author Vlad Zhukovskyi
  */
 public interface JavaResources extends ClientBundle {
     JavaResources INSTANCE = GWT.create(JavaResources.class);
-
 
     @Source("java.css")
     JavaCss css();
@@ -171,45 +170,20 @@ public interface JavaResources extends ClientBundle {
     @Source("svg/mark-warning.svg")
     SVGResource markWarning();
 
-    @Source("svg/close-folder.svg")
-    SVGResource closeFolder();
-
-    @Source("svg/css.svg")
-    SVGResource cssFile();
-
-    @Source("svg/html.svg")
-    SVGResource htmlFile();
-
-    @Source("svg/image-icon.svg")
-    SVGResource imageIcon();
-
-    @Source("svg/java.svg")
+    @Source("svg/javaFile.svg")
     SVGResource javaFile();
 
-    @Source("svg/js.svg")
-    SVGResource jsFile();
-
-    @Source("svg/jsf.svg")
+    @Source("svg/jsfFile.svg")
     SVGResource jsfFile();
 
-    @Source("svg/json.svg")
-    SVGResource jsonFile();
-
-    @Source("svg/jsp.svg")
+    @Source("svg/jspFile.svg")
     SVGResource jspFile();
 
-
-    @Source("svg/open-folder.svg")
-    SVGResource openFolder();
-
-    @Source("svg/package.svg")
+    @Source("svg/packageIcon.svg")
     SVGResource packageIcon();
 
-    @Source("svg/source-folder.svg")
-    SVGResource sourceFolder();
-
-    @Source("svg/text.svg")
-    SVGResource textFile();
+    @Source("svg/emptyPackageIcon.svg")
+    SVGResource emptyPackageIcon();
 
     @Source("svg/update-dependencies.svg")
     SVGResource updateDependencies();
@@ -217,29 +191,20 @@ public interface JavaResources extends ClientBundle {
     @Source("svg/category/java.svg")
     SVGResource javaCategoryIcon();
 
-    @Source("svg/libraries.svg")
-    SVGResource librariesIcon();
+    @Source("svg/externalLibraries.svg")
+    SVGResource externalLibraries();
 
-    @Source("svg/jar10.svg")
-    SVGResource jarIcon();
-
-    @Source("svg/class.svg")
-    SVGResource javaClassIcon();
+    @Source("svg/jarFileIcon.svg")
+    SVGResource jarFileIcon();
 
     @Source("internal/text/correction/proposals/correction_linked_rename.gif")
-    ImageResource  linkedRename();
+    ImageResource linkedRename();
 
-    @Source("svg/srcFolder.svg")
-    SVGResource srcFolder();
+    @Source("svg/sourceFolder.svg")
+    SVGResource sourceFolder();
 
-    @Source("svg/testSrcFolder.svg")
-    SVGResource testSrcFolder();
-
-    @Source("svg/packageFolder.svg")
-    SVGResource packageFolder();
-
-    @Source("svg/fileJava.svg")
-    SVGResource fileJava();
+    @Source("svg/testFolder.svg")
+    SVGResource testFolder();
 
     @Source("svg/resourceFolder.svg")
     SVGResource resourceFolder();

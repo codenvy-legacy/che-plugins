@@ -57,7 +57,7 @@ public class PackageNode extends FolderReferenceNode {
     @Override
     public void updatePresentation(@NotNull NodePresentation presentation) {
         presentation.setPresentableText(getDisplayFqn());
-        presentation.setPresentableIcon(nodeManager.getJavaNodesResources().packageFolder());
+        presentation.setPresentableIcon(nodeManager.getJavaNodesResources().packageIcon());
     }
 
     @Override

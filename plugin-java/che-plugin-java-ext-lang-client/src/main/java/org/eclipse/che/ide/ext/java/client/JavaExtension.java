@@ -102,12 +102,6 @@ public class JavaExtension {
 
     @Inject
     private void registerIcons(IconRegistry iconRegistry, JavaResources resources) {
-        // icons for project tree nodes
-        iconRegistry.registerIcon(new Icon("java.package", resources.packageIcon()));
-        iconRegistry.registerIcon(new Icon("java.sourceFolder", resources.sourceFolder()));
-        iconRegistry.registerIcon(new Icon("java.libraries", resources.librariesIcon()));
-        iconRegistry.registerIcon(new Icon("java.jar", resources.jarIcon()));
-        iconRegistry.registerIcon(new Icon("java.class", resources.javaClassIcon()));
         // icon for category in Wizard
         iconRegistry.registerIcon(new Icon(Constants.JAVA_CATEGORY + ".samples.category.icon", resources.javaCategoryIcon()));
     }

@@ -64,10 +64,10 @@ public class SourceFolderNode extends FolderReferenceNode {
     public void updatePresentation(@NotNull NodePresentation presentation) {
         switch (contentRootType) {
             case SOURCE:
-                presentation.setPresentableIcon(nodeManager.getJavaNodesResources().srcFolder());
+                presentation.setPresentableIcon(nodeManager.getJavaNodesResources().sourceFolder());
                 break;
             case TEST_SOURCE:
-                presentation.setPresentableIcon(nodeManager.getJavaNodesResources().testSrcFolder());
+                presentation.setPresentableIcon(nodeManager.getJavaNodesResources().testFolder());
                 break;
             case RESOURCE:
             case TEST_RESOURCE:

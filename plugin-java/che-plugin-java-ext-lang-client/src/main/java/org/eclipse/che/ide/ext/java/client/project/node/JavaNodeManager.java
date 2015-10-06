@@ -40,6 +40,7 @@ import org.eclipse.che.ide.ext.java.shared.Jar;
 import org.eclipse.che.ide.ext.java.shared.JarEntry;
 import org.eclipse.che.ide.project.node.NodeManager;
 import org.eclipse.che.ide.project.node.factory.NodeFactory;
+import org.eclipse.che.ide.project.node.icon.NodeIconProvider;
 import org.eclipse.che.ide.project.shared.NodesResources;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
@@ -51,6 +52,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Vlad Zhukovskiy
@@ -77,8 +79,9 @@ public class JavaNodeManager extends NodeManager {
                            JavaNodeFactory javaNodeFactory,
                            Map<String, SettingsProvider> settingsProviderMap,
                            JavaResources javaResources,
-                           EventBus eventBus) {
-        super(nodeFactory, projectService, dtoUnmarshaller, nodesResources, nodeSettingsProvider, dtoFactory);
+                           EventBus eventBus,
+                           Set<NodeIconProvider> nodeIconProvider) {
+        super(nodeFactory, projectService, dtoUnmarshaller, nodesResources, nodeSettingsProvider, dtoFactory, nodeIconProvider);
 
         this.javaService = javaService;
         this.javaNodeFactory = javaNodeFactory;
