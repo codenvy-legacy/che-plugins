@@ -11,7 +11,8 @@
 
 -->
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
-             xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'
+             xmlns:che='urn:import:org.eclipse.che.ide.ui.customListBox'>
     <ui:style src="org/eclipse/che/ide/api/ui/style.css" type="org.eclipse.che.ide.extension.maven.client.wizard.MavenPageViewImpl.Style">
         @eval borderColor org.eclipse.che.ide.api.theme.Style.getTabBorderColor();
         .field {
@@ -40,6 +41,10 @@
             margin: 15px;
         }
 
+        .mainDoc div {
+            overflow: visible !important;
+        }
+
         .inputError {
             border-color: #ffe400;
             box-shadow: 0 0 5px #ffe400;
@@ -63,8 +68,9 @@
                 </g:west>
                 <g:center>
                     <g:SimplePanel addStyleNames="{style.spaceRight}">
-                        <g:ListBox ui:field="archetypeField" multipleSelect="false" visibleItemCount="1" selectedIndex="0"
-                                   debugId="mavenPageView-archetypeField" width="511px" height="29px" addStyleNames="{style.field}"/>
+                        <che:CustomListBox ui:field="archetypeField" selectedIndex="1"
+                                           debugId="mavenPageView-archetypeField" width="511px" height="29px"
+                                           addStyleNames="{style.field}"/>
                     </g:SimplePanel>
                 </g:center>
             </g:DockLayoutPanel>
@@ -122,12 +128,9 @@
                 </g:west>
                 <g:center>
                     <g:SimplePanel addStyleNames="{style.spaceRight}">
-                        <g:ListBox ui:field="packagingField" multipleSelect="false" visibleItemCount="1" selectedIndex="0"
-                                   debugId="mavenPageView-packagingField" width="511px" height="29px" addStyleNames="{style.field}">
-                            <g:item value="jar">JAR</g:item>
-                            <g:item value="war">WAR</g:item>
-                            <g:item value="pom">POM</g:item>
-                        </g:ListBox>
+                        <che:CustomListBox ui:field="packagingField" selectedIndex="0"
+                                           debugId="mavenPageView-packagingField" width="511px" height="29px"
+                                           addStyleNames="{style.field}"/>
                     </g:SimplePanel>
                 </g:center>
             </g:DockLayoutPanel>

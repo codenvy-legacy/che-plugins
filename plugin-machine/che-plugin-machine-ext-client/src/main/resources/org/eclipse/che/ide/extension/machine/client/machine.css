@@ -29,7 +29,7 @@
 }
 
 .machineConsole pre, .commandConsole pre {
-    font-family: "Droid Sans Mono", monospace;
+    font-family: textFieldFontFamily;
     font-size: 11px;
 }
 
@@ -137,8 +137,9 @@
 }
 
 .selectCommandBox:first-child > .selectCommandBoxIconPanel:first-child + div {
+    font-family: textFieldFontFamily;
     color: selectCommandActionColor;
-    font-size: fontSize;
+    font-size: textFieldFontSize;
 }
 
 .selectCommandBox:first-child > .selectCommandBoxIconPanel:first-child + div:hover {

@@ -17,10 +17,11 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+
+import org.eclipse.che.ide.ui.customListBox.CustomListBox;
 
 import org.eclipse.che.ide.ext.java.client.settings.compiler.ErrorWarningsOptions;
 
@@ -42,9 +43,9 @@ public class PropertyWidgetImpl extends Composite implements PropertyWidget {
     private final ErrorWarningsOptions optionId;
 
     @UiField
-    Label   title;
+    Label         title;
     @UiField
-    ListBox property;
+    CustomListBox property;
 
     private ActionDelegate delegate;
 

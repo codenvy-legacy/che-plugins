@@ -27,6 +27,9 @@ import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
 
+
+import org.eclipse.che.ide.ui.customListBox.CustomListBox;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,24 +41,24 @@ public class MavenPageViewImpl implements MavenPageView {
     private static MavenPageViewImplUiBinder ourUiBinder = GWT.create(MavenPageViewImplUiBinder.class);
     private final DockLayoutPanel rootElement;
     @UiField
-    Style    style;
+    Style         style;
     @UiField
-    TextBox  versionField;
+    TextBox       versionField;
     @UiField
-    TextBox  groupId;
+    TextBox       groupId;
     @UiField
-    TextBox  artifactId;
+    TextBox       artifactId;
     @UiField
-    Label    packagingLabel;
+    Label         packagingLabel;
     @UiField
-    ListBox  packagingField;
+    CustomListBox packagingField;
     @UiField
-    CheckBox generateFromArchetype;
+    CheckBox      generateFromArchetype;
     @UiField
-    Label    archetypeLabel;
+    Label         archetypeLabel;
     @UiField
-    ListBox  archetypeField;
-    private ActionDelegate        delegate;
+    CustomListBox archetypeField;
+    private ActionDelegate       delegate;
     private List<MavenArchetype> archetypes;
 
     public MavenPageViewImpl() {
@@ -63,6 +66,10 @@ public class MavenPageViewImpl implements MavenPageView {
         archetypes = new ArrayList<>();
 
         artifactId.setFocus(true);
+
+        packagingField.addItem("JAR", "jar");
+        packagingField.addItem("WAR", "war");
+        packagingField.addItem("POM", "pom");
         packagingField.setSelectedIndex(0);
         generateFromArchetype.setValue(false);
     }

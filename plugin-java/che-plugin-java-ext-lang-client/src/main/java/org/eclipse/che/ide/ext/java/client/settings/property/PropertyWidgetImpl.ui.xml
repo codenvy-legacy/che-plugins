@@ -11,7 +11,8 @@
 
 -->
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
-             xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'
+             xmlns:che='urn:import:org.eclipse.che.ide.ui.customListBox'>
 
     <ui:style>
         .main {
@@ -46,6 +47,6 @@
             <g:Label ui:field="title" addStyleNames="{style.title}"/>
         </g:FlowPanel>
 
-        <g:ListBox ui:field="property" addStyleNames="{style.listBox}"/>
+        <che:CustomListBox ui:field="property" addStyleNames="{style.listBox}"/>
     </g:FlowPanel>
 </ui:UiBinder>
