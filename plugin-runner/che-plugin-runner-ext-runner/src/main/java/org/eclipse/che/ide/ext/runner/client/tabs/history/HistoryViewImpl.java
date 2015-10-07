@@ -23,7 +23,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import org.eclipse.che.ide.ext.runner.client.RunnerResources;
+import org.eclipse.che.ide.api.parts.PartStackUIResources;
 import org.eclipse.che.ide.ext.runner.client.tabs.history.runner.RunnerWidget;
 
 import javax.validation.constraints.NotNull;
@@ -54,7 +54,7 @@ public class HistoryViewImpl extends Composite implements HistoryView {
     private ActionDelegate actionDelegate;
 
     @Inject
-    public HistoryViewImpl(RunnerResources resources) {
+    public HistoryViewImpl(PartStackUIResources resources) {
         initWidget(UI_BINDER.createAndBindUi(this));
 
         broomImage.getElement().appendChild(resources.erase().getSvg().getElement());

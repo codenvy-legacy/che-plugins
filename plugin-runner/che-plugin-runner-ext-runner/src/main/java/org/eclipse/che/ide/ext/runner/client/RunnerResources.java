@@ -64,20 +64,11 @@ public interface RunnerResources extends ClientBundle {
     @Source("images/mainwidget/logs.svg")
     SVGResource logs();
 
-    @Source("images/console/arrow-bottom.svg")
-    SVGResource arrowBottom();
-
-    @Source("images/console/wrap-text.svg")
-    SVGResource wrapText();
-
     @Source("images/mainwidget/expand.svg")
     SVGResource selectedMenuEntry();
 
     @Source("images/mainwidget/menu.svg")
     SVGResource menuIcon();
-
-    @Source("images/console/erase.svg")
-    SVGResource erase();
 
     // TODO unused template. May be need to remove it
     @Source("docker-template.txt")
@@ -134,11 +125,7 @@ public interface RunnerResources extends ClientBundle {
 
         String console();
 
-        String activeConsoleButton();
-
         String wrappedText();
-
-        String mainButtonIcon();
 
         String leftTabContainerShadow();
 

@@ -46,10 +46,6 @@
     box-sizing: border-box;
 }
 
-.activeConsoleButton {
-    fill: #69d6f5;
-}
-
 .logLink {
     font-family: "Droid Sans Mono", monospace;
     font-size: 11px;
@@ -154,11 +150,6 @@
 
 .wrappedText {
     word-wrap: break-word;
-}
-
-.mainButtonIcon {
-    width: 12px;
-    height: 12px;
 }
 
 .leftTabContainerShadow {
