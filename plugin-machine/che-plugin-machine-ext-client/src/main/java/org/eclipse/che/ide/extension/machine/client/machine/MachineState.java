@@ -13,8 +13,8 @@ package org.eclipse.che.ide.extension.machine.client.machine;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
-import org.eclipse.che.api.machine.shared.MachineStatus;
-import org.eclipse.che.api.machine.shared.dto.MachineStateDescriptor;
+import org.eclipse.che.api.core.model.machine.MachineStatus;
+import org.eclipse.che.api.machine.shared.dto.MachineStateDto;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 
 import java.util.Objects;
@@ -26,12 +26,12 @@ import java.util.Objects;
  */
 public class MachineState {
 
-    private final MachineStateDescriptor descriptor;
+    private final MachineStateDto descriptor;
 
     private String activeTabName;
 
     @Inject
-    public MachineState(MachineLocalizationConstant locale, @Assisted MachineStateDescriptor descriptor) {
+    public MachineState(MachineLocalizationConstant locale, @Assisted MachineStateDto descriptor) {
         this.descriptor = descriptor;
 
         this.activeTabName = locale.tabInfo();
@@ -44,7 +44,7 @@ public class MachineState {
 
     /** @return current machine's display name */
     public String getDisplayName() {
-        return descriptor.getDisplayName();
+        return descriptor.getName();
     }
 
     /** @return state of current machine */
@@ -83,7 +83,7 @@ public class MachineState {
      *
      * @return <code>true</code> machine is bounded to workspace,<code>false</code> machine isn't bounded to workspace
      */
-    public boolean isWorkspaceBound() {
+    public boolean isDev() {
         return descriptor.isDev();
     }
 

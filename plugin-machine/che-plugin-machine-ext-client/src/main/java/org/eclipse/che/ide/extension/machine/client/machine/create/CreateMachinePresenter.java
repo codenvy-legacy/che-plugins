@@ -16,7 +16,7 @@ import com.google.inject.Singleton;
 
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
 import org.eclipse.che.api.machine.gwt.client.RecipeServiceClient;
-import org.eclipse.che.api.machine.shared.dto.MachineDescriptor;
+import org.eclipse.che.api.machine.shared.dto.MachineDto;
 import org.eclipse.che.api.machine.shared.dto.recipe.RecipeDescriptor;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
@@ -147,9 +147,9 @@ public class CreateMachinePresenter implements CreateMachineView.ActionDelegate 
         final String recipeURL = view.getRecipeURL();
 
         if (appContext.getDevMachineId() != null) {
-            machineServiceClient.getMachine(appContext.getDevMachineId()).then(new Operation<MachineDescriptor>() {
+            machineServiceClient.getMachine(appContext.getDevMachineId()).then(new Operation<MachineDto>() {
                 @Override
-                public void apply(MachineDescriptor arg) throws OperationException {
+                public void apply(MachineDto arg) throws OperationException {
                     final Machine machine = entityFactory.createMachine(arg);
                     machineManager.destroyMachine(machine);
                 }

@@ -10,10 +10,9 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.machine.client.machine;
 
-import org.eclipse.che.api.machine.shared.dto.MachineDescriptor;
-import org.eclipse.che.api.machine.shared.dto.ServerDescriptor;
-import org.eclipse.che.api.machine.shared.dto.recipe.MachineRecipe;
-import org.eclipse.che.api.workspace.shared.dto.MachineMetadataDto;
+import org.eclipse.che.api.machine.shared.dto.MachineDto;
+import org.eclipse.che.api.machine.shared.dto.MachineMetadataDto;
+import org.eclipse.che.api.machine.shared.dto.ServerDto;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,9 +40,11 @@ public class MachineTest {
     private final static String SOME_TEXT = "someText";
 
     @Mock
-    private MachineDescriptor           descriptor;
+    private MachineDto                  descriptor;
     @Mock
-    private ServerDescriptor            serverDescriptor;
+    private ServerDto                   serverDescriptor;
+    @Mock
+    private MachineMetadataDto          metadataDto;
     @Mock
     private MachineLocalizationConstant locale;
 
@@ -51,13 +52,14 @@ public class MachineTest {
 
     @Before
     public void setUp() {
-        Map<String, ServerDescriptor> servers = new HashMap<>();
+        Map<String, ServerDto> servers = new HashMap<>();
         servers.put(SOME_TEXT, serverDescriptor);
 
         machine = new Machine(locale, descriptor);
 
         when(serverDescriptor.getAddress()).thenReturn(SOME_TEXT);
-        when(descriptor.getServers()).thenReturn(servers);
+        when(descriptor.getMetadata()).thenReturn(metadataDto);
+        when(metadataDto.getServers()).thenReturn(servers);
     }
 
     @Test
@@ -88,7 +90,7 @@ public class MachineTest {
     public void displayNameShouldBeReturned() {
         machine.getDisplayName();
 
-        verify(descriptor).getDisplayName();
+        verify(descriptor).getName();
     }
 
     @Test
@@ -113,24 +115,13 @@ public class MachineTest {
     }
 
     @Test
-    public void scriptShouldBeReturned() {
-        MachineRecipe machineRecipe = mock(MachineRecipe.class);
-        when(descriptor.getRecipe()).thenReturn(machineRecipe);
-
-        machine.getScript();
-
-        verify(descriptor).getRecipe();
-        verify(machineRecipe).getScript();
-    }
-
-    @Test
     public void terminalUrlShouldBeReturned() {
         when(serverDescriptor.getRef()).thenReturn(TERMINAL_REF_KEY);
         when(serverDescriptor.getUrl()).thenReturn(SOME_TEXT);
 
         String url = machine.getTerminalUrl();
 
-        verify(descriptor).getServers();
+        verify(metadataDto).getServers();
         verify(serverDescriptor).getRef();
         verify(serverDescriptor).getUrl();
 

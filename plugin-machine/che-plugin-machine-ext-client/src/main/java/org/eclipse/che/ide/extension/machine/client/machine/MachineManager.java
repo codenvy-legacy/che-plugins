@@ -26,24 +26,26 @@ import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
 import org.eclipse.che.api.machine.gwt.client.OutputMessageUnmarshaller;
 import org.eclipse.che.api.machine.gwt.client.events.DevMachineStateEvent;
 import org.eclipse.che.api.machine.gwt.client.events.DevMachineStateHandler;
-import org.eclipse.che.api.machine.shared.dto.MachineDescriptor;
-import org.eclipse.che.api.promises.client.Function;
-import org.eclipse.che.api.promises.client.FunctionException;
+import org.eclipse.che.api.machine.shared.dto.MachineConfigDto;
+import org.eclipse.che.api.machine.shared.dto.MachineDto;
+import org.eclipse.che.api.machine.shared.dto.MachineSourceDto;
+import org.eclipse.che.api.machine.shared.dto.MachineStateDto;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.api.promises.client.PromiseError;
 import org.eclipse.che.api.promises.client.callback.AsyncPromiseHelper;
+import org.eclipse.che.api.workspace.gwt.client.WorkspaceServiceClient;
 import org.eclipse.che.api.workspace.shared.dto.UsersWorkspaceDto;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.notification.NotificationManager;
+import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.EntityFactory;
 import org.eclipse.che.ide.extension.machine.client.machine.MachineStatusNotifier.RunningListener;
 import org.eclipse.che.ide.extension.machine.client.machine.console.MachineConsolePresenter;
 import org.eclipse.che.ide.extension.machine.client.util.RecipeProvider;
 import org.eclipse.che.ide.extension.machine.client.watcher.SystemFileWatcher;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
-import org.eclipse.che.ide.util.UUID;
 import org.eclipse.che.ide.util.loging.Log;
 import org.eclipse.che.ide.websocket.MessageBus;
 import org.eclipse.che.ide.websocket.MessageBusProvider;
@@ -69,6 +71,7 @@ public class MachineManager {
 
     private final ExtServerStateController extServerStateController;
     private final MachineServiceClient     machineServiceClient;
+    private final WorkspaceServiceClient   workspaceServiceClient;
     private final MachineConsolePresenter  machineConsolePresenter;
     private final NotificationManager      notificationManager;
     private final MachineStatusNotifier    machineStatusNotifier;
@@ -76,6 +79,7 @@ public class MachineManager {
     private final RecipeProvider           recipeProvider;
     private final EntityFactory            entityFactory;
     private final AppContext               appContext;
+    private final DtoFactory               dtoFactory;
 
     private MessageBus messageBus;
     private Machine    devMachine;
@@ -83,6 +87,7 @@ public class MachineManager {
     @Inject
     public MachineManager(ExtServerStateController extServerStateController,
                           MachineServiceClient machineServiceClient,
+                          WorkspaceServiceClient workspaceServiceClient,
                           MachineConsolePresenter machineConsolePresenter,
                           NotificationManager notificationManager,
                           MachineStatusNotifier machineStatusNotifier,
@@ -92,9 +97,11 @@ public class MachineManager {
                           EntityFactory entityFactory,
                           EventBus eventBus,
                           AppContext appContext,
-                          Provider<SystemFileWatcher> systemFileWatcherProvider) {
+                          Provider<SystemFileWatcher> systemFileWatcherProvider,
+                          DtoFactory dtoFactory) {
         this.extServerStateController = extServerStateController;
         this.machineServiceClient = machineServiceClient;
+        this.workspaceServiceClient = workspaceServiceClient;
         this.machineConsolePresenter = machineConsolePresenter;
         this.notificationManager = notificationManager;
         this.machineStatusNotifier = machineStatusNotifier;
@@ -102,6 +109,7 @@ public class MachineManager {
         this.recipeProvider = recipeProvider;
         this.entityFactory = entityFactory;
         this.appContext = appContext;
+        this.dtoFactory = dtoFactory;
 
         this.messageBus = messageBusProvider.getMessageBus();
 
@@ -152,47 +160,44 @@ public class MachineManager {
 
     private void startMachine(@NotNull final String recipeURL,
                               @NotNull final String displayName,
-                              final boolean bindWorkspace,
+                              final boolean isDev,
                               @NotNull final MachineOperationType operationType) {
-        downloadRecipe(recipeURL).thenPromise(new Function<String, Promise<MachineDescriptor>>() {
-            @Override
-            public Promise<MachineDescriptor> apply(String recipeScript) throws FunctionException {
-                final String outputChannel = "machine:output:" + UUID.uuid();
-                subscribeToOutput(outputChannel);
+        workspaceServiceClient.createMachine(appContext.getWorkspace().getId(),
+                                             dtoFactory.createDto(MachineConfigDto.class)
+                                                       .withDev(isDev)
+                                                       .withName(displayName)
+                                                       .withSource(dtoFactory.createDto(MachineSourceDto.class)
+                                                                             .withType("Recipe")
+                                                                             .withLocation(recipeURL))
+                                                       .withType("docker"))
+                              .then(new Operation<MachineStateDto>() {
+                                  @Override
+                                  public void apply(final MachineStateDto machineStateDto) throws OperationException {
+                                      subscribeToOutput(machineStateDto.getChannels().getOutput());
 
-                return machineServiceClient.createMachineFromRecipe("docker",
-                                                                    "Dockerfile",
-                                                                    recipeScript,
-                                                                    displayName,
-                                                                    bindWorkspace,
-                                                                    outputChannel);
-            }
-        }).then(new Operation<MachineDescriptor>() {
-            @Override
-            public void apply(final MachineDescriptor machineDescriptor) throws OperationException {
-                RunningListener runningListener = null;
+                                      RunningListener runningListener = null;
 
-                if (bindWorkspace) {
-                    runningListener = new RunningListener() {
-                        @Override
-                        public void onRunning() {
-                            onMachineRunning(machineDescriptor.getId());
-                        }
-                    };
-                }
+                                      if (isDev) {
+                                          runningListener = new RunningListener() {
+                                              @Override
+                                              public void onRunning() {
+                                                  onMachineRunning(machineStateDto.getId());
+                                              }
+                                          };
+                                      }
 
-                final Machine machine = entityFactory.createMachine(machineDescriptor);
-                machineStatusNotifier.trackMachine(machine, runningListener, operationType);
-            }
-        });
+                                      final MachineState machineState = entityFactory.createMachineState(machineStateDto);
+//                                      machineStatusNotifier.trackMachine(machineState, runningListener, operationType);
+                                  }
+                              });
     }
 
     public void onMachineRunning(final String machineId) {
-        machineServiceClient.getMachine(machineId).then(new Operation<MachineDescriptor>() {
+        machineServiceClient.getMachine(machineId).then(new Operation<MachineDto>() {
             @Override
-            public void apply(MachineDescriptor machineDescriptor) throws OperationException {
+            public void apply(MachineDto machineDto) throws OperationException {
                 appContext.setDevMachineId(machineId);
-                devMachine = entityFactory.createMachine(machineDescriptor);
+                devMachine = entityFactory.createMachine(machineDto);
                 extServerStateController.initialize(devMachine.getWsServerExtensionsUrl() + "/" + appContext.getWorkspace().getId());
             }
         });

@@ -20,7 +20,7 @@ import com.google.web.bindery.event.shared.EventBus;
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
 import org.eclipse.che.api.machine.gwt.client.events.ExtServerStateEvent;
 import org.eclipse.che.api.machine.gwt.client.events.ExtServerStateHandler;
-import org.eclipse.che.api.machine.shared.dto.MachineDescriptor;
+import org.eclipse.che.api.machine.shared.dto.MachineDto;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.Promise;
@@ -89,11 +89,11 @@ public class MachinePanelPresenter extends BasePresenter implements MachinePanel
     public void showMachines() {
         String workspaceId = appContext.getWorkspace().getId();
 
-        Promise<List<MachineDescriptor>> machinesPromise = service.getWorkspaceMachines(workspaceId);
+        Promise<List<MachineDto>> machinesPromise = service.getWorkspaceMachines(workspaceId);
 
-        machinesPromise.then(new Operation<List<MachineDescriptor>>() {
+        machinesPromise.then(new Operation<List<MachineDto>>() {
             @Override
-            public void apply(List<MachineDescriptor> machines) throws OperationException {
+            public void apply(List<MachineDto> machines) throws OperationException {
                 if (machines.isEmpty()) {
                     appliance.showStub();
                     selectedMachine = null;
@@ -107,7 +107,7 @@ public class MachinePanelPresenter extends BasePresenter implements MachinePanel
 
                 MachineTreeNode selectedNode = null;
 
-                for (MachineDescriptor descriptor : machines) {
+                for (MachineDto descriptor : machines) {
                     Machine machine = entityFactory.createMachine(descriptor);
                     MachineTreeNode machineNode = entityFactory.createMachineNode(rootNode, machine, null);
 

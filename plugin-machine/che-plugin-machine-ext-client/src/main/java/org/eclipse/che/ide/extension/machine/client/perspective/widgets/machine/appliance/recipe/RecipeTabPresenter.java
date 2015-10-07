@@ -41,7 +41,7 @@ public class RecipeTabPresenter implements TabPresenter {
      *         machine for which need update information
      */
     public void updateInfo(@NotNull Machine machine) {
-        view.setScript(machine.getScript());
+//        view.setScript(machine.getScript());
     }
 
     /** {@inheritDoc} */

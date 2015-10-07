@@ -14,7 +14,7 @@ import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.inject.Inject;
 
-import org.eclipse.che.api.machine.shared.dto.ServerDescriptor;
+import org.eclipse.che.api.machine.shared.dto.ServerDto;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.EntityFactory;
 import org.eclipse.che.ide.extension.machine.client.machine.Machine;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.content.TabPresenter;
@@ -50,11 +50,11 @@ public class ServerPresenter implements TabPresenter {
     public void updateInfo(@NotNull Machine machine) {
         List<Server> serversList = new ArrayList<>();
 
-        Map<String, ServerDescriptor> servers = machine.getServers();
+        Map<String, ServerDto> servers = machine.getServers();
 
-        for (Map.Entry<String, ServerDescriptor> entry : servers.entrySet()) {
+        for (Map.Entry<String, ServerDto> entry : servers.entrySet()) {
             String exposedPort = entry.getKey();
-            ServerDescriptor descriptor = entry.getValue();
+            ServerDto descriptor = entry.getValue();
 
             Server server = entityFactory.createServer(exposedPort, descriptor);
 

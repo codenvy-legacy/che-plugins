@@ -15,7 +15,7 @@ import com.google.inject.Singleton;
 import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
-import org.eclipse.che.api.machine.shared.dto.MachineDescriptor;
+import org.eclipse.che.api.machine.shared.dto.MachineDto;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.PromiseError;
@@ -88,10 +88,10 @@ public class DevMachineHostNameProvider implements CommandPropertyValueProvider,
             return;
         }
 
-        machineServiceClient.getMachine(devMachineId).then(new Operation<MachineDescriptor>() {
+        machineServiceClient.getMachine(devMachineId).then(new Operation<MachineDto>() {
             @Override
-            public void apply(MachineDescriptor arg) throws OperationException {
-                final String hostName = arg.getProperties().get("config.hostname");
+            public void apply(MachineDto arg) throws OperationException {
+                final String hostName = arg.getMetadata().getProperties().get("config.hostname");
                 if (hostName != null) {
                     value = hostName;
                 }

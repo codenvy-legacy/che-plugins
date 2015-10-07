@@ -12,9 +12,9 @@ package org.eclipse.che.ide.extension.machine.client;
 
 import com.google.gwt.core.client.Callback;
 
+import org.eclipse.che.api.core.model.machine.MachineStatus;
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
-import org.eclipse.che.api.machine.shared.MachineStatus;
-import org.eclipse.che.api.machine.shared.dto.MachineStateDescriptor;
+import org.eclipse.che.api.machine.shared.dto.MachineStateDto;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.ide.api.app.AppContext;
@@ -53,15 +53,15 @@ public class MachineComponentTest {
     @Mock
     private Callback<Component, Exception> componentCallback;
     @Mock
-    private MachineStateDescriptor         machineStateDescriptor;
+    private MachineStateDto                machineStateDescriptor;
 
     @InjectMocks
     private MachineComponent machineComponent;
 
     @Mock
-    private Promise<List<MachineStateDescriptor>>                   machinesPromise;
+    private Promise<List<MachineStateDto>>                   machinesPromise;
     @Captor
-    private ArgumentCaptor<Operation<List<MachineStateDescriptor>>> machinesCaptor;
+    private ArgumentCaptor<Operation<List<MachineStateDto>>> machinesCaptor;
 
     @Test
     public void shouldUseRunningDevMachine() throws Exception {

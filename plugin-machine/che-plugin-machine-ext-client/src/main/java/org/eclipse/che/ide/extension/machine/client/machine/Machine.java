@@ -14,9 +14,9 @@ import com.google.gwt.user.client.Window;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
-import org.eclipse.che.api.machine.shared.MachineStatus;
-import org.eclipse.che.api.machine.shared.dto.MachineDescriptor;
-import org.eclipse.che.api.machine.shared.dto.ServerDescriptor;
+import org.eclipse.che.api.core.model.machine.MachineStatus;
+import org.eclipse.che.api.machine.shared.dto.MachineDto;
+import org.eclipse.che.api.machine.shared.dto.ServerDto;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.util.Config;
 
@@ -35,12 +35,12 @@ public class Machine {
 
     public static final String EXTENSIONS_REF_KEY = "extensions";
 
-    private final MachineDescriptor descriptor;
+    private final MachineDto descriptor;
 
     private String activeTabName;
 
     @Inject
-    public Machine(MachineLocalizationConstant locale, @Assisted MachineDescriptor descriptor) {
+    public Machine(MachineLocalizationConstant locale, @Assisted MachineDto descriptor) {
         this.descriptor = descriptor;
 
         this.activeTabName = locale.tabInfo();
@@ -53,7 +53,7 @@ public class Machine {
 
     /** @return current machine's display name */
     public String getDisplayName() {
-        return descriptor.getDisplayName();
+        return descriptor.getName();
     }
 
     /** @return state of current machine */
@@ -68,15 +68,16 @@ public class Machine {
 
     /** @return script of machine recipe */
     public String getScript() {
-        return descriptor.getRecipe().getScript();
+//        return descriptor.getRecipe().getScript();
+        return "";
     }
 
     /** @return special url which references on terminal content. */
     @NotNull
     public String getTerminalUrl() {
-        Map<String, ServerDescriptor> serverDescriptors = descriptor.getServers();
+        Map<String, ServerDto> serverDescriptors = descriptor.getMetadata().getServers();
 
-        for (ServerDescriptor descriptor : serverDescriptors.values()) {
+        for (ServerDto descriptor : serverDescriptors.values()) {
 
             if (TERMINAL_REF_KEY.equals(descriptor.getRef())) {
                 return descriptor.getUrl();
@@ -102,8 +103,8 @@ public class Machine {
     @NotNull
     public String getWsServerExtensionsUrl() {
         String url = "";
-        Map<String, ServerDescriptor> serverDescriptors = descriptor.getServers();
-        for (ServerDescriptor descriptor : serverDescriptors.values()) {
+        Map<String, ServerDto> serverDescriptors = descriptor.getMetadata().getServers();
+        for (ServerDto descriptor : serverDescriptors.values()) {
             if (EXTENSIONS_REF_KEY.equals(descriptor.getRef())) {
                 url = descriptor.getUrl();
             }
@@ -138,8 +139,8 @@ public class Machine {
     }
 
     /** @return servers for current machine */
-    public Map<String, ServerDescriptor> getServers() {
-        return descriptor.getServers();
+    public Map<String, ServerDto> getServers() {
+        return descriptor.getMetadata().getServers();
     }
 
     /**
@@ -153,7 +154,7 @@ public class Machine {
 
     /** Returns information about machine. */
     public Map<String, String> getProperties() {
-        return descriptor.getProperties();
+        return descriptor.getMetadata().getProperties();
     }
 
     /** Returns path to the projects root folder. */

@@ -11,7 +11,7 @@
 package org.eclipse.che.ide.extension.machine.client.machine.create;
 
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
-import org.eclipse.che.api.machine.shared.dto.MachineDescriptor;
+import org.eclipse.che.api.machine.shared.dto.MachineDto;
 import org.eclipse.che.api.project.gwt.client.ProjectTypeServiceClient;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.Promise;
@@ -65,9 +65,9 @@ public class CreateMachinePresenterTest {
     private CreateMachinePresenter presenter;
 
     @Mock
-    private Promise<MachineDescriptor>                   machineDescriptorPromise;
+    private Promise<MachineDto>                   machineDescriptorPromise;
     @Captor
-    private ArgumentCaptor<Operation<MachineDescriptor>> machineCaptor;
+    private ArgumentCaptor<Operation<MachineDto>> machineCaptor;
 
     @Before
     public void setUp() {
@@ -138,7 +138,7 @@ public class CreateMachinePresenterTest {
         verify(appContext, times(2)).getDevMachineId();
         verify(machineServiceClient).getMachine(SOME_TEXT);
         verify(machineDescriptorPromise).then(machineCaptor.capture());
-        machineCaptor.getValue().apply(mock(MachineDescriptor.class));
+        machineCaptor.getValue().apply(mock(MachineDto.class));
         verify(machineManager).destroyMachine(any(Machine.class));
         verify(machineManager).startDevMachine(eq(RECIPE_URL), eq(MACHINE_NAME));
         verify(view).close();

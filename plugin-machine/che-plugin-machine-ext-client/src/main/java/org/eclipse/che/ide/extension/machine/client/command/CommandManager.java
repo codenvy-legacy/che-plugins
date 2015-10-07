@@ -14,7 +14,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
-import org.eclipse.che.api.machine.shared.dto.ProcessDescriptor;
+import org.eclipse.che.api.machine.shared.dto.MachineProcessDto;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.Promise;
@@ -84,10 +84,10 @@ public class CommandManager {
 
         final String commandLine = substituteProperties(configuration.toCommandLine());
 
-        final Promise<ProcessDescriptor> processPromise = machineServiceClient.executeCommand(devMachineId, commandLine, outputChannel);
-        processPromise.then(new Operation<ProcessDescriptor>() {
+        final Promise<MachineProcessDto> processPromise = machineServiceClient.executeCommand(devMachineId, commandLine, outputChannel);
+        processPromise.then(new Operation<MachineProcessDto>() {
             @Override
-            public void apply(ProcessDescriptor arg) throws OperationException {
+            public void apply(MachineProcessDto arg) throws OperationException {
                 console.attachToProcess(arg.getPid());
             }
         });

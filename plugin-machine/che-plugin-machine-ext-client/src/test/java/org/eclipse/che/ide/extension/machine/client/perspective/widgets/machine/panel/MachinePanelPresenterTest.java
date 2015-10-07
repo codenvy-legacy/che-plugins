@@ -15,7 +15,7 @@ import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
-import org.eclipse.che.api.machine.shared.dto.MachineDescriptor;
+import org.eclipse.che.api.machine.shared.dto.MachineDto;
 import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
@@ -82,34 +82,34 @@ public class MachinePanelPresenterTest {
 
     //additional mocks
     @Mock
-    private Promise<List<MachineDescriptor>> machinePromise;
+    private Promise<List<MachineDto>> machinePromise;
     @Mock
-    private CurrentProject                   currentProject;
+    private CurrentProject            currentProject;
     @Mock
-    private ProjectDescriptor                projectDescriptor;
+    private ProjectDescriptor         projectDescriptor;
     @Mock
-    private MachineDescriptor                machineDescriptor1;
+    private MachineDto                machineDescriptor1;
     @Mock
-    private MachineDescriptor                machineDescriptor2;
+    private MachineDto                machineDescriptor2;
     @Mock
-    private Machine                          machine1;
+    private Machine                   machine1;
     @Mock
-    private Machine                          machine2;
+    private Machine                   machine2;
     @Mock
-    private AcceptsOneWidget                 container;
+    private AcceptsOneWidget          container;
     @Mock
-    private MachineTreeNode                  rootNode;
+    private MachineTreeNode           rootNode;
     @Mock
-    private MachineTreeNode                  machineNode1;
+    private MachineTreeNode           machineNode1;
     @Mock
-    private MachineTreeNode                  machineNode2;
+    private MachineTreeNode           machineNode2;
     @Mock
-    private UsersWorkspaceDto                workspaceDto;
+    private UsersWorkspaceDto         workspaceDto;
 
     @Captor
-    private ArgumentCaptor<Operation<List<MachineDescriptor>>> operationCaptor;
+    private ArgumentCaptor<Operation<List<MachineDto>>> operationCaptor;
     @Captor
-    private ArgumentCaptor<InputCallback>                      inputCallbackCaptor;
+    private ArgumentCaptor<InputCallback>               inputCallbackCaptor;
 
     @InjectMocks
     private MachinePanelPresenter presenter;
@@ -164,7 +164,7 @@ public class MachinePanelPresenterTest {
         presenter.showMachines();
 
         verify(machinePromise).then(operationCaptor.capture());
-        operationCaptor.getValue().apply(Collections.<MachineDescriptor>emptyList());
+        operationCaptor.getValue().apply(Collections.<MachineDto>emptyList());
 
         verify(appliance).showStub();
         Collection<MachineTreeNode> children = rootNode.getChildren();

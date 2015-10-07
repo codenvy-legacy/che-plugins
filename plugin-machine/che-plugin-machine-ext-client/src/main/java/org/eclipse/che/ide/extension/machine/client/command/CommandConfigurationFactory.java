@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.machine.client.command;
 
-import org.eclipse.che.api.workspace.shared.dto.CommandDto;
+import org.eclipse.che.api.machine.shared.dto.CommandDto;
 
 import javax.validation.constraints.NotNull;
 

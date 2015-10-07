@@ -13,11 +13,11 @@ package org.eclipse.che.ide.extension.machine.client.command.valueproviders;
 import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
-import org.eclipse.che.api.machine.shared.dto.MachineDescriptor;
+import org.eclipse.che.api.machine.shared.dto.MachineDto;
+import org.eclipse.che.api.machine.shared.dto.MachineMetadataDto;
 import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.Promise;
-import org.eclipse.che.api.workspace.shared.dto.MachineMetadataDto;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.event.project.CloseCurrentProjectEvent;
@@ -60,9 +60,9 @@ public class CurrentProjectPathProviderTest {
     private CurrentProjectPathProvider currentProjectPathProvider;
 
     @Mock
-    private Promise<MachineDescriptor>                   machinePromise;
+    private Promise<MachineDto>                   machinePromise;
     @Captor
-    private ArgumentCaptor<Operation<MachineDescriptor>> machineCaptor;
+    private ArgumentCaptor<Operation<MachineDto>> machineCaptor;
 
     @Before
     public void setUp() {
@@ -120,7 +120,7 @@ public class CurrentProjectPathProviderTest {
 
         final MachineMetadataDto machineMetadataMock = mock(MachineMetadataDto.class);
         when(machineMetadataMock.projectsRoot()).thenReturn(PROJECTS_ROOT);
-        final MachineDescriptor machineDescriptorMock = mock(MachineDescriptor.class);
+        final MachineDto machineDescriptorMock = mock(MachineDto.class);
         when(machineDescriptorMock.getMetadata()).thenReturn(machineMetadataMock);
         when(machinePromise.then(Matchers.any(Operation.class))).thenReturn(machinePromise);
 

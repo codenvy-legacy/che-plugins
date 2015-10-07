@@ -12,7 +12,7 @@ package org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine
 
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 
-import org.eclipse.che.api.machine.shared.dto.ServerDescriptor;
+import org.eclipse.che.api.machine.shared.dto.ServerDto;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.EntityFactory;
 import org.eclipse.che.ide.extension.machine.client.machine.Machine;
 import org.junit.Before;
@@ -56,9 +56,9 @@ public class ServerPresenterTest {
     @Mock
     private AcceptsOneWidget container;
     @Mock
-    private ServerDescriptor descriptor1;
+    private ServerDto        descriptor1;
     @Mock
-    private ServerDescriptor descriptor2;
+    private ServerDto descriptor2;
 
     @Captor
     private ArgumentCaptor<List<Server>> serverListCaptor;
@@ -68,7 +68,7 @@ public class ServerPresenterTest {
 
     @Before
     public void setUp() {
-        Map<String, ServerDescriptor> servers = new HashMap<>();
+        Map<String, ServerDto> servers = new HashMap<>();
         servers.put(NAME_1, descriptor1);
         servers.put(NAME_2, descriptor2);
 
