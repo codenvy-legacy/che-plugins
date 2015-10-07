@@ -46,4 +46,10 @@ public interface TutorialsLocalizationConstant extends Messages {
 
     @Key("updateAppFailed")
     String updateApplicationFailed(String name);
+
+    @Key("extension.page.artifactIdTooltip")
+    String extensionPageArtifactIdTooltip();
+
+    @Key("extension.page.groupIdTooltip")
+    String extensionPageGroupIdTooltip();
 }

@@ -69,7 +69,7 @@ public class DebugAction extends ProjectAction {
         final String projectTypeId = currentProject.getProjectDescription().getType();
         final String packaging = currentProject.getAttributeValue(MavenAttributes.PACKAGING);
 
-        e.getPresentation().setVisible("war".equals(packaging) || projectTypeId.equals(Constants.CODENVY_PLUGIN_ID));
+        e.getPresentation().setVisible("war".equals(packaging) || projectTypeId.equals(Constants.CHE_PLUGIN_ID));
         e.getPresentation().setEnabled(currentProject.getRunner() != null && currentProject.getIsRunningEnabled());
     }
 

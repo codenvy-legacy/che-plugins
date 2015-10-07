@@ -14,7 +14,7 @@ import org.eclipse.che.api.project.server.type.ProjectType;
 import org.eclipse.che.ide.extension.maven.server.projecttype.MavenProjectType;
 import com.google.inject.Inject;
 
-import static org.eclipse.che.ide.Constants.CODENVY_PLUGIN_ID;
+import static org.eclipse.che.ide.Constants.CHE_PLUGIN_ID;
 import static org.eclipse.che.ide.Constants.EXLIPSE_CHE_PLUGIN_NAME;
 
 /** @author Artem Zatsarynnyy */
@@ -22,7 +22,7 @@ public class ExtensionProjectType extends ProjectType {
 
     @Inject
     public ExtensionProjectType(MavenProjectType mavenProjectType) {
-        super(CODENVY_PLUGIN_ID, EXLIPSE_CHE_PLUGIN_NAME, true, false);
+        super(CHE_PLUGIN_ID, EXLIPSE_CHE_PLUGIN_NAME, true, false);
 
         addParent(mavenProjectType);
         setDefaultBuilder("maven");

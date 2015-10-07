@@ -67,4 +67,10 @@ public interface MavenLocalizationConstant extends Messages {
 
     @Key("action.CreateMavenModule.description")
     String actionCreateMavenModuleDescription();
+
+    @Key("maven.page.artifactIdTooltip")
+    String mavenPageArtifactIdTooltip();
+
+    @Key("maven.page.groupIdTooltip")
+    String mavenPageGroupIdTooltip();
 }

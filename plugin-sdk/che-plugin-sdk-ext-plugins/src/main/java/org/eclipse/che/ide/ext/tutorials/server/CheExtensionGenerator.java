@@ -28,14 +28,14 @@ import java.util.Map;
  * @author gazarenkov
  */
 @Singleton
-public class CodenvyExtensionGenerator implements CreateProjectHandler {
+public class CheExtensionGenerator implements CreateProjectHandler {
 
-    private static final Logger LOG = LoggerFactory.getLogger(CodenvyExtensionGenerator.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CheExtensionGenerator.class);
 
     private final MavenProjectGenerator mavenProjectGenerator;
 
     @Inject
-    public CodenvyExtensionGenerator(MavenProjectGenerator mavenProjectGenerator) {
+    public CheExtensionGenerator(MavenProjectGenerator mavenProjectGenerator) {
         this.mavenProjectGenerator = mavenProjectGenerator;
     }
 

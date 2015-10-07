@@ -12,8 +12,10 @@
 -->
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
              xmlns:g='urn:import:com.google.gwt.user.client.ui'>
-    <ui:style type="org.eclipse.che.ide.ext.tutorials.client.wizard.ExtensionPageViewImpl.Style">
+    <ui:style src="org/eclipse/che/ide/api/ui/style.css" type="org.eclipse.che.ide.ext.tutorials.client.wizard.ExtensionPageViewImpl.Style">
         @eval InputBackgroundColor org.eclipse.che.ide.api.theme.Style.getInputBackground();
+        @eval borderColor org.eclipse.che.ide.api.theme.Style.getTabBorderColor();
+        @eval mainFontColor org.eclipse.che.ide.api.theme.Style.getMainFontColor();
         .field {
             background-color: InputBackgroundColor;
             color: #dbdbdb;
@@ -24,38 +26,85 @@
             padding-left: 8px;
             height: 20px;
         }
+
         .projectNamePosition {
             position: relative;
             line-height: 29px;
             margin-left: 20px;
 
         }
+
         .spaceRight {
             margin-right: 8px;
             margin-top: 1px;
         }
-        .mainDoc{
+
+        .mainDoc {
             margin: 15px;
         }
+
+        .mainDoc div {
+            overflow: visible !important;
+        }
+
         .inputError {
             border-color: #ffe400;
             box-shadow: 0 0 5px #ffe400;
         }
+
+        .tooltipButton,
+        .tooltipButton:hover,
+        .tooltipButton:focus {
+            margin-left: 7px;
+            border: 0px solid;
+            border-radius: 10px;
+            box-shadow: none;
+            text-align: center;
+            padding-left: 7px;
+
+        }
+
+        .tooltip > span {
+            position: relative;
+            color: mainFontColor;
+            border: 1px solid borderColor;
+            background: InputBackgroundColor;
+            white-space: nowrap;
+            font-family: mainFontFamily;
+            font-size: smallFontSize;
+            font-weight: normal;
+            text-align: left;
+            padding: 5px 20px;
+            line-height: normal;
+            left: 14px;
+            height: 20px;
+            display: none;
+        }
+
+        .tooltip:hover > span {
+            display: inline;
+        }
+
+        .tooltip > span:hover {
+            pointer-events: none;
+        }
     </ui:style>
-    <g:DockLayoutPanel unit="PX" debugId="mavenPageView-mainPanel" addStyleNames="{style.mainDoc}">
+    <g:DockLayoutPanel unit="PX" debugId="extensionPageView-mainPanel" addStyleNames="{style.mainDoc}">
         <g:north size="50">
             <g:DockLayoutPanel unit="PX" width="100%" height="100%">
                 <g:west size="138">
                     <g:FlowPanel>
-                        <g:Label text="Artifact Id:" addStyleNames="{style.projectNamePosition}"/>
+                        <g:Label text="Artifact ID:" addStyleNames="{style.projectNamePosition}"/>
                     </g:FlowPanel>
                 </g:west>
                 <g:center>
-                    <g:SimplePanel addStyleNames="{style.spaceRight}">
-                        <g:SimplePanel>
-                            <g:TextBox width="390px" addStyleNames="{style.field}" ui:field="artifactId" debugId="mavenPageView-artifactId"/>
-                        </g:SimplePanel>
-                    </g:SimplePanel>
+                    <g:FlowPanel addStyleNames="{style.spaceRight}">
+                        <g:TextBox width="390px" addStyleNames="{style.field}" ui:field="artifactId"
+                                   debugId="extensionPageView-artifactId"/>
+                        <g:Button pixelSize="20, 20" text="?" ui:field="artifactIdTooltipButton"
+                                  debugId="extensionPageView-artifactIdTooltipButton"
+                                  addStyleNames="{style.tooltipButton}"/>
+                    </g:FlowPanel>
                 </g:center>
             </g:DockLayoutPanel>
         </g:north>
@@ -63,15 +112,16 @@
             <g:DockLayoutPanel unit="PX" width="100%" height="100%">
                 <g:west size="138">
                     <g:FlowPanel>
-                        <g:Label text="Group Id:" addStyleNames="{style.projectNamePosition}"/>
+                        <g:Label text="Group ID:" addStyleNames="{style.projectNamePosition}"/>
                     </g:FlowPanel>
                 </g:west>
                 <g:center>
-                    <g:SimplePanel addStyleNames="{style.spaceRight}">
-                        <g:SimplePanel>
-                            <g:TextBox width="390px" addStyleNames="{style.field}" ui:field="groupId" debugId="mavenPageView-groupId"/>
-                        </g:SimplePanel>
-                    </g:SimplePanel>
+                    <g:FlowPanel addStyleNames="{style.spaceRight}">
+                        <g:TextBox width="390px" addStyleNames="{style.field}" ui:field="groupId" debugId="extensionPageView-groupId"/>
+                        <g:Button pixelSize="20, 20" text="?" ui:field="groupIdTooltipButton"
+                                  debugId="extensionPageView-groupIdTooltipButton"
+                                  addStyleNames="{style.tooltipButton}"/>
+                    </g:FlowPanel>
                 </g:center>
             </g:DockLayoutPanel>
         </g:north>
@@ -84,7 +134,9 @@
                 </g:west>
                 <g:center>
                     <g:SimplePanel addStyleNames="{style.spaceRight}">
-                            <g:TextBox width="390px" addStyleNames="{style.field}" ui:field="versionField" debugId="mavenPageView-version">1.0-SNAPSHOT</g:TextBox>
+                        <g:TextBox width="390px" addStyleNames="{style.field}" ui:field="versionField" debugId="extensionPageView-version">
+                            1.0-SNAPSHOT
+                        </g:TextBox>
                     </g:SimplePanel>
                 </g:center>
             </g:DockLayoutPanel>

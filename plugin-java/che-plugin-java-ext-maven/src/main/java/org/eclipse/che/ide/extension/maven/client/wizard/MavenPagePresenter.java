@@ -23,6 +23,7 @@ import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.StringMapListUnmarshaller;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 import org.eclipse.che.ide.util.loging.Log;
+
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
@@ -56,6 +57,7 @@ import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.PARENT_
 import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.SOURCE_FOLDER;
 import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.TEST_SOURCE_FOLDER;
 import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.VERSION;
+import static com.google.common.base.MoreObjects.firstNonNull;
 
 /**
  * @author Evgen Vidolob
@@ -284,10 +286,10 @@ public class MavenPagePresenter extends AbstractWizardPage<ImportProject> implem
     private String getAttribute(String attrId) {
         Map<String, List<String>> attributes = dataObject.getProject().getAttributes();
         List<String> values = attributes.get(attrId);
-        if (!(values == null || values.isEmpty())) {
-            return values.get(0);
+        if (values == null || values.isEmpty()) {
+            return "";
         }
-        return "";
+        return firstNonNull(values.get(0), "");
     }
 
     /** Sets single value of attribute of data-object. */
