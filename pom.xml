@@ -48,6 +48,7 @@
         <!--<module>plugin-tour</module>-->
         <module>plugin-gwt</module>
         <module>plugin-svn</module>
+        <module>plugin-openshift</module>
     </modules>
     <scm>
         <connection>scm:git:git@github.com:codenvy/che-plugins.git</connection>
