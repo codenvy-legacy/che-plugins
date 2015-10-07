@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.eclipse.che.ide.Constants.ECLIPSE_CHE_CATEGORY;
-import static org.eclipse.che.ide.Constants.CODENVY_PLUGIN_ID;
+import static org.eclipse.che.ide.Constants.CHE_PLUGIN_ID;
 
 /**
  * Provides information for registering AngularJS project type into project wizard.
@@ -40,7 +40,7 @@ public class ExtensionProjectWizardRegistrar implements ProjectWizardRegistrar {
 
     @NotNull
     public String getProjectTypeId() {
-        return CODENVY_PLUGIN_ID;
+        return CHE_PLUGIN_ID;
     }
 
     @NotNull
