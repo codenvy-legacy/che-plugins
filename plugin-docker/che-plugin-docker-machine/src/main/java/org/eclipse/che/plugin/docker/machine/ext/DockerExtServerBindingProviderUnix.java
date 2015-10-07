@@ -15,22 +15,22 @@ import javax.inject.Named;
 import javax.inject.Provider;
 
 /**
- * Provides volumes configuration of machine for terminal
+ * Reads path to extensions server archive to mount it to docker machine
  *
  * @author Alexander Garagatyi
  */
-public class TerminalServerBindingProvider implements Provider<String> {
-    private final String terminalArchivePath;
+public class DockerExtServerBindingProviderUnix implements Provider<String> {
+    private final String extServerArchivePath;
 
     @Inject
-    public TerminalServerBindingProvider(@Named("machine.server.terminal.archive") String terminalArchivePath) {
-        this.terminalArchivePath = terminalArchivePath;
+    public DockerExtServerBindingProviderUnix(@Named("machine.server.ext.archive") String extServerArchivePath) {
+        this.extServerArchivePath = extServerArchivePath;
     }
 
     // :ro removed because of bug in a docker 1.6:L
-    //TODO add :ro when bug is fixed or rework terminal binding mechanism to provide copy of the terminal files to each machine
+    //TODO add :ro when bug is fixed or rework ext server binding mechanism to provide copy of the ext server zip to each machine
     @Override
     public String get() {
-        return terminalArchivePath + ":/mnt/che/terminal";
+        return extServerArchivePath + ":/mnt/che/ext-server.zip";
     }
 }

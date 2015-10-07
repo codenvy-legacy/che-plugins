@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.plugin.docker.machine.local;
 
+import org.eclipse.che.api.core.util.SystemInfo;
 import org.eclipse.che.api.machine.server.spi.Instance;
 import org.eclipse.che.api.machine.server.spi.InstanceMetadata;
 import org.eclipse.che.api.machine.server.spi.InstanceProcess;
@@ -56,5 +57,13 @@ public class LocalDockerModule extends AbstractModule {
                         .build(DockerMachineFactory.class));
 
         Multibinder.newSetBinder(binder(), InstanceProvider.class).addBinding().to(DockerInstanceProvider.class);
+
+        if (SystemInfo.isWindows()) {
+            bind(String.class).annotatedWith(Names.named("host.projects.root"))
+                              .toProvider(org.eclipse.che.plugin.docker.machine.ext.HostProjectsFolderProviderWinOS.class);
+        } else {
+            bind(String.class).annotatedWith(Names.named("host.projects.root"))
+                              .toProvider(org.eclipse.che.plugin.docker.machine.ext.HostProjectsFolderProviderWinOS.class);
+        }
     }
 }

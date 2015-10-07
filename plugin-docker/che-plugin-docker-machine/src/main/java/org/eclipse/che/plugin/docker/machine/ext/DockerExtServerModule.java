@@ -14,6 +14,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
 
+import org.eclipse.che.api.core.util.SystemInfo;
 import org.eclipse.che.plugin.docker.machine.ServerConf;
 
 /**
@@ -34,6 +35,11 @@ public class DockerExtServerModule extends AbstractModule {
 
         Multibinder<String> volumesMultibinder =
                 Multibinder.newSetBinder(binder(), String.class, Names.named("machine.docker.dev_machine.machine_volumes"));
-        volumesMultibinder.addBinding().toProvider(DockerExtServerBindingProvider.class);
+
+        if (SystemInfo.isWindows()) {
+            volumesMultibinder.addBinding().toProvider(DockerExtServerBindingProviderWinOS.class);
+        } else {
+            volumesMultibinder.addBinding().toProvider(DockerExtServerBindingProviderUnix.class);
+        }
     }
 }
