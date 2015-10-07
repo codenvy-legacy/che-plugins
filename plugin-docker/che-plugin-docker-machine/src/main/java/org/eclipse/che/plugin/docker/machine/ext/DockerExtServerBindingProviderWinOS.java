@@ -10,27 +10,18 @@
  *******************************************************************************/
 package org.eclipse.che.plugin.docker.machine.ext;
 
-import javax.inject.Inject;
-import javax.inject.Named;
 import javax.inject.Provider;
 
 /**
  * Reads path to extensions server archive to mount it to docker machine
+ * on Windows hosts MUST be locate in "user.home" directory in case limitation windows+docker
  *
- * @author Alexander Garagatyi
+ * @author Vitalii Parfonov
  */
-public class DockerExtServerBindingProvider implements Provider<String> {
-    private final String extServerArchivePath;
+public class DockerExtServerBindingProviderWinOS implements Provider<String> {
 
-    @Inject
-    public DockerExtServerBindingProvider(@Named("machine.server.ext.archive") String extServerArchivePath) {
-        this.extServerArchivePath = extServerArchivePath;
-    }
-
-    // :ro removed because of bug in a docker 1.6:L
-    //TODO add :ro when bug is fixed or rework ext server binding mechanism to provide copy of the ext server zip to each machine
-    @Override
     public String get() {
+        String extServerArchivePath = System.getProperty("user.home") + "\\AppData\\Local\\che\\ext-server.zip";
         return extServerArchivePath + ":/mnt/che/ext-server.zip";
     }
 }

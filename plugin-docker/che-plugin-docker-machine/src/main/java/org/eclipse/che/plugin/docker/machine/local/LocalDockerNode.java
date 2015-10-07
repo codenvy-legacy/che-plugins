@@ -33,7 +33,7 @@ public class LocalDockerNode implements DockerNode {
     private String host;
 
     @Inject
-    public LocalDockerNode(@Named("vfs.local.fs_root_dir") String projectsFolder) throws IOException {
+    public LocalDockerNode(@Named("host.projects.root") String projectsFolder) throws IOException {
 
         folder = new File(projectsFolder);
         if (!folder.exists()) {
