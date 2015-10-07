@@ -20,6 +20,7 @@ import com.google.gwt.user.client.ui.SimpleLayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 
+import org.eclipse.che.ide.api.parts.PartStackUIResources;
 import org.eclipse.che.ide.ext.runner.client.RunnerResources;
 import org.eclipse.che.ide.ext.runner.client.models.Runner;
 import org.eclipse.che.ide.ext.runner.client.models.Runner.Status;
@@ -40,8 +41,9 @@ import static org.eclipse.che.ide.ext.runner.client.models.Runner.Status.STOPPED
  */
 public class RunnerWidget implements RunnerItems<Runner> {
 
-    private final ItemWidget      itemWidget;
-    private final RunnerResources resources;
+    private final ItemWidget           itemWidget;
+    private final RunnerResources      resources;
+    private final PartStackUIResources buttonIcons;
 
     private final SVGImage inProgress;
     private final SVGImage inQueue;
@@ -55,9 +57,13 @@ public class RunnerWidget implements RunnerItems<Runner> {
     private ActionDelegate delegate;
 
     @Inject
-    public RunnerWidget(ItemWidget itemWidget, RunnerResources resources, final SelectionManager selectionManager) {
+    public RunnerWidget(ItemWidget itemWidget,
+                        RunnerResources resources,
+                        PartStackUIResources buttonIcons,
+                        final SelectionManager selectionManager) {
         this.itemWidget = itemWidget;
         this.resources = resources;
+        this.buttonIcons = buttonIcons;
 
         inProgress = new SVGImage(resources.runnerInProgress());
         inQueue = new SVGImage(resources.runnerInQueue());
@@ -79,7 +85,7 @@ public class RunnerWidget implements RunnerItems<Runner> {
     private void addImagePanelActions() {
         SimpleLayoutPanel imagePanel = itemWidget.getImagePanel();
 
-        final SVGImage image = new SVGImage(resources.erase());
+        final SVGImage image = new SVGImage(buttonIcons.erase());
         image.addClassNameBaseVal(resources.runnerCss().whiteColor());
 
         imagePanel.addDomHandler(new MouseOutHandler() {

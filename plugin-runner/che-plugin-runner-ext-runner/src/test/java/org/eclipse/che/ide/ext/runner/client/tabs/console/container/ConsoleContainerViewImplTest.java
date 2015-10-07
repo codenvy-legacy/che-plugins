@@ -13,10 +13,11 @@ package org.eclipse.che.ide.ext.runner.client.tabs.console.container;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwtmockito.GwtMockitoTestRunner;
 
+import org.eclipse.che.ide.api.parts.PartStackUIResources;
 import org.eclipse.che.ide.ext.runner.client.RunnerLocalizationConstant;
 import org.eclipse.che.ide.ext.runner.client.RunnerResources;
-import org.eclipse.che.ide.ext.runner.client.inject.factories.WidgetFactory;
-import org.eclipse.che.ide.ext.runner.client.tabs.console.button.ConsoleButton;
+import org.eclipse.che.ide.ui.button.ConsoleButton;
+import org.eclipse.che.ide.ui.button.ConsoleButtonFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -42,7 +43,9 @@ public class ConsoleContainerViewImplTest {
     @Mock
     private RunnerResources            resources;
     @Mock
-    private WidgetFactory              widgetFactory;
+    private ConsoleButtonFactory       consoleButtonFactory;
+    @Mock
+    private PartStackUIResources       buttonIcons;
     @Mock
     private RunnerLocalizationConstant locale;
 
@@ -63,21 +66,21 @@ public class ConsoleContainerViewImplTest {
 
     @Before
     public void setUp() throws Exception {
-        when(widgetFactory.createConsoleButton(anyString(), any(SVGResource.class))).thenReturn(button1)
-                                                                                    .thenReturn(button2)
-                                                                                    .thenReturn(button3);
+        when(consoleButtonFactory.createConsoleButton(anyString(), any(SVGResource.class))).thenReturn(button1)
+                                                                                           .thenReturn(button2)
+                                                                                           .thenReturn(button3);
 
         when(locale.consoleTooltipScroll()).thenReturn(SOME_MESSAGE);
         when(locale.consoleTooltipClear()).thenReturn(SOME_MESSAGE);
 
-        view = new ConsoleContainerViewImpl(resources, widgetFactory, locale);
+        view = new ConsoleContainerViewImpl(resources, buttonIcons, consoleButtonFactory, locale);
         view.setDelegate(delegate);
     }
 
     @Test
     public void constructorActionShouldBePerformed() throws Exception {
-        verify(resources).arrowBottom();
-        verify(resources).erase();
+        verify(buttonIcons).arrowBottom();
+        verify(buttonIcons).erase();
 
         verify(locale).consoleTooltipScroll();
         verify(locale).consoleTooltipClear();

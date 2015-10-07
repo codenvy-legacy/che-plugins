@@ -11,12 +11,12 @@
 package org.eclipse.che.ide.ext.runner.client.manager.button;
 
 import org.eclipse.che.ide.ext.runner.client.RunnerResources;
-import org.eclipse.che.ide.ext.runner.client.manager.tooltip.TooltipWidget;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.MouseOutEvent;
 import com.google.gwt.event.dom.client.MouseOverEvent;
 import com.google.gwtmockito.GwtMockitoTestRunner;
 
+import org.eclipse.che.ide.ui.tooltip.TooltipWidget;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

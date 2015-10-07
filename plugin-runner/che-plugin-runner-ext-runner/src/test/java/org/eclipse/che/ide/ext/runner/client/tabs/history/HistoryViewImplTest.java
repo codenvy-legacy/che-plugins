@@ -15,6 +15,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Element;
 import com.google.gwtmockito.GwtMockitoTestRunner;
 
+import org.eclipse.che.ide.api.parts.PartStackUIResources;
 import org.eclipse.che.ide.ext.runner.client.RunnerResources;
 import org.eclipse.che.ide.ext.runner.client.tabs.history.HistoryView.ActionDelegate;
 import org.eclipse.che.ide.ext.runner.client.tabs.history.runner.RunnerWidget;
@@ -39,17 +40,17 @@ import static org.mockito.Mockito.when;
 @RunWith(GwtMockitoTestRunner.class)
 public class HistoryViewImplTest {
     @Mock
-    private RunnerWidget    runnerWidget;
+    private RunnerWidget         runnerWidget;
     @Mock
-    private ActionDelegate  delegate;
+    private ActionDelegate       delegate;
     @Mock
-    private RunnerResources resources;
+    private PartStackUIResources buttonIcons;
     @Mock
-    private SVGResource     svgResource;
+    private SVGResource          svgResource;
     @Mock
-    private ClickEvent      clickEvent;
+    private ClickEvent           clickEvent;
     @Mock
-    private OMSVGSVGElement omsvgaElement;
+    private OMSVGSVGElement      omsvgaElement;
 
     @Captor
     private ArgumentCaptor<ClickHandler> clickHandlerArgumentCaptor;
@@ -58,10 +59,10 @@ public class HistoryViewImplTest {
 
     @Before
     public void setUp() throws Exception {
-        when(resources.erase()).thenReturn(svgResource);
+        when(buttonIcons.erase()).thenReturn(svgResource);
         when(svgResource.getSvg()).thenReturn(omsvgaElement);
 
-        historyView = new HistoryViewImpl(resources);
+        historyView = new HistoryViewImpl(buttonIcons);
 
         historyView.setDelegate(delegate);
     }

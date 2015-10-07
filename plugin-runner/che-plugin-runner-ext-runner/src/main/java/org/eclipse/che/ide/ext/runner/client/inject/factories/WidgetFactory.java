@@ -16,7 +16,6 @@ import org.eclipse.che.ide.ext.runner.client.manager.menu.MenuWidget;
 import org.eclipse.che.ide.ext.runner.client.manager.menu.entry.MenuEntry;
 import org.eclipse.che.ide.ext.runner.client.models.Environment;
 import org.eclipse.che.ide.ext.runner.client.models.Runner;
-import org.eclipse.che.ide.ext.runner.client.tabs.console.button.ConsoleButton;
 import org.eclipse.che.ide.ext.runner.client.tabs.console.panel.Console;
 import org.eclipse.che.ide.ext.runner.client.tabs.console.panel.FullLogMessageWidget;
 import org.eclipse.che.ide.ext.runner.client.tabs.container.tab.Background;
@@ -51,18 +50,6 @@ public interface WidgetFactory {
      */
     @NotNull
     ButtonWidget createButton(@NotNull String prompt, @NotNull SVGResource resource);
-
-    /**
-     * Creates console button widget with special icon.
-     *
-     * @param prompt
-     *         prompt for current button which is displayed on special popup widget
-     * @param resource
-     *         icon which need set to button
-     * @return an instance of {@link ConsoleButton}
-     */
-    @NotNull
-    ConsoleButton createConsoleButton(@NotNull String prompt, @NotNull SVGResource resource);
 
     /**
      * Creates tab widget with special title.

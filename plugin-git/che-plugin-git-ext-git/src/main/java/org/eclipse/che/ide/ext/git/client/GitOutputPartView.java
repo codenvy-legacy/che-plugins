@@ -24,6 +24,10 @@ public interface GitOutputPartView extends View<GitOutputPartView.ActionDelegate
          * Handle user clicks on clear console button.
          */
         void onClearClicked();
+        /**
+         * Handle user clicks on scroll console button.
+         */
+        void onScrollClicked();
     }
 
     /**

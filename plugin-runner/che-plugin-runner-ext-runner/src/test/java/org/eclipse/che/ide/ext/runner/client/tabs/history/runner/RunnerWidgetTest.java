@@ -19,6 +19,7 @@ import com.google.gwt.event.dom.client.MouseOverHandler;
 import com.google.gwt.user.client.ui.SimpleLayoutPanel;
 import com.google.gwtmockito.GwtMockitoTestRunner;
 
+import org.eclipse.che.ide.api.parts.PartStackUIResources;
 import org.eclipse.che.ide.ext.runner.client.RunnerResources;
 import org.eclipse.che.ide.ext.runner.client.models.Runner;
 import org.eclipse.che.ide.ext.runner.client.selection.SelectionManager;
@@ -62,11 +63,13 @@ public class RunnerWidgetTest {
     private ArgumentCaptor<ClickHandler>     clickCaptor;
 
     @Mock
-    private ItemWidget       itemWidget;
+    private ItemWidget           itemWidget;
     @Mock(answer = RETURNS_DEEP_STUBS)
-    private RunnerResources  resources;
+    private RunnerResources      resources;
     @Mock
-    private SelectionManager selectionManager;
+    private SelectionManager     selectionManager;
+    @Mock
+    private PartStackUIResources buttonIcons;
 
     @Mock
     private Runner                    runner;
@@ -96,13 +99,13 @@ public class RunnerWidgetTest {
         when(resources.runnerTimeout()).thenReturn(svgResource);
         when(resources.runnerDone()).thenReturn(svgResource);
         when(resources.runnerDone()).thenReturn(svgResource);
-        when(resources.erase()).thenReturn(svgResource);
+        when(buttonIcons.erase()).thenReturn(svgResource);
 
         when(resources.runnerCss().whiteColor()).thenReturn(TEXT);
 
         when(itemWidget.getImagePanel()).thenReturn(imagePanel);
 
-        runnerWidget = new RunnerWidget(itemWidget, resources, selectionManager);
+        runnerWidget = new RunnerWidget(itemWidget, resources, buttonIcons, selectionManager);
 
         when(resources.runnerCss()).thenReturn(css);
         when(runner.getTitle()).thenReturn(TEXT);
@@ -123,7 +126,7 @@ public class RunnerWidgetTest {
         verify(resources).runnerTimeout();
         verify(resources, times(2)).runnerDone();
         verify(itemWidget).getImagePanel();
-        verify(resources).erase();
+        verify(buttonIcons).erase();
 
         verify(itemWidget).setDelegate(actionDelegateCaptor.capture());
         ItemWidget.ActionDelegate actionDelegate = actionDelegateCaptor.getValue();
@@ -160,7 +163,7 @@ public class RunnerWidgetTest {
 
         mouseOverCaptor.getValue().onMouseOver(mouseOverEvent);
 
-        verify(resources).erase();
+        verify(buttonIcons).erase();
         verify(itemWidget).setImage(any(SVGImage.class));
     }
 

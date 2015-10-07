@@ -21,10 +21,11 @@ import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 
+import org.eclipse.che.ide.api.parts.PartStackUIResources;
 import org.eclipse.che.ide.ext.runner.client.RunnerLocalizationConstant;
 import org.eclipse.che.ide.ext.runner.client.RunnerResources;
-import org.eclipse.che.ide.ext.runner.client.inject.factories.WidgetFactory;
-import org.eclipse.che.ide.ext.runner.client.tabs.console.button.ConsoleButton;
+import org.eclipse.che.ide.ui.button.ConsoleButton;
+import org.eclipse.che.ide.ui.button.ConsoleButtonFactory;
 import org.vectomatic.dom.svg.ui.SVGResource;
 
 import javax.validation.constraints.NotNull;
@@ -48,16 +49,17 @@ public class ConsoleContainerViewImpl extends Composite implements ConsoleContai
     @UiField(provided = true)
     final RunnerResources resources;
 
-    private final WidgetFactory  widgetFactory;
-    private final ConsoleButton  btnWrapText;
-    private       ActionDelegate delegate;
+    private final ConsoleButtonFactory consoleButtonFactory;
+    private final ConsoleButton        btnWrapText;
+    private       ActionDelegate       delegate;
 
     @Inject
     public ConsoleContainerViewImpl(RunnerResources resources,
-                                    WidgetFactory widgetFactory,
+                                    PartStackUIResources buttonIcons,
+                                    ConsoleButtonFactory consoleButtonFactory,
                                     RunnerLocalizationConstant locale) {
         this.resources = resources;
-        this.widgetFactory = widgetFactory;
+        this.consoleButtonFactory = consoleButtonFactory;
 
         initWidget(UI_BINDER.createAndBindUi(this));
 
@@ -67,7 +69,7 @@ public class ConsoleContainerViewImpl extends Composite implements ConsoleContai
                 delegate.onWrapTextClicked();
             }
         };
-        btnWrapText = createButton(resources.wrapText(), locale.consoleTooltipWraptext(), wrapTextDelegate);
+        btnWrapText = createButton(buttonIcons.wrapText(), locale.consoleTooltipWraptext(), wrapTextDelegate);
 
         ConsoleButton.ActionDelegate scrollBottomDelegate = new ConsoleButton.ActionDelegate() {
             @Override
@@ -75,7 +77,7 @@ public class ConsoleContainerViewImpl extends Composite implements ConsoleContai
                 delegate.onScrollBottomClicked();
             }
         };
-        createButton(resources.arrowBottom(), locale.consoleTooltipScroll(), scrollBottomDelegate);
+        createButton(buttonIcons.arrowBottom(), locale.consoleTooltipScroll(), scrollBottomDelegate);
 
         ConsoleButton.ActionDelegate cleanDelegate = new ConsoleButton.ActionDelegate() {
             @Override
@@ -83,14 +85,14 @@ public class ConsoleContainerViewImpl extends Composite implements ConsoleContai
                 delegate.onCleanClicked();
             }
         };
-        createButton(resources.erase(), locale.consoleTooltipClear(), cleanDelegate);
+        createButton(buttonIcons.erase(), locale.consoleTooltipClear(), cleanDelegate);
     }
 
     @NotNull
     private ConsoleButton createButton(@NotNull SVGResource icon,
                                        @NotNull String prompt,
                                        @NotNull ConsoleButton.ActionDelegate delegate) {
-        ConsoleButton button = widgetFactory.createConsoleButton(prompt, icon);
+        ConsoleButton button = consoleButtonFactory.createConsoleButton(prompt, icon);
         button.setDelegate(delegate);
 
         buttons.add(button);
