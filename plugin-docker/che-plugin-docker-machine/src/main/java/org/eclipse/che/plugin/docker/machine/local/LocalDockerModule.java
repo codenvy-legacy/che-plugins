@@ -63,7 +63,7 @@ public class LocalDockerModule extends AbstractModule {
                               .toProvider(org.eclipse.che.plugin.docker.machine.ext.HostProjectsFolderProviderWinOS.class);
         } else {
             bind(String.class).annotatedWith(Names.named("host.projects.root"))
-                              .toProvider(org.eclipse.che.plugin.docker.machine.ext.HostProjectsFolderProviderWinOS.class);
+                              .toProvider(org.eclipse.che.plugin.docker.machine.ext.HostProjectsFolderProviderUnix.class);
         }
     }
 }
