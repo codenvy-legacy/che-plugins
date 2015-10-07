@@ -26,6 +26,7 @@
         <module>che-plugin-openshift-oauth2</module>
         <module>che-plugin-openshift-ext-shared</module>
         <module>che-plugin-openshift-ext-server</module>
+        <module>che-plugin-openshift-ext-client</module>
     </modules>
     <properties>
         <!-- TODO Move definition of version to che-depmgt project -->
