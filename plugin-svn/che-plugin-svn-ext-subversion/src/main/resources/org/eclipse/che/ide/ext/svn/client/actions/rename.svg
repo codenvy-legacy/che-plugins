@@ -1,21 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-
-<!-- The icon can be used freely in both personal and commercial projects with no attribution required, but always appreciated. 
-You may NOT sub-license, resell, rent, redistribute or otherwise transfer the icon without express written permission from iconmonstr.com -->
-
-
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-
-<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-
-	 width="512px" height="512px" viewBox="0 0 512 512" enable-background="new 0 0 512 512" xml:space="preserve">
-
-<path id="edit-5-icon" d="M196.208,259.135l75.571,75.527l-99.992,22.633L196.208,259.135z M461.709,147.22L295.438,313.398
-
-	l-77.871-77.828L383.84,69.391L461.709,147.22z M356.875,308.564v94.045H90.292V207.608h98.688l40.018-40H50.292v275.001h346.583
-
-	V268.582L356.875,308.564z"/>
-
+<svg version="1.1" id="rename" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+     width="16px" height="16px" viewBox="7 7 18 18" enable-background="new 0 0 32 32" xml:space="preserve">
+    <g>
+        <path fill-rule="evenodd" clip-rule="evenodd" fill="#4D4D4D" d="M9,8h10.758l-4,4H10v10h12v-7.758l2-2V23c0,0.55-0.45,1-1,1H9
+        		c-0.55,0-1-0.45-1-1V9C8,8.45,8.45,8,9,8z"/>
+        	<path fill-rule="evenodd" clip-rule="evenodd" fill="#4D4D4D" d="M22.294,8.292l1.414,1.415c0.39,0.389,0.39,1.025,0,1.414
+        		l-7.071,7.071l-2.828-2.828l7.071-7.071C21.269,7.903,21.905,7.903,22.294,8.292L22.294,8.292z M13.102,16.07l-1.414,4.242
+        		l4.243-1.414L13.102,16.07z"/>
+    </g>
 </svg>
-

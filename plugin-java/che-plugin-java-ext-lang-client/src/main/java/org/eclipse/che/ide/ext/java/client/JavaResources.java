@@ -208,4 +208,10 @@ public interface JavaResources extends ClientBundle {
 
     @Source("svg/resourceFolder.svg")
     SVGResource resourceFolder();
+
+    @Source("svg/openDeclaration.svg")
+    SVGResource openDeclaration();
+
+    @Source("svg/quickDocumentation.svg")
+    SVGResource quickDocumentation();
 }

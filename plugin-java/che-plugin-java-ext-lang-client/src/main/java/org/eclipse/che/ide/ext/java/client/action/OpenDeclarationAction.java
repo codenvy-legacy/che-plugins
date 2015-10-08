@@ -18,6 +18,7 @@ import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.editor.EditorInput;
 import org.eclipse.che.ide.api.project.tree.VirtualFile;
 import org.eclipse.che.ide.ext.java.client.JavaLocalizationConstant;
+import org.eclipse.che.ide.ext.java.client.JavaResources;
 import org.eclipse.che.ide.ext.java.client.editor.OpenDeclarationFinder;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -37,8 +38,9 @@ public class OpenDeclarationAction extends ProjectAction {
     public OpenDeclarationAction(JavaLocalizationConstant constant,
                                  EditorAgent editorAgent,
                                  OpenDeclarationFinder declarationFinder,
-                                 AnalyticsEventLogger eventLogger) {
-        super(constant.actionOpenDeclarationTitle(), constant.actionOpenDeclarationDescription());
+                                 AnalyticsEventLogger eventLogger,
+                                 JavaResources resources) {
+        super(constant.actionOpenDeclarationTitle(), constant.actionOpenDeclarationDescription(), resources.openDeclaration());
         this.editorAgent = editorAgent;
         this.declarationFinder = declarationFinder;
         this.eventLogger = eventLogger;

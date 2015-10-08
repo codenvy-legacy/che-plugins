@@ -22,6 +22,7 @@ import org.eclipse.che.ide.api.editor.EditorInput;
 import org.eclipse.che.ide.api.editor.EditorPartPresenter;
 import org.eclipse.che.ide.api.project.tree.VirtualFile;
 import org.eclipse.che.ide.ext.java.client.JavaLocalizationConstant;
+import org.eclipse.che.ide.ext.java.client.JavaResources;
 import org.eclipse.che.ide.ext.java.client.documentation.QuickDocumentation;
 import org.eclipse.che.ide.jseditor.client.codeassist.HasCompletionInformation;
 import org.eclipse.che.ide.jseditor.client.texteditor.EmbeddedTextEditorPresenter;
@@ -41,8 +42,9 @@ public class QuickDocumentationAction extends ProjectAction {
     public QuickDocumentationAction(JavaLocalizationConstant constant,
                                     QuickDocumentation quickDocumentation,
                                     EditorAgent editorAgent,
-                                    AnalyticsEventLogger eventLogger) {
-        super(constant.actionQuickdocTitle(), constant.actionQuickdocDescription());
+                                    AnalyticsEventLogger eventLogger,
+                                    JavaResources resources) {
+        super(constant.actionQuickdocTitle(), constant.actionQuickdocDescription(), resources.quickDocumentation());
         this.quickDocumentation = quickDocumentation;
         this.editorAgent = editorAgent;
         this.eventLogger = eventLogger;
