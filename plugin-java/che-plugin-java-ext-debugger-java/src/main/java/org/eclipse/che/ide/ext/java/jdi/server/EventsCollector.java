@@ -39,7 +39,7 @@ final class EventsCollector implements Runnable {
             try {
                 handler.handleEvents(queue.remove());
             } catch (DebuggerException e) {
-                LOG.error(e.getMessage(), e);
+                LOG.warn(e.getMessage(), e);
             } catch (VMDisconnectedException e) {
                 break;
             } catch (InterruptedException e) {

@@ -201,7 +201,7 @@ public class Debugger implements EventsHandler {
      * @throws DebuggerException
      *         when other JDI error occurs
      */
-    public void addBreakpoint(BreakPoint breakpoint) throws InvalidBreakPointException, DebuggerException {
+    public void addBreakpoint(BreakPoint breakpoint) throws DebuggerException {
         final String className = breakpoint.getLocation().getClassName();
         final int lineNumber = breakpoint.getLocation().getLineNumber();
         List<ReferenceType> classes = vm.classesByName(className);
