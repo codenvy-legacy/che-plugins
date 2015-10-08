@@ -45,7 +45,7 @@ public class EditCommandsAction extends AbstractPerspectiveAction {
               localizationConstant.editCommandsControlTitle(),
               localizationConstant.editCommandsControlDescription(),
               null,
-              resources.recipe());
+              null);
 
         this.editCommandsPresenter = editCommandsPresenter;
         this.eventLogger = eventLogger;
