@@ -12,7 +12,7 @@
 package org.eclipse.che.jdt;
 
 import org.eclipse.che.commons.env.EnvironmentContext;
-import org.eclipse.che.commons.user.User;
+import org.eclipse.che.commons.user.UserImpl;
 import org.eclipse.che.jdt.javaeditor.TextViewer;
 import org.eclipse.che.jdt.quickfix.QuickFixTest;
 import org.eclipse.che.jdt.rest.UrlContextProvider;
@@ -40,8 +40,11 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -51,8 +54,9 @@ import static org.mockito.Mockito.mock;
  */
 public class CompletionJavadocTest extends QuickFixTest {
 
-
-    private IJavaProject fJProject1;
+    final String      vfsUser       = "dev";
+    final Set<String> vfsUserGroups = new LinkedHashSet<>(Arrays.asList("workspace/developer"));
+    private IJavaProject         fJProject1;
     private IPackageFragmentRoot fSourceFolder;
 
     public CompletionJavadocTest() {
@@ -61,11 +65,32 @@ public class CompletionJavadocTest extends QuickFixTest {
         UrlContextProvider.setUriBuilder(new GuiceUriBuilderImpl());
     }
 
+    private static List<ICompletionProposal> computeProposals(ICompilationUnit compilationUnit, int offset) throws JavaModelException {
+        IBuffer buffer = compilationUnit.getBuffer();
+        IDocument document;
+        if (buffer instanceof org.eclipse.jdt.internal.ui.javaeditor.DocumentAdapter) {
+            document = ((org.eclipse.jdt.internal.ui.javaeditor.DocumentAdapter)buffer).getDocument();
+        } else {
+            document = new DocumentAdapter(buffer);
+        }
+        TextViewer viewer = new TextViewer(document, new Point(offset, 0));
+        JavaContentAssistInvocationContext context =
+                new JavaContentAssistInvocationContext(viewer, offset, compilationUnit);
+
+        List<ICompletionProposal> proposals = new ArrayList<>();
+        proposals.addAll(new JavaAllCompletionProposalComputer().computeCompletionProposals(context, null));
+//        proposals.addAll(new TemplateCompletionProposalComputer().computeCompletionProposals(context, null));
+
+        Collections.sort(proposals, new RelevanceSorter());
+        return proposals;
+    }
+
     @Before
     public void setUp() throws Exception {
         super.setUp();
         EnvironmentContext customEnvironment = mock(EnvironmentContext.class);
         doReturn("1q2w3e").when(customEnvironment).getWorkspaceId();
+        doReturn(new UserImpl(vfsUser, "", "", vfsUserGroups, false)).when(customEnvironment).getUser();
         EnvironmentContext.setCurrent(customEnvironment);
         fJProject1 = Java18ProjectTestSetup.getProject();
         fSourceFolder = JavaProjectHelper.addSourceContainer(fJProject1, "src");
@@ -134,31 +159,11 @@ public class CompletionJavadocTest extends QuickFixTest {
         Assertions.assertThat(proposals).hasSize(1);
         ICompletionProposal proposal = proposals.get(0);
         String result;
-        if(proposal instanceof ICompletionProposalExtension5){
+        if (proposal instanceof ICompletionProposalExtension5) {
             result = ((ICompletionProposalExtension5)proposal).getAdditionalProposalInfo(null).toString();
         } else {
-           result = proposal.getAdditionalProposalInfo();
+            result = proposal.getAdditionalProposalInfo();
         }
         Assertions.assertThat(result).contains("Test JavaDoc.");
-    }
-
-    private static List<ICompletionProposal> computeProposals(ICompilationUnit compilationUnit, int offset) throws JavaModelException {
-        IBuffer buffer = compilationUnit.getBuffer();
-        IDocument document;
-        if (buffer instanceof org.eclipse.jdt.internal.ui.javaeditor.DocumentAdapter) {
-            document = ((org.eclipse.jdt.internal.ui.javaeditor.DocumentAdapter)buffer).getDocument();
-        } else {
-            document = new DocumentAdapter(buffer);
-        }
-        TextViewer viewer = new TextViewer(document, new Point(offset, 0));
-        JavaContentAssistInvocationContext context =
-                new JavaContentAssistInvocationContext(viewer, offset, compilationUnit);
-
-        List<ICompletionProposal> proposals = new ArrayList<>();
-        proposals.addAll(new JavaAllCompletionProposalComputer().computeCompletionProposals(context, null));
-//        proposals.addAll(new TemplateCompletionProposalComputer().computeCompletionProposals(context, null));
-
-        Collections.sort(proposals, new RelevanceSorter());
-        return proposals;
     }
 }

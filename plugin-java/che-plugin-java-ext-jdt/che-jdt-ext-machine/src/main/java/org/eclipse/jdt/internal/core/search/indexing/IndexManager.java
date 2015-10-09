@@ -499,6 +499,7 @@ public class IndexManager extends JobManager implements IIndexConstants {
         if (this.javaPluginLocation != null) return this.javaPluginLocation;
 
         IPath stateLocation = new Path(indexLocation); //JavaCore.getPlugin().getStateLocation();
+
         return this.javaPluginLocation = stateLocation;
     }
 

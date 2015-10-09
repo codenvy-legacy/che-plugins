@@ -42,7 +42,7 @@ public class ProjectListeners {
     private final File workspace;
 
     @Inject
-    public ProjectListeners(@Named("che.workspace.path") String workspacePath, EventService eventService) {
+    public ProjectListeners(@Named("vfs.local.fs_root_dir") String workspacePath, EventService eventService) {
         workspace = new File(workspacePath);
         eventService.subscribe(new ProjectCreated());
         eventService.subscribe(new EventSubscriber<ProjectItemModifiedEvent>(){

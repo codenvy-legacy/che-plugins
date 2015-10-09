@@ -11,6 +11,7 @@
 package org.eclipse.che.ide.extension.maven.server.projecttype;
 
 import org.eclipse.che.api.core.notification.EventService;
+import org.eclipse.che.api.core.rest.HttpJsonHelper;
 import org.eclipse.che.api.project.server.DefaultProjectManager;
 import org.eclipse.che.api.project.server.Project;
 import org.eclipse.che.api.project.server.ProjectConfig;
@@ -26,6 +27,9 @@ import org.eclipse.che.api.vfs.server.VirtualFileSystemRegistry;
 import org.eclipse.che.api.vfs.server.VirtualFileSystemUser;
 import org.eclipse.che.api.vfs.server.VirtualFileSystemUserContext;
 import org.eclipse.che.api.vfs.server.impl.memory.MemoryFileSystemProvider;
+import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
+import org.eclipse.che.api.workspace.shared.dto.UsersWorkspaceDto;
+import org.eclipse.che.dto.server.DtoFactory;
 import org.eclipse.che.ide.ext.java.server.projecttype.JavaProjectType;
 import org.eclipse.che.ide.extension.maven.server.projecttype.handler.GeneratorStrategy;
 import org.eclipse.che.ide.extension.maven.server.projecttype.handler.MavenProjectGenerator;
@@ -35,6 +39,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -43,12 +48,20 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import static javax.ws.rs.HttpMethod.GET;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.isNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 /** @author gazarenkov */
 public class MavenProjectTypeTest {
     private static final String workspace = "my_ws";
 
     private ProjectManager pm;
-
+    private HttpJsonHelper.HttpJsonHelperImpl httpJsonHelper;
 
     @Before
     public void setUp() throws Exception {
@@ -68,46 +81,48 @@ public class MavenProjectTypeTest {
                 }, vfsRegistry);
         vfsRegistry.registerProvider(workspace, memoryFileSystemProvider);
 
-
         Set<ProjectType> projTypes = new HashSet<>();
         projTypes.add(new JavaProjectType());
-        projTypes.add(new MavenProjectType(new MavenValueProviderFactory(),
-                                           new JavaProjectType()));
+        projTypes.add(new MavenProjectType(new MavenValueProviderFactory(), new JavaProjectType()));
 
         ProjectTypeRegistry ptRegistry = new ProjectTypeRegistry(projTypes);
 
-        //ProjectGeneratorRegistry generatorRegistry = new ProjectGeneratorRegistry(new HashSet<ProjectGenerator>());
         Set<ProjectHandler> handlers = new HashSet<>();
         handlers.add(new MavenProjectGenerator(Collections.<GeneratorStrategy>emptySet()));
 
         ProjectHandlerRegistry handlerRegistry = new ProjectHandlerRegistry(handlers);
 
-        pm = new DefaultProjectManager(vfsRegistry, eventService,
-                                       ptRegistry, handlerRegistry);
+        pm = new DefaultProjectManager(vfsRegistry, eventService, ptRegistry, handlerRegistry, "");
 
+        httpJsonHelper = mock(HttpJsonHelper.HttpJsonHelperImpl.class);
+        Field f = HttpJsonHelper.class.getDeclaredField("httpJsonHelperImpl");
+        f.setAccessible(true);
+        f.set(null, httpJsonHelper);
     }
 
     @Test
     public void testGetProjectType() throws Exception {
-
         ProjectType pt = pm.getProjectTypeRegistry().getProjectType("maven");
 
         Assert.assertNotNull(pt);
         Assert.assertTrue(pt.getAttributes().size() > 0);
         Assert.assertTrue(pt.isTypeOf("java"));
-
     }
 
     @Test
     public void testMavenProject() throws Exception {
-
+        UsersWorkspaceDto usersWorkspaceMock = mock(UsersWorkspaceDto.class);
+        when(httpJsonHelper.request(any(), anyString(), eq(GET), isNull())).thenReturn(usersWorkspaceMock);
+        final ProjectConfigDto projectConfig = DtoFactory.getInstance().createDto(ProjectConfigDto.class)
+                                                         .withPath("/myProject")
+                                                         .withType(MavenAttributes.MAVEN_ID);
+        when(usersWorkspaceMock.getProjects()).thenReturn(Collections.singletonList(projectConfig));
 
         Map<String, AttributeValue> attributes = new HashMap<>();
         attributes.put(MavenAttributes.ARTIFACT_ID, new AttributeValue("myartifact"));
         attributes.put(MavenAttributes.GROUP_ID, new AttributeValue("mygroup"));
         attributes.put(MavenAttributes.VERSION, new AttributeValue("1.0"));
         attributes.put(MavenAttributes.PACKAGING, new AttributeValue("jar"));
-        //attributes.put(MavenAttributes., new AttributeValue("jar"));
 
         Project project = pm.createProject(workspace, "myProject",
                                            new ProjectConfig("my config", "maven", attributes, null, null),
@@ -115,33 +130,20 @@ public class MavenProjectTypeTest {
 
         ProjectConfig config = project.getConfig();
 
-//        System.out.println(" >>>" + config.getAttributes().get(MavenAttributes.ARTIFACT_ID).getString() + " "+
-//                        attributes.get(MavenAttributes.ARTIFACT_ID).getString());
-
         Assert.assertEquals(config.getAttributes().get(MavenAttributes.ARTIFACT_ID).getString(), "myartifact");
         Assert.assertEquals(config.getAttributes().get(MavenAttributes.VERSION).getString(), "1.0");
         Assert.assertEquals(config.getAttributes().get("language").getString(), "java");
 
-
         for (VirtualFileEntry file : project.getBaseFolder().getChildren()) {
-
             if (file.getName().equals("pom.xml")) {
-
                 Model pom = Model.readFrom(file.getVirtualFile().getContent().getStream());
-
-//                Assert.assertEquals(pom.getArtifactId(), "myartifact");
                 Assert.assertEquals(pom.getVersion(), "1.0");
-
             }
-
         }
-
     }
 
     @Test
     public void testEstimation() throws Exception {
-
-
         Map<String, AttributeValue> attributes = new HashMap<>();
         attributes.put(MavenAttributes.ARTIFACT_ID, new AttributeValue("myartifact"));
         attributes.put(MavenAttributes.GROUP_ID, new AttributeValue("mygroup"));
@@ -161,13 +163,10 @@ public class MavenProjectTypeTest {
         Assert.assertEquals(out.get(MavenAttributes.ARTIFACT_ID).getString(), "myartifact");
         Assert.assertEquals(out.get(MavenAttributes.VERSION).getString(), "1.0");
 
-
         try {
             pm.estimateProject(workspace, "testEstimateBad", "maven");
             Assert.fail("ValueStorageException expected");
         } catch (ValueStorageException e) {
-
         }
     }
-
 }
