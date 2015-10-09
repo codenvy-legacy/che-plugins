@@ -18,6 +18,7 @@ import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.Promise;
+import org.eclipse.che.api.promises.client.PromiseError;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.editor.EditorAgent;
@@ -28,6 +29,7 @@ import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.project.tree.VirtualFile;
 import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.ext.java.client.JavaLocalizationConstant;
+import org.eclipse.che.ide.ext.java.client.refactoring.rename.wizard.RenamePresenter;
 import org.eclipse.che.ide.ext.java.client.refactoring.service.RefactoringServiceClient;
 import org.eclipse.che.ide.ext.java.shared.dto.LinkedModeModel;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.CreateRenameRefactoring;
@@ -45,6 +47,7 @@ import org.eclipse.che.ide.ui.dialogs.CancelCallback;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 import org.eclipse.che.ide.ui.dialogs.InputCallback;
 import org.eclipse.che.ide.ui.dialogs.input.InputDialog;
+import org.eclipse.che.ide.ui.dialogs.message.MessageDialog;
 import org.eclipse.che.ide.ui.loaders.requestLoader.IdeLoader;
 import org.junit.Before;
 import org.junit.Test;
@@ -53,6 +56,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 
 import java.util.Collections;
 
@@ -64,6 +68,7 @@ import static org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringSta
 import static org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatus.WARNING;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isNull;
@@ -87,6 +92,8 @@ public class JavaRefactoringRenameTest {
 
 
     //variables for constructor
+    @Mock
+    private RenamePresenter          renamePresenter;
     @Mock
     private EditorAgent              editorAgent;
     @Mock
@@ -145,6 +152,8 @@ public class JavaRefactoringRenameTest {
     private ArgumentCaptor<LinkedMode.LinkedModeListener>       inputArgumentCaptor;
     @Captor
     private ArgumentCaptor<Operation<RefactoringStatus>>        refactoringStatusCaptor;
+    @Captor
+    private ArgumentCaptor<Operation<PromiseError>>             refactoringErrorCaptor;
 
     @Mock
     private LinkedMode linkedMode;
@@ -172,6 +181,7 @@ public class JavaRefactoringRenameTest {
         when(projectDescriptor.getPath()).thenReturn(TEXT);
         when(virtualFile.getName()).thenReturn(JAVA_CLASS_FULL_NAME);
         when(refactoringServiceClient.createRenameRefactoring(createRenameRefactoringDto)).thenReturn(createRenamePromise);
+        when(createRenamePromise.then((Operation<RenameRefactoringSession>)any())).thenReturn(createRenamePromise);
         when(applyModelPromise.then((Operation<RefactoringStatus>)any())).thenReturn(applyModelPromise);
         when(session.getLinkedModeModel()).thenReturn(linkedModel);
         when(session.getSessionId()).thenReturn(SESSION_ID);
@@ -185,7 +195,7 @@ public class JavaRefactoringRenameTest {
         when(virtualFile.getPath()).thenReturn(PATH);
         when(textEditor.getCursorOffset()).thenReturn(CURSOR_OFFSET);
         when(textEditor.getDocument()).thenReturn(document);
-        when(document.getContentRange(anyInt(),anyInt())).thenReturn(NEW_JAVA_CLASS_NAME);
+        when(document.getContentRange(anyInt(), anyInt())).thenReturn(NEW_JAVA_CLASS_NAME);
         when(((HasLinkedMode)textEditor).getLinkedMode()).thenReturn(linkedMode);
         when(((HasLinkedMode)textEditor).createLinkedModel()).thenReturn(editorLinkedModel);
 
@@ -203,6 +213,42 @@ public class JavaRefactoringRenameTest {
         verify(editorAgent).getActiveEditor();
         verify(activeEditor).getEditorInput();
         verify(virtualFile).getPath();
+    }
+
+    @Test
+    public void renameRefactoringShouldBeAppliedSuccessAndShowWizard() throws OperationException {
+        when(status.getSeverity()).thenReturn(OK);
+        when(session.isMastShowWizard()).thenReturn(true);
+
+        refactoringRename.refactor(textEditor);
+
+        verify(refactoringServiceClient).createRenameRefactoring(createRenameRefactoringDto);
+        verify(createRenamePromise).then(renameRefCaptor.capture());
+        renameRefCaptor.getValue().apply(session);
+        verify(session).isMastShowWizard();
+        verify(renamePresenter).show(session);
+    }
+
+    @Test
+    public void renameRefactoringShouldBeShowErrorWindow() throws OperationException {
+        PromiseError arg = Mockito.mock(PromiseError.class);
+        MessageDialog dialog = Mockito.mock(MessageDialog.class);
+
+        when(status.getSeverity()).thenReturn(OK);
+        when(session.isMastShowWizard()).thenReturn(true);
+        when(locale.renameRename()).thenReturn("renameTitle");
+        when(locale.renameOperationUnavailable()).thenReturn("renameBody");
+        when(dialogFactory.createMessageDialog(anyString(), anyString(), anyObject())).thenReturn(dialog);
+
+        refactoringRename.refactor(textEditor);
+
+        verify(createRenamePromise).then(renameRefCaptor.capture());
+        renameRefCaptor.getValue().apply(session);
+        verify(createRenamePromise).catchError(refactoringErrorCaptor.capture());
+        refactoringErrorCaptor.getValue().apply(arg);
+
+        verify(dialogFactory).createMessageDialog("renameTitle", "renameBody", null);
+        verify(dialog).show();
     }
 
     @Test

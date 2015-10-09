@@ -28,8 +28,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.eclipse.che.ide.ext.java.client.refactoring.move.MoveType.REFACTOR_MENU;
-import static org.eclipse.che.ide.ext.java.client.refactoring.move.MovedItemType.COMPILATION_UNIT;
-import static org.eclipse.che.ide.ext.java.client.refactoring.move.MovedItemType.PACKAGE;
+import static org.eclipse.che.ide.ext.java.client.refactoring.move.RefactoredItemType.COMPILATION_UNIT;
+import static org.eclipse.che.ide.ext.java.client.refactoring.move.RefactoredItemType.PACKAGE;
 
 /**
  * @author Dmitry Shnurenko
@@ -40,8 +40,8 @@ public class MoveAction extends Action {
     private final MovePresenter  movePresenter;
     private final SelectionAgent selectionAgent;
 
-    private List<?>       selectedItems;
-    private MovedItemType movedItemType;
+    private List<?>            selectedItems;
+    private RefactoredItemType refactoredItemType;
 
     @Inject
     public MoveAction(JavaLocalizationConstant locale, SelectionAgent selectionAgent, MovePresenter movePresenter) {
@@ -80,18 +80,12 @@ public class MoveAction extends Action {
             boolean isPackageNode = item instanceof PackageNode;
 
             if (isSourceFileNode) {
-                movedItemType = COMPILATION_UNIT;
-            }
-
-            if (isPackageNode) {
-                movedItemType = PACKAGE;
-            }
-
-            if (isPackageNode) {
+                refactoredItemType = COMPILATION_UNIT;
                 return true;
             }
 
-            if (isSourceFileNode) {
+            if (isPackageNode) {
+                refactoredItemType = PACKAGE;
                 return true;
             }
         }
@@ -102,7 +96,7 @@ public class MoveAction extends Action {
     /** {@inheritDoc} */
     @Override
     public void actionPerformed(ActionEvent actionEvent) {
-        RefactorInfo refactorInfo = RefactorInfo.of(REFACTOR_MENU, movedItemType, selectedItems);
+        RefactorInfo refactorInfo = RefactorInfo.of(REFACTOR_MENU, refactoredItemType, selectedItems);
 
         if (isActionEnable()) {
             movePresenter.show(refactorInfo);

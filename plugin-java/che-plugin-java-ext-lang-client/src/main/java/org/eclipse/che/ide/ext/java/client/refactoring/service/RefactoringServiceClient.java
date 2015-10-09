@@ -25,7 +25,9 @@ import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringPreview;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringSession;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatus;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RenameRefactoringSession;
+import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RenameSettings;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ReorgDestination;
+import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ValidateNewName;
 
 /**
  * Provides methods which allow send requests to special refactoring service to do refactoring.
@@ -101,7 +103,7 @@ public interface RefactoringServiceClient {
      *
      * @param session
      *         the refactoring session
-     * @return the status fo applied refactoring
+     * @return the status for applied refactoring
      */
     Promise<RefactoringStatus> applyRefactoring(RefactoringSession session);
 
@@ -122,4 +124,22 @@ public interface RefactoringServiceClient {
      * @return refactoring change preview
      */
     Promise<ChangePreview> getChangePreview(RefactoringChange change);
+
+    /**
+     * Validates new name for the rename operation.
+     *
+     * @param newName
+     *         new name that should be validated
+     * @return the status for the name validated
+     */
+    Promise<RefactoringStatus> validateNewName(ValidateNewName newName);
+
+    /**
+     * Set rename refactoring wizard setting.
+     *
+     * @param settings
+     *         the rename settings
+     * @return empty promise result
+     */
+    Promise<Void> setRenameSettings(RenameSettings settings);
 }

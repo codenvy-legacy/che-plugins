@@ -8,6 +8,8 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
+@eval errorColor org.eclipse.che.ide.api.theme.Style.getErrorColor();
+
 .exo-autocomplete-fqn {
     color: gray;
 }
@@ -172,4 +174,8 @@
 
 .mark-element {
     position: absolute;
+}
+
+.error-border {
+    border-bottom: 1px solid errorColor !important;
 }

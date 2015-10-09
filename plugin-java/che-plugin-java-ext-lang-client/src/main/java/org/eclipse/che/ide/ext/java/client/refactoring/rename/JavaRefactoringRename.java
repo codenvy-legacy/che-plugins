@@ -34,6 +34,7 @@ import org.eclipse.che.ide.api.text.Position;
 import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.ext.java.client.JavaLocalizationConstant;
 import org.eclipse.che.ide.ext.java.client.projecttree.JavaSourceFolderUtil;
+import org.eclipse.che.ide.ext.java.client.refactoring.rename.wizard.RenamePresenter;
 import org.eclipse.che.ide.ext.java.client.refactoring.service.RefactoringServiceClient;
 import org.eclipse.che.ide.ext.java.shared.dto.LinkedData;
 import org.eclipse.che.ide.ext.java.shared.dto.LinkedModeModel;
@@ -78,25 +79,30 @@ import static org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringSta
 @Singleton
 public class JavaRefactoringRename {
     private final EditorAgent              editorAgent;
+    private final RenamePresenter          renamePresenter;
     private final JavaLocalizationConstant locale;
-    private final DialogFactory            dialogFactory;
     private final RefactoringServiceClient refactoringServiceClient;
     private final ProjectServiceClient     projectServiceClient;
     private final DtoFactory               dtoFactory;
     private final AppContext               appContext;
+    private final DialogFactory            dialogFactory;
     private final EventBus                 eventBus;
     private final DtoUnmarshallerFactory   unmarshallerFactory;
     private final NotificationManager      notificationManager;
     private final IdeLoader                loader;
     private final ProjectExplorerPresenter projectExplorer;
 
+    private boolean    isActiveLinkedEditor;
+    private LinkedMode mode;
+
     @Inject
     public JavaRefactoringRename(EditorAgent editorAgent,
+                                 RenamePresenter renamePresenter,
                                  JavaLocalizationConstant locale,
-                                 DialogFactory dialogFactory,
                                  RefactoringServiceClient refactoringServiceClient,
                                  ProjectServiceClient projectServiceClient,
                                  DtoFactory dtoFactory,
+                                 DialogFactory dialogFactory,
                                  AppContext appContext,
                                  EventBus eventBus,
                                  DtoUnmarshallerFactory unmarshallerFactory,
@@ -104,6 +110,7 @@ public class JavaRefactoringRename {
                                  IdeLoader loader,
                                  ProjectExplorerPresenter projectExplorer) {
         this.editorAgent = editorAgent;
+        this.renamePresenter = renamePresenter;
         this.locale = locale;
         this.dialogFactory = dialogFactory;
         this.refactoringServiceClient = refactoringServiceClient;
@@ -115,6 +122,8 @@ public class JavaRefactoringRename {
         this.notificationManager = notificationManager;
         this.loader = loader;
         this.projectExplorer = projectExplorer;
+
+        isActiveLinkedEditor = false;
     }
 
     /**
@@ -130,20 +139,33 @@ public class JavaRefactoringRename {
         createRenamePromise.then(new Operation<RenameRefactoringSession>() {
             @Override
             public void apply(RenameRefactoringSession session) throws OperationException {
-                if (session.isMastShowWizard()) {
-                    //todo should add Wizard
+                if (session.isMastShowWizard() || isActiveLinkedEditor) {
+                    renamePresenter.show(session);
+                    if (mode != null) {
+                        mode.exitLinkedMode(false);
+                    }
                 } else if (session.getLinkedModeModel() != null && textEditorPresenter instanceof HasLinkedMode) {
+                    isActiveLinkedEditor = true;
                     activateLinkedModeIntoEditor(session, ((HasLinkedMode)textEditorPresenter), textEditorPresenter.getDocument());
                 } else {
                     notificationManager.showError(locale.renameErrorEditor());
                 }
             }
+        }).catchError(new Operation<PromiseError>() {
+            @Override
+            public void apply(PromiseError arg) throws OperationException {
+                dialogFactory.createMessageDialog(locale.renameRename(), locale.renameOperationUnavailable(), null).show();
+                if (mode != null) {
+                    mode.exitLinkedMode(false);
+                }
+            }
         });
     }
 
-    private void activateLinkedModeIntoEditor(final RenameRefactoringSession session, final HasLinkedMode linkedEditor,
+    private void activateLinkedModeIntoEditor(final RenameRefactoringSession session,
+                                              final HasLinkedMode linkedEditor,
                                               final EmbeddedDocument document) {
-        final LinkedMode mode = linkedEditor.getLinkedMode();
+        mode = linkedEditor.getLinkedMode();
         LinkedModel model = linkedEditor.createLinkedModel();
         LinkedModeModel linkedModeModel = session.getLinkedModeModel();
         List<LinkedModelGroup> groups = new ArrayList<>();
@@ -181,6 +203,10 @@ public class JavaRefactoringRename {
                     }
                 } finally {
                     mode.removeListener(this);
+                    isActiveLinkedEditor = false;
+                    if (linkedEditor instanceof EditorWithAutoSave) {
+                        ((EditorWithAutoSave)linkedEditor).enableAutoSave();
+                    }
                 }
             }
         });
@@ -287,7 +313,7 @@ public class JavaRefactoringRename {
         CreateRenameRefactoring dto = dtoFactory.createDto(CreateRenameRefactoring.class);
 
         dto.setOffset(editor.getCursorOffset());
-        dto.setRefactorLightweight(true);
+        dto.setRefactorLightweight(!isActiveLinkedEditor);
 
         String fqn = JavaSourceFolderUtil.getFQNForFile(editor.getEditorInput().getFile());
         dto.setPath(fqn);

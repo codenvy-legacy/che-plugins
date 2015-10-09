@@ -8,7 +8,6 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-
 package org.eclipse.che.ide.ext.java.shared.dto.refactoring;
 
 import org.eclipse.che.dto.shared.DTO;
@@ -17,6 +16,7 @@ import org.eclipse.che.ide.ext.java.shared.dto.LinkedModeModel;
 /**
  * Answer for {@link CreateRenameRefactoring}
  * @author Evgen Vidolob
+ * @author Vleriy Svydenko
  */
 @DTO
 public interface RenameRefactoringSession extends RefactoringSession {
@@ -36,6 +36,11 @@ public interface RenameRefactoringSession extends RefactoringSession {
 
     void setWizardType(RenameWizard type);
 
+    /**@return name of the renaming element*/
+    String getOldName();
+
+    void setOldName(String name);
+
     /**
      * Linked edit model, not null if refactoring performed from editor and wizard is not necessary.
      */
@@ -44,7 +49,7 @@ public interface RenameRefactoringSession extends RefactoringSession {
     void setLinkedModeModel(LinkedModeModel model);
 
 
-    enum RenameWizard{
+    enum RenameWizard {
         PACKAGE,
         COMPILATION_UNIT,
         TYPE,
