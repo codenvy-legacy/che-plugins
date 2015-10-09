@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.maven.server.projecttype.handler;
 
+import com.google.inject.Inject;
+
 import org.eclipse.che.api.core.ConflictException;
 import org.eclipse.che.api.core.ForbiddenException;
 import org.eclipse.che.api.core.NotFoundException;
@@ -18,7 +20,6 @@ import org.eclipse.che.api.project.server.FolderEntry;
 import org.eclipse.che.api.project.server.ProjectManager;
 import org.eclipse.che.api.project.server.handlers.ProjectTypeChangedHandler;
 import org.eclipse.che.ide.extension.maven.server.projecttype.MavenProjectResolver;
-import com.google.inject.Inject;
 
 import java.io.IOException;
 
@@ -29,7 +30,6 @@ import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.MAVEN_I
  */
 public class ProjectHasBecomeMaven implements ProjectTypeChangedHandler {
 
-
     @Inject
     private ProjectManager projectManager;
 
@@ -37,7 +37,6 @@ public class ProjectHasBecomeMaven implements ProjectTypeChangedHandler {
     public void onProjectTypeChanged(FolderEntry projectFolder)
             throws ForbiddenException, ConflictException, ServerException, IOException, NotFoundException {
         MavenProjectResolver.resolve(projectFolder, projectManager);
-
     }
 
     @Override

@@ -33,11 +33,9 @@ import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.MAVEN_I
 import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.PACKAGING;
 import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.VERSION;
 
-
 /**
  * @author Evgen Vidolob
  */
-
 public class MavenProjectResolver {
 
     public static void resolve(FolderEntry projectFolder, ProjectManager projectManager)
@@ -56,31 +54,6 @@ public class MavenProjectResolver {
         }
     }
 
-    private static FolderEntry getParentFolder(String module, Project parentProject) {
-        FolderEntry parentFolder = parentProject.getBaseFolder();
-        int level = module.split("\\.{2}/").length - 1;
-        while (level != 0 && parentFolder != null) {
-            parentFolder = parentFolder.getParent();
-            level--;
-        }
-        return parentFolder;
-    }
-
-    private static ProjectConfig createProjectConfig(FolderEntry folderEntry)
-            throws ServerException, ForbiddenException, IOException {
-
-        VirtualFileEntry pom = folderEntry.getChild("pom.xml");
-        Model model = Model.readFrom(pom.getVirtualFile());
-
-        Map<String, AttributeValue> attributes = new HashMap<>();
-        attributes.put(ARTIFACT_ID, new AttributeValue(model.getArtifactId()));
-        attributes.put(GROUP_ID, new AttributeValue(model.getGroupId()));
-        attributes.put(VERSION, new AttributeValue(model.getVersion()));
-        attributes.put(PACKAGING, new AttributeValue(model.getPackaging()));
-
-        return new ProjectConfig("Maven", MAVEN_ID, attributes, null, null);
-    }
-
     private static void createProjectsOnModules(Model model, Project parentProject, String ws, ProjectManager projectManager)
             throws ServerException, ForbiddenException, ConflictException, NotFoundException, IOException {
         List<String> modules = model.getModules();
@@ -95,8 +68,32 @@ public class MavenProjectResolver {
                     project = new Project(moduleEntry, projectManager);
                 }
                 project.updateConfig(projectConfig);
+                parentProject.getModules().add(module);
                 resolve(project.getBaseFolder(), projectManager);
             }
         }
+    }
+
+    private static FolderEntry getParentFolder(String module, Project parentProject) {
+        FolderEntry parentFolder = parentProject.getBaseFolder();
+        int level = module.split("\\.{2}/").length - 1;
+        while (level != 0 && parentFolder != null) {
+            parentFolder = parentFolder.getParent();
+            level--;
+        }
+        return parentFolder;
+    }
+
+    private static ProjectConfig createProjectConfig(FolderEntry folderEntry) throws ServerException, ForbiddenException, IOException {
+        VirtualFileEntry pom = folderEntry.getChild("pom.xml");
+        Model model = Model.readFrom(pom.getVirtualFile());
+
+        Map<String, AttributeValue> attributes = new HashMap<>();
+        attributes.put(ARTIFACT_ID, new AttributeValue(model.getArtifactId()));
+        attributes.put(GROUP_ID, new AttributeValue(model.getGroupId()));
+        attributes.put(VERSION, new AttributeValue(model.getVersion()));
+        attributes.put(PACKAGING, new AttributeValue(model.getPackaging()));
+
+        return new ProjectConfig("Maven", MAVEN_ID, attributes, null, null);
     }
 }

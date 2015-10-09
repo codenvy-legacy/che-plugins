@@ -33,10 +33,13 @@ public abstract class BaseTest {
 
     protected static Map<String, String> options = new HashMap<>();
     protected static JavaProject project;
-    protected static final String wsPath = BaseTest.class.getResource("/projects").getFile();
-    protected static ResourcesPlugin plugin = new ResourcesPlugin(wsPath + "/index", BaseTest.class.getResource("/projects").getFile());
-    protected static JavaPlugin javaPlugin = new JavaPlugin(wsPath + "/set");
-    protected static FileBuffersPlugin fileBuffersPlugin = new FileBuffersPlugin();
+    protected static final String          wsPath            = BaseTest.class.getResource("/projects").getFile();
+    private static final   String          workspacePath     = BaseTest.class.getResource("/projects").getFile();
+    protected static       ResourcesPlugin plugin            = new ResourcesPlugin(wsPath + "/index", workspacePath,
+                                                                                   new DummyProjectManager(workspacePath));
+    protected static       JavaPlugin      javaPlugin        = new JavaPlugin(wsPath + "/set");
+    protected static       FileBuffersPlugin
+                                           fileBuffersPlugin = new FileBuffersPlugin();
 
     static {
         plugin.start();
@@ -73,11 +76,11 @@ public abstract class BaseTest {
 
     @After
     public void closeProject() throws Exception {
-        if(project != null){
-           project.close();
+        if (project != null) {
+            project.close();
         }
         File pref = new File(wsPath + "/test/.codenvy/project.preferences");
-        if(pref.exists()){
+        if (pref.exists()) {
             pref.delete();
         }
 

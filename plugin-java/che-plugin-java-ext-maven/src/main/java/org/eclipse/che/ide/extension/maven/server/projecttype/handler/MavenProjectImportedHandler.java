@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.maven.server.projecttype.handler;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+
 import org.eclipse.che.api.core.ConflictException;
 import org.eclipse.che.api.core.ForbiddenException;
 import org.eclipse.che.api.core.NotFoundException;
@@ -18,8 +21,6 @@ import org.eclipse.che.api.project.server.FolderEntry;
 import org.eclipse.che.api.project.server.ProjectManager;
 import org.eclipse.che.api.project.server.handlers.PostImportProjectHandler;
 import org.eclipse.che.ide.extension.maven.server.projecttype.MavenProjectResolver;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 
 import java.io.IOException;
 
@@ -31,7 +32,6 @@ import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.MAVEN_I
 @Singleton
 public class MavenProjectImportedHandler implements PostImportProjectHandler {
 
-
     @Inject
     private ProjectManager projectManager;
 
@@ -39,7 +39,6 @@ public class MavenProjectImportedHandler implements PostImportProjectHandler {
     public void onProjectImported(FolderEntry projectFolder)
             throws ForbiddenException, ConflictException, ServerException, IOException, NotFoundException {
         MavenProjectResolver.resolve(projectFolder, projectManager);
-
     }
 
     @Override

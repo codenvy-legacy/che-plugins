@@ -28,6 +28,8 @@ import org.eclipse.core.internal.filebuffers.FileBuffersPlugin;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jdt.internal.ui.JavaPlugin;
 
+import java.nio.file.Paths;
+
 /**
  * @author Evgen Vidolob
  */
@@ -54,26 +56,18 @@ public class JdtGuiceModule extends AbstractModule {
     }
 
     @Provides
-    @Named("che.workspace.path")
-    @Singleton
-    protected String provideWorkspace() {
-        return "/projects";
-    }
-
-    @Provides
     @Named("che.jdt.settings.dir")
     @Singleton
-    protected String provideSettings(@Named("che.workspace.path")String wsPath){
-        return wsPath + CHE + "/settings";
+    protected String provideSettings(@Named("che.workspace.metadata") String wsMetadata) {
+        return Paths.get(System.getProperty("user.home"), wsMetadata, "settings").toString();
     }
 
     @Provides
     @Named("che.jdt.workspace.index.dir")
     @Singleton
-    protected String provideIndex(@Named("che.workspace.path")String wsPath){
-        return wsPath + CHE + "/index";
+    protected String provideIndex(@Named("che.workspace.metadata") String wsMetadata) {
+        return Paths.get(System.getProperty("user.home"), wsMetadata, "index").toString();
     }
-
 
 
 }
