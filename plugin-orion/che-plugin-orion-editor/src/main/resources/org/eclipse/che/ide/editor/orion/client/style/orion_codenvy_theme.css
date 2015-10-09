@@ -118,7 +118,7 @@
 }
 .orionCodenvy .textViewFindCloseButton:hover {
 	/* from Core.css gwt:TextButton:hover */
-    border: 1px solid tabBorder;
+    border: 1px solid tabBorderColor;
 }
 
 .textviewSelection, .orionCodenvy .textviewSelection{
@@ -135,7 +135,7 @@
     background:rgb(180,213,255);
 }
 .orionCodenvy .textviewRightRuler{
-    border-left: 1px solid tabBorder;
+    border-left: 1px solid tabBorderColor;
 }
 .orionCodenvy .annotationRange.currentLinkedGroup {
     background-color: #000099;
