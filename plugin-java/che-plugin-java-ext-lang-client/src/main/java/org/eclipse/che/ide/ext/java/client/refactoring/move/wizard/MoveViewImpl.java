@@ -32,7 +32,6 @@ import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import org.eclipse.che.ide.api.project.tree.generic.StorableNode;
 import org.eclipse.che.ide.api.theme.Style;
 import org.eclipse.che.ide.ext.java.client.JavaLocalizationConstant;
 import org.eclipse.che.ide.ext.java.client.JavaResources;
@@ -44,6 +43,7 @@ import org.eclipse.che.ide.ext.java.shared.dto.refactoring.PackageFragment;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.PackageFragmentRoot;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatus;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatusEntry;
+import org.eclipse.che.ide.project.node.ResourceBasedNode;
 import org.eclipse.che.ide.ui.cellview.CellTreeResources;
 import org.eclipse.che.ide.ui.window.Window;
 
@@ -163,10 +163,10 @@ final class MoveViewImpl extends Window implements MoveView {
 
         boolean isMultiSelection = selectionSize > 1;
 
-        StorableNode selectedItem = (StorableNode)selectedItems.get(0);
+        ResourceBasedNode<?> selectedItem = (ResourceBasedNode)selectedItems.get(0);
 
-        classNameUR.setText(isMultiSelection ? locale.multiSelectionReferences(selectionSize) : selectedItem.getDisplayName());
-        className.setText(isMultiSelection ? locale.multiSelectionDestination(selectionSize) : selectedItem.getDisplayName());
+        classNameUR.setText(isMultiSelection ? locale.multiSelectionReferences(selectionSize) : selectedItem.getName());
+        className.setText(isMultiSelection ? locale.multiSelectionDestination(selectionSize) : selectedItem.getName());
 
         show();
     }

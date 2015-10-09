@@ -16,6 +16,7 @@ import com.google.inject.Injector;
 import com.google.inject.multibindings.Multibinder;
 
 import org.eclipse.che.api.core.notification.EventService;
+import org.eclipse.che.api.core.rest.HttpJsonHelper;
 import org.eclipse.che.api.project.server.DefaultProjectManager;
 import org.eclipse.che.api.project.server.FolderEntry;
 import org.eclipse.che.api.project.server.Project;
@@ -29,18 +30,32 @@ import org.eclipse.che.api.vfs.server.VirtualFileSystemRegistry;
 import org.eclipse.che.api.vfs.server.VirtualFileSystemUser;
 import org.eclipse.che.api.vfs.server.VirtualFileSystemUserContext;
 import org.eclipse.che.api.vfs.server.impl.memory.MemoryFileSystemProvider;
+import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
+import org.eclipse.che.api.workspace.shared.dto.UsersWorkspaceDto;
+import org.eclipse.che.dto.server.DtoFactory;
+import org.eclipse.che.ide.extension.maven.shared.MavenAttributes;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.MockitoAnnotations;
 
+import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
+import static javax.ws.rs.HttpMethod.GET;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.isNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Vitaly Parfonov
@@ -107,12 +122,10 @@ public class MavenProjectImportedTest {
 
         VirtualFileSystemRegistry virtualFileSystemRegistry = new VirtualFileSystemRegistry();
         EventService eventService = new EventService();
-        //ProjectGeneratorRegistry generatorRegistry = new ProjectGeneratorRegistry(new HashSet<ProjectGenerator>());
-        ProjectHandlerRegistry handlerRegistry = new ProjectHandlerRegistry(new HashSet<ProjectHandler>());
-        projectManager =
-                new DefaultProjectManager(virtualFileSystemRegistry,
-                                          eventService,
-                                          projectTypeRegistry, handlerRegistry);
+        ProjectHandlerRegistry handlerRegistry = new ProjectHandlerRegistry(new HashSet<>());
+        projectManager = new DefaultProjectManager(virtualFileSystemRegistry,
+                                                   eventService,
+                                                   projectTypeRegistry, handlerRegistry, "");
         MockitoAnnotations.initMocks(this);
         // Bind components
         Injector injector = Guice.createInjector(new AbstractModule() {
@@ -123,7 +136,6 @@ public class MavenProjectImportedTest {
                 bind(ProjectManager.class).toInstance(projectManager);
             }
         });
-
 
         final MemoryFileSystemProvider memoryFileSystemProvider =
                 new MemoryFileSystemProvider(workspace, eventService, new VirtualFileSystemUserContext() {
@@ -137,6 +149,32 @@ public class MavenProjectImportedTest {
 
         mavenProjectImportedHandler = injector.getInstance(MavenProjectImportedHandler.class);
         projectManager = injector.getInstance(ProjectManager.class);
+
+        HttpJsonHelper.HttpJsonHelperImpl httpJsonHelper = mock(HttpJsonHelper.HttpJsonHelperImpl.class);
+        Field f = HttpJsonHelper.class.getDeclaredField("httpJsonHelperImpl");
+        f.setAccessible(true);
+        f.set(null, httpJsonHelper);
+
+        UsersWorkspaceDto usersWorkspaceMock = mock(UsersWorkspaceDto.class);
+        when(httpJsonHelper.request(any(), anyString(), eq(GET), isNull())).thenReturn(usersWorkspaceMock);
+        final ProjectConfigDto projectConfig = DtoFactory.getInstance().createDto(ProjectConfigDto.class)
+                                                         .withPath("/test")
+                                                         .withType(MavenAttributes.MAVEN_ID);
+        final ProjectConfigDto module1 = DtoFactory.getInstance().createDto(ProjectConfigDto.class)
+                                                   .withPath("/test/module1")
+                                                   .withType(MavenAttributes.MAVEN_ID);
+        final ProjectConfigDto module2 = DtoFactory.getInstance().createDto(ProjectConfigDto.class)
+                                                   .withPath("/test/module2")
+                                                   .withType(MavenAttributes.MAVEN_ID);
+        final ProjectConfigDto module3 = DtoFactory.getInstance().createDto(ProjectConfigDto.class)
+                                                   .withPath("/test/module3")
+                                                   .withType(MavenAttributes.MAVEN_ID);
+        List<ProjectConfigDto> projectsList = new ArrayList<>();
+        projectsList.add(projectConfig);
+        projectsList.add(module1);
+        projectsList.add(module2);
+        projectsList.add(module3);
+        when(usersWorkspaceMock.getProjects()).thenReturn(projectsList);
     }
 
     @Test
@@ -149,7 +187,6 @@ public class MavenProjectImportedTest {
         assertNotNull(projectManager.getProject(workspace, "test").getConfig().getTypeId());
         Assert.assertEquals("maven", projectManager.getProject(workspace, "test").getConfig().getTypeId());
     }
-
 
     @Test
     public void withPomXmlWithFolders() throws Exception {
@@ -166,7 +203,6 @@ public class MavenProjectImportedTest {
         assertNull(projectManager.getProject(workspace, "test/folder1"));
         assertNull(projectManager.getProject(workspace, "test/folder2"));
     }
-
 
     @Test
     public void withPomXmlMultiModule() throws Exception {
@@ -194,7 +230,7 @@ public class MavenProjectImportedTest {
     public void withPomXmlMultiModuleWithNesting() throws Exception {
         //test for multi module project in which the modules are specified in format: <module>../module</module>
         FolderEntry rootProject =
-                projectManager.createProject(workspace, "rootProject", new ProjectConfig("maven", "maven"), null, null).getBaseFolder();
+                projectManager.createProject(workspace, "test", new ProjectConfig("maven", "maven"), null, null).getBaseFolder();
         rootProject.createFile("pom.xml", pom.getBytes(), "text/xml");
 
         FolderEntry module1 = rootProject.createFolder("module1");
@@ -211,10 +247,10 @@ public class MavenProjectImportedTest {
 
 
         mavenProjectImportedHandler.onProjectImported(rootProject);
-        assertNotNull(projectManager.getProject(workspace, "rootProject"));
-        assertNotNull(projectManager.getProject(workspace, "rootProject/module1"));
-        assertNotNull(projectManager.getProject(workspace, "rootProject/module2"));
-        assertNotNull(projectManager.getProject(workspace, "rootProject/module3"));
-        assertNull(projectManager.getProject(workspace, "rootProject/test/moduleNotDescribedInParentPom"));
+        assertNotNull(projectManager.getProject(workspace, "test"));
+        assertNotNull(projectManager.getProject(workspace, "test/module1"));
+        assertNotNull(projectManager.getProject(workspace, "test/module2"));
+        assertNotNull(projectManager.getProject(workspace, "test/module3"));
+        assertNull(projectManager.getProject(workspace, "test/test/moduleNotDescribedInParentPom"));
     }
 }

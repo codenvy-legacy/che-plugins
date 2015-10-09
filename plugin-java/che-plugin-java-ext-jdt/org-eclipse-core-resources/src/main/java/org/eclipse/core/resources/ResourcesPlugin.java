@@ -15,6 +15,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 
+import org.eclipse.che.api.project.server.ProjectManager;
 import org.eclipse.che.core.internal.resources.Workspace;
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.internal.utils.Messages;
@@ -190,12 +191,16 @@ public class ResourcesPlugin {
     private static Workspace workspace = null;
     private static String indexPath;
     private static String workspacePath;
+    private ProjectManager projectManager;
     private static String pluginId;
 
     @Inject
-    public ResourcesPlugin(@Named("che.jdt.workspace.index.dir") String indexPath, @Named("che.workspace.path") String workspacePath) {
+    public ResourcesPlugin(@Named("che.jdt.workspace.index.dir") String indexPath, @Named("vfs.local.fs_root_dir") String workspacePath,
+                           ProjectManager projectManager) {
         ResourcesPlugin.indexPath = indexPath;
         ResourcesPlugin.workspacePath = workspacePath;
+        this.projectManager = projectManager;
+        pluginId = "cheWsPlugin";
         EFS.setWsPath(workspacePath);
     }
 
@@ -213,7 +218,8 @@ public class ResourcesPlugin {
 
     @PostConstruct
     public void start() {
-        workspace = new Workspace(workspacePath);
+        String wsId = System.getenv("CHE_WORKSPACE_ID");
+        workspace = new Workspace(workspacePath, projectManager, wsId);
     }
 
     /**
@@ -247,13 +253,13 @@ public class ResourcesPlugin {
      * encoding.  Callers should be prepared to handle
      * <code>UnsupportedEncodingException</code> where this encoding is used.
      *
-     * @return  the encoding to use when reading text files in the workspace
+     * @return the encoding to use when reading text files in the workspace
      * @see java.io.UnsupportedEncodingException
      */
     public static String getEncoding() {
         String enc = null; // getPlugin().getPluginPreferences().getString(PREF_ENCODING);
 //        if (enc == null || enc.length() == 0) {
-            enc = System.getProperty("file.encoding"); //$NON-NLS-1$
+        enc = System.getProperty("file.encoding"); //$NON-NLS-1$
 //        }
         return enc;
     }

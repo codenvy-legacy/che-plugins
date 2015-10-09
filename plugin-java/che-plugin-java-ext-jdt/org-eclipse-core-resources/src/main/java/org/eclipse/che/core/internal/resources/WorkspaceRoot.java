@@ -11,6 +11,11 @@
 
 package org.eclipse.che.core.internal.resources;
 
+import org.eclipse.che.api.core.ConflictException;
+import org.eclipse.che.api.core.ForbiddenException;
+import org.eclipse.che.api.core.NotFoundException;
+import org.eclipse.che.api.core.ServerException;
+import org.eclipse.che.api.project.server.ProjectManager;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -18,10 +23,14 @@ import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -29,14 +38,15 @@ import java.util.concurrent.ConcurrentMap;
  * @author Evgen Vidolob
  */
 public class WorkspaceRoot extends Container implements IWorkspaceRoot {
-    public static final String PROJECT_INNER_SETTING_DIR = ".codenvy";
+    public static final  String PROJECT_INNER_SETTING_DIR = ".codenvy";
+    private static final Logger LOG                       = LoggerFactory.getLogger(WorkspaceRoot.class);
     /**
      * As an optimization, we store a table of project handles
      * that have been requested from this root.  This maps project
      * name strings to project handles.
      */
-    private final       ConcurrentMap<String, Project>
-                               projectTable              = new ConcurrentHashMap<>(16);
+    private final        ConcurrentMap<String, Project>
+                                projectTable              = new ConcurrentHashMap<>(16);
 
 
     protected WorkspaceRoot(IPath path, Workspace workspace) {
@@ -104,23 +114,28 @@ public class WorkspaceRoot extends Container implements IWorkspaceRoot {
 
     @Override
     public IProject[] getProjects() {
-
-        //TODO this is not right way to receive all projects
-        java.io.File file = new java.io.File(workspace.getAbsoluteWorkspacePath());
-        java.io.File[] files = file.listFiles();
+        ProjectManager manager = workspace.getProjectManager();
         List<IProject> projects = new ArrayList<>();
-        if(files!= null){
-
-            for (int i = 0; i < files.length; i++) {
-                java.io.File pr = files[i];
-                if(!pr.getName().startsWith(".")){
-                    if(new java.io.File(pr, PROJECT_INNER_SETTING_DIR).exists()) {
-                        projects.add(new Project(new Path("/" + pr.getName()), workspace));
-                    }
-                }
+        try {
+            List<org.eclipse.che.api.project.server.Project> rootProjects = manager.getProjects(workspace.getWsId());
+            for (org.eclipse.che.api.project.server.Project rootProject : rootProjects) {
+                projects.add(new Project(new Path(rootProject.getPath()), workspace));
+                addAllModules(projects, rootProject, manager);
             }
+        } catch (ServerException | NotFoundException | ForbiddenException | IOException | ConflictException e) {
+            LOG.error(e.getMessage(), e);
         }
+
         return projects.toArray(new IProject[projects.size()]);
+    }
+
+    private void addAllModules(List<IProject> projects, org.eclipse.che.api.project.server.Project project, ProjectManager manager)
+            throws IOException, ForbiddenException, ConflictException, NotFoundException, ServerException {
+        Set<org.eclipse.che.api.project.server.Project> modules = manager.getProjectModules(project);
+        for (org.eclipse.che.api.project.server.Project module : modules) {
+            projects.add(new Project(new Path(module.getPath()), workspace));
+            addAllModules(projects, module, manager);
+        }
     }
 
     @Override

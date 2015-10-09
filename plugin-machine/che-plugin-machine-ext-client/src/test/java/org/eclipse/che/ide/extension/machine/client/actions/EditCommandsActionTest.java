@@ -46,7 +46,7 @@ public class EditCommandsActionTest {
     public void constructorShouldBeVerified() throws Exception{
         verify(localizationConstants).editCommandsControlTitle();
         verify(localizationConstants).editCommandsControlDescription();
-        verify(resources).recipe();
+//        verify(resources).recipe(); //Temporary commented due to new icon will be provided
     }
 
     @Test

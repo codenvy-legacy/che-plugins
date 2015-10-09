@@ -11,6 +11,7 @@
 package org.eclipse.che.ide.extension.maven.server.projecttype.handler;
 
 import org.eclipse.che.api.core.notification.EventService;
+import org.eclipse.che.api.core.rest.HttpJsonHelper;
 import org.eclipse.che.api.project.server.DefaultProjectManager;
 import org.eclipse.che.api.project.server.Project;
 import org.eclipse.che.api.project.server.ProjectConfig;
@@ -27,7 +28,6 @@ import org.eclipse.che.api.vfs.server.impl.memory.MemoryFileSystemProvider;
 import org.eclipse.che.commons.lang.IoUtil;
 import org.eclipse.che.commons.lang.NameGenerator;
 import org.eclipse.che.ide.extension.maven.shared.MavenAttributes;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,11 +36,14 @@ import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
+
+import static org.mockito.Mockito.mock;
 
 
 /**
@@ -56,7 +59,6 @@ public class AddMavenModuleHandlerTest {
     private AddMavenModuleHandler addMavenModuleHandler;
     private DefaultProjectManager projectManager;
     private ProjectTypeRegistry   projectTypeRegistry;
-
 
     @Before
     public void setUp() throws Exception {
@@ -78,7 +80,6 @@ public class AddMavenModuleHandlerTest {
                 }, vfsRegistry);
         vfsRegistry.registerProvider(workspace, memoryFileSystemProvider);
 
-
         Set<ProjectType> projTypes = new HashSet<>();
         projTypes.add(mavenProjectType);
 
@@ -87,10 +88,12 @@ public class AddMavenModuleHandlerTest {
         Set<ProjectHandler> handlers = new HashSet<>();
         ProjectHandlerRegistry handlerRegistry = new ProjectHandlerRegistry(handlers);
 
-        projectManager = new DefaultProjectManager(vfsRegistry, eventService,
-                                                   projectTypeRegistry, handlerRegistry);
-    }
+        projectManager = new DefaultProjectManager(vfsRegistry, eventService, projectTypeRegistry, handlerRegistry, "");
 
+        Field f = HttpJsonHelper.class.getDeclaredField("httpJsonHelperImpl");
+        f.setAccessible(true);
+        f.set(null, mock(HttpJsonHelper.HttpJsonHelperImpl.class));
+    }
 
     @Test(expected = IllegalArgumentException.class)
     public void shouldNotAddModuleIfNotPomPackage() throws Exception {
@@ -103,7 +106,6 @@ public class AddMavenModuleHandlerTest {
                 .onCreateModule(project.getBaseFolder(), project.getPath() + "/" + module, new ProjectConfig(null, "maven"),
                                 Collections.<String, String>emptyMap());
     }
-
 
     @Test(expected = IllegalArgumentException.class)
     public void pomNotFound() throws Exception {
@@ -155,5 +157,4 @@ public class AddMavenModuleHandlerTest {
         String mavenModule = String.format("<module>%s</module>", module);
         Assert.assertTrue(pomContent.contains(mavenModule));
     }
-
 }

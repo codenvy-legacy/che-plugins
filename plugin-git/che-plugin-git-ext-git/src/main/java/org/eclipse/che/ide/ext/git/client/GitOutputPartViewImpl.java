@@ -10,12 +10,9 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.git.client;
 
-import org.eclipse.che.ide.Resources;
 import org.eclipse.che.ide.api.parts.PartStackUIResources;
 import org.eclipse.che.ide.api.parts.base.BaseView;
-import org.eclipse.che.ide.api.parts.base.ToolButton;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
+
 import com.google.gwt.safehtml.shared.SimpleHtmlSanitizer;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
@@ -26,7 +23,11 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import org.vectomatic.dom.svg.ui.SVGImage;
+import org.eclipse.che.ide.ui.button.ConsoleButton;
+import org.eclipse.che.ide.ui.button.ConsoleButtonFactory;
+import org.vectomatic.dom.svg.ui.SVGResource;
+
+import javax.validation.constraints.NotNull;
 
 
 /**
@@ -37,36 +38,50 @@ import org.vectomatic.dom.svg.ui.SVGImage;
 @Singleton
 public class GitOutputPartViewImpl extends BaseView<GitOutputPartView.ActionDelegate> implements GitOutputPartView {
 
+    private final ConsoleButtonFactory consoleButtonFactory;
+
     interface GitOutputPartViewImplUiBinder extends UiBinder<Widget, GitOutputPartViewImpl> {
     }
 
-    private static final String INFO_COLOR = "lightgreen";
+    private static final String INFO_COLOR    = "lightgreen";
     private static final String WARNING_COLOR = "cyan";
-    private static final String ERROR_COLOR = "#F62217";
+    private static final String ERROR_COLOR   = "#F62217";
 
     @UiField
-    FlowPanel                                  consoleArea;
+    FlowPanel buttons;
 
     @UiField
-    ScrollPanel                                scrollPanel;
+    FlowPanel consoleArea;
+
+    @UiField
+    ScrollPanel scrollPanel;
 
     @Inject
-    public GitOutputPartViewImpl(PartStackUIResources resources,
-                                 Resources coreResources,
-                                 GitOutputPartViewImplUiBinder uiBinder) {
+    public GitOutputPartViewImpl(GitLocalizationConstant constant,
+                                 PartStackUIResources resources,
+                                 GitOutputPartViewImplUiBinder uiBinder,
+                                 ConsoleButtonFactory consoleButtonFactory) {
         super(resources);
+        this.consoleButtonFactory = consoleButtonFactory;
         setContentWidget(uiBinder.createAndBindUi(this));
 
-        ToolButton clearButton = new ToolButton(new SVGImage(coreResources.clear()));
-        clearButton.addClickHandler(new ClickHandler() {
+        minimizeButton.ensureDebugId("console-minimizeBut");
+
+        ConsoleButton.ActionDelegate scrollBottomDelegate = new ConsoleButton.ActionDelegate() {
             @Override
-            public void onClick(ClickEvent event) {
+            public void onButtonClicked() {
+                delegate.onScrollClicked();
+            }
+        };
+        createButton(resources.arrowBottom(), constant.buttonScroll(), scrollBottomDelegate);
+
+        ConsoleButton.ActionDelegate cleanDelegate = new ConsoleButton.ActionDelegate() {
+            @Override
+            public void onButtonClicked() {
                 delegate.onClearClicked();
             }
-        });
-        clearButton.ensureDebugId("console-clear");
-        minimizeButton.ensureDebugId("console-minimizeBut");
-        toolBar.addEast(clearButton, 20);
+        };
+        createButton(resources.erase(), constant.buttonClear(), cleanDelegate);
     }
 
     /** {@inheritDoc} */
@@ -79,15 +94,15 @@ public class GitOutputPartViewImpl extends BaseView<GitOutputPartView.ActionDele
         String TEXT = text.toUpperCase();
         if (TEXT.startsWith("[INFO]")) {
             html.setHTML("<pre" + preStyle + ">[<span style='color:" + INFO_COLOR + ";'><b>INFO</b></span>] " +
-                    SimpleHtmlSanitizer.sanitizeHtml(text.substring(6)).asString() + "</pre>");
+                         SimpleHtmlSanitizer.sanitizeHtml(text.substring(6)).asString() + "</pre>");
 
         } else if (TEXT.startsWith("[ERROR]")) {
             html.setHTML("<pre" + preStyle + ">[<span style='color:" + ERROR_COLOR + ";'><b>ERROR</b></span>] " +
-                    SimpleHtmlSanitizer.sanitizeHtml(text.substring(7)).asString() + "</pre>");
+                         SimpleHtmlSanitizer.sanitizeHtml(text.substring(7)).asString() + "</pre>");
 
         } else if (TEXT.startsWith("[WARNING]")) {
             html.setHTML("<pre" + preStyle + ">[<span style='color:" + WARNING_COLOR + ";'><b>WARNING</b></span>] " +
-                    SimpleHtmlSanitizer.sanitizeHtml(text.substring(9)).asString() + "</pre>");
+                         SimpleHtmlSanitizer.sanitizeHtml(text.substring(9)).asString() + "</pre>");
 
         } else {
             html.setHTML("<pre" + preStyle + ">" + SimpleHtmlSanitizer.sanitizeHtml(text).asString() + "</pre>");
@@ -103,7 +118,7 @@ public class GitOutputPartViewImpl extends BaseView<GitOutputPartView.ActionDele
 
         HTML html = new HTML();
         html.setHTML("<pre" + preStyle + "><span style='color:" + SimpleHtmlSanitizer.sanitizeHtml(color).asString() +
-                ";'>" + SimpleHtmlSanitizer.sanitizeHtml(text).asString() + "</span></pre>");
+                     ";'>" + SimpleHtmlSanitizer.sanitizeHtml(text).asString() + "</span></pre>");
 
         html.getElement().setAttribute("style", "padding-left: 2px;");
         consoleArea.add(html);
@@ -134,6 +149,16 @@ public class GitOutputPartViewImpl extends BaseView<GitOutputPartView.ActionDele
     @Override
     public void scrollBottom() {
         scrollPanel.getElement().setScrollTop(scrollPanel.getElement().getScrollHeight());
+    }
+
+    @NotNull
+    private void createButton(@NotNull SVGResource icon,
+                              @NotNull String prompt,
+                              @NotNull ConsoleButton.ActionDelegate delegate) {
+        ConsoleButton button = consoleButtonFactory.createConsoleButton(prompt, icon);
+        button.setDelegate(delegate);
+
+        buttons.add(button);
     }
 
 }

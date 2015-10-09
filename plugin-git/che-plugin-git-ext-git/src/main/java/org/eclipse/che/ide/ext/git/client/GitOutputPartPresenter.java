@@ -157,6 +157,11 @@ public class GitOutputPartPresenter extends BasePresenter implements GitOutputPa
         clear();
     }
 
+    @Override
+    public void onScrollClicked() {
+        view.scrollBottom();
+    }
+
     /** {@inheritDoc} */
     @Override
     public void onOpen() {

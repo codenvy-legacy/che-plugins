@@ -14,8 +14,10 @@ import org.eclipse.che.api.core.ForbiddenException;
 import org.eclipse.che.api.core.NotFoundException;
 import org.eclipse.che.api.core.ServerException;
 import org.eclipse.che.api.project.server.FolderEntry;
+import org.eclipse.che.api.project.server.ProjectManager;
 import org.eclipse.che.api.project.server.handlers.GetModulesHandler;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.List;
 
@@ -26,13 +28,20 @@ import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.MAVEN_I
  */
 public class GetMavenModulesHandler implements GetModulesHandler {
 
+    private final ProjectManager projectManager;
+
+    @Inject
+    public GetMavenModulesHandler(ProjectManager projectManager) {
+        this.projectManager = projectManager;
+    }
+
     @Override
     public void onGetModules(FolderEntry parentProjectFolder, List<String> modulePaths) throws ForbiddenException, ServerException,
                                                                                                NotFoundException, IOException {
         //TODO: need add checking on module described in parent pom
         List<FolderEntry> childFolders = parentProjectFolder.getChildFolders();
         for (FolderEntry folderEntry : childFolders) {
-            if (folderEntry.isProjectFolder() && !modulePaths.contains(folderEntry.getPath())) {
+            if (projectManager.isProjectFolder(folderEntry) && !modulePaths.contains(folderEntry.getPath())) {
                 modulePaths.add(folderEntry.getPath());
             }
         }

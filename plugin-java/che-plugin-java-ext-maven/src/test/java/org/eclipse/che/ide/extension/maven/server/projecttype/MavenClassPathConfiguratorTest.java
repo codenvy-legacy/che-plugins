@@ -15,13 +15,13 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 
 import org.eclipse.che.api.core.notification.EventService;
+import org.eclipse.che.api.core.rest.HttpJsonHelper;
 import org.eclipse.che.api.project.server.DefaultProjectManager;
 import org.eclipse.che.api.project.server.FileEntry;
 import org.eclipse.che.api.project.server.Project;
 import org.eclipse.che.api.project.server.ProjectConfig;
 import org.eclipse.che.api.project.server.ProjectManager;
 import org.eclipse.che.api.project.server.VirtualFileEntry;
-import org.eclipse.che.api.project.server.handlers.ProjectHandler;
 import org.eclipse.che.api.project.server.handlers.ProjectHandlerRegistry;
 import org.eclipse.che.api.project.server.type.ProjectType;
 import org.eclipse.che.api.project.server.type.ProjectTypeRegistry;
@@ -29,16 +29,28 @@ import org.eclipse.che.api.vfs.server.VirtualFileSystemRegistry;
 import org.eclipse.che.api.vfs.server.VirtualFileSystemUser;
 import org.eclipse.che.api.vfs.server.VirtualFileSystemUserContext;
 import org.eclipse.che.api.vfs.server.impl.memory.MemoryFileSystemProvider;
+import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
+import org.eclipse.che.api.workspace.shared.dto.UsersWorkspaceDto;
+import org.eclipse.che.dto.server.DtoFactory;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import static javax.ws.rs.HttpMethod.GET;
 import static org.junit.Assert.assertNotNull;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.isNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Roman Nikitenko
@@ -91,11 +103,10 @@ public class MavenClassPathConfiguratorTest {
 
         VirtualFileSystemRegistry virtualFileSystemRegistry = new VirtualFileSystemRegistry();
         EventService eventService = new EventService();
-        ProjectHandlerRegistry handlerRegistry = new ProjectHandlerRegistry(new HashSet<ProjectHandler>());
-        projectManager =
-                new DefaultProjectManager(virtualFileSystemRegistry,
-                                          eventService,
-                                          projectTypeRegistry, handlerRegistry);
+        ProjectHandlerRegistry handlerRegistry = new ProjectHandlerRegistry(new HashSet<>());
+        projectManager = new DefaultProjectManager(virtualFileSystemRegistry,
+                                                   eventService,
+                                                   projectTypeRegistry, handlerRegistry, "");
         Injector injector = Guice.createInjector(new AbstractModule() {
             @Override
             protected void configure() {
@@ -112,6 +123,16 @@ public class MavenClassPathConfiguratorTest {
                 }, virtualFileSystemRegistry);
         virtualFileSystemRegistry.registerProvider(WORKSPACE, memoryFileSystemProvider);
         projectManager = injector.getInstance(ProjectManager.class);
+
+        HttpJsonHelper.HttpJsonHelperImpl httpJsonHelper = mock(HttpJsonHelper.HttpJsonHelperImpl.class);
+        Field f = HttpJsonHelper.class.getDeclaredField("httpJsonHelperImpl");
+        f.setAccessible(true);
+        f.set(null, httpJsonHelper);
+
+        UsersWorkspaceDto usersWorkspaceMock = mock(UsersWorkspaceDto.class);
+        when(httpJsonHelper.request(any(), anyString(), eq(GET), isNull())).thenReturn(usersWorkspaceMock);
+        final ProjectConfigDto projectConfigDto = DtoFactory.getInstance().createDto(ProjectConfigDto.class).withPath("/projectName");
+        when(usersWorkspaceMock.getProjects()).thenReturn(Collections.singletonList(projectConfigDto));
     }
 
     @Test

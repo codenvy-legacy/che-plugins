@@ -11,6 +11,15 @@
 
 package org.eclipse.che.core.internal.resources;
 
+import org.eclipse.che.api.core.ConflictException;
+import org.eclipse.che.api.core.ForbiddenException;
+import org.eclipse.che.api.core.NotFoundException;
+import org.eclipse.che.api.core.ServerException;
+import org.eclipse.che.api.project.server.FileEntry;
+import org.eclipse.che.api.project.server.FolderEntry;
+import org.eclipse.che.api.project.server.ProjectConfig;
+import org.eclipse.che.api.project.server.ProjectManager;
+import org.eclipse.che.api.project.server.VirtualFileEntry;
 import org.eclipse.che.core.internal.utils.Policy;
 import org.eclipse.core.commands.operations.IUndoContext;
 import org.eclipse.core.commands.operations.UndoContext;
@@ -54,47 +63,77 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.osgi.util.NLS;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
  * @author Evgen Vidolob
  */
 public class Workspace implements IWorkspace {
-    public static final boolean caseSensitive = new java.io.File("a").compareTo(new java.io.File("A")) != 0; //$NON-NLS-1$ //$NON-NLS-2$
+    public static final  boolean        caseSensitive = new java.io.File("a").compareTo(new java.io.File("A")) != 0;
+    //$NON-NLS-1$ //$NON-NLS-2$
+    private static final Logger         LOG           = LoggerFactory.getLogger(Workspace.class);
+    protected final      IWorkspaceRoot defaultRoot   = new WorkspaceRoot(Path.ROOT, this);
+    private final FolderEntry projectsRoot;
     /**
      * Work manager should never be accessed directly because accessor
      * asserts that workspace is still open.
      */
-    protected WorkManager _workManager;
-    protected final IWorkspaceRoot defaultRoot = new WorkspaceRoot(Path.ROOT, this);
+    protected     WorkManager _workManager;
+    /**
+     * The currently installed team hook.
+     */
+    protected TeamHook teamHook = null;
     private String               wsPath;
+    private ProjectManager       projectManager;
+    private String               wsId;
     /**
      * Scheduling rule factory. This field is null if the factory has not been used
      * yet.  The accessor method should be used rather than accessing this field
      * directly.
      */
     private IResourceRuleFactory ruleFactory;
-
     private IUndoContext undoContext = new UndoContext();
 
-    /**
-     * The currently installed team hook.
-     */
-    protected TeamHook teamHook = null;
-
-    public Workspace(String path) {
+    public Workspace(String path, ProjectManager projectManager, String wsId) {
         this.wsPath = path;
+        this.projectManager = projectManager;
+        try {
+            projectsRoot = projectManager.getProjectsRoot(wsId);
+        } catch (ServerException | NotFoundException e) {
+            throw new IllegalStateException(e);
+        }
+        this.wsId = wsId;
         _workManager = new WorkManager(this);
         _workManager.startup(null);
         _workManager.postWorkspaceStartup();
+    }
+
+    public static WorkspaceDescription defaultWorkspaceDescription() {
+        return new WorkspaceDescription("Workspace"); //$NON-NLS-1$
+    }
+
+    private static boolean deleteDirectory(java.io.File directory) {
+        if (directory.exists()) {
+            java.io.File[] files = directory.listFiles();
+            if (null != files) {
+                for (int i = 0; i < files.length; i++) {
+                    if (files[i].isDirectory()) {
+                        deleteDirectory(files[i]);
+                    } else {
+                        files[i].delete();
+                    }
+                }
+            }
+        }
+        return (directory.delete());
     }
 
     public String getAbsoluteWorkspacePath() {
@@ -209,7 +248,7 @@ public class Workspace implements IWorkspace {
                 beginOperation(true);
                 for (int i = 0; i < resources.length; i++) {
                     Policy.checkCanceled(monitor);
-                    Resource resource = (Resource) resources[i];
+                    Resource resource = (Resource)resources[i];
                     if (resource == null) {
                         monitor.worked(1);
                         continue;
@@ -221,7 +260,8 @@ public class Workspace implements IWorkspace {
                         ResourceInfo info = resource.getResourceInfo(false, false);
                         if (resource.exists(resource.getFlags(info), false)) {
                             message = NLS.bind(Messages.resources_couldnotDelete, resource.getFullPath());
-                            result.merge(new org.eclipse.core.internal.resources.ResourceStatus(IResourceStatus.FAILED_DELETE_LOCAL, resource.getFullPath(), message));
+                            result.merge(new org.eclipse.core.internal.resources.ResourceStatus(IResourceStatus.FAILED_DELETE_LOCAL,
+                                                                                                resource.getFullPath(), message));
                             result.merge(e.getStatus());
                         }
                     }
@@ -282,9 +322,11 @@ public class Workspace implements IWorkspace {
         return workingCopy;
     }
 
-    public static WorkspaceDescription defaultWorkspaceDescription() {
-        return new WorkspaceDescription("Workspace"); //$NON-NLS-1$
+    @Override
+    public void setDescription(IWorkspaceDescription iWorkspaceDescription) throws CoreException {
+        throw new UnsupportedOperationException();
     }
+
     @Override
     public IWorkspaceRoot getRoot() {
         return defaultRoot;
@@ -500,7 +542,6 @@ public class Workspace implements IWorkspace {
 //            buildManager.endTopLevel(hasTreeChanges);
     }
 
-
     @Override
     public void run(IWorkspaceRunnable action, IProgressMonitor monitor) throws CoreException {
         run(action, defaultRoot, IWorkspace.AVOID_UPDATE, monitor);
@@ -508,11 +549,6 @@ public class Workspace implements IWorkspace {
 
     @Override
     public IStatus save(boolean b, IProgressMonitor iProgressMonitor) throws CoreException {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void setDescription(IWorkspaceDescription iWorkspaceDescription) throws CoreException {
         throw new UnsupportedOperationException();
     }
 
@@ -672,7 +708,7 @@ public class Workspace implements IWorkspace {
 
     @Override
     public Object getAdapter(Class aClass) {
-        if(aClass == IUndoContext.class){
+        if (aClass == IUndoContext.class) {
             return undoContext;
         }
         throw new UnsupportedOperationException();
@@ -683,21 +719,31 @@ public class Workspace implements IWorkspace {
     }
 
     public ResourceInfo getResourceInfo(IPath path) {
-        java.io.File file = getFile(path);
-        if (file.exists()) {
-            return newElement(getType(file));
+        try {
+            VirtualFileEntry child = projectsRoot.getChild(path.toOSString());
+            if (child != null) {
+                return newElement(getType(child));
+            }
+            return null;
+
+        } catch (ForbiddenException | ServerException e) {
+            LOG.error(e.getMessage(), e);
+            return null;
         }
-        return null;
     }
 
-    private int getType(java.io.File file) {
+    private int getType(VirtualFileEntry file) {
         if (file.isFile()) {
             return IResource.FILE;
         } else {
-            java.io.File codenvy = new java.io.File(file, ".codenvy");
-            if (codenvy.exists()) {
-                return IResource.PROJECT;
-            } else {
+            try {
+                if (projectManager.isProjectFolder((FolderEntry)file)) {
+                    return IResource.PROJECT;
+                } else {
+                    return IResource.FOLDER;
+                }
+            } catch (ServerException e) {
+                LOG.error(e.getMessage(), e);
                 return IResource.FOLDER;
             }
         }
@@ -725,65 +771,67 @@ public class Workspace implements IWorkspace {
     }
 
     public IResource[] getChildren(IPath path) {
-        java.io.File file = getFile(path);
-        if (file.exists() && file.isDirectory()) {
-            java.io.File[] list = file.listFiles();
-            if (list != null) {
-                IResource[] resources = new IResource[list.length];
-                for (int i = 0; i < list.length; i++) {
 
-                    java.io.File child = list[i];
-                    IPath iPath = new Path(child.getPath().substring(wsPath.length()));
-                    resources[i] = newResource(iPath, getType(child));
+        try {
+            VirtualFileEntry parent = projectsRoot.getChild(path.toOSString());
+            if (parent != null && parent.isFolder()) {
+                FolderEntry folder = (FolderEntry)parent;
+                List<VirtualFileEntry> children = folder.getChildren();
+                if (!children.isEmpty()) {
+                    IResource[] resources = new IResource[children.size()];
+                    for (int i = 0; i < children.size(); i++) {
+                        VirtualFileEntry child = children.get(i);
+                        IPath iPath = new Path(child.getPath());
+                        resources[i] = newResource(iPath, getType(child));
+                    }
+                    resources = Arrays.stream(resources).sorted((o1, o2) -> o1.getName().compareToIgnoreCase(o2.getName())).toArray(
+                            IResource[]::new);
+                    return resources;
                 }
-                resources = Arrays.stream(resources).sorted((o1, o2) -> o1.getName().compareToIgnoreCase(o2.getName())).toArray(IResource[]::new);
-                return resources;
             }
+        } catch (ForbiddenException | ServerException e) {
+            LOG.error(e.getMessage(), e);
         }
-
         return ICoreConstants.EMPTY_RESOURCE_ARRAY;
     }
 
-//    public java.io.File getWorkspaceFile() {
-//        return workspaceFile;
-//    }
-
     public void createResource(IResource resource, int updateFlags) throws CoreException {
-        switch (resource.getType()) {
-            case IResource.FILE:
-                java.io.File file = new java.io.File(wsPath, resource.getFullPath().toOSString());
-                try {
-                    file.createNewFile();
-                } catch (IOException e) {
-                    throw new CoreException(new Status(0, ResourcesPlugin.getPluginId(), e.getMessage(), e));
-                }
-            case IResource.FOLDER:
-                java.io.File folder = new java.io.File(wsPath, resource.getFullPath().toOSString());
-                folder.mkdirs();
-                break;
-            case IResource.PROJECT:
-                java.io.File project = new java.io.File(wsPath, resource.getFullPath().toOSString());
-                project.mkdirs();
-                java.io.File codenvy = new java.io.File(project, ".codenvy");
-                codenvy.mkdir();
-                break;
-            default:
-                throw new UnsupportedOperationException();
+        try {
+            IPath path = resource.getFullPath();
+            switch (resource.getType()) {
+                case IResource.FILE:
+                    String newName = path.lastSegment();
+                    VirtualFileEntry child = projectsRoot.getChild(path.removeLastSegments(1).toOSString());
+                    FolderEntry entry = (FolderEntry)child;
+                    entry.createFile(newName, new byte[0], null);
+                    break;
+                case IResource.FOLDER:
+                    projectsRoot.createFolder(path.toOSString());
+                    break;
+                case IResource.PROJECT:
+                    projectManager.createProject(wsId, resource.getName(), new ProjectConfig(), new HashMap<>(), "public");
+                    break;
+                default:
+                    throw new UnsupportedOperationException();
+            }
+        } catch (ForbiddenException | ConflictException | ServerException | NotFoundException e) {
+            throw new CoreException(new Status(0, ResourcesPlugin.getPluginId(), e.getMessage(), e));
         }
-
 
     }
 
     public void setFileContent(File file, InputStream content) {
-        java.io.File ioFile = getFile(file.getFullPath());
-        try (FileOutputStream outputStream = new FileOutputStream(ioFile)) {
-            FileUtil.transferStreams(content, outputStream, file.getFullPath().toOSString(), null);
-        } catch (IOException | CoreException e) {
+        try {
+            VirtualFileEntry child = projectsRoot.getChild(file.getFullPath().toOSString());
+            if (child.isFile()) {
+                FileEntry f = (FileEntry)child;
+                f.updateContent(content);
+            }
+
+        } catch (ForbiddenException | ServerException e) {
             ResourcesPlugin.log(e);
         }
-
     }
-
 
     public TeamHook getTeamHook() {
         // default to use Core's implementation
@@ -796,63 +844,54 @@ public class Workspace implements IWorkspace {
     }
 
     public void delete(Resource resource) {
-        java.io.File file = getFile(resource.getFullPath());
-        if (file.exists()) {
-            if (file.isFile()) {
-                file.delete();
-            } else {
-                deleteDirectory(file);
-            }
-
-        }
-    }
-
-    private static boolean deleteDirectory(java.io.File directory) {
-        if (directory.exists()) {
-            java.io.File[] files = directory.listFiles();
-            if (null != files) {
-                for (int i = 0; i < files.length; i++) {
-                    if (files[i].isDirectory()) {
-                        deleteDirectory(files[i]);
-                    } else {
-                        files[i].delete();
-                    }
-                }
-            }
-        }
-        return (directory.delete());
-    }
-
-    void write(File file, InputStream content, int updateFlags, boolean append, IProgressMonitor monitor) throws CoreException{
         try {
-            java.io.File ioFile = getFile(file.getFullPath());
-            if (!ioFile.exists()) {
-                ioFile.createNewFile();
+            projectManager.delete(wsId, resource.getFullPath().toOSString(), null);
+        } catch (ServerException | ForbiddenException | ConflictException | NotFoundException e) {
+            LOG.error(e.getMessage(), e);
+        }
+    }
+
+    void write(File file, InputStream content, int updateFlags, boolean append, IProgressMonitor monitor) throws CoreException {
+        try {
+            VirtualFileEntry child = projectsRoot.getChild(file.getFullPath().toOSString());
+            if (child == null) {
+                projectsRoot.createFile(file.getFullPath().toOSString(), content, null);
+            } else {
+                FileEntry fileEntry = (FileEntry)child;
+                fileEntry.updateContent(content);
             }
-            FileOutputStream outputStream = new FileOutputStream(ioFile);
-            FileUtil.transferStreams(content, outputStream, file.getFullPath().toOSString(), monitor);
-        } catch (IOException e) {
+        } catch (ForbiddenException | ConflictException | ServerException e) {
             throw new CoreException(new Status(0, "", e.getMessage(), e));
         }
     }
 
-    public void standardMoveFile(IFile file, IFile destination, int updateFlags, IProgressMonitor monitor) throws CoreException{
-        java.io.File ioFile = getFile(file.getFullPath());
-        java.io.File ioDestination = getFile(destination.getFullPath());
+    public void standardMoveFile(IFile file, IFile destination, int updateFlags, IProgressMonitor monitor) throws CoreException {
+        VirtualFileEntry child = null;
         try {
-            Files.move(ioFile.toPath(), ioDestination.toPath());
-        } catch (IOException e) {
-           throw new CoreException(new Status(IStatus.ERROR, "", "Can't move file: " + file.getFullPath() + " to: " + destination.getFullPath(), e));
+            child = projectsRoot.getChild(file.getFullPath().toOSString());
+            if (destination.getName().equals(file.getName())) {
+                child.moveTo(destination.getFullPath().removeLastSegments(1).toOSString());
+            } else {
+                child.moveTo(destination.getFullPath().removeLastSegments(1).toOSString(), destination.getName(), true);
+            }
+        } catch (ForbiddenException | ServerException | NotFoundException | ConflictException e) {
+            throw new CoreException(
+                    new Status(IStatus.ERROR, "", "Can't move file: " + file.getFullPath() + " to: " + destination.getFullPath(), e));
         }
     }
 
     public void standardMoveFolder(IFolder folder, IFolder destination, int updateFlags, IProgressMonitor monitor) throws CoreException {
-        java.io.File ioFile = getFile(folder.getFullPath());
-        java.io.File ioDestination = getFile(destination.getFullPath());
+        VirtualFileEntry child = null;
         try {
-            Files.move(ioFile.toPath(), ioDestination.toPath(), StandardCopyOption.ATOMIC_MOVE);
-        } catch (IOException e) {
-            throw new CoreException(new Status(IStatus.ERROR, "", "Can't move folder: " + folder.getFullPath() + " to: " + destination.getFullPath(), e));
+            child = projectsRoot.getChild(folder.getFullPath().toOSString());
+            if (destination.getName().equals(folder.getName())) {
+                child.moveTo(destination.getFullPath().removeLastSegments(1).toOSString());
+            } else {
+                child.moveTo(destination.getFullPath().removeLastSegments(1).toOSString(), destination.getName(), true);
+            }
+        } catch (ForbiddenException | NotFoundException | ServerException | ConflictException e) {
+            throw new CoreException(
+                    new Status(IStatus.ERROR, "", "Can't move folder: " + folder.getFullPath() + " to: " + destination.getFullPath(), e));
         }
     }
 
@@ -862,5 +901,16 @@ public class Workspace implements IWorkspace {
 
     public void addLifecycleListener(org.eclipse.core.internal.resources.Rules rules) {
 
+    }
+
+
+    /** Returns project manager associated with this workspace */
+    public ProjectManager getProjectManager() {
+        return projectManager;
+    }
+
+    /** Returns workspace id of this workspace */
+    public String getWsId() {
+        return wsId;
     }
 }

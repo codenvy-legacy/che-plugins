@@ -22,13 +22,13 @@ import org.eclipse.che.api.project.server.ValueProviderFactory;
 import org.eclipse.che.api.project.server.ValueStorageException;
 import org.eclipse.che.api.project.server.VirtualFileEntry;
 import org.eclipse.che.api.vfs.server.VirtualFile;
+import org.eclipse.che.commons.annotation.Nullable;
 import org.eclipse.che.commons.xml.XMLTreeException;
 import org.eclipse.che.ide.extension.maven.shared.MavenAttributes;
 import org.eclipse.che.ide.maven.tools.Build;
 import org.eclipse.che.ide.maven.tools.Model;
 import org.eclipse.che.ide.maven.tools.Resource;
 
-import org.eclipse.che.commons.annotation.Nullable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,8 +38,6 @@ import java.util.List;
  * @author Evgen Vidolob
  */
 public class MavenValueProviderFactory implements ValueProviderFactory {
-
-    private final String xmlHead = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
 
     protected Model readModel(FolderEntry projectFolder) throws ValueStorageException, ServerException, ForbiddenException, IOException {
         FileEntry pomFile = (FileEntry)projectFolder.getChild("pom.xml");
