@@ -26,6 +26,7 @@ import org.eclipse.che.api.machine.server.exception.SnapshotException;
 import org.eclipse.che.api.machine.server.spi.Instance;
 import org.eclipse.che.api.machine.server.spi.InstanceKey;
 import org.eclipse.che.api.machine.server.spi.InstanceProvider;
+import org.eclipse.che.commons.annotation.Nullable;
 import org.eclipse.che.commons.env.EnvironmentContext;
 import org.eclipse.che.commons.lang.IoUtil;
 import org.eclipse.che.commons.lang.NameGenerator;
@@ -53,7 +54,6 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -91,6 +91,7 @@ public class DockerInstanceProvider implements InstanceProvider {
     private final Set<String>                      systemVolumesForMachine;
     private final String[]                         devMachineEnvVariables;
     private final String[]                         commonEnvVariables;
+    private final String[]                         machineExtraHosts;
 
     @Inject
     public DockerInstanceProvider(DockerConnector docker,
@@ -100,6 +101,7 @@ public class DockerInstanceProvider implements InstanceProvider {
                                   @Named("machine.docker.machine_servers") Set<ServerConf> allMachineServers,
                                   @Named("machine.docker.dev_machine.machine_volumes") Set<String> systemVolumesForDevMachine,
                                   @Named("machine.docker.machine_volumes") Set<String> allMachinesSystemVolumes,
+                                  @Nullable @Named("machine.docker.machine_extra_hosts") String[] machineExtraHosts,
                                   @Named("machine.docker.che_api.endpoint") String apiEndpoint)
             throws IOException {
 
@@ -137,6 +139,7 @@ public class DockerInstanceProvider implements InstanceProvider {
         commonEnvVariables = new String[0];
         devMachineEnvVariables = new String[] {API_ENDPOINT_URL_VARIABLE + '=' + apiEndpoint,
                                                DockerInstanceMetadata.PROJECTS_ROOT_VARIABLE + '=' + PROJECTS_FOLDER_PATH};
+        this.machineExtraHosts = machineExtraHosts == null ? null : Arrays.copyOf(machineExtraHosts, machineExtraHosts.length);
     }
 
 
@@ -403,6 +406,7 @@ public class DockerInstanceProvider implements InstanceProvider {
             HostConfig hostConfig = new HostConfig().withPublishAllPorts(true)
                                                     .withBinds(volumes.toArray(new String[volumes.size()]))
                                                     .withMemory((long)memorySizeMB * 1024 * 1024)
+                                                    .withExtraHosts(machineExtraHosts)
                                                     .withMemorySwap(-1);
 
             docker.startContainer(containerId, hostConfig);

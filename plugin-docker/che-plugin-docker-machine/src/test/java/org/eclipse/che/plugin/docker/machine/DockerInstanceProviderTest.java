@@ -84,6 +84,7 @@ public class DockerInstanceProviderTest {
                                                             Collections.<ServerConf>emptySet(),
                                                             Collections.<String>emptySet(),
                                                             Collections.<String>emptySet(),
+                                                            null,
                                                             API_ENDPOINT_VALUE);
 
         EnvironmentContext envCont = new EnvironmentContext();
@@ -409,6 +410,7 @@ public class DockerInstanceProviderTest {
                                                             commonServers,
                                                             Collections.<String>emptySet(),
                                                             Collections.<String>emptySet(),
+                                                            null,
                                                             API_ENDPOINT_VALUE);
 
         final boolean isDev = true;
@@ -442,6 +444,7 @@ public class DockerInstanceProviderTest {
                                                             commonServers,
                                                             Collections.<String>emptySet(),
                                                             Collections.<String>emptySet(),
+                                                            null,
                                                             API_ENDPOINT_VALUE);
 
         final boolean isDev = false;
@@ -479,6 +482,7 @@ public class DockerInstanceProviderTest {
                                                             commonServers,
                                                             Collections.<String>emptySet(),
                                                             Collections.<String>emptySet(),
+                                                            null,
                                                             API_ENDPOINT_VALUE);
 
         final boolean isDev = true;
@@ -512,6 +516,7 @@ public class DockerInstanceProviderTest {
                                                             commonServers,
                                                             Collections.<String>emptySet(),
                                                             Collections.<String>emptySet(),
+                                                            null,
                                                             API_ENDPOINT_VALUE);
 
         final boolean isDev = false;
@@ -547,6 +552,7 @@ public class DockerInstanceProviderTest {
                                                             commonServers,
                                                             Collections.<String>emptySet(),
                                                             Collections.<String>emptySet(),
+                                                            null,
                                                             API_ENDPOINT_VALUE);
 
         final boolean isDev = true;
@@ -577,6 +583,7 @@ public class DockerInstanceProviderTest {
                                                             commonServers,
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
+                                                            null,
                                                             API_ENDPOINT_VALUE);
 
         final boolean isDev = false;
@@ -613,6 +620,7 @@ public class DockerInstanceProviderTest {
                                                             commonServers,
                                                             Collections.<String>emptySet(),
                                                             Collections.<String>emptySet(),
+                                                            null,
                                                             API_ENDPOINT_VALUE);
 
         final boolean isDev = true;
@@ -643,6 +651,7 @@ public class DockerInstanceProviderTest {
                                                             commonServers,
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
+                                                            null,
                                                             API_ENDPOINT_VALUE);
 
         final boolean isDev = false;
@@ -669,6 +678,7 @@ public class DockerInstanceProviderTest {
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
+                                                            null,
                                                             API_ENDPOINT_VALUE);
 
         when(dockerNode.getProjectsFolder()).thenReturn(expectedHostPathOfProjects);
@@ -697,6 +707,7 @@ public class DockerInstanceProviderTest {
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
+                                                            null,
                                                             API_ENDPOINT_VALUE);
 
         when(dockerNode.getProjectsFolder()).thenReturn(expectedHostPathOfProjects);
@@ -724,6 +735,7 @@ public class DockerInstanceProviderTest {
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
+                                                            null,
                                                             API_ENDPOINT_VALUE);
 
         when(dockerNode.getProjectsFolder()).thenReturn("/tmp/projects");
@@ -751,6 +763,7 @@ public class DockerInstanceProviderTest {
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
+                                                            null,
                                                             API_ENDPOINT_VALUE);
 
         when(dockerNode.getProjectsFolder()).thenReturn("/tmp/projects");
@@ -785,6 +798,7 @@ public class DockerInstanceProviderTest {
                                                             Collections.emptySet(),
                                                             devVolumes,
                                                             commonVolumes,
+                                                            null,
                                                             API_ENDPOINT_VALUE);
 
         when(dockerNode.getProjectsFolder()).thenReturn(expectedHostPathOfProjects);
@@ -821,6 +835,7 @@ public class DockerInstanceProviderTest {
                                                             Collections.emptySet(),
                                                             devVolumes,
                                                             commonVolumes,
+                                                            null,
                                                             API_ENDPOINT_VALUE);
 
         when(dockerNode.getProjectsFolder()).thenReturn(expectedHostPathOfProjects);
@@ -855,6 +870,7 @@ public class DockerInstanceProviderTest {
                                                             Collections.emptySet(),
                                                             devVolumes,
                                                             commonVolumes,
+                                                            null,
                                                             API_ENDPOINT_VALUE);
 
         when(dockerNode.getProjectsFolder()).thenReturn(expectedHostPathOfProjects);
@@ -873,6 +889,151 @@ public class DockerInstanceProviderTest {
         assertEquals(new HashSet<>(asList(actualBinds)), new HashSet<>(expectedVolumes));
     }
 
+
+    @Test
+    public void shouldAddExtraHostOnDevInstanceCreationFromRecipe() throws Exception {
+        //given
+        final String expectedHostPathOfProjects = "/tmp/projects";
+        Set<String> devVolumes = new HashSet<>(asList("/etc:/tmp/etc:ro", "/some/thing:/home/some/thing"));
+        Set<String> commonVolumes = new HashSet<>(asList("/some/thing/else:/home/some/thing/else", "/other/path:/home/other/path"));
+
+        final ArrayList<String> expectedVolumes = new ArrayList<>();
+        expectedVolumes.addAll(commonVolumes);
+
+        dockerInstanceProvider = new DockerInstanceProvider(dockerConnector,
+                                                            dockerMachineFactory,
+                                                            dockerInstanceStopDetector,
+                                                            Collections.emptySet(),
+                                                            Collections.emptySet(),
+                                                            devVolumes,
+                                                            commonVolumes,
+                                                            new String[]{"dev.box.com:192.168.0.1"},
+                                                            API_ENDPOINT_VALUE);
+
+        when(dockerNode.getProjectsFolder()).thenReturn(expectedHostPathOfProjects);
+
+        final boolean isDev = true;
+
+        //when
+        createInstanceFromRecipe(isDev);
+
+        //then
+        ArgumentCaptor<HostConfig> argumentCaptor = ArgumentCaptor.forClass(HostConfig.class);
+        verify(dockerConnector).startContainer(anyString(), argumentCaptor.capture());
+
+        final String[] extraHosts = argumentCaptor.getValue().getExtraHosts();
+        assertEquals(extraHosts.length, 1);
+        assertEquals(extraHosts[0], "dev.box.com:192.168.0.1");
+    }
+
+    @Test
+    public void shouldAddExtraHostOnDevInstanceCreationFromSnapshot() throws Exception {
+        //given
+        final String expectedHostPathOfProjects = "/tmp/projects";
+        Set<String> devVolumes = new HashSet<>(asList("/etc:/tmp/etc:ro", "/some/thing:/home/some/thing"));
+        Set<String> commonVolumes = new HashSet<>(asList("/some/thing/else:/home/some/thing/else", "/other/path:/home/other/path"));
+
+        final ArrayList<String> expectedVolumes = new ArrayList<>();
+        expectedVolumes.addAll(commonVolumes);
+
+        dockerInstanceProvider = new DockerInstanceProvider(dockerConnector,
+                                                            dockerMachineFactory,
+                                                            dockerInstanceStopDetector,
+                                                            Collections.emptySet(),
+                                                            Collections.emptySet(),
+                                                            devVolumes,
+                                                            commonVolumes,
+                                                            new String[]{"dev.box.com:192.168.0.1", "codenvy.com.com:185"},
+                                                            API_ENDPOINT_VALUE);
+
+        when(dockerNode.getProjectsFolder()).thenReturn(expectedHostPathOfProjects);
+        final boolean isDev = true;
+
+        //when
+        createInstanceFromSnapshot(isDev);
+        //then
+
+        ArgumentCaptor<HostConfig> argumentCaptor = ArgumentCaptor.forClass(HostConfig.class);
+        verify(dockerConnector).startContainer(anyString(), argumentCaptor.capture());
+
+        final String[] extraHosts = argumentCaptor.getValue().getExtraHosts();
+        assertEquals(extraHosts.length, 2);
+        assertEquals(extraHosts[0], "dev.box.com:192.168.0.1");
+        assertEquals(extraHosts[1], "codenvy.com.com:185");
+    }
+
+    @Test
+    public void shouldAddExtraHostOnNonDevInstanceCreationFromRecipe() throws Exception {
+        //given
+        final String expectedHostPathOfProjects = "/tmp/projects";
+        Set<String> devVolumes = new HashSet<>(asList("/etc:/tmp/etc:ro", "/some/thing:/home/some/thing"));
+        Set<String> commonVolumes = new HashSet<>(asList("/some/thing/else:/home/some/thing/else", "/other/path:/home/other/path"));
+
+        final ArrayList<String> expectedVolumes = new ArrayList<>();
+        expectedVolumes.addAll(commonVolumes);
+
+        dockerInstanceProvider = new DockerInstanceProvider(dockerConnector,
+                                                            dockerMachineFactory,
+                                                            dockerInstanceStopDetector,
+                                                            Collections.emptySet(),
+                                                            Collections.emptySet(),
+                                                            devVolumes,
+                                                            commonVolumes,
+                                                            new String[]{"dev.box.com:192.168.0.1"},
+                                                            API_ENDPOINT_VALUE);
+
+        when(dockerNode.getProjectsFolder()).thenReturn(expectedHostPathOfProjects);
+
+        final boolean isDev = false;
+
+        //when
+        createInstanceFromRecipe(isDev);
+
+        //then
+        ArgumentCaptor<HostConfig> argumentCaptor = ArgumentCaptor.forClass(HostConfig.class);
+        verify(dockerConnector).startContainer(anyString(), argumentCaptor.capture());
+
+        final String[] extraHosts = argumentCaptor.getValue().getExtraHosts();
+        assertEquals(extraHosts.length, 1);
+        assertEquals(extraHosts[0], "dev.box.com:192.168.0.1");
+    }
+
+    @Test
+    public void shouldAddExtraHostOnNonDevInstanceCreationFromSnapshot() throws Exception {
+        //given
+        final String expectedHostPathOfProjects = "/tmp/projects";
+        Set<String> devVolumes = new HashSet<>(asList("/etc:/tmp/etc:ro", "/some/thing:/home/some/thing"));
+        Set<String> commonVolumes = new HashSet<>(asList("/some/thing/else:/home/some/thing/else", "/other/path:/home/other/path"));
+
+        final ArrayList<String> expectedVolumes = new ArrayList<>();
+        expectedVolumes.addAll(commonVolumes);
+
+        dockerInstanceProvider = new DockerInstanceProvider(dockerConnector,
+                                                            dockerMachineFactory,
+                                                            dockerInstanceStopDetector,
+                                                            Collections.emptySet(),
+                                                            Collections.emptySet(),
+                                                            devVolumes,
+                                                            commonVolumes,
+                                                            new String[]{"dev.box.com:192.168.0.1", "codenvy.com.com:185"},
+                                                            API_ENDPOINT_VALUE);
+
+        when(dockerNode.getProjectsFolder()).thenReturn(expectedHostPathOfProjects);
+        final boolean isDev = false;
+
+        //when
+        createInstanceFromSnapshot(isDev);
+        //then
+
+        ArgumentCaptor<HostConfig> argumentCaptor = ArgumentCaptor.forClass(HostConfig.class);
+        verify(dockerConnector).startContainer(anyString(), argumentCaptor.capture());
+
+        final String[] extraHosts = argumentCaptor.getValue().getExtraHosts();
+        assertEquals(extraHosts.length, 2);
+        assertEquals(extraHosts[0], "dev.box.com:192.168.0.1");
+        assertEquals(extraHosts[1], "codenvy.com.com:185");
+    }
+
     @Test
     public void shouldBindCommonVolumesOnlyToContainerOnNonDevInstanceCreationFromSnapshot() throws Exception {
         final String expectedHostPathOfProjects = "/tmp/projects";
@@ -889,6 +1050,7 @@ public class DockerInstanceProviderTest {
                                                             Collections.emptySet(),
                                                             devVolumes,
                                                             commonVolumes,
+                                                            null,
                                                             API_ENDPOINT_VALUE);
 
         when(dockerNode.getProjectsFolder()).thenReturn(expectedHostPathOfProjects);

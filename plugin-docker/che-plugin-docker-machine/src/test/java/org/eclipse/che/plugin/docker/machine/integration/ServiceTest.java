@@ -161,6 +161,7 @@ public class ServiceTest {
                                                                              Collections.emptySet(),
                                                                              Collections.emptySet(),
                                                                              Collections.emptySet(),
+                                                                             null,
                                                                              "fake");
 
         machineManager = new MachineManager(snapshotDao,
