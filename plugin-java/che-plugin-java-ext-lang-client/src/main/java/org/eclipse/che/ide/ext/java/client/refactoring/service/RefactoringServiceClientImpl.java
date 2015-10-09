@@ -29,7 +29,9 @@ import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringPreview;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringSession;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatus;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RenameRefactoringSession;
+import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RenameSettings;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ReorgDestination;
+import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ValidateNewName;
 import org.eclipse.che.ide.rest.AsyncRequestFactory;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.rest.StringUnmarshaller;
@@ -223,6 +225,40 @@ final class RefactoringServiceClientImpl implements RefactoringServiceClient {
                                    .header(ACCEPT, APPLICATION_JSON)
                                    .header(CONTENT_TYPE, APPLICATION_JSON)
                                    .send(newCallback(callback, unmarshallerFactory.newUnmarshaller(ChangePreview.class)));
+            }
+        });
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public Promise<RefactoringStatus> validateNewName(final ValidateNewName newName) {
+        final String url = pathToService + "rename/validate/name";
+
+        return newPromise(new AsyncPromiseHelper.RequestCall<RefactoringStatus>() {
+            @Override
+            public void makeCall(AsyncCallback<RefactoringStatus> callback) {
+
+                asyncRequestFactory.createPostRequest(url, newName)
+                                   .header(ACCEPT, APPLICATION_JSON)
+                                   .header(CONTENT_TYPE, APPLICATION_JSON)
+                                   .send(newCallback(callback, unmarshallerFactory.newUnmarshaller(RefactoringStatus.class)));
+            }
+        });
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public Promise<Void> setRenameSettings(final RenameSettings settings) {
+        final String url = pathToService + "set/rename/settings";
+
+        return newPromise(new AsyncPromiseHelper.RequestCall<Void>() {
+            @Override
+            public void makeCall(AsyncCallback<Void> callback) {
+
+                asyncRequestFactory.createPostRequest(url, settings)
+                                   .header(ACCEPT, APPLICATION_JSON)
+                                   .header(CONTENT_TYPE, APPLICATION_JSON)
+                                   .send(newCallback(callback));
             }
         });
     }

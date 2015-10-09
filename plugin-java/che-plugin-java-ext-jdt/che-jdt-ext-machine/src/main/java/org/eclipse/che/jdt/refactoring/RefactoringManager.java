@@ -38,6 +38,7 @@ import org.eclipse.che.jdt.refactoring.session.RefactoringSession;
 import org.eclipse.che.jdt.refactoring.session.RenameLinkedModeRefactoringSession;
 import org.eclipse.che.jdt.refactoring.session.RenameSession;
 import org.eclipse.che.jdt.refactoring.session.ReorgRefactoringSession;
+import org.eclipse.che.jdt.util.JdtFlags;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.AssertionFailedException;
 import org.eclipse.core.runtime.CoreException;
@@ -47,6 +48,7 @@ import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.ILocalVariable;
+import org.eclipse.jdt.core.IMember;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IType;
@@ -268,6 +270,7 @@ public class RefactoringManager {
         RenameRefactoringSession session = DtoFactory.newDto(RenameRefactoringSession.class);
         String uuid = UUID.uuid();
         session.setSessionId(uuid);
+        session.setOldName(element.getElementName());
         session.setWizardType(getWizardType(element));
         if (lightweight && !(element instanceof IPackageFragment)) {
             RenameLinkedModeRefactoringSession refactoringSession =
@@ -311,6 +314,9 @@ public class RefactoringManager {
                 else
                     return RenameWizard.METHOD;
             case IJavaElement.FIELD:
+                if(JdtFlags.isEnum((IMember)element)){
+                    return RenameWizard.ENUM_CONSTANT;
+                }
                 return RenameWizard.FIELD;
             case IJavaElement.TYPE_PARAMETER:
                 return RenameWizard.TYPE_PARAMETER;

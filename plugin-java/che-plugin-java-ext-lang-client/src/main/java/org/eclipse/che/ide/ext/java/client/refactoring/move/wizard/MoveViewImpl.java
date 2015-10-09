@@ -37,7 +37,7 @@ import org.eclipse.che.ide.ext.java.client.JavaLocalizationConstant;
 import org.eclipse.che.ide.ext.java.client.JavaResources;
 import org.eclipse.che.ide.ext.java.client.refactoring.RefactorInfo;
 import org.eclipse.che.ide.ext.java.client.refactoring.move.MoveType;
-import org.eclipse.che.ide.ext.java.client.refactoring.move.MovedItemType;
+import org.eclipse.che.ide.ext.java.client.refactoring.move.RefactoredItemType;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.JavaProject;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.PackageFragment;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.PackageFragmentRoot;
@@ -47,11 +47,10 @@ import org.eclipse.che.ide.project.node.ResourceBasedNode;
 import org.eclipse.che.ide.ui.cellview.CellTreeResources;
 import org.eclipse.che.ide.ui.window.Window;
 
-import java.util.Iterator;
 import java.util.List;
 
 import static org.eclipse.che.ide.ext.java.client.refactoring.move.MoveType.REFACTOR_MENU;
-import static org.eclipse.che.ide.ext.java.client.refactoring.move.MovedItemType.COMPILATION_UNIT;
+import static org.eclipse.che.ide.ext.java.client.refactoring.move.RefactoredItemType.COMPILATION_UNIT;
 
 /**
  * @author Dmitry Shnurenko
@@ -152,10 +151,10 @@ final class MoveViewImpl extends Window implements MoveView {
     @Override
     public void show(RefactorInfo refactorInfo) {
         MoveType moveType = refactorInfo.getMoveType();
-        MovedItemType movedItemType = refactorInfo.getMovedItemType();
+        RefactoredItemType refactoredItemType = refactorInfo.getRefactoredItemType();
 
         treePanelToHide.setVisible(REFACTOR_MENU.equals(moveType));
-        patternsPanelToHide.setVisible(COMPILATION_UNIT.equals(movedItemType));
+        patternsPanelToHide.setVisible(COMPILATION_UNIT.equals(refactoredItemType));
 
         List<?> selectedItems = refactorInfo.getSelectedItems();
 
@@ -163,7 +162,7 @@ final class MoveViewImpl extends Window implements MoveView {
 
         boolean isMultiSelection = selectionSize > 1;
 
-        ResourceBasedNode<?> selectedItem = (ResourceBasedNode)selectedItems.get(0);
+        ResourceBasedNode selectedItem = (ResourceBasedNode)selectedItems.get(0);
 
         classNameUR.setText(isMultiSelection ? locale.multiSelectionReferences(selectionSize) : selectedItem.getName());
         className.setText(isMultiSelection ? locale.multiSelectionDestination(selectionSize) : selectedItem.getName());
@@ -283,9 +282,7 @@ final class MoveViewImpl extends Window implements MoveView {
      * @return the entry that matches the search criteria
      */
     private RefactoringStatusEntry getEntryMatchingSeverity(int severity, List<RefactoringStatusEntry> entries) {
-        Iterator iterator = entries.iterator();
-        while (iterator.hasNext()) {
-            RefactoringStatusEntry entry = (RefactoringStatusEntry)iterator.next();
+        for (RefactoringStatusEntry entry : entries) {
             if (entry.getSeverity() >= severity)
                 return entry;
         }

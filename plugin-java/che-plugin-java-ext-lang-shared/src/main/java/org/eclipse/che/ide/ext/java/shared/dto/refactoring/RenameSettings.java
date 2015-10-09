@@ -8,7 +8,6 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-
 package org.eclipse.che.ide.ext.java.shared.dto.refactoring;
 
 import org.eclipse.che.dto.shared.DTO;
@@ -55,6 +54,17 @@ public interface RenameSettings extends RefactoringSession {
 
     void setFilePatterns(String patterns);
 
+    //ISubpackagesUpdating
+
+    /**
+     * Informs the refactoring object whether subpackages should be updated.
+     * This value used to set whether to updating packages.
+     * @return <code>true</code> if subpackages updating is enabled
+     */
+    boolean isUpdateSubpackages();
+
+    void setUpdateSubpackages(boolean update);
+
     //IReferenceUpdating
 
     /**
@@ -100,14 +110,14 @@ public interface RenameSettings extends RefactoringSession {
     void setUpdateTextualMatches(boolean update);
 
 
-    enum MachStrategy{
+    enum MachStrategy {
         EXACT(1), EMBEDDED(2), SUFFIX(3);
         private int value;
         MachStrategy(int i) {
             value = i;
         }
 
-        public int getValue(){
+        public int getValue() {
             return value;
         }
     }

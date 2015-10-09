@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.java.client.refactoring;
 
+import com.google.gwt.user.client.Timer;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.event.shared.EventBus;
@@ -19,15 +20,12 @@ import org.eclipse.che.api.promises.client.FunctionException;
 import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.api.promises.client.PromiseError;
 import org.eclipse.che.api.promises.client.js.Promises;
-import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.editor.EditorPartPresenter;
 import org.eclipse.che.ide.api.event.FileEvent;
-import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.project.node.HasStorablePath;
 import org.eclipse.che.ide.api.project.node.Node;
 import org.eclipse.che.ide.api.project.tree.VirtualFile;
-import org.eclipse.che.ide.api.selection.SelectionAgent;
 import org.eclipse.che.ide.jseditor.client.document.Document;
 import org.eclipse.che.ide.jseditor.client.texteditor.EmbeddedTextEditorPresenter;
 import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
@@ -42,26 +40,17 @@ import org.eclipse.che.ide.project.node.FileReferenceNode;
 @Singleton
 public class RefactoringUpdater {
     private final EditorAgent              editorAgent;
-    private final SelectionAgent           selectionAgent;
     private final EventBus                 eventBus;
-    private final NotificationManager      notificationManager;
-    private final AppContext               appContext;
     private final ProjectExplorerPresenter projectExplorer;
 
     private String pathToMove;
 
     @Inject
     public RefactoringUpdater(EditorAgent editorAgent,
-                              SelectionAgent selectionAgent,
                               EventBus eventBus,
-                              NotificationManager notificationManager,
-                              AppContext appContext,
                               ProjectExplorerPresenter projectExplorer) {
         this.editorAgent = editorAgent;
-        this.selectionAgent = selectionAgent;
         this.eventBus = eventBus;
-        this.notificationManager = notificationManager;
-        this.appContext = appContext;
         this.projectExplorer = projectExplorer;
     }
 
@@ -103,8 +92,7 @@ public class RefactoringUpdater {
         return new Function<PromiseError, Promise<Object>>() {
             @Override
             public Promise<Object> apply(PromiseError arg) throws FunctionException {
-                reopenMovedFile(file);
-                return Promises.resolve(null);
+                return reopenMovedFile(file);
             }
         };
     }
@@ -136,6 +124,14 @@ public class RefactoringUpdater {
 
         final String newPathToFile = pathToMove + file.getPath().substring(file.getPath().lastIndexOf('/'));
 
-        return projectExplorer.getNodeByPath(new HasStorablePath.StorablePath(newPathToFile)).thenPromise(openFile());
+        //TODO It is temporary solution. This timer need for waiting when file will moved.
+        new Timer() {
+            @Override
+            public void run() {
+                projectExplorer.getNodeByPath(new HasStorablePath.StorablePath(newPathToFile), true).thenPromise(openFile());
+            }
+        }.schedule(300);
+
+        return Promises.resolve(null);
     }
 }

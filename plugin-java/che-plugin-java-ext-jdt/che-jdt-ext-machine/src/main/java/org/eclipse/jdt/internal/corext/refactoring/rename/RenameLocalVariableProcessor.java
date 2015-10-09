@@ -263,6 +263,8 @@ public class RenameLocalVariableProcessor extends JavaRenameProcessor implements
 	protected RefactoringStatus doCheckFinalConditions(IProgressMonitor pm, CheckConditionsContext context)
 			throws CoreException, OperationCanceledException {
 		try {
+			initAST();
+			initNames();
 			pm.beginTask("", 1);	 //$NON-NLS-1$
 
 			RefactoringStatus result= checkNewElementName(fNewName);
