@@ -890,7 +890,7 @@ public class DockerInstanceProviderTest {
     }
 
 
-    @Test
+    @Test(enabled = false)
     public void shouldAddExtraHostOnDevInstanceCreationFromRecipe() throws Exception {
         //given
         final String expectedHostPathOfProjects = "/tmp/projects";
@@ -926,7 +926,7 @@ public class DockerInstanceProviderTest {
         assertEquals(extraHosts[0], "dev.box.com:192.168.0.1");
     }
 
-    @Test
+    @Test(enabled = false)
     public void shouldAddExtraHostOnDevInstanceCreationFromSnapshot() throws Exception {
         //given
         final String expectedHostPathOfProjects = "/tmp/projects";
@@ -962,7 +962,7 @@ public class DockerInstanceProviderTest {
         assertEquals(extraHosts[1], "codenvy.com.com:185");
     }
 
-    @Test
+    @Test(enabled = false)
     public void shouldAddExtraHostOnNonDevInstanceCreationFromRecipe() throws Exception {
         //given
         final String expectedHostPathOfProjects = "/tmp/projects";
@@ -998,7 +998,7 @@ public class DockerInstanceProviderTest {
         assertEquals(extraHosts[0], "dev.box.com:192.168.0.1");
     }
 
-    @Test
+    @Test(enabled = false)
     public void shouldAddExtraHostOnNonDevInstanceCreationFromSnapshot() throws Exception {
         //given
         final String expectedHostPathOfProjects = "/tmp/projects";

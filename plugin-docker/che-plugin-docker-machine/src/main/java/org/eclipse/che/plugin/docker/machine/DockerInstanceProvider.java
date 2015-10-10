@@ -406,7 +406,7 @@ public class DockerInstanceProvider implements InstanceProvider {
             HostConfig hostConfig = new HostConfig().withPublishAllPorts(true)
                                                     .withBinds(volumes.toArray(new String[volumes.size()]))
                                                     .withMemory((long)memorySizeMB * 1024 * 1024)
-                                                    .withExtraHosts(machineExtraHosts)
+//                                                    .withExtraHosts(machineExtraHosts)
                                                     .withMemorySwap(-1);
 
             docker.startContainer(containerId, hostConfig);
