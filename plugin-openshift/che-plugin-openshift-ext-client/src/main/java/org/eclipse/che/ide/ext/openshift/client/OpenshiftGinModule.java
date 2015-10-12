@@ -24,5 +24,6 @@ public class OpenshiftGinModule extends AbstractGinModule {
     @Override
     protected void configure() {
         bind(OpenshiftAuthenticator.class).to(OpenshiftAuthenticatorImpl.class);
+        bind(OpenshiftServiceClient.class).to(OpenshiftServiceClientImpl.class);
     }
 }
