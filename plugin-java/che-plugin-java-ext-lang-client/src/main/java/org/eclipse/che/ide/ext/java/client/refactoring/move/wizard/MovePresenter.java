@@ -208,6 +208,7 @@ public class MovePresenter implements MoveView.ActionDelegate {
                         public void apply(RefactoringStatus arg) throws OperationException {
                             if (arg.getSeverity() == OK) {
                                 view.hide();
+                                //TODO It is temporary solution. We need to know which files have changes.
                                 refactoringUpdater.refreshProjectTree();
                                 refactoringUpdater.refreshOpenEditors();
                             } else {

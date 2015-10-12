@@ -12,13 +12,19 @@ package org.eclipse.che.ide.ext.java.client.refactoring.preview;
 
 import com.google.gwtmockito.GwtMockitoTestRunner;
 import com.google.inject.Provider;
+import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.Promise;
+import org.eclipse.che.ide.api.editor.EditorAgent;
+import org.eclipse.che.ide.api.editor.EditorInput;
+import org.eclipse.che.ide.api.editor.EditorPartPresenter;
+import org.eclipse.che.ide.api.project.tree.VirtualFile;
 import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.ext.java.client.refactoring.RefactorInfo;
-import org.eclipse.che.ide.ext.java.client.refactoring.RefactoringUpdater;
+import org.eclipse.che.ide.ext.java.client.refactoring.move.MoveType;
 import org.eclipse.che.ide.ext.java.client.refactoring.move.wizard.MovePresenter;
+import org.eclipse.che.ide.ext.java.client.refactoring.rename.wizard.RenamePresenter;
 import org.eclipse.che.ide.ext.java.client.refactoring.service.RefactoringServiceClient;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ChangeEnabledState;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ChangePreview;
@@ -26,6 +32,7 @@ import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringChange;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringPreview;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringSession;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatus;
+import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,6 +40,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+
+import java.util.NavigableMap;
+import java.util.TreeMap;
 
 import static org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatus.OK;
 import static org.mockito.Matchers.any;
@@ -49,15 +59,21 @@ public class PreviewPresenterTest {
     public static final String SESSION_ID = "sessionId";
 
     @Mock
-    private PreviewView              view;
+    private PreviewView               view;
     @Mock
-    private RefactoringUpdater       refactoringUpdater;
+    private Provider<MovePresenter>   movePresenterProvider;
     @Mock
-    private Provider<MovePresenter>  movePresenterProvider;
+    private Provider<RenamePresenter> renamePresenterProvider;
     @Mock
-    private DtoFactory               dtoFactory;
+    private DtoFactory                dtoFactory;
     @Mock
-    private RefactoringServiceClient refactoringService;
+    private RefactoringServiceClient  refactoringService;
+    @Mock
+    private EditorAgent               editorAgent;
+    @Mock
+    private EventBus                  eventBus;
+    @Mock
+    private ProjectExplorerPresenter  projectExplorerPresenter;
 
     @Mock
     private ChangeEnabledState          changeEnableState;
@@ -69,6 +85,8 @@ public class PreviewPresenterTest {
     private RefactoringSession          refactoringSession;
     @Mock
     private RefactoringPreview          refactoringPreview;
+    @Mock
+    private EditorPartPresenter         editor;
     @Mock
     private Promise<RefactoringPreview> refactoringPreviewPromise;
     @Mock
@@ -96,6 +114,8 @@ public class PreviewPresenterTest {
 
     @Before
     public void setUp() throws Exception {
+        NavigableMap<String, EditorPartPresenter> editors = new TreeMap<>();
+        editors.put("", editor);
         when(dtoFactory.createDto(RefactoringSession.class)).thenReturn(refactoringSession);
         when(dtoFactory.createDto(ChangeEnabledState.class)).thenReturn(changeEnableState);
         when(dtoFactory.createDto(RefactoringChange.class)).thenReturn(refactoringChanges);
@@ -103,8 +123,16 @@ public class PreviewPresenterTest {
         when(refactoringService.applyRefactoring(anyObject())).thenReturn(refactoringStatusPromise);
         when(refactoringService.getChangePreview(refactoringChanges)).thenReturn(changePreviewPromise);
         when(refactoringService.changeChangeEnabledState(changeEnableState)).thenReturn(changeEnableStatePromise);
+        when(editorAgent.getOpenedEditors()).thenReturn(editors);
 
-        presenter = new PreviewPresenter(view, refactoringUpdater, movePresenterProvider, dtoFactory, refactoringService);
+        presenter = new PreviewPresenter(view,
+                                         movePresenterProvider,
+                                         renamePresenterProvider,
+                                         dtoFactory,
+                                         eventBus,
+                                         editorAgent,
+                                         projectExplorerPresenter,
+                                         refactoringService);
     }
 
     @Test
@@ -125,34 +153,47 @@ public class PreviewPresenterTest {
 
     @Test
     public void acceptButtonActionShouldBePerformed() throws Exception {
+        VirtualFile virtualFile = Mockito.mock(VirtualFile.class);
+        EditorInput editorInput = Mockito.mock(EditorInput.class);
         when(refactoringStatus.getSeverity()).thenReturn(OK);
+        when(editor.getEditorInput()).thenReturn(editorInput);
+        when(editorInput.getFile()).thenReturn(virtualFile);
 
         presenter.onAcceptButtonClicked();
 
         verify(refactoringStatusPromise).then(refactoringStatusOperation.capture());
         refactoringStatusOperation.getValue().apply(refactoringStatus);
         verify(view).hide();
-        verify(refactoringUpdater).refreshProjectTree();
-        verify(refactoringUpdater).refreshOpenEditors();
+        verify(eventBus).fireEvent(anyObject());
+        verify(editor).getEditorInput();
+        verify(editorInput).getFile();
+        verify(virtualFile).getPath();
     }
 
     @Test
     public void acceptButtonActionShouldBeNotPerformedIfStatusIsNotOK() throws Exception {
+        VirtualFile virtualFile = Mockito.mock(VirtualFile.class);
+        EditorInput editorInput = Mockito.mock(EditorInput.class);
         when(refactoringStatus.getSeverity()).thenReturn(2);
+        when(editor.getEditorInput()).thenReturn(editorInput);
+        when(editorInput.getFile()).thenReturn(virtualFile);
 
         presenter.onAcceptButtonClicked();
 
         verify(refactoringStatusPromise).then(refactoringStatusOperation.capture());
         refactoringStatusOperation.getValue().apply(refactoringStatus);
         verify(view, never()).hide();
-        verify(refactoringUpdater, never()).refreshProjectTree();
-        verify(refactoringUpdater, never()).refreshOpenEditors();
+        verify(eventBus, never()).fireEvent(anyObject());
+        verify(editor, never()).getEditorInput();
+        verify(editorInput, never()).getFile();
+        verify(virtualFile, never()).getPath();
         verify(view).showErrorMessage(refactoringStatus);
     }
 
     @Test
     public void showMoveWizardIfOnBackButtonClicked() throws Exception {
         MovePresenter movePresenter = Mockito.mock(MovePresenter.class);
+        when(refactorInfo.getMoveType()).thenReturn(MoveType.REFACTOR_MENU);
         when(movePresenterProvider.get()).thenReturn(movePresenter);
 
         presenter.show(SESSION_ID, refactorInfo);
@@ -160,6 +201,19 @@ public class PreviewPresenterTest {
 
         verify(view).hide();
         verify(movePresenter).show(refactorInfo);
+    }
+
+    @Test
+    public void showRenameWizardIfOnBackButtonClicked() throws Exception {
+        RenamePresenter renamePresenter = Mockito.mock(RenamePresenter.class);
+        when(refactorInfo.getMoveType()).thenReturn(null);
+        when(renamePresenterProvider.get()).thenReturn(renamePresenter);
+
+        presenter.show(SESSION_ID, refactorInfo);
+        presenter.onBackButtonClicked();
+
+        verify(view).hide();
+        verify(renamePresenter).show(refactorInfo);
     }
 
     @Test

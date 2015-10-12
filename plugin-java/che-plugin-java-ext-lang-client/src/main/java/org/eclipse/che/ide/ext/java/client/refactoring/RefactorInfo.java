@@ -11,26 +11,37 @@
 package org.eclipse.che.ide.ext.java.client.refactoring;
 
 import org.eclipse.che.ide.ext.java.client.refactoring.move.MoveType;
-import org.eclipse.che.ide.ext.java.client.refactoring.move.MovedItemType;
+import org.eclipse.che.ide.ext.java.client.refactoring.move.RefactoredItemType;
 
 import java.util.List;
 
 /**
  * @author Dmitry Shnurenko
+ * @author Valeriy Svydenko
  */
 public class RefactorInfo {
 
-    private final MoveType      moveType;
-    private final MovedItemType movedItemType;
-    private final List<?>       selectedItems;
+    private final MoveType           moveType;
+    private final RefactoredItemType refactoredItemType;
+    private final List<?>            selectedItems;
 
-    public static RefactorInfo of(MoveType moveType, MovedItemType movedItemType, List<?> selectedItems) {
-        return new RefactorInfo(moveType, movedItemType, selectedItems);
+    public static RefactorInfo of(MoveType moveType, RefactoredItemType refactoredItemType, List<?> selectedItems) {
+        return new RefactorInfo(moveType, refactoredItemType, selectedItems);
     }
 
-    private RefactorInfo(MoveType moveType, MovedItemType movedItemType, List<?> selectedItems) {
+    public static RefactorInfo of(RefactoredItemType refactoredItemType, List<?> selectedItems) {
+        return new RefactorInfo(refactoredItemType, selectedItems);
+    }
+
+    private RefactorInfo(MoveType moveType, RefactoredItemType refactoredItemType, List<?> selectedItems) {
         this.moveType = moveType;
-        this.movedItemType = movedItemType;
+        this.refactoredItemType = refactoredItemType;
+        this.selectedItems = selectedItems;
+    }
+
+    private RefactorInfo(RefactoredItemType refactoredItemType, List<?> selectedItems) {
+        moveType = null;
+        this.refactoredItemType = refactoredItemType;
         this.selectedItems = selectedItems;
     }
 
@@ -42,7 +53,7 @@ public class RefactorInfo {
         return moveType;
     }
 
-    public MovedItemType getMovedItemType() {
-        return movedItemType;
+    public RefactoredItemType getRefactoredItemType() {
+        return refactoredItemType;
     }
 }

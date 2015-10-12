@@ -49,13 +49,14 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static com.google.common.base.Strings.isNullOrEmpty;
 
 /**
  * Docker implementation of {@link InstanceProvider}
@@ -101,7 +102,7 @@ public class DockerInstanceProvider implements InstanceProvider {
                                   @Named("machine.docker.machine_servers") Set<ServerConf> allMachineServers,
                                   @Named("machine.docker.dev_machine.machine_volumes") Set<String> systemVolumesForDevMachine,
                                   @Named("machine.docker.machine_volumes") Set<String> allMachinesSystemVolumes,
-                                  @Nullable @Named("machine.docker.machine_extra_hosts") String[] machineExtraHosts,
+                                  @Nullable @Named("machine.docker.machine_extra_hosts") String machineExtraHosts,
                                   @Named("machine.docker.che_api.endpoint") String apiEndpoint)
             throws IOException {
 
@@ -139,7 +140,7 @@ public class DockerInstanceProvider implements InstanceProvider {
         commonEnvVariables = new String[0];
         devMachineEnvVariables = new String[] {API_ENDPOINT_URL_VARIABLE + '=' + apiEndpoint,
                                                DockerInstanceMetadata.PROJECTS_ROOT_VARIABLE + '=' + PROJECTS_FOLDER_PATH};
-        this.machineExtraHosts = machineExtraHosts == null ? null : Arrays.copyOf(machineExtraHosts, machineExtraHosts.length);
+        this.machineExtraHosts = isNullOrEmpty(machineExtraHosts) ? null : machineExtraHosts.split(",");
     }
 
 

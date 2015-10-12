@@ -47,7 +47,7 @@
 }
 
 .outputsContainerConsoleTab {
-    border-right: 1px solid tabBorder;
+    border-right: 1px solid tabBorderColor;
     cursor: pointer;
     height: 17px;
     font-size: 11px;
@@ -69,7 +69,7 @@
 }
 
 .outputsContainerConsoleTabPanel {
-    border-right: 1px solid tabBorder;
+    border-right: 1px solid tabBorderColor;
     box-shadow: 1px 0 0 0 tabBorderShadow;
     position: relative;
     top: -2px;

@@ -185,4 +185,82 @@ public interface JavaLocalizationConstant extends Messages {
 
     @Key("move.no.preview")
     String moveNoPreview();
+
+    @Key("rename.update.references")
+    String renameUpdateReferences();
+
+    @Key("rename.update.occurrences")
+    String renameUpdateOccurrences();
+
+    @Key("rename.update.similarly.named.variables")
+    String renameUpdateSimilarlyNamedVariables();
+
+    @Key("rename.keep.original.method")
+    String renameKeepOriginalMethod();
+
+    @Key("rename.mark.deprecated")
+    String renameMarkDeprecated();
+
+    @Key("rename.getter.method")
+    String renameGetterMethod();
+
+    @Key("rename.setter.method")
+    String renameSetterMethod();
+
+    @Key("rename.subpackages")
+    String renameSubpackages();
+
+    @Key("rename.package.title")
+    String renamePackageTitle();
+
+    @Key("rename.type.title")
+    String renameTypeTitle();
+
+    @Key("rename.field.title")
+    String renameFieldTitle();
+
+    @Key("rename.method.title")
+    String renameMethodTitle();
+
+    @Key("rename.local.variable.title")
+    String renameLocalVariableTitle();
+
+    @Key("rename.enum.title")
+    String renameEnumTitle();
+
+    @Key("rename.type.variable.title")
+    String renameTypeVariableTitle();
+
+    @Key("rename.compilation.unit.title")
+    String renameCompilationUnitTitle();
+
+    @Key("rename.new.name")
+    String renameNewName();
+
+    @Key("rename.item.title")
+    String renameItemTitle();
+
+    @Key("rename.strategy")
+    String renameStrategy();
+
+    @Key("rename.find.exact.names")
+    String renameFindExactNames();
+
+    @Key("rename.find.name.suffixes")
+    String renameFindNameSuffixes();
+
+    @Key("rename.strategy.warning.label")
+    String renameStrategyWarningLabel();
+
+    @Key("rename.find.embedded.names")
+    String renameFindEmbeddedNames();
+
+    @Key("rename.similar.names.configuration.title")
+    String renameSimilarNamesConfigurationTitle();
+
+    @Key("rename.rename")
+    String renameRename();
+
+    @Key("rename.operation.unavailable")
+    String renameOperationUnavailable();
 }

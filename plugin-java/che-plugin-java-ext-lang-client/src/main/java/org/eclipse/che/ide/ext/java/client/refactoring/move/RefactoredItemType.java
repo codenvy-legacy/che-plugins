@@ -13,6 +13,6 @@ package org.eclipse.che.ide.ext.java.client.refactoring.move;
 /**
  * @author Dmitry Shnurenko
  */
-public enum MovedItemType {
+public enum RefactoredItemType {
     COMPILATION_UNIT, PACKAGE
 }

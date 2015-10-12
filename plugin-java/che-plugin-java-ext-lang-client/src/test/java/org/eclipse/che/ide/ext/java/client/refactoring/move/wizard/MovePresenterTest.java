@@ -34,6 +34,7 @@ import org.eclipse.che.ide.ext.java.shared.dto.refactoring.MoveSettings;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringSession;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatus;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ReorgDestination;
+import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -76,6 +77,8 @@ public class MovePresenterTest {
     private PreviewPresenter         previewPresenter;
     @Mock
     private RefactoringServiceClient refactorService;
+    @Mock
+    private ProjectExplorerPresenter projectExplorer;
     @Mock
     private RefactoringSession       session;
     @Mock

@@ -907,7 +907,7 @@ public class DockerInstanceProviderTest {
                                                             Collections.emptySet(),
                                                             devVolumes,
                                                             commonVolumes,
-                                                            new String[]{"dev.box.com:192.168.0.1"},
+                                                            "dev.box.com:192.168.0.1",
                                                             API_ENDPOINT_VALUE);
 
         when(dockerNode.getProjectsFolder()).thenReturn(expectedHostPathOfProjects);
@@ -943,7 +943,7 @@ public class DockerInstanceProviderTest {
                                                             Collections.emptySet(),
                                                             devVolumes,
                                                             commonVolumes,
-                                                            new String[]{"dev.box.com:192.168.0.1", "codenvy.com.com:185"},
+                                                            "dev.box.com:192.168.0.1,codenvy.com.com:185",
                                                             API_ENDPOINT_VALUE);
 
         when(dockerNode.getProjectsFolder()).thenReturn(expectedHostPathOfProjects);
@@ -979,7 +979,7 @@ public class DockerInstanceProviderTest {
                                                             Collections.emptySet(),
                                                             devVolumes,
                                                             commonVolumes,
-                                                            new String[]{"dev.box.com:192.168.0.1"},
+                                                            "dev.box.com:192.168.0.1",
                                                             API_ENDPOINT_VALUE);
 
         when(dockerNode.getProjectsFolder()).thenReturn(expectedHostPathOfProjects);
@@ -1015,7 +1015,7 @@ public class DockerInstanceProviderTest {
                                                             Collections.emptySet(),
                                                             devVolumes,
                                                             commonVolumes,
-                                                            new String[]{"dev.box.com:192.168.0.1", "codenvy.com.com:185"},
+                                                            "dev.box.com:192.168.0.1,codenvy.com.com:185",
                                                             API_ENDPOINT_VALUE);
 
         when(dockerNode.getProjectsFolder()).thenReturn(expectedHostPathOfProjects);

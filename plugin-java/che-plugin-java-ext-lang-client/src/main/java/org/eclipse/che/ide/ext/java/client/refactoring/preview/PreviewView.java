@@ -35,6 +35,14 @@ interface PreviewView extends View<PreviewView.ActionDelegate> {
     void setTreeOfChanges(RefactoringPreview changes);
 
     /**
+     * Set a title of the window.
+     *
+     * @param title
+     *         the name of the preview window
+     */
+    void setTitle(String title);
+
+    /**
      * Show error message into bottom of view.
      *
      * @param status
