@@ -13,6 +13,7 @@ package org.eclipse.che.ide.ext.openshift.server.rest;
 import com.openshift.restclient.IClient;
 import com.openshift.restclient.ResourceKind;
 import com.openshift.restclient.model.IProject;
+import com.openshift.restclient.model.project.IProjectRequest;
 
 import org.eclipse.che.api.core.BadRequestException;
 import org.eclipse.che.api.core.ForbiddenException;
@@ -20,6 +21,7 @@ import org.eclipse.che.api.core.ServerException;
 import org.eclipse.che.api.core.UnauthorizedException;
 import org.eclipse.che.ide.ext.openshift.server.ClientFactory;
 import org.eclipse.che.ide.ext.openshift.shared.dto.Project;
+import org.eclipse.che.ide.ext.openshift.shared.dto.ProjectRequest;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -51,18 +53,17 @@ public class ProjectService {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Project createProject(@PathParam("namespace") String namespace,
-                                 Project project) throws BadRequestException, UnauthorizedException, ServerException {
+    public Project createProject(ProjectRequest project) throws BadRequestException, UnauthorizedException, ServerException {
         if (project.getKind() == null) {
-            project.setKind(ResourceKind.PROJECT);
+            project.setKind(ResourceKind.PROJECT_REQUEST);
         }
-        if (!ResourceKind.PROJECT.equals(project.getKind())) {
-            throw new BadRequestException(project.getKind() + " cannot be handled as a " + ResourceKind.PROJECT);
+        if (!ResourceKind.PROJECT_REQUEST.equals(project.getKind())) {
+            throw new BadRequestException(project.getKind() + " cannot be handled as a " + ResourceKind.PROJECT_REQUEST);
         }
 
         final IClient client = clientFactory.createClient();
-        final IProject openshiftProject = toOpenshiftResource(client, project);
-        return toDto(Project.class, client.create(openshiftProject, namespace));
+        final IProjectRequest openshiftProject = toOpenshiftResource(client, project);
+        return toDto(Project.class, client.create(openshiftProject));
     }
 
     @GET
