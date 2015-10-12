@@ -890,7 +890,7 @@ public class DockerInstanceProviderTest {
     }
 
 
-    @Test(enabled = false)
+    @Test
     public void shouldAddExtraHostOnDevInstanceCreationFromRecipe() throws Exception {
         //given
         final String expectedHostPathOfProjects = "/tmp/projects";
@@ -907,7 +907,7 @@ public class DockerInstanceProviderTest {
                                                             Collections.emptySet(),
                                                             devVolumes,
                                                             commonVolumes,
-                                                            new String[]{"dev.box.com:192.168.0.1"},
+                                                            "dev.box.com:192.168.0.1",
                                                             API_ENDPOINT_VALUE);
 
         when(dockerNode.getProjectsFolder()).thenReturn(expectedHostPathOfProjects);
@@ -926,7 +926,7 @@ public class DockerInstanceProviderTest {
         assertEquals(extraHosts[0], "dev.box.com:192.168.0.1");
     }
 
-    @Test(enabled = false)
+    @Test
     public void shouldAddExtraHostOnDevInstanceCreationFromSnapshot() throws Exception {
         //given
         final String expectedHostPathOfProjects = "/tmp/projects";
@@ -943,7 +943,7 @@ public class DockerInstanceProviderTest {
                                                             Collections.emptySet(),
                                                             devVolumes,
                                                             commonVolumes,
-                                                            new String[]{"dev.box.com:192.168.0.1", "codenvy.com.com:185"},
+                                                            "dev.box.com:192.168.0.1,codenvy.com.com:185",
                                                             API_ENDPOINT_VALUE);
 
         when(dockerNode.getProjectsFolder()).thenReturn(expectedHostPathOfProjects);
@@ -962,7 +962,7 @@ public class DockerInstanceProviderTest {
         assertEquals(extraHosts[1], "codenvy.com.com:185");
     }
 
-    @Test(enabled = false)
+    @Test
     public void shouldAddExtraHostOnNonDevInstanceCreationFromRecipe() throws Exception {
         //given
         final String expectedHostPathOfProjects = "/tmp/projects";
@@ -979,7 +979,7 @@ public class DockerInstanceProviderTest {
                                                             Collections.emptySet(),
                                                             devVolumes,
                                                             commonVolumes,
-                                                            new String[]{"dev.box.com:192.168.0.1"},
+                                                            "dev.box.com:192.168.0.1",
                                                             API_ENDPOINT_VALUE);
 
         when(dockerNode.getProjectsFolder()).thenReturn(expectedHostPathOfProjects);
@@ -998,7 +998,7 @@ public class DockerInstanceProviderTest {
         assertEquals(extraHosts[0], "dev.box.com:192.168.0.1");
     }
 
-    @Test(enabled = false)
+    @Test
     public void shouldAddExtraHostOnNonDevInstanceCreationFromSnapshot() throws Exception {
         //given
         final String expectedHostPathOfProjects = "/tmp/projects";
@@ -1015,7 +1015,7 @@ public class DockerInstanceProviderTest {
                                                             Collections.emptySet(),
                                                             devVolumes,
                                                             commonVolumes,
-                                                            new String[]{"dev.box.com:192.168.0.1", "codenvy.com.com:185"},
+                                                            "dev.box.com:192.168.0.1,codenvy.com.com:185",
                                                             API_ENDPOINT_VALUE);
 
         when(dockerNode.getProjectsFolder()).thenReturn(expectedHostPathOfProjects);
