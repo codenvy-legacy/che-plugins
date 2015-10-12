@@ -13,6 +13,10 @@ package org.eclipse.che.ide.ext.openshift.server.rest;
 
 import com.openshift.restclient.IClient;
 import com.openshift.restclient.ResourceKind;
+import com.openshift.restclient.capability.resources.IProjectTemplateProcessing;
+import com.openshift.restclient.capability.server.ITemplateProcessing;
+import com.openshift.restclient.model.IProject;
+import com.openshift.restclient.model.IResource;
 import com.openshift.restclient.model.template.ITemplate;
 
 import org.eclipse.che.api.core.BadRequestException;
@@ -98,5 +102,17 @@ public class TemplateService {
         }
         final IClient client = clientFactory.createClient();
         return toDto(Template.class, client.update(toOpenshiftResource(client, template)));
+    }
+
+    @POST
+    @Path("/process")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Template processTemplate(@PathParam("namespace") String namespace,
+                                    Template template) throws ForbiddenException, UnauthorizedException, ServerException {
+        final IClient client = clientFactory.createClient();//TODO investigate why method client.getCapability(ITemplateProcessing.class) returns null
+        final IProject project = client.get(ResourceKind.PROJECT, namespace, namespace);
+        final IProjectTemplateProcessing capability = project.getCapability(IProjectTemplateProcessing.class);
+        final ITemplate processedTemplate = capability.process(toOpenshiftResource(client, template));
+        return toDto(Template.class, processedTemplate);
     }
 }
