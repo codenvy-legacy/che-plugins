@@ -26,6 +26,7 @@ import org.eclipse.che.ide.extension.maven.server.projecttype.handler.MavenProje
 import org.eclipse.che.ide.extension.maven.server.projecttype.handler.MavenProjectGenerator;
 import org.eclipse.che.ide.extension.maven.server.projecttype.handler.MavenProjectImportedHandler;
 import org.eclipse.che.ide.extension.maven.server.projecttype.handler.ProjectHasBecomeMaven;
+import org.eclipse.che.ide.extension.maven.server.projecttype.handler.RemoveMavenModuleHandler;
 
 /** @author Artem Zatsarynnyy */
 public class MavenModule extends AbstractModule {
@@ -38,6 +39,7 @@ public class MavenModule extends AbstractModule {
         Multibinder<ProjectHandler> projectHandlerMultibinder = Multibinder.newSetBinder(binder(), ProjectHandler.class);
         projectHandlerMultibinder.addBinding().to(MavenProjectGenerator.class);
         projectHandlerMultibinder.addBinding().to(AddMavenModuleHandler.class);
+        projectHandlerMultibinder.addBinding().to(RemoveMavenModuleHandler.class);
         projectHandlerMultibinder.addBinding().to(MavenProjectImportedHandler.class);
         projectHandlerMultibinder.addBinding().to(ProjectHasBecomeMaven.class);
         projectHandlerMultibinder.addBinding().to(GetMavenModulesHandler.class);
