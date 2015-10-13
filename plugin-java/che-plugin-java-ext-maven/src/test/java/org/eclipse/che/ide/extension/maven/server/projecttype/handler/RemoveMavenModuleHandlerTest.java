@@ -11,6 +11,7 @@
 package org.eclipse.che.ide.extension.maven.server.projecttype.handler;
 
 import org.eclipse.che.api.core.notification.EventService;
+import org.eclipse.che.api.core.rest.HttpJsonHelper;
 import org.eclipse.che.api.project.server.DefaultProjectManager;
 import org.eclipse.che.api.project.server.Project;
 import org.eclipse.che.api.project.server.ProjectConfig;
@@ -27,6 +28,7 @@ import org.eclipse.che.api.vfs.server.impl.memory.MemoryFileSystemProvider;
 import org.eclipse.che.commons.lang.IoUtil;
 import org.eclipse.che.commons.lang.NameGenerator;
 import org.eclipse.che.ide.extension.maven.shared.MavenAttributes;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,10 +37,13 @@ import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
+
+import static org.mockito.Mockito.mock;
 
 /**
  * @author Roman Nikitenko
@@ -96,6 +101,17 @@ public class RemoveMavenModuleHandlerTest {
         ProjectHandlerRegistry handlerRegistry = new ProjectHandlerRegistry(handlers);
 
         projectManager = new DefaultProjectManager(vfsRegistry, eventService, projectTypeRegistry, handlerRegistry, apiEndpoint);
+
+        HttpJsonHelper.HttpJsonHelperImpl httpJsonHelper = mock(HttpJsonHelper.HttpJsonHelperImpl.class);
+        Field f = HttpJsonHelper.class.getDeclaredField("httpJsonHelperImpl");
+        f.setAccessible(true);
+        f.set(null, httpJsonHelper);
+    }
+    @After
+    public void cleanup() throws IllegalAccessException, NoSuchFieldException {
+        Field f = HttpJsonHelper.class.getDeclaredField("httpJsonHelperImpl");
+        f.setAccessible(true);
+        f.set(null, new HttpJsonHelper.HttpJsonHelperImpl());
     }
 
     @Test(expected = IllegalArgumentException.class)

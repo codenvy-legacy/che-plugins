@@ -28,6 +28,7 @@ import org.eclipse.che.api.vfs.server.impl.memory.MemoryFileSystemProvider;
 import org.eclipse.che.commons.lang.IoUtil;
 import org.eclipse.che.commons.lang.NameGenerator;
 import org.eclipse.che.ide.extension.maven.shared.MavenAttributes;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -94,6 +95,14 @@ public class AddMavenModuleHandlerTest {
         f.setAccessible(true);
         f.set(null, mock(HttpJsonHelper.HttpJsonHelperImpl.class));
     }
+
+    @After
+    public void cleanup() throws IllegalAccessException, NoSuchFieldException {
+        Field f = HttpJsonHelper.class.getDeclaredField("httpJsonHelperImpl");
+        f.setAccessible(true);
+        f.set(null, new HttpJsonHelper.HttpJsonHelperImpl());
+    }
+
 
     @Test(expected = IllegalArgumentException.class)
     public void shouldNotAddModuleIfNotPomPackage() throws Exception {
