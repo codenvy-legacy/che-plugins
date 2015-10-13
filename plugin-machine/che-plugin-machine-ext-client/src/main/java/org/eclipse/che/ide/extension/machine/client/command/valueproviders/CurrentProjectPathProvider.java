@@ -21,8 +21,10 @@ import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.PromiseError;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
-import org.eclipse.che.ide.api.event.ProjectActionEvent;
-import org.eclipse.che.ide.api.event.ProjectActionHandler;
+import org.eclipse.che.ide.api.event.project.CloseCurrentProjectEvent;
+import org.eclipse.che.ide.api.event.project.CloseCurrentProjectHandler;
+import org.eclipse.che.ide.api.event.project.ProjectReadyEvent;
+import org.eclipse.che.ide.api.event.project.ProjectReadyHandler;
 import org.eclipse.che.ide.extension.machine.client.machine.Machine;
 import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateEvent;
 import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateHandler;
@@ -35,7 +37,10 @@ import javax.validation.constraints.NotNull;
  * @author Artem Zatsarynnyy
  */
 @Singleton
-public class CurrentProjectPathProvider implements CommandPropertyValueProvider, MachineStateHandler, ProjectActionHandler {
+public class CurrentProjectPathProvider implements CommandPropertyValueProvider,
+                                                   MachineStateHandler,
+                                                   CloseCurrentProjectHandler,
+                                                   ProjectReadyHandler {
 
     private static final String KEY = "${project.current.path}";
 
@@ -51,7 +56,7 @@ public class CurrentProjectPathProvider implements CommandPropertyValueProvider,
         this.value = "";
 
         eventBus.addHandler(MachineStateEvent.TYPE, this);
-        eventBus.addHandler(ProjectActionEvent.TYPE, this);
+        eventBus.addHandler(ProjectReadyEvent.TYPE, this);
         updateValue();
     }
 
@@ -87,20 +92,12 @@ public class CurrentProjectPathProvider implements CommandPropertyValueProvider,
     }
 
     @Override
-    public void onProjectReady(ProjectActionEvent event) {
+    public void onProjectReady(ProjectReadyEvent event) {
         updateValue();
     }
 
     @Override
-    public void onProjectOpened(ProjectActionEvent event) {
-    }
-
-    @Override
-    public void onProjectClosing(ProjectActionEvent event) {
-    }
-
-    @Override
-    public void onProjectClosed(ProjectActionEvent event) {
+    public void onCloseCurrentProject(CloseCurrentProjectEvent event) {
         value = "";
     }
 

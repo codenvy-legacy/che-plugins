@@ -20,7 +20,8 @@ import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.api.workspace.shared.dto.MachineMetadataDto;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
-import org.eclipse.che.ide.api.event.ProjectActionEvent;
+import org.eclipse.che.ide.api.event.project.CloseCurrentProjectEvent;
+import org.eclipse.che.ide.api.event.project.ProjectReadyEvent;
 import org.eclipse.che.ide.extension.machine.client.machine.Machine;
 import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateEvent;
 import org.junit.Before;
@@ -76,12 +77,12 @@ public class CurrentProjectPathProviderTest {
     @Test
     public void shouldBeRegisteredOnEventBus() throws Exception {
         verify(eventBus).addHandler(MachineStateEvent.TYPE, currentProjectPathProvider);
-        verify(eventBus).addHandler(ProjectActionEvent.TYPE, currentProjectPathProvider);
+        verify(eventBus).addHandler(ProjectReadyEvent.TYPE, currentProjectPathProvider);
     }
 
     @Test
     public void shouldReturnEmptyValueAfterClosingProject() throws Exception {
-        currentProjectPathProvider.onProjectClosed(mock(ProjectActionEvent.class));
+        currentProjectPathProvider.onCloseCurrentProject(mock(CloseCurrentProjectEvent.class));
 
         assertTrue(currentProjectPathProvider.getValue().isEmpty());
     }
@@ -123,7 +124,7 @@ public class CurrentProjectPathProviderTest {
         when(machineDescriptorMock.getMetadata()).thenReturn(machineMetadataMock);
         when(machinePromise.then(Matchers.any(Operation.class))).thenReturn(machinePromise);
 
-        currentProjectPathProvider.onProjectReady(mock(ProjectActionEvent.class));
+        currentProjectPathProvider.onProjectReady(mock(ProjectReadyEvent.class));
 
         verify(machinePromise).then(machineCaptor.capture());
         machineCaptor.getValue().apply(machineDescriptorMock);

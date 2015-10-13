@@ -24,7 +24,7 @@ import org.eclipse.che.ide.extension.machine.client.actions.CreateMachineAction;
 import org.eclipse.che.ide.extension.machine.client.actions.EditCommandsAction;
 import org.eclipse.che.ide.extension.machine.client.actions.ExecuteSelectedCommandAction;
 import org.eclipse.che.ide.extension.machine.client.actions.RestartMachineAction;
-import org.eclipse.che.ide.extension.machine.client.actions.SelectCommandComboBoxAction;
+import org.eclipse.che.ide.extension.machine.client.actions.SelectCommandComboBoxReady;
 import org.eclipse.che.ide.extension.machine.client.actions.SwitchPerspectiveAction;
 import org.eclipse.che.ide.extension.machine.client.machine.console.ClearConsoleAction;
 import org.eclipse.che.ide.extension.machine.client.machine.console.MachineConsoleToolbar;
@@ -62,7 +62,7 @@ public class MachineExtension {
     private void prepareActions(MachineLocalizationConstant localizationConstant,
                                 ActionManager actionManager,
                                 ExecuteSelectedCommandAction executeSelectedCommandAction,
-                                SelectCommandComboBoxAction selectCommandAction,
+                                SelectCommandComboBoxReady selectCommandAction,
                                 EditCommandsAction editCommandsAction,
                                 CreateMachineAction createMachine,
                                 RestartMachineAction restartMachine,

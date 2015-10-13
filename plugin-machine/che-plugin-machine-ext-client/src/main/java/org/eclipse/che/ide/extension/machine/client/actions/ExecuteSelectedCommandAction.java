@@ -34,14 +34,14 @@ import static org.eclipse.che.ide.workspace.perspectives.project.ProjectPerspect
 @Singleton
 public class ExecuteSelectedCommandAction extends AbstractPerspectiveAction {
 
-    private final SelectCommandComboBoxAction selectCommandAction;
-    private final CommandManager              commandManager;
-    private final AnalyticsEventLogger        eventLogger;
+    private final SelectCommandComboBoxReady selectCommandAction;
+    private final CommandManager             commandManager;
+    private final AnalyticsEventLogger       eventLogger;
 
     @Inject
     public ExecuteSelectedCommandAction(MachineLocalizationConstant localizationConstant,
                                         MachineResources resources,
-                                        SelectCommandComboBoxAction selectCommandAction,
+                                        SelectCommandComboBoxReady selectCommandAction,
                                         CommandManager commandManager,
                                         AnalyticsEventLogger eventLogger) {
         super(Collections.singletonList(PROJECT_PERSPECTIVE_ID),

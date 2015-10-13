@@ -34,7 +34,7 @@ import org.eclipse.che.ide.ext.svn.client.action.PropertiesAction;
 import org.eclipse.che.ide.ext.svn.client.action.RelocateAction;
 import org.eclipse.che.ide.ext.svn.client.action.RemoveAction;
 import org.eclipse.che.ide.ext.svn.client.action.RenameAction;
-import org.eclipse.che.ide.ext.svn.client.action.ResolveAction;
+import org.eclipse.che.ide.ext.svn.client.action.ResolveReady;
 import org.eclipse.che.ide.ext.svn.client.action.RevertAction;
 import org.eclipse.che.ide.ext.svn.client.action.StatusAction;
 import org.eclipse.che.ide.ext.svn.client.action.SwitchAction;
@@ -87,7 +87,7 @@ public class SubversionExtension {
                                final RelocateAction relocateAction,
                                final RemoveAction removeAction,
                                final RenameAction renameAction,
-                               final ResolveAction resolveAction,
+                               final ResolveReady resolveAction,
                                final RevertAction revertAction,
                                final StatusAction statusAction,
                                final SwitchAction switchAction,

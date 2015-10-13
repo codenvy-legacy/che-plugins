@@ -22,13 +22,13 @@ import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.editor.EditorPartPresenter;
 import org.eclipse.che.ide.api.event.FileContentUpdateEvent;
-import org.eclipse.che.ide.api.event.OpenProjectEvent;
+import org.eclipse.che.ide.api.event.project.OpenProjectEvent;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.project.tree.VirtualFile;
 import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.ext.git.client.GitLocalizationConstant;
-import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.eclipse.che.ide.ext.git.client.GitOutputPartPresenter;
+import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.rest.Unmarshallable;
@@ -52,7 +52,7 @@ public class CheckoutReferencePresenter implements CheckoutReferenceView.ActionD
     private final EventBus                 eventBus;
     private final ProjectServiceClient     projectService;
     private final DtoUnmarshallerFactory   dtoUnmarshallerFactory;
-    private final GitOutputPartPresenter  console;
+    private final GitOutputPartPresenter   console;
 
     @Inject
     public CheckoutReferencePresenter(CheckoutReferenceView view,
@@ -113,7 +113,7 @@ public class CheckoutReferencePresenter implements CheckoutReferenceView.ActionD
                                                                      @Override
                                                                      protected void onSuccess(final ProjectDescriptor result) {
                                                                          if (!result.getProblems().isEmpty()) {
-                                                                             eventBus.fireEvent(new OpenProjectEvent(result.getPath()));
+                                                                             eventBus.fireEvent(new OpenProjectEvent(result));
                                                                          } else {
                                                                              projectExplorer.reloadChildren();
 

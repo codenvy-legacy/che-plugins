@@ -16,9 +16,12 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.event.shared.EventBus;
 
+import org.eclipse.che.commons.annotation.Nullable;
 import org.eclipse.che.ide.Resources;
-import org.eclipse.che.ide.api.event.ProjectActionEvent;
-import org.eclipse.che.ide.api.event.ProjectActionHandler;
+import org.eclipse.che.ide.api.event.project.CloseCurrentProjectEvent;
+import org.eclipse.che.ide.api.event.project.CloseCurrentProjectHandler;
+import org.eclipse.che.ide.api.event.project.ProjectReadyEvent;
+import org.eclipse.che.ide.api.event.project.ProjectReadyHandler;
 import org.eclipse.che.ide.api.mvp.View;
 import org.eclipse.che.ide.api.parts.HasView;
 import org.eclipse.che.ide.api.parts.base.BasePresenter;
@@ -29,7 +32,6 @@ import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 import org.vectomatic.dom.svg.ui.SVGResource;
 
 import javax.validation.constraints.NotNull;
-import org.eclipse.che.commons.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,7 +41,10 @@ import java.util.List;
  * @author Artem Zatsarynnyy
  */
 @Singleton
-public class OutputsContainerPresenter extends BasePresenter implements OutputsContainerView.ActionDelegate, HasView, ProjectActionHandler {
+public class OutputsContainerPresenter extends BasePresenter implements OutputsContainerView.ActionDelegate,
+                                                                        HasView,
+                                                                        ProjectReadyHandler,
+                                                                        CloseCurrentProjectHandler {
 
     private final MachineLocalizationConstant localizationConstant;
     private final DialogFactory               dialogFactory;
@@ -64,7 +69,7 @@ public class OutputsContainerPresenter extends BasePresenter implements OutputsC
 
         consoles = new ArrayList<>();
 
-        eventBus.addHandler(ProjectActionEvent.TYPE, this);
+        eventBus.addHandler(ProjectReadyEvent.TYPE, this);
     }
 
     /** Add {@code console} to the container. */
@@ -186,20 +191,12 @@ public class OutputsContainerPresenter extends BasePresenter implements OutputsC
     }
 
     @Override
-    public void onProjectReady(ProjectActionEvent event) {
+    public void onProjectReady(ProjectReadyEvent event) {
         firePropertyChange(TITLE_PROPERTY);
     }
 
     @Override
-    public void onProjectOpened(ProjectActionEvent event) {
-    }
-
-    @Override
-    public void onProjectClosing(ProjectActionEvent event) {
-    }
-
-    @Override
-    public void onProjectClosed(ProjectActionEvent event) {
+    public void onCloseCurrentProject(CloseCurrentProjectEvent event) {
         consoles.clear();
         view.removeAllConsoles();
         firePropertyChange(TITLE_PROPERTY);
