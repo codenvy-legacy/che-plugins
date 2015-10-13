@@ -280,6 +280,21 @@ public class OrionTextViewOverlay extends JavaScriptObject {
     }-*/;
 
 
+    /**
+     * Adds a ruler to the text view at the specified position.
+     * The position is relative to the ruler location.
+     */
+    public final native void addRuler(OrionExtRulerOverlay ruler, int index) /*-{
+        this.addRuler(ruler, index);
+    }-*/;
+
+    /**
+     * Get the view rulers.
+     */
+    public final native OrionExtRulerOverlay[] getRulers() /*-{
+        return this.getRulers();
+    }-*/;
+
     public final native <T extends OrionEventOverlay> void removeEventListener(String eventType, EventHandler<T> handler,boolean useCapture) /*-{
         this.removeEventListener(eventType, $wnd.che_handels[handler], useCapture)
     }-*/;

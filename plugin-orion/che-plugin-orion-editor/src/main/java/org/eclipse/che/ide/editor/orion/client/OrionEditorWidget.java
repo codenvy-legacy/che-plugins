@@ -46,10 +46,12 @@ import org.eclipse.che.ide.api.texteditor.HandlesUndoRedo;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionAnnotationModelOverlay;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionAnnotationOverlay;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionEditorOverlay;
+import org.eclipse.che.ide.editor.orion.client.jso.OrionExtRulerOverlay;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionKeyBindingModule;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionKeyModeOverlay;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionKeyStrokeOverlay;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionProblemOverlay;
+import org.eclipse.che.ide.editor.orion.client.jso.OrionRulerClickEventOverlay;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionSelectionOverlay;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionStyleOverlay;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionTextThemeOverlay;
@@ -63,11 +65,15 @@ import org.eclipse.che.ide.jseditor.client.document.EmbeddedDocument;
 import org.eclipse.che.ide.jseditor.client.editortype.EditorType;
 import org.eclipse.che.ide.jseditor.client.events.CursorActivityEvent;
 import org.eclipse.che.ide.jseditor.client.events.CursorActivityHandler;
+import org.eclipse.che.ide.jseditor.client.events.GutterClickEvent;
 import org.eclipse.che.ide.jseditor.client.events.GutterClickHandler;
 import org.eclipse.che.ide.jseditor.client.events.HasCursorActivityHandlers;
 import org.eclipse.che.ide.jseditor.client.events.HasScrollHandlers;
 import org.eclipse.che.ide.jseditor.client.events.ScrollEvent;
 import org.eclipse.che.ide.jseditor.client.events.ScrollHandler;
+import org.eclipse.che.ide.jseditor.client.gutter.Gutter;
+import org.eclipse.che.ide.jseditor.client.gutter.Gutters;
+import org.eclipse.che.ide.jseditor.client.gutter.HasGutter;
 import org.eclipse.che.ide.jseditor.client.keymap.Keybinding;
 import org.eclipse.che.ide.jseditor.client.keymap.Keymap;
 import org.eclipse.che.ide.jseditor.client.keymap.KeymapChangeEvent;
@@ -92,7 +98,10 @@ import java.util.logging.Logger;
  *
  * @author "Mickaël Leduque"
  */
-public class OrionEditorWidget extends CompositeEditorWidget implements HasChangeHandlers, HasCursorActivityHandlers, HasScrollHandlers {
+public class OrionEditorWidget extends CompositeEditorWidget implements HasChangeHandlers,
+                                                                        HasCursorActivityHandlers,
+                                                                        HasScrollHandlers,
+                                                                        HasGutter {
 
     /** The UI binder instance. */
     private static final OrionEditorWidgetUiBinder UIBINDER = GWT.create(OrionEditorWidgetUiBinder.class);
@@ -108,6 +117,7 @@ public class OrionEditorWidget extends CompositeEditorWidget implements HasChang
     EditorElementStyle editorElementStyle;
 
     private final OrionEditorOverlay         editorOverlay;
+    private final OrionExtRulerOverlay       extRulerOverlay;
     private       String                     modeName;
     private final KeyModeInstances           keyModeInstances;
     private final JavaScriptObject           orionEditorModule;
@@ -120,15 +130,21 @@ public class OrionEditorWidget extends CompositeEditorWidget implements HasChang
     private OrionDocument       embeddedDocument;
     private OrionKeyModeOverlay cheContentAssistMode;
 
-    private boolean changeHandlerAdded = false;
-    private boolean focusHandlerAdded  = false;
-    private boolean blurHandlerAdded   = false;
-    private boolean scrollHandlerAdded = false;
-    private boolean cursorHandlerAdded = false;
+    private boolean changeHandlerAdded      = false;
+    private boolean focusHandlerAdded       = false;
+    private boolean blurHandlerAdded        = false;
+    private boolean scrollHandlerAdded      = false;
+    private boolean cursorHandlerAdded      = false;
+    private boolean gutterClickHandlerAdded = false;
 
-    private Keymap                          keymap;
-    private Provider<OrionKeyBindingModule> keyBindingModuleProvider;
-    private final ContentAssistWidget assistWidget;
+    private       Keymap                          keymap;
+    private       Provider<OrionKeyBindingModule> keyBindingModuleProvider;
+    private final ContentAssistWidget             assistWidget;
+    private final Gutter                          gutter;
+
+    /** Component that handles line styling. */
+    private LineStyler lineStyler;
+
 
     @AssistedInject
     public OrionEditorWidget(final ModuleHolder moduleHolder,
@@ -146,7 +162,6 @@ public class OrionEditorWidget extends CompositeEditorWidget implements HasChang
 
         this.orionEditorModule = moduleHolder.getModule("OrionEditor");
 
-
         // just first choice for the moment
         if (editorModes != null && !editorModes.isEmpty()) {
             setMode(editorModes.get(0));
@@ -155,6 +170,7 @@ public class OrionEditorWidget extends CompositeEditorWidget implements HasChang
         panel.getElement().setId("orion-parent-" + Document.get().createUniqueId());
         panel.getElement().addClassName(this.editorElementStyle.editorParent());
         this.editorOverlay = OrionEditorOverlay.createEditor(panel.getElement(), getConfiguration(), orionEditorModule);
+        this.extRulerOverlay = initBreakpointRuler(moduleHolder.getModule("OrionExtRulers"));
 
         this.keyModeInstances = keyModeInstances;
         final OrionTextViewOverlay textView = this.editorOverlay.getTextView();
@@ -175,13 +191,30 @@ public class OrionEditorWidget extends CompositeEditorWidget implements HasChang
         this.cheContentAssistMode =
                 OrionKeyModeOverlay.getCheCodeAssistMode(moduleHolder.getModule("CheContentAssistMode"), editorOverlay.getTextView());
         assistWidget = contentAssistWidgetFactory.create(this, cheContentAssistMode);
+        this.gutter = new OrionBreakpointRuler(extRulerOverlay, editorOverlay);
     }
 
+    private OrionExtRulerOverlay initBreakpointRuler(JavaScriptObject orionEditorExtRulerModule) {
+        OrionStyleOverlay rulerStyle = OrionStyleOverlay.create();
+        rulerStyle.setStyleClass("orionCodenvy ruler breakpoints");
+
+        OrionExtRulerOverlay extRulerOverlay = OrionExtRulerOverlay.create(getAnnotationModel(),
+                                                                           "left",
+                                                                           "page",
+                                                                           rulerStyle,
+                                                                           orionEditorExtRulerModule);
+        this.editorOverlay.getTextView().addRuler(extRulerOverlay, OrionBreakpointRuler.INDEX);
+
+        return extRulerOverlay;
+    }
+
+    /** {@inheritDoc} */
     @Override
     public String getValue() {
         return editorOverlay.getText();
     }
 
+    /** {@inheritDoc} */
     @Override
     public void setValue(String newValue) {
         this.editorOverlay.setText(newValue);
@@ -222,11 +255,13 @@ public class OrionEditorWidget extends CompositeEditorWidget implements HasChang
         this.modeName = mode;
     }
 
+    /** {@inheritDoc} */
     @Override
     public String getMode() {
         return modeName;
     }
 
+    /** {@inheritDoc} */
     @Override
     public void setReadOnly(final boolean isReadOnly) {
         this.editorOverlay.getTextView().getOptions().setReadOnly(isReadOnly);
@@ -234,16 +269,19 @@ public class OrionEditorWidget extends CompositeEditorWidget implements HasChang
     }
 
 
+    /** {@inheritDoc} */
     @Override
     public boolean isReadOnly() {
         return this.editorOverlay.getTextView().getOptions().isReadOnly();
     }
 
+    /** {@inheritDoc} */
     @Override
     public boolean isDirty() {
         return this.editorOverlay.isDirty();
     }
 
+    /** {@inheritDoc} */
     @Override
     public void markClean() {
         this.editorOverlay.setDirty(false);
@@ -273,6 +311,7 @@ public class OrionEditorWidget extends CompositeEditorWidget implements HasChang
         this.editorOverlay.getTextView().removeKeyMode(keyModeInstances.getInstance(KeyMode.EMACS));
     }
 
+    /** {@inheritDoc} */
     @Override
     public EmbeddedDocument getDocument() {
         if (this.embeddedDocument == null) {
@@ -281,6 +320,7 @@ public class OrionEditorWidget extends CompositeEditorWidget implements HasChang
         return this.embeddedDocument;
     }
 
+    /** {@inheritDoc} */
     @Override
     public Region getSelectedRange() {
         final OrionSelectionOverlay selection = this.editorOverlay.getSelection();
@@ -294,10 +334,12 @@ public class OrionEditorWidget extends CompositeEditorWidget implements HasChang
         return new RegionImpl(start, end - start);
     }
 
+    /** {@inheritDoc} */
     public void setSelectedRange(final Region selection, final boolean show) {
         this.editorOverlay.setSelection(selection.getOffset(), selection.getLength(), show);
     }
 
+    /** {@inheritDoc} */
     public void setDisplayRange(final Region range) {
         // show the line at the head of the range
         final int headOffset = range.getOffset() + range.getLength();
@@ -308,16 +350,19 @@ public class OrionEditorWidget extends CompositeEditorWidget implements HasChang
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public int getTabSize() {
         return this.editorOverlay.getTextView().getOptions().getTabSize();
     }
 
+    /** {@inheritDoc} */
     @Override
     public void setTabSize(int tabSize) {
         this.editorOverlay.getTextView().getOptions().setTabSize(tabSize);
     }
 
+    /** {@inheritDoc} */
     @Override
     public HandlerRegistration addChangeHandler(final ChangeHandler handler) {
         if (!changeHandlerAdded) {
@@ -338,6 +383,7 @@ public class OrionEditorWidget extends CompositeEditorWidget implements HasChang
         DomEvent.fireNativeEvent(Document.get().createChangeEvent(), this);
     }
 
+    /** {@inheritDoc} */
     @Override
     public HandlerRegistration addCursorActivityHandler(CursorActivityHandler handler) {
         if (!cursorHandlerAdded) {
@@ -358,6 +404,7 @@ public class OrionEditorWidget extends CompositeEditorWidget implements HasChang
         fireEvent(new CursorActivityEvent());
     }
 
+    /** {@inheritDoc} */
     @Override
     public HandlerRegistration addFocusHandler(FocusHandler handler) {
         if (!focusHandlerAdded) {
@@ -378,6 +425,7 @@ public class OrionEditorWidget extends CompositeEditorWidget implements HasChang
         DomEvent.fireNativeEvent(Document.get().createFocusEvent(), this);
     }
 
+    /** {@inheritDoc} */
     @Override
     public HandlerRegistration addBlurHandler(BlurHandler handler) {
         if (!blurHandlerAdded) {
@@ -399,6 +447,7 @@ public class OrionEditorWidget extends CompositeEditorWidget implements HasChang
     }
 
 
+    /** {@inheritDoc} */
     @Override
     public HandlerRegistration addScrollHandler(final ScrollHandler handler) {
         if (!scrollHandlerAdded) {
@@ -431,28 +480,34 @@ public class OrionEditorWidget extends CompositeEditorWidget implements HasChang
         selectKeyMode(keymap);
     }
 
+    /** {@inheritDoc} */
     @Override
     public EditorType getEditorType() {
         return EditorType.getInstance(OrionEditorExtension.ORION_EDITOR_KEY);
     }
 
+    /** {@inheritDoc} */
     @Override
     public Keymap getKeymap() {
         return this.keymap;
     }
 
+    /** {@inheritDoc} */
     public PositionConverter getPositionConverter() {
         return embeddedDocument.getPositionConverter();
     }
 
+    /** {@inheritDoc} */
     public void setFocus() {
         this.editorOverlay.focus();
     }
 
+    /** {@inheritDoc} */
     public void showMessage(final String message) {
         this.editorOverlay.reportStatus(message);
     }
 
+    /** {@inheritDoc} */
     @Override
     protected void onLoad() {
 
@@ -467,20 +522,23 @@ public class OrionEditorWidget extends CompositeEditorWidget implements HasChang
         }
     }
 
+    /** {@inheritDoc} */
     public void onResize() {
         // redraw text and rulers
         // maybe just redrawing the text would be enough
         this.editorOverlay.getTextView().redraw();
     }
 
+    /** {@inheritDoc} */
     public HandlesUndoRedo getUndoRedo() {
         return this.undoRedo;
     }
 
+    /** {@inheritDoc} */
     public void addKeybinding(final Keybinding keybinding) {
 
         OrionKeyStrokeOverlay strokeOverlay;
-        if(UserAgent.isMac()) {
+        if (UserAgent.isMac()) {
             strokeOverlay = OrionKeyStrokeOverlay.create(keybinding.getKeyCode(),
                                                          keybinding.isCmd(),
                                                          keybinding.isShift(),
@@ -508,6 +566,7 @@ public class OrionEditorWidget extends CompositeEditorWidget implements HasChang
 
     }
 
+    /** {@inheritDoc} */
     public MarkerRegistration addMarker(final TextRange range, final String className) {
         final OrionAnnotationOverlay annotation = OrionAnnotationOverlay.create();
 
@@ -532,6 +591,7 @@ public class OrionEditorWidget extends CompositeEditorWidget implements HasChang
         };
     }
 
+    /** {@inheritDoc} */
     public void showCompletionsProposals(final List<CompletionProposal> proposals) {
         if (proposals == null || proposals.isEmpty()) {
             return;
@@ -544,6 +604,7 @@ public class OrionEditorWidget extends CompositeEditorWidget implements HasChang
         assistWidget.positionAndShow();
     }
 
+    /** {@inheritDoc} */
     public void showCompletionProposals(final CompletionsSource completionsSource) {
         // currently not implemented
         completionsSource.computeCompletions(new CompletionReadyCallback() {
@@ -555,20 +616,45 @@ public class OrionEditorWidget extends CompositeEditorWidget implements HasChang
     }
 
 
+    /** {@inheritDoc} */
     @Override
     public LineStyler getLineStyler() {
-        return null;
+        if (this.lineStyler == null) {
+            this.lineStyler = new OrionLineStyler(editorOverlay);
+        }
+        return this.lineStyler;
     }
 
+    /** {@inheritDoc} */
     @Override
     public HandlerRegistration addGutterClickHandler(final GutterClickHandler handler) {
-        return null;
+        if (!gutterClickHandlerAdded) {
+            gutterClickHandlerAdded = true;
+            this.extRulerOverlay.addEventListener(OrionEventContants.RULER_CLICK_EVENT,
+                                                  new OrionExtRulerOverlay.EventHandler<OrionRulerClickEventOverlay>() {
+                                                      @Override
+                                                      public void onEvent(OrionRulerClickEventOverlay parameter) {
+                                                          final int lineIndex = parameter.getLineIndex();
+                                                          fireGutterClickEvent(lineIndex);
+                                                      }
+                                                  },
+                                                  false);
+        }
+        return addHandler(handler, GutterClickEvent.TYPE);
     }
 
+    private void fireGutterClickEvent(final int line) {
+        final GutterClickEvent gutterEvent = new GutterClickEvent(line, Gutters.BREAKPOINTS_GUTTER, null);
+        fireEvent(gutterEvent);
+        this.embeddedDocument.getDocEventBus().fireEvent(gutterEvent);
+    }
+
+    /** {@inheritDoc} */
     public void refresh() {
         this.editorOverlay.getTextView().redraw();
     }
 
+    /** {@inheritDoc} */
     @Override
     public boolean isCompletionProposalsShowing() {
         return assistWidget.isActive();
@@ -621,13 +707,19 @@ public class OrionEditorWidget extends CompositeEditorWidget implements HasChang
     }
 
     public void showCompletionInformation() {
-        if(assistWidget.isActive()){
+        if (assistWidget.isActive()) {
             assistWidget.showCompletionInfo();
         }
     }
 
     public OrionAnnotationModelOverlay getAnnotationModel() {
         return editorOverlay.getAnnotationModel();
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public Gutter getGutter() {
+        return gutter;
     }
 
     /**
