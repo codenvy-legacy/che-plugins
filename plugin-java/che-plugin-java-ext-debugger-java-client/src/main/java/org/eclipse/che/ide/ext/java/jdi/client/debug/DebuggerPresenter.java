@@ -20,8 +20,9 @@ import com.google.inject.Singleton;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
 
+import org.eclipse.che.api.machine.gwt.client.events.ExtServerStateEvent;
+import org.eclipse.che.api.machine.gwt.client.events.ExtServerStateHandler;
 import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
-import org.eclipse.che.api.workspace.shared.dto.UsersWorkspaceDto;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.commons.annotation.Nullable;
@@ -75,8 +76,6 @@ import org.eclipse.che.ide.websocket.MessageBusProvider;
 import org.eclipse.che.ide.websocket.WebSocketException;
 import org.eclipse.che.ide.websocket.rest.SubscriptionHandler;
 import org.eclipse.che.ide.websocket.rest.exceptions.ServerException;
-import org.eclipse.che.ide.workspace.start.StartWorkspaceEvent;
-import org.eclipse.che.ide.workspace.start.StartWorkspaceHandler;
 import org.vectomatic.dom.svg.ui.SVGResource;
 
 import javax.validation.constraints.Min;
@@ -172,6 +171,17 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
         this.changeValuePresenter = changeValuePresenter;
         this.notificationManager = notificationManager;
 
+        eventBus.addHandler(ExtServerStateEvent.TYPE, new ExtServerStateHandler() {
+            @Override
+            public void onExtServerStarted(ExtServerStateEvent event) {
+                messageBus = messageBusProvider.getMachineMessageBus();
+            }
+
+            @Override
+            public void onExtServerStopped(ExtServerStateEvent event) {
+            }
+        });
+
         this.debuggerEventsHandler = new SubscriptionHandler<DebuggerEventList>(new DebuggerEventListUnmarshallerWS(dtoFactory)) {
             @Override
             public void onMessageReceived(DebuggerEventList result) {
@@ -225,13 +235,6 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
                 }
             }
         };
-
-        eventBus.addHandler(StartWorkspaceEvent.TYPE, new StartWorkspaceHandler() {
-            @Override
-            public void onWorkspaceStarted(UsersWorkspaceDto workspace) {
-                messageBus = messageBusProvider.getMessageBus();
-            }
-        });
 
         eventBus.addHandler(ProjectActionEvent.TYPE, new ProjectActionHandler() {
             @Override
@@ -477,6 +480,10 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
     @Override
     public void onResumeButtonClicked() {
         changeButtonsEnableState(false);
+
+        final Breakpoint currentBreakpoint = breakpointManager.getCurrentBreakpoint();
+        breakpointManager.unmarkCurrentBreakpoint();
+
         service.resume(debuggerInfo.getId(), new AsyncRequestCallback<Void>() {
             @Override
             protected void onSuccess(Void result) {
@@ -485,6 +492,9 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
 
             @Override
             protected void onFailure(Throwable exception) {
+                if (currentBreakpoint != null) {
+                    breakpointManager.markCurrentBreakpoint(currentBreakpoint.getLineNumber());
+                }
                 Notification notification = new Notification(exception.getMessage(), ERROR);
                 notificationManager.showNotification(notification);
             }
@@ -521,7 +531,13 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
     /** {@inheritDoc} */
     @Override
     public void onStepIntoButtonClicked() {
-        if (!view.resetStepIntoButton(false)) return;
+        if (!view.resetStepIntoButton(false)) {
+            return;
+        }
+
+        final Breakpoint currentBreakpoint = breakpointManager.getCurrentBreakpoint();
+        breakpointManager.unmarkCurrentBreakpoint();
+
         service.stepInto(debuggerInfo.getId(), new AsyncRequestCallback<Void>() {
             @Override
             protected void onSuccess(Void result) {
@@ -531,6 +547,9 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
 
             @Override
             protected void onFailure(Throwable exception) {
+                if (currentBreakpoint != null) {
+                    breakpointManager.markCurrentBreakpoint(currentBreakpoint.getLineNumber());
+                }
                 Notification notification = new Notification(exception.getMessage(), ERROR);
                 notificationManager.showNotification(notification);
                 view.resetStepIntoButton(true);
@@ -541,7 +560,13 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
     /** {@inheritDoc} */
     @Override
     public void onStepOverButtonClicked() {
-        if (!view.resetStepOverButton(false)) return;
+        if (!view.resetStepOverButton(false)) {
+            return;
+        }
+
+        final Breakpoint currentBreakpoint = breakpointManager.getCurrentBreakpoint();
+        breakpointManager.unmarkCurrentBreakpoint();
+
         service.stepOver(debuggerInfo.getId(), new AsyncRequestCallback<Void>() {
             @Override
             protected void onSuccess(Void result) {
@@ -551,6 +576,9 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
 
             @Override
             protected void onFailure(Throwable exception) {
+                if (currentBreakpoint != null) {
+                    breakpointManager.markCurrentBreakpoint(currentBreakpoint.getLineNumber());
+                }
                 Notification notification = new Notification(exception.getMessage(), ERROR);
                 notificationManager.showNotification(notification);
                 view.resetStepOverButton(true);
@@ -562,7 +590,13 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
     /** {@inheritDoc} */
     @Override
     public void onStepReturnButtonClicked() {
-        if (!view.resetStepReturnButton(false)) return;
+        if (!view.resetStepReturnButton(false)) {
+            return;
+        }
+
+        final Breakpoint currentBreakpoint = breakpointManager.getCurrentBreakpoint();
+        breakpointManager.unmarkCurrentBreakpoint();
+
         service.stepReturn(debuggerInfo.getId(), new AsyncRequestCallback<Void>() {
             @Override
             protected void onSuccess(Void result) {
@@ -572,6 +606,9 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
 
             @Override
             protected void onFailure(Throwable exception) {
+                if (currentBreakpoint != null) {
+                    breakpointManager.markCurrentBreakpoint(currentBreakpoint.getLineNumber());
+                }
                 Notification notification = new Notification(exception.getMessage(), ERROR);
                 notificationManager.showNotification(notification);
                 view.resetStepReturnButton(true);
@@ -650,7 +687,6 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
         view.setVariables(variables);
         selectedVariable = null;
         updateChangeValueButtonEnableState();
-        breakpointManager.unmarkCurrentBreakpoint();
     }
 
     private void showDialog(@NotNull DebuggerInfo debuggerInfo) {
@@ -670,37 +706,13 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
 
     private void closeView() {
         variables.clear();
+        view.setVariables(variables);
+        view.setBreakpoints(new ArrayList<Breakpoint>());
+        view.setExecutionPoint(true, null);
         view.setEnableRemoveAllBreakpointsButton(false);
         view.setEnableDisconnectButton(false);
-        workspaceAgent.removePart(this);
+        workspaceAgent.hidePart(this);
     }
-
-//    /** Debug active project. */
-//    public void debug() {
-//        CurrentProject currentProject = appContext.getCurrentProject();
-//        if (currentProject == null) {
-//            return;
-//        }
-//        runner = runnerManager.launchRunner(getRunOptions(currentProject));
-//    }
-
-//    private RunOptions getRunOptions(CurrentProject currentProject) {
-//        RunOptions runOptions = dtoFactory.createDto(RunOptions.class);
-//        runOptions.setInDebugMode(true);
-//
-//        Environment environment = chooseRunnerAction.selectEnvironment();
-//        if (environment != null) {
-//            return runOptions.withOptions(environment.getOptions())
-//                             .withEnvironmentId(environment.getId())
-//                             .withMemorySize(environment.getRam());
-//        }
-//
-//        String defaultRunner = currentProject.getRunner();
-//        if (defaultRunner == null) {
-//            notificationManager.showError(constant.debuggerRunnerNotSpecified());
-//        }
-//        return runOptions;
-//    }
 
     /**
      * Attached debugger via special host and port for current project.

@@ -21,6 +21,7 @@ import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.project.type.ProjectTypeRegistry;
 import org.eclipse.che.ide.ext.java.jdi.client.JavaRuntimeLocalizationConstant;
+import org.eclipse.che.ide.ext.java.jdi.client.JavaRuntimeResources;
 import org.eclipse.che.ide.ext.java.jdi.client.debug.remotedebug.RemoteDebugPresenter;
 import org.eclipse.che.ide.ext.java.shared.Constants;
 import org.junit.Before;
@@ -51,6 +52,8 @@ public class RemoteDebugActionTest {
     private AnalyticsEventLogger            eventLogger;
     @Mock
     private ProjectTypeRegistry             typeRegistry;
+    @Mock
+    private JavaRuntimeResources            resources;
     @Mock
     private JavaRuntimeLocalizationConstant locale;
 

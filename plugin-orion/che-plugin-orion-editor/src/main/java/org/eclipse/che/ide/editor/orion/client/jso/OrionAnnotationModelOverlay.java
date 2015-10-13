@@ -55,7 +55,7 @@ public class OrionAnnotationModelOverlay extends JavaScriptObject {
 
     /**
      * Notifies the annotation model that the given annotation has been modified.
-     * 
+     *
      * @param annotation the modified annotation
      */
     public final native void modifyAnnotation(OrionAnnotationOverlay annotation) /*-{
@@ -64,7 +64,7 @@ public class OrionAnnotationModelOverlay extends JavaScriptObject {
 
     /**
      * Removes and adds the specifed annotations to the annotation model.
-     * 
+     *
      * @param removedAnnotation the annotation that is removed
      * @param addedAnnotation the annotation that is added
      */
@@ -78,7 +78,7 @@ public class OrionAnnotationModelOverlay extends JavaScriptObject {
      * @return annotations iterator
      */
     public final native OrionAnnotationIteratorOverlay getAnnotations(int startOffset, int endOffset) /*-{
-        this.getAnnotations(startOffset, endOffset);
+        return this.getAnnotations(startOffset, endOffset);
     }-*/;
 
     /**
@@ -87,6 +87,6 @@ public class OrionAnnotationModelOverlay extends JavaScriptObject {
      * @return annotations iterator
      */
     public final native OrionAnnotationIteratorOverlay getAnnotations() /*-{
-        this.getAnnotations();
+        return this.getAnnotations();
     }-*/;
 }

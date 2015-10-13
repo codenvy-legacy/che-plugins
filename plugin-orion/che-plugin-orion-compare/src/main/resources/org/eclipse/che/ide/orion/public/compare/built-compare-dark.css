@@ -3219,6 +3219,9 @@ textarea.parameterInput {
 .ruler.folding {
     width: 14px;
 }
+.ruler.breakpoints {
+    width: 14px;
+}
 .ruler.lines {
     text-align: right;
     background-color: #272b33;
