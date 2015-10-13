@@ -21,7 +21,7 @@ import org.eclipse.che.api.workspace.shared.dto.UsersWorkspaceDto;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.editor.EditorAgent;
-import org.eclipse.che.ide.api.event.ProjectActionHandler;
+import org.eclipse.che.ide.api.event.project.ProjectReadyHandler;
 import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.api.project.tree.generic.FileNode;
 import org.eclipse.che.ide.debug.Breakpoint;
@@ -76,37 +76,37 @@ public class DebuggerTest extends BaseTest {
     private static final String MIME_TYPE  = "application/java";
 
     @Captor
-    private ArgumentCaptor<ProjectActionHandler> projectActionHandlerArgumentCaptor;
+    private ArgumentCaptor<ProjectReadyHandler> projectActionHandlerArgumentCaptor;
     @Mock
-    private DebuggerView                         view;
+    private DebuggerView                        view;
     @Mock
-    private EvaluateExpressionPresenter          evaluateExpressionPresenter;
+    private EvaluateExpressionPresenter         evaluateExpressionPresenter;
     @Mock
-    private ChangeValuePresenter                 changeValuePresenter;
+    private ChangeValuePresenter                changeValuePresenter;
     @Mock
-    private BreakpointManager                    gutterManager;
+    private BreakpointManager                   gutterManager;
     @Mock
-    private FileNode                             file;
+    private FileNode                            file;
     @Mock
-    private ItemReference                        fileReference;
+    private ItemReference                       fileReference;
     @Mock
-    private FqnResolverFactory                   resolverFactory;
+    private FqnResolverFactory                  resolverFactory;
     @Mock
-    private AsyncCallback<Breakpoint>            asyncCallbackBreakpoint;
+    private AsyncCallback<Breakpoint>           asyncCallbackBreakpoint;
     @Mock
-    private ProjectDescriptor                    project;
+    private ProjectDescriptor                   project;
     @Mock
-    private AsyncCallback<Void>                  asyncCallbackVoid;
+    private AsyncCallback<Void>                 asyncCallbackVoid;
     @Mock
-    private AppContext                           appContext;
+    private AppContext                          appContext;
     @Mock
-    private CurrentProject                       currentProject;
+    private CurrentProject                      currentProject;
     @Mock
-    private EditorAgent                          editorAgent;
+    private EditorAgent                         editorAgent;
     @Mock
-    private MessageBusProvider                   messageBusProvider;
+    private MessageBusProvider                  messageBusProvider;
     @Mock
-    private UsersWorkspaceDto                    workspace;
+    private UsersWorkspaceDto                   workspace;
 
     @Captor
     private ArgumentCaptor<ExtServerStateHandler> extServerStateHandlerCaptor;

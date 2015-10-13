@@ -25,6 +25,7 @@ import org.eclipse.che.api.machine.gwt.client.events.ExtServerStateHandler;
 import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
+import org.eclipse.che.api.workspace.shared.dto.UsersWorkspaceDto;
 import org.eclipse.che.commons.annotation.Nullable;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
@@ -33,8 +34,10 @@ import org.eclipse.che.ide.api.editor.EditorPartPresenter;
 import org.eclipse.che.ide.api.event.ActivePartChangedEvent;
 import org.eclipse.che.ide.api.event.ActivePartChangedHandler;
 import org.eclipse.che.ide.api.event.FileEvent;
-import org.eclipse.che.ide.api.event.ProjectActionEvent;
-import org.eclipse.che.ide.api.event.ProjectActionHandler;
+import org.eclipse.che.ide.api.event.project.CloseCurrentProjectEvent;
+import org.eclipse.che.ide.api.event.project.CloseCurrentProjectHandler;
+import org.eclipse.che.ide.api.event.project.ProjectReadyEvent;
+import org.eclipse.che.ide.api.event.project.ProjectReadyHandler;
 import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.parts.PartPresenter;
@@ -76,6 +79,8 @@ import org.eclipse.che.ide.websocket.MessageBusProvider;
 import org.eclipse.che.ide.websocket.WebSocketException;
 import org.eclipse.che.ide.websocket.rest.SubscriptionHandler;
 import org.eclipse.che.ide.websocket.rest.exceptions.ServerException;
+import org.eclipse.che.ide.workspace.start.StartWorkspaceEvent;
+import org.eclipse.che.ide.workspace.start.StartWorkspaceHandler;
 import org.vectomatic.dom.svg.ui.SVGResource;
 
 import javax.validation.constraints.Min;
@@ -236,9 +241,16 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
             }
         };
 
-        eventBus.addHandler(ProjectActionEvent.TYPE, new ProjectActionHandler() {
+        eventBus.addHandler(StartWorkspaceEvent.TYPE, new StartWorkspaceHandler() {
             @Override
-            public void onProjectReady(ProjectActionEvent event) {
+            public void onWorkspaceStarted(UsersWorkspaceDto workspace) {
+                messageBus = messageBusProvider.getMessageBus();
+            }
+        });
+
+        eventBus.addHandler(ProjectReadyEvent.TYPE, new ProjectReadyHandler() {
+            @Override
+            public void onProjectReady(ProjectReadyEvent event) {
                 CurrentProject currentProject = appContext.getCurrentProject();
 
                 if (currentProject == null) {
@@ -254,17 +266,11 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
                 List<String> sources = attributes.get(key);
                 srcFolder = sources == null ? "src/main/java" : sources.get(0);
             }
+        });
 
+        eventBus.addHandler(CloseCurrentProjectEvent.TYPE, new CloseCurrentProjectHandler() {
             @Override
-            public void onProjectOpened(ProjectActionEvent event) {
-            }
-
-            @Override
-            public void onProjectClosing(ProjectActionEvent event) {
-            }
-
-            @Override
-            public void onProjectClosed(ProjectActionEvent event) {
+            public void onCloseCurrentProject(CloseCurrentProjectEvent event) {
                 // application will be stopped after closing a project
                 if (debuggerInfo != null) {
                     changeButtonsEnableState(false);

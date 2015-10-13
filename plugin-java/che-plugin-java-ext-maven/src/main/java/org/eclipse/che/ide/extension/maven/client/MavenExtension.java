@@ -21,8 +21,8 @@ import org.eclipse.che.ide.api.action.DefaultActionGroup;
 import org.eclipse.che.ide.api.action.IdeActions;
 import org.eclipse.che.ide.api.constraints.Anchor;
 import org.eclipse.che.ide.api.constraints.Constraints;
-import org.eclipse.che.ide.api.event.ProjectActionEvent;
-import org.eclipse.che.ide.api.event.ProjectActionHandler;
+import org.eclipse.che.ide.api.event.project.ProjectReadyEvent;
+import org.eclipse.che.ide.api.event.project.ProjectReadyHandler;
 import org.eclipse.che.ide.api.extension.Extension;
 import org.eclipse.che.ide.api.icon.Icon;
 import org.eclipse.che.ide.api.icon.IconRegistry;
@@ -50,7 +50,7 @@ import static org.eclipse.che.ide.api.action.IdeActions.GROUP_FILE_NEW;
 @Extension(title = "Maven", version = "3.0.0")
 public class MavenExtension {
     private static List<MavenArchetype> archetypes;
-    private        ProjectDescriptor     project;
+    private        ProjectDescriptor    project;
 
     @Inject
     public MavenExtension(PreSelectedProjectTypeManager preSelectedProjectManager) {
@@ -70,25 +70,13 @@ public class MavenExtension {
     @Inject
     private void bindEvents(final EventBus eventBus, final DependenciesUpdater dependenciesUpdater) {
 
-        eventBus.addHandler(ProjectActionEvent.TYPE, new ProjectActionHandler() {
+        eventBus.addHandler(ProjectReadyEvent.TYPE, new ProjectReadyHandler() {
             @Override
-            public void onProjectReady(ProjectActionEvent event) {
+            public void onProjectReady(ProjectReadyEvent event) {
                 project = event.getProject();
                 if (isValidForResolveDependencies(project)) {
                     dependenciesUpdater.updateDependencies(project);
                 }
-            }
-
-            @Override
-            public void onProjectOpened(ProjectActionEvent event) {
-            }
-
-            @Override
-            public void onProjectClosing(ProjectActionEvent event) {
-            }
-
-            @Override
-            public void onProjectClosed(ProjectActionEvent event) {
             }
         });
 

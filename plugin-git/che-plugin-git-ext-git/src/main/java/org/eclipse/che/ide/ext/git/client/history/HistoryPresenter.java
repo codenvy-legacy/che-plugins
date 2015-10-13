@@ -23,8 +23,8 @@ import org.eclipse.che.api.git.shared.Revision;
 import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.commons.annotation.Nullable;
 import org.eclipse.che.ide.api.app.AppContext;
-import org.eclipse.che.ide.api.event.ProjectActionEvent;
-import org.eclipse.che.ide.api.event.ProjectActionHandler;
+import org.eclipse.che.ide.api.event.project.CloseCurrentProjectEvent;
+import org.eclipse.che.ide.api.event.project.CloseCurrentProjectHandler;
 import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.parts.PartPresenter;
@@ -73,7 +73,7 @@ public class HistoryPresenter extends BasePresenter implements HistoryView.Actio
     private       boolean                 showChangesInProject;
     private       DiffWith                diffType;
     private boolean isViewClosed = true;
-    private List<Revision>     revisions;
+    private List<Revision>      revisions;
     private SelectionAgent      selectionAgent;
     private Revision            selectedRevision;
     private NotificationManager notificationManager;
@@ -104,27 +104,13 @@ public class HistoryPresenter extends BasePresenter implements HistoryView.Actio
         this.notificationManager = notificationManager;
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
         this.selectionAgent = selectionAgent;
-        eventBus.addHandler(ProjectActionEvent.TYPE, new ProjectActionHandler() {
+
+        eventBus.addHandler(CloseCurrentProjectEvent.TYPE, new CloseCurrentProjectHandler() {
             @Override
-            public void onProjectReady(ProjectActionEvent event) {
-
-            }
-
-            @Override
-            public void onProjectClosing(ProjectActionEvent event) {
-
-            }
-
-            @Override
-            public void onProjectClosed(ProjectActionEvent event) {
+            public void onCloseCurrentProject(CloseCurrentProjectEvent event) {
                 isViewClosed = true;
                 workspaceAgent.hidePart(HistoryPresenter.this);
                 view.clear();
-            }
-
-            @Override
-            public void onProjectOpened(ProjectActionEvent event) {
-
             }
         });
     }

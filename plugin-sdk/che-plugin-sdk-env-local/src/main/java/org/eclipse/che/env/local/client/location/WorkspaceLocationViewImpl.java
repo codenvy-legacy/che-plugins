@@ -22,13 +22,11 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.inject.Inject;
-import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.env.local.client.LocalizationConstant;
 import org.eclipse.che.env.local.client.WorkspaceToDirectoryMappingServiceClient;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.notification.NotificationManager;
-import org.eclipse.che.ide.api.project.node.event.ProjectPartLoadEvent;
 import org.eclipse.che.ide.json.JsonHelper;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.StringMapUnmarshaller;
@@ -46,7 +44,6 @@ import java.util.Map;
 public class WorkspaceLocationViewImpl extends Window implements WorkspaceLocationView {
     private final WorkspaceToDirectoryMappingServiceClient service;
     private final AppContext                               appContext;
-    private final EventBus                                 eventBus;
     private final DialogFactory                            dialogFactory;
     private final NotificationManager                      notificationManager;
 
@@ -64,12 +61,10 @@ public class WorkspaceLocationViewImpl extends Window implements WorkspaceLocati
                                      WorkspaceToDirectoryMappingServiceClient service,
                                      DialogFactory dialogFactory,
                                      AppContext appContext,
-                                     EventBus eventBus,
                                      NotificationManager notificationManager) {
         this.service = service;
         this.appContext = appContext;
         this.notificationManager = notificationManager;
-        this.eventBus = eventBus;
         this.dialogFactory = dialogFactory;
         this.setTitle(localizationConstant.rootFolderDialogTitleChange());
 
@@ -88,7 +83,6 @@ public class WorkspaceLocationViewImpl extends Window implements WorkspaceLocati
                                      new AsyncRequestCallback<Map<String, String>>(new StringMapUnmarshaller()) {
                                          @Override
                                          protected void onSuccess(Map<String, String> result) {
-                                             eventBus.fireEvent(new ProjectPartLoadEvent());
                                              closeDialog();
                                          }
 

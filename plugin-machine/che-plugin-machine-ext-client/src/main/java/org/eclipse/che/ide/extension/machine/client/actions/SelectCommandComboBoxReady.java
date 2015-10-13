@@ -35,8 +35,10 @@ import org.eclipse.che.ide.api.action.CustomComponentAction;
 import org.eclipse.che.ide.api.action.DefaultActionGroup;
 import org.eclipse.che.ide.api.action.Presentation;
 import org.eclipse.che.ide.api.app.AppContext;
-import org.eclipse.che.ide.api.event.ProjectActionEvent;
-import org.eclipse.che.ide.api.event.ProjectActionHandler;
+import org.eclipse.che.ide.api.event.project.CloseCurrentProjectEvent;
+import org.eclipse.che.ide.api.event.project.CloseCurrentProjectHandler;
+import org.eclipse.che.ide.api.event.project.ProjectReadyEvent;
+import org.eclipse.che.ide.api.event.project.ProjectReadyHandler;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.MachineResources;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
@@ -63,9 +65,10 @@ import static org.eclipse.che.ide.workspace.perspectives.project.ProjectPerspect
  * @author Artem Zatsarynnyy
  */
 @Singleton
-public class SelectCommandComboBoxAction extends AbstractPerspectiveAction implements CustomComponentAction,
-                                                                                      ProjectActionHandler,
-                                                                                      EditCommandsPresenter.ConfigurationChangedListener {
+public class SelectCommandComboBoxReady extends AbstractPerspectiveAction implements CustomComponentAction,
+                                                                                     ProjectReadyHandler,
+                                                                                     EditCommandsPresenter.ConfigurationChangedListener,
+                                                                                     CloseCurrentProjectHandler {
 
     public static final  String                           GROUP_COMMANDS     = "CommandsGroup";
     private static final Comparator<CommandConfiguration> commandsComparator = new CommandsComparator();
@@ -87,17 +90,17 @@ public class SelectCommandComboBoxAction extends AbstractPerspectiveAction imple
     private String                     lastDevMachineId;
 
     @Inject
-    public SelectCommandComboBoxAction(MachineLocalizationConstant locale,
-                                       MachineResources resources,
-                                       ActionManager actionManager,
-                                       EventBus eventBus,
-                                       DropDownListFactory dropDownListFactory,
-                                       WorkspaceServiceClient workspaceServiceClient,
-                                       MachineServiceClient machineServiceClient,
-                                       CommandTypeRegistry commandTypeRegistry,
-                                       EditCommandsPresenter editCommandsPresenter,
-                                       AppContext appContext,
-                                       @Named("workspaceId") String workspaceId) {
+    public SelectCommandComboBoxReady(MachineLocalizationConstant locale,
+                                      MachineResources resources,
+                                      ActionManager actionManager,
+                                      EventBus eventBus,
+                                      DropDownListFactory dropDownListFactory,
+                                      WorkspaceServiceClient workspaceServiceClient,
+                                      MachineServiceClient machineServiceClient,
+                                      CommandTypeRegistry commandTypeRegistry,
+                                      EditCommandsPresenter editCommandsPresenter,
+                                      AppContext appContext,
+                                      @Named("workspaceId") String workspaceId) {
         super(Collections.singletonList(PROJECT_PERSPECTIVE_ID),
               locale.selectCommandControlTitle(),
               locale.selectCommandControlDescription(),
@@ -117,7 +120,7 @@ public class SelectCommandComboBoxAction extends AbstractPerspectiveAction imple
 
         commands = new LinkedList<>();
 
-        eventBus.addHandler(ProjectActionEvent.TYPE, this);
+        eventBus.addHandler(ProjectReadyEvent.TYPE, this);
         editCommandsPresenter.addConfigurationsChangedListener(this);
 
         commandActions = new DefaultActionGroup(GROUP_COMMANDS, false, actionManager);
@@ -193,22 +196,15 @@ public class SelectCommandComboBoxAction extends AbstractPerspectiveAction imple
     }
 
     @Override
-    public void onProjectReady(ProjectActionEvent event) {
+    public void onProjectReady(ProjectReadyEvent event) {
         loadCommands(null);
     }
 
     @Override
-    public void onProjectOpened(ProjectActionEvent event) {
-    }
-
-    @Override
-    public void onProjectClosing(ProjectActionEvent event) {
-    }
-
-    @Override
-    public void onProjectClosed(ProjectActionEvent event) {
+    public void onCloseCurrentProject(CloseCurrentProjectEvent event) {
         setCommandConfigurations(Collections.<CommandConfiguration>emptyList(), null);
     }
+
 
     /**
      * Load all saved commands.

@@ -10,16 +10,18 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.java.client.dependenciesupdater;
 
-import com.google.web.bindery.event.shared.EventBus;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.ide.api.app.AppContext;
-import org.eclipse.che.ide.ext.java.client.event.DependencyUpdatedEvent;
+import org.eclipse.che.ide.api.event.project.OpenProjectEvent;
+import org.eclipse.che.ide.api.event.project.OpenProjectHandler;
 import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.ext.java.client.JavaLocalizationConstant;
+import org.eclipse.che.ide.ext.java.client.event.DependencyUpdatedEvent;
 import org.eclipse.che.ide.ext.java.client.project.node.jar.ExternalLibrariesNode;
 import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
@@ -60,6 +62,13 @@ public class DependenciesUpdater {
         this.classpathServiceClient = classpathServiceClient;
         this.eventBus = eventBus;
         this.projectExplorer = projectExplorer;
+
+        eventBus.addHandler(OpenProjectEvent.TYPE, new OpenProjectHandler() {
+            @Override
+            public void onProjectOpened(OpenProjectEvent event) {
+                updateDependencies(event.getDescriptor());
+            }
+        });
     }
 
     public void updateDependencies(final ProjectDescriptor project) {
