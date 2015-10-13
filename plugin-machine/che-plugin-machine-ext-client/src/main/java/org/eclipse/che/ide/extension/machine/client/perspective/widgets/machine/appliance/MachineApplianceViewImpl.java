@@ -17,6 +17,7 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.RequiresResize;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 
@@ -34,7 +35,7 @@ import java.util.List;
  *
  * @author Dmitry Shnurenko
  */
-public class MachineApplianceViewImpl extends Composite implements MachineApplianceView, PartStackView {
+public class MachineApplianceViewImpl extends Composite implements MachineApplianceView, PartStackView, RequiresResize {
     interface MachineInfoContainerUiBinder extends UiBinder<Widget, MachineApplianceViewImpl> {
     }
 
@@ -88,6 +89,16 @@ public class MachineApplianceViewImpl extends Composite implements MachineApplia
             tabContainers.add(tabContainer);
 
             mainContainer.add(tabContainer);
+        }
+    }
+
+    @Override
+    public void onResize() {
+        for (int i = 0; i < mainContainer.getWidgetCount(); i++) {
+            Widget widget = mainContainer.getWidget(i);
+            if (widget instanceof RequiresResize) {
+                ((RequiresResize)widget).onResize();
+            }
         }
     }
 
