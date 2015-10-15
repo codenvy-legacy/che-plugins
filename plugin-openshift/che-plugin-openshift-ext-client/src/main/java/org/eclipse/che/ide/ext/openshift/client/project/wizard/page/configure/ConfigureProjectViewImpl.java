@@ -16,7 +16,6 @@ import elemental.html.TableElement;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
@@ -32,7 +31,6 @@ import com.google.inject.Singleton;
 
 import org.eclipse.che.ide.Resources;
 import org.eclipse.che.ide.ext.openshift.shared.dto.Project;
-import org.eclipse.che.ide.ext.openshift.shared.dto.Template;
 import org.eclipse.che.ide.ui.list.SimpleList;
 import org.eclipse.che.ide.util.dom.Elements;
 
@@ -155,6 +153,11 @@ public class ConfigureProjectViewImpl implements ConfigureProjectView {
         }
     }
 
+    @UiHandler({"cdPublicProject", "cdPrivateProject"})
+    public void onCodenvyPrivacyRadioButtonClicked(ClickEvent event) {
+        delegate.onCodenvyProjectPrivacyChanged();
+    }
+
     @UiHandler({"osProjectNameInput"})
     public void onOpenShiftProjectNameChanged(KeyUpEvent event) {
         delegate.onOpenShiftNewProjectNameChanged();
@@ -163,6 +166,21 @@ public class ConfigureProjectViewImpl implements ConfigureProjectView {
     @UiHandler({"cdProjectNameInput"})
     public void onCodenvyProjectNameChanged(KeyUpEvent event) {
         delegate.onCodenvyNewProjectNameChanged();
+    }
+
+    @UiHandler({"osProjectDescriptionInput"})
+    public void onOpenShiftProjectDescriptionChanged(KeyUpEvent event) {
+        delegate.onOpenShiftDescriptionChanged();
+    }
+
+    @UiHandler({"cdProjectDescriptionInput"})
+    public void onCodenvyProjectDescriptionChanged(KeyUpEvent event) {
+        delegate.onCodenvyDescriptionChanged();
+    }
+
+    @UiHandler({"osProjectDisplayNameInput"})
+    public void onOpenShiftProjectDisplayNameChanged(KeyUpEvent event) {
+        delegate.onOpenShiftDisplayNameChanged();
     }
 
     /** {@inheritDoc} */
@@ -202,5 +220,29 @@ public class ConfigureProjectViewImpl implements ConfigureProjectView {
     @Override
     public String getCodenvyNewProjectName() {
         return cdProjectNameInput.getValue();
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public String getOpenShiftProjectDescription() {
+        return osProjectDescriptionInput.getValue();
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public String getCodenvyProjectDescription() {
+        return cdProjectDescriptionInput.getValue();
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public String getOpenShiftProjectDisplayName() {
+        return osProjectDisplayNameInput.getValue();
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public boolean isCodenvyPublicProject() {
+        return cdPublicProject.getValue();
     }
 }

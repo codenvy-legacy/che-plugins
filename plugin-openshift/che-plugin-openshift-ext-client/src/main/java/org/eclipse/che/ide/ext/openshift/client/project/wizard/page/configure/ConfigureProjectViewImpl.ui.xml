@@ -59,7 +59,7 @@
                 </g:Dock>
 
                 <g:Dock direction="NORTH">
-                    <g:ScrollPanel ui:field="osExistProjectListPanel"/>
+                    <g:ScrollPanel ui:field="osExistProjectListPanel" height="230px"/>
                 </g:Dock>
 
             </g:DockPanel>

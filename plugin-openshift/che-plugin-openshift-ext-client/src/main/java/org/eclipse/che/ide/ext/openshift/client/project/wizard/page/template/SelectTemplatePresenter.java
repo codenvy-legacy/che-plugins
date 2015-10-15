@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.openshift.client.project.wizard.page.template;
 
+import com.google.common.base.Strings;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.inject.Inject;
@@ -22,13 +23,16 @@ import org.eclipse.che.api.promises.client.callback.AsyncPromiseHelper;
 import org.eclipse.che.api.promises.client.js.Promises;
 import org.eclipse.che.ide.api.wizard.AbstractWizardPage;
 import org.eclipse.che.ide.ext.openshift.client.OpenshiftServiceClient;
-import org.eclipse.che.ide.ext.openshift.shared.dto.Template;
 import org.eclipse.che.ide.ext.openshift.client.dto.NewApplicationRequest;
+import org.eclipse.che.ide.ext.openshift.shared.dto.Parameter;
+import org.eclipse.che.ide.ext.openshift.shared.dto.Template;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.rest.Unmarshallable;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.eclipse.che.api.promises.client.callback.AsyncPromiseHelper.createFromAsyncRequest;
 
@@ -121,6 +125,38 @@ public class SelectTemplatePresenter extends AbstractWizardPage<NewApplicationRe
     public void onTemplateSelected(Template template) {
         this.template = template;
         dataObject.setTemplate(template);
+
+        Map<String, String> importOptions = new HashMap<>(2);
+
+        for (Parameter parameter : template.getParameters()) {
+            if ("GIT_URI".equals(parameter.getName())) {
+                String value = parameter.getValue();
+                dataObject.getImportProject()
+                          .getSource()
+                          .getProject()
+                          .withType("git")
+                          .withLocation(value)
+                          .withParameters(importOptions);
+            } else if ("GIT_REF".equals(parameter.getName())) {
+                String value = parameter.getValue();
+                if (Strings.isNullOrEmpty(value)) {
+                    break;
+                }
+                importOptions.put("branch", value);
+            } else if ("GIT_CONTEXT_DIR".equals(parameter.getName())) {
+                String value = parameter.getValue();
+                if (Strings.isNullOrEmpty(value)) {
+                    break;
+                }
+
+                importOptions.put("keepDirectory", value);
+                dataObject.getImportProject()
+                          .getProject()
+                          .withType("blank")
+                          .withContentRoot(value);
+            }
+        }
+
         updateDelegate.updateControls();
     }
 }

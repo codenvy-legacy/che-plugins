@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * <p/>
  * Contributors:
- *   Codenvy, S.A. - initial API and implementation
+ * Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
 package org.eclipse.che.ide.ext.openshift.client.project.wizard.page.configure;
 
@@ -17,16 +17,23 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
+import org.eclipse.che.api.project.shared.dto.ImportProject;
+import org.eclipse.che.api.project.shared.dto.ImportSourceDescriptor;
+import org.eclipse.che.api.project.shared.dto.NewProject;
 import org.eclipse.che.api.project.shared.dto.ProjectReference;
+import org.eclipse.che.api.project.shared.dto.Source;
 import org.eclipse.che.api.promises.client.Function;
 import org.eclipse.che.api.promises.client.FunctionException;
 import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.api.promises.client.callback.AsyncPromiseHelper;
 import org.eclipse.che.api.promises.client.js.Promises;
 import org.eclipse.che.ide.api.wizard.AbstractWizardPage;
+import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.ext.openshift.client.OpenshiftServiceClient;
 import org.eclipse.che.ide.ext.openshift.client.dto.NewApplicationRequest;
+import org.eclipse.che.ide.ext.openshift.shared.dto.ObjectMeta;
 import org.eclipse.che.ide.ext.openshift.shared.dto.Project;
+import org.eclipse.che.ide.ext.openshift.shared.dto.ProjectRequest;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.rest.Unmarshallable;
@@ -48,6 +55,7 @@ public class ConfigureProjectPresenter extends AbstractWizardPage<NewApplication
     private final OpenshiftServiceClient openShiftClient;
     private final ProjectServiceClient   projectServiceClient;
     private final DtoUnmarshallerFactory dtoUnmarshaller;
+    private final DtoFactory             dtoFactory;
     private       List<Project>          cachedOpenShiftProjects;
     private       List<ProjectReference> cachedCodenvyProjects;
 
@@ -58,11 +66,13 @@ public class ConfigureProjectPresenter extends AbstractWizardPage<NewApplication
     public ConfigureProjectPresenter(ConfigureProjectView view,
                                      OpenshiftServiceClient openShiftClient,
                                      ProjectServiceClient projectServiceClient,
-                                     DtoUnmarshallerFactory dtoUnmarshaller) {
+                                     DtoUnmarshallerFactory dtoUnmarshaller,
+                                     DtoFactory dtoFactory) {
         this.view = view;
         this.openShiftClient = openShiftClient;
         this.projectServiceClient = projectServiceClient;
         this.dtoUnmarshaller = dtoUnmarshaller;
+        this.dtoFactory = dtoFactory;
 
         view.setDelegate(this);
 
@@ -117,12 +127,14 @@ public class ConfigureProjectPresenter extends AbstractWizardPage<NewApplication
     /** {@inheritDoc} */
     @Override
     public void onOpenShiftNewProjectNameChanged() {
+        setUpNewProjectRequest();
         updateDelegate.updateControls();
     }
 
     /** {@inheritDoc} */
     @Override
     public void onCodenvyNewProjectNameChanged() {
+        setUpCodenvyProjectRequest();
         updateDelegate.updateControls();
     }
 
@@ -234,9 +246,78 @@ public class ConfigureProjectPresenter extends AbstractWizardPage<NewApplication
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public void onExistProjectSelected() {
-        dataObject.setProject(view.getExistedSelectedProject());
+        setUpExistProjectRequest();
         updateDelegate.updateControls();
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void onOpenShiftDescriptionChanged() {
+        setUpNewProjectRequest();
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void onCodenvyDescriptionChanged() {
+        setUpCodenvyProjectRequest();
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void onOpenShiftDisplayNameChanged() {
+        setUpNewProjectRequest();
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void onCodenvyProjectPrivacyChanged() {
+        setUpCodenvyProjectRequest();
+    }
+
+    private void setUpNewProjectRequest() {
+        ProjectRequest projectRequest;
+
+        if (dataObject.getProjectRequest() == null) {
+            dataObject.withProjectRequest(dtoFactory.createDto(ProjectRequest.class));
+        }
+
+        projectRequest = dataObject.getProjectRequest();
+        projectRequest.withApiVersion("v1")
+                      .withDescription(view.getOpenShiftProjectDescription())
+                      .withDisplayName(view.getOpenShiftProjectDisplayName())
+                      .withMetadata(dtoFactory.createDto(ObjectMeta.class).withName(view.getOpenShiftNewProjectName()));
+
+        if (dataObject.getProject() != null) {
+            dataObject.setProject(null);
+        }
+    }
+
+    private void setUpExistProjectRequest() {
+        dataObject.setProject(view.getExistedSelectedProject());
+
+        if (dataObject.getProjectRequest() != null) {
+            dataObject.setProjectRequest(null);
+        }
+    }
+
+    private void setUpCodenvyProjectRequest() {
+        ImportProject importProject;
+
+        if (dataObject.getImportProject() == null) {
+            ImportProject dtoImportProject = dtoFactory.createDto(ImportProject.class);
+            dtoImportProject.withProject(dtoFactory.createDto(NewProject.class))
+                            .withSource(dtoFactory.createDto(Source.class).withProject(dtoFactory.createDto(ImportSourceDescriptor.class)));
+
+            dataObject.withImportProject(dtoImportProject);
+        }
+
+        importProject = dataObject.getImportProject();
+        importProject.getProject()
+                     .withName(view.getCodenvyNewProjectName())
+                     .withDescription(view.getCodenvyProjectDescription())
+                     .withVisibility(view.isCodenvyPublicProject() ? "public" : "private");
     }
 }

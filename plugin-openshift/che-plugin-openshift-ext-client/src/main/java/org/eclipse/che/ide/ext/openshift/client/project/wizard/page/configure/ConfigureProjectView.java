@@ -40,7 +40,15 @@ public interface ConfigureProjectView extends View<ConfigureProjectView.ActionDe
     /** @return new Codenvy project name. */
     String getCodenvyNewProjectName();
 
-    /** @return selected existed OpenShift project. */
+    String getOpenShiftProjectDescription();
+
+    String getCodenvyProjectDescription();
+
+    String getOpenShiftProjectDisplayName();
+
+    boolean isCodenvyPublicProject();
+
+    /** @return selected existed OpenShift project or null. */
     Project getExistedSelectedProject();
 
     /** Handles operations from the view. */
@@ -50,6 +58,18 @@ public interface ConfigureProjectView extends View<ConfigureProjectView.ActionDe
 
         /** Process operations when codenvy project name changed. */
         void onCodenvyNewProjectNameChanged();
+
+        /** Process operations when openshift project description changed. */
+        void onOpenShiftDescriptionChanged();
+
+        /** Process operations when codenvy project description changed. */
+        void onCodenvyDescriptionChanged();
+
+        /** Process operations when openshift project display name changed. */
+        void onOpenShiftDisplayNameChanged();
+
+        /** Process operations when codenvy project privacy changed. */
+        void onCodenvyProjectPrivacyChanged();
 
         /** Process operation when existed project selected. */
         void onExistProjectSelected();
