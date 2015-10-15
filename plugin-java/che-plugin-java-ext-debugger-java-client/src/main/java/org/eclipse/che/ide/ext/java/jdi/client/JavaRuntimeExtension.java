@@ -48,7 +48,6 @@ public class JavaRuntimeExtension {
     public static final String DISCONNECT_CHANNEL = "debugger:disconnected:";
 
     private static final String REMOTE_DEBUG_ID     = "remoteDebug";
-    public static final  String GROUP_DEBUG_TOOLBAR = "DebugGroupToolbar";
 
     @Inject
     public JavaRuntimeExtension(ActionManager actionManager,
@@ -67,13 +66,6 @@ public class JavaRuntimeExtension {
         // add actions in main menu
         mainMenu.add(debugMenu, new Constraints(Anchor.AFTER, IdeActions.GROUP_CODE));
         debugMenu.add(remoteDebugAction);
-
-        // add actions on center part of toolbar
-        final DefaultActionGroup debugToolbarGroup = new DefaultActionGroup(GROUP_DEBUG_TOOLBAR, false, actionManager);
-        actionManager.registerAction(GROUP_DEBUG_TOOLBAR, debugToolbarGroup);
-        debugToolbarGroup.add(remoteDebugAction);
-        final DefaultActionGroup centerToolbarGroup = (DefaultActionGroup)actionManager.getAction(IdeActions.GROUP_CENTER_TOOLBAR);
-        centerToolbarGroup.add(debugToolbarGroup);
 
         // add actions in context menu
         DefaultActionGroup runContextGroup = (DefaultActionGroup)actionManager.getAction(IdeActions.GROUP_RUN_CONTEXT_MENU);
