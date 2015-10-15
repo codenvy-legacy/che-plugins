@@ -138,7 +138,8 @@ public class SelectTemplatePresenter extends AbstractWizardPage<NewApplicationRe
                           .withLocation(value)
                           .withParameters(importOptions);
             } else if ("GIT_REF".equals(parameter.getName())) {
-                String value = parameter.getValue();
+//                String value = parameter.getValue();
+                String value = "7.0.x-develop";
                 if (Strings.isNullOrEmpty(value)) {
                     break;
                 }
