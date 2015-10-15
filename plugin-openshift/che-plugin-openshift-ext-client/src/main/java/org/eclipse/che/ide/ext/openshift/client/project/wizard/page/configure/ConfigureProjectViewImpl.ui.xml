@@ -12,97 +12,95 @@
 -->
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
              xmlns:g='urn:import:com.google.gwt.user.client.ui'>
-    <ui:style>
-        .verticalLine {
-            border-left: 1px solid #505050;
-        }
-    </ui:style>
+    <ui:with field="resources" type="org.eclipse.che.ide.ext.openshift.client.OpenshiftResources"/>
     <g:DockPanel width="800px">
         <!-- OpenShift configuration -->
-        <g:Dock direction="WEST">
-            <g:DockPanel width="400px">
+        <g:Dock direction="WEST" width="50%" height="100%">
+            <g:DockLayoutPanel unit="PX">
+                <g:north size="30">
+                    <g:Label text="Select OpenShift Project" styleName="{resources.css.sectionTitle}"/>
+                </g:north>
 
-                <g:Dock direction="NORTH">
-                    <g:Label text="Select OpenShift Project"/>
-                </g:Dock>
+                <g:north size="24">
+                    <g:RadioButton name="osState" text="New Project" ui:field="osNewProjectButton" checked="true" addStyleNames="{resources.css.choiceTitle}"/>
+                </g:north>
 
-                <g:Dock direction="NORTH">
-                    <g:RadioButton name="osState" text="New Project" ui:field="osNewProjectButton" checked="true"/>
-                </g:Dock>
-
-                <g:Dock direction="NORTH">
+                <g:north size="15">
                     <g:Label text="Name"/>
-                </g:Dock>
+                </g:north>
 
-                <g:Dock direction="NORTH">
-                    <g:TextBox ui:field="osProjectNameInput"/>
-                </g:Dock>
+                <g:north size="30">
+                    <g:TextBox ui:field="osProjectNameInput" addStyleNames="{resources.css.textInput}"/>
+                </g:north>
 
-                <g:Dock direction="NORTH">
+                <g:north size="15">
                     <g:Label text="Display Name"/>
-                </g:Dock>
+                </g:north>
+                <g:north size="30">
+                    <g:TextBox ui:field="osProjectDisplayNameInput" addStyleNames="{resources.css.textInput}"/>
+                </g:north>
 
-                <g:Dock direction="NORTH">
-                    <g:TextBox ui:field="osProjectDisplayNameInput"/>
-                </g:Dock>
-
-                <g:Dock direction="NORTH">
+                <g:north size="15">
                     <g:Label text="Description"/>
-                </g:Dock>
+                </g:north>
 
-                <g:Dock direction="NORTH">
-                    <g:TextArea ui:field="osProjectDescriptionInput"/>
-                </g:Dock>
+                <g:north size="70">
+                    <g:TextArea ui:field="osProjectDescriptionInput" addStyleNames="{resources.css.textInput}" height="60px"/>
+                </g:north>
 
-                <g:Dock direction="NORTH">
-                    <g:RadioButton name="osState" text="Existing Project" ui:field="osExistProjectButton"/>
-                </g:Dock>
+                <g:north size="24">
+                    <g:RadioButton name="osState" text="Existing Project" ui:field="osExistProjectButton" addStyleNames="{resources.css.choiceTitle}"/>
+                </g:north>
 
-                <g:Dock direction="NORTH">
+                <g:north size="230">
                     <g:ScrollPanel ui:field="osExistProjectListPanel" height="230px"/>
-                </g:Dock>
+                </g:north>
 
-            </g:DockPanel>
+            </g:DockLayoutPanel>
+        </g:Dock>
+
+        <g:Dock direction="CENTER">
+            <g:FlowPanel addStyleNames="{resources.css.sectionSeparator}" height="470px"></g:FlowPanel>
         </g:Dock>
 
         <!-- Codenvy configuration -->
-        <g:Dock direction="EAST">
-            <g:DockPanel width="400px" addStyleNames="{style.verticalLine}">
-                <g:Dock direction="NORTH">
-                    <g:Label text="Project Information"/>
-                </g:Dock>
+        <g:Dock direction="EAST" width="50%" height="100%">
+            <g:DockLayoutPanel unit="PX">
+                <g:north size="30">
+                    <g:Label text="Project Information" styleName="{resources.css.sectionTitle}"/>
+                </g:north>
 
-                <g:Dock direction="NORTH">
+                <g:north size="15">
                     <g:Label text="Name"/>
-                </g:Dock>
+                </g:north>
 
-                <g:Dock direction="NORTH">
-                    <g:TextBox ui:field="cdProjectNameInput"/>
-                </g:Dock>
+                <g:north size="30">
+                    <g:TextBox ui:field="cdProjectNameInput" addStyleNames="{resources.css.textInput}"/>
+                </g:north>
 
-                <g:Dock direction="NORTH">
+                <g:north size="15">
                     <g:Label text="Description"/>
-                </g:Dock>
+                </g:north>
 
-                <g:Dock direction="NORTH">
-                    <g:TextArea ui:field="cdProjectDescriptionInput"/>
-                </g:Dock>
+                <g:north size="70">
+                    <g:TextArea ui:field="cdProjectDescriptionInput" addStyleNames="{resources.css.textInput}" height="60px"/>
+                </g:north>
 
-                <g:Dock direction="NORTH">
+                <g:north size="15">
                     <g:Label text="Privacy"/>
-                </g:Dock>
+                </g:north>
 
-                <g:Dock direction="NORTH">
+                <g:north size="25">
                     <g:DockPanel width="200px">
                         <g:Dock direction="WEST">
-                            <g:RadioButton name="privacy" ui:field="cdPublicProject" text="Public" checked="true"/>
+                            <g:RadioButton name="privacy" ui:field="cdPublicProject" text="Public" checked="true" addStyleNames="{resources.css.choiceTitle}"/>
                         </g:Dock>
                         <g:Dock direction="EAST">
-                            <g:RadioButton name="privacy" ui:field="cdPrivateProject" text="Private"/>
+                            <g:RadioButton name="privacy" ui:field="cdPrivateProject" text="Private" addStyleNames="{resources.css.choiceTitle}"/>
                         </g:Dock>
                     </g:DockPanel>
-                </g:Dock>
-            </g:DockPanel>
+                </g:north>
+            </g:DockLayoutPanel>
         </g:Dock>
     </g:DockPanel>
 </ui:UiBinder>

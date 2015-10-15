@@ -35,14 +35,9 @@
         }
 
     </ui:style>
-    <g:FlowPanel width="800px" height="500px" addStyleNames="{style.rootPanel}">
+    <g:FlowPanel width="800px" height="470px" addStyleNames="{style.rootPanel}">
         <g:FlowPanel width="800px" height="470px" addStyleNames="{style.centerPanel}">
             <g:SimplePanel ui:field="wizardPanel" addStyleNames="{style.tab}"/>
-        </g:FlowPanel>
-        <g:FlowPanel>
-            <g:Button ui:field="prevBtn" text="{constants.back}" tabIndex="5" debugId=""/>
-            <g:Button ui:field="nextBtn" text="{constants.next}" tabIndex="6" debugId=""/>
-            <g:Button ui:field="createBtn" text="Create" tabIndex="7" debugId=""/>
         </g:FlowPanel>
     </g:FlowPanel>
 </ui:UiBinder>

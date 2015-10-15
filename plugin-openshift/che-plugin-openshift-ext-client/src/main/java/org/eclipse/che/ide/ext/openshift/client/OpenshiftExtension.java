@@ -37,9 +37,11 @@ public class OpenshiftExtension {
 
     @Inject
     public OpenshiftExtension(ActionManager actionManager,
+                              OpenshiftResources openshiftResources,
                               ConnectAccountAction connectAccountAction,
                               DisconnectAccountAction disconnectAccountAction,
                               CreateApplicationFromTemplateAction createApplicationFromTemplateAction) {
+        openshiftResources.css().ensureInjected();
         DefaultActionGroup mainMenu = (DefaultActionGroup)actionManager.getAction(GROUP_MAIN_MENU);
 
         DefaultActionGroup openshift = new DefaultActionGroup(OPENSHIFT_GROUP_MAIN_MENU, true, actionManager);

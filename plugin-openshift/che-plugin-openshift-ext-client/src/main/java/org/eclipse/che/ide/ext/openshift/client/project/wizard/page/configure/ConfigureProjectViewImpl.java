@@ -30,6 +30,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import org.eclipse.che.ide.Resources;
+import org.eclipse.che.ide.ext.openshift.client.OpenshiftResources;
 import org.eclipse.che.ide.ext.openshift.shared.dto.Project;
 import org.eclipse.che.ide.ui.list.SimpleList;
 import org.eclipse.che.ide.util.dom.Elements;
@@ -86,7 +87,7 @@ public class ConfigureProjectViewImpl implements ConfigureProjectView {
     private DockPanel      widget;
 
     @Inject
-    public ConfigureProjectViewImpl(Resources resources) {
+    public ConfigureProjectViewImpl(Resources resources, OpenshiftResources openshiftResources) {
         widget = uiBinder.createAndBindUi(this);
 
         TableElement breakPointsElement = Elements.createTableElement();
@@ -117,6 +118,7 @@ public class ConfigureProjectViewImpl implements ConfigureProjectView {
 
                                              }
                                          });
+        projectsList.asWidget().getElement().setClassName(openshiftResources.css().templateList());
 
         osExistProjectListPanel.add(projectsList);
     }

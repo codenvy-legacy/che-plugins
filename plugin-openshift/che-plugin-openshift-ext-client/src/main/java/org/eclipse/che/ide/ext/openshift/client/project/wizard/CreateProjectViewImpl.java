@@ -12,6 +12,7 @@ package org.eclipse.che.ide.ext.openshift.client.project.wizard;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -41,13 +42,10 @@ public class CreateProjectViewImpl extends Window implements CreateProjectView {
     @UiField
     SimplePanel wizardPanel;
 
-    @UiField
     Button nextBtn;
 
-    @UiField
     Button prevBtn;
 
-    @UiField
     Button createBtn;
 
     @UiField(provided = true)
@@ -60,30 +58,38 @@ public class CreateProjectViewImpl extends Window implements CreateProjectView {
 
     @Inject
     public CreateProjectViewImpl(org.eclipse.che.ide.Resources resources, CoreLocalizationConstant constants) {
-        super(false);
-
-        ensureDebugId("createOpenshiftProjectWizard");
+        ensureDebugId("openshift-create-from-template");
 
         this.resources = resources;
         this.constants = constants;
 
         setTitle("Import OpenShift Project From Template");
         setWidget(uiBinder.createAndBindUi(this));
-    }
 
-    @UiHandler("createBtn")
-    void onCreateButtonClick(ClickEvent event) {
-        delegate.onCreateClicked();
-    }
+        createBtn = createPrimaryButton("Create", "openshift-create-from-template-create-button", new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                delegate.onCreateClicked();
+            }
+        });
+        addButtonToFooter(createBtn);
 
-    @UiHandler("nextBtn")
-    void onNextButtonClick(ClickEvent event) {
-        delegate.onNextClicked();
-    }
 
-    @UiHandler("prevBtn")
-    void onBackButtonClick(ClickEvent event) {
-        delegate.onPreviousClicked();
+        nextBtn = createButton(constants.next(), "openshift-create-from-template-next-button", new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                delegate.onNextClicked();
+            }
+        });
+        addButtonToFooter(nextBtn);
+
+        prevBtn = createButton(constants.back(), "openshift-create-from-template-prev-button", new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                delegate.onPreviousClicked();
+            }
+        });
+        addButtonToFooter(prevBtn);
     }
 
     /** {@inheritDoc} */
