@@ -107,6 +107,7 @@ public class TemplateService {
     @POST
     @Path("/process")
     @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
     public Template processTemplate(@PathParam("namespace") String namespace,
                                     Template template) throws ForbiddenException, UnauthorizedException, ServerException {
         final IClient client = clientFactory.createClient();//TODO investigate why method client.getCapability(ITemplateProcessing.class) returns null

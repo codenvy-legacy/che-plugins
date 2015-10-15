@@ -1,0 +1,23 @@
+<!--
+
+    Copyright (c) 2012-2015 Codenvy, S.A.
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License v1.0
+    which accompanies this distribution, and is available at
+    http://www.eclipse.org/legal/epl-v10.html
+
+    Contributors:
+      Codenvy, S.A. - initial API and implementation
+
+-->
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+    <g:DockPanel width="800px">
+        <g:Dock direction="NORTH">
+            <g:Label text="Select Template"/>
+        </g:Dock>
+        <g:Dock direction="NORTH">
+            <g:ScrollPanel ui:field="templatePanel" height="420px" width="800px"/>
+        </g:Dock>
+    </g:DockPanel>
+</ui:UiBinder>

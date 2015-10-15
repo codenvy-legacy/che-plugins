@@ -61,6 +61,7 @@ public class OpenshiftServiceClientImpl implements OpenshiftServiceClient {
     public void processTemplate(String namespace, Template template, AsyncRequestCallback<Template> callback) {
         asyncRequestFactory.createPostRequest(openshiftPath + "/" + namespace + "/template/process", template)
                            .header(ACCEPT, MimeType.APPLICATION_JSON)
+                           .header(CONTENT_TYPE, MimeType.APPLICATION_JSON)
                            .loader(loader, "Processing template...")
                            .send(callback);
     }

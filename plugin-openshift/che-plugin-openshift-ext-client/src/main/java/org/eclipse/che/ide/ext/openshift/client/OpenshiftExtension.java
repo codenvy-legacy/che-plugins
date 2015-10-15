@@ -14,6 +14,7 @@ import org.eclipse.che.ide.api.action.ActionManager;
 import org.eclipse.che.ide.api.action.DefaultActionGroup;
 import org.eclipse.che.ide.api.constraints.Constraints;
 import org.eclipse.che.ide.api.extension.Extension;
+import org.eclipse.che.ide.ext.openshift.client.project.CreateApplicationFromTemplateAction;
 import org.eclipse.che.ide.ext.openshift.client.oauth.authenticator.ConnectAccountAction;
 import org.eclipse.che.ide.ext.openshift.client.oauth.authenticator.DisconnectAccountAction;
 
@@ -37,7 +38,8 @@ public class OpenshiftExtension {
     @Inject
     public OpenshiftExtension(ActionManager actionManager,
                               ConnectAccountAction connectAccountAction,
-                              DisconnectAccountAction disconnectAccountAction) {
+                              DisconnectAccountAction disconnectAccountAction,
+                              CreateApplicationFromTemplateAction createApplicationFromTemplateAction) {
         DefaultActionGroup mainMenu = (DefaultActionGroup)actionManager.getAction(GROUP_MAIN_MENU);
 
         DefaultActionGroup openshift = new DefaultActionGroup(OPENSHIFT_GROUP_MAIN_MENU, true, actionManager);
@@ -49,5 +51,8 @@ public class OpenshiftExtension {
 
         actionManager.registerAction("disconnectOpenshiftAccount", disconnectAccountAction);
         openshift.add(disconnectAccountAction);
+
+        actionManager.registerAction("createOpenshiftApplicationFromTemplate", createApplicationFromTemplateAction);
+        openshift.add(createApplicationFromTemplateAction);
     }
 }

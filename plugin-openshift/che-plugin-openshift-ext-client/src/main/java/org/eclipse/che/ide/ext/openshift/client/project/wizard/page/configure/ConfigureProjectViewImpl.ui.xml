@@ -1,0 +1,108 @@
+<!--
+
+    Copyright (c) 2012-2015 Codenvy, S.A.
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License v1.0
+    which accompanies this distribution, and is available at
+    http://www.eclipse.org/legal/epl-v10.html
+
+    Contributors:
+      Codenvy, S.A. - initial API and implementation
+
+-->
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+    <ui:style>
+        .verticalLine {
+            border-left: 1px solid #505050;
+        }
+    </ui:style>
+    <g:DockPanel width="800px">
+        <!-- OpenShift configuration -->
+        <g:Dock direction="WEST">
+            <g:DockPanel width="400px">
+
+                <g:Dock direction="NORTH">
+                    <g:Label text="Select OpenShift Project"/>
+                </g:Dock>
+
+                <g:Dock direction="NORTH">
+                    <g:RadioButton name="osState" text="New Project" ui:field="osNewProjectButton" checked="true"/>
+                </g:Dock>
+
+                <g:Dock direction="NORTH">
+                    <g:Label text="Name"/>
+                </g:Dock>
+
+                <g:Dock direction="NORTH">
+                    <g:TextBox ui:field="osProjectNameInput"/>
+                </g:Dock>
+
+                <g:Dock direction="NORTH">
+                    <g:Label text="Display Name"/>
+                </g:Dock>
+
+                <g:Dock direction="NORTH">
+                    <g:TextBox ui:field="osProjectDisplayNameInput"/>
+                </g:Dock>
+
+                <g:Dock direction="NORTH">
+                    <g:Label text="Description"/>
+                </g:Dock>
+
+                <g:Dock direction="NORTH">
+                    <g:TextArea ui:field="osProjectDescriptionInput"/>
+                </g:Dock>
+
+                <g:Dock direction="NORTH">
+                    <g:RadioButton name="osState" text="Existing Project" ui:field="osExistProjectButton"/>
+                </g:Dock>
+
+                <g:Dock direction="NORTH">
+                    <g:ScrollPanel ui:field="osExistProjectListPanel"/>
+                </g:Dock>
+
+            </g:DockPanel>
+        </g:Dock>
+
+        <!-- Codenvy configuration -->
+        <g:Dock direction="EAST">
+            <g:DockPanel width="400px" addStyleNames="{style.verticalLine}">
+                <g:Dock direction="NORTH">
+                    <g:Label text="Project Information"/>
+                </g:Dock>
+
+                <g:Dock direction="NORTH">
+                    <g:Label text="Name"/>
+                </g:Dock>
+
+                <g:Dock direction="NORTH">
+                    <g:TextBox ui:field="cdProjectNameInput"/>
+                </g:Dock>
+
+                <g:Dock direction="NORTH">
+                    <g:Label text="Description"/>
+                </g:Dock>
+
+                <g:Dock direction="NORTH">
+                    <g:TextArea ui:field="cdProjectDescriptionInput"/>
+                </g:Dock>
+
+                <g:Dock direction="NORTH">
+                    <g:Label text="Privacy"/>
+                </g:Dock>
+
+                <g:Dock direction="NORTH">
+                    <g:DockPanel width="200px">
+                        <g:Dock direction="WEST">
+                            <g:RadioButton name="privacy" ui:field="cdPublicProject" text="Public" checked="true"/>
+                        </g:Dock>
+                        <g:Dock direction="EAST">
+                            <g:RadioButton name="privacy" ui:field="cdPrivateProject" text="Private"/>
+                        </g:Dock>
+                    </g:DockPanel>
+                </g:Dock>
+            </g:DockPanel>
+        </g:Dock>
+    </g:DockPanel>
+</ui:UiBinder>
