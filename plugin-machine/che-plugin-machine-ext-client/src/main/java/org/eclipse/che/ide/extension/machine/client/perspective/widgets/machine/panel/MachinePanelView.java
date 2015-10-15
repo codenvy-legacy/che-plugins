@@ -33,7 +33,7 @@ public interface MachinePanelView extends View<MachinePanelView.ActionDelegate> 
      * @param root
      *         data which will be displayed
      */
-    void setData(@NotNull MachineTreeNode root);
+    void setData(@NotNull MachineNode root);
 
     /**
      * Calls special method which adds special styles to selected element.
@@ -41,9 +41,11 @@ public interface MachinePanelView extends View<MachinePanelView.ActionDelegate> 
      * @param machineNode
      *         node which will be selected
      */
-    void selectNode(@Nullable MachineTreeNode machineNode);
+    void selectNode(@Nullable MachineNode machineNode);
 
     void setVisible(boolean visible);
+
+    void clear();
 
     interface ActionDelegate extends BaseActionDelegate {
         /**

@@ -60,7 +60,7 @@ public class MachinePanelViewImplTest {
 
         when(resources.treeCss()).thenReturn(css);
 
-        view = new MachinePanelViewImpl(resources, partStackResources, adapter, renderer);
+//        view = new MachinePanelViewImpl(resources, partStackResources, adapter, renderer);
 
         view.setDelegate(delegate);
     }
@@ -69,7 +69,7 @@ public class MachinePanelViewImplTest {
     public void nodeShouldBeSelected() {
         when(treeNode.getData()).thenReturn(machine);
 
-        view.selectNode(treeNode);
+//        view.selectNode(treeNode);
 
         verify(treeNode).getData();
         verify(delegate).onMachineSelected(machine);

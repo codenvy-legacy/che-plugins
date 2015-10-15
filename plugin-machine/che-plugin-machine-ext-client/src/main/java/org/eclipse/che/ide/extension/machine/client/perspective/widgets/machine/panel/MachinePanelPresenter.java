@@ -37,7 +37,6 @@ import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.
 import org.vectomatic.dom.svg.ui.SVGResource;
 
 import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -60,7 +59,6 @@ public class MachinePanelPresenter extends BasePresenter implements MachinePanel
     private final AppContext                  appContext;
 
     private Machine selectedMachine;
-    private boolean isFirstNode;
 
     @Inject
     public MachinePanelPresenter(MachinePanelView view,
@@ -99,30 +97,15 @@ public class MachinePanelPresenter extends BasePresenter implements MachinePanel
                     selectedMachine = null;
                 }
 
-                isFirstNode = true;
-
-                List<MachineTreeNode> rootChildren = new ArrayList<>();
-
-                MachineTreeNode rootNode = entityFactory.createMachineNode(null, "root", rootChildren);
-
-                MachineTreeNode selectedNode = null;
-
+                view.clear();
                 for (MachineDescriptor descriptor : machines) {
                     Machine machine = entityFactory.createMachine(descriptor);
-                    MachineTreeNode machineNode = entityFactory.createMachineNode(rootNode, machine, null);
-
-                    rootChildren.add(machineNode);
-
-                    if (isFirstNode) {
-                        selectedNode = machineNode;
-
-                        isFirstNode = false;
-                    }
+                    MachineNode node = entityFactory.createMachineNode(machine);
+                    view.setData(node);
                 }
 
-                view.setData(rootNode);
-
-                view.selectNode(selectedNode);
+                //todo we need select just created machine or dev machine by default
+//                view.selectNode(selectedNode);
             }
         });
     }
