@@ -22,6 +22,7 @@ import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.project.type.ProjectTypeRegistry;
 import org.eclipse.che.ide.ext.java.jdi.client.JavaRuntimeLocalizationConstant;
+import org.eclipse.che.ide.ext.java.jdi.client.JavaRuntimeResources;
 import org.eclipse.che.ide.ext.java.jdi.client.debug.remotedebug.RemoteDebugPresenter;
 import org.eclipse.che.ide.ext.java.shared.Constants;
 
@@ -47,8 +48,9 @@ public class RemoteDebugAction extends ProjectAction {
                              RemoteDebugPresenter presenter,
                              JavaRuntimeLocalizationConstant locale,
                              ProjectTypeRegistry typeRegistry,
-                             AnalyticsEventLogger eventLogger) {
-        super(locale.connectToRemote(), locale.connectToRemoteDescription());
+                             AnalyticsEventLogger eventLogger,
+                             JavaRuntimeResources resources) {
+        super(locale.connectToRemote(), locale.connectToRemoteDescription(), resources.debug());
 
         this.appContext = appContext;
         this.typeRegistry = typeRegistry;

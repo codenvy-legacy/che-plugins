@@ -27,7 +27,7 @@ import org.eclipse.che.api.workspace.shared.dto.UsersWorkspaceDto;
 import org.eclipse.che.commons.annotation.Nullable;
 import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
-import org.eclipse.che.ide.extension.machine.client.actions.SelectCommandComboBoxAction;
+import org.eclipse.che.ide.extension.machine.client.actions.SelectCommandComboBoxReady;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfigurationPage;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfigurationPage.DirtyStateListener;
@@ -54,15 +54,15 @@ import java.util.Set;
 @Singleton
 public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
 
-    private final EditCommandsView                      view;
-    private final WorkspaceServiceClient                workspaceServiceClient;
-    private final CommandManager                        commandManager;
-    private final String                                workspaceId;
-    private final DtoFactory                            dtoFactory;
-    private final CommandTypeRegistry                   commandTypeRegistry;
-    private final DialogFactory                         dialogFactory;
-    private final MachineLocalizationConstant           localizationConstant;
-    private final Provider<SelectCommandComboBoxAction> selectCommandActionProvider;
+    private final EditCommandsView                     view;
+    private final WorkspaceServiceClient               workspaceServiceClient;
+    private final CommandManager                       commandManager;
+    private final String                               workspaceId;
+    private final DtoFactory                           dtoFactory;
+    private final CommandTypeRegistry                  commandTypeRegistry;
+    private final DialogFactory                        dialogFactory;
+    private final MachineLocalizationConstant          localizationConstant;
+    private final Provider<SelectCommandComboBoxReady> selectCommandActionProvider;
 
     private final Set<ConfigurationChangedListener> configurationChangedListeners;
 
@@ -78,7 +78,7 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
                                     CommandTypeRegistry commandTypeRegistry,
                                     DialogFactory dialogFactory,
                                     MachineLocalizationConstant localizationConstant,
-                                    Provider<SelectCommandComboBoxAction> selectCommandActionProvider,
+                                    Provider<SelectCommandComboBoxReady> selectCommandActionProvider,
                                     CommandManager commandManager,
                                     @Named("workspaceId") String workspaceId,
                                     DtoFactory dtoFactory) {

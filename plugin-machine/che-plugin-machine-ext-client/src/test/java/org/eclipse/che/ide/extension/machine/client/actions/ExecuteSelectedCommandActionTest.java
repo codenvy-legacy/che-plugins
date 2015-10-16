@@ -36,7 +36,7 @@ public class ExecuteSelectedCommandActionTest {
     @Mock
     private MachineResources            resources;
     @Mock
-    private SelectCommandComboBoxAction selectCommandAction;
+    private SelectCommandComboBoxReady  selectCommandAction;
     @Mock
     private CommandManager              commandManager;
     @Mock

@@ -16,8 +16,8 @@ import com.google.web.bindery.event.shared.EventBus;
 import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
-import org.eclipse.che.ide.api.event.ProjectActionEvent;
-import org.eclipse.che.ide.api.event.ProjectActionHandler;
+import org.eclipse.che.ide.api.event.project.CloseCurrentProjectEvent;
+import org.eclipse.che.ide.api.event.project.CloseCurrentProjectHandler;
 import org.eclipse.che.ide.api.parts.PartStackType;
 import org.eclipse.che.ide.api.parts.WorkspaceAgent;
 import org.eclipse.che.ide.api.project.node.HasStorablePath;
@@ -81,27 +81,13 @@ public class SubversionActionPresenter {
         this.eventBus = eventBus;
         this.projectExplorerPart = projectExplorerPart;
 
-        eventBus.addHandler(ProjectActionEvent.TYPE, new ProjectActionHandler() {
+        eventBus.addHandler(CloseCurrentProjectEvent.TYPE, new CloseCurrentProjectHandler() {
             @Override
-            public void onProjectReady(final ProjectActionEvent event) {
-            }
-
-            @Override
-            public void onProjectClosing(ProjectActionEvent event) {
-            }
-
-            @Override
-            public void onProjectClosed(final ProjectActionEvent event) {
+            public void onCloseCurrentProject(CloseCurrentProjectEvent event) {
                 isViewClosed = true;
                 console.clear();
                 workspaceAgent.hidePart(console);
             }
-
-            @Override
-            public void onProjectOpened(ProjectActionEvent event) {
-
-            }
-
         });
     }
 
@@ -126,6 +112,7 @@ public class SubversionActionPresenter {
 
     /**
      * Returns currently selected project item.
+     *
      * @return
      */
     protected HasStorablePath getSelectedNode() {
@@ -165,7 +152,8 @@ public class SubversionActionPresenter {
      * @return relative node path
      */
     protected String relativePath(final HasStorablePath node) {
-        String path = node.getStorablePath().replaceFirst(appContext.getCurrentProject().getRootProject().getPath(), ""); // TODO: Move to method
+        String path =
+                node.getStorablePath().replaceFirst(appContext.getCurrentProject().getRootProject().getPath(), ""); // TODO: Move to method
 
         if (path.startsWith("/")) {
             path = path.substring(1);
@@ -206,7 +194,8 @@ public class SubversionActionPresenter {
     /**
      * Print the update output.
      *
-     * @param lines text to be printed
+     * @param lines
+     *         text to be printed
      */
     protected void print(final List<String> lines) {
         ensureViewOpened();
@@ -219,7 +208,8 @@ public class SubversionActionPresenter {
     /**
      * Prints command line.
      *
-     * @param command command line
+     * @param command
+     *         command line
      */
     protected void printCommand(String command) {
         ensureViewOpened();
@@ -290,7 +280,8 @@ public class SubversionActionPresenter {
     /**
      * Print the update output & a blank line after.
      *
-     * @param output text to be printed
+     * @param output
+     *         text to be printed
      */
     protected void printAndSpace(final List<String> output) {
         print(output);

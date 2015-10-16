@@ -19,8 +19,8 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.event.shared.EventBus;
 
-import org.eclipse.che.ide.api.event.ProjectActionEvent;
-import org.eclipse.che.ide.api.event.ProjectActionHandler;
+import org.eclipse.che.ide.api.event.project.CloseCurrentProjectEvent;
+import org.eclipse.che.ide.api.event.project.CloseCurrentProjectHandler;
 import org.eclipse.che.ide.api.parts.ConsolePart;
 import org.eclipse.che.ide.api.parts.PartPresenter;
 import org.eclipse.che.ide.api.parts.PartStackType;
@@ -51,28 +51,13 @@ public class GitOutputPartPresenter extends BasePresenter implements GitOutputPa
         this.view.setTitle(TITLE);
         this.view.setDelegate(this);
 
-        eventBus.addHandler(ProjectActionEvent.TYPE, new ProjectActionHandler() {
+        eventBus.addHandler(CloseCurrentProjectEvent.TYPE, new CloseCurrentProjectHandler() {
             @Override
-            public void onProjectReady(ProjectActionEvent event) {
-
-            }
-
-            @Override
-            public void onProjectClosing(ProjectActionEvent event) {
-
-            }
-
-            @Override
-            public void onProjectClosed(ProjectActionEvent event) {
+            public void onCloseCurrentProject(CloseCurrentProjectEvent event) {
                 clear();
                 workspaceAgent.hidePart(GitOutputPartPresenter.this);
                 workspaceAgent.removePart(GitOutputPartPresenter.this);
                 isTabPresent = false;
-            }
-
-            @Override
-            public void onProjectOpened(ProjectActionEvent event) {
-
             }
         });
     }

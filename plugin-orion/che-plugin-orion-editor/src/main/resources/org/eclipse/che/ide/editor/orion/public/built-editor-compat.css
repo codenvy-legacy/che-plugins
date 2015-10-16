@@ -53,6 +53,9 @@
 .ruler.folding {
     width: 14px;
 }
+.ruler.breakpoints {
+    width: 14px;
+}
 .ruler.lines {
     text-align: right;
 }

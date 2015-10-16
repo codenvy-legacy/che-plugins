@@ -34,6 +34,7 @@ import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.api.workspace.shared.dto.UsersWorkspaceDto;
 import org.eclipse.che.dto.server.DtoFactory;
 import org.eclipse.che.ide.extension.maven.shared.MavenAttributes;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -175,6 +176,13 @@ public class MavenProjectImportedTest {
         projectsList.add(module2);
         projectsList.add(module3);
         when(usersWorkspaceMock.getProjects()).thenReturn(projectsList);
+    }
+
+    @After
+    public void cleanup() throws IllegalAccessException, NoSuchFieldException {
+        Field f = HttpJsonHelper.class.getDeclaredField("httpJsonHelperImpl");
+        f.setAccessible(true);
+        f.set(null, new HttpJsonHelper.HttpJsonHelperImpl());
     }
 
     @Test

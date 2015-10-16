@@ -39,31 +39,41 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 import static org.mockito.Mockito.mock;
 
-
 /**
- * @author Vitaly Parfonov
+ * @author Roman Nikitenko
  */
 @RunWith(MockitoJUnitRunner.class)
-public class AddMavenModuleHandlerTest {
+public class RemoveMavenModuleHandlerTest {
 
-    private static final String workspace = "my_ws";
+    private static final String workspace   = "my_ws";
+    private static final String apiEndpoint = "http://localhost:8080/che/api";
 
-    private static final String POM_XML_TEMPL = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><project><packaging>%s</packaging></project>";
+    private static final String POM_XML_TEMPL = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                                                "<project>\n" +
+                                                "    <modelVersion>4.0.0</modelVersion>\n" +
+                                                "    <artifactId>artifact-id</artifactId>\n" +
+                                                "    <groupId>group-id</groupId>\n" +
+                                                "    <version>x.x.x</version>\n" +
+                                                "    <modules>\n" +
+                                                "        <module>firstModule</module>\n" +
+                                                "        <module>secondModule</module>\n" +
+                                                "    </modules>\n" +
+                                                "</project>";
+    private static final String FIRST_MODULE  = "firstModule";
+    private static final String SECOND_MODULE = "secondModule";
 
-    private AddMavenModuleHandler addMavenModuleHandler;
-    private DefaultProjectManager projectManager;
-    private ProjectTypeRegistry   projectTypeRegistry;
+    private RemoveMavenModuleHandler removeMavenModuleHandler;
+    private DefaultProjectManager    projectManager;
 
     @Before
     public void setUp() throws Exception {
-        addMavenModuleHandler = new AddMavenModuleHandler();
+        removeMavenModuleHandler = new RemoveMavenModuleHandler();
         ProjectType mavenProjectType = Mockito.mock(ProjectType.class);
         Mockito.when(mavenProjectType.getId()).thenReturn(MavenAttributes.MAVEN_ID);
         Mockito.when(mavenProjectType.getDisplayName()).thenReturn(MavenAttributes.MAVEN_ID);
@@ -81,21 +91,22 @@ public class AddMavenModuleHandlerTest {
                 }, vfsRegistry);
         vfsRegistry.registerProvider(workspace, memoryFileSystemProvider);
 
+
         Set<ProjectType> projTypes = new HashSet<>();
         projTypes.add(mavenProjectType);
 
-        projectTypeRegistry = new ProjectTypeRegistry(projTypes);
+        ProjectTypeRegistry projectTypeRegistry = new ProjectTypeRegistry(projTypes);
 
         Set<ProjectHandler> handlers = new HashSet<>();
         ProjectHandlerRegistry handlerRegistry = new ProjectHandlerRegistry(handlers);
 
-        projectManager = new DefaultProjectManager(vfsRegistry, eventService, projectTypeRegistry, handlerRegistry, "");
+        projectManager = new DefaultProjectManager(vfsRegistry, eventService, projectTypeRegistry, handlerRegistry, apiEndpoint);
 
+        HttpJsonHelper.HttpJsonHelperImpl httpJsonHelper = mock(HttpJsonHelper.HttpJsonHelperImpl.class);
         Field f = HttpJsonHelper.class.getDeclaredField("httpJsonHelperImpl");
         f.setAccessible(true);
-        f.set(null, mock(HttpJsonHelper.HttpJsonHelperImpl.class));
+        f.set(null, httpJsonHelper);
     }
-
     @After
     public void cleanup() throws IllegalAccessException, NoSuchFieldException {
         Field f = HttpJsonHelper.class.getDeclaredField("httpJsonHelperImpl");
@@ -103,57 +114,34 @@ public class AddMavenModuleHandlerTest {
         f.set(null, new HttpJsonHelper.HttpJsonHelperImpl());
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldThrowExceptionWhenPomNotFound() throws Exception {
+        String parent = NameGenerator.generate("parent", 5);
+        String module = NameGenerator.generate("module", 5);
+        Project project =
+                projectManager.createProject(workspace, parent, new ProjectConfig(null, MavenAttributes.MAVEN_ID), null, "public");
+        removeMavenModuleHandler
+                .onRemoveModule(project.getBaseFolder(), project.getPath() + "/" + module, new ProjectConfig(null, "maven"));
+    }
 
     @Test(expected = IllegalArgumentException.class)
-    public void shouldNotAddModuleIfNotPomPackage() throws Exception {
+    public void shouldThrowExceptionWhenModuleIsNotMavenModule() throws Exception {
         String parent = NameGenerator.generate("parent", 5);
         String module = NameGenerator.generate("module", 5);
         Project project =
                 projectManager.createProject(workspace, parent, new ProjectConfig(null, MavenAttributes.MAVEN_ID), null, "public");
         project.getBaseFolder().createFile("pom.xml", String.format(POM_XML_TEMPL, "jar").getBytes(), "text/xml");
-        addMavenModuleHandler
-                .onCreateModule(project.getBaseFolder(), project.getPath() + "/" + module, new ProjectConfig(null, "maven"),
-                                Collections.<String, String>emptyMap());
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void pomNotFound() throws Exception {
-        String parent = NameGenerator.generate("parent", 5);
-        String module = NameGenerator.generate("module", 5);
-        Project project =  projectManager.createProject(workspace, parent, new ProjectConfig(null, MavenAttributes.MAVEN_ID), null, "public");
-        addMavenModuleHandler
-                .onCreateModule(project.getBaseFolder(), project.getPath() + "/" + module, new ProjectConfig(null, "maven"),
-                                Collections.<String, String>emptyMap());
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void shouldNotAddModuleIfModuleNotMaven() throws Exception {
-        ProjectType notMaven = Mockito.mock(ProjectType.class);
-        Mockito.when(notMaven.getId()).thenReturn("notMaven");
-        Mockito.when(notMaven.getDisplayName()).thenReturn("notMaven");
-        Mockito.when(notMaven.canBePrimary()).thenReturn(true);
-        projectTypeRegistry.registerProjectType(notMaven);
-
-        String parent = NameGenerator.generate("parent", 5);
-        String module = NameGenerator.generate("module", 5);
-        Project project =
-                projectManager.createProject(workspace, parent, new ProjectConfig(null, MavenAttributes.MAVEN_ID), null, "public");
-        project.getBaseFolder().createFile("pom.xml", String.format(POM_XML_TEMPL, "pom").getBytes(), "text/xml");
-        addMavenModuleHandler.onCreateModule(project.getBaseFolder(), project.getPath() + "/" + module,
-                                             new ProjectConfig(null, notMaven.getId()),
-                                             Collections.<String, String>emptyMap());
+        removeMavenModuleHandler
+                .onRemoveModule(project.getBaseFolder(), project.getPath() + "/" + module, new ProjectConfig(null, "notmaven"));
     }
 
     @Test
-    public void addModuleOk() throws Exception {
+    public void shouldRemoveModule() throws Exception {
         String parent = NameGenerator.generate("parent", 5);
-        String module = NameGenerator.generate("module", 5);
         Project project =
                 projectManager.createProject(workspace, parent, new ProjectConfig(null, MavenAttributes.MAVEN_ID), null, "public");
         project.getBaseFolder().createFile("pom.xml", String.format(POM_XML_TEMPL, "pom").getBytes(), "text/xml");
-        addMavenModuleHandler.onCreateModule(project.getBaseFolder(), project.getPath() + "/" + module,
-                                             new ProjectConfig(null, MavenAttributes.MAVEN_ID),
-                                             Collections.<String, String>emptyMap());
+        removeMavenModuleHandler.onRemoveModule(project.getBaseFolder(), FIRST_MODULE, new ProjectConfig(null, MavenAttributes.MAVEN_ID));
 
         VirtualFileEntry pom = project.getBaseFolder().getChild("pom.xml");
         Assert.assertNotNull(pom);
@@ -163,7 +151,34 @@ public class AddMavenModuleHandlerTest {
         String pomContent = IoUtil.readStream(stream);
         Assert.assertNotNull(pomContent);
         Assert.assertFalse(pomContent.isEmpty());
-        String mavenModule = String.format("<module>%s</module>", module);
-        Assert.assertTrue(pomContent.contains(mavenModule));
+
+        String firstMavenModule = String.format("<module>%s</module>", FIRST_MODULE);
+        String secondMavenModule = String.format("<module>%s</module>", SECOND_MODULE);
+        Assert.assertFalse(pomContent.contains(firstMavenModule));
+        Assert.assertTrue(pomContent.contains(secondMavenModule));
+    }
+
+    @Test
+    public void shouldNotRemoveModuleWhenPomNotContainsModule() throws Exception {
+        String parent = NameGenerator.generate("parent", 5);
+        String module = NameGenerator.generate("module", 5);
+        Project project =
+                projectManager.createProject(workspace, parent, new ProjectConfig(null, MavenAttributes.MAVEN_ID), null, "public");
+        project.getBaseFolder().createFile("pom.xml", String.format(POM_XML_TEMPL, "pom").getBytes(), "text/xml");
+        removeMavenModuleHandler.onRemoveModule(project.getBaseFolder(), module, new ProjectConfig(null, MavenAttributes.MAVEN_ID));
+
+        VirtualFileEntry pom = project.getBaseFolder().getChild("pom.xml");
+        Assert.assertNotNull(pom);
+        ContentStream content = pom.getVirtualFile().getContent();
+        Assert.assertNotNull(content);
+        InputStream stream = content.getStream();
+        String pomContent = IoUtil.readStream(stream);
+        Assert.assertNotNull(pomContent);
+        Assert.assertFalse(pomContent.isEmpty());
+
+        String firstMavenModule = String.format("<module>%s</module>", FIRST_MODULE);
+        String secondMavenModule = String.format("<module>%s</module>", SECOND_MODULE);
+        Assert.assertTrue(pomContent.contains(firstMavenModule));
+        Assert.assertTrue(pomContent.contains(secondMavenModule));
     }
 }

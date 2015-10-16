@@ -13,13 +13,15 @@ package org.eclipse.che.ide.ext.java.jdi.client;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.googlecode.gwt.test.utils.GwtReflectionUtils;
 
+import org.eclipse.che.api.machine.gwt.client.events.ExtServerStateEvent;
+import org.eclipse.che.api.machine.gwt.client.events.ExtServerStateHandler;
 import org.eclipse.che.api.project.shared.dto.ItemReference;
 import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.api.workspace.shared.dto.UsersWorkspaceDto;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.editor.EditorAgent;
-import org.eclipse.che.ide.api.event.ProjectActionHandler;
+import org.eclipse.che.ide.api.event.project.ProjectReadyHandler;
 import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.api.project.tree.generic.FileNode;
 import org.eclipse.che.ide.debug.Breakpoint;
@@ -37,8 +39,6 @@ import org.eclipse.che.ide.ext.java.jdi.shared.Location;
 import org.eclipse.che.ide.ext.java.jdi.shared.Variable;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.websocket.MessageBusProvider;
-import org.eclipse.che.ide.workspace.start.StartWorkspaceEvent;
-import org.eclipse.che.ide.workspace.start.StartWorkspaceHandler;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -76,40 +76,40 @@ public class DebuggerTest extends BaseTest {
     private static final String MIME_TYPE  = "application/java";
 
     @Captor
-    private ArgumentCaptor<ProjectActionHandler> projectActionHandlerArgumentCaptor;
+    private ArgumentCaptor<ProjectReadyHandler> projectActionHandlerArgumentCaptor;
     @Mock
-    private DebuggerView                         view;
+    private DebuggerView                        view;
     @Mock
-    private EvaluateExpressionPresenter          evaluateExpressionPresenter;
+    private EvaluateExpressionPresenter         evaluateExpressionPresenter;
     @Mock
-    private ChangeValuePresenter                 changeValuePresenter;
+    private ChangeValuePresenter                changeValuePresenter;
     @Mock
-    private BreakpointManager                    gutterManager;
+    private BreakpointManager                   gutterManager;
     @Mock
-    private FileNode                             file;
+    private FileNode                            file;
     @Mock
-    private ItemReference                        fileReference;
+    private ItemReference                       fileReference;
     @Mock
-    private FqnResolverFactory                   resolverFactory;
+    private FqnResolverFactory                  resolverFactory;
     @Mock
-    private AsyncCallback<Breakpoint>            asyncCallbackBreakpoint;
+    private AsyncCallback<Breakpoint>           asyncCallbackBreakpoint;
     @Mock
-    private ProjectDescriptor                    project;
+    private ProjectDescriptor                   project;
     @Mock
-    private AsyncCallback<Void>                  asyncCallbackVoid;
+    private AsyncCallback<Void>                 asyncCallbackVoid;
     @Mock
-    private AppContext                           appContext;
+    private AppContext                          appContext;
     @Mock
-    private CurrentProject                       currentProject;
+    private CurrentProject                      currentProject;
     @Mock
-    private EditorAgent                          editorAgent;
+    private EditorAgent                         editorAgent;
     @Mock
-    private MessageBusProvider                   messageBusProvider;
+    private MessageBusProvider                  messageBusProvider;
     @Mock
-    private UsersWorkspaceDto                    workspace;
+    private UsersWorkspaceDto                   workspace;
 
     @Captor
-    private ArgumentCaptor<StartWorkspaceHandler> startWorkspaceCaptor;
+    private ArgumentCaptor<ExtServerStateHandler> extServerStateHandlerCaptor;
 
     @InjectMocks
     private DebuggerPresenter presenter;
@@ -123,9 +123,9 @@ public class DebuggerTest extends BaseTest {
         when(dtoFactory.createDto(BreakPoint.class)).thenReturn(mock(BreakPoint.class));
         when(resolverFactory.getResolver(anyString())).thenReturn(mock(FqnResolver.class));
 
-        when(messageBusProvider.getMessageBus()).thenReturn(messageBus);
-        verify(eventBus).addHandler(eq(StartWorkspaceEvent.TYPE), startWorkspaceCaptor.capture());
-        startWorkspaceCaptor.getValue().onWorkspaceStarted(workspace);
+        when(messageBusProvider.getMachineMessageBus()).thenReturn(messageBus);
+        verify(eventBus).addHandler(eq(ExtServerStateEvent.TYPE), extServerStateHandlerCaptor.capture());
+        extServerStateHandlerCaptor.getValue().onExtServerStarted(ExtServerStateEvent.createExtServerStartedEvent());
     }
 
     @Test
@@ -152,7 +152,7 @@ public class DebuggerTest extends BaseTest {
         verify(gutterManager).removeAllBreakpoints();
         verify(view).setEnableRemoveAllBreakpointsButton(DISABLE_BUTTON);
         verify(view).setEnableDisconnectButton(DISABLE_BUTTON);
-        verify(workspaceAgent).removePart(presenter);
+        verify(workspaceAgent).hidePart(presenter);
     }
 
     @Test

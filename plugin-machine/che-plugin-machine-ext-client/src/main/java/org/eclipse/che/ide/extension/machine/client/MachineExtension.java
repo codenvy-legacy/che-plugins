@@ -21,10 +21,11 @@ import org.eclipse.che.ide.api.extension.Extension;
 import org.eclipse.che.ide.api.parts.PartStackType;
 import org.eclipse.che.ide.api.parts.WorkspaceAgent;
 import org.eclipse.che.ide.extension.machine.client.actions.CreateMachineAction;
+import org.eclipse.che.ide.extension.machine.client.actions.DestroyMachineAction;
 import org.eclipse.che.ide.extension.machine.client.actions.EditCommandsAction;
 import org.eclipse.che.ide.extension.machine.client.actions.ExecuteSelectedCommandAction;
 import org.eclipse.che.ide.extension.machine.client.actions.RestartMachineAction;
-import org.eclipse.che.ide.extension.machine.client.actions.SelectCommandComboBoxAction;
+import org.eclipse.che.ide.extension.machine.client.actions.SelectCommandComboBoxReady;
 import org.eclipse.che.ide.extension.machine.client.actions.SwitchPerspectiveAction;
 import org.eclipse.che.ide.extension.machine.client.machine.console.ClearConsoleAction;
 import org.eclipse.che.ide.extension.machine.client.machine.console.MachineConsoleToolbar;
@@ -62,10 +63,11 @@ public class MachineExtension {
     private void prepareActions(MachineLocalizationConstant localizationConstant,
                                 ActionManager actionManager,
                                 ExecuteSelectedCommandAction executeSelectedCommandAction,
-                                SelectCommandComboBoxAction selectCommandAction,
+                                SelectCommandComboBoxReady selectCommandAction,
                                 EditCommandsAction editCommandsAction,
                                 CreateMachineAction createMachine,
                                 RestartMachineAction restartMachine,
+                                DestroyMachineAction destroyMachineAction,
                                 StopWorkspaceAction stopWorkspaceAction,
                                 SwitchPerspectiveAction switchPerspectiveAction) {
         final DefaultActionGroup mainMenu = (DefaultActionGroup)actionManager.getAction(GROUP_MAIN_MENU);
@@ -86,12 +88,14 @@ public class MachineExtension {
 
         actionManager.registerAction("machine", machineMenu);
         actionManager.registerAction("createMachine", createMachine);
+        actionManager.registerAction("destroyMachine", destroyMachineAction);
         actionManager.registerAction("restartMachine", restartMachine);
         actionManager.registerAction("stopWorkspace", stopWorkspaceAction);
 
         mainMenu.add(machineMenu, new Constraints(AFTER, "run"));
         machineMenu.add(createMachine);
         machineMenu.add(restartMachine);
+        machineMenu.add(destroyMachineAction);
         machineMenu.add(stopWorkspaceAction);
 
         // add actions on center part of toolbar

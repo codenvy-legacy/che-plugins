@@ -33,6 +33,8 @@ import org.eclipse.che.ide.jseditor.client.debug.BreakpointRendererFactory;
 import org.eclipse.che.ide.jseditor.client.document.DocumentHandle;
 import org.eclipse.che.ide.jseditor.client.document.DocumentStorage;
 import org.eclipse.che.ide.jseditor.client.filetype.FileTypeIdentifier;
+import org.eclipse.che.ide.jseditor.client.gutter.Gutter;
+import org.eclipse.che.ide.jseditor.client.gutter.HasGutter;
 import org.eclipse.che.ide.jseditor.client.link.HasLinkedMode;
 import org.eclipse.che.ide.jseditor.client.link.LinkedMode;
 import org.eclipse.che.ide.jseditor.client.link.LinkedModel;
@@ -50,8 +52,10 @@ import org.eclipse.che.ide.ui.dialogs.DialogFactory;
  * {@link EmbeddedTextEditorPresenter} using orion.
  * This class is only defined to allow the Gin binding to be performed.
  */
-public class OrionEditorPresenter extends EmbeddedTextEditorPresenter<OrionEditorWidget> implements HasAnnotationRendering, HasLinkedMode,
-                                                                                                    HasCompletionInformation {
+public class OrionEditorPresenter extends EmbeddedTextEditorPresenter<OrionEditorWidget> implements HasAnnotationRendering,
+                                                                                                    HasLinkedMode,
+                                                                                                    HasCompletionInformation,
+                                                                                                    HasGutter {
 
     private final AnnotationRendering rendering = new AnnotationRendering();
 
@@ -112,6 +116,16 @@ public class OrionEditorPresenter extends EmbeddedTextEditorPresenter<OrionEdito
         if(editorWidget != null){
             OrionEditorWidget orion = ((OrionEditorWidget)editorWidget);
             orion.showCompletionInformation();
+        }
+    }
+
+    @Override
+    public Gutter getGutter() {
+        final EditorWidget editorWidget = getEditorWidget();
+        if (editorWidget instanceof HasGutter) {
+            return ((HasGutter)editorWidget).getGutter();
+        } else {
+            throw new IllegalStateException("incorrect editor state");
         }
     }
 
