@@ -192,6 +192,9 @@ public class OrionEditorWidget extends CompositeEditorWidget implements HasChang
                 OrionKeyModeOverlay.getCheCodeAssistMode(moduleHolder.getModule("CheContentAssistMode"), editorOverlay.getTextView());
         assistWidget = contentAssistWidgetFactory.create(this, cheContentAssistMode);
         this.gutter = new OrionBreakpointRuler(extRulerOverlay, editorOverlay);
+
+        Element textViewLeftRuler = panel.getElement().getFirstChildElement().getFirstChildElement();
+        textViewLeftRuler.insertAfter(textViewLeftRuler.getChild(0), textViewLeftRuler.getChild(1));
     }
 
     private OrionExtRulerOverlay initBreakpointRuler(JavaScriptObject orionEditorExtRulerModule) {
