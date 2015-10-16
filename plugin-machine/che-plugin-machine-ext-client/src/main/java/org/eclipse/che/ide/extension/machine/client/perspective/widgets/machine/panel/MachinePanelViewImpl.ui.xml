@@ -14,7 +14,7 @@
              xmlns:ideui='urn:import:org.eclipse.che.ide.ui.tree'
              xmlns:g="urn:import:com.google.gwt.user.client.ui">
 
-    <g:SimplePanel>
+    <g:ScrollPanel>
         <ideui:Tree ui:field="tree"/>
-    </g:SimplePanel>
+    </g:ScrollPanel>
 </ui:UiBinder>
