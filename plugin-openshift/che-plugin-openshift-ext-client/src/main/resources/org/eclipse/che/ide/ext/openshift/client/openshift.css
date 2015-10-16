@@ -25,11 +25,18 @@
 
 .textInput {
     width: 100%;
-    height: 20px;
     box-sizing: border-box;
 }
 
 .templateList table{
     border: 1px solid separatorColor;
     background-color: transparent !important;
+}
+
+.projectApplicationBox {
+    border: 1px solid separatorColor;
+}
+
+.warningLabel {
+    font-weight: bold;
 }

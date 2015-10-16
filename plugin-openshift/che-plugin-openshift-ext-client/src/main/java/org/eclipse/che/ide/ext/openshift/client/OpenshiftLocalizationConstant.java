@@ -39,4 +39,31 @@ public interface OpenshiftLocalizationConstant extends Messages {
 
     @Key("openshift.logout.failed")
     String logoutFailed();
+
+    @Key("link.with.existing.action")
+    String linkProjectWithExistingApplicationAction();
+
+    @Key("link.with.existing.view.title")
+    String linkProjectWithExistingApplicationViewTitle();
+
+    @Key("link.with.existing.link.button")
+    String linkProjectWithExistingApplicationLinkButton();
+
+    @Key("link.with.existing.buildconfig.url")
+    String linkProjectWithExistingBuildConfigUrl();
+
+    @Key("link.with.existing.remote.url")
+    String linkProjectWithExistingRemoteUrl();
+
+    @Key("link.with.existing.replace.warning")
+    String linkProjectWithExistingReplaceWarning(String application, String project);
+
+    @Key("not.git.repository.warning")
+    String notGitRepositoryWarning(String project);
+
+    @Key("no.git.remote.repositories.warning")
+    String noGitRemoteRepositoryWarning(String project);
+
+    @Key("get.git.remote.repositories.error")
+    String getGitRemoteRepositoryError(String project);
 }

@@ -38,15 +38,15 @@ public interface OpenshiftServiceClient {
 
     void createBuildConfig(BuildConfig buildConfig, AsyncRequestCallback<BuildConfig> callback);
 
+    void updateBuildConfig(BuildConfig buildConfig, AsyncRequestCallback<BuildConfig> callback);
+
+    void getBuildConfigs(String namespace, AsyncRequestCallback<List<BuildConfig>> callback);
 
     void createImageStream(ImageStream imageStream, AsyncRequestCallback<ImageStream> callback);
 
-
     void createDeploymentConfig(DeploymentConfig deploymentConfig, AsyncRequestCallback<DeploymentConfig> callback);
 
-
     void createRoute(Route route, AsyncRequestCallback<Route> callback);
-
 
     void createService(Service service, AsyncRequestCallback<Service> callback);
 

@@ -14,6 +14,7 @@ import org.eclipse.che.ide.api.action.ActionManager;
 import org.eclipse.che.ide.api.action.DefaultActionGroup;
 import org.eclipse.che.ide.api.constraints.Constraints;
 import org.eclipse.che.ide.api.extension.Extension;
+import org.eclipse.che.ide.ext.openshift.client.deploy.LinkProjectWithExistingApplicationAction;
 import org.eclipse.che.ide.ext.openshift.client.project.CreateApplicationFromTemplateAction;
 import org.eclipse.che.ide.ext.openshift.client.oauth.authenticator.ConnectAccountAction;
 import org.eclipse.che.ide.ext.openshift.client.oauth.authenticator.DisconnectAccountAction;
@@ -40,7 +41,8 @@ public class OpenshiftExtension {
                               OpenshiftResources openshiftResources,
                               ConnectAccountAction connectAccountAction,
                               DisconnectAccountAction disconnectAccountAction,
-                              CreateApplicationFromTemplateAction createApplicationFromTemplateAction) {
+                              CreateApplicationFromTemplateAction createApplicationFromTemplateAction,
+                              LinkProjectWithExistingApplicationAction deployToExistingApplicationAction) {
         openshiftResources.css().ensureInjected();
         DefaultActionGroup mainMenu = (DefaultActionGroup)actionManager.getAction(GROUP_MAIN_MENU);
 
@@ -57,5 +59,8 @@ public class OpenshiftExtension {
         openshift.addSeparator();
         actionManager.registerAction("createOpenshiftApplicationFromTemplate", createApplicationFromTemplateAction);
         openshift.add(createApplicationFromTemplateAction);
+
+        actionManager.registerAction("deployToExistingApplication", deployToExistingApplicationAction);
+        openshift.add(deployToExistingApplicationAction);
     }
 }
