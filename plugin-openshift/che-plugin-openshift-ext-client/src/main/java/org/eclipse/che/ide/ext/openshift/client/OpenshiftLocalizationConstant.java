@@ -27,4 +27,10 @@ public interface OpenshiftLocalizationConstant extends Messages {
 
     @Key("openshift.disconnect.account.title")
     String disconnectAccountTitle();
+
+    @Key("deploy.to.existing.action")
+    String linkProjectWithExistingApplicationAction();
+
+    @Key("deploy.to.existing.view.title")
+    String linkProjectWithExistingApplicationViewTitle();
 }
