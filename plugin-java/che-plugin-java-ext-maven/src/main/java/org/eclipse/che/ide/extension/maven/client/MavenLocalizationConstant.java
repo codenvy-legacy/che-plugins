@@ -41,4 +41,10 @@ public interface MavenLocalizationConstant extends Messages {
     /* MavenCommandPageView */
     @Key("view.mavenCommandPage.commandLine.text")
     String mavenCommandPageViewCommandLineText();
+
+    @Key("maven.page.artifactIdTooltip")
+    String mavenPageArtifactIdTooltip();
+
+    @Key("maven.page.groupIdTooltip")
+    String mavenPageGroupIdTooltip();
 }

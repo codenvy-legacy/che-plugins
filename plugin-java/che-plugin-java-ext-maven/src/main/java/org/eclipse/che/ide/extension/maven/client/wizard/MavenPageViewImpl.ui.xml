@@ -54,6 +54,48 @@
             position: relative;
             top: 5px;
         }
+
+        .tooltipButton,
+        .tooltipButton:hover,
+        .tooltipButton:focus {
+            margin-left: 7px;
+            border-radius: 10px;
+            box-shadow: none;
+            padding: 0px;
+        }
+
+        .tooltipButton::before {
+            content: "?";
+            margin-left: 1px;
+            font-weight: bold;
+        }
+
+        .tooltip > span {
+            position: absolute;
+            color: mainFontColor;
+            border: 1px solid borderColor;
+            background: textFieldBackgroundColor;
+            white-space: nowrap;
+            font-family: mainFontFamily;
+            font-size: smallFontSize;
+            font-weight: normal;
+            text-align: left;
+            padding: 3px 15px;
+            line-height: normal;
+            left: 550px;
+            top: 0;
+            height: 15px;
+            display: none;
+        }
+
+        .tooltip:hover > span {
+            display: inline;
+        }
+
+        .tooltip > span:hover {
+            pointer-events: none;
+        }
+
     </ui:style>
 
     <g:DockLayoutPanel unit="PX" debugId="mavenPageView-mainPanel" addStyleNames="{style.mainDoc}">
@@ -79,13 +121,16 @@
             <g:DockLayoutPanel unit="PX" width="100%" height="100%">
                 <g:west size="138">
                     <g:FlowPanel>
-                        <g:Label text="Artifact Id:" addStyleNames="{style.projectNamePosition}"/>
+                        <g:Label text="Artifact ID:" addStyleNames="{style.projectNamePosition}"/>
                     </g:FlowPanel>
                 </g:west>
                 <g:center>
-                    <g:SimplePanel addStyleNames="{style.spaceRight}">
+                    <g:FlowPanel addStyleNames="{style.spaceRight}">
                         <g:TextBox width="500px" ui:field="artifactId" debugId="mavenPageView-artifactId" addStyleNames="{style.field}"/>
-                    </g:SimplePanel>
+                        <g:Button pixelSize="20, 20" ui:field="artifactIdTooltipButton"
+                                  debugId="mavenPageView-artifactIdTooltipButton"
+                                  addStyleNames="{style.tooltipButton}"/>
+                    </g:FlowPanel>
                 </g:center>
             </g:DockLayoutPanel>
         </g:north>
@@ -93,13 +138,15 @@
             <g:DockLayoutPanel unit="PX" width="100%" height="100%">
                 <g:west size="138">
                     <g:FlowPanel>
-                        <g:Label text="Group Id:" addStyleNames="{style.projectNamePosition}"/>
+                        <g:Label text="Group ID:" addStyleNames="{style.projectNamePosition}"/>
                     </g:FlowPanel>
                 </g:west>
                 <g:center>
-                    <g:SimplePanel addStyleNames="{style.spaceRight}">
+                    <g:FlowPanel addStyleNames="{style.spaceRight}">
                         <g:TextBox width="500px" ui:field="groupId" debugId="mavenPageView-groupId" addStyleNames="{style.field}"/>
-                    </g:SimplePanel>
+                        <g:Button pixelSize="20, 20" ui:field="groupIdTooltipButton" debugId="mavenPageView-groupIdTooltipButton"
+                                  addStyleNames="{style.tooltipButton}"/>
+                    </g:FlowPanel>
                 </g:center>
             </g:DockLayoutPanel>
         </g:north>
