@@ -27,4 +27,16 @@ public interface OpenshiftLocalizationConstant extends Messages {
 
     @Key("openshift.disconnect.account.title")
     String disconnectAccountTitle();
+
+    @Key("openshift.login.successful")
+    String loginSuccessful();
+
+    @Key("openshift.login.failed")
+    String loginFailed();
+
+    @Key("openshift.logout.successful")
+    String logoutSuccessful();
+
+    @Key("openshift.logout.failed")
+    String logoutFailed();
 }

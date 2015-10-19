@@ -13,6 +13,8 @@ package org.eclipse.che.ide.ext.openshift.client.oauth.authenticator;
 import org.eclipse.che.api.auth.client.OAuthServiceClient;
 import org.eclipse.che.ide.api.action.Action;
 import org.eclipse.che.ide.api.action.ActionEvent;
+import org.eclipse.che.ide.api.notification.Notification;
+import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.ext.openshift.client.OpenshiftLocalizationConstant;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 
@@ -24,14 +26,19 @@ import javax.inject.Inject;
 public class DisconnectAccountAction extends Action {
     private final OAuthServiceClient            oAuthServiceClient;
     private final OpenshiftAuthorizationHandler openshiftAuthorizationHandler;
+    private final OpenshiftLocalizationConstant locale;
+    private final NotificationManager notificationManager;
 
     @Inject
     public DisconnectAccountAction(OAuthServiceClient oAuthServiceClient,
                                    OpenshiftAuthorizationHandler openshiftAuthorizationHandler,
-                                   OpenshiftLocalizationConstant locale) {
+                                   OpenshiftLocalizationConstant locale,
+                                   NotificationManager notificationManager) {
         super(locale.disconnectAccountTitle());
         this.oAuthServiceClient = oAuthServiceClient;
         this.openshiftAuthorizationHandler = openshiftAuthorizationHandler;
+        this.locale = locale;
+        this.notificationManager = notificationManager;
     }
 
     @Override
@@ -40,11 +47,12 @@ public class DisconnectAccountAction extends Action {
             @Override
             protected void onSuccess(Void result) {
                 openshiftAuthorizationHandler.registerLogout();
+                notificationManager.showInfo(locale.logoutSuccessful());
             }
 
             @Override
             protected void onFailure(Throwable exception) {
-
+                notificationManager.showError(locale.logoutFailed());
             }
         });
     }

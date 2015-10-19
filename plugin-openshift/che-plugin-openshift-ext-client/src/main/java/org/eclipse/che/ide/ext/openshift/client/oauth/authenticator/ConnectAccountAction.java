@@ -15,6 +15,8 @@ import com.google.inject.Singleton;
 
 import org.eclipse.che.ide.api.action.Action;
 import org.eclipse.che.ide.api.action.ActionEvent;
+import org.eclipse.che.ide.api.notification.Notification;
+import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.ext.openshift.client.OpenshiftLocalizationConstant;
 import org.eclipse.che.security.oauth.OAuthStatus;
 
@@ -27,26 +29,33 @@ import javax.inject.Inject;
 public class ConnectAccountAction extends Action {
     private final OpenshiftAuthenticator        openshiftAuthenticator;
     private final OpenshiftAuthorizationHandler openshiftAuthorizationHandler;
+    private final OpenshiftLocalizationConstant locale;
+    private final NotificationManager           notificationManager;
 
     @Inject
     public ConnectAccountAction(OpenshiftAuthenticator openshiftAuthenticator,
                                 OpenshiftAuthorizationHandler openshiftAuthorizationHandler,
-                                OpenshiftLocalizationConstant locale) {
+                                OpenshiftLocalizationConstant locale,
+                                NotificationManager notificationManager) {
         super(locale.connectAccountTitle());
         this.openshiftAuthenticator = openshiftAuthenticator;
         this.openshiftAuthorizationHandler = openshiftAuthorizationHandler;
+        this.locale = locale;
+        this.notificationManager = notificationManager;
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
         openshiftAuthenticator.authorize(new AsyncCallback<OAuthStatus>() {
             @Override
-            public void onFailure(Throwable caught) {
+            public void onSuccess(OAuthStatus result) {
+                openshiftAuthorizationHandler.registerLogin();
+                notificationManager.showInfo(locale.loginSuccessful());
             }
 
             @Override
-            public void onSuccess(OAuthStatus result) {
-                openshiftAuthorizationHandler.registerLogin();
+            public void onFailure(Throwable caught) {
+                notificationManager.showError(locale.loginFailed());
             }
         });
     }
