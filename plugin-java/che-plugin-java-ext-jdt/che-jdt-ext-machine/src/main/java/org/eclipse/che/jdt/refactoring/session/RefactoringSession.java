@@ -13,11 +13,21 @@ package org.eclipse.che.jdt.refactoring.session;
 
 import org.eclipse.che.dto.server.DtoFactory;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ChangeCreationResult;
+import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ChangeInfo;
+import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringResult;
 import org.eclipse.che.jdt.refactoring.DtoConverter;
 import org.eclipse.che.jdt.refactoring.RefactoringException;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.internal.core.CompilationUnit;
+import org.eclipse.jdt.internal.corext.refactoring.changes.DynamicValidationStateChange;
+import org.eclipse.jdt.internal.corext.refactoring.changes.MoveCompilationUnitChange;
+import org.eclipse.jdt.internal.corext.refactoring.changes.RenameCompilationUnitChange;
+import org.eclipse.jdt.internal.corext.refactoring.changes.RenamePackageChange;
 import org.eclipse.jdt.internal.ui.JavaPlugin;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.CheckConditionsOperation;
@@ -27,20 +37,28 @@ import org.eclipse.ltk.core.refactoring.PerformChangeOperation;
 import org.eclipse.ltk.core.refactoring.Refactoring;
 import org.eclipse.ltk.core.refactoring.RefactoringCore;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
+import org.eclipse.ltk.core.refactoring.UndoTextFileChange;
 import org.eclipse.ltk.internal.core.refactoring.Messages;
 import org.eclipse.ltk.internal.ui.refactoring.AbstractChangeNode;
 import org.eclipse.ltk.internal.ui.refactoring.FinishResult;
 import org.eclipse.ltk.internal.ui.refactoring.PreviewNode;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
 /**
+ * The base class of the refactoring that describes all operation.
+ *
  * @author Evgen Vidolob
+ * @author Valeriy Svydenko
  */
 public abstract class RefactoringSession {
 
-    protected Refactoring refactoring;
-    protected PreviewNode previewNode;
-    private RefactoringStatus conditionCheckingStatus;
-    private Change change;
+    protected Refactoring       refactoring;
+    protected PreviewNode       previewNode;
+    private   RefactoringStatus conditionCheckingStatus;
+    private   Change            change;
 
     public RefactoringSession(Refactoring refactoring) {
         this.refactoring = refactoring;
@@ -89,18 +107,19 @@ public abstract class RefactoringSession {
                 if (msg != null) {
                     status.addFatalError(Messages.format("{0}. See the error log for more details.", msg));
                 } else {
-                    status.addFatalError("An unexpected exception occurred while creating a change object. See the error log for more details.");
+                    status.addFatalError(
+                            "An unexpected exception occurred while creating a change object. See the error log for more details.");
                 }
                 JavaPlugin.log(exception);
             } else {
-                status= operation.getConditionCheckingStatus();
+                status = operation.getConditionCheckingStatus();
             }
             setConditionCheckingStatus(status);
         } else {
             if (exception != null)
                 throw new RefactoringException(exception);
         }
-        Change change= operation.getChange();
+        Change change = operation.getChange();
         return change;
     }
 
@@ -112,23 +131,115 @@ public abstract class RefactoringSession {
         return change;
     }
 
-    public RefactoringStatus apply() {
+    /**
+     * @return instance of {@link org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatus}.
+     * That describes status of the refactoring operation.
+     */
+    public RefactoringResult apply() {
         PerformChangeOperation operation = new PerformChangeOperation(change);
         FinishResult result = internalPerformFinish(operation);
         if (result.isException()) {
-            return RefactoringStatus.createErrorStatus("Refactoring failed with Exception.");
-        }
-        RefactoringStatus validationStatus= operation.getValidationStatus();
-        if(validationStatus != null){
-            return validationStatus;
+            return DtoConverter.toRefactoringResultDto(RefactoringStatus.createErrorStatus("Refactoring failed with Exception."));
         }
 
-        return new RefactoringStatus();
+        CompositeChange operationChange = (CompositeChange)operation.getUndoChange();
+        Change[] changes = operationChange.getChildren();
+
+        RefactoringStatus validationStatus = operation.getValidationStatus();
+        if (validationStatus != null) {
+            List<ChangeInfo> changesInfo = new ArrayList<>();
+
+            prepareChangesInfo(changes, changesInfo);
+
+            RefactoringResult status = DtoConverter.toRefactoringResultDto(validationStatus);
+            status.setChanges(changesInfo);
+
+            return status;
+        }
+
+        return DtoConverter.toRefactoringResultDto(new RefactoringStatus());
+    }
+
+    /**
+     * Prepare the information about changes which were applied.
+     *
+     * @param changes array of the applied changes
+     * @param changesInfo prepared list of {@link ChangeInfo}
+     */
+    public void prepareChangesInfo(Change[] changes, List<ChangeInfo> changesInfo) {
+        for (Change ch : changes) {
+            if (ch instanceof DynamicValidationStateChange) {
+                prepareChangesInfo(((DynamicValidationStateChange)ch).getChildren(), changesInfo);
+            } else {
+                ChangeInfo changeInfo = DtoFactory.newDto(ChangeInfo.class);
+                String refactoringName = ch.getName();
+                if (ch instanceof UndoTextFileChange) {
+                    changeInfo.setName(ChangeInfo.ChangeName.UPDATE);
+                    changeInfo.setPath(((CompilationUnit)ch.getModifiedElement()).getPath().toString());
+                }
+                if (refactoringName.startsWith("Rename")) {
+                    if (ch instanceof RenameCompilationUnitChange) {
+                        prepareRenameCompilationUnitChange(changeInfo, ch);
+                    } else if (ch instanceof RenamePackageChange) {
+                        prepareRenamePackageChange(changesInfo, changeInfo, ch);
+                    }
+                }
+                if (refactoringName.startsWith("Move")) {
+                    prepareMoveChange(changeInfo, ch);
+                }
+
+                changesInfo.add(changeInfo);
+            }
+        }
+    }
+
+    private void prepareMoveChange(ChangeInfo changeInfo, Change ch) {
+        changeInfo.setName(ChangeInfo.ChangeName.MOVE);
+        if (ch instanceof MoveCompilationUnitChange) {
+            MoveCompilationUnitChange moveChange = (MoveCompilationUnitChange)ch;
+            String className = moveChange.getCu().getPath().lastSegment();
+            changeInfo.setOldPath(moveChange.getDestinationPackage().getPath().append(className).toString());
+            changeInfo.setPath(((CompilationUnit)ch.getModifiedElement()).getPath().toString());
+        }
+    }
+
+    private void prepareRenamePackageChange(List<ChangeInfo> changesInfo, ChangeInfo changeInfo, Change ch) {
+        changeInfo.setName(ChangeInfo.ChangeName.RENAME_PACKAGE);
+        RenamePackageChange renameChange = (RenamePackageChange)ch;
+
+        IPath oldPackageName = new Path(renameChange.getOldName().replace('.', IPath.SEPARATOR));
+        IPath newPackageName = new Path(renameChange.getNewName().replace('.', IPath.SEPARATOR));
+
+        changeInfo.setOldPath(renameChange.getResourcePath()
+                                          .removeLastSegments(oldPackageName.segmentCount())
+                                          .append(newPackageName).toString());
+        changeInfo.setPath(renameChange.getResourcePath().toString());
+
+        Set<IResource> compilationUnits = renameChange.getFCompilationUnitStamps().keySet();
+        for (IResource iResource : compilationUnits) {
+            ChangeInfo change = DtoFactory.newDto(ChangeInfo.class);
+            change.setName(ChangeInfo.ChangeName.UPDATE);
+
+            IPath fullPathOldPath = iResource.getFullPath();
+            IPath newPath = renameChange.getResourcePath().append(fullPathOldPath.toFile().getName());
+
+            change.setOldPath(fullPathOldPath.toString());
+            change.setPath(newPath.toString());
+
+            changesInfo.add(change);
+        }
+    }
+
+    private void prepareRenameCompilationUnitChange(ChangeInfo changeInfo, Change ch) {
+        changeInfo.setName(ChangeInfo.ChangeName.RENAME_COMPILATION_UNIT);
+        changeInfo.setPath(((CompilationUnit)ch.getModifiedElement()).getPath().toString());
+        RenameCompilationUnitChange renameChange = (RenameCompilationUnitChange)ch;
+        changeInfo.setOldPath(renameChange.getResourcePath().removeLastSegments(1).append(renameChange.getNewName()).toString());
     }
 
     private FinishResult internalPerformFinish(PerformChangeOperation op) {
         op.setUndoManager(RefactoringCore.getUndoManager(), refactoring.getName());
-        try{
+        try {
             ResourcesPlugin.getWorkspace().run(op, new NullProgressMonitor());
         } catch (CoreException e) {
             JavaPlugin.log(e);
@@ -149,9 +260,9 @@ public abstract class RefactoringSession {
         return previewNode;
     }
 
-    public void updateChangeEnabled(String changeId, boolean enabled) throws RefactoringException{
+    public void updateChangeEnabled(String changeId, boolean enabled) throws RefactoringException {
         PreviewNode node = findNode(previewNode, changeId);
-        if(node == null) {
+        if (node == null) {
             throw new RefactoringException("Can't find refactoring change to update enabled state.");
         }
 
@@ -164,16 +275,16 @@ public abstract class RefactoringSession {
         }
 
         PreviewNode[] children = node.getChildren();
-        if(children != null){
+        if (children != null) {
             PreviewNode found;
             for (PreviewNode child : children) {
                 found = findNode(child, id);
-                if(found != null){
+                if (found != null) {
                     return found;
                 }
             }
         }
-        return  null;
+        return null;
     }
 
     public PreviewNode getChangePreview(String changeId) {

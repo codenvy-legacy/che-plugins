@@ -23,6 +23,7 @@ import org.eclipse.che.ide.ext.java.shared.dto.refactoring.LinkedRenameRefactori
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.MoveSettings;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringChange;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringPreview;
+import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringResult;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringSession;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatus;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RenameRefactoringSession;
@@ -190,14 +191,14 @@ public class RefactoringService {
     /**
      * Apply refactoring.
      * @param session the refactoring session
-     * @return the status fo applied refactoring
+     * @return the result fo applied refactoring
      * @throws RefactoringException when there are no corresponding refactoring session
      */
     @POST
     @Path("apply")
     @Produces("application/json")
     @Consumes("application/json")
-    public RefactoringStatus applyRefactoring(RefactoringSession session) throws RefactoringException {
+    public RefactoringResult applyRefactoring(RefactoringSession session) throws RefactoringException {
         return manager.applyRefactoring(session.getSessionId());
     }
 
@@ -242,7 +243,7 @@ public class RefactoringService {
     /**
      * Apply linked mode rename refactoring.
      * @param refactoringApply linked mode setting and refactoring session id
-     * @return the status fo applied refactoring
+     * @return the result fo applied refactoring
      * @throws RefactoringException when there are no corresponding refactoring session
      * @throws CoreException  when impossible to apply rename refactoring
      */
@@ -250,7 +251,7 @@ public class RefactoringService {
     @Path("rename/linked/apply")
     @Consumes("application/json")
     @Produces("application/json")
-    public RefactoringStatus applyLinkedModeRename(LinkedRenameRefactoringApply refactoringApply) throws RefactoringException,
+    public RefactoringResult applyLinkedModeRename(LinkedRenameRefactoringApply refactoringApply) throws RefactoringException,
                                                                                                          CoreException {
         return manager.applyLinkedRename(refactoringApply);
     }

@@ -30,8 +30,8 @@ import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ChangeEnabledState;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ChangePreview;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringChange;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringPreview;
+import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringResult;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringSession;
-import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatus;
 import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 
 import static org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatus.OK;
@@ -105,9 +105,9 @@ public class PreviewPresenter implements PreviewView.ActionDelegate {
     /** {@inheritDoc} */
     @Override
     public void onAcceptButtonClicked() {
-        refactoringService.applyRefactoring(session).then(new Operation<RefactoringStatus>() {
+        refactoringService.applyRefactoring(session).then(new Operation<RefactoringResult>() {
             @Override
-            public void apply(RefactoringStatus arg) throws OperationException {
+            public void apply(RefactoringResult arg) throws OperationException {
                 if (arg.getSeverity() == OK) {
                     view.hide();
                     //TODO It is temporary solution. We need to know which files have changes.

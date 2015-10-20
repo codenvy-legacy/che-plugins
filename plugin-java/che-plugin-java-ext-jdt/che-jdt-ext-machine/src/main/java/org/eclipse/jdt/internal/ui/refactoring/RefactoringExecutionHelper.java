@@ -42,6 +42,8 @@ public class RefactoringExecutionHelper {
 	private final int              fStopSeverity;
 	private final int              fSaveMode;
 
+	private PerformChangeOperation fPerformChangeOperation;
+
 	private class Operation implements IWorkspaceRunnable {
 		public        Change                 fChange;
 		public        PerformChangeOperation fPerformChangeOperation;
@@ -173,6 +175,7 @@ public class RefactoringExecutionHelper {
 			try{
 				op = new Operation(fork, forkChangeExecution);
 				op.run(new NullProgressMonitor());
+				fPerformChangeOperation = op.fPerformChangeOperation;
 //			fRefactoring.setValidationContext(fParent);
 				if(op.fPerformChangeOperation != null) {
                     ResourcesPlugin.getWorkspace().run(op.fPerformChangeOperation, new NullProgressMonitor());
@@ -206,5 +209,9 @@ public class RefactoringExecutionHelper {
 			fRefactoring.setValidationContext(null);
 		}
         return new RefactoringStatus();
+	}
+
+	public PerformChangeOperation getfPerformChangeOperation() {
+		return fPerformChangeOperation;
 	}
 }
