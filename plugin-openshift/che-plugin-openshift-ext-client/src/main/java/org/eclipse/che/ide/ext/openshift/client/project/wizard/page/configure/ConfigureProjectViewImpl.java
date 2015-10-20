@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * <p/>
  * Contributors:
- *   Codenvy, S.A. - initial API and implementation
+ * Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
 package org.eclipse.che.ide.ext.openshift.client.project.wizard.page.configure;
 
@@ -16,6 +16,7 @@ import elemental.html.TableElement;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
@@ -32,7 +33,10 @@ import com.google.inject.Singleton;
 import org.eclipse.che.ide.Resources;
 import org.eclipse.che.ide.ext.openshift.client.OpenshiftResources;
 import org.eclipse.che.ide.ext.openshift.shared.dto.Project;
+import org.eclipse.che.ide.ui.Tooltip;
 import org.eclipse.che.ide.ui.list.SimpleList;
+import org.eclipse.che.ide.ui.menu.PositionController;
+import org.eclipse.che.ide.ui.smartTree.DelayedTask;
 import org.eclipse.che.ide.util.dom.Elements;
 
 import java.util.Collections;
@@ -85,6 +89,9 @@ public class ConfigureProjectViewImpl implements ConfigureProjectView {
 
     private ActionDelegate delegate;
     private DockPanel      widget;
+
+    private Tooltip osInvalidNameTooltip;
+    private Tooltip cdInvalidNameTooltip;
 
     @Inject
     public ConfigureProjectViewImpl(Resources resources, OpenshiftResources openshiftResources) {
@@ -162,7 +169,32 @@ public class ConfigureProjectViewImpl implements ConfigureProjectView {
 
     @UiHandler({"osProjectNameInput"})
     public void onOpenShiftProjectNameChanged(KeyUpEvent event) {
+        if (osProjectNameInput.getValue().startsWith(cdProjectNameInput.getValue())) {
+            cdProjectNameInput.setValue(osProjectNameInput.getValue(), true);
+        }
+
+        if (event.getNativeKeyCode() == KeyCodes.KEY_BACKSPACE && cdProjectNameInput.getValue().startsWith(osProjectNameInput.getValue())) {
+            cdProjectNameInput.setValue(cdProjectNameInput.getValue().substring(0, cdProjectNameInput.getValue().length() - 1), true);
+        }
+
         delegate.onOpenShiftNewProjectNameChanged();
+    }
+
+    @Override
+    public void showOpenShiftNewProjectNameInvalidValueMessage(boolean show) {
+        if (osInvalidNameTooltip == null) {
+            osInvalidNameTooltip = Tooltip.create((Element)osProjectNameInput.getElement(),
+                                                  PositionController.VerticalAlign.MIDDLE,
+                                                  PositionController.HorizontalAlign.LEFT,
+                                                  "Project name must not be empty and be a DNS label (at most 63 characters, matching regex [a-z0-9]([-a-z0-9]*[a-z0-9])?)");
+            osInvalidNameTooltip.setTitle("Wrong value");
+        }
+
+        if (show) {
+            osInvalidNameTooltip.show();
+        } else {
+            osInvalidNameTooltip.forceHide();
+        }
     }
 
     @UiHandler({"cdProjectNameInput"})
@@ -170,8 +202,32 @@ public class ConfigureProjectViewImpl implements ConfigureProjectView {
         delegate.onCodenvyNewProjectNameChanged();
     }
 
+    @Override
+    public void showCodenvyNewProjectNameInvalidValueMessage(boolean show) {
+        if (cdInvalidNameTooltip == null) {
+            cdInvalidNameTooltip = Tooltip.create((Element)cdProjectNameInput.getElement(),
+                                                  PositionController.VerticalAlign.MIDDLE,
+                                                  PositionController.HorizontalAlign.LEFT,
+                                                  "Project name must not be empty and contains only letters, digits and '-', '_', '.' chars.");
+            cdInvalidNameTooltip.setTitle("Wrong value");
+        }
+
+        if (show) {
+            cdInvalidNameTooltip.show();
+        } else {
+            cdInvalidNameTooltip.forceHide();
+        }
+    }
+
     @UiHandler({"osProjectDescriptionInput"})
     public void onOpenShiftProjectDescriptionChanged(KeyUpEvent event) {
+        if (osProjectDescriptionInput.getValue().startsWith(cdProjectDescriptionInput.getValue())) {
+            cdProjectDescriptionInput.setValue(osProjectDescriptionInput.getValue(), true);
+        }
+
+        if (event.getNativeKeyCode() == KeyCodes.KEY_BACKSPACE && cdProjectDescriptionInput.getValue().startsWith(osProjectDescriptionInput.getValue())) {
+            cdProjectDescriptionInput.setValue(cdProjectDescriptionInput.getValue().substring(0, cdProjectDescriptionInput.getValue().length() - 1), true);
+        }
         delegate.onOpenShiftDescriptionChanged();
     }
 

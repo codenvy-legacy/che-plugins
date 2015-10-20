@@ -37,15 +37,25 @@ public interface ConfigureProjectView extends View<ConfigureProjectView.ActionDe
     /** @return new OpenShift project name. */
     String getOpenShiftNewProjectName();
 
+    /** Show or hide error tooltip when user entered invalid project name. */
+    void showOpenShiftNewProjectNameInvalidValueMessage(boolean show);
+
     /** @return new Codenvy project name. */
     String getCodenvyNewProjectName();
 
+    /** Show or hide error tooltip when user entered invalid project name. */
+    void showCodenvyNewProjectNameInvalidValueMessage(boolean show);
+
+    /** @return open shift project description */
     String getOpenShiftProjectDescription();
 
+    /** @return codenvy project description. */
     String getCodenvyProjectDescription();
 
+    /** @return open shift project display name */
     String getOpenShiftProjectDisplayName();
 
+    /**@return true if user selected public project.  */
     boolean isCodenvyPublicProject();
 
     /** @return selected existed OpenShift project or null. */

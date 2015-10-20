@@ -33,6 +33,7 @@ import org.eclipse.che.ide.ext.openshift.client.dto.NewApplicationRequest;
 import org.eclipse.che.ide.ext.openshift.shared.dto.BuildConfig;
 import org.eclipse.che.ide.ext.openshift.shared.dto.DeploymentConfig;
 import org.eclipse.che.ide.ext.openshift.shared.dto.ImageStream;
+import org.eclipse.che.ide.ext.openshift.shared.dto.Parameter;
 import org.eclipse.che.ide.ext.openshift.shared.dto.Project;
 import org.eclipse.che.ide.ext.openshift.shared.dto.ProjectRequest;
 import org.eclipse.che.ide.ext.openshift.shared.dto.Route;
@@ -59,6 +60,8 @@ public class CreateProjectWizard extends AbstractWizard<NewApplicationRequest> {
     private final DtoFactory             dtoFactory;
     private final ImportWizardFactory importWizardFactory;
 
+    public static final String APPLICATION_NAME_PARAM = "APPLICATION_NAME";
+
     @Inject
     public CreateProjectWizard(@Assisted NewApplicationRequest newApplicationRequest,
                                OpenshiftServiceClient openshiftClient,
@@ -74,9 +77,22 @@ public class CreateProjectWizard extends AbstractWizard<NewApplicationRequest> {
 
     @Override
     public void complete(@NotNull final CompleteCallback callback) {
+        setUpApplicationName();
+
         getOrCreateOpenShiftProject().thenPromise(processTemplate())
                                      .then(onSuccess(callback))
                                      .catchError(onFailed(callback));
+    }
+
+    private void setUpApplicationName() {
+        for (Parameter parameter : dataObject.getTemplate().getParameters()) {
+            if (!APPLICATION_NAME_PARAM.equals(parameter.getName())) {
+                continue;
+            }
+
+            parameter.setValue(dataObject.getImportProject().getProject().getName());
+            break;
+        }
     }
 
     private Operation<Template> onSuccess(final CompleteCallback callback) {

@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * <p/>
  * Contributors:
- *   Codenvy, S.A. - initial API and implementation
+ * Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
 package org.eclipse.che.ide.ext.openshift.client.project.wizard.page.configure;
 
@@ -37,6 +37,7 @@ import org.eclipse.che.ide.ext.openshift.shared.dto.ProjectRequest;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.rest.Unmarshallable;
+import org.eclipse.che.ide.util.NameUtils;
 
 import java.util.Collections;
 import java.util.List;
@@ -103,16 +104,18 @@ public class ConfigureProjectPresenter extends AbstractWizardPage<NewApplication
                                                                                                : cachedOpenShiftProjects);
 
             final String cdNewProjectName = view.getCodenvyNewProjectName();
-            boolean b2 = codenvyProjectNameValidator.isValid(cdNewProjectName,
-                                                             cachedCodenvyProjects == null ? Collections.<ProjectReference>emptyList()
-                                                                                           : cachedCodenvyProjects);
+            boolean b2 = NameUtils.checkProjectName(cdNewProjectName)
+                         && codenvyProjectNameValidator.isValid(cdNewProjectName,
+                                                                cachedCodenvyProjects == null ? Collections.<ProjectReference>emptyList()
+                                                                                              : cachedCodenvyProjects);
 
             return b1 && b2;
         } else {
             final String cdNewProjectName = view.getCodenvyNewProjectName();
-            boolean b2 = codenvyProjectNameValidator.isValid(cdNewProjectName,
-                                                             cachedCodenvyProjects == null ? Collections.<ProjectReference>emptyList()
-                                                                                           : cachedCodenvyProjects);
+            boolean b2 = NameUtils.checkProjectName(cdNewProjectName)
+                         && codenvyProjectNameValidator.isValid(cdNewProjectName,
+                                                                cachedCodenvyProjects == null ? Collections.<ProjectReference>emptyList()
+                                                                                              : cachedCodenvyProjects);
 
             return view.getExistedSelectedProject() != null && b2;
         }
@@ -128,14 +131,24 @@ public class ConfigureProjectPresenter extends AbstractWizardPage<NewApplication
     @Override
     public void onOpenShiftNewProjectNameChanged() {
         setUpNewProjectRequest();
+        view.showOpenShiftNewProjectNameInvalidValueMessage(!isOpenShiftProjectNameValid(view.getOpenShiftNewProjectName()));
         updateDelegate.updateControls();
+    }
+
+    private boolean isOpenShiftProjectNameValid(String name) {
+        return name.length() < 63 && name.matches("[a-z0-9]([-a-z0-9]*[a-z0-9])?");
     }
 
     /** {@inheritDoc} */
     @Override
     public void onCodenvyNewProjectNameChanged() {
         setUpCodenvyProjectRequest();
+        view.showCodenvyNewProjectNameInvalidValueMessage(!isCodenvyProjectNameValid(view.getCodenvyNewProjectName()));
         updateDelegate.updateControls();
+    }
+
+    private boolean isCodenvyProjectNameValid(String name) {
+        return NameUtils.checkProjectName(name);
     }
 
     private Promise<List<ProjectReference>> getCodenvyProjects() {
