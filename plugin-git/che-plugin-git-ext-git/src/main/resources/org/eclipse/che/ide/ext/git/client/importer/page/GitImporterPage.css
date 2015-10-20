@@ -8,60 +8,55 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-@eval borderColor org.eclipse.che.ide.api.theme.Style.getTabBorderColor();
 
 .mainPanel {
-    margin: 0px;
-    border: none !important;
-    height: 100%;
+    margin-top: 5px;
 }
 
-.namePanel {
-    margin-top: 5px;
-    overflow: hidden;
-    display: block;
+.mainPanel > div > div > div {
+    margin-left: 12px;
+    margin-right: 12px;
+}
+
+.namePanel .inputField {
+    width: literal("calc(100% - 12px)");
+    min-height: 18px;
+}
+
+.horizontalLine {
+    border-top: 1px solid popupBorderColor;
+    margin: 0 !important;
+    width: 100%;
 }
 
 .marginTop {
     margin-top: 10px;
 }
 
-.horizontalLine {
-    width: 255px;
-    margin-top: 7px;
-    float: right;
-    border-bottom: 1px solid #505050;
-}
-
 .label {
     font-weight: bold;
-    font-size: 12px;
+    line-height: 35px;
+    font-size: largeLabel;
+}
+
+.labelPosition,
+.labelErrorPosition {
+    position: relative;
 }
 
 .labelPosition {
-    position: relative;
-    line-height: 29px;
-    margin-right: 9px;
     font-weight: bold;
-    float: left;
-    font-size: 12px;
 }
 
 .labelErrorPosition {
-    margin-right: 9px;
-    margin-left: 47px;
-    margin-top: 5px;
-    position: relative;
+    color: errorEventColor;
     font-weight: lighter;
-    font-size: 12px;
     text-align: center;
-    color: firebrick;
-    display: block;
     float: left;
 }
 
 .description {
-    font-size: 11px;
+    font-size: fontSize;
 }
 
 .alignLeft {
@@ -74,8 +69,10 @@
 
 .radioButtonPosition {
     position: relative;
-    float: right;
-    padding-left: 5px;
-    top: 8px;
-    right: 65px;
+    float: left;
+    left: 0;
+}
+
+.radioButtonPosition:last-child {
+    margin-left: 55px;
 }

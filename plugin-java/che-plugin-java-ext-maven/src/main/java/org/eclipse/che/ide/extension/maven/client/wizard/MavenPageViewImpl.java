@@ -33,6 +33,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 
 
+import org.eclipse.che.ide.ui.listbox.CustomListBox;
 import org.eclipse.che.ide.extension.maven.client.MavenLocalizationConstant;
 import org.eclipse.che.ide.ui.customListBox.CustomListBox;
 

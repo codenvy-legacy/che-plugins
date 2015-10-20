@@ -22,7 +22,7 @@ import org.vectomatic.dom.svg.ui.SVGResource;
  */
 public interface GitHubResources extends ClientBundle {
 
-    @Source({"importer/page/GithubImporterPage.css", "org/eclipse/che/ide/ui/Styles.css"})
+    @Source({"importer/page/GithubImporterPage.css", "org/eclipse/che/ide/ui/Styles.css", "org/eclipse/che/ide/api/ui/style.css"})
     GithubImporterPageViewImpl.GithubStyle githubImporterPageStyle();
 
     @Source("buttons/ok.png")

@@ -34,7 +34,7 @@ public interface GitResources extends ClientBundle {
         String spacing();
     }
 
-    @Source({"importer/page/GitImporterPage.css", "org/eclipse/che/ide/ui/Styles.css"})
+    @Source({"importer/page/GitImporterPage.css", "org/eclipse/che/ide/ui/Styles.css", "org/eclipse/che/ide/api/ui/style.css"})
     GitImporterPageViewImpl.Style gitImporterPageStyle();
 
     @Source({"git.css", "org/eclipse/che/ide/api/ui/style.css"})
