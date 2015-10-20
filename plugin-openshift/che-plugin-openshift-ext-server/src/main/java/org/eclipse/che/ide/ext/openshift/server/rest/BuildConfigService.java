@@ -64,7 +64,7 @@ public class BuildConfigService {
             throw new BadRequestException(buildConfig.getKind() + " cannot be handled as a " + ResourceKind.BUILD_CONFIG);
         }
 
-        final IClient client = clientFactory.createClient();
+        final IClient client = clientFactory.getClient();
         final IBuildConfig openshiftBuildConfig = toOpenshiftResource(client, buildConfig);
         return toDto(BuildConfig.class, client.create(openshiftBuildConfig, namespace));
     }
@@ -77,7 +77,7 @@ public class BuildConfigService {
         if (application != null) {
             labels.put("application", application);
         }
-        List<IBuildConfig> buildConfigs = clientFactory.createClient().list(ResourceKind.BUILD_CONFIG, namespace, labels);
+        List<IBuildConfig> buildConfigs = clientFactory.getClient().list(ResourceKind.BUILD_CONFIG, namespace, labels);
         return buildConfigs.stream()
                            .map(imageStream -> toDto(BuildConfig.class, imageStream))
                            .collect(Collectors.toList());
@@ -89,7 +89,7 @@ public class BuildConfigService {
     public BuildConfig getBuildConfig(@PathParam("namespace") String namespace,
                                       @PathParam("buildConfig") String buildConfig) throws UnauthorizedException, ServerException {
 
-        return toDto(BuildConfig.class, clientFactory.createClient().get(ResourceKind.BUILD_CONFIG, buildConfig, namespace));
+        return toDto(BuildConfig.class, clientFactory.getClient().get(ResourceKind.BUILD_CONFIG, buildConfig, namespace));
     }
 
     @PUT
@@ -102,7 +102,7 @@ public class BuildConfigService {
         if (!buildConfigName.equals(buildConfig.getMetadata().getName())) {
             throw new ForbiddenException("Name of resources can read only access mode");
         }
-        final IClient client = clientFactory.createClient();
+        final IClient client = clientFactory.getClient();
         return toDto(BuildConfig.class, client.update(toOpenshiftResource(client, buildConfig)));
     }
 }

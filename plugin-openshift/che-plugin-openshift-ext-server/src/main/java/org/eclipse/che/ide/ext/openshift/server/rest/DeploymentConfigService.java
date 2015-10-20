@@ -65,7 +65,7 @@ public class DeploymentConfigService {
             throw new BadRequestException(deploymentConfig.getKind() + " cannot be handled as a " + ResourceKind.DEPLOYMENT_CONFIG);
         }
 
-        final IClient client = clientFactory.createClient();
+        final IClient client = clientFactory.getClient();
         final IDeploymentConfig openshiftDeploymentConfig = toOpenshiftResource(client, deploymentConfig);
         return toDto(DeploymentConfig.class, client.create(openshiftDeploymentConfig, namespace));
     }
@@ -78,7 +78,7 @@ public class DeploymentConfigService {
         if (application != null) {
             labels.put("application", application);
         }
-        List<IDeploymentConfig> deploymentConfigs = clientFactory.createClient().list(ResourceKind.DEPLOYMENT_CONFIG, namespace, labels);
+        List<IDeploymentConfig> deploymentConfigs = clientFactory.getClient().list(ResourceKind.DEPLOYMENT_CONFIG, namespace, labels);
         return deploymentConfigs.stream()
                                 .map(imageStream -> toDto(DeploymentConfig.class, imageStream))
                                 .collect(Collectors.toList());
@@ -91,7 +91,7 @@ public class DeploymentConfigService {
                                                 @PathParam("deploymentConfig") String deploymentConfig)
             throws UnauthorizedException, ServerException {
 
-        return toDto(DeploymentConfig.class, clientFactory.createClient().get(ResourceKind.DEPLOYMENT_CONFIG, deploymentConfig, namespace));
+        return toDto(DeploymentConfig.class, clientFactory.getClient().get(ResourceKind.DEPLOYMENT_CONFIG, deploymentConfig, namespace));
     }
 
     @PUT
@@ -105,7 +105,7 @@ public class DeploymentConfigService {
         if (!deploymentConfigName.equals(deploymentConfig.getMetadata().getName())) {
             throw new ForbiddenException("Name of resources can read only access mode");
         }
-        final IClient client = clientFactory.createClient();
+        final IClient client = clientFactory.getClient();
         return toDto(DeploymentConfig.class, client.update(toOpenshiftResource(client, deploymentConfig)));
     }
 }

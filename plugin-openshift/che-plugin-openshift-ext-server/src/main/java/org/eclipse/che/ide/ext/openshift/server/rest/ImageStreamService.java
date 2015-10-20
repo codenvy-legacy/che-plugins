@@ -64,7 +64,7 @@ public class ImageStreamService {
             throw new BadRequestException(imageStream.getKind() + " cannot be handled as a " + ResourceKind.IMAGE_STREAM);
         }
 
-        final IClient client = clientFactory.createClient();
+        final IClient client = clientFactory.getClient();
         final IImageStream openshiftImageStream = toOpenshiftResource(client, imageStream);
         return toDto(ImageStream.class, client.create(openshiftImageStream, namespace));
     }
@@ -78,7 +78,7 @@ public class ImageStreamService {
             labels.put("application", application);
         }
 
-        List<IImageStream> imageStreams = clientFactory.createClient().list(ResourceKind.IMAGE_STREAM, namespace, labels);
+        List<IImageStream> imageStreams = clientFactory.getClient().list(ResourceKind.IMAGE_STREAM, namespace, labels);
         return imageStreams.stream()
                            .map(imageStream -> toDto(ImageStream.class, imageStream))
                            .collect(Collectors.toList());
@@ -90,7 +90,7 @@ public class ImageStreamService {
     public ImageStream getImageStream(@PathParam("namespace") String namespace,
                                       @PathParam("imageStream") String imageStream) throws UnauthorizedException, ServerException {
 
-        return toDto(ImageStream.class, clientFactory.createClient().get(ResourceKind.IMAGE_STREAM, imageStream, namespace));
+        return toDto(ImageStream.class, clientFactory.getClient().get(ResourceKind.IMAGE_STREAM, imageStream, namespace));
     }
 
     @PUT
@@ -103,7 +103,7 @@ public class ImageStreamService {
         if (!imageStreamName.equals(imageStream.getMetadata().getName())) {
             throw new ForbiddenException("Name of resources can read only access mode");
         }
-        final IClient client = clientFactory.createClient();
+        final IClient client = clientFactory.getClient();
         return toDto(ImageStream.class, client.update(toOpenshiftResource(client, imageStream)));
     }
 }
