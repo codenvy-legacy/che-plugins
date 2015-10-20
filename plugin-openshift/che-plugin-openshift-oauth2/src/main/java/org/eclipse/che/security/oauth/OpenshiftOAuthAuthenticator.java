@@ -11,27 +11,28 @@
 package org.eclipse.che.security.oauth;
 
 import com.google.api.client.util.store.MemoryDataStoreFactory;
-import com.openshift.internal.restclient.http.HttpClientException;
-import com.openshift.restclient.IClient;
-import com.openshift.restclient.ISSLCertificateCallback;
-import com.openshift.restclient.authorization.TokenAuthorizationStrategy;
-import com.openshift.restclient.model.user.IUser;
 
 import org.eclipse.che.api.auth.shared.dto.OAuthToken;
-import org.eclipse.che.security.oauth.shared.User;
+import org.eclipse.che.commons.json.JsonHelper;
+import org.eclipse.che.commons.json.JsonParseException;
+import org.eclipse.che.ide.ext.openshift.shared.dto.User;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
+
+import static com.google.api.client.repackaged.com.google.common.base.Strings.isNullOrEmpty;
 
 /**
  * OAuth authentication  for openshift account.
@@ -54,9 +55,10 @@ public class OpenshiftOAuthAuthenticator extends OAuthAuthenticator {
     }
 
     @Override
-    public User getUser(OAuthToken accessToken) throws OAuthAuthenticationException {
-        final IUser currentUser = createClient(accessToken.getToken()).getCurrentUser();
-        return new OpenshiftUser().withEmail(currentUser.getName())
+    public org.eclipse.che.security.oauth.shared.User getUser(OAuthToken accessToken) throws OAuthAuthenticationException {
+        final User currentUser = requestUser(openshiftApiEndpoint + "/oapi/v1/users/~", accessToken.getToken());
+
+        return new OpenshiftUser().withEmail(currentUser.getMetadata().getName())
                                   .withName(currentUser.getFullName());
     }
 
@@ -69,34 +71,40 @@ public class OpenshiftOAuthAuthenticator extends OAuthAuthenticator {
     public OAuthToken getToken(String userId) throws IOException {
         final OAuthToken token = super.getToken(userId);
 
-        if (token == null || token.getToken() == null || token.getToken().isEmpty()) {
+        if (token == null || isNullOrEmpty(token.getToken())) {
             return null;
         }
 
         // Need to check if token which stored is valid for requests, then if valid - we returns it to caller
         try {
-            createClient(token.getToken()).getOpenShiftAPIVersion();
-        } catch (HttpClientException e) {
+            requestString(openshiftApiEndpoint + "/api",
+                          ImmutableMap.of("Authorization", "Bearer " + token.getToken()));
+        } catch (UnauthorizedException e) {
             return null;
         }
 
         return token;
     }
 
-    public IClient createClient(String token) {
-        IClient client = new com.openshift.restclient.ClientFactory().create(openshiftApiEndpoint, new ISSLCertificateCallback() {
-            @Override
-            public boolean allowCertificate(X509Certificate[] x509Certificates) {
-                return true;
-            }
+    private User requestUser(String requestUrl, String token) throws OAuthAuthenticationException {
+        HttpURLConnection connection = null;
+        try {
+            connection = (HttpURLConnection)new URL(requestUrl).openConnection();
+            connection.setConnectTimeout(60000);
+            connection.setReadTimeout(60000);
+            connection.setRequestMethod("GET");
+            connection.addRequestProperty("Authorization", "Bearer " + token);
 
-            @Override
-            public boolean allowHostname(String s, SSLSession sslSession) {
-                return true;
+            try (InputStream urlInputStream = connection.getInputStream()) {
+                return JsonHelper.fromJson(urlInputStream, User.class, null);
             }
-        });
-        client.setAuthorizationStrategy(new TokenAuthorizationStrategy(token));
-        return client;
+        } catch (IOException | JsonParseException e) {
+            throw new OAuthAuthenticationException(e.getMessage(), e);
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
+        }
     }
 
     //TODO Remove when server will has normal sll certificates
