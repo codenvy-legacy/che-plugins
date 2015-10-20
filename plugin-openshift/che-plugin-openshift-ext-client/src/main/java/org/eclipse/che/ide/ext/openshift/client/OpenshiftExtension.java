@@ -54,6 +54,7 @@ public class OpenshiftExtension {
         actionManager.registerAction("disconnectOpenshiftAccount", disconnectAccountAction);
         openshift.add(disconnectAccountAction);
 
+        openshift.addSeparator();
         actionManager.registerAction("createOpenshiftApplicationFromTemplate", createApplicationFromTemplateAction);
         openshift.add(createApplicationFromTemplateAction);
     }
