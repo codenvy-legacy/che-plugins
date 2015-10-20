@@ -36,6 +36,7 @@ import org.eclipse.che.ide.ext.java.shared.dto.refactoring.CreateMoveRefactoring
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.JavaElement;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.JavaProject;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.MoveSettings;
+import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringResult;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringSession;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatus;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ReorgDestination;
@@ -203,9 +204,9 @@ public class MovePresenter implements MoveView.ActionDelegate {
             @Override
             public void apply(ChangeCreationResult arg) throws OperationException {
                 if (arg.isCanShowPreviewPage()) {
-                    refactorService.applyRefactoring(session).then(new Operation<RefactoringStatus>() {
+                    refactorService.applyRefactoring(session).then(new Operation<RefactoringResult>() {
                         @Override
-                        public void apply(RefactoringStatus arg) throws OperationException {
+                        public void apply(RefactoringResult arg) throws OperationException {
                             if (arg.getSeverity() == OK) {
                                 view.hide();
                                 //TODO It is temporary solution. We need to know which files have changes.

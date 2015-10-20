@@ -71,6 +71,10 @@ public final class RenamePackageChange extends AbstractJavaElementRenameChange {
 		}
 	}
 
+	public Map<IResource, Long> getFCompilationUnitStamps() {
+		return fCompilationUnitStamps;
+	}
+
 	@Override
 	protected IPath createNewPath() {
 		IPackageFragment oldPackage= getPackage();

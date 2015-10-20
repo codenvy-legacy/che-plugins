@@ -68,12 +68,12 @@ public abstract class AbstractJavaElementRenameChange extends ResourceChange {
 		return fOldName;
 	}
 
-	protected final IResource getResource() {
-		return ResourcesPlugin.getWorkspace().getRoot().findMember(fResourcePath);
+	public IPath getResourcePath() {
+		return fResourcePath;
 	}
 
-	protected IPath getResourcePath() {
-		return fResourcePath;
+	protected final IResource getResource() {
+		return ResourcesPlugin.getWorkspace().getRoot().findMember(fResourcePath);
 	}
 
 	@Override

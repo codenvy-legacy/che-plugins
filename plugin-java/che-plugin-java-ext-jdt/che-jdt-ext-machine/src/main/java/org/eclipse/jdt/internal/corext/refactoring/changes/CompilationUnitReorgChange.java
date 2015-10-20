@@ -83,15 +83,15 @@ abstract class CompilationUnitReorgChange extends ResourceChange {
 		return null;
 	}
 
-	ICompilationUnit getCu() {
+	public ICompilationUnit getCu() {
 		return (ICompilationUnit)JavaCore.create(fCuHandle);
 	}
 
-	IPackageFragment getOldPackage() {
+	public IPackageFragment getOldPackage() {
 		return (IPackageFragment)JavaCore.create(fOldPackageHandle);
 	}
 
-	IPackageFragment getDestinationPackage() {
+	public IPackageFragment getDestinationPackage() {
 		return (IPackageFragment)JavaCore.create(fNewPackageHandle);
 	}
 

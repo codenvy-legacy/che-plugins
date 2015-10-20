@@ -26,6 +26,7 @@ import org.eclipse.che.ide.ext.java.shared.dto.refactoring.LinkedRenameRefactori
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.MoveSettings;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringChange;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringPreview;
+import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringResult;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringSession;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatus;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RenameRefactoringSession;
@@ -97,15 +98,15 @@ final class RefactoringServiceClientImpl implements RefactoringServiceClient {
 
     /** {@inheritDoc} */
     @Override
-    public Promise<RefactoringStatus> applyLinkedModeRename(final LinkedRenameRefactoringApply refactoringApply) {
+    public Promise<RefactoringResult> applyLinkedModeRename(final LinkedRenameRefactoringApply refactoringApply) {
         final String url = pathToService + "rename/linked/apply";
-        return newPromise(new AsyncPromiseHelper.RequestCall<RefactoringStatus>() {
+        return newPromise(new AsyncPromiseHelper.RequestCall<RefactoringResult>() {
             @Override
-            public void makeCall(AsyncCallback<RefactoringStatus> callback) {
+            public void makeCall(AsyncCallback<RefactoringResult> callback) {
                 asyncRequestFactory.createPostRequest(url, refactoringApply)
                                    .header(ACCEPT, APPLICATION_JSON)
                                    .header(CONTENT_TYPE, APPLICATION_JSON)
-                                   .send(newCallback(callback, unmarshallerFactory.newUnmarshaller(RefactoringStatus.class)));
+                                   .send(newCallback(callback, unmarshallerFactory.newUnmarshaller(RefactoringResult.class)));
             }
         });
     }
@@ -180,17 +181,17 @@ final class RefactoringServiceClientImpl implements RefactoringServiceClient {
 
     /** {@inheritDoc} */
     @Override
-    public Promise<RefactoringStatus> applyRefactoring(final RefactoringSession session) {
+    public Promise<RefactoringResult> applyRefactoring(final RefactoringSession session) {
         final String url = pathToService + "apply";
 
-        return newPromise(new AsyncPromiseHelper.RequestCall<RefactoringStatus>() {
+        return newPromise(new AsyncPromiseHelper.RequestCall<RefactoringResult>() {
             @Override
-            public void makeCall(AsyncCallback<RefactoringStatus> callback) {
+            public void makeCall(AsyncCallback<RefactoringResult> callback) {
 
                 asyncRequestFactory.createPostRequest(url, session)
                                    .header(ACCEPT, APPLICATION_JSON)
                                    .header(CONTENT_TYPE, APPLICATION_JSON)
-                                   .send(newCallback(callback, unmarshallerFactory.newUnmarshaller(RefactoringStatus.class)));
+                                   .send(newCallback(callback, unmarshallerFactory.newUnmarshaller(RefactoringResult.class)));
             }
         });
     }

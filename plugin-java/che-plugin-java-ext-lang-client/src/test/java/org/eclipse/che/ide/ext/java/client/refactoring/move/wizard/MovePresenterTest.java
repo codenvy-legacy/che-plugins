@@ -31,6 +31,7 @@ import org.eclipse.che.ide.ext.java.shared.dto.refactoring.CreateMoveRefactoring
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.JavaElement;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.JavaProject;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.MoveSettings;
+import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringResult;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringSession;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatus;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ReorgDestination;
@@ -92,6 +93,8 @@ public class MovePresenterTest {
     @Mock
     private RefactoringStatus          refactoringStatus;
     @Mock
+    private RefactoringResult          refactoringResult;
+    @Mock
     private JavaElement                javaElement;
     @Mock
     private CreateMoveRefactoring      moveRefactoring;
@@ -119,6 +122,8 @@ public class MovePresenterTest {
     private Promise<List<JavaProject>> projectsPromise;
     @Mock
     private Promise<RefactoringStatus> refactoringStatusPromise;
+    @Mock
+    private Promise<RefactoringResult> refactoringResultPromise;
 
     @Captor
     private ArgumentCaptor<Operation<String>>                             sessionOperation;
@@ -130,6 +135,8 @@ public class MovePresenterTest {
     private ArgumentCaptor<Function<Void, Promise<ChangeCreationResult>>> changeCreationFunction;
     @Captor
     private ArgumentCaptor<Operation<RefactoringStatus>>                  refactoringStatusOperation;
+    @Captor
+    private ArgumentCaptor<Operation<RefactoringResult>>                  refResultOperation;
 
     private MovePresenter presenter;
 
@@ -148,7 +155,7 @@ public class MovePresenterTest {
         when(currentProject.getProjectDescription()).thenReturn(projectDescriptor);
         when(projectDescriptor.getPath()).thenReturn(PROJECT_PATH);
         when(refactorService.createMoveRefactoring(moveRefactoring)).thenReturn(sessionPromise);
-        when(refactorService.applyRefactoring(session)).thenReturn(refactoringStatusPromise);
+        when(refactorService.applyRefactoring(session)).thenReturn(refactoringResultPromise);
         when(refactorService.setDestination(destination)).thenReturn(refactoringStatusPromise);
         when(navigationService.getProjectsAndPackages(true)).thenReturn(projectsPromise);
         when(dtoFactory.createDto(MoveSettings.class)).thenReturn(moveSettings);
@@ -279,8 +286,8 @@ public class MovePresenterTest {
         when(refactorService.setMoveSettings(moveSettings)).thenReturn(moveSettingsPromise);
         when(moveSettingsPromise.thenPromise(any())).thenReturn(changeCreationResultPromise);
         when(changeCreationResult.isCanShowPreviewPage()).thenReturn(true);
-        when(changeCreationResult.getStatus()).thenReturn(refactoringStatus);
-        when(refactoringStatus.getSeverity()).thenReturn(OK);
+        when(changeCreationResult.getStatus()).thenReturn(refactoringResult);
+        when(refactoringResult.getSeverity()).thenReturn(OK);
 
         presenter.onAcceptButtonClicked();
 
@@ -298,13 +305,13 @@ public class MovePresenterTest {
         changeResultOperation.getValue().apply(changeCreationResult);
 
 
-        verify(refactoringStatusPromise).then(refactoringStatusOperation.capture());
-        refactoringStatusOperation.getValue().apply(refactoringStatus);
+        verify(refactoringResultPromise).then(refResultOperation.capture());
+        refResultOperation.getValue().apply(refactoringResult);
         verify(moveView).hide();
         verify(refactoringUpdater).refreshProjectTree();
         verify(refactoringUpdater).refreshOpenEditors();
 
-        verify(moveView, never()).showErrorMessage(refactoringStatus);
+        verify(moveView, never()).showErrorMessage(refactoringResult);
     }
 
     @Test
@@ -313,8 +320,8 @@ public class MovePresenterTest {
         when(refactorService.setMoveSettings(moveSettings)).thenReturn(moveSettingsPromise);
         when(moveSettingsPromise.thenPromise(any())).thenReturn(changeCreationResultPromise);
         when(changeCreationResult.isCanShowPreviewPage()).thenReturn(true);
-        when(changeCreationResult.getStatus()).thenReturn(refactoringStatus);
-        when(refactoringStatus.getSeverity()).thenReturn(2);
+        when(changeCreationResult.getStatus()).thenReturn(refactoringResult);
+        when(refactoringResult.getSeverity()).thenReturn(2);
 
         presenter.onAcceptButtonClicked();
 
@@ -331,14 +338,13 @@ public class MovePresenterTest {
         verify(changeCreationResultPromise).then(changeResultOperation.capture());
         changeResultOperation.getValue().apply(changeCreationResult);
 
-
-        verify(refactoringStatusPromise).then(refactoringStatusOperation.capture());
-        refactoringStatusOperation.getValue().apply(refactoringStatus);
+        verify(refactoringResultPromise).then(refResultOperation.capture());
+        refResultOperation.getValue().apply(refactoringResult);
         verify(moveView, never()).hide();
         verify(refactoringUpdater, never()).refreshProjectTree();
         verify(refactoringUpdater, never()).refreshOpenEditors();
 
-        verify(moveView).showErrorMessage(refactoringStatus);
+        verify(moveView).showErrorMessage(refactoringResult);
     }
 
     @Test

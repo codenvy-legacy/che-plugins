@@ -13,6 +13,9 @@ package org.eclipse.che.jdt.refactoring.session;
 
 import org.eclipse.che.ide.ext.java.shared.dto.LinkedModeModel;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ChangeCreationResult;
+import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ChangeInfo;
+import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringResult;
+import org.eclipse.che.jdt.refactoring.DtoConverter;
 import org.eclipse.che.jdt.refactoring.RefactoringException;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -31,19 +34,26 @@ import org.eclipse.jdt.internal.corext.refactoring.rename.RenamingNameSuggestor;
 import org.eclipse.jdt.ui.SharedASTProvider;
 import org.eclipse.jdt.ui.refactoring.RenameSupport;
 import org.eclipse.ltk.core.refactoring.Change;
+import org.eclipse.ltk.core.refactoring.CompositeChange;
+import org.eclipse.ltk.core.refactoring.PerformChangeOperation;
 import org.eclipse.ltk.core.refactoring.RefactoringCore;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.List;
 
 import static org.eclipse.che.ide.ext.java.server.dto.DtoServerImpls.LinkedModeModelImpl;
 import static org.eclipse.che.ide.ext.java.server.dto.DtoServerImpls.LinkedPositionGroupImpl;
 import static org.eclipse.che.ide.ext.java.server.dto.DtoServerImpls.RegionImpl;
 
 /**
+ * The class contains methods for the refactoring that uses the linked editor.
+ *
  * @author Evgen Vidolob
+ * @author Valeriy Svydenko
  */
 public class RenameLinkedModeRefactoringSession extends RefactoringSession {
     private final IJavaElement element;
@@ -69,7 +79,7 @@ public class RenameLinkedModeRefactoringSession extends RefactoringSession {
     }
 
     @Override
-    public RefactoringStatus apply() {
+    public RefactoringResult apply() {
         throw new UnsupportedOperationException("apply isn't supported on RenameLinkedModeRefactoringSession");
     }
 
@@ -124,15 +134,36 @@ public class RenameLinkedModeRefactoringSession extends RefactoringSession {
 
     }
 
-    public RefactoringStatus doRename(String newName) throws CoreException, InvocationTargetException, InterruptedException {
+    /**
+     * Make rename operation.
+     * @param newName the name which will be applied
+     * @return result of the rename operation
+     * @throws CoreException if an error occurs while creating the refactoring instance
+     * @throws InvocationTargetException if an error occurred while executing the
+     * operation.
+     * @throws InterruptedException if the operation has been canceled by the
+     * user.
+     */
+    public RefactoringResult doRename(String newName) throws CoreException, InvocationTargetException, InterruptedException {
         if (fOriginalName.equals(newName)) {
-            return new RefactoringStatus();
+            return DtoConverter.toRefactoringResultDto(new RefactoringStatus());
         }
         RenameSupport renameSupport= undoAndCreateRenameSupport(newName);
         if (renameSupport == null)
-            return RefactoringStatus.createFatalErrorStatus("Can't create rename refactoring");
+            return DtoConverter.toRefactoringResultDto(RefactoringStatus.createFatalErrorStatus("Can't create rename refactoring"));
 
-        return renameSupport.perform();
+        RefactoringResult refactoringResult = DtoConverter.toRefactoringResultDto(renameSupport.perform());
+
+        PerformChangeOperation operation =renameSupport.getfPerformChangeOperation();
+        CompositeChange operationChange = (CompositeChange)operation.getUndoChange();
+        Change[] changes = operationChange.getChildren();
+
+        List<ChangeInfo> changesInfo = new ArrayList<>();
+        prepareChangesInfo(changes, changesInfo);
+
+        refactoringResult.setChanges(changesInfo);
+
+        return refactoringResult;
     }
 
     private RenameSupport undoAndCreateRenameSupport(String newName) throws CoreException {
@@ -141,9 +172,9 @@ public class RenameLinkedModeRefactoringSession extends RefactoringSession {
             return null;
 
         RenameJavaElementDescriptor descriptor= createRenameDescriptor(element, newName);
-        RenameSupport renameSupport= RenameSupport.create(descriptor);
-        return renameSupport;
+        return RenameSupport.create(descriptor);
     }
+
     /**
      * Creates a rename descriptor.
      *

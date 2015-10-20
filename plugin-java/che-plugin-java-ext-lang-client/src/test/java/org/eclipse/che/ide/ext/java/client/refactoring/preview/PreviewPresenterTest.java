@@ -30,8 +30,8 @@ import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ChangeEnabledState;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ChangePreview;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringChange;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringPreview;
+import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringResult;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringSession;
-import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatus;
 import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.junit.Before;
 import org.junit.Test;
@@ -90,11 +90,11 @@ public class PreviewPresenterTest {
     @Mock
     private Promise<RefactoringPreview> refactoringPreviewPromise;
     @Mock
-    private RefactoringStatus           refactoringStatus;
+    private RefactoringResult           refactoringStatus;
     @Mock
     private ChangePreview               changePreview;
     @Mock
-    private Promise<RefactoringStatus>  refactoringStatusPromise;
+    private Promise<RefactoringResult>  refactoringStatusPromise;
     @Mock
     private Promise<ChangePreview>      changePreviewPromise;
     @Mock
@@ -103,7 +103,7 @@ public class PreviewPresenterTest {
     @Captor
     private ArgumentCaptor<Operation<RefactoringPreview>> refactoringPreviewOperation;
     @Captor
-    private ArgumentCaptor<Operation<RefactoringStatus>>  refactoringStatusOperation;
+    private ArgumentCaptor<Operation<RefactoringResult>>  refactoringStatusOperation;
     @Captor
     private ArgumentCaptor<Operation<ChangePreview>>      changePreviewOperation;
     @Captor
