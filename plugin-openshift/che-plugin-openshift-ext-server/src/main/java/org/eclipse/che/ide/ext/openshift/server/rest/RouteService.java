@@ -30,8 +30,11 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.eclipse.che.ide.ext.openshift.server.DtoConverter.toDto;
@@ -68,8 +71,13 @@ public class RouteService {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public List<Route> getRoutes(@PathParam("namespace") String namespace) throws UnauthorizedException, ServerException {
-        List<IRoute> routes = clientFactory.createClient().list(ResourceKind.ROUTE, namespace);
+    public List<Route> getRoutes(@PathParam("namespace") String namespace,
+                                 @QueryParam("application") String application) throws UnauthorizedException, ServerException {
+        Map<String, String> labels = new HashMap<>();
+        if (application != null) {
+            labels.put("application", application);
+        }
+        List<IRoute> routes = clientFactory.createClient().list(ResourceKind.ROUTE, namespace, labels);
         return routes.stream()
                      .map(imageStream -> toDto(Route.class, imageStream))
                      .collect(Collectors.toList());
@@ -86,6 +94,7 @@ public class RouteService {
 
     @PUT
     @Path("/{route}")
+    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Route updateRoute(@PathParam("namespace") String namespace,
                              @PathParam("route") String routeName,

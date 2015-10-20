@@ -14,9 +14,7 @@ package org.eclipse.che.ide.ext.openshift.server.rest;
 import com.openshift.restclient.IClient;
 import com.openshift.restclient.ResourceKind;
 import com.openshift.restclient.capability.resources.IProjectTemplateProcessing;
-import com.openshift.restclient.capability.server.ITemplateProcessing;
 import com.openshift.restclient.model.IProject;
-import com.openshift.restclient.model.IResource;
 import com.openshift.restclient.model.template.ITemplate;
 
 import org.eclipse.che.api.core.BadRequestException;
@@ -35,8 +33,11 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.eclipse.che.ide.ext.openshift.server.DtoConverter.toDto;
@@ -73,8 +74,13 @@ public class TemplateService {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public List<Template> getTemplates(@PathParam("namespace") String namespace) throws UnauthorizedException, ServerException {
-        List<ITemplate> templates = clientFactory.createClient().list(ResourceKind.TEMPLATE, namespace);
+    public List<Template> getTemplates(@PathParam("namespace") String namespace,
+                                       @QueryParam("application") String application) throws UnauthorizedException, ServerException {
+        Map<String, String> labels = new HashMap<>();
+        if (application != null) {
+            labels.put("application", application);
+        }
+        List<ITemplate> templates = clientFactory.createClient().list(ResourceKind.TEMPLATE, namespace, labels);
         // It is need to wrap list into JsonArray for correct serialization of List<DTO>
         //   into @{link org.eclipse.che.api.core.rest.CodenvyJsonProvider}
         return new JsonArrayImpl<>(templates.stream()
@@ -93,6 +99,7 @@ public class TemplateService {
 
     @PUT
     @Path("/{template}")
+    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Template updateTemplate(@PathParam("namespace") String namespace,
                                    @PathParam("template") String templateName,
@@ -106,8 +113,8 @@ public class TemplateService {
 
     @POST
     @Path("/process")
-    @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     public Template processTemplate(@PathParam("namespace") String namespace,
                                     Template template) throws ForbiddenException, UnauthorizedException, ServerException {
         final IClient client = clientFactory.createClient();//TODO investigate why method client.getCapability(ITemplateProcessing.class) returns null

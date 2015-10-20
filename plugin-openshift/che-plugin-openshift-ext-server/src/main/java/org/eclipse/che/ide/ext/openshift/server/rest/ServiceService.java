@@ -30,8 +30,11 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.eclipse.che.ide.ext.openshift.server.DtoConverter.toDto;
@@ -68,8 +71,13 @@ public class ServiceService {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public List<Service> getServices(@PathParam("namespace") String namespace) throws UnauthorizedException, ServerException {
-        List<IService> services = clientFactory.createClient().list(ResourceKind.SERVICE, namespace);
+    public List<Service> getServices(@PathParam("namespace") String namespace,
+                                     @QueryParam("application") String application) throws UnauthorizedException, ServerException {
+        Map<String, String> labels = new HashMap<>();
+        if (application != null) {
+            labels.put("application", application);
+        }
+        List<IService> services = clientFactory.createClient().list(ResourceKind.SERVICE, namespace, labels);
         return services.stream()
                        .map(imageStream -> toDto(Service.class, imageStream))
                        .collect(Collectors.toList());
@@ -86,6 +94,7 @@ public class ServiceService {
 
     @PUT
     @Path("/{service}")
+    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Service updateService(@PathParam("namespace") String namespace,
                                  @PathParam("service") String serviceName,

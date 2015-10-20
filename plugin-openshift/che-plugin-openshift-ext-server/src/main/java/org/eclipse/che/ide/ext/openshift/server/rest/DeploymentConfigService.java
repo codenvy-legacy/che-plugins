@@ -30,8 +30,11 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.eclipse.che.ide.ext.openshift.server.DtoConverter.toDto;
@@ -69,9 +72,13 @@ public class DeploymentConfigService {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public List<DeploymentConfig> getDeploymentConfigs(@PathParam("namespace") String namespace)
-            throws UnauthorizedException, ServerException {
-        List<IDeploymentConfig> deploymentConfigs = clientFactory.createClient().list(ResourceKind.DEPLOYMENT_CONFIG, namespace);
+    public List<DeploymentConfig> getDeploymentConfigs(@PathParam("namespace") String namespace,
+                                                       @QueryParam("application") String application) throws UnauthorizedException, ServerException {
+        Map<String, String> labels = new HashMap<>();
+        if (application != null) {
+            labels.put("application", application);
+        }
+        List<IDeploymentConfig> deploymentConfigs = clientFactory.createClient().list(ResourceKind.DEPLOYMENT_CONFIG, namespace, labels);
         return deploymentConfigs.stream()
                                 .map(imageStream -> toDto(DeploymentConfig.class, imageStream))
                                 .collect(Collectors.toList());
@@ -89,6 +96,7 @@ public class DeploymentConfigService {
 
     @PUT
     @Path("/{deploymentConfig}")
+    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public DeploymentConfig updateDeploymentConfig(@PathParam("namespace") String namespace,
                                                    @PathParam("deploymentConfig") String deploymentConfigName,

@@ -30,8 +30,11 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.eclipse.che.ide.ext.openshift.server.DtoConverter.toDto;
@@ -68,8 +71,13 @@ public class BuildConfigService {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public List<BuildConfig> getBuildConfigs(@PathParam("namespace") String namespace) throws UnauthorizedException, ServerException {
-        List<IBuildConfig> buildConfigs = clientFactory.createClient().list(ResourceKind.BUILD_CONFIG, namespace);
+    public List<BuildConfig> getBuildConfigs(@PathParam("namespace") String namespace,
+                                             @QueryParam("application") String application) throws UnauthorizedException, ServerException {
+        Map<String, String> labels = new HashMap<>();
+        if (application != null) {
+            labels.put("application", application);
+        }
+        List<IBuildConfig> buildConfigs = clientFactory.createClient().list(ResourceKind.BUILD_CONFIG, namespace, labels);
         return buildConfigs.stream()
                            .map(imageStream -> toDto(BuildConfig.class, imageStream))
                            .collect(Collectors.toList());
@@ -86,6 +94,7 @@ public class BuildConfigService {
 
     @PUT
     @Path("/{buildConfig}")
+    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public BuildConfig updateBuildConfig(@PathParam("namespace") String namespace,
                                          @PathParam("buildConfig") String buildConfigName,

@@ -30,8 +30,11 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.eclipse.che.ide.ext.openshift.server.DtoConverter.toDto;
@@ -68,8 +71,14 @@ public class ImageStreamService {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public List<ImageStream> getImageStreams(@PathParam("namespace") String namespace) throws UnauthorizedException, ServerException {
-        List<IImageStream> imageStreams = clientFactory.createClient().list(ResourceKind.IMAGE_STREAM, namespace);
+    public List<ImageStream> getImageStreams(@PathParam("namespace") String namespace,
+                                             @QueryParam("application") String application) throws UnauthorizedException, ServerException {
+        Map<String, String> labels = new HashMap<>();
+        if (application != null) {
+            labels.put("application", application);
+        }
+
+        List<IImageStream> imageStreams = clientFactory.createClient().list(ResourceKind.IMAGE_STREAM, namespace, labels);
         return imageStreams.stream()
                            .map(imageStream -> toDto(ImageStream.class, imageStream))
                            .collect(Collectors.toList());
@@ -86,6 +95,7 @@ public class ImageStreamService {
 
     @PUT
     @Path("/{imageStream}")
+    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public ImageStream updateImageStream(@PathParam("namespace") String namespace,
                                          @PathParam("imageStream") String imageStreamName,

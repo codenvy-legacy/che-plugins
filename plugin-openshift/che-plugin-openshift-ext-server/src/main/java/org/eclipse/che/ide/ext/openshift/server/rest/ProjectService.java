@@ -85,6 +85,7 @@ public class ProjectService {
 
     @PUT
     @Path("/{project}")
+    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Project updateProject(@PathParam("project") String projectName,
                                  Project project) throws ForbiddenException, UnauthorizedException, ServerException {
