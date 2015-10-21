@@ -75,14 +75,6 @@ public class OpenshiftOAuthAuthenticator extends OAuthAuthenticator {
             return null;
         }
 
-        // Need to check if token which stored is valid for requests, then if valid - we returns it to caller
-        try {
-            requestString(openshiftApiEndpoint + "/api",
-                          ImmutableMap.of("Authorization", "Bearer " + token.getToken()));
-        } catch (UnauthorizedException e) {
-            return null;
-        }
-
         return token;
     }
 
