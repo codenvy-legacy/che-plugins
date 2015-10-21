@@ -79,6 +79,7 @@ public class MavenPageViewImpl implements MavenPageView {
 
         artifactId.setFocus(true);
 
+        packagingField.addItem("not specified", "");
         packagingField.addItem("JAR", "jar");
         packagingField.addItem("WAR", "war");
         packagingField.addItem("POM", "pom");

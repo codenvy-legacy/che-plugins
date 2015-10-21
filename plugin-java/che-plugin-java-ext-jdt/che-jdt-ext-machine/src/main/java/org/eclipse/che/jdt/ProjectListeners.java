@@ -60,7 +60,7 @@ public class ProjectListeners {
                     new ResourceChangedEvent(workspace, event));
         } catch (Throwable t) {
             //catch all exceptions that may be happened
-            LOG.error("Can't update java model", t);
+            LOG.error("Can't update java model in " + eventPath, t);
         }
         if (event.getType() == ProjectItemModifiedEvent.EventType.UPDATED) {
             ITextFileBufferManager manager = FileBuffers.getTextFileBufferManager();
@@ -84,7 +84,7 @@ public class ProjectListeners {
                         new ResourceChangedEvent(workspace, event));
             } catch (Throwable t) {
                 //catch all exceptions that may be happened
-                LOG.error("Can't update java model", t);
+                LOG.error("Can't update java model " + event.getProjectPath(), t);
             }
         }
     }
