@@ -49,7 +49,7 @@ import org.eclipse.che.ide.editor.orion.client.jso.OrionEditorOverlay;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionExtRulerOverlay;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionKeyBindingModule;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionKeyModeOverlay;
-import org.eclipse.che.ide.editor.orion.client.jso.OrionKeyStplugin-orion/che-plugin-orion-editor/src/main/java/org/eclipse/che/ide/editor/orion/client/OrionEditorWidget.javarokeOverlay;
+import org.eclipse.che.ide.editor.orion.client.jso.OrionKeyStrokeOverlay;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionProblemOverlay;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionRulerClickEventOverlay;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionSelectionOverlay;
