@@ -29,7 +29,6 @@ import org.eclipse.che.ide.ui.dialogs.InputCallback;
 import org.eclipse.che.ide.ui.dialogs.confirm.ConfirmDialog;
 import org.eclipse.che.ide.ui.dialogs.input.InputDialog;
 import org.eclipse.che.test.GwtReflectionUtils;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -133,21 +132,18 @@ public class BranchPresenterTest extends BaseTest {
         when(partPresenter.getEditorInput()).thenReturn(editorInput);
     }
 
-    @Ignore
-    public void testShowDialogWhenGetBranchesRequestIsSuccessful() throws Exception {
+    @Test
+    public void testShowBranchesWhenGetBranchesRequestIsSuccessful() throws Exception {
         final List<Branch> branches = new ArrayList<>();
 
-        presenter.showDialog();
+        presenter.showBranches();
 
-        verify(service).branchList(eq(projectDescriptor), eq(LIST_ALL), branchListCallbackCaptor.capture());
+        verify(service).branchList(eq(rootProjectDescriptor), eq(LIST_ALL), branchListCallbackCaptor.capture());
         AsyncRequestCallback<List<Branch>> branchListCallback = branchListCallbackCaptor.getValue();
         GwtReflectionUtils.callOnSuccess(branchListCallback, branches);
 
         verify(appContext).getCurrentProject();
-        verify(view).setEnableCheckoutButton(eq(DISABLE_BUTTON));
-        verify(view).setEnableDeleteButton(eq(DISABLE_BUTTON));
-        verify(view).setEnableRenameButton(eq(DISABLE_BUTTON));
-        verify(view).showDialog();
+        verify(view).showDialogIfClosed();
         verify(view).setBranches(eq(branches));
         verify(console, never()).printError(anyString());
         verify(notificationManager, never()).showError(anyString());
@@ -155,18 +151,15 @@ public class BranchPresenterTest extends BaseTest {
     }
 
     @Test
-    public void testShowDialogWhenGetBranchesRequestIsFailed() throws Exception {
-        presenter.showDialog();
+    public void testShowBranchesWhenGetBranchesRequestIsFailed() throws Exception {
+        presenter.showBranches();
 
         verify(service).branchList(eq(rootProjectDescriptor), eq(LIST_ALL), branchListCallbackCaptor.capture());
         AsyncRequestCallback<List<Branch>> branchListCallback = branchListCallbackCaptor.getValue();
         GwtReflectionUtils.callOnFailure(branchListCallback, mock(Throwable.class));
 
         verify(appContext).getCurrentProject();
-        verify(view).setEnableCheckoutButton(eq(DISABLE_BUTTON));
-        verify(view).setEnableDeleteButton(eq(DISABLE_BUTTON));
-        verify(view).setEnableRenameButton(eq(DISABLE_BUTTON));
-        verify(view).showDialog();
+        verify(view, never()).showDialogIfClosed();
         verify(console).printError(anyString());
         verify(notificationManager).showError(anyString());
         verify(constant).branchesListFailed();
@@ -249,7 +242,7 @@ public class BranchPresenterTest extends BaseTest {
 
     /** Select mock branch for testing. */
     private void selectBranch() {
-        presenter.showDialog();
+        presenter.showBranches();
         presenter.onBranchSelected(selectedBranch);
     }
 
@@ -427,7 +420,7 @@ public class BranchPresenterTest extends BaseTest {
         InputDialog inputDialog = mock(InputDialog.class);
         when(dialogFactory.createInputDialog(anyString(), anyString(), anyObject(), anyObject())).thenReturn(inputDialog);
 
-        presenter.showDialog();
+        presenter.showBranches();
         presenter.onCreateClicked();
 
         verify(dialogFactory).createInputDialog(anyString(), anyString(), inputCallbackCaptor.capture(), anyObject());
@@ -449,7 +442,7 @@ public class BranchPresenterTest extends BaseTest {
         InputDialog inputDialog = mock(InputDialog.class);
         when(dialogFactory.createInputDialog(anyString(), anyString(), anyObject(), anyObject())).thenReturn(inputDialog);
 
-        presenter.showDialog();
+        presenter.showBranches();
         presenter.onCreateClicked();
 
         verify(dialogFactory).createInputDialog(anyString(), anyString(), inputCallbackCaptor.capture(), anyObject());
@@ -517,5 +510,14 @@ public class BranchPresenterTest extends BaseTest {
         presenter.onBranchSelected(selectedBranch);
 
         verify(view).setEnableDeleteButton(eq(DISABLE_BUTTON));
+    }
+
+    @Test
+    public void checkoutDeleteRenameButtonsShouldBeDisabled() throws Exception {
+        presenter.onBranchUnselected();
+
+        verify(view).setEnableCheckoutButton(eq(DISABLE_BUTTON));
+        verify(view).setEnableDeleteButton(eq(DISABLE_BUTTON));
+        verify(view).setEnableRenameButton(eq(DISABLE_BUTTON));
     }
 }

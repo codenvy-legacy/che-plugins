@@ -43,6 +43,6 @@ public class ShowBranchesAction extends GitAction {
     @Override
     public void actionPerformed(ActionEvent e) {
         eventLogger.log(this);
-        presenter.showDialog();
+        presenter.showBranches();
     }
 }
