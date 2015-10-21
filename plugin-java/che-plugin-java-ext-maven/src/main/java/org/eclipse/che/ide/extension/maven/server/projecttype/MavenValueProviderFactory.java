@@ -155,10 +155,7 @@ public class MavenValueProviderFactory implements ValueProviderFactory {
                 if (attributeName.equals(MavenAttributes.GROUP_ID))
                     Model.readFrom(pom).setGroupId(value.get(0)).writeTo(pom);
                 if (attributeName.equals(MavenAttributes.PACKAGING)) {
-                    Model model = Model.readFrom(pom);
-                    if(model.getPackaging() != null) {
-                        model.setPackaging(value.get(0)).writeTo(pom);
-                    }
+                    Model.readFrom(pom).setPackaging(value.get(0)).writeTo(pom);
                 }
                 if (attributeName.equals(MavenAttributes.VERSION))
                     Model.readFrom(pom).setVersion(value.get(0)).writeTo(pom);

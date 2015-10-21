@@ -100,6 +100,7 @@ public class ModelTest {
                    "    <groupId>group-id</groupId>\n" +
                    "    <version>x.x.x</version>\n" +
                    "    <name>name</name>\n" +
+                   "    <packaging>jar</packaging>" +
                    "    <description>description</description>\n" +
                    "    <modules>\n" +
                    "        <module>first</module>\n" +

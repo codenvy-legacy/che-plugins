@@ -255,7 +255,7 @@ public final class Model {
      * types.
      */
     public String getPackaging() {
-        return packaging == null ? "jar" : packaging;
+        return packaging;
     }
 
     /**
