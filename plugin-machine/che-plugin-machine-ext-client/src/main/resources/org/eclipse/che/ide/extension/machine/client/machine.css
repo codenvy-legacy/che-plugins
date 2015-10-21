@@ -156,10 +156,10 @@
 
 .selectCommandBoxIconPanel {
     float: left;
-    width: 30px;
+    width: 40px;
     height: 100%;
     margin-top: auto;
-    line-height: 22px;
+    line-height: 24px;
     background-color: selectCommandActionIconBackgroundColor;
 }
 
@@ -172,7 +172,11 @@
 }
 
 .selectCommandBoxIconPanel svg {
-    max-width: 18px;
-    max-height: 18px;
+    max-width: 22px;
+    max-height: 22px;
     fill: selectCommandActionIconColor;
+}
+
+.selectCommandBoxIconPanel svg path {
+    fill: selectCommandActionIconColor !important;
 }

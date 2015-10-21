@@ -20,7 +20,7 @@
 
 .namePanel .inputField {
     width: literal("calc(100% - 12px)");
-    min-height: 18px;
+    min-height: 22px;
 }
 
 .horizontalLine {

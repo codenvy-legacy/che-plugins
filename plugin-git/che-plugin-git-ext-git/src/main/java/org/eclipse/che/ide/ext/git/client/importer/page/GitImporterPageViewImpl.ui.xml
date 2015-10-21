@@ -17,10 +17,10 @@
     <g:DockLayoutPanel unit="PX" addStyleNames="{style.mainPanel}">
         <g:north size="365">
             <g:FlowPanel ui:field="importerPanel">
-                <g:FlowPanel height="60px" addStyleNames="{style.namePanel}">
+                <g:FlowPanel height="65px" addStyleNames="{style.namePanel}">
                     <g:Label text="{locale.gitImporterPageProjectUrl}"
                              addStyleNames="{style.labelPosition}"/>
-                    <g:TextBox height="18px" ui:field="projectUrl" addStyleNames="{style.inputField} {style.alignRight}" tabIndex="3"
+                    <g:TextBox ui:field="projectUrl" addStyleNames="{style.inputField} {style.alignRight}" tabIndex="3"
                                debugId="file-importProject-projectUrl"/>
                     <g:Label ui:field="labelUrlError" width="100%" wordWrap="true" addStyleNames="{style.labelErrorPosition}"/>
                 </g:FlowPanel>
@@ -31,7 +31,7 @@
                 <g:FlowPanel height="50px" addStyleNames="{style.namePanel}">
                     <g:Label text="{locale.gitImporterPageProjectName}"
                              addStyleNames="{style.labelPosition}"/>
-                    <g:TextBox height="18px" ui:field="projectName" addStyleNames="{style.inputField} {style.alignRight}"
+                    <g:TextBox ui:field="projectName" addStyleNames="{style.inputField} {style.alignRight}"
                                tabIndex="4"
                                debugId="file-importProject-projectName" title="{locale.gitImporterPageProjectNamePrompt}"/>
                 </g:FlowPanel>
@@ -61,7 +61,7 @@
 
                 <g:FlowPanel height="20px" addStyleNames="{style.namePanel}">
                     <g:Label text="{locale.gitImporterPageKeepDirectoryField}" addStyleNames="{style.labelPosition}"/>
-                    <g:TextBox height="18px" ui:field="directoryName" addStyleNames="{style.inputField} {style.alignRight}"
+                    <g:TextBox ui:field="directoryName" addStyleNames="{style.inputField} {style.alignRight}"
                                tabIndex="9" debugId="file-importProject-keepDirectoryName" title="{locale.gitImporterPageProjectNamePrompt}"/>
                 </g:FlowPanel>
 
