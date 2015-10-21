@@ -21,18 +21,17 @@
 }
 
 .orionCodenvy .ruler.annotations {
-    background-color: editorBackgroundColor;
+    background-color: editorGutterLineNumberBackgroundColor;
 }
 
 .orionCodenvy .ruler.lines {
-    background-color: editorBackgroundColor;
-    /*width: 28px;*/
-    width: 38px;
+    background-color: editorGutterLineNumberBackgroundColor;
+    width: 31px;
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
     border-right-style: solid;
-    border-right-width: 10px;
+    border-right-width: 4px;
     border-right-color: transparent;
 }
 .orionCodenvy .ruler.folding {
@@ -57,8 +56,9 @@
 .orionCodenvy .rulerLines {
     /* duplicated from LineNumerRenderer.css -> .lineNumber */
     font-family: "DejaVu Sans Mono", alternativeFontFamily;
-    font-size: 12px;
+    font-size: 11px;
     color: editorGutterLineNumberColor;
+    line-height: 15px;
 }
 
 .orionCodenvy .textviewLeftRuler {

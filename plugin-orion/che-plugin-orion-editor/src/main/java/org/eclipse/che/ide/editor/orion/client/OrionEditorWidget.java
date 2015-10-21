@@ -49,7 +49,7 @@ import org.eclipse.che.ide.editor.orion.client.jso.OrionEditorOverlay;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionExtRulerOverlay;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionKeyBindingModule;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionKeyModeOverlay;
-import org.eclipse.che.ide.editor.orion.client.jso.OrionKeyStrokeOverlay;
+import org.eclipse.che.ide.editor.orion.client.jso.OrionKeyStplugin-orion/che-plugin-orion-editor/src/main/java/org/eclipse/che/ide/editor/orion/client/OrionEditorWidget.javarokeOverlay;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionProblemOverlay;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionRulerClickEventOverlay;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionSelectionOverlay;
@@ -192,9 +192,6 @@ public class OrionEditorWidget extends CompositeEditorWidget implements HasChang
                 OrionKeyModeOverlay.getCheCodeAssistMode(moduleHolder.getModule("CheContentAssistMode"), editorOverlay.getTextView());
         assistWidget = contentAssistWidgetFactory.create(this, cheContentAssistMode);
         this.gutter = new OrionBreakpointRuler(extRulerOverlay, editorOverlay);
-
-        Element textViewLeftRuler = panel.getElement().getFirstChildElement().getFirstChildElement();
-        textViewLeftRuler.insertAfter(textViewLeftRuler.getChild(0), textViewLeftRuler.getChild(1));
     }
 
     private OrionExtRulerOverlay initBreakpointRuler(JavaScriptObject orionEditorExtRulerModule) {
