@@ -24,7 +24,6 @@ import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.EntityFactory;
 import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
 import org.eclipse.che.ide.extension.machine.client.machine.MachineState;
-import org.eclipse.che.ide.extension.machine.client.util.RecipeProvider;
 
 import java.util.Collections;
 import java.util.List;
@@ -47,7 +46,6 @@ public class CreateMachinePresenter implements CreateMachineView.ActionDelegate 
     private static final int    SKIP_COUNT  = 0;
     private static final int    MAX_COUNT   = 100;
 
-    private final RecipeProvider       recipeProvider;
     private final CreateMachineView    view;
     private final AppContext           appContext;
     private final MachineManager       machineManager;
@@ -59,14 +57,12 @@ public class CreateMachinePresenter implements CreateMachineView.ActionDelegate 
     public CreateMachinePresenter(CreateMachineView view,
                                   AppContext appContext,
                                   MachineManager machineManager,
-                                  RecipeProvider recipeProvider,
                                   RecipeServiceClient recipeServiceClient,
                                   MachineServiceClient machineServiceClient,
                                   EntityFactory entityFactory) {
         this.view = view;
         this.appContext = appContext;
         this.machineManager = machineManager;
-        this.recipeProvider = recipeProvider;
         this.recipeServiceClient = recipeServiceClient;
         this.machineServiceClient = machineServiceClient;
         this.entityFactory = entityFactory;
@@ -80,12 +76,10 @@ public class CreateMachinePresenter implements CreateMachineView.ActionDelegate 
         view.setCreateButtonState(false);
         view.setReplaceButtonState(false);
         view.setMachineName("");
-        view.setRecipeURL("");
         view.setErrorHint(false);
         view.setNoRecipeHint(false);
         view.setTags("");
-
-        view.setRecipeURL(recipeProvider.getRecipeUrl());
+        view.setRecipeURL("");
     }
 
     @Override

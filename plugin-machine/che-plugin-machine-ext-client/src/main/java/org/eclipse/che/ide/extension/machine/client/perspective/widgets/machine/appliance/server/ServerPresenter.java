@@ -14,18 +14,10 @@ import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.inject.Inject;
 
-import org.eclipse.che.api.machine.shared.dto.MachineDto;
-import org.eclipse.che.api.machine.shared.dto.ServerDto;
-import org.eclipse.che.api.promises.client.Operation;
-import org.eclipse.che.api.promises.client.OperationException;
-import org.eclipse.che.ide.extension.machine.client.inject.factories.EntityFactory;
-import org.eclipse.che.ide.extension.machine.client.machine.MachineState;
+import org.eclipse.che.ide.extension.machine.client.machine.Machine;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.content.TabPresenter;
 
 import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * The class contains business logic which allows update server's information for current machine. The class is a tab presenter and
@@ -35,41 +27,21 @@ import java.util.Map;
  */
 public class ServerPresenter implements TabPresenter {
 
-    private final ServerView    view;
-    private final EntityFactory entityFactory;
+    private final ServerView view;
 
     @Inject
-    public ServerPresenter(ServerView view, EntityFactory entityFactory) {
+    public ServerPresenter(ServerView view) {
         this.view = view;
-        this.entityFactory = entityFactory;
     }
 
     /**
      * Calls special method on view which updates server's information for current machine.
      *
-     * @param machineState
+     * @param machine
      *         machine for which need update information
      */
-    public void updateInfo(@NotNull MachineState machineState) {
-        final List<Server> serversList = new ArrayList<>();
-
-        machineState.getMachine().then(new Operation<MachineDto>() {
-            @Override
-            public void apply(MachineDto machine) throws OperationException {
-                Map<String, ServerDto> servers = machine.getMetadata().getServers();
-
-                for (Map.Entry<String, ServerDto> entry : servers.entrySet()) {
-                    String exposedPort = entry.getKey();
-                    ServerDto descriptor = entry.getValue();
-
-                    Server server = entityFactory.createServer(exposedPort, descriptor);
-
-                    serversList.add(server);
-                }
-
-                view.setServers(serversList);
-            }
-        });
+    public void updateInfo(Machine machine) {
+        view.setServers(machine.getServersList());
     }
 
     /** {@inheritDoc} */

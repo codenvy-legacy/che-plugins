@@ -14,7 +14,7 @@ import com.google.gwtmockito.GwtMockitoTestRunner;
 
 import org.eclipse.che.api.core.model.machine.MachineStatus;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
-import org.eclipse.che.ide.extension.machine.client.machine.MachineState;
+import org.eclipse.che.ide.extension.machine.client.machine.Machine;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -37,26 +37,26 @@ public class MachineInfoViewImplTest {
 
     //additional mocks
     @Mock
-    private MachineState machineState;
+    private Machine machine;
 
     @InjectMocks
     private MachineInfoViewImpl view;
 
     @Test
     public void infoShouldBeUpdated() {
-        when(machineState.getDisplayName()).thenReturn(SOME_TEXT);
-        when(machineState.getId()).thenReturn(SOME_TEXT);
-        when(machineState.getStatus()).thenReturn(MachineStatus.CREATING);
-        when(machineState.getType()).thenReturn(SOME_TEXT);
-        when(machineState.isDev()).thenReturn(true);
+        when(machine.getDisplayName()).thenReturn(SOME_TEXT);
+        when(machine.getId()).thenReturn(SOME_TEXT);
+        when(machine.getStatus()).thenReturn(MachineStatus.CREATING);
+        when(machine.getType()).thenReturn(SOME_TEXT);
+        when(machine.isDev()).thenReturn(true);
 
-        view.updateInfo(machineState);
+        view.updateInfo(machine);
 
-        verify(machineState).getDisplayName();
-        verify(machineState).getId();
-        verify(machineState).getStatus();
-        verify(machineState).getType();
-        verify(machineState).isDev();
+        verify(machine).getDisplayName();
+        verify(machine).getId();
+        verify(machine).getStatus();
+        verify(machine).getType();
+        verify(machine).isDev();
 
         verify(view.name).setText(SOME_TEXT);
         verify(view.machineId).setText(SOME_TEXT);

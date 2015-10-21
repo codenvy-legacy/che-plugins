@@ -25,7 +25,6 @@ import org.eclipse.che.ide.api.event.project.ProjectReadyEvent;
 import org.eclipse.che.ide.extension.machine.client.machine.MachineState;
 import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateEvent;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -40,6 +39,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -89,18 +89,24 @@ public class CurrentProjectPathProviderTest {
     }
 
     @Test
-    @Ignore
-    //TODO fix test
     public void shouldReturnPathAfterRunningMachine() throws Exception {
-        final MachineState machineMock = mock(MachineState.class);
+        MachineState machineMock = mock(MachineState.class);
+        MachineStateEvent machineStateEvent = mock(MachineStateEvent.class);
+        CurrentProject currentProject = mock(CurrentProject.class);
+        ProjectDescriptor projectDescriptor = mock(ProjectDescriptor.class);
+
+        when(appContext.getCurrentProject()).thenReturn(currentProject);
+        when(currentProject.getProjectDescription()).thenReturn(projectDescriptor);
+
         when(machineMock.isDev()).thenReturn(Boolean.TRUE);
-//        when(machineMock.getProjectsRoot()).thenReturn(PROJECTS_ROOT);
-        final MachineStateEvent machineStateEvent = mock(MachineStateEvent.class);
         when(machineStateEvent.getMachine()).thenReturn(machineMock);
+        when(machineMock.isDev()).thenReturn(true);
 
         currentProjectPathProvider.onMachineRunning(machineStateEvent);
 
-        assertThat(currentProjectPathProvider.getValue(), equalTo(PROJECTS_ROOT + PROJECT_PATH));
+        verify(appContext, times(2)).getCurrentProject();
+        verify(currentProject).getProjectDescription();
+        verify(projectDescriptor).getPath();
     }
 
     @Test

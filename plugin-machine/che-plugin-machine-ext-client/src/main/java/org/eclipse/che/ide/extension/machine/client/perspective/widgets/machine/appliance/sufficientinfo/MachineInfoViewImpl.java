@@ -19,7 +19,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
-import org.eclipse.che.ide.extension.machine.client.machine.MachineState;
+import org.eclipse.che.ide.extension.machine.client.machine.Machine;
 
 import javax.validation.constraints.NotNull;
 
@@ -61,12 +61,12 @@ public class MachineInfoViewImpl extends Composite implements MachineInfoView {
 
     /** {@inheritDoc} */
     @Override
-    public void updateInfo(MachineState machineState) {
-        name.setText(machineState.getDisplayName());
-        machineId.setText(machineState.getId());
-        status.setText(String.valueOf(machineState.getStatus()));
-        type.setText(machineState.getType());
-        dev.setText(String.valueOf(machineState.isDev()));
+    public void updateInfo(Machine machine) {
+        name.setText(machine.getDisplayName());
+        machineId.setText(machine.getId());
+        status.setText(String.valueOf(machine.getStatus()));
+        type.setText(machine.getType());
+        dev.setText(String.valueOf(machine.isDev()));
     }
 
     /** {@inheritDoc} */

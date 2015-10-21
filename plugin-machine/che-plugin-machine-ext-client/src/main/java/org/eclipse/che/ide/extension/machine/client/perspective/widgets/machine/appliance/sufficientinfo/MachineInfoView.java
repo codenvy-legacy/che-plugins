@@ -13,7 +13,7 @@ package org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.inject.ImplementedBy;
 
-import org.eclipse.che.ide.extension.machine.client.machine.MachineState;
+import org.eclipse.che.ide.extension.machine.client.machine.Machine;
 
 import javax.validation.constraints.NotNull;
 
@@ -28,10 +28,10 @@ public interface MachineInfoView extends IsWidget {
     /**
      * Updates view representation which contains information about current machine.
      *
-     * @param machineState
+     * @param machine
      *         machine for which need update view
      */
-    void updateInfo(@NotNull MachineState machineState);
+    void updateInfo(@NotNull Machine machine);
 
     /**
      * Sets owner's name in special place on view.

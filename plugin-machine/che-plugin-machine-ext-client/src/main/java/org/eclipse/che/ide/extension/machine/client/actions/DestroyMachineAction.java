@@ -60,7 +60,7 @@ public class DestroyMachineAction extends AbstractPerspectiveAction {
     /** {@inheritDoc} */
     @Override
     public void updateInPerspective(@NotNull ActionEvent event) {
-        final MachineState selectedMachine = panelPresenter.getSelectedMachine();
+        final MachineState selectedMachine = panelPresenter.getSelectedMachineState();
         event.getPresentation().setEnabled(selectedMachine != null);
         event.getPresentation().setText(selectedMachine != null ? locale.machineDestroyTitle(selectedMachine.getDisplayName())
                                                                 : locale.machineDestroyTitle());
@@ -71,7 +71,7 @@ public class DestroyMachineAction extends AbstractPerspectiveAction {
     public void actionPerformed(@NotNull ActionEvent event) {
         eventLogger.log(this);
 
-        final MachineState selectedMachine = panelPresenter.getSelectedMachine();
+        final MachineState selectedMachine = panelPresenter.getSelectedMachineState();
         if (selectedMachine == null) {
             return;
         }

@@ -13,7 +13,7 @@ package org.eclipse.che.ide.extension.machine.client.perspective.terminal.contai
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 
 import org.eclipse.che.ide.extension.machine.client.inject.factories.TerminalFactory;
-import org.eclipse.che.ide.extension.machine.client.machine.MachineState;
+import org.eclipse.che.ide.extension.machine.client.machine.Machine;
 import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateEvent;
 import org.eclipse.che.ide.extension.machine.client.perspective.terminal.TerminalPresenter;
 import org.junit.Test;
@@ -40,7 +40,7 @@ public class TerminalContainerTest {
     private TerminalFactory       terminalFactory;
 
     @Mock
-    private MachineState      machineState;
+    private Machine           machineState;
     @Mock
     private TerminalPresenter terminal;
     @Mock
@@ -97,7 +97,6 @@ public class TerminalContainerTest {
     @Test
     public void onMachineShouldBeDestroyed() {
         when(terminalFactory.create(machineState)).thenReturn(terminal);
-        when(machineStateEvent.getMachine()).thenReturn(machineState);
 
         container.addOrShowTerminal(machineState);
 

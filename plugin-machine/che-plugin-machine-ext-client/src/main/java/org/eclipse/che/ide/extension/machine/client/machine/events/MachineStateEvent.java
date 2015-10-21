@@ -68,6 +68,10 @@ public class MachineStateEvent extends GwtEvent<MachineStateHandler> {
         return machine;
     }
 
+    public String getMachineId(){
+        return machine.getId();
+    }
+
     /** @return the type of action */
     public MachineAction getMachineAction() {
         return machineAction;

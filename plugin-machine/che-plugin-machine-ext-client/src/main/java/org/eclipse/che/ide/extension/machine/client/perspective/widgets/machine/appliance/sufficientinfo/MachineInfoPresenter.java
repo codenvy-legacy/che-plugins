@@ -21,7 +21,7 @@ import org.eclipse.che.api.user.gwt.client.UserProfileServiceClient;
 import org.eclipse.che.api.user.shared.dto.ProfileDescriptor;
 import org.eclipse.che.api.workspace.gwt.client.WorkspaceServiceClient;
 import org.eclipse.che.api.workspace.shared.dto.UsersWorkspaceDto;
-import org.eclipse.che.ide.extension.machine.client.machine.MachineState;
+import org.eclipse.che.ide.extension.machine.client.machine.Machine;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.content.TabPresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
@@ -61,10 +61,10 @@ public class MachineInfoPresenter implements TabPresenter {
     /**
      * Updates additional information about current machine.
      *
-     * @param machineState
+     * @param machine
      *         machine for which need update panel
      */
-    public void update(@NotNull MachineState machineState) {
+    public void update(@NotNull Machine machine) {
 
         Unmarshallable<ProfileDescriptor> profileUnMarshaller = unmarshallerFactory.newUnmarshaller(ProfileDescriptor.class);
 
@@ -91,7 +91,7 @@ public class MachineInfoPresenter implements TabPresenter {
             }
         });
 
-        wsService.getUsersWorkspace(machineState.getWorkspaceId())
+        wsService.getUsersWorkspace(machine.getWorkspaceId())
                  .then(new Operation<UsersWorkspaceDto>() {
                      @Override
                      public void apply(UsersWorkspaceDto ws) throws OperationException {
@@ -104,7 +104,7 @@ public class MachineInfoPresenter implements TabPresenter {
             }
         });
 
-        view.updateInfo(machineState);
+        view.updateInfo(machine);
     }
 
     /** {@inheritDoc} */

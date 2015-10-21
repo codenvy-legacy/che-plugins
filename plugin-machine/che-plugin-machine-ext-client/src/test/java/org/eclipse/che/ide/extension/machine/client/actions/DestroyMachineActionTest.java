@@ -54,7 +54,7 @@ public class DestroyMachineActionTest {
 
     @Before
     public void setUp() {
-        when(panelPresenter.getSelectedMachine()).thenReturn(machineState);
+        when(panelPresenter.getSelectedMachineState()).thenReturn(machineState);
     }
 
     @Test

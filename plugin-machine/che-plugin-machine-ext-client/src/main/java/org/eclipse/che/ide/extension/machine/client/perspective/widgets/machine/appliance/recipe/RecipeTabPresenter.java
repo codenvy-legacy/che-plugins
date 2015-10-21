@@ -10,12 +10,18 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.appliance.recipe;
 
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.RequestException;
+import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.inject.Inject;
 
-import org.eclipse.che.ide.extension.machine.client.machine.MachineState;
+import org.eclipse.che.ide.extension.machine.client.machine.Machine;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.content.TabPresenter;
+import org.eclipse.che.ide.util.loging.Log;
 
 import javax.validation.constraints.NotNull;
 
@@ -37,11 +43,33 @@ public class RecipeTabPresenter implements TabPresenter {
     /**
      * Calls special method on view which updates recipe of current machine.
      *
-     * @param machineState
+     * @param machine
      *         machine for which need update information
      */
-    public void updateInfo(@NotNull MachineState machineState) {
-//        view.setScript(machine.getgetScript());
+    public void updateInfo(@NotNull Machine machine) {
+        String scriptLocation = machine.getRecipeUrl();
+
+        if (scriptLocation.isEmpty()) {
+            return;
+        }
+
+        RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, scriptLocation);
+
+        try {
+            requestBuilder.sendRequest(null, new RequestCallback() {
+                @Override
+                public void onResponseReceived(Request request, Response response) {
+                    view.setScript(response.getText());
+                }
+
+                @Override
+                public void onError(Request request, Throwable exception) {
+
+                }
+            });
+        } catch (RequestException exception) {
+            Log.error(getClass(), exception);
+        }
     }
 
     /** {@inheritDoc} */

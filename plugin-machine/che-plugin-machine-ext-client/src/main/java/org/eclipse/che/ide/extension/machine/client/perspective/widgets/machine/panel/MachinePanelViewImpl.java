@@ -92,7 +92,7 @@ public class MachinePanelViewImpl extends BaseView<MachinePanelView.ActionDelega
             public void onNodeSelected(TreeNodeElement<MachineTreeNode> node, SignalEvent event) {
                 Object selectedNode = node.getData().getData();
 
-                if (selectedNode instanceof Machine) {
+                if (selectedNode instanceof MachineState) {
                     delegate.onMachineSelected((MachineState)selectedNode);
                 }
             }

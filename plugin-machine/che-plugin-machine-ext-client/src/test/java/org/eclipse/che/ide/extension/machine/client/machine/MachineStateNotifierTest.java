@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.machine.client.machine;
 
+import com.google.web.bindery.event.shared.EventBus;
+
 import org.eclipse.che.api.machine.shared.dto.event.MachineStatusEvent;
 import org.eclipse.che.api.workspace.shared.dto.UsersWorkspaceDto;
 import org.eclipse.che.ide.api.app.AppContext;
@@ -19,10 +21,12 @@ import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.panel.MachinePanelPresenter;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.websocket.MessageBus;
+import org.eclipse.che.ide.websocket.MessageBusProvider;
 import org.eclipse.che.ide.websocket.events.MessageHandler;
 import org.eclipse.che.ide.websocket.rest.Unmarshallable;
+import org.eclipse.che.ide.workspace.start.StartWorkspaceEvent;
+import org.eclipse.che.ide.workspace.start.StartWorkspaceHandler;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -35,6 +39,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -50,7 +55,9 @@ public class MachineStateNotifierTest {
 
     //constructor mocks
     @Mock
-    private MessageBus                  messageBus;
+    private MessageBusProvider          messageBusProvider;
+    @Mock
+    private EventBus                    eventBus;
     @Mock
     private AppContext                  appContext;
     @Mock
@@ -67,9 +74,15 @@ public class MachineStateNotifierTest {
     private Unmarshallable<MachineStatusEvent> unmarshaller;
     @Mock
     private MachineState                       machineState;
+    @Mock
+    private MessageBus                         messageBus;
+    @Mock
+    private UsersWorkspaceDto                  workspace;
 
     @Captor
-    private ArgumentCaptor<Notification> notificationCaptor;
+    private ArgumentCaptor<Notification>          notificationCaptor;
+    @Captor
+    private ArgumentCaptor<StartWorkspaceHandler> startWorkspaceHandlerCaptor;
 
     @InjectMocks
     private MachineStatusNotifier stateNotifier;
@@ -80,11 +93,14 @@ public class MachineStateNotifierTest {
 
         when(locale.notificationCreatingMachine(SOME_TEXT)).thenReturn(SOME_TEXT);
         when(locale.notificationDestroyingMachine(SOME_TEXT)).thenReturn(SOME_TEXT);
+
+        when(messageBusProvider.getMessageBus()).thenReturn(messageBus);
+
+        verify(eventBus).addHandler(eq(StartWorkspaceEvent.TYPE), startWorkspaceHandlerCaptor.capture());
+        startWorkspaceHandlerCaptor.getValue().onWorkspaceStarted(workspace);
     }
 
     @Test
-    @Ignore
-    //TODO fix test
     public void machineShouldBeTrackedWhenMachineStateIsCreating() throws Exception {
         UsersWorkspaceDto workspace = mock(UsersWorkspaceDto.class);
         when(appContext.getWorkspace()).thenReturn(workspace);
@@ -105,8 +121,6 @@ public class MachineStateNotifierTest {
     }
 
     @Test
-    @Ignore
-    //TODO fix test
     public void machineShouldBeTrackedWhenMachineStateIsDestroying() throws Exception {
         UsersWorkspaceDto workspace = mock(UsersWorkspaceDto.class);
         when(appContext.getWorkspace()).thenReturn(workspace);

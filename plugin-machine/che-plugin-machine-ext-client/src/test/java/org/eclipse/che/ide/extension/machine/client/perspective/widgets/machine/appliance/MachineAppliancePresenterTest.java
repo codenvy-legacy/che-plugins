@@ -20,7 +20,7 @@ import org.eclipse.che.ide.client.inject.factories.TabItemFactory;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.EntityFactory;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.WidgetsFactory;
-import org.eclipse.che.ide.extension.machine.client.machine.MachineState;
+import org.eclipse.che.ide.extension.machine.client.machine.Machine;
 import org.eclipse.che.ide.extension.machine.client.perspective.terminal.container.TerminalContainer;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.appliance.recipe.RecipeTabPresenter;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.appliance.server.ServerPresenter;
@@ -106,7 +106,7 @@ public class MachineAppliancePresenterTest {
     @Mock
     private TabContainerView       tabContainerView;
     @Mock
-    private MachineState           machineState;
+    private Machine                machine;
     @Mock
     private Widget                 widget;
     @Mock
@@ -129,7 +129,7 @@ public class MachineAppliancePresenterTest {
 
     @Before
     public void setUp() {
-        when(machineState.getId()).thenReturn(SOME_TEXT);
+        when(machine.getId()).thenReturn(SOME_TEXT);
         when(tabContainer.getView()).thenReturn(tabContainerView);
         when(tabContainerView.asWidget()).thenReturn(widget);
         when(recipesContainerPresenter.getView()).thenReturn(recipePartView);
@@ -202,16 +202,16 @@ public class MachineAppliancePresenterTest {
         callAndVerifyHandler();
 
         verify(locale).tabTerminal();
-        verify(terminalContainer, times(2)).addOrShowTerminal(machineState);
+        verify(terminalContainer, times(2)).addOrShowTerminal(machine);
     }
 
     private void callAndVerifyHandler() {
-        presenter.showAppliance(machineState);
+        presenter.showAppliance(machine);
 
         verify(entityFactory).createTab(eq(tabHeader), eq(terminalContainer), handlerCaptor.capture());
         handlerCaptor.getValue().onTabSelected();
 
-        verify(machineState).setActiveTabName(SOME_TEXT);
+        verify(machine).setActiveTabName(SOME_TEXT);
     }
 
     @Test
@@ -231,18 +231,18 @@ public class MachineAppliancePresenterTest {
     @Test
     public void infoShouldBeShown() {
         reset(tabContainer);
-        when(machineState.getActiveTabName()).thenReturn(SOME_TEXT);
+        when(machine.getActiveTabName()).thenReturn(SOME_TEXT);
         when(tabContainer.getView()).thenReturn(tabContainerView);
 
-        presenter.showAppliance(machineState);
+        presenter.showAppliance(machine);
 
         verify(tabContainer).getView();
         verify(view).showContainer(tabContainerView);
 
         verify(tabContainer).showTab(SOME_TEXT);
-        verify(terminalContainer).addOrShowTerminal(machineState);
-        verify(infoPresenter).update(machineState);
-        verify(serverPresenter).updateInfo(machineState);
+        verify(terminalContainer).addOrShowTerminal(machine);
+        verify(infoPresenter).update(machine);
+        verify(serverPresenter).updateInfo(machine);
     }
 
     @Test
@@ -266,7 +266,7 @@ public class MachineAppliancePresenterTest {
     public void machinesShouldBeShowed() throws Exception {
         when(event.getActivePart()).thenReturn(machinePanelPresenter);
 
-        presenter.showAppliance(machineState);
+        presenter.showAppliance(machine);
         reset(view);
 
         presenter.onActivePartChanged(event);

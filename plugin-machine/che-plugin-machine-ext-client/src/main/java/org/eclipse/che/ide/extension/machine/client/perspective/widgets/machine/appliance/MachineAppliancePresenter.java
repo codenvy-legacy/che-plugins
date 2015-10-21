@@ -22,7 +22,7 @@ import org.eclipse.che.ide.client.inject.factories.TabItemFactory;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.EntityFactory;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.WidgetsFactory;
-import org.eclipse.che.ide.extension.machine.client.machine.MachineState;
+import org.eclipse.che.ide.extension.machine.client.machine.Machine;
 import org.eclipse.che.ide.extension.machine.client.perspective.terminal.container.TerminalContainer;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.appliance.recipe.RecipeTabPresenter;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.appliance.server.ServerPresenter;
@@ -61,7 +61,7 @@ public class MachineAppliancePresenter extends PartStackPresenter implements Act
     private final WidgetsFactory            widgetsFactory;
     private final EntityFactory             entityFactory;
 
-    private MachineState selectedMachine;
+    private Machine selectedMachine;
 
     @Inject
     public MachineAppliancePresenter(EventBus eventBus,
@@ -145,20 +145,20 @@ public class MachineAppliancePresenter extends PartStackPresenter implements Act
     /**
      * Shows all information and processes about current machine.
      *
-     * @param machineState
+     * @param machine
      *         machine for which need show info
      */
-    public void showAppliance(@NotNull MachineState machineState) {
-        selectedMachine = machineState;
+    public void showAppliance(@NotNull Machine machine) {
+        selectedMachine = machine;
 
         view.showContainer(tabContainer.getView());
 
-        tabContainer.showTab(machineState.getActiveTabName());
+        tabContainer.showTab(machine.getActiveTabName());
 
-        terminalContainer.addOrShowTerminal(machineState);
-        infoPresenter.update(machineState);
-        recipeTabPresenter.updateInfo(machineState);
-        serverPresenter.updateInfo(machineState);
+        terminalContainer.addOrShowTerminal(machine);
+        infoPresenter.update(machine);
+        recipeTabPresenter.updateInfo(machine);
+        serverPresenter.updateInfo(machine);
     }
 
     /** {@inheritDoc} */

@@ -14,6 +14,7 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
 import org.eclipse.che.ide.extension.machine.client.machine.Machine;
+import org.eclipse.che.ide.extension.machine.client.machine.MachineState;
 import org.eclipse.che.ide.ui.tree.TreeNodeElement;
 
 import javax.validation.constraints.NotNull;
@@ -45,10 +46,10 @@ public class MachineTreeNode {
         this.data = data;
         this.children = children;
 
-        boolean isMachine = data instanceof Machine;
+        boolean isMachine = data instanceof MachineState;
 
-        id = isMachine ? ((Machine)data).getId() : ROOT;
-        name = isMachine ? ((Machine)data).getDisplayName() : ROOT;
+        id = isMachine ? ((MachineState)data).getId() : ROOT;
+        name = isMachine ? ((MachineState)data).getDisplayName() : ROOT;
     }
 
     @NotNull

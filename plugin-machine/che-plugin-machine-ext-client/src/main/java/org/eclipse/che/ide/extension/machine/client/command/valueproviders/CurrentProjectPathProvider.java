@@ -74,13 +74,14 @@ public class CurrentProjectPathProvider implements CommandPropertyValueProvider,
 
     @Override
     public void onMachineRunning(MachineStateEvent event) {
-        final CurrentProject currentProject = appContext.getCurrentProject();
+        CurrentProject currentProject  = appContext.getCurrentProject();
+
         final MachineState machine = event.getMachine();
         if (currentProject == null || !machine.isDev()) {
             return;
         }
 
-        value = appContext.getCurrentProject().getProjectDescription().getPath();
+        value = currentProject.getProjectDescription().getPath();
     }
 
     @Override
