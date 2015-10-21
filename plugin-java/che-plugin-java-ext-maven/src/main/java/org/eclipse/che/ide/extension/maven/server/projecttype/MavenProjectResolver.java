@@ -46,7 +46,7 @@ public class MavenProjectResolver {
             MavenClassPathConfigurator.configure(projectFolder, model);
 
             String packaging = model.getPackaging();
-            if (packaging.equals("pom")) {
+            if (packaging != null && packaging.equals("pom")) {
                 String ws = projectFolder.getWorkspace();
                 Project project = projectManager.getProject(ws, projectFolder.getPath());
                 createProjectsOnModules(model, project, ws, projectManager);
