@@ -21,6 +21,8 @@ import com.google.gwt.user.client.ui.IsWidget;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
+import org.eclipse.che.api.machine.shared.dto.MachineDto;
+import org.eclipse.che.api.machine.shared.dto.ServerDto;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.Promise;
@@ -29,7 +31,7 @@ import org.eclipse.che.api.promises.client.callback.AsyncPromiseHelper;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.collections.Jso;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
-import org.eclipse.che.ide.extension.machine.client.machine.Machine;
+import org.eclipse.che.ide.extension.machine.client.machine.MachineState;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.content.TabPresenter;
 import org.eclipse.che.ide.util.loging.Log;
 import org.eclipse.che.ide.websocket.WebSocket;
@@ -39,6 +41,7 @@ import org.eclipse.che.ide.websocket.events.MessageReceivedEvent;
 import org.eclipse.che.ide.websocket.events.MessageReceivedHandler;
 
 import javax.validation.constraints.NotNull;
+import java.util.Map;
 
 /**
  * The class defines methods which contains business logic to control machine's terminal.
@@ -54,25 +57,25 @@ public class TerminalPresenter implements TabPresenter, TerminalView.ActionDeleg
     private final TerminalView                view;
     private final NotificationManager         notificationManager;
     private final MachineLocalizationConstant locale;
-    private final Machine                     machine;
+    private final MachineState                machineState;
     private final Timer                       retryConnectionTimer;
 
     private Promise<Boolean> promise;
     private WebSocket        socket;
     private boolean          isTerminalConnected;
     private int              countRetry;
-    private TerminalJso terminal;
+    private TerminalJso      terminal;
 
     @Inject
     public TerminalPresenter(TerminalView view,
                              NotificationManager notificationManager,
                              MachineLocalizationConstant locale,
-                             @Assisted Machine machine) {
+                             @Assisted MachineState machineState) {
         this.view = view;
         view.setDelegate(this);
         this.notificationManager = notificationManager;
         this.locale = locale;
-        this.machine = machine;
+        this.machineState = machineState;
 
         isTerminalConnected = false;
 
@@ -116,7 +119,19 @@ public class TerminalPresenter implements TabPresenter, TerminalView.ActionDeleg
             promise.then(new Operation<Boolean>() {
                 @Override
                 public void apply(Boolean arg) throws OperationException {
-                    openWebSocket(machine.getWSTerminalUrl());
+                    machineState.getMachine().then(new Operation<MachineDto>() {
+                        @Override
+                        public void apply(MachineDto machine) throws OperationException {
+                            Map<String, ServerDto> serverDescriptors = machine.getMetadata().getServers();
+
+                            for (ServerDto descriptor : serverDescriptors.values()) {
+
+                                if ("terminal".equals(descriptor.getRef())) {
+                                    openWebSocket(descriptor.getUrl());
+                                }
+                            }
+                        }
+                    });
                 }
             }).catchError(new Operation<PromiseError>() {
                 @Override

@@ -16,8 +16,8 @@ import org.eclipse.che.api.analytics.client.logger.AnalyticsEventLogger;
 import org.eclipse.che.ide.api.action.AbstractPerspectiveAction;
 import org.eclipse.che.ide.api.action.ActionEvent;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
-import org.eclipse.che.ide.extension.machine.client.machine.Machine;
 import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
+import org.eclipse.che.ide.extension.machine.client.machine.MachineState;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.panel.MachinePanelPresenter;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 
@@ -60,7 +60,7 @@ public class DestroyMachineAction extends AbstractPerspectiveAction {
     /** {@inheritDoc} */
     @Override
     public void updateInPerspective(@NotNull ActionEvent event) {
-        final Machine selectedMachine = panelPresenter.getSelectedMachine();
+        final MachineState selectedMachine = panelPresenter.getSelectedMachine();
         event.getPresentation().setEnabled(selectedMachine != null);
         event.getPresentation().setText(selectedMachine != null ? locale.machineDestroyTitle(selectedMachine.getDisplayName())
                                                                 : locale.machineDestroyTitle());
@@ -71,13 +71,14 @@ public class DestroyMachineAction extends AbstractPerspectiveAction {
     public void actionPerformed(@NotNull ActionEvent event) {
         eventLogger.log(this);
 
-        final Machine selectedMachine = panelPresenter.getSelectedMachine();
+        final MachineState selectedMachine = panelPresenter.getSelectedMachine();
         if (selectedMachine == null) {
             return;
         }
 
 //        if (selectedMachine.isDev()) {
-//            dialogFactory.createMessageDialog(locale.devMachineCanNotBeDestroyedTitle(), locale.devMachineCanNotBeDestroyed(), null).show();
+//            dialogFactory.createMessageDialog(locale.devMachineCanNotBeDestroyedTitle(), locale.devMachineCanNotBeDestroyed(), null)
+// .show();
 //            return;
 //        }
 

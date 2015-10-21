@@ -17,7 +17,7 @@ import org.eclipse.che.api.user.gwt.client.UserProfileServiceClient;
 import org.eclipse.che.api.user.shared.dto.ProfileDescriptor;
 import org.eclipse.che.api.workspace.gwt.client.WorkspaceServiceClient;
 import org.eclipse.che.api.workspace.shared.dto.UsersWorkspaceDto;
-import org.eclipse.che.ide.extension.machine.client.machine.Machine;
+import org.eclipse.che.ide.extension.machine.client.machine.MachineState;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.rest.Unmarshallable;
@@ -36,9 +36,7 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -62,7 +60,7 @@ public class MachineInfoPresenterTest {
 
     //additional mocks
     @Mock
-    private Machine                           machine;
+    private MachineState                      machineState;
     @Mock
     private AcceptsOneWidget                  container;
     @Mock
@@ -86,7 +84,7 @@ public class MachineInfoPresenterTest {
 
     @Before
     public void setUp() {
-        when(machine.getWorkspaceId()).thenReturn(SOME_TEXT);
+        when(machineState.getWorkspaceId()).thenReturn(SOME_TEXT);
 
         when(unmarshallerFactory.newUnmarshaller(ProfileDescriptor.class)).thenReturn(profileUnmarshaller);
         when(unmarshallerFactory.newUnmarshaller(UsersWorkspaceDto.class)).thenReturn(wsUnmarshaller);
@@ -96,15 +94,15 @@ public class MachineInfoPresenterTest {
     public void infoShouldBeUpdated() {
         when(wsService.getUsersWorkspace(SOME_TEXT)).thenReturn(promise);
 
-        presenter.update(machine);
+        presenter.update(machineState);
 
         verify(unmarshallerFactory).newUnmarshaller(ProfileDescriptor.class);
 
         verify(userProfile).getCurrentProfile(Matchers.<AsyncRequestCallback<ProfileDescriptor>>anyObject());
-        verify(machine).getWorkspaceId();
+        verify(machineState).getWorkspaceId();
         verify(wsService).getUsersWorkspace(eq(SOME_TEXT));
 
-        verify(view).updateInfo(machine);
+        verify(view).updateInfo(machineState);
     }
 
     @Test
@@ -116,7 +114,7 @@ public class MachineInfoPresenterTest {
         when(profileDescriptor.getAttributes()).thenReturn(attributes);
         when(wsService.getUsersWorkspace(SOME_TEXT)).thenReturn(promise);
 
-        presenter.update(machine);
+        presenter.update(machineState);
 
         verify(userProfile).getCurrentProfile(profileCaptor.capture());
         AsyncRequestCallback<ProfileDescriptor> callback = profileCaptor.getValue();
@@ -141,7 +139,7 @@ public class MachineInfoPresenterTest {
         when(profileDescriptor.getAttributes()).thenReturn(attributes);
         when(wsService.getUsersWorkspace(SOME_TEXT)).thenReturn(promise);
 
-        presenter.update(machine);
+        presenter.update(machineState);
 
         verify(userProfile).getCurrentProfile(profileCaptor.capture());
         AsyncRequestCallback<ProfileDescriptor> callback = profileCaptor.getValue();
@@ -157,16 +155,17 @@ public class MachineInfoPresenterTest {
     }
 
     @Test
+    //TODO fix test
     public void workspaceNameShouldBeSet() throws Exception {
-        when(machine.getWorkspaceId()).thenReturn(SOME_TEXT);
+        when(machineState.getWorkspaceId()).thenReturn(SOME_TEXT);
         when(wsDescriptor.getName()).thenReturn(SOME_TEXT);
         when(wsService.getUsersWorkspace(SOME_TEXT)).thenReturn(promise);
 
-        presenter.update(machine);
+        presenter.update(machineState);
 
         verify(wsService).getUsersWorkspace(eq(SOME_TEXT));
 
-        verify(machine).getWorkspaceId();
+        verify(machineState).getWorkspaceId();
 //        verify(wsDescriptor).getName();
 //        verify(view).setWorkspaceName(SOME_TEXT);
     }

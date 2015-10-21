@@ -15,13 +15,14 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.event.shared.EventBus;
 
+import org.eclipse.che.commons.annotation.Nullable;
 import org.eclipse.che.ide.api.event.ActivePartChangedEvent;
 import org.eclipse.che.ide.api.event.ActivePartChangedHandler;
 import org.eclipse.che.ide.client.inject.factories.TabItemFactory;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.EntityFactory;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.WidgetsFactory;
-import org.eclipse.che.ide.extension.machine.client.machine.Machine;
+import org.eclipse.che.ide.extension.machine.client.machine.MachineState;
 import org.eclipse.che.ide.extension.machine.client.perspective.terminal.container.TerminalContainer;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.appliance.recipe.RecipeTabPresenter;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.appliance.server.ServerPresenter;
@@ -38,7 +39,6 @@ import org.eclipse.che.ide.part.PartStackPresenter;
 import org.eclipse.che.ide.part.PartsComparator;
 
 import javax.validation.constraints.NotNull;
-import org.eclipse.che.commons.annotation.Nullable;
 
 /**
  * The class is a container for tab panels which display additional information about machine and adds ability to control machine's
@@ -61,7 +61,7 @@ public class MachineAppliancePresenter extends PartStackPresenter implements Act
     private final WidgetsFactory            widgetsFactory;
     private final EntityFactory             entityFactory;
 
-    private Machine selectedMachine;
+    private MachineState selectedMachine;
 
     @Inject
     public MachineAppliancePresenter(EventBus eventBus,
@@ -145,20 +145,20 @@ public class MachineAppliancePresenter extends PartStackPresenter implements Act
     /**
      * Shows all information and processes about current machine.
      *
-     * @param machine
+     * @param machineState
      *         machine for which need show info
      */
-    public void showAppliance(@NotNull Machine machine) {
-        selectedMachine = machine;
+    public void showAppliance(@NotNull MachineState machineState) {
+        selectedMachine = machineState;
 
         view.showContainer(tabContainer.getView());
 
-        tabContainer.showTab(machine.getActiveTabName());
+        tabContainer.showTab(machineState.getActiveTabName());
 
-        terminalContainer.addOrShowTerminal(machine);
-        infoPresenter.update(machine);
-        recipeTabPresenter.updateInfo(machine);
-        serverPresenter.updateInfo(machine);
+        terminalContainer.addOrShowTerminal(machineState);
+        infoPresenter.update(machineState);
+        recipeTabPresenter.updateInfo(machineState);
+        serverPresenter.updateInfo(machineState);
     }
 
     /** {@inheritDoc} */

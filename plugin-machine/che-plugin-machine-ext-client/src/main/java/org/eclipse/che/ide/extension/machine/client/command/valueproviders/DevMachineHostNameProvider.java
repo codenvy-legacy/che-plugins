@@ -20,7 +20,7 @@ import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.PromiseError;
 import org.eclipse.che.ide.api.app.AppContext;
-import org.eclipse.che.ide.extension.machine.client.machine.Machine;
+import org.eclipse.che.ide.extension.machine.client.machine.MachineState;
 import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateEvent;
 import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateHandler;
 
@@ -65,19 +65,25 @@ public class DevMachineHostNameProvider implements CommandPropertyValueProvider,
 
     @Override
     public void onMachineRunning(MachineStateEvent event) {
-        final Machine machine = event.getMachine();
-        if (machine.isDev()) {
-            final String hostName = machine.getProperties().get("config.hostname");
-            if (hostName != null) {
-                value = hostName;
-            }
+        final MachineState machineState = event.getMachine();
+        if (machineState.isDev()) {
+            machineServiceClient.getMachine(machineState.getId()).then(new Operation<MachineDto>() {
+                @Override
+                public void apply(MachineDto machine) throws OperationException {
+                    final String hostName = machine.getMetadata().getProperties().get("config.hostname");
+
+                    if (hostName != null) {
+                        value = hostName;
+                    }
+                }
+            });
         }
     }
 
     @Override
     public void onMachineDestroyed(MachineStateEvent event) {
-        final Machine machine = event.getMachine();
-        if (machine.isDev()) {
+        final MachineState machineState = event.getMachine();
+        if (machineState.isDev()) {
             value = "";
         }
     }

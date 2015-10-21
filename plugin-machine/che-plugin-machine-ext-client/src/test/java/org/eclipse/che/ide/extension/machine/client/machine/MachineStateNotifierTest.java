@@ -66,7 +66,7 @@ public class MachineStateNotifierTest {
     @Mock
     private Unmarshallable<MachineStatusEvent> unmarshaller;
     @Mock
-    private Machine                            machine;
+    private MachineState                       machineState;
 
     @Captor
     private ArgumentCaptor<Notification> notificationCaptor;
@@ -84,12 +84,13 @@ public class MachineStateNotifierTest {
 
     @Test
     @Ignore
+    //TODO fix test
     public void machineShouldBeTrackedWhenMachineStateIsCreating() throws Exception {
         UsersWorkspaceDto workspace = mock(UsersWorkspaceDto.class);
         when(appContext.getWorkspace()).thenReturn(workspace);
         when(workspace.getId()).thenReturn(SOME_TEXT);
-        when(machine.getDisplayName()).thenReturn(SOME_TEXT);
-        stateNotifier.trackMachine(machine, MachineManager.MachineOperationType.START);
+        when(machineState.getDisplayName()).thenReturn(SOME_TEXT);
+        stateNotifier.trackMachine(machineState, MachineManager.MachineOperationType.START);
 
         verify(notificationManager).showNotification(notificationCaptor.capture());
         Notification notification = notificationCaptor.getValue();
@@ -105,12 +106,13 @@ public class MachineStateNotifierTest {
 
     @Test
     @Ignore
+    //TODO fix test
     public void machineShouldBeTrackedWhenMachineStateIsDestroying() throws Exception {
         UsersWorkspaceDto workspace = mock(UsersWorkspaceDto.class);
         when(appContext.getWorkspace()).thenReturn(workspace);
         when(workspace.getId()).thenReturn(SOME_TEXT);
-        when(machine.getDisplayName()).thenReturn(SOME_TEXT);
-        stateNotifier.trackMachine(machine, MachineManager.MachineOperationType.DESTROY);
+        when(machineState.getDisplayName()).thenReturn(SOME_TEXT);
+        stateNotifier.trackMachine(machineState, MachineManager.MachineOperationType.DESTROY);
 
         verify(notificationManager).showNotification(notificationCaptor.capture());
         Notification notification = notificationCaptor.getValue();

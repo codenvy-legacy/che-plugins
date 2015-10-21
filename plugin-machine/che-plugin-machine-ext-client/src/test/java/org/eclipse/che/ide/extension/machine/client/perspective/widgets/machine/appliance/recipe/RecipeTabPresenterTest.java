@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.appliance.recipe;
 
-import org.eclipse.che.ide.extension.machine.client.machine.Machine;
+import org.eclipse.che.ide.extension.machine.client.machine.MachineState;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -26,16 +26,16 @@ import static org.mockito.Mockito.verify;
 @RunWith(MockitoJUnitRunner.class)
 public class RecipeTabPresenterTest {
     @Mock
-    private RecipeView view;
+    private RecipeView   view;
     @Mock
-    private Machine    machine;
+    private MachineState machineState;
 
     @InjectMocks
     private RecipeTabPresenter presenter;
 
     @Test
     public void recipeShouldBeUpdated() throws Exception {
-        presenter.updateInfo(machine);
+        presenter.updateInfo(machineState);
 
         //TODO recipe content
     }

@@ -20,7 +20,7 @@ import com.google.web.bindery.event.shared.EventBus;
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
 import org.eclipse.che.api.machine.gwt.client.events.ExtServerStateEvent;
 import org.eclipse.che.api.machine.gwt.client.events.ExtServerStateHandler;
-import org.eclipse.che.api.machine.shared.dto.MachineDto;
+import org.eclipse.che.api.machine.shared.dto.MachineStateDto;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.Promise;
@@ -30,7 +30,7 @@ import org.eclipse.che.ide.api.parts.base.BasePresenter;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.MachineResources;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.EntityFactory;
-import org.eclipse.che.ide.extension.machine.client.machine.Machine;
+import org.eclipse.che.ide.extension.machine.client.machine.MachineState;
 import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateEvent;
 import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateHandler;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.appliance.MachineAppliancePresenter;
@@ -59,8 +59,8 @@ public class MachinePanelPresenter extends BasePresenter implements MachinePanel
     private final MachineResources            resources;
     private final AppContext                  appContext;
 
-    private Machine selectedMachine;
-    private boolean isFirstNode;
+    private MachineState selectedMachine;
+    private boolean      isFirstNode;
 
     @Inject
     public MachinePanelPresenter(MachinePanelView view,
@@ -87,14 +87,12 @@ public class MachinePanelPresenter extends BasePresenter implements MachinePanel
 
     /** Gets all machines and adds them to special place on view. */
     public void showMachines() {
-        String workspaceId = appContext.getWorkspace().getId();
+        Promise<List<MachineStateDto>> machinesPromise = service.getMachinesStates(null);
 
-        Promise<List<MachineDto>> machinesPromise = service.getWorkspaceMachines(workspaceId);
-
-        machinesPromise.then(new Operation<List<MachineDto>>() {
+        machinesPromise.then(new Operation<List<MachineStateDto>>() {
             @Override
-            public void apply(List<MachineDto> machines) throws OperationException {
-                if (machines.isEmpty()) {
+            public void apply(List<MachineStateDto> machineStates) throws OperationException {
+                if (machineStates.isEmpty()) {
                     appliance.showStub();
                     selectedMachine = null;
                 }
@@ -107,8 +105,8 @@ public class MachinePanelPresenter extends BasePresenter implements MachinePanel
 
                 MachineTreeNode selectedNode = null;
 
-                for (MachineDto descriptor : machines) {
-                    Machine machine = entityFactory.createMachine(descriptor);
+                for (MachineStateDto descriptor : machineStates) {
+                    MachineState machine = entityFactory.createMachineState(descriptor);
                     MachineTreeNode machineNode = entityFactory.createMachineNode(rootNode, machine, null);
 
                     rootChildren.add(machineNode);
@@ -127,13 +125,13 @@ public class MachinePanelPresenter extends BasePresenter implements MachinePanel
         });
     }
 
-    public Machine getSelectedMachine() {
+    public MachineState getSelectedMachine() {
         return selectedMachine;
     }
 
     /** {@inheritDoc} */
     @Override
-    public void onMachineSelected(@NotNull Machine selectedMachine) {
+    public void onMachineSelected(MachineState selectedMachine) {
         if (this.selectedMachine != null && this.selectedMachine.equals(selectedMachine)) {
             return;
         }

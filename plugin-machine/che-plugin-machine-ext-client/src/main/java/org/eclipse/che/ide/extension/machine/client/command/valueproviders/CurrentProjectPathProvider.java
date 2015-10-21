@@ -25,7 +25,7 @@ import org.eclipse.che.ide.api.event.project.CloseCurrentProjectEvent;
 import org.eclipse.che.ide.api.event.project.CloseCurrentProjectHandler;
 import org.eclipse.che.ide.api.event.project.ProjectReadyEvent;
 import org.eclipse.che.ide.api.event.project.ProjectReadyHandler;
-import org.eclipse.che.ide.extension.machine.client.machine.Machine;
+import org.eclipse.che.ide.extension.machine.client.machine.MachineState;
 import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateEvent;
 import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateHandler;
 
@@ -80,8 +80,7 @@ public class CurrentProjectPathProvider implements CommandPropertyValueProvider,
             return;
         }
 
-        final String projectsRoot = machine.getProjectsRoot();
-        value = projectsRoot + currentProject.getProjectDescription().getPath();
+        value = appContext.getCurrentProject().getProjectDescription().getPath();
     }
 
     @Override

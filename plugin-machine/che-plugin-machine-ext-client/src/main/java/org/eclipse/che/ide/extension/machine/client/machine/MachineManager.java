@@ -135,13 +135,13 @@ public class MachineManager {
         });
     }
 
-    public void restartMachine(@NotNull final Machine machine) {
-        machineServiceClient.destroyMachine(machine.getId()).then(new Operation<Void>() {
+    public void restartMachine(@NotNull final MachineState machineState) {
+        machineServiceClient.destroyMachine(machineState.getId()).then(new Operation<Void>() {
             @Override
             public void apply(Void arg) throws OperationException {
                 final String recipeUrl = recipeProvider.getRecipeUrl();
-                final String displayName = machine.getDisplayName();
-                final boolean isDev = machine.isDev();
+                final String displayName = machineState.getDisplayName();
+                final boolean isDev = machineState.isDev();
 
                 startMachine(recipeUrl, displayName, isDev, RESTART);
             }
@@ -187,7 +187,7 @@ public class MachineManager {
                                       }
 
                                       final MachineState machineState = entityFactory.createMachineState(machineStateDto);
-//                                      machineStatusNotifier.trackMachine(machineState, runningListener, operationType);
+                                      machineStatusNotifier.trackMachine(machineState, runningListener, operationType);
                                   }
                               });
     }
@@ -235,14 +235,14 @@ public class MachineManager {
         });
     }
 
-    public void destroyMachine(final Machine machine) {
-        machineServiceClient.destroyMachine(machine.getId()).then(new Operation<Void>() {
+    public void destroyMachine(final MachineState machineState) {
+        machineServiceClient.destroyMachine(machineState.getId()).then(new Operation<Void>() {
             @Override
             public void apply(Void arg) throws OperationException {
-                machineStatusNotifier.trackMachine(machine, DESTROY);
+                machineStatusNotifier.trackMachine(machineState, DESTROY);
 
                 final String devMachineId = appContext.getDevMachineId();
-                if (devMachineId != null && machine.getId().equals(devMachineId)) {
+                if (devMachineId != null && machineState.getId().equals(devMachineId)) {
                     appContext.setDevMachineId(null);
                 }
             }

@@ -14,7 +14,7 @@ import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.inject.Inject;
 
-import org.eclipse.che.ide.extension.machine.client.machine.Machine;
+import org.eclipse.che.ide.extension.machine.client.machine.MachineState;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.content.TabPresenter;
 
 import javax.validation.constraints.NotNull;
@@ -27,7 +27,7 @@ import javax.validation.constraints.NotNull;
  */
 public class RecipeTabPresenter implements TabPresenter {
 
-    private final RecipeView    view;
+    private final RecipeView view;
 
     @Inject
     public RecipeTabPresenter(RecipeView view) {
@@ -37,11 +37,11 @@ public class RecipeTabPresenter implements TabPresenter {
     /**
      * Calls special method on view which updates recipe of current machine.
      *
-     * @param machine
+     * @param machineState
      *         machine for which need update information
      */
-    public void updateInfo(@NotNull Machine machine) {
-//        view.setScript(machine.getScript());
+    public void updateInfo(@NotNull MachineState machineState) {
+//        view.setScript(machine.getgetScript());
     }
 
     /** {@inheritDoc} */

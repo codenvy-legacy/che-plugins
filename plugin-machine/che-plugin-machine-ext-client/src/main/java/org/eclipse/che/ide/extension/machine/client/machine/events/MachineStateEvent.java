@@ -12,7 +12,7 @@ package org.eclipse.che.ide.extension.machine.client.machine.events;
 
 import com.google.gwt.event.shared.GwtEvent;
 
-import org.eclipse.che.ide.extension.machine.client.machine.Machine;
+import org.eclipse.che.ide.extension.machine.client.machine.MachineState;
 
 /**
  * Event that describes the fact that machine state has been changed.
@@ -23,7 +23,7 @@ public class MachineStateEvent extends GwtEvent<MachineStateHandler> {
 
     /** Type class used to register this event. */
     public static Type<MachineStateHandler> TYPE = new Type<>();
-    private final Machine       machine;
+    private final MachineState  machine;
     private final MachineAction machineAction;
 
     /**
@@ -34,7 +34,7 @@ public class MachineStateEvent extends GwtEvent<MachineStateHandler> {
      * @param machineAction
      *         the type of action
      */
-    protected MachineStateEvent(Machine machine, MachineAction machineAction) {
+    protected MachineStateEvent(MachineState machine, MachineAction machineAction) {
         this.machine = machine;
         this.machineAction = machineAction;
     }
@@ -45,7 +45,7 @@ public class MachineStateEvent extends GwtEvent<MachineStateHandler> {
      * @param machine
      *         running machine
      */
-    public static MachineStateEvent createMachineRunningEvent(Machine machine) {
+    public static MachineStateEvent createMachineRunningEvent(MachineState machine) {
         return new MachineStateEvent(machine, MachineAction.RUNNING);
     }
 
@@ -55,7 +55,7 @@ public class MachineStateEvent extends GwtEvent<MachineStateHandler> {
      * @param machine
      *         destroyed machine
      */
-    public static MachineStateEvent createMachineDestroyedEvent(Machine machine) {
+    public static MachineStateEvent createMachineDestroyedEvent(MachineState machine) {
         return new MachineStateEvent(machine, MachineAction.DESTROYED);
     }
 
@@ -64,7 +64,7 @@ public class MachineStateEvent extends GwtEvent<MachineStateHandler> {
         return TYPE;
     }
 
-    public Machine getMachine() {
+    public MachineState getMachine() {
         return machine;
     }
 

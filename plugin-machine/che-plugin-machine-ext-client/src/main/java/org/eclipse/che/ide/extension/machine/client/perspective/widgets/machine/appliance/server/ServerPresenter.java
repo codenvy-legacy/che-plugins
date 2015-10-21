@@ -14,9 +14,12 @@ import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.inject.Inject;
 
+import org.eclipse.che.api.machine.shared.dto.MachineDto;
 import org.eclipse.che.api.machine.shared.dto.ServerDto;
+import org.eclipse.che.api.promises.client.Operation;
+import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.EntityFactory;
-import org.eclipse.che.ide.extension.machine.client.machine.Machine;
+import org.eclipse.che.ide.extension.machine.client.machine.MachineState;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.content.TabPresenter;
 
 import javax.validation.constraints.NotNull;
@@ -44,24 +47,29 @@ public class ServerPresenter implements TabPresenter {
     /**
      * Calls special method on view which updates server's information for current machine.
      *
-     * @param machine
+     * @param machineState
      *         machine for which need update information
      */
-    public void updateInfo(@NotNull Machine machine) {
-        List<Server> serversList = new ArrayList<>();
+    public void updateInfo(@NotNull MachineState machineState) {
+        final List<Server> serversList = new ArrayList<>();
 
-        Map<String, ServerDto> servers = machine.getServers();
+        machineState.getMachine().then(new Operation<MachineDto>() {
+            @Override
+            public void apply(MachineDto machine) throws OperationException {
+                Map<String, ServerDto> servers = machine.getMetadata().getServers();
 
-        for (Map.Entry<String, ServerDto> entry : servers.entrySet()) {
-            String exposedPort = entry.getKey();
-            ServerDto descriptor = entry.getValue();
+                for (Map.Entry<String, ServerDto> entry : servers.entrySet()) {
+                    String exposedPort = entry.getKey();
+                    ServerDto descriptor = entry.getValue();
 
-            Server server = entityFactory.createServer(exposedPort, descriptor);
+                    Server server = entityFactory.createServer(exposedPort, descriptor);
 
-            serversList.add(server);
-        }
+                    serversList.add(server);
+                }
 
-        view.setServers(serversList);
+                view.setServers(serversList);
+            }
+        });
     }
 
     /** {@inheritDoc} */

@@ -21,7 +21,7 @@ import org.eclipse.che.api.user.gwt.client.UserProfileServiceClient;
 import org.eclipse.che.api.user.shared.dto.ProfileDescriptor;
 import org.eclipse.che.api.workspace.gwt.client.WorkspaceServiceClient;
 import org.eclipse.che.api.workspace.shared.dto.UsersWorkspaceDto;
-import org.eclipse.che.ide.extension.machine.client.machine.Machine;
+import org.eclipse.che.ide.extension.machine.client.machine.MachineState;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.content.TabPresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
@@ -61,10 +61,10 @@ public class MachineInfoPresenter implements TabPresenter {
     /**
      * Updates additional information about current machine.
      *
-     * @param machine
+     * @param machineState
      *         machine for which need update panel
      */
-    public void update(@NotNull Machine machine) {
+    public void update(@NotNull MachineState machineState) {
 
         Unmarshallable<ProfileDescriptor> profileUnMarshaller = unmarshallerFactory.newUnmarshaller(ProfileDescriptor.class);
 
@@ -91,20 +91,20 @@ public class MachineInfoPresenter implements TabPresenter {
             }
         });
 
-        wsService.getUsersWorkspace(machine.getWorkspaceId())
+        wsService.getUsersWorkspace(machineState.getWorkspaceId())
                  .then(new Operation<UsersWorkspaceDto>() {
                      @Override
                      public void apply(UsersWorkspaceDto ws) throws OperationException {
                          view.setWorkspaceName(ws.getName());
                      }
                  }).catchError(new Operation<PromiseError>() {
-                     @Override
-                     public void apply(PromiseError err) throws OperationException {
-                         Log.error(getClass(), err.getCause());
-                     }
-                 });
+            @Override
+            public void apply(PromiseError err) throws OperationException {
+                Log.error(getClass(), err.getCause());
+            }
+        });
 
-        view.updateInfo(machine);
+        view.updateInfo(machineState);
     }
 
     /** {@inheritDoc} */

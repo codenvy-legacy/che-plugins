@@ -15,7 +15,7 @@ import com.google.gwt.user.client.ui.IsWidget;
 import com.google.inject.Inject;
 
 import org.eclipse.che.ide.extension.machine.client.inject.factories.TerminalFactory;
-import org.eclipse.che.ide.extension.machine.client.machine.Machine;
+import org.eclipse.che.ide.extension.machine.client.machine.MachineState;
 import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateEvent;
 import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateHandler;
 import org.eclipse.che.ide.extension.machine.client.perspective.terminal.TerminalPresenter;
@@ -32,9 +32,9 @@ import java.util.Map;
  */
 public class TerminalContainer implements TabPresenter, MachineStateHandler {
 
-    private final TerminalContainerView           view;
-    private final TerminalFactory                 terminalFactory;
-    private final Map<Machine, TerminalPresenter> terminals;
+    private final TerminalContainerView                view;
+    private final TerminalFactory                      terminalFactory;
+    private final Map<MachineState, TerminalPresenter> terminals;
 
     @Inject
     public TerminalContainer(TerminalContainerView view, TerminalFactory terminalFactory) {
@@ -47,11 +47,11 @@ public class TerminalContainer implements TabPresenter, MachineStateHandler {
     /**
      * Adds terminal for current machine. Or if terminal already exist updates terminal.
      *
-     * @param machine
+     * @param machineState
      *         machine for which terminal will be added or updated
      */
-    public void addOrShowTerminal(@NotNull Machine machine) {
-        TerminalPresenter terminal = terminals.get(machine);
+    public void addOrShowTerminal(@NotNull MachineState machineState) {
+        TerminalPresenter terminal = terminals.get(machineState);
 
         if (terminal != null) {
             terminal.connect();
@@ -61,9 +61,9 @@ public class TerminalContainer implements TabPresenter, MachineStateHandler {
             return;
         }
 
-        TerminalPresenter newTerminal = terminalFactory.create(machine);
+        TerminalPresenter newTerminal = terminalFactory.create(machineState);
 
-        terminals.put(machine, newTerminal);
+        terminals.put(machineState, newTerminal);
 
         view.addTerminal(newTerminal);
     }
@@ -95,7 +95,7 @@ public class TerminalContainer implements TabPresenter, MachineStateHandler {
     /** {@inheritDoc} */
     @Override
     public void onMachineDestroyed(MachineStateEvent event) {
-        Machine destroyedMachine = event.getMachine();
+        MachineState destroyedMachine = event.getMachine();
 
         terminals.remove(destroyedMachine);
     }

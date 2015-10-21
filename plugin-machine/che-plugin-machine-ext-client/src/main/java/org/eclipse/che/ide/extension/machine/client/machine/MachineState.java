@@ -14,9 +14,14 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
 import org.eclipse.che.api.core.model.machine.MachineStatus;
+import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
+import org.eclipse.che.api.machine.shared.dto.MachineDto;
 import org.eclipse.che.api.machine.shared.dto.MachineStateDto;
+import org.eclipse.che.api.machine.shared.dto.ServerDto;
+import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -26,13 +31,15 @@ import java.util.Objects;
  */
 public class MachineState {
 
-    private final MachineStateDto descriptor;
+    private final MachineStateDto      descriptor;
+    private final MachineServiceClient machineService;
 
     private String activeTabName;
 
     @Inject
-    public MachineState(MachineLocalizationConstant locale, @Assisted MachineStateDto descriptor) {
+    public MachineState(MachineLocalizationConstant locale, MachineServiceClient machineService, @Assisted MachineStateDto descriptor) {
         this.descriptor = descriptor;
+        this.machineService = machineService;
 
         this.activeTabName = locale.tabInfo();
     }
@@ -87,6 +94,14 @@ public class MachineState {
         return descriptor.isDev();
     }
 
+    public Promise<MachineDto> getScript() {
+        return null;
+    }
+
+    public Map<String, ServerDto> getServers() {
+        return null;
+    }
+
     @Override
     public boolean equals(Object machine) {
         return this == machine || !(machine == null || getClass() != machine.getClass()) && Objects.equals(descriptor.getId(),
@@ -96,5 +111,9 @@ public class MachineState {
     @Override
     public int hashCode() {
         return Objects.hashCode(descriptor.getId());
+    }
+
+    public Promise<MachineDto> getMachine() {
+        return machineService.getMachine(descriptor.getId());
     }
 }

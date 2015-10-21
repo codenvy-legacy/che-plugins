@@ -13,7 +13,7 @@ package org.eclipse.che.ide.extension.machine.client.perspective.terminal.contai
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 
 import org.eclipse.che.ide.extension.machine.client.inject.factories.TerminalFactory;
-import org.eclipse.che.ide.extension.machine.client.machine.Machine;
+import org.eclipse.che.ide.extension.machine.client.machine.MachineState;
 import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateEvent;
 import org.eclipse.che.ide.extension.machine.client.perspective.terminal.TerminalPresenter;
 import org.junit.Test;
@@ -40,7 +40,7 @@ public class TerminalContainerTest {
     private TerminalFactory       terminalFactory;
 
     @Mock
-    private Machine           machine;
+    private MachineState      machineState;
     @Mock
     private TerminalPresenter terminal;
     @Mock
@@ -53,11 +53,11 @@ public class TerminalContainerTest {
 
     @Test
     public void terminalShouldBeAdded() {
-        when(terminalFactory.create(machine)).thenReturn(terminal);
+        when(terminalFactory.create(machineState)).thenReturn(terminal);
 
-        container.addOrShowTerminal(machine);
+        container.addOrShowTerminal(machineState);
 
-        verify(terminalFactory).create(machine);
+        verify(terminalFactory).create(machineState);
         verify(view).addTerminal(terminal);
 
         verify(terminal, never()).connect();
@@ -66,17 +66,17 @@ public class TerminalContainerTest {
 
     @Test
     public void terminalShouldBeShown() {
-        when(terminalFactory.create(machine)).thenReturn(terminal);
+        when(terminalFactory.create(machineState)).thenReturn(terminal);
 
-        container.addOrShowTerminal(machine);
+        container.addOrShowTerminal(machineState);
         reset(view, terminalFactory);
 
-        container.addOrShowTerminal(machine);
+        container.addOrShowTerminal(machineState);
 
         verify(terminal).connect();
         verify(view).showTerminal(terminal);
 
-        verify(terminalFactory, never()).create(machine);
+        verify(terminalFactory, never()).create(machineState);
         verify(view, never()).addTerminal(terminal);
     }
 
@@ -96,20 +96,20 @@ public class TerminalContainerTest {
 
     @Test
     public void onMachineShouldBeDestroyed() {
-        when(terminalFactory.create(machine)).thenReturn(terminal);
-        when(machineStateEvent.getMachine()).thenReturn(machine);
+        when(terminalFactory.create(machineState)).thenReturn(terminal);
+        when(machineStateEvent.getMachine()).thenReturn(machineState);
 
-        container.addOrShowTerminal(machine);
+        container.addOrShowTerminal(machineState);
 
-        verify(terminalFactory).create(machine);
+        verify(terminalFactory).create(machineState);
         reset(terminalFactory);
 
-        when(terminalFactory.create(machine)).thenReturn(terminal);
+        when(terminalFactory.create(machineState)).thenReturn(terminal);
 
         container.onMachineDestroyed(machineStateEvent);
 
-        container.addOrShowTerminal(machine);
+        container.addOrShowTerminal(machineState);
 
-        verify(terminalFactory).create(machine);
+        verify(terminalFactory).create(machineState);
     }
 }

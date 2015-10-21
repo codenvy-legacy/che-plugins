@@ -16,8 +16,8 @@ import org.eclipse.che.api.analytics.client.logger.AnalyticsEventLogger;
 import org.eclipse.che.ide.api.action.AbstractPerspectiveAction;
 import org.eclipse.che.ide.api.action.ActionEvent;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
-import org.eclipse.che.ide.extension.machine.client.machine.Machine;
 import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
+import org.eclipse.che.ide.extension.machine.client.machine.MachineState;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.panel.MachinePanelPresenter;
 
 import javax.validation.constraints.NotNull;
@@ -37,7 +37,7 @@ public class RestartMachineAction extends AbstractPerspectiveAction {
     private final MachineLocalizationConstant locale;
     private final AnalyticsEventLogger        eventLogger;
 
-    private Machine selectedMachine;
+    private MachineState selectedMachine;
 
     @Inject
     public RestartMachineAction(MachineLocalizationConstant locale,

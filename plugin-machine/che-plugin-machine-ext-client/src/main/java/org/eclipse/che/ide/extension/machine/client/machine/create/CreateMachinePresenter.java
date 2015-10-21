@@ -16,14 +16,14 @@ import com.google.inject.Singleton;
 
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
 import org.eclipse.che.api.machine.gwt.client.RecipeServiceClient;
-import org.eclipse.che.api.machine.shared.dto.MachineDto;
+import org.eclipse.che.api.machine.shared.dto.MachineStateDto;
 import org.eclipse.che.api.machine.shared.dto.recipe.RecipeDescriptor;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.EntityFactory;
-import org.eclipse.che.ide.extension.machine.client.machine.Machine;
 import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
+import org.eclipse.che.ide.extension.machine.client.machine.MachineState;
 import org.eclipse.che.ide.extension.machine.client.util.RecipeProvider;
 
 import java.util.Collections;
@@ -147,10 +147,10 @@ public class CreateMachinePresenter implements CreateMachineView.ActionDelegate 
         final String recipeURL = view.getRecipeURL();
 
         if (appContext.getDevMachineId() != null) {
-            machineServiceClient.getMachine(appContext.getDevMachineId()).then(new Operation<MachineDto>() {
+            machineServiceClient.getMachineState(appContext.getDevMachineId()).then(new Operation<MachineStateDto>() {
                 @Override
-                public void apply(MachineDto arg) throws OperationException {
-                    final Machine machine = entityFactory.createMachine(arg);
+                public void apply(MachineStateDto machineState) throws OperationException {
+                    final MachineState machine = entityFactory.createMachineState(machineState);
                     machineManager.destroyMachine(machine);
                 }
             });
