@@ -46,6 +46,9 @@ public interface BranchView extends View<BranchView.ActionDelegate> {
          *         selected revision
          */
         void onBranchSelected(@NotNull Branch branch);
+
+        /** Performs any action in response to the user do not have any selected branch. */
+        void onBranchUnselected();
     }
 
     /**
@@ -83,6 +86,13 @@ public interface BranchView extends View<BranchView.ActionDelegate> {
     /** Close dialog. */
     void close();
 
+    /**
+     * Returns whether the view is shown.
+     *
+     * @return <code>true</code> if the view is shown, and
+     *         <code>false</code> otherwise
+     */
+
     /** Show dialog. */
-    void showDialog();
+    void showDialogIfClosed();
 }

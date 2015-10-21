@@ -101,14 +101,10 @@ public class BranchPresenter implements BranchView.ActionDelegate {
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
     }
 
-    /** Show dialog. */
-    public void showDialog() {
+    /** Open dialog if closed and shows branches. */
+    public void showBranches() {
         project = appContext.getCurrentProject();
-        view.setEnableCheckoutButton(false);
-        view.setEnableDeleteButton(false);
-        view.setEnableRenameButton(false);
         getBranches();
-        view.showDialog();
     }
 
     /** {@inheritDoc} */
@@ -266,6 +262,7 @@ public class BranchPresenter implements BranchView.ActionDelegate {
                                @Override
                                protected void onSuccess(List<Branch> result) {
                                    view.setBranches(result);
+                                   view.showDialogIfClosed();
                                }
 
                                @Override
@@ -307,6 +304,15 @@ public class BranchPresenter implements BranchView.ActionDelegate {
 
             }
         }, null).show();
+    }
+
+    @Override
+    public void onBranchUnselected() {
+        selectedBranch = null;
+
+        view.setEnableCheckoutButton(false);
+        view.setEnableRenameButton(false);
+        view.setEnableDeleteButton(false);
     }
 
     /** {@inheritDoc} */

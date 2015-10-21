@@ -195,6 +195,9 @@ public class BranchViewImpl extends Window implements BranchView {
     @Override
     public void setBranches(@NotNull List<Branch> branches) {
         this.branches.render(branches);
+        if (this.branches.getSelectionModel().getSelectedItem() == null) {
+            delegate.onBranchUnselected();
+        }
     }
 
     /** {@inheritDoc} */
@@ -223,8 +226,10 @@ public class BranchViewImpl extends Window implements BranchView {
 
     /** {@inheritDoc} */
     @Override
-    public void showDialog() {
-        this.show();
+    public void showDialogIfClosed() {
+        if (!super.isShowing()) {
+            this.show();
+        }
     }
 
     /** {@inheritDoc} */
