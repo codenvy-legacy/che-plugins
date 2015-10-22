@@ -46,7 +46,15 @@ import org.eclipse.che.ide.rest.Unmarshallable;
 
 import javax.validation.constraints.NotNull;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import static org.eclipse.che.api.promises.client.callback.AsyncPromiseHelper.createFromAsyncRequest;
+import static org.eclipse.che.ide.ext.openshift.shared.OpenshiftProjectTypeConstants.OPENSHIFT_APPLICATION_VARIABLE_NAME;
+import static org.eclipse.che.ide.ext.openshift.shared.OpenshiftProjectTypeConstants.OPENSHIFT_NAMESPACE_VARIABLE_NAME;
+import static org.eclipse.che.ide.ext.openshift.shared.OpenshiftProjectTypeConstants.OPENSHIFT_PROJECT_TYPE_ID;
 
 /**
  * Complete wizard handler. Handle create operation and tries to create configs on openshift.
@@ -95,6 +103,15 @@ public class CreateProjectWizard extends AbstractWizard<NewApplicationRequest> {
         }
     }
 
+    private void setUpMixinType(Project project) {
+        Map<String, List<String>> attributes = new HashMap<>(2);
+        attributes.put(OPENSHIFT_APPLICATION_VARIABLE_NAME, Collections.singletonList(dataObject.getImportProject().getProject().getName()));
+        attributes.put(OPENSHIFT_NAMESPACE_VARIABLE_NAME, Collections.singletonList(project.getMetadata().getName()));
+
+        dataObject.getImportProject().getProject().setMixinTypes(Collections.singletonList(OPENSHIFT_PROJECT_TYPE_ID));
+        dataObject.getImportProject().getProject().withAttributes(attributes);
+    }
+
     private Operation<Template> onSuccess(final CompleteCallback callback) {
         return new Operation<Template>() {
             @Override
@@ -137,6 +154,7 @@ public class CreateProjectWizard extends AbstractWizard<NewApplicationRequest> {
         return new Function<Project, Promise<Template>>() {
             @Override
             public Promise<Template> apply(final Project project) throws FunctionException {
+                setUpMixinType(project);
                 return createFromAsyncRequest(processTemplateRC(dataObject.getTemplate(), project))
                         .thenPromise(processTemplateMetadata(project));
             }

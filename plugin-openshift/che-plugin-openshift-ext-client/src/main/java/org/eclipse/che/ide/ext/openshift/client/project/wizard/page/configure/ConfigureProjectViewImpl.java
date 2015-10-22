@@ -178,6 +178,7 @@ public class ConfigureProjectViewImpl implements ConfigureProjectView {
         }
 
         delegate.onOpenShiftNewProjectNameChanged();
+        delegate.onCodenvyNewProjectNameChanged();
     }
 
     @Override
