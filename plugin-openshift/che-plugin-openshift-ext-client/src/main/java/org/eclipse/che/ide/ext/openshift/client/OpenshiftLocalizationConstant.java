@@ -66,4 +66,22 @@ public interface OpenshiftLocalizationConstant extends Messages {
 
     @Key("get.git.remote.repositories.error")
     String getGitRemoteRepositoryError(String project);
+
+    @Key("show.application.url.tooltip")
+    String showApplicationUrlTooltip();
+
+    @Key("application.url.title")
+    String applicationURLWindowTitle();
+
+    @Key("application.urls.title")
+    String applicationURLsWindowTitle();
+
+    @Key("no.application.url")
+    String noApplicationUrlLabel();
+
+    @Key("button.close")
+    String buttonClose();
+
+    @Key("get.routes.error")
+    String getRoutesError();
 }

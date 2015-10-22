@@ -11,6 +11,7 @@
 package org.eclipse.che.ide.ext.openshift.server.rest;
 
 import com.openshift.restclient.OpenShiftException;
+import com.openshift.restclient.model.IStatus;
 
 import org.eclipse.che.api.core.rest.shared.dto.ServiceError;
 import org.eclipse.che.dto.server.DtoFactory;
@@ -29,9 +30,16 @@ import javax.ws.rs.ext.Provider;
 public class OpenshiftExceptionMapper implements ExceptionMapper<OpenShiftException> {
     @Override
     public Response toResponse(OpenShiftException exception) {
+        final IStatus status = exception.getStatus();
+        String message;
+        if (status == null) {
+            message = exception.getLocalizedMessage();
+        } else {
+            message = status.getMessage();
+        }
         //TODO Add bindings to another status code in accordance to kind of OpenShiftException
         return Response.status(Response.Status.CONFLICT)
-                       .entity(DtoFactory.newDto(ServiceError.class).withMessage(exception.getStatus().getMessage()).toString())
+                       .entity(DtoFactory.newDto(ServiceError.class).withMessage(message))
                        .type(MediaType.APPLICATION_JSON)
                        .build();
     }

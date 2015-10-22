@@ -13,12 +13,14 @@ package org.eclipse.che.ide.ext.openshift.client;
 
 import org.eclipse.che.ide.MimeType;
 import org.eclipse.che.ide.api.app.AppContext;
+import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.ext.openshift.shared.dto.BuildConfig;
 import org.eclipse.che.ide.ext.openshift.shared.dto.DeploymentConfig;
 import org.eclipse.che.ide.ext.openshift.shared.dto.ImageStream;
 import org.eclipse.che.ide.ext.openshift.shared.dto.Project;
 import org.eclipse.che.ide.ext.openshift.shared.dto.ProjectRequest;
 import org.eclipse.che.ide.ext.openshift.shared.dto.Route;
+import org.eclipse.che.ide.ext.openshift.shared.dto.RouteSpec;
 import org.eclipse.che.ide.ext.openshift.shared.dto.Service;
 import org.eclipse.che.ide.ext.openshift.shared.dto.Template;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
@@ -27,6 +29,7 @@ import org.eclipse.che.ide.rest.AsyncRequestLoader;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.util.Collections;
 import java.util.List;
 
 import static com.google.gwt.http.client.RequestBuilder.PUT;
@@ -86,7 +89,7 @@ public class OpenshiftServiceClientImpl implements OpenshiftServiceClient {
 
     @Override
     public void createBuildConfig(BuildConfig buildConfig, AsyncRequestCallback<BuildConfig> callback) {
-        asyncRequestFactory.createPostRequest(openshiftPath + "/" +  buildConfig.getMetadata().getNamespace() + "/buildconfig", buildConfig)
+        asyncRequestFactory.createPostRequest(openshiftPath + "/" + buildConfig.getMetadata().getNamespace() + "/buildconfig", buildConfig)
                            .header(CONTENT_TYPE, MimeType.APPLICATION_JSON)
                            .header(ACCEPT, MimeType.APPLICATION_JSON)
                            .loader(loader, "Creating build configs...")
@@ -113,7 +116,7 @@ public class OpenshiftServiceClientImpl implements OpenshiftServiceClient {
 
     @Override
     public void createImageStream(ImageStream imageStream, AsyncRequestCallback<ImageStream> callback) {
-        asyncRequestFactory.createPostRequest(openshiftPath + "/" +  imageStream.getMetadata().getNamespace() +  "/imagestream", imageStream)
+        asyncRequestFactory.createPostRequest(openshiftPath + "/" + imageStream.getMetadata().getNamespace() + "/imagestream", imageStream)
                            .header(CONTENT_TYPE, MimeType.APPLICATION_JSON)
                            .header(ACCEPT, MimeType.APPLICATION_JSON)
                            .loader(loader, "Creating image streams...")
@@ -122,7 +125,8 @@ public class OpenshiftServiceClientImpl implements OpenshiftServiceClient {
 
     @Override
     public void createDeploymentConfig(DeploymentConfig deploymentConfig, AsyncRequestCallback<DeploymentConfig> callback) {
-        asyncRequestFactory.createPostRequest(openshiftPath + "/" +  deploymentConfig.getMetadata().getNamespace() +  "/deploymentconfig", deploymentConfig)
+        asyncRequestFactory.createPostRequest(openshiftPath + "/" + deploymentConfig.getMetadata().getNamespace() + "/deploymentconfig",
+                                              deploymentConfig)
                            .header(CONTENT_TYPE, MimeType.APPLICATION_JSON)
                            .header(ACCEPT, MimeType.APPLICATION_JSON)
                            .loader(loader, "Creating deployment config...")
@@ -131,7 +135,7 @@ public class OpenshiftServiceClientImpl implements OpenshiftServiceClient {
 
     @Override
     public void createRoute(Route route, AsyncRequestCallback<Route> callback) {
-        asyncRequestFactory.createPostRequest(openshiftPath + "/" +  route.getMetadata().getNamespace() +  "/route", route)
+        asyncRequestFactory.createPostRequest(openshiftPath + "/" + route.getMetadata().getNamespace() + "/route", route)
                            .header(CONTENT_TYPE, MimeType.APPLICATION_JSON)
                            .header(ACCEPT, MimeType.APPLICATION_JSON)
                            .loader(loader, "Creating route...")
@@ -140,10 +144,22 @@ public class OpenshiftServiceClientImpl implements OpenshiftServiceClient {
 
     @Override
     public void createService(Service service, AsyncRequestCallback<Service> callback) {
-        asyncRequestFactory.createPostRequest(openshiftPath + "/" +  service.getMetadata().getNamespace() +  "/service", service)
+        asyncRequestFactory.createPostRequest(openshiftPath + "/" + service.getMetadata().getNamespace() + "/service", service)
                            .header(CONTENT_TYPE, MimeType.APPLICATION_JSON)
                            .header(ACCEPT, MimeType.APPLICATION_JSON)
                            .loader(loader, "Creating service...")
+                           .send(callback);
+    }
+
+    @Override
+    public void getRoutes(String namespace, String application, AsyncRequestCallback<List<Route>> callback) {
+        String url = openshiftPath + "/" + namespace + "/route";
+        if (application != null) {
+            url += "?application=" + application;
+        }
+        asyncRequestFactory.createGetRequest(url)
+                           .header(ACCEPT, MimeType.APPLICATION_JSON)
+                           .loader(loader, "Getting routes...")
                            .send(callback);
     }
 }

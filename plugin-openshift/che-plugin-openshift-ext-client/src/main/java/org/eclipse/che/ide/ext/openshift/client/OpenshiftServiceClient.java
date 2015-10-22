@@ -50,4 +50,5 @@ public interface OpenshiftServiceClient {
 
     void createService(Service service, AsyncRequestCallback<Service> callback);
 
+    void getRoutes(String namespace, String application, AsyncRequestCallback<List<Route>> callback);
 }
