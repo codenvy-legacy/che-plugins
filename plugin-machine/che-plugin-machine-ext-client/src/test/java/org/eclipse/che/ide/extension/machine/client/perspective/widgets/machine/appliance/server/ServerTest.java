@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.appliance.server;
 
-import org.eclipse.che.api.machine.shared.dto.ServerDescriptor;
+import org.eclipse.che.api.machine.shared.dto.ServerDto;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,7 +31,7 @@ public class ServerTest {
     private static final String SOME_TEXT = "someText";
 
     @Mock
-    private ServerDescriptor descriptor;
+    private ServerDto descriptor;
 
     private Server server;
 

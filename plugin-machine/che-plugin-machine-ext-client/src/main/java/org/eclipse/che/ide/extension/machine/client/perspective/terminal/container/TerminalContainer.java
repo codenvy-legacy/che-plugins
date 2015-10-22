@@ -21,7 +21,6 @@ import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateH
 import org.eclipse.che.ide.extension.machine.client.perspective.terminal.TerminalPresenter;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.content.TabPresenter;
 
-import javax.validation.constraints.NotNull;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,9 +31,9 @@ import java.util.Map;
  */
 public class TerminalContainer implements TabPresenter, MachineStateHandler {
 
-    private final TerminalContainerView           view;
-    private final TerminalFactory                 terminalFactory;
-    private final Map<Machine, TerminalPresenter> terminals;
+    private final TerminalContainerView          view;
+    private final TerminalFactory                terminalFactory;
+    private final Map<String, TerminalPresenter> terminals;
 
     @Inject
     public TerminalContainer(TerminalContainerView view, TerminalFactory terminalFactory) {
@@ -50,8 +49,10 @@ public class TerminalContainer implements TabPresenter, MachineStateHandler {
      * @param machine
      *         machine for which terminal will be added or updated
      */
-    public void addOrShowTerminal(@NotNull Machine machine) {
-        TerminalPresenter terminal = terminals.get(machine);
+    public void addOrShowTerminal(Machine machine) {
+        String machineId = machine.getId();
+
+        TerminalPresenter terminal = terminals.get(machineId);
 
         if (terminal != null) {
             terminal.connect();
@@ -63,7 +64,7 @@ public class TerminalContainer implements TabPresenter, MachineStateHandler {
 
         TerminalPresenter newTerminal = terminalFactory.create(machine);
 
-        terminals.put(machine, newTerminal);
+        terminals.put(machineId, newTerminal);
 
         view.addTerminal(newTerminal);
     }
@@ -95,8 +96,8 @@ public class TerminalContainer implements TabPresenter, MachineStateHandler {
     /** {@inheritDoc} */
     @Override
     public void onMachineDestroyed(MachineStateEvent event) {
-        Machine destroyedMachine = event.getMachine();
+        String destroyedMachineId = event.getMachineId();
 
-        terminals.remove(destroyedMachine);
+        terminals.remove(destroyedMachineId);
     }
 }

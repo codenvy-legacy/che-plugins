@@ -13,12 +13,10 @@ package org.eclipse.che.ide.extension.machine.client.actions;
 import org.eclipse.che.api.analytics.client.logger.AnalyticsEventLogger;
 import org.eclipse.che.ide.api.action.ActionEvent;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
-import org.eclipse.che.ide.extension.machine.client.machine.Machine;
 import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
+import org.eclipse.che.ide.extension.machine.client.machine.MachineState;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.panel.MachinePanelPresenter;
-import org.eclipse.che.ide.ui.dialogs.ConfirmCallback;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
-import org.eclipse.che.ide.ui.dialogs.message.MessageDialog;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,11 +24,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -53,14 +47,14 @@ public class DestroyMachineActionTest {
     private DialogFactory               dialogFactory;
 
     @Mock
-    private Machine machine;
+    private MachineState machineState;
 
     @InjectMocks
     private DestroyMachineAction action;
 
     @Before
     public void setUp() {
-        when(panelPresenter.getSelectedMachine()).thenReturn(machine);
+        when(panelPresenter.getSelectedMachineState()).thenReturn(machineState);
     }
 
     @Test
@@ -73,12 +67,12 @@ public class DestroyMachineActionTest {
     public void actionShouldBePerformed() {
         action.actionPerformed(event);
 
-        verify(machineManager).destroyMachine(eq(machine));
+        verify(machineManager).destroyMachine(eq(machineState));
     }
 
 //    @Test
 //    public void devMachineShouldNotBeDestroyed() {
-//        when(machine.isDev()).thenReturn(true);
+//        when(machineState.isDev()).thenReturn(true);
 //        MessageDialog dialog = mock(MessageDialog.class);
 //        when(dialogFactory.createMessageDialog(anyString(), anyString(), any(ConfirmCallback.class))).thenReturn(dialog);
 //
@@ -86,6 +80,6 @@ public class DestroyMachineActionTest {
 //
 //        verify(dialogFactory).createMessageDialog(anyString(), anyString(), any(ConfirmCallback.class));
 //        verify(dialog).show();
-//        verify(machineManager, never()).destroyMachine(eq(machine));
+//        verify(machineManager, never()).destroyMachine(eq(machineState));
 //    }
 }

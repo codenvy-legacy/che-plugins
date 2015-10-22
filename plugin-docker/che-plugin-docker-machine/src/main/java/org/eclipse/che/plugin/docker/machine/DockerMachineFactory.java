@@ -12,12 +12,11 @@ package org.eclipse.che.plugin.docker.machine;
 
 import com.google.inject.assistedinject.Assisted;
 
-import org.eclipse.che.api.core.model.machine.Recipe;
+import org.eclipse.che.api.core.model.machine.MachineState;
 import org.eclipse.che.api.core.util.LineConsumer;
 import org.eclipse.che.api.machine.server.exception.MachineException;
 import org.eclipse.che.api.machine.server.spi.Instance;
 import org.eclipse.che.api.machine.server.spi.InstanceProcess;
-
 import org.eclipse.che.commons.annotation.Nullable;
 
 /**
@@ -32,16 +31,10 @@ public interface DockerMachineFactory {
                                   @Assisted int pid,
                                   @Assisted boolean isStarted) throws MachineException;
 
-    Instance createInstance(@Assisted("machineId") String machineId,
-                            @Assisted("workspaceId") String workspaceId,
-                            @Assisted boolean isDev,
-                            @Assisted("creator") String creator,
-                            @Assisted("displayName") String displayName,
+    Instance createInstance(@Assisted MachineState machineState,
                             @Assisted("container") String container,
                             @Assisted DockerNode node,
-                            @Assisted LineConsumer outputConsumer,
-                            @Assisted Recipe recipe,
-                            @Assisted int memorySizeMB) throws MachineException;
+                            @Assisted LineConsumer outputConsumer) throws MachineException;
 
     DockerNode createNode(@Assisted String containerId) throws MachineException;
 }

@@ -14,7 +14,6 @@ import org.eclipse.che.api.core.NotFoundException;
 import org.eclipse.che.api.machine.server.exception.SnapshotException;
 import org.eclipse.che.api.machine.server.impl.SnapshotImpl;
 import org.eclipse.che.api.machine.server.dao.SnapshotDao;
-import org.eclipse.che.api.machine.shared.ProjectBinding;
 
 import javax.inject.Singleton;
 import java.util.List;
@@ -38,7 +37,7 @@ public class DummySnapshotDao implements SnapshotDao {
     }
 
     @Override
-    public List<SnapshotImpl> findSnapshots(String owner, String workspaceId, ProjectBinding project) throws SnapshotException  {
+    public List<SnapshotImpl> findSnapshots(String owner, String workspaceId) throws SnapshotException  {
         throw new SnapshotException ("Not available for dummy implementation");
     }
 

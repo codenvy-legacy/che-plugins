@@ -12,10 +12,11 @@ package org.eclipse.che.ide.extension.machine.client.inject.factories;
 
 import com.google.inject.assistedinject.Assisted;
 
-import org.eclipse.che.api.machine.shared.dto.MachineDescriptor;
-import org.eclipse.che.api.machine.shared.dto.MachineStateDescriptor;
-import org.eclipse.che.api.machine.shared.dto.ServerDescriptor;
+import org.eclipse.che.api.machine.shared.dto.MachineDto;
+import org.eclipse.che.api.machine.shared.dto.MachineStateDto;
+import org.eclipse.che.api.machine.shared.dto.ServerDto;
 import org.eclipse.che.api.machine.shared.dto.recipe.RecipeDescriptor;
+import org.eclipse.che.commons.annotation.Nullable;
 import org.eclipse.che.ide.extension.machine.client.machine.Machine;
 import org.eclipse.che.ide.extension.machine.client.machine.MachineState;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.appliance.server.Server;
@@ -27,7 +28,6 @@ import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.cont
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.header.TabHeader;
 
 import javax.validation.constraints.NotNull;
-import org.eclipse.che.commons.annotation.Nullable;
 import java.util.Collection;
 
 /**
@@ -43,14 +43,14 @@ public interface EntityFactory {
      *
      * @return an instance of {@link Machine}
      */
-    Machine createMachine(@NotNull MachineDescriptor descriptor);
+    Machine createMachine(@NotNull MachineDto descriptor);
 
     /**
      * Creates machine state object.
      *
      * @return an instance of {@link MachineState}
      */
-    MachineState createMachineState(@NotNull MachineStateDescriptor descriptor);
+    MachineState createMachineState(@NotNull MachineStateDto descriptor);
 
     /**
      * Creates tab entity using special parameters.
@@ -82,7 +82,7 @@ public interface EntityFactory {
      *         server descriptor which contains information about current server
      * @return an instance of {@link Server}
      */
-    Server createServer(@NotNull String port, @NotNull ServerDescriptor descriptor);
+    Server createServer(@NotNull String port, @NotNull ServerDto descriptor);
 
     /**
      * Creates machine node which will be displayed in special table on view.

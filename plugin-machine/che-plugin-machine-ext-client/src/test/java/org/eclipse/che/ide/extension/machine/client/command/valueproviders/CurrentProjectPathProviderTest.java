@@ -13,16 +13,16 @@ package org.eclipse.che.ide.extension.machine.client.command.valueproviders;
 import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
-import org.eclipse.che.api.machine.shared.dto.MachineDescriptor;
+import org.eclipse.che.api.machine.shared.dto.MachineDto;
+import org.eclipse.che.api.machine.shared.dto.MachineMetadataDto;
 import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.Promise;
-import org.eclipse.che.api.workspace.shared.dto.MachineMetadataDto;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.event.project.CloseCurrentProjectEvent;
 import org.eclipse.che.ide.api.event.project.ProjectReadyEvent;
-import org.eclipse.che.ide.extension.machine.client.machine.Machine;
+import org.eclipse.che.ide.extension.machine.client.machine.MachineState;
 import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateEvent;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,6 +39,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -60,9 +61,9 @@ public class CurrentProjectPathProviderTest {
     private CurrentProjectPathProvider currentProjectPathProvider;
 
     @Mock
-    private Promise<MachineDescriptor>                   machinePromise;
+    private Promise<MachineDto>                   machinePromise;
     @Captor
-    private ArgumentCaptor<Operation<MachineDescriptor>> machineCaptor;
+    private ArgumentCaptor<Operation<MachineDto>> machineCaptor;
 
     @Before
     public void setUp() {
@@ -89,20 +90,28 @@ public class CurrentProjectPathProviderTest {
 
     @Test
     public void shouldReturnPathAfterRunningMachine() throws Exception {
-        final Machine machineMock = mock(Machine.class);
+        MachineState machineMock = mock(MachineState.class);
+        MachineStateEvent machineStateEvent = mock(MachineStateEvent.class);
+        CurrentProject currentProject = mock(CurrentProject.class);
+        ProjectDescriptor projectDescriptor = mock(ProjectDescriptor.class);
+
+        when(appContext.getCurrentProject()).thenReturn(currentProject);
+        when(currentProject.getProjectDescription()).thenReturn(projectDescriptor);
+
         when(machineMock.isDev()).thenReturn(Boolean.TRUE);
-        when(machineMock.getProjectsRoot()).thenReturn(PROJECTS_ROOT);
-        final MachineStateEvent machineStateEvent = mock(MachineStateEvent.class);
         when(machineStateEvent.getMachine()).thenReturn(machineMock);
+        when(machineMock.isDev()).thenReturn(true);
 
         currentProjectPathProvider.onMachineRunning(machineStateEvent);
 
-        assertThat(currentProjectPathProvider.getValue(), equalTo(PROJECTS_ROOT + PROJECT_PATH));
+        verify(appContext, times(2)).getCurrentProject();
+        verify(currentProject).getProjectDescription();
+        verify(projectDescriptor).getPath();
     }
 
     @Test
     public void shouldReturnEmptyValueAfterDestroyingMachine() throws Exception {
-        final Machine machineMock = mock(Machine.class);
+        final MachineState machineMock = mock(MachineState.class);
         when(machineMock.isDev()).thenReturn(Boolean.FALSE);
         final MachineStateEvent machineStateEvent = mock(MachineStateEvent.class);
         when(machineStateEvent.getMachine()).thenReturn(machineMock);
@@ -120,7 +129,7 @@ public class CurrentProjectPathProviderTest {
 
         final MachineMetadataDto machineMetadataMock = mock(MachineMetadataDto.class);
         when(machineMetadataMock.projectsRoot()).thenReturn(PROJECTS_ROOT);
-        final MachineDescriptor machineDescriptorMock = mock(MachineDescriptor.class);
+        final MachineDto machineDescriptorMock = mock(MachineDto.class);
         when(machineDescriptorMock.getMetadata()).thenReturn(machineMetadataMock);
         when(machinePromise.then(Matchers.any(Operation.class))).thenReturn(machinePromise);
 

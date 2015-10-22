@@ -10,28 +10,37 @@
  *******************************************************************************/
 package org.eclipse.che.plugin.docker.machine;
 
-import org.eclipse.che.api.machine.server.exception.MachineException;
-import org.eclipse.che.api.machine.server.spi.InstanceMetadata;
+import org.eclipse.che.api.core.model.machine.MachineMetadata;
+import org.eclipse.che.api.core.model.machine.Server;
+import org.eclipse.che.api.machine.server.model.impl.ServerImpl;
 import org.eclipse.che.plugin.docker.client.json.ContainerInfo;
+import org.eclipse.che.plugin.docker.client.json.PortBinding;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
- * Docker implementation of {@link InstanceMetadata}
+ * Docker implementation of {@link MachineMetadata}
  *
  * @author andrew00x
  * @author Alexander Garagatyi
  */
-public class DockerInstanceMetadata implements InstanceMetadata {
-    static final String PROJECTS_ROOT_VARIABLE = "CHE_PROJECTS_ROOT";
+public class DockerInstanceMetadata implements MachineMetadata {
+    protected static final String  PROJECTS_ROOT_VARIABLE = "CHE_PROJECTS_ROOT";
+    protected static final Pattern SERVICE_LABEL_PATTERN  =
+            Pattern.compile("che:server:(?<port>[0-9]+(/tcp|/udp)?):(?<servprop>ref|protocol)");
 
     private final ContainerInfo info;
+    private final DockerNode    node;
 
-    public DockerInstanceMetadata(ContainerInfo containerInfo) throws MachineException {
+    public DockerInstanceMetadata(ContainerInfo containerInfo, DockerNode node) {
         this.info = containerInfo;
+        this.node = node;
     }
 
     @Override
@@ -139,12 +148,64 @@ public class DockerInstanceMetadata implements InstanceMetadata {
     }
 
     @Override
-    public String getProjectsRoot() {
+    public String projectsRoot() {
         return getEnvVariables().get(PROJECTS_ROOT_VARIABLE);
     }
 
     @Override
-    public String toJson() {
-        return info.toString();
+    public Map<String, Server> getServers() {
+        return addDefaultReferenceForServersWithoutReference(
+                addRefAndUrlToServerFromImageLabels(getServersWithFilledPorts(node.getHost(),
+                                                                              info.getNetworkSettings().getPorts()),
+                                                    info.getConfig().getLabels()));
+    }
+
+    private Map<String, Server> addDefaultReferenceForServersWithoutReference(Map<String, Server> servers) {
+        // replace / if server port contains it. E.g. 5411/udp
+        servers.entrySet()
+               .stream()
+               .filter(server -> server.getValue().getRef() == null)
+               .forEach(server -> {
+                   // replace / if server port contains it. E.g. 5411/udp
+                   ((ServerImpl)server.getValue()).setRef("Server-" + server.getKey().replace("/", "-"));
+               });
+        return servers;
+    }
+
+    protected HashMap<String, Server> getServersWithFilledPorts(final String host, final Map<String, List<PortBinding>> exposedPorts) {
+        final HashMap<String, Server> servers = new LinkedHashMap<>();
+
+        for (Map.Entry<String, List<PortBinding>> portEntry : exposedPorts.entrySet()) {
+            // in form 1234/tcp or 1234
+            String portOrPortUdp = portEntry.getKey();
+            // we are assigning ports automatically, so have 1 to 1 binding (at least per protocol)
+            if (!portOrPortUdp.endsWith("/udp")) {
+                // cut off /tcp if it presents
+                portOrPortUdp = portOrPortUdp.split("/", 2)[0];
+            }
+            final PortBinding portBinding = portEntry.getValue().get(0);
+            servers.put(portOrPortUdp, new ServerImpl(null, host + ":" + portBinding.getHostPort(), null));
+        }
+
+        return servers;
+    }
+
+    protected Map<String, Server> addRefAndUrlToServerFromImageLabels(final Map<String, Server> servers, final Map<String, String> labels) {
+        for (Map.Entry<String, String> label : labels.entrySet()) {
+            final Matcher matcher = SERVICE_LABEL_PATTERN.matcher(label.getKey());
+            if (matcher.matches()) {
+                final String port = matcher.group("port");
+                if (servers.containsKey(port)) {
+                    final ServerImpl server = (ServerImpl)servers.get(port);
+                    if ("ref".equals(matcher.group("servprop"))) {
+                        server.setRef(label.getValue());
+                    } else {
+                        // value is protocol
+                        server.setUrl(label.getValue() + "://" + server.getAddress());
+                    }
+                }
+            }
+        }
+        return servers;
     }
 }

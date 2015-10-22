@@ -15,6 +15,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.event.shared.EventBus;
 
+import org.eclipse.che.commons.annotation.Nullable;
 import org.eclipse.che.ide.api.event.ActivePartChangedEvent;
 import org.eclipse.che.ide.api.event.ActivePartChangedHandler;
 import org.eclipse.che.ide.client.inject.factories.TabItemFactory;
@@ -38,7 +39,6 @@ import org.eclipse.che.ide.part.PartStackPresenter;
 import org.eclipse.che.ide.part.PartsComparator;
 
 import javax.validation.constraints.NotNull;
-import org.eclipse.che.commons.annotation.Nullable;
 
 /**
  * The class is a container for tab panels which display additional information about machine and adds ability to control machine's
@@ -148,7 +148,7 @@ public class MachineAppliancePresenter extends PartStackPresenter implements Act
      * @param machine
      *         machine for which need show info
      */
-    public void showAppliance(@NotNull Machine machine) {
+    public void showAppliance(Machine machine) {
         selectedMachine = machine;
 
         view.showContainer(tabContainer.getView());

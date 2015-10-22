@@ -15,7 +15,7 @@ import com.google.inject.Singleton;
 import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
-import org.eclipse.che.api.machine.shared.dto.MachineDescriptor;
+import org.eclipse.che.api.machine.shared.dto.MachineDto;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.PromiseError;
@@ -25,7 +25,7 @@ import org.eclipse.che.ide.api.event.project.CloseCurrentProjectEvent;
 import org.eclipse.che.ide.api.event.project.CloseCurrentProjectHandler;
 import org.eclipse.che.ide.api.event.project.ProjectReadyEvent;
 import org.eclipse.che.ide.api.event.project.ProjectReadyHandler;
-import org.eclipse.che.ide.extension.machine.client.machine.Machine;
+import org.eclipse.che.ide.extension.machine.client.machine.MachineState;
 import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateEvent;
 import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateHandler;
 
@@ -74,14 +74,14 @@ public class CurrentProjectPathProvider implements CommandPropertyValueProvider,
 
     @Override
     public void onMachineRunning(MachineStateEvent event) {
-        final CurrentProject currentProject = appContext.getCurrentProject();
-        final Machine machine = event.getMachine();
+        CurrentProject currentProject  = appContext.getCurrentProject();
+
+        final MachineState machine = event.getMachine();
         if (currentProject == null || !machine.isDev()) {
             return;
         }
 
-        final String projectsRoot = machine.getProjectsRoot();
-        value = projectsRoot + currentProject.getProjectDescription().getPath();
+        value = currentProject.getProjectDescription().getPath();
     }
 
     @Override
@@ -108,9 +108,9 @@ public class CurrentProjectPathProvider implements CommandPropertyValueProvider,
             return;
         }
 
-        machineServiceClient.getMachine(devMachineId).then(new Operation<MachineDescriptor>() {
+        machineServiceClient.getMachine(devMachineId).then(new Operation<MachineDto>() {
             @Override
-            public void apply(MachineDescriptor arg) throws OperationException {
+            public void apply(MachineDto arg) throws OperationException {
                 final String projectsRoot = arg.getMetadata().projectsRoot();
                 value = projectsRoot + currentProject.getProjectDescription().getPath();
             }

@@ -20,17 +20,18 @@ import com.google.web.bindery.event.shared.EventBus;
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
 import org.eclipse.che.api.machine.gwt.client.events.ExtServerStateEvent;
 import org.eclipse.che.api.machine.gwt.client.events.ExtServerStateHandler;
-import org.eclipse.che.api.machine.shared.dto.MachineDescriptor;
+import org.eclipse.che.api.machine.shared.dto.MachineDto;
+import org.eclipse.che.api.machine.shared.dto.MachineStateDto;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.commons.annotation.Nullable;
-import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.parts.base.BasePresenter;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.MachineResources;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.EntityFactory;
 import org.eclipse.che.ide.extension.machine.client.machine.Machine;
+import org.eclipse.che.ide.extension.machine.client.machine.MachineState;
 import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateEvent;
 import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateHandler;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.appliance.MachineAppliancePresenter;
@@ -57,10 +58,11 @@ public class MachinePanelPresenter extends BasePresenter implements MachinePanel
     private final MachineLocalizationConstant locale;
     private final MachineAppliancePresenter   appliance;
     private final MachineResources            resources;
-    private final AppContext                  appContext;
+    private final List<Machine>               createdMachines;
 
-    private Machine selectedMachine;
-    private boolean isFirstNode;
+    private Machine      selectedMachine;
+    private boolean      isFirstNode;
+    private MachineState selectedMachineState;
 
     @Inject
     public MachinePanelPresenter(MachinePanelView view,
@@ -69,8 +71,7 @@ public class MachinePanelPresenter extends BasePresenter implements MachinePanel
                                  MachineLocalizationConstant locale,
                                  MachineAppliancePresenter appliance,
                                  EventBus eventBus,
-                                 MachineResources resources,
-                                 AppContext appContext) {
+                                 MachineResources resources) {
         this.view = view;
         this.view.setDelegate(this);
 
@@ -79,7 +80,8 @@ public class MachinePanelPresenter extends BasePresenter implements MachinePanel
         this.locale = locale;
         this.appliance = appliance;
         this.resources = resources;
-        this.appContext = appContext;
+
+        this.createdMachines = new ArrayList<>();
 
         eventBus.addHandler(MachineStateEvent.TYPE, this);
         eventBus.addHandler(ExtServerStateEvent.TYPE, this);
@@ -87,14 +89,12 @@ public class MachinePanelPresenter extends BasePresenter implements MachinePanel
 
     /** Gets all machines and adds them to special place on view. */
     public void showMachines() {
-        String workspaceId = appContext.getWorkspace().getId();
+        Promise<List<MachineStateDto>> machinesPromise = service.getMachinesStates(null);
 
-        Promise<List<MachineDescriptor>> machinesPromise = service.getWorkspaceMachines(workspaceId);
-
-        machinesPromise.then(new Operation<List<MachineDescriptor>>() {
+        machinesPromise.then(new Operation<List<MachineStateDto>>() {
             @Override
-            public void apply(List<MachineDescriptor> machines) throws OperationException {
-                if (machines.isEmpty()) {
+            public void apply(List<MachineStateDto> machineStates) throws OperationException {
+                if (machineStates.isEmpty()) {
                     appliance.showStub();
                     selectedMachine = null;
                 }
@@ -107,8 +107,8 @@ public class MachinePanelPresenter extends BasePresenter implements MachinePanel
 
                 MachineTreeNode selectedNode = null;
 
-                for (MachineDescriptor descriptor : machines) {
-                    Machine machine = entityFactory.createMachine(descriptor);
+                for (MachineStateDto descriptor : machineStates) {
+                    MachineState machine = entityFactory.createMachineState(descriptor);
                     MachineTreeNode machineNode = entityFactory.createMachineNode(rootNode, machine, null);
 
                     rootChildren.add(machineNode);
@@ -127,19 +127,40 @@ public class MachinePanelPresenter extends BasePresenter implements MachinePanel
         });
     }
 
+    public MachineState getSelectedMachineState() {
+        return selectedMachineState;
+    }
+
     public Machine getSelectedMachine() {
         return selectedMachine;
     }
 
     /** {@inheritDoc} */
     @Override
-    public void onMachineSelected(@NotNull Machine selectedMachine) {
-        if (this.selectedMachine != null && this.selectedMachine.equals(selectedMachine)) {
-            return;
-        }
+    public void onMachineSelected(MachineState selectedMachineState) {
+        this.selectedMachineState = selectedMachineState;
 
-        this.selectedMachine = selectedMachine;
-        appliance.showAppliance(selectedMachine);
+        Promise<MachineDto> machineDtoPromise = service.getMachine(selectedMachineState.getId());
+
+        machineDtoPromise.then(new Operation<MachineDto>() {
+            @Override
+            public void apply(MachineDto machineDto) throws OperationException {
+                Machine machine = entityFactory.createMachine(machineDto);
+
+                int cachedMachineIndex = createdMachines.indexOf(machine);
+
+                boolean isMachineNotCached = cachedMachineIndex < 0;
+
+                selectedMachine = isMachineNotCached ? machine : createdMachines.get(cachedMachineIndex);
+
+                if (isMachineNotCached) {
+                    createdMachines.add(machine);
+                }
+
+                appliance.showAppliance(selectedMachine);
+            }
+        });
+
     }
 
     /** {@inheritDoc} */

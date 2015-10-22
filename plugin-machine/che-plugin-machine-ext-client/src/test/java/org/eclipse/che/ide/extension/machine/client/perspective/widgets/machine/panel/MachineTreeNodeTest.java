@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.panel;
 
-import org.eclipse.che.ide.extension.machine.client.machine.Machine;
+import org.eclipse.che.ide.extension.machine.client.machine.MachineState;
 import org.eclipse.che.ide.ui.tree.TreeNodeElement;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,7 +40,7 @@ public class MachineTreeNodeTest {
     @Mock
     private MachineTreeNode                  parent;
     @Mock
-    private Machine                          data;
+    private MachineState                     data;
     @Mock
     private Collection<MachineTreeNode>      children;
     @Mock

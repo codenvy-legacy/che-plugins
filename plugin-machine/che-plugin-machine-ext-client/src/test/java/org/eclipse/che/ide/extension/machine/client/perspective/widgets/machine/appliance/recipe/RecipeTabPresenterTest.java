@@ -34,13 +34,6 @@ public class RecipeTabPresenterTest {
     private RecipeTabPresenter presenter;
 
     @Test
-    public void recipeShouldBeUpdated() throws Exception {
-        presenter.updateInfo(machine);
-
-        //TODO recipe content
-    }
-
-    @Test
     public void viewShouldBeReturned() throws Exception {
         assertEquals(view, presenter.getView());
     }
