@@ -13,22 +13,27 @@ package org.eclipse.che.ide.extension.maven.client.wizard;
 import org.eclipse.che.ide.extension.maven.client.MavenArchetype;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.KeyUpEvent;
+import com.google.gwt.event.dom.client.MouseOverEvent;
+import com.google.gwt.event.dom.client.MouseOverHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
+import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.inject.Inject;
 
-
-import org.eclipse.che.ide.ui.customListBox.CustomListBox;
+import org.eclipse.che.ide.ui.listbox.CustomListBox;
+import org.eclipse.che.ide.extension.maven.client.MavenLocalizationConstant;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,6 +54,10 @@ public class MavenPageViewImpl implements MavenPageView {
     @UiField
     TextBox       artifactId;
     @UiField
+    Button        artifactIdTooltipButton;
+    @UiField
+    Button        groupIdTooltipButton;
+    @UiField
     Label         packagingLabel;
     @UiField
     CustomListBox packagingField;
@@ -58,20 +67,51 @@ public class MavenPageViewImpl implements MavenPageView {
     Label         archetypeLabel;
     @UiField
     CustomListBox archetypeField;
+
     private ActionDelegate       delegate;
     private List<MavenArchetype> archetypes;
 
-    public MavenPageViewImpl() {
+    @Inject
+    public MavenPageViewImpl(MavenLocalizationConstant localizedConstant) {
         rootElement = ourUiBinder.createAndBindUi(this);
         archetypes = new ArrayList<>();
 
         artifactId.setFocus(true);
 
+        packagingField.addItem("not specified", "");
         packagingField.addItem("JAR", "jar");
         packagingField.addItem("WAR", "war");
         packagingField.addItem("POM", "pom");
         packagingField.setSelectedIndex(0);
         generateFromArchetype.setValue(false);
+
+        final Element artifactIdTooltip = DOM.createSpan();
+        artifactIdTooltip.setInnerText(localizedConstant.mavenPageArtifactIdTooltip());
+
+        artifactIdTooltipButton.addMouseOverHandler(new MouseOverHandler() {
+            @Override
+            public void onMouseOver(MouseOverEvent event) {
+                final Element link = event.getRelativeElement();
+                if (!link.isOrHasChild(artifactIdTooltip)) {
+                    link.appendChild(artifactIdTooltip);
+                }
+            }
+        });
+        artifactIdTooltipButton.addStyleName(style.tooltip());
+
+        final Element groupIdTooltip = DOM.createSpan();
+        groupIdTooltip.setInnerText(localizedConstant.mavenPageGroupIdTooltip());
+
+        groupIdTooltipButton.addMouseOverHandler(new MouseOverHandler() {
+            @Override
+            public void onMouseOver(MouseOverEvent event) {
+                final Element link = event.getRelativeElement();
+                if (!link.isOrHasChild(groupIdTooltip)) {
+                    link.appendChild(groupIdTooltip);
+                }
+            }
+        });
+        groupIdTooltipButton.addStyleName(style.tooltip());
     }
 
     @Override
@@ -231,5 +271,6 @@ public class MavenPageViewImpl implements MavenPageView {
 
     interface Style extends CssResource {
         String inputError();
+        String tooltip();
     }
 }

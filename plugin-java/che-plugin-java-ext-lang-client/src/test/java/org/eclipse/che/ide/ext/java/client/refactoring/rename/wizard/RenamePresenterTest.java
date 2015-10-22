@@ -38,8 +38,8 @@ import org.eclipse.che.ide.ext.java.client.refactoring.rename.wizard.similarname
 import org.eclipse.che.ide.ext.java.client.refactoring.service.RefactoringServiceClient;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ChangeCreationResult;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.CreateRenameRefactoring;
+import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringResult;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringSession;
-import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatus;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RenameRefactoringSession;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RenameSettings;
 import org.eclipse.che.ide.jseditor.client.texteditor.TextEditor;
@@ -109,7 +109,7 @@ public class RenamePresenterTest {
     @Mock
     private RenameSettings           renameSettings;
     @Mock
-    private RefactoringStatus        refactoringStatus;
+    private RefactoringResult        refactoringStatus;
     @Mock
     private CreateRenameRefactoring  createRenameRefactoringDto;
     @Mock
@@ -130,7 +130,7 @@ public class RenamePresenterTest {
     @Mock
     private Promise<ChangeCreationResult>     changeCreationResultPromise;
     @Mock
-    private Promise<RefactoringStatus>        refactoringStatusPromise;
+    private Promise<RefactoringResult>        refactoringStatusPromise;
 
     @Captor
     private ArgumentCaptor<Operation<RenameRefactoringSession>>           renameRefactoringSessionCaptor;
@@ -141,7 +141,7 @@ public class RenamePresenterTest {
     @Captor
     private ArgumentCaptor<Operation<ChangeCreationResult>>               changeCreationResultCaptor;
     @Captor
-    private ArgumentCaptor<Operation<RefactoringStatus>>                  refactoringStatusCaptor;
+    private ArgumentCaptor<Operation<RefactoringResult>>                  refactoringStatusCaptor;
 
     @InjectMocks
     private RenamePresenter renamePresenter;

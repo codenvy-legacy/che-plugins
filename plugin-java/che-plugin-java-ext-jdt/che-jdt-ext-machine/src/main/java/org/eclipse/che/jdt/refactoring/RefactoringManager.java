@@ -27,6 +27,7 @@ import org.eclipse.che.ide.ext.java.shared.dto.refactoring.LinkedRenameRefactori
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.MoveSettings;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringChange;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringPreview;
+import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringResult;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatus;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RenameRefactoringSession;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RenameSettings;
@@ -238,14 +239,15 @@ public class RefactoringManager {
     /**
      * Apply refactoring.
      * @param sessionId id of the refactoring session
-     * @return refactoring status
+     * @return refactoring result
      * @throws RefactoringException  when refactoring session not found.
      */
-    public RefactoringStatus applyRefactoring(String sessionId) throws RefactoringException {
+    public RefactoringResult applyRefactoring(String sessionId) throws RefactoringException {
         RefactoringSession session = getRefactoringSession(sessionId);
-        org.eclipse.ltk.core.refactoring.RefactoringStatus status = session.apply();
+        RefactoringResult result = session.apply();
         deleteRefactoringSession(sessionId);
-        return DtoConverter.toRefactoringStatusDto(status);
+
+        return result;
     }
 
     private void deleteRefactoringSession(String sessionId) {
@@ -329,23 +331,23 @@ public class RefactoringManager {
     /**
      * Apply linked mode rename refactoring.
      * @param apply  contains new element name
-     * @return refactoring status
+     * @return refactoring result
      * @throws RefactoringException  when refactoring session not found.
      * @throws CoreException when impossible to apply rename refactoring
      */
-    public RefactoringStatus applyLinkedRename(LinkedRenameRefactoringApply apply)
+    public RefactoringResult applyLinkedRename(LinkedRenameRefactoringApply apply)
             throws RefactoringException, CoreException {
         RefactoringSession session = getRefactoringSession(apply.getSessionId());
         if (session instanceof RenameLinkedModeRefactoringSession) {
             RenameLinkedModeRefactoringSession renameSession = (RenameLinkedModeRefactoringSession)session;
             try {
-                org.eclipse.ltk.core.refactoring.RefactoringStatus refactoringStatus = renameSession.doRename(apply.getNewName());
+                RefactoringResult refactoringResult = renameSession.doRename(apply.getNewName());
                 deleteRefactoringSession(apply.getSessionId());
-                return DtoConverter.toRefactoringStatusDto(refactoringStatus);
+                return refactoringResult;
             } catch (InvocationTargetException | InterruptedException | AssertionFailedException e) {
                 LOG.error(e.getMessage(), e);
                 return DtoConverter
-                        .toRefactoringStatusDto(org.eclipse.ltk.core.refactoring.RefactoringStatus.createFatalErrorStatus(e.getMessage()));
+                        .toRefactoringResultDto(org.eclipse.ltk.core.refactoring.RefactoringStatus.createFatalErrorStatus(e.getMessage()));
             }
         }
 

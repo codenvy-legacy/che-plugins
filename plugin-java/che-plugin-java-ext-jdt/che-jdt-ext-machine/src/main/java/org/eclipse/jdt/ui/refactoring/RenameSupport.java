@@ -38,6 +38,7 @@ import org.eclipse.jdt.internal.corext.refactoring.tagging.ITextUpdating;
 import org.eclipse.jdt.internal.corext.util.JdtFlags;
 import org.eclipse.jdt.internal.ui.JavaUIMessages;
 import org.eclipse.jdt.internal.ui.refactoring.RefactoringExecutionHelper;
+import org.eclipse.ltk.core.refactoring.PerformChangeOperation;
 import org.eclipse.ltk.core.refactoring.RefactoringCore;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.participants.RenameRefactoring;
@@ -56,8 +57,9 @@ import java.lang.reflect.InvocationTargetException;
  */
 public class RenameSupport {
 
-	private RenameRefactoring fRefactoring;
-	private RefactoringStatus fPreCheckStatus;
+	private RenameRefactoring      fRefactoring;
+	private RefactoringStatus      fPreCheckStatus;
+	private PerformChangeOperation fPerformChangeOperation;
 
 	/**
 	 * Executes some light weight precondition checking. If the returned status
@@ -82,9 +84,13 @@ public class RenameSupport {
 			return Status.OK_STATUS;
 	}
 
-    public RenameRefactoring getfRefactoring() {
-        return fRefactoring;
-    }
+	public RenameRefactoring getfRefactoring() {
+		return fRefactoring;
+	}
+
+	public PerformChangeOperation getfPerformChangeOperation() {
+		return fPerformChangeOperation;
+	}
 
 //	/**
 //	 * Opens the refactoring dialog for this rename support.
@@ -168,7 +174,11 @@ public class RenameSupport {
 			RefactoringExecutionHelper helper= new RefactoringExecutionHelper(fRefactoring,
 					RefactoringCore.getConditionCheckingFailedSeverity(),
 					getJavaRenameProcessor().getSaveMode());
-			return helper.perform(true, true);
+
+			RefactoringStatus status = helper.perform(true, true);
+			fPerformChangeOperation = helper.getfPerformChangeOperation();
+
+			return status;
 
 		} catch (CoreException e) {
 			throw new InvocationTargetException(e);

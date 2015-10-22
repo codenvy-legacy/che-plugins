@@ -8,7 +8,6 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-
 package org.eclipse.che.ide.ext.java.shared.dto.refactoring;
 
 import org.eclipse.che.dto.shared.DTO;
@@ -28,12 +27,12 @@ public interface RefactoringStatus {
     /**
      * Status severity constant (value 0) indicating this status represents the nominal case.
      */
-    int OK= 0;
+    int OK = 0;
 
     /**
      * Status severity constant (value 1) indicating this status is informational only.
      */
-    int INFO= 1;
+    int INFO = 1;
 
     /**
      * Status severity constant (value 2) indicating this status represents a warning.
@@ -42,7 +41,7 @@ public interface RefactoringStatus {
      * user could not be aware of problems or confusions resulting from the execution.
      * </p>
      */
-    int WARNING= 2;
+    int WARNING = 2;
 
     /**
      * Status severity constant (value 3) indicating this status represents an error.
@@ -52,7 +51,7 @@ public interface RefactoringStatus {
      * state (e.g. compile errors).
      * </p>
      */
-    int ERROR= 3;
+    int ERROR = 3;
 
     /**
      * Status severity constant (value 4) indicating this status represents a fatal error.
@@ -63,7 +62,7 @@ public interface RefactoringStatus {
      * (e.g. if just one reference to a refactored element cannot be updated).
      * </p>
      */
-    int FATAL= 4;
+    int FATAL = 4;
 
     /**
      * Returns the severity.
@@ -82,4 +81,5 @@ public interface RefactoringStatus {
     List<RefactoringStatusEntry> getEntries();
 
     void setEntries(List<RefactoringStatusEntry> entries);
+
 }

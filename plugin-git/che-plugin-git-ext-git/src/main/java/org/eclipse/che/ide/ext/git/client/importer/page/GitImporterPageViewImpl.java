@@ -11,10 +11,10 @@
 package org.eclipse.che.ide.ext.git.client.importer.page;
 
 import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.FlowPanel;
 import org.eclipse.che.ide.ext.git.client.GitResources;
-import org.eclipse.che.ide.ui.Styles;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
@@ -247,7 +247,7 @@ public class GitImporterPageViewImpl extends Composite implements GitImporterPag
     interface GitImporterPageViewImplUiBinder extends UiBinder<DockLayoutPanel, GitImporterPageViewImpl> {
     }
 
-    public interface Style extends Styles {
+    public interface Style extends CssResource {
         String mainPanel();
 
         String namePanel();
@@ -269,6 +269,10 @@ public class GitImporterPageViewImpl extends Composite implements GitImporterPag
         String label();
 
         String horizontalLine();
+
+        String inputField();
+
+        String inputError();
     }
 
 }

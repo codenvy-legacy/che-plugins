@@ -33,6 +33,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.google.common.base.MoreObjects.firstNonNull;
 import static org.eclipse.che.ide.api.project.type.wizard.ProjectWizardMode.CREATE;
 import static org.eclipse.che.ide.api.project.type.wizard.ProjectWizardMode.CREATE_MODULE;
 import static org.eclipse.che.ide.api.project.type.wizard.ProjectWizardMode.UPDATE;
@@ -284,10 +285,10 @@ public class MavenPagePresenter extends AbstractWizardPage<ImportProject> implem
     private String getAttribute(String attrId) {
         Map<String, List<String>> attributes = dataObject.getProject().getAttributes();
         List<String> values = attributes.get(attrId);
-        if (!(values == null || values.isEmpty())) {
-            return values.get(0);
+        if (values == null || values.isEmpty()) {
+            return "";
         }
-        return "";
+        return firstNonNull(values.get(0), "");
     }
 
     /** Sets single value of attribute of data-object. */

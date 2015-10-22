@@ -12,7 +12,7 @@
 -->
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
              xmlns:g='urn:import:com.google.gwt.user.client.ui'
-             xmlns:che='urn:import:org.eclipse.che.ide.ui.customListBox'>
+             xmlns:che='urn:import:org.eclipse.che.ide.ui.listbox'>
 
     <ui:style>
         .main {

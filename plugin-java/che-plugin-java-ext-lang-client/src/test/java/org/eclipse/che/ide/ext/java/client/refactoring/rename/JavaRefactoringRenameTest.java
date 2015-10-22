@@ -34,7 +34,7 @@ import org.eclipse.che.ide.ext.java.client.refactoring.service.RefactoringServic
 import org.eclipse.che.ide.ext.java.shared.dto.LinkedModeModel;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.CreateRenameRefactoring;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.LinkedRenameRefactoringApply;
-import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatus;
+import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringResult;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatusEntry;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RenameRefactoringSession;
 import org.eclipse.che.ide.jseditor.client.document.EmbeddedDocument;
@@ -138,9 +138,9 @@ public class JavaRefactoringRenameTest {
     @Mock
     private InputDialog                       dialog;
     @Mock
-    private Promise<RefactoringStatus>        applyModelPromise;
+    private Promise<RefactoringResult>        applyModelPromise;
     @Mock
-    private RefactoringStatus                 status;
+    private RefactoringResult                 result;
     @Mock
     private EditorPartPresenter               activeEditor;
     @Mock
@@ -151,7 +151,7 @@ public class JavaRefactoringRenameTest {
     @Captor
     private ArgumentCaptor<LinkedMode.LinkedModeListener>       inputArgumentCaptor;
     @Captor
-    private ArgumentCaptor<Operation<RefactoringStatus>>        refactoringStatusCaptor;
+    private ArgumentCaptor<Operation<RefactoringResult>>        refactoringStatusCaptor;
     @Captor
     private ArgumentCaptor<Operation<PromiseError>>             refactoringErrorCaptor;
 
@@ -182,7 +182,7 @@ public class JavaRefactoringRenameTest {
         when(virtualFile.getName()).thenReturn(JAVA_CLASS_FULL_NAME);
         when(refactoringServiceClient.createRenameRefactoring(createRenameRefactoringDto)).thenReturn(createRenamePromise);
         when(createRenamePromise.then((Operation<RenameRefactoringSession>)any())).thenReturn(createRenamePromise);
-        when(applyModelPromise.then((Operation<RefactoringStatus>)any())).thenReturn(applyModelPromise);
+        when(applyModelPromise.then((Operation<RefactoringResult>)any())).thenReturn(applyModelPromise);
         when(session.getLinkedModeModel()).thenReturn(linkedModel);
         when(session.getSessionId()).thenReturn(SESSION_ID);
         when(locale.renameDialogTitle()).thenReturn(TEXT);
@@ -199,12 +199,12 @@ public class JavaRefactoringRenameTest {
         when(((HasLinkedMode)textEditor).getLinkedMode()).thenReturn(linkedMode);
         when(((HasLinkedMode)textEditor).createLinkedModel()).thenReturn(editorLinkedModel);
 
-        when(status.getEntries()).thenReturn(Collections.singletonList(entry));
+        when(result.getEntries()).thenReturn(Collections.singletonList(entry));
     }
 
     @Test
     public void renameRefactoringShouldBeAppliedSuccess() throws OperationException {
-        when(status.getSeverity()).thenReturn(OK);
+        when(result.getSeverity()).thenReturn(OK);
 
         refactoringRename.refactor(textEditor);
 
@@ -217,7 +217,7 @@ public class JavaRefactoringRenameTest {
 
     @Test
     public void renameRefactoringShouldBeAppliedSuccessAndShowWizard() throws OperationException {
-        when(status.getSeverity()).thenReturn(OK);
+        when(result.getSeverity()).thenReturn(OK);
         when(session.isMastShowWizard()).thenReturn(true);
 
         refactoringRename.refactor(textEditor);
@@ -234,7 +234,7 @@ public class JavaRefactoringRenameTest {
         PromiseError arg = Mockito.mock(PromiseError.class);
         MessageDialog dialog = Mockito.mock(MessageDialog.class);
 
-        when(status.getSeverity()).thenReturn(OK);
+        when(result.getSeverity()).thenReturn(OK);
         when(session.isMastShowWizard()).thenReturn(true);
         when(locale.renameRename()).thenReturn("renameTitle");
         when(locale.renameOperationUnavailable()).thenReturn("renameBody");
@@ -253,7 +253,7 @@ public class JavaRefactoringRenameTest {
 
     @Test
     public void renameRefactoringShouldBeFailedByFatalError() throws OperationException {
-        when(status.getSeverity()).thenReturn(FATAL);
+        when(result.getSeverity()).thenReturn(FATAL);
 
         refactoringRename.refactor(textEditor);
 
@@ -264,7 +264,7 @@ public class JavaRefactoringRenameTest {
 
     @Test
     public void renameRefactoringShouldBeFailedByError() throws OperationException {
-        when(status.getSeverity()).thenReturn(ERROR);
+        when(result.getSeverity()).thenReturn(ERROR);
 
         refactoringRename.refactor(textEditor);
 
@@ -275,7 +275,7 @@ public class JavaRefactoringRenameTest {
 
     @Test
     public void renameRefactoringShouldBeWithWarning() throws OperationException {
-        when(status.getSeverity()).thenReturn(WARNING);
+        when(result.getSeverity()).thenReturn(WARNING);
 
         refactoringRename.refactor(textEditor);
 
@@ -286,7 +286,7 @@ public class JavaRefactoringRenameTest {
 
     @Test
     public void renameRefactoringShouldBeWithINFO() throws OperationException {
-        when(status.getSeverity()).thenReturn(INFO);
+        when(result.getSeverity()).thenReturn(INFO);
 
         refactoringRename.refactor(textEditor);
 
@@ -325,8 +325,8 @@ public class JavaRefactoringRenameTest {
         verify(refactoringServiceClient).applyLinkedModeRename(linkedRenameRefactoringApplyDto);
 
         verify(applyModelPromise).then(refactoringStatusCaptor.capture());
-        refactoringStatusCaptor.getValue().apply(status);
+        refactoringStatusCaptor.getValue().apply(result);
 
-        verify(status).getSeverity();
+        verify(result).getSeverity();
     }
 }

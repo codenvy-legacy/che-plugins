@@ -42,6 +42,7 @@ import org.eclipse.che.ide.ext.java.shared.dto.LinkedPositionGroup;
 import org.eclipse.che.ide.ext.java.shared.dto.Region;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.CreateRenameRefactoring;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.LinkedRenameRefactoringApply;
+import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringResult;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatus;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatusEntry;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RenameRefactoringSession;
@@ -216,10 +217,10 @@ public class JavaRefactoringRename {
     private void performRename(final String newName, RenameRefactoringSession session, final HasLinkedMode linkedEditor) {
         final LinkedRenameRefactoringApply dto = createLinkedRenameRefactoringApplyDto(newName, session.getSessionId());
 
-        Promise<RefactoringStatus> applyModelPromise = refactoringServiceClient.applyLinkedModeRename(dto);
-        applyModelPromise.then(new Operation<RefactoringStatus>() {
+        Promise<RefactoringResult> applyModelPromise = refactoringServiceClient.applyLinkedModeRename(dto);
+        applyModelPromise.then(new Operation<RefactoringResult>() {
             @Override
-            public void apply(RefactoringStatus status) throws OperationException {
+            public void apply(RefactoringResult status) throws OperationException {
                 onTargetRenamed(status, newName, linkedEditor);
             }
         }).catchError(new Operation<PromiseError>() {
