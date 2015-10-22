@@ -148,7 +148,7 @@ public class MachineAppliancePresenter extends PartStackPresenter implements Act
      * @param machine
      *         machine for which need show info
      */
-    public void showAppliance(@NotNull Machine machine) {
+    public void showAppliance(Machine machine) {
         selectedMachine = machine;
 
         view.showContainer(tabContainer.getView());

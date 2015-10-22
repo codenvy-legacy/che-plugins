@@ -117,17 +117,6 @@ public class Machine {
         return descriptor.getMetadata().getProperties();
     }
 
-    @Override
-    public boolean equals(Object machine) {
-        return this == machine || !(machine == null || getClass() != machine.getClass()) && Objects.equals(descriptor.getId(),
-                                                                                                           ((Machine)machine).getId());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(descriptor.getId());
-    }
-
     public void setActiveTabName(String activeTabName) {
         this.activeTabName = activeTabName;
     }
@@ -141,7 +130,7 @@ public class Machine {
 
         for (ServerDto descriptor : serverDescriptors.values()) {
 
-            if ("terminal".equals(descriptor.getRef())) {
+            if (TERMINAL_REF_KEY.equals(descriptor.getRef())) {
                 String terminalUrl = descriptor.getUrl();
 
                 terminalUrl = terminalUrl.substring(terminalUrl.indexOf(':'), terminalUrl.length());
@@ -174,5 +163,21 @@ public class Machine {
         }
 
         return serversList;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) return true;
+        if (other == null || getClass() != other.getClass()) return false;
+
+        Machine otherMachine = (Machine)other;
+
+        return Objects.equals(getId(), otherMachine.getId());
+
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(getId());
     }
 }

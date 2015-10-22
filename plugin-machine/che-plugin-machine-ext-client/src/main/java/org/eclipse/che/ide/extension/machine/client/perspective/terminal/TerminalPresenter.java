@@ -116,7 +116,7 @@ public class TerminalPresenter implements TabPresenter, TerminalView.ActionDeleg
             promise.then(new Operation<Boolean>() {
                 @Override
                 public void apply(Boolean arg) throws OperationException {
-                    openWebSocket(machine.getTerminalUrl());
+                    connectToTerminalWebSocket(machine.getTerminalUrl());
                 }
             }).catchError(new Operation<PromiseError>() {
                 @Override
@@ -147,7 +147,7 @@ public class TerminalPresenter implements TabPresenter, TerminalView.ActionDeleg
         }
     }
 
-    private void openWebSocket(@NotNull String wsUrl) {
+    private void connectToTerminalWebSocket(@NotNull String wsUrl) {
         socket = WebSocket.create(wsUrl);
         socket.setOnOpenHandler(new ConnectionOpenedHandler() {
             @Override

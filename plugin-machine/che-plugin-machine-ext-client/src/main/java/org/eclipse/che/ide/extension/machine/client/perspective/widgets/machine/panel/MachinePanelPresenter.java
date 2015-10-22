@@ -147,13 +147,16 @@ public class MachinePanelPresenter extends BasePresenter implements MachinePanel
             public void apply(MachineDto machineDto) throws OperationException {
                 Machine machine = entityFactory.createMachine(machineDto);
 
-                boolean isCachedMachine = createdMachines.contains(machine);
+                int cachedMachineIndex = createdMachines.indexOf(machine);
 
-                if (!isCachedMachine) {
+                boolean isMachineNotCached = cachedMachineIndex < 0;
+
+                selectedMachine = isMachineNotCached ? machine : createdMachines.get(cachedMachineIndex);
+
+                if (isMachineNotCached) {
                     createdMachines.add(machine);
                 }
 
-                selectedMachine = isCachedMachine ? createdMachines.get(createdMachines.indexOf(machine)) : machine;
                 appliance.showAppliance(selectedMachine);
             }
         });
