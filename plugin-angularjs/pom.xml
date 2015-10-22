@@ -28,6 +28,7 @@
         <module>completion</module>
         <module>core</module>
         <module>templates</module>
+        <module>assembly</module>
     </modules>
 
     <properties>
