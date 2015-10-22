@@ -27,7 +27,7 @@ import org.eclipse.che.api.git.shared.Remote;
 import org.eclipse.che.ide.CoreLocalizationConstant;
 import org.eclipse.che.ide.ext.openshift.client.OpenshiftLocalizationConstant;
 import org.eclipse.che.ide.ext.openshift.shared.dto.BuildConfig;
-import org.eclipse.che.ide.ui.customListBox.CustomListBox;
+import org.eclipse.che.ide.ui.listbox.CustomListBox;
 import org.eclipse.che.ide.ui.list.CategoriesList;
 import org.eclipse.che.ide.ui.list.Category;
 import org.eclipse.che.ide.ui.list.CategoryRenderer;
