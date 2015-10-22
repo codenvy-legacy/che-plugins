@@ -67,6 +67,7 @@ final class TerminalContainerViewImpl extends Composite implements TerminalConta
         }
 
         terminal.setVisible(true);
+        onResize();
     }
 
     interface TerminalContainerViewImplUiBinder extends UiBinder<Widget, TerminalContainerViewImpl> {
