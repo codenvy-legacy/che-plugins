@@ -11,13 +11,13 @@
 package org.eclipse.che.ide.ext.github.client.importer.page;
 
 import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.user.client.ui.CheckBox;
 import org.eclipse.che.ide.Resources;
 import org.eclipse.che.ide.ext.github.client.GitHubLocalizationConstant;
 import org.eclipse.che.ide.ext.github.client.GitHubResources;
 import org.eclipse.che.ide.ext.github.client.load.ProjectData;
 
-import org.eclipse.che.ide.ui.Styles;
 import com.google.gwt.cell.client.ImageResourceCell;
 import com.google.gwt.cell.client.SafeHtmlCell;
 import com.google.gwt.dom.client.Style;
@@ -416,7 +416,7 @@ public class GithubImporterPageViewImpl extends Composite implements GithubImpor
         }
     }
 
-    public interface GithubStyle extends Styles {
+    public interface GithubStyle extends CssResource {
         String mainPanel();
 
         String namePanel();
@@ -447,5 +447,8 @@ public class GithubImporterPageViewImpl extends Composite implements GithubImpor
 
         String loadRepo();
 
+        String inputField();
+
+        String inputError();
     }
 }
