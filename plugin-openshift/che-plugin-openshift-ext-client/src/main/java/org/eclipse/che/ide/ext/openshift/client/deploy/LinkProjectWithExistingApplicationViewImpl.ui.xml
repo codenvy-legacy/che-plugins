@@ -1,0 +1,41 @@
+<!--
+
+    Copyright (c) 2012-2015 Codenvy, S.A.
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License v1.0
+    which accompanies this distribution, and is available at
+    http://www.eclipse.org/legal/epl-v10.html
+
+    Contributors:
+      Codenvy, S.A. - initial API and implementation
+
+-->
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'
+             xmlns:che='urn:import:org.eclipse.che.ide.ui.customListBox'>
+    <ui:with field='resources' type='org.eclipse.che.ide.ext.openshift.client.OpenshiftResources'/>
+    <ui:with field='locale' type='org.eclipse.che.ide.ext.openshift.client.OpenshiftLocalizationConstant'/>
+    <ui:style>
+        .spacing {
+            margin-top: 20px;
+        }
+    </ui:style>
+    <g:DockLayoutPanel width="600px" height="450px">
+        <g:center>
+            <g:SimplePanel ui:field="categoriesPanel" addStyleNames="{resources.css.projectApplicationBox}"/>
+        </g:center>
+        <g:east size="300">
+            <g:FlowPanel>
+                <g:Label text="{locale.linkProjectWithExistingBuildConfigUrl}"></g:Label>
+                <g:TextBox ui:field="buildConfigGitUrl" enabled="false" addStyleNames="{resources.css.textInput}"></g:TextBox>
+                <g:Label text="{locale.linkProjectWithExistingRemoteUrl}" addStyleNames="{style.spacing}"></g:Label>
+                <che:CustomListBox ui:field="remoteUrls" addStyleNames="{resources.css.textInput}"></che:CustomListBox>
+                <g:TextBox ui:field="remoteUrl" enabled="false" addStyleNames="{resources.css.textInput}"></g:TextBox>
+                <g:Label ui:field="replaceWarningLabel" addStyleNames="{style.spacing} {resources.css.warningLabel}"></g:Label>
+            </g:FlowPanel>
+        </g:east>
+        <g:east size="18">
+            <g:FlowPanel addStyleNames="{resources.css.sectionSeparator}"></g:FlowPanel>
+        </g:east>
+    </g:DockLayoutPanel>
+</ui:UiBinder>

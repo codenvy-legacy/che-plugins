@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.openshift.client;
 
+
 import org.eclipse.che.ide.MimeType;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.ext.openshift.shared.dto.BuildConfig;
@@ -28,6 +29,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.List;
 
+import static com.google.gwt.http.client.RequestBuilder.PUT;
 import static org.eclipse.che.ide.rest.HTTPHeader.ACCEPT;
 import static org.eclipse.che.ide.rest.HTTPHeader.CONTENT_TYPE;
 
@@ -88,6 +90,24 @@ public class OpenshiftServiceClientImpl implements OpenshiftServiceClient {
                            .header(CONTENT_TYPE, MimeType.APPLICATION_JSON)
                            .header(ACCEPT, MimeType.APPLICATION_JSON)
                            .loader(loader, "Creating build configs...")
+                           .send(callback);
+    }
+
+    @Override
+    public void updateBuildConfig(BuildConfig buildConfig, AsyncRequestCallback<BuildConfig> callback) {
+        asyncRequestFactory.createRequest(PUT, openshiftPath + "/" + buildConfig.getMetadata().getNamespace() + "/buildconfig/" +
+                                               buildConfig.getMetadata().getName(), buildConfig, false)
+                           .header(CONTENT_TYPE, MimeType.APPLICATION_JSON)
+                           .header(ACCEPT, MimeType.APPLICATION_JSON)
+                           .loader(loader, "Updating build configs...")
+                           .send(callback);
+    }
+
+    @Override
+    public void getBuildConfigs(String namespace, AsyncRequestCallback<List<BuildConfig>> callback) {
+        asyncRequestFactory.createGetRequest(openshiftPath + "/" + namespace + "/buildconfig")
+                           .header(ACCEPT, MimeType.APPLICATION_JSON)
+                           .loader(loader, "Getting build configs...")
                            .send(callback);
     }
 
