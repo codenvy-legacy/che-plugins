@@ -67,7 +67,7 @@ public class TemplateService {
             throw new BadRequestException(template.getKind() + " cannot be handled as a " + ResourceKind.TEMPLATE);
         }
 
-        final IClient client = clientFactory.createClient();
+        final IClient client = clientFactory.getClient();
         final ITemplate openshiftTemplate = toOpenshiftResource(client, template);
         return toDto(Template.class, client.create(openshiftTemplate, namespace));
     }
@@ -80,7 +80,7 @@ public class TemplateService {
         if (application != null) {
             labels.put("application", application);
         }
-        List<ITemplate> templates = clientFactory.createClient().list(ResourceKind.TEMPLATE, namespace, labels);
+        List<ITemplate> templates = clientFactory.getClient().list(ResourceKind.TEMPLATE, namespace, labels);
         // It is need to wrap list into JsonArray for correct serialization of List<DTO>
         //   into @{link org.eclipse.che.api.core.rest.CodenvyJsonProvider}
         return new JsonArrayImpl<>(templates.stream()
@@ -94,7 +94,7 @@ public class TemplateService {
     public Template getTemplate(@PathParam("namespace") String namespace,
                                 @PathParam("template") String template) throws UnauthorizedException, ServerException {
 
-        return toDto(Template.class, clientFactory.createClient().get(ResourceKind.TEMPLATE, template, namespace));
+        return toDto(Template.class, clientFactory.getClient().get(ResourceKind.TEMPLATE, template, namespace));
     }
 
     @PUT
@@ -107,7 +107,7 @@ public class TemplateService {
         if (!templateName.equals(template.getMetadata().getName())) {
             throw new ForbiddenException("Name of resources can read only access mode");
         }
-        final IClient client = clientFactory.createClient();
+        final IClient client = clientFactory.getClient();
         return toDto(Template.class, client.update(toOpenshiftResource(client, template)));
     }
 
@@ -117,7 +117,7 @@ public class TemplateService {
     @Produces(MediaType.APPLICATION_JSON)
     public Template processTemplate(@PathParam("namespace") String namespace,
                                     Template template) throws ForbiddenException, UnauthorizedException, ServerException {
-        final IClient client = clientFactory.createClient();//TODO investigate why method client.getCapability(ITemplateProcessing.class) returns null
+        final IClient client = clientFactory.getClient();//TODO investigate why method client.getCapability(ITemplateProcessing.class) returns null
         final IProject project = client.get(ResourceKind.PROJECT, namespace, namespace);
         final IProjectTemplateProcessing capability = project.getCapability(IProjectTemplateProcessing.class);
         final ITemplate processedTemplate = capability.process(toOpenshiftResource(client, template));

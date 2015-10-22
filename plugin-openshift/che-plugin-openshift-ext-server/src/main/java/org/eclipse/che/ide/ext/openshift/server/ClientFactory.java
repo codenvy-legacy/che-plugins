@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.openshift.server;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.openshift.restclient.IClient;
 import com.openshift.restclient.ISSLCertificateCallback;
 import com.openshift.restclient.authorization.TokenAuthorizationStrategy;
@@ -22,39 +25,79 @@ import org.eclipse.che.security.oauth.RemoteOAuthTokenProvider;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.inject.Singleton;
 import javax.net.ssl.SSLSession;
 import java.io.IOException;
 import java.security.cert.X509Certificate;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 import static com.google.api.client.repackaged.com.google.common.base.Strings.isNullOrEmpty;
 
 /**
  * @author Sergii Leschenko
  */
+@Singleton
 public class ClientFactory {
-    private final String                   openshiftApiEndpoint;
-    private final RemoteOAuthTokenProvider provider;
+    private final LoadingCache<String, IClient> token2clientCache;
+    private final String                        openshiftApiEndpoint;
+    private final RemoteOAuthTokenProvider      provider;
 
     @Inject
     public ClientFactory(@Named("openshift.api.endpoint") String openshiftApiEndpoint,
                          RemoteOAuthTokenProvider provider) {
         this.openshiftApiEndpoint = openshiftApiEndpoint;
         this.provider = provider;
+        this.token2clientCache = CacheBuilder.newBuilder()
+                                             .maximumSize(1000)
+                                             .expireAfterAccess(10, TimeUnit.MINUTES)
+                                             .build(new CacheLoader<String, IClient>() {
+                                                 @Override
+                                                 public IClient load(String token) throws Exception {
+                                                     return createClient(token);
+                                                 }
+                                             });
     }
 
-    public IClient createClient() throws UnauthorizedException, ServerException {
+    /**
+     * Returns instance of IClient for working with openshift server for current user
+     *
+     * @throws UnauthorizedException
+     *         when user did not have access token to openshift server
+     * @throws ServerException
+     *         when some exception occurs during getting of access token
+     */
+    public IClient getClient() throws UnauthorizedException, ServerException {
         try {
-            final OAuthToken token = provider.getToken("openshift", EnvironmentContext.getCurrent().getUser().getId());
-            if (token == null || isNullOrEmpty(token.getToken())) {
-                throw new UnauthorizedException("User doesn't have access token to openshift");
+            final String userId = EnvironmentContext.getCurrent().getUser().getId();
+            return token2clientCache.get(getToken(userId));
+        } catch (ExecutionException e) {
+            final Throwable cause = e.getCause();
+            if (cause instanceof UnauthorizedException) {
+                throw ((UnauthorizedException)cause);
+            } else if (cause instanceof ServerException) {
+                throw ((ServerException)cause);
             }
-            return createClient(token.getToken());
-        } catch (IOException e) {
-            throw new ServerException("Error getting of access token to openshift");
+            throw new RuntimeException(e.getLocalizedMessage(), e);
         }
     }
 
-    public IClient createClient(String token) {
+    private String getToken(String userId) throws ServerException, UnauthorizedException {
+        final OAuthToken token;
+        try {
+            token = provider.getToken("openshift", userId);
+        } catch (IOException e) {
+            throw new ServerException("Error getting of access token to openshift", e);
+        }
+
+        if (token == null || isNullOrEmpty(token.getToken())) {
+            throw new UnauthorizedException("User doesn't have access token to openshift");
+        }
+
+        return token.getToken();
+    }
+
+    private IClient createClient(String token) throws UnauthorizedException, ServerException {
         IClient client = new com.openshift.restclient.ClientFactory().create(openshiftApiEndpoint, new ISSLCertificateCallback() {
             @Override
             public boolean allowCertificate(X509Certificate[] x509Certificates) {

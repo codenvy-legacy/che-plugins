@@ -23,14 +23,14 @@
     <name>Che Plugin :: Openshift :: OAuth2</name>
     <dependencies>
         <dependency>
-            <groupId>com.openshift</groupId>
-            <artifactId>openshift-restclient-java</artifactId>
-            <version>${com.openshift.restclient.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.eclipse.che.core</groupId>
             <artifactId>che-core-api-auth</artifactId>
             <version>${che.core.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.che.plugin</groupId>
+            <artifactId>che-plugin-openshift-ext-shared</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 </project>
