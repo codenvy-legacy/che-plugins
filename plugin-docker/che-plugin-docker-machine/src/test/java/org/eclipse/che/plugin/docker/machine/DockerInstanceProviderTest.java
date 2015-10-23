@@ -9,11 +9,19 @@
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
 package org.eclipse.che.plugin.docker.machine;
-/*
+
 import org.eclipse.che.api.core.NotFoundException;
+import org.eclipse.che.api.core.model.machine.Channels;
+import org.eclipse.che.api.core.model.machine.MachineSource;
+import org.eclipse.che.api.core.model.machine.MachineState;
+import org.eclipse.che.api.core.model.machine.MachineStatus;
 import org.eclipse.che.api.core.model.machine.Recipe;
 import org.eclipse.che.api.core.util.LineConsumer;
 import org.eclipse.che.api.machine.server.exception.MachineException;
+import org.eclipse.che.api.machine.server.model.impl.ChannelsImpl;
+import org.eclipse.che.api.machine.server.model.impl.LimitsImpl;
+import org.eclipse.che.api.machine.server.model.impl.MachineSourceImpl;
+import org.eclipse.che.api.machine.server.model.impl.MachineStateImpl;
 import org.eclipse.che.api.machine.server.recipe.RecipeImpl;
 import org.eclipse.che.commons.env.EnvironmentContext;
 import org.eclipse.che.commons.user.UserImpl;
@@ -51,12 +59,10 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 
-@Listeners(MockitoTestNGListener.class)*/
+@Listeners(MockitoTestNGListener.class)
 public class DockerInstanceProviderTest {
-/*
-    private static final String API_ENDPOINT_VALUE = "apiEndpoint";
 
-    private static final String PROJECTS_ROOT = "/projects";
+    private static final String API_ENDPOINT_VALUE = "apiEndpoint";
 
     private static final String CONTAINER_ID = "containerId";
 
@@ -176,54 +182,50 @@ public class DockerInstanceProviderTest {
 
     @Test
     public void shouldCallCreationDockerInstanceWithFactoryOnCreateInstanceFromSnapshot() throws Exception {
-        final String machineId = "machineId";
-        final String workspaceId = "workspaceId";
-        final String userId = "userId";
-        final boolean isDev = false;
-        final int memorySizeInMB = 64;
-        final String displayName = "Display name";
-        final Recipe recipe = new RecipeImpl().withType("Dockerfile").withScript("FROM busybox");
+        final MachineSourceImpl machineSource = new MachineSourceImpl("type", "location");
+        final MachineStateImpl machineState = new MachineStateImpl(false,
+                                                                   "Display name",
+                                                                   "machineType",
+                                                                   machineSource,
+                                                                   new LimitsImpl(64),
+                                                                   "machineId",
+                                                                   new ChannelsImpl("chan1", "chan2"),
+                                                                   "workspaceId",
+                                                                   "userId",
+                                                                   MachineStatus.CREATING);
 
 
-        createInstanceFromSnapshot(isDev, memorySizeInMB, machineId, userId, workspaceId, displayName, recipe);
+        createInstanceFromSnapshot(machineState);
 
 
-        verify(dockerMachineFactory).createInstance(eq(machineId),
-                                                    eq(workspaceId),
-                                                    eq(isDev),
-                                                    eq(userId),
-                                                    eq(displayName),
+        verify(dockerMachineFactory).createInstance(eq(machineState),
                                                     eq(CONTAINER_ID),
                                                     eq(dockerNode),
-                                                    any(LineConsumer.class),
-                                                    eq(recipe),
-                                                    eq(memorySizeInMB));
+                                                    any(LineConsumer.class));
     }
 
     @Test
     public void shouldCallCreationDockerInstanceWithFactoryOnCreateInstanceFromRecipe() throws Exception {
-        final String machineId = "machineId";
-        final String workspaceId = "workspaceId";
-        final String userId = "userId";
-        final boolean isDev = false;
-        final int memorySizeInMB = 64;
-        final String displayName = "Display name";
+        final MachineSourceImpl machineSource = new MachineSourceImpl("type", "location");
         final Recipe recipe = new RecipeImpl().withType("Dockerfile").withScript("FROM busybox");
+        final MachineStateImpl machineState = new MachineStateImpl(false,
+                                                                   "Display name",
+                                                                   "machineType",
+                                                                   machineSource,
+                                                                   new LimitsImpl(64),
+                                                                   "machineId",
+                                                                   new ChannelsImpl("chan1", "chan2"),
+                                                                   "workspaceId",
+                                                                   "userId",
+                                                                   MachineStatus.CREATING);
+
+        createInstanceFromRecipe(recipe, machineState);
 
 
-        createInstanceFromRecipe(isDev, memorySizeInMB, machineId, userId, workspaceId, displayName, recipe);
-
-
-        verify(dockerMachineFactory).createInstance(eq(machineId),
-                                                    eq(workspaceId),
-                                                    eq(isDev),
-                                                    eq(userId),
-                                                    eq(displayName),
+        verify(dockerMachineFactory).createInstance(eq(machineState),
                                                     eq(CONTAINER_ID),
                                                     eq(dockerNode),
-                                                    any(LineConsumer.class),
-                                                    eq(recipe),
-                                                    eq(memorySizeInMB));
+                                                    any(LineConsumer.class));
     }
 
     @Test
@@ -1189,8 +1191,6 @@ public class DockerInstanceProviderTest {
                     "Non dev machine should not contains " + DockerInstanceMetadata.PROJECTS_ROOT_VARIABLE);
     }
 
-
-    @Test*/
     /**
      * E.g from https://github.com/boot2docker/boot2docker/blob/master/README.md#virtualbox-guest-additions
      *
@@ -1200,7 +1200,8 @@ public class DockerInstanceProviderTest {
      *   /c/Users should be /c/Users
      *   c:/Users should be /c/Users
      */
-    /*public void shouldEscapePathForWindowsHost() {
+    @Test
+    public void shouldEscapePathForWindowsHost() {
         assertEquals(dockerInstanceProvider.escapePath("Users"), "/Users");
         assertEquals(dockerInstanceProvider.escapePath("/Users"), "/Users");
         assertEquals(dockerInstanceProvider.escapePath("c/Users"), "/c/Users");
@@ -1251,7 +1252,11 @@ public class DockerInstanceProviderTest {
                                  workspaceId == null ? "workspaceId" : workspaceId,
                                  displayName == null ? "Display Name" : displayName,
                                  recipe == null ? new RecipeImpl().withType("Dockerfile")
-                                                                  .withScript("FROM busybox") : recipe);
+                                                                  .withScript("FROM busybox") : recipe,
+                                 "machineType",
+                                 new MachineSourceImpl("source type", "source location"),
+                                 new ChannelsImpl("channel1", "channel2"),
+                                 MachineStatus.CREATING);
     }
 
     private void createInstanceFromRecipe(boolean isDev,
@@ -1260,46 +1265,52 @@ public class DockerInstanceProviderTest {
                                           String userId,
                                           String workspaceId,
                                           String displayName,
-                                          Recipe recipe) throws Exception {
+                                          Recipe recipe,
+                                          String machineType,
+                                          MachineSource machineSource,
+                                          Channels channels,
+                                          MachineStatus machineStatus)
+            throws Exception {
 
         dockerInstanceProvider.createInstance(recipe,
-                                              machineId,
-                                              userId,
-                                              workspaceId,
-                                              isDev,
-                                              displayName,
-                                              memorySizeInMB,
+                                              new MachineStateImpl(isDev,
+                                                                   displayName,
+                                                                   machineType,
+                                                                   machineSource,
+                                                                   new LimitsImpl(memorySizeInMB),
+                                                                   machineId,
+                                                                   channels,
+                                                                   workspaceId,
+                                                                   userId,
+                                                                   machineStatus),
+                                              LineConsumer.DEV_NULL);
+    }
+
+    private void createInstanceFromRecipe(Recipe recipe, MachineState machineState) throws Exception {
+
+        dockerInstanceProvider.createInstance(recipe,
+                                              machineState,
                                               LineConsumer.DEV_NULL);
     }
 
     private void createInstanceFromSnapshot() throws NotFoundException, MachineException {
-        createInstanceFromSnapshot(null, null, null, null, null, null, null, null, null, null);
+        createInstanceFromSnapshot(null, null, null, null, null, null, null, null, null);
     }
 
     private void createInstanceFromSnapshot(int memorySizeInMB) throws NotFoundException, MachineException {
-        createInstanceFromSnapshot(null, null, null, null, memorySizeInMB, null, null, null, null, null);
+        createInstanceFromSnapshot(null, null, null, null, memorySizeInMB, null, null, null, null);
     }
 
     private void createInstanceFromSnapshot(boolean isDev) throws NotFoundException, MachineException {
-        createInstanceFromSnapshot(null, null, null, isDev, null, null, null, null, null, null);
+        createInstanceFromSnapshot(null, null, null, isDev, null, null, null, null, null);
     }
 
     private void createInstanceFromSnapshot(boolean isDev, String workspaceId) throws NotFoundException, MachineException {
-        createInstanceFromSnapshot(null, null, null, isDev, null, null, null, workspaceId, null, null);
+        createInstanceFromSnapshot(null, null, null, isDev, null, null, null, workspaceId, null);
     }
 
     private void createInstanceFromSnapshot(String repo, String tag, String registry) throws NotFoundException, MachineException {
-        createInstanceFromSnapshot(repo, tag, registry, null, null, null, null, null, null, null);
-    }
-
-    private void createInstanceFromSnapshot(Boolean isDev,
-                                            Integer memorySizeInMB,
-                                            String machineId,
-                                            String userId,
-                                            String workspaceId,
-                                            String displayName,
-                                            Recipe recipe) throws NotFoundException, MachineException {
-        createInstanceFromSnapshot(null, null, null, isDev, memorySizeInMB, machineId, userId, workspaceId, displayName, recipe);
+        createInstanceFromSnapshot(repo, tag, registry, null, null, null, null, null, null);
     }
 
     private void createInstanceFromSnapshot(String repo,
@@ -1310,8 +1321,8 @@ public class DockerInstanceProviderTest {
                                             String machineId,
                                             String userId,
                                             String workspaceId,
-                                            String displayName,
-                                            Recipe recipe) throws NotFoundException, MachineException {
+                                            String displayName)
+            throws NotFoundException, MachineException {
 
         createInstanceFromSnapshot(repo == null ? "repo" : repo,
                                    tag == null ? "tag" : tag,
@@ -1322,8 +1333,10 @@ public class DockerInstanceProviderTest {
                                    userId == null ? "userId" : userId,
                                    workspaceId == null ? "workspaceId" : workspaceId,
                                    displayName == null ? "Display Name" : displayName,
-                                   recipe == null ? new RecipeImpl().withType("Dockerfile")
-                                                                    .withScript("FROM busybox") : recipe);
+                                   "machineType",
+                                   new MachineSourceImpl("source type", "source location"),
+                                   new ChannelsImpl("channel1", "channel2"),
+                                   MachineStatus.CREATING);
     }
 
     private void createInstanceFromSnapshot(String repo,
@@ -1335,16 +1348,34 @@ public class DockerInstanceProviderTest {
                                             String userId,
                                             String workspaceId,
                                             String displayName,
-                                            Recipe recipe) throws NotFoundException, MachineException {
+                                            String machineType,
+                                            MachineSource machineSource,
+                                            Channels channels,
+                                            MachineStatus machineStatus)
+            throws NotFoundException, MachineException {
 
         dockerInstanceProvider.createInstance(new DockerInstanceKey(repo, tag, "imageId", registry),
-                                              machineId,
-                                              userId,
-                                              workspaceId,
-                                              isDev,
-                                              displayName,
-                                              recipe,
-                                              memorySizeInMB,
+                                              new MachineStateImpl(isDev,
+                                                                   displayName,
+                                                                   machineType,
+                                                                   machineSource,
+                                                                   new LimitsImpl(memorySizeInMB),
+                                                                   machineId,
+                                                                   channels,
+                                                                   workspaceId,
+                                                                   userId,
+                                                                   machineStatus),
                                               LineConsumer.DEV_NULL);
-    }*/
+    }
+
+    private void createInstanceFromSnapshot(MachineState machineState)
+            throws NotFoundException, MachineException {
+
+        dockerInstanceProvider.createInstance(new DockerInstanceKey("repo" ,
+                                                                    "tag",
+                                                                    "imageId",
+                                                                    "localhost:1234"),
+                                              machineState,
+                                              LineConsumer.DEV_NULL);
+    }
 }
