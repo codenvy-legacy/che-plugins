@@ -14,15 +14,10 @@ import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.inject.Inject;
 
-import org.eclipse.che.api.machine.shared.dto.ServerDescriptor;
-import org.eclipse.che.ide.extension.machine.client.inject.factories.EntityFactory;
 import org.eclipse.che.ide.extension.machine.client.machine.Machine;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.content.TabPresenter;
 
 import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * The class contains business logic which allows update server's information for current machine. The class is a tab presenter and
@@ -32,13 +27,11 @@ import java.util.Map;
  */
 public class ServerPresenter implements TabPresenter {
 
-    private final ServerView    view;
-    private final EntityFactory entityFactory;
+    private final ServerView view;
 
     @Inject
-    public ServerPresenter(ServerView view, EntityFactory entityFactory) {
+    public ServerPresenter(ServerView view) {
         this.view = view;
-        this.entityFactory = entityFactory;
     }
 
     /**
@@ -47,21 +40,8 @@ public class ServerPresenter implements TabPresenter {
      * @param machine
      *         machine for which need update information
      */
-    public void updateInfo(@NotNull Machine machine) {
-        List<Server> serversList = new ArrayList<>();
-
-        Map<String, ServerDescriptor> servers = machine.getServers();
-
-        for (Map.Entry<String, ServerDescriptor> entry : servers.entrySet()) {
-            String exposedPort = entry.getKey();
-            ServerDescriptor descriptor = entry.getValue();
-
-            Server server = entityFactory.createServer(exposedPort, descriptor);
-
-            serversList.add(server);
-        }
-
-        view.setServers(serversList);
+    public void updateInfo(Machine machine) {
+        view.setServers(machine.getServersList());
     }
 
     /** {@inheritDoc} */

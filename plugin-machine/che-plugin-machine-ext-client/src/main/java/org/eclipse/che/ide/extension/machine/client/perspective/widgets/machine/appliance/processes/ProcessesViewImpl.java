@@ -22,7 +22,7 @@ import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import org.eclipse.che.api.machine.shared.dto.ProcessDescriptor;
+import org.eclipse.che.api.machine.shared.dto.MachineProcessDto;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.TableResources;
 
@@ -44,7 +44,7 @@ public class ProcessesViewImpl extends Composite implements ProcessesView {
     private ActionDelegate delegate;
 
     @UiField(provided = true)
-    final CellTable<ProcessDescriptor> processesTable;
+    final CellTable<MachineProcessDto> processesTable;
     @UiField(provided = true)
     final MachineLocalizationConstant  locale;
 
@@ -56,43 +56,43 @@ public class ProcessesViewImpl extends Composite implements ProcessesView {
         initWidget(UI_BINDER.createAndBindUi(this));
     }
 
-    private CellTable<ProcessDescriptor> createTable(@NotNull TableResources tableResources) {
-        CellTable<ProcessDescriptor> table = new CellTable<>(0, tableResources);
+    private CellTable<MachineProcessDto> createTable(@NotNull TableResources tableResources) {
+        CellTable<MachineProcessDto> table = new CellTable<>(0, tableResources);
 
-        TextColumn<ProcessDescriptor> name = new TextColumn<ProcessDescriptor>() {
+        TextColumn<MachineProcessDto> name = new TextColumn<MachineProcessDto>() {
             @Override
-            public String getValue(ProcessDescriptor descriptor) {
+            public String getValue(MachineProcessDto descriptor) {
                 return "Process " + descriptor.getPid();
             }
         };
 
-        TextColumn<ProcessDescriptor> protocol = new TextColumn<ProcessDescriptor>() {
+        TextColumn<MachineProcessDto> protocol = new TextColumn<MachineProcessDto>() {
             @Override
-            public String getValue(ProcessDescriptor descriptor) {
+            public String getValue(MachineProcessDto descriptor) {
                 //TODO it's stub. Need add real value
                 return "tcp";
             }
         };
 
-        TextColumn<ProcessDescriptor> port = new TextColumn<ProcessDescriptor>() {
+        TextColumn<MachineProcessDto> port = new TextColumn<MachineProcessDto>() {
             @Override
-            public String getValue(ProcessDescriptor descriptor) {
+            public String getValue(MachineProcessDto descriptor) {
                 //TODO it's stub. Need add real value
                 return "8000";
             }
         };
 
-        TextColumn<ProcessDescriptor> time = new TextColumn<ProcessDescriptor>() {
+        TextColumn<MachineProcessDto> time = new TextColumn<MachineProcessDto>() {
             @Override
-            public String getValue(ProcessDescriptor descriptor) {
+            public String getValue(MachineProcessDto descriptor) {
                 //TODO it's stub. Need add real value
                 return "10:12:24";
             }
         };
 
-        TextColumn<ProcessDescriptor> active = new TextColumn<ProcessDescriptor>() {
+        TextColumn<MachineProcessDto> active = new TextColumn<MachineProcessDto>() {
             @Override
-            public String getValue(ProcessDescriptor descriptor) {
+            public String getValue(MachineProcessDto descriptor) {
                 boolean isActive = descriptor.isAlive();
 
                 //TODO it's stub. Need add real value
@@ -106,7 +106,7 @@ public class ProcessesViewImpl extends Composite implements ProcessesView {
         table.addColumn(time, locale.processTableTime());
         table.addColumn(active, locale.processTableActive());
 
-        final SingleSelectionModel<ProcessDescriptor> selectionModel = new SingleSelectionModel<>();
+        final SingleSelectionModel<MachineProcessDto> selectionModel = new SingleSelectionModel<>();
         selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
@@ -121,7 +121,7 @@ public class ProcessesViewImpl extends Composite implements ProcessesView {
 
     /** {@inheritDoc} */
     @Override
-    public void setProcesses(@NotNull List<ProcessDescriptor> descriptors) {
+    public void setProcesses(@NotNull List<MachineProcessDto> descriptors) {
         processesTable.setRowData(descriptors);
     }
 

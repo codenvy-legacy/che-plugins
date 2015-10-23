@@ -18,12 +18,12 @@ import com.google.inject.Singleton;
 
 import org.eclipse.che.api.core.NotFoundException;
 import org.eclipse.che.api.core.ServerException;
+import org.eclipse.che.api.core.model.machine.Server;
 import org.eclipse.che.api.core.notification.EventService;
 import org.eclipse.che.api.core.notification.EventSubscriber;
 import org.eclipse.che.api.machine.server.MachineManager;
 import org.eclipse.che.api.machine.server.exception.MachineException;
 import org.eclipse.che.api.machine.server.spi.Instance;
-import org.eclipse.che.api.machine.shared.Server;
 import org.eclipse.che.api.machine.shared.dto.event.MachineStatusEvent;
 import org.eclipse.che.api.project.server.notification.ProjectItemModifiedEvent;
 import org.slf4j.Logger;
@@ -102,7 +102,7 @@ public class ProjectListener {
         HttpURLConnection connection;
         try {
             final Instance machine = machineManager.getMachine(machineId);
-            final Server server = machine.getServers().get(Integer.toString(extServicesPort));
+            final Server server = machine.getMetadata().getServers().get(Integer.toString(extServicesPort));
             if (server == null) {
                 throw new ServerException("No extension server found in machine");
             }

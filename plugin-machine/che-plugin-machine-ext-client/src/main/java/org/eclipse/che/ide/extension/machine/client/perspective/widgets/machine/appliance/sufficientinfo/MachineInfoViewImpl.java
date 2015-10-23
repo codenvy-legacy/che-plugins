@@ -61,7 +61,7 @@ public class MachineInfoViewImpl extends Composite implements MachineInfoView {
 
     /** {@inheritDoc} */
     @Override
-    public void updateInfo(@NotNull Machine machine) {
+    public void updateInfo(Machine machine) {
         name.setText(machine.getDisplayName());
         machineId.setText(machine.getId());
         status.setText(String.valueOf(machine.getStatus()));

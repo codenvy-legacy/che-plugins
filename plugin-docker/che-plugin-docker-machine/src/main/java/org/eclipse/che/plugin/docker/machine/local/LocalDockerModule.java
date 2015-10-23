@@ -10,22 +10,20 @@
  *******************************************************************************/
 package org.eclipse.che.plugin.docker.machine.local;
 
-import org.eclipse.che.api.core.util.SystemInfo;
-import org.eclipse.che.api.machine.server.spi.Instance;
-import org.eclipse.che.api.machine.server.spi.InstanceMetadata;
-import org.eclipse.che.api.machine.server.spi.InstanceProcess;
-import org.eclipse.che.plugin.docker.machine.DockerInstance;
-import org.eclipse.che.plugin.docker.machine.DockerInstanceMetadata;
-import org.eclipse.che.plugin.docker.machine.DockerInstanceProvider;
-import org.eclipse.che.plugin.docker.machine.DockerMachineFactory;
 import com.google.inject.AbstractModule;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
 
+import org.eclipse.che.api.core.util.SystemInfo;
 import org.eclipse.che.api.machine.server.MachineService;
 import org.eclipse.che.api.machine.server.dao.SnapshotDao;
+import org.eclipse.che.api.machine.server.spi.Instance;
+import org.eclipse.che.api.machine.server.spi.InstanceProcess;
 import org.eclipse.che.api.machine.server.spi.InstanceProvider;
+import org.eclipse.che.plugin.docker.machine.DockerInstance;
+import org.eclipse.che.plugin.docker.machine.DockerInstanceProvider;
+import org.eclipse.che.plugin.docker.machine.DockerMachineFactory;
 import org.eclipse.che.plugin.docker.machine.DockerNode;
 import org.eclipse.che.plugin.docker.machine.DockerProcess;
 
@@ -51,7 +49,6 @@ public class LocalDockerModule extends AbstractModule {
 
         install(new FactoryModuleBuilder()
                         .implement(Instance.class, DockerInstance.class)
-                        .implement(InstanceMetadata.class, DockerInstanceMetadata.class)
                         .implement(InstanceProcess.class, DockerProcess.class)
                         .implement(DockerNode.class, LocalDockerNode.class)
                         .build(DockerMachineFactory.class));

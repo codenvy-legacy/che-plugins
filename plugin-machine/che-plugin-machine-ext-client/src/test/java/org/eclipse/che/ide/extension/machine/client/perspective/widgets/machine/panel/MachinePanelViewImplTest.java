@@ -13,7 +13,7 @@ package org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine
 import com.google.gwtmockito.GwtMockitoTestRunner;
 
 import org.eclipse.che.ide.api.parts.PartStackUIResources;
-import org.eclipse.che.ide.extension.machine.client.machine.Machine;
+import org.eclipse.che.ide.extension.machine.client.machine.MachineState;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.panel.MachinePanelView.ActionDelegate;
 import org.eclipse.che.ide.ui.tree.Tree;
 import org.junit.Before;
@@ -49,7 +49,7 @@ public class MachinePanelViewImplTest {
     @Mock
     private MachineTreeNode               treeNode;
     @Mock
-    private Machine                       machine;
+    private MachineState                  machineState;
 
     private MachinePanelViewImpl view;
 
@@ -67,12 +67,12 @@ public class MachinePanelViewImplTest {
 
     @Test
     public void nodeShouldBeSelected() {
-        when(treeNode.getData()).thenReturn(machine);
+        when(treeNode.getData()).thenReturn(machineState);
 
         view.selectNode(treeNode);
 
         verify(treeNode).getData();
-        verify(delegate).onMachineSelected(machine);
+        verify(delegate).onMachineSelected(machineState);
 
     }
 
@@ -81,7 +81,7 @@ public class MachinePanelViewImplTest {
         view.selectNode(null);
 
         verify(treeNode, never()).getData();
-        verify(delegate, never()).onMachineSelected(machine);
+        verify(delegate, never()).onMachineSelected(machineState);
 
     }
 }

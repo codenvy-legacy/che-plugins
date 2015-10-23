@@ -12,12 +12,11 @@ package org.eclipse.che.plugin.docker.machine;
 
 import com.google.inject.assistedinject.Assisted;
 
-import org.eclipse.che.api.core.model.machine.Recipe;
+import org.eclipse.che.api.core.model.machine.MachineState;
 import org.eclipse.che.api.core.util.LineConsumer;
 import org.eclipse.che.api.machine.server.exception.MachineException;
 import org.eclipse.che.api.machine.server.spi.Instance;
 import org.eclipse.che.api.machine.server.spi.InstanceProcess;
-import org.eclipse.che.api.machine.shared.ProjectBinding;
 import org.eclipse.che.plugin.docker.client.DockerConnector;
 
 import org.eclipse.che.commons.annotation.Nullable;
@@ -45,43 +44,23 @@ public class TestDockerMachineFactory implements DockerMachineFactory {
     }
 
     @Override
-    public Instance createInstance(@Assisted("machineId") String machineId,
-                                   @Assisted("workspaceId") String workspaceId,
-                                   @Assisted boolean isDev,
-                                   @Assisted("creator") String creator,
-                                   @Assisted("displayName") String displayName,
+    public Instance createInstance(@Assisted MachineState machineState,
                                    @Assisted("container") String container,
                                    @Assisted DockerNode node,
-                                   @Assisted LineConsumer outputConsumer,
-                                   @Assisted Recipe recipe,
-                                   @Assisted int memorySizeMB) throws MachineException {
+                                   @Assisted LineConsumer outputConsumer) throws MachineException {
         return new DockerInstance(docker,
                                   "localhost:5000",
                                   this,
-                                  machineId,
-                                  workspaceId,
-                                  isDev,
-                                  creator,
-                                  displayName,
+                                  machineState,
                                   container,
                                   node,
                                   outputConsumer,
-                                  recipe,
-                                  memorySizeMB,
                                   mock(DockerInstanceStopDetector.class));
     }
 
     @Override
     public DockerNode createNode(@Assisted String containerId) throws MachineException {
         return new DockerNode() {
-            @Override
-            public void bindProject(String workspaceId, ProjectBinding project) throws MachineException {
-            }
-
-            @Override
-            public void unbindProject(String workspaceId, ProjectBinding project) throws MachineException {
-            }
-
             @Override
             public void bindWorkspace(String workspaceId, String hostProjectsFolder) throws MachineException {
             }

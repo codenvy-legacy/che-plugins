@@ -36,9 +36,7 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -157,6 +155,7 @@ public class MachineInfoPresenterTest {
     }
 
     @Test
+    //TODO fix test
     public void workspaceNameShouldBeSet() throws Exception {
         when(machine.getWorkspaceId()).thenReturn(SOME_TEXT);
         when(wsDescriptor.getName()).thenReturn(SOME_TEXT);

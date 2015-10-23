@@ -20,15 +20,16 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
+import org.eclipse.che.commons.annotation.Nullable;
 import org.eclipse.che.ide.api.parts.PartStackUIResources;
 import org.eclipse.che.ide.api.parts.base.BaseView;
 import org.eclipse.che.ide.extension.machine.client.machine.Machine;
+import org.eclipse.che.ide.extension.machine.client.machine.MachineState;
 import org.eclipse.che.ide.ui.tree.Tree;
 import org.eclipse.che.ide.ui.tree.TreeNodeElement;
 import org.eclipse.che.ide.util.input.SignalEvent;
 
 import javax.validation.constraints.NotNull;
-import org.eclipse.che.commons.annotation.Nullable;
 
 /**
  * Provides implementation of view to display machines on special panel.
@@ -91,8 +92,8 @@ public class MachinePanelViewImpl extends BaseView<MachinePanelView.ActionDelega
             public void onNodeSelected(TreeNodeElement<MachineTreeNode> node, SignalEvent event) {
                 Object selectedNode = node.getData().getData();
 
-                if (selectedNode instanceof Machine) {
-                    delegate.onMachineSelected((Machine)selectedNode);
+                if (selectedNode instanceof MachineState) {
+                    delegate.onMachineSelected((MachineState)selectedNode);
                 }
             }
 
@@ -130,6 +131,6 @@ public class MachinePanelViewImpl extends BaseView<MachinePanelView.ActionDelega
 
         tree.getSelectionModel().selectSingleNode(machineNode);
 
-        delegate.onMachineSelected((Machine)machineNode.getData());
+        delegate.onMachineSelected((MachineState)machineNode.getData());
     }
 }

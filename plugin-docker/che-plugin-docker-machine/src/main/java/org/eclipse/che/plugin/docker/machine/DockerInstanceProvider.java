@@ -16,6 +16,7 @@ import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 
 import org.eclipse.che.api.core.NotFoundException;
+import org.eclipse.che.api.core.model.machine.MachineState;
 import org.eclipse.che.api.core.model.machine.Recipe;
 import org.eclipse.che.api.core.util.FileCleaner;
 import org.eclipse.che.api.core.util.LineConsumer;
@@ -38,7 +39,6 @@ import org.eclipse.che.plugin.docker.client.ProgressLineFormatterImpl;
 import org.eclipse.che.plugin.docker.client.ProgressMonitor;
 import org.eclipse.che.plugin.docker.client.json.ContainerConfig;
 import org.eclipse.che.plugin.docker.client.json.HostConfig;
-import org.eclipse.che.plugin.docker.client.json.ProgressStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,10 +71,8 @@ public class DockerInstanceProvider implements InstanceProvider {
     public static final String API_ENDPOINT_URL_VARIABLE = "CHE_API_ENDPOINT";
 
     /**
-     *
      * Environment variable that will be setup in developer machine
      * will contain ID of a workspace for which this machine has been created
-     *
      */
     public static final String CHE_WORKSPACE_ID = "CHE_WORKSPACE_ID";
 
@@ -135,7 +133,8 @@ public class DockerInstanceProvider implements InstanceProvider {
         }
 
         this.systemVolumesForDevMachine.addAll(SystemInfo.isWindows() ? escapePaths(allMachinesSystemVolumes) : allMachinesSystemVolumes);
-        this.systemVolumesForDevMachine.addAll(SystemInfo.isWindows() ? escapePaths(systemVolumesForDevMachine) : systemVolumesForDevMachine);
+        this.systemVolumesForDevMachine.addAll(
+                SystemInfo.isWindows() ? escapePaths(systemVolumesForDevMachine) : systemVolumesForDevMachine);
 
         commonEnvVariables = new String[0];
         devMachineEnvVariables = new String[] {API_ENDPOINT_URL_VARIABLE + '=' + apiEndpoint,
@@ -147,24 +146,28 @@ public class DockerInstanceProvider implements InstanceProvider {
     /**
      * Escape paths for Windows system with boot@docker according to rules given here :
      * https://github.com/boot2docker/boot2docker/blob/master/README.md#virtualbox-guest-additions
+     *
      * @param paths
+     *         set of paths to escape
      * @return set of escaped path
      */
     protected Set<String> escapePaths(Set<String> paths) {
-        return paths.stream().map(s -> escapePath(s)).collect(Collectors.toSet());
+        return paths.stream().map(this::escapePath).collect(Collectors.toSet());
     }
 
     /**
      * Escape path for Windows system with boot@docker according to rules given here :
      * https://github.com/boot2docker/boot2docker/blob/master/README.md#virtualbox-guest-additions
+     *
      * @param path
+     *         path to escape
      * @return escaped path
      */
     protected String escapePath(String path) {
         String esc;
         if (path.indexOf(":") == 1) { //check and replace only occurrence of ":" after disk label on Windows host (e.g. C:/)
-                                      // but keep other occurrences it can be marker for docker mount volumes
-                                      // (e.g. /path/dir/from/host:/name/of/dir/in/container                                               )
+            // but keep other occurrences it can be marker for docker mount volumes
+            // (e.g. /path/dir/from/host:/name/of/dir/in/container                                               )
             esc = path.replaceFirst(":", "").replace('\\', '/');
             esc = Character.toLowerCase(esc.charAt(0)) + esc.substring(1); //letter of disk mark must be lower case
         } else {
@@ -189,25 +192,14 @@ public class DockerInstanceProvider implements InstanceProvider {
 
     @Override
     public Instance createInstance(Recipe recipe,
-                                   String machineId,
-                                   String userId,
-                                   String workspaceId,
-                                   boolean isDev,
-                                   String displayName,
-                                   int memorySizeMB,
+                                   MachineState machineState,
                                    LineConsumer creationLogsOutput) throws MachineException {
         final Dockerfile dockerfile = parseRecipe(recipe);
 
         final String dockerImage = buildImage(dockerfile, creationLogsOutput);
 
         return createInstance(dockerImage,
-                              machineId,
-                              userId,
-                              workspaceId,
-                              isDev,
-                              displayName,
-                              recipe,
-                              memorySizeMB,
+                              machineState,
                               creationLogsOutput);
     }
 
@@ -242,14 +234,11 @@ public class DockerInstanceProvider implements InstanceProvider {
             final List<File> files = new LinkedList<>();
             Collections.addAll(files, workDir.listFiles());
             final ProgressLineFormatterImpl progressLineFormatter = new ProgressLineFormatterImpl();
-            final ProgressMonitor progressMonitor = new ProgressMonitor() {
-                @Override
-                public void updateProgress(ProgressStatus currentProgressStatus) {
-                    try {
-                        creationLogsOutput.writeLine(progressLineFormatter.format(currentProgressStatus));
-                    } catch (IOException e) {
-                        LOG.error(e.getLocalizedMessage(), e);
-                    }
+            final ProgressMonitor progressMonitor = currentProgressStatus -> {
+                try {
+                    creationLogsOutput.writeLine(progressLineFormatter.format(currentProgressStatus));
+                } catch (IOException e) {
+                    LOG.error(e.getLocalizedMessage(), e);
                 }
             };
             return docker.buildImage(null, progressMonitor, null, files.toArray(new File[files.size()]));
@@ -264,24 +253,12 @@ public class DockerInstanceProvider implements InstanceProvider {
 
     @Override
     public Instance createInstance(InstanceKey instanceKey,
-                                   String machineId,
-                                   String userId,
-                                   String workspaceId,
-                                   boolean isDev,
-                                   String displayName,
-                                   Recipe recipe,
-                                   int memorySizeMB,
+                                   MachineState machineState,
                                    LineConsumer creationLogsOutput) throws NotFoundException, MachineException {
         final String imageId = pullImage(instanceKey, creationLogsOutput);
 
         return createInstance(imageId,
-                              machineId,
-                              userId,
-                              workspaceId,
-                              isDev,
-                              displayName,
-                              recipe,
-                              memorySizeMB,
+                              machineState,
                               creationLogsOutput);
     }
 
@@ -294,14 +271,11 @@ public class DockerInstanceProvider implements InstanceProvider {
         }
         try {
             final ProgressLineFormatterImpl progressLineFormatter = new ProgressLineFormatterImpl();
-            docker.pull(repository, dockerInstanceKey.getTag(), dockerInstanceKey.getRegistry(), new ProgressMonitor() {
-                @Override
-                public void updateProgress(ProgressStatus currentProgressStatus) {
-                    try {
-                        creationLogsOutput.writeLine(progressLineFormatter.format(currentProgressStatus));
-                    } catch (IOException e) {
-                        LOG.error(e.getLocalizedMessage(), e);
-                    }
+            docker.pull(repository, dockerInstanceKey.getTag(), dockerInstanceKey.getRegistry(), currentProgressStatus -> {
+                try {
+                    creationLogsOutput.writeLine(progressLineFormatter.format(currentProgressStatus));
+                } catch (IOException e) {
+                    LOG.error(e.getLocalizedMessage(), e);
                 }
             });
 
@@ -353,13 +327,7 @@ public class DockerInstanceProvider implements InstanceProvider {
     }
 
     private Instance createInstance(String imageId,
-                                    String machineId,
-                                    String creator,
-                                    String workspaceId,
-                                    boolean isDev,
-                                    String displayName,
-                                    Recipe recipe,
-                                    int memorySizeMB,
+                                    MachineState machineState,
                                     LineConsumer outputConsumer)
             throws MachineException {
         try {
@@ -367,14 +335,14 @@ public class DockerInstanceProvider implements InstanceProvider {
             final Map<String, Map<String, String>> portsToExpose;
             final Set<String> volumes;
             final String[] env;
-            if (isDev) {
+            if (machineState.isDev()) {
                 labels = devMachineContainerLabels;
                 portsToExpose = portsToExposeOnDevMachine;
 
                 // 1 extra element that contains workspace FS folder will be added further
                 volumes = Sets.newHashSetWithExpectedSize(systemVolumesForDevMachine.size() + 1);
                 volumes.addAll(systemVolumesForDevMachine);
-                env = ObjectArrays.concat(devMachineEnvVariables, CHE_WORKSPACE_ID + '=' + workspaceId);
+                env = ObjectArrays.concat(devMachineEnvVariables, CHE_WORKSPACE_ID + '=' + machineState.getWorkspaceId());
             } else {
                 labels = machineContainerLabels;
                 portsToExpose = portsToExposeOnMachine;
@@ -384,46 +352,39 @@ public class DockerInstanceProvider implements InstanceProvider {
 
             final ContainerConfig config = new ContainerConfig().withImage(imageId)
                                                                 .withMemorySwap(-1)
-                                                                .withMemory((long)memorySizeMB * 1024 * 1024)
+                                                                .withMemory((long)machineState.getLimits().getMemory() * 1024 * 1024)
                                                                 .withLabels(labels)
                                                                 .withExposedPorts(portsToExpose)
                                                                 .withEnv(env);
 
-            final String containerId = docker.createContainer(config, generateContainerName(workspaceId, displayName)).getId();
+            final String containerId =
+                    docker.createContainer(config, generateContainerName(machineState.getWorkspaceId(), machineState.getName())).getId();
 
             final DockerNode node = dockerMachineFactory.createNode(containerId);
             String hostProjectsFolder = node.getProjectsFolder();
 
-            if (isDev) {
-                node.bindWorkspace(workspaceId, hostProjectsFolder);
-            }
+            if (machineState.isDev()) {
+                node.bindWorkspace(machineState.getWorkspaceId(), hostProjectsFolder);
 
-            // add workspace FS folder to volumes
-            if (isDev) {
+                // add workspace FS folder to volumes
                 final String projectFolderVolume = String.format("%s:%s", hostProjectsFolder, PROJECTS_FOLDER_PATH);
                 volumes.add(SystemInfo.isWindows() ? escapePath(projectFolderVolume) : projectFolderVolume);
             }
 
             HostConfig hostConfig = new HostConfig().withPublishAllPorts(true)
                                                     .withBinds(volumes.toArray(new String[volumes.size()]))
-                                                    .withMemory((long)memorySizeMB * 1024 * 1024)
+                                                    .withMemory((long)machineState.getLimits().getMemory() * 1024 * 1024)
                                                     .withExtraHosts(machineExtraHosts)
                                                     .withMemorySwap(-1);
 
             docker.startContainer(containerId, hostConfig);
 
-            dockerInstanceStopDetector.startDetection(containerId, machineId);
+            dockerInstanceStopDetector.startDetection(containerId, machineState.getId());
 
-            return dockerMachineFactory.createInstance(machineId,
-                                                       workspaceId,
-                                                       isDev,
-                                                       creator,
-                                                       displayName,
+            return dockerMachineFactory.createInstance(machineState,
                                                        containerId,
                                                        node,
-                                                       outputConsumer,
-                                                       recipe,
-                                                       memorySizeMB);
+                                                       outputConsumer);
         } catch (IOException e) {
             throw new MachineException(e);
         }

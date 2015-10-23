@@ -13,7 +13,7 @@ package org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
-import org.eclipse.che.api.machine.shared.dto.ServerDescriptor;
+import org.eclipse.che.api.machine.shared.dto.ServerDto;
 
 import javax.validation.constraints.NotNull;
 
@@ -24,11 +24,11 @@ import javax.validation.constraints.NotNull;
  */
 public class Server {
 
-    private final String           port;
-    private final ServerDescriptor descriptor;
+    private final String    port;
+    private final ServerDto descriptor;
 
     @Inject
-    public Server(@Assisted String port, @Assisted ServerDescriptor descriptor) {
+    public Server(@Assisted String port, @Assisted ServerDto descriptor) {
         this.port = port;
         this.descriptor = descriptor;
     }

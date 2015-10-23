@@ -12,7 +12,7 @@ package org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine
 
 import com.google.inject.ImplementedBy;
 
-import org.eclipse.che.api.machine.shared.dto.ProcessDescriptor;
+import org.eclipse.che.api.machine.shared.dto.MachineProcessDto;
 import org.eclipse.che.ide.api.mvp.View;
 
 import javax.validation.constraints.NotNull;
@@ -32,7 +32,7 @@ public interface ProcessesView extends View<ProcessesView.ActionDelegate> {
      * @param descriptors
      *         descriptors which need display
      */
-    void setProcesses(@NotNull List<ProcessDescriptor> descriptors);
+    void setProcesses(@NotNull List<MachineProcessDto> descriptors);
 
     /**
      * Change visibility state of panel.
@@ -49,6 +49,6 @@ public interface ProcessesView extends View<ProcessesView.ActionDelegate> {
          * @param descriptor
          *         process which is selected
          */
-        void onProcessClicked(@NotNull ProcessDescriptor descriptor);
+        void onProcessClicked(@NotNull MachineProcessDto descriptor);
     }
 }

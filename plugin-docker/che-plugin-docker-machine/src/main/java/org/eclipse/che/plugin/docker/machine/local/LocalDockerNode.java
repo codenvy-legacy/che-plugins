@@ -11,7 +11,6 @@
 package org.eclipse.che.plugin.docker.machine.local;
 
 import org.eclipse.che.api.machine.server.exception.MachineException;
-import org.eclipse.che.api.machine.shared.ProjectBinding;
 import org.eclipse.che.plugin.docker.client.DockerConnectorConfiguration;
 import org.eclipse.che.plugin.docker.machine.DockerNode;
 
@@ -45,16 +44,6 @@ public class LocalDockerNode implements DockerNode {
         }
 
         host = DockerConnectorConfiguration.getExpectedLocalHost();
-
-    }
-
-    @Override
-    public void bindProject(String workspaceId, ProjectBinding project) throws MachineException {
-
-    }
-
-    @Override
-    public void unbindProject(String workspaceId, ProjectBinding project) throws MachineException {
 
     }
 

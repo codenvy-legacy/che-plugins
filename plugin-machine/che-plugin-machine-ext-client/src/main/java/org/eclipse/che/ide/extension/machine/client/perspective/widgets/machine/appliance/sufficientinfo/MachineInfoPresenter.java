@@ -98,11 +98,11 @@ public class MachineInfoPresenter implements TabPresenter {
                          view.setWorkspaceName(ws.getName());
                      }
                  }).catchError(new Operation<PromiseError>() {
-                     @Override
-                     public void apply(PromiseError err) throws OperationException {
-                         Log.error(getClass(), err.getCause());
-                     }
-                 });
+            @Override
+            public void apply(PromiseError err) throws OperationException {
+                Log.error(getClass(), err.getCause());
+            }
+        });
 
         view.updateInfo(machine);
     }

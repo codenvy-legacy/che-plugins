@@ -19,13 +19,13 @@ import com.google.inject.name.Named;
 import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
-import org.eclipse.che.api.machine.shared.dto.MachineDescriptor;
+import org.eclipse.che.api.machine.shared.dto.CommandDto;
+import org.eclipse.che.api.machine.shared.dto.MachineDto;
 import org.eclipse.che.api.promises.client.Function;
 import org.eclipse.che.api.promises.client.FunctionException;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.workspace.gwt.client.WorkspaceServiceClient;
-import org.eclipse.che.api.workspace.shared.dto.CommandDto;
 import org.eclipse.che.commons.annotation.Nullable;
 import org.eclipse.che.ide.api.action.AbstractPerspectiveAction;
 import org.eclipse.che.ide.api.action.Action;
@@ -137,10 +137,10 @@ public class SelectCommandComboBoxReady extends AbstractPerspectiveAction implem
         }
         if (lastDevMachineId == null || !currentDevMachineId.equals(lastDevMachineId)) {
             //Gets DevMachine name by ID.
-            machineServiceClient.getMachine(currentDevMachineId).then(new Operation<MachineDescriptor>() {
+            machineServiceClient.getMachine(currentDevMachineId).then(new Operation<MachineDto>() {
                 @Override
-                public void apply(MachineDescriptor arg) throws OperationException {
-                    devMachineLabelWidget.setText(arg.getDisplayName());
+                public void apply(MachineDto arg) throws OperationException {
+                    devMachineLabelWidget.setText(arg.getName());
                 }
             });
             lastDevMachineId = currentDevMachineId;

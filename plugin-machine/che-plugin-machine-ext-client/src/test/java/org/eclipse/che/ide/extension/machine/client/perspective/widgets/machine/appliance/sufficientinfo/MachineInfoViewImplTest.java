@@ -12,6 +12,7 @@ package org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine
 
 import com.google.gwtmockito.GwtMockitoTestRunner;
 
+import org.eclipse.che.api.core.model.machine.MachineStatus;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.machine.Machine;
 import org.junit.Test;
@@ -19,7 +20,6 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 
-import static org.eclipse.che.api.machine.shared.MachineStatus.CREATING;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -46,7 +46,7 @@ public class MachineInfoViewImplTest {
     public void infoShouldBeUpdated() {
         when(machine.getDisplayName()).thenReturn(SOME_TEXT);
         when(machine.getId()).thenReturn(SOME_TEXT);
-        when(machine.getStatus()).thenReturn(CREATING);
+        when(machine.getStatus()).thenReturn(MachineStatus.CREATING);
         when(machine.getType()).thenReturn(SOME_TEXT);
         when(machine.isDev()).thenReturn(true);
 
