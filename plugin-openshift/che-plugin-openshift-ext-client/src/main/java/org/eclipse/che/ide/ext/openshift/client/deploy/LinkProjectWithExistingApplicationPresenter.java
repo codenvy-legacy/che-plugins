@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2012-2014 Codenvy, S.A.
+ * Copyright (c) 2012-2015 Codenvy, S.A.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- * Codenvy, S.A. - initial API and implementation
+ *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
 package org.eclipse.che.ide.ext.openshift.client.deploy;
 
@@ -46,15 +46,13 @@ public class LinkProjectWithExistingApplicationPresenter implements LinkProjectW
     private final OpenshiftLocalizationConstant          locale;
     private final NotificationManager                    notificationManager;
     private final DialogFactory                          dialogFactory;
-
     private final OpenshiftServiceClient                 openShiftClient;
-    private final ProjectServiceClient   projectServiceClient;
-    private final GitServiceClient       gitService;
-    private final DtoUnmarshallerFactory dtoUnmarshaller;
-    private final DtoFactory             dtoFactory;
-
-    private final Map<String, List<BuildConfig>> buildConfigMap;
-    private       BuildConfig                    selectedBuildConfig;
+    private final ProjectServiceClient                   projectServiceClient;
+    private final GitServiceClient                       gitService;
+    private final DtoUnmarshallerFactory                 dtoUnmarshaller;
+    private final DtoFactory                             dtoFactory;
+    private final Map<String, List<BuildConfig>>         buildConfigMap;
+    private       BuildConfig                            selectedBuildConfig;
 
 
     @Inject
