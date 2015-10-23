@@ -2,8 +2,10 @@
 [![Join the chat at https://gitter.im/eclipse/che](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/eclipse/che?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Build Status](https://travis-ci.org/codenvy/che-plugins.svg?branch=master)](https://travis-ci.org/codenvy/che-plugins)
 
-[![License](https://img.shields.io/github/license/codenvy/che-plugins.svg)](https://github.com/codenvy/che-plugins)
-[![Latest tag](https://img.shields.io/github/tag/codenvy/che-plugins.svg)](https://github.com/codenvy/che-plugins/tags)
+[![Eclipse License](http://img.shields.io/badge/license-Eclipse-brightgreen.svg)](https://github.com/codenvy/che/blob/master/LICENSE)
+[![latest 3.x](https://img.shields.io/badge/latest stable-3.x-green.svg)](https://github.com/codenvy/che-plugins/tree/master)
+[![latest 4.x](https://img.shields.io/badge/latest dev-4.x-yellowgreen.svg)](https://github.com/codenvy/che-plugins/tree/4.0)
+
 
 ## About Eclipse Che
 High performance, open source developer environments in the cloud.
