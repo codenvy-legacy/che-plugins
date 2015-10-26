@@ -8,7 +8,7 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.plugin.docker.machine;
+package org.eclipse.che.plugin.docker.machine.node;
 
 import org.eclipse.che.api.machine.server.exception.MachineException;
 import org.eclipse.che.api.machine.server.spi.InstanceNode;
@@ -20,30 +20,20 @@ import org.eclipse.che.api.machine.server.spi.InstanceNode;
  */
 public interface DockerNode extends InstanceNode {
     /**
-     * Bind the whole workspace with specified id.<br>
-     * Project can't be bound/unbound if workspace is bound already, and vice versa.
+     * Bind the whole workspace on the Node.
      *
-     * @param workspaceId
-     *         id of workspace to bind
-     * @param hostProjectsFolder
-     *         folder on the docker host where workspace should be bound
      * @throws MachineException
      *         if error occurs on binding
      */
-    void bindWorkspace(String workspaceId, String hostProjectsFolder) throws MachineException;
+    void bindWorkspace() throws MachineException;
 
     /**
-     * Unbind the workspace with specified id.<br>
-     * Project can't be bound/unbound if workspace is bound already, and vice versa.
+     * Unbind the workspace on Node.
      *
-     * @param workspaceId
-     *         id of workspace to unbind
-     * @param hostProjectsFolder
-     *         folder on the docker host where workspace was bound
      * @throws MachineException
      *         if error occurs on binding
      */
-    void unbindWorkspace(String workspaceId, String hostProjectsFolder) throws MachineException;
+    void unbindWorkspace() throws MachineException;
 
     @Override
     String getProjectsFolder();
