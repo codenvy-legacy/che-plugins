@@ -13,9 +13,11 @@ package org.eclipse.che.ide.ext.openshift.server;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.openshift.internal.restclient.http.UrlConnectionHttpClientBuilder;
 import com.openshift.restclient.IClient;
-import com.openshift.restclient.ISSLCertificateCallback;
+import com.openshift.restclient.NoopSSLCertificateCallback;
 import com.openshift.restclient.authorization.TokenAuthorizationStrategy;
+import com.openshift.restclient.http.IHttpClient;
 
 import org.eclipse.che.api.auth.shared.dto.OAuthToken;
 import org.eclipse.che.api.core.ServerException;
@@ -26,9 +28,7 @@ import org.eclipse.che.security.oauth.RemoteOAuthTokenProvider;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
-import javax.net.ssl.SSLSession;
 import java.io.IOException;
-import java.security.cert.X509Certificate;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -67,7 +67,7 @@ public class ClientFactory {
      * @throws ServerException
      *         when some exception occurs during getting of access token
      */
-    public IClient getClient() throws UnauthorizedException, ServerException {
+    public IClient getOpenshiftClient() throws UnauthorizedException, ServerException {
         try {
             final String userId = EnvironmentContext.getCurrent().getUser().getId();
             return token2clientCache.get(getToken(userId));
@@ -80,6 +80,18 @@ public class ClientFactory {
             }
             throw new RuntimeException(e.getLocalizedMessage(), e);
         }
+    }
+
+    /**
+     * Returns instance of IHttpClient for working with openshift server for current user
+     *
+     * @throws UnauthorizedException
+     *         when user did not have access token to openshift server
+     * @throws ServerException
+     *         when some exception occurs during getting of access token
+     */
+    public IHttpClient getHttpClient() throws UnauthorizedException, ServerException {
+        return newIHttpClient(EnvironmentContext.getCurrent().getUser().getId());
     }
 
     private String getToken(String userId) throws ServerException, UnauthorizedException {
@@ -97,18 +109,15 @@ public class ClientFactory {
         return token.getToken();
     }
 
-    private IClient createClient(String token) throws UnauthorizedException, ServerException {
-        IClient client = new com.openshift.restclient.ClientFactory().create(openshiftApiEndpoint, new ISSLCertificateCallback() {
-            @Override
-            public boolean allowCertificate(X509Certificate[] x509Certificates) {
-                return true;
-            }
+    private IHttpClient newIHttpClient(String userId) throws ServerException, UnauthorizedException {
+        return new UrlConnectionHttpClientBuilder().setAcceptMediaType("application/json")
+                                                   .setSSLCertificateCallback(new NoopSSLCertificateCallback())
+                                                   .setAuthorizationStrategy(new TokenAuthorizationStrategy(getToken(userId)))
+                                                   .client();
+    }
 
-            @Override
-            public boolean allowHostname(String s, SSLSession sslSession) {
-                return true;
-            }
-        });
+    private IClient createClient(String token) throws UnauthorizedException, ServerException {
+        IClient client = new com.openshift.restclient.ClientFactory().create(openshiftApiEndpoint, new NoopSSLCertificateCallback());
         client.setAuthorizationStrategy(new TokenAuthorizationStrategy(token));
         return client;
     }

@@ -14,6 +14,7 @@ import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.ide.ext.openshift.shared.dto.BuildConfig;
 import org.eclipse.che.ide.ext.openshift.shared.dto.DeploymentConfig;
 import org.eclipse.che.ide.ext.openshift.shared.dto.ImageStream;
+import org.eclipse.che.ide.ext.openshift.shared.dto.ImageStreamTag;
 import org.eclipse.che.ide.ext.openshift.shared.dto.Project;
 import org.eclipse.che.ide.ext.openshift.shared.dto.ProjectRequest;
 import org.eclipse.che.ide.ext.openshift.shared.dto.Route;
@@ -43,6 +44,8 @@ public interface OpenshiftServiceClient {
     Promise<ImageStream> createImageStream(ImageStream stream);
 
     Promise<List<ImageStream>> getImageStreams(String namespace, String application);
+
+    Promise<ImageStreamTag> getImageStreamTag(String namespace, String imageStream, String tag);
 
     Promise<DeploymentConfig> createDeploymentConfig(DeploymentConfig config);
 

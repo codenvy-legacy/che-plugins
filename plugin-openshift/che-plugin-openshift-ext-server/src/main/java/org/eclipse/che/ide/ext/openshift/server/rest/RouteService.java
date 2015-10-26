@@ -64,7 +64,7 @@ public class RouteService {
             throw new BadRequestException(route.getKind() + " cannot be handled as a " + ResourceKind.ROUTE);
         }
 
-        final IClient client = clientFactory.getClient();
+        final IClient client = clientFactory.getOpenshiftClient();
         final IRoute openshiftRoute = toOpenshiftResource(client, route);
         return toDto(Route.class, client.create(openshiftRoute, namespace));
     }
@@ -77,7 +77,7 @@ public class RouteService {
         if (application != null) {
             labels.put("application", application);
         }
-        List<IRoute> routes = clientFactory.getClient().list(ResourceKind.ROUTE, namespace, labels);
+        List<IRoute> routes = clientFactory.getOpenshiftClient().list(ResourceKind.ROUTE, namespace, labels);
         return routes.stream()
                      .map(imageStream -> toDto(Route.class, imageStream))
                      .collect(Collectors.toList());
@@ -89,7 +89,7 @@ public class RouteService {
     public Route getRoute(@PathParam("namespace") String namespace,
                           @PathParam("route") String route) throws UnauthorizedException, ServerException {
 
-        return toDto(Route.class, clientFactory.getClient().get(ResourceKind.ROUTE, route, namespace));
+        return toDto(Route.class, clientFactory.getOpenshiftClient().get(ResourceKind.ROUTE, route, namespace));
     }
 
     @PUT
@@ -102,7 +102,7 @@ public class RouteService {
         if (!routeName.equals(route.getMetadata().getName())) {
             throw new ForbiddenException("Name of resources can read only access mode");
         }
-        final IClient client = clientFactory.getClient();
+        final IClient client = clientFactory.getOpenshiftClient();
         return toDto(Route.class, client.update(toOpenshiftResource(client, route)));
     }
 }

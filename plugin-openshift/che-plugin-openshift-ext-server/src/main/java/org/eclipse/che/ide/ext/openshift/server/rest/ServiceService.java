@@ -64,7 +64,7 @@ public class ServiceService {
             throw new BadRequestException(service.getKind() + " cannot be handled as a " + ResourceKind.SERVICE);
         }
 
-        final IClient client = clientFactory.getClient();
+        final IClient client = clientFactory.getOpenshiftClient();
         final IService openshiftService = toOpenshiftResource(client, service);
         return toDto(Service.class, client.create(openshiftService, namespace));
     }
@@ -77,7 +77,7 @@ public class ServiceService {
         if (application != null) {
             labels.put("application", application);
         }
-        List<IService> services = clientFactory.getClient().list(ResourceKind.SERVICE, namespace, labels);
+        List<IService> services = clientFactory.getOpenshiftClient().list(ResourceKind.SERVICE, namespace, labels);
         return services.stream()
                        .map(imageStream -> toDto(Service.class, imageStream))
                        .collect(Collectors.toList());
@@ -89,7 +89,7 @@ public class ServiceService {
     public Service getService(@PathParam("namespace") String namespace,
                               @PathParam("service") String service) throws UnauthorizedException, ServerException {
 
-        return toDto(Service.class, clientFactory.getClient().get(ResourceKind.SERVICE, service, namespace));
+        return toDto(Service.class, clientFactory.getOpenshiftClient().get(ResourceKind.SERVICE, service, namespace));
     }
 
     @PUT
@@ -102,7 +102,7 @@ public class ServiceService {
         if (!serviceName.equals(service.getMetadata().getName())) {
             throw new ForbiddenException("Name of resources can read only access mode");
         }
-        final IClient client = clientFactory.getClient();
+        final IClient client = clientFactory.getOpenshiftClient();
         return toDto(Service.class, client.update(toOpenshiftResource(client, service)));
     }
 }

@@ -21,6 +21,7 @@ import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.ext.openshift.shared.dto.BuildConfig;
 import org.eclipse.che.ide.ext.openshift.shared.dto.DeploymentConfig;
 import org.eclipse.che.ide.ext.openshift.shared.dto.ImageStream;
+import org.eclipse.che.ide.ext.openshift.shared.dto.ImageStreamTag;
 import org.eclipse.che.ide.ext.openshift.shared.dto.Project;
 import org.eclipse.che.ide.ext.openshift.shared.dto.ProjectRequest;
 import org.eclipse.che.ide.ext.openshift.shared.dto.Route;
@@ -183,6 +184,21 @@ public class OpenshiftServiceClientImpl implements OpenshiftServiceClient {
                                    .header(ACCEPT, MimeType.APPLICATION_JSON)
                                    .loader(loader, "Getting image stream...")
                                    .send(newCallback(callback, dtoUnmarshaller.newListUnmarshaller(ImageStream.class)));
+            }
+        });
+    }
+
+    @Override
+    public Promise<ImageStreamTag> getImageStreamTag(final String namespace, final String imageStream, final String tag) {
+        return newPromise(new AsyncPromiseHelper.RequestCall<ImageStreamTag>() {
+            @Override
+            public void makeCall(AsyncCallback<ImageStreamTag> callback) {
+                final String url = openshiftPath + "/" + namespace + "/imagestream/" + imageStream + "/tag/" + tag;
+                asyncRequestFactory.createGetRequest(url)
+                                   .header(CONTENT_TYPE, MimeType.APPLICATION_JSON)
+                                   .header(ACCEPT, MimeType.APPLICATION_JSON)
+                                   .loader(loader, "Getting image stream tag...")
+                                   .send(newCallback(callback, dtoUnmarshaller.newUnmarshaller(ImageStreamTag.class)));
             }
         });
     }

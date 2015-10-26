@@ -11,18 +11,23 @@
 package org.eclipse.che.ide.ext.openshift.server.rest;
 
 
+import com.google.common.collect.ImmutableMap;
 import com.openshift.restclient.IClient;
 import com.openshift.restclient.ResourceKind;
+import com.openshift.restclient.http.IHttpClient;
 import com.openshift.restclient.model.IImageStream;
 
 import org.eclipse.che.api.core.BadRequestException;
 import org.eclipse.che.api.core.ForbiddenException;
 import org.eclipse.che.api.core.ServerException;
 import org.eclipse.che.api.core.UnauthorizedException;
+import org.eclipse.che.dto.server.DtoFactory;
 import org.eclipse.che.ide.ext.openshift.server.ClientFactory;
 import org.eclipse.che.ide.ext.openshift.shared.dto.ImageStream;
+import org.eclipse.che.ide.ext.openshift.shared.dto.ImageStreamTag;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -32,6 +37,10 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.UriBuilder;
+import java.net.MalformedURLException;
+import java.net.SocketTimeoutException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,9 +55,12 @@ import static org.eclipse.che.ide.ext.openshift.server.DtoConverter.toOpenshiftR
 @Path("/openshift/{ws-id}/{namespace}/imagestream")
 public class ImageStreamService {
     private final ClientFactory clientFactory;
+    private final String        getTagUrlTemplate;
 
     @Inject
-    public ImageStreamService(ClientFactory clientFactory) {
+    public ImageStreamService(@Named("openshift.api.endpoint") String openshiftApiEndpoint,
+                              ClientFactory clientFactory) {
+        this.getTagUrlTemplate = openshiftApiEndpoint + "osapi/v1beta3/namespaces/{namespace}/imagestreamtags/{imageStream}:{tag}";
         this.clientFactory = clientFactory;
     }
 
@@ -64,7 +76,7 @@ public class ImageStreamService {
             throw new BadRequestException(imageStream.getKind() + " cannot be handled as a " + ResourceKind.IMAGE_STREAM);
         }
 
-        final IClient client = clientFactory.getClient();
+        final IClient client = clientFactory.getOpenshiftClient();
         final IImageStream openshiftImageStream = toOpenshiftResource(client, imageStream);
         return toDto(ImageStream.class, client.create(openshiftImageStream, namespace));
     }
@@ -78,7 +90,7 @@ public class ImageStreamService {
             labels.put("application", application);
         }
 
-        List<IImageStream> imageStreams = clientFactory.getClient().list(ResourceKind.IMAGE_STREAM, namespace, labels);
+        List<IImageStream> imageStreams = clientFactory.getOpenshiftClient().list(ResourceKind.IMAGE_STREAM, namespace, labels);
         return imageStreams.stream()
                            .map(imageStream -> toDto(ImageStream.class, imageStream))
                            .collect(Collectors.toList());
@@ -90,7 +102,7 @@ public class ImageStreamService {
     public ImageStream getImageStream(@PathParam("namespace") String namespace,
                                       @PathParam("imageStream") String imageStream) throws UnauthorizedException, ServerException {
 
-        return toDto(ImageStream.class, clientFactory.getClient().get(ResourceKind.IMAGE_STREAM, imageStream, namespace));
+        return toDto(ImageStream.class, clientFactory.getOpenshiftClient().get(ResourceKind.IMAGE_STREAM, imageStream, namespace));
     }
 
     @PUT
@@ -103,7 +115,32 @@ public class ImageStreamService {
         if (!imageStreamName.equals(imageStream.getMetadata().getName())) {
             throw new ForbiddenException("Name of resources can read only access mode");
         }
-        final IClient client = clientFactory.getClient();
+        final IClient client = clientFactory.getOpenshiftClient();
         return toDto(ImageStream.class, client.update(toOpenshiftResource(client, imageStream)));
+    }
+
+    @GET
+    @Path("/{imageStream}/tag/{imageStreamTag}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public ImageStreamTag getImageStreamTag(@PathParam("namespace") String namespace,
+                                            @PathParam("imageStream") String imageStream,
+                                            @PathParam("imageStreamTag") String imageStreamTag)
+            throws UnauthorizedException, ServerException {
+        URL url;
+        try {
+            url = UriBuilder.fromPath(getTagUrlTemplate).buildFromMap(ImmutableMap.of("namespace", namespace,
+                                                                                     "imageStream", imageStream,
+                                                                                     "tag", imageStreamTag))
+                            .toURL();
+        } catch (MalformedURLException e) {
+            throw new ServerException("Unable to get image stream tag. " + e.getMessage(), e);
+        }
+
+        try {
+            final String response = clientFactory.getHttpClient().get(url, IHttpClient.DEFAULT_READ_TIMEOUT);
+            return DtoFactory.getInstance().createDtoFromJson(response, ImageStreamTag.class);
+        } catch (SocketTimeoutException e) {
+            throw new ServerException("Unable to get image stream tag. " + e.getMessage(), e);
+        }
     }
 }

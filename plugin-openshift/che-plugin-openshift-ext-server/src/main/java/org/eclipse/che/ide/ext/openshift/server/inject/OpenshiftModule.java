@@ -23,7 +23,6 @@ import org.eclipse.che.ide.ext.openshift.server.rest.ProjectService;
 import org.eclipse.che.ide.ext.openshift.server.rest.RouteService;
 import org.eclipse.che.ide.ext.openshift.server.rest.ServiceService;
 import org.eclipse.che.ide.ext.openshift.server.rest.TemplateService;
-import org.eclipse.che.inject.DynaModule;
 
 /**
  * @author Sergii Leschenko

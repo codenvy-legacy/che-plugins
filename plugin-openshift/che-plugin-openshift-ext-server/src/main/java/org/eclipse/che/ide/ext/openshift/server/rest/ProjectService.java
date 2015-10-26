@@ -61,7 +61,7 @@ public class ProjectService {
             throw new BadRequestException(project.getKind() + " cannot be handled as a " + ResourceKind.PROJECT_REQUEST);
         }
 
-        final IClient client = clientFactory.getClient();
+        final IClient client = clientFactory.getOpenshiftClient();
         final IProjectRequest openshiftProject = toOpenshiftResource(client, project);
         return toDto(Project.class, client.create(openshiftProject));
     }
@@ -69,7 +69,7 @@ public class ProjectService {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public List<Project> getProjects() throws UnauthorizedException, ServerException {
-        List<IProject> projects = clientFactory.getClient().list(ResourceKind.PROJECT);
+        List<IProject> projects = clientFactory.getOpenshiftClient().list(ResourceKind.PROJECT);
         return projects.stream()
                        .map(imageStream -> toDto(Project.class, imageStream))
                        .collect(Collectors.toList());
@@ -80,7 +80,7 @@ public class ProjectService {
     @Produces(MediaType.APPLICATION_JSON)
     public Project getProject(@PathParam("project") String project) throws UnauthorizedException, ServerException {
 
-        return toDto(Project.class, clientFactory.getClient().get(ResourceKind.PROJECT, project, project));
+        return toDto(Project.class, clientFactory.getOpenshiftClient().get(ResourceKind.PROJECT, project, project));
     }
 
     @PUT
@@ -92,7 +92,7 @@ public class ProjectService {
         if (!projectName.equals(project.getMetadata().getName())) {
             throw new ForbiddenException("Name of resources can read only access mode");
         }
-        final IClient client = clientFactory.getClient();
+        final IClient client = clientFactory.getOpenshiftClient();
         return toDto(Project.class, client.update(toOpenshiftResource(client, project)));
     }
 }
