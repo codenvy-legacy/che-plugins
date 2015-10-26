@@ -144,7 +144,13 @@ public class DockerInstanceProvider implements InstanceProvider {
         commonEnvVariables = new String[0];
         devMachineEnvVariables = new String[] {API_ENDPOINT_URL_VARIABLE + '=' + apiEndpoint,
                                                DockerInstanceMetadata.PROJECTS_ROOT_VARIABLE + '=' + PROJECTS_FOLDER_PATH};
-        this.machineExtraHosts = isNullOrEmpty(machineExtraHosts) ? null : machineExtraHosts.split(",");
+        String[] extraHosts = isNullOrEmpty(machineExtraHosts) ? null : machineExtraHosts.split(",");
+        String dockerHost = "che-host:".concat(docker.getDockerHostIp());
+        if (extraHosts == null) {
+            this.machineExtraHosts = new String[] {dockerHost};
+        } else {
+            this.machineExtraHosts = ObjectArrays.concat(extraHosts, dockerHost);
+        }
     }
 
 

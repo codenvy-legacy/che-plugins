@@ -89,6 +89,7 @@ public class DockerInstanceProviderTest {
 
     @BeforeMethod
     public void setUp() throws Exception {
+        when(dockerConnector.getDockerHostIp()).thenReturn("123.123.123.123");
 
         dockerInstanceProvider = new DockerInstanceProvider(dockerConnector,
                                                             dockerMachineFactory,
@@ -939,7 +940,7 @@ public class DockerInstanceProviderTest {
         verify(dockerConnector).startContainer(anyString(), eq(null));
 
         final String[] extraHosts = argumentCaptor.getValue().getHostConfig().getExtraHosts();
-        assertEquals(extraHosts.length, 1);
+        assertEquals(extraHosts.length, 2);
         assertEquals(extraHosts[0], "dev.box.com:192.168.0.1");
     }
 
@@ -973,7 +974,7 @@ public class DockerInstanceProviderTest {
         verify(dockerConnector).startContainer(anyString(), eq(null));
 
         final String[] extraHosts = argumentCaptor.getValue().getHostConfig().getExtraHosts();
-        assertEquals(extraHosts.length, 2);
+        assertEquals(extraHosts.length, 3);
         assertEquals(extraHosts[0], "dev.box.com:192.168.0.1");
         assertEquals(extraHosts[1], "codenvy.com.com:185");
     }
@@ -1009,7 +1010,7 @@ public class DockerInstanceProviderTest {
         verify(dockerConnector).startContainer(anyString(), eq(null));
 
         final String[] extraHosts = argumentCaptor.getValue().getHostConfig().getExtraHosts();
-        assertEquals(extraHosts.length, 1);
+        assertEquals(extraHosts.length, 2);
         assertEquals(extraHosts[0], "dev.box.com:192.168.0.1");
     }
 
@@ -1043,7 +1044,7 @@ public class DockerInstanceProviderTest {
         verify(dockerConnector).startContainer(anyString(), eq(null));
 
         final String[] extraHosts = argumentCaptor.getValue().getHostConfig().getExtraHosts();
-        assertEquals(extraHosts.length, 2);
+        assertEquals(extraHosts.length, 3);
         assertEquals(extraHosts[0], "dev.box.com:192.168.0.1");
         assertEquals(extraHosts[1], "codenvy.com.com:185");
     }

@@ -28,6 +28,7 @@ import org.eclipse.che.plugin.docker.client.connection.DockerResponse;
 import org.eclipse.che.plugin.docker.client.connection.TcpConnection;
 import org.eclipse.che.plugin.docker.client.connection.UnixSocketConnection;
 import org.eclipse.che.plugin.docker.client.dto.AuthConfigs;
+import org.eclipse.che.plugin.docker.client.helper.NetworkFinder;
 import org.eclipse.che.plugin.docker.client.json.ContainerCommited;
 import org.eclipse.che.plugin.docker.client.json.ContainerConfig;
 import org.eclipse.che.plugin.docker.client.json.ContainerCreated;
@@ -125,17 +126,20 @@ public class DockerConnector {
     private final DockerCertificates dockerCertificates;
     private final InitialAuthConfig  initialAuthConfig;
     private final ExecutorService    executor;
+    private final String             dockerHostIp;
 
-    public DockerConnector(InitialAuthConfig initialAuthConfig) {
-        this(new DockerConnectorConfiguration(initialAuthConfig));
+    public DockerConnector(InitialAuthConfig initialAuthConfig, NetworkFinder networkFinder) {
+        this(new DockerConnectorConfiguration(initialAuthConfig, networkFinder));
     }
 
     public DockerConnector(URI dockerDaemonUri,
                            DockerCertificates dockerCertificates,
-                           InitialAuthConfig initialAuthConfig) {
+                           InitialAuthConfig initialAuthConfig,
+                           String dockerHostIp) {
         this.dockerDaemonUri = dockerDaemonUri;
         this.dockerCertificates = dockerCertificates;
         this.initialAuthConfig = initialAuthConfig;
+        this.dockerHostIp = dockerHostIp;
         executor = Executors.newCachedThreadPool(new ThreadFactoryBuilder()
                                                          .setNameFormat("DockerApiConnector-%d")
                                                          .setDaemon(true)
@@ -146,7 +150,8 @@ public class DockerConnector {
     private DockerConnector(DockerConnectorConfiguration connectorConfiguration) {
         this(connectorConfiguration.getDockerDaemonUri(),
              connectorConfiguration.getDockerCertificates(),
-             connectorConfiguration.getAuthConfigs());
+             connectorConfiguration.getAuthConfigs(),
+             connectorConfiguration.getDockerHostIp());
     }
 
     /**
@@ -1169,5 +1174,15 @@ public class DockerConnector {
 
     private void createTarArchive(File tar, File... files) throws IOException {
         TarUtils.tarFiles(tar, 0, files);
+    }
+
+    /**
+     * Gets the Docker host ip address. This is host that can be reached from a docker container.
+     *
+     * @return docker host IP address
+     * @see <a href="https://docs.docker.com/articles/networking/">Docker Networking</a>
+     */
+    public String getDockerHostIp() {
+        return dockerHostIp;
     }
 }
