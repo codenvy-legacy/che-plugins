@@ -10,30 +10,21 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.java.client.refactoring.rename;
 
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.google.web.bindery.event.shared.EventBus;
 
-import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
-import org.eclipse.che.api.project.shared.dto.ItemReference;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.api.promises.client.PromiseError;
-import org.eclipse.che.api.promises.client.callback.AsyncPromiseHelper;
-import org.eclipse.che.api.promises.client.callback.PromiseHelper;
 import org.eclipse.che.ide.api.app.AppContext;
-import org.eclipse.che.ide.api.editor.EditorAgent;
-import org.eclipse.che.ide.api.editor.EditorPartPresenter;
 import org.eclipse.che.ide.api.editor.EditorWithAutoSave;
-import org.eclipse.che.ide.api.event.FileContentUpdateEvent;
 import org.eclipse.che.ide.api.notification.NotificationManager;
-import org.eclipse.che.ide.api.project.tree.VirtualFile;
 import org.eclipse.che.ide.api.text.Position;
 import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.ext.java.client.JavaLocalizationConstant;
 import org.eclipse.che.ide.ext.java.client.projecttree.JavaSourceFolderUtil;
+import org.eclipse.che.ide.ext.java.client.refactoring.RefactoringUpdater;
 import org.eclipse.che.ide.ext.java.client.refactoring.rename.wizard.RenamePresenter;
 import org.eclipse.che.ide.ext.java.client.refactoring.service.RefactoringServiceClient;
 import org.eclipse.che.ide.ext.java.shared.dto.LinkedData;
@@ -54,9 +45,6 @@ import org.eclipse.che.ide.jseditor.client.link.LinkedModelData;
 import org.eclipse.che.ide.jseditor.client.link.LinkedModelGroup;
 import org.eclipse.che.ide.jseditor.client.texteditor.TextEditor;
 import org.eclipse.che.ide.json.JsonHelper;
-import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
-import org.eclipse.che.ide.project.node.FileReferenceNode;
-import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 import org.eclipse.che.ide.ui.loaders.requestLoader.IdeLoader;
 
@@ -64,7 +52,6 @@ import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.eclipse.che.api.promises.client.callback.PromiseHelper.newCallback;
 import static org.eclipse.che.ide.ext.java.shared.dto.refactoring.CreateRenameRefactoring.RenameType.JAVA_ELEMENT;
 import static org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatus.ERROR;
 import static org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatus.FATAL;
@@ -76,53 +63,42 @@ import static org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringSta
  * Class for rename refactoring java classes
  *
  * @author Alexander Andrienko
+ * @author Valeriy Svydenko
  */
 @Singleton
 public class JavaRefactoringRename {
-    private final EditorAgent              editorAgent;
     private final RenamePresenter          renamePresenter;
+    private final RefactoringUpdater       refactoringUpdater;
     private final JavaLocalizationConstant locale;
     private final RefactoringServiceClient refactoringServiceClient;
-    private final ProjectServiceClient     projectServiceClient;
     private final DtoFactory               dtoFactory;
     private final AppContext               appContext;
     private final DialogFactory            dialogFactory;
-    private final EventBus                 eventBus;
-    private final DtoUnmarshallerFactory   unmarshallerFactory;
     private final NotificationManager      notificationManager;
     private final IdeLoader                loader;
-    private final ProjectExplorerPresenter projectExplorer;
 
     private boolean    isActiveLinkedEditor;
     private LinkedMode mode;
 
     @Inject
-    public JavaRefactoringRename(EditorAgent editorAgent,
-                                 RenamePresenter renamePresenter,
+    public JavaRefactoringRename(RenamePresenter renamePresenter,
+                                 RefactoringUpdater refactoringUpdater,
                                  JavaLocalizationConstant locale,
                                  RefactoringServiceClient refactoringServiceClient,
-                                 ProjectServiceClient projectServiceClient,
                                  DtoFactory dtoFactory,
                                  DialogFactory dialogFactory,
                                  AppContext appContext,
-                                 EventBus eventBus,
-                                 DtoUnmarshallerFactory unmarshallerFactory,
                                  NotificationManager notificationManager,
-                                 IdeLoader loader,
-                                 ProjectExplorerPresenter projectExplorer) {
-        this.editorAgent = editorAgent;
+                                 IdeLoader loader) {
         this.renamePresenter = renamePresenter;
+        this.refactoringUpdater = refactoringUpdater;
         this.locale = locale;
         this.dialogFactory = dialogFactory;
         this.refactoringServiceClient = refactoringServiceClient;
-        this.projectServiceClient = projectServiceClient;
         this.dtoFactory = dtoFactory;
         this.appContext = appContext;
-        this.eventBus = eventBus;
-        this.unmarshallerFactory = unmarshallerFactory;
         this.notificationManager = notificationManager;
         this.loader = loader;
-        this.projectExplorer = projectExplorer;
 
         isActiveLinkedEditor = false;
     }
@@ -131,10 +107,12 @@ public class JavaRefactoringRename {
      * Launch java rename refactoring process
      *
      * @param textEditorPresenter
-     *         editor where user refactors code
+     *         editor where user makes refactoring
      */
     public void refactor(final TextEditor textEditorPresenter) {
         final CreateRenameRefactoring createRenameRefactoring = createRenameRefactoringDto(textEditorPresenter, appContext);
+
+        textEditorPresenter.setFocus();
 
         Promise<RenameRefactoringSession> createRenamePromise = refactoringServiceClient.createRenameRefactoring(createRenameRefactoring);
         createRenamePromise.then(new Operation<RenameRefactoringSession>() {
@@ -211,17 +189,15 @@ public class JavaRefactoringRename {
                 }
             }
         });
-
     }
 
     private void performRename(final String newName, RenameRefactoringSession session, final HasLinkedMode linkedEditor) {
         final LinkedRenameRefactoringApply dto = createLinkedRenameRefactoringApplyDto(newName, session.getSessionId());
-
         Promise<RefactoringResult> applyModelPromise = refactoringServiceClient.applyLinkedModeRename(dto);
         applyModelPromise.then(new Operation<RefactoringResult>() {
             @Override
-            public void apply(RefactoringResult status) throws OperationException {
-                onTargetRenamed(status, newName, linkedEditor);
+            public void apply(RefactoringResult result) throws OperationException {
+                onTargetRenamed(result, linkedEditor);
             }
         }).catchError(new Operation<PromiseError>() {
             @Override
@@ -235,29 +211,32 @@ public class JavaRefactoringRename {
         });
     }
 
-    private void onTargetRenamed(RefactoringStatus status, String newName, HasLinkedMode linkedEditor) {
+    private void onTargetRenamed(RefactoringResult result, HasLinkedMode linkedEditor) {
         if (linkedEditor instanceof EditorWithAutoSave) {
             ((EditorWithAutoSave)linkedEditor).enableAutoSave();
         }
-        switch (status.getSeverity()) {
+        switch (result.getSeverity()) {
             case OK:
-                updateAfterRefactoring(newName);
+                refactoringUpdater.updateAfterRefactoring(result.getChanges());
+                loader.hide();
                 break;
             case INFO:
                 loader.hide();
-                notificationManager.showInfo(getNotification(status));
+                notificationManager.showInfo(getNotification(result));
                 break;
             case WARNING:
                 loader.hide();
-                notificationManager.showWarning(getNotification(status));
+                notificationManager.showWarning(getNotification(result));
                 break;
             case ERROR:
                 loader.hide();
-                notificationManager.showError(getNotification(status));
+                notificationManager.showError(getNotification(result));
                 break;
             case FATAL:
                 loader.hide();
-                notificationManager.showError(getNotification(status));
+                notificationManager.showError(getNotification(result));
+            default:
+                break;
         }
     }
 
@@ -269,44 +248,6 @@ public class JavaRefactoringRename {
             notificationMessage.append(". ");
         }
         return notificationMessage.toString();
-    }
-
-    private void updateAfterRefactoring(String newName) {
-        final VirtualFile virtualFile = editorAgent.getActiveEditor().getEditorInput().getFile();
-
-        final String oldPath = virtualFile.getPath();
-        String parentPath = oldPath.substring(0, oldPath.lastIndexOf("/"));
-        final String newPath = parentPath + "/" + newName + ".java";
-
-        //todo Warning: temporary design
-        PromiseHelper.newPromise(new AsyncPromiseHelper.RequestCall<ItemReference>() {
-            @Override
-            public void makeCall(AsyncCallback<ItemReference> callback) {
-                projectServiceClient.getItem(newPath, newCallback(callback, unmarshallerFactory.newUnmarshaller(ItemReference.class)));
-            }
-        }).then(new Operation<ItemReference>() {
-            @Override
-            public void apply(ItemReference reference) throws OperationException {
-                ((FileReferenceNode)virtualFile).setData(reference);
-                editorAgent.updateEditorNode(oldPath, virtualFile);
-                updateAllEditors();
-                projectExplorer.reloadChildren();
-            }
-        }).catchError(new Operation<PromiseError>() {
-            @Override
-            public void apply(PromiseError arg) throws OperationException {
-                updateAllEditors();
-                projectExplorer.reloadChildren();
-            }
-        });
-    }
-
-    private void updateAllEditors() {
-        for (EditorPartPresenter editor : editorAgent.getOpenedEditors().values()) {
-            String path = editor.getEditorInput().getFile().getPath();
-            eventBus.fireEvent(new FileContentUpdateEvent(path));
-        }
-        loader.hide();
     }
 
     @NotNull

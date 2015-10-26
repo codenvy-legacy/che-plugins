@@ -12,7 +12,6 @@ package org.eclipse.che.ide.ext.java.client.refactoring.rename.wizard;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.api.promises.client.Function;
 import org.eclipse.che.api.promises.client.FunctionException;
@@ -23,7 +22,6 @@ import org.eclipse.che.api.promises.client.PromiseError;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.editor.EditorPartPresenter;
-import org.eclipse.che.ide.api.event.FileContentUpdateEvent;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.ext.java.client.JavaLocalizationConstant;
@@ -31,6 +29,7 @@ import org.eclipse.che.ide.ext.java.client.project.node.JavaFileNode;
 import org.eclipse.che.ide.ext.java.client.project.node.PackageNode;
 import org.eclipse.che.ide.ext.java.client.projecttree.JavaSourceFolderUtil;
 import org.eclipse.che.ide.ext.java.client.refactoring.RefactorInfo;
+import org.eclipse.che.ide.ext.java.client.refactoring.RefactoringUpdater;
 import org.eclipse.che.ide.ext.java.client.refactoring.preview.PreviewPresenter;
 import org.eclipse.che.ide.ext.java.client.refactoring.rename.wizard.RenameView.ActionDelegate;
 import org.eclipse.che.ide.ext.java.client.refactoring.rename.wizard.similarnames.SimilarNamesConfigurationPresenter;
@@ -44,7 +43,6 @@ import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RenameRefactoringSess
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RenameSettings;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ValidateNewName;
 import org.eclipse.che.ide.jseditor.client.texteditor.TextEditor;
-import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 
 import static org.eclipse.che.ide.ext.java.shared.dto.refactoring.CreateRenameRefactoring.RenameType.COMPILATION_UNIT;
 import static org.eclipse.che.ide.ext.java.shared.dto.refactoring.CreateRenameRefactoring.RenameType.JAVA_ELEMENT;
@@ -62,8 +60,7 @@ public class RenamePresenter implements ActionDelegate {
     private final RenameView                         view;
     private final SimilarNamesConfigurationPresenter similarNamesConfigurationPresenter;
     private final JavaLocalizationConstant           locale;
-    private final EventBus                           eventBus;
-    private final ProjectExplorerPresenter           projectExplorer;
+    private final RefactoringUpdater                 refactoringUpdater;
     private final EditorAgent                        editorAgent;
     private final NotificationManager                notificationManager;
     private final AppContext                         appContext;
@@ -78,10 +75,9 @@ public class RenamePresenter implements ActionDelegate {
     public RenamePresenter(RenameView view,
                            SimilarNamesConfigurationPresenter similarNamesConfigurationPresenter,
                            JavaLocalizationConstant locale,
-                           EventBus eventBus,
                            EditorAgent editorAgent,
+                           RefactoringUpdater refactoringUpdater,
                            AppContext appContext,
-                           ProjectExplorerPresenter projectExplorer,
                            NotificationManager notificationManager,
                            PreviewPresenter previewPresenter,
                            RefactoringServiceClient refactorService,
@@ -89,8 +85,7 @@ public class RenamePresenter implements ActionDelegate {
         this.view = view;
         this.similarNamesConfigurationPresenter = similarNamesConfigurationPresenter;
         this.locale = locale;
-        this.eventBus = eventBus;
-        this.projectExplorer = projectExplorer;
+        this.refactoringUpdater = refactoringUpdater;
         this.editorAgent = editorAgent;
         this.notificationManager = notificationManager;
         this.view.setDelegate(this);
@@ -191,6 +186,15 @@ public class RenamePresenter implements ActionDelegate {
 
     /** {@inheritDoc} */
     @Override
+    public void onCancelButtonClicked() {
+        EditorPartPresenter activeEditor = editorAgent.getActiveEditor();
+        if (activeEditor instanceof TextEditor) {
+            ((TextEditor)activeEditor).setFocus();
+        }
+    }
+
+    /** {@inheritDoc} */
+    @Override
     public void validateName() {
         ValidateNewName validateNewName = dtoFactory.createDto(ValidateNewName.class);
         validateNewName.setSessionId(renameRefactoringSession.getSessionId());
@@ -277,15 +281,12 @@ public class RenamePresenter implements ActionDelegate {
                     public void apply(RefactoringResult arg) throws OperationException {
                         if (arg.getSeverity() == OK) {
                             view.hide();
-                            //TODO It is temporary solution. We need to know which files have changes.
-                            projectExplorer.reloadChildren();
-                            updateAllEditors();
+                            refactoringUpdater.updateAfterRefactoring(arg.getChanges());
                         } else {
                             view.showErrorMessage(arg);
                         }
                     }
                 });
-
             }
         }).catchError(new Operation<PromiseError>() {
             @Override
@@ -352,13 +353,6 @@ public class RenamePresenter implements ActionDelegate {
         dto.setProjectPath(projectPath);
 
         return dto;
-    }
-
-    private void updateAllEditors() {
-        for (EditorPartPresenter editor : editorAgent.getOpenedEditors().values()) {
-            String path = editor.getEditorInput().getFile().getPath();
-            eventBus.fireEvent(new FileContentUpdateEvent(path));
-        }
     }
 
 }

@@ -20,6 +20,8 @@ import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
+import org.eclipse.che.ide.api.editor.EditorAgent;
+import org.eclipse.che.ide.api.editor.EditorPartPresenter;
 import org.eclipse.che.ide.api.project.node.HasStorablePath;
 import org.eclipse.che.ide.api.project.tree.VirtualFile;
 import org.eclipse.che.ide.dto.DtoFactory;
@@ -40,6 +42,7 @@ import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringResult;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringSession;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatus;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ReorgDestination;
+import org.eclipse.che.ide.jseditor.client.texteditor.TextEditor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,6 +63,7 @@ import static org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringSta
 public class MovePresenter implements MoveView.ActionDelegate {
     private final MoveView                 view;
     private final RefactoringUpdater       refactoringUpdater;
+    private final EditorAgent              editorAgent;
     private final AppContext               appContext;
     private final PreviewPresenter         previewPresenter;
     private final DtoFactory               dtoFactory;
@@ -73,12 +77,14 @@ public class MovePresenter implements MoveView.ActionDelegate {
     public MovePresenter(MoveView view,
                          RefactoringUpdater refactoringUpdater,
                          AppContext appContext,
+                         EditorAgent editorAgent,
                          PreviewPresenter previewPresenter,
                          RefactoringServiceClient refactorService,
                          JavaNavigationService navigationService,
                          DtoFactory dtoFactory) {
         this.view = view;
         this.refactoringUpdater = refactoringUpdater;
+        this.editorAgent = editorAgent;
         this.view.setDelegate(this);
 
         this.appContext = appContext;
@@ -209,9 +215,7 @@ public class MovePresenter implements MoveView.ActionDelegate {
                         public void apply(RefactoringResult arg) throws OperationException {
                             if (arg.getSeverity() == OK) {
                                 view.hide();
-                                //TODO It is temporary solution. We need to know which files have changes.
-                                refactoringUpdater.refreshProjectTree();
-                                refactoringUpdater.refreshOpenEditors();
+                                refactoringUpdater.updateAfterRefactoring(arg.getChanges());
                             } else {
                                 view.showErrorMessage(arg);
                             }
@@ -224,27 +228,18 @@ public class MovePresenter implements MoveView.ActionDelegate {
         });
     }
 
-    private Promise<ChangeCreationResult> prepareMovingChanges(final RefactoringSession session) {
-        MoveSettings moveSettings = dtoFactory.createDto(MoveSettings.class);
-        moveSettings.setSessionId(refactoringSessionId);
-        moveSettings.setUpdateReferences(view.isUpdateReferences());
-        moveSettings.setUpdateQualifiedNames(view.isUpdateQualifiedNames());
-        if (moveSettings.isUpdateQualifiedNames()) {
-            moveSettings.setFilePatterns(view.getFilePatterns());
+    /** {@inheritDoc} */
+    @Override
+    public void onCancelButtonClicked() {
+        EditorPartPresenter activeEditor = editorAgent.getActiveEditor();
+        if (activeEditor instanceof TextEditor) {
+            ((TextEditor)activeEditor).setFocus();
         }
-
-        return refactorService.setMoveSettings(moveSettings).thenPromise(new Function<Void, Promise<ChangeCreationResult>>() {
-            @Override
-            public Promise<ChangeCreationResult> apply(Void arg) throws FunctionException {
-                return refactorService.createChange(session);
-            }
-        });
     }
 
     /** {@inheritDoc} */
     @Override
     public void setMoveDestinationPath(String path, String projectPath) {
-        refactoringUpdater.setPathToMove(path);
         ReorgDestination destination = dtoFactory.createDto(ReorgDestination.class);
         destination.setType(ReorgDestination.DestinationType.PACKAGE);
         destination.setSessionId(refactoringSessionId);
@@ -275,6 +270,23 @@ public class MovePresenter implements MoveView.ActionDelegate {
                         view.clearStatusMessage();
                         break;
                 }
+            }
+        });
+    }
+
+    private Promise<ChangeCreationResult> prepareMovingChanges(final RefactoringSession session) {
+        MoveSettings moveSettings = dtoFactory.createDto(MoveSettings.class);
+        moveSettings.setSessionId(refactoringSessionId);
+        moveSettings.setUpdateReferences(view.isUpdateReferences());
+        moveSettings.setUpdateQualifiedNames(view.isUpdateQualifiedNames());
+        if (moveSettings.isUpdateQualifiedNames()) {
+            moveSettings.setFilePatterns(view.getFilePatterns());
+        }
+
+        return refactorService.setMoveSettings(moveSettings).thenPromise(new Function<Void, Promise<ChangeCreationResult>>() {
+            @Override
+            public Promise<ChangeCreationResult> apply(Void arg) throws FunctionException {
+                return refactorService.createChange(session);
             }
         });
     }

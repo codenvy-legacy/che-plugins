@@ -41,7 +41,7 @@
 
         .patternsLabel {
             float: left;
-            margin-left: 50px;
+            margin-left: 32px;
             margin-top: 6px;
         }
 
@@ -55,7 +55,7 @@
             float: left;
             margin-left: 6px;
             margin-top: 4px;
-            width: 350px;
+            width: 65%;
         }
 
         .checkBox {
@@ -83,7 +83,8 @@
         .errorPanelHeight {
             float: left;
             width: 100%;
-            height: 80px;
+            height: 45px;
+            margin-top: 40px;
         }
 
         .newNamePanel {
@@ -100,17 +101,13 @@
 
         .newNameInput {
             float: left;
-            width: 430px;
+            width: 80%;
             margin-top: 6px;
         }
 
         .updateReferencePanel {
             width: 100%;
             height: 35px;
-        }
-
-        .subSettings {
-            display: inline-block;
         }
     </ui:style>
 
@@ -130,7 +127,7 @@
 
         </g:FlowPanel>
 
-        <g:FlowPanel ui:field="subSettings" addStyleNames="{style.subSettings}">
+        <g:FlowPanel ui:field="subSettings">
 
             <g:FlowPanel ui:field="renameSubpackagesPanel" addStyleNames="{style.panelHeight}">
                 <g:CheckBox ui:field="updateSubpackages" addStyleNames="{style.checkBox}"/>

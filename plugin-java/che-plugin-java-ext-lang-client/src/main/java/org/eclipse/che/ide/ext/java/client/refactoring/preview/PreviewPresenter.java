@@ -13,16 +13,15 @@ package org.eclipse.che.ide.ext.java.client.refactoring.preview;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
-import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.editor.EditorPartPresenter;
-import org.eclipse.che.ide.api.event.FileContentUpdateEvent;
 import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.ext.java.client.refactoring.RefactorInfo;
+import org.eclipse.che.ide.ext.java.client.refactoring.RefactoringUpdater;
 import org.eclipse.che.ide.ext.java.client.refactoring.move.wizard.MovePresenter;
 import org.eclipse.che.ide.ext.java.client.refactoring.rename.wizard.RenamePresenter;
 import org.eclipse.che.ide.ext.java.client.refactoring.service.RefactoringServiceClient;
@@ -32,7 +31,7 @@ import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringChange;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringPreview;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringResult;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringSession;
-import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
+import org.eclipse.che.ide.jseditor.client.texteditor.TextEditor;
 
 import static org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatus.OK;
 
@@ -46,9 +45,8 @@ public class PreviewPresenter implements PreviewView.ActionDelegate {
     private final PreviewView               view;
     private final Provider<RenamePresenter> renamePresenterProvider;
     private final DtoFactory                dtoFactory;
-    private final EventBus                  eventBus;
     private final EditorAgent               editorAgent;
-    private final ProjectExplorerPresenter  projectExplorer;
+    private final RefactoringUpdater        refactoringUpdater;
     private final RefactoringServiceClient  refactoringService;
     private final Provider<MovePresenter>   movePresenterProvider;
 
@@ -60,16 +58,14 @@ public class PreviewPresenter implements PreviewView.ActionDelegate {
                             Provider<MovePresenter> movePresenterProvider,
                             Provider<RenamePresenter> renamePresenterProvider,
                             DtoFactory dtoFactory,
-                            EventBus eventBus,
                             EditorAgent editorAgent,
-                            ProjectExplorerPresenter projectExplorer,
+                            RefactoringUpdater refactoringUpdater,
                             RefactoringServiceClient refactoringService) {
         this.view = view;
         this.renamePresenterProvider = renamePresenterProvider;
         this.dtoFactory = dtoFactory;
-        this.eventBus = eventBus;
         this.editorAgent = editorAgent;
-        this.projectExplorer = projectExplorer;
+        this.refactoringUpdater = refactoringUpdater;
         this.refactoringService = refactoringService;
         this.view.setDelegate(this);
 
@@ -104,17 +100,24 @@ public class PreviewPresenter implements PreviewView.ActionDelegate {
 
     /** {@inheritDoc} */
     @Override
+    public void onCancelButtonClicked() {
+        EditorPartPresenter activeEditor = editorAgent.getActiveEditor();
+        if (activeEditor instanceof TextEditor) {
+            ((TextEditor)activeEditor).setFocus();
+        }
+    }
+
+    /** {@inheritDoc} */
+    @Override
     public void onAcceptButtonClicked() {
         refactoringService.applyRefactoring(session).then(new Operation<RefactoringResult>() {
             @Override
-            public void apply(RefactoringResult arg) throws OperationException {
-                if (arg.getSeverity() == OK) {
+            public void apply(RefactoringResult result) throws OperationException {
+                if (result.getSeverity() == OK) {
                     view.hide();
-                    //TODO It is temporary solution. We need to know which files have changes.
-                    projectExplorer.reloadChildren();
-                    updateAllEditors();
+                    refactoringUpdater.updateAfterRefactoring(result.getChanges());
                 } else {
-                    view.showErrorMessage(arg);
+                    view.showErrorMessage(result);
                 }
             }
         });
@@ -164,13 +167,6 @@ public class PreviewPresenter implements PreviewView.ActionDelegate {
                 view.showDiff(arg);
             }
         });
-    }
-
-    private void updateAllEditors() {
-        for (EditorPartPresenter editor : editorAgent.getOpenedEditors().values()) {
-            String path = editor.getEditorInput().getFile().getPath();
-            eventBus.fireEvent(new FileContentUpdateEvent(path));
-        }
     }
 
 }

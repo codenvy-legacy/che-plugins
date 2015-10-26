@@ -65,6 +65,9 @@ interface PreviewView extends View<PreviewView.ActionDelegate> {
     void show();
 
     interface ActionDelegate {
+        /** Performs some actions in response to user's clicking on the 'Cancel' button. */
+        void onCancelButtonClicked();
+
         /** Performs some actions in response to user's clicking on the 'Accept' button. */
         void onAcceptButtonClicked();
 

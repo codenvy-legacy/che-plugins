@@ -31,12 +31,14 @@ import org.eclipse.che.ide.ext.java.client.JavaLocalizationConstant;
 import org.eclipse.che.ide.ext.java.client.project.node.JavaFileNode;
 import org.eclipse.che.ide.ext.java.client.project.node.PackageNode;
 import org.eclipse.che.ide.ext.java.client.refactoring.RefactorInfo;
+import org.eclipse.che.ide.ext.java.client.refactoring.RefactoringUpdater;
 import org.eclipse.che.ide.ext.java.client.refactoring.move.MoveType;
 import org.eclipse.che.ide.ext.java.client.refactoring.move.RefactoredItemType;
 import org.eclipse.che.ide.ext.java.client.refactoring.preview.PreviewPresenter;
 import org.eclipse.che.ide.ext.java.client.refactoring.rename.wizard.similarnames.SimilarNamesConfigurationPresenter;
 import org.eclipse.che.ide.ext.java.client.refactoring.service.RefactoringServiceClient;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ChangeCreationResult;
+import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ChangeInfo;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.CreateRenameRefactoring;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringResult;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringSession;
@@ -53,6 +55,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.NavigableMap;
@@ -63,7 +66,6 @@ import static org.eclipse.che.ide.ext.java.shared.dto.refactoring.CreateRenameRe
 import static org.eclipse.che.ide.ext.java.shared.dto.refactoring.CreateRenameRefactoring.RenameType.PACKAGE;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -90,6 +92,8 @@ public class RenamePresenterTest {
     @Mock
     private EditorAgent                        editorAgent;
     @Mock
+    private RefactoringUpdater                 refactoringUpdater;
+    @Mock
     private NotificationManager                notificationManager;
     @Mock
     private AppContext                         appContext;
@@ -102,6 +106,8 @@ public class RenamePresenterTest {
 
     @Mock
     private JavaFileNode             javaFileNode;
+    @Mock
+    private TextEditor               activeEditor;
     @Mock
     private PackageNode              packageNode;
     @Mock
@@ -151,6 +157,7 @@ public class RenamePresenterTest {
 
     @Before
     public void setUp() throws Exception {
+        when(editorAgent.getActiveEditor()).thenReturn(activeEditor);
         when(dtoFactory.createDto(CreateRenameRefactoring.class)).thenReturn(createRenameRefactoringDto);
         when(dtoFactory.createDto(RefactoringSession.class)).thenReturn(refactoringSession);
         when(dtoFactory.createDto(RenameSettings.class)).thenReturn(renameSettings);
@@ -480,6 +487,9 @@ public class RenamePresenterTest {
 
     @Test
     public void changesShouldBeAppliedWithOkStatus() throws Exception {
+        List<ChangeInfo> changes = new ArrayList<>();
+        when(refactoringStatus.getChanges()).thenReturn(changes);
+
         when(changeCreationResult.isCanShowPreviewPage()).thenReturn(true);
         when(refactoringStatus.getSeverity()).thenReturn(0);
         EditorPartPresenter openEditor = mock(EditorPartPresenter.class);
@@ -514,9 +524,7 @@ public class RenamePresenterTest {
 
         verify(refactoringStatus).getSeverity();
         verify(view).hide();
-        verify(projectExplorer).reloadChildren();
-        verify(virtualFile).getPath();
-        verify(eventBus).fireEvent(anyObject());
+        verify(refactoringUpdater).updateAfterRefactoring(changes);
     }
 
     @Test
@@ -648,6 +656,13 @@ public class RenamePresenterTest {
         changeCreationResultCaptor.getValue().apply(changeCreationResult);
 
         verify(view).showErrorMessage(any());
+    }
+
+    @Test
+    public void focusShouldBeSetAfterClosingTheEditor() throws Exception {
+        renamePresenter.onCancelButtonClicked();
+
+        verify(activeEditor).setFocus();
     }
 
     private void verifyPreparingRenameSettingsDto() {
