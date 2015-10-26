@@ -15,6 +15,7 @@ import org.eclipse.che.api.core.model.machine.Server;
 import org.eclipse.che.api.machine.server.model.impl.ServerImpl;
 import org.eclipse.che.plugin.docker.client.json.ContainerInfo;
 import org.eclipse.che.plugin.docker.client.json.PortBinding;
+import org.eclipse.che.plugin.docker.machine.node.DockerNode;
 
 import java.util.Arrays;
 import java.util.HashMap;

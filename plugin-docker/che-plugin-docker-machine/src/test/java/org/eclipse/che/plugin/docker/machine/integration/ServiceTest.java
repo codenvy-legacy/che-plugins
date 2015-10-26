@@ -31,22 +31,20 @@ import org.eclipse.che.api.machine.shared.dto.recipe.MachineRecipe;
 import org.eclipse.che.commons.env.EnvironmentContext;
 import org.eclipse.che.commons.user.User;
 import org.eclipse.che.commons.user.UserImpl;
-import org.eclipse.che.dto.server.DtoFactory;
 import org.eclipse.che.inject.ConfigurationProperties;
 import org.eclipse.che.plugin.docker.client.DockerConnector;
 import org.eclipse.che.plugin.docker.client.InitialAuthConfig;
 import org.eclipse.che.plugin.docker.client.ProgressLineFormatterImpl;
-import org.eclipse.che.plugin.docker.client.ProgressMonitor;
 import org.eclipse.che.plugin.docker.client.json.ContainerConfig;
 import org.eclipse.che.plugin.docker.client.json.HostConfig;
 import org.eclipse.che.plugin.docker.client.json.PortBinding;
-import org.eclipse.che.plugin.docker.client.json.ProgressStatus;
 import org.eclipse.che.plugin.docker.machine.DockerInstanceKey;
 import org.eclipse.che.plugin.docker.machine.DockerInstanceProvider;
 import org.eclipse.che.plugin.docker.machine.DockerInstanceStopDetector;
 import org.eclipse.che.plugin.docker.machine.DockerMachineFactory;
-import org.eclipse.che.plugin.docker.machine.DockerNode;
+import org.eclipse.che.plugin.docker.machine.node.DockerNode;
 import org.eclipse.che.plugin.docker.machine.TestDockerMachineFactory;
+import org.eclipse.che.plugin.docker.machine.WorkspaceFolderNodePathProvider;
 import org.mockito.Mock;
 import org.mockito.testng.MockitoTestNGListener;
 import org.testng.annotations.AfterClass;
@@ -62,7 +60,10 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import static java.util.Collections.singletonMap;
+import static org.eclipse.che.dto.server.DtoFactory.newDto;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -100,6 +101,8 @@ public class ServiceTest {
     private MachineService             machineService;
     private String                     registryContainerId;
     @Mock
+    private WorkspaceFolderNodePathProvider workspaceFolderNodePathProvider;
+    @Mock
     private ConfigurationProperties    configurationProperties;
     @Mock
     private DockerInstanceStopDetector dockerInstanceStopDetector;
@@ -108,7 +111,7 @@ public class ServiceTest {
 
     @BeforeClass
     public void setUpClass() throws Exception {
-        when(configurationProperties.getProperties(anyString())).thenReturn(Collections.EMPTY_MAP);
+        when(configurationProperties.getProperties(anyString())).thenReturn(Collections.<String, String>emptyMap());
         InitialAuthConfig authConfigs = new InitialAuthConfig(configurationProperties);
 
         docker = new DockerConnector(authConfigs);
@@ -119,12 +122,15 @@ public class ServiceTest {
 
         dockerMachineFactory = new TestDockerMachineFactory(docker);
 
-        registryContainerId = docker.createContainer(new ContainerConfig().withImage("registry").withExposedPorts(
-                Collections.singletonMap("5000/tcp", Collections.<String, String>emptyMap())), null).getId();
+        final ContainerConfig containerConfig = new ContainerConfig()
+                .withImage("registry")
+                .withExposedPorts(singletonMap("5000/tcp", Collections.<String, String>emptyMap()))
+                .withHostConfig(new HostConfig().withPortBindings(
+                        singletonMap("5000/tcp", new PortBinding[]{new PortBinding().withHostPort("5000")})));
 
-        docker.startContainer(registryContainerId, new HostConfig()
-                .withPortBindings(Collections.singletonMap("5000/tcp", new PortBinding[]{
-                        new PortBinding().withHostPort("5000")})));
+        registryContainerId = docker.createContainer(containerConfig, null).getId();
+
+        docker.startContainer(registryContainerId, null);
     }
 
     @AfterClass
@@ -157,7 +163,8 @@ public class ServiceTest {
                                                                              Collections.emptySet(),
                                                                              Collections.emptySet(),
                                                                              null,
-                                                                             "fake");
+                                                                             "fake",
+                                                                             workspaceFolderNodePathProvider);
 
         machineManager = new MachineManager(snapshotDao,
                                             machineRegistry,
@@ -209,11 +216,11 @@ public class ServiceTest {
     @Test
     public void createFromRecipeTest() throws Exception {
         final MachineStateDescriptor machine = machineService.createMachineFromRecipe(
-                DtoFactory.newDto(RecipeMachineCreationMetadata.class)
+                newDto(RecipeMachineCreationMetadata.class)
                           .withType("docker")
                           .withDisplayName("MachineDisplayName")
                           .withWorkspaceId("wsId")
-                          .withRecipe(DtoFactory.newDto(MachineRecipe.class)
+                          .withRecipe(newDto(MachineRecipe.class)
                                                 .withType("Dockerfile")
                                                 .withScript("FROM ubuntu\nCMD tail -f /dev/null\n")));
 
@@ -233,7 +240,7 @@ public class ServiceTest {
         when(snapshot.getOwner()).thenReturn(USER);
 
         final MachineStateDescriptor machine = machineService
-                .createMachineFromSnapshot(DtoFactory.newDto(SnapshotMachineCreationMetadata.class).withSnapshotId(SNAPSHOT_ID));
+                .createMachineFromSnapshot(newDto(SnapshotMachineCreationMetadata.class).withSnapshotId(SNAPSHOT_ID));
 
         waitMachineIsRunning(machine.getId());
     }
@@ -253,10 +260,10 @@ public class ServiceTest {
         expected.add(createMachineAndWaitRunningState().getId());
         expected.add(createMachineAndWaitRunningState().getId());
 
-        Set<String> actual = new HashSet<>();
-        for (MachineImpl machine : machineManager.getMachinesStates()) {
-            actual.add(machine.getId());
-        }
+        Set<String> actual = machineManager.getMachinesStates()
+                                           .stream()
+                                           .map(MachineImpl::getId)
+                                           .collect(Collectors.toSet());
         assertEquals(actual, expected);
     }
 
@@ -404,11 +411,11 @@ public class ServiceTest {
     }
 
     private MachineImpl createMachineAndWaitRunningState() throws Exception {
-        final MachineImpl machine = machineManager.create(DtoFactory.newDto(RecipeMachineCreationMetadata.class)
+        final MachineImpl machine = machineManager.create(newDto(RecipeMachineCreationMetadata.class)
                                                                     .withWorkspaceId("wsId")
                                                                     .withType("docker")
                                                                     .withDisplayName("MachineDisplayName")
-                                                                    .withRecipe(DtoFactory.newDto(MachineRecipe.class)
+                                                                    .withRecipe(newDto(MachineRecipe.class)
                                                                                           .withType("Dockerfile")
                                                                                           .withScript(
                                                                                                   "FROM ubuntu\nCMD tail -f " +
@@ -429,16 +436,13 @@ public class ServiceTest {
     private boolean pull(String image, String tag, String registry) throws Exception {
         final ValueHolder<Boolean> isSuccessfulValueHolder = new ValueHolder<>(true);
         final ProgressLineFormatterImpl progressLineFormatter = new ProgressLineFormatterImpl();
-        docker.pull(image, tag, registry, new ProgressMonitor() {
-            @Override
-            public void updateProgress(ProgressStatus currentProgressStatus) {
-                try {
-                    if (currentProgressStatus.getError() != null) {
-                        isSuccessfulValueHolder.set(false);
-                    }
-                    lineConsumer.writeLine(progressLineFormatter.format(currentProgressStatus));
-                } catch (IOException ignored) {
+        docker.pull(image, tag, registry, currentProgressStatus -> {
+            try {
+                if (currentProgressStatus.getError() != null) {
+                    isSuccessfulValueHolder.set(false);
                 }
+                lineConsumer.writeLine(progressLineFormatter.format(currentProgressStatus));
+            } catch (IOException ignored) {
             }
         });
 

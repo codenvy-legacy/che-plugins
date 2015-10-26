@@ -10,56 +10,60 @@
  *******************************************************************************/
 package org.eclipse.che.plugin.docker.machine.local;
 
+import com.google.inject.assistedinject.Assisted;
+
 import org.eclipse.che.api.machine.server.exception.MachineException;
 import org.eclipse.che.plugin.docker.client.DockerConnectorConfiguration;
-import org.eclipse.che.plugin.docker.machine.DockerNode;
+import org.eclipse.che.plugin.docker.machine.node.DockerNode;
+import org.eclipse.che.plugin.docker.machine.node.WorkspaceFolderPathProvider;
 
 import javax.inject.Inject;
-import javax.inject.Named;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  *
  * Local directory as a workspace (projects tree) to be bound to Machines
  *
  * @author gazarenkov
+ * @author Alexander Garagatyi
  */
 public class LocalDockerNode implements DockerNode {
 
-    private final File folder;
-    private String host;
+    private final String workspaceFolder;
+    private final String host;
 
     @Inject
-    public LocalDockerNode(@Named("host.projects.root") String projectsFolder) throws IOException {
+    public LocalDockerNode(@Assisted("workspace") String workspaceId,
+                           WorkspaceFolderPathProvider workspaceFolderNodePathProvider) throws IOException {
 
-        folder = new File(projectsFolder);
-        if (!folder.exists()) {
-            Files.createDirectory(folder.toPath());
+        Path workspaceFolderPath = Paths.get(workspaceFolderNodePathProvider.getPath(workspaceId));
+        if (Files.notExists(workspaceFolderPath)) {
+            Files.createDirectories(workspaceFolderPath);
         }
-        if (folder.isFile()) {
-            throw new IOException(
-                    "Folder " + folder.getAbsolutePath() + " does not exist. Check vfs.local.fs_root_dir configuration property.");
+        if (!Files.isDirectory(workspaceFolderPath)) {
+            throw new IOException("Workspace folder location " + workspaceFolderPath.toAbsolutePath() + " is invalid.");
         }
+        workspaceFolder = workspaceFolderPath.toAbsolutePath().toString();
 
         host = DockerConnectorConfiguration.getExpectedLocalHost();
+    }
+
+    @Override
+    public void bindWorkspace() throws MachineException {
 
     }
 
     @Override
-    public void bindWorkspace(String workspaceId, String hostProjectsFolder) throws MachineException {
-
-    }
-
-    @Override
-    public void unbindWorkspace(String workspaceId, String hostProjectsFolder) throws MachineException {
+    public void unbindWorkspace() throws MachineException {
 
     }
 
     @Override
     public String getProjectsFolder() {
-        return folder.getAbsolutePath();
+        return workspaceFolder;
     }
 
 

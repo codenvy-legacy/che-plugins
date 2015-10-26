@@ -29,6 +29,7 @@ import org.eclipse.che.plugin.docker.client.Exec;
 import org.eclipse.che.plugin.docker.client.LogMessage;
 import org.eclipse.che.plugin.docker.client.ProgressLineFormatterImpl;
 import org.eclipse.che.plugin.docker.client.json.ContainerInfo;
+import org.eclipse.che.plugin.docker.machine.node.DockerNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -197,7 +198,7 @@ public class DockerInstance extends AbstractInstance {
         dockerInstanceStopDetector.stopDetection(container);
         try {
             if (isDev()) {
-                node.unbindWorkspace(getWorkspaceId(), node.getProjectsFolder());
+                node.unbindWorkspace();
             }
 
             docker.killContainer(container);
@@ -215,7 +216,7 @@ public class DockerInstance extends AbstractInstance {
 
     /**
      * Reads file content by specified file path.
-     * <p/>
+     *
      * TODO:
      * add file size checking,
      * note that size checking and file content reading
