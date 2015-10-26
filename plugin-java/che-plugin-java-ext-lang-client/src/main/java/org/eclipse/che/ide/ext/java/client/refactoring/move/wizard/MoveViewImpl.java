@@ -126,6 +126,7 @@ final class MoveViewImpl extends Window implements MoveView {
             @Override
             public void onClick(ClickEvent event) {
                 hide();
+                delegate.onCancelButtonClicked();
             }
         });
 

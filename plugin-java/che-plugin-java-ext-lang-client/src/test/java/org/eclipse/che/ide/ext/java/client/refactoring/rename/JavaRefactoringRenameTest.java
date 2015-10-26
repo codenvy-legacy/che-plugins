@@ -13,7 +13,6 @@ package org.eclipse.che.ide.ext.java.client.refactoring.rename;
 import com.google.gwtmockito.GwtMockitoTestRunner;
 import com.google.web.bindery.event.shared.EventBus;
 
-import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
 import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
@@ -21,17 +20,17 @@ import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.api.promises.client.PromiseError;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
-import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.editor.EditorInput;
-import org.eclipse.che.ide.api.editor.EditorPartPresenter;
 import org.eclipse.che.ide.api.editor.EditorWithAutoSave;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.project.tree.VirtualFile;
 import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.ext.java.client.JavaLocalizationConstant;
+import org.eclipse.che.ide.ext.java.client.refactoring.RefactoringUpdater;
 import org.eclipse.che.ide.ext.java.client.refactoring.rename.wizard.RenamePresenter;
 import org.eclipse.che.ide.ext.java.client.refactoring.service.RefactoringServiceClient;
 import org.eclipse.che.ide.ext.java.shared.dto.LinkedModeModel;
+import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ChangeInfo;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.CreateRenameRefactoring;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.LinkedRenameRefactoringApply;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringResult;
@@ -58,7 +57,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import static org.eclipse.che.ide.ext.java.shared.dto.refactoring.CreateRenameRefactoring.RenameType.JAVA_ELEMENT;
 import static org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatus.ERROR;
@@ -95,17 +96,15 @@ public class JavaRefactoringRenameTest {
     @Mock
     private RenamePresenter          renamePresenter;
     @Mock
-    private EditorAgent              editorAgent;
-    @Mock
     private JavaLocalizationConstant locale;
     @Mock
     private DialogFactory            dialogFactory;
     @Mock
     private RefactoringServiceClient refactoringServiceClient;
     @Mock
-    private ProjectServiceClient     projectServiceClient;
-    @Mock
     private DtoFactory               dtoFactory;
+    @Mock
+    private RefactoringUpdater       refactoringUpdater;
     @Mock
     private AppContext               appContext;
     @Mock
@@ -141,8 +140,6 @@ public class JavaRefactoringRenameTest {
     private Promise<RefactoringResult>        applyModelPromise;
     @Mock
     private RefactoringResult                 result;
-    @Mock
-    private EditorPartPresenter               activeEditor;
     @Mock
     private RefactoringStatusEntry            entry;
 
@@ -190,8 +187,6 @@ public class JavaRefactoringRenameTest {
         when(dialogFactory.createInputDialog(eq(TEXT), eq(TEXT), any(InputCallback.class), isNull(CancelCallback.class)))
                 .thenReturn(dialog);
         when(refactoringServiceClient.applyLinkedModeRename(linkedRenameRefactoringApplyDto)).thenReturn(applyModelPromise);
-        when(editorAgent.getActiveEditor()).thenReturn(activeEditor);
-        when(activeEditor.getEditorInput()).thenReturn(editorInput);
         when(virtualFile.getPath()).thenReturn(PATH);
         when(textEditor.getCursorOffset()).thenReturn(CURSOR_OFFSET);
         when(textEditor.getDocument()).thenReturn(document);
@@ -205,14 +200,14 @@ public class JavaRefactoringRenameTest {
     @Test
     public void renameRefactoringShouldBeAppliedSuccess() throws OperationException {
         when(result.getSeverity()).thenReturn(OK);
+        List<ChangeInfo> changes = new ArrayList<>();
+        when(result.getChanges()).thenReturn(changes);
 
         refactoringRename.refactor(textEditor);
 
         mainCheckRenameRefactoring();
 
-        verify(editorAgent).getActiveEditor();
-        verify(activeEditor).getEditorInput();
-        verify(virtualFile).getPath();
+        verify(refactoringUpdater).updateAfterRefactoring(changes);
     }
 
     @Test

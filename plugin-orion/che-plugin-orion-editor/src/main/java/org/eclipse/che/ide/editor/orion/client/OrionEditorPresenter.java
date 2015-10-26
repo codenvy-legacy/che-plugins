@@ -129,6 +129,17 @@ public class OrionEditorPresenter extends EmbeddedTextEditorPresenter<OrionEdito
         }
     }
 
+    /** {@inheritDoc} */
+    @Override
+    public void setFocus() {
+        EditorWidget editorWidget = getEditorWidget();
+        if(editorWidget != null){
+            OrionEditorWidget orion = ((OrionEditorWidget)editorWidget);
+            orion.setFocus();
+        }
+
+    }
+
     private class AnnotationRendering implements AnnotationModelHandler, ClearAnnotationModelHandler {
 
         @Override

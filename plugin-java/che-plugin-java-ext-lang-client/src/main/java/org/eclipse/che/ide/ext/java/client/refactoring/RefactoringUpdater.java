@@ -10,26 +10,34 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.java.client.refactoring;
 
-import com.google.gwt.user.client.Timer;
+import com.google.common.base.Strings;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.event.shared.EventBus;
 
+import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
+import org.eclipse.che.api.project.shared.dto.ItemReference;
 import org.eclipse.che.api.promises.client.Function;
 import org.eclipse.che.api.promises.client.FunctionException;
+import org.eclipse.che.api.promises.client.Operation;
+import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.api.promises.client.PromiseError;
 import org.eclipse.che.api.promises.client.js.Promises;
 import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.editor.EditorPartPresenter;
-import org.eclipse.che.ide.api.event.FileEvent;
-import org.eclipse.che.ide.api.project.node.HasStorablePath;
+import org.eclipse.che.ide.api.event.FileContentUpdateEvent;
+import org.eclipse.che.ide.api.notification.NotificationManager;
+import org.eclipse.che.ide.api.project.node.HasStorablePath.StorablePath;
 import org.eclipse.che.ide.api.project.node.Node;
-import org.eclipse.che.ide.api.project.tree.VirtualFile;
-import org.eclipse.che.ide.jseditor.client.document.Document;
-import org.eclipse.che.ide.jseditor.client.texteditor.EmbeddedTextEditorPresenter;
+import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ChangeInfo;
+import org.eclipse.che.ide.jseditor.client.texteditor.TextEditor;
 import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.eclipse.che.ide.project.node.FileReferenceNode;
+import org.eclipse.che.ide.rest.AsyncRequestCallback;
+
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Utility class for the refactoring operations.
@@ -42,96 +50,153 @@ public class RefactoringUpdater {
     private final EditorAgent              editorAgent;
     private final EventBus                 eventBus;
     private final ProjectExplorerPresenter projectExplorer;
-
-    private String pathToMove;
+    private final NotificationManager      notificationManager;
+    private final ProjectServiceClient     projectServiceClient;
 
     @Inject
     public RefactoringUpdater(EditorAgent editorAgent,
                               EventBus eventBus,
+                              NotificationManager notificationManager,
+                              ProjectServiceClient projectServiceClient,
                               ProjectExplorerPresenter projectExplorer) {
         this.editorAgent = editorAgent;
+        this.notificationManager = notificationManager;
+        this.projectServiceClient = projectServiceClient;
         this.eventBus = eventBus;
         this.projectExplorer = projectExplorer;
     }
 
-    /** Refreshes all open editors. */
-    public void refreshOpenEditors() {
+    /**
+     * Updates all open editors which have changes and refreshes the project tree.
+     *
+     * @param changes
+     *         applied changes
+     */
+    public void updateAfterRefactoring(List<ChangeInfo> changes) {
         Promise<Void> promise = Promises.resolve(null);
+        processChanges(promise, editorAgent.getOpenedEditors().values().iterator(), changes).then(setActiveEditorFocus());
+    }
 
-        for (final EditorPartPresenter editor : editorAgent.getOpenedEditors().values()) {
-            final VirtualFile file = editor.getEditorInput().getFile();
-
-            promise.thenPromise(getContent(file))
-                   .thenPromise(updateEditor(editor))
-                   .catchErrorPromise(onGetContentFailed(file));
+    private Promise<Void> processChanges(Promise<Void> promise, Iterator<EditorPartPresenter> iterator, List<ChangeInfo> changes) {
+        if (!iterator.hasNext()) {
+            return promise;
         }
+
+        final EditorPartPresenter editor = iterator.next();
+        final ChangeInfo change = getActiveChange(changes, editor);
+
+        if (change == null) {
+            return processChanges(promise, iterator, changes);
+        }
+
+        changes.remove(change);
+
+        Promise<Void> derivedPromise;
+
+        switch (change.getName()) {
+            case RENAME_COMPILATION_UNIT:
+            case MOVE:
+                derivedPromise = prepareMovePromise(promise, editor, change);
+                break;
+            case UPDATE:
+                derivedPromise = prepareUpdatePromise(promise, editor, change);
+                break;
+            default:
+                return processChanges(promise, iterator, changes);
+        }
+
+        return processChanges(derivedPromise, iterator, changes);
     }
 
-    private Function<Void, Promise<String>> getContent(final VirtualFile file) {
-        return new Function<Void, Promise<String>>() {
+    private Promise<Void> prepareUpdatePromise(Promise<Void> promise, final EditorPartPresenter editor, final ChangeInfo change) {
+        return promise.thenPromise(new Function<Void, Promise<Void>>() {
             @Override
-            public Promise<String> apply(Void arg) throws FunctionException {
-                return file.getContent();
-            }
-        };
-    }
+            public Promise<Void> apply(Void arg) throws FunctionException {
 
-    private Function<String, Promise<Object>> updateEditor(final EditorPartPresenter editor) {
-        return new Function<String, Promise<Object>>() {
-            @Override
-            public Promise<Object> apply(String content) throws FunctionException {
-                Document document = ((EmbeddedTextEditorPresenter)editor).getDocument();
-                document.replace(0, document.getContents().length(), content);
-
-                return Promises.resolve(null);
-            }
-        };
-    }
-
-    private Function<PromiseError, Promise<Object>> onGetContentFailed(final VirtualFile file) {
-        return new Function<PromiseError, Promise<Object>>() {
-            @Override
-            public Promise<Object> apply(PromiseError arg) throws FunctionException {
-                return reopenMovedFile(file);
-            }
-        };
-    }
-
-    private Function<Node, Promise<Object>> openFile() {
-        return new Function<Node, Promise<Object>>() {
-            @Override
-            public Promise<Object> apply(Node node) throws FunctionException {
-                if (node instanceof FileReferenceNode) {
-                    eventBus.fireEvent(new FileEvent((FileReferenceNode)node, FileEvent.FileOperation.OPEN));
+                if (!Strings.isNullOrEmpty(change.getOldPath())) {
+                    return doUpdate(editor, change);
                 }
+
+                projectServiceClient.getItem(change.getPath(), new AsyncRequestCallback<ItemReference>() {
+                    @Override
+                    protected void onSuccess(ItemReference result) {
+                        eventBus.fireEvent(new FileContentUpdateEvent(change.getPath()));
+                    }
+
+                    @Override
+                    protected void onFailure(Throwable exception) {
+                        //do nothing
+                    }
+                });
+
+                return Promises.resolve(null);
+            }
+        });
+    }
+
+    private Promise<Void> prepareMovePromise(Promise<Void> promise, final EditorPartPresenter editor, final ChangeInfo change) {
+        return promise.thenPromise(new Function<Void, Promise<Void>>() {
+            @Override
+            public Promise<Void> apply(Void ignored) throws FunctionException {
+                return doUpdate(editor, change);
+            }
+        });
+    }
+
+    private ChangeInfo getActiveChange(List<ChangeInfo> changes, EditorPartPresenter openEditor) {
+        for (ChangeInfo change : changes) {
+            String fPath = openEditor.getEditorInput().getFile().getPath();
+            if (change.getOldPath().equals(fPath) || change.getPath().equals(fPath)) {
+                return change;
+            }
+        }
+        return null;
+    }
+
+    private Promise<Void> doUpdate(EditorPartPresenter editor, final ChangeInfo change) {
+        return projectExplorer.getNodeByPath(new StorablePath(change.getPath()), true, false)
+                              .thenPromise(updateEditorInput(editor, change))
+                              .catchError(onNodeNotFound());
+    }
+
+    private Operation<Void> setActiveEditorFocus() {
+        return new Operation<Void>() {
+            @Override
+            public void apply(Void arg) throws OperationException {
+                projectExplorer.reloadChildren();
+                EditorPartPresenter activeEditor = editorAgent.getActiveEditor();
+                if (activeEditor instanceof TextEditor) {
+                    ((TextEditor)activeEditor).setFocus();
+                }
+            }
+        };
+    }
+
+    private Function<Node, Promise<Void>> updateEditorInput(EditorPartPresenter editor, final ChangeInfo change) {
+        final FileReferenceNode file = (FileReferenceNode)editor.getEditorInput().getFile();
+        return new Function<Node, Promise<Void>>() {
+            @Override
+            public Promise<Void> apply(Node node) throws FunctionException {
+                if (!(node instanceof FileReferenceNode)) {
+                    return Promises.resolve(null);
+                }
+
+                file.setData(((FileReferenceNode)node).getData());
+                file.setParent(node.getParent());
+                editorAgent.updateEditorNode(change.getOldPath(), file);
+                eventBus.fireEvent(new FileContentUpdateEvent(change.getPath()));
+
                 return Promises.resolve(null);
             }
         };
     }
 
-    /** Sets destinations for moving resources. */
-    public void setPathToMove(String pathToMove) {
-        this.pathToMove = pathToMove;
-    }
-
-    /** Refreshes project tree. */
-    public void refreshProjectTree() {
-        projectExplorer.reloadChildren();
-    }
-
-    private Promise<Object> reopenMovedFile(final VirtualFile file) {
-        eventBus.fireEvent(new FileEvent(file, FileEvent.FileOperation.CLOSE));
-
-        final String newPathToFile = pathToMove + file.getPath().substring(file.getPath().lastIndexOf('/'));
-
-        //TODO It is temporary solution. This timer need for waiting when file will moved.
-        new Timer() {
+    private Operation<PromiseError> onNodeNotFound() {
+        return new Operation<PromiseError>() {
             @Override
-            public void run() {
-                projectExplorer.getNodeByPath(new HasStorablePath.StorablePath(newPathToFile), true).thenPromise(openFile());
+            public void apply(PromiseError arg) throws OperationException {
+                notificationManager.showError(arg.getMessage());
             }
-        }.schedule(300);
-
-        return Promises.resolve(null);
+        };
     }
 }

@@ -156,6 +156,9 @@ interface RenameView extends View<RenameView.ActionDelegate> {
         /** Performs some actions in response to user's clicking on the 'Accept' button. */
         void onAcceptButtonClicked();
 
+        /** Performs some actions in response to user's clicking on the 'Cancel' button. */
+        void onCancelButtonClicked();
+
         /** Validates refactored name. */
         void validateName();
     }

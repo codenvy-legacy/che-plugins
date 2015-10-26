@@ -101,6 +101,9 @@ interface MoveView extends View<MoveView.ActionDelegate> {
         /** Performs some actions in response to user's clicking on the 'Accept' button. */
         void onAcceptButtonClicked();
 
+        /** Performs some actions in response to user's clicking on the 'Cancel' button. */
+        void onCancelButtonClicked();
+
         /** Performs some actions in response to user's clicking on some destination. */
         void setMoveDestinationPath(String path, String projectPath);
     }
