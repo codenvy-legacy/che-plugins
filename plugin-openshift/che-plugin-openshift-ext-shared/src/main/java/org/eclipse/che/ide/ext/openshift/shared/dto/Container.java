@@ -34,6 +34,12 @@ public interface Container {
 
     Container withImagePullPolicy(String imagePullPolicy);
 
+    Capabilities getCapabilities();
+
+    void setCapabilities(Capabilities capabilities);
+
+    Container withCapabilities(Capabilities capabilities);
+
     String getTerminationMessagePath();
 
     void setTerminationMessagePath(String terminationMessagePath);
@@ -93,6 +99,12 @@ public interface Container {
     void setLifecycle(Lifecycle lifecycle);
 
     Container withLifecycle(Lifecycle lifecycle);
+
+    boolean getPrivileged();
+
+    void setPrivileged(boolean privileged);
+
+    Container withPrivileged(boolean privileged);
 
     String getName();
 

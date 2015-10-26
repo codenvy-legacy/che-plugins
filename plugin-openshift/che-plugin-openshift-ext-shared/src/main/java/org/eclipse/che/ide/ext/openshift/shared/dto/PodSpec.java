@@ -23,23 +23,11 @@ public interface PodSpec {
 
     PodSpec withDnsPolicy(String dnsPolicy);
 
-    String getNodeName();
-
-    void setNodeName(String nodeName);
-
-    PodSpec withNodeName(String nodeName);
-
     Integer getTerminationGracePeriodSeconds();
 
     void setTerminationGracePeriodSeconds(Integer terminationGracePeriodSeconds);
 
     PodSpec withTerminationGracePeriodSeconds(Integer terminationGracePeriodSeconds);
-
-    String getServiceAccountName();
-
-    void setServiceAccountName(String serviceAccountName);
-
-    PodSpec withServiceAccountName(String serviceAccountName);
 
     boolean getHostNetwork();
 
@@ -59,24 +47,6 @@ public interface PodSpec {
 
     PodSpec withVolumes(List<Volume> volumes);
 
-    String getServiceAccount();
-
-    void setServiceAccount(String serviceAccount);
-
-    PodSpec withServiceAccount(String serviceAccount);
-
-    String getRestartPolicy();
-
-    void setRestartPolicy(String restartPolicy);
-
-    PodSpec withRestartPolicy(String restartPolicy);
-
-    Map<String, String> getNodeSelector();
-
-    void setNodeSelector(Map<String, String> nodeSelector);
-
-    PodSpec withNodeSelector(Map<String, String> nodeSelector);
-
     String getHost();
 
     void setHost(String host);
@@ -89,10 +59,28 @@ public interface PodSpec {
 
     PodSpec withContainers(List<Container> containers);
 
+    String getServiceAccount();
+
+    void setServiceAccount(String serviceAccount);
+
+    PodSpec withServiceAccount(String serviceAccount);
+
+    String getRestartPolicy();
+
+    void setRestartPolicy(String restartPolicy);
+
+    PodSpec withRestartPolicy(String restartPolicy);
+
     Integer getActiveDeadlineSeconds();
 
     void setActiveDeadlineSeconds(Integer activeDeadlineSeconds);
 
     PodSpec withActiveDeadlineSeconds(Integer activeDeadlineSeconds);
+
+    Map<String, String> getNodeSelector();
+
+    void setNodeSelector(Map<String, String> nodeSelector);
+
+    PodSpec withNodeSelector(Map<String, String> nodeSelector);
 
 }

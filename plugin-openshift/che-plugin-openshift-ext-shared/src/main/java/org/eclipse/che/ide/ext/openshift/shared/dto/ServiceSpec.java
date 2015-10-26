@@ -23,11 +23,11 @@ public interface ServiceSpec {
 
     ServiceSpec withPortalIP(String portalIP);
 
-    List<String> getDeprecatedPublicIPs();
+    boolean getCreateExternalLoadBalancer();
 
-    void setDeprecatedPublicIPs(List<String> deprecatedPublicIPs);
+    void setCreateExternalLoadBalancer(boolean createExternalLoadBalancer);
 
-    ServiceSpec withDeprecatedPublicIPs(List<String> deprecatedPublicIPs);
+    ServiceSpec withCreateExternalLoadBalancer(boolean createExternalLoadBalancer);
 
     String getSessionAffinity();
 
@@ -53,10 +53,10 @@ public interface ServiceSpec {
 
     ServiceSpec withType(String type);
 
-    String getClusterIP();
+    List<String> getPublicIPs();
 
-    void setClusterIP(String clusterIP);
+    void setPublicIPs(List<String> publicIPs);
 
-    ServiceSpec withClusterIP(String clusterIP);
+    ServiceSpec withPublicIPs(List<String> publicIPs);
 
 }
