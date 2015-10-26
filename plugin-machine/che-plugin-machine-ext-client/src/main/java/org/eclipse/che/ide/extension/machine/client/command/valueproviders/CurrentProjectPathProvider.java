@@ -23,6 +23,8 @@ import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.event.project.CloseCurrentProjectEvent;
 import org.eclipse.che.ide.api.event.project.CloseCurrentProjectHandler;
+import org.eclipse.che.ide.api.event.project.CurrentProjectChangedEvent;
+import org.eclipse.che.ide.api.event.project.CurrentProjectChangedHandler;
 import org.eclipse.che.ide.api.event.project.ProjectReadyEvent;
 import org.eclipse.che.ide.api.event.project.ProjectReadyHandler;
 import org.eclipse.che.ide.extension.machine.client.machine.MachineState;
@@ -40,7 +42,8 @@ import javax.validation.constraints.NotNull;
 public class CurrentProjectPathProvider implements CommandPropertyValueProvider,
                                                    MachineStateHandler,
                                                    CloseCurrentProjectHandler,
-                                                   ProjectReadyHandler {
+                                                   ProjectReadyHandler,
+                                                   CurrentProjectChangedHandler {
 
     private static final String KEY = "${project.current.path}";
 
@@ -57,6 +60,7 @@ public class CurrentProjectPathProvider implements CommandPropertyValueProvider,
 
         eventBus.addHandler(MachineStateEvent.TYPE, this);
         eventBus.addHandler(ProjectReadyEvent.TYPE, this);
+        eventBus.addHandler(CurrentProjectChangedEvent.TYPE, this);
         updateValue();
     }
 
@@ -74,7 +78,7 @@ public class CurrentProjectPathProvider implements CommandPropertyValueProvider,
 
     @Override
     public void onMachineRunning(MachineStateEvent event) {
-        CurrentProject currentProject  = appContext.getCurrentProject();
+        CurrentProject currentProject = appContext.getCurrentProject();
 
         final MachineState machine = event.getMachine();
         if (currentProject == null || !machine.isDev()) {
@@ -120,5 +124,10 @@ public class CurrentProjectPathProvider implements CommandPropertyValueProvider,
                 value = "";
             }
         });
+    }
+
+    @Override
+    public void onCurrentProjectChanged(CurrentProjectChangedEvent event) {
+        updateValue();
     }
 }
