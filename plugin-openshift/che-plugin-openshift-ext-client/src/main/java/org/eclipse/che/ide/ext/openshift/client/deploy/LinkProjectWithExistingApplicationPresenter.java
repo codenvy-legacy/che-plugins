@@ -89,11 +89,11 @@ public class LinkProjectWithExistingApplicationPresenter implements LinkProjectW
     public void show() {
         if (appContext.getCurrentProject() != null) {
             //Check is Git repository:
-            List<String> listVcsProvider = appContext.getCurrentProject().getRootProject().getAttributes().get("vcs.provider.name");
+            List<String> listVcsProvider = appContext.getCurrentProject().getProjectDescription().getAttributes().get("vcs.provider.name");
             if (listVcsProvider != null && !listVcsProvider.isEmpty() && listVcsProvider.contains("git")) {
                 getGitRemoteRepositories();
             } else {
-                dialogFactory.createMessageDialog("", locale.notGitRepositoryWarning(
+                dialogFactory.createMessageDialog(locale.notGitRepositoryWarningTitle(), locale.notGitRepositoryWarning(
                         appContext.getCurrentProject().getProjectDescription().getName()), null).show();
             }
         }
@@ -112,9 +112,10 @@ public class LinkProjectWithExistingApplicationPresenter implements LinkProjectW
                                           prepareView();
                                           loadOpenShiftData();
                                       } else {
-                                          notificationManager.showWarning(
-                                                  locale.noGitRemoteRepositoryWarning(
-                                                          appContext.getCurrentProject().getProjectDescription().getName()));
+                                          dialogFactory.createMessageDialog(locale.noGitRemoteRepositoryWarningTitle(),
+                                                                            locale.noGitRemoteRepositoryWarning(
+                                                                                    appContext.getCurrentProject().getProjectDescription()
+                                                                                              .getName()), null).show();
                                       }
                                   }
 
@@ -142,6 +143,7 @@ public class LinkProjectWithExistingApplicationPresenter implements LinkProjectW
         //Change location in existing
         selectedBuildConfig.getSpec().getSource().getGit().setUri(remoteUrl);
         selectedBuildConfig.getSpec().getSource().getGit().setRef(null);
+        selectedBuildConfig.getSpec().getSource().setContextDir(appContext.getCurrentProject().getProjectDescription().getContentRoot());
 
         updateBuildConfig(selectedBuildConfig);
     }
@@ -149,15 +151,18 @@ public class LinkProjectWithExistingApplicationPresenter implements LinkProjectW
     /**
      * Update OpenShift Build Config object.
      *
-     * @param {BuildConfig} buildConfig data to be updated
+     * @param {BuildConfig}
+     *         buildConfig data to be updated
      */
-    private void updateBuildConfig(BuildConfig buildConfig) {
+    private void updateBuildConfig(final BuildConfig buildConfig) {
         openShiftClient.updateBuildConfig(buildConfig,
                                           new AsyncRequestCallback<BuildConfig>(dtoUnmarshaller.newUnmarshaller(BuildConfig.class)) {
                                               @Override
                                               protected void onSuccess(BuildConfig result) {
                                                   view.closeView();
                                                   markAsOpenshiftProject(result);
+                                                  notificationManager.showInfo(locale.linkProjectWithExistingUpdateBuildConfigSuccess(
+                                                          result.getMetadata().getName()));
                                               }
 
                                               @Override
@@ -170,9 +175,10 @@ public class LinkProjectWithExistingApplicationPresenter implements LinkProjectW
     /**
      * Mark current project as OpenShift one.
      *
-     * @param {BuildConfig} OpenShift application info
+     * @param {BuildConfig}
+     *         OpenShift application info
      */
-    private void markAsOpenshiftProject(BuildConfig buildConfig) {
+    private void markAsOpenshiftProject(final BuildConfig buildConfig) {
         List<String> mixins = appContext.getCurrentProject().getProjectDescription().getMixins();
         if (!mixins.contains(OpenshiftProjectTypeConstants.OPENSHIFT_PROJECT_TYPE_ID)) {
             mixins.add(OpenshiftProjectTypeConstants.OPENSHIFT_PROJECT_TYPE_ID);
@@ -190,10 +196,15 @@ public class LinkProjectWithExistingApplicationPresenter implements LinkProjectW
                                                 .withAttributes(attributes);
 
         projectServiceClient.updateProject(appContext.getCurrentProject().getProjectDescription().getPath(), updateProject,
-                                           new AsyncRequestCallback<ProjectDescriptor>(dtoUnmarshaller.newUnmarshaller(ProjectDescriptor.class)) {
+                                           new AsyncRequestCallback<ProjectDescriptor>(
+                                                   dtoUnmarshaller.newUnmarshaller(ProjectDescriptor.class)) {
                                                @Override
                                                protected void onSuccess(ProjectDescriptor result) {
-                                                    appContext.getCurrentProject().setProjectDescription(result);
+                                                   appContext.getCurrentProject().setProjectDescription(result);
+                                                   notificationManager.showInfo(locale.linkProjectWithExistingSuccess(result.getName(),
+                                                                                                                      buildConfig
+                                                                                                                              .getMetadata()
+                                                                                                                              .getName()));
                                                }
 
                                                @Override
@@ -217,7 +228,6 @@ public class LinkProjectWithExistingApplicationPresenter implements LinkProjectW
             String project = appContext.getCurrentProject().getProjectDescription().getName();
             view.setReplaceWarningMessage(locale.linkProjectWithExistingReplaceWarning(buildConfig.getMetadata().getName(), project));
         }
-        //TODO
 
         view.enableLinkButton((buildConfig != null));
     }
@@ -243,6 +253,7 @@ public class LinkProjectWithExistingApplicationPresenter implements LinkProjectW
 
     /**
      * Get OpenShift Build Configs by namespace.
+     *
      * @param namespace
      */
     private void getBuildConfigs(final String namespace) {

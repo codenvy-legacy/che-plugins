@@ -27,10 +27,10 @@
         <g:east size="300">
             <g:FlowPanel>
                 <g:Label text="{locale.linkProjectWithExistingBuildConfigUrl}"></g:Label>
-                <g:TextBox ui:field="buildConfigGitUrl" enabled="false" addStyleNames="{resources.css.textInput}"></g:TextBox>
+                <g:TextBox ui:field="buildConfigGitUrl" addStyleNames="{resources.css.textInput}" readOnly="true"></g:TextBox>
                 <g:Label text="{locale.linkProjectWithExistingRemoteUrl}" addStyleNames="{style.spacing}"></g:Label>
                 <che:CustomListBox ui:field="remoteUrls" addStyleNames="{resources.css.textInput}"></che:CustomListBox>
-                <g:TextBox ui:field="remoteUrl" enabled="false" addStyleNames="{resources.css.textInput}"></g:TextBox>
+                <g:TextBox ui:field="remoteUrl" addStyleNames="{resources.css.textInput}" readOnly="true"></g:TextBox>
                 <g:Label ui:field="replaceWarningLabel" addStyleNames="{style.spacing} {resources.css.warningLabel}"></g:Label>
             </g:FlowPanel>
         </g:east>

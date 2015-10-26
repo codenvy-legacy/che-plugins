@@ -58,11 +58,23 @@ public interface OpenshiftLocalizationConstant extends Messages {
     @Key("link.with.existing.replace.warning")
     String linkProjectWithExistingReplaceWarning(String application, String project);
 
+    @Key("link.with.existing.update.buildconfig.success")
+    String linkProjectWithExistingUpdateBuildConfigSuccess(String application);
+
+    @Key("link.with.existing.success")
+    String linkProjectWithExistingSuccess(String project, String application);
+
     @Key("not.git.repository.warning")
     String notGitRepositoryWarning(String project);
 
+    @Key("not.git.repository.warning.title")
+    String notGitRepositoryWarningTitle();
+
     @Key("no.git.remote.repositories.warning")
     String noGitRemoteRepositoryWarning(String project);
+
+    @Key("no.git.remote.repositories.warning.title")
+    String noGitRemoteRepositoryWarningTitle();
 
     @Key("get.git.remote.repositories.error")
     String getGitRemoteRepositoryError(String project);

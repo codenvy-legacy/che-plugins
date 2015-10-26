@@ -15,7 +15,7 @@
              xmlns:g='urn:import:com.google.gwt.user.client.ui'>
     <ui:with field='resources' type='org.eclipse.che.ide.ext.openshift.client.OpenshiftResources'/>
 
-    <ui:style src="org/eclipse/che/ide/api/ui/style.css">
+    <ui:style>
         .emptyBorder {
             margin: 6px;
             width: 450px;
@@ -28,10 +28,6 @@
 
         .emptyBorder div input + div {
             height: 22px;
-        }
-
-        .emptyBorder div input:focus {
-            border-bottom: 1px solid textFieldBorderColor;
         }
 
         .linkInput div {

@@ -23,6 +23,7 @@ import org.eclipse.che.ide.ext.openshift.client.oauth.authenticator.OpenshiftAut
 import javax.validation.constraints.NotNull;
 import java.util.Collections;
 
+import static org.eclipse.che.ide.ext.openshift.shared.OpenshiftProjectTypeConstants.OPENSHIFT_PROJECT_TYPE_ID;
 import static org.eclipse.che.ide.workspace.perspectives.project.ProjectPerspective.PROJECT_PERSPECTIVE_ID;
 
 /**
@@ -57,7 +58,11 @@ public class LinkProjectWithExistingApplicationAction extends AbstractPerspectiv
      */
     @Override
     public void updateInPerspective(@NotNull ActionEvent event) {
+        event.getPresentation().setVisible(appContext.getCurrentProject() != null);
         event.getPresentation().setEnabled(openshiftAuthorizationHandler.isLoggedIn() && appContext.getCurrentProject() != null);
+        event.getPresentation().setEnabled(appContext.getCurrentProject() != null
+                                           && !appContext.getCurrentProject().getProjectDescription().getMixins()
+                                                         .contains(OPENSHIFT_PROJECT_TYPE_ID));
     }
 
     /**
