@@ -52,7 +52,7 @@ import static org.eclipse.che.ide.ext.openshift.server.DtoConverter.toOpenshiftR
 /**
  * @author Sergii Leschenko
  */
-@Path("/openshift/{ws-id}/{namespace}/imagestream")
+@Path("/openshift/{ws-id}/namespace/{namespace}/imagestream")
 public class ImageStreamService {
     private final ClientFactory clientFactory;
     private final String        getTagUrlTemplate;

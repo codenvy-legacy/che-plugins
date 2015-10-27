@@ -46,7 +46,7 @@ import static org.eclipse.che.ide.ext.openshift.server.DtoConverter.toOpenshiftR
 /**
  * @author Sergii Leschenko
  */
-@Path("/openshift/{ws-id}/{namespace}/template")
+@Path("/openshift/{ws-id}/namespace/{namespace}/template")
 public class TemplateService {
     private final ClientFactory clientFactory;
 

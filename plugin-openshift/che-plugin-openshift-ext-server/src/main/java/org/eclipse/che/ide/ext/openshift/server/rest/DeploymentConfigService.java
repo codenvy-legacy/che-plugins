@@ -43,7 +43,7 @@ import static org.eclipse.che.ide.ext.openshift.server.DtoConverter.toOpenshiftR
 /**
  * @author Sergii Leschenko
  */
-@Path("/openshift/{ws-id}/{namespace}/deploymentconfig")
+@Path("/openshift/{ws-id}/namespace/{namespace}/deploymentconfig")
 public class DeploymentConfigService {
     private final ClientFactory clientFactory;
 
