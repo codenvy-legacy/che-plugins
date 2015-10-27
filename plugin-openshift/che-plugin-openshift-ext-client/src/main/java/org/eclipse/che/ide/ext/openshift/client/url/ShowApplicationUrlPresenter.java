@@ -15,6 +15,9 @@ import com.google.inject.Singleton;
 
 import org.eclipse.che.api.core.rest.shared.dto.ServiceError;
 import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
+import org.eclipse.che.api.promises.client.Operation;
+import org.eclipse.che.api.promises.client.OperationException;
+import org.eclipse.che.api.promises.client.PromiseError;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.notification.NotificationManager;
@@ -22,8 +25,6 @@ import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.ext.openshift.client.OpenshiftLocalizationConstant;
 import org.eclipse.che.ide.ext.openshift.client.OpenshiftServiceClient;
 import org.eclipse.che.ide.ext.openshift.shared.dto.Route;
-import org.eclipse.che.ide.rest.AsyncRequestCallback;
-import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +40,6 @@ import static org.eclipse.che.ide.ext.openshift.shared.OpenshiftProjectTypeConst
 @Singleton
 public class ShowApplicationUrlPresenter implements ShowApplicationUrlView.ActionDelegate {
 
-    private final DtoUnmarshallerFactory        dtoUnmarshallerFactory;
     private final ShowApplicationUrlView        view;
     private final OpenshiftServiceClient        service;
     private final AppContext                    appContext;
@@ -50,7 +50,6 @@ public class ShowApplicationUrlPresenter implements ShowApplicationUrlView.Actio
     @Inject
     public ShowApplicationUrlPresenter(ShowApplicationUrlView view,
                                        OpenshiftServiceClient service,
-                                       DtoUnmarshallerFactory dtoUnmarshallerFactory,
                                        AppContext appContext,
                                        NotificationManager notificationManager,
                                        OpenshiftLocalizationConstant locale,
@@ -60,7 +59,6 @@ public class ShowApplicationUrlPresenter implements ShowApplicationUrlView.Actio
         this.locale = locale;
         this.service = service;
         this.view = view;
-        this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
         this.dtoFactory = dtoFactory;
         this.view.setDelegate(this);
     }
@@ -71,26 +69,35 @@ public class ShowApplicationUrlPresenter implements ShowApplicationUrlView.Actio
             return;
         }
         final ProjectDescriptor projectDescription = currentProject.getProjectDescription();
-        service.getRoutes(getAttributeValue(projectDescription, OPENSHIFT_NAMESPACE_VARIABLE_NAME),
-                          getAttributeValue(projectDescription, OPENSHIFT_APPLICATION_VARIABLE_NAME),
-                          new AsyncRequestCallback<List<Route>>(dtoUnmarshallerFactory.newListUnmarshaller(Route.class)) {
-                              @Override
-                              protected void onSuccess(List<Route> result) {
-                                  List<String> urls = new ArrayList<>();
-                                  for (Route route : result) {
-                                      urls.add(route.getSpec().getHost());
-                                  }
-                                  view.setURLs(urls);
-                                  view.showDialog();
-                              }
 
-                              @Override
-                              protected void onFailure(Throwable exception) {
-                                  final ServiceError serviceError = dtoFactory.createDtoFromJson(exception.getLocalizedMessage(), ServiceError.class);
-                                  notificationManager.showError(locale.getRoutesError() + ". " + serviceError.getMessage());
-                              }
-                          }
-                         );
+        service.getRoutes(getAttributeValue(projectDescription, OPENSHIFT_NAMESPACE_VARIABLE_NAME),
+                          getAttributeValue(projectDescription, OPENSHIFT_APPLICATION_VARIABLE_NAME))
+               .then(showRoute())
+               .catchError(onShowRoutesFailed());
+    }
+
+    private Operation<List<Route>> showRoute() {
+        return new Operation<List<Route>>() {
+            @Override
+            public void apply(List<Route> result) throws OperationException {
+                List<String> urls = new ArrayList<>();
+                for (Route route : result) {
+                    urls.add(route.getSpec().getHost());
+                }
+                view.setURLs(urls);
+                view.showDialog();
+            }
+        };
+    }
+
+    private Operation<PromiseError> onShowRoutesFailed() {
+        return new Operation<PromiseError>() {
+            @Override
+            public void apply(PromiseError arg) throws OperationException {
+                final ServiceError serviceError = dtoFactory.createDtoFromJson(arg.getMessage(), ServiceError.class);
+                notificationManager.showError(locale.getRoutesError() + ". " + serviceError.getMessage());
+            }
+        };
     }
 
     /** Returns first value of attribute of null if it is absent in project descriptor */

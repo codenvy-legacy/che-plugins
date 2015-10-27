@@ -24,6 +24,8 @@ import org.eclipse.che.api.project.shared.dto.ProjectReference;
 import org.eclipse.che.api.project.shared.dto.Source;
 import org.eclipse.che.api.promises.client.Function;
 import org.eclipse.che.api.promises.client.FunctionException;
+import org.eclipse.che.api.promises.client.Operation;
+import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.api.promises.client.callback.AsyncPromiseHelper;
 import org.eclipse.che.api.promises.client.js.Promises;
@@ -34,15 +36,14 @@ import org.eclipse.che.ide.ext.openshift.client.dto.NewApplicationRequest;
 import org.eclipse.che.ide.ext.openshift.shared.dto.ObjectMeta;
 import org.eclipse.che.ide.ext.openshift.shared.dto.Project;
 import org.eclipse.che.ide.ext.openshift.shared.dto.ProjectRequest;
-import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
-import org.eclipse.che.ide.rest.Unmarshallable;
 import org.eclipse.che.ide.util.NameUtils;
 
 import java.util.Collections;
 import java.util.List;
 
-import static org.eclipse.che.api.promises.client.callback.AsyncPromiseHelper.createFromAsyncRequest;
+import static org.eclipse.che.api.promises.client.callback.PromiseHelper.newCallback;
+import static org.eclipse.che.api.promises.client.callback.PromiseHelper.newPromise;
 
 /**
  * Presenter for configuring OpenShift project.
@@ -88,10 +89,10 @@ public class ConfigureProjectPresenter extends AbstractWizardPage<NewApplication
 
         view.resetControls();
 
-        getOpenShiftProjects().thenPromise(cacheOpenShiftProjects())
-                              .thenPromise(showOpenShiftProjects());
-
-        getCodenvyProjects().thenPromise(cacheCodenvyProjects());
+        openShiftClient.getProjects()
+                       .then(processOpenShiftProjects())
+                       .then(getCodenvyProjects())
+                       .thenPromise(processCodenvyProjects());
     }
 
     /** {@inheritDoc} */
@@ -152,56 +153,15 @@ public class ConfigureProjectPresenter extends AbstractWizardPage<NewApplication
     }
 
     private Promise<List<ProjectReference>> getCodenvyProjects() {
-        return createFromAsyncRequest(getCodenvyProjectsRC());
-    }
-
-    private AsyncPromiseHelper.RequestCall<List<ProjectReference>> getCodenvyProjectsRC() {
-        return new AsyncPromiseHelper.RequestCall<List<ProjectReference>>() {
+        return newPromise(new AsyncPromiseHelper.RequestCall<List<ProjectReference>>() {
             @Override
             public void makeCall(AsyncCallback<List<ProjectReference>> callback) {
-                projectServiceClient.getProjects(_callback(callback, dtoUnmarshaller.newListUnmarshaller(ProjectReference.class)));
+                projectServiceClient.getProjects(newCallback(callback, dtoUnmarshaller.newListUnmarshaller(ProjectReference.class)));
             }
-        };
+        });
     }
 
-    private Promise<List<Project>> getOpenShiftProjects() {
-        return createFromAsyncRequest(getOpenShiftProjectsRC());
-    }
-
-    private AsyncPromiseHelper.RequestCall<List<Project>> getOpenShiftProjectsRC() {
-        return new AsyncPromiseHelper.RequestCall<List<Project>>() {
-            @Override
-            public void makeCall(AsyncCallback<List<Project>> callback) {
-                openShiftClient.getProjects(_callback(callback, dtoUnmarshaller.newListUnmarshaller(Project.class)));
-            }
-        };
-    }
-
-    protected <T> AsyncRequestCallback<T> _callback(final AsyncCallback<T> callback, Unmarshallable<T> u) {
-        return new AsyncRequestCallback<T>(u) {
-            @Override
-            protected void onSuccess(T result) {
-                callback.onSuccess(result);
-            }
-
-            @Override
-            protected void onFailure(Throwable e) {
-                callback.onFailure(e);
-            }
-        };
-    }
-
-    private Function<List<Project>, Promise<Void>> showOpenShiftProjects() {
-        return new Function<List<Project>, Promise<Void>>() {
-            @Override
-            public Promise<Void> apply(List<Project> projects) throws FunctionException {
-                view.setExistOpenShiftProjects(projects);
-                return Promises.resolve(null);
-            }
-        };
-    }
-
-    private Function<List<ProjectReference>, Promise<List<ProjectReference>>> cacheCodenvyProjects() {
+    private Function<List<ProjectReference>, Promise<List<ProjectReference>>> processCodenvyProjects() {
         return new Function<List<ProjectReference>, Promise<List<ProjectReference>>>() {
             @Override
             public Promise<List<ProjectReference>> apply(List<ProjectReference> projects) throws FunctionException {
@@ -211,12 +171,12 @@ public class ConfigureProjectPresenter extends AbstractWizardPage<NewApplication
         };
     }
 
-    private Function<List<Project>, Promise<List<Project>>> cacheOpenShiftProjects() {
-        return new Function<List<Project>, Promise<List<Project>>>() {
+    private Operation<List<Project>> processOpenShiftProjects() {
+        return new Operation<List<Project>>() {
             @Override
-            public Promise<List<Project>> apply(List<Project> projects) throws FunctionException {
+            public void apply(List<Project> projects) throws OperationException {
                 cachedOpenShiftProjects = projects;
-                return Promises.resolve(projects);
+                view.setExistOpenShiftProjects(projects);
             }
         };
     }

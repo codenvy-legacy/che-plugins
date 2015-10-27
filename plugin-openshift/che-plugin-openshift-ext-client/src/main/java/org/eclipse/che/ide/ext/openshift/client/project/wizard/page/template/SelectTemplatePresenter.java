@@ -11,30 +11,21 @@
 package org.eclipse.che.ide.ext.openshift.client.project.wizard.page.template;
 
 import com.google.common.base.Strings;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import org.eclipse.che.api.promises.client.Function;
-import org.eclipse.che.api.promises.client.FunctionException;
-import org.eclipse.che.api.promises.client.Promise;
-import org.eclipse.che.api.promises.client.callback.AsyncPromiseHelper;
-import org.eclipse.che.api.promises.client.js.Promises;
+import org.eclipse.che.api.promises.client.Operation;
+import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.ide.api.wizard.AbstractWizardPage;
 import org.eclipse.che.ide.ext.openshift.client.OpenshiftServiceClient;
 import org.eclipse.che.ide.ext.openshift.client.dto.NewApplicationRequest;
 import org.eclipse.che.ide.ext.openshift.shared.dto.Parameter;
 import org.eclipse.che.ide.ext.openshift.shared.dto.Template;
-import org.eclipse.che.ide.rest.AsyncRequestCallback;
-import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
-import org.eclipse.che.ide.rest.Unmarshallable;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static org.eclipse.che.api.promises.client.callback.AsyncPromiseHelper.createFromAsyncRequest;
 
 /**
  * Presenter for select template wizard page.
@@ -46,7 +37,6 @@ public class SelectTemplatePresenter extends AbstractWizardPage<NewApplicationRe
 
     private final SelectTemplateView     view;
     private final OpenshiftServiceClient openshiftClient;
-    private final DtoUnmarshallerFactory dtoUnmarshaller;
 
     public static final String DEF_NAMESPACE = "openshift";
 
@@ -54,11 +44,9 @@ public class SelectTemplatePresenter extends AbstractWizardPage<NewApplicationRe
 
     @Inject
     public SelectTemplatePresenter(SelectTemplateView view,
-                                   OpenshiftServiceClient openshiftClient,
-                                   DtoUnmarshallerFactory dtoUnmarshaller) {
+                                   OpenshiftServiceClient openshiftClient) {
         this.view = view;
         this.openshiftClient = openshiftClient;
-        this.dtoUnmarshaller = dtoUnmarshaller;
 
         view.setDelegate(this);
     }
@@ -68,7 +56,7 @@ public class SelectTemplatePresenter extends AbstractWizardPage<NewApplicationRe
     public void init(NewApplicationRequest dataObject) {
         super.init(dataObject);
 
-        getTemplateList(DEF_NAMESPACE).thenPromise(showTemplates(false));
+        openshiftClient.getTemplates(DEF_NAMESPACE).then(showTemplates(false));
     }
 
     /** {@inheritDoc} */
@@ -83,39 +71,11 @@ public class SelectTemplatePresenter extends AbstractWizardPage<NewApplicationRe
         container.setWidget(view);
     }
 
-    private Promise<List<Template>> getTemplateList(String namespace) {
-        return createFromAsyncRequest(getTemplateListRC(namespace));
-    }
-
-    private AsyncPromiseHelper.RequestCall<List<Template>> getTemplateListRC(final String namespace) {
-        return new AsyncPromiseHelper.RequestCall<List<Template>>() {
+    private Operation<List<Template>> showTemplates(final boolean keepExisting) {
+        return new Operation<List<Template>>() {
             @Override
-            public void makeCall(AsyncCallback<List<Template>> callback) {
-                openshiftClient.getTemplates(namespace, _callback(callback, dtoUnmarshaller.newListUnmarshaller(Template.class)));
-            }
-        };
-    }
-
-    private Function<List<Template>, Promise<List<Template>>> showTemplates(final boolean keepExisting) {
-        return new Function<List<Template>, Promise<List<Template>>>() {
-            @Override
-            public Promise<List<Template>> apply(List<Template> templates) throws FunctionException {
+            public void apply(List<Template> templates) throws OperationException {
                 view.setTemplates(templates, keepExisting);
-                return Promises.resolve(templates);
-            }
-        };
-    }
-
-    protected <T> AsyncRequestCallback<T> _callback(final AsyncCallback<T> callback, Unmarshallable<T> u) {
-        return new AsyncRequestCallback<T>(u) {
-            @Override
-            protected void onSuccess(T result) {
-                callback.onSuccess(result);
-            }
-
-            @Override
-            protected void onFailure(Throwable e) {
-                callback.onFailure(e);
             }
         };
     }

@@ -10,10 +10,12 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.openshift.client.project.wizard;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
+import com.google.gwt.core.client.JsArrayMixed;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
 import com.google.gwt.json.client.JSONValue;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
@@ -23,7 +25,6 @@ import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.api.promises.client.PromiseError;
-import org.eclipse.che.api.promises.client.callback.AsyncPromiseHelper.RequestCall;
 import org.eclipse.che.api.promises.client.js.JsPromiseError;
 import org.eclipse.che.api.promises.client.js.Promises;
 import org.eclipse.che.ide.api.wizard.AbstractWizard;
@@ -35,23 +36,19 @@ import org.eclipse.che.ide.ext.openshift.shared.dto.DeploymentConfig;
 import org.eclipse.che.ide.ext.openshift.shared.dto.ImageStream;
 import org.eclipse.che.ide.ext.openshift.shared.dto.Parameter;
 import org.eclipse.che.ide.ext.openshift.shared.dto.Project;
-import org.eclipse.che.ide.ext.openshift.shared.dto.ProjectRequest;
 import org.eclipse.che.ide.ext.openshift.shared.dto.Route;
 import org.eclipse.che.ide.ext.openshift.shared.dto.Service;
 import org.eclipse.che.ide.ext.openshift.shared.dto.Template;
 import org.eclipse.che.ide.projectimport.wizard.ImportWizardFactory;
-import org.eclipse.che.ide.rest.AsyncRequestCallback;
-import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
-import org.eclipse.che.ide.rest.Unmarshallable;
 
 import javax.validation.constraints.NotNull;
-
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
-import static org.eclipse.che.api.promises.client.callback.AsyncPromiseHelper.createFromAsyncRequest;
+import static java.util.Collections.singletonList;
 import static org.eclipse.che.ide.ext.openshift.shared.OpenshiftProjectTypeConstants.OPENSHIFT_APPLICATION_VARIABLE_NAME;
 import static org.eclipse.che.ide.ext.openshift.shared.OpenshiftProjectTypeConstants.OPENSHIFT_NAMESPACE_VARIABLE_NAME;
 import static org.eclipse.che.ide.ext.openshift.shared.OpenshiftProjectTypeConstants.OPENSHIFT_PROJECT_TYPE_ID;
@@ -64,58 +61,52 @@ import static org.eclipse.che.ide.ext.openshift.shared.OpenshiftProjectTypeConst
 public class CreateProjectWizard extends AbstractWizard<NewApplicationRequest> {
 
     private final OpenshiftServiceClient openshiftClient;
-    private final DtoUnmarshallerFactory dtoUnmarshaller;
     private final DtoFactory             dtoFactory;
-    private final ImportWizardFactory importWizardFactory;
+    private final ImportWizardFactory    importWizardFactory;
 
-    public static final String APPLICATION_NAME_PARAM = "APPLICATION_NAME";
+    private Predicate<Parameter> APP_NAME_PARAM = new Predicate<Parameter>() {
+        @Override
+        public boolean apply(Parameter parameter) {
+            return "APPLICATION_NAME".equals(parameter.getName());
+        }
+    };
 
     @Inject
     public CreateProjectWizard(@Assisted NewApplicationRequest newApplicationRequest,
                                OpenshiftServiceClient openshiftClient,
-                               DtoUnmarshallerFactory dtoUnmarshaller,
                                DtoFactory dtoFactory,
                                ImportWizardFactory importWizardFactory) {
         super(newApplicationRequest);
         this.openshiftClient = openshiftClient;
-        this.dtoUnmarshaller = dtoUnmarshaller;
         this.dtoFactory = dtoFactory;
         this.importWizardFactory = importWizardFactory;
     }
 
     @Override
     public void complete(@NotNull final CompleteCallback callback) {
-        setUpApplicationName();
+        Parameter appNameParam;
 
-        getOrCreateOpenShiftProject().thenPromise(processTemplate())
-                                     .then(onSuccess(callback))
-                                     .catchError(onFailed(callback));
-    }
-
-    private void setUpApplicationName() {
-        for (Parameter parameter : dataObject.getTemplate().getParameters()) {
-            if (!APPLICATION_NAME_PARAM.equals(parameter.getName())) {
-                continue;
-            }
-
-            parameter.setValue(dataObject.getImportProject().getProject().getName());
-            break;
+        try {
+            appNameParam = Iterables.find(dataObject.getTemplate().getParameters(), APP_NAME_PARAM);
+        } catch (NoSuchElementException e) {
+            callback.onFailure(e);
+            return;
         }
+
+        appNameParam.setValue(dataObject.getImportProject().getProject().getName());
+
+        getProject().thenPromise(setUpMixinType())
+                    .thenPromise(processTemplate())
+                    .thenPromise(processTemplateMetadata())
+                    .then(onSuccess(callback))
+                    .catchError(onFailed(callback));
     }
 
-    private void setUpMixinType(Project project) {
-        Map<String, List<String>> attributes = new HashMap<>(2);
-        attributes.put(OPENSHIFT_APPLICATION_VARIABLE_NAME, Collections.singletonList(dataObject.getImportProject().getProject().getName()));
-        attributes.put(OPENSHIFT_NAMESPACE_VARIABLE_NAME, Collections.singletonList(project.getMetadata().getName()));
 
-        dataObject.getImportProject().getProject().setMixinTypes(Collections.singletonList(OPENSHIFT_PROJECT_TYPE_ID));
-        dataObject.getImportProject().getProject().withAttributes(attributes);
-    }
-
-    private Operation<Template> onSuccess(final CompleteCallback callback) {
-        return new Operation<Template>() {
+    private Operation<JsArrayMixed> onSuccess(final CompleteCallback callback) {
+        return new Operation<JsArrayMixed>() {
             @Override
-            public void apply(Template arg) throws OperationException {
+            public void apply(JsArrayMixed arg) throws OperationException {
                 callback.onCompleted();
                 importWizardFactory.newWizard(dataObject.getImportProject()).complete(callback);
             }
@@ -131,21 +122,28 @@ public class CreateProjectWizard extends AbstractWizard<NewApplicationRequest> {
         };
     }
 
-    private Promise<Project> getOrCreateOpenShiftProject() {
+    private Promise<Project> getProject() {
         if (dataObject.getProject() != null) {
             return Promises.resolve(dataObject.getProject());
         } else if (dataObject.getProjectRequest() != null) {
-            return createFromAsyncRequest(createOpenShiftProjectRC(dataObject.getProjectRequest()));
+            return openshiftClient.createProject(dataObject.getProjectRequest());
         } else {
             return Promises.reject(JsPromiseError.create(""));
         }
     }
 
-    private RequestCall<Project> createOpenShiftProjectRC(final ProjectRequest request) {
-        return new RequestCall<Project>() {
+    private Function<Project, Promise<Project>> setUpMixinType() {
+        return new Function<Project, Promise<Project>>() {
             @Override
-            public void makeCall(AsyncCallback<Project> callback) {
-                openshiftClient.createProject(request, _callback(callback, dtoUnmarshaller.newUnmarshaller(Project.class)));
+            public Promise<Project> apply(Project project) throws FunctionException {
+                Map<String, List<String>> attributes = new HashMap<>(2);
+                attributes.put(OPENSHIFT_APPLICATION_VARIABLE_NAME, singletonList(dataObject.getImportProject().getProject().getName()));
+                attributes.put(OPENSHIFT_NAMESPACE_VARIABLE_NAME, singletonList(project.getMetadata().getName()));
+
+                dataObject.getImportProject().getProject().setMixinTypes(singletonList(OPENSHIFT_PROJECT_TYPE_ID));
+                dataObject.getImportProject().getProject().withAttributes(attributes);
+
+                return Promises.resolve(project);
             }
         };
     }
@@ -154,185 +152,52 @@ public class CreateProjectWizard extends AbstractWizard<NewApplicationRequest> {
         return new Function<Project, Promise<Template>>() {
             @Override
             public Promise<Template> apply(final Project project) throws FunctionException {
-                setUpMixinType(project);
-                return createFromAsyncRequest(processTemplateRC(dataObject.getTemplate(), project))
-                        .thenPromise(processTemplateMetadata(project));
+                return openshiftClient.processTemplate(project.getMetadata().getName(), dataObject.getTemplate());
             }
         };
     }
 
-    private RequestCall<Template> processTemplateRC(final Template template, final Project project) {
-        return new RequestCall<Template>() {
+    private Function<Template, Promise<JsArrayMixed>> processTemplateMetadata() {
+        return new Function<Template, Promise<JsArrayMixed>>() {
             @Override
-            public void makeCall(AsyncCallback<Template> callback) {
-                openshiftClient.processTemplate(project.getMetadata().getName(),
-                                                template,
-                                                _callback(callback, dtoUnmarshaller.newUnmarshaller(Template.class)));
-            }
-        };
-    }
+            public Promise<JsArrayMixed> apply(final Template template) throws FunctionException {
+//                Promise<Void> queue = Promises.resolve(null);
 
-    private Function<Template, Promise<Template>> processTemplateMetadata(final Project project) {
-        return new Function<Template, Promise<Template>>() {
-            @Override
-            public Promise<Template> apply(final Template template) throws FunctionException {
-                Promise<Void> queue = Promises.resolve(null);
+                List<Promise<?>> promises = new ArrayList<>();
 
                 for (Object o : template.getObjects()) {
                     final JSONObject object = (JSONObject)o;
                     final JSONValue metadata = object.get("metadata");
-                    ((JSONObject)metadata).put("namespace", new JSONString(project.getMetadata().getName()));
+                    final String namespace =
+                            dataObject.getImportProject().getProject().getAttributes().get(OPENSHIFT_NAMESPACE_VARIABLE_NAME).get(0);
+                    ((JSONObject)metadata).put("namespace", new JSONString(namespace));
                     final String kind = ((JSONString)object.get("kind")).stringValue();
 
                     switch (kind) {
                         case "DeploymentConfig":
-                            queue.thenPromise(createDeploymentConfig(dtoFactory.createDtoFromJson(object.toString(),
-                                                                                                  DeploymentConfig.class)));
+                            DeploymentConfig dConfig = dtoFactory.createDtoFromJson(object.toString(), DeploymentConfig.class);
+                            promises.add(openshiftClient.createDeploymentConfig(dConfig));
                             break;
                         case "BuildConfig":
-                            queue.thenPromise(createBuildConfig(dtoFactory.createDtoFromJson(object.toString(), BuildConfig.class)));
+                            BuildConfig bConfig = dtoFactory.createDtoFromJson(object.toString(), BuildConfig.class);
+                            promises.add(openshiftClient.createBuildConfig(bConfig));
                             break;
                         case "ImageStream":
-                            queue.thenPromise(createImageStream(dtoFactory.createDtoFromJson(object.toString(), ImageStream.class)));
+                            ImageStream stream = dtoFactory.createDtoFromJson(object.toString(), ImageStream.class);
+                            promises.add(openshiftClient.createImageStream(stream));
                             break;
                         case "Route":
-                            queue.thenPromise(createRoute(dtoFactory.createDtoFromJson(object.toString(), Route.class)));
+                            Route route = dtoFactory.createDtoFromJson(object.toString(), Route.class);
+                            promises.add(openshiftClient.createRoute(route));
                             break;
                         case "Service":
-                            queue.thenPromise(createService(dtoFactory.createDtoFromJson(object.toString(), Service.class)));
+                            Service service = dtoFactory.createDtoFromJson(object.toString(), Service.class);
+                            promises.add(openshiftClient.createService(service));
                             break;
                     }
                 }
 
-                return queue.thenPromise(new Function<Void, Promise<Template>>() {
-                    @Override
-                    public Promise<Template> apply(Void arg) throws FunctionException {
-                        return Promises.resolve(template);
-                    }
-                });
-            }
-        };
-    }
-
-    private Function<Void, Promise<Void>> createDeploymentConfig(final DeploymentConfig config) {
-        return new Function<Void, Promise<Void>>() {
-            @Override
-            public Promise<Void> apply(Void arg) throws FunctionException {
-                return createFromAsyncRequest(createDeploymentConfigRC(config)).thenPromise(new VoidFunction<DeploymentConfig>());
-            }
-        };
-    }
-
-    private RequestCall<DeploymentConfig> createDeploymentConfigRC(final DeploymentConfig config) {
-        return new RequestCall<DeploymentConfig>() {
-            @Override
-            public void makeCall(AsyncCallback<DeploymentConfig> callback) {
-                openshiftClient
-                        .createDeploymentConfig(config, _callback(callback, dtoUnmarshaller.newUnmarshaller(DeploymentConfig.class)));
-            }
-        };
-    }
-
-    private Function<Void, Promise<Void>> createBuildConfig(final BuildConfig config) {
-        return new Function<Void, Promise<Void>>() {
-            @Override
-            public Promise<Void> apply(Void arg) throws FunctionException {
-                return createFromAsyncRequest(createBuildConfigRC(config)).thenPromise(new VoidFunction<BuildConfig>());
-            }
-        };
-    }
-
-    private RequestCall<BuildConfig> createBuildConfigRC(final BuildConfig config) {
-        return new RequestCall<BuildConfig>() {
-            @Override
-            public void makeCall(AsyncCallback<BuildConfig> callback) {
-                openshiftClient.createBuildConfig(config, _callback(callback, dtoUnmarshaller.newUnmarshaller(BuildConfig.class)));
-            }
-        };
-    }
-
-    private Function<BuildConfig, Promise<Void>> setUpImportConfiguration() {
-        return new Function<BuildConfig, Promise<Void>>() {
-            @Override
-            public Promise<Void> apply(BuildConfig config) throws FunctionException {
-
-
-                return Promises.resolve(null);
-            }
-        };
-    }
-
-    private Function<Void, Promise<Void>> createImageStream(final ImageStream stream) {
-        return new Function<Void, Promise<Void>>() {
-            @Override
-            public Promise<Void> apply(Void arg) throws FunctionException {
-                return createFromAsyncRequest(createImageStreamRC(stream)).thenPromise(new VoidFunction<ImageStream>());
-            }
-        };
-    }
-
-    private RequestCall<ImageStream> createImageStreamRC(final ImageStream stream) {
-        return new RequestCall<ImageStream>() {
-            @Override
-            public void makeCall(AsyncCallback<ImageStream> callback) {
-                openshiftClient.createImageStream(stream, _callback(callback, dtoUnmarshaller.newUnmarshaller(ImageStream.class)));
-            }
-        };
-    }
-
-    private Function<Void, Promise<Void>> createRoute(final Route route) {
-        return new Function<Void, Promise<Void>>() {
-            @Override
-            public Promise<Void> apply(Void arg) throws FunctionException {
-                return createFromAsyncRequest(createRouteRC(route)).thenPromise(new VoidFunction<Route>());
-            }
-        };
-    }
-
-    private RequestCall<Route> createRouteRC(final Route route) {
-        return new RequestCall<Route>() {
-            @Override
-            public void makeCall(AsyncCallback<Route> callback) {
-                openshiftClient.createRoute(route, _callback(callback, dtoUnmarshaller.newUnmarshaller(Route.class)));
-            }
-        };
-    }
-
-    private Function<Void, Promise<Void>> createService(final Service service) {
-        return new Function<Void, Promise<Void>>() {
-            @Override
-            public Promise<Void> apply(Void arg) throws FunctionException {
-                return createFromAsyncRequest(createServiceRC(service)).thenPromise(new VoidFunction<Service>());
-            }
-        };
-    }
-
-    private RequestCall<Service> createServiceRC(final Service service) {
-        return new RequestCall<Service>() {
-            @Override
-            public void makeCall(AsyncCallback<Service> callback) {
-                openshiftClient.createService(service, _callback(callback, dtoUnmarshaller.newUnmarshaller(Service.class)));
-            }
-        };
-    }
-
-    class VoidFunction<T> implements Function<T, Promise<Void>> {
-        @Override
-        public Promise<Void> apply(T arg) throws FunctionException {
-            return Promises.resolve(null);
-        }
-    }
-
-    protected <T> AsyncRequestCallback<T> _callback(final AsyncCallback<T> callback, Unmarshallable<T> u) {
-        return new AsyncRequestCallback<T>(u) {
-            @Override
-            protected void onSuccess(T result) {
-                callback.onSuccess(result);
-            }
-
-            @Override
-            protected void onFailure(Throwable e) {
-                callback.onFailure(e);
+                return Promises.all(promises.toArray(new Promise<?>[promises.size()]));
             }
         };
     }

@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.openshift.client;
 
+import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.ide.ext.openshift.shared.dto.BuildConfig;
 import org.eclipse.che.ide.ext.openshift.shared.dto.DeploymentConfig;
 import org.eclipse.che.ide.ext.openshift.shared.dto.ImageStream;
@@ -18,7 +19,6 @@ import org.eclipse.che.ide.ext.openshift.shared.dto.ProjectRequest;
 import org.eclipse.che.ide.ext.openshift.shared.dto.Route;
 import org.eclipse.che.ide.ext.openshift.shared.dto.Service;
 import org.eclipse.che.ide.ext.openshift.shared.dto.Template;
-import org.eclipse.che.ide.rest.AsyncRequestCallback;
 
 import java.util.List;
 
@@ -26,29 +26,29 @@ import java.util.List;
  * @author Sergii Leschenko
  */
 public interface OpenshiftServiceClient {
-    void getTemplates(String namespace, AsyncRequestCallback<List<Template>> callback);
+    Promise<List<Template>> getTemplates(String namespace);
 
-    void processTemplate(String namespace, Template template, AsyncRequestCallback<Template> callback);
+    Promise<Template> processTemplate(String namespace, Template template);
 
+    Promise<List<Project>> getProjects();
 
-    void getProjects(AsyncRequestCallback<List<Project>> callback);
+    Promise<Project> createProject(ProjectRequest request);
 
-    void createProject(ProjectRequest projectRequest, AsyncRequestCallback<Project> callback);
+    Promise<BuildConfig> createBuildConfig(BuildConfig config);
 
+    Promise<BuildConfig> updateBuildConfig(BuildConfig config);
 
-    void createBuildConfig(BuildConfig buildConfig, AsyncRequestCallback<BuildConfig> callback);
+    Promise<List<BuildConfig>> getBuildConfigs(String namespace);
 
-    void updateBuildConfig(BuildConfig buildConfig, AsyncRequestCallback<BuildConfig> callback);
+    Promise<ImageStream> createImageStream(ImageStream stream);
 
-    void getBuildConfigs(String namespace, AsyncRequestCallback<List<BuildConfig>> callback);
+    Promise<List<ImageStream>> getImageStreams(String namespace, String application);
 
-    void createImageStream(ImageStream imageStream, AsyncRequestCallback<ImageStream> callback);
+    Promise<DeploymentConfig> createDeploymentConfig(DeploymentConfig config);
 
-    void createDeploymentConfig(DeploymentConfig deploymentConfig, AsyncRequestCallback<DeploymentConfig> callback);
+    Promise<Route> createRoute(Route route);
 
-    void createRoute(Route route, AsyncRequestCallback<Route> callback);
+    Promise<Service> createService(Service service);
 
-    void createService(Service service, AsyncRequestCallback<Service> callback);
-
-    void getRoutes(String namespace, String application, AsyncRequestCallback<List<Route>> callback);
+    Promise<List<Route>> getRoutes(String namespace, String application);
 }

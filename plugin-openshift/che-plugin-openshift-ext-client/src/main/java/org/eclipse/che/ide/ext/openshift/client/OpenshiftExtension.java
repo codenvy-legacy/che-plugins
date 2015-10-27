@@ -15,6 +15,7 @@ import org.eclipse.che.ide.api.action.DefaultActionGroup;
 import org.eclipse.che.ide.api.constraints.Constraints;
 import org.eclipse.che.ide.api.extension.Extension;
 import org.eclipse.che.ide.ext.openshift.client.deploy.LinkProjectWithExistingApplicationAction;
+import org.eclipse.che.ide.ext.openshift.client.deploy._new.NewApplicationAction;
 import org.eclipse.che.ide.ext.openshift.client.oauth.authenticator.ConnectAccountAction;
 import org.eclipse.che.ide.ext.openshift.client.oauth.authenticator.DisconnectAccountAction;
 import org.eclipse.che.ide.ext.openshift.client.project.CreateApplicationFromTemplateAction;
@@ -43,6 +44,7 @@ public class OpenshiftExtension {
                               DisconnectAccountAction disconnectAccountAction,
                               CreateApplicationFromTemplateAction createApplicationFromTemplateAction,
                               LinkProjectWithExistingApplicationAction deployToExistingApplicationAction,
+                              NewApplicationAction newApplicationAction,
                               ShowApplicationUrlAction showApplicationUrlAction) {
         openshiftResources.css().ensureInjected();
         DefaultActionGroup mainMenu = (DefaultActionGroup)actionManager.getAction(GROUP_MAIN_MENU);
@@ -58,11 +60,22 @@ public class OpenshiftExtension {
         openshift.add(disconnectAccountAction);
 
         openshift.addSeparator();
+        DefaultActionGroup deployGroup = new DefaultActionGroup("Deploy", true, actionManager);
+        deployGroup.getTemplatePresentation().setDescription("Deploy application...");
+        deployGroup.getTemplatePresentation().setSVGIcon(null); //TODO replace with icon in nearest future
+
+        actionManager.registerAction("newOpenshiftApplication", newApplicationAction);
+        deployGroup.add(newApplicationAction);
+
+        actionManager.registerAction("deployToExistingApplication", deployToExistingApplicationAction);
+        deployGroup.add(deployToExistingApplicationAction);
+
+        openshift.add(deployGroup);
+
+        openshift.addSeparator();
         actionManager.registerAction("createOpenshiftApplicationFromTemplate", createApplicationFromTemplateAction);
         openshift.add(createApplicationFromTemplateAction);
 
-        actionManager.registerAction("deployToExistingApplication", deployToExistingApplicationAction);
-        openshift.add(deployToExistingApplicationAction);
 
         actionManager.registerAction("showOpenshiftApplicationUrl", showApplicationUrlAction);
         openshift.add(showApplicationUrlAction);

@@ -11,148 +11,282 @@
 package org.eclipse.che.ide.ext.openshift.client;
 
 
+import com.google.common.base.Strings;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+
+import org.eclipse.che.api.promises.client.Promise;
+import org.eclipse.che.api.promises.client.callback.AsyncPromiseHelper;
 import org.eclipse.che.ide.MimeType;
 import org.eclipse.che.ide.api.app.AppContext;
-import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.ext.openshift.shared.dto.BuildConfig;
 import org.eclipse.che.ide.ext.openshift.shared.dto.DeploymentConfig;
 import org.eclipse.che.ide.ext.openshift.shared.dto.ImageStream;
 import org.eclipse.che.ide.ext.openshift.shared.dto.Project;
 import org.eclipse.che.ide.ext.openshift.shared.dto.ProjectRequest;
 import org.eclipse.che.ide.ext.openshift.shared.dto.Route;
-import org.eclipse.che.ide.ext.openshift.shared.dto.RouteSpec;
 import org.eclipse.che.ide.ext.openshift.shared.dto.Service;
 import org.eclipse.che.ide.ext.openshift.shared.dto.Template;
-import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.AsyncRequestFactory;
 import org.eclipse.che.ide.rest.AsyncRequestLoader;
+import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import java.util.Collections;
 import java.util.List;
 
 import static com.google.gwt.http.client.RequestBuilder.PUT;
+import static org.eclipse.che.api.promises.client.callback.PromiseHelper.newCallback;
+import static org.eclipse.che.api.promises.client.callback.PromiseHelper.newPromise;
 import static org.eclipse.che.ide.rest.HTTPHeader.ACCEPT;
 import static org.eclipse.che.ide.rest.HTTPHeader.CONTENT_TYPE;
 
 /**
  * @author Sergii Leschenko
+ * @author Vlad Zhukovskyi
  */
 public class OpenshiftServiceClientImpl implements OpenshiftServiceClient {
-    private final AsyncRequestFactory asyncRequestFactory;
-    private final AsyncRequestLoader  loader;
-    private final String              openshiftPath;
+    private final AsyncRequestFactory    asyncRequestFactory;
+    private final AsyncRequestLoader     loader;
+    private final DtoUnmarshallerFactory dtoUnmarshaller;
+    private final String                 openshiftPath;
 
     @Inject
     public OpenshiftServiceClientImpl(@Named("cheExtensionPath") String extPath,
                                       AsyncRequestFactory asyncRequestFactory,
                                       AsyncRequestLoader loader,
-                                      AppContext appContext) {
+                                      AppContext appContext,
+                                      DtoUnmarshallerFactory dtoUnmarshaller) {
         this.asyncRequestFactory = asyncRequestFactory;
         this.loader = loader;
-        this.openshiftPath = extPath + "/openshift/" + appContext.getWorkspace().getId();
+        this.dtoUnmarshaller = dtoUnmarshaller;
+        openshiftPath = extPath + "/openshift/" + appContext.getWorkspace().getId();
     }
 
-    @Override
-    public void getTemplates(String namespace, AsyncRequestCallback<List<Template>> callback) {
+    public Promise<List<Template>> getTemplates(final String namespace) {
+        return newPromise(new AsyncPromiseHelper.RequestCall<List<Template>>() {
+            @Override
+            public void makeCall(AsyncCallback<List<Template>> callback) {
+                getTemplates(namespace, callback);
+            }
+        });
+    }
+
+    private void getTemplates(String namespace, AsyncCallback<List<Template>> callback) {
         asyncRequestFactory.createGetRequest(openshiftPath + "/" + namespace + "/template")
                            .header(ACCEPT, MimeType.APPLICATION_JSON)
                            .loader(loader, "Getting templates...")
-                           .send(callback);
+                           .send(newCallback(callback, dtoUnmarshaller.newListUnmarshaller(Template.class)));
     }
 
-    @Override
-    public void processTemplate(String namespace, Template template, AsyncRequestCallback<Template> callback) {
+    public Promise<Template> processTemplate(final String namespace, final Template template) {
+        return newPromise(new AsyncPromiseHelper.RequestCall<Template>() {
+            @Override
+            public void makeCall(AsyncCallback<Template> callback) {
+                processTemplate(namespace, template, callback);
+            }
+        });
+    }
+
+    private void processTemplate(String namespace, Template template, AsyncCallback<Template> callback) {
         asyncRequestFactory.createPostRequest(openshiftPath + "/" + namespace + "/template/process", template)
                            .header(ACCEPT, MimeType.APPLICATION_JSON)
                            .header(CONTENT_TYPE, MimeType.APPLICATION_JSON)
                            .loader(loader, "Processing template...")
-                           .send(callback);
+                           .send(newCallback(callback, dtoUnmarshaller.newUnmarshaller(Template.class)));
     }
 
     @Override
-    public void getProjects(AsyncRequestCallback<List<Project>> callback) {
+    public Promise<List<Project>> getProjects() {
+        return newPromise(new AsyncPromiseHelper.RequestCall<List<Project>>() {
+            @Override
+            public void makeCall(AsyncCallback<List<Project>> callback) {
+                getProjects(callback);
+            }
+        });
+    }
+
+    private void getProjects(AsyncCallback<List<Project>> callback) {
         asyncRequestFactory.createGetRequest(openshiftPath + "/project")
                            .header(ACCEPT, MimeType.APPLICATION_JSON)
                            .loader(loader, "Getting projects...")
-                           .send(callback);
+                           .send(newCallback(callback, dtoUnmarshaller.newListUnmarshaller(Project.class)));
     }
 
     @Override
-    public void createProject(ProjectRequest projectRequest, AsyncRequestCallback<Project> callback) {
-        asyncRequestFactory.createPostRequest(openshiftPath + "/project", projectRequest)
+    public Promise<Project> createProject(final ProjectRequest request) {
+        return newPromise(new AsyncPromiseHelper.RequestCall<Project>() {
+            @Override
+            public void makeCall(AsyncCallback<Project> callback) {
+                createProject(request, callback);
+            }
+        });
+    }
+
+    private void createProject(ProjectRequest request, AsyncCallback<Project> callback) {
+        asyncRequestFactory.createPostRequest(openshiftPath + "/project", request)
                            .header(ACCEPT, MimeType.APPLICATION_JSON)
                            .loader(loader, "Creating project...")
-                           .send(callback);
+                           .send(newCallback(callback, dtoUnmarshaller.newUnmarshaller(Project.class)));
     }
 
     @Override
-    public void createBuildConfig(BuildConfig buildConfig, AsyncRequestCallback<BuildConfig> callback) {
-        asyncRequestFactory.createPostRequest(openshiftPath + "/" + buildConfig.getMetadata().getNamespace() + "/buildconfig", buildConfig)
+    public Promise<BuildConfig> createBuildConfig(final BuildConfig config) {
+        return newPromise(new AsyncPromiseHelper.RequestCall<BuildConfig>() {
+            @Override
+            public void makeCall(AsyncCallback<BuildConfig> callback) {
+                createBuildConfig(config, callback);
+            }
+        });
+    }
+
+    private void createBuildConfig(BuildConfig config, AsyncCallback<BuildConfig> callback) {
+        asyncRequestFactory.createPostRequest(openshiftPath + "/" + config.getMetadata().getNamespace() + "/buildconfig", config)
                            .header(CONTENT_TYPE, MimeType.APPLICATION_JSON)
                            .header(ACCEPT, MimeType.APPLICATION_JSON)
                            .loader(loader, "Creating build configs...")
-                           .send(callback);
+                           .send(newCallback(callback, dtoUnmarshaller.newUnmarshaller(BuildConfig.class)));
     }
 
     @Override
-    public void updateBuildConfig(BuildConfig buildConfig, AsyncRequestCallback<BuildConfig> callback) {
-        asyncRequestFactory.createRequest(PUT, openshiftPath + "/" + buildConfig.getMetadata().getNamespace() + "/buildconfig/" +
-                                               buildConfig.getMetadata().getName(), buildConfig, false)
+    public Promise<BuildConfig> updateBuildConfig(final BuildConfig config) {
+        return newPromise(new AsyncPromiseHelper.RequestCall<BuildConfig>() {
+            @Override
+            public void makeCall(AsyncCallback<BuildConfig> callback) {
+                updateBuildConfig(config, callback);
+            }
+        });
+    }
+
+    private void updateBuildConfig(BuildConfig config, AsyncCallback<BuildConfig> callback) {
+        asyncRequestFactory.createRequest(PUT, openshiftPath + "/" + config.getMetadata().getNamespace() + "/buildconfig/" +
+                                               config.getMetadata().getName(), config, false)
                            .header(CONTENT_TYPE, MimeType.APPLICATION_JSON)
                            .header(ACCEPT, MimeType.APPLICATION_JSON)
                            .loader(loader, "Updating build configs...")
-                           .send(callback);
+                           .send(newCallback(callback, dtoUnmarshaller.newUnmarshaller(BuildConfig.class)));
     }
 
     @Override
-    public void getBuildConfigs(String namespace, AsyncRequestCallback<List<BuildConfig>> callback) {
+    public Promise<List<BuildConfig>> getBuildConfigs(final String namespace) {
+        return newPromise(new AsyncPromiseHelper.RequestCall<List<BuildConfig>>() {
+            @Override
+            public void makeCall(AsyncCallback<List<BuildConfig>> callback) {
+                getBuildConfigs(namespace, callback);
+            }
+        });
+    }
+
+    private void getBuildConfigs(String namespace, AsyncCallback<List<BuildConfig>> callback) {
         asyncRequestFactory.createGetRequest(openshiftPath + "/" + namespace + "/buildconfig")
                            .header(ACCEPT, MimeType.APPLICATION_JSON)
                            .loader(loader, "Getting build configs...")
-                           .send(callback);
+                           .send(newCallback(callback, dtoUnmarshaller.newListUnmarshaller(BuildConfig.class)));
     }
 
     @Override
-    public void createImageStream(ImageStream imageStream, AsyncRequestCallback<ImageStream> callback) {
+    public Promise<ImageStream> createImageStream(final ImageStream stream) {
+        return newPromise(new AsyncPromiseHelper.RequestCall<ImageStream>() {
+            @Override
+            public void makeCall(AsyncCallback<ImageStream> callback) {
+                createImageStream(stream, callback);
+            }
+        });
+    }
+
+    private void createImageStream(ImageStream imageStream, AsyncCallback<ImageStream> callback) {
         asyncRequestFactory.createPostRequest(openshiftPath + "/" + imageStream.getMetadata().getNamespace() + "/imagestream", imageStream)
                            .header(CONTENT_TYPE, MimeType.APPLICATION_JSON)
                            .header(ACCEPT, MimeType.APPLICATION_JSON)
                            .loader(loader, "Creating image streams...")
-                           .send(callback);
+                           .send(newCallback(callback, dtoUnmarshaller.newUnmarshaller(ImageStream.class)));
     }
 
     @Override
-    public void createDeploymentConfig(DeploymentConfig deploymentConfig, AsyncRequestCallback<DeploymentConfig> callback) {
-        asyncRequestFactory.createPostRequest(openshiftPath + "/" + deploymentConfig.getMetadata().getNamespace() + "/deploymentconfig",
-                                              deploymentConfig)
+    public Promise<List<ImageStream>> getImageStreams(final String namespace, final String application) {
+        return newPromise(new AsyncPromiseHelper.RequestCall<List<ImageStream>>() {
+            @Override
+            public void makeCall(AsyncCallback<List<ImageStream>> callback) {
+                getImageStreams(namespace, application, callback);
+            }
+        });
+    }
+
+    private void getImageStreams(String namespace, String application, AsyncCallback<List<ImageStream>> callback) {
+        final String url = openshiftPath + "/" + namespace + "/imagestream" + (Strings.isNullOrEmpty(application) ? "" : ("?application=" +
+                                                                                                                          application));
+        asyncRequestFactory.createGetRequest(url)
+                           .header(CONTENT_TYPE, MimeType.APPLICATION_JSON)
+                           .header(ACCEPT, MimeType.APPLICATION_JSON)
+                           .loader(loader, "Getting image stream...")
+                           .send(newCallback(callback, dtoUnmarshaller.newListUnmarshaller(ImageStream.class)));
+    }
+
+    @Override
+    public Promise<DeploymentConfig> createDeploymentConfig(final DeploymentConfig config) {
+        return newPromise(new AsyncPromiseHelper.RequestCall<DeploymentConfig>() {
+            @Override
+            public void makeCall(AsyncCallback<DeploymentConfig> callback) {
+                createDeploymentConfig(config, callback);
+            }
+        });
+    }
+
+    private void createDeploymentConfig(DeploymentConfig config, AsyncCallback<DeploymentConfig> callback) {
+        asyncRequestFactory.createPostRequest(openshiftPath + "/" + config.getMetadata().getNamespace() + "/deploymentconfig",
+                                              config)
                            .header(CONTENT_TYPE, MimeType.APPLICATION_JSON)
                            .header(ACCEPT, MimeType.APPLICATION_JSON)
                            .loader(loader, "Creating deployment config...")
-                           .send(callback);
+                           .send(newCallback(callback, dtoUnmarshaller.newUnmarshaller(DeploymentConfig.class)));
     }
 
     @Override
-    public void createRoute(Route route, AsyncRequestCallback<Route> callback) {
+    public Promise<Route> createRoute(final Route route) {
+        return newPromise(new AsyncPromiseHelper.RequestCall<Route>() {
+            @Override
+            public void makeCall(AsyncCallback<Route> callback) {
+                createRoute(route, callback);
+            }
+        });
+    }
+
+    private void createRoute(Route route, AsyncCallback<Route> callback) {
         asyncRequestFactory.createPostRequest(openshiftPath + "/" + route.getMetadata().getNamespace() + "/route", route)
                            .header(CONTENT_TYPE, MimeType.APPLICATION_JSON)
                            .header(ACCEPT, MimeType.APPLICATION_JSON)
                            .loader(loader, "Creating route...")
-                           .send(callback);
+                           .send(newCallback(callback, dtoUnmarshaller.newUnmarshaller(Route.class)));
     }
 
     @Override
-    public void createService(Service service, AsyncRequestCallback<Service> callback) {
+    public Promise<Service> createService(final Service service) {
+        return newPromise(new AsyncPromiseHelper.RequestCall<Service>() {
+            @Override
+            public void makeCall(AsyncCallback<Service> callback) {
+                createService(service, callback);
+            }
+        });
+    }
+
+    private void createService(Service service, AsyncCallback<Service> callback) {
         asyncRequestFactory.createPostRequest(openshiftPath + "/" + service.getMetadata().getNamespace() + "/service", service)
                            .header(CONTENT_TYPE, MimeType.APPLICATION_JSON)
                            .header(ACCEPT, MimeType.APPLICATION_JSON)
                            .loader(loader, "Creating service...")
-                           .send(callback);
+                           .send(newCallback(callback, dtoUnmarshaller.newUnmarshaller(Service.class)));
     }
 
     @Override
-    public void getRoutes(String namespace, String application, AsyncRequestCallback<List<Route>> callback) {
+    public Promise<List<Route>> getRoutes(final String namespace, final String application) {
+        return newPromise(new AsyncPromiseHelper.RequestCall<List<Route>>() {
+            @Override
+            public void makeCall(AsyncCallback<List<Route>> callback) {
+                getRoutes(namespace, application, callback);
+            }
+        });
+    }
+
+    private void getRoutes(String namespace, String application, AsyncCallback<List<Route>> callback) {
         String url = openshiftPath + "/" + namespace + "/route";
         if (application != null) {
             url += "?application=" + application;
@@ -160,6 +294,7 @@ public class OpenshiftServiceClientImpl implements OpenshiftServiceClient {
         asyncRequestFactory.createGetRequest(url)
                            .header(ACCEPT, MimeType.APPLICATION_JSON)
                            .loader(loader, "Getting routes...")
-                           .send(callback);
+                           .send(newCallback(callback, dtoUnmarshaller.newListUnmarshaller(Route.class)));
     }
+
 }

@@ -17,6 +17,8 @@ import org.eclipse.che.api.git.shared.Remote;
 import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
 import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.api.project.shared.dto.ProjectUpdate;
+import org.eclipse.che.api.promises.client.Operation;
+import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.dto.DtoFactory;
@@ -72,15 +74,13 @@ public class LinkProjectWithExistingApplicationPresenter implements LinkProjectW
         this.locale = locale;
         this.notificationManager = notificationManager;
         this.dialogFactory = dialogFactory;
-
         this.openShiftClient = openShiftClient;
         this.projectServiceClient = projectServiceClient;
         this.gitService = gitService;
         this.dtoUnmarshaller = dtoUnmarshaller;
         this.dtoFactory = dtoFactory;
 
-
-        this.buildConfigMap = new HashMap<String, List<BuildConfig>>();
+        buildConfigMap = new HashMap<>();
     }
 
     /**
@@ -107,7 +107,7 @@ public class LinkProjectWithExistingApplicationPresenter implements LinkProjectW
                               new AsyncRequestCallback<List<Remote>>(dtoUnmarshaller.newListUnmarshaller(Remote.class)) {
                                   @Override
                                   protected void onSuccess(List<Remote> result) {
-                                      if (result.size() > 0) {
+                                      if (!result.isEmpty()) {
                                           view.setGitRemotes(result);
                                           prepareView();
                                           loadOpenShiftData();
@@ -131,7 +131,7 @@ public class LinkProjectWithExistingApplicationPresenter implements LinkProjectW
      * Prepare the view state to be shown.
      */
     private void prepareView() {
-        this.selectedBuildConfig = null;
+        selectedBuildConfig = null;
         view.enableLinkButton(false);
         view.setBuildConfigGitUrl("");
         view.showView();
@@ -154,22 +154,16 @@ public class LinkProjectWithExistingApplicationPresenter implements LinkProjectW
      * @param {BuildConfig}
      *         buildConfig data to be updated
      */
-    private void updateBuildConfig(final BuildConfig buildConfig) {
-        openShiftClient.updateBuildConfig(buildConfig,
-                                          new AsyncRequestCallback<BuildConfig>(dtoUnmarshaller.newUnmarshaller(BuildConfig.class)) {
-                                              @Override
-                                              protected void onSuccess(BuildConfig result) {
-                                                  view.closeView();
-                                                  markAsOpenshiftProject(result);
-                                                  notificationManager.showInfo(locale.linkProjectWithExistingUpdateBuildConfigSuccess(
-                                                          result.getMetadata().getName()));
-                                              }
-
-                                              @Override
-                                              protected void onFailure(Throwable exception) {
-                                                  notificationManager.showError(exception.getMessage());
-                                              }
-                                          });
+    private void updateBuildConfig(BuildConfig buildConfig) {
+        openShiftClient.updateBuildConfig(buildConfig).then(new Operation<BuildConfig>() {
+            @Override
+            public void apply(BuildConfig result) throws OperationException {
+                view.closeView();
+                markAsOpenshiftProject(result);
+                notificationManager.showInfo(locale.linkProjectWithExistingUpdateBuildConfigSuccess(
+                        result.getMetadata().getName()));
+            }
+        });
     }
 
     /**
@@ -236,17 +230,12 @@ public class LinkProjectWithExistingApplicationPresenter implements LinkProjectW
      * Load OpenShift Project and Application data.
      */
     private void loadOpenShiftData() {
-        openShiftClient.getProjects(new AsyncRequestCallback<List<Project>>(dtoUnmarshaller.newListUnmarshaller(Project.class)) {
+        openShiftClient.getProjects().then(new Operation<List<Project>>() {
             @Override
-            protected void onSuccess(List<Project> result) {
+            public void apply(List<Project> result) throws OperationException {
                 for (Project project : result) {
                     getBuildConfigs(project.getMetadata().getName());
                 }
-            }
-
-            @Override
-            protected void onFailure(Throwable exception) {
-                notificationManager.showError(exception.getMessage());
             }
         });
     }
@@ -257,20 +246,13 @@ public class LinkProjectWithExistingApplicationPresenter implements LinkProjectW
      * @param namespace
      */
     private void getBuildConfigs(final String namespace) {
-        openShiftClient.getBuildConfigs(namespace,
-                                        new AsyncRequestCallback<List<BuildConfig>>(
-                                                dtoUnmarshaller.newListUnmarshaller(BuildConfig.class)) {
-                                            @Override
-                                            protected void onSuccess(List<BuildConfig> result) {
-                                                buildConfigMap.put(namespace, result);
-                                                //TODO update by portions?
-                                                view.setBuildConfigs(buildConfigMap);
-                                            }
-
-                                            @Override
-                                            protected void onFailure(Throwable exception) {
-                                                notificationManager.showError(exception.getMessage());
-                                            }
-                                        });
+        openShiftClient.getBuildConfigs(namespace).then(new Operation<List<BuildConfig>>() {
+            @Override
+            public void apply(List<BuildConfig> result) throws OperationException {
+                buildConfigMap.put(namespace, result);
+                //TODO update by portions?
+                view.setBuildConfigs(buildConfigMap);
+            }
+        });
     }
 }
