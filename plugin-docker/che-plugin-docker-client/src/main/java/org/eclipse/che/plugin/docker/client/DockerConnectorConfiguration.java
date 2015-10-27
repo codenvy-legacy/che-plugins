@@ -157,7 +157,7 @@ public class DockerConnectorConfiguration {
         return DEFAULT_DOCKER_MACHINE_URI;
     }
 
-    protected String getDockerHostIp() {
+    public String getDockerHostIp() {
         return getDockerHostIp(SystemInfo.isLinux(), System.getenv());
     }
 
