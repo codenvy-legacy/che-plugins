@@ -144,7 +144,7 @@ public class DockerConnectorConfigurationTest {
     }
 
     /**
-     * Check that without property docker host ip from container is DEFAULT_LINUX_DOCKER_HOST_IP
+     * Check if docker host ip from container is DEFAULT_LINUX_DOCKER_HOST_IP when bridge is not defined
      */
     @Test
     public void testLinuxDefaultDockerHostWithoutBrige() throws Exception {
@@ -160,7 +160,7 @@ public class DockerConnectorConfigurationTest {
 
 
     /**
-     * On Linux if we have a bridge docker0, use that ip
+     * Check that on Linux, if we have a bridge named docker0, we should use that bridge
      */
     @Test
     public void testLinuxDefaultDockerHostWithBrige() throws Exception {
@@ -190,13 +190,13 @@ public class DockerConnectorConfigurationTest {
         String ip = dockerConnectorConfiguration.getDockerHostIp(false, Collections.emptyMap());
         assertEquals(ip, DEFAULT_DOCKER_MACHINE_DOCKER_HOST_IP);
         verify(networkFinder, times(0)).getIPAddress(anyString());
-        verify(networkFinder, times(0)).foundInetAddressMatching(anyString());
+        verify(networkFinder, times(0)).getMatchingInetAddress(anyString());
     }
 
 
 
     /**
-     * With docker machine, if system env property is set, use it
+     * Use docker machine system env property if set
      */
     @Test
     public void testMacDefaultDockerHostWithDockerHostProperty() throws Exception {
@@ -204,17 +204,15 @@ public class DockerConnectorConfigurationTest {
         String myCustomIpAddress = "192.168.59.104";
         InetAddress inetAddress = Mockito.mock(InetAddress.class);
         doReturn(myCustomIpAddress).when(inetAddress).getHostAddress();
-        doReturn(Optional.of(inetAddress)).when(networkFinder).foundInetAddressMatching(anyString());
+        doReturn(Optional.of(inetAddress)).when(networkFinder).getMatchingInetAddress(anyString());
         DockerConnectorConfiguration dockerConnectorConfiguration = new DockerConnectorConfiguration(null, null, null, networkFinder);
 
-        Map<String, String> env = new HashMap<>();
-        env.put(DockerConnector.DOCKER_HOST_PROPERTY, "tcp://192.168.59.104:2375");
-
+        Map<String, String> env = Collections.singletonMap(DockerConnector.DOCKER_HOST_PROPERTY, "tcp://192.168.59.104:2375");
 
         String ip = dockerConnectorConfiguration.getDockerHostIp(false, env);
         assertEquals(ip, myCustomIpAddress);
         verify(networkFinder, times(0)).getIPAddress(anyString());
-        verify(networkFinder).foundInetAddressMatching("192.168.59");
+        verify(networkFinder).getMatchingInetAddress("192.168.59");
     }
 
 
@@ -225,16 +223,14 @@ public class DockerConnectorConfigurationTest {
     @Test
     public void testMacDefaultDockerHostWithDockerHostPropertyNoMatchingNetwork() throws Exception {
         NetworkFinder networkFinder = Mockito.mock(NetworkFinder.class);
-        doReturn(Optional.empty()).when(networkFinder).foundInetAddressMatching(anyString());
+        doReturn(Optional.empty()).when(networkFinder).getMatchingInetAddress(anyString());
         DockerConnectorConfiguration dockerConnectorConfiguration = new DockerConnectorConfiguration(null, null, null, networkFinder);
 
-        Map<String, String> env = new HashMap<>();
-        env.put(DockerConnector.DOCKER_HOST_PROPERTY, "tcp://192.168.59.104:2375");
-
+        Map<String, String> env = Collections.singletonMap(DockerConnector.DOCKER_HOST_PROPERTY, "tcp://192.168.59.104:2375");
 
         String ip = dockerConnectorConfiguration.getDockerHostIp(false, env);
         assertEquals(ip, DEFAULT_DOCKER_MACHINE_DOCKER_HOST_IP);
         verify(networkFinder, times(0)).getIPAddress(anyString());
-        verify(networkFinder).foundInetAddressMatching("192.168.59");
+        verify(networkFinder).getMatchingInetAddress("192.168.59");
     }
 }

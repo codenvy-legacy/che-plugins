@@ -73,6 +73,12 @@ public class DockerInstanceProvider implements InstanceProvider {
     public static final String API_ENDPOINT_URL_VARIABLE = "CHE_API_ENDPOINT";
 
     /**
+     * Default HOSTNAME that will be added in all docker containers that are started.
+     * This host will container the Docker host's ip reachable inside the container.
+     */
+    public static final String CHE_HOST = "che-host";
+
+    /**
      * Environment variable that will be setup in developer machine
      * will contain ID of a workspace for which this machine has been created
      */
@@ -144,12 +150,13 @@ public class DockerInstanceProvider implements InstanceProvider {
         commonEnvVariables = new String[0];
         devMachineEnvVariables = new String[] {API_ENDPOINT_URL_VARIABLE + '=' + apiEndpoint,
                                                DockerInstanceMetadata.PROJECTS_ROOT_VARIABLE + '=' + PROJECTS_FOLDER_PATH};
-        String[] extraHosts = isNullOrEmpty(machineExtraHosts) ? null : machineExtraHosts.split(",");
-        String dockerHost = "che-host:".concat(docker.getDockerHostIp());
-        if (extraHosts == null) {
+
+        // always add the docker host
+        String dockerHost = CHE_HOST.concat(":").concat(docker.getDockerHostIp());
+        if (isNullOrEmpty(machineExtraHosts)) {
             this.machineExtraHosts = new String[] {dockerHost};
         } else {
-            this.machineExtraHosts = ObjectArrays.concat(extraHosts, dockerHost);
+            this.machineExtraHosts = ObjectArrays.concat(machineExtraHosts.split(","), dockerHost);
         }
     }
 

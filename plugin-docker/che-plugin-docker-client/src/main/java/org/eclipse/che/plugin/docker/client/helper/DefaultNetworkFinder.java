@@ -35,7 +35,7 @@ public class DefaultNetworkFinder implements NetworkFinder {
     private static final Logger LOG = LoggerFactory.getLogger(DefaultNetworkFinder.class);
 
     /**
-     * Gets the first inet address of a given network interface if it's found
+     * Gets the first Inet address of a given network interface if it's found
      *
      * @param bridgeName
      *         name of the network interface
@@ -66,13 +66,14 @@ public class DefaultNetworkFinder implements NetworkFinder {
 
     /**
      * Search if a given network interface is matching the given subnet
+     * If there is a match, returns the InetAddress
      *
      * @param subnet
      *         the first digits of an ip address. Like 123.123.123
      * @return optional ipv4 internet address if there was a matching one
      */
     @Override
-    public Optional<InetAddress> foundInetAddressMatching(String subnet) {
+    public Optional<InetAddress> getMatchingInetAddress(String subnet) {
 
         Enumeration<NetworkInterface> interfacesEnum = null;
         try {

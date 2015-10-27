@@ -30,7 +30,7 @@ import static org.testng.Assert.assertTrue;
  *
  * @author Florent Benoit
  */
-public class DefaultNetworkFinderHelper {
+public class DefaultNetworkFinderHelperTest {
 
     /**
      * Check that we can find ipv4 address if we have some bridge
@@ -76,12 +76,11 @@ public class DefaultNetworkFinderHelper {
 
         InetAddress loopBack = InetAddress.getLoopbackAddress();
         if (loopBack instanceof Inet4Address) {
-            Optional<InetAddress> matchingAddress = networkFinder.foundInetAddressMatching(
+            Optional<InetAddress> matchingAddress = networkFinder.getMatchingInetAddress(
                     loopBack.getHostAddress().substring(0, loopBack.getHostAddress().lastIndexOf('.')));
 
             assertTrue(matchingAddress.isPresent());
             assertEquals(matchingAddress.get().getHostAddress(), loopBack.getHostAddress());
         }
-
     }
 }

@@ -191,7 +191,7 @@ public class DockerConnectorConfiguration {
                 if (ipv4Matcher.matches()) {
                     String subnet = ipv4Matcher.group(1).concat(".").concat(ipv4Matcher.group(2)).concat(".").concat(ipv4Matcher.group(3));
                     // now try to find a network interface matching this
-                    Optional<InetAddress> matchingIpAddress = networkFinder.foundInetAddressMatching(subnet);
+                    Optional<InetAddress> matchingIpAddress = networkFinder.getMatchingInetAddress(subnet);
                     // return the bridge that is matching the host
                     if (matchingIpAddress.isPresent()) {
                         return matchingIpAddress.get().getHostAddress();

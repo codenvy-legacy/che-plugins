@@ -34,10 +34,11 @@ public interface NetworkFinder {
 
     /**
      * Search if a given network interface is matching the given subnet
+     * If there is a match, returns the InetAddress
      *
      * @param subnet
      *         the first digits of an ip address. Like 123.123.123
      * @return optional ipv4 internet address if there was a matching one
      */
-    Optional<InetAddress> foundInetAddressMatching(String subnet);
+    Optional<InetAddress> getMatchingInetAddress(String subnet);
 }
