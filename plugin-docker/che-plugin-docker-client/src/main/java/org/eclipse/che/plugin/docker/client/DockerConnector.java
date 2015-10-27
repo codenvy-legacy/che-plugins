@@ -28,7 +28,6 @@ import org.eclipse.che.plugin.docker.client.connection.DockerResponse;
 import org.eclipse.che.plugin.docker.client.connection.TcpConnection;
 import org.eclipse.che.plugin.docker.client.connection.UnixSocketConnection;
 import org.eclipse.che.plugin.docker.client.dto.AuthConfigs;
-import org.eclipse.che.plugin.docker.client.helper.NetworkFinder;
 import org.eclipse.che.plugin.docker.client.json.ContainerCommited;
 import org.eclipse.che.plugin.docker.client.json.ContainerConfig;
 import org.eclipse.che.plugin.docker.client.json.ContainerCreated;
@@ -128,30 +127,17 @@ public class DockerConnector {
     private final ExecutorService    executor;
     private final String             dockerHostIp;
 
-    public DockerConnector(InitialAuthConfig initialAuthConfig, NetworkFinder networkFinder) {
-        this(new DockerConnectorConfiguration(initialAuthConfig, networkFinder));
-    }
 
-    public DockerConnector(URI dockerDaemonUri,
-                           DockerCertificates dockerCertificates,
-                           InitialAuthConfig initialAuthConfig,
-                           String dockerHostIp) {
-        this.dockerDaemonUri = dockerDaemonUri;
-        this.dockerCertificates = dockerCertificates;
-        this.initialAuthConfig = initialAuthConfig;
-        this.dockerHostIp = dockerHostIp;
+    @Inject
+    public DockerConnector(DockerConnectorConfiguration connectorConfiguration) {
+        this.dockerDaemonUri = connectorConfiguration.getDockerDaemonUri();
+        this.dockerCertificates = connectorConfiguration.getDockerCertificates();
+        this.initialAuthConfig = connectorConfiguration.getAuthConfigs();
+        this.dockerHostIp = connectorConfiguration.getDockerHostIp();
         executor = Executors.newCachedThreadPool(new ThreadFactoryBuilder()
                                                          .setNameFormat("DockerApiConnector-%d")
                                                          .setDaemon(true)
                                                          .build());
-    }
-
-    @Inject
-    private DockerConnector(DockerConnectorConfiguration connectorConfiguration) {
-        this(connectorConfiguration.getDockerDaemonUri(),
-             connectorConfiguration.getDockerCertificates(),
-             connectorConfiguration.getAuthConfigs(),
-             connectorConfiguration.getDockerHostIp());
     }
 
     /**
