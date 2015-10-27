@@ -99,20 +99,16 @@ public class DummyProjectManager implements ProjectManager {
     }
 
     @Override
-    public Project createProject(String workspace, String name, ProjectConfig projectConfig, Map<String, String> options, String visibility)
+    public Project createProject(String workspace, String name, ProjectConfig projectConfig, Map<String, String> options)
             throws ConflictException, ForbiddenException, ServerException, ProjectTypeConstraintException, NotFoundException {
         final FolderEntry myRoot = getProjectsRoot(workspace);
         final FolderEntry projectFolder = myRoot.createFolder(name);
         final Project project = new Project(projectFolder, this);
-
-        if (visibility != null) {
-            project.setVisibility(visibility);
-        }
         return project;
     }
 
     @Override
-    public Project updateProject(String workspace, String path, ProjectConfig newConfig, String newVisibility)
+    public Project updateProject(String workspace, String path, ProjectConfig newConfig)
             throws ForbiddenException, ServerException, NotFoundException, ConflictException, IOException {
         throw new UnsupportedOperationException();
     }
@@ -172,7 +168,7 @@ public class DummyProjectManager implements ProjectManager {
 
     @Override
     public Project addModule(String workspace, String projectPath, String modulePath, ProjectConfig moduleConfig,
-                             Map<String, String> options, String visibility)
+                             Map<String, String> options)
             throws ConflictException, ForbiddenException, ServerException, NotFoundException {
         throw new UnsupportedOperationException();
     }
@@ -184,7 +180,7 @@ public class DummyProjectManager implements ProjectManager {
     }
 
     @Override
-    public Project convertFolderToProject(String workspace, String path, ProjectConfig projectConfig, String visibility)
+    public Project convertFolderToProject(String workspace, String path, ProjectConfig projectConfig)
             throws ConflictException, ForbiddenException, ServerException, NotFoundException {
         throw new UnsupportedOperationException();
     }

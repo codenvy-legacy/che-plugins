@@ -132,6 +132,6 @@ public class SimpleGeneratorStrategyTest {
         ProjectHandlerRegistry handlerRegistry = new ProjectHandlerRegistry(new HashSet<>());
 
         pm = new DefaultProjectManager(vfsRegistry, eventService, projectTypeRegistry, handlerRegistry, "");
-        pm.createProject(workspace, "my_project", new ProjectConfig("", pt.getId()), null, "public");
+        pm.createProject(workspace, "my_project", new ProjectConfig("", pt.getId()), null);
     }
 }

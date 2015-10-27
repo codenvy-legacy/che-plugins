@@ -119,7 +119,7 @@ public class RemoveMavenModuleHandlerTest {
         String parent = NameGenerator.generate("parent", 5);
         String module = NameGenerator.generate("module", 5);
         Project project =
-                projectManager.createProject(workspace, parent, new ProjectConfig(null, MavenAttributes.MAVEN_ID), null, "public");
+                projectManager.createProject(workspace, parent, new ProjectConfig(null, MavenAttributes.MAVEN_ID), null);
         removeMavenModuleHandler
                 .onRemoveModule(project.getBaseFolder(), project.getPath() + "/" + module, new ProjectConfig(null, "maven"));
     }
@@ -129,7 +129,7 @@ public class RemoveMavenModuleHandlerTest {
         String parent = NameGenerator.generate("parent", 5);
         String module = NameGenerator.generate("module", 5);
         Project project =
-                projectManager.createProject(workspace, parent, new ProjectConfig(null, MavenAttributes.MAVEN_ID), null, "public");
+                projectManager.createProject(workspace, parent, new ProjectConfig(null, MavenAttributes.MAVEN_ID), null);
         project.getBaseFolder().createFile("pom.xml", String.format(POM_XML_TEMPL, "jar").getBytes(), "text/xml");
         removeMavenModuleHandler
                 .onRemoveModule(project.getBaseFolder(), project.getPath() + "/" + module, new ProjectConfig(null, "notmaven"));
@@ -139,7 +139,7 @@ public class RemoveMavenModuleHandlerTest {
     public void shouldRemoveModule() throws Exception {
         String parent = NameGenerator.generate("parent", 5);
         Project project =
-                projectManager.createProject(workspace, parent, new ProjectConfig(null, MavenAttributes.MAVEN_ID), null, "public");
+                projectManager.createProject(workspace, parent, new ProjectConfig(null, MavenAttributes.MAVEN_ID), null);
         project.getBaseFolder().createFile("pom.xml", String.format(POM_XML_TEMPL, "pom").getBytes(), "text/xml");
         removeMavenModuleHandler.onRemoveModule(project.getBaseFolder(), FIRST_MODULE, new ProjectConfig(null, MavenAttributes.MAVEN_ID));
 
@@ -163,7 +163,7 @@ public class RemoveMavenModuleHandlerTest {
         String parent = NameGenerator.generate("parent", 5);
         String module = NameGenerator.generate("module", 5);
         Project project =
-                projectManager.createProject(workspace, parent, new ProjectConfig(null, MavenAttributes.MAVEN_ID), null, "public");
+                projectManager.createProject(workspace, parent, new ProjectConfig(null, MavenAttributes.MAVEN_ID), null);
         project.getBaseFolder().createFile("pom.xml", String.format(POM_XML_TEMPL, "pom").getBytes(), "text/xml");
         removeMavenModuleHandler.onRemoveModule(project.getBaseFolder(), module, new ProjectConfig(null, MavenAttributes.MAVEN_ID));
 

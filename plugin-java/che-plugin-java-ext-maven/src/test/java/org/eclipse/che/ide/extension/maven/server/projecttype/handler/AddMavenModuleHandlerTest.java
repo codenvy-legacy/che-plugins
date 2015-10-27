@@ -109,7 +109,7 @@ public class AddMavenModuleHandlerTest {
         String parent = NameGenerator.generate("parent", 5);
         String module = NameGenerator.generate("module", 5);
         Project project =
-                projectManager.createProject(workspace, parent, new ProjectConfig(null, MavenAttributes.MAVEN_ID), null, "public");
+                projectManager.createProject(workspace, parent, new ProjectConfig(null, MavenAttributes.MAVEN_ID), null);
         project.getBaseFolder().createFile("pom.xml", String.format(POM_XML_TEMPL, "jar").getBytes(), "text/xml");
         addMavenModuleHandler
                 .onCreateModule(project.getBaseFolder(), project.getPath() + "/" + module, new ProjectConfig(null, "maven"),
@@ -120,7 +120,7 @@ public class AddMavenModuleHandlerTest {
     public void pomNotFound() throws Exception {
         String parent = NameGenerator.generate("parent", 5);
         String module = NameGenerator.generate("module", 5);
-        Project project =  projectManager.createProject(workspace, parent, new ProjectConfig(null, MavenAttributes.MAVEN_ID), null, "public");
+        Project project =  projectManager.createProject(workspace, parent, new ProjectConfig(null, MavenAttributes.MAVEN_ID), null);
         addMavenModuleHandler
                 .onCreateModule(project.getBaseFolder(), project.getPath() + "/" + module, new ProjectConfig(null, "maven"),
                                 Collections.<String, String>emptyMap());
@@ -137,7 +137,7 @@ public class AddMavenModuleHandlerTest {
         String parent = NameGenerator.generate("parent", 5);
         String module = NameGenerator.generate("module", 5);
         Project project =
-                projectManager.createProject(workspace, parent, new ProjectConfig(null, MavenAttributes.MAVEN_ID), null, "public");
+                projectManager.createProject(workspace, parent, new ProjectConfig(null, MavenAttributes.MAVEN_ID), null);
         project.getBaseFolder().createFile("pom.xml", String.format(POM_XML_TEMPL, "pom").getBytes(), "text/xml");
         addMavenModuleHandler.onCreateModule(project.getBaseFolder(), project.getPath() + "/" + module,
                                              new ProjectConfig(null, notMaven.getId()),
@@ -149,7 +149,7 @@ public class AddMavenModuleHandlerTest {
         String parent = NameGenerator.generate("parent", 5);
         String module = NameGenerator.generate("module", 5);
         Project project =
-                projectManager.createProject(workspace, parent, new ProjectConfig(null, MavenAttributes.MAVEN_ID), null, "public");
+                projectManager.createProject(workspace, parent, new ProjectConfig(null, MavenAttributes.MAVEN_ID), null);
         project.getBaseFolder().createFile("pom.xml", String.format(POM_XML_TEMPL, "pom").getBytes(), "text/xml");
         addMavenModuleHandler.onCreateModule(project.getBaseFolder(), project.getPath() + "/" + module,
                                              new ProjectConfig(null, MavenAttributes.MAVEN_ID),

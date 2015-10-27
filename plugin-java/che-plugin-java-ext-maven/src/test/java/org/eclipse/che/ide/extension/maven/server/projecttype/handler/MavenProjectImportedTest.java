@@ -187,7 +187,7 @@ public class MavenProjectImportedTest {
 
     @Test
     public void shouldNotChangeParentProjectType() throws Exception {
-        Project test = projectManager.createProject(workspace, "test", new ProjectConfig("maven", "maven"), null, null);
+        Project test = projectManager.createProject(workspace, "test", new ProjectConfig("maven", "maven"), null);
         test.getBaseFolder().createFile("pom.xml", pomJar.getBytes(), "text/xml");
         mavenProjectImportedHandler.onProjectImported(test.getBaseFolder());
         assertNotNull(projectManager.getProject(workspace, "test"));
@@ -198,7 +198,7 @@ public class MavenProjectImportedTest {
 
     @Test
     public void withPomXmlWithFolders() throws Exception {
-        Project test = projectManager.createProject(workspace, "test", new ProjectConfig("maven", "maven"), null, null);
+        Project test = projectManager.createProject(workspace, "test", new ProjectConfig("maven", "maven"), null);
         test.getBaseFolder().createFile("pom.xml", pomJar.getBytes(), "text/xml");
         FolderEntry folder = test.getBaseFolder().createFolder("folder1");
         folder.createFile("pom.xml", pomJar.getBytes(), "text/xml");
@@ -214,7 +214,7 @@ public class MavenProjectImportedTest {
 
     @Test
     public void withPomXmlMultiModule() throws Exception {
-        Project test = projectManager.createProject(workspace, "test", new ProjectConfig("maven", "maven"), null, null);
+        Project test = projectManager.createProject(workspace, "test", new ProjectConfig("maven", "maven"), null);
         test.getBaseFolder().createFile("pom.xml", pom.getBytes(), "text/xml");
 
         FolderEntry module1 = test.getBaseFolder().createFolder("module1");
@@ -238,7 +238,7 @@ public class MavenProjectImportedTest {
     public void withPomXmlMultiModuleWithNesting() throws Exception {
         //test for multi module project in which the modules are specified in format: <module>../module</module>
         FolderEntry rootProject =
-                projectManager.createProject(workspace, "test", new ProjectConfig("maven", "maven"), null, null).getBaseFolder();
+                projectManager.createProject(workspace, "test", new ProjectConfig("maven", "maven"), null).getBaseFolder();
         rootProject.createFile("pom.xml", pom.getBytes(), "text/xml");
 
         FolderEntry module1 = rootProject.createFolder("module1");

@@ -13,7 +13,7 @@ package org.eclipse.che.ide.extension.maven.client.wizard;
 import org.eclipse.che.api.core.rest.shared.dto.ServiceError;
 import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
 import org.eclipse.che.api.project.shared.dto.GeneratorDescription;
-import org.eclipse.che.api.project.shared.dto.ImportProject;
+import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.ide.api.project.type.wizard.ProjectWizardMode;
 import org.eclipse.che.ide.api.wizard.AbstractWizardPage;
 import org.eclipse.che.ide.dto.DtoFactory;
@@ -62,7 +62,7 @@ import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.VERSION
  * @author Evgen Vidolob
  * @author Artem Zatsarynnyy
  */
-public class MavenPagePresenter extends AbstractWizardPage<ImportProject> implements MavenPageView.ActionDelegate {
+public class MavenPagePresenter extends AbstractWizardPage<ProjectConfigDto> implements MavenPageView.ActionDelegate {
 
     protected final MavenPageView        view;
     protected final EventBus             eventBus;
@@ -86,7 +86,7 @@ public class MavenPagePresenter extends AbstractWizardPage<ImportProject> implem
     }
 
     @Override
-    public void init(ImportProject dataObject) {
+    public void init(ProjectConfigDto dataObject) {
         super.init(dataObject);
 
         final ProjectWizardMode wizardMode = ProjectWizardMode.parse(context.get(WIZARD_MODE_KEY));
@@ -163,7 +163,7 @@ public class MavenPagePresenter extends AbstractWizardPage<ImportProject> implem
         container.setWidget(view);
 
         final ProjectWizardMode wizardMode = ProjectWizardMode.parse(context.get(WIZARD_MODE_KEY));
-        final String projectName = dataObject.getProject().getName();
+        final String projectName = dataObject.getName();
 
         // use project name for artifactId and groupId for new project
         if (CREATE == wizardMode && projectName != null) {
@@ -185,7 +185,7 @@ public class MavenPagePresenter extends AbstractWizardPage<ImportProject> implem
 
     /** Updates view from data-object. */
     private void updateView() {
-        Map<String, List<String>> attributes = dataObject.getProject().getAttributes();
+        Map<String, List<String>> attributes = dataObject.getAttributes();
 
         final String artifactId = getAttribute(ARTIFACT_ID);
         if (!artifactId.isEmpty()) {
@@ -223,7 +223,7 @@ public class MavenPagePresenter extends AbstractWizardPage<ImportProject> implem
 
     @Override
     public void packagingChanged(String packaging) {
-        Map<String, List<String>> attributes = dataObject.getProject().getAttributes();
+        Map<String, List<String>> attributes = dataObject.getAttributes();
         attributes.put(PACKAGING, Arrays.asList(packaging));
         if ("pom".equals(packaging)) {
             attributes.remove(SOURCE_FOLDER);
@@ -246,33 +246,33 @@ public class MavenPagePresenter extends AbstractWizardPage<ImportProject> implem
             view.setArchetypes(MavenExtension.getAvailableArchetypes());
         }
 
-        final GeneratorDescription generatorDescription = dtoFactory.createDto(GeneratorDescription.class);
-        if (isGenerateFromArchetype) {
-            fillGeneratorDescription(generatorDescription);
-        }
-        dataObject.getProject().setGeneratorDescription(generatorDescription);
+//        final GeneratorDescription generatorDescription = dtoFactory.createDto(GeneratorDescription.class);
+//        if (isGenerateFromArchetype) {
+//            fillGeneratorDescription(generatorDescription);
+//        }
+//        dataObject.setGeneratorDescription(generatorDescription);
 
         updateDelegate.updateControls();
     }
 
     @Override
     public void archetypeChanged(MavenArchetype archetype) {
-        fillGeneratorDescription(dataObject.getProject().getGeneratorDescription());
+        //fillGeneratorDescription(dataObject.getProject().getGeneratorDescription());
         updateDelegate.updateControls();
     }
 
-    private void fillGeneratorDescription(GeneratorDescription generatorDescription) {
-        MavenArchetype archetype = view.getArchetype();
-        HashMap<String, String> options = new HashMap<>();
-        options.put(GENERATION_STRATEGY_OPTION, ARCHETYPE_GENERATION_STRATEGY);
-        options.put(ARCHETYPE_GROUP_ID_OPTION, archetype.getGroupId());
-        options.put(ARCHETYPE_ARTIFACT_ID_OPTION, archetype.getArtifactId());
-        options.put(ARCHETYPE_VERSION_OPTION, archetype.getVersion());
-        if (archetype.getRepository() != null) {
-            options.put(ARCHETYPE_REPOSITORY_OPTION, archetype.getRepository());
-        }
-        generatorDescription.setOptions(options);
-    }
+//    private void fillGeneratorDescription(GeneratorDescription generatorDescription) {
+//        MavenArchetype archetype = view.getArchetype();
+//        HashMap<String, String> options = new HashMap<>();
+//        options.put(GENERATION_STRATEGY_OPTION, ARCHETYPE_GENERATION_STRATEGY);
+//        options.put(ARCHETYPE_GROUP_ID_OPTION, archetype.getGroupId());
+//        options.put(ARCHETYPE_ARTIFACT_ID_OPTION, archetype.getArtifactId());
+//        options.put(ARCHETYPE_VERSION_OPTION, archetype.getVersion());
+//        if (archetype.getRepository() != null) {
+//            options.put(ARCHETYPE_REPOSITORY_OPTION, archetype.getRepository());
+//        }
+//        generatorDescription.setOptions(options);
+//    }
 
     private void validateCoordinates() {
         view.showArtifactIdMissingIndicator(view.getArtifactId().isEmpty());
@@ -283,7 +283,7 @@ public class MavenPagePresenter extends AbstractWizardPage<ImportProject> implem
     /** Reads single value of attribute from data-object. */
     @NotNull
     private String getAttribute(String attrId) {
-        Map<String, List<String>> attributes = dataObject.getProject().getAttributes();
+        Map<String, List<String>> attributes = dataObject.getAttributes();
         List<String> values = attributes.get(attrId);
         if (values == null || values.isEmpty()) {
             return "";
@@ -293,7 +293,7 @@ public class MavenPagePresenter extends AbstractWizardPage<ImportProject> implem
 
     /** Sets single value of attribute of data-object. */
     private void setAttribute(String attrId, String value) {
-        Map<String, List<String>> attributes = dataObject.getProject().getAttributes();
+        Map<String, List<String>> attributes = dataObject.getAttributes();
         attributes.put(attrId, Arrays.asList(value));
     }
 }

@@ -126,7 +126,7 @@ public class MavenProjectTypeTest {
 
         Project project = pm.createProject(workspace, "myProject",
                                            new ProjectConfig("my config", "maven", attributes, null, null),
-                                           null, "public");
+                                           null);
 
         ProjectConfig config = project.getConfig();
 
@@ -152,11 +152,11 @@ public class MavenProjectTypeTest {
 
         pm.createProject(workspace, "testEstimate",
                          new ProjectConfig("my config", "maven", attributes, null, null),
-                         null, "public");
+                         null);
 
         pm.createProject(workspace, "testEstimateBad",
                          new ProjectConfig("my config", "blank", null, null, null),
-                         null, "public");
+                         null);
 
         Map<String, AttributeValue> out = pm.estimateProject(workspace, "testEstimate", "maven");
 

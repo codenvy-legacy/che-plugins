@@ -809,7 +809,7 @@ public class Workspace implements IWorkspace {
                     projectsRoot.createFolder(path.toOSString());
                     break;
                 case IResource.PROJECT:
-                    projectManager.createProject(wsId, resource.getName(), new ProjectConfig(), new HashMap<>(), "public");
+                    projectManager.createProject(wsId, resource.getName(), new ProjectConfig(), new HashMap<>());
                     break;
                 default:
                     throw new UnsupportedOperationException();

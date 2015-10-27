@@ -138,7 +138,7 @@ public class MavenClassPathConfiguratorTest {
     @Test
     public void testConfigureWhenPomNotContainsSourceDirectory() throws Exception {
         String classPath = String.format(CLASS_PATH_CONTENT, DEFAULT_SOURCE_DIRECTORY);
-        Project testProject = projectManager.createProject(WORKSPACE, "projectName", new ProjectConfig("maven", "maven"), null, null);
+        Project testProject = projectManager.createProject(WORKSPACE, "projectName", new ProjectConfig("maven", "maven"), null);
         testProject.getBaseFolder().createFile("pom.xml", POM_CONTENT_WITHOUT_BUILD.getBytes(), "text/xml");
 
         MavenClassPathConfigurator.configure(testProject.getBaseFolder());
@@ -151,7 +151,7 @@ public class MavenClassPathConfiguratorTest {
 
     @Test
     public void testConfigureWhenPomContainsDefaultSourceDirectory() throws Exception {
-        Project testProject = projectManager.createProject(WORKSPACE, "projectName", new ProjectConfig("maven", "maven"), null, null);
+        Project testProject = projectManager.createProject(WORKSPACE, "projectName", new ProjectConfig("maven", "maven"), null);
         String pom = String.format(POM_CONTENT, DEFAULT_SOURCE_DIRECTORY);
         String classPath = String.format(CLASS_PATH_CONTENT, DEFAULT_SOURCE_DIRECTORY);
         testProject.getBaseFolder().createFile("pom.xml", pom.getBytes(), "text/xml");
@@ -166,7 +166,7 @@ public class MavenClassPathConfiguratorTest {
 
     @Test
     public void testConfigureWhenPomContainsNotDefaultSourceDirectory() throws Exception {
-        Project testProject = projectManager.createProject(WORKSPACE, "projectName", new ProjectConfig("maven", "maven"), null, null);
+        Project testProject = projectManager.createProject(WORKSPACE, "projectName", new ProjectConfig("maven", "maven"), null);
         String pom = String.format(POM_CONTENT, SOURCE_DIRECTORY);
         String classPath = String.format(CLASS_PATH_CONTENT, SOURCE_DIRECTORY);
         testProject.getBaseFolder().createFile("pom.xml", pom.getBytes(), "text/xml");

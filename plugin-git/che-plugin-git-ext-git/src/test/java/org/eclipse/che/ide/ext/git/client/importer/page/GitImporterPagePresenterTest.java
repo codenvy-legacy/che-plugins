@@ -10,10 +10,8 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.git.client.importer.page;
 
-import org.eclipse.che.api.project.shared.dto.ImportProject;
-import org.eclipse.che.api.project.shared.dto.ImportSourceDescriptor;
-import org.eclipse.che.api.project.shared.dto.NewProject;
-import org.eclipse.che.api.project.shared.dto.Source;
+import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
+import org.eclipse.che.api.workspace.shared.dto.SourceStorageDto;
 import org.eclipse.che.ide.api.wizard.Wizard;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 
@@ -49,11 +47,9 @@ public class GitImporterPagePresenterTest {
     @Mock
     private GitLocalizationConstant  locale;
     @Mock
-    private ImportProject            dataObject;
+    private ProjectConfigDto         dataObject;
     @Mock
-    private ImportSourceDescriptor   importSourceDescriptor;
-    @Mock
-    private NewProject               newProject;
+    private SourceStorageDto         source;
     @Mock
     private Map<String, String>      parameters;
     @InjectMocks
@@ -61,11 +57,7 @@ public class GitImporterPagePresenterTest {
 
     @Before
     public void setUp() {
-        Source source = mock(Source.class);
-        when(importSourceDescriptor.getParameters()).thenReturn(parameters);
-        when(source.getProject()).thenReturn(importSourceDescriptor);
         when(dataObject.getSource()).thenReturn(source);
-        when(dataObject.getProject()).thenReturn(newProject);
 
         presenter.setUpdateDelegate(updateDelegate);
         presenter.init(dataObject);
@@ -80,7 +72,6 @@ public class GitImporterPagePresenterTest {
         verify(container).setWidget(eq(view));
         verify(view).setProjectName(anyString());
         verify(view).setProjectDescription(anyString());
-        verify(view).setProjectVisibility(anyBoolean());
         verify(view).setProjectUrl(anyString());
         verify(view).setInputsEnableState(eq(true));
         verify(view).focusInUrlInput();
@@ -95,7 +86,7 @@ public class GitImporterPagePresenterTest {
         presenter.projectUrlChanged(incorrectUrl);
 
         verify(view).showUrlError(eq(locale.importProjectMessageStartWithWhiteSpace()));
-        verify(newProject).setName(eq(name));
+        verify(dataObject).setName(eq(name));
         verify(view).setProjectName(name);
         verify(updateDelegate).updateControls();
     }
@@ -184,7 +175,7 @@ public class GitImporterPagePresenterTest {
         presenter.projectUrlChanged(incorrectUrl);
 
         verify(view).showUrlError(eq(locale.importProjectMessageProtocolIncorrect()));
-        verify(importSourceDescriptor).setLocation(eq(incorrectUrl));
+        verify(source).setLocation(eq(incorrectUrl));
         verify(view).setProjectName(anyString());
         verify(updateDelegate).updateControls();
     }
@@ -196,7 +187,7 @@ public class GitImporterPagePresenterTest {
 
         presenter.projectNameChanged(correctName);
 
-        verify(newProject).setName(eq(correctName));
+        verify(dataObject).setName(eq(correctName));
         verify(view).hideNameError();
         verify(view, never()).showNameError();
         verify(updateDelegate).updateControls();
@@ -209,7 +200,7 @@ public class GitImporterPagePresenterTest {
 
         presenter.projectNameChanged(correctName);
 
-        verify(newProject).setName(eq(correctName));
+        verify(dataObject).setName(eq(correctName));
         verify(view).hideNameError();
         verify(view, never()).showNameError();
         verify(updateDelegate).updateControls();
@@ -222,7 +213,7 @@ public class GitImporterPagePresenterTest {
 
         presenter.projectNameChanged(emptyName);
 
-        verify(newProject).setName(eq(emptyName));
+        verify(dataObject).setName(eq(emptyName));
         verify(updateDelegate).updateControls();
     }
 
@@ -233,7 +224,7 @@ public class GitImporterPagePresenterTest {
 
         presenter.projectNameChanged(incorrectName);
 
-        verify(newProject).setName(eq(incorrectName));
+        verify(dataObject).setName(eq(incorrectName));
         verify(view).showNameError();
         verify(updateDelegate).updateControls();
     }
@@ -243,14 +234,7 @@ public class GitImporterPagePresenterTest {
         String description = "description";
         presenter.projectDescriptionChanged(description);
 
-        verify(newProject).setDescription(eq(description));
-    }
-
-    @Test
-    public void projectVisibilityChangedTest() {
-        presenter.projectVisibilityChanged(true);
-
-        verify(newProject).setVisibility(eq("public"));
+        verify(dataObject).setDescription(eq(description));
     }
 
     /**
@@ -293,7 +277,7 @@ public class GitImporterPagePresenterTest {
 
     private void verifyInvocationsForCorrectUrl(String correctUrl) {
         verify(view, never()).showUrlError(anyString());
-        verify(importSourceDescriptor).setLocation(eq(correctUrl));
+        verify(source).setLocation(eq(correctUrl));
         verify(view).hideUrlError();
         verify(view).setProjectName(anyString());
         verify(updateDelegate).updateControls();

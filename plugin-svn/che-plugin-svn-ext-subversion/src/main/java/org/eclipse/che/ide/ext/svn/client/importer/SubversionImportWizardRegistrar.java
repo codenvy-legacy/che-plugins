@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.svn.client.importer;
 
-import org.eclipse.che.api.project.shared.dto.ImportProject;
+import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.ide.api.project.wizard.ImportWizardRegistrar;
 import org.eclipse.che.ide.api.wizard.WizardPage;
 import com.google.inject.Inject;
@@ -25,7 +25,7 @@ import java.util.List;
  */
 public class SubversionImportWizardRegistrar implements ImportWizardRegistrar {
     private final static String ID = "subversion";
-    private final List<Provider<? extends WizardPage<ImportProject>>> wizardPages;
+    private final List<Provider<? extends WizardPage<ProjectConfigDto>>> wizardPages;
 
     @Inject
     public SubversionImportWizardRegistrar(final Provider<SubversionProjectImporterPresenter> provider) {
@@ -39,7 +39,7 @@ public class SubversionImportWizardRegistrar implements ImportWizardRegistrar {
     }
 
     @NotNull
-    public List<Provider<? extends WizardPage<ImportProject>>> getWizardPages() {
+    public List<Provider<? extends WizardPage<ProjectConfigDto>>> getWizardPages() {
         return wizardPages;
     }
 }
