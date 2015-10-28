@@ -26,6 +26,7 @@ import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.project.tree.VirtualFile;
 import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.ext.java.client.JavaLocalizationConstant;
+import org.eclipse.che.ide.ext.java.client.refactoring.RefactorInfo;
 import org.eclipse.che.ide.ext.java.client.refactoring.RefactoringUpdater;
 import org.eclipse.che.ide.ext.java.client.refactoring.rename.wizard.RenamePresenter;
 import org.eclipse.che.ide.ext.java.client.refactoring.service.RefactoringServiceClient;
@@ -54,6 +55,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
@@ -207,7 +209,7 @@ public class JavaRefactoringRenameTest {
 
         mainCheckRenameRefactoring();
 
-        verify(refactoringUpdater).updateAfterRefactoring(changes);
+        verify(refactoringUpdater).updateAfterRefactoring(Matchers.<RefactorInfo>any(), Matchers.<List<ChangeInfo>>any());
     }
 
     @Test

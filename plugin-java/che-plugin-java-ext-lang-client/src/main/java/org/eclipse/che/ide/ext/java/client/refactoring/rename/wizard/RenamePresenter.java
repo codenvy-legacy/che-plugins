@@ -281,7 +281,7 @@ public class RenamePresenter implements ActionDelegate {
                     public void apply(RefactoringResult arg) throws OperationException {
                         if (arg.getSeverity() == OK) {
                             view.hide();
-                            refactoringUpdater.updateAfterRefactoring(arg.getChanges());
+                            refactoringUpdater.updateAfterRefactoring(refactorInfo, arg.getChanges());
                         } else {
                             view.showErrorMessage(arg);
                         }
