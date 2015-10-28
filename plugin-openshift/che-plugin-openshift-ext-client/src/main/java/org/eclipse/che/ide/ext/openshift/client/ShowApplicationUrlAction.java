@@ -18,6 +18,7 @@ import org.eclipse.che.ide.api.action.AbstractPerspectiveAction;
 import org.eclipse.che.ide.api.action.ActionEvent;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
+import org.eclipse.che.ide.ext.openshift.client.oauth.authenticator.OpenshiftAuthorizationHandler;
 import org.eclipse.che.ide.ext.openshift.client.url.ShowApplicationUrlPresenter;
 
 import javax.validation.constraints.NotNull;
@@ -34,16 +35,19 @@ public class ShowApplicationUrlAction extends AbstractPerspectiveAction {
     private final ShowApplicationUrlPresenter   presenter;
     private final AnalyticsEventLogger          eventLogger;
     private final AppContext                    appContext;
+    private final OpenshiftAuthorizationHandler authorizationHandler;
 
     @Inject
     public ShowApplicationUrlAction(ShowApplicationUrlPresenter presenter,
                                     AnalyticsEventLogger eventLogger,
                                     AppContext appContext,
-                                    OpenshiftLocalizationConstant locale) {
+                                    OpenshiftLocalizationConstant locale,
+                                    OpenshiftAuthorizationHandler authorizationHandler) {
         super(Collections.singletonList(PROJECT_PERSPECTIVE_ID), locale.showApplicationUrlTooltip(), null, null, null);
         this.presenter = presenter;
         this.eventLogger = eventLogger;
         this.appContext = appContext;
+        this.authorizationHandler = authorizationHandler;
     }
 
     /** {@inheritDoc} */
@@ -57,7 +61,8 @@ public class ShowApplicationUrlAction extends AbstractPerspectiveAction {
     public void updateInPerspective(@NotNull ActionEvent event) {
         final CurrentProject currentProject = appContext.getCurrentProject();
         event.getPresentation().setVisible(currentProject != null);
-        event.getPresentation().setEnabled(currentProject != null
+        event.getPresentation().setEnabled(authorizationHandler.isLoggedIn()
+                                           && currentProject != null
                                            && currentProject.getProjectDescription().getMixins().contains(OPENSHIFT_PROJECT_TYPE_ID));
     }
 }
