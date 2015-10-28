@@ -30,7 +30,6 @@
         <dependency>
             <groupId>org.eclipse.che.plugin</groupId>
             <artifactId>angularjs-api-server</artifactId>
-            <version>${project.version}</version>
         </dependency>
 
     </dependencies>

@@ -35,15 +35,4 @@
         <license_years>2014-2015</license_years>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <!-- required until api/core cleanup! -->
-                <groupId>org.eclipse.che.core</groupId>
-                <artifactId>che-core-ide-app</artifactId>
-                <version>${che.core.version}</version>
-                <scope>compile</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
 </project>
