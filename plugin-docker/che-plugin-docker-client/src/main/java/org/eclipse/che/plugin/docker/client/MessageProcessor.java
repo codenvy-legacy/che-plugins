@@ -16,10 +16,9 @@ package org.eclipse.che.plugin.docker.client;
 public interface MessageProcessor<T> {
     void process(T message);
 
-    MessageProcessor DEV_NULL = new MessageProcessor() {
+    class NoOpMessageProcessor<T> implements MessageProcessor<T> {
         @Override
-        public void process(Object Message) {
+        public void process(T message) {
         }
-    };
-
+    }
 }

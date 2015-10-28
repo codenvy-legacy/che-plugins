@@ -75,7 +75,7 @@ public class DockerMachineExtServerLauncher {
 
                             final Exec exec = docker.createExec(containerId, true, "/bin/sh", "-c", extServerStartCommand);
                             // TODO check that ext server starts successfully
-                            docker.startExec(exec.getId(), MessageProcessor.DEV_NULL);
+                            docker.startExec(exec.getId(), new MessageProcessor.NoOpMessageProcessor<>());
                         }
                     } catch (IOException | MachineException | NotFoundException e) {
                         LOG.error(e.getLocalizedMessage(), e);
