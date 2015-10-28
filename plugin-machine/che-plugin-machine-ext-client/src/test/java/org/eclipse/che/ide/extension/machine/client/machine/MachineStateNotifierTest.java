@@ -12,6 +12,7 @@ package org.eclipse.che.ide.extension.machine.client.machine;
 
 import com.google.web.bindery.event.shared.EventBus;
 
+import org.eclipse.che.api.machine.shared.dto.MachineStateDto;
 import org.eclipse.che.api.machine.shared.dto.event.MachineStatusEvent;
 import org.eclipse.che.api.workspace.shared.dto.UsersWorkspaceDto;
 import org.eclipse.che.ide.api.app.AppContext;
@@ -73,7 +74,7 @@ public class MachineStateNotifierTest {
     @Mock
     private Unmarshallable<MachineStatusEvent> unmarshaller;
     @Mock
-    private MachineState                       machineState;
+    private MachineStateDto                    machineState;
     @Mock
     private MessageBus                         messageBus;
     @Mock
@@ -105,7 +106,7 @@ public class MachineStateNotifierTest {
         UsersWorkspaceDto workspace = mock(UsersWorkspaceDto.class);
         when(appContext.getWorkspace()).thenReturn(workspace);
         when(workspace.getId()).thenReturn(SOME_TEXT);
-        when(machineState.getDisplayName()).thenReturn(SOME_TEXT);
+        when(machineState.getName()).thenReturn(SOME_TEXT);
         stateNotifier.trackMachine(machineState, MachineManager.MachineOperationType.START);
 
         verify(notificationManager).showNotification(notificationCaptor.capture());
@@ -125,7 +126,7 @@ public class MachineStateNotifierTest {
         UsersWorkspaceDto workspace = mock(UsersWorkspaceDto.class);
         when(appContext.getWorkspace()).thenReturn(workspace);
         when(workspace.getId()).thenReturn(SOME_TEXT);
-        when(machineState.getDisplayName()).thenReturn(SOME_TEXT);
+        when(machineState.getName()).thenReturn(SOME_TEXT);
         stateNotifier.trackMachine(machineState, MachineManager.MachineOperationType.DESTROY);
 
         verify(notificationManager).showNotification(notificationCaptor.capture());

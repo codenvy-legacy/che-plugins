@@ -45,6 +45,7 @@ import org.mockito.Captor;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
@@ -281,6 +282,6 @@ public class MachineAppliancePresenterTest {
         presenter.onActivePartChanged(event);
 
         verify(view, never()).showContainer(tabContainerView);
-        verify(view).showStub();
+        verify(view).showStub(anyString());
     }
 }

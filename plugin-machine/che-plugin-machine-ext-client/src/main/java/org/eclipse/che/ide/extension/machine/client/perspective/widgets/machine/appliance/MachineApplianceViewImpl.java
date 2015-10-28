@@ -23,7 +23,6 @@ import com.google.inject.Inject;
 
 import org.eclipse.che.ide.api.parts.PartPresenter;
 import org.eclipse.che.ide.api.parts.PartStackView;
-import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.MachineResources;
 
 import javax.validation.constraints.NotNull;
@@ -48,12 +47,11 @@ public class MachineApplianceViewImpl extends Composite implements MachineApplia
     FlowPanel mainContainer;
 
     @Inject
-    public MachineApplianceViewImpl(MachineResources resources, Label unavailableLabel, MachineLocalizationConstant locale) {
+    public MachineApplianceViewImpl(MachineResources resources, Label unavailableLabel) {
         initWidget(UI_BINDER.createAndBindUi(this));
 
         this.unavailableLabel = unavailableLabel;
         this.unavailableLabel.addStyleName(resources.getCss().unavailableLabel());
-        this.unavailableLabel.setText(locale.unavailableMachineInfo());
 
         this.tabContainers = new ArrayList<>();
 
@@ -70,8 +68,10 @@ public class MachineApplianceViewImpl extends Composite implements MachineApplia
 
     /** {@inheritDoc} */
     @Override
-    public void showStub() {
+    public void showStub(String message) {
         hideAllContainers();
+
+        unavailableLabel.setText(message);
 
         unavailableLabel.setVisible(true);
     }

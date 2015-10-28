@@ -326,4 +326,7 @@ public interface MachineLocalizationConstant extends Messages {
 
     @Key("terminal.error.start")
     String terminalErrorStart();
+
+    @Key("unavailable.machine.starting")
+    String unavailableMachineStarting(String machineName);
 }
