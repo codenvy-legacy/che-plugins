@@ -94,7 +94,7 @@ public class CreateProjectPresenter implements Wizard.UpdateDelegate, CreateProj
 
             @Override
             public void onFailure(Throwable e) {
-                String message = e.getMessage() != null ? e.getMessage() : "Failed!";
+                String message = e.getMessage() != null ? e.getMessage() : locale.createFromTemplateFailed();
                 notificationManager.showError(message);
             }
         });
