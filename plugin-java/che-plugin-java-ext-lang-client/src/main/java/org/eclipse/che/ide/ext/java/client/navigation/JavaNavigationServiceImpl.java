@@ -65,7 +65,6 @@ public class JavaNavigationServiceImpl implements JavaNavigationService {
         requestFactory.createGetRequest(url).send(callback);
     }
 
-
     public void getExternalLibraries(String projectPath, AsyncRequestCallback<List<Jar>> callback) {
         String url = restContext + "/jdt/" + workspaceId + "/navigation/libraries?projectpath=" + projectPath;
         requestFactory.createGetRequest(url).send(callback);
@@ -95,6 +94,12 @@ public class JavaNavigationServiceImpl implements JavaNavigationService {
     public void getContent(String projectPath, int libId, String path, AsyncRequestCallback<String> callback) {
         String url = getContentUrl(projectPath, libId, path);
 
+        requestFactory.createGetRequest(url).send(callback);
+    }
+
+    @Override
+    public void getContent(String projectPath, String fqn, AsyncRequestCallback<String> callback) {
+        String url = restContext + "/jdt/" + workspaceId + "/navigation/contentbyfqn?projectpath=" + projectPath + "&fqn=" + fqn;
         requestFactory.createGetRequest(url).send(callback);
     }
 

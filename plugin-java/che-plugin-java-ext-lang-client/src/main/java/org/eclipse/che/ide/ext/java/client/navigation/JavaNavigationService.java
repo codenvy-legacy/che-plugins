@@ -33,7 +33,6 @@ public interface JavaNavigationService {
      */
     void findDeclaration(String projectPath, String fqn, int offset, AsyncRequestCallback<OpenDeclarationDescriptor> callback);
 
-
     /**
      * Receive all jar dependency's
      *
@@ -50,6 +49,8 @@ public interface JavaNavigationService {
     void getEntry(String projectPath, int libId, String path, AsyncRequestCallback<JarEntry> callback);
 
     void getContent(String projectPath, int libId, String path, AsyncRequestCallback<String> callback);
+
+    void getContent(String projectPath, String fqn, AsyncRequestCallback<String> callback);
 
     Promise<List<JavaProject>> getProjectsAndPackages(boolean includePackage);
 
