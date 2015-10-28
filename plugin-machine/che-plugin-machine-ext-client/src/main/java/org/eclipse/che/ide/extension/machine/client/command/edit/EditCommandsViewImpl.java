@@ -94,6 +94,7 @@ public class EditCommandsViewImpl extends Window implements EditCommandsView {
         setWidget(UI_BINDER.createAndBindUi(this));
 
         setTitle(locale.editCommandsViewTitle());
+        getWidget().getElement().setId("commandsManagerView");
 
         createFooterButtons();
 
