@@ -24,7 +24,9 @@ import org.eclipse.che.ide.api.text.Position;
 import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.ext.java.client.JavaLocalizationConstant;
 import org.eclipse.che.ide.ext.java.client.projecttree.JavaSourceFolderUtil;
+import org.eclipse.che.ide.ext.java.client.refactoring.RefactorInfo;
 import org.eclipse.che.ide.ext.java.client.refactoring.RefactoringUpdater;
+import org.eclipse.che.ide.ext.java.client.refactoring.move.RefactoredItemType;
 import org.eclipse.che.ide.ext.java.client.refactoring.rename.wizard.RenamePresenter;
 import org.eclipse.che.ide.ext.java.client.refactoring.service.RefactoringServiceClient;
 import org.eclipse.che.ide.ext.java.shared.dto.LinkedData;
@@ -217,7 +219,8 @@ public class JavaRefactoringRename {
         }
         switch (result.getSeverity()) {
             case OK:
-                refactoringUpdater.updateAfterRefactoring(result.getChanges());
+                RefactorInfo refactorInfo = RefactorInfo.of(RefactoredItemType.JAVA_ELEMENT, null);
+                refactoringUpdater.updateAfterRefactoring(refactorInfo, result.getChanges());
                 loader.hide();
                 break;
             case INFO:

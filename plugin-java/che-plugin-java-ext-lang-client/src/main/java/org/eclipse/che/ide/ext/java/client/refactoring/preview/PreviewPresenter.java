@@ -115,7 +115,7 @@ public class PreviewPresenter implements PreviewView.ActionDelegate {
             public void apply(RefactoringResult result) throws OperationException {
                 if (result.getSeverity() == OK) {
                     view.hide();
-                    refactoringUpdater.updateAfterRefactoring(result.getChanges());
+                    refactoringUpdater.updateAfterRefactoring(refactorInfo, result.getChanges());
                 } else {
                     view.showErrorMessage(result);
                 }

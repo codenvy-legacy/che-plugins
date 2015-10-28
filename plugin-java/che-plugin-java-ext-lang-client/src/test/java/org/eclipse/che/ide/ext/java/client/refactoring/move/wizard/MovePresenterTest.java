@@ -43,6 +43,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
@@ -318,7 +319,7 @@ public class MovePresenterTest {
         verify(refactoringResultPromise).then(refResultOperation.capture());
         refResultOperation.getValue().apply(refactoringResult);
         verify(moveView).hide();
-        verify(refactoringUpdater).updateAfterRefactoring(anyList());
+        verify(refactoringUpdater).updateAfterRefactoring(Matchers.<RefactorInfo>any(), anyList());
 
         verify(moveView, never()).showErrorMessage(refactoringResult);
     }
@@ -350,7 +351,7 @@ public class MovePresenterTest {
         verify(refactoringResultPromise).then(refResultOperation.capture());
         refResultOperation.getValue().apply(refactoringResult);
         verify(moveView, never()).hide();
-        verify(refactoringUpdater , never()).updateAfterRefactoring(anyList());
+        verify(refactoringUpdater , never()).updateAfterRefactoring(Matchers.<RefactorInfo>any(), anyList());
 
         verify(moveView).showErrorMessage(refactoringResult);
     }
