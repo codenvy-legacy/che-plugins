@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.openshift.shared.dto;
 
-import jdk.nashorn.internal.ir.Labels;
-
 import org.eclipse.che.dto.shared.DTO;
 import org.eclipse.che.dto.shared.JsonFieldName;
 
