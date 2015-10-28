@@ -21,9 +21,7 @@ import org.eclipse.che.api.machine.shared.dto.recipe.RecipeDescriptor;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.ide.api.app.AppContext;
-import org.eclipse.che.ide.extension.machine.client.inject.factories.EntityFactory;
 import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
-import org.eclipse.che.ide.extension.machine.client.machine.MachineState;
 
 import java.util.Collections;
 import java.util.List;
@@ -51,21 +49,18 @@ public class CreateMachinePresenter implements CreateMachineView.ActionDelegate 
     private final MachineManager       machineManager;
     private final RecipeServiceClient  recipeServiceClient;
     private final MachineServiceClient machineServiceClient;
-    private final EntityFactory        entityFactory;
 
     @Inject
     public CreateMachinePresenter(CreateMachineView view,
                                   AppContext appContext,
                                   MachineManager machineManager,
                                   RecipeServiceClient recipeServiceClient,
-                                  MachineServiceClient machineServiceClient,
-                                  EntityFactory entityFactory) {
+                                  MachineServiceClient machineServiceClient) {
         this.view = view;
         this.appContext = appContext;
         this.machineManager = machineManager;
         this.recipeServiceClient = recipeServiceClient;
         this.machineServiceClient = machineServiceClient;
-        this.entityFactory = entityFactory;
 
         view.setDelegate(this);
     }
@@ -144,8 +139,7 @@ public class CreateMachinePresenter implements CreateMachineView.ActionDelegate 
             machineServiceClient.getMachineState(appContext.getDevMachineId()).then(new Operation<MachineStateDto>() {
                 @Override
                 public void apply(MachineStateDto machineState) throws OperationException {
-                    final MachineState machine = entityFactory.createMachineState(machineState);
-                    machineManager.destroyMachine(machine);
+                    machineManager.destroyMachine(machineState);
                 }
             });
         }

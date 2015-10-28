@@ -19,7 +19,6 @@ import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.EntityFactory;
 import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
-import org.eclipse.che.ide.extension.machine.client.machine.MachineState;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -132,7 +131,7 @@ public class CreateMachinePresenterTest {
         verify(machineServiceClient).getMachineState(SOME_TEXT);
         verify(machineDescriptorPromise).then(machineCaptor.capture());
         machineCaptor.getValue().apply(mock(MachineDto.class));
-        verify(machineManager).destroyMachine(any(MachineState.class));
+        verify(machineManager).destroyMachine(any(MachineStateDto.class));
         verify(machineManager).startDevMachine(eq(RECIPE_URL), eq(MACHINE_NAME));
         verify(view).close();
     }
@@ -150,7 +149,7 @@ public class CreateMachinePresenterTest {
         verify(machineManager).startDevMachine(eq(RECIPE_URL), eq(MACHINE_NAME));
         verify(view).close();
         verify(machineServiceClient, never()).getMachine(SOME_TEXT);
-        verify(machineManager, never()).destroyMachine(any(MachineState.class));
+        verify(machineManager, never()).destroyMachine(any(MachineStateDto.class));
         verify(machineManager).startDevMachine(eq(RECIPE_URL), eq(MACHINE_NAME));
     }
 

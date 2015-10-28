@@ -14,6 +14,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.event.shared.EventBus;
 
+import org.eclipse.che.api.machine.shared.dto.MachineStateDto;
 import org.eclipse.che.api.machine.shared.dto.event.MachineStatusEvent;
 import org.eclipse.che.api.workspace.shared.dto.UsersWorkspaceDto;
 import org.eclipse.che.ide.api.app.AppContext;
@@ -89,7 +90,7 @@ class MachineStatusNotifier {
      * @param machineState
      *         machine to track
      */
-    void trackMachine(MachineState machineState, MachineOperationType operationType) {
+    void trackMachine(MachineStateDto machineState, MachineOperationType operationType) {
         trackMachine(machineState, null, operationType);
     }
 
@@ -101,9 +102,8 @@ class MachineStatusNotifier {
      * @param runningListener
      *         listener that will be notified when machine is running
      */
-    void trackMachine(final MachineState machineState, final RunningListener runningListener, final MachineOperationType operationType) {
-
-        final String machineName = machineState.getDisplayName();
+    void trackMachine(final MachineStateDto machineState, final RunningListener runningListener, final MachineOperationType operationType) {
+        final String machineName = machineState.getName();
         final String workspaceId = appContext.getWorkspace().getId();
         final String wsChannel = MACHINE_STATUS_WS_CHANNEL + workspaceId + ":" + machineName;
         final Notification notification = new Notification("", INFO, true);
@@ -127,6 +127,7 @@ class MachineStatusNotifier {
                     case DESTROYED:
                         unsubscribe(wsChannel, this);
                         showInfo(locale.notificationMachineDestroyed(machineName), notification);
+
                         eventBus.fireEvent(MachineStateEvent.createMachineDestroyedEvent(machineState));
                         break;
                     case ERROR:

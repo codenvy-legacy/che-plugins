@@ -13,14 +13,13 @@ package org.eclipse.che.ide.extension.machine.client.actions;
 import com.google.inject.Inject;
 
 import org.eclipse.che.api.analytics.client.logger.AnalyticsEventLogger;
+import org.eclipse.che.api.machine.shared.dto.MachineStateDto;
 import org.eclipse.che.ide.api.action.AbstractPerspectiveAction;
 import org.eclipse.che.ide.api.action.ActionEvent;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
-import org.eclipse.che.ide.extension.machine.client.machine.Machine;
 import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.panel.MachinePanelPresenter;
 
-import javax.validation.constraints.NotNull;
 import java.util.Collections;
 
 import static org.eclipse.che.ide.extension.machine.client.perspective.MachinePerspective.MACHINE_PERSPECTIVE_ID;
@@ -37,7 +36,7 @@ public class RestartMachineAction extends AbstractPerspectiveAction {
     private final MachineLocalizationConstant locale;
     private final AnalyticsEventLogger        eventLogger;
 
-    private Machine selectedMachine;
+    private MachineStateDto selectedMachine;
 
     @Inject
     public RestartMachineAction(MachineLocalizationConstant locale,
@@ -57,16 +56,20 @@ public class RestartMachineAction extends AbstractPerspectiveAction {
 
     /** {@inheritDoc} */
     @Override
-    public void updateInPerspective(@NotNull ActionEvent event) {
-        selectedMachine = panelPresenter.getSelectedMachine();
-        event.getPresentation().setEnabled(selectedMachine != null && !selectedMachine.isDev());
-        event.getPresentation().setText(selectedMachine != null ? locale.machineRestartTextByName(selectedMachine.getDisplayName())
+    public void updateInPerspective(ActionEvent event) {
+        selectedMachine = panelPresenter.getSelectedMachineState();
+
+        event.getPresentation().setEnabled(selectedMachine != null
+                                           && !selectedMachine.isDev()
+                                           && panelPresenter.isMachineRunning());
+
+        event.getPresentation().setText(selectedMachine != null ? locale.machineRestartTextByName(selectedMachine.getName())
                                                                 : locale.controlMachineRestartText());
     }
 
     /** {@inheritDoc} */
     @Override
-    public void actionPerformed(ActionEvent e) {
+    public void actionPerformed(ActionEvent event) {
         eventLogger.log(this);
 
         machineManager.restartMachine(selectedMachine);

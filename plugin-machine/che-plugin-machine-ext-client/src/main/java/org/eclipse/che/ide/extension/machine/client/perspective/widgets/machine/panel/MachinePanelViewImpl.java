@@ -20,16 +20,12 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import org.eclipse.che.commons.annotation.Nullable;
+import org.eclipse.che.api.machine.shared.dto.MachineStateDto;
 import org.eclipse.che.ide.api.parts.PartStackUIResources;
 import org.eclipse.che.ide.api.parts.base.BaseView;
-import org.eclipse.che.ide.extension.machine.client.machine.Machine;
-import org.eclipse.che.ide.extension.machine.client.machine.MachineState;
 import org.eclipse.che.ide.ui.tree.Tree;
 import org.eclipse.che.ide.ui.tree.TreeNodeElement;
 import org.eclipse.che.ide.util.input.SignalEvent;
-
-import javax.validation.constraints.NotNull;
 
 /**
  * Provides implementation of view to display machines on special panel.
@@ -92,8 +88,8 @@ public class MachinePanelViewImpl extends BaseView<MachinePanelView.ActionDelega
             public void onNodeSelected(TreeNodeElement<MachineTreeNode> node, SignalEvent event) {
                 Object selectedNode = node.getData().getData();
 
-                if (selectedNode instanceof MachineState) {
-                    delegate.onMachineSelected((MachineState)selectedNode);
+                if (selectedNode instanceof MachineStateDto) {
+                    delegate.onMachineSelected((MachineStateDto)selectedNode);
                 }
             }
 
@@ -116,7 +112,7 @@ public class MachinePanelViewImpl extends BaseView<MachinePanelView.ActionDelega
 
     /** {@inheritDoc} */
     @Override
-    public void setData(@NotNull MachineTreeNode root) {
+    public void setData(MachineTreeNode root) {
         tree.asWidget().setVisible(true);
         tree.getModel().setRoot(root);
         tree.renderTree(-1);
@@ -124,13 +120,13 @@ public class MachinePanelViewImpl extends BaseView<MachinePanelView.ActionDelega
 
     /** {@inheritDoc} */
     @Override
-    public void selectNode(@Nullable MachineTreeNode machineNode) {
+    public void selectNode(MachineTreeNode machineNode) {
         if (machineNode == null) {
             return;
         }
 
         tree.getSelectionModel().selectSingleNode(machineNode);
 
-        delegate.onMachineSelected((MachineState)machineNode.getData());
+        delegate.onMachineSelected((MachineStateDto)machineNode.getData());
     }
 }
