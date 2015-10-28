@@ -28,9 +28,6 @@ import java.util.Map;
  */
 public class GitImporterPagePresenter extends AbstractWizardPage<ProjectConfigDto> implements GitImporterPageView.ActionDelegate {
 
-    private static final String PUBLIC_VISIBILITY  = "public";
-    private static final String PRIVATE_VISIBILITY = "private";
-
     // An alternative scp-like syntax: [user@]host.xz:path/to/repo.git/
     private static final RegExp SCP_LIKE_SYNTAX = RegExp.compile("([A-Za-z0-9_\\-]+\\.[A-Za-z0-9_\\-:]+)+:");
     // the transport protocol
