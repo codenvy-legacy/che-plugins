@@ -9,11 +9,19 @@
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
 package org.eclipse.che.plugin.docker.machine;
-/*
+
 import org.eclipse.che.api.core.NotFoundException;
+import org.eclipse.che.api.core.model.machine.Channels;
+import org.eclipse.che.api.core.model.machine.MachineSource;
+import org.eclipse.che.api.core.model.machine.MachineState;
+import org.eclipse.che.api.core.model.machine.MachineStatus;
 import org.eclipse.che.api.core.model.machine.Recipe;
 import org.eclipse.che.api.core.util.LineConsumer;
 import org.eclipse.che.api.machine.server.exception.MachineException;
+import org.eclipse.che.api.machine.server.model.impl.ChannelsImpl;
+import org.eclipse.che.api.machine.server.model.impl.LimitsImpl;
+import org.eclipse.che.api.machine.server.model.impl.MachineSourceImpl;
+import org.eclipse.che.api.machine.server.model.impl.MachineStateImpl;
 import org.eclipse.che.api.machine.server.recipe.RecipeImpl;
 import org.eclipse.che.commons.env.EnvironmentContext;
 import org.eclipse.che.commons.user.UserImpl;
@@ -23,6 +31,8 @@ import org.eclipse.che.plugin.docker.client.dto.AuthConfigs;
 import org.eclipse.che.plugin.docker.client.json.ContainerConfig;
 import org.eclipse.che.plugin.docker.client.json.ContainerCreated;
 import org.eclipse.che.plugin.docker.client.json.HostConfig;
+import org.eclipse.che.plugin.docker.machine.node.DockerNode;
+import org.eclipse.che.plugin.docker.machine.node.WorkspaceFolderPathProvider;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.testng.MockitoTestNGListener;
@@ -51,14 +61,15 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 
-@Listeners(MockitoTestNGListener.class)*/
+@Listeners(MockitoTestNGListener.class)
 public class DockerInstanceProviderTest {
-/*
+    private static final String PROJECT_FOLDER_PATH = "/projects";
+
     private static final String API_ENDPOINT_VALUE = "apiEndpoint";
 
-    private static final String PROJECTS_ROOT = "/projects";
-
     private static final String CONTAINER_ID = "containerId";
+
+    private static final String WORKSPACE_ID = "wsId";
 
     @Mock
     private DockerConnector dockerConnector;
@@ -72,10 +83,14 @@ public class DockerInstanceProviderTest {
     @Mock
     private DockerNode dockerNode;
 
+    @Mock
+    private WorkspaceFolderPathProvider workspaceFolderPathProvider;
+
     private DockerInstanceProvider dockerInstanceProvider;
 
     @BeforeMethod
     public void setUp() throws Exception {
+        when(dockerConnector.getDockerHostIp()).thenReturn("123.123.123.123");
 
         dockerInstanceProvider = new DockerInstanceProvider(dockerConnector,
                                                             dockerMachineFactory,
@@ -85,13 +100,15 @@ public class DockerInstanceProviderTest {
                                                             Collections.<String>emptySet(),
                                                             Collections.<String>emptySet(),
                                                             null,
-                                                            API_ENDPOINT_VALUE);
+                                                            API_ENDPOINT_VALUE,
+                                                            workspaceFolderPathProvider,
+                                                            PROJECT_FOLDER_PATH);
 
         EnvironmentContext envCont = new EnvironmentContext();
         envCont.setUser(new UserImpl("user", null, null, null, false));
         EnvironmentContext.setCurrent(envCont);
 
-        when(dockerMachineFactory.createNode(anyString())).thenReturn(dockerNode);
+        when(dockerMachineFactory.createNode(anyString(), anyString())).thenReturn(dockerNode);
         when(dockerConnector.createContainer(any(ContainerConfig.class), anyString()))
                 .thenReturn(new ContainerCreated(CONTAINER_ID, new String[0]));
     }
@@ -176,104 +193,96 @@ public class DockerInstanceProviderTest {
 
     @Test
     public void shouldCallCreationDockerInstanceWithFactoryOnCreateInstanceFromSnapshot() throws Exception {
-        final String machineId = "machineId";
-        final String workspaceId = "workspaceId";
-        final String userId = "userId";
-        final boolean isDev = false;
-        final int memorySizeInMB = 64;
-        final String displayName = "Display name";
-        final Recipe recipe = new RecipeImpl().withType("Dockerfile").withScript("FROM busybox");
+        final MachineSourceImpl machineSource = new MachineSourceImpl("type", "location");
+        final MachineStateImpl machineState = new MachineStateImpl(false,
+                                                                   "Display name",
+                                                                   "machineType",
+                                                                   machineSource,
+                                                                   new LimitsImpl(64),
+                                                                   "machineId",
+                                                                   new ChannelsImpl("chan1", "chan2"),
+                                                                   "workspaceId",
+                                                                   "userId",
+                                                                   MachineStatus.CREATING);
 
 
-        createInstanceFromSnapshot(isDev, memorySizeInMB, machineId, userId, workspaceId, displayName, recipe);
+        createInstanceFromSnapshot(machineState);
 
 
-        verify(dockerMachineFactory).createInstance(eq(machineId),
-                                                    eq(workspaceId),
-                                                    eq(isDev),
-                                                    eq(userId),
-                                                    eq(displayName),
+        verify(dockerMachineFactory).createInstance(eq(machineState),
                                                     eq(CONTAINER_ID),
                                                     eq(dockerNode),
-                                                    any(LineConsumer.class),
-                                                    eq(recipe),
-                                                    eq(memorySizeInMB));
+                                                    any(LineConsumer.class));
     }
 
     @Test
     public void shouldCallCreationDockerInstanceWithFactoryOnCreateInstanceFromRecipe() throws Exception {
-        final String machineId = "machineId";
-        final String workspaceId = "workspaceId";
-        final String userId = "userId";
-        final boolean isDev = false;
-        final int memorySizeInMB = 64;
-        final String displayName = "Display name";
+        final MachineSourceImpl machineSource = new MachineSourceImpl("type", "location");
         final Recipe recipe = new RecipeImpl().withType("Dockerfile").withScript("FROM busybox");
+        final MachineStateImpl machineState = new MachineStateImpl(false,
+                                                                   "Display name",
+                                                                   "machineType",
+                                                                   machineSource,
+                                                                   new LimitsImpl(64),
+                                                                   "machineId",
+                                                                   new ChannelsImpl("chan1", "chan2"),
+                                                                   "workspaceId",
+                                                                   "userId",
+                                                                   MachineStatus.CREATING);
+
+        createInstanceFromRecipe(recipe, machineState);
 
 
-        createInstanceFromRecipe(isDev, memorySizeInMB, machineId, userId, workspaceId, displayName, recipe);
-
-
-        verify(dockerMachineFactory).createInstance(eq(machineId),
-                                                    eq(workspaceId),
-                                                    eq(isDev),
-                                                    eq(userId),
-                                                    eq(displayName),
+        verify(dockerMachineFactory).createInstance(eq(machineState),
                                                     eq(CONTAINER_ID),
                                                     eq(dockerNode),
-                                                    any(LineConsumer.class),
-                                                    eq(recipe),
-                                                    eq(memorySizeInMB));
+                                                    any(LineConsumer.class));
     }
 
     @Test
     public void shouldBindWorkspaceOnDevInstanceCreationFromRecipe() throws Exception {
         final boolean isDev = true;
-        final String workspaceId = "workspaceId";
         final String hostProjectsFolder = "/tmp/projects";
 
         when(dockerNode.getProjectsFolder()).thenReturn(hostProjectsFolder);
 
-        createInstanceFromRecipe(isDev, workspaceId);
+        createInstanceFromRecipe(isDev, WORKSPACE_ID);
 
-        verify(dockerNode).bindWorkspace(eq(workspaceId), eq(hostProjectsFolder));
+        verify(dockerNode).bindWorkspace();
     }
 
     @Test
     public void shouldBindWorkspaceOnDevInstanceCreationFromSnapshot() throws Exception {
         final boolean isDev = true;
-        final String workspaceId = "workspaceId";
         final String hostProjectsFolder = "/tmp/projects";
 
         when(dockerNode.getProjectsFolder()).thenReturn(hostProjectsFolder);
 
-        createInstanceFromSnapshot(isDev, workspaceId);
+        createInstanceFromSnapshot(isDev, WORKSPACE_ID);
 
-        verify(dockerNode).bindWorkspace(eq(workspaceId), eq(hostProjectsFolder));
+        verify(dockerNode).bindWorkspace();
     }
 
     @Test
     public void shouldNotBindWorkspaceOnNonDevInstanceCreationFromRecipe() throws Exception {
         final boolean isDev = false;
-        final String workspaceId = "workspaceId";
 
         when(dockerNode.getProjectsFolder()).thenReturn("/tmp/projects");
 
-        createInstanceFromRecipe(isDev, workspaceId);
+        createInstanceFromRecipe(isDev, WORKSPACE_ID);
 
-        verify(dockerNode, never()).bindWorkspace(anyString(), anyString());
+        verify(dockerNode, never()).bindWorkspace();
     }
 
     @Test
     public void shouldNotBindWorkspaceOnNonDevInstanceCreationFromSnapshot() throws Exception {
         final boolean isDev = false;
-        final String workspaceId = "workspaceId";
 
         when(dockerNode.getProjectsFolder()).thenReturn("/tmp/projects");
 
-        createInstanceFromSnapshot(isDev, workspaceId);
+        createInstanceFromSnapshot(isDev, WORKSPACE_ID);
 
-        verify(dockerNode, never()).bindWorkspace(anyString(), anyString());
+        verify(dockerNode, never()).bindWorkspace();
     }
 
     @Test
@@ -338,11 +347,9 @@ public class DockerInstanceProviderTest {
 
         ArgumentCaptor<ContainerConfig> createContainerCaptor = ArgumentCaptor.forClass(ContainerConfig.class);
         verify(dockerConnector).createContainer(createContainerCaptor.capture(), anyString());
-        ArgumentCaptor<HostConfig> startContainerCaptor = ArgumentCaptor.forClass(HostConfig.class);
-        verify(dockerConnector).startContainer(anyString(), startContainerCaptor.capture());
+        verify(dockerConnector).startContainer(anyString(), eq(null));
         // docker accepts memory size in bytes
         assertEquals(createContainerCaptor.getValue().getMemory(), memorySizeMB * 1024 * 1024);
-        assertEquals(startContainerCaptor.getValue().getMemory(), memorySizeMB * 1024 * 1024);
     }
 
     @Test
@@ -355,11 +362,9 @@ public class DockerInstanceProviderTest {
 
         ArgumentCaptor<ContainerConfig> createContainerCaptor = ArgumentCaptor.forClass(ContainerConfig.class);
         verify(dockerConnector).createContainer(createContainerCaptor.capture(), anyString());
-        ArgumentCaptor<HostConfig> startContainerCaptor = ArgumentCaptor.forClass(HostConfig.class);
-        verify(dockerConnector).startContainer(anyString(), startContainerCaptor.capture());
+        verify(dockerConnector).startContainer(anyString(), eq(null));
         // docker accepts memory size in bytes
         assertEquals(createContainerCaptor.getValue().getMemory(), memorySizeMB * 1024 * 1024);
-        assertEquals(startContainerCaptor.getValue().getMemory(), memorySizeMB * 1024 * 1024);
     }
 
     @Test
@@ -368,10 +373,8 @@ public class DockerInstanceProviderTest {
 
         ArgumentCaptor<ContainerConfig> createContainerCaptor = ArgumentCaptor.forClass(ContainerConfig.class);
         verify(dockerConnector).createContainer(createContainerCaptor.capture(), anyString());
-        ArgumentCaptor<HostConfig> startContainerCaptor = ArgumentCaptor.forClass(HostConfig.class);
-        verify(dockerConnector).startContainer(anyString(), startContainerCaptor.capture());
+        verify(dockerConnector).startContainer(anyString(), eq(null));
         assertEquals(createContainerCaptor.getValue().getMemorySwap(), -1);
-        assertEquals(startContainerCaptor.getValue().getMemorySwap(), -1);
     }
 
     @Test
@@ -380,10 +383,8 @@ public class DockerInstanceProviderTest {
 
         ArgumentCaptor<ContainerConfig> createContainerCaptor = ArgumentCaptor.forClass(ContainerConfig.class);
         verify(dockerConnector).createContainer(createContainerCaptor.capture(), anyString());
-        ArgumentCaptor<HostConfig> startContainerCaptor = ArgumentCaptor.forClass(HostConfig.class);
-        verify(dockerConnector).startContainer(anyString(), startContainerCaptor.capture());
+        verify(dockerConnector).startContainer(anyString(), eq(null));
         assertEquals(createContainerCaptor.getValue().getMemorySwap(), -1);
-        assertEquals(startContainerCaptor.getValue().getMemorySwap(), -1);
     }
 
     @Test
@@ -411,7 +412,9 @@ public class DockerInstanceProviderTest {
                                                             Collections.<String>emptySet(),
                                                             Collections.<String>emptySet(),
                                                             null,
-                                                            API_ENDPOINT_VALUE);
+                                                            API_ENDPOINT_VALUE,
+                                                            workspaceFolderPathProvider,
+                                                            PROJECT_FOLDER_PATH);
 
         final boolean isDev = true;
 
@@ -445,7 +448,9 @@ public class DockerInstanceProviderTest {
                                                             Collections.<String>emptySet(),
                                                             Collections.<String>emptySet(),
                                                             null,
-                                                            API_ENDPOINT_VALUE);
+                                                            API_ENDPOINT_VALUE,
+                                                            workspaceFolderPathProvider,
+                                                            PROJECT_FOLDER_PATH);
 
         final boolean isDev = false;
 
@@ -483,7 +488,9 @@ public class DockerInstanceProviderTest {
                                                             Collections.<String>emptySet(),
                                                             Collections.<String>emptySet(),
                                                             null,
-                                                            API_ENDPOINT_VALUE);
+                                                            API_ENDPOINT_VALUE,
+                                                            workspaceFolderPathProvider,
+                                                            PROJECT_FOLDER_PATH);
 
         final boolean isDev = true;
 
@@ -517,7 +524,9 @@ public class DockerInstanceProviderTest {
                                                             Collections.<String>emptySet(),
                                                             Collections.<String>emptySet(),
                                                             null,
-                                                            API_ENDPOINT_VALUE);
+                                                            API_ENDPOINT_VALUE,
+                                                            workspaceFolderPathProvider,
+                                                            PROJECT_FOLDER_PATH);
 
         final boolean isDev = false;
 
@@ -553,7 +562,9 @@ public class DockerInstanceProviderTest {
                                                             Collections.<String>emptySet(),
                                                             Collections.<String>emptySet(),
                                                             null,
-                                                            API_ENDPOINT_VALUE);
+                                                            API_ENDPOINT_VALUE,
+                                                            workspaceFolderPathProvider,
+                                                            PROJECT_FOLDER_PATH);
 
         final boolean isDev = true;
 
@@ -584,7 +595,9 @@ public class DockerInstanceProviderTest {
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
                                                             null,
-                                                            API_ENDPOINT_VALUE);
+                                                            API_ENDPOINT_VALUE,
+                                                            workspaceFolderPathProvider,
+                                                            PROJECT_FOLDER_PATH);
 
         final boolean isDev = false;
 
@@ -621,7 +634,9 @@ public class DockerInstanceProviderTest {
                                                             Collections.<String>emptySet(),
                                                             Collections.<String>emptySet(),
                                                             null,
-                                                            API_ENDPOINT_VALUE);
+                                                            API_ENDPOINT_VALUE,
+                                                            workspaceFolderPathProvider,
+                                                            PROJECT_FOLDER_PATH);
 
         final boolean isDev = true;
 
@@ -652,7 +667,9 @@ public class DockerInstanceProviderTest {
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
                                                             null,
-                                                            API_ENDPOINT_VALUE);
+                                                            API_ENDPOINT_VALUE,
+                                                            workspaceFolderPathProvider,
+                                                            PROJECT_FOLDER_PATH);
 
         final boolean isDev = false;
 
@@ -679,9 +696,11 @@ public class DockerInstanceProviderTest {
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
                                                             null,
-                                                            API_ENDPOINT_VALUE);
+                                                            API_ENDPOINT_VALUE,
+                                                            workspaceFolderPathProvider,
+                                                            PROJECT_FOLDER_PATH);
 
-        when(dockerNode.getProjectsFolder()).thenReturn(expectedHostPathOfProjects);
+        when(workspaceFolderPathProvider.getPath(anyString())).thenReturn(expectedHostPathOfProjects);
 
         final boolean isDev = true;
 
@@ -689,10 +708,11 @@ public class DockerInstanceProviderTest {
         createInstanceFromRecipe(isDev);
 
 
-        ArgumentCaptor<HostConfig> argumentCaptor = ArgumentCaptor.forClass(HostConfig.class);
-        verify(dockerConnector).startContainer(anyString(), argumentCaptor.capture());
+        ArgumentCaptor<ContainerConfig> argumentCaptor = ArgumentCaptor.forClass(ContainerConfig.class);
+        verify(dockerConnector).createContainer(argumentCaptor.capture(), anyString());
+        verify(dockerConnector).startContainer(anyString(), eq(null));
 
-        assertEquals(argumentCaptor.getValue().getBinds(), expectedVolumes);
+        assertEquals(argumentCaptor.getValue().getHostConfig().getBinds(), expectedVolumes);
     }
 
     @Test
@@ -708,9 +728,11 @@ public class DockerInstanceProviderTest {
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
                                                             null,
-                                                            API_ENDPOINT_VALUE);
+                                                            API_ENDPOINT_VALUE,
+                                                            workspaceFolderPathProvider,
+                                                            PROJECT_FOLDER_PATH);
 
-        when(dockerNode.getProjectsFolder()).thenReturn(expectedHostPathOfProjects);
+        when(workspaceFolderPathProvider.getPath(anyString())).thenReturn(expectedHostPathOfProjects);
 
         final boolean isDev = true;
 
@@ -718,10 +740,11 @@ public class DockerInstanceProviderTest {
         createInstanceFromSnapshot(isDev);
 
 
-        ArgumentCaptor<HostConfig> argumentCaptor = ArgumentCaptor.forClass(HostConfig.class);
-        verify(dockerConnector).startContainer(anyString(), argumentCaptor.capture());
+        ArgumentCaptor<ContainerConfig> argumentCaptor = ArgumentCaptor.forClass(ContainerConfig.class);
+        verify(dockerConnector).createContainer(argumentCaptor.capture(), anyString());
+        verify(dockerConnector).startContainer(anyString(), eq(null));
 
-        assertEquals(argumentCaptor.getValue().getBinds(), expectedVolumes);
+        assertEquals(argumentCaptor.getValue().getHostConfig().getBinds(), expectedVolumes);
     }
 
     @Test
@@ -736,7 +759,9 @@ public class DockerInstanceProviderTest {
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
                                                             null,
-                                                            API_ENDPOINT_VALUE);
+                                                            API_ENDPOINT_VALUE,
+                                                            workspaceFolderPathProvider,
+                                                            PROJECT_FOLDER_PATH);
 
         when(dockerNode.getProjectsFolder()).thenReturn("/tmp/projects");
 
@@ -746,10 +771,11 @@ public class DockerInstanceProviderTest {
         createInstanceFromRecipe(isDev);
 
 
-        ArgumentCaptor<HostConfig> argumentCaptor = ArgumentCaptor.forClass(HostConfig.class);
-        verify(dockerConnector).startContainer(anyString(), argumentCaptor.capture());
+        ArgumentCaptor<ContainerConfig> argumentCaptor = ArgumentCaptor.forClass(ContainerConfig.class);
+        verify(dockerConnector).createContainer(argumentCaptor.capture(), anyString());
+        verify(dockerConnector).startContainer(anyString(), eq(null));
 
-        assertEquals(argumentCaptor.getValue().getBinds(), expectedVolumes);
+        assertEquals(argumentCaptor.getValue().getHostConfig().getBinds(), expectedVolumes);
     }
 
     @Test
@@ -764,7 +790,9 @@ public class DockerInstanceProviderTest {
                                                             Collections.emptySet(),
                                                             Collections.emptySet(),
                                                             null,
-                                                            API_ENDPOINT_VALUE);
+                                                            API_ENDPOINT_VALUE,
+                                                            workspaceFolderPathProvider,
+                                                            PROJECT_FOLDER_PATH);
 
         when(dockerNode.getProjectsFolder()).thenReturn("/tmp/projects");
 
@@ -774,10 +802,11 @@ public class DockerInstanceProviderTest {
         createInstanceFromSnapshot(isDev);
 
 
-        ArgumentCaptor<HostConfig> argumentCaptor = ArgumentCaptor.forClass(HostConfig.class);
-        verify(dockerConnector).startContainer(anyString(), argumentCaptor.capture());
+        ArgumentCaptor<ContainerConfig> argumentCaptor = ArgumentCaptor.forClass(ContainerConfig.class);
+        verify(dockerConnector).createContainer(argumentCaptor.capture(), anyString());
+        verify(dockerConnector).startContainer(anyString(), eq(null));
 
-        assertEquals(argumentCaptor.getValue().getBinds(), expectedVolumes);
+        assertEquals(argumentCaptor.getValue().getHostConfig().getBinds(), expectedVolumes);
     }
 
     @Test
@@ -799,20 +828,22 @@ public class DockerInstanceProviderTest {
                                                             devVolumes,
                                                             commonVolumes,
                                                             null,
-                                                            API_ENDPOINT_VALUE);
+                                                            API_ENDPOINT_VALUE,
+                                                            workspaceFolderPathProvider,
+                                                            PROJECT_FOLDER_PATH);
 
-        when(dockerNode.getProjectsFolder()).thenReturn(expectedHostPathOfProjects);
-
+        when(workspaceFolderPathProvider.getPath(anyString())).thenReturn(expectedHostPathOfProjects);
         final boolean isDev = true;
 
 
         createInstanceFromRecipe(isDev);
 
 
-        ArgumentCaptor<HostConfig> argumentCaptor = ArgumentCaptor.forClass(HostConfig.class);
-        verify(dockerConnector).startContainer(anyString(), argumentCaptor.capture());
+        ArgumentCaptor<ContainerConfig> argumentCaptor = ArgumentCaptor.forClass(ContainerConfig.class);
+        verify(dockerConnector).createContainer(argumentCaptor.capture(), anyString());
+        verify(dockerConnector).startContainer(anyString(), eq(null));
 
-        final String[] actualBinds = argumentCaptor.getValue().getBinds();
+        final String[] actualBinds = argumentCaptor.getValue().getHostConfig().getBinds();
         assertEquals(actualBinds.length, expectedVolumes.size());
         assertEquals(new HashSet<>(asList(actualBinds)), new HashSet<>(expectedVolumes));
     }
@@ -836,9 +867,11 @@ public class DockerInstanceProviderTest {
                                                             devVolumes,
                                                             commonVolumes,
                                                             null,
-                                                            API_ENDPOINT_VALUE);
+                                                            API_ENDPOINT_VALUE,
+                                                            workspaceFolderPathProvider,
+                                                            PROJECT_FOLDER_PATH);
 
-        when(dockerNode.getProjectsFolder()).thenReturn(expectedHostPathOfProjects);
+        when(workspaceFolderPathProvider.getPath(anyString())).thenReturn(expectedHostPathOfProjects);
 
         final boolean isDev = true;
 
@@ -846,10 +879,11 @@ public class DockerInstanceProviderTest {
         createInstanceFromSnapshot(isDev);
 
 
-        ArgumentCaptor<HostConfig> argumentCaptor = ArgumentCaptor.forClass(HostConfig.class);
-        verify(dockerConnector).startContainer(anyString(), argumentCaptor.capture());
+        ArgumentCaptor<ContainerConfig> argumentCaptor = ArgumentCaptor.forClass(ContainerConfig.class);
+        verify(dockerConnector).createContainer(argumentCaptor.capture(), anyString());
+        verify(dockerConnector).startContainer(anyString(), eq(null));
 
-        final String[] actualBinds = argumentCaptor.getValue().getBinds();
+        final String[] actualBinds = argumentCaptor.getValue().getHostConfig().getBinds();
         assertEquals(actualBinds.length, expectedVolumes.size());
         assertEquals(new HashSet<>(asList(actualBinds)), new HashSet<>(expectedVolumes));
     }
@@ -871,7 +905,9 @@ public class DockerInstanceProviderTest {
                                                             devVolumes,
                                                             commonVolumes,
                                                             null,
-                                                            API_ENDPOINT_VALUE);
+                                                            API_ENDPOINT_VALUE,
+                                                            workspaceFolderPathProvider,
+                                                            PROJECT_FOLDER_PATH);
 
         when(dockerNode.getProjectsFolder()).thenReturn(expectedHostPathOfProjects);
 
@@ -881,14 +917,14 @@ public class DockerInstanceProviderTest {
         createInstanceFromRecipe(isDev);
 
 
-        ArgumentCaptor<HostConfig> argumentCaptor = ArgumentCaptor.forClass(HostConfig.class);
-        verify(dockerConnector).startContainer(anyString(), argumentCaptor.capture());
+        ArgumentCaptor<ContainerConfig> argumentCaptor = ArgumentCaptor.forClass(ContainerConfig.class);
+        verify(dockerConnector).createContainer(argumentCaptor.capture(), anyString());
+        verify(dockerConnector).startContainer(anyString(), eq(null));
 
-        final String[] actualBinds = argumentCaptor.getValue().getBinds();
+        final String[] actualBinds = argumentCaptor.getValue().getHostConfig().getBinds();
         assertEquals(actualBinds.length, expectedVolumes.size());
         assertEquals(new HashSet<>(asList(actualBinds)), new HashSet<>(expectedVolumes));
     }
-
 
     @Test
     public void shouldAddExtraHostOnDevInstanceCreationFromRecipe() throws Exception {
@@ -896,9 +932,6 @@ public class DockerInstanceProviderTest {
         final String expectedHostPathOfProjects = "/tmp/projects";
         Set<String> devVolumes = new HashSet<>(asList("/etc:/tmp/etc:ro", "/some/thing:/home/some/thing"));
         Set<String> commonVolumes = new HashSet<>(asList("/some/thing/else:/home/some/thing/else", "/other/path:/home/other/path"));
-
-        final ArrayList<String> expectedVolumes = new ArrayList<>();
-        expectedVolumes.addAll(commonVolumes);
 
         dockerInstanceProvider = new DockerInstanceProvider(dockerConnector,
                                                             dockerMachineFactory,
@@ -908,7 +941,9 @@ public class DockerInstanceProviderTest {
                                                             devVolumes,
                                                             commonVolumes,
                                                             "dev.box.com:192.168.0.1",
-                                                            API_ENDPOINT_VALUE);
+                                                            API_ENDPOINT_VALUE,
+                                                            workspaceFolderPathProvider,
+                                                            PROJECT_FOLDER_PATH);
 
         when(dockerNode.getProjectsFolder()).thenReturn(expectedHostPathOfProjects);
 
@@ -918,11 +953,12 @@ public class DockerInstanceProviderTest {
         createInstanceFromRecipe(isDev);
 
         //then
-        ArgumentCaptor<HostConfig> argumentCaptor = ArgumentCaptor.forClass(HostConfig.class);
-        verify(dockerConnector).startContainer(anyString(), argumentCaptor.capture());
+        ArgumentCaptor<ContainerConfig> argumentCaptor = ArgumentCaptor.forClass(ContainerConfig.class);
+        verify(dockerConnector).createContainer(argumentCaptor.capture(), anyString());
+        verify(dockerConnector).startContainer(anyString(), eq(null));
 
-        final String[] extraHosts = argumentCaptor.getValue().getExtraHosts();
-        assertEquals(extraHosts.length, 1);
+        final String[] extraHosts = argumentCaptor.getValue().getHostConfig().getExtraHosts();
+        assertEquals(extraHosts.length, 2);
         assertEquals(extraHosts[0], "dev.box.com:192.168.0.1");
     }
 
@@ -933,9 +969,6 @@ public class DockerInstanceProviderTest {
         Set<String> devVolumes = new HashSet<>(asList("/etc:/tmp/etc:ro", "/some/thing:/home/some/thing"));
         Set<String> commonVolumes = new HashSet<>(asList("/some/thing/else:/home/some/thing/else", "/other/path:/home/other/path"));
 
-        final ArrayList<String> expectedVolumes = new ArrayList<>();
-        expectedVolumes.addAll(commonVolumes);
-
         dockerInstanceProvider = new DockerInstanceProvider(dockerConnector,
                                                             dockerMachineFactory,
                                                             dockerInstanceStopDetector,
@@ -944,7 +977,9 @@ public class DockerInstanceProviderTest {
                                                             devVolumes,
                                                             commonVolumes,
                                                             "dev.box.com:192.168.0.1,codenvy.com.com:185",
-                                                            API_ENDPOINT_VALUE);
+                                                            API_ENDPOINT_VALUE,
+                                                            workspaceFolderPathProvider,
+                                                            PROJECT_FOLDER_PATH);
 
         when(dockerNode.getProjectsFolder()).thenReturn(expectedHostPathOfProjects);
         final boolean isDev = true;
@@ -953,11 +988,12 @@ public class DockerInstanceProviderTest {
         createInstanceFromSnapshot(isDev);
         //then
 
-        ArgumentCaptor<HostConfig> argumentCaptor = ArgumentCaptor.forClass(HostConfig.class);
-        verify(dockerConnector).startContainer(anyString(), argumentCaptor.capture());
+        ArgumentCaptor<ContainerConfig> argumentCaptor = ArgumentCaptor.forClass(ContainerConfig.class);
+        verify(dockerConnector).createContainer(argumentCaptor.capture(), anyString());
+        verify(dockerConnector).startContainer(anyString(), eq(null));
 
-        final String[] extraHosts = argumentCaptor.getValue().getExtraHosts();
-        assertEquals(extraHosts.length, 2);
+        final String[] extraHosts = argumentCaptor.getValue().getHostConfig().getExtraHosts();
+        assertEquals(extraHosts.length, 3);
         assertEquals(extraHosts[0], "dev.box.com:192.168.0.1");
         assertEquals(extraHosts[1], "codenvy.com.com:185");
     }
@@ -969,9 +1005,6 @@ public class DockerInstanceProviderTest {
         Set<String> devVolumes = new HashSet<>(asList("/etc:/tmp/etc:ro", "/some/thing:/home/some/thing"));
         Set<String> commonVolumes = new HashSet<>(asList("/some/thing/else:/home/some/thing/else", "/other/path:/home/other/path"));
 
-        final ArrayList<String> expectedVolumes = new ArrayList<>();
-        expectedVolumes.addAll(commonVolumes);
-
         dockerInstanceProvider = new DockerInstanceProvider(dockerConnector,
                                                             dockerMachineFactory,
                                                             dockerInstanceStopDetector,
@@ -980,7 +1013,9 @@ public class DockerInstanceProviderTest {
                                                             devVolumes,
                                                             commonVolumes,
                                                             "dev.box.com:192.168.0.1",
-                                                            API_ENDPOINT_VALUE);
+                                                            API_ENDPOINT_VALUE,
+                                                            workspaceFolderPathProvider,
+                                                            PROJECT_FOLDER_PATH);
 
         when(dockerNode.getProjectsFolder()).thenReturn(expectedHostPathOfProjects);
 
@@ -990,11 +1025,12 @@ public class DockerInstanceProviderTest {
         createInstanceFromRecipe(isDev);
 
         //then
-        ArgumentCaptor<HostConfig> argumentCaptor = ArgumentCaptor.forClass(HostConfig.class);
-        verify(dockerConnector).startContainer(anyString(), argumentCaptor.capture());
+        ArgumentCaptor<ContainerConfig> argumentCaptor = ArgumentCaptor.forClass(ContainerConfig.class);
+        verify(dockerConnector).createContainer(argumentCaptor.capture(), anyString());
+        verify(dockerConnector).startContainer(anyString(), eq(null));
 
-        final String[] extraHosts = argumentCaptor.getValue().getExtraHosts();
-        assertEquals(extraHosts.length, 1);
+        final String[] extraHosts = argumentCaptor.getValue().getHostConfig().getExtraHosts();
+        assertEquals(extraHosts.length, 2);
         assertEquals(extraHosts[0], "dev.box.com:192.168.0.1");
     }
 
@@ -1005,9 +1041,6 @@ public class DockerInstanceProviderTest {
         Set<String> devVolumes = new HashSet<>(asList("/etc:/tmp/etc:ro", "/some/thing:/home/some/thing"));
         Set<String> commonVolumes = new HashSet<>(asList("/some/thing/else:/home/some/thing/else", "/other/path:/home/other/path"));
 
-        final ArrayList<String> expectedVolumes = new ArrayList<>();
-        expectedVolumes.addAll(commonVolumes);
-
         dockerInstanceProvider = new DockerInstanceProvider(dockerConnector,
                                                             dockerMachineFactory,
                                                             dockerInstanceStopDetector,
@@ -1016,7 +1049,9 @@ public class DockerInstanceProviderTest {
                                                             devVolumes,
                                                             commonVolumes,
                                                             "dev.box.com:192.168.0.1,codenvy.com.com:185",
-                                                            API_ENDPOINT_VALUE);
+                                                            API_ENDPOINT_VALUE,
+                                                            workspaceFolderPathProvider,
+                                                            PROJECT_FOLDER_PATH);
 
         when(dockerNode.getProjectsFolder()).thenReturn(expectedHostPathOfProjects);
         final boolean isDev = false;
@@ -1025,11 +1060,12 @@ public class DockerInstanceProviderTest {
         createInstanceFromSnapshot(isDev);
         //then
 
-        ArgumentCaptor<HostConfig> argumentCaptor = ArgumentCaptor.forClass(HostConfig.class);
-        verify(dockerConnector).startContainer(anyString(), argumentCaptor.capture());
+        ArgumentCaptor<ContainerConfig> argumentCaptor = ArgumentCaptor.forClass(ContainerConfig.class);
+        verify(dockerConnector).createContainer(argumentCaptor.capture(), anyString());
+        verify(dockerConnector).startContainer(anyString(), eq(null));
 
-        final String[] extraHosts = argumentCaptor.getValue().getExtraHosts();
-        assertEquals(extraHosts.length, 2);
+        final String[] extraHosts = argumentCaptor.getValue().getHostConfig().getExtraHosts();
+        assertEquals(extraHosts.length, 3);
         assertEquals(extraHosts[0], "dev.box.com:192.168.0.1");
         assertEquals(extraHosts[1], "codenvy.com.com:185");
     }
@@ -1051,7 +1087,9 @@ public class DockerInstanceProviderTest {
                                                             devVolumes,
                                                             commonVolumes,
                                                             null,
-                                                            API_ENDPOINT_VALUE);
+                                                            API_ENDPOINT_VALUE,
+                                                            workspaceFolderPathProvider,
+                                                            PROJECT_FOLDER_PATH);
 
         when(dockerNode.getProjectsFolder()).thenReturn(expectedHostPathOfProjects);
 
@@ -1061,10 +1099,11 @@ public class DockerInstanceProviderTest {
         createInstanceFromSnapshot(isDev);
 
 
-        ArgumentCaptor<HostConfig> argumentCaptor = ArgumentCaptor.forClass(HostConfig.class);
-        verify(dockerConnector).startContainer(anyString(), argumentCaptor.capture());
+        ArgumentCaptor<ContainerConfig> argumentCaptor = ArgumentCaptor.forClass(ContainerConfig.class);
+        verify(dockerConnector).createContainer(argumentCaptor.capture(), anyString());
+        verify(dockerConnector).startContainer(anyString(), eq(null));
 
-        final String[] actualBinds = argumentCaptor.getValue().getBinds();
+        final String[] actualBinds = argumentCaptor.getValue().getHostConfig().getBinds();
         assertEquals(actualBinds.length, expectedVolumes.size());
         assertEquals(new HashSet<>(asList(actualBinds)), new HashSet<>(expectedVolumes));
     }
@@ -1073,9 +1112,9 @@ public class DockerInstanceProviderTest {
     public void shouldGenerateValidNameForContainerFromPrefixWithValidCharacters() throws Exception {
         final String userName = "user";
         final String displayName = "displayName";
-        final String expectedPrefix = String.format("%s_%s_%s_", userName, "workspaceId", displayName);
+        final String expectedPrefix = String.format("%s_%s_%s_", userName, WORKSPACE_ID, displayName);
 
-        final String containerName = dockerInstanceProvider.generateContainerName("workspaceId", displayName);
+        final String containerName = dockerInstanceProvider.generateContainerName(WORKSPACE_ID, displayName);
 
         assertTrue(containerName.startsWith(expectedPrefix),
                    "Unexpected container name " + containerName + " while expected " + expectedPrefix + "*");
@@ -1086,9 +1125,9 @@ public class DockerInstanceProviderTest {
         final String userName = "{use}r+";
         final String displayName = "displ{[ayName@";
         EnvironmentContext.getCurrent().setUser(new UserImpl(userName));
-        final String expectedPrefix = String.format("%s_%s_%s_", "user", "workspaceId", "displayName");
+        final String expectedPrefix = String.format("%s_%s_%s_", "user", "WORKSPACE_ID", "displayName");
 
-        final String containerName = dockerInstanceProvider.generateContainerName("workspaceId", displayName);
+        final String containerName = dockerInstanceProvider.generateContainerName("WORKSPACE_ID", displayName);
 
         assertTrue(containerName.startsWith(expectedPrefix),
                    "Unexpected container name " + containerName + " while expected " + expectedPrefix + "*");
@@ -1115,7 +1154,7 @@ public class DockerInstanceProviderTest {
         verify(dockerConnector).createContainer(argumentCaptor.capture(), anyString());
         assertTrue(Arrays.asList(argumentCaptor.getValue().getEnv())
                          .contains(DockerInstanceProvider.CHE_WORKSPACE_ID + "=" + wsId),
-                   "Workspace Id variable is missing. Required " +  DockerInstanceProvider.CHE_WORKSPACE_ID + "=" + wsId +
+                   "Workspace Id variable is missing. Required " + DockerInstanceProvider.CHE_WORKSPACE_ID + "=" + wsId +
                    ". Found " + Arrays.toString(argumentCaptor.getValue().getEnv()));
     }
 
@@ -1137,8 +1176,8 @@ public class DockerInstanceProviderTest {
         ArgumentCaptor<ContainerConfig> argumentCaptor = ArgumentCaptor.forClass(ContainerConfig.class);
         verify(dockerConnector).createContainer(argumentCaptor.capture(), anyString());
         assertFalse(Arrays.asList(argumentCaptor.getValue().getEnv())
-                         .contains(DockerInstanceProvider.CHE_WORKSPACE_ID + "=" + wsId),
-                   "Non dev machine should not contains " + DockerInstanceProvider.CHE_WORKSPACE_ID);
+                          .contains(DockerInstanceProvider.CHE_WORKSPACE_ID + "=" + wsId),
+                    "Non dev machine should not contains " + DockerInstanceProvider.CHE_WORKSPACE_ID);
     }
 
     @Test
@@ -1148,9 +1187,9 @@ public class DockerInstanceProviderTest {
         ArgumentCaptor<ContainerConfig> argumentCaptor = ArgumentCaptor.forClass(ContainerConfig.class);
         verify(dockerConnector).createContainer(argumentCaptor.capture(), anyString());
         assertTrue(Arrays.asList(argumentCaptor.getValue().getEnv())
-                         .contains(DockerInstanceMetadata.PROJECTS_ROOT_VARIABLE +  "=" + DockerInstanceProvider.PROJECTS_FOLDER_PATH),
+                         .contains(DockerInstanceMetadata.PROJECTS_ROOT_VARIABLE +  "=" + PROJECT_FOLDER_PATH),
                    "Projects root variable is missing. Required " +
-                   DockerInstanceMetadata.PROJECTS_ROOT_VARIABLE + "=" + DockerInstanceProvider.PROJECTS_FOLDER_PATH +
+                   DockerInstanceMetadata.PROJECTS_ROOT_VARIABLE + "=" + PROJECT_FOLDER_PATH +
                    ". Found " + Arrays.toString(argumentCaptor.getValue().getEnv()));
     }
 
@@ -1161,9 +1200,9 @@ public class DockerInstanceProviderTest {
         ArgumentCaptor<ContainerConfig> argumentCaptor = ArgumentCaptor.forClass(ContainerConfig.class);
         verify(dockerConnector).createContainer(argumentCaptor.capture(), anyString());
         assertTrue(Arrays.asList(argumentCaptor.getValue().getEnv())
-                         .contains(DockerInstanceMetadata.PROJECTS_ROOT_VARIABLE + "=" + DockerInstanceProvider.PROJECTS_FOLDER_PATH),
+                         .contains(DockerInstanceMetadata.PROJECTS_ROOT_VARIABLE + "=" + PROJECT_FOLDER_PATH),
                    "Projects root variable is missing. Required " +
-                   DockerInstanceMetadata.PROJECTS_ROOT_VARIABLE + "=" + DockerInstanceProvider.PROJECTS_FOLDER_PATH +
+                   DockerInstanceMetadata.PROJECTS_ROOT_VARIABLE + "=" + PROJECT_FOLDER_PATH +
                    ". Found " + Arrays.toString(argumentCaptor.getValue().getEnv()));
     }
 
@@ -1174,7 +1213,7 @@ public class DockerInstanceProviderTest {
         ArgumentCaptor<ContainerConfig> argumentCaptor = ArgumentCaptor.forClass(ContainerConfig.class);
         verify(dockerConnector).createContainer(argumentCaptor.capture(), anyString());
         assertFalse(Arrays.asList(argumentCaptor.getValue().getEnv())
-                          .contains(DockerInstanceMetadata.PROJECTS_ROOT_VARIABLE + "=" + DockerInstanceProvider.PROJECTS_FOLDER_PATH),
+                          .contains(DockerInstanceMetadata.PROJECTS_ROOT_VARIABLE + "=" + PROJECT_FOLDER_PATH),
                     "Non dev machine should not contains " + DockerInstanceMetadata.PROJECTS_ROOT_VARIABLE);
     }
 
@@ -1185,12 +1224,10 @@ public class DockerInstanceProviderTest {
         ArgumentCaptor<ContainerConfig> argumentCaptor = ArgumentCaptor.forClass(ContainerConfig.class);
         verify(dockerConnector).createContainer(argumentCaptor.capture(), anyString());
         assertFalse(Arrays.asList(argumentCaptor.getValue().getEnv())
-                          .contains(DockerInstanceMetadata.PROJECTS_ROOT_VARIABLE + "=" + DockerInstanceProvider.PROJECTS_FOLDER_PATH),
+                          .contains(DockerInstanceMetadata.PROJECTS_ROOT_VARIABLE + "=" + PROJECT_FOLDER_PATH),
                     "Non dev machine should not contains " + DockerInstanceMetadata.PROJECTS_ROOT_VARIABLE);
     }
 
-
-    @Test*/
     /**
      * E.g from https://github.com/boot2docker/boot2docker/blob/master/README.md#virtualbox-guest-additions
      *
@@ -1200,7 +1237,8 @@ public class DockerInstanceProviderTest {
      *   /c/Users should be /c/Users
      *   c:/Users should be /c/Users
      */
-    /*public void shouldEscapePathForWindowsHost() {
+    @Test
+    public void shouldEscapePathForWindowsHost() {
         assertEquals(dockerInstanceProvider.escapePath("Users"), "/Users");
         assertEquals(dockerInstanceProvider.escapePath("/Users"), "/Users");
         assertEquals(dockerInstanceProvider.escapePath("c/Users"), "/c/Users");
@@ -1209,7 +1247,7 @@ public class DockerInstanceProviderTest {
         assertEquals(dockerInstanceProvider.escapePath("C:/Users"), "/c/Users");
 
         assertEquals(dockerInstanceProvider.escapePath("C:/Users/path/dir/from/host:/name/of/dir/in/container"),
-                                                       "/c/Users/path/dir/from/host:/name/of/dir/in/container");
+                     "/c/Users/path/dir/from/host:/name/of/dir/in/container");
     }
 
 
@@ -1218,7 +1256,7 @@ public class DockerInstanceProviderTest {
                                  64,
                                  "machineId",
                                  "userId",
-                                 "workspaceId",
+                                 WORKSPACE_ID,
                                  "Display Name",
                                  new RecipeImpl().withType("Dockerfile")
                                                  .withScript("FROM busybox"));
@@ -1248,10 +1286,14 @@ public class DockerInstanceProviderTest {
                                  memorySizeInMB == null ? 64 : memorySizeInMB,
                                  machineId == null ? "machineId" : machineId,
                                  userId == null ? "userId" : userId,
-                                 workspaceId == null ? "workspaceId" : workspaceId,
+                                 workspaceId == null ? WORKSPACE_ID : workspaceId,
                                  displayName == null ? "Display Name" : displayName,
                                  recipe == null ? new RecipeImpl().withType("Dockerfile")
-                                                                  .withScript("FROM busybox") : recipe);
+                                                                  .withScript("FROM busybox") : recipe,
+                                 "machineType",
+                                 new MachineSourceImpl("source type", "source location"),
+                                 new ChannelsImpl("channel1", "channel2"),
+                                 MachineStatus.CREATING);
     }
 
     private void createInstanceFromRecipe(boolean isDev,
@@ -1260,46 +1302,52 @@ public class DockerInstanceProviderTest {
                                           String userId,
                                           String workspaceId,
                                           String displayName,
-                                          Recipe recipe) throws Exception {
+                                          Recipe recipe,
+                                          String machineType,
+                                          MachineSource machineSource,
+                                          Channels channels,
+                                          MachineStatus machineStatus)
+            throws Exception {
 
         dockerInstanceProvider.createInstance(recipe,
-                                              machineId,
-                                              userId,
-                                              workspaceId,
-                                              isDev,
-                                              displayName,
-                                              memorySizeInMB,
+                                              new MachineStateImpl(isDev,
+                                                                   displayName,
+                                                                   machineType,
+                                                                   machineSource,
+                                                                   new LimitsImpl(memorySizeInMB),
+                                                                   machineId,
+                                                                   channels,
+                                                                   workspaceId,
+                                                                   userId,
+                                                                   machineStatus),
+                                              LineConsumer.DEV_NULL);
+    }
+
+    private void createInstanceFromRecipe(Recipe recipe, MachineState machineState) throws Exception {
+
+        dockerInstanceProvider.createInstance(recipe,
+                                              machineState,
                                               LineConsumer.DEV_NULL);
     }
 
     private void createInstanceFromSnapshot() throws NotFoundException, MachineException {
-        createInstanceFromSnapshot(null, null, null, null, null, null, null, null, null, null);
+        createInstanceFromSnapshot(null, null, null, null, null, null, null, null, null);
     }
 
     private void createInstanceFromSnapshot(int memorySizeInMB) throws NotFoundException, MachineException {
-        createInstanceFromSnapshot(null, null, null, null, memorySizeInMB, null, null, null, null, null);
+        createInstanceFromSnapshot(null, null, null, null, memorySizeInMB, null, null, null, null);
     }
 
     private void createInstanceFromSnapshot(boolean isDev) throws NotFoundException, MachineException {
-        createInstanceFromSnapshot(null, null, null, isDev, null, null, null, null, null, null);
+        createInstanceFromSnapshot(null, null, null, isDev, null, null, null, null, null);
     }
 
     private void createInstanceFromSnapshot(boolean isDev, String workspaceId) throws NotFoundException, MachineException {
-        createInstanceFromSnapshot(null, null, null, isDev, null, null, null, workspaceId, null, null);
+        createInstanceFromSnapshot(null, null, null, isDev, null, null, null, workspaceId, null);
     }
 
     private void createInstanceFromSnapshot(String repo, String tag, String registry) throws NotFoundException, MachineException {
-        createInstanceFromSnapshot(repo, tag, registry, null, null, null, null, null, null, null);
-    }
-
-    private void createInstanceFromSnapshot(Boolean isDev,
-                                            Integer memorySizeInMB,
-                                            String machineId,
-                                            String userId,
-                                            String workspaceId,
-                                            String displayName,
-                                            Recipe recipe) throws NotFoundException, MachineException {
-        createInstanceFromSnapshot(null, null, null, isDev, memorySizeInMB, machineId, userId, workspaceId, displayName, recipe);
+        createInstanceFromSnapshot(repo, tag, registry, null, null, null, null, null, null);
     }
 
     private void createInstanceFromSnapshot(String repo,
@@ -1310,8 +1358,8 @@ public class DockerInstanceProviderTest {
                                             String machineId,
                                             String userId,
                                             String workspaceId,
-                                            String displayName,
-                                            Recipe recipe) throws NotFoundException, MachineException {
+                                            String displayName)
+            throws NotFoundException, MachineException {
 
         createInstanceFromSnapshot(repo == null ? "repo" : repo,
                                    tag == null ? "tag" : tag,
@@ -1320,10 +1368,12 @@ public class DockerInstanceProviderTest {
                                    memorySizeInMB == null ? 64 : memorySizeInMB,
                                    machineId == null ? "machineId" : machineId,
                                    userId == null ? "userId" : userId,
-                                   workspaceId == null ? "workspaceId" : workspaceId,
+                                   workspaceId == null ? WORKSPACE_ID : workspaceId,
                                    displayName == null ? "Display Name" : displayName,
-                                   recipe == null ? new RecipeImpl().withType("Dockerfile")
-                                                                    .withScript("FROM busybox") : recipe);
+                                   "machineType",
+                                   new MachineSourceImpl("source type", "source location"),
+                                   new ChannelsImpl("channel1", "channel2"),
+                                   MachineStatus.CREATING);
     }
 
     private void createInstanceFromSnapshot(String repo,
@@ -1335,16 +1385,34 @@ public class DockerInstanceProviderTest {
                                             String userId,
                                             String workspaceId,
                                             String displayName,
-                                            Recipe recipe) throws NotFoundException, MachineException {
+                                            String machineType,
+                                            MachineSource machineSource,
+                                            Channels channels,
+                                            MachineStatus machineStatus)
+            throws NotFoundException, MachineException {
 
         dockerInstanceProvider.createInstance(new DockerInstanceKey(repo, tag, "imageId", registry),
-                                              machineId,
-                                              userId,
-                                              workspaceId,
-                                              isDev,
-                                              displayName,
-                                              recipe,
-                                              memorySizeInMB,
+                                              new MachineStateImpl(isDev,
+                                                                   displayName,
+                                                                   machineType,
+                                                                   machineSource,
+                                                                   new LimitsImpl(memorySizeInMB),
+                                                                   machineId,
+                                                                   channels,
+                                                                   workspaceId,
+                                                                   userId,
+                                                                   machineStatus),
                                               LineConsumer.DEV_NULL);
-    }*/
+    }
+
+    private void createInstanceFromSnapshot(MachineState machineState)
+            throws NotFoundException, MachineException {
+
+        dockerInstanceProvider.createInstance(new DockerInstanceKey("repo" ,
+                                                                    "tag",
+                                                                    "imageId",
+                                                                    "localhost:1234"),
+                                              machineState,
+                                              LineConsumer.DEV_NULL);
+    }
 }

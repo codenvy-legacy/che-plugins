@@ -21,7 +21,6 @@ import org.eclipse.che.ide.extension.machine.client.MachineResources;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
 import org.eclipse.che.ide.extension.machine.client.command.CommandManager;
 
-import javax.validation.constraints.NotNull;
 import java.util.Collections;
 
 import static org.eclipse.che.ide.workspace.perspectives.project.ProjectPerspective.PROJECT_PERSPECTIVE_ID;
@@ -55,8 +54,8 @@ public class ExecuteSelectedCommandAction extends AbstractPerspectiveAction {
     }
 
     @Override
-    public void updateInPerspective(@NotNull ActionEvent e) {
-        e.getPresentation().setVisible(selectCommandAction.getSelectedCommand() != null);
+    public void updateInPerspective(ActionEvent event) {
+        event.getPresentation().setVisible(selectCommandAction.getSelectedCommand() != null);
     }
 
     @Override

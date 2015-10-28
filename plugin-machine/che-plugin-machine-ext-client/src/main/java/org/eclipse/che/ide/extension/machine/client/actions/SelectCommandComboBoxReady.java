@@ -19,6 +19,8 @@ import com.google.inject.name.Named;
 import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
+import org.eclipse.che.api.machine.gwt.client.events.ExtServerStateEvent;
+import org.eclipse.che.api.machine.gwt.client.events.ExtServerStateHandler;
 import org.eclipse.che.api.machine.shared.dto.CommandDto;
 import org.eclipse.che.api.machine.shared.dto.MachineDto;
 import org.eclipse.che.api.promises.client.Function;
@@ -37,8 +39,6 @@ import org.eclipse.che.ide.api.action.Presentation;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.event.project.CloseCurrentProjectEvent;
 import org.eclipse.che.ide.api.event.project.CloseCurrentProjectHandler;
-import org.eclipse.che.ide.api.event.project.ProjectReadyEvent;
-import org.eclipse.che.ide.api.event.project.ProjectReadyHandler;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.MachineResources;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
@@ -66,9 +66,9 @@ import static org.eclipse.che.ide.workspace.perspectives.project.ProjectPerspect
  */
 @Singleton
 public class SelectCommandComboBoxReady extends AbstractPerspectiveAction implements CustomComponentAction,
-                                                                                     ProjectReadyHandler,
                                                                                      EditCommandsPresenter.ConfigurationChangedListener,
-                                                                                     CloseCurrentProjectHandler {
+                                                                                     CloseCurrentProjectHandler,
+                                                                                     ExtServerStateHandler {
 
     public static final  String                           GROUP_COMMANDS     = "CommandsGroup";
     private static final Comparator<CommandConfiguration> commandsComparator = new CommandsComparator();
@@ -120,7 +120,7 @@ public class SelectCommandComboBoxReady extends AbstractPerspectiveAction implem
 
         commands = new LinkedList<>();
 
-        eventBus.addHandler(ProjectReadyEvent.TYPE, this);
+        eventBus.addHandler(ExtServerStateEvent.TYPE, this);
         editCommandsPresenter.addConfigurationsChangedListener(this);
 
         commandActions = new DefaultActionGroup(GROUP_COMMANDS, false, actionManager);
@@ -193,11 +193,6 @@ public class SelectCommandComboBoxReady extends AbstractPerspectiveAction implem
         if (appContext.getCurrentProject() != null) {
             dropDownHeaderWidget.selectElement(command.getName());
         }
-    }
-
-    @Override
-    public void onProjectReady(ProjectReadyEvent event) {
-        loadCommands(null);
     }
 
     @Override
@@ -318,6 +313,16 @@ public class SelectCommandComboBoxReady extends AbstractPerspectiveAction implem
         if (appContext.getCurrentProject() != null) {
             loadCommands(command);
         }
+    }
+
+    @Override
+    public void onExtServerStarted(ExtServerStateEvent event) {
+        loadCommands(null);
+    }
+
+    @Override
+    public void onExtServerStopped(ExtServerStateEvent event) {
+
     }
 
     private static class CommandsComparator implements Comparator<CommandConfiguration> {

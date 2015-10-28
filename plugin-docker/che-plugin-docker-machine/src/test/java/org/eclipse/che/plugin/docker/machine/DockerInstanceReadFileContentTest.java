@@ -9,9 +9,14 @@
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
 package org.eclipse.che.plugin.docker.machine;
-/*
+
 import org.eclipse.che.api.core.ConflictException;
+import org.eclipse.che.api.core.model.machine.MachineStatus;
 import org.eclipse.che.api.machine.server.exception.MachineException;
+import org.eclipse.che.api.machine.server.model.impl.ChannelsImpl;
+import org.eclipse.che.api.machine.server.model.impl.LimitsImpl;
+import org.eclipse.che.api.machine.server.model.impl.MachineSourceImpl;
+import org.eclipse.che.api.machine.server.model.impl.MachineStateImpl;
 import org.eclipse.che.plugin.docker.client.DockerConnector;
 import org.eclipse.che.plugin.docker.client.Exec;
 import org.eclipse.che.plugin.docker.client.LogMessage;
@@ -29,15 +34,16 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
-*/
+
 /**
  * @author Anton Korneta
  */
-//@Listeners(value = {MockitoTestNGListener.class})
+@Listeners(value = {MockitoTestNGListener.class})
 public class DockerInstanceReadFileContentTest {
-/*
+
     private DockerInstance dockerInstance;
 
     @Mock
@@ -51,21 +57,24 @@ public class DockerInstanceReadFileContentTest {
     private Exec       exec;
 
     @BeforeMethod
-    public void start() throws IOException {
+    public void setUp() throws IOException {
 
         dockerInstance = spy(new DockerInstance(dockerConnector,
                                                 null,
                                                 null,
+                                                new MachineStateImpl(false,
+                                                                     "Display name",
+                                                                     "machineType",
+                                                                     new MachineSourceImpl("type", "location"),
+                                                                     new LimitsImpl(64),
+                                                                     "machineId",
+                                                                     new ChannelsImpl("chan1", "chan2"),
+                                                                     "workspaceId",
+                                                                     "userId",
+                                                                     MachineStatus.CREATING),
                                                 null,
                                                 null,
-                                                false,
                                                 null,
-                                                null,
-                                                null,
-                                                null,
-                                                null,
-                                                null,
-                                                10,
                                                 dockerInstanceStopDetector));
     }
 
@@ -130,5 +139,5 @@ public class DockerInstanceReadFileContentTest {
         String result = dockerInstance.readFileContent(filePath, 1, 10);
 
         assertEquals(result.trim(), content);
-    }*/
+    }
 }

@@ -39,6 +39,8 @@ import org.eclipse.che.plugin.docker.client.ProgressLineFormatterImpl;
 import org.eclipse.che.plugin.docker.client.ProgressMonitor;
 import org.eclipse.che.plugin.docker.client.json.ContainerConfig;
 import org.eclipse.che.plugin.docker.client.json.HostConfig;
+import org.eclipse.che.plugin.docker.machine.node.DockerNode;
+import org.eclipse.che.plugin.docker.machine.node.WorkspaceFolderPathProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,15 +73,20 @@ public class DockerInstanceProvider implements InstanceProvider {
     public static final String API_ENDPOINT_URL_VARIABLE = "CHE_API_ENDPOINT";
 
     /**
+     * Default HOSTNAME that will be added in all docker containers that are started.
+     * This host will container the Docker host's ip reachable inside the container.
+     */
+    public static final String CHE_HOST = "che-host";
+
+    /**
      * Environment variable that will be setup in developer machine
      * will contain ID of a workspace for which this machine has been created
      */
     public static final String CHE_WORKSPACE_ID = "CHE_WORKSPACE_ID";
 
-    public static final String PROJECTS_FOLDER_PATH = "/projects";
-
     private final DockerConnector                  docker;
     private final DockerInstanceStopDetector       dockerInstanceStopDetector;
+    private final WorkspaceFolderPathProvider      workspaceFolderPathProvider;
     private final Set<String>                      supportedRecipeTypes;
     private final DockerMachineFactory             dockerMachineFactory;
     private final Map<String, String>              devMachineContainerLabels;
@@ -91,6 +98,7 @@ public class DockerInstanceProvider implements InstanceProvider {
     private final String[]                         devMachineEnvVariables;
     private final String[]                         commonEnvVariables;
     private final String[]                         machineExtraHosts;
+    private final String                           projectFolderPath;
 
     @Inject
     public DockerInstanceProvider(DockerConnector docker,
@@ -101,12 +109,15 @@ public class DockerInstanceProvider implements InstanceProvider {
                                   @Named("machine.docker.dev_machine.machine_volumes") Set<String> systemVolumesForDevMachine,
                                   @Named("machine.docker.machine_volumes") Set<String> allMachinesSystemVolumes,
                                   @Nullable @Named("machine.docker.machine_extra_hosts") String machineExtraHosts,
-                                  @Named("machine.docker.che_api.endpoint") String apiEndpoint)
+                                  @Named("machine.docker.che_api.endpoint") String apiEndpoint,
+                                  WorkspaceFolderPathProvider workspaceFolderPathProvider,
+                                  @Named("che.projects.root") String projectFolderPath)
             throws IOException {
 
         this.docker = docker;
         this.dockerMachineFactory = dockerMachineFactory;
         this.dockerInstanceStopDetector = dockerInstanceStopDetector;
+        this.workspaceFolderPathProvider = workspaceFolderPathProvider;
         this.supportedRecipeTypes = Collections.singleton("Dockerfile");
 
         this.systemVolumesForDevMachine = Sets.newHashSetWithExpectedSize(allMachinesSystemVolumes.size()
@@ -116,6 +127,7 @@ public class DockerInstanceProvider implements InstanceProvider {
         this.portsToExposeOnMachine = Maps.newHashMapWithExpectedSize(allMachineServers.size());
         this.devMachineContainerLabels = Maps.newHashMapWithExpectedSize(2 * allMachineServers.size() + 2 * devMachineServers.size());
         this.machineContainerLabels = Maps.newHashMapWithExpectedSize(2 * allMachineServers.size());
+        this.projectFolderPath = projectFolderPath;
 
         for (ServerConf serverConf : devMachineServers) {
             portsToExposeOnDevMachine.put(serverConf.getPort(), Collections.<String, String>emptyMap());
@@ -138,8 +150,15 @@ public class DockerInstanceProvider implements InstanceProvider {
 
         commonEnvVariables = new String[0];
         devMachineEnvVariables = new String[] {API_ENDPOINT_URL_VARIABLE + '=' + apiEndpoint,
-                                               DockerInstanceMetadata.PROJECTS_ROOT_VARIABLE + '=' + PROJECTS_FOLDER_PATH};
-        this.machineExtraHosts = isNullOrEmpty(machineExtraHosts) ? null : machineExtraHosts.split(",");
+                                               DockerInstanceMetadata.PROJECTS_ROOT_VARIABLE + '=' + projectFolderPath};
+
+        // always add the docker host
+        String dockerHost = CHE_HOST.concat(":").concat(docker.getDockerHostIp());
+        if (isNullOrEmpty(machineExtraHosts)) {
+            this.machineExtraHosts = new String[] {dockerHost};
+        } else {
+            this.machineExtraHosts = ObjectArrays.concat(machineExtraHosts.split(","), dockerHost);
+        }
     }
 
 
@@ -165,7 +184,8 @@ public class DockerInstanceProvider implements InstanceProvider {
      */
     protected String escapePath(String path) {
         String esc;
-        if (path.indexOf(":") == 1) { //check and replace only occurrence of ":" after disk label on Windows host (e.g. C:/)
+        if (path.indexOf(":") == 1) {
+            //check and replace only occurrence of ":" after disk label on Windows host (e.g. C:/)
             // but keep other occurrences it can be marker for docker mount volumes
             // (e.g. /path/dir/from/host:/name/of/dir/in/container                                               )
             esc = path.replaceFirst(":", "").replace('\\', '/');
@@ -343,6 +363,12 @@ public class DockerInstanceProvider implements InstanceProvider {
                 volumes = Sets.newHashSetWithExpectedSize(systemVolumesForDevMachine.size() + 1);
                 volumes.addAll(systemVolumesForDevMachine);
                 env = ObjectArrays.concat(devMachineEnvVariables, CHE_WORKSPACE_ID + '=' + machineState.getWorkspaceId());
+
+                // add workspace FS folder to volumes
+                final String projectFolderVolume = String.format("%s:%s",
+                                                                 workspaceFolderPathProvider.getPath(machineState.getWorkspaceId()),
+                                                                 projectFolderPath);
+                volumes.add(SystemInfo.isWindows() ? escapePath(projectFolderVolume) : projectFolderVolume);
             } else {
                 labels = machineContainerLabels;
                 portsToExpose = portsToExposeOnMachine;
@@ -350,34 +376,28 @@ public class DockerInstanceProvider implements InstanceProvider {
                 env = commonEnvVariables;
             }
 
+            final HostConfig hostConfig = new HostConfig().withBinds(volumes.toArray(new String[volumes.size()]))
+                                                          .withExtraHosts(machineExtraHosts)
+                                                          .withPublishAllPorts(true);
             final ContainerConfig config = new ContainerConfig().withImage(imageId)
                                                                 .withMemorySwap(-1)
                                                                 .withMemory((long)machineState.getLimits().getMemory() * 1024 * 1024)
                                                                 .withLabels(labels)
                                                                 .withExposedPorts(portsToExpose)
+                                                                .withHostConfig(hostConfig)
                                                                 .withEnv(env);
 
-            final String containerId =
-                    docker.createContainer(config, generateContainerName(machineState.getWorkspaceId(), machineState.getName())).getId();
+            final String containerId = docker.createContainer(config,
+                                                              generateContainerName(machineState.getWorkspaceId(),
+                                                                                    machineState.getName()))
+                                             .getId();
 
-            final DockerNode node = dockerMachineFactory.createNode(containerId);
-            String hostProjectsFolder = node.getProjectsFolder();
+            docker.startContainer(containerId, null);
 
+            final DockerNode node = dockerMachineFactory.createNode(machineState.getWorkspaceId(), containerId);
             if (machineState.isDev()) {
-                node.bindWorkspace(machineState.getWorkspaceId(), hostProjectsFolder);
-
-                // add workspace FS folder to volumes
-                final String projectFolderVolume = String.format("%s:%s", hostProjectsFolder, PROJECTS_FOLDER_PATH);
-                volumes.add(SystemInfo.isWindows() ? escapePath(projectFolderVolume) : projectFolderVolume);
+                node.bindWorkspace();
             }
-
-            HostConfig hostConfig = new HostConfig().withPublishAllPorts(true)
-                                                    .withBinds(volumes.toArray(new String[volumes.size()]))
-                                                    .withMemory((long)machineState.getLimits().getMemory() * 1024 * 1024)
-                                                    .withExtraHosts(machineExtraHosts)
-                                                    .withMemorySwap(-1);
-
-            docker.startContainer(containerId, hostConfig);
 
             dockerInstanceStopDetector.startDetection(containerId, machineState.getId());
 

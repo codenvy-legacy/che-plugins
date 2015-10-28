@@ -68,13 +68,13 @@ public class JsonMessageReader<T> {
                 firstRead = false;
             }
         }
-        if (streamParser.hasNext()) {
-            try {
+        try {
+            if (streamParser.hasNext()) {
                 return GSON.fromJson(streamParser.next(), messageClass);
-            } catch (JsonIOException e) {
-                throw new IOException(e);
-            } catch (JsonParseException ignore) {
             }
+        } catch (JsonIOException e) {
+            throw new IOException(e);
+        } catch (JsonParseException ignore) {
         }
         return null;
     }

@@ -104,6 +104,7 @@ final class PreviewViewImpl extends Window implements PreviewView {
             @Override
             public void onClick(ClickEvent event) {
                 hide();
+                delegate.onCancelButtonClicked();
             }
         });
 
@@ -131,10 +132,19 @@ final class PreviewViewImpl extends Window implements PreviewView {
     /** {@inheritDoc} */
     @Override
     public void show() {
+        errorLabel.setText("");
         diff.clear();
         compare = null;
 
         super.show();
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    protected void onClose() {
+        delegate.onCancelButtonClicked();
+
+        super.onClose();
     }
 
     /** {@inheritDoc} */

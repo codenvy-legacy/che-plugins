@@ -21,7 +21,8 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.Map;
 
-import static org.eclipse.che.commons.lang.Strings.isNullOrEmpty;
+import static com.google.common.base.Strings.isNullOrEmpty;
+
 
 /**
  * Collects auth configurations for private docker registries. Credential might be configured in .properties files, see details {@link

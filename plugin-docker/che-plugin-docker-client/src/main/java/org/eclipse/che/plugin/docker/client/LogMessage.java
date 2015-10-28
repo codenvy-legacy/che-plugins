@@ -36,4 +36,12 @@ public class LogMessage {
     public String getContent() {
         return content;
     }
+
+    @Override
+    public String toString() {
+        return "LogMessage{" +
+               "type=" + type +
+               ", content='" + content + '\'' +
+               '}';
+    }
 }

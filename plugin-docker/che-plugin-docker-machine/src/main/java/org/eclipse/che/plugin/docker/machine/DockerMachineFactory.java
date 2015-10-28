@@ -18,6 +18,7 @@ import org.eclipse.che.api.machine.server.exception.MachineException;
 import org.eclipse.che.api.machine.server.spi.Instance;
 import org.eclipse.che.api.machine.server.spi.InstanceProcess;
 import org.eclipse.che.commons.annotation.Nullable;
+import org.eclipse.che.plugin.docker.machine.node.DockerNode;
 
 /**
  * Provides Docker machine implementation instances.
@@ -36,5 +37,6 @@ public interface DockerMachineFactory {
                             @Assisted DockerNode node,
                             @Assisted LineConsumer outputConsumer) throws MachineException;
 
-    DockerNode createNode(@Assisted String containerId) throws MachineException;
+    DockerNode createNode(@Assisted("workspace") String workspaceId,
+                          @Assisted("container") String containerId) throws MachineException;
 }

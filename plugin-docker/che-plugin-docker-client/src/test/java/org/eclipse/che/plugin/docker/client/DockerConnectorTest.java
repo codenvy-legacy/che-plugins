@@ -15,6 +15,7 @@ import com.google.common.io.CharStreams;
 import org.eclipse.che.plugin.docker.client.connection.CloseConnectionInputStream;
 import org.eclipse.che.plugin.docker.client.connection.DockerConnection;
 import org.eclipse.che.plugin.docker.client.connection.DockerResponse;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.testng.MockitoTestNGListener;
@@ -41,8 +42,13 @@ import static org.mockito.Mockito.when;
 @Listeners(MockitoTestNGListener.class)
 public class DockerConnectorTest {
 
+    @Mock
+    private DockerConnectorConfiguration dockerConnectorConfiguration;
+
     @Spy
-    private DockerConnector dockerConnector = new DockerConnector(null);
+    @InjectMocks
+    private DockerConnector dockerConnector;
+
     @Mock
     private DockerConnection dockerConnection;
     @Mock

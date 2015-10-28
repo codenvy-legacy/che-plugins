@@ -18,6 +18,7 @@ import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
+import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.ext.java.client.navigation.JavaNavigationService;
 import org.eclipse.che.ide.ext.java.client.project.node.JavaFileNode;
@@ -35,6 +36,7 @@ import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringResult;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringSession;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatus;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ReorgDestination;
+import org.eclipse.che.ide.jseditor.client.texteditor.TextEditor;
 import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.junit.Before;
 import org.junit.Test;
@@ -54,6 +56,7 @@ import static org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringSta
 import static org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatus.WARNING;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -97,11 +100,15 @@ public class MovePresenterTest {
     @Mock
     private JavaElement                javaElement;
     @Mock
+    private TextEditor                 activeEditor;
+    @Mock
     private CreateMoveRefactoring      moveRefactoring;
     @Mock
     private CurrentProject             currentProject;
     @Mock
     private PackageNode                packageNode;
+    @Mock
+    private EditorAgent                editorAgent;
     @Mock
     private ChangeCreationResult       changeCreationResult;
     @Mock
@@ -144,9 +151,11 @@ public class MovePresenterTest {
     @Before
     public void setUp() throws Exception {
         List selectedItems = new ArrayList<>();
+
         selectedItems.add(packageNode);
         selectedItems.add(sourceFileNode);
 
+        when(editorAgent.getActiveEditor()).thenReturn(activeEditor);
         when(refactorInfo.getSelectedItems()).thenReturn(selectedItems);
         when(dtoFactory.createDto(JavaElement.class)).thenReturn(javaElement);
         when(dtoFactory.createDto(CreateMoveRefactoring.class)).thenReturn(moveRefactoring);
@@ -165,6 +174,7 @@ public class MovePresenterTest {
         presenter = new MovePresenter(moveView,
                                       refactoringUpdater,
                                       appContext,
+                                      editorAgent,
                                       previewPresenter,
                                       refactorService,
                                       navigationService,
@@ -308,8 +318,7 @@ public class MovePresenterTest {
         verify(refactoringResultPromise).then(refResultOperation.capture());
         refResultOperation.getValue().apply(refactoringResult);
         verify(moveView).hide();
-        verify(refactoringUpdater).refreshProjectTree();
-        verify(refactoringUpdater).refreshOpenEditors();
+        verify(refactoringUpdater).updateAfterRefactoring(anyList());
 
         verify(moveView, never()).showErrorMessage(refactoringResult);
     }
@@ -341,8 +350,7 @@ public class MovePresenterTest {
         verify(refactoringResultPromise).then(refResultOperation.capture());
         refResultOperation.getValue().apply(refactoringResult);
         verify(moveView, never()).hide();
-        verify(refactoringUpdater, never()).refreshProjectTree();
-        verify(refactoringUpdater, never()).refreshOpenEditors();
+        verify(refactoringUpdater , never()).updateAfterRefactoring(anyList());
 
         verify(moveView).showErrorMessage(refactoringResult);
     }
@@ -353,7 +361,6 @@ public class MovePresenterTest {
 
         presenter.setMoveDestinationPath(DESTINATION, PROJECT_PATH);
 
-        verify(refactoringUpdater).setPathToMove(DESTINATION);
         verify(destination).setType(ReorgDestination.DestinationType.PACKAGE);
         verify(destination).setSessionId(anyString());
         verify(destination).setProjectPath(PROJECT_PATH);
@@ -372,7 +379,6 @@ public class MovePresenterTest {
 
         presenter.setMoveDestinationPath(DESTINATION, PROJECT_PATH);
 
-        verify(refactoringUpdater).setPathToMove(DESTINATION);
         verify(destination).setType(ReorgDestination.DestinationType.PACKAGE);
         verify(destination).setSessionId(anyString());
         verify(destination).setProjectPath(PROJECT_PATH);
@@ -391,7 +397,6 @@ public class MovePresenterTest {
 
         presenter.setMoveDestinationPath(DESTINATION, PROJECT_PATH);
 
-        verify(refactoringUpdater).setPathToMove(DESTINATION);
         verify(destination).setType(ReorgDestination.DestinationType.PACKAGE);
         verify(destination).setSessionId(anyString());
         verify(destination).setProjectPath(PROJECT_PATH);
@@ -410,7 +415,6 @@ public class MovePresenterTest {
 
         presenter.setMoveDestinationPath(DESTINATION, PROJECT_PATH);
 
-        verify(refactoringUpdater).setPathToMove(DESTINATION);
         verify(destination).setType(ReorgDestination.DestinationType.PACKAGE);
         verify(destination).setSessionId(anyString());
         verify(destination).setProjectPath(PROJECT_PATH);
@@ -432,7 +436,6 @@ public class MovePresenterTest {
 
         presenter.setMoveDestinationPath(DESTINATION, PROJECT_PATH);
 
-        verify(refactoringUpdater).setPathToMove(DESTINATION);
         verify(destination).setType(ReorgDestination.DestinationType.PACKAGE);
         verify(destination).setSessionId(anyString());
         verify(destination).setProjectPath(PROJECT_PATH);
@@ -446,5 +449,12 @@ public class MovePresenterTest {
         verify(moveView).showErrorMessage(refactoringStatus);
         verify(moveView).setEnableAcceptButton(false);
         verify(moveView).setEnablePreviewButton(false);
+    }
+
+    @Test
+    public void focusShouldBeSetAfterClosingTheEditor() throws Exception {
+        presenter.onCancelButtonClicked();
+
+        verify(activeEditor).setFocus();
     }
 }

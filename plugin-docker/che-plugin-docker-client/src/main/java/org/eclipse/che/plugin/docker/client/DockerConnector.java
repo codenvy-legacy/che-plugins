@@ -125,28 +125,19 @@ public class DockerConnector {
     private final DockerCertificates dockerCertificates;
     private final InitialAuthConfig  initialAuthConfig;
     private final ExecutorService    executor;
+    private final String             dockerHostIp;
 
-    public DockerConnector(InitialAuthConfig initialAuthConfig) {
-        this(new DockerConnectorConfiguration(initialAuthConfig));
-    }
 
-    public DockerConnector(URI dockerDaemonUri,
-                           DockerCertificates dockerCertificates,
-                           InitialAuthConfig initialAuthConfig) {
-        this.dockerDaemonUri = dockerDaemonUri;
-        this.dockerCertificates = dockerCertificates;
-        this.initialAuthConfig = initialAuthConfig;
+    @Inject
+    public DockerConnector(DockerConnectorConfiguration connectorConfiguration) {
+        this.dockerDaemonUri = connectorConfiguration.getDockerDaemonUri();
+        this.dockerCertificates = connectorConfiguration.getDockerCertificates();
+        this.initialAuthConfig = connectorConfiguration.getAuthConfigs();
+        this.dockerHostIp = connectorConfiguration.getDockerHostIp();
         executor = Executors.newCachedThreadPool(new ThreadFactoryBuilder()
                                                          .setNameFormat("DockerApiConnector-%d")
                                                          .setDaemon(true)
                                                          .build());
-    }
-
-    @Inject
-    private DockerConnector(DockerConnectorConfiguration connectorConfiguration) {
-        this(connectorConfiguration.getDockerDaemonUri(),
-             connectorConfiguration.getDockerCertificates(),
-             connectorConfiguration.getAuthConfigs());
     }
 
     /**
@@ -1169,5 +1160,15 @@ public class DockerConnector {
 
     private void createTarArchive(File tar, File... files) throws IOException {
         TarUtils.tarFiles(tar, 0, files);
+    }
+
+    /**
+     * Gets the Docker host ip address. This is host that can be reached from a docker container.
+     *
+     * @return docker host IP address
+     * @see <a href="https://docs.docker.com/articles/networking/">Docker Networking</a>
+     */
+    public String getDockerHostIp() {
+        return dockerHostIp;
     }
 }

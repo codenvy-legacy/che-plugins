@@ -170,6 +170,7 @@ final class RenameViewImpl extends Window implements RenameView {
             @Override
             public void onClick(ClickEvent event) {
                 hide();
+                delegate.onCancelButtonClicked();
             }
         });
 
@@ -202,6 +203,14 @@ final class RenameViewImpl extends Window implements RenameView {
                 setFocus();
             }
         }.schedule(100);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    protected void onClose() {
+        delegate.onCancelButtonClicked();
+
+        super.onClose();
     }
 
     /** {@inheritDoc} */
