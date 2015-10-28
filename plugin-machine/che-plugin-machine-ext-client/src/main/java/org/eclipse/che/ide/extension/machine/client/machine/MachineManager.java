@@ -145,7 +145,10 @@ public class MachineManager {
                               final boolean isDev,
                               final MachineOperationType operationType) {
 
-        LimitsDto limitsDto = dtoFactory.createDto(LimitsDto.class).withMemory(2048);
+        LimitsDto limitsDto = dtoFactory.createDto(LimitsDto.class).withMemory(1024);
+        if (isDev) {
+            limitsDto.withMemory(3072);
+        }
         MachineSourceDto sourceDto = dtoFactory.createDto(MachineSourceDto.class).withType("Recipe").withLocation(recipeURL);
 
         MachineConfigDto configDto = dtoFactory.createDto(MachineConfigDto.class)
