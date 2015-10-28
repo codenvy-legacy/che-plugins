@@ -40,6 +40,16 @@ public interface OpenshiftLocalizationConstant extends Messages {
     @Key("openshift.logout.failed")
     String logoutFailed();
 
+
+    @Key("create.from.template.view.title")
+    String createFromTemplateViewTitle();
+
+    @Key("create.from.template.success")
+    String createFromTemplateSuccess();
+
+    @Key("create.from.template.failed")
+    String createFromTemplateFailed();
+
     @Key("link.with.existing.action")
     String linkProjectWithExistingApplicationAction();
 

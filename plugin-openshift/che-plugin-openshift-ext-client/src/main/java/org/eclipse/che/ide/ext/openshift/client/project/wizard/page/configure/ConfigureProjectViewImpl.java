@@ -125,8 +125,6 @@ public class ConfigureProjectViewImpl implements ConfigureProjectView {
 
                                              }
                                          });
-        projectsList.asWidget().getElement().setClassName(openshiftResources.css().templateList());
-
         osExistProjectListPanel.add(projectsList);
     }
 
@@ -156,8 +154,8 @@ public class ConfigureProjectViewImpl implements ConfigureProjectView {
         osProjectDisplayNameInput.setEnabled(enabled);
         osProjectDescriptionInput.setEnabled(enabled);
 
+        osExistProjectListPanel.setVisible(!enabled);
         if (enabled) {
-            projectsList.getSelectionModel().clearSelection();
             delegate.onExistProjectSelected();
         }
     }

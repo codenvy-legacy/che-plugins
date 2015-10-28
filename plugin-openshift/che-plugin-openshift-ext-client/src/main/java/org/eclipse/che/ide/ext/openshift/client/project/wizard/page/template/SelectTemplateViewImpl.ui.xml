@@ -12,12 +12,19 @@
 -->
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
              xmlns:g='urn:import:com.google.gwt.user.client.ui'>
-    <g:DockPanel width="800px">
+    <ui:with field="resources" type="org.eclipse.che.ide.ext.openshift.client.OpenshiftResources"/>
+    <ui:style>
+        .contentSpacing {
+            margin: 8px;
+            box-sizing: border-box;
+        }
+    </ui:style>
+    <g:DockPanel width="800px" addStyleNames="{style.contentSpacing}">
         <g:Dock direction="NORTH">
-            <g:Label text="Select Template"/>
+            <g:Label text="Select Template" styleName="{resources.css.sectionTitle}"/>
         </g:Dock>
         <g:Dock direction="NORTH">
-            <g:ScrollPanel ui:field="templatePanel" height="420px" width="800px"/>
+            <g:ScrollPanel ui:field="templatePanel" height="420px" width="784px"/>
         </g:Dock>
     </g:DockPanel>
 </ui:UiBinder>

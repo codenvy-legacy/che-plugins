@@ -11,6 +11,7 @@
 package org.eclipse.che.ide.ext.openshift.client.project.wizard;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.uibinder.client.UiBinder;
@@ -24,6 +25,7 @@ import com.google.inject.Singleton;
 
 import org.eclipse.che.ide.CoreLocalizationConstant;
 import org.eclipse.che.ide.api.mvp.Presenter;
+import org.eclipse.che.ide.ext.openshift.client.OpenshiftLocalizationConstant;
 import org.eclipse.che.ide.ui.window.Window;
 
 /**
@@ -57,13 +59,14 @@ public class CreateProjectViewImpl extends Window implements CreateProjectView {
     private ActionDelegate delegate;
 
     @Inject
-    public CreateProjectViewImpl(org.eclipse.che.ide.Resources resources, CoreLocalizationConstant constants) {
+    public CreateProjectViewImpl(org.eclipse.che.ide.Resources resources, CoreLocalizationConstant constants,
+                                 OpenshiftLocalizationConstant openshiftConstant) {
         ensureDebugId("openshift-create-from-template");
 
         this.resources = resources;
         this.constants = constants;
 
-        setTitle("Import OpenShift Project From Template");
+        setTitle(openshiftConstant.createFromTemplateViewTitle());
         setWidget(uiBinder.createAndBindUi(this));
 
         createBtn = createPrimaryButton("Create", "openshift-create-from-template-create-button", new ClickHandler() {
@@ -90,6 +93,8 @@ public class CreateProjectViewImpl extends Window implements CreateProjectView {
             }
         });
         addButtonToFooter(prevBtn);
+
+        getWidget().getElement().getStyle().setPadding(0, Style.Unit.PX);
     }
 
     /** {@inheritDoc} */

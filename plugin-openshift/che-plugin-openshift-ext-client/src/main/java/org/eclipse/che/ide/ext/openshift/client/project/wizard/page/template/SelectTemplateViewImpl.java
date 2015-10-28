@@ -11,11 +11,13 @@
 package org.eclipse.che.ide.ext.openshift.client.project.wizard.page.template;
 
 import elemental.dom.Element;
+import elemental.html.DivElement;
 import elemental.html.SpanElement;
 import elemental.html.TableElement;
 
 import com.google.common.base.Strings;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.Style;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.DockPanel;
@@ -26,6 +28,7 @@ import com.google.inject.Singleton;
 
 import org.eclipse.che.ide.Resources;
 import org.eclipse.che.ide.dto.DtoFactory;
+import org.eclipse.che.ide.ext.openshift.client.OpenshiftResources;
 import org.eclipse.che.ide.ext.openshift.shared.dto.Template;
 import org.eclipse.che.ide.ui.list.SimpleList;
 import org.eclipse.che.ide.util.dom.Elements;
@@ -55,7 +58,7 @@ public class SelectTemplateViewImpl implements SelectTemplateView {
     private DockPanel      widget;
 
     @Inject
-    public SelectTemplateViewImpl(Resources resources) {
+    public SelectTemplateViewImpl(Resources resources, final OpenshiftResources openshiftResources) {
         widget = uiBinder.createAndBindUi(this);
 
         TableElement breakPointsElement = Elements.createTableElement();
@@ -65,23 +68,37 @@ public class SelectTemplateViewImpl implements SelectTemplateView {
                                          new SimpleList.ListItemRenderer<Template>() {
                                              @Override
                                              public void render(Element listItemBase, Template itemData) {
-                                                //TODO refactor this renderer to proper display template item
                                                  String tags = itemData.getMetadata().getAnnotations().get("tags");
+                                                 tags = (tags != null) ? tags.replace(",", " ") : "";
 
-                                                 StringBuilder sb = new StringBuilder();
-                                                 sb.append(itemData.getMetadata().getName())
-                                                   .append("\n")
-                                                   .append(itemData.getMetadata().getAnnotations().get("description"))
-                                                   .append("\n")
-                                                   .append("Namespace: ")
-                                                   .append(itemData.getMetadata().getNamespace())
-                                                   .append("\nTags: ")
-                                                   .append(tags);
+                                                 DivElement
+                                                         title = Elements.createDivElement(openshiftResources.css().templateSectionTitle());
+                                                 title.setTextContent(itemData.getMetadata().getName());
+                                                 listItemBase.appendChild(title);
 
-                                                 SpanElement container = Elements.createSpanElement();
-                                                 container.setInnerText(sb.toString());
+                                                 DivElement description = Elements.createDivElement(
+                                                         openshiftResources.css().templateSectionDescription());
+                                                 description.setTextContent(itemData.getMetadata().getAnnotations().get("description"));
+                                                 listItemBase.appendChild(description);
 
-                                                 listItemBase.appendChild(container);
+                                                 DivElement namespace = Elements.createDivElement();
+                                                 SpanElement namespaceTitle = Elements.createSpanElement(openshiftResources.css()
+                                                                                                                           .templateSectionSecondary());
+                                                 namespaceTitle.setTextContent("Namespace:");
+                                                 namespaceTitle.getStyle().setMarginRight(10, "px");
+                                                 namespace.appendChild(namespaceTitle);
+                                                 SpanElement namespaceContent = Elements.createSpanElement();
+                                                 namespaceContent.setTextContent(itemData.getMetadata().getNamespace());
+                                                 namespace.appendChild(namespaceContent);
+                                                 listItemBase.appendChild(namespace);
+
+                                                 DivElement tag = Elements.createDivElement(openshiftResources.css().templateSectionTags(),
+                                                                                            openshiftResources.css()
+                                                                                                              .templateSectionSecondary());
+                                                 tag.setTextContent(tags);
+                                                 listItemBase.appendChild(tag);
+
+                                                 listItemBase.getClassList().add(openshiftResources.css().templateSection());
                                              }
                                          },
                                          new SimpleList.ListEventDelegate<Template>() {

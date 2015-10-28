@@ -17,9 +17,11 @@ import org.eclipse.che.api.project.shared.dto.ImportProject;
 import org.eclipse.che.api.project.shared.dto.ImportSourceDescriptor;
 import org.eclipse.che.api.project.shared.dto.NewProject;
 import org.eclipse.che.api.project.shared.dto.Source;
+import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.wizard.Wizard;
 import org.eclipse.che.ide.api.wizard.WizardPage;
 import org.eclipse.che.ide.dto.DtoFactory;
+import org.eclipse.che.ide.ext.openshift.client.OpenshiftLocalizationConstant;
 import org.eclipse.che.ide.ext.openshift.client.project.wizard.page.configure.ConfigureProjectPresenter;
 import org.eclipse.che.ide.ext.openshift.client.project.wizard.page.template.SelectTemplatePresenter;
 import org.eclipse.che.ide.ext.openshift.client.dto.NewApplicationRequest;
@@ -33,12 +35,14 @@ import javax.validation.constraints.NotNull;
  */
 public class CreateProjectPresenter implements Wizard.UpdateDelegate, CreateProjectView.ActionDelegate {
 
-    private       CreateProjectWizard        wizard;
-    private final CreateProjectView          view;
-    private final CreateProjectWizardFactory wizardFactory;
-    private final ConfigureProjectPresenter configProjectPage;
-    private final SelectTemplatePresenter   selectTemplatePage;
-    private final DtoFactory                dtoFactory;
+    private       CreateProjectWizard           wizard;
+    private final CreateProjectView             view;
+    private final CreateProjectWizardFactory    wizardFactory;
+    private final ConfigureProjectPresenter     configProjectPage;
+    private final SelectTemplatePresenter       selectTemplatePage;
+    private final DtoFactory                    dtoFactory;
+    private final NotificationManager           notificationManager;
+    private final OpenshiftLocalizationConstant locale;
 
     private WizardPage currentPage;
 
@@ -47,12 +51,16 @@ public class CreateProjectPresenter implements Wizard.UpdateDelegate, CreateProj
                                   CreateProjectWizardFactory wizardFactory,
                                   ConfigureProjectPresenter configProjectPage,
                                   SelectTemplatePresenter selectTemplatePage,
+                                  NotificationManager notificationManager,
+                                  OpenshiftLocalizationConstant locale,
                                   DtoFactory dtoFactory) {
         this.view = view;
         this.wizardFactory = wizardFactory;
         this.configProjectPage = configProjectPage;
         this.selectTemplatePage = selectTemplatePage;
         this.dtoFactory = dtoFactory;
+        this.notificationManager = notificationManager;
+        this.locale = locale;
         view.setDelegate(this);
     }
 
@@ -80,12 +88,14 @@ public class CreateProjectPresenter implements Wizard.UpdateDelegate, CreateProj
         wizard.complete(new Wizard.CompleteCallback() {
             @Override
             public void onCompleted() {
+                notificationManager.showInfo(locale.createFromTemplateSuccess());
                 view.closeWizard();
             }
 
             @Override
             public void onFailure(Throwable e) {
-                //show some error to user
+                String message = e.getMessage() != null ? e.getMessage() : "Failed!";
+                notificationManager.showError(message);
             }
         });
     }

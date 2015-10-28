@@ -39,10 +39,18 @@ public interface OpenshiftResources extends ClientBundle {
 
         String textInput();
 
-        String templateList();
-
         String projectApplicationBox();
 
         String warningLabel();
+
+        String templateSection();
+
+        String templateSectionTitle();
+
+        String templateSectionDescription();
+
+        String templateSectionSecondary();
+
+        String templateSectionTags();
     }
 }

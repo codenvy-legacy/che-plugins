@@ -11,6 +11,7 @@
 .sectionTitle {
     font-size: largeLabel;
     font-weight: bold;
+    margin-bottom: 15px;
 }
 
 .sectionSeparator {
@@ -21,16 +22,13 @@
 
 .choiceTitle {
     font-size: fontSize;
+    width: 100%;
+    margin-bottom: 10px;
 }
 
 .textInput {
     width: 100%;
     box-sizing: border-box;
-}
-
-.templateList table{
-    border: 1px solid separatorColor;
-    background-color: transparent !important;
 }
 
 .projectApplicationBox {
@@ -39,4 +37,29 @@
 
 .warningLabel {
     font-weight: bold;
+}
+
+.templateSection {
+    border-bottom: 1px solid separatorColor;
+    padding: 10px 8px;
+}
+
+.templateSectionTitle {
+    font-weight: bold;
+    margin-bottom: 7px;
+}
+
+.templateSectionDescription {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.templateSectionSecondary {
+    -webkit-filter: brightness(70%);
+    filter: brightness(70%);
+}
+
+.templateSectionTags {
+    margin-top: 7px;
+    text-transform : uppercase;
 }

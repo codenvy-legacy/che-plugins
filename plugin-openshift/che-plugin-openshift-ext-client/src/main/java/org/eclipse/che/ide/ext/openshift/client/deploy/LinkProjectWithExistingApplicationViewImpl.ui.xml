@@ -19,13 +19,21 @@
         .spacing {
             margin-top: 20px;
         }
+
+        .marginH {
+            margin: 0px 8px;
+        }
+
+        .marginV {
+            margin: 8px 0px;
+        }
     </ui:style>
-    <g:DockLayoutPanel width="600px" height="450px">
+    <g:DockLayoutPanel width="600px" height="450px" addStyleNames="{style.marginH}">
         <g:center>
-            <g:SimplePanel ui:field="categoriesPanel" addStyleNames="{resources.css.projectApplicationBox}"/>
+            <g:SimplePanel ui:field="categoriesPanel" addStyleNames="{resources.css.projectApplicationBox} {style.marginV}"/>
         </g:center>
         <g:east size="300">
-            <g:FlowPanel>
+            <g:FlowPanel addStyleNames="{style.marginV}">
                 <g:Label text="{locale.linkProjectWithExistingBuildConfigUrl}"></g:Label>
                 <g:TextBox ui:field="buildConfigGitUrl" addStyleNames="{resources.css.textInput}" readOnly="true"></g:TextBox>
                 <g:Label text="{locale.linkProjectWithExistingRemoteUrl}" addStyleNames="{style.spacing}"></g:Label>
