@@ -178,3 +178,12 @@
     background-color: #3C514D;
     outline: none;
 }
+
+.textviewScroll::-webkit-scrollbar-corner {
+    background-color: transparent;
+    display: none;
+}
+
+.textviewScroll::-webkit-resizer {
+    display: none;
+}
