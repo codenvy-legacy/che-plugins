@@ -595,19 +595,19 @@ public class OrionEditorWidget extends CompositeEditorWidget implements HasChang
     /** {@inheritDoc} */
     public void showCompletionsProposals(final List<CompletionProposal> proposals) {
         if (proposals == null || proposals.isEmpty()) {
+            /** Hide autocompletion when it's visible and it is nothing to propose */
+            if (assistWidget.isVisible()) {
+                assistWidget.hide();
+            }
+
             return;
         }
 
-        assistWidget.clear();
-        for (final CompletionProposal proposal : proposals) {
-            assistWidget.addItem(proposal);
-        }
-        assistWidget.positionAndShow();
+        assistWidget.show(proposals);
     }
 
     /** {@inheritDoc} */
     public void showCompletionProposals(final CompletionsSource completionsSource) {
-        // currently not implemented
         completionsSource.computeCompletions(new CompletionReadyCallback() {
             @Override
             public void onCompletionReady(List<CompletionProposal> proposals) {
@@ -615,7 +615,6 @@ public class OrionEditorWidget extends CompositeEditorWidget implements HasChang
             }
         });
     }
-
 
     /** {@inheritDoc} */
     @Override
@@ -655,9 +654,8 @@ public class OrionEditorWidget extends CompositeEditorWidget implements HasChang
     /** {@inheritDoc} */
     @Override
     public boolean isCompletionProposalsShowing() {
-        return assistWidget.isActive();
+        return assistWidget.isVisible();
     }
-
 
     public void scrollToLine(int line) {
         this.editorOverlay.getTextView().setTopIndex(line);
@@ -705,7 +703,7 @@ public class OrionEditorWidget extends CompositeEditorWidget implements HasChang
     }
 
     public void showCompletionInformation() {
-        if (assistWidget.isActive()) {
+        if (assistWidget.isVisible()) {
             assistWidget.showCompletionInfo();
         }
     }

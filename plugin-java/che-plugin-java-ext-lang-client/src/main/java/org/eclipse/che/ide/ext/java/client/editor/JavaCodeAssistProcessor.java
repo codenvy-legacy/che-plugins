@@ -32,6 +32,7 @@ import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.rest.Unmarshallable;
 import org.eclipse.che.ide.util.loging.Log;
+import org.vectomatic.dom.svg.ui.SVGResource;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -41,6 +42,7 @@ import java.util.Map;
 public class JavaCodeAssistProcessor implements CodeAssistProcessor {
 
     private static Map<String, ImageResource> images;
+    private static Map<String, SVGResource> svgs;
 
     private final EditorPartPresenter    editor;
     private       JavaCodeAssistClient   client;
@@ -72,6 +74,8 @@ public class JavaCodeAssistProcessor implements CodeAssistProcessor {
 
     private void initImages(JavaResources resources) {
         images = new HashMap<>();
+        svgs = new HashMap<>();
+
         images.put("template", resources.template());
         images.put("javadoc", resources.javadoc());
         images.put("annotation", resources.annotationItem());
@@ -85,13 +89,17 @@ public class JavaCodeAssistProcessor implements CodeAssistProcessor {
         images.put("privateEnum", resources.enumItem());
         images.put("protectedEnum", resources.enumItem());
 
-        images.put("interface", resources.interfaceItem());
+//        images.put("interface", resources.interfaceItem());
+        svgs.put("interface", resources. svgInterfaceItem());
+
         images.put("defaultInterface", resources.interfaceItem());
         images.put("innerInterfacePublic", resources.interfaceItem());
         images.put("innerInterfacePrivate", resources.interfaceItem());
         images.put("innerInterfaceProtected", resources.interfaceItem());
 
-        images.put("class", resources.classItem());
+//        images.put("class", resources.classItem());
+        svgs.put("class", resources.svgClassItem());
+
         images.put("defaultClass", resources.classDefaultItem());
         images.put("innerClassPrivate", resources.classItem());
         images.put("innerClassProtected", resources.classItem());
@@ -137,11 +145,12 @@ public class JavaCodeAssistProcessor implements CodeAssistProcessor {
         }
     }
 
-    public static ImageResource getImage(final String image) {
-        if (image == null) {
-            return null;
+    public static Icon getIcon(final String image) {
+        if (svgs.containsKey(image)) {
+            return new Icon("", svgs.get(image));
         }
-        return images.get(image);
+
+        return new Icon("", images.get(image));
     }
 
     @Override
@@ -174,12 +183,12 @@ public class JavaCodeAssistProcessor implements CodeAssistProcessor {
         final List<CompletionProposal> proposals = new ArrayList<>(presentations.size());
         HasLinkedMode linkedEditor = editor instanceof HasLinkedMode ? (HasLinkedMode)editor : null;
         for (final ProposalPresentation proposal : presentations) {
-            final CompletionProposal completionProposal =
-                                                          new JavaCompletionProposal(
-                                                                                     proposal.getIndex(),
-                                                                                     insertStyle(javaResources, proposal.getDisplayString()),
-                                                                                     new Icon("", getImage(proposal.getImage())),
-                                                                                     client, respons.getSessionId(), linkedEditor, notificationManager);
+            final CompletionProposal completionProposal = new JavaCompletionProposal(
+                    proposal.getIndex(),
+                    insertStyle(javaResources, proposal.getDisplayString()),
+                    getIcon(proposal.getImage()),
+                    client, respons.getSessionId(), linkedEditor, notificationManager);
+
             proposals.add(completionProposal);
         }
 

@@ -164,8 +164,6 @@ public class HTMLPrinter {
 	private static void appendColors(StringBuffer pageProlog, Color fgRGB, Color bgRGB) {
 		pageProlog.append("<body text=\""); //$NON-NLS-1$
 		appendColor(pageProlog, fgRGB);
-		pageProlog.append("\" bgcolor=\""); //$NON-NLS-1$
-		appendColor(pageProlog, bgRGB);
 		pageProlog.append("\">"); //$NON-NLS-1$
 	}
 
