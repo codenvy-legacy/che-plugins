@@ -24,10 +24,6 @@ import org.eclipse.che.ide.ext.java.shared.OpenDeclarationDescriptor;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.JavaProject;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.PackageFragment;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.PackageFragmentRoot;
-import org.eclipse.jdt.internal.core.JarEntryDirectory;
-import org.eclipse.jdt.internal.core.JarEntryFile;
-import org.eclipse.jdt.internal.core.JarEntryResource;
-import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
 import org.eclipse.che.jdt.javadoc.JavaElementLabels;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IClassFile;
@@ -42,8 +38,13 @@ import org.eclipse.jdt.core.ISourceRange;
 import org.eclipse.jdt.core.ISourceReference;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.internal.core.JarEntryDirectory;
+import org.eclipse.jdt.internal.core.JarEntryFile;
+import org.eclipse.jdt.internal.core.JarEntryResource;
+import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
 import org.eclipse.jdt.internal.core.JavaModel;
 import org.eclipse.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.internal.core.JavaModelStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -530,18 +531,23 @@ public class JavaNavigation {
                 }
             }
         } else {
-            //java class or file
-            IType type = project.findType(path);
-            if (type != null && type.isBinary()) {
-                IClassFile classFile = type.getClassFile();
-                if (classFile.getSourceRange() != null) {
-                    return classFile.getSource();
-                } else {
-                    return sourcesGenerator.generateSource(classFile.getType());
-                }
-            }
+            return getContent(project, path);
         }
         return null;
+    }
+
+    public String getContent(IJavaProject project, String path) throws JavaModelException {
+        //java class or file
+        IType type = project.findType(path);
+        if (type != null && type.isBinary()) {
+            IClassFile classFile = type.getClassFile();
+            if (classFile.getSourceRange() != null) {
+                return classFile.getSource();
+            } else {
+                return sourcesGenerator.generateSource(classFile.getType());
+            }
+        }
+        throw new JavaModelException(new JavaModelStatus(0, "Can't find type: " + path));
     }
 
     private String readFileContent(JarEntryFile file) {

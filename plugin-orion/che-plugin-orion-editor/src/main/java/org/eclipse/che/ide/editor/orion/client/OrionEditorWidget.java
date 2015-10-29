@@ -170,6 +170,7 @@ public class OrionEditorWidget extends CompositeEditorWidget implements HasChang
         panel.getElement().setId("orion-parent-" + Document.get().createUniqueId());
         panel.getElement().addClassName(this.editorElementStyle.editorParent());
         this.editorOverlay = OrionEditorOverlay.createEditor(panel.getElement(), getConfiguration(), orionEditorModule);
+        this.lineStyler = new OrionLineStyler(editorOverlay);
         this.extRulerOverlay = initBreakpointRuler(moduleHolder.getModule("OrionExtRulers"));
 
         this.keyModeInstances = keyModeInstances;
@@ -619,10 +620,7 @@ public class OrionEditorWidget extends CompositeEditorWidget implements HasChang
     /** {@inheritDoc} */
     @Override
     public LineStyler getLineStyler() {
-        if (this.lineStyler == null) {
-            this.lineStyler = new OrionLineStyler(editorOverlay);
-        }
-        return this.lineStyler;
+        return lineStyler;
     }
 
     /** {@inheritDoc} */
