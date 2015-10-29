@@ -97,6 +97,7 @@
     width: 90px;
     height: 25px;
     float: right;
+    white-space: nowrap;
 }
 
 .inputError {

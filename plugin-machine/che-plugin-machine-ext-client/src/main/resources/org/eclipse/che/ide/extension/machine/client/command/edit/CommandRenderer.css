@@ -50,3 +50,8 @@
     display: inline-block;
     text-decoration: none;
 }
+
+.commandHint {
+    margin-top: 3px;
+    margin-left: 6px;
+}

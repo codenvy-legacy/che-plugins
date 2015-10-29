@@ -130,7 +130,7 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
         updateCommand(selectedConfiguration).then(new Operation<UsersWorkspaceDto>() {
             @Override
             public void apply(UsersWorkspaceDto arg) throws OperationException {
-                fetchCommands(arg.getName());
+                fetchCommands();
                 fireConfigurationUpdated(selectedConfiguration);
             }
         });
@@ -210,7 +210,7 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
         workspaceServiceClient.addCommand(workspaceId, commandDto).then(new Operation<UsersWorkspaceDto>() {
             @Override
             public void apply(UsersWorkspaceDto arg) throws OperationException {
-                fetchCommands(arg.getName());
+                fetchCommands();
 
                 final CommandType type = commandTypeRegistry.getCommandTypeById(commandDto.getType());
                 fireConfigurationAdded(type.getConfigurationFactory().createFromDto(commandDto));
@@ -231,7 +231,7 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
                 workspaceServiceClient.deleteCommand(workspaceId, selectedConfiguration.getName()).then(new Operation<UsersWorkspaceDto>() {
                     @Override
                     public void apply(UsersWorkspaceDto arg) throws OperationException {
-                        fetchCommands(null);
+                        fetchCommands();
                         fireConfigurationRemoved(selectedConfiguration);
                     }
                 });
@@ -279,7 +279,7 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
                 updateCommand(editedCommand).then(new Operation<UsersWorkspaceDto>() {
                     @Override
                     public void apply(UsersWorkspaceDto arg) throws OperationException {
-                        fetchCommands(null);
+                        fetchCommands();
                         fireConfigurationUpdated(editedCommand);
                     }
                 });
@@ -289,7 +289,7 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
         final ConfirmCallback discardCallback = new ConfirmCallback() {
             @Override
             public void accepted() {
-                fetchCommands(null);
+                fetchCommands();
             }
         };
 
@@ -325,7 +325,7 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
                 updateCommand(editedCommand).then(new Operation<UsersWorkspaceDto>() {
                     @Override
                     public void apply(UsersWorkspaceDto arg) throws OperationException {
-                        fetchCommands(configuration.getName());
+                        fetchCommands();
                         fireConfigurationUpdated(editedCommand);
                         handleCommandSelection(configuration);
                     }
@@ -336,7 +336,7 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
         final ConfirmCallback discardCallback = new ConfirmCallback() {
             @Override
             public void accepted() {
-                fetchCommands(configuration.getName());
+                fetchCommands();
                 handleCommandSelection(configuration);
             }
         };
@@ -394,17 +394,14 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
 
     /** Show dialog. */
     public void show() {
-        fetchCommands(null);
+        fetchCommands();
         view.show();
     }
 
     /**
      * Fetch commands from server and update view.
-     *
-     * @param commandNameToSelect
-     *         name of the command to select
      */
-    private void fetchCommands(@Nullable final String commandNameToSelect) {
+    private void fetchCommands() {
         reset();
 
         view.setAddButtonState(false);
@@ -431,10 +428,10 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
         }).then(new Operation<List<CommandConfiguration>>() {
             @Override
             public void apply(List<CommandConfiguration> commandConfigurations) throws OperationException {
+                final CommandConfiguration selectedConfiguration = view.getSelectedConfiguration();
                 view.setData(commandTypeRegistry.getCommandTypes(), commandConfigurations);
-
-                if (commandNameToSelect != null) {
-                    view.selectCommand(commandNameToSelect);
+                if (selectedConfiguration != null) {
+                    view.selectCommand(selectedConfiguration.getType().getDisplayName(), selectedConfiguration.getName());
                 }
             }
         }).catchError(new Operation<PromiseError>() {

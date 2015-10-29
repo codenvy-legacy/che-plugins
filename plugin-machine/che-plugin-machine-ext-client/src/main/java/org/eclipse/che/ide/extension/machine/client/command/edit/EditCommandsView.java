@@ -73,7 +73,7 @@ public interface EditCommandsView extends View<EditCommandsView.ActionDelegate> 
     CommandType getSelectedCommandType();
 
     /** Select command with the given ID. */
-    void selectCommand(String commandId);
+    void selectCommand(String typeName, String commandName);
 
     /** Returns the selected command configuration. */
     @Nullable

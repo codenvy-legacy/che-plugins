@@ -165,7 +165,7 @@ public interface MachineLocalizationConstant extends Messages {
     String editCommandsViewTitle();
 
     @Key("view.editCommands.hint")
-    String editCommandsViewHint();
+    String editCommandsViewHint(String currentType);
 
     @Key("view.editCommands.name.text")
     String editCommandsViewNameText();
