@@ -12,9 +12,9 @@ package org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine
 
 import com.google.inject.ImplementedBy;
 
+import org.eclipse.che.api.machine.shared.dto.MachineStateDto;
 import org.eclipse.che.ide.api.mvp.View;
 import org.eclipse.che.ide.api.parts.base.BaseActionDelegate;
-import org.eclipse.che.ide.extension.machine.client.machine.MachineState;
 
 /**
  * Provides methods to control view representation of machine panel.
@@ -49,6 +49,6 @@ public interface MachinePanelView extends View<MachinePanelView.ActionDelegate> 
          * @param selectedMachine
          *         machine which was selected
          */
-        void onMachineSelected(MachineState selectedMachine);
+        void onMachineSelected(MachineStateDto selectedMachine);
     }
 }

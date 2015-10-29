@@ -524,7 +524,7 @@ public class RenamePresenterTest {
 
         verify(refactoringStatus).getSeverity();
         verify(view).hide();
-        verify(refactoringUpdater).updateAfterRefactoring(changes);
+        verify(refactoringUpdater).updateAfterRefactoring(refactorInfo, changes);
     }
 
     @Test

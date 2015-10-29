@@ -13,11 +13,11 @@ package org.eclipse.che.ide.extension.machine.client.actions;
 import com.google.inject.Inject;
 
 import org.eclipse.che.api.analytics.client.logger.AnalyticsEventLogger;
+import org.eclipse.che.api.machine.shared.dto.MachineStateDto;
 import org.eclipse.che.ide.api.action.AbstractPerspectiveAction;
 import org.eclipse.che.ide.api.action.ActionEvent;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
-import org.eclipse.che.ide.extension.machine.client.machine.MachineState;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.panel.MachinePanelPresenter;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 
@@ -60,9 +60,11 @@ public class DestroyMachineAction extends AbstractPerspectiveAction {
     /** {@inheritDoc} */
     @Override
     public void updateInPerspective(@NotNull ActionEvent event) {
-        final MachineState selectedMachine = panelPresenter.getSelectedMachineState();
-        event.getPresentation().setEnabled(selectedMachine != null);
-        event.getPresentation().setText(selectedMachine != null ? locale.machineDestroyTitle(selectedMachine.getDisplayName())
+        final MachineStateDto selectedMachine = panelPresenter.getSelectedMachineState();
+        event.getPresentation().setEnabled(selectedMachine != null
+                                           && !selectedMachine.isDev()
+                                           && panelPresenter.isMachineRunning());
+        event.getPresentation().setText(selectedMachine != null ? locale.machineDestroyTitle(selectedMachine.getName())
                                                                 : locale.machineDestroyTitle());
     }
 
@@ -71,7 +73,7 @@ public class DestroyMachineAction extends AbstractPerspectiveAction {
     public void actionPerformed(@NotNull ActionEvent event) {
         eventLogger.log(this);
 
-        final MachineState selectedMachine = panelPresenter.getSelectedMachineState();
+        final MachineStateDto selectedMachine = panelPresenter.getSelectedMachineState();
         if (selectedMachine == null) {
             return;
         }
