@@ -118,13 +118,13 @@ public class JavaQuickAssistProcessor implements QuickAssistProcessor {
             if (proposal.getActionId() != null) {
                 completionProposal =
                         new ActionCompletionProposal(JavaCodeAssistProcessor.insertStyle(javaResources, proposal.getDisplayString()),
-                                                    proposal.getActionId(),
-                                                    new Icon("", JavaCodeAssistProcessor.getImage(proposal.getImage())));
+                                proposal.getActionId(), JavaCodeAssistProcessor.getIcon(proposal.getImage())
+                        );
             } else {
                 completionProposal = new JavaCompletionProposal(
                         proposal.getIndex(),
                         JavaCodeAssistProcessor.insertStyle(javaResources, proposal.getDisplayString()),
-                        new Icon("", JavaCodeAssistProcessor.getImage(proposal.getImage())),
+                        JavaCodeAssistProcessor.getIcon(proposal.getImage()),
                         client, responds.getSessionId(), linkedEditor, notificationManager);
             }
             proposals.add(completionProposal);
