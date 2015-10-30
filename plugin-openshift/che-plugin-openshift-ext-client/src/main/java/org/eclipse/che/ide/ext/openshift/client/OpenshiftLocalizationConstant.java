@@ -106,4 +106,22 @@ public interface OpenshiftLocalizationConstant extends Messages {
 
     @Key("get.routes.error")
     String getRoutesError();
+
+    @Key("show.webhooks.tooltip")
+    String showWebhooksTooltip();
+
+    @Key("webhook.url.title")
+    String webhookWindowTitle();
+
+    @Key("webhooks.urls.title")
+    String webhooksWindowTitle();
+
+    @Key("no.webhook.url")
+    String noWebhookLabel();
+
+    @Key("webhook.url.label.title")
+    String webhookURLLabelTitle();
+
+    @Key("webhook.secret.label.title")
+    String webhookSecretLabelTitle();
 }

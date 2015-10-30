@@ -45,7 +45,8 @@ public class OpenshiftExtension {
                               CreateApplicationFromTemplateAction createApplicationFromTemplateAction,
                               LinkProjectWithExistingApplicationAction deployToExistingApplicationAction,
                               NewApplicationAction newApplicationAction,
-                              ShowApplicationUrlAction showApplicationUrlAction) {
+                              ShowApplicationUrlAction showApplicationUrlAction,
+                              ShowWebhooksAction showWebhooksAction) {
         openshiftResources.css().ensureInjected();
         DefaultActionGroup mainMenu = (DefaultActionGroup)actionManager.getAction(GROUP_MAIN_MENU);
 
@@ -79,5 +80,8 @@ public class OpenshiftExtension {
 
         actionManager.registerAction("showOpenshiftApplicationUrl", showApplicationUrlAction);
         openshift.add(showApplicationUrlAction);
+
+        actionManager.registerAction("showOpenshiftWebhooks", showWebhooksAction);
+        openshift.add(showWebhooksAction);
     }
 }
