@@ -72,9 +72,21 @@ public class RefactoringUpdater {
      * @param changes
      *         applied changes
      */
-    public void updateAfterRefactoring(List<ChangeInfo> changes) {
+    public void updateAfterRefactoring(RefactorInfo refactoringInfo, List<ChangeInfo> changes) {
+        removeSelectedNodes(refactoringInfo);
         Promise<Void> promise = Promises.resolve(null);
         processChanges(promise, editorAgent.getOpenedEditors().values().iterator(), changes).then(setActiveEditorFocus());
+    }
+
+    private void removeSelectedNodes(RefactorInfo refactoringInfo) {
+        if (refactoringInfo == null || refactoringInfo.getSelectedItems() == null) {
+            return;
+        }
+        for (Object operatedItem : refactoringInfo.getSelectedItems()) {
+            if (operatedItem instanceof Node) {
+                projectExplorer.removeNode((Node)operatedItem, false);
+            }
+        }
     }
 
     private Promise<Void> processChanges(Promise<Void> promise, Iterator<EditorPartPresenter> iterator, List<ChangeInfo> changes) {

@@ -68,15 +68,13 @@ public class MachineApplianceViewImplTest {
         when(resources.getCss().unavailableLabel()).thenReturn(SOME_TEXT);
         when(locale.unavailableMachineInfo()).thenReturn(SOME_TEXT);
 
-        view = new MachineApplianceViewImpl(resources, unavailableLabel, locale);
+        view = new MachineApplianceViewImpl(resources, unavailableLabel);
     }
 
     @Test
     public void constructorShouldBeVerified() {
         verify(resources.getCss()).unavailableLabel();
         verify(unavailableLabel).addStyleName(SOME_TEXT);
-        verify(locale).unavailableMachineInfo();
-        verify(unavailableLabel).setText(SOME_TEXT);
 
         verify(view.mainContainer).add(Matchers.<IsWidget>anyObject());
     }
@@ -102,10 +100,11 @@ public class MachineApplianceViewImplTest {
         view.addContainer(tabContainerView);
         view.addContainer(recipesView);
 
-        view.showStub();
+        view.showStub("stub");
 
         verifyHideAll();
 
+        verify(unavailableLabel).setText("stub");
         verify(unavailableLabel).setVisible(true);
     }
 

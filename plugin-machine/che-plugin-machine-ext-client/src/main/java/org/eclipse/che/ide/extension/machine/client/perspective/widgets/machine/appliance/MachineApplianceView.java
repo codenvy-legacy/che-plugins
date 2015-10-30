@@ -34,8 +34,13 @@ public interface MachineApplianceView extends PartStackView {
      */
     void showContainer(@NotNull IsWidget tabContainer);
 
-    /** Shows special stub when available machines are absent. */
-    void showStub();
+    /**
+     * Shows special stub when available machines are absent.
+     *
+     * @param message
+     *         message which will be shown on stub panel
+     */
+    void showStub(String message);
 
     /**
      * Adds container to main panel which contains all containers.

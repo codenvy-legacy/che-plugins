@@ -36,6 +36,9 @@ import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.EntityFactory;
 import org.eclipse.che.ide.extension.machine.client.machine.MachineStatusNotifier.RunningListener;
 import org.eclipse.che.ide.extension.machine.client.machine.console.MachineConsolePresenter;
+import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStartingEvent;
+import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateEvent;
+import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateHandler;
 import org.eclipse.che.ide.extension.machine.client.watcher.SystemFileWatcher;
 import org.eclipse.che.ide.util.loging.Log;
 import org.eclipse.che.ide.websocket.MessageBus;
@@ -66,9 +69,11 @@ public class MachineManager {
     private final EntityFactory            entityFactory;
     private final AppContext               appContext;
     private final DtoFactory               dtoFactory;
+    private final EventBus                 eventBus;
 
     private MessageBus messageBus;
     private Machine    devMachine;
+    private boolean    isMachineRestarting;
 
     @Inject
     public MachineManager(ExtServerStateController extServerStateController,
@@ -92,6 +97,7 @@ public class MachineManager {
         this.entityFactory = entityFactory;
         this.appContext = appContext;
         this.dtoFactory = dtoFactory;
+        this.eventBus = eventBus;
 
         this.messageBus = messageBusProvider.getMessageBus();
 
@@ -117,15 +123,31 @@ public class MachineManager {
         });
     }
 
-    public void restartMachine(final Machine machine) {
-        machineServiceClient.destroyMachine(machine.getId()).then(new Operation<Void>() {
+    public void restartMachine(final MachineStateDto machineState) {
+        eventBus.addHandler(MachineStateEvent.TYPE, new MachineStateHandler() {
+            @Override
+            public void onMachineRunning(MachineStateEvent event) {
+
+            }
+
+            @Override
+            public void onMachineDestroyed(MachineStateEvent event) {
+                if (isMachineRestarting) {
+                    final String recipeUrl = machineState.getSource().getLocation();
+                    final String displayName = machineState.getName();
+                    final boolean isDev = machineState.isDev();
+
+                    startMachine(recipeUrl, displayName, isDev, RESTART);
+
+                    isMachineRestarting = false;
+                }
+            }
+        });
+
+        destroyMachine(machineState).then(new Operation<Void>() {
             @Override
             public void apply(Void arg) throws OperationException {
-                final String recipeUrl = machine.getRecipeUrl();
-                final String displayName = machine.getDisplayName();
-                final boolean isDev = machine.isDev();
-
-                startMachine(recipeUrl, displayName, isDev, RESTART);
+                isMachineRestarting = true;
             }
         });
     }
@@ -145,7 +167,10 @@ public class MachineManager {
                               final boolean isDev,
                               final MachineOperationType operationType) {
 
-        LimitsDto limitsDto = dtoFactory.createDto(LimitsDto.class).withMemory(2048);
+        LimitsDto limitsDto = dtoFactory.createDto(LimitsDto.class).withMemory(1024);
+        if (isDev) {
+            limitsDto.withMemory(3072);
+        }
         MachineSourceDto sourceDto = dtoFactory.createDto(MachineSourceDto.class).withType("Recipe").withLocation(recipeURL);
 
         MachineConfigDto configDto = dtoFactory.createDto(MachineConfigDto.class)
@@ -160,6 +185,8 @@ public class MachineManager {
         machineStatePromise.then(new Operation<MachineStateDto>() {
             @Override
             public void apply(final MachineStateDto machineStateDto) throws OperationException {
+                eventBus.fireEvent(new MachineStartingEvent(machineStateDto));
+
                 subscribeToOutput(machineStateDto.getChannels().getOutput());
 
                 RunningListener runningListener = null;
@@ -173,8 +200,7 @@ public class MachineManager {
                     };
                 }
 
-                final MachineState machineState = entityFactory.createMachineState(machineStateDto);
-                machineStatusNotifier.trackMachine(machineState, runningListener, operationType);
+                machineStatusNotifier.trackMachine(machineStateDto, runningListener, operationType);
             }
         });
     }
@@ -190,8 +216,8 @@ public class MachineManager {
         });
     }
 
-    public void destroyMachine(final MachineState machineState) {
-        machineServiceClient.destroyMachine(machineState.getId()).then(new Operation<Void>() {
+    public Promise<Void> destroyMachine(final MachineStateDto machineState) {
+        return machineServiceClient.destroyMachine(machineState.getId()).then(new Operation<Void>() {
             @Override
             public void apply(Void arg) throws OperationException {
                 machineStatusNotifier.trackMachine(machineState, DESTROY);

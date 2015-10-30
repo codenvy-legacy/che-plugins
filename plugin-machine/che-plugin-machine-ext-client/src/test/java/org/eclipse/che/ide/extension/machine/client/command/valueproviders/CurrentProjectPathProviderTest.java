@@ -15,6 +15,7 @@ import com.google.web.bindery.event.shared.EventBus;
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
 import org.eclipse.che.api.machine.shared.dto.MachineDto;
 import org.eclipse.che.api.machine.shared.dto.MachineMetadataDto;
+import org.eclipse.che.api.machine.shared.dto.MachineStateDto;
 import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.Promise;
@@ -22,7 +23,6 @@ import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.event.project.CloseCurrentProjectEvent;
 import org.eclipse.che.ide.api.event.project.ProjectReadyEvent;
-import org.eclipse.che.ide.extension.machine.client.machine.MachineState;
 import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateEvent;
 import org.junit.Before;
 import org.junit.Test;
@@ -90,7 +90,7 @@ public class CurrentProjectPathProviderTest {
 
     @Test
     public void shouldReturnPathAfterRunningMachine() throws Exception {
-        MachineState machineMock = mock(MachineState.class);
+        MachineStateDto machineMock = mock(MachineStateDto.class);
         MachineStateEvent machineStateEvent = mock(MachineStateEvent.class);
         CurrentProject currentProject = mock(CurrentProject.class);
         ProjectDescriptor projectDescriptor = mock(ProjectDescriptor.class);
@@ -99,7 +99,7 @@ public class CurrentProjectPathProviderTest {
         when(currentProject.getProjectDescription()).thenReturn(projectDescriptor);
 
         when(machineMock.isDev()).thenReturn(Boolean.TRUE);
-        when(machineStateEvent.getMachine()).thenReturn(machineMock);
+        when(machineStateEvent.getMachineState()).thenReturn(machineMock);
         when(machineMock.isDev()).thenReturn(true);
 
         currentProjectPathProvider.onMachineRunning(machineStateEvent);
@@ -111,10 +111,10 @@ public class CurrentProjectPathProviderTest {
 
     @Test
     public void shouldReturnEmptyValueAfterDestroyingMachine() throws Exception {
-        final MachineState machineMock = mock(MachineState.class);
+        final MachineStateDto machineMock = mock(MachineStateDto.class);
         when(machineMock.isDev()).thenReturn(Boolean.FALSE);
         final MachineStateEvent machineStateEvent = mock(MachineStateEvent.class);
-        when(machineStateEvent.getMachine()).thenReturn(machineMock);
+        when(machineStateEvent.getMachineState()).thenReturn(machineMock);
 
         currentProjectPathProvider.onMachineDestroyed(machineStateEvent);
 
@@ -131,7 +131,7 @@ public class CurrentProjectPathProviderTest {
         when(machineMetadataMock.projectsRoot()).thenReturn(PROJECTS_ROOT);
         final MachineDto machineDescriptorMock = mock(MachineDto.class);
         when(machineDescriptorMock.getMetadata()).thenReturn(machineMetadataMock);
-        when(machinePromise.then(Matchers.any(Operation.class))).thenReturn(machinePromise);
+        when(machinePromise.then(Matchers.<Operation<MachineDto>>anyObject())).thenReturn(machinePromise);
 
         currentProjectPathProvider.onProjectReady(mock(ProjectReadyEvent.class));
 

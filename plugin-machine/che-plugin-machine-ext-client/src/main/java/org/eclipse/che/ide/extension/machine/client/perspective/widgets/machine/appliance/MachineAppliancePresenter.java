@@ -51,15 +51,16 @@ import javax.validation.constraints.NotNull;
 @Singleton
 public class MachineAppliancePresenter extends PartStackPresenter implements ActivePartChangedHandler {
 
-    private final MachineApplianceView      view;
-    private final TabContainerPresenter     tabContainer;
-    private final TerminalContainer         terminalContainer;
-    private final MachineInfoPresenter      infoPresenter;
-    private final ServerPresenter           serverPresenter;
-    private final RecipeTabPresenter        recipeTabPresenter;
-    private final RecipesContainerPresenter recipesContainerPresenter;
-    private final WidgetsFactory            widgetsFactory;
-    private final EntityFactory             entityFactory;
+    private final MachineApplianceView        view;
+    private final TabContainerPresenter       tabContainer;
+    private final TerminalContainer           terminalContainer;
+    private final MachineInfoPresenter        infoPresenter;
+    private final ServerPresenter             serverPresenter;
+    private final RecipeTabPresenter          recipeTabPresenter;
+    private final RecipesContainerPresenter   recipesContainerPresenter;
+    private final WidgetsFactory              widgetsFactory;
+    private final EntityFactory               entityFactory;
+    private final MachineLocalizationConstant locale;
 
     private Machine selectedMachine;
 
@@ -89,6 +90,7 @@ public class MachineAppliancePresenter extends PartStackPresenter implements Act
         this.serverPresenter = serverPresenter;
         this.widgetsFactory = widgetsFactory;
         this.entityFactory = entityFactory;
+        this.locale = locale;
 
         final String terminalTabName = locale.tabTerminal();
         final String infoTabName = locale.tabInfo();
@@ -168,7 +170,7 @@ public class MachineAppliancePresenter extends PartStackPresenter implements Act
             view.showContainer(recipesContainerPresenter.getView());
         } else if (event.getActivePart() instanceof MachinePanelPresenter) {
             if (selectedMachine == null) {
-                view.showStub();
+                view.showStub(locale.unavailableMachineInfo());
 
                 return;
             }
@@ -183,8 +185,13 @@ public class MachineAppliancePresenter extends PartStackPresenter implements Act
         container.setWidget(view);
     }
 
-    /** Shows special stub panel when no machine exist. */
-    public void showStub() {
-        view.showStub();
+    /**
+     * Shows special stub panel when no machine exist.
+     *
+     * @param message
+     *         message which will be shown on stub panel
+     */
+    public void showStub(String message) {
+        view.showStub(message);
     }
 }

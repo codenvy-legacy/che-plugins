@@ -28,6 +28,7 @@ public class MavenClassPathConfigurator {
     private static final String CLASS_PATH_CONTENT = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                                                      "<classpath>\n" +
                                                      "\t<classpathentry kind=\"src\" path=\"%s\"/>\n" +
+                                                     "\t<classpathentry kind=\"src\" path=\"%s\"/>\n" +
                                                      "\t<classpathentry kind=\"con\" path=\"org.eclipse.jdt.launching.JRE_CONTAINER\"/>\n" +
                                                      "\t<classpathentry kind=\"con\" path=\"org.eclipse.che.MAVEN2_CLASSPATH_CONTAINER\"/>\n" +
                                                      "</classpath>";
@@ -50,13 +51,16 @@ public class MavenClassPathConfigurator {
         VirtualFileEntry child = projectFolder.getChild(".codenvy");
         if (child != null && child.getVirtualFile().getChild("classpath") == null) {
             String sourceDirectory = null;
+            String testDirectory = null;
             Build build = model.getBuild();
             if (build != null) {
                 sourceDirectory = build.getSourceDirectory();
+                testDirectory = build.getTestSourceDirectory();
             }
             sourceDirectory = sourceDirectory != null && !sourceDirectory.isEmpty() ? sourceDirectory : "src/main/java";
+            testDirectory = testDirectory != null && !testDirectory.isEmpty() ? testDirectory : "src/test/java";
 
-            String classPathContent = String.format(CLASS_PATH_CONTENT, sourceDirectory);
+            String classPathContent = String.format(CLASS_PATH_CONTENT, sourceDirectory, testDirectory);
             child.getVirtualFile().createFile("classpath", null, new ByteArrayInputStream(classPathContent.getBytes()));
         }
     }

@@ -16,6 +16,7 @@ import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
 import org.eclipse.che.api.machine.shared.dto.MachineDto;
+import org.eclipse.che.api.machine.shared.dto.MachineStateDto;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.PromiseError;
@@ -27,7 +28,6 @@ import org.eclipse.che.ide.api.event.project.CurrentProjectChangedEvent;
 import org.eclipse.che.ide.api.event.project.CurrentProjectChangedHandler;
 import org.eclipse.che.ide.api.event.project.ProjectReadyEvent;
 import org.eclipse.che.ide.api.event.project.ProjectReadyHandler;
-import org.eclipse.che.ide.extension.machine.client.machine.MachineState;
 import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateEvent;
 import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateHandler;
 
@@ -80,7 +80,7 @@ public class CurrentProjectPathProvider implements CommandPropertyValueProvider,
     public void onMachineRunning(MachineStateEvent event) {
         CurrentProject currentProject = appContext.getCurrentProject();
 
-        final MachineState machine = event.getMachine();
+        final MachineStateDto machine = event.getMachineState();
         if (currentProject == null || !machine.isDev()) {
             return;
         }
@@ -90,7 +90,7 @@ public class CurrentProjectPathProvider implements CommandPropertyValueProvider,
 
     @Override
     public void onMachineDestroyed(MachineStateEvent event) {
-        if (event.getMachine().isDev()) {
+        if (event.getMachineState().isDev()) {
             value = "";
         }
     }

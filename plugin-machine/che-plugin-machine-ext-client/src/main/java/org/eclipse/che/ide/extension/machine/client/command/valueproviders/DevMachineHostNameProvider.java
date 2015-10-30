@@ -16,11 +16,11 @@ import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
 import org.eclipse.che.api.machine.shared.dto.MachineDto;
+import org.eclipse.che.api.machine.shared.dto.MachineStateDto;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.PromiseError;
 import org.eclipse.che.ide.api.app.AppContext;
-import org.eclipse.che.ide.extension.machine.client.machine.MachineState;
 import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateEvent;
 import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateHandler;
 
@@ -65,7 +65,7 @@ public class DevMachineHostNameProvider implements CommandPropertyValueProvider,
 
     @Override
     public void onMachineRunning(MachineStateEvent event) {
-        final MachineState machineState = event.getMachine();
+        final MachineStateDto machineState = event.getMachineState();
         if (machineState.isDev()) {
             machineServiceClient.getMachine(machineState.getId()).then(new Operation<MachineDto>() {
                 @Override
@@ -82,7 +82,7 @@ public class DevMachineHostNameProvider implements CommandPropertyValueProvider,
 
     @Override
     public void onMachineDestroyed(MachineStateEvent event) {
-        final MachineState machineState = event.getMachine();
+        final MachineStateDto machineState = event.getMachineState();
         if (machineState.isDev()) {
             value = "";
         }

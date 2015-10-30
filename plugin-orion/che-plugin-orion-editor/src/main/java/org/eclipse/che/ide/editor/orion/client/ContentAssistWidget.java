@@ -11,7 +11,9 @@
 
 package org.eclipse.che.ide.editor.orion.client;
 
-import elemental.dom.Document;
+import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.RootPanel;
+import com.google.gwt.user.client.ui.Widget;
 import elemental.dom.Element;
 import elemental.dom.Node;
 import elemental.events.CustomEvent;
@@ -27,8 +29,6 @@ import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.user.client.Timer;
-import com.google.gwt.user.client.ui.PopupPanel;
-import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
 
@@ -41,19 +41,19 @@ import org.eclipse.che.ide.editor.orion.client.jso.OrionTextViewOverlay;
 import org.eclipse.che.ide.jseditor.client.codeassist.Completion;
 import org.eclipse.che.ide.jseditor.client.codeassist.CompletionProposal;
 import org.eclipse.che.ide.jseditor.client.codeassist.CompletionProposalExtension;
-import org.eclipse.che.ide.jseditor.client.codeassist.CompletionResources;
 import org.eclipse.che.ide.jseditor.client.events.CompletionRequestEvent;
 import org.eclipse.che.ide.jseditor.client.popup.PopupResources;
 import org.eclipse.che.ide.jseditor.client.text.LinearRange;
 import org.eclipse.che.ide.util.dom.Elements;
 import org.eclipse.che.ide.util.loging.Log;
 
-import javax.inject.Inject;
-
 import static elemental.css.CSSStyleDeclaration.Unit.PX;
+
+import java.util.List;
 
 /**
  * @author Evgen Vidolob
+ * @author Vitaliy Guliy
  */
 public class ContentAssistWidget implements EventListener {
     /**
@@ -62,59 +62,57 @@ public class ContentAssistWidget implements EventListener {
     private static final String CUSTOM_EVT_TYPE_VALIDATE = "itemvalidate";
     private static final String DOCUMENTATION            = "documentation";
 
+    private final   PopupResources popupResources;
+
     /** The related editor. */
-    private final OrionEditorWidget   textEditor;
-    private       OrionKeyModeOverlay assistMode;
+    private final   OrionEditorWidget   textEditor;
+    private         OrionKeyModeOverlay assistMode;
 
     /** The main element for the popup. */
     protected final Element popupElement;
+    protected final Element popupBodyElement;
 
     /** The list (ul) element for the popup. */
     protected final Element listElement;
 
     protected final EventListener  popupListener;
-    private final   PopupResources popupResources;
 
-    @Inject
-    private CompletionResources completionResources;
-    private boolean             state;
-    private boolean insert = true;
+    private boolean             visible = false;
+    private boolean             insert = true;
 
     /**
      * The previously focused element.
      */
     protected Element    selectedElement;
-    private   PopupPanel docWidget;
+    private FlowPanel docPopup;
 
-    private OrionTextViewOverlay.EventHandler<OrionModelChangedEventOverlay>
-            handler;
-
-    private Timer callCodeAssist = new Timer() {
-        @Override
-        public void run() {
-            hide();
-            textEditor.getDocument().getDocumentHandle().getDocEventBus().fireEvent(new CompletionRequestEvent());
-        }
-    };
-    private boolean showingDoc;
+    private OrionTextViewOverlay.EventHandler<OrionModelChangedEventOverlay> handler;
 
     @AssistedInject
     public ContentAssistWidget(final PopupResources popupResources,
                                @Assisted final OrionEditorWidget textEditor,
                                @Assisted OrionKeyModeOverlay assistMode) {
-        this.popupElement = Elements.createDivElement(popupResources.popupStyle().window());
-        this.listElement = Elements.createUListElement();
-        this.popupElement.appendChild(this.listElement);
         this.popupResources = popupResources;
-        docWidget = new PopupPanel(false);
-        docWidget.setSize("400px", "205px");
-        Style style = docWidget.getElement().getStyle();
-        style.setProperty("resize", "both");
-        style.setPaddingBottom(0, Style.Unit.PX);
-        style.setPaddingTop(3, Style.Unit.PX);
-        style.setPaddingLeft(3, Style.Unit.PX);
-        style.setPaddingRight(3, Style.Unit.PX);
-        this.popupListener = new EventListener() {
+        this.textEditor = textEditor;
+        this.assistMode = assistMode;
+
+        popupElement = Elements.createDivElement(popupResources.popupStyle().popup());
+
+        Element headerElement = Elements.createDivElement(popupResources.popupStyle().header());
+        headerElement.setInnerText("Proposals:");
+        popupElement.appendChild(headerElement);
+
+        popupBodyElement = Elements.createDivElement(popupResources.popupStyle().body());
+        popupElement.appendChild(popupBodyElement);
+
+        listElement = Elements.createUListElement();
+        popupBodyElement.appendChild(listElement);
+
+        docPopup = new FlowPanel();
+        docPopup.setStyleName(popupResources.popupStyle().popup());
+        docPopup.setSize("370px", "180px");
+
+        popupListener = new EventListener() {
             @Override
             public void handleEvent(final Event evt) {
                 if (evt instanceof MouseEvent) {
@@ -122,9 +120,10 @@ public class ContentAssistWidget implements EventListener {
                     final EventTarget target = mouseEvent.getTarget();
                     if (target instanceof Element) {
                         final Element elementTarget = (Element)target;
-                        if (elementTarget.equals(docWidget.getElement()) && docWidget.isShowing()) {
+                        if (elementTarget.equals(docPopup.getElement()) && docPopup.isVisible()) {
                             return;
                         }
+
                         if (!ContentAssistWidget.this.popupElement.contains(elementTarget)) {
                             hide();
                             evt.preventDefault();
@@ -134,54 +133,65 @@ public class ContentAssistWidget implements EventListener {
                 // else won't happen
             }
         };
-        this.textEditor = textEditor;
-        this.assistMode = assistMode;
 
         handler = new OrionTextViewOverlay.EventHandler<OrionModelChangedEventOverlay>() {
             @Override
             public void onEvent(OrionModelChangedEventOverlay event) {
-                callCodeAssist.cancel();
-                callCodeAssist.schedule(500);
-                hide();
+                callCodeAssistTimer.cancel();
+                callCodeAssistTimer.schedule(250);
             }
         };
     }
 
-    public Element getEmptyDisplay() {
-        final Element noProposalMessage = Elements.createLiElement(getItemStyle());
-        noProposalMessage.setTextContent("No proposals");
-        return noProposalMessage;
-    }
+    private Timer callCodeAssistTimer = new Timer() {
+        @Override
+        public void run() {
+            textEditor.getDocument().getDocumentHandle().getDocEventBus().fireEvent(new CompletionRequestEvent());
+        }
+    };
 
     public void validateItem(boolean replace) {
         this.insert = replace;
         selectedElement.dispatchEvent(createValidateEvent(CUSTOM_EVT_TYPE_VALIDATE));
     }
 
+    /**
+     *
+     * @param eventType
+     * @return
+     */
     private native CustomEvent createValidateEvent(String eventType) /*-{
         return new CustomEvent(eventType);
     }-*/;
 
-    private Element createItem(final CompletionProposal proposal) {
-        final Element element = Elements.createLiElement(getItemStyle());
-        final SpanElement icon = Elements.createSpanElement(completionResources.completionCss().proposalIcon());
-        final SpanElement label = Elements.createSpanElement(completionResources.completionCss().proposalLabel());
-        final SpanElement group = Elements.createSpanElement(completionResources.completionCss().proposalGroup());
+    /**
+     * Appends new proposal item to the popup
+     *
+     * @param proposal
+     */
+    private void addProposalPopupItem(final CompletionProposal proposal) {
+        final Element element = Elements.createLiElement(popupResources.popupStyle().item());
+
+        final Element icon = Elements.createDivElement(popupResources.popupStyle().icon());
         if (proposal.getIcon() != null && proposal.getIcon().getSVGImage() != null) {
             icon.appendChild((Node)proposal.getIcon().getSVGImage().getElement());
         } else if (proposal.getIcon() != null && proposal.getIcon().getImage() != null) {
             icon.appendChild((Node)proposal.getIcon().getImage().getElement());
         }
-        label.setInnerHTML(proposal.getDisplayString());
         element.appendChild(icon);
-        element.appendChild(label);
-        element.appendChild(group);
 
+        final SpanElement label = Elements.createSpanElement(popupResources.popupStyle().label());
+        label.setInnerHTML(proposal.getDisplayString());
+        element.appendChild(label);
+
+        element.setTabIndex(1);
+
+        // add item to the popup
+        listElement.appendChild(element);
 
         final EventListener validateListener = new EventListener() {
             @Override
             public void handleEvent(final Event evt) {
-
                 CompletionProposal.CompletionCallback callback = new CompletionProposal.CompletionCallback() {
                     @Override
                     public void onCompletion(final Completion completion) {
@@ -207,14 +217,17 @@ public class ContentAssistWidget implements EventListener {
                         }
                     }
                 };
+
                 if (proposal instanceof CompletionProposalExtension) {
                     ((CompletionProposalExtension)proposal).getCompletion(insert, callback);
                 } else {
                     proposal.getCompletion(callback);
                 }
+
                 hide();
             }
         };
+
         element.addEventListener(Event.DBLCLICK, validateListener, false);
         element.addEventListener(CUSTOM_EVT_TYPE_VALIDATE, validateListener, false);
         element.addEventListener(Event.CLICK, new EventListener() {
@@ -223,51 +236,36 @@ public class ContentAssistWidget implements EventListener {
                 selectElement(element);
             }
         }, false);
+
         element.addEventListener(DOCUMENTATION, new EventListener() {
             @Override
             public void handleEvent(Event event) {
                 Widget info = proposal.getAdditionalProposalInfo();
+
                 if (info != null) {
-                    showingDoc = true;
-                    docWidget.setWidget(info);
-                    docWidget.setPopupPosition(popupElement.getOffsetLeft() + popupElement.getOffsetWidth() + 3,
-                                               popupElement.getOffsetTop());
-                    docWidget.show();
+                    docPopup.clear();
+                    docPopup.add(info);
+
+                    if (docPopup.isAttached()) {
+                        return;
+                    }
+
+                    docPopup.getElement().getStyle().setLeft(popupElement.getOffsetLeft() + popupElement.getOffsetWidth() + 3, Style.Unit.PX);
+                    docPopup.getElement().getStyle().setTop(popupElement.getOffsetTop(), Style.Unit.PX);
+                    RootPanel.get().add(docPopup);
+                    docPopup.getElement().getStyle().setOpacity(1);
+                } else {
+
                 }
             }
         }, false);
-
-        return element;
     }
 
-    /**
-     * Show the widget at the given document position.
-     *
-     * @param Xcoord
-     *         the horizontal pixel position in the document
-     * @param Ycoord
-     *         the vertical pixel position in the document
-     */
-    public void show(final float Xcoord, final float Ycoord) {
+    private void addPopupEventListeners() {
+        Elements.getDocument().addEventListener(Event.MOUSEDOWN, this.popupListener, false);
+
         textEditor.getTextView().addKeyMode(assistMode);
-        if (this.listElement.getChildElementCount() == 0) {
-            Element emptyElement = getEmptyDisplay();
-            if (emptyElement != null) {
-                emptyElement.setTabIndex(1);
-                this.listElement.appendChild(emptyElement);
-            } else {
-                return;
-            }
-        }
 
-        final Document document = Elements.getDocument();
-        document.getBody().appendChild(this.popupElement);
-        document.addEventListener(Event.MOUSEDOWN, this.popupListener, false);
-
-        this.popupElement.getStyle().setTop(Ycoord, PX);
-        this.popupElement.getStyle().setLeft(Xcoord, PX);
-        popupElement.getStyle().setWidth("400px");
-        popupElement.getStyle().setHeight("200px");
         // add key event listener on popup
         textEditor.getTextView().setAction("cheContentAssistCancel", new Action() {
             @Override
@@ -314,14 +312,14 @@ public class ContentAssistWidget implements EventListener {
         textEditor.getTextView().setAction("cheContentAssistEnd", new Action() {
             @Override
             public void onAction() {
-                selectLast();
+                selectElement(listElement.getLastElementChild());
             }
         });
 
         textEditor.getTextView().setAction("cheContentAssistHome", new Action() {
             @Override
             public void onAction() {
-                selectFirst();
+                selectElement(listElement.getFirstElementChild());
             }
         });
 
@@ -333,9 +331,19 @@ public class ContentAssistWidget implements EventListener {
         });
 
         textEditor.getTextView().addEventListener("ModelChanging", handler);
-        selectFirst();
-        this.listElement.addEventListener(Event.KEYDOWN, this, false);
-        state = true;
+        listElement.addEventListener(Event.KEYDOWN, this, false);
+    }
+
+    private void removePopupEventListeners() {
+        /* Remove popup listeners. */
+        textEditor.getTextView().removeKeyMode(assistMode);
+        textEditor.getTextView().removeEventListener("ModelChanging", handler, false);
+
+        // remove the keyboard listener
+        listElement.removeEventListener(Event.KEYDOWN, this, false);
+
+        // remove the mouse listener
+        Elements.getDocument().removeEventListener(Event.MOUSEDOWN, this.popupListener);
     }
 
     private void selectPrevious() {
@@ -343,58 +351,89 @@ public class ContentAssistWidget implements EventListener {
         if (previousElement != null) {
             selectElement(previousElement);
         } else {
-            selectLast();
+            selectElement(listElement.getLastElementChild());
         }
     }
 
     private void selectNext() {
-
         Element nextElement = selectedElement.getNextElementSibling();
         if (nextElement != null) {
             selectElement(nextElement);
         } else {
-            selectFirst();
+            selectElement(listElement.getFirstElementChild());
         }
     }
 
-    private void selectLast() {
-        selectElement(listElement.getLastElementChild());
-    }
-
-    private void selectFirst() {
-        selectElement(listElement.getFirstElementChild());
-    }
-
-    private void selectElement(Element newSelected) {
+    private void selectElement(Element element) {
         if (selectedElement != null) {
-            Elements.removeClassName("che-hint-active", selectedElement);
+            selectedElement.removeAttribute("selected");
         }
-        if (showingDoc && selectedElement != newSelected) {
-            newSelected.dispatchEvent(createValidateEvent(DOCUMENTATION));
-        }
-        selectedElement = newSelected;
-        Elements.addClassName("che-hint-active", selectedElement);
 
-        if (selectedElement.getOffsetTop() < this.popupElement.getScrollTop()) {
+        if (docPopup.isAttached()) {
+            if (element != selectedElement) {
+                element.dispatchEvent(createValidateEvent(DOCUMENTATION));
+            }
+        } else {
+            showDocTimer.cancel();
+            showDocTimer.schedule(1500);
+        }
+
+        selectedElement = element;
+        selectedElement.setAttribute("selected", "true");
+
+        if (selectedElement.getOffsetTop() < this.popupBodyElement.getScrollTop()) {
             selectedElement.scrollIntoView(true);
         } else if ((selectedElement.getOffsetTop() + selectedElement.getOffsetHeight()) >
-                   (this.popupElement.getScrollTop() + this.popupElement.getClientHeight())) {
+                   (this.popupBodyElement.getScrollTop() + this.popupBodyElement.getClientHeight())) {
             selectedElement.scrollIntoView(false);
         }
-
     }
 
-    public void positionAndShow() {
+    private Timer showDocTimer = new Timer() {
+        @Override
+        public void run() {
+            if (selectedElement != null) {
+                selectedElement.dispatchEvent(createValidateEvent(DOCUMENTATION));
+            }
+        }
+    };
+
+    /**
+     * Displays assist popup relative to the current cursor position.
+     *
+     * @param proposals proposals to display
+     */
+    public void show(final List<CompletionProposal> proposals) {
         OrionTextViewOverlay textView = textEditor.getTextView();
-
-        int offset = textView.getCaretOffset();
-
-        OrionPixelPositionOverlay caretLocation = textView.getLocationAtOffset(offset);
+        OrionPixelPositionOverlay caretLocation = textView.getLocationAtOffset(textView.getCaretOffset());
         caretLocation.setY(caretLocation.getY() + textView.getLineHeight());
         caretLocation = textView.convert(caretLocation, "document", "page");
 
-        show(caretLocation.getX(), caretLocation.getY());
+        /** The fastest way to remove element children. Clear and add items. */
+        listElement.setInnerHTML("");
 
+        /* Display an empty popup when it is nothing to show. */
+        if (proposals == null || proposals.isEmpty()) {
+            final Element emptyElement = Elements.createLiElement(popupResources.popupStyle().item());
+            emptyElement.setTextContent("No proposals");
+            listElement.appendChild(emptyElement);
+            return;
+        }
+
+        /* Add new popup items. */
+        for (CompletionProposal proposal : proposals) {
+            addProposalPopupItem(proposal);
+        }
+
+        /* Reset popup dimensions and show. */
+        popupElement.getStyle().setLeft(caretLocation.getX(), PX);
+        popupElement.getStyle().setTop(caretLocation.getY(), PX);
+        popupElement.getStyle().setWidth("400px");
+        popupElement.getStyle().setHeight("200px");
+        Elements.getDocument().getBody().appendChild(this.popupElement);
+        popupElement.getStyle().setOpacity(1);
+
+        /* Correct popup position (wants to be refactored) */
         final Window window = Elements.getWindow();
         final int viewportWidth = window.getInnerWidth();
         final int viewportHeight = window.getInnerHeight();
@@ -431,65 +470,60 @@ public class ContentAssistWidget implements EventListener {
         } else {
             this.popupElement.getStyle().setProperty("maxWidth", viewportWidth + caretLocation.getX() + "px");
         }
-    }
 
-    /** Remove all items. */
-    public void clear() {
-        Node lastChild = this.listElement.getLastChild();
-        while (lastChild != null) {
-            this.listElement.removeChild(lastChild);
-            lastChild = this.listElement.getLastChild();
+        /* Don't attach handlers twice. Visible popup must already their attached. */
+        if (!visible) {
+            addPopupEventListeners();
         }
-        docWidget.hide();
-    }
 
-    /** Returns the style to add to all items. */
-    protected String getItemStyle() {
-        return this.popupResources.popupStyle().item();
+        /* Indicates the codeassist is visible. */
+        visible = true;
+
+        if (docPopup.isAttached()) {
+            docPopup.getElement().getStyle().setOpacity(0);
+            new Timer() {
+                @Override
+                public void run() {
+                    docPopup.removeFromParent();
+                    showDocTimer.schedule(1500);
+                }
+            }.schedule(250);
+        }
+
+        /* Select first row. */
+        selectElement(listElement.getFirstElementChild());
     }
 
     /**
-     * Add an item in the popup view.
-     *
-     * @param itemModel
-     *         the data for the item
+     * Hides the popup and displaying javadoc.
      */
-    public void addItem(final CompletionProposal itemModel) {
-        if (itemModel == null) {
-            return;
-        }
-        final Element itemElement = createItem(itemModel);
-        if (itemElement != null) {
-            // makes the element focusable
-            itemElement.setTabIndex(1);
-            this.listElement.appendChild(itemElement);
-        }
-    }
-
-    /** Hide the popup. */
     public void hide() {
-        if (showingDoc) {
-            docWidget.hide();
-            showingDoc = false;
-            return;
+        if (docPopup.isAttached()) {
+            docPopup.getElement().getStyle().setOpacity(0);
+            new Timer() {
+                @Override
+                public void run() {
+                    docPopup.removeFromParent();
+                }
+            }.schedule(250);
         }
-        state = false;
-        textEditor.getTextView().removeKeyMode(assistMode);
-        textEditor.getTextView().removeEventListener("ModelChanging", handler, false);
 
-        // remove the keyboard listener
-        this.listElement.removeEventListener(Event.KEYDOWN, this, false);
+        popupElement.getStyle().setOpacity(0);
+        new Timer() {
+            @Override
+            public void run() {
+                // detach assist popup
+                popupElement.getParentNode().removeChild(popupElement);
+                // remove all items from popup element
+                listElement.setInnerHTML("");
+            }
+        }.schedule(250);
 
-        // remove the element from dom
-        final Document document = Elements.getDocument();
-        final Node parent = this.popupElement.getParentNode();
-        if (parent != null) {
-            parent.removeChild(this.popupElement);
-        }
-        showingDoc = false;
-        docWidget.hide();
-        // remove the mouse listener
-        document.removeEventListener(Event.MOUSEDOWN, this.popupListener);
+        visible = false;
+        selectedElement = null;
+        showDocTimer.cancel();
+
+        removePopupEventListeners();
     }
 
     @Override
@@ -505,42 +539,53 @@ public class ContentAssistWidget implements EventListener {
                         }
                     });
                     break;
+
                 case KeyCodes.KEY_DOWN:
                     selectNext();
                     evt.preventDefault();
                     break;
+
                 case KeyCodes.KEY_UP:
                     selectPrevious();
                     evt.preventDefault();
                     break;
+
                 case KeyCodes.KEY_HOME:
-                    selectFirst();
+                    selectElement(listElement.getFirstElementChild());
                     break;
+
                 case KeyCodes.KEY_END:
-                    selectLast();
+                    selectElement(listElement.getLastElementChild());
                     break;
+
                 case KeyCodes.KEY_ENTER:
                     evt.preventDefault();
                     evt.stopImmediatePropagation();
                     validateItem(true);
                     break;
+
                 case KeyCodes.KEY_TAB:
                     evt.preventDefault();
                     evt.stopImmediatePropagation();
                     validateItem(false);
                     break;
-                default:
             }
         }
     }
 
-    public boolean isActive() {
-        return state;
+    /**
+     * Uses to determine the autocompletion popup visibility.
+     *
+     * @return <b>true</b> if the popup is visible, otherwise returns <b>false</b>
+     */
+    public boolean isVisible() {
+        return visible;
     }
 
     public void showCompletionInfo() {
-        if (state && selectedElement != null) {
+        if (visible && selectedElement != null) {
             selectedElement.dispatchEvent(createValidateEvent(DOCUMENTATION));
         }
     }
+
 }

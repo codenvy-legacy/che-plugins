@@ -8,11 +8,22 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.ide.ext.java.client.refactoring.move;
+package org.eclipse.che.ide.extension.machine.client.machine.events;
+
+import com.google.gwt.event.shared.EventHandler;
 
 /**
+ * Special handler which handles starting machine processes.
+ *
  * @author Dmitry Shnurenko
  */
-public enum RefactoredItemType {
-    COMPILATION_UNIT, PACKAGE, JAVA_ELEMENT
+public interface MachineStartingHandler extends EventHandler {
+
+    /**
+     * Performs some actions when machine is starting.
+     *
+     * @param event
+     *         event which contains information about starting machine
+     */
+    void onMachineStarting(MachineStartingEvent event);
 }

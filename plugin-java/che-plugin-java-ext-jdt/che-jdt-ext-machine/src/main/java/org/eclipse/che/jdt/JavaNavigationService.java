@@ -39,6 +39,14 @@ public class JavaNavigationService {
     private JavaNavigation navigation;
 
     @GET
+    @Path("contentbyfqn")
+    public Response getContent(@QueryParam("projectpath") String projectPath, @QueryParam("fqn") String fqn) throws JavaModelException {
+        IJavaProject project = MODEL.getJavaProject(projectPath);
+        String content = navigation.getContent(project, fqn);
+        return Response.ok().entity(content).build();
+    }
+
+    @GET
     @Path("find-declaration")
     @Produces("application/json")
     public OpenDeclarationDescriptor findDeclaration(@QueryParam("projectpath") String projectPath, @QueryParam("fqn") String fqn,
