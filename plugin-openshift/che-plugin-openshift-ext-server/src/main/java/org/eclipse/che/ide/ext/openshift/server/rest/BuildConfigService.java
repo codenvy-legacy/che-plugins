@@ -14,6 +14,8 @@ package org.eclipse.che.ide.ext.openshift.server.rest;
 import com.openshift.restclient.IClient;
 import com.openshift.restclient.ResourceKind;
 import com.openshift.restclient.model.IBuildConfig;
+import com.openshift.restclient.model.build.IBuildTrigger;
+import com.openshift.restclient.model.build.IWebhookTrigger;
 
 import org.eclipse.che.api.core.BadRequestException;
 import org.eclipse.che.api.core.ForbiddenException;
@@ -21,6 +23,7 @@ import org.eclipse.che.api.core.ServerException;
 import org.eclipse.che.api.core.UnauthorizedException;
 import org.eclipse.che.ide.ext.openshift.server.ClientFactory;
 import org.eclipse.che.ide.ext.openshift.shared.dto.BuildConfig;
+import org.eclipse.che.ide.ext.openshift.shared.dto.WebHook;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -32,11 +35,13 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static org.eclipse.che.dto.server.DtoFactory.newDto;
 import static org.eclipse.che.ide.ext.openshift.server.DtoConverter.toDto;
 import static org.eclipse.che.ide.ext.openshift.server.DtoConverter.toOpenshiftResource;
 
@@ -104,5 +109,25 @@ public class BuildConfigService {
         }
         final IClient client = clientFactory.getOpenshiftClient();
         return toDto(BuildConfig.class, client.update(toOpenshiftResource(client, buildConfig)));
+    }
+
+    @GET
+    @Path("/{buildConfig}/webhook")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<WebHook> getBuildConfigWebHooks(@PathParam("namespace") String namespace,
+                                                @PathParam("buildConfig") String buildConfigName) throws UnauthorizedException,
+                                                                                                         ServerException {
+        final IClient client = clientFactory.getOpenshiftClient();
+        final IBuildConfig buildConfig = client.get(ResourceKind.BUILD_CONFIG, buildConfigName, namespace);
+        final List<WebHook> result = new ArrayList<>();
+        for (IBuildTrigger iBuildTrigger : buildConfig.getBuildTriggers()) {
+            if (iBuildTrigger instanceof IWebhookTrigger) {
+                final IWebhookTrigger webhookTrigger = (IWebhookTrigger)iBuildTrigger;
+                result.add(newDto(WebHook.class).withUrl(webhookTrigger.getWebhookURL())
+                                                .withType(webhookTrigger.getType())
+                                                .withSecret(webhookTrigger.getSecret()));
+            }
+        }
+        return result;
     }
 }
