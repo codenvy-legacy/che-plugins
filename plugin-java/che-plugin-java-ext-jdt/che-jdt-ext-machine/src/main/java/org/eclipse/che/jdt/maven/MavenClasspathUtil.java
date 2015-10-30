@@ -27,6 +27,7 @@ import java.util.List;
 /**
  * @author Evgen Vidolob
  */
+//TODO move this class to maven extension
 public class MavenClasspathUtil {
     private static final IClasspathEntry[] EMPTY = new IClasspathEntry[0];
     private static final Logger            LOG   = LoggerFactory.getLogger(MavenClasspathUtil.class);
@@ -38,14 +39,18 @@ public class MavenClasspathUtil {
             try {
                 char[] chars = Util.getResourceContentsAsCharArray(file);
                 String content = new String(chars);
-                String[] split = content.split(":");
-                List<IClasspathEntry> classpathEntry = new ArrayList<>();
-                for (String path : split) {
-                    String srcPath = path.substring(0, path.lastIndexOf('.')) + "-sources.jar";
-                    classpathEntry.add(JavaCore.newLibraryEntry(new org.eclipse.core.runtime.Path(path),
-                                                                new org.eclipse.core.runtime.Path(srcPath), null));
+                if (!content.isEmpty()) {
+                    String[] pathToJars = content.split(":");
+                    List<IClasspathEntry> classpathEntry = new ArrayList<>();
+                    for (String path : pathToJars) {
+                        String srcPath = path.substring(0, path.lastIndexOf('.')) + "-sources.jar";
+                        classpathEntry.add(JavaCore.newLibraryEntry(new org.eclipse.core.runtime.Path(path),
+                                                                    new org.eclipse.core.runtime.Path(srcPath), null));
+                    }
+                    entries = classpathEntry.toArray(new IClasspathEntry[classpathEntry.size()]);
+                } else {
+                    entries = EMPTY;
                 }
-                entries = classpathEntry.toArray(new IClasspathEntry[classpathEntry.size()]);
             } catch (JavaModelException e) {
                 LOG.error("Can't read maven classpath.", e);
                 entries = EMPTY;
