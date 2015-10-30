@@ -179,23 +179,6 @@
     outline: none;
 }
 
-/********************************************************************************************
- *
- * Orion scrollbars
- *
- ********************************************************************************************/
-
-.textviewScroll::-webkit-scrollbar {
-    width: 7px;
-    height: 7px;
-}
-
-.textviewScroll::-webkit-scrollbar-button {
-    width: 0px;
-    height: 0px;
-    display: none;
-}
-
 .textviewScroll::-webkit-scrollbar-corner {
     background-color: transparent;
     display: none;
@@ -204,25 +187,3 @@
 .textviewScroll::-webkit-resizer {
     display: none;
 }
-
-.textviewScroll::-webkit-scrollbar-track,
-.textviewScroll::-webkit-scrollbar-track:hover,
-.textviewScroll::-webkit-scrollbar-track:active {
-    background-color: transparent;
-    -webkit-box-shadow: none;
-    border: none;
-}
-
-.textviewScroll::-webkit-scrollbar-thumb {
-    background-clip: padding-box;
-    background-color: rgba(215, 215, 215, 0.10);
-
-    border: 2px solid transparent;
-    border-radius: 4px;
-    -webkit-box-shadow: inset 0px 0px 2px rgba(235, 235, 235, 0.3);
-}
-
-.textviewScroll::-webkit-scrollbar-thumb:hover {
-    background-color: rgba(215, 215, 215, 0.3);
-}
-

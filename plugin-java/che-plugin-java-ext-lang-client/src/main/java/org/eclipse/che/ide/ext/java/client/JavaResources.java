@@ -32,8 +32,14 @@ public interface JavaResources extends ClientBundle {
     @Source("org/eclipse/che/ide/ext/java/client/images/class.gif")
     ImageResource classItem();
 
+    @Source("org/eclipse/che/ide/ext/java/client/images/class.svg")
+    SVGResource svgClassItem();
+
     @Source("org/eclipse/che/ide/ext/java/client/images/innerinterface_public.gif")
     ImageResource interfaceItem();
+
+    @Source("org/eclipse/che/ide/ext/java/client/images/interface.svg")
+    SVGResource svgInterfaceItem();
 
     @Source("org/eclipse/che/ide/ext/java/client/images/enum_item.gif")
     ImageResource enumItem();

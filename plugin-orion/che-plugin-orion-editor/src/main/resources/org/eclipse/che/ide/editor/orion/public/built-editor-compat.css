@@ -675,12 +675,3 @@
 .annotationLine.currentLine {
     background-color: #EAF2FE;
 }
-
-.che-hint-active {
-    background: #08f;
-    color: white;
-}
-
-.tooltipImage{
-    float: left;
-}

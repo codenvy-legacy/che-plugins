@@ -13,6 +13,7 @@ package org.eclipse.che.ide.ext.java.client.project.node;
 import org.eclipse.che.api.project.shared.dto.ItemReference;
 import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.ide.api.project.node.settings.NodeSettings;
+import org.eclipse.che.ide.ext.java.client.project.node.jar.ContentNode;
 import org.eclipse.che.ide.ext.java.client.project.node.jar.ExternalLibrariesNode;
 import org.eclipse.che.ide.ext.java.client.project.node.jar.JarContainerNode;
 import org.eclipse.che.ide.ext.java.client.project.node.jar.JarFileNode;
@@ -37,6 +38,10 @@ public interface JavaNodeFactory {
 
     JarFileNode newJarFileNode(@NotNull JarEntry jarEntry,
                                int libId,
+                               @NotNull ProjectDescriptor projectDescriptor,
+                               @NotNull NodeSettings nodeSettings);
+
+    ContentNode newContentNode(@NotNull JarEntry jarEntry,
                                @NotNull ProjectDescriptor projectDescriptor,
                                @NotNull NodeSettings nodeSettings);
 

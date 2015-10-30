@@ -57,21 +57,21 @@ import static org.mockito.Mockito.when;
  */
 public class MavenClassPathConfiguratorTest {
 
-    private ProjectManager projectManager;
-
-    private static final String      WORKSPACE                 = "workspace";
-    private static final String      VFS_USER                  = "dev";
-    private static final Set<String> VFS_USER_GROUPS           = new LinkedHashSet<>(Arrays.asList("workspace/developer"));
-    private static final String      SOURCE_DIRECTORY          = "src/somePath/java";
-    private static final String      DEFAULT_SOURCE_DIRECTORY  = "src/main/java";
-    private static final String      CLASS_PATH_CONTENT        =
+    private static final String      WORKSPACE                     = "workspace";
+    private static final String      VFS_USER                      = "dev";
+    private static final Set<String> VFS_USER_GROUPS               = new LinkedHashSet<>(Arrays.asList("workspace/developer"));
+    private static final String      SOURCE_DIRECTORY              = "src/somePath/java";
+    private static final String      DEFAULT_SOURCE_DIRECTORY      = "src/main/java";
+    private static final String      DEFAULT_TEST_SOURCE_DIRECTORY = "src/test/java";
+    private static final String      CLASS_PATH_CONTENT            =
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
             "<classpath>\n" +
+            "\t<classpathentry kind=\"src\" path=\"%s\"/>\n" +
             "\t<classpathentry kind=\"src\" path=\"%s\"/>\n" +
             "\t<classpathentry kind=\"con\" path=\"org.eclipse.jdt.launching.JRE_CONTAINER\"/>\n" +
             "\t<classpathentry kind=\"con\" path=\"org.eclipse.che.MAVEN2_CLASSPATH_CONTAINER\"/>\n" +
             "</classpath>";
-    private static final String      POM_CONTENT               =
+    private static final String      POM_CONTENT                   =
             "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
             "xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd\">\n" +
             "    <modelVersion>4.0.0</modelVersion>\n" +
@@ -83,7 +83,7 @@ public class MavenClassPathConfiguratorTest {
             "        <sourceDirectory>%s</sourceDirectory>\n" +
             "    </build>\n" +
             "</project>";
-    private static final String      POM_CONTENT_WITHOUT_BUILD =
+    private static final String      POM_CONTENT_WITHOUT_BUILD     =
             "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
             "xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd\">\n" +
             "    <modelVersion>4.0.0</modelVersion>\n" +
@@ -92,6 +92,7 @@ public class MavenClassPathConfiguratorTest {
             "    <version>3.1.0-SNAPSHOT</version>\n" +
             "    <packaging>POM_CONTENT</packaging>\n" +
             "</project>";
+    private ProjectManager projectManager;
 
     @Before
     public void setup() throws Exception {
@@ -137,7 +138,7 @@ public class MavenClassPathConfiguratorTest {
 
     @Test
     public void testConfigureWhenPomNotContainsSourceDirectory() throws Exception {
-        String classPath = String.format(CLASS_PATH_CONTENT, DEFAULT_SOURCE_DIRECTORY);
+        String classPath = String.format(CLASS_PATH_CONTENT, DEFAULT_SOURCE_DIRECTORY, DEFAULT_TEST_SOURCE_DIRECTORY);
         Project testProject = projectManager.createProject(WORKSPACE, "projectName", new ProjectConfig("maven", "maven"), null);
         testProject.getBaseFolder().createFile("pom.xml", POM_CONTENT_WITHOUT_BUILD.getBytes(), "text/xml");
 
@@ -153,7 +154,7 @@ public class MavenClassPathConfiguratorTest {
     public void testConfigureWhenPomContainsDefaultSourceDirectory() throws Exception {
         Project testProject = projectManager.createProject(WORKSPACE, "projectName", new ProjectConfig("maven", "maven"), null);
         String pom = String.format(POM_CONTENT, DEFAULT_SOURCE_DIRECTORY);
-        String classPath = String.format(CLASS_PATH_CONTENT, DEFAULT_SOURCE_DIRECTORY);
+        String classPath = String.format(CLASS_PATH_CONTENT, DEFAULT_SOURCE_DIRECTORY, DEFAULT_TEST_SOURCE_DIRECTORY);
         testProject.getBaseFolder().createFile("pom.xml", pom.getBytes(), "text/xml");
 
         MavenClassPathConfigurator.configure(testProject.getBaseFolder());
@@ -168,7 +169,7 @@ public class MavenClassPathConfiguratorTest {
     public void testConfigureWhenPomContainsNotDefaultSourceDirectory() throws Exception {
         Project testProject = projectManager.createProject(WORKSPACE, "projectName", new ProjectConfig("maven", "maven"), null);
         String pom = String.format(POM_CONTENT, SOURCE_DIRECTORY);
-        String classPath = String.format(CLASS_PATH_CONTENT, SOURCE_DIRECTORY);
+        String classPath = String.format(CLASS_PATH_CONTENT, SOURCE_DIRECTORY, DEFAULT_TEST_SOURCE_DIRECTORY);
         testProject.getBaseFolder().createFile("pom.xml", pom.getBytes(), "text/xml");
 
         MavenClassPathConfigurator.configure(testProject.getBaseFolder());
