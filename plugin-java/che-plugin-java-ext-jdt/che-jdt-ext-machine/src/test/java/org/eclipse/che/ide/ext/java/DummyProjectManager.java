@@ -15,6 +15,7 @@ import org.eclipse.che.api.core.ConflictException;
 import org.eclipse.che.api.core.ForbiddenException;
 import org.eclipse.che.api.core.NotFoundException;
 import org.eclipse.che.api.core.ServerException;
+import org.eclipse.che.api.core.model.workspace.ModuleConfig;
 import org.eclipse.che.api.core.notification.EventService;
 import org.eclipse.che.api.project.server.FolderEntry;
 import org.eclipse.che.api.project.server.InvalidValueException;
@@ -48,6 +49,7 @@ import java.util.Set;
 
 /**
  * Dummy implementation of ProjectManager used for tests
+ *
  * @author Evgen Vidolob
  */
 public class DummyProjectManager implements ProjectManager {
@@ -140,9 +142,12 @@ public class DummyProjectManager implements ProjectManager {
     }
 
     @Override
-    public Set<Project> getProjectModules(Project project)
-            throws ServerException, ForbiddenException, ConflictException, IOException, NotFoundException {
-        return Collections.emptySet();
+    public List<ModuleConfig> getProjectModules(Project project) throws ServerException,
+                                                                        ForbiddenException,
+                                                                        ConflictException,
+                                                                        IOException,
+                                                                        NotFoundException {
+        return Collections.emptyList();
     }
 
     @Override
@@ -167,9 +172,11 @@ public class DummyProjectManager implements ProjectManager {
     }
 
     @Override
-    public Project addModule(String workspace, String projectPath, String modulePath, ProjectConfig moduleConfig,
-                             Map<String, String> options)
-            throws ConflictException, ForbiddenException, ServerException, NotFoundException {
+    public Project addModule(String workspace,
+                             String projectPath,
+                             String modulePath,
+                             ModuleConfig moduleConfig,
+                             Map<String, String> options) throws ConflictException, ForbiddenException, ServerException, NotFoundException {
         throw new UnsupportedOperationException();
     }
 

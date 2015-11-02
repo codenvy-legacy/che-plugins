@@ -15,6 +15,7 @@ import org.eclipse.che.api.core.ConflictException;
 import org.eclipse.che.api.core.ForbiddenException;
 import org.eclipse.che.api.core.NotFoundException;
 import org.eclipse.che.api.core.ServerException;
+import org.eclipse.che.api.core.model.workspace.ModuleConfig;
 import org.eclipse.che.api.project.server.ProjectManager;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -30,7 +31,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -131,10 +131,27 @@ public class WorkspaceRoot extends Container implements IWorkspaceRoot {
 
     private void addAllModules(List<IProject> projects, org.eclipse.che.api.project.server.Project project, ProjectManager manager)
             throws IOException, ForbiddenException, ConflictException, NotFoundException, ServerException {
-        Set<org.eclipse.che.api.project.server.Project> modules = manager.getProjectModules(project);
-        for (org.eclipse.che.api.project.server.Project module : modules) {
-            projects.add(new Project(new Path(module.getPath()), workspace));
-            addAllModules(projects, module, manager);
+
+        List<ModuleConfig> modules = manager.getProjectModules(project);
+
+        for (ModuleConfig module : modules) {
+            addModules(projects, module);
+        }
+    }
+
+    private void addModules(List<IProject> projects, ModuleConfig moduleConfig) {
+        List<? extends ModuleConfig> modules = moduleConfig.getModules();
+
+        if (modules.isEmpty()) {
+            return;
+        }
+
+        for (ModuleConfig module : modules) {
+            Project project = new Project(new Path(module.getPath()), workspace);
+
+            projects.add(project);
+
+            addModules(projects, moduleConfig);
         }
     }
 
