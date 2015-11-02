@@ -25,6 +25,7 @@ import org.eclipse.che.ide.ext.openshift.shared.dto.ProjectRequest;
 import org.eclipse.che.ide.ext.openshift.shared.dto.Route;
 import org.eclipse.che.ide.ext.openshift.shared.dto.Service;
 import org.eclipse.che.ide.ext.openshift.shared.dto.Template;
+import org.eclipse.che.ide.ext.openshift.shared.dto.WebHook;
 import org.eclipse.che.ide.rest.AsyncRequestFactory;
 import org.eclipse.che.ide.rest.AsyncRequestLoader;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
@@ -145,13 +146,35 @@ public class OpenshiftServiceClientImpl implements OpenshiftServiceClient {
 
     @Override
     public Promise<List<BuildConfig>> getBuildConfigs(final String namespace) {
+        return getBuildConfigs(namespace, null);
+    }
+
+    @Override
+    public Promise<List<BuildConfig>> getBuildConfigs(final String namespace, final String application) {
         return newPromise(new AsyncPromiseHelper.RequestCall<List<BuildConfig>>() {
             @Override
             public void makeCall(AsyncCallback<List<BuildConfig>> callback) {
-                asyncRequestFactory.createGetRequest(openshiftPath + "/namespace/" + namespace + "/buildconfig")
+                String url = openshiftPath + "/namespace/" + namespace + "/buildconfig";
+                if (application != null) {
+                    url += "?application=" + application;
+                }
+                asyncRequestFactory.createGetRequest(url)
                                    .header(ACCEPT, MimeType.APPLICATION_JSON)
                                    .loader(loader, "Getting build configs...")
                                    .send(newCallback(callback, dtoUnmarshaller.newListUnmarshaller(BuildConfig.class)));
+            }
+        });
+    }
+
+    @Override
+    public Promise<List<WebHook>> getWebhooks(final String namespace, final String buildConfig) {
+        return newPromise(new AsyncPromiseHelper.RequestCall<List<WebHook>>() {
+            @Override
+            public void makeCall(AsyncCallback<List<WebHook>> callback) {
+                asyncRequestFactory.createGetRequest(openshiftPath + "/namespace/" + namespace + "/buildconfig/" + buildConfig + "/webhook")
+                                   .header(ACCEPT, MimeType.APPLICATION_JSON)
+                                   .loader(loader, "Getting webhooks...")
+                                   .send(newCallback(callback, dtoUnmarshaller.newListUnmarshaller(WebHook.class)));
             }
         });
     }

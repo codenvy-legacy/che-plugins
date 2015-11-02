@@ -20,6 +20,7 @@ import org.eclipse.che.ide.ext.openshift.shared.dto.ProjectRequest;
 import org.eclipse.che.ide.ext.openshift.shared.dto.Route;
 import org.eclipse.che.ide.ext.openshift.shared.dto.Service;
 import org.eclipse.che.ide.ext.openshift.shared.dto.Template;
+import org.eclipse.che.ide.ext.openshift.shared.dto.WebHook;
 
 import java.util.List;
 
@@ -40,6 +41,10 @@ public interface OpenshiftServiceClient {
     Promise<BuildConfig> updateBuildConfig(BuildConfig config);
 
     Promise<List<BuildConfig>> getBuildConfigs(String namespace);
+
+    Promise<List<BuildConfig>> getBuildConfigs(String namespace, String application);
+
+    Promise<List<WebHook>> getWebhooks(String namespace, String buildConfig);
 
     Promise<ImageStream> createImageStream(ImageStream stream);
 
