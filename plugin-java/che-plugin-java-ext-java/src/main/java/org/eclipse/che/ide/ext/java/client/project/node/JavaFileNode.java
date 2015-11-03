@@ -18,10 +18,9 @@ import org.eclipse.che.api.project.shared.dto.ItemReference;
 import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.commons.annotation.Nullable;
 import org.eclipse.che.ide.api.project.node.MutableNode;
-import org.eclipse.che.ide.api.project.node.resource.DeleteProcessor;
-import org.eclipse.che.ide.api.project.node.resource.RenameProcessor;
 import org.eclipse.che.ide.ext.java.client.project.settings.JavaNodeSettings;
 import org.eclipse.che.ide.project.node.FileReferenceNode;
+import org.eclipse.che.ide.project.node.resource.ItemReferenceProcessor;
 import org.eclipse.che.ide.ui.smartTree.presentation.NodePresentation;
 
 import javax.validation.constraints.NotNull;
@@ -39,7 +38,7 @@ public class JavaFileNode extends FileReferenceNode implements MutableNode {
                         @Assisted JavaNodeSettings nodeSettings,
                         @NotNull EventBus eventBus,
                         @NotNull JavaNodeManager nodeManager,
-                        @NotNull JavaItemReferenceProcessor resourceProcessor) {
+                        @NotNull ItemReferenceProcessor resourceProcessor) {
         super(itemReference, projectDescriptor, nodeSettings, eventBus, nodeManager, resourceProcessor);
         this.nodeManager = nodeManager;
     }
@@ -54,18 +53,6 @@ public class JavaFileNode extends FileReferenceNode implements MutableNode {
     public boolean isLeaf() {
         //TODO this field will be configurable if we'll have ability to get java file members
         return true;
-    }
-
-    @Nullable
-    @Override
-    public RenameProcessor<ItemReference> getRenameProcessor() {
-        return null;
-    }
-
-    @Nullable
-    @Override
-    public DeleteProcessor<ItemReference> getDeleteProcessor() {
-        return resourceProcessor;
     }
 
     @Override
