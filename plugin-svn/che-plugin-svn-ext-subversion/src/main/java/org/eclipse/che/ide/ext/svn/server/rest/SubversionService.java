@@ -10,10 +10,12 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.svn.server.rest;
 
+import org.eclipse.che.api.core.ApiException;
 import org.eclipse.che.api.core.ForbiddenException;
 import org.eclipse.che.api.core.NotFoundException;
 import org.eclipse.che.api.core.ServerException;
 import org.eclipse.che.api.core.rest.Service;
+import org.eclipse.che.api.project.shared.dto.ImportSourceDescriptor;
 import org.eclipse.che.api.vfs.server.MountPoint;
 import org.eclipse.che.api.vfs.server.VirtualFile;
 import org.eclipse.che.api.vfs.server.VirtualFileSystem;
@@ -66,9 +68,13 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 import java.io.IOException;
+
+import static org.eclipse.che.dto.server.DtoFactory.newDto;
 
 /**
  * REST API endpoints for this extension.
@@ -560,4 +566,18 @@ public class SubversionService extends Service {
         }
     }
 
+    @Path("import-source-descriptor")
+    @Produces(MediaType.APPLICATION_JSON)
+    @GET
+    public ImportSourceDescriptor importDescriptor(@Context UriInfo uriInfo,
+                                                   @QueryParam("projectPath") String projectPath) throws ApiException, IOException {
+        final VirtualFile virtualFile = vfsRegistry.getProvider(workspaceId).getMountPoint(true).getVirtualFile(projectPath);
+        if (virtualFile.getChild(".svn") != null) {
+            return newDto(ImportSourceDescriptor.class)
+                    .withType("subversion")
+                    .withLocation(subversionApi.getRepositoryUrl(((VirtualFileImpl)virtualFile).getIoFile().getPath()));
+        } else {
+            throw new ServerException("Not subversion repository");
+        }
+    }
 }
