@@ -18,7 +18,7 @@ import org.eclipse.che.api.machine.shared.dto.recipe.RecipeDescriptor;
 import org.eclipse.che.commons.annotation.Nullable;
 import org.eclipse.che.ide.extension.machine.client.machine.Machine;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.appliance.server.Server;
-import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.panel.MachineTreeNode;
+import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.panel.MachineNode;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.recipe.editor.RecipeEditorPanel;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.Tab;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.container.TabContainerView.TabSelectHandler;
@@ -26,7 +26,7 @@ import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.cont
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.header.TabHeader;
 
 import javax.validation.constraints.NotNull;
-import java.util.Collection;
+import java.util.List;
 
 /**
  * Special factory for creating entities.
@@ -84,9 +84,9 @@ public interface EntityFactory {
      *         data of creating node
      * @param children
      *         children of creating node
-     * @return an instance of{@link MachineTreeNode}
+     * @return an instance of{@link MachineNode}
      */
-    MachineTreeNode createMachineNode(@Nullable MachineTreeNode parent,
-                                      @Assisted("data") Object data,
-                                      Collection<MachineTreeNode> children);
+    MachineNode createMachineNode(@Nullable MachineNode parent,
+                                  @Assisted("data") Object data,
+                                  List<MachineNode> children);
 }

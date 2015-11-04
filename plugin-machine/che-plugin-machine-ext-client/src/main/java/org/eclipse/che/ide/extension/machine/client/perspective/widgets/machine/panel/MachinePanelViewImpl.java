@@ -10,8 +10,8 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.panel;
 
-import elemental.events.KeyboardEvent;
-import elemental.events.MouseEvent;
+import com.google.gwt.event.logical.shared.SelectionEvent;
+import com.google.gwt.event.logical.shared.SelectionHandler;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.uibinder.client.UiBinder;
@@ -23,9 +23,17 @@ import com.google.inject.Singleton;
 import org.eclipse.che.api.machine.shared.dto.MachineStateDto;
 import org.eclipse.che.ide.api.parts.PartStackUIResources;
 import org.eclipse.che.ide.api.parts.base.BaseView;
-import org.eclipse.che.ide.ui.tree.Tree;
-import org.eclipse.che.ide.ui.tree.TreeNodeElement;
-import org.eclipse.che.ide.util.input.SignalEvent;
+import org.eclipse.che.ide.api.project.node.Node;
+import org.eclipse.che.ide.api.project.node.interceptor.NodeInterceptor;
+import org.eclipse.che.ide.extension.machine.client.machine.Machine;
+
+import org.eclipse.che.ide.ui.smartTree.NodeUniqueKeyProvider;
+import org.eclipse.che.ide.ui.smartTree.Tree;
+import org.eclipse.che.ide.ui.smartTree.TreeNodeLoader;
+import org.eclipse.che.ide.ui.smartTree.TreeNodeStorage;
+import org.eclipse.che.ide.util.loging.Log;
+
+import java.util.Set;
 
 /**
  * Provides implementation of view to display machines on special panel.
@@ -40,71 +48,37 @@ public class MachinePanelViewImpl extends BaseView<MachinePanelView.ActionDelega
     private static final MachinePanelImplUiBinder UI_BINDER = GWT.create(MachinePanelImplUiBinder.class);
 
     @UiField(provided = true)
-    Tree<MachineTreeNode> tree;
+    Tree tree;
 
     @Inject
-    public MachinePanelViewImpl(org.eclipse.che.ide.Resources resources,
-                                PartStackUIResources partStackUIResources,
-                                MachineDataAdapter adapter,
-                                MachineTreeRenderer renderer) {
+    public MachinePanelViewImpl(PartStackUIResources partStackUIResources, final Set<NodeInterceptor> nodeInterceptorSet) {
         super(partStackUIResources);
 
-        tree = Tree.create(resources, adapter, renderer);
+        TreeNodeStorage nodeStorage = new TreeNodeStorage(new NodeUniqueKeyProvider() {
+            @Override
+            public String getKey(Node item) {
+                String key = "";
+                if (item instanceof Machine) {
+                    key = ((Machine)item).getId();
+                }
+                return key;
+            }
+        });
+
+        tree = new Tree(nodeStorage, new TreeNodeLoader(nodeInterceptorSet));
 
         setContentWidget(UI_BINDER.createAndBindUi(this));
 
-        tree.setTreeEventHandler(new Tree.Listener<MachineTreeNode>() {
+        tree.getSelectionModel().addSelectionHandler(new SelectionHandler<Node>() {
             @Override
-            public void onNodeAction(TreeNodeElement<MachineTreeNode> node) {
-
-            }
-
-            @Override
-            public void onNodeClosed(TreeNodeElement<MachineTreeNode> node) {
-
-            }
-
-            @Override
-            public void onNodeContextMenu(int mouseX, int mouseY, TreeNodeElement<MachineTreeNode> node) {
-
-            }
-
-            @Override
-            public void onNodeDragStart(TreeNodeElement<MachineTreeNode> node, MouseEvent event) {
-
-            }
-
-            @Override
-            public void onNodeDragDrop(TreeNodeElement<MachineTreeNode> node, MouseEvent event) {
-
-            }
-
-            @Override
-            public void onNodeExpanded(TreeNodeElement<MachineTreeNode> node) {
-
-            }
-
-            @Override
-            public void onNodeSelected(TreeNodeElement<MachineTreeNode> node, SignalEvent event) {
-                Object selectedNode = node.getData().getData();
-
-                if (selectedNode instanceof MachineStateDto) {
-                    delegate.onMachineSelected((MachineStateDto)selectedNode);
+            public void onSelection(SelectionEvent<Node> event) {
+                Node selectedNode = event.getSelectedItem();
+                if (selectedNode instanceof MachineNode) {
+                    MachineNode selectedMachineNode = (MachineNode)selectedNode;
+                    Log.info(getClass(), selectedMachineNode.getData());
+                    tree.getSelectionModel().select(event.getSelectedItem(), true);
+                    //delegate.onMachineSelected((MachineStateDto)selectedMachineNode.getData());
                 }
-            }
-
-            @Override
-            public void onRootContextMenu(int mouseX, int mouseY) {
-
-            }
-
-            @Override
-            public void onRootDragDrop(MouseEvent event) {
-
-            }
-
-            @Override
-            public void onKeyboard(KeyboardEvent event) {
 
             }
         });
@@ -112,20 +86,28 @@ public class MachinePanelViewImpl extends BaseView<MachinePanelView.ActionDelega
 
     /** {@inheritDoc} */
     @Override
-    public void setData(MachineTreeNode root) {
-        tree.asWidget().setVisible(true);
-        tree.getModel().setRoot(root);
-        tree.renderTree(-1);
+    public void setData(MachineNode node) {
+//        Log.info(getClass(), node.getChildrenImpl().then(new Operation<List<Node>>() {
+//            @Override
+//            public void apply(List<Node> arg) throws OperationException {
+//                Log.info(getClass(), arg.size());
+//                for (Node node1: arg) {
+//                    Log.info(getClass(), node1.getName());
+//                }
+//            }
+//        }));
+        tree.getNodeStorage().clear();
+        tree.getNodeStorage().add(node);
     }
 
     /** {@inheritDoc} */
     @Override
-    public void selectNode(MachineTreeNode machineNode) {
+    public void selectNode(MachineNode machineNode) {
         if (machineNode == null) {
             return;
         }
 
-        tree.getSelectionModel().selectSingleNode(machineNode);
+        tree.getSelectionModel().select(machineNode, false);
 
         delegate.onMachineSelected((MachineStateDto)machineNode.getData());
     }

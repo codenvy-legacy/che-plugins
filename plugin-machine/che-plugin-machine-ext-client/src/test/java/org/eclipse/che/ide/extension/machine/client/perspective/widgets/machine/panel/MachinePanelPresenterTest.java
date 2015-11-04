@@ -92,31 +92,31 @@ public class MachinePanelPresenterTest {
     @Mock
     private CurrentProject                 currentProject;
     @Mock
-    private ProjectDescriptor              projectDescriptor;
+    private ProjectDescriptor projectDescriptor;
     @Mock
-    private MachineDto                     machineDescriptor1;
+    private MachineDto        machineDescriptor1;
     @Mock
-    private MachineDto                     machineDescriptor2;
+    private MachineDto        machineDescriptor2;
     @Mock
-    private Machine                        machine1;
+    private Machine           machine1;
     @Mock
-    private Machine                        machine2;
+    private Machine           machine2;
     @Mock
-    private MachineStateDto                machineState1;
+    private MachineStateDto   machineState1;
     @Mock
-    private MachineStateDto                machineState2;
+    private MachineStateDto   machineState2;
     @Mock
-    private AcceptsOneWidget               container;
+    private AcceptsOneWidget  container;
     @Mock
-    private MachineTreeNode                rootNode;
+    private MachineNode       rootNode;
     @Mock
-    private MachineTreeNode                machineNode1;
+    private MachineNode       machineNode1;
     @Mock
-    private MachineTreeNode                machineNode2;
+    private MachineNode       machineNode2;
     @Mock
-    private UsersWorkspaceDto              workspaceDto;
+    private UsersWorkspaceDto workspaceDto;
     @Mock
-    private MachineStateEvent              stateEvent;
+    private MachineStateEvent stateEvent;
 
     @Captor
     private ArgumentCaptor<Operation<List<MachineStateDto>>> operationMachineStateCaptor;
@@ -134,9 +134,9 @@ public class MachinePanelPresenterTest {
         when(entityFactory.createMachine(machineDescriptor1)).thenReturn(machine1);
         when(entityFactory.createMachine(machineDescriptor2)).thenReturn(machine2);
 
-        when(entityFactory.createMachineNode(isNull(MachineTreeNode.class),
+        when(entityFactory.createMachineNode(isNull(MachineNode.class),
                                              anyString(),
-                                             Matchers.<List<MachineTreeNode>>anyObject())).thenReturn(rootNode);
+                                             Matchers.<List<MachineNode>>anyObject())).thenReturn(rootNode);
 
         //noinspection unchecked
         when(entityFactory.createMachineNode(eq(rootNode),
@@ -158,7 +158,7 @@ public class MachinePanelPresenterTest {
 
     @Test
     public void constructorShouldBeVerified() {
-        verify(entityFactory).createMachineNode(eq(null), eq("root"), Matchers.<List<MachineTreeNode>>anyObject());
+        verify(entityFactory).createMachineNode(eq(null), eq("root"), Matchers.<List<MachineNode>>anyObject());
 
         verify(eventBus).addHandler(MachineStateEvent.TYPE, presenter);
         verify(eventBus).addHandler(ExtServerStateEvent.TYPE, presenter);
@@ -174,10 +174,10 @@ public class MachinePanelPresenterTest {
         verify(machineStatePromise).then(operationMachineStateCaptor.capture());
         operationMachineStateCaptor.getValue().apply(Arrays.asList(machineState1));
 
-        verify(entityFactory).createMachineNode(isNull(MachineTreeNode.class), eq("root"), Matchers.<List<MachineTreeNode>>anyObject());
+        verify(entityFactory).createMachineNode(isNull(MachineNode.class), eq("root"), Matchers.<List<MachineNode>>anyObject());
         verify(entityFactory).createMachineNode(eq(rootNode), eq(machineState1), eq(null));
 
-        verify(view).setData(Matchers.<MachineTreeNode>anyObject());
+        verify(view).setData(Matchers.<MachineNode>anyObject());
         verify(view).selectNode(machineNode1);
     }
 

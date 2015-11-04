@@ -56,16 +56,16 @@ public class MachinePanelPresenter extends BasePresenter implements MachinePanel
                                                                     MachineStateHandler,
                                                                     ExtServerStateHandler,
                                                                     MachineStartingHandler {
-    private final MachinePanelView                      view;
-    private final MachineServiceClient                  service;
-    private final EntityFactory                         entityFactory;
-    private final MachineLocalizationConstant           locale;
-    private final MachineAppliancePresenter             appliance;
-    private final MachineResources                      resources;
-    private final Map<MachineStateDto, MachineTreeNode> existingMachineNodes;
-    private final Map<MachineStateDto, Machine>         cachedMachines;
-    private final MachineTreeNode                       rootNode;
-    private final List<MachineTreeNode>                 rootChildren;
+    private final MachinePanelView                  view;
+    private final MachineServiceClient              service;
+    private final EntityFactory                     entityFactory;
+    private final MachineLocalizationConstant       locale;
+    private final MachineAppliancePresenter         appliance;
+    private final MachineResources                  resources;
+    private final Map<MachineStateDto, MachineNode> existingMachineNodes;
+    private final Map<MachineStateDto, Machine>     cachedMachines;
+    private final MachineNode                       rootNode;
+    private final List<MachineNode>                 rootChildren;
 
     private MachineStateDto selectedMachineState;
     private boolean         isMachineRunning;
@@ -125,7 +125,7 @@ public class MachinePanelPresenter extends BasePresenter implements MachinePanel
     }
 
     private void addNodeToTree(MachineStateDto machineState) {
-        MachineTreeNode machineNode = entityFactory.createMachineNode(rootNode, machineState, null);
+        MachineNode machineNode = entityFactory.createMachineNode(rootNode, machineState, null);
 
         existingMachineNodes.put(machineState, machineNode);
 
@@ -136,7 +136,7 @@ public class MachinePanelPresenter extends BasePresenter implements MachinePanel
 
     private void selectFirstNode() {
         if (!rootChildren.isEmpty()) {
-            MachineTreeNode firstNode = rootChildren.get(0);
+            MachineNode firstNode = rootChildren.get(0);
 
             view.selectNode(firstNode);
         }
@@ -264,7 +264,7 @@ public class MachinePanelPresenter extends BasePresenter implements MachinePanel
     public void onMachineDestroyed(MachineStateEvent event) {
         MachineStateDto machineState = event.getMachineState();
 
-        MachineTreeNode deletedNode = existingMachineNodes.get(machineState);
+        MachineNode deletedNode = existingMachineNodes.get(machineState);
 
         rootChildren.remove(deletedNode);
         existingMachineNodes.remove(machineState);
