@@ -75,8 +75,7 @@ public class CheAccessTokenCredentialProvider implements CredentialsProvider {
                                                                                "git.committer.\\w+");
                 name = preferences.get("git.committer.name");
                 email = preferences.get("git.committer.email");
-            } catch (ServerException e) {
-                //ignored
+            } catch (ServerException ignored) {
             }
 
             gitUser.setName(isNullOrEmpty(name) ? "Anonymous" : name);
