@@ -10,19 +10,19 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.panel;
 
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
 import org.eclipse.che.api.machine.shared.dto.MachineStateDto;
 import org.eclipse.che.api.promises.client.Promise;
-import org.eclipse.che.api.promises.client.callback.AsyncPromiseHelper;
-import org.eclipse.che.api.promises.client.callback.PromiseHelper;
+import org.eclipse.che.api.promises.client.js.Promises;
 import org.eclipse.che.ide.api.project.node.AbstractTreeNode;
+import org.eclipse.che.ide.api.project.node.HasDataObject;
 import org.eclipse.che.ide.api.project.node.Node;
+import org.eclipse.che.ide.ui.smartTree.presentation.HasPresentation;
+import org.eclipse.che.ide.ui.smartTree.presentation.NodePresentation;
 
 import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -30,28 +30,22 @@ import java.util.List;
  *
  * @author Dmitry Shnurenko
  */
-public class MachineNode extends AbstractTreeNode {
+public class MachineNode extends AbstractTreeNode implements  HasPresentation, HasDataObject<MachineStateDto> {
 
     public final static String ROOT = "root";
 
-    private final String                  id;
-    private final String                  name;
-    private final MachineNode             parent;
-    private final Object                  data;
-    private final List<MachineNode> children;
+    private final String            id;
+    private final String            name;
+    private MachineStateDto         data;
+    private NodePresentation        nodePresentation;
 
     @Inject
-    public MachineNode(@Assisted MachineNode parent,
-                       @Assisted("data") Object data,
-                       @Assisted List<MachineNode> children) {
-        this.parent = parent;
+    public MachineNode(@Assisted MachineStateDto data) {
         this.data = data;
-        this.children = children;
+        boolean isMachine = !data.isDev();
 
-        boolean isMachine = data instanceof MachineStateDto;
-
-        id = isMachine ? ((MachineStateDto)data).getId() : ROOT;
-        name = isMachine ? ((MachineStateDto)data).getName() : ROOT;
+        id = isMachine ? data.getId() : ROOT;
+        name = isMachine ? data.getName() : ROOT;
     }
 
     @NotNull
@@ -68,7 +62,7 @@ public class MachineNode extends AbstractTreeNode {
     @NotNull
     @Override
     public MachineNode getParent() {
-        return parent;
+        return null;
     }
 
     @Override
@@ -78,16 +72,34 @@ public class MachineNode extends AbstractTreeNode {
 
     @Override
     protected Promise<List<Node>> getChildrenImpl() {
-        return PromiseHelper.<List<Node>>newPromise(new AsyncPromiseHelper.RequestCall<List<Node>>() {
-            @Override
-            public void makeCall(AsyncCallback<List<Node>> callback) {
-                callback.onSuccess(new ArrayList<Node>(children));//guava?
-            }
-        });
+        return Promises.<List<Node>>resolve(null);
     }
 
     @NotNull
-    public Object getData() {
+    public MachineStateDto getData() {
         return data;
+    }
+
+    @Override
+    public void setData(@NotNull MachineStateDto data) {
+        this.data = data;
+    }
+
+    @Override
+    public void updatePresentation(@NotNull NodePresentation presentation) {
+        presentation.setPresentableText(getName());
+    }
+
+    @Override
+    public NodePresentation getPresentation(boolean update) {
+        if (nodePresentation == null) {
+            nodePresentation = new NodePresentation();
+            updatePresentation(nodePresentation);
+        }
+
+        if (update) {
+            updatePresentation(nodePresentation);
+        }
+        return nodePresentation;
     }
 }

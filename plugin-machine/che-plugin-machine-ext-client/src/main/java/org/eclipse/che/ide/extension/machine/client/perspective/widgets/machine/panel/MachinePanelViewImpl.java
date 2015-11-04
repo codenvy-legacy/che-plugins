@@ -25,13 +25,14 @@ import org.eclipse.che.ide.api.parts.PartStackUIResources;
 import org.eclipse.che.ide.api.parts.base.BaseView;
 import org.eclipse.che.ide.api.project.node.Node;
 import org.eclipse.che.ide.api.project.node.interceptor.NodeInterceptor;
-import org.eclipse.che.ide.extension.machine.client.machine.Machine;
 
+import org.eclipse.che.ide.extension.machine.client.machine.Machine;
 import org.eclipse.che.ide.ui.smartTree.NodeUniqueKeyProvider;
 import org.eclipse.che.ide.ui.smartTree.Tree;
 import org.eclipse.che.ide.ui.smartTree.TreeNodeLoader;
 import org.eclipse.che.ide.ui.smartTree.TreeNodeStorage;
-import org.eclipse.che.ide.util.loging.Log;
+import org.eclipse.che.ide.ui.smartTree.event.NodeAddedEvent;
+import org.eclipse.che.ide.ui.smartTree.event.StoreRemoveEvent;
 
 import java.util.Set;
 
@@ -57,11 +58,7 @@ public class MachinePanelViewImpl extends BaseView<MachinePanelView.ActionDelega
         TreeNodeStorage nodeStorage = new TreeNodeStorage(new NodeUniqueKeyProvider() {
             @Override
             public String getKey(Node item) {
-                String key = "";
-                if (item instanceof Machine) {
-                    key = ((Machine)item).getId();
-                }
-                return key;
+                return item.getName();
             }
         });
 
@@ -74,30 +71,43 @@ public class MachinePanelViewImpl extends BaseView<MachinePanelView.ActionDelega
             public void onSelection(SelectionEvent<Node> event) {
                 Node selectedNode = event.getSelectedItem();
                 if (selectedNode instanceof MachineNode) {
-                    MachineNode selectedMachineNode = (MachineNode)selectedNode;
-                    Log.info(getClass(), selectedMachineNode.getData());
-                    tree.getSelectionModel().select(event.getSelectedItem(), true);
-                    //delegate.onMachineSelected((MachineStateDto)selectedMachineNode.getData());
+                    delegate.onMachineSelected(((MachineNode)selectedNode).getData());
                 }
+            }
+        });
 
+        tree.addNodeAddedHandler(new NodeAddedEvent.NodeAddedEventHandler() {
+            @Override
+            public void onNodeAdded(NodeAddedEvent event) {
+                Node selectedNode = event.getNodes().get(0);
+                if (selectedNode instanceof MachineNode) {
+                    tree.getSelectionModel().select(selectedNode, false);
+                    delegate.onMachineSelected(((MachineNode)selectedNode).getData());
+                }
+            }
+        });
+
+        tree.getNodeStorage().addStoreRemoveHandler(new StoreRemoveEvent.StoreRemoveHandler() {
+            @Override
+            public void onRemove(StoreRemoveEvent event) {
+                MachineNode machineNode = (MachineNode)tree.getNodeStorage().getAll().get(0);
+                tree.getSelectionModel().select(machineNode, false);
+                delegate.onMachineSelected((machineNode).getData());
             }
         });
     }
 
     /** {@inheritDoc} */
     @Override
-    public void setData(MachineNode node) {
-//        Log.info(getClass(), node.getChildrenImpl().then(new Operation<List<Node>>() {
-//            @Override
-//            public void apply(List<Node> arg) throws OperationException {
-//                Log.info(getClass(), arg.size());
-//                for (Node node1: arg) {
-//                    Log.info(getClass(), node1.getName());
-//                }
-//            }
-//        }));
-        tree.getNodeStorage().clear();
+    public void addData(MachineNode node) {
         tree.getNodeStorage().add(node);
+
+        delegate.onMachineSelected((node).getData());
+    }
+
+    @Override
+    public MachineNode findNode(MachineStateDto machineStateDto) {
+        return (MachineNode)tree.getNodeStorage().findNodeWithKey(machineStateDto.getName());//?
     }
 
     /** {@inheritDoc} */
@@ -109,6 +119,18 @@ public class MachinePanelViewImpl extends BaseView<MachinePanelView.ActionDelega
 
         tree.getSelectionModel().select(machineNode, false);
 
-        delegate.onMachineSelected((MachineStateDto)machineNode.getData());
+        delegate.onMachineSelected(machineNode.getData());
+    }
+
+    @Override
+    public void removeData(MachineNode data) {
+        tree.getNodeStorage().remove(data);
+
+        delegate.onMachineSelected(data.getData());
+    }
+
+    @Override
+    public void clear() {
+        tree.getNodeStorage().clear();
     }
 }

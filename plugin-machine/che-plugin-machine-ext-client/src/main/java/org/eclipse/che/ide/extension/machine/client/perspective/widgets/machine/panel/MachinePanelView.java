@@ -30,7 +30,13 @@ public interface MachinePanelView extends View<MachinePanelView.ActionDelegate> 
      * @param root
      *         data which will be displayed
      */
-    void setData(MachineNode root);
+    void addData(MachineNode root);
+
+    void removeData(MachineNode data);
+
+    void clear();
+
+    MachineNode findNode(MachineStateDto machineStateDto);
 
     /**
      * Calls special method which adds special styles to selected element.
