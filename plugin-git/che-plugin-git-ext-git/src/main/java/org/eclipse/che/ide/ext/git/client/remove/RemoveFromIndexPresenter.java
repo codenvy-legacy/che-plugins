@@ -185,22 +185,20 @@ public class RemoveFromIndexPresenter implements RemoveFromIndexView.ActionDeleg
     protected ResourceBasedNode<?> getResourceBasedNode() {
         List<?> selection = projectExplorer.getSelection().getAllElements();
         //we should be sure that user selected single element to work with it
-        if (selection != null && selection.isEmpty() || selection.size() > 1) {
-            return null;
-        }
+        if (selection != null && selection.size() > 1) {
 
-        Object o = selection.get(0);
+            Object o = selection.get(0);
 
-        if (o instanceof ResourceBasedNode<?>) {
-            ResourceBasedNode<?> node = (ResourceBasedNode<?>)o;
-            //it may be file node, so we should take parent node
-            if (node.isLeaf() && isResourceAndStorableNode(node.getParent())) {
-                return (ResourceBasedNode<?>)node.getParent();
+            if (o instanceof ResourceBasedNode<?>) {
+                ResourceBasedNode<?> node = (ResourceBasedNode<?>)o;
+                //it may be file node, so we should take parent node
+                if (node.isLeaf() && isResourceAndStorableNode(node.getParent())) {
+                    return (ResourceBasedNode<?>)node.getParent();
+                }
+
+                return isResourceAndStorableNode(node) ? node : null;
             }
-
-            return isResourceAndStorableNode(node) ? node : null;
         }
-
         return null;
     }
 
