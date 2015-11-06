@@ -16,6 +16,7 @@ import com.google.inject.multibindings.Multibinder;
 import org.eclipse.che.api.project.server.type.ProjectType;
 import org.eclipse.che.ide.ext.openshift.server.OpenshiftProjectType;
 import org.eclipse.che.ide.ext.openshift.server.rest.BuildConfigService;
+import org.eclipse.che.ide.ext.openshift.server.rest.BuildService;
 import org.eclipse.che.ide.ext.openshift.server.rest.DeploymentConfigService;
 import org.eclipse.che.ide.ext.openshift.server.rest.ImageStreamService;
 import org.eclipse.che.ide.ext.openshift.server.rest.OpenshiftExceptionMapper;
@@ -37,6 +38,7 @@ public class OpenshiftModule extends AbstractModule {
         bind(ServiceService.class);
         bind(TemplateService.class);
         bind(ProjectService.class);
+        bind(BuildService.class);
         bind(OpenshiftExceptionMapper.class);
 
         final Multibinder<ProjectType> projectTypeMultibinder = Multibinder.newSetBinder(binder(), ProjectType.class);

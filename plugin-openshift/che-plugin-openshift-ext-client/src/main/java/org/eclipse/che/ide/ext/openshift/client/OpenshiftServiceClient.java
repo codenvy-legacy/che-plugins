@@ -11,6 +11,7 @@
 package org.eclipse.che.ide.ext.openshift.client;
 
 import org.eclipse.che.api.promises.client.Promise;
+import org.eclipse.che.ide.ext.openshift.shared.dto.Build;
 import org.eclipse.che.ide.ext.openshift.shared.dto.BuildConfig;
 import org.eclipse.che.ide.ext.openshift.shared.dto.DeploymentConfig;
 import org.eclipse.che.ide.ext.openshift.shared.dto.ImageStream;
@@ -59,4 +60,8 @@ public interface OpenshiftServiceClient {
     Promise<Service> createService(Service service);
 
     Promise<List<Route>> getRoutes(String namespace, String application);
+
+    Promise<List<Build>> getBuilds(String namespace, String application);
+
+    Promise<Build> startBuild(String namespace, String buildConfig);
 }
