@@ -14,6 +14,7 @@ import org.eclipse.che.ide.api.action.ActionManager;
 import org.eclipse.che.ide.api.action.DefaultActionGroup;
 import org.eclipse.che.ide.api.constraints.Constraints;
 import org.eclipse.che.ide.api.extension.Extension;
+import org.eclipse.che.ide.ext.openshift.client.build.StartBuildAction;
 import org.eclipse.che.ide.ext.openshift.client.deploy.LinkProjectWithExistingApplicationAction;
 import org.eclipse.che.ide.ext.openshift.client.deploy._new.NewApplicationAction;
 import org.eclipse.che.ide.ext.openshift.client.oauth.authenticator.ConnectAccountAction;
@@ -46,7 +47,8 @@ public class OpenshiftExtension {
                               LinkProjectWithExistingApplicationAction deployToExistingApplicationAction,
                               NewApplicationAction newApplicationAction,
                               ShowApplicationUrlAction showApplicationUrlAction,
-                              ShowWebhooksAction showWebhooksAction) {
+                              ShowWebhooksAction showWebhooksAction,
+                              StartBuildAction startBuildAction) {
         openshiftResources.css().ensureInjected();
         DefaultActionGroup mainMenu = (DefaultActionGroup)actionManager.getAction(GROUP_MAIN_MENU);
 
@@ -77,11 +79,13 @@ public class OpenshiftExtension {
         actionManager.registerAction("createOpenshiftApplicationFromTemplate", createApplicationFromTemplateAction);
         openshift.add(createApplicationFromTemplateAction);
 
-
         actionManager.registerAction("showOpenshiftApplicationUrl", showApplicationUrlAction);
         openshift.add(showApplicationUrlAction);
 
         actionManager.registerAction("showOpenshiftWebhooks", showWebhooksAction);
         openshift.add(showWebhooksAction);
+
+        actionManager.registerAction("startOpenshiftBuild", startBuildAction);
+        openshift.add(startBuildAction);
     }
 }
