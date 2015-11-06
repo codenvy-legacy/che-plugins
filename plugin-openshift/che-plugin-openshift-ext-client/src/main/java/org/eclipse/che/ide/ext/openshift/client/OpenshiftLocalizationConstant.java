@@ -133,4 +133,19 @@ public interface OpenshiftLocalizationConstant extends Messages {
 
     @Key("start.build.error")
     String startBuildError();
+
+    @Key("build.status.running")
+    String buildStatusRunning(String buildName);
+
+    @Key("build.status.completed")
+    String buildStatusCompleted(String buildName);
+
+    @Key("build.status.failed")
+    String buildStatusFailed(String buildName);
+
+    @Key("failed.to.retrieve.token.message")
+    String failedToRetrieveTokenMessage(String buildName);
+
+    @Key("failed.to.watch.build.by.websocket")
+    String failedToWatchBuildByWebSocket(String buildName);
 }
