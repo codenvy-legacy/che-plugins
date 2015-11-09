@@ -14,12 +14,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.event.shared.EventBus;
 
-import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
-import org.eclipse.che.api.machine.shared.dto.MachineDto;
 import org.eclipse.che.api.machine.shared.dto.MachineStateDto;
-import org.eclipse.che.api.promises.client.Operation;
-import org.eclipse.che.api.promises.client.OperationException;
-import org.eclipse.che.api.promises.client.PromiseError;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.event.project.CloseCurrentProjectEvent;
@@ -37,6 +32,7 @@ import javax.validation.constraints.NotNull;
  * Provides current project's path.
  *
  * @author Artem Zatsarynnyy
+ * @author Vlad Zhukovskyi
  */
 @Singleton
 public class CurrentProjectPathProvider implements CommandPropertyValueProvider,
@@ -48,15 +44,13 @@ public class CurrentProjectPathProvider implements CommandPropertyValueProvider,
     private static final String KEY = "${project.current.path}";
 
     private final AppContext           appContext;
-    private final MachineServiceClient machineServiceClient;
 
     private String value;
 
     @Inject
-    public CurrentProjectPathProvider(EventBus eventBus, AppContext appContext, MachineServiceClient machineServiceClient) {
+    public CurrentProjectPathProvider(EventBus eventBus, AppContext appContext) {
         this.appContext = appContext;
-        this.machineServiceClient = machineServiceClient;
-        this.value = "";
+        value = "";
 
         eventBus.addHandler(MachineStateEvent.TYPE, this);
         eventBus.addHandler(ProjectReadyEvent.TYPE, this);
@@ -112,18 +106,7 @@ public class CurrentProjectPathProvider implements CommandPropertyValueProvider,
             return;
         }
 
-        machineServiceClient.getMachine(devMachineId).then(new Operation<MachineDto>() {
-            @Override
-            public void apply(MachineDto arg) throws OperationException {
-                final String projectsRoot = arg.getMetadata().projectsRoot();
-                value = projectsRoot + currentProject.getProjectDescription().getPath();
-            }
-        }).catchError(new Operation<PromiseError>() {
-            @Override
-            public void apply(PromiseError arg) throws OperationException {
-                value = "";
-            }
-        });
+        value = appContext.getProjectsRoot() + currentProject.getProjectDescription().getPath();
     }
 
     @Override
