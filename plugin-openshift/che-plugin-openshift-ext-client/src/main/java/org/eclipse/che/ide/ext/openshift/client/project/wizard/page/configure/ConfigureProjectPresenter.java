@@ -20,7 +20,7 @@ import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
 import org.eclipse.che.api.project.shared.dto.ImportProject;
 import org.eclipse.che.api.project.shared.dto.ImportSourceDescriptor;
 import org.eclipse.che.api.project.shared.dto.NewProject;
-import org.eclipse.che.api.project.shared.dto.ProjectReference;
+import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.api.project.shared.dto.Source;
 import org.eclipse.che.api.promises.client.Function;
 import org.eclipse.che.api.promises.client.FunctionException;
@@ -53,16 +53,16 @@ import static org.eclipse.che.api.promises.client.callback.PromiseHelper.newProm
 @Singleton
 public class ConfigureProjectPresenter extends AbstractWizardPage<NewApplicationRequest> implements ConfigureProjectView.ActionDelegate {
 
-    private final ConfigureProjectView   view;
-    private final OpenshiftServiceClient openShiftClient;
-    private final ProjectServiceClient   projectServiceClient;
-    private final DtoUnmarshallerFactory dtoUnmarshaller;
-    private final DtoFactory             dtoFactory;
-    private       List<Project>          cachedOpenShiftProjects;
-    private       List<ProjectReference> cachedCodenvyProjects;
+    private final ConfigureProjectView    view;
+    private final OpenshiftServiceClient  openShiftClient;
+    private final ProjectServiceClient    projectServiceClient;
+    private final DtoUnmarshallerFactory  dtoUnmarshaller;
+    private final DtoFactory              dtoFactory;
+    private       List<Project>           cachedOpenShiftProjects;
+    private       List<ProjectDescriptor> cachedCodenvyProjects;
 
-    private AbstractProjectNameValidator<Project>          openShiftProjectNameValidator;
-    private AbstractProjectNameValidator<ProjectReference> codenvyProjectNameValidator;
+    private AbstractProjectNameValidator<Project>           openShiftProjectNameValidator;
+    private AbstractProjectNameValidator<ProjectDescriptor> codenvyProjectNameValidator;
 
     @Inject
     public ConfigureProjectPresenter(ConfigureProjectView view,
@@ -107,7 +107,7 @@ public class ConfigureProjectPresenter extends AbstractWizardPage<NewApplication
             final String cdNewProjectName = view.getCodenvyNewProjectName();
             boolean b2 = NameUtils.checkProjectName(cdNewProjectName)
                          && codenvyProjectNameValidator.isValid(cdNewProjectName,
-                                                                cachedCodenvyProjects == null ? Collections.<ProjectReference>emptyList()
+                                                                cachedCodenvyProjects == null ? Collections.<ProjectDescriptor>emptyList()
                                                                                               : cachedCodenvyProjects);
 
             return b1 && b2;
@@ -115,7 +115,7 @@ public class ConfigureProjectPresenter extends AbstractWizardPage<NewApplication
             final String cdNewProjectName = view.getCodenvyNewProjectName();
             boolean b2 = NameUtils.checkProjectName(cdNewProjectName)
                          && codenvyProjectNameValidator.isValid(cdNewProjectName,
-                                                                cachedCodenvyProjects == null ? Collections.<ProjectReference>emptyList()
+                                                                cachedCodenvyProjects == null ? Collections.<ProjectDescriptor>emptyList()
                                                                                               : cachedCodenvyProjects);
 
             return view.getExistedSelectedProject() != null && b2;
@@ -152,19 +152,20 @@ public class ConfigureProjectPresenter extends AbstractWizardPage<NewApplication
         return NameUtils.checkProjectName(name);
     }
 
-    private Promise<List<ProjectReference>> getCodenvyProjects() {
-        return newPromise(new AsyncPromiseHelper.RequestCall<List<ProjectReference>>() {
+    private Promise<List<ProjectDescriptor>> getCodenvyProjects() {
+        return newPromise(new AsyncPromiseHelper.RequestCall<List<ProjectDescriptor>>() {
             @Override
-            public void makeCall(AsyncCallback<List<ProjectReference>> callback) {
-                projectServiceClient.getProjects(newCallback(callback, dtoUnmarshaller.newListUnmarshaller(ProjectReference.class)));
+            public void makeCall(AsyncCallback<List<ProjectDescriptor>> callback) {
+                projectServiceClient
+                        .getProjects(false, newCallback(callback, dtoUnmarshaller.newListUnmarshaller(ProjectDescriptor.class)));
             }
         });
     }
 
-    private Function<List<ProjectReference>, Promise<List<ProjectReference>>> processCodenvyProjects() {
-        return new Function<List<ProjectReference>, Promise<List<ProjectReference>>>() {
+    private Function<List<ProjectDescriptor>, Promise<List<ProjectDescriptor>>> processCodenvyProjects() {
+        return new Function<List<ProjectDescriptor>, Promise<List<ProjectDescriptor>>>() {
             @Override
-            public Promise<List<ProjectReference>> apply(List<ProjectReference> projects) throws FunctionException {
+            public Promise<List<ProjectDescriptor>> apply(List<ProjectDescriptor> projects) throws FunctionException {
                 cachedCodenvyProjects = projects;
                 return Promises.resolve(projects);
             }
@@ -212,9 +213,9 @@ public class ConfigureProjectPresenter extends AbstractWizardPage<NewApplication
         }
     }
 
-    protected class CodenvyProjectNameValidator extends AbstractProjectNameValidator<ProjectReference> {
+    protected class CodenvyProjectNameValidator extends AbstractProjectNameValidator<ProjectDescriptor> {
         @Override
-        String getProjectName(ProjectReference project) {
+        String getProjectName(ProjectDescriptor project) {
             return project.getName();
         }
     }
