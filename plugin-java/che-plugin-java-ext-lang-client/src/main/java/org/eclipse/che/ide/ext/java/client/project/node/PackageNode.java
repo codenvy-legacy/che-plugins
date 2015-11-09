@@ -46,6 +46,7 @@ public class PackageNode extends FolderReferenceNode {
         this.nodeManager = nodeManager;
     }
 
+    /** {@inheritDoc} */
     @NotNull
     @Override
     protected Promise<List<Node>> getChildrenImpl() {
@@ -54,17 +55,24 @@ public class PackageNode extends FolderReferenceNode {
                                        getSettings());
     }
 
+    /** {@inheritDoc} */
     @Override
     public void updatePresentation(@NotNull NodePresentation presentation) {
         presentation.setPresentableText(getDisplayPackage());
         presentation.setPresentableIcon(nodeManager.getJavaNodesResources().packageIcon());
     }
 
+    /** {@inheritDoc} */
     @Override
     public String getName() {
         return getPackage();
     }
 
+    /**
+     * Return full FQN name for the package. E.g. a.b.c.d
+     *
+     * @return FQN name for the package
+     */
     public String getPackage() {
         final SourceFolderNode sourceFolder = getSourceFolder();
         final String sourcePath = sourceFolder.getStorablePath();
@@ -77,6 +85,11 @@ public class PackageNode extends FolderReferenceNode {
         return path.replace('/', '.');
     }
 
+    /**
+     * Return display FQN for the package according to the parent. E.g. from package a.b.c.d will displayed only c.d
+     *
+     * @return partially displayed FQN name.
+     */
     public String getDisplayPackage() {
         if (getParent() == null || !(getParent() instanceof PackageNode)) {
             return getPackage();
@@ -87,11 +100,13 @@ public class PackageNode extends FolderReferenceNode {
         return getPackage().startsWith(parent.getPackage()) ? getPackage().substring(parent.getPackage().length() + 1) : getPackage();
     }
 
+    /** {@inheritDoc} */
     @Override
     public RenameProcessor<ItemReference> getRenameProcessor() {
         return null;
     }
 
+    /** {@inheritDoc} */
     @Override
     public String getStorablePath() {
         if (getParent() == null || !(getParent() instanceof HasStorablePath)) {
@@ -101,6 +116,11 @@ public class PackageNode extends FolderReferenceNode {
         return ((HasStorablePath)getParent()).getStorablePath() + "/" + getDisplayPackage().replace(".", "/");
     }
 
+    /**
+     * Return source folder node in which package node exists.
+     *
+     * @return parent source folder node
+     */
     public SourceFolderNode getSourceFolder() {
         Node parent = getParent();
 
