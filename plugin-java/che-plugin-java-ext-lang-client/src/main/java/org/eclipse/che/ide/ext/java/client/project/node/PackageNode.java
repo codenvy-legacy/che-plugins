@@ -56,64 +56,35 @@ public class PackageNode extends FolderReferenceNode {
 
     @Override
     public void updatePresentation(@NotNull NodePresentation presentation) {
-        presentation.setPresentableText(getDisplayFqn());
+        presentation.setPresentableText(getDisplayPackage());
         presentation.setPresentableIcon(nodeManager.getJavaNodesResources().packageIcon());
     }
 
     @Override
     public String getName() {
-        return getDisplayFqn();
+        return getPackage();
     }
 
-    public String getDisplayFqn() {
-        Node parent = getParent();
+    public String getPackage() {
+        final SourceFolderNode sourceFolder = getSourceFolder();
+        final String sourcePath = sourceFolder.getStorablePath();
+        String path = "";
 
-        if (parent == null) {
-            return getQualifiedName();
+        if (getData().getPath().startsWith(sourcePath + "/")) {
+            path = getData().getPath().substring(sourcePath.length() + 1);
         }
 
-        if (parent instanceof PackageNode) {
-            String parentFQN = ((PackageNode)parent).getQualifiedName();
-
-            return getQualifiedName().startsWith(parentFQN) ? getQualifiedName().substring(parentFQN.length() + 1) : getQualifiedName();
-        } else if (parent instanceof SourceFolderNode) {
-            return getQualifiedName();
-        }
-
-        return "";
+        return path.replace('/', '.');
     }
 
-    public String getQualifiedName() {
-        Node parent = getParent();
-
-        SourceFolderNode srcFolderNode = null;
-
-        while (parent != null) {
-            if (parent instanceof SourceFolderNode) {
-                srcFolderNode = (SourceFolderNode)parent;
-                break;
-            }
-
-            parent = parent.getParent();
+    public String getDisplayPackage() {
+        if (getParent() == null || !(getParent() instanceof PackageNode)) {
+            return getPackage();
         }
 
-        if (srcFolderNode == null) {
-            return "";
-        }
+        PackageNode parent = (PackageNode)getParent();
 
-        String rawFQN = getData().getPath();
-
-        if (!rawFQN.contains(srcFolderNode.getName())) {
-            return "";
-        }
-
-        rawFQN = rawFQN.substring(rawFQN.lastIndexOf(srcFolderNode.getName()) + srcFolderNode.getName().length());
-
-        if (rawFQN.startsWith("/")) {
-            rawFQN = rawFQN.substring(1);
-        }
-
-        return rawFQN.replace('/', '.');
+        return getPackage().startsWith(parent.getPackage()) ? getPackage().substring(parent.getPackage().length() + 1) : getPackage();
     }
 
     @Override
@@ -127,6 +98,20 @@ public class PackageNode extends FolderReferenceNode {
             return getData().getPath();
         }
 
-        return ((HasStorablePath)getParent()).getStorablePath() + "/" + getDisplayFqn().replace(".", "/");
+        return ((HasStorablePath)getParent()).getStorablePath() + "/" + getDisplayPackage().replace(".", "/");
+    }
+
+    public SourceFolderNode getSourceFolder() {
+        Node parent = getParent();
+
+        while (parent != null) {
+            if (parent instanceof SourceFolderNode) {
+                return (SourceFolderNode)parent;
+            }
+
+            parent = parent.getParent();
+        }
+
+        throw new IllegalStateException("Source directory wasn't bind to package.");
     }
 }
