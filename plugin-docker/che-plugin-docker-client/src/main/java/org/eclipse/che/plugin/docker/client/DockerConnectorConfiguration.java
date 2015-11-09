@@ -44,7 +44,7 @@ public class DockerConnectorConfiguration {
     /**
      * Docker bridge name on Linux.
      */
-    protected static final String BRIDGE_LINUX_INTERFACE_NAME = "bridge0";
+    protected static final String BRIDGE_LINUX_INTERFACE_NAME = "docker0";
 
     /**
      * Default ip of docker host (Linux system).
