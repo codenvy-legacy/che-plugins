@@ -25,51 +25,54 @@
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>${ch.qos.logback.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.inject</groupId>
             <artifactId>guice</artifactId>
-            <version>${com.google.code.guice.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.birt.runtime</groupId>
             <artifactId>org.eclipse.core.jobs</artifactId>
-            <version>${org.eclipse.core.jobs.version}</version>
         </dependency>
         <!--<dependency>-->
         <!--<groupId>org.eclipse.che.plugin</groupId>-->
         <!--<artifactId>org.eclipse.core.resources</artifactId>-->
-        <!--<version>${project.version}</version>-->
         <!--</dependency>-->
         <dependency>
             <groupId>org.eclipse.birt.runtime</groupId>
             <artifactId>org.eclipse.core.runtime</artifactId>
-            <version>${org.eclipse.core.runtime.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.birt.runtime</groupId>
             <artifactId>org.eclipse.equinox.common</artifactId>
-            <version>${org.eclipse.equinox.common.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.core</groupId>
             <artifactId>contenttype</artifactId>
-            <version>${org.eclipse.core.contenttype.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.text</groupId>
             <artifactId>org.eclipse.text</artifactId>
-            <version>${org.eclipse.text.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.tycho</groupId>
             <artifactId>org.eclipse.osgi</artifactId>
-            <version>${org.eclipse.osgi.version}</version>
         </dependency>
     </dependencies>
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>analyze</id>
+                        <configuration>
+                            <skip>true</skip>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>com.mycila</groupId>
                 <artifactId>license-maven-plugin</artifactId>

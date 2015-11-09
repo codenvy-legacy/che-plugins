@@ -24,65 +24,61 @@
     <dependencies>
         <dependency>
             <groupId>org.eclipse.birt.runtime</groupId>
+            <artifactId>org.eclipse.core.jobs</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.birt.runtime</groupId>
             <artifactId>org.eclipse.core.runtime</artifactId>
-            <version>${org.eclipse.core.runtime.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.birt.runtime</groupId>
             <artifactId>org.eclipse.equinox.common</artifactId>
-            <version>${org.eclipse.equinox.common.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.che.plugin</groupId>
-            <artifactId>che-plugin-java-jdt-core-repack</artifactId>
-            <version>${project.version}</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>org.eclipse.jdt.core</artifactId>
-                    <groupId>org.eclipse.tycho</groupId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.plugin</groupId>
             <artifactId>org.eclipse.core.filebuffers</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.plugin</groupId>
             <artifactId>org.eclipse.core.filesystem</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.plugin</groupId>
             <artifactId>org.eclipse.core.resources</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.core</groupId>
-            <artifactId>contenttype</artifactId>
-            <version>${org.eclipse.core.contenttype.version}</version>
+            <artifactId>org.eclipse.core.commands</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.equinox</groupId>
+            <artifactId>preferences</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.equinox</groupId>
+            <artifactId>registry</artifactId>
         </dependency>
         <dependency>
             <groupId>org.eclipse.text</groupId>
             <artifactId>org.eclipse.text</artifactId>
-            <version>${org.eclipse.text.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.tycho</groupId>
             <artifactId>org.eclipse.osgi</artifactId>
-            <version>${org.eclipse.osgi.version}</version>
         </dependency>
         <dependency>
             <groupId>org.mod4j.org.eclipse.core</groupId>
             <artifactId>expressions</artifactId>
-            <version>3.4.100</version>
             <exclusions>
                 <exclusion>
                     <artifactId>runtime</artifactId>
                     <groupId>org.mod4j.org.eclipse.core</groupId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
         </dependency>
     </dependencies>
     <build>

@@ -49,7 +49,7 @@ public class JavaClasspathService {
     public boolean update(@QueryParam("projectpath") final String projectPath) throws JavaModelException {
         IJavaProject javaProject = JAVA_MODEL.getJavaProject(projectPath);
         File dir = new File(ResourcesPlugin.getPathToWorkspace() + projectPath);
-        boolean success = generateClasspath(projectPath, dir);
+        boolean success = dependencyUpdateProcessor(projectPath, dir);
         if (success) {
             try {
                 IClasspathContainer container = MavenClasspathUtil.readMavenClasspath(javaProject);
@@ -65,28 +65,42 @@ public class JavaClasspathService {
         return success;
     }
 
-    private boolean generateClasspath(final String projectPath, File dir) {
+    private boolean dependencyUpdateProcessor(final String projectPath, File dir) {
+        String command = MavenUtils.getMavenExecCommand();
+
+        ProcessBuilder classPathProcessBuilder = new ProcessBuilder().command(command,
+                                                                              "dependency:build-classpath",
+                                                                              "-Dmdep.outputFile=.codenvy/classpath.maven")
+                                                                     .directory(dir)
+                                                                     .redirectErrorStream(true);
+
+        if (executeBuilderProcess(projectPath, classPathProcessBuilder)) {
+            ProcessBuilder sourcesProcessBuilder = new ProcessBuilder().command(command,
+                                                                                "dependency:sources",
+                                                                                "-Dclassifier=sources")
+                                                                       .directory(dir)
+                                                                       .redirectErrorStream(true);
+            return executeBuilderProcess(projectPath, sourcesProcessBuilder);
+        } else {
+            return false;
+        }
+    }
+
+    private boolean executeBuilderProcess(final String projectPath, ProcessBuilder processBuilder) {
         StreamPump output = null;
         Watchdog watcher = null;
         int timeout = 10; //10 minutes
         int result = -1;
-        String command = MavenUtils.getMavenExecCommand();
         try {
-            ProcessBuilder processBuilder =
-                    new ProcessBuilder().command(command, "dependency:build-classpath", "-Dmdep.outputFile=.codenvy/classpath.maven")
-                                        .directory(
-                                                dir).redirectErrorStream(true);
             Process process = processBuilder.start();
 
-            if (timeout > 0) {
-                watcher = new Watchdog("Maven classpath" + "-WATCHDOG", timeout, TimeUnit.MINUTES);
-                watcher.start(new CancellableProcessWrapper(process, new Cancellable.Callback() {
-                    @Override
-                    public void cancelled(Cancellable cancellable) {
-                        LOG.warn("Your build has been shutdown due to timeout. Project: " + projectPath);
-                    }
-                }));
-            }
+            watcher = new Watchdog("Maven classpath" + "-WATCHDOG", timeout, TimeUnit.MINUTES);
+            watcher.start(new CancellableProcessWrapper(process, new Cancellable.Callback() {
+                @Override
+                public void cancelled(Cancellable cancellable) {
+                    LOG.warn("Update dependency process has been shutdown due to timeout. Project: " + projectPath);
+                }
+            }));
             output = new StreamPump();
             output.start(process, LineConsumer.DEV_NULL);
             try {
