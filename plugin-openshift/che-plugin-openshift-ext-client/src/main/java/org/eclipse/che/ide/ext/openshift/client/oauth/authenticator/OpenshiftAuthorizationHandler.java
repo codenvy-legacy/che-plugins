@@ -11,6 +11,7 @@
 package org.eclipse.che.ide.ext.openshift.client.oauth.authenticator;
 
 import org.eclipse.che.api.auth.client.OAuthServiceClient;
+import org.eclipse.che.api.auth.shared.dto.OAuthToken;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 
 import javax.inject.Inject;
@@ -25,9 +26,9 @@ public class OpenshiftAuthorizationHandler {
 
     @Inject
     public OpenshiftAuthorizationHandler(OAuthServiceClient authServiceClient) {
-        authServiceClient.getToken("openshift", new AsyncRequestCallback<String>() {
+        authServiceClient.getToken("openshift", new AsyncRequestCallback<OAuthToken>() {
             @Override
-            protected void onSuccess(String result) {
+            protected void onSuccess(OAuthToken result) {
                 loggedIn = true;
             }
 
