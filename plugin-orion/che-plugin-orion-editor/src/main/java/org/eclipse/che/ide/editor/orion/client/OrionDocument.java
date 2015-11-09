@@ -237,4 +237,11 @@ public class OrionDocument extends AbstractEmbeddedDocument {
         final int end = selection.getEnd();
         return LinearRange.createWithStart(start).andEnd(end);
     }
+
+    /** {@inheritDoc} */
+    @Override
+    public void setSelectedRange(LinearRange range, boolean show) {
+        int startOffset = range.getStartOffset();
+        editorOverlay.setSelection(startOffset, startOffset + range.getLength(), show);
+    }
 }
