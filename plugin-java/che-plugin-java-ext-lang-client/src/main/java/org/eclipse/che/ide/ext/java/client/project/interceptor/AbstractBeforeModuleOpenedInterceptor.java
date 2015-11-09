@@ -20,6 +20,7 @@ import org.eclipse.che.ide.api.project.node.interceptor.NodeInterceptor;
 import org.eclipse.che.ide.ext.java.client.dependenciesupdater.DependenciesUpdater;
 import org.eclipse.che.ide.ext.java.client.project.node.JavaNodeManager;
 import org.eclipse.che.ide.project.node.ModuleDescriptorNode;
+import org.eclipse.che.ide.project.node.ProjectDescriptorNode;
 
 import java.util.List;
 
@@ -37,7 +38,8 @@ public abstract class AbstractBeforeModuleOpenedInterceptor implements NodeInter
     @Override
     public Promise<List<Node>> intercept(Node parent, List<Node> children) {
 
-        if (parent instanceof ModuleDescriptorNode && JavaNodeManager.isJavaProject(parent) && isValid(parent)) {
+        if ((parent instanceof ModuleDescriptorNode || parent instanceof ProjectDescriptorNode)
+            && JavaNodeManager.isJavaProject(parent) && isValid(parent)) {
             dependenciesUpdater.get().updateDependencies(((HasProjectDescriptor)parent).getProjectDescriptor());
         }
 
@@ -45,8 +47,8 @@ public abstract class AbstractBeforeModuleOpenedInterceptor implements NodeInter
     }
 
     @Override
-    public Integer weightOrder() {
-        return 53;
+    public int getPriority() {
+        return NORM_PRIORITY;
     }
 
     public abstract boolean isValid(Node node);

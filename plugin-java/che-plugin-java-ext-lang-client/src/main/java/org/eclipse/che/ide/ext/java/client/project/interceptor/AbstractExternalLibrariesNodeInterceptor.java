@@ -89,7 +89,7 @@ public abstract class AbstractExternalLibrariesNodeInterceptor implements NodeIn
     }
 
     @Override
-    public Integer weightOrder() {
-        return 50;
+    public int getPriority() {
+        return NORM_PRIORITY;
     }
 }

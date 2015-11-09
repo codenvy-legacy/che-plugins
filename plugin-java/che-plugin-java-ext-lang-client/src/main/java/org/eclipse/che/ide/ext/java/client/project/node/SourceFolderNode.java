@@ -57,7 +57,7 @@ public class SourceFolderNode extends FolderReferenceNode {
 
     @Override
     protected Promise<List<Node>> getChildrenImpl() {
-        return nodeManager.getChildren(getData(), getProjectDescriptor(), getSettings());
+        return nodeManager.getChildren(getStorablePath(), getProjectDescriptor(), getSettings());
     }
 
     @Override
