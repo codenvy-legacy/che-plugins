@@ -10,8 +10,8 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.panel;
 
-import elemental.events.KeyboardEvent;
-import elemental.events.MouseEvent;
+import com.google.gwt.event.logical.shared.SelectionEvent;
+import com.google.gwt.event.logical.shared.SelectionHandler;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.uibinder.client.UiBinder;
@@ -20,17 +20,26 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import org.eclipse.che.api.machine.shared.dto.MachineStateDto;
 import org.eclipse.che.ide.api.parts.PartStackUIResources;
 import org.eclipse.che.ide.api.parts.base.BaseView;
-import org.eclipse.che.ide.ui.tree.Tree;
-import org.eclipse.che.ide.ui.tree.TreeNodeElement;
-import org.eclipse.che.ide.util.input.SignalEvent;
+import org.eclipse.che.ide.api.project.node.Node;
+import org.eclipse.che.ide.api.project.node.interceptor.NodeInterceptor;
+
+import org.eclipse.che.ide.ui.smartTree.NodeUniqueKeyProvider;
+import org.eclipse.che.ide.ui.smartTree.Tree;
+import org.eclipse.che.ide.ui.smartTree.TreeNodeLoader;
+import org.eclipse.che.ide.ui.smartTree.TreeNodeStorage;
+import org.eclipse.che.ide.ui.smartTree.sorting.AlphabeticalFilter;
+
+import java.util.Set;
+
+import static org.eclipse.che.ide.ui.smartTree.SortDir.ASC;
 
 /**
  * Provides implementation of view to display machines on special panel.
  *
  * @author Dmitry Shnurenko
+ * @author Alexander Andrienko
  */
 @Singleton
 public class MachinePanelViewImpl extends BaseView<MachinePanelView.ActionDelegate> implements MachinePanelView {
@@ -40,93 +49,66 @@ public class MachinePanelViewImpl extends BaseView<MachinePanelView.ActionDelega
     private static final MachinePanelImplUiBinder UI_BINDER = GWT.create(MachinePanelImplUiBinder.class);
 
     @UiField(provided = true)
-    Tree<MachineTreeNode> tree;
+    Tree tree;
 
     @Inject
-    public MachinePanelViewImpl(org.eclipse.che.ide.Resources resources,
-                                PartStackUIResources partStackUIResources,
-                                MachineDataAdapter adapter,
-                                MachineTreeRenderer renderer) {
+    public MachinePanelViewImpl(PartStackUIResources partStackUIResources, final Set<NodeInterceptor> nodeInterceptorSet) {
         super(partStackUIResources);
 
-        tree = Tree.create(resources, adapter, renderer);
+        TreeNodeStorage nodeStorage = new TreeNodeStorage(new NodeUniqueKeyProvider() {
+            @Override
+            public String getKey(Node item) {
+                return item.getName();
+            }
+        });
+
+        tree = new Tree(nodeStorage, new TreeNodeLoader(nodeInterceptorSet));
 
         setContentWidget(UI_BINDER.createAndBindUi(this));
 
-        tree.setTreeEventHandler(new Tree.Listener<MachineTreeNode>() {
+        tree.getSelectionModel().addSelectionHandler(new SelectionHandler<Node>() {
             @Override
-            public void onNodeAction(TreeNodeElement<MachineTreeNode> node) {
-
-            }
-
-            @Override
-            public void onNodeClosed(TreeNodeElement<MachineTreeNode> node) {
-
-            }
-
-            @Override
-            public void onNodeContextMenu(int mouseX, int mouseY, TreeNodeElement<MachineTreeNode> node) {
-
-            }
-
-            @Override
-            public void onNodeDragStart(TreeNodeElement<MachineTreeNode> node, MouseEvent event) {
-
-            }
-
-            @Override
-            public void onNodeDragDrop(TreeNodeElement<MachineTreeNode> node, MouseEvent event) {
-
-            }
-
-            @Override
-            public void onNodeExpanded(TreeNodeElement<MachineTreeNode> node) {
-
-            }
-
-            @Override
-            public void onNodeSelected(TreeNodeElement<MachineTreeNode> node, SignalEvent event) {
-                Object selectedNode = node.getData().getData();
-
-                if (selectedNode instanceof MachineStateDto) {
-                    delegate.onMachineSelected((MachineStateDto)selectedNode);
+            public void onSelection(SelectionEvent<Node> event) {
+                Node selectedNode = event.getSelectedItem();
+                if (selectedNode instanceof MachineNode) {
+                    delegate.onMachineSelected(((MachineNode)selectedNode).getData());
                 }
             }
-
-            @Override
-            public void onRootContextMenu(int mouseX, int mouseY) {
-
-            }
-
-            @Override
-            public void onRootDragDrop(MouseEvent event) {
-
-            }
-
-            @Override
-            public void onKeyboard(KeyboardEvent event) {
-
-            }
         });
+        tree.getNodeStorage().addSortInfo(new TreeNodeStorage.StoreSortInfo(new AlphabeticalFilter(), ASC));
     }
 
     /** {@inheritDoc} */
     @Override
-    public void setData(MachineTreeNode root) {
-        tree.asWidget().setVisible(true);
-        tree.getModel().setRoot(root);
-        tree.renderTree(-1);
+    public void addNode(MachineNode node) {
+        tree.getNodeStorage().add(node);
     }
 
     /** {@inheritDoc} */
     @Override
-    public void selectNode(MachineTreeNode machineNode) {
+    public void selectNode(MachineNode machineNode) {
         if (machineNode == null) {
             return;
         }
 
-        tree.getSelectionModel().selectSingleNode(machineNode);
+        tree.getSelectionModel().select(machineNode, false);
+    }
 
-        delegate.onMachineSelected((MachineStateDto)machineNode.getData());
+    @Override
+    public void removeNode(MachineNode data) {
+        tree.getNodeStorage().remove(data);
+    }
+
+    @Override
+    public void clear() {
+        tree.getNodeStorage().clear();
+    }
+
+    @Override
+    public void selectFirst() {
+        Node selectFirst = tree.getNodeStorage().getFirstChild(null);
+        if (selectFirst instanceof MachineNode) {
+            selectNode((MachineNode)selectFirst);
+        }
     }
 }

@@ -13,12 +13,13 @@ package org.eclipse.che.ide.extension.machine.client.inject.factories;
 import com.google.inject.assistedinject.Assisted;
 
 import org.eclipse.che.api.machine.shared.dto.MachineDto;
+import org.eclipse.che.api.machine.shared.dto.MachineStateDto;
 import org.eclipse.che.api.machine.shared.dto.ServerDto;
 import org.eclipse.che.api.machine.shared.dto.recipe.RecipeDescriptor;
 import org.eclipse.che.commons.annotation.Nullable;
 import org.eclipse.che.ide.extension.machine.client.machine.Machine;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.appliance.server.Server;
-import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.panel.MachineTreeNode;
+import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.panel.MachineNode;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.recipe.editor.RecipeEditorPanel;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.Tab;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.container.TabContainerView.TabSelectHandler;
@@ -26,7 +27,6 @@ import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.cont
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.header.TabHeader;
 
 import javax.validation.constraints.NotNull;
-import java.util.Collection;
 
 /**
  * Special factory for creating entities.
@@ -78,15 +78,9 @@ public interface EntityFactory {
     /**
      * Creates machine node which will be displayed in special table on view.
      *
-     * @param parent
-     *         parent of creating node
      * @param data
      *         data of creating node
-     * @param children
-     *         children of creating node
-     * @return an instance of{@link MachineTreeNode}
+     * @return an instance of{@link MachineNode}
      */
-    MachineTreeNode createMachineNode(@Nullable MachineTreeNode parent,
-                                      @Assisted("data") Object data,
-                                      Collection<MachineTreeNode> children);
+    MachineNode createMachineNode(@Assisted MachineStateDto data);
 }

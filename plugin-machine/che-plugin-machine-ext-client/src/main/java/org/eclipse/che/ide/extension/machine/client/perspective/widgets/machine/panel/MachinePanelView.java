@@ -20,6 +20,7 @@ import org.eclipse.che.ide.api.parts.base.BaseActionDelegate;
  * Provides methods to control view representation of machine panel.
  *
  * @author Dmitry Shnurenko
+ * @author Alexander Andrienko
  */
 @ImplementedBy(MachinePanelViewImpl.class)
 public interface MachinePanelView extends View<MachinePanelView.ActionDelegate> {
@@ -30,7 +31,13 @@ public interface MachinePanelView extends View<MachinePanelView.ActionDelegate> 
      * @param root
      *         data which will be displayed
      */
-    void setData(MachineTreeNode root);
+    void addNode(MachineNode root);
+
+    void removeNode(MachineNode data);
+
+    void clear();
+
+    void selectFirst();
 
     /**
      * Calls special method which adds special styles to selected element.
@@ -38,7 +45,7 @@ public interface MachinePanelView extends View<MachinePanelView.ActionDelegate> 
      * @param machineNode
      *         node which will be selected
      */
-    void selectNode(MachineTreeNode machineNode);
+    void selectNode(MachineNode machineNode);
 
     void setVisible(boolean visible);
 

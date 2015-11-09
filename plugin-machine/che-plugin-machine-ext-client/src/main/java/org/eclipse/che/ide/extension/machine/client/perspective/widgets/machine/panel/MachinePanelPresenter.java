@@ -18,14 +18,13 @@ import com.google.inject.Singleton;
 import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
-import org.eclipse.che.api.machine.gwt.client.events.ExtServerStateEvent;
-import org.eclipse.che.api.machine.gwt.client.events.ExtServerStateHandler;
 import org.eclipse.che.api.machine.shared.dto.MachineDto;
 import org.eclipse.che.api.machine.shared.dto.MachineStateDto;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.api.promises.client.PromiseError;
+import org.eclipse.che.api.workspace.shared.dto.UsersWorkspaceDto;
 import org.eclipse.che.commons.annotation.Nullable;
 import org.eclipse.che.ide.api.parts.base.BasePresenter;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
@@ -37,10 +36,14 @@ import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStarti
 import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateEvent;
 import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateHandler;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.appliance.MachineAppliancePresenter;
+import org.eclipse.che.ide.util.loging.Log;
+import org.eclipse.che.ide.workspace.start.StartWorkspaceEvent;
+import org.eclipse.che.ide.workspace.start.StartWorkspaceHandler;
+import org.eclipse.che.ide.workspace.start.StopWorkspaceEvent;
+import org.eclipse.che.ide.workspace.start.StopWorkspaceHandler;
 import org.vectomatic.dom.svg.ui.SVGResource;
 
 import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,11 +53,13 @@ import java.util.Map;
  *
  * @author Dmitry Shnurenko
  * @author Artem Zatsarynnyy
+ * @author Alexander Andrienko
  */
 @Singleton
 public class MachinePanelPresenter extends BasePresenter implements MachinePanelView.ActionDelegate,
                                                                     MachineStateHandler,
-                                                                    ExtServerStateHandler,
+                                                                    StartWorkspaceHandler,
+                                                                    StopWorkspaceHandler,
                                                                     MachineStartingHandler {
     private final MachinePanelView                      view;
     private final MachineServiceClient                  service;
@@ -62,10 +67,8 @@ public class MachinePanelPresenter extends BasePresenter implements MachinePanel
     private final MachineLocalizationConstant           locale;
     private final MachineAppliancePresenter             appliance;
     private final MachineResources                      resources;
-    private final Map<MachineStateDto, MachineTreeNode> existingMachineNodes;
+    private final Map<MachineStateDto, MachineNode>     existingMachineNodes;
     private final Map<MachineStateDto, Machine>         cachedMachines;
-    private final MachineTreeNode                       rootNode;
-    private final List<MachineTreeNode>                 rootChildren;
 
     private MachineStateDto selectedMachineState;
     private boolean         isMachineRunning;
@@ -87,14 +90,12 @@ public class MachinePanelPresenter extends BasePresenter implements MachinePanel
         this.appliance = appliance;
         this.resources = resources;
 
-        this.rootChildren = new ArrayList<>();
-        this.rootNode = entityFactory.createMachineNode(null, "root", rootChildren);
-
         this.existingMachineNodes = new HashMap<>();
         this.cachedMachines = new HashMap<>();
 
         eventBus.addHandler(MachineStateEvent.TYPE, this);
-        eventBus.addHandler(ExtServerStateEvent.TYPE, this);
+        eventBus.addHandler(StartWorkspaceEvent.TYPE, this);
+        eventBus.addHandler(StopWorkspaceEvent.TYPE, this);
         eventBus.addHandler(MachineStartingEvent.TYPE, this);
     }
 
@@ -105,42 +106,28 @@ public class MachinePanelPresenter extends BasePresenter implements MachinePanel
         return machinesPromise.then(new Operation<List<MachineStateDto>>() {
             @Override
             public void apply(List<MachineStateDto> machineStates) throws OperationException {
+                view.clear();
                 if (machineStates.isEmpty()) {
                     appliance.showStub(locale.unavailableMachineInfo());
 
                     return;
                 }
 
-                rootChildren.clear();
-
                 for (MachineStateDto machineState : machineStates) {
                     addNodeToTree(machineState);
                 }
 
-                view.setData(rootNode);
-
-                selectFirstNode();
+                view.selectFirst();
             }
         });
     }
 
     private void addNodeToTree(MachineStateDto machineState) {
-        MachineTreeNode machineNode = entityFactory.createMachineNode(rootNode, machineState, null);
-
+        MachineNode machineNode = entityFactory.createMachineNode(machineState);
         existingMachineNodes.put(machineState, machineNode);
-
-        if (!rootChildren.contains(machineNode)) {
-            rootChildren.add(machineNode);
-        }
+        view.addNode(machineNode);
     }
 
-    private void selectFirstNode() {
-        if (!rootChildren.isEmpty()) {
-            MachineTreeNode firstNode = rootChildren.get(0);
-
-            view.selectNode(firstNode);
-        }
-    }
 
     /** Returns selected machine state. */
     public MachineStateDto getSelectedMachineState() {
@@ -226,13 +213,14 @@ public class MachinePanelPresenter extends BasePresenter implements MachinePanel
 
     /** {@inheritDoc} */
     @Override
-    public void onExtServerStarted(ExtServerStateEvent event) {
+    public void onWorkspaceStarted(UsersWorkspaceDto workspace) {
         showMachines();
     }
 
     /** {@inheritDoc} */
     @Override
-    public void onExtServerStopped(ExtServerStateEvent event) {
+    public void onWorkspaceStopped(UsersWorkspaceDto workspace) {
+        showMachines();
     }
 
     /** {@inheritDoc} */
@@ -244,9 +232,7 @@ public class MachinePanelPresenter extends BasePresenter implements MachinePanel
 
         addNodeToTree(selectedMachineState);
 
-        view.setData(rootNode);
-
-        view.selectNode(existingMachineNodes.get(event.getMachineState()));
+        view.selectNode(existingMachineNodes.get(selectedMachineState));
     }
 
     /** {@inheritDoc} */
@@ -264,14 +250,13 @@ public class MachinePanelPresenter extends BasePresenter implements MachinePanel
     public void onMachineDestroyed(MachineStateEvent event) {
         MachineStateDto machineState = event.getMachineState();
 
-        MachineTreeNode deletedNode = existingMachineNodes.get(machineState);
+        MachineNode deletedNode = existingMachineNodes.get(machineState);
 
-        rootChildren.remove(deletedNode);
         existingMachineNodes.remove(machineState);
+        cachedMachines.remove(machineState);
+        view.removeNode(deletedNode);
 
-        view.setData(rootNode);
-
-        selectFirstNode();
+        view.selectFirst();
     }
 
     /** Returns <code>true</code> if selected machine running, and <code>false</code> if selected machine isn't running */
