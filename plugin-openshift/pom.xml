@@ -28,8 +28,4 @@
         <module>che-plugin-openshift-ext-server</module>
         <module>che-plugin-openshift-ext-client</module>
     </modules>
-    <properties>
-        <!-- TODO Move definition of version to che-depmgt project -->
-        <com.openshift.restclient.version>3.0.0.Final</com.openshift.restclient.version>
-    </properties>
 </project>
