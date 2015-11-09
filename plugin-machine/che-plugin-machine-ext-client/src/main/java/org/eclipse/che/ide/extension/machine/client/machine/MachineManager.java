@@ -210,6 +210,7 @@ public class MachineManager {
             @Override
             public void apply(MachineDto machineDto) throws OperationException {
                 appContext.setDevMachineId(machineId);
+                appContext.setProjectsRoot(machineDto.getMetadata().projectsRoot());
                 devMachine = entityFactory.createMachine(machineDto);
                 extServerStateController.initialize(devMachine.getWsServerExtensionsUrl() + "/" + appContext.getWorkspace().getId());
             }

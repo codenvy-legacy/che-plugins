@@ -120,23 +120,4 @@ public class CurrentProjectPathProviderTest {
 
         assertTrue(currentProjectPathProvider.getValue().isEmpty());
     }
-
-    @Test
-    public void shouldReturnValueAfterOpeningProject() throws Exception {
-        final String devMachineId = "dev1";
-        when(appContext.getDevMachineId()).thenReturn(devMachineId);
-        when(machineServiceClient.getMachine(anyString())).thenReturn(machinePromise);
-
-        final MachineMetadataDto machineMetadataMock = mock(MachineMetadataDto.class);
-        when(machineMetadataMock.projectsRoot()).thenReturn(PROJECTS_ROOT);
-        final MachineDto machineDescriptorMock = mock(MachineDto.class);
-        when(machineDescriptorMock.getMetadata()).thenReturn(machineMetadataMock);
-        when(machinePromise.then(Matchers.<Operation<MachineDto>>anyObject())).thenReturn(machinePromise);
-
-        currentProjectPathProvider.onProjectReady(mock(ProjectReadyEvent.class));
-
-        verify(machinePromise).then(machineCaptor.capture());
-        machineCaptor.getValue().apply(machineDescriptorMock);
-        assertThat(currentProjectPathProvider.getValue(), equalTo(PROJECTS_ROOT + PROJECT_PATH));
-    }
 }

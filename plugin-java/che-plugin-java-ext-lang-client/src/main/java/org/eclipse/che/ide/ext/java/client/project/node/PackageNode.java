@@ -49,7 +49,7 @@ public class PackageNode extends FolderReferenceNode {
     @NotNull
     @Override
     protected Promise<List<Node>> getChildrenImpl() {
-        return nodeManager.getChildren(getData(),
+        return nodeManager.getChildren(getStorablePath(),
                                        getProjectDescriptor(),
                                        getSettings());
     }
@@ -68,44 +68,65 @@ public class PackageNode extends FolderReferenceNode {
     public String getDisplayFqn() {
         Node parent = getParent();
 
-        if (parent != null && parent instanceof HasStorablePath) {
-            String parentPath = ((HasStorablePath)parent).getStorablePath();
-            String pkgPath = getStorablePath();
-
-            String fqnPath = pkgPath.replaceFirst(parentPath, "");
-            if (fqnPath.startsWith("/")) {
-                fqnPath = fqnPath.substring(1);
-            }
-
-            fqnPath = fqnPath.replaceAll("/", ".");
-            return fqnPath;
+        if (parent == null) {
+            return getQualifiedName();
         }
 
-        return getData().getPath();
+        if (parent instanceof PackageNode) {
+            String parentFQN = ((PackageNode)parent).getQualifiedName();
+
+            return getQualifiedName().startsWith(parentFQN) ? getQualifiedName().substring(parentFQN.length() + 1) : getQualifiedName();
+        } else if (parent instanceof SourceFolderNode) {
+            return getQualifiedName();
+        }
+
+        return "";
     }
 
     public String getQualifiedName() {
-        String fqn = "";
-
         Node parent = getParent();
+
+        SourceFolderNode srcFolderNode = null;
 
         while (parent != null) {
             if (parent instanceof SourceFolderNode) {
-                String parentStorablePath = ((FolderReferenceNode)parent).getStorablePath();
-                String currentStorablePath = getStorablePath();
-
-                fqn = currentStorablePath.substring(parentStorablePath.length() + 1).replace('/', '.');
+                srcFolderNode = (SourceFolderNode)parent;
                 break;
             }
 
             parent = parent.getParent();
         }
 
-        return fqn;
+        if (srcFolderNode == null) {
+            return "";
+        }
+
+        String rawFQN = getData().getPath();
+
+        if (!rawFQN.contains(srcFolderNode.getName())) {
+            return "";
+        }
+
+        rawFQN = rawFQN.substring(rawFQN.lastIndexOf(srcFolderNode.getName()) + srcFolderNode.getName().length());
+
+        if (rawFQN.startsWith("/")) {
+            rawFQN = rawFQN.substring(1);
+        }
+
+        return rawFQN.replace('/', '.');
     }
 
     @Override
     public RenameProcessor<ItemReference> getRenameProcessor() {
         return null;
+    }
+
+    @Override
+    public String getStorablePath() {
+        if (getParent() == null || !(getParent() instanceof HasStorablePath)) {
+            return getData().getPath();
+        }
+
+        return ((HasStorablePath)getParent()).getStorablePath() + "/" + getDisplayFqn().replace(".", "/");
     }
 }

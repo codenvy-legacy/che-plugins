@@ -12,15 +12,19 @@ package org.eclipse.che.ide.ext.git.client.delete;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.api.git.gwt.client.GitServiceClient;
+import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
+import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
+import org.eclipse.che.ide.api.event.project.ProjectUpdatedEvent;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.ext.git.client.GitLocalizationConstant;
-import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.eclipse.che.ide.ext.git.client.GitOutputPartPresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
+import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 
 /**
  * Delete repository command handler, performs deleting Git repository.
@@ -29,11 +33,13 @@ import org.eclipse.che.ide.rest.AsyncRequestCallback;
  */
 @Singleton
 public class DeleteRepositoryPresenter {
-    private       GitServiceClient         service;
-    private       GitLocalizationConstant  constant;
-    private       AppContext               appContext;
-    private       NotificationManager      notificationManager;
-    private final ProjectExplorerPresenter projectExplorer;
+    private       GitServiceClient        service;
+    private       GitLocalizationConstant constant;
+    private       AppContext              appContext;
+    private       NotificationManager     notificationManager;
+    private final ProjectServiceClient    projectService;
+    private final DtoUnmarshallerFactory  dtoUnmarshaller;
+    private final EventBus                eventBus;
     private final GitOutputPartPresenter  console;
 
     /**
@@ -50,13 +56,17 @@ public class DeleteRepositoryPresenter {
                                      GitOutputPartPresenter console,
                                      AppContext appContext,
                                      NotificationManager notificationManager,
-                                     ProjectExplorerPresenter projectExplorer) {
+                                     ProjectServiceClient projectService,
+                                     DtoUnmarshallerFactory dtoUnmarshaller,
+                                     EventBus eventBus) {
         this.service = service;
         this.constant = constant;
         this.console = console;
         this.appContext = appContext;
         this.notificationManager = notificationManager;
-        this.projectExplorer = projectExplorer;
+        this.projectService = projectService;
+        this.dtoUnmarshaller = dtoUnmarshaller;
+        this.eventBus = eventBus;
     }
 
     /** Delete Git repository. */
@@ -65,12 +75,9 @@ public class DeleteRepositoryPresenter {
         service.deleteRepository(project.getRootProject(), new AsyncRequestCallback<Void>() {
             @Override
             protected void onSuccess(Void result) {
-                project.getRootProject().getAttributes().get("vcs.provider.name").clear();
-
                 console.printInfo(constant.deleteGitRepositorySuccess());
                 notificationManager.showInfo(constant.deleteGitRepositorySuccess());
-                //it's need for hide .git in project tree
-                projectExplorer.reloadChildren();
+                getRootProject(project.getRootProject());
             }
 
             @Override
@@ -79,5 +86,20 @@ public class DeleteRepositoryPresenter {
                 notificationManager.showError(exception.getMessage());
             }
         });
+    }
+
+    private void getRootProject(final ProjectDescriptor descriptor) {
+        projectService.getProject(descriptor.getPath(),
+                                  new AsyncRequestCallback<ProjectDescriptor>(dtoUnmarshaller.newUnmarshaller(ProjectDescriptor.class)) {
+                                      @Override
+                                      protected void onSuccess(ProjectDescriptor result) {
+                                          eventBus.fireEvent(new ProjectUpdatedEvent(descriptor.getPath(), result));
+                                      }
+
+                                      @Override
+                                      protected void onFailure(Throwable exception) {
+
+                                      }
+                                  });
     }
 }

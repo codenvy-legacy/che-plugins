@@ -13,14 +13,19 @@ package org.eclipse.che.ide.ext.git.client.init;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.google.web.bindery.event.shared.EventBus;
 
+import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
+import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
+import org.eclipse.che.ide.api.event.project.ProjectUpdatedEvent;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.ext.git.client.GitLocalizationConstant;
 import org.eclipse.che.ide.ext.git.client.GitOutputPartPresenter;
 import org.eclipse.che.ide.ext.git.client.GitRepositoryInitializer;
-import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
+import org.eclipse.che.ide.rest.AsyncRequestCallback;
+import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.util.loging.Log;
 
 import javax.validation.constraints.NotNull;
@@ -34,7 +39,9 @@ import javax.validation.constraints.NotNull;
 @Singleton
 public class InitRepositoryPresenter {
     private final GitRepositoryInitializer gitRepositoryInitializer;
-    private final ProjectExplorerPresenter projectExplorer;
+    private final ProjectServiceClient     projectService;
+    private final DtoUnmarshallerFactory   dtoUnmarshaller;
+    private final EventBus                 eventBus;
     private final AppContext               appContext;
     private final GitLocalizationConstant  constant;
     private final GitOutputPartPresenter   console;
@@ -46,13 +53,17 @@ public class InitRepositoryPresenter {
                                    GitOutputPartPresenter console,
                                    NotificationManager notificationManager,
                                    GitRepositoryInitializer gitRepositoryInitializer,
-                                   ProjectExplorerPresenter projectExplorer) {
+                                   ProjectServiceClient projectService,
+                                   DtoUnmarshallerFactory dtoUnmarshaller,
+                                   EventBus eventBus) {
         this.appContext = appContext;
         this.constant = constant;
         this.console = console;
         this.notificationManager = notificationManager;
         this.gitRepositoryInitializer = gitRepositoryInitializer;
-        this.projectExplorer = projectExplorer;
+        this.projectService = projectService;
+        this.dtoUnmarshaller = dtoUnmarshaller;
+        this.eventBus = eventBus;
     }
 
     public void initRepository() {
@@ -73,8 +84,7 @@ public class InitRepositoryPresenter {
             public void onSuccess(Void result) {
                 console.printInfo(constant.initSuccess());
                 notificationManager.showInfo(constant.initSuccess());
-                //it's need for show .git in project tree
-                projectExplorer.reloadChildren();
+                getRootProject(currentProject.getRootProject());
             }
         });
     }
@@ -89,5 +99,20 @@ public class InitRepositoryPresenter {
         String errorMessage = (e.getMessage() != null && !e.getMessage().isEmpty()) ? e.getMessage() : constant.initFailed();
         console.printError(errorMessage);
         notificationManager.showError(errorMessage);
+    }
+
+    private void getRootProject(final ProjectDescriptor descriptor) {
+        projectService.getProject(descriptor.getPath(),
+                                  new AsyncRequestCallback<ProjectDescriptor>(dtoUnmarshaller.newUnmarshaller(ProjectDescriptor.class)) {
+                                      @Override
+                                      protected void onSuccess(ProjectDescriptor result) {
+                                          eventBus.fireEvent(new ProjectUpdatedEvent(descriptor.getPath(), result));
+                                      }
+
+                                      @Override
+                                      protected void onFailure(Throwable exception) {
+
+                                      }
+                                  });
     }
 }

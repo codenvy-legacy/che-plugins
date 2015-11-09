@@ -48,7 +48,7 @@ public class PomNodeInterceptor implements NodeInterceptor {
     }
 
     @Override
-    public Integer weightOrder() {
-        return 0;
+    public int getPriority() {
+        return MAX_PRIORITY;
     }
 }

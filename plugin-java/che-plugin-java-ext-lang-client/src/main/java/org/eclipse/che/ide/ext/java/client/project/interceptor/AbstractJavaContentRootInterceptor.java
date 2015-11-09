@@ -107,7 +107,7 @@ public abstract class AbstractJavaContentRootInterceptor implements NodeIntercep
     public abstract String getResourceFolderAttribute();
 
     @Override
-    public Integer weightOrder() {
-        return 1;
+    public int getPriority() {
+        return MAX_PRIORITY;
     }
 }

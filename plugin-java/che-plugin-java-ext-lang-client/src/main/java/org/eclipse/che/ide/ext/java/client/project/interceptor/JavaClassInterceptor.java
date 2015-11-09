@@ -51,8 +51,8 @@ public class JavaClassInterceptor implements NodeInterceptor {
     }
 
     @Override
-    public Integer weightOrder() {
-        return 52;
+    public int getPriority() {
+        return NORM_PRIORITY;
     }
 
     private Function<Node, Node> intercept(final Node parent) {
