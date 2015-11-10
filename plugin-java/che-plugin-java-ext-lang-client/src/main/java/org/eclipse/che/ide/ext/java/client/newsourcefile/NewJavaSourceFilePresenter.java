@@ -187,7 +187,7 @@ public class NewJavaSourceFilePresenter implements NewJavaSourceFileView.ActionD
     private String getPackageQualifier(FolderReferenceNode parent, String packageFragment) {
         String packageFQN = "";
         if (parent instanceof PackageNode) {
-            packageFQN = ((PackageNode)parent).getQualifiedName();
+            packageFQN = ((PackageNode)parent).getPackage();
         }
         if (!packageFragment.isEmpty()) {
             packageFQN = packageFQN.isEmpty() ? packageFragment : packageFQN + '.' + packageFragment;

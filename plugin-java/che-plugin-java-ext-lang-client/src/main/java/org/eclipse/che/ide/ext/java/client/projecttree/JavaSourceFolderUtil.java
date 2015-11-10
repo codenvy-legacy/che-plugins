@@ -103,7 +103,7 @@ public class JavaSourceFolderUtil {
         String packageName = "";
         if (file instanceof JavaFileNode) {
             if (((JavaFileNode)file).getParent() instanceof PackageNode) {
-                packageName = ((PackageNode)((JavaFileNode)file).getParent()).getQualifiedName();
+                packageName = ((PackageNode)((JavaFileNode)file).getParent()).getPackage();
             }
             if (!packageName.isEmpty()) {
                 packageName = packageName + ".";
