@@ -25,7 +25,7 @@ import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.ext.openshift.client.OpenshiftLocalizationConstant;
 import org.eclipse.che.ide.ext.openshift.client.OpenshiftServiceClient;
-import org.eclipse.che.ide.ext.openshift.client.oauth.authenticator.OpenshiftAuthorizationHandler;
+import org.eclipse.che.ide.ext.openshift.client.oauth.OpenshiftAuthorizationHandler;
 import org.eclipse.che.ide.ext.openshift.shared.dto.Build;
 import org.eclipse.che.ide.ext.openshift.shared.dto.BuildConfig;
 

@@ -18,7 +18,7 @@ import org.eclipse.che.ide.api.action.AbstractPerspectiveAction;
 import org.eclipse.che.ide.api.action.ActionEvent;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
-import org.eclipse.che.ide.ext.openshift.client.oauth.authenticator.OpenshiftAuthorizationHandler;
+import org.eclipse.che.ide.ext.openshift.client.oauth.OpenshiftAuthorizationHandler;
 import org.eclipse.che.ide.ext.openshift.client.url.ShowApplicationUrlPresenter;
 
 import javax.validation.constraints.NotNull;

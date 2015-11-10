@@ -8,7 +8,7 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.ide.ext.openshift.client.oauth.authenticator;
+package org.eclipse.che.ide.ext.openshift.client.oauth;
 
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -29,7 +29,7 @@ import javax.validation.constraints.NotNull;
 /**
  * @author Sergii Leschenko
  */
-public class OpenshiftAuthenticatorImpl implements OpenshiftAuthenticator, OAuthCallback {
+public class OpenshiftAuthenticator implements OAuthCallback {
     private final OpenshiftLocalizationConstant locale;
     private final String                        baseUrl;
     private final AppContext                    appContext;
@@ -37,23 +37,22 @@ public class OpenshiftAuthenticatorImpl implements OpenshiftAuthenticator, OAuth
     private       AsyncCallback<OAuthStatus>    callback;
 
     @Inject
-    public OpenshiftAuthenticatorImpl(OpenshiftLocalizationConstant locale,
-                                      @RestContext String baseUrl,
-                                      AppContext appContext,
-                                      DialogFactory dialogFactory) {
+    public OpenshiftAuthenticator(OpenshiftLocalizationConstant locale,
+                                  @RestContext String baseUrl,
+                                  AppContext appContext,
+                                  DialogFactory dialogFactory) {
         this.locale = locale;
         this.baseUrl = baseUrl;
         this.appContext = appContext;
         this.dialogFactory = dialogFactory;
     }
 
-    @Override
     public void authorize(@NotNull final AsyncCallback<OAuthStatus> callback) {
         this.callback = callback;
         dialogFactory.createConfirmDialog(locale.authorizationRequestTitle(), locale.authorizationRequestMessage(), new ConfirmCallback() {
             @Override
             public void accepted() {
-                JsOAuthWindow authWindow = new JsOAuthWindow(getAuthUrl(), "error.url", 500, 980, OpenshiftAuthenticatorImpl.this);
+                JsOAuthWindow authWindow = new JsOAuthWindow(getAuthUrl(), "error.url", 500, 980, OpenshiftAuthenticator.this);
                 authWindow.loginWithOAuth();
             }
         }, new CancelCallback() {
