@@ -185,7 +185,7 @@ public class LinkProjectWithExistingApplicationPresenter implements LinkProjectW
         attributes.put(OpenshiftProjectTypeConstants.OPENSHIFT_NAMESPACE_VARIABLE_NAME, Arrays.asList(
                 buildConfig.getMetadata().getNamespace()));
         ProjectUpdate updateProject = dtoFactory.createDto(ProjectUpdate.class)
-                                                .withMixinTypes(mixins)
+                                                .withMixins(mixins)
                                                 .withType(appContext.getCurrentProject().getProjectDescription().getType())
                                                 .withAttributes(attributes);
 
