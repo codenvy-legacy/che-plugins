@@ -92,6 +92,11 @@ public class Project extends Container implements IProject {
     }
 
     @Override
+    public String getName() {
+        return path.toOSString().substring(1);
+    }
+
+    @Override
     public IProjectDescription getDescription() throws CoreException {
         return new IProjectDescription() {
             @Override
