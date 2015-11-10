@@ -21,7 +21,7 @@ public class FQNComparator extends FoldersOnTopFilter {
     @Override
     public int compare(Node o1, Node o2) {
         if (o1 instanceof PackageNode && o2 instanceof PackageNode) {
-            return ((PackageNode)o1).getDisplayFqn().compareTo(((PackageNode)o2).getDisplayFqn());
+            return ((PackageNode)o1).getDisplayPackage().compareTo(((PackageNode)o2).getDisplayPackage());
         }
 
         return super.compare(o1, o2);

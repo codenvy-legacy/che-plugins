@@ -46,6 +46,7 @@ public class PackageNode extends FolderReferenceNode {
         this.nodeManager = nodeManager;
     }
 
+    /** {@inheritDoc} */
     @NotNull
     @Override
     protected Promise<List<Node>> getChildrenImpl() {
@@ -54,79 +55,83 @@ public class PackageNode extends FolderReferenceNode {
                                        getSettings());
     }
 
+    /** {@inheritDoc} */
     @Override
     public void updatePresentation(@NotNull NodePresentation presentation) {
-        presentation.setPresentableText(getDisplayFqn());
+        presentation.setPresentableText(getDisplayPackage());
         presentation.setPresentableIcon(nodeManager.getJavaNodesResources().packageIcon());
     }
 
+    /** {@inheritDoc} */
     @Override
     public String getName() {
-        return getDisplayFqn();
+        return getPackage();
     }
 
-    public String getDisplayFqn() {
-        Node parent = getParent();
+    /**
+     * Return full FQN name for the package. E.g. a.b.c.d
+     *
+     * @return FQN name for the package
+     */
+    public String getPackage() {
+        final SourceFolderNode sourceFolder = getSourceFolder();
+        final String sourcePath = sourceFolder.getStorablePath();
+        String path = "";
 
-        if (parent == null) {
-            return getQualifiedName();
+        if (getData().getPath().startsWith(sourcePath + "/")) {
+            path = getData().getPath().substring(sourcePath.length() + 1);
         }
 
-        if (parent instanceof PackageNode) {
-            String parentFQN = ((PackageNode)parent).getQualifiedName();
-
-            return getQualifiedName().startsWith(parentFQN) ? getQualifiedName().substring(parentFQN.length() + 1) : getQualifiedName();
-        } else if (parent instanceof SourceFolderNode) {
-            return getQualifiedName();
-        }
-
-        return "";
+        return path.replace('/', '.');
     }
 
-    public String getQualifiedName() {
-        Node parent = getParent();
-
-        SourceFolderNode srcFolderNode = null;
-
-        while (parent != null) {
-            if (parent instanceof SourceFolderNode) {
-                srcFolderNode = (SourceFolderNode)parent;
-                break;
-            }
-
-            parent = parent.getParent();
+    /**
+     * Return display FQN for the package according to the parent. E.g. from package a.b.c.d will displayed only c.d
+     *
+     * @return partially displayed FQN name.
+     */
+    public String getDisplayPackage() {
+        if (getParent() == null || !(getParent() instanceof PackageNode)) {
+            return getPackage();
         }
 
-        if (srcFolderNode == null) {
-            return "";
-        }
+        PackageNode parent = (PackageNode)getParent();
 
-        String rawFQN = getData().getPath();
-
-        if (!rawFQN.contains(srcFolderNode.getName())) {
-            return "";
-        }
-
-        rawFQN = rawFQN.substring(rawFQN.lastIndexOf(srcFolderNode.getName()) + srcFolderNode.getName().length());
-
-        if (rawFQN.startsWith("/")) {
-            rawFQN = rawFQN.substring(1);
-        }
-
-        return rawFQN.replace('/', '.');
+        return getPackage().startsWith(parent.getPackage()) ? getPackage().substring(parent.getPackage().length() + 1) : getPackage();
     }
 
+    /** {@inheritDoc} */
     @Override
     public RenameProcessor<ItemReference> getRenameProcessor() {
         return null;
     }
 
+    /** {@inheritDoc} */
     @Override
     public String getStorablePath() {
         if (getParent() == null || !(getParent() instanceof HasStorablePath)) {
             return getData().getPath();
         }
 
-        return ((HasStorablePath)getParent()).getStorablePath() + "/" + getDisplayFqn().replace(".", "/");
+        return ((HasStorablePath)getParent()).getStorablePath() + "/" + getDisplayPackage().replace(".", "/");
+    }
+
+    /**
+     * Return source folder node in which package node exists.
+     *
+     * @return parent source folder node
+     */
+    public SourceFolderNode getSourceFolder() {
+        Node parent = getParent();
+
+        while (parent != null) {
+            if (parent instanceof SourceFolderNode) {
+                return (SourceFolderNode)parent;
+            }
+
+            parent = parent.getParent();
+        }
+
+        throw new IllegalStateException("Source directory wasn't bind to package.");
     }
 }
