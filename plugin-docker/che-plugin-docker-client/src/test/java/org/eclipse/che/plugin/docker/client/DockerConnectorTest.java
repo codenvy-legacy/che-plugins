@@ -14,10 +14,10 @@ import com.google.common.io.CharStreams;
 
 import org.eclipse.che.plugin.docker.client.connection.CloseConnectionInputStream;
 import org.eclipse.che.plugin.docker.client.connection.DockerConnection;
+import org.eclipse.che.plugin.docker.client.connection.DockerConnectionFactory;
 import org.eclipse.che.plugin.docker.client.connection.DockerResponse;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.mockito.testng.MockitoTestNGListener;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
@@ -33,7 +33,6 @@ import java.net.URI;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
 /**
@@ -45,7 +44,9 @@ public class DockerConnectorTest {
     @Mock
     private DockerConnectorConfiguration dockerConnectorConfiguration;
 
-    @Spy
+    @Mock
+    private DockerConnectionFactory dockerConnectionFactory;
+
     @InjectMocks
     private DockerConnector dockerConnector;
 
@@ -56,7 +57,7 @@ public class DockerConnectorTest {
 
     @BeforeMethod
     public void setup() throws IOException {
-        doReturn(dockerConnection).when(dockerConnector).openConnection(any(URI.class));
+        when(dockerConnectionFactory.openConnection(any(URI.class))).thenReturn(dockerConnection);
         when(dockerConnection.method(any())).thenReturn(dockerConnection);
         when(dockerConnection.entity(any(InputStream.class))).thenReturn(dockerConnection);
         when(dockerConnection.headers(any())).thenReturn(dockerConnection);

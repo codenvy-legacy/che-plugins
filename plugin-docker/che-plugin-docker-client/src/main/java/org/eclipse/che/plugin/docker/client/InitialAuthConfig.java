@@ -23,10 +23,9 @@ import java.util.Map;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 
-
 /**
  * Collects auth configurations for private docker registries. Credential might be configured in .properties files, see details {@link
- * org.eclipse.che.inject.CodenvyBootstrap}. Credentials configured as (key=value) pairs. Key is string that starts with prefix
+ * org.eclipse.che.inject.CheBootstrap}. Credentials configured as (key=value) pairs. Key is string that starts with prefix
  * {@code docker.registry.auth.} followed by url and credentials of docker registry server.
  * <pre>{@code
  * docker.registry.auth.url=localhost:5000
@@ -43,6 +42,10 @@ public class InitialAuthConfig {
     private static final String CONFIGURATION_PREFIX_PATTERN = "docker\\.registry\\.auth\\..+";
 
     AuthConfig predefinedConfig;
+
+    /** For testing purposes */
+    public InitialAuthConfig() {
+    }
 
     @Inject
     public InitialAuthConfig(ConfigurationProperties configurationProperties) {
@@ -76,7 +79,6 @@ public class InitialAuthConfig {
                                          .withEmail(email);
         }
     }
-
 
     public String getAuthConfigHeader() {
         if (predefinedConfig != null) {
