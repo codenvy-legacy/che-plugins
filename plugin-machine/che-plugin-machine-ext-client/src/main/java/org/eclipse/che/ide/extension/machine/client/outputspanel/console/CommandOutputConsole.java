@@ -122,6 +122,8 @@ public class CommandOutputConsole implements OutputConsole, OutputConsoleView.Ac
                             isFinished = true;
                             wsUnsubscribe(processStateChannel, this);
                             wsUnsubscribe(outputChannel, outputHandler);
+                            view.print(result.getError(), false);
+                            view.scrollBottom();
                     }
                 }
             }
