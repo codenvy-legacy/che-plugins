@@ -18,7 +18,7 @@ import org.eclipse.che.ide.api.filetypes.FileTypeRegistry;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.editor.orion.client.OrionEditorWidget;
 import org.eclipse.che.ide.editor.orion.client.OrionTextEditorFactory;
-import org.eclipse.che.ide.jseditor.client.document.EmbeddedDocument;
+import org.eclipse.che.ide.jseditor.client.document.Document;
 import org.eclipse.che.ide.jseditor.client.texteditor.EmbeddedTextEditorPresenter;
 import org.junit.Before;
 import org.junit.Test;
@@ -159,7 +159,7 @@ public class RecipeEditorPanelTest {
     @Test
     public void scriptShouldBeReturned() throws Exception {
         FileType fileType = mock(FileType.class);
-        EmbeddedDocument document = mock(EmbeddedDocument.class);
+        Document document = mock(Document.class);
         when(fileTypeRegistry.getFileTypeByFile(recipeFile)).thenReturn(fileType);
         when(editor.getDocument()).thenReturn(document);
 

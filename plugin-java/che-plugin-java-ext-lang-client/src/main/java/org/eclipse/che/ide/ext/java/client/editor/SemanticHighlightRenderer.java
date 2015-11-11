@@ -14,7 +14,7 @@ package org.eclipse.che.ide.ext.java.client.editor;
 import com.google.inject.Inject;
 
 import org.eclipse.che.ide.ext.java.shared.dto.HighlightedPosition;
-import org.eclipse.che.ide.jseditor.client.document.EmbeddedDocument;
+import org.eclipse.che.ide.jseditor.client.document.Document;
 import org.eclipse.che.ide.jseditor.client.text.TextPosition;
 import org.eclipse.che.ide.jseditor.client.text.TextRange;
 import org.eclipse.che.ide.jseditor.client.texteditor.HasTextMarkers;
@@ -32,8 +32,8 @@ import java.util.Map;
  */
 public class SemanticHighlightRenderer {
 
-    private HasTextMarkers   editor;
-    private EmbeddedDocument document;
+    private HasTextMarkers editor;
+    private Document       document;
     private Map<String, String>                     styleMap = new HashMap<>();
     private List<HasTextMarkers.MarkerRegistration> markers  = new ArrayList<>();
 
@@ -49,7 +49,7 @@ public class SemanticHighlightRenderer {
         styleMap.put(HighlightedPosition.TYPE_VARIABLE, css.typeParameter());
     }
 
-    public void init(HasTextMarkers editor, final EmbeddedDocument document) {
+    public void init(HasTextMarkers editor, final Document document) {
         this.editor = editor;
         this.document = document;
     }

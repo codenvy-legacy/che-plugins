@@ -37,7 +37,7 @@ import org.eclipse.che.ide.ext.java.shared.dto.refactoring.LinkedRenameRefactori
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringResult;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatusEntry;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RenameRefactoringSession;
-import org.eclipse.che.ide.jseditor.client.document.EmbeddedDocument;
+import org.eclipse.che.ide.jseditor.client.document.Document;
 import org.eclipse.che.ide.jseditor.client.link.HasLinkedMode;
 import org.eclipse.che.ide.jseditor.client.link.LinkedMode;
 import org.eclipse.che.ide.jseditor.client.link.LinkedModel;
@@ -161,7 +161,7 @@ public class JavaRefactoringRenameTest {
     private LinkedModel editorLinkedModel;
 
     @Mock
-    private EmbeddedDocument document;
+    private Document document;
 
     @Mock
     private IdeLoader loader;

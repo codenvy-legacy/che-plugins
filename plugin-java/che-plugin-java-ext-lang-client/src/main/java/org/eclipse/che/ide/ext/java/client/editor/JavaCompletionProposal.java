@@ -27,7 +27,7 @@ import org.eclipse.che.ide.ext.java.shared.dto.Region;
 import org.eclipse.che.ide.jseditor.client.codeassist.Completion;
 import org.eclipse.che.ide.jseditor.client.codeassist.CompletionProposal;
 import org.eclipse.che.ide.jseditor.client.codeassist.CompletionProposalExtension;
-import org.eclipse.che.ide.jseditor.client.document.EmbeddedDocument;
+import org.eclipse.che.ide.jseditor.client.document.Document;
 import org.eclipse.che.ide.jseditor.client.link.HasLinkedMode;
 import org.eclipse.che.ide.jseditor.client.link.LinkedMode;
 import org.eclipse.che.ide.jseditor.client.link.LinkedModel;
@@ -124,7 +124,7 @@ public class JavaCompletionProposal implements CompletionProposal, CompletionPro
 
         /** {@inheritDoc} */
         @Override
-        public void apply(final EmbeddedDocument document) {
+        public void apply(final Document document) {
             cursorOffset = document.getCursorOffset();
             for (final Change change : changes) {
                 document.replace(change.getOffset(), change.getLength(), change.getText());
@@ -161,7 +161,7 @@ public class JavaCompletionProposal implements CompletionProposal, CompletionPro
 
         /** {@inheritDoc} */
         @Override
-        public LinearRange getSelection(final EmbeddedDocument document) {
+        public LinearRange getSelection(final Document document) {
             if (region == null) {
                 //keep cursor location
                 return LinearRange.createWithStart(cursorOffset).andLength(0);
