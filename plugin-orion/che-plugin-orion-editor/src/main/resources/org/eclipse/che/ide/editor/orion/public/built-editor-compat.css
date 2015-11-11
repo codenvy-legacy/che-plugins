@@ -638,11 +638,11 @@
 }
 
 .annotationOverview.matchingSearch {
-    background-color: rgba(78,171,255,0.25);
+    background-color: rgba(78, 171, 255, 0.25);
 }
 
 .annotationOverview.currentSearch {
-    background-color: rgba(73,143,226,0.40);
+    background-color: rgba(73, 143, 226, 0.40);
     box-shadow: inset 0px 0px 0px 1px #4EABFF
 }
 

@@ -27,10 +27,10 @@ import org.eclipse.che.ide.ext.java.client.refactoring.RefactorInfo;
 import org.eclipse.che.ide.ext.java.client.refactoring.RefactoringUpdater;
 import org.eclipse.che.ide.ext.java.client.refactoring.preview.PreviewPresenter;
 import org.eclipse.che.ide.ext.java.client.refactoring.service.RefactoringServiceClient;
+import org.eclipse.che.ide.ext.java.shared.dto.model.JavaProject;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ChangeCreationResult;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.CreateMoveRefactoring;
-import org.eclipse.che.ide.ext.java.shared.dto.refactoring.JavaElement;
-import org.eclipse.che.ide.ext.java.shared.dto.refactoring.JavaProject;
+import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ElementToMove;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.MoveSettings;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringResult;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringSession;
@@ -99,7 +99,7 @@ public class MovePresenterTest {
     @Mock
     private RefactoringResult          refactoringResult;
     @Mock
-    private JavaElement                javaElement;
+    private ElementToMove              javaElement;
     @Mock
     private TextEditor                 activeEditor;
     @Mock
@@ -158,7 +158,7 @@ public class MovePresenterTest {
 
         when(editorAgent.getActiveEditor()).thenReturn(activeEditor);
         when(refactorInfo.getSelectedItems()).thenReturn(selectedItems);
-        when(dtoFactory.createDto(JavaElement.class)).thenReturn(javaElement);
+        when(dtoFactory.createDto(ElementToMove.class)).thenReturn(javaElement);
         when(dtoFactory.createDto(CreateMoveRefactoring.class)).thenReturn(moveRefactoring);
         when(dtoFactory.createDto(ReorgDestination.class)).thenReturn(destination);
         when(appContext.getCurrentProject()).thenReturn(currentProject);
@@ -351,7 +351,7 @@ public class MovePresenterTest {
         verify(refactoringResultPromise).then(refResultOperation.capture());
         refResultOperation.getValue().apply(refactoringResult);
         verify(moveView, never()).hide();
-        verify(refactoringUpdater , never()).updateAfterRefactoring(Matchers.<RefactorInfo>any(), anyList());
+        verify(refactoringUpdater, never()).updateAfterRefactoring(Matchers.<RefactorInfo>any(), anyList());
 
         verify(moveView).showErrorMessage(refactoringResult);
     }

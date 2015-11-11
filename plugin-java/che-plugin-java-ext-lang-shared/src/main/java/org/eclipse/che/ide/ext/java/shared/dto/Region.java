@@ -14,6 +14,8 @@ package org.eclipse.che.ide.ext.java.shared.dto;
 import org.eclipse.che.dto.shared.DTO;
 
 /**
+ * DTO represents some region(text range) in editor document.
+ *
  * @author Evgen Vidolob
  */
 @DTO
@@ -35,4 +37,7 @@ public interface Region {
 
     void setOffset(int offset);
 
+    Region withOffset(int offset);
+
+    Region withLength(int length);
 }

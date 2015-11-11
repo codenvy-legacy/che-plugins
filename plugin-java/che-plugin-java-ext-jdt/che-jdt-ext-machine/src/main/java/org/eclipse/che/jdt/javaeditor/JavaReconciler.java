@@ -74,7 +74,7 @@ public class JavaReconciler {
                 return null;
             }
             if (type.isBinary()) {
-                compilationUnit = type.getClassFile().getWorkingCopy(wcOwner, null);
+                throw new IllegalArgumentException("Can't reconcile binary type: " + fqn);
             } else {
                 compilationUnit = type.getCompilationUnit().getWorkingCopy(wcOwner, null);
             }

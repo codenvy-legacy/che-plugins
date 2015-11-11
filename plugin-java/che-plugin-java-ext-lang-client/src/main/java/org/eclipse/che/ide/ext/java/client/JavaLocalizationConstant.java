@@ -263,4 +263,13 @@ public interface JavaLocalizationConstant extends Messages {
 
     @Key("rename.operation.unavailable")
     String renameOperationUnavailable();
+
+    @Key("action.find.usages.title")
+    String actionFindUsagesTitle();
+
+    @Key("action.find.usages.description")
+    String actionFindUsagesDescription();
+
+    @Key("find.usages.part.title")
+    String findUsagesPartTitle();
 }

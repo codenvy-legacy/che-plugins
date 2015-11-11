@@ -42,13 +42,17 @@ import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.ui.JavaPlugin;
 import org.eclipse.jdt.internal.ui.util.CoreUtility;
+import org.eclipse.ui.dialogs.IOverwriteQuery;
+import org.eclipse.ui.wizards.datatransfer.ImportOperation;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.zip.ZipFile;
 
 
 /**
@@ -509,48 +513,48 @@ public class JavaProjectHelper {
         return root;
     }
 
-//	/**
-//	 * Adds a source container to a IJavaProject and imports all files contained
-//	 * in the given ZIP file.
-//	 * @param jproject The parent project
-//	 * @param containerName Name of the source container
-//	 * @param zipFile Archive to import
-//	 * @param containerEncoding encoding for the generated source container
-//	 * @return The handle to the new source container
-//	 * @throws InvocationTargetException Creation failed
-//	 * @throws CoreException Creation failed
-//	 * @throws IOException Creation failed
-//	 */
-//	public static IPackageFragmentRoot addSourceContainerWithImport(IJavaProject jproject, String containerName, File zipFile, String
-// containerEncoding) throws InvocationTargetException, CoreException, IOException {
-//		return addSourceContainerWithImport(jproject, containerName, zipFile, containerEncoding, new Path[0]);
-//	}
+    /**
+     * Adds a source container to a IJavaProject and imports all files contained
+     * in the given ZIP file.
+     * @param jproject The parent project
+     * @param containerName Name of the source container
+     * @param zipFile Archive to import
+     * @param containerEncoding encoding for the generated source container
+     * @return The handle to the new source container
+     * @throws InvocationTargetException Creation failed
+     * @throws CoreException Creation failed
+     * @throws IOException Creation failed
+     */
+    public static IPackageFragmentRoot addSourceContainerWithImport(IJavaProject jproject, String containerName, File zipFile, String
+            containerEncoding) throws InvocationTargetException, CoreException, IOException {
+        return addSourceContainerWithImport(jproject, containerName, zipFile, containerEncoding, new Path[0]);
+    }
 
-//	/**
-//	 * Adds a source container to a IJavaProject and imports all files contained
-//	 * in the given ZIP file.
-//	 * @param jproject The parent project
-//	 * @param containerName Name of the source container
-//	 * @param zipFile Archive to import
-//	 * @param containerEncoding encoding for the generated source container
-//	 * @param exclusionFilters Exclusion filters to set
-//	 * @return The handle to the new source container
-//	 * @throws InvocationTargetException Creation failed
-//	 * @throws CoreException Creation failed
-//	 * @throws IOException Creation failed
-//	 */
-//	public static IPackageFragmentRoot addSourceContainerWithImport(IJavaProject jproject, String containerName, File zipFile, String
-// containerEncoding, IPath[] exclusionFilters) throws InvocationTargetException, CoreException, IOException {
-//		ZipFile file= new ZipFile(zipFile);
-//		try {
-//			IPackageFragmentRoot root= addSourceContainer(jproject, containerName, exclusionFilters);
-//			((IContainer) root.getCorrespondingResource()).setDefaultCharset(containerEncoding, null);
-//			importFilesFromZip(file, root.getPath(), null);
-//			return root;
-//		} finally {
-//			file.close();
-//		}
-//	}
+    /**
+     * Adds a source container to a IJavaProject and imports all files contained
+     * in the given ZIP file.
+     * @param jproject The parent project
+     * @param containerName Name of the source container
+     * @param zipFile Archive to import
+     * @param containerEncoding encoding for the generated source container
+     * @param exclusionFilters Exclusion filters to set
+     * @return The handle to the new source container
+     * @throws InvocationTargetException Creation failed
+     * @throws CoreException Creation failed
+     * @throws IOException Creation failed
+     */
+    public static IPackageFragmentRoot addSourceContainerWithImport(IJavaProject jproject, String containerName, File zipFile, String
+            containerEncoding, IPath[] exclusionFilters) throws InvocationTargetException, CoreException, IOException {
+        ZipFile file = new ZipFile(zipFile);
+        try {
+            IPackageFragmentRoot root = addSourceContainer(jproject, containerName, exclusionFilters);
+            ((IContainer)root.getCorrespondingResource()).setDefaultCharset(containerEncoding, null);
+            importFilesFromZip(file, root.getPath(), null);
+            return root;
+        } finally {
+            file.close();
+        }
+    }
 
     /**
      * Removes a source folder from a IJavaProject.
@@ -866,15 +870,15 @@ public class JavaProjectHelper {
         proj.setDescription(description, monitor);
     }
 
-//	public static void importFilesFromZip(ZipFile srcZipFile, IPath destPath, IProgressMonitor monitor) throws InvocationTargetException {
-//		ZipFileStructureProvider structureProvider=	new ZipFileStructureProvider(srcZipFile);
-//		try {
-//			ImportOperation op= new ImportOperation(destPath, structureProvider.getRoot(), structureProvider, new ImportOverwriteQuery());
-//			op.run(monitor);
-//		} catch (InterruptedException e) {
-//			// should not happen
-//		}
-//	}
+    public static void importFilesFromZip(ZipFile srcZipFile, IPath destPath, IProgressMonitor monitor) throws InvocationTargetException {
+        ZipFileStructureProvider structureProvider = new ZipFileStructureProvider(srcZipFile);
+        try {
+            ImportOperation op = new ImportOperation(destPath, structureProvider.getRoot(), structureProvider, new ImportOverwriteQuery());
+            op.run(monitor);
+        } catch (InterruptedException e) {
+            // should not happen
+        }
+    }
 
 //	/**
 //	 * Imports resources from <code>bundleSourcePath</code> inside <code>bundle</code> into <code>importTarget</code>.
@@ -903,11 +907,11 @@ public class JavaProjectHelper {
 //		}
 //	}
 
-//	private static class ImportOverwriteQuery implements IOverwriteQuery {
-//		public String queryOverwrite(String file) {
-//			return ALL;
-//		}
-//	}
+    private static class ImportOverwriteQuery implements IOverwriteQuery {
+        public String queryOverwrite(String file) {
+            return ALL;
+        }
+    }
 
 	private static class Requestor extends TypeNameRequestor {
 	}

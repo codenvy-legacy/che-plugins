@@ -118,6 +118,10 @@
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.plugin</groupId>
+            <artifactId>org.eclipse.core.filesystem</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.che.plugin</groupId>
             <artifactId>org.eclipse.core.resources</artifactId>
         </dependency>
         <dependency>
@@ -139,6 +143,10 @@
         <dependency>
             <groupId>org.eclipse.equinox</groupId>
             <artifactId>registry</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.search</groupId>
+            <artifactId>org.eclipse.search</artifactId>
         </dependency>
         <dependency>
             <groupId>org.eclipse.text</groupId>

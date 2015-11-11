@@ -18,7 +18,7 @@ import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ChangeEnabledState;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ChangePreview;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.CreateMoveRefactoring;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.CreateRenameRefactoring;
-import org.eclipse.che.ide.ext.java.shared.dto.refactoring.JavaElement;
+import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ElementToMove;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.LinkedRenameRefactoringApply;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.MoveSettings;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringChange;
@@ -77,7 +77,7 @@ public class RefactoringService {
         IJavaProject javaProject = model.getJavaProject(cmr.getProjectPath());
         IJavaElement[] javaElements;
         try {
-            Function<JavaElement, IJavaElement> map = javaElement -> {
+            Function<ElementToMove, IJavaElement> map = javaElement -> {
                 try {
                     if (javaElement.isPack()) {
                         return javaProject.findPackageFragment(new org.eclipse.core.runtime.Path(javaElement.getPath()));

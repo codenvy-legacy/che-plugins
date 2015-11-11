@@ -21,9 +21,9 @@ import org.eclipse.che.ide.ext.java.shared.Jar;
 import org.eclipse.che.ide.ext.java.shared.JarEntry;
 import org.eclipse.che.ide.ext.java.shared.JarEntry.JarEntryType;
 import org.eclipse.che.ide.ext.java.shared.OpenDeclarationDescriptor;
-import org.eclipse.che.ide.ext.java.shared.dto.refactoring.JavaProject;
-import org.eclipse.che.ide.ext.java.shared.dto.refactoring.PackageFragment;
-import org.eclipse.che.ide.ext.java.shared.dto.refactoring.PackageFragmentRoot;
+import org.eclipse.che.ide.ext.java.shared.dto.model.JavaProject;
+import org.eclipse.che.ide.ext.java.shared.dto.model.PackageFragment;
+import org.eclipse.che.ide.ext.java.shared.dto.model.PackageFragmentRoot;
 import org.eclipse.che.jdt.javadoc.JavaElementLabels;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IClassFile;
@@ -672,7 +672,7 @@ public class JavaNavigation {
             if(child instanceof IPackageFragment){
                 IPackageFragment packageFragment = (IPackageFragment)child;
                 PackageFragment fragment = DtoFactory.newDto(PackageFragment.class);
-                fragment.setName(packageFragment.getElementName());
+                fragment.setElementName(packageFragment.getElementName());
                 fragment.setPath(packageFragment.getPath().toOSString());
                 fragment.setProjectPath(packageFragment.getJavaProject().getPath().toOSString());
                 result.add(fragment);

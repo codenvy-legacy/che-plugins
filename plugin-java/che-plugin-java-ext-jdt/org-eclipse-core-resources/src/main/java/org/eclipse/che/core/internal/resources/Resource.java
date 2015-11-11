@@ -419,7 +419,12 @@ public abstract class Resource implements IResource, IPathRequestor, ICoreConsta
             Assert.isLegal(false, path.toString());
         if (segments == 2)
             return workspace.getRoot().getProject(path.segment(0));
-        return (IFolder) workspace.newResource(path.removeLastSegments(1), IResource.FOLDER);
+        IPath parentPath = this.path.removeLastSegments(1);
+        ResourceInfo resourceInfo = workspace.getResourceInfo(parentPath);
+        if (resourceInfo == null) {
+            return null;
+        }
+        return (IContainer)workspace.newResource(parentPath, resourceInfo.getType());
     }
 
     @Override
@@ -434,7 +439,22 @@ public abstract class Resource implements IResource, IPathRequestor, ICoreConsta
 
     @Override
     public IProject getProject() {
-        return workspace.getRoot().getProject(path.segment(0));
+        if (this instanceof IProject) {
+            return (IProject)this;
+        }
+        IProject project = null;
+        IResource parent = getParent();
+        while (true) {
+            if (parent instanceof IProject) {
+                project = ((IProject)parent);
+                break;
+            }
+            if (parent == null) {
+                break;
+            }
+            parent = parent.getParent();
+        }
+        return project;//workspace.getRoot().getProject(path.segment(0));
     }
 
     @Override
@@ -691,7 +711,8 @@ public abstract class Resource implements IResource, IPathRequestor, ICoreConsta
 
     @Override
     public long setLocalTimeStamp(long value) throws CoreException {
-        throw new UnsupportedOperationException();
+//        throw new UnsupportedOperationException();
+        return  value;
     }
 
     @Override

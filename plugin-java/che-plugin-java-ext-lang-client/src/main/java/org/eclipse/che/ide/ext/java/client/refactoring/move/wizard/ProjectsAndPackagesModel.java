@@ -17,9 +17,9 @@ import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.gwt.view.client.TreeViewModel;
 
 import org.eclipse.che.ide.ext.java.client.JavaResources;
-import org.eclipse.che.ide.ext.java.shared.dto.refactoring.JavaProject;
-import org.eclipse.che.ide.ext.java.shared.dto.refactoring.PackageFragment;
-import org.eclipse.che.ide.ext.java.shared.dto.refactoring.PackageFragmentRoot;
+import org.eclipse.che.ide.ext.java.shared.dto.model.JavaProject;
+import org.eclipse.che.ide.ext.java.shared.dto.model.PackageFragment;
+import org.eclipse.che.ide.ext.java.shared.dto.model.PackageFragmentRoot;
 
 import java.util.List;
 
@@ -82,10 +82,10 @@ public class ProjectsAndPackagesModel implements TreeViewModel {
                                                                                                .getString())
                                                                   .appendEscaped(" ");
 
-                                                                if (value.getName().isEmpty()) {
+                                                                if (value.getElementName().isEmpty()) {
                                                                     sb.appendEscaped("(default package)");
                                                                 } else {
-                                                                    sb.appendEscaped(value.getName());
+                                                                    sb.appendEscaped(value.getElementName());
                                                                 }
                                                             }
                                                         }, selectionModel, null);

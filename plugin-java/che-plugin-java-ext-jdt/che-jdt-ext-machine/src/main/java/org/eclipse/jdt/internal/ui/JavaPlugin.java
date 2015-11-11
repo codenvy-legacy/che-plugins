@@ -14,12 +14,14 @@ package org.eclipse.jdt.internal.ui;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.internal.core.JavaCorePreferenceInitializer;
+import org.eclipse.che.jface.text.templates.ContextTypeRegistry;
+import org.eclipse.che.jface.text.templates.persistence.TemplateStore;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.internal.core.JavaCorePreferenceInitializer;
 import org.eclipse.jdt.internal.corext.format.CheCodeFormatterInitializer;
 import org.eclipse.jdt.internal.corext.template.java.AbstractJavaContextType;
 import org.eclipse.jdt.internal.corext.template.java.CodeTemplateContextType;
@@ -31,12 +33,12 @@ import org.eclipse.jdt.internal.ui.preferences.MembersOrderPreferenceCache;
 import org.eclipse.jdt.internal.ui.text.java.ContentAssistHistory;
 import org.eclipse.jdt.internal.ui.viewsupport.ImageDescriptorRegistry;
 import org.eclipse.jdt.ui.PreferenceConstants;
+import org.eclipse.jface.dialogs.DialogSettings;
+import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceStore;
-import org.eclipse.che.jface.text.templates.ContextTypeRegistry;
 import org.eclipse.jface.text.templates.TemplateContextType;
 import org.eclipse.jface.text.templates.TemplateVariableResolver;
-import org.eclipse.che.jface.text.templates.persistence.TemplateStore;
 import org.eclipse.ui.editors.text.templates.ContributionContextTypeRegistry;
 import org.eclipse.ui.editors.text.templates.ContributionTemplateStore;
 import org.slf4j.Logger;
@@ -44,6 +46,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
 
@@ -53,36 +56,44 @@ import java.util.Iterator;
 public class JavaPlugin {
 
     /**
+     * The editor part id of the editor that presents Java compilation units
+     * (value <code>"org.eclipse.jdt.ui.CompilationUnitEditor"</code>).
+     */
+    public static final String ID_CU_EDITOR           = "org.eclipse.jdt.ui.CompilationUnitEditor"; //$NON-NLS-1$
+    /**
+     * The id of the Java plug-in (value <code>"org.eclipse.jdt.ui"</code>).
+     */
+    public static final String ID_PLUGIN              = "org.eclipse.jdt.ui"; //$NON-NLS-1$
+    public static final String CODEASSIST_LRU_HISTORY = "/content_assist_lru_history.xml"; //$NON-NLS-1$
+
+    /**
+     * The name of the dialog settings file (value
+     * <code>"dialog_settings.xml"</code>).
+     */
+    private static final String FN_DIALOG_SETTINGS = "dialog_settings.xml"; //$NON-NLS-1$
+    /**
      * The key to store customized code templates.
      * @since 3.0
      */
-    private static final String CODE_TEMPLATES_KEY= "org.eclipse.jdt.ui.text.custom_code_templates"; //$NON-NLS-1$
-
+    private static final String CODE_TEMPLATES_KEY = "org.eclipse.jdt.ui.text.custom_code_templates"; //$NON-NLS-1$
     /**
      * The key to store customized templates.
      * @since 3.0
      */
-    private static final String TEMPLATES_KEY= "org.eclipse.jdt.ui.text.custom_templates"; //$NON-NLS-1$
-
-    /**
-     * The editor part id of the editor that presents Java compilation units
-     * (value <code>"org.eclipse.jdt.ui.CompilationUnitEditor"</code>).
-     */
-    public static final String ID_CU_EDITOR=			"org.eclipse.jdt.ui.CompilationUnitEditor"; //$NON-NLS-1$
-
-    /**
-     * The id of the Java plug-in (value <code>"org.eclipse.jdt.ui"</code>).
-     */
-    public static final  String ID_PLUGIN              = "org.eclipse.jdt.ui"; //$NON-NLS-1$
-    private static final Logger LOG                    = LoggerFactory.getLogger(JavaPlugin.class);
-    public static final  String CODEASSIST_LRU_HISTORY = "/content_assist_lru_history.xml"; //$NON-NLS-1$
+    private static final String TEMPLATES_KEY      = "org.eclipse.jdt.ui.text.custom_templates"; //$NON-NLS-1$
+    private static final Logger LOG                = LoggerFactory.getLogger(JavaPlugin.class);
     private static JavaPlugin fgJavaPlugin;
+    /**
+     * Storage for dialog and wizard data; <code>null</code> if not yet
+     * initialized.
+     */
+    private IDialogSettings dialogSettings = null;
     /**
      * Default instance of the appearance type filters.
      *
      * @since 3.0
      */
-    private        TypeFilter fTypeFilter;
+    private TypeFilter fTypeFilter;
 
     /**
      * The template store for the java editor.
@@ -139,39 +150,6 @@ public class JavaPlugin {
         cahPath = settingsDir + CODEASSIST_LRU_HISTORY;
     }
 
-    @PostConstruct
-    public void start() {
-//        WorkingCopyOwner.setPrimaryBufferProvider(new WorkingCopyOwner() {
-//            @Override
-//            public IBuffer createBuffer(ICompilationUnit workingCopy) {
-//                ICompilationUnit original = workingCopy.getPrimary();
-//                IResource resource = original.getResource();
-//                if (resource instanceof IFile)
-//                    return new DocumentAdapter(workingCopy, (IFile)resource);
-//                return DocumentAdapter.NULL;
-//            }
-//        });
-        new JavaCore();
-        fMembersOrderPreferenceCache= new MembersOrderPreferenceCache();
-        PreferenceConstants.initializeDefaultValues(PreferenceConstants.getPreferenceStore());
-        new JavaCorePreferenceInitializer().initializeDefaultPreferences();
-        new CheCodeFormatterInitializer().initializeDefaultPreferences();
-    }
-
-    @PreDestroy
-    void stop() {
-        if (fContentAssistHistory != null) {
-            try {
-                ContentAssistHistory.store(fContentAssistHistory, cahPath);
-            } catch (CoreException e) {
-                log(e);
-            }
-            fContentAssistHistory = null;
-        }
-
-        QualifiedTypeNameHistory.getDefault().save();
-    }
-
     public static void log(Throwable e) {
         LOG.error(e.getMessage(), e);
     }
@@ -190,6 +168,58 @@ public class JavaPlugin {
 
     public static JavaPlugin getDefault() {
         return fgJavaPlugin;
+    }
+
+    /**
+     * Registers the given Java template context.
+     *
+     * @param registry the template context type registry
+     * @param id the context type id
+     * @param parent the parent context type
+     * @since 3.4
+     */
+    private static void registerJavaContext(ContributionContextTypeRegistry registry, String id, TemplateContextType parent) {
+        TemplateContextType contextType = registry.getContextType(id);
+        Iterator<TemplateVariableResolver> iter = parent.resolvers();
+        while (iter.hasNext())
+            contextType.addResolver(iter.next());
+    }
+
+    public static void logErrorMessage(String message) {
+        LOG.error(message);
+    }
+
+    @PostConstruct
+    public void start() {
+//        WorkingCopyOwner.setPrimaryBufferProvider(new WorkingCopyOwner() {
+//            @Override
+//            public IBuffer createBuffer(ICompilationUnit workingCopy) {
+//                ICompilationUnit original = workingCopy.getPrimary();
+//                IResource resource = original.getResource();
+//                if (resource instanceof IFile)
+//                    return new DocumentAdapter(workingCopy, (IFile)resource);
+//                return DocumentAdapter.NULL;
+//            }
+//        });
+        new JavaCore();
+        fMembersOrderPreferenceCache = new MembersOrderPreferenceCache();
+        PreferenceConstants.initializeDefaultValues(PreferenceConstants.getPreferenceStore());
+        new JavaCorePreferenceInitializer().initializeDefaultPreferences();
+        new CheCodeFormatterInitializer().initializeDefaultPreferences();
+    }
+
+    @PreDestroy
+    void stop() {
+        if (fContentAssistHistory != null) {
+            try {
+                ContentAssistHistory.store(fContentAssistHistory, cahPath);
+            } catch (CoreException e) {
+                log(e);
+            }
+            fContentAssistHistory = null;
+        }
+
+        QualifiedTypeNameHistory.getDefault().save();
     }
 
     /**
@@ -231,7 +261,6 @@ public class JavaPlugin {
         }
         return preferenceStore;
     }
-
 
     /**
      * Returns the template context type registry for the code generation
@@ -297,9 +326,10 @@ public class JavaPlugin {
 //            final IPreferenceStore store= getPreferenceStore();
 //            boolean alreadyMigrated= store.getBoolean(TEMPLATES_MIGRATION_KEY);
 //            if (alreadyMigrated)
-                fTemplateStore= new ContributionTemplateStore(getTemplateContextRegistry(), /*store, */TEMPLATES_KEY);
+            fTemplateStore = new ContributionTemplateStore(getTemplateContextRegistry(), /*store, */TEMPLATES_KEY);
 //            else {
-//                fTemplateStore= new CompatibilityTemplateStore(getTemplateContextRegistry(), store, TEMPLATES_KEY, getOldTemplateStoreInstance());
+//                fTemplateStore= new CompatibilityTemplateStore(getTemplateContextRegistry(), store, TEMPLATES_KEY,
+// getOldTemplateStoreInstance());
 //                store.setValue(TEMPLATES_MIGRATION_KEY, true);
 //            }
 
@@ -322,10 +352,10 @@ public class JavaPlugin {
      */
     public synchronized ContextTypeRegistry getTemplateContextRegistry() {
         if (fContextTypeRegistry == null) {
-            ContributionContextTypeRegistry registry= new ContributionContextTypeRegistry(ID_CU_EDITOR);
+            ContributionContextTypeRegistry registry = new ContributionContextTypeRegistry(ID_CU_EDITOR);
 
-            TemplateContextType all_contextType= registry.getContextType(JavaContextType.ID_ALL);
-            ((AbstractJavaContextType) all_contextType).initializeContextTypeResolvers();
+            TemplateContextType all_contextType = registry.getContextType(JavaContextType.ID_ALL);
+            ((AbstractJavaContextType)all_contextType).initializeContextTypeResolvers();
 
             registerJavaContext(registry, JavaContextType.ID_MEMBERS, all_contextType);
             registerJavaContext(registry, JavaContextType.ID_STATEMENTS, all_contextType);
@@ -336,25 +366,10 @@ public class JavaPlugin {
 //            registerJavaContext(registry, SWTContextType.ID_MEMBERS, all_contextType);
 //            registerJavaContext(registry, SWTContextType.ID_STATEMENTS, all_contextType);
 
-            fContextTypeRegistry= registry;
+            fContextTypeRegistry = registry;
         }
 
         return fContextTypeRegistry;
-    }
-
-    /**
-     * Registers the given Java template context.
-     *
-     * @param registry the template context type registry
-     * @param id the context type id
-     * @param parent the parent context type
-     * @since 3.4
-     */
-    private static void registerJavaContext(ContributionContextTypeRegistry registry, String id, TemplateContextType parent) {
-        TemplateContextType contextType= registry.getContextType(id);
-        Iterator<TemplateVariableResolver> iter= parent.resolvers();
-        while (iter.hasNext())
-            contextType.addResolver(iter.next());
     }
 
     public synchronized TypeFilter getTypeFilter() {
@@ -393,11 +408,75 @@ public class JavaPlugin {
         return new Path(settingsDir);
     }
 
-    public static void logErrorMessage(String message) {
-        LOG.error(message);
-    }
-
     public MembersOrderPreferenceCache getMemberOrderPreferenceCache() {
         return fMembersOrderPreferenceCache;
+    }
+
+    public IDialogSettings getDialogSettings() {
+        if (dialogSettings == null) {
+            loadDialogSettings();
+        }
+        return dialogSettings;
+    }
+
+    /**
+     * Loads the dialog settings for this plug-in.
+     * The default implementation first looks for a standard named file in the
+     * plug-in's read/write state area; if no such file exists, the plug-in's
+     * install directory is checked to see if one was installed with some default
+     * settings; if no file is found in either place, a new empty dialog settings
+     * is created. If a problem occurs, an empty settings is silently used.
+     * <p>
+     * This framework method may be overridden, although this is typically
+     * unnecessary.
+     * </p>
+     */
+    protected void loadDialogSettings() {
+        dialogSettings = new DialogSettings("Workbench"); //$NON-NLS-1$
+
+        // bug 69387: The instance area should not be created (in the call to
+        // #getStateLocation) if -data @none or -data @noDefault was used
+        IPath dataLocation = new Path(settingsDir);
+//        if (dataLocation != null) {
+        // try r/w state area in the local file system
+        String readWritePath = dataLocation.append(FN_DIALOG_SETTINGS)
+                                           .toOSString();
+        File settingsFile = new File(readWritePath);
+        if (settingsFile.exists()) {
+            try {
+                dialogSettings.load(readWritePath);
+            } catch (IOException e) {
+                // load failed so ensure we have an empty settings
+                dialogSettings = new DialogSettings("Workbench"); //$NON-NLS-1$
+            }
+
+//                return;
+        }
+//        }
+
+//        // otherwise look for bundle specific dialog settings
+//        URL dsURL = BundleUtility.find(getBundle(), FN_DIALOG_SETTINGS);
+//        if (dsURL == null) {
+//            return;
+//        }
+//
+//        InputStream is = null;
+//        try {
+//            is = dsURL.openStream();
+//            BufferedReader reader = new BufferedReader(
+//                    new InputStreamReader(is, "utf-8")); //$NON-NLS-1$
+//            dialogSettings.load(reader);
+//        } catch (IOException e) {
+//            // load failed so ensure we have an empty settings
+//            dialogSettings = new DialogSettings("Workbench"); //$NON-NLS-1$
+//        } finally {
+//            try {
+//                if (is != null) {
+//                    is.close();
+//                }
+//            } catch (IOException e) {
+//                // do nothing
+//            }
+//        }
     }
 }

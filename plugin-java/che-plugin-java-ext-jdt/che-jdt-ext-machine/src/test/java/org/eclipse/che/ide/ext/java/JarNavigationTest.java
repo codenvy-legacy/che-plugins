@@ -12,8 +12,8 @@ package org.eclipse.che.ide.ext.java;
 
 import org.eclipse.che.ide.ext.java.shared.Jar;
 import org.eclipse.che.ide.ext.java.shared.JarEntry;
-import org.eclipse.che.ide.ext.java.shared.dto.refactoring.JavaProject;
-import org.eclipse.che.ide.ext.java.shared.dto.refactoring.PackageFragmentRoot;
+import org.eclipse.che.ide.ext.java.shared.dto.model.JavaProject;
+import org.eclipse.che.ide.ext.java.shared.dto.model.PackageFragmentRoot;
 import org.eclipse.che.jdt.JavaNavigation;
 import org.eclipse.che.jdt.SourcesFromBytecodeGenerator;
 import org.eclipse.jdt.core.IPackageFragmentRoot;

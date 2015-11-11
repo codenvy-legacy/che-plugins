@@ -23,6 +23,7 @@ import org.eclipse.che.ide.api.icon.Icon;
 import org.eclipse.che.ide.api.icon.IconRegistry;
 import org.eclipse.che.ide.api.keybinding.KeyBindingAgent;
 import org.eclipse.che.ide.api.keybinding.KeyBuilder;
+import org.eclipse.che.ide.ext.java.client.action.FindUsagesAction;
 import org.eclipse.che.ide.ext.java.client.action.NewJavaSourceFileAction;
 import org.eclipse.che.ide.ext.java.client.action.NewPackageAction;
 import org.eclipse.che.ide.ext.java.client.action.OpenDeclarationAction;
@@ -68,7 +69,8 @@ public class JavaExtension {
                                 MoveAction moveAction,
                                 RenameRefactoringAction renameRefactoringAction,
                                 QuickDocumentationAction quickDocumentationAction,
-                                OpenDeclarationAction openDeclarationAction) {
+                                OpenDeclarationAction openDeclarationAction,
+                                FindUsagesAction findUsagesAction) {
         // add actions in File -> New group
         actionManager.registerAction(localizationConstant.actionNewPackageId(), newPackageAction);
         actionManager.registerAction(localizationConstant.actionNewClassId(), newJavaSourceFileAction);
@@ -86,10 +88,12 @@ public class JavaExtension {
         actionManager.registerAction("openJavaDeclaration", openDeclarationAction);
         actionManager.registerAction("javaRenameRefactoring", renameRefactoringAction);
         actionManager.registerAction("javaMoveRefactoring", moveAction);
+        actionManager.registerAction("javaFindUsages", findUsagesAction);
 
         DefaultActionGroup codeGroup = (DefaultActionGroup)actionManager.getAction(GROUP_CODE);
         codeGroup.add(quickDocumentationAction, Constraints.LAST);
         codeGroup.add(openDeclarationAction, Constraints.LAST);
+        codeGroup.add(findUsagesAction, Constraints.LAST);
         if (UserAgent.isMac()) {
             keyBinding.getGlobal().addKey(new KeyBuilder().control().charCode('j').build(), "showQuickDoc");
         } else {
@@ -98,6 +102,7 @@ public class JavaExtension {
         keyBinding.getGlobal().addKey(new KeyBuilder().none().charCode(KeyCodeMap.F4).build(), "openJavaDeclaration");
         keyBinding.getGlobal().addKey(new KeyBuilder().shift().charCode(KeyCodeMap.F6).build(), "javaRenameRefactoring");
         keyBinding.getGlobal().addKey(new KeyBuilder().charCode(KeyCodeMap.F6).build(), "javaMoveRefactoring");
+        keyBinding.getGlobal().addKey(new KeyBuilder().alt().charCode(KeyCodeMap.F7).build(), "javaFindUsages");
     }
 
     @Inject

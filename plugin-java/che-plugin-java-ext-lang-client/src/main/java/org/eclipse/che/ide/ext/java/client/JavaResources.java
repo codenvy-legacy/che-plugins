@@ -26,8 +26,8 @@ public interface JavaResources extends ClientBundle {
     @Source("java.css")
     JavaCss css();
 
-    @Source("org/eclipse/che/ide/ext/java/client/images/annotation.gif")
-    ImageResource annotationItem();
+    @Source("svg/annotation_type.svg")
+    SVGResource annotationItem();
 
     @Source("org/eclipse/che/ide/ext/java/client/images/class.gif")
     ImageResource classItem();
@@ -41,8 +41,8 @@ public interface JavaResources extends ClientBundle {
     @Source("org/eclipse/che/ide/ext/java/client/images/interface.svg")
     SVGResource svgInterfaceItem();
 
-    @Source("org/eclipse/che/ide/ext/java/client/images/enum_item.gif")
-    ImageResource enumItem();
+    @Source("svg/enum_type.svg")
+    SVGResource enumItem();
 
     @Source("org/eclipse/che/ide/ext/java/client/images/default-field.png")
     ImageResource defaultField();
@@ -62,14 +62,14 @@ public interface JavaResources extends ClientBundle {
     @Source("org/eclipse/che/ide/ext/java/client/images/default-method.png")
     ImageResource defaultMethod();
 
-    @Source("org/eclipse/che/ide/ext/java/client/images/private-method.png")
-    ImageResource privateMethod();
+    @Source("svg/private_method.svg")
+    SVGResource privateMethod();
 
-    @Source("org/eclipse/che/ide/ext/java/client/images/protected-method.png")
-    ImageResource protectedMethod();
+    @Source("svg/protected_method.svg")
+    SVGResource protectedMethod();
 
-    @Source("org/eclipse/che/ide/ext/java/client/images/public-method.png")
-    ImageResource publicMethod();
+    @Source("svg/publicMethod.svg")
+    SVGResource publicMethod();
 
     @Source("org/eclipse/che/ide/ext/java/client/images/package.png")
     ImageResource packageItem();
@@ -220,4 +220,8 @@ public interface JavaResources extends ClientBundle {
 
     @Source("svg/quickDocumentation.svg")
     SVGResource quickDocumentation();
+
+    @Source("svg/searchMatch.svg")
+    SVGResource searchMatch();
+
 }

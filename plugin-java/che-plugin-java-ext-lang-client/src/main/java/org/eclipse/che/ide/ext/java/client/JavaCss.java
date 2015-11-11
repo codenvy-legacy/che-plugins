@@ -39,30 +39,6 @@ public interface JavaCss extends CssResource {
     @ClassName("importItem")
     String importItem();
 
-    @ClassName("classItem")
-    String classItem();
-
-    @ClassName("interfaceItem")
-    String interfaceItem();
-
-    @ClassName("enumItem")
-    String enumItem();
-
-    @ClassName("annotationItem")
-    String annotationItem();
-
-    @ClassName("publicMethod")
-    String publicMethod();
-
-    @ClassName("protectedMethod")
-    String protectedMethod();
-
-    @ClassName("privateMethod")
-    String privateMethod();
-
-    @ClassName("defaultMethod")
-    String defaultMethod();
-
     @ClassName("publicField")
     String publicField();
 
@@ -98,4 +74,7 @@ public interface JavaCss extends CssResource {
 
     @ClassName("error-border")
     String errorBorder();
+
+    @ClassName("search-match")
+    String searchMatch();
 }

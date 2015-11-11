@@ -10,9 +10,10 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.java;
 
+import org.eclipse.che.api.core.notification.EventService;
+import org.eclipse.che.jdt.javadoc.JavaElementLinks;
 import org.eclipse.core.internal.filebuffers.FileBuffersPlugin;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.che.jdt.javadoc.JavaElementLinks;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.codeassist.impl.AssistOptions;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -31,15 +32,16 @@ import java.util.Map;
  */
 public abstract class BaseTest {
 
-    protected static Map<String, String> options = new HashMap<>();
+    protected static final String              wsPath        = BaseTest.class.getResource("/projects").getFile();
+    private static final   String              workspacePath = BaseTest.class.getResource("/projects").getFile();
+    protected static       Map<String, String> options       = new HashMap<>();
     protected static JavaProject project;
-    protected static final String          wsPath            = BaseTest.class.getResource("/projects").getFile();
-    private static final   String          workspacePath     = BaseTest.class.getResource("/projects").getFile();
-    protected static       ResourcesPlugin plugin            = new ResourcesPlugin(wsPath + "/index", workspacePath,
-                                                                                   new DummyProjectManager(workspacePath));
-    protected static       JavaPlugin      javaPlugin        = new JavaPlugin(wsPath + "/set");
-    protected static       FileBuffersPlugin
-                                           fileBuffersPlugin = new FileBuffersPlugin();
+    protected static EventService    eventService      = new EventService();
+    protected static ResourcesPlugin plugin            = new ResourcesPlugin("index", workspacePath,
+                                                                             new DummyProjectManager(workspacePath, eventService));
+    protected static JavaPlugin      javaPlugin        = new JavaPlugin(wsPath + "/set");
+    protected static FileBuffersPlugin
+                                     fileBuffersPlugin = new FileBuffersPlugin();
 
     static {
         plugin.start();

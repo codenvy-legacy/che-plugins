@@ -37,6 +37,7 @@ import org.eclipse.che.ide.ext.java.client.project.interceptor.JavaClassIntercep
 import org.eclipse.che.ide.ext.java.client.project.node.JavaNodeFactory;
 import org.eclipse.che.ide.ext.java.client.project.node.JavaNodeManager;
 import org.eclipse.che.ide.ext.java.client.project.settings.JavaNodeSettingsProvider;
+import org.eclipse.che.ide.ext.java.client.search.node.NodeFactory;
 import org.eclipse.che.ide.ext.java.client.settings.compiler.ErrorWarningsPresenter;
 import org.eclipse.che.ide.ext.java.client.settings.property.PropertyWidget;
 import org.eclipse.che.ide.ext.java.client.settings.property.PropertyWidgetImpl;
@@ -69,6 +70,8 @@ public class JavaGinModule extends AbstractGinModule {
         install(new GinFactoryModuleBuilder().build(JavaNodeFactory.class));
         install(new GinFactoryModuleBuilder().implement(PropertyWidget.class, PropertyWidgetImpl.class)
                                              .build(PropertyWidgetFactory.class));
+
+        install(new GinFactoryModuleBuilder().build(NodeFactory.class));
 
         GinMultibinder<SettingsPagePresenter> settingsBinder = GinMultibinder.newSetBinder(binder(), SettingsPagePresenter.class);
         settingsBinder.addBinding().to(ErrorWarningsPresenter.class);
