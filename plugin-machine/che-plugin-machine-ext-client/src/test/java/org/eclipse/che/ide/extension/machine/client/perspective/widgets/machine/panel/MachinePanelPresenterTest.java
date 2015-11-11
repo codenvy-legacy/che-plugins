@@ -15,7 +15,6 @@ import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
-import org.eclipse.che.api.machine.gwt.client.events.ExtServerStateEvent;
 import org.eclipse.che.api.machine.shared.dto.MachineDto;
 import org.eclipse.che.api.machine.shared.dto.MachineStateDto;
 import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
@@ -24,6 +23,7 @@ import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.api.promises.client.PromiseError;
 import org.eclipse.che.api.workspace.shared.dto.UsersWorkspaceDto;
+import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.MachineResources;
@@ -34,6 +34,8 @@ import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStarti
 import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateEvent;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.appliance.MachineAppliancePresenter;
 import org.eclipse.che.ide.ui.dialogs.InputCallback;
+import org.eclipse.che.ide.workspace.start.StartWorkspaceEvent;
+import org.eclipse.che.ide.workspace.start.StopWorkspaceEvent;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -43,7 +45,6 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -66,6 +67,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class MachinePanelPresenterTest {
 
+    private static final String TEXT = "There is nothing either good or bad but thinking makes it so.";
     //constructor mocks
     @Mock
     private MachinePanelView            view;
@@ -117,6 +119,10 @@ public class MachinePanelPresenterTest {
     private UsersWorkspaceDto              workspaceDto;
     @Mock
     private MachineStateEvent              stateEvent;
+    @Mock
+    private AppContext                     appContext;
+    @Mock
+    private UsersWorkspaceDto              usersWorkspaceDto;
 
     @Captor
     private ArgumentCaptor<Operation<List<MachineStateDto>>> operationMachineStateCaptor;
@@ -147,13 +153,16 @@ public class MachinePanelPresenterTest {
                                              eq(machineState1),
                                              isNull(List.class))).thenReturn(machineNode1);
 
-        presenter = new MachinePanelPresenter(view, service, entityFactory, locale, appliance, eventBus, resources);
+        presenter = new MachinePanelPresenter(view, service, entityFactory, locale, appliance, eventBus, resources, appContext);
 
-        when(service.getMachinesStates(anyString())).thenReturn(machineStatePromise);
+        when(service.getMachinesStates(anyString(), anyString())).thenReturn(machineStatePromise);
         when(machineStatePromise.then(Matchers.<Operation<List<MachineStateDto>>>anyObject())).thenReturn(machineStatePromise);
 
         when(service.getMachine(anyString())).thenReturn(machinePromise);
         when(machinePromise.then(Matchers.<Operation<MachineDto>>anyObject())).thenReturn(machinePromise);
+
+        when(appContext.getWorkspace()).thenReturn(usersWorkspaceDto);
+        when(usersWorkspaceDto.getId()).thenReturn(TEXT);
     }
 
     @Test
@@ -161,7 +170,8 @@ public class MachinePanelPresenterTest {
         verify(entityFactory).createMachineNode(eq(null), eq("root"), Matchers.<List<MachineTreeNode>>anyObject());
 
         verify(eventBus).addHandler(MachineStateEvent.TYPE, presenter);
-        verify(eventBus).addHandler(ExtServerStateEvent.TYPE, presenter);
+        verify(eventBus).addHandler(StartWorkspaceEvent.TYPE, presenter);
+        verify(eventBus).addHandler(StopWorkspaceEvent.TYPE, presenter);
         verify(eventBus).addHandler(MachineStartingEvent.TYPE, presenter);
     }
 
@@ -169,10 +179,10 @@ public class MachinePanelPresenterTest {
     public void treeShouldBeDisplayedWithMachines() throws Exception {
         presenter.showMachines();
 
-        verify(service).getMachinesStates(null);
+        verify(service).getMachinesStates(anyString(), isNull(String.class));
 
         verify(machineStatePromise).then(operationMachineStateCaptor.capture());
-        operationMachineStateCaptor.getValue().apply(Arrays.asList(machineState1));
+        operationMachineStateCaptor.getValue().apply(Collections.singletonList(machineState1));
 
         verify(entityFactory).createMachineNode(isNull(MachineTreeNode.class), eq("root"), Matchers.<List<MachineTreeNode>>anyObject());
         verify(entityFactory).createMachineNode(eq(rootNode), eq(machineState1), eq(null));
