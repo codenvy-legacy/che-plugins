@@ -14,7 +14,7 @@ import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.ide.ext.java.shared.Jar;
 import org.eclipse.che.ide.ext.java.shared.JarEntry;
 import org.eclipse.che.ide.ext.java.shared.OpenDeclarationDescriptor;
-import org.eclipse.che.ide.ext.java.shared.dto.refactoring.JavaProject;
+import org.eclipse.che.ide.ext.java.shared.dto.model.JavaProject;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 
 import java.util.List;

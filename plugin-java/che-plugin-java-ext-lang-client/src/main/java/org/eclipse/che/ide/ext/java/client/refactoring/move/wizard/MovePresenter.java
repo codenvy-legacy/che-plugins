@@ -35,8 +35,8 @@ import org.eclipse.che.ide.ext.java.client.refactoring.preview.PreviewPresenter;
 import org.eclipse.che.ide.ext.java.client.refactoring.service.RefactoringServiceClient;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ChangeCreationResult;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.CreateMoveRefactoring;
-import org.eclipse.che.ide.ext.java.shared.dto.refactoring.JavaElement;
-import org.eclipse.che.ide.ext.java.shared.dto.refactoring.JavaProject;
+import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ElementToMove;
+import org.eclipse.che.ide.ext.java.shared.dto.model.JavaProject;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.MoveSettings;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringResult;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringSession;
@@ -121,12 +121,12 @@ public class MovePresenter implements MoveView.ActionDelegate {
     }
 
     private CreateMoveRefactoring createMoveDto() {
-        List<JavaElement> elements = new ArrayList<>();
+        List<ElementToMove> elements = new ArrayList<>();
 
         for (Object node : refactorInfo.getSelectedItems()) {
             HasStorablePath storableNode = (HasStorablePath)node;
 
-            JavaElement element = dtoFactory.createDto(JavaElement.class);
+            ElementToMove element = dtoFactory.createDto(ElementToMove.class);
 
             if (storableNode instanceof PackageNode) {
                 element.setPath(storableNode.getStorablePath());

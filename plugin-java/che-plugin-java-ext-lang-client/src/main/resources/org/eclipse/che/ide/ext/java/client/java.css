@@ -45,54 +45,6 @@
     background-position: center center;
 }
 
-@sprite .classItem {
-    gwt-image: "classItem";
-    display: inline-block;
-    background-position: center center;
-}
-
-@sprite .interfaceItem {
-    gwt-image: "interfaceItem";
-    display: inline-block;
-    background-position: center center;
-}
-
-@sprite .enumItem {
-    gwt-image: "enumItem";
-    display: inline-block;
-    background-position: center center;
-}
-
-@sprite .annotationItem {
-    gwt-image: "annotationItem";
-    display: inline-block;
-    background-position: center center;
-}
-
-@sprite .publicMethod {
-    gwt-image: "publicMethod";
-    display: inline-block;
-    background-position: center 3px;
-}
-
-@sprite .protectedMethod {
-    gwt-image: "protectedMethod";
-    display: inline-block;
-    background-position: center 3px;
-}
-
-@sprite .privateMethod {
-    gwt-image: "privateMethod";
-    display: inline-block;
-    background-position: center 3px;
-}
-
-@sprite .defaultMethod {
-    gwt-image: "defaultMethod";
-    display: inline-block;
-    background-position: center 3px;
-}
-
 @sprite .publicField {
     gwt-image: "publicField";
     display: inline-block;
@@ -178,4 +130,13 @@
 
 .error-border {
     border-bottom: 1px solid errorColor !important;
+}
+
+.search-match {
+    /*background-color: #B69C4D;*/
+    background: linear-gradient(to bottom, #c1be9e 6%, #B89C07 64%);
+    border-radius: 2px;
+    padding-right: 2px;
+    padding-left: 2px;
+    /*color: black;*/
 }

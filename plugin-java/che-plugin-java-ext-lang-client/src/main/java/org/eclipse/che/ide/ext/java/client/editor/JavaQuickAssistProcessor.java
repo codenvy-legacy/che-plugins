@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.java.client.editor;
 
-import org.eclipse.che.ide.api.icon.Icon;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.project.tree.VirtualFile;
 import org.eclipse.che.ide.api.text.Position;
@@ -118,7 +117,7 @@ public class JavaQuickAssistProcessor implements QuickAssistProcessor {
             if (proposal.getActionId() != null) {
                 completionProposal =
                         new ActionCompletionProposal(JavaCodeAssistProcessor.insertStyle(javaResources, proposal.getDisplayString()),
-                                proposal.getActionId(), JavaCodeAssistProcessor.getIcon(proposal.getImage())
+                                                     proposal.getActionId(), JavaCodeAssistProcessor.getIcon(proposal.getImage())
                         );
             } else {
                 completionProposal = new JavaCompletionProposal(

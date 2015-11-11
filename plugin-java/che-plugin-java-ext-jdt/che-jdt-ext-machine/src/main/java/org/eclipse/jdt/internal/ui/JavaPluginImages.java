@@ -98,6 +98,9 @@ public class JavaPluginImages {
 
     public static final ImageDescriptor DESC_OBJS_GHOST = new ImageDescriptor("ghost");
 
+    public static final ImageDescriptor DESC_OBJS_SEARCH_DECL = new ImageDescriptor("search_decl_obj");
+    public static final ImageDescriptor DESC_OBJS_SEARCH_REF  = new ImageDescriptor("search_ref_obj");
+
 
     public static Image get(ImageDescriptor key) {
         return new Image(key);

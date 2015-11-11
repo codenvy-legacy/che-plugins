@@ -78,19 +78,19 @@ public class JavaCodeAssistProcessor implements CodeAssistProcessor {
 
         images.put("template", resources.template());
         images.put("javadoc", resources.javadoc());
-        images.put("annotation", resources.annotationItem());
+        svgs.put("annotation", resources.annotationItem());
         //todo create images for annotations
-        images.put("privateAnnotation", resources.annotationItem());
-        images.put("protectedAnnotation", resources.annotationItem());
-        images.put("defaultAnnotation", resources.annotationItem());
+        svgs.put("privateAnnotation", resources.annotationItem());
+        svgs.put("protectedAnnotation", resources.annotationItem());
+        svgs.put("defaultAnnotation", resources.annotationItem());
 
-        images.put("enum", resources.enumItem());
-        images.put("defaultEnum", resources.enumItem());
-        images.put("privateEnum", resources.enumItem());
-        images.put("protectedEnum", resources.enumItem());
+        svgs.put("enum", resources.enumItem());
+        svgs.put("defaultEnum", resources.enumItem());
+        svgs.put("privateEnum", resources.enumItem());
+        svgs.put("protectedEnum", resources.enumItem());
 
 //        images.put("interface", resources.interfaceItem());
-        svgs.put("interface", resources. svgInterfaceItem());
+        svgs.put("interface", resources.svgInterfaceItem());
 
         images.put("defaultInterface", resources.interfaceItem());
         images.put("innerInterfacePublic", resources.interfaceItem());
@@ -105,9 +105,9 @@ public class JavaCodeAssistProcessor implements CodeAssistProcessor {
         images.put("innerClassProtected", resources.classItem());
         images.put("innerClassDefault", resources.classItem());
 
-        images.put("privateMethod", resources.privateMethod());
-        images.put("publicMethod", resources.publicMethod());
-        images.put("protectedMethod", resources.protectedMethod());
+        svgs.put("privateMethod", resources.privateMethod());
+        svgs.put("publicMethod", resources.publicMethod());
+        svgs.put("protectedMethod", resources.protectedMethod());
         images.put("defaultMethod", resources.defaultMethod());
 
         images.put("publicField", resources.publicField());
