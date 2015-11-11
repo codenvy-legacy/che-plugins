@@ -16,6 +16,7 @@ import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.api.promises.client.callback.AsyncPromiseHelper;
 import org.eclipse.che.ide.MimeType;
 import org.eclipse.che.ide.api.app.AppContext;
+import org.eclipse.che.ide.ext.openshift.shared.dto.Build;
 import org.eclipse.che.ide.ext.openshift.shared.dto.BuildConfig;
 import org.eclipse.che.ide.ext.openshift.shared.dto.DeploymentConfig;
 import org.eclipse.che.ide.ext.openshift.shared.dto.ImageStream;
@@ -285,6 +286,37 @@ public class OpenshiftServiceClientImpl implements OpenshiftServiceClient {
                                    .header(ACCEPT, MimeType.APPLICATION_JSON)
                                    .loader(loader, "Getting routes...")
                                    .send(newCallback(callback, dtoUnmarshaller.newListUnmarshaller(Route.class)));
+            }
+        });
+    }
+
+    @Override
+    public Promise<List<Build>> getBuilds(final String namespace, final String application) {
+        return newPromise(new AsyncPromiseHelper.RequestCall<List<Build>>() {
+            @Override
+            public void makeCall(AsyncCallback<List<Build>> callback) {
+                String url = openshiftPath + "/namespace/" + namespace + "/build";
+                if (application != null) {
+                    url += "?application=" + application;
+                }
+                asyncRequestFactory.createGetRequest(url)
+                                   .header(ACCEPT, MimeType.APPLICATION_JSON)
+                                   .loader(loader, "Getting builds...")
+                                   .send(newCallback(callback, dtoUnmarshaller.newListUnmarshaller(Build.class)));
+            }
+        });
+    }
+
+    @Override
+    public Promise<Build> startBuild(final String namespace, final String buildConfig) {
+        return newPromise(new AsyncPromiseHelper.RequestCall<Build>() {
+            @Override
+            public void makeCall(AsyncCallback<Build> callback) {
+                String url = openshiftPath + "/namespace/" + namespace + "/build/" + buildConfig;
+                asyncRequestFactory.createPostRequest(url, null)
+                                   .header(ACCEPT, MimeType.APPLICATION_JSON)
+                                   .loader(loader, "Starting build...")
+                                   .send(newCallback(callback, dtoUnmarshaller.newUnmarshaller(Build.class)));
             }
         });
     }

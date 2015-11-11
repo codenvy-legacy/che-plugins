@@ -124,4 +124,13 @@ public interface OpenshiftLocalizationConstant extends Messages {
 
     @Key("webhook.secret.label.title")
     String webhookSecretLabelTitle();
+
+    @Key("start.build.title")
+    String startBuildTitle();
+
+    @Key("no.buildconfigs.error")
+    String noBuildConfigError();
+
+    @Key("start.build.error")
+    String startBuildError();
 }
