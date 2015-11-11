@@ -29,7 +29,7 @@
 }
 
 .machineConsole pre, .commandConsole pre {
-    font-family: textFieldFontFamily;
+    font-family: outputFontFamily;
     font-size: 11px;
 }
 
