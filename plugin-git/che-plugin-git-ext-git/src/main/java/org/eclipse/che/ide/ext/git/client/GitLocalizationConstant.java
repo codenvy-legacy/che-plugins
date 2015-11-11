@@ -271,6 +271,12 @@ public interface GitLocalizationConstant extends Messages {
     @Key("view.import.gitImporterPage.keepDirectoryField")
     String gitImporterPageKeepDirectoryField();
 
+    @Key("view.import.gitImporterPage.branchField")
+    String gitImporterPageBranchField();
+
+    @Key("view.import.gitImporterPage.branch")
+    String gitImporterPageBranch();
+
     // Add
     @Key("view.add_to_index.all_changes")
     String addToIndexAllChanges();
