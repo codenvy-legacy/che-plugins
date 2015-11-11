@@ -43,7 +43,7 @@ public class MachineComponent implements Component {
 
     @Override
     public void start(final Callback<Component, Exception> callback) {
-        machineServiceClient.getMachinesStates(null).then(new Operation<List<MachineStateDto>>() {
+        machineServiceClient.getMachinesStates(appContext.getWorkspace().getId(), null).then(new Operation<List<MachineStateDto>>() {
             @Override
             public void apply(List<MachineStateDto> arg) throws OperationException {
                 if (arg.isEmpty()) {

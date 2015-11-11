@@ -17,6 +17,7 @@ import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
 import org.eclipse.che.api.machine.shared.dto.MachineStateDto;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.Promise;
+import org.eclipse.che.api.workspace.shared.dto.UsersWorkspaceDto;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.core.Component;
 import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
@@ -42,6 +43,7 @@ import static org.mockito.Mockito.when;
 public class MachineComponentTest {
 
     private static final String DEV_MACHINE_ID = "id";
+    private static final String TEXT           = "A horse, a horse! My kingdom for a horse! Richard III";
 
     @Mock
     private MachineServiceClient machineServiceClient;
@@ -59,21 +61,25 @@ public class MachineComponentTest {
     private MachineComponent machineComponent;
 
     @Mock
-    private Promise<List<MachineStateDto>>                   machinesPromise;
+    private Promise<List<MachineStateDto>> machinesPromise;
+    @Mock
+    private UsersWorkspaceDto              usersWorkspaceDto;
     @Captor
     private ArgumentCaptor<Operation<List<MachineStateDto>>> machinesCaptor;
 
     @Test
     public void shouldUseRunningDevMachine() throws Exception {
-        when(machineServiceClient.getMachinesStates(anyString())).thenReturn(machinesPromise);
+        when(machineServiceClient.getMachinesStates(anyString(), anyString())).thenReturn(machinesPromise);
         when(machinesPromise.then(any(Operation.class))).thenReturn(machinesPromise);
         when(machineStateDescriptor.isDev()).thenReturn(true);
         when(machineStateDescriptor.getStatus()).thenReturn(MachineStatus.RUNNING);
         when(machineStateDescriptor.getId()).thenReturn(DEV_MACHINE_ID);
+        when(appContext.getWorkspace()).thenReturn(usersWorkspaceDto);
+        when(usersWorkspaceDto.getId()).thenReturn(TEXT);
 
         machineComponent.start(componentCallback);
 
-        verify(machineServiceClient).getMachinesStates(anyString());
+        verify(machineServiceClient).getMachinesStates(anyString(), anyString());
         verify(machinesPromise).then(machinesCaptor.capture());
         machinesCaptor.getValue().apply(Collections.singletonList(machineStateDescriptor));
         verify(machineStateDescriptor).isDev();
