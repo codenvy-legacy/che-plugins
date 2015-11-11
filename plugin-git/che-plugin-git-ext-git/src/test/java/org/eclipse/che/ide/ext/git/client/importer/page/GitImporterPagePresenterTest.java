@@ -263,12 +263,30 @@ public class GitImporterPagePresenterTest {
     }
 
     /**
+     * Branch name field must become enabled when Branch is checked.
+     */
+    @Test
+    public void branchSelectedTest() {
+        presenter.branchSelected(true);
+        verify(view).enableBranchNameField(true);
+    }
+
+    /**
      * Directory name field must become disabled when Keep directory is unchecked.
      */
     @Test
     public void keepDirectoryNotSelectedTest() {
         presenter.keepDirectorySelected(false);
         verify(view).enableDirectoryNameField(false);
+    }
+
+    /**
+     * Branch name field must become disabled when Branch is unchecked.
+     */
+    @Test
+    public void branchNotSelectedTest() {
+        presenter.branchSelected(false);
+        verify(view).enableBranchNameField(false);
     }
 
     /**

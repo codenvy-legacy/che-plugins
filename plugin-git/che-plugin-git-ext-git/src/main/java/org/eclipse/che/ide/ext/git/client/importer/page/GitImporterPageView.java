@@ -39,6 +39,12 @@ public interface GitImporterPageView extends View<GitImporterPageView.ActionDele
 
         /** Perform actions when changing the name of a directory. */
         void keepDirectoryNameChanged(@NotNull String url);
+
+        /** Perform actions when selecting Branch checkbox. */
+        void branchSelected(boolean branch);
+
+        /** Perform actions when changing the name of a branch. */
+        void branchNameChanged(@NotNull String branch);
     }
 
     /**
@@ -158,5 +164,40 @@ public interface GitImporterPageView extends View<GitImporterPageView.ActionDele
      * Focuses directory name field.
      */
     void focusDirectoryNameFiend();
+
+    /**
+     * Sets new value of Branch name field.
+     *
+     * @param branchName new value of branch name field
+     */
+    void setBranchName(String branchName);
+
+    /**
+     * Returns whether user wants to checkout a special branch.
+     *
+     * @return <b>true</b> if user has checked the Branch checkbox, otherwise returns <b>false</b>
+     */
+    boolean isBranchName();
+
+    /**
+     * Returns the name of a branch to checkout.
+     *
+     * @return name of a branch to checkout
+     */
+    String getBranchName();
+
+    /**
+     *  Sets new value of Branch checkbox.
+     *
+     * @param checked <b>true</b> to check the field or <b>false</b> to leave it unchecked
+     */
+    void setBranchChecked(boolean checked);
+
+    /**
+     * Enables or disables Branch name field.
+     *
+     * @param enable true or false to enable or disable the field
+     */
+    void enableBranchNameField(boolean enable);
 
 }
