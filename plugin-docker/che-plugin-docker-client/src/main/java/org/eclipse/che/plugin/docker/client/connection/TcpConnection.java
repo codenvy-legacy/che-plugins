@@ -15,8 +15,6 @@ import com.google.common.base.Strings;
 import org.eclipse.che.commons.lang.Pair;
 import org.eclipse.che.plugin.docker.client.DockerCertificates;
 
-import javax.inject.Inject;
-import javax.inject.Named;
 import javax.net.ssl.HttpsURLConnection;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -30,9 +28,6 @@ import java.util.List;
  * @author Alexander Garagatyi
  */
 public class TcpConnection extends DockerConnection {
-    private static final int DEFAULT_CONNECTION_TIMEOUT = 60000;
-    private static final int DEFAULT_READ_TIMEOUT       = 60000;
-
     private final URI                baseUri;
     private final DockerCertificates certificates;
     private final int                connectionTimeout;
@@ -40,23 +35,7 @@ public class TcpConnection extends DockerConnection {
 
     private HttpURLConnection connection;
 
-    public TcpConnection(URI baseUri) {
-        this(baseUri, null, DEFAULT_CONNECTION_TIMEOUT, DEFAULT_READ_TIMEOUT);
-    }
-
-    public TcpConnection(URI baseUri, int connectionTimeoutMs, int readTimeoutMs) {
-        this(baseUri, null, connectionTimeoutMs, readTimeoutMs);
-    }
-
-    public TcpConnection(URI baseUri, DockerCertificates certificates) {
-        this(baseUri, certificates, DEFAULT_CONNECTION_TIMEOUT, DEFAULT_READ_TIMEOUT);
-    }
-
-    @Inject
-    public TcpConnection(@Named("docker.connection.tcp.base_uri") URI baseUri,
-                         DockerCertificates certificates,
-                         @Named("docker.connection.tcp.connection_timeout_ms") int connectionTimeoutMs,
-                         @Named("docker.connection.tcp.read_timeout_ms") int readTimeoutMs) {
+    public TcpConnection(URI baseUri, DockerCertificates certificates, int connectionTimeoutMs, int readTimeoutMs) {
         if ("https".equals(baseUri.getScheme())) {
             if (certificates == null) {
                 throw new IllegalArgumentException("Certificates are required for https connection.");
