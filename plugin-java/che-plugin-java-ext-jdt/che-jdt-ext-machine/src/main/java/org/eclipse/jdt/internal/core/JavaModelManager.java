@@ -452,15 +452,35 @@ public class JavaModelManager {
     }
 
     /**
+     * Returns the cached value for whether the file referred to by <code>path</code> exists
+     * and is a file, as determined by the return value of {@link File#isFile()}.
+     */
+    public boolean isExternalFile(IPath path) {
+        return this.externalFiles != null && this.externalFiles.contains(path);
+    }
+
+    /**
+     * Returns whether the provided {@link IPath} appears to be an external file,
+     * which is true if the path does not represent an internal resource, does not
+     * exist on the file system, and does have a file extension (this is the definition
+     * provided by {@link ExternalFoldersManager#isExternalFolderPath}).
+     */
+    public boolean isAssumedExternalFile(IPath path) {
+        if (this.assumedExternalFiles == null) {
+            return false;
+        }
+        return this.assumedExternalFiles.contains(path);
+    }
+    /**
      * Returns the package fragment root represented by the resource, or
      * the package fragment the given resource is located in, or <code>null</code>
      * if the given resource is not on the classpath of the given project.
      */
     public static IJavaElement determineIfOnClasspath(IResource resource, IJavaProject project) {
         IPath resourcePath = resource.getFullPath();
-        boolean isExternal = false; //ExternalFoldersManager.isInternalPathForExternalFolder(resourcePath);
-//        if (isExternal)
-//            resourcePath = resource.getLocation();
+        boolean isExternal = ExternalFoldersManager.isExternalFolderPath(resourcePath);
+        if (isExternal)
+            resourcePath = resource.getLocation();
 
         try {
             JavaProjectElementInfo projectInfo =
@@ -491,8 +511,8 @@ public class JavaModelManager {
                                             ((ClasspathEntry)entry).fullExclusionPatternChars(), true)) {
                             // given we have a resource child of the root, it cannot be a JAR pkg root
                             PackageFragmentRoot root =
-//                                    isExternal ?
-//                                    new ExternalPackageFragmentRoot(rootPath, (JavaProject) project) :
+                                    isExternal ?
+                                    new ExternalPackageFragmentRoot(rootPath, (JavaProject) project) :
                                     (PackageFragmentRoot)((JavaProject)project).getFolderPackageFragmentRoot(rootPath);
                             if (root == null) return null;
                             IPath pkgPath = resourcePath.removeFirstSegments(rootPath.segmentCount());

@@ -27,9 +27,9 @@ public interface CreateMoveRefactoring {
      *
      * @return the elements
      */
-    List<JavaElement> getElements();
+    List<ElementToMove> getElements();
 
-    void setElements(List<JavaElement> elements);
+    void setElements(List<ElementToMove> elements);
 
     /**
      * Gets project path.

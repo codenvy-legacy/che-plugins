@@ -152,6 +152,26 @@ public class GitImporterPagePresenter extends AbstractWizardPage<ImportProject> 
     }
 
     @Override
+    public void branchSelected(boolean branch) {
+        view.enableBranchNameField(branch);
+
+        if (view.isBranchName()) {
+            projectParameters().put("branch", view.getBranchName());
+        } else {
+            projectParameters().remove("branch");
+        }
+    }
+
+    @Override
+    public void branchNameChanged(@NotNull String branch) {
+        if (view.isBranchName()) {
+            projectParameters().put("branch", branch);
+        } else {
+            projectParameters().remove("branch");
+        }
+    }
+
+    @Override
     public void go(@NotNull AcceptsOneWidget container) {
         container.setWidget(view);
 
@@ -161,8 +181,11 @@ public class GitImporterPagePresenter extends AbstractWizardPage<ImportProject> 
         view.setProjectUrl(dataObject.getSource().getProject().getLocation());
 
         view.setKeepDirectoryChecked(false);
+        view.setBranchChecked(false);
         view.setDirectoryName("");
+        view.setBranchName("");
         view.enableDirectoryNameField(false);
+        view.enableBranchNameField(false);
         view.highlightDirectoryNameField(false);
 
         view.setInputsEnableState(true);

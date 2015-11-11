@@ -10,26 +10,24 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.java.client.action;
 
-import org.eclipse.che.api.analytics.client.logger.AnalyticsEventLogger;
-import org.eclipse.che.ide.MimeType;
-import org.eclipse.che.ide.api.action.ActionEvent;
-import org.eclipse.che.ide.api.action.ProjectAction;
-import org.eclipse.che.ide.api.editor.EditorAgent;
-import org.eclipse.che.ide.api.editor.EditorInput;
-import org.eclipse.che.ide.api.project.tree.VirtualFile;
-import org.eclipse.che.ide.ext.java.client.JavaLocalizationConstant;
-import org.eclipse.che.ide.ext.java.client.JavaResources;
-import org.eclipse.che.ide.ext.java.client.editor.OpenDeclarationFinder;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
+import org.eclipse.che.api.analytics.client.logger.AnalyticsEventLogger;
+import org.eclipse.che.ide.api.action.ActionEvent;
+import org.eclipse.che.ide.api.editor.EditorAgent;
+import org.eclipse.che.ide.ext.java.client.JavaLocalizationConstant;
+import org.eclipse.che.ide.ext.java.client.JavaResources;
+import org.eclipse.che.ide.ext.java.client.editor.OpenDeclarationFinder;
+
 /**
+ * Invoke open declaration action ofr java element
+ *
  * @author Evgen Vidolob
  */
 @Singleton
-public class OpenDeclarationAction extends ProjectAction {
+public class OpenDeclarationAction extends JavaEditorAction {
 
-    private EditorAgent           editorAgent;
     private OpenDeclarationFinder declarationFinder;
 
     private final AnalyticsEventLogger eventLogger;
@@ -40,26 +38,9 @@ public class OpenDeclarationAction extends ProjectAction {
                                  OpenDeclarationFinder declarationFinder,
                                  AnalyticsEventLogger eventLogger,
                                  JavaResources resources) {
-        super(constant.actionOpenDeclarationTitle(), constant.actionOpenDeclarationDescription(), resources.openDeclaration());
-        this.editorAgent = editorAgent;
+        super(constant.actionOpenDeclarationTitle(), constant.actionOpenDeclarationDescription(), resources.openDeclaration(), editorAgent);
         this.declarationFinder = declarationFinder;
         this.eventLogger = eventLogger;
-    }
-
-    @Override
-    protected void updateProjectAction(ActionEvent e) {
-        if (editorAgent.getActiveEditor() != null) {
-            EditorInput input = editorAgent.getActiveEditor().getEditorInput();
-            VirtualFile file = input.getFile();
-            String mediaType = file.getMediaType();
-            if (mediaType != null && (mediaType.equals(MimeType.TEXT_X_JAVA) ||
-                                      mediaType.equals(MimeType.TEXT_X_JAVA_SOURCE) ||
-                                      mediaType.equals(MimeType.APPLICATION_JAVA_CLASS))) {
-                e.getPresentation().setEnabledAndVisible(true);
-                return;
-            }
-        }
-        e.getPresentation().setEnabledAndVisible(false);
     }
 
     @Override

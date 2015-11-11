@@ -24,6 +24,7 @@ import org.eclipse.che.jdt.rest.FormatService;
 import org.eclipse.che.jdt.rest.JavaClasspathService;
 import org.eclipse.che.jdt.rest.JavaReconcileService;
 import org.eclipse.che.jdt.rest.RefactoringService;
+import org.eclipse.che.jdt.rest.SearchService;
 import org.eclipse.core.internal.filebuffers.FileBuffersPlugin;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jdt.internal.ui.JavaPlugin;
@@ -53,6 +54,7 @@ public class JdtGuiceModule extends AbstractModule {
         bind(ProjectListeners.class).asEagerSingleton();
         bind(RefactoringManager.class).asEagerSingleton();
         bind(RefactoringService.class);
+        bind(SearchService.class);
     }
 
     @Provides

@@ -66,6 +66,12 @@ public class GitImporterPageViewImpl extends Composite implements GitImporterPag
     @UiField
     TextBox     directoryName;
 
+    @UiField
+    CheckBox    branchSelection;
+
+    @UiField
+    TextBox branch;
+
     private ActionDelegate delegate;
 
     @Inject
@@ -118,6 +124,11 @@ public class GitImporterPageViewImpl extends Composite implements GitImporterPag
         delegate.keepDirectorySelected(event.getValue());
     }
 
+    @UiHandler({"branchSelection"})
+    void branchSelectedHandler(ValueChangeEvent<Boolean> event) {
+        delegate.branchSelected(event.getValue());
+    }
+
     @UiHandler("directoryName")
     void onDirectoryNameChanged(KeyUpEvent event) {
         if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
@@ -125,6 +136,15 @@ public class GitImporterPageViewImpl extends Composite implements GitImporterPag
         }
 
         delegate.keepDirectoryNameChanged(directoryName.getValue());
+    }
+
+    @UiHandler("branch")
+    void onBranchNameChanged(KeyUpEvent event) {
+        if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
+            return;
+        }
+
+        delegate.branchNameChanged(branch.getValue());
     }
 
     @Override
@@ -200,8 +220,18 @@ public class GitImporterPageViewImpl extends Composite implements GitImporterPag
     }
 
     @Override
+    public boolean isBranchName() {
+        return branchSelection.getValue();
+    }
+
+    @Override
     public void setKeepDirectoryChecked(boolean checked) {
         keepDirectory.setValue(checked);
+    }
+
+    @Override
+    public void setBranchChecked(boolean checked) {
+        branchSelection.setValue(checked);
     }
 
     @Override
@@ -217,6 +247,21 @@ public class GitImporterPageViewImpl extends Composite implements GitImporterPag
     @Override
     public void enableDirectoryNameField(boolean enable) {
         directoryName.setEnabled(enable);
+    }
+
+    @Override
+    public void setBranchName(String branchName) {
+        branch.setValue(branchName);
+    }
+
+    @Override
+    public void enableBranchNameField(boolean enable) {
+        branch.setEnabled(enable);
+    }
+
+    @Override
+    public String getBranchName() {
+        return branch.getValue();
     }
 
     @Override

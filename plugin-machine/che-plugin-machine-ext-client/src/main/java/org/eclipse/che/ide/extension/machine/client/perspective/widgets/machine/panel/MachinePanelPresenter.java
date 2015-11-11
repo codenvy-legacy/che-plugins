@@ -142,7 +142,9 @@ public class MachinePanelPresenter extends BasePresenter implements MachinePanel
         }
     }
 
-    /** Returns selected machine state. */
+    /**
+     * Returns selected machine state.
+     */
     public MachineStateDto getSelectedMachineState() {
         return selectedMachineState;
     }
@@ -259,7 +261,9 @@ public class MachinePanelPresenter extends BasePresenter implements MachinePanel
         view.selectNode(existingMachineNodes.get(selectedMachineState));
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void onMachineDestroyed(MachineStateEvent event) {
         MachineStateDto machineState = event.getMachineState();
@@ -274,7 +278,9 @@ public class MachinePanelPresenter extends BasePresenter implements MachinePanel
         selectFirstNode();
     }
 
-    /** Returns <code>true</code> if selected machine running, and <code>false</code> if selected machine isn't running */
+    /**
+     * Returns <code>true</code> if selected machine running, and <code>false</code> if selected machine isn't running
+     */
     public boolean isMachineRunning() {
         return isMachineRunning;
     }

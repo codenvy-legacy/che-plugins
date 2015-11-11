@@ -93,20 +93,20 @@ public class JavaNodeRenderer implements NodeRenderer<CodeBlock> {
 //        }
     }
 
-    /**
-     * @param modifiers
-     * @return
-     */
-    private String getMethodClass(int modifiers) {
-        if (Modifier.isPublic(modifiers))
-            return css.publicMethod();
-        else if (Modifier.isProtected(modifiers))
-            return css.protectedMethod();
-        else if (Modifier.isPrivate(modifiers))
-            return css.privateMethod();
-        else
-            return css.defaultMethod();
-    }
+//    /**
+//     * @param modifiers
+//     * @return
+//     */
+//    private String getMethodClass(int modifiers) {
+//        if (Modifier.isPublic(modifiers))
+//            return css.publicMethod();
+//        else if (Modifier.isProtected(modifiers))
+//            return css.protectedMethod();
+//        else if (Modifier.isPrivate(modifiers))
+//            return css.privateMethod();
+//        else
+//            return css.defaultMethod();
+//    }
 
     /**
      * @param modifiers

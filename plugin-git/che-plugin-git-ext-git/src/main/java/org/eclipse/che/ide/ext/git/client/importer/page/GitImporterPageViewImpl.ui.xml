@@ -15,7 +15,7 @@
     <ui:with field='locale' type='org.eclipse.che.ide.ext.git.client.GitLocalizationConstant'/>
     <ui:with field="style" type="org.eclipse.che.ide.ext.git.client.importer.page.GitImporterPageViewImpl.Style"/>
     <g:DockLayoutPanel unit="PX" addStyleNames="{style.mainPanel}">
-        <g:north size="365">
+        <g:north size="450">
             <g:FlowPanel ui:field="importerPanel">
                 <g:FlowPanel height="65px" addStyleNames="{style.namePanel}">
                     <g:Label text="{locale.gitImporterPageProjectUrl}"
@@ -59,10 +59,21 @@
                                     debugId="file-importProject-keepDirectory" addStyleNames="{style.alignLeft}" />
                 </g:FlowPanel>
 
-                <g:FlowPanel height="20px" addStyleNames="{style.namePanel}">
+                <g:FlowPanel height="55px" addStyleNames="{style.namePanel}">
                     <g:Label text="{locale.gitImporterPageKeepDirectoryField}" addStyleNames="{style.labelPosition}"/>
                     <g:TextBox ui:field="directoryName" addStyleNames="{style.inputField} {style.alignRight}"
-                               tabIndex="9" debugId="file-importProject-keepDirectoryName" title="{locale.gitImporterPageProjectNamePrompt}"/>
+                               tabIndex="9" debugId="file-importProject-keepDirectoryName" title="{locale.gitImporterPageBranchField}"/>
+                </g:FlowPanel>
+
+                <g:FlowPanel height="25px" addStyleNames="{style.namePanel}">
+                    <g:CheckBox ui:field="branchSelection" text="{locale.gitImporterPageBranch}"
+                                debugId="file-importProject-branch" addStyleNames="{style.alignLeft}" />
+                </g:FlowPanel>
+
+                <g:FlowPanel height="20px" addStyleNames="{style.namePanel}">
+                    <g:Label text="{locale.gitImporterPageBranchField}" addStyleNames="{style.labelPosition}"/>
+                    <g:TextBox ui:field="branch" addStyleNames="{style.inputField} {style.alignRight}"
+                               tabIndex="10" debugId="file-importProject-branchName" title="{locale.gitImporterPageBranchField}"/>
                 </g:FlowPanel>
 
             </g:FlowPanel>

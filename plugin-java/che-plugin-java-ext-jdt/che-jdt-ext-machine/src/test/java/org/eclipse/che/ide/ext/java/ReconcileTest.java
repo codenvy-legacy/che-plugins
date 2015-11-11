@@ -96,13 +96,6 @@ public class ReconcileTest extends BaseTest {
         assertThat(reconcile.getProblems()).onProperty("error").containsSequence(true);
     }
 
-    @Test
-    public void testBinaryTypeReconcile() throws Exception {
-        ReconcileResult reconcile = reconciler.reconcile(project, "com.sun.nio.zipfs.ZipFileStore");
-        assertThat(reconcile).isNotNull();
-        assertThat(reconcile.getProblems()).isNotNull().hasSize(0);
-
-    }
 
     @Test
     public void testSemanticHighlight() throws Exception {

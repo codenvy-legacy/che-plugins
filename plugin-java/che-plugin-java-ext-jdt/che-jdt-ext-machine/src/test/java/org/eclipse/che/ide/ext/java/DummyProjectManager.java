@@ -57,7 +57,7 @@ public class DummyProjectManager implements ProjectManager {
     final Set<String> vfsUserGroups = new LinkedHashSet<>(Arrays.asList("workspace/developer"));
     private final LocalFileSystemProvider localFileSystemProvider;
 
-    public DummyProjectManager(String workspacePath) {
+    public DummyProjectManager(String workspacePath, EventService eventService) {
 
         EnvironmentContext context = new EnvironmentContext();
         context.setUser(new UserImpl(vfsUser, "", "", vfsUserGroups, false));
@@ -72,7 +72,7 @@ public class DummyProjectManager implements ProjectManager {
             public File getMountPath() throws ServerException {
                 return new File(workspacePath);
             }
-        }, new EventService(), null, null);
+        }, eventService, null, null);
     }
 
     @Override

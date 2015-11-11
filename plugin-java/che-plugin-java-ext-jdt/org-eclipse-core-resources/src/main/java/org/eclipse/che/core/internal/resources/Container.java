@@ -35,8 +35,8 @@ public abstract class Container extends Resource implements IContainer{
     }
 
     @Override
-    public boolean exists(IPath iPath) {
-        throw new UnsupportedOperationException();
+    public boolean exists(IPath childPath) {
+        return workspace.getResourceInfo(getFullPath().append(childPath)) != null;
     }
 
     @Override
@@ -113,7 +113,7 @@ public abstract class Container extends Resource implements IContainer{
 
     @Override
     public void setDefaultCharset(String newCharset, IProgressMonitor monitor) throws CoreException {
-        throw new UnsupportedOperationException();
+//        throw new UnsupportedOperationException();
     }
 
     /* (non-Javadoc)
