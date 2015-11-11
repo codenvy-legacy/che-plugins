@@ -17,8 +17,8 @@ import org.eclipse.che.ide.api.extension.Extension;
 import org.eclipse.che.ide.ext.openshift.client.build.StartBuildAction;
 import org.eclipse.che.ide.ext.openshift.client.deploy.LinkProjectWithExistingApplicationAction;
 import org.eclipse.che.ide.ext.openshift.client.deploy._new.NewApplicationAction;
-import org.eclipse.che.ide.ext.openshift.client.oauth.authenticator.ConnectAccountAction;
-import org.eclipse.che.ide.ext.openshift.client.oauth.authenticator.DisconnectAccountAction;
+import org.eclipse.che.ide.ext.openshift.client.oauth.ConnectAccountAction;
+import org.eclipse.che.ide.ext.openshift.client.oauth.DisconnectAccountAction;
 import org.eclipse.che.ide.ext.openshift.client.project.CreateApplicationFromTemplateAction;
 
 import javax.inject.Inject;

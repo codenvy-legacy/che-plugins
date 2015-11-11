@@ -8,17 +8,16 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.ide.ext.openshift.client.oauth.authenticator;
+package org.eclipse.che.ide.ext.openshift.client.oauth;
 
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Singleton;
 
+import org.eclipse.che.api.auth.client.OAuthServiceClient;
 import org.eclipse.che.ide.api.action.Action;
 import org.eclipse.che.ide.api.action.ActionEvent;
-import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.ext.openshift.client.OpenshiftLocalizationConstant;
-import org.eclipse.che.security.oauth.OAuthStatus;
+import org.eclipse.che.ide.rest.AsyncRequestCallback;
 
 import javax.inject.Inject;
 
@@ -26,19 +25,19 @@ import javax.inject.Inject;
  * @author Sergii Leschenko
  */
 @Singleton
-public class ConnectAccountAction extends Action {
-    private final OpenshiftAuthenticator        openshiftAuthenticator;
+public class DisconnectAccountAction extends Action {
+    private final OAuthServiceClient            oAuthServiceClient;
     private final OpenshiftAuthorizationHandler openshiftAuthorizationHandler;
     private final OpenshiftLocalizationConstant locale;
-    private final NotificationManager           notificationManager;
+    private final NotificationManager notificationManager;
 
     @Inject
-    public ConnectAccountAction(OpenshiftAuthenticator openshiftAuthenticator,
-                                OpenshiftAuthorizationHandler openshiftAuthorizationHandler,
-                                OpenshiftLocalizationConstant locale,
-                                NotificationManager notificationManager) {
-        super(locale.connectAccountTitle());
-        this.openshiftAuthenticator = openshiftAuthenticator;
+    public DisconnectAccountAction(OAuthServiceClient oAuthServiceClient,
+                                   OpenshiftAuthorizationHandler openshiftAuthorizationHandler,
+                                   OpenshiftLocalizationConstant locale,
+                                   NotificationManager notificationManager) {
+        super(locale.disconnectAccountTitle());
+        this.oAuthServiceClient = oAuthServiceClient;
         this.openshiftAuthorizationHandler = openshiftAuthorizationHandler;
         this.locale = locale;
         this.notificationManager = notificationManager;
@@ -46,22 +45,22 @@ public class ConnectAccountAction extends Action {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        openshiftAuthenticator.authorize(new AsyncCallback<OAuthStatus>() {
+        oAuthServiceClient.invalidateToken("openshift", new AsyncRequestCallback<Void>() {
             @Override
-            public void onSuccess(OAuthStatus result) {
-                openshiftAuthorizationHandler.registerLogin();
-                notificationManager.showInfo(locale.loginSuccessful());
+            protected void onSuccess(Void result) {
+                openshiftAuthorizationHandler.registerLogout();
+                notificationManager.showInfo(locale.logoutSuccessful());
             }
 
             @Override
-            public void onFailure(Throwable caught) {
-                notificationManager.showError(locale.loginFailed());
+            protected void onFailure(Throwable exception) {
+                notificationManager.showError(locale.logoutFailed());
             }
         });
     }
 
     @Override
     public void update(ActionEvent e) {
-        e.getPresentation().setVisible(!openshiftAuthorizationHandler.isLoggedIn());
+        e.getPresentation().setVisible(openshiftAuthorizationHandler.isLoggedIn());
     }
 }

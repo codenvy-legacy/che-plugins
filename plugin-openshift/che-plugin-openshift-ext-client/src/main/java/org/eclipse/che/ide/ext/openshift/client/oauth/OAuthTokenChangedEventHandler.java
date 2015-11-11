@@ -8,15 +8,13 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.ide.ext.openshift.client.oauth.authenticator;
+package org.eclipse.che.ide.ext.openshift.client.oauth;
 
-import com.google.gwt.user.client.rpc.AsyncCallback;
-
-import org.eclipse.che.security.oauth.OAuthStatus;
+import com.google.gwt.event.shared.EventHandler;
 
 /**
  * @author Sergii Leschenko
  */
-public interface OpenshiftAuthenticator {
-    void authorize(AsyncCallback<OAuthStatus> callback);
+public interface OAuthTokenChangedEventHandler extends EventHandler {
+    void onTokenChange(String token);
 }

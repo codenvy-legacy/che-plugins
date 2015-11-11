@@ -14,8 +14,6 @@ import com.google.gwt.inject.client.AbstractGinModule;
 import com.google.gwt.inject.client.assistedinject.GinFactoryModuleBuilder;
 
 import org.eclipse.che.ide.api.extension.ExtensionGinModule;
-import org.eclipse.che.ide.ext.openshift.client.oauth.authenticator.OpenshiftAuthenticator;
-import org.eclipse.che.ide.ext.openshift.client.oauth.authenticator.OpenshiftAuthenticatorImpl;
 import org.eclipse.che.ide.ext.openshift.client.project.wizard.CreateProjectWizardFactory;
 
 /**
@@ -25,7 +23,6 @@ import org.eclipse.che.ide.ext.openshift.client.project.wizard.CreateProjectWiza
 public class OpenshiftGinModule extends AbstractGinModule {
     @Override
     protected void configure() {
-        bind(OpenshiftAuthenticator.class).to(OpenshiftAuthenticatorImpl.class);
         bind(OpenshiftServiceClient.class).to(OpenshiftServiceClientImpl.class);
 
         install(new GinFactoryModuleBuilder().build(CreateProjectWizardFactory.class));
