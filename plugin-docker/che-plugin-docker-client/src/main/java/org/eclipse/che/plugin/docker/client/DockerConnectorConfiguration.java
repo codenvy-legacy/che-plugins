@@ -243,6 +243,13 @@ public class DockerConnectorConfiguration {
         return authConfigs;
     }
 
+    /**
+     * For testing purposes
+     */
+    public String getDockerCertificatesDirectoryPath() {
+        return dockerCertificatesDirectoryPath;
+    }
+
     public DockerCertificates getDockerCertificates() {
         if (dockerCertificatesDirectoryPath == null || !getDockerDaemonUri().getScheme().equals("https")) {
             return null;

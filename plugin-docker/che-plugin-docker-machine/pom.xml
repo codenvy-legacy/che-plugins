@@ -124,7 +124,7 @@
     </build>
     <profiles>
         <profile>
-            <id>docker-integration-tests</id>
+            <id>integration-tests</id>
             <activation>
                 <activeByDefault>false</activeByDefault>
             </activation>
