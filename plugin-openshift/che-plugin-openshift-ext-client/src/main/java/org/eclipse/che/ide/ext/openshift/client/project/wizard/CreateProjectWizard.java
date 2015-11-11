@@ -140,7 +140,7 @@ public class CreateProjectWizard extends AbstractWizard<NewApplicationRequest> {
                 attributes.put(OPENSHIFT_APPLICATION_VARIABLE_NAME, singletonList(dataObject.getImportProject().getProject().getName()));
                 attributes.put(OPENSHIFT_NAMESPACE_VARIABLE_NAME, singletonList(project.getMetadata().getName()));
 
-                dataObject.getImportProject().getProject().setMixinTypes(singletonList(OPENSHIFT_PROJECT_TYPE_ID));
+                dataObject.getImportProject().getProject().setMixins(singletonList(OPENSHIFT_PROJECT_TYPE_ID));
                 dataObject.getImportProject().getProject().withAttributes(attributes);
 
                 return Promises.resolve(project);
