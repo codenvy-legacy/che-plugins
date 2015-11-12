@@ -174,14 +174,11 @@ public class UserProfileSshKeyStoreTest {
     public void shouldRemoveKeysFromUsersPreferences() throws Exception {
         final String host = "github.com";
         sshKeyStore = spy(new UserProfileSshKeyStore(API_ENDPOINT));
-        @SuppressWarnings("unchecked")
-        Map<String, String> keys = mock(Map.class);
-        doReturn(keys).when(sshKeyStore).getSshKeys();
-        doNothing().when(sshKeyStore).updateSshKeys(any());
+        doNothing().when(sshKeyStore).removeSshKeys(any());
 
         sshKeyStore.removeKeys(host);
 
-        verify(keys, times(2)).remove(anyString());
+        verify(sshKeyStore, times(1)).removeSshKeys(any());
     }
 
     @Test

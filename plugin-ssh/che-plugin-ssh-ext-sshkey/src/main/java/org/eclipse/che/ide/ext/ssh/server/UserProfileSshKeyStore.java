@@ -20,13 +20,17 @@ import org.eclipse.che.api.core.rest.HttpJsonHelper;
 import org.eclipse.che.api.user.shared.dto.ProfileDescriptor;
 import org.eclipse.che.commons.json.JsonHelper;
 import org.eclipse.che.commons.json.JsonParseException;
-import org.eclipse.che.commons.lang.Pair;
+import org.eclipse.che.dto.server.JsonArrayImpl;
+import org.eclipse.che.dto.server.JsonStringMapImpl;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.ws.rs.HttpMethod;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -194,11 +198,9 @@ public class UserProfileSshKeyStore implements SshKeyStore {
     @Override
     public void removeKeys(String host) throws SshKeyStoreException {
         try {
-            final Map<String, String> keys = getSshKeys();
-            keys.remove(sshKeyAttributeName(host, PRIVATE));
-            keys.remove(sshKeyAttributeName(host, PUBLIC));
-            updateSshKeys(keys);
-        } catch (ApiException | JsonParseException | IOException e) {
+            removeSshKeys(Arrays.asList(sshKeyAttributeName(host, PRIVATE),
+                    sshKeyAttributeName(host, PUBLIC)));
+        } catch (ApiException | IOException e) {
             throw new SshKeyStoreException("Failed to remove keys for host '" + host + "'.");
         }
     }
@@ -280,21 +282,22 @@ public class UserProfileSshKeyStore implements SshKeyStore {
 
     @SuppressWarnings("unchecked")
     ProfileDescriptor getUserProfile() throws ApiException, IOException, JsonParseException {
-        final String profileDescriptor = HttpJsonHelper.requestString(profileApiUrl, "GET", null);
-        return JsonHelper.fromJson(profileDescriptor, ProfileDescriptor.class, new TypeToken<ProfileDescriptor>() {}.getType());
+        return HttpJsonHelper.request(ProfileDescriptor.class, profileApiUrl, HttpMethod.GET, null);
     }
 
     @SuppressWarnings("unchecked")
     Map<String, String> getSshKeys() throws ApiException, IOException, JsonParseException {
-        final String preferencesJson = HttpJsonHelper.requestString(profileApiUrl + "/prefs?filter=ssh.key.*", "GET", null);
+        final String preferencesJson = HttpJsonHelper.requestString(profileApiUrl + "/prefs?filter=ssh.key.*", HttpMethod.GET, null);
         return JsonHelper.fromJson(preferencesJson, Map.class, new TypeToken<Map<String, String>>() {}.getType());
     }
 
     @SuppressWarnings("unchecked")
     void updateSshKeys(Map<String, String> preferences) throws ApiException, IOException {
-        HttpJsonHelper.requestString(profileApiUrl + "/prefs",
-                                     "POST",
-                                     JsonHelper.toJson(preferences),
-                                     Pair.of("Content-Type", "application/json"));
+        HttpJsonHelper.request(profileApiUrl + "/prefs", HttpMethod.POST, new JsonStringMapImpl<>(preferences));
+    }
+
+    @SuppressWarnings("unchecked")
+    void removeSshKeys(List<String> keys) throws ApiException, IOException {
+        HttpJsonHelper.request(profileApiUrl + "/prefs", HttpMethod.DELETE, new JsonArrayImpl<>(keys));
     }
 }
