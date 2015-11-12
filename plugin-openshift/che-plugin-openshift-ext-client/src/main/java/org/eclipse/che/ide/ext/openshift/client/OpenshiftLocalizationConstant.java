@@ -73,6 +73,9 @@ public interface OpenshiftLocalizationConstant extends Messages {
 
     @Key("link.with.existing.success")
     String linkProjectWithExistingSuccess(String project, String application);
+    
+    @Key("new.application.action")
+    String newApplicationAction();
 
     @Key("not.git.repository.warning")
     String notGitRepositoryWarning(String project);
