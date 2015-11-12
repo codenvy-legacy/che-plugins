@@ -8,7 +8,6 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-@eval borderColor com.codenvy.ide.api.theme.Style.getTabBorderColor();
 
 .mainPanel {
   margin: 0px;

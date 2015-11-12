@@ -69,21 +69,21 @@ public class ContentAssistWidget implements EventListener {
     private         OrionKeyModeOverlay assistMode;
 
     /** The main element for the popup. */
-    protected final Element popupElement;
-    protected final Element popupBodyElement;
+    private final Element popupElement;
+    private final Element popupBodyElement;
 
     /** The list (ul) element for the popup. */
-    protected final Element listElement;
+    private final Element listElement;
 
-    protected final EventListener  popupListener;
+    private final EventListener  popupListener;
 
-    private boolean             visible = false;
-    private boolean             insert = true;
+    private boolean visible = false;
+    private boolean insert = true;
 
     /**
      * The previously focused element.
      */
-    protected Element    selectedElement;
+    private Element    selectedElement;
     private FlowPanel docPopup;
 
     private OrionTextViewOverlay.EventHandler<OrionModelChangedEventOverlay> handler;
@@ -430,8 +430,15 @@ public class ContentAssistWidget implements EventListener {
         popupElement.getStyle().setTop(caretLocation.getY(), PX);
         popupElement.getStyle().setWidth("400px");
         popupElement.getStyle().setHeight("200px");
+        popupElement.getStyle().setOpacity(0);
         Elements.getDocument().getBody().appendChild(this.popupElement);
-        popupElement.getStyle().setOpacity(1);
+
+        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+            @Override
+            public void execute() {
+                popupElement.getStyle().setOpacity(1);
+            }
+        });
 
         /* Correct popup position (wants to be refactored) */
         final Window window = Elements.getWindow();

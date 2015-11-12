@@ -14,7 +14,7 @@
              xmlns:g='urn:import:com.google.gwt.user.client.ui'
              xmlns:che='urn:import:org.eclipse.che.ide.ui.listbox'>
     <ui:style src="org/eclipse/che/ide/api/ui/style.css" type="org.eclipse.che.ide.extension.maven.client.wizard.MavenPageViewImpl.Style">
-        @eval borderColor org.eclipse.che.ide.api.theme.Style.getTabBorderColor();
+
         .field {
             color: #dbdbdb;
             border: 1px solid #191c1e;
@@ -73,7 +73,7 @@
         .tooltip > span {
             position: absolute;
             color: mainFontColor;
-            border: 1px solid borderColor;
+            border: 1px solid tabBorderColor;
             background: textFieldBackgroundColor;
             white-space: nowrap;
             font-family: mainFontFamily;
