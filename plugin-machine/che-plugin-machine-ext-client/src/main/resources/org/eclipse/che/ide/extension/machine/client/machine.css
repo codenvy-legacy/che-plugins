@@ -8,7 +8,7 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-@eval backgroundColor org.eclipse.che.ide.api.theme.Style.getPartBackground();
+@eval partBackground org.eclipse.che.ide.api.theme.Style.theme.partBackground();
 @eval outputFontColor org.eclipse.che.ide.api.theme.Style.getOutputFontColor();
 
 .fullSize {
@@ -17,7 +17,7 @@
 }
 
 .machineConsole, .commandConsole {
-    background-color: backgroundColor;
+    background-color: partBackground;
     -moz-user-select: text;
     -webkit-user-select: text;
     user-select: text;

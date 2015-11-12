@@ -187,3 +187,58 @@
 .textviewScroll::-webkit-resizer {
     display: none;
 }
+
+.textviewTooltip {
+    z-index: 101;
+    position: fixed;
+    border: 1px solid completionPopupBorderColor;
+    background-color: completionPopupBackgroundColor;
+    border-radius: 3px;
+    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.5);
+
+    font-family: "Open Sans", sans-serif;
+    line-height: 14px;
+    font-size: 11px;
+    cursor: default;
+    color: completionPopupItemTextColor;
+
+    outline: none;
+
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 5px;
+    padding-bottom: 7px;
+}
+
+.textviewTooltip em {
+    font-style: normal;
+    font-weight: bold;
+    line-height: 20px;
+}
+
+.textviewTooltip span {
+    vertical-align: baseline;
+}
+
+.textviewTooltip .tooltipRow {
+    display: table-row;
+    position: relative;
+}
+
+.textviewTooltip .tooltipImage {
+    width: 18px;
+    display: table-cell;
+    vertical-align: top;
+    padding-top: 1px;
+}
+
+.textviewTooltip .tooltipImage .annotationHTML {
+    margin-left: 0px;
+}
+
+.textviewTooltip .tooltipTitle {
+    display: table-cell;
+    max-width: 400px;
+    text-overflow: ellipsis;
+    overflow-x: hidden;
+}
