@@ -21,6 +21,7 @@ import org.eclipse.che.ide.ext.openshift.client.oauth.ConnectAccountAction;
 import org.eclipse.che.ide.ext.openshift.client.oauth.DisconnectAccountAction;
 import org.eclipse.che.ide.ext.openshift.client.importapp.ImportApplicationAction;
 import org.eclipse.che.ide.ext.openshift.client.project.CreateApplicationFromTemplateAction;
+import org.eclipse.che.ide.ext.openshift.client.project.UnlinkProjectAction;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -50,7 +51,8 @@ public class OpenshiftExtension {
                               ShowApplicationUrlAction showApplicationUrlAction,
                               ShowWebhooksAction showWebhooksAction,
                               StartBuildAction startBuildAction,
-                              ImportApplicationAction importApplicationAction) {
+                              ImportApplicationAction importApplicationAction,
+                              UnlinkProjectAction unlinkProjectAction) {
         openshiftResources.css().ensureInjected();
         DefaultActionGroup mainMenu = (DefaultActionGroup)actionManager.getAction(GROUP_MAIN_MENU);
 
@@ -76,6 +78,9 @@ public class OpenshiftExtension {
         deployGroup.add(deployToExistingApplicationAction);
 
         openshift.add(deployGroup);
+
+        actionManager.registerAction("unlinkOpenshiftProject", unlinkProjectAction);
+        openshift.add(unlinkProjectAction);
 
         openshift.addSeparator();
         actionManager.registerAction("createOpenshiftApplicationFromTemplate", createApplicationFromTemplateAction);

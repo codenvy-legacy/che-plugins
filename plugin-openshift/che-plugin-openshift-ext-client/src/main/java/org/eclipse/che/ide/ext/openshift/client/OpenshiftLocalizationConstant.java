@@ -172,4 +172,13 @@ public interface OpenshiftLocalizationConstant extends Messages {
 
     @Key("failed.to.watch.build.by.websocket")
     String failedToWatchBuildByWebSocket(String buildName);
+
+    @Key("unlink.project.action.title")
+    String unlinkProjectActionTitle();
+
+    @Key("unlink.project.successful")
+    String unlinkProjectSuccessful(String project);
+
+    @Key("unlink.project.failed")
+    String unlinkProjectFailed();
 }
