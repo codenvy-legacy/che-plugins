@@ -39,7 +39,7 @@ import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringResult;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatus;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatusEntry;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RenameRefactoringSession;
-import org.eclipse.che.ide.jseditor.client.document.EmbeddedDocument;
+import org.eclipse.che.ide.jseditor.client.document.Document;
 import org.eclipse.che.ide.jseditor.client.link.HasLinkedMode;
 import org.eclipse.che.ide.jseditor.client.link.LinkedMode;
 import org.eclipse.che.ide.jseditor.client.link.LinkedModel;
@@ -145,7 +145,7 @@ public class JavaRefactoringRename {
 
     private void activateLinkedModeIntoEditor(final RenameRefactoringSession session,
                                               final HasLinkedMode linkedEditor,
-                                              final EmbeddedDocument document) {
+                                              final Document document) {
         mode = linkedEditor.getLinkedMode();
         LinkedModel model = linkedEditor.createLinkedModel();
         LinkedModeModel linkedModeModel = session.getLinkedModeModel();

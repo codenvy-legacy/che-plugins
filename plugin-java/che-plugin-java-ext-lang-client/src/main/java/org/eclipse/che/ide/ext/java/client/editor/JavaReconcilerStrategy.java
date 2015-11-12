@@ -26,7 +26,6 @@ import org.eclipse.che.ide.ext.java.shared.dto.Problem;
 import org.eclipse.che.ide.ext.java.shared.dto.ReconcileResult;
 import org.eclipse.che.ide.jseditor.client.annotation.AnnotationModel;
 import org.eclipse.che.ide.jseditor.client.document.Document;
-import org.eclipse.che.ide.jseditor.client.document.EmbeddedDocument;
 import org.eclipse.che.ide.jseditor.client.reconciler.DirtyRegion;
 import org.eclipse.che.ide.jseditor.client.reconciler.ReconcilingStrategy;
 import org.eclipse.che.ide.jseditor.client.texteditor.EditorResources;
@@ -77,7 +76,7 @@ public class JavaReconcilerStrategy implements ReconcilingStrategy {
     }
 
     @Override
-    public void setDocument(final EmbeddedDocument document) {
+    public void setDocument(final Document document) {
         this.document = document;
         file = editor.getEditorInput().getFile();
         sourceFromClass = file instanceof JarFileNode || (file.getName().endsWith(".class") || file.getName().endsWith(".java"));

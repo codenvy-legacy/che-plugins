@@ -20,7 +20,7 @@ import org.eclipse.che.ide.editor.orion.client.jso.OrionSelectionOverlay;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionTextModelOverlay.EventHandler;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionTextViewOverlay;
 import org.eclipse.che.ide.jseditor.client.document.AbstractEmbeddedDocument;
-import org.eclipse.che.ide.jseditor.client.document.EmbeddedDocument;
+import org.eclipse.che.ide.jseditor.client.document.Document;
 import org.eclipse.che.ide.jseditor.client.events.CursorActivityHandler;
 import org.eclipse.che.ide.jseditor.client.events.DocumentChangeEvent;
 import org.eclipse.che.ide.jseditor.client.events.HasCursorActivityHandlers;
@@ -30,7 +30,7 @@ import org.eclipse.che.ide.jseditor.client.text.TextPosition;
 import org.eclipse.che.ide.jseditor.client.text.TextRange;
 
 /**
- * The implementation of {@link EmbeddedDocument} for Orion.
+ * The implementation of {@link Document} for Orion.
  *
  * @author "Mickaël Leduque"
  */

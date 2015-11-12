@@ -61,7 +61,6 @@ import org.eclipse.che.ide.jseditor.client.annotation.AnnotationModelEvent;
 import org.eclipse.che.ide.jseditor.client.codeassist.CompletionProposal;
 import org.eclipse.che.ide.jseditor.client.codeassist.CompletionReadyCallback;
 import org.eclipse.che.ide.jseditor.client.codeassist.CompletionsSource;
-import org.eclipse.che.ide.jseditor.client.document.EmbeddedDocument;
 import org.eclipse.che.ide.jseditor.client.editortype.EditorType;
 import org.eclipse.che.ide.jseditor.client.events.CursorActivityEvent;
 import org.eclipse.che.ide.jseditor.client.events.CursorActivityHandler;
@@ -314,7 +313,7 @@ public class OrionEditorWidget extends CompositeEditorWidget implements HasChang
 
     /** {@inheritDoc} */
     @Override
-    public EmbeddedDocument getDocument() {
+    public org.eclipse.che.ide.jseditor.client.document.Document getDocument() {
         if (this.embeddedDocument == null) {
             this.embeddedDocument = new OrionDocument(this.editorOverlay.getTextView(), this, editorOverlay);
         }
