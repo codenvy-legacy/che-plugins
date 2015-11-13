@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.che.ide.editor.orion.client;
 
-
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Document;
@@ -105,6 +104,8 @@ public class OrionEditorWidget extends CompositeEditorWidget implements HasChang
 
     private final OrionCodeEditWidgetOverlay codeEditWidgetModule;
     private final KeymapPrefReader           keymapPrefReader;
+    private final ModuleHolder               moduleHolder;
+    private final EventBus                   eventBus;
     private final AppContext                 appContext;
     private final String                     projectApiBaseURL;
     private       OrionEditorOverlay         editorOverlay;
@@ -112,7 +113,7 @@ public class OrionEditorWidget extends CompositeEditorWidget implements HasChang
     private       String                     modeName;
     private       KeyModeInstances           keyModeInstances;
     /** Component that handles undo/redo. */
-    private HandlesUndoRedo undoRedo;
+    private       HandlesUndoRedo            undoRedo;
 
     private OrionDocument embeddedDocument;
 
@@ -134,6 +135,8 @@ public class OrionEditorWidget extends CompositeEditorWidget implements HasChang
                              @Named("workspaceId") String workspaceId,
                              @Assisted final List<String> editorModes,
                              @Assisted final WidgetInitializedCallback widgetInitializedCallback) {
+        this.moduleHolder = moduleHolder;
+        this.eventBus = eventBus;
         this.appContext = appContext;
         this.projectApiBaseURL = restContext + "/project/" + workspaceId;
         initWidget(UIBINDER.createAndBindUi(this));
@@ -150,32 +153,8 @@ public class OrionEditorWidget extends CompositeEditorWidget implements HasChang
         panel.getElement().setId("orion-parent-" + Document.get().createUniqueId());
         panel.getElement().addClassName(this.editorElementStyle.editorParent());
 
-        codeEditWidgetModule.createEditorView(panel.getElement(), getConfiguration()).then(new Operation<OrionEditorViewOverlay>() {
-            @Override
-            public void apply(OrionEditorViewOverlay arg) throws OperationException {
-                OrionEditorWidget.this.editorViewOverlay = arg;
-                OrionEditorWidget.this.editorOverlay = arg.getEditor();
-
-                OrionEditorWidget.this.keyModeInstances = keyModeInstances;
-                final OrionTextViewOverlay textView = OrionEditorWidget.this.editorOverlay.getTextView();
-                OrionEditorWidget.this.keyModeInstances.add(VI, getViKeyMode(moduleHolder.getModule("OrionVi"),
-                                                                             textView));
-                OrionEditorWidget.this.keyModeInstances.add(EMACS, getEmacsKeyMode(moduleHolder.getModule("OrionEmacs"),
-                                                                                   textView));
-
-                setupKeymode();
-                eventBus.addHandler(KeymapChangeEvent.TYPE, new KeymapChangeHandler() {
-
-                    @Override
-                    public void onKeymapChanged(final KeymapChangeEvent event) {
-                        setupKeymode();
-                    }
-                });
-                OrionEditorWidget.this.undoRedo = new OrionUndoRedo(OrionEditorWidget.this.editorOverlay.getUndoStack());
-
-                widgetInitializedCallback.initialized(OrionEditorWidget.this);
-            }
-        });
+        codeEditWidgetModule.createEditorView(panel.getElement(), getConfiguration())
+                            .then(new EditorViewCreatedOperation(widgetInitializedCallback));
     }
 
     @Override
@@ -528,5 +507,35 @@ public class OrionEditorWidget extends CompositeEditorWidget implements HasChang
 
         @ClassName("editor-parent")
         String editorParent();
+    }
+
+    private class EditorViewCreatedOperation implements Operation<OrionEditorViewOverlay> {
+        private final WidgetInitializedCallback widgetInitializedCallback;
+
+        private EditorViewCreatedOperation(WidgetInitializedCallback widgetInitializedCallback) {
+            this.widgetInitializedCallback = widgetInitializedCallback;
+        }
+
+        @Override
+        public void apply(OrionEditorViewOverlay arg) throws OperationException {
+            OrionEditorWidget.this.editorViewOverlay = arg;
+            OrionEditorWidget.this.editorOverlay = arg.getEditor();
+
+            OrionEditorWidget.this.keyModeInstances = keyModeInstances;
+            final OrionTextViewOverlay textView = OrionEditorWidget.this.editorOverlay.getTextView();
+            OrionEditorWidget.this.keyModeInstances.add(VI, getViKeyMode(moduleHolder.getModule("OrionVi"), textView));
+            OrionEditorWidget.this.keyModeInstances.add(EMACS, getEmacsKeyMode(moduleHolder.getModule("OrionEmacs"), textView));
+
+            setupKeymode();
+            eventBus.addHandler(KeymapChangeEvent.TYPE, new KeymapChangeHandler() {
+                @Override
+                public void onKeymapChanged(final KeymapChangeEvent event) {
+                    setupKeymode();
+                }
+            });
+            OrionEditorWidget.this.undoRedo = new OrionUndoRedo(OrionEditorWidget.this.editorOverlay.getUndoStack());
+
+            widgetInitializedCallback.initialized(OrionEditorWidget.this);
+        }
     }
 }
