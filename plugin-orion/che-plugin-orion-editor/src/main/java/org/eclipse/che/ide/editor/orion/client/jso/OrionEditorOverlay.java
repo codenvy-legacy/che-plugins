@@ -11,7 +11,6 @@
 package org.eclipse.che.ide.editor.orion.client.jso;
 
 import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.dom.client.Element;
 
 public class OrionEditorOverlay extends JavaScriptObject {
 
@@ -36,6 +35,18 @@ public class OrionEditorOverlay extends JavaScriptObject {
 
     public final native OrionTextModelOverlay getModel() /*-{
         return this.getModel();
+    }-*/;
+
+    public final native void setCaretOffset(int offset) /*-{
+        this.setCaretOffset(offset, true);
+    }-*/;
+
+    public final native int getCaretOffset() /*-{
+        return this.getCaretOffset();
+    }-*/;
+
+    public final native void setText(String text, int start, int end) /*-{
+        this.setText(text, start, end);
     }-*/;
 
     public final native OrionUndoStackOverlay getUndoStack() /*-{
@@ -91,15 +102,6 @@ public class OrionEditorOverlay extends JavaScriptObject {
 
     public final native void setDirty(final boolean newValue) /*-{
         this.setDirty(newValue);
-    }-*/;
-
-    public final static native OrionEditorOverlay createEditor(final Element element,
-                                                               final JavaScriptObject options,
-                                                               final JavaScriptObject orionEditor) /*-{
-
-        options.parent = element;
-        var editor = orionEditor(options);
-        return editor;
     }-*/;
 
     /**

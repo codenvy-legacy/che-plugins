@@ -10,16 +10,41 @@
  *******************************************************************************/
 package org.eclipse.che.ide.editor.orion.client;
 
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.dom.client.Document;
+import com.google.gwt.dom.client.Element;
+import com.google.gwt.event.dom.client.BlurEvent;
+import com.google.gwt.event.dom.client.BlurHandler;
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
+import com.google.gwt.event.dom.client.DomEvent;
+import com.google.gwt.event.dom.client.FocusEvent;
+import com.google.gwt.event.dom.client.FocusHandler;
+import com.google.gwt.event.dom.client.HasChangeHandlers;
+import com.google.gwt.event.shared.HandlerRegistration;
+import com.google.gwt.json.client.JSONArray;
+import com.google.gwt.json.client.JSONBoolean;
+import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONString;
+import com.google.gwt.resources.client.CssResource;
+import com.google.gwt.uibinder.client.UiBinder;
+import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.inject.assistedinject.Assisted;
+import com.google.inject.assistedinject.AssistedInject;
+import com.google.inject.name.Named;
+import com.google.web.bindery.event.shared.EventBus;
 
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
+import org.eclipse.che.api.promises.client.Operation;
+import org.eclipse.che.api.promises.client.OperationException;
+import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.text.Region;
 import org.eclipse.che.ide.api.text.RegionImpl;
 import org.eclipse.che.ide.api.texteditor.HandlesUndoRedo;
+import org.eclipse.che.ide.editor.orion.client.jso.OrionCodeEditWidgetOverlay;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionEditorOverlay;
-import org.eclipse.che.ide.editor.orion.client.jso.OrionKeyModeOverlay;
+import org.eclipse.che.ide.editor.orion.client.jso.OrionEditorViewOverlay;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionSelectionOverlay;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionTextThemeOverlay;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionTextViewOverlay;
@@ -45,30 +70,17 @@ import org.eclipse.che.ide.jseditor.client.text.TextRange;
 import org.eclipse.che.ide.jseditor.client.texteditor.CompositeEditorWidget;
 import org.eclipse.che.ide.jseditor.client.texteditor.EditorWidget;
 import org.eclipse.che.ide.jseditor.client.texteditor.LineStyler;
+import org.eclipse.che.ide.rest.RestContext;
 import org.eclipse.che.ide.util.loging.Log;
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.dom.client.Document;
-import com.google.gwt.dom.client.Element;
-import com.google.gwt.event.dom.client.BlurEvent;
-import com.google.gwt.event.dom.client.BlurHandler;
-import com.google.gwt.event.dom.client.ChangeEvent;
-import com.google.gwt.event.dom.client.ChangeHandler;
-import com.google.gwt.event.dom.client.DomEvent;
-import com.google.gwt.event.dom.client.FocusEvent;
-import com.google.gwt.event.dom.client.FocusHandler;
-import com.google.gwt.event.dom.client.HasChangeHandlers;
-import com.google.gwt.event.shared.HandlerRegistration;
-import com.google.gwt.json.client.JSONBoolean;
-import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.json.client.JSONString;
-import com.google.gwt.resources.client.CssResource;
-import com.google.gwt.uibinder.client.UiBinder;
-import com.google.gwt.uibinder.client.UiField;
-import com.google.gwt.user.client.ui.SimplePanel;
-import com.google.inject.assistedinject.Assisted;
-import com.google.inject.assistedinject.AssistedInject;
-import com.google.web.bindery.event.shared.EventBus;
+
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static org.eclipse.che.ide.editor.orion.client.KeyMode.EMACS;
+import static org.eclipse.che.ide.editor.orion.client.KeyMode.VI;
+import static org.eclipse.che.ide.editor.orion.client.jso.OrionKeyModeOverlay.getEmacsKeyMode;
+import static org.eclipse.che.ide.editor.orion.client.jso.OrionKeyModeOverlay.getViKeyMode;
 
 /**
  * Orion implementation for {@link EditorWidget}.
@@ -84,42 +96,55 @@ public class OrionEditorWidget extends CompositeEditorWidget implements HasChang
     private static final Logger LOG = Logger.getLogger(OrionEditorWidget.class.getSimpleName());
 
     @UiField
-    SimplePanel                                    panel;
+    SimplePanel panel;
 
     /** The instance of the orion editor native element style. */
     @UiField
-    EditorElementStyle                             editorElementStyle;
+    EditorElementStyle editorElementStyle;
 
-    private final OrionEditorOverlay               editorOverlay;
-    private String                                 modeName;
-    private final KeyModeInstances                 keyModeInstances;
-    private final JavaScriptObject                 orionEditorModule;
-    private final KeymapPrefReader keymapPrefReader;
-
+    private final OrionCodeEditWidgetOverlay codeEditWidgetModule;
+    private final KeymapPrefReader           keymapPrefReader;
+    private final ModuleHolder               moduleHolder;
+    private final EventBus                   eventBus;
+    private final AppContext                 appContext;
+    private final String                     projectApiBaseURL;
+    private       OrionEditorOverlay         editorOverlay;
+    private       OrionEditorViewOverlay     editorViewOverlay;
+    private       String                     modeName;
+    private       KeyModeInstances           keyModeInstances;
     /** Component that handles undo/redo. */
-    private final HandlesUndoRedo undoRedo;
+    private       HandlesUndoRedo            undoRedo;
 
-    private OrionDocument                       embeddedDocument;
+    private OrionDocument embeddedDocument;
 
-    private boolean                                changeHandlerAdded = false;
-    private boolean                                focusHandlerAdded  = false;
-    private boolean                                blurHandlerAdded   = false;
-    private boolean                                scrollHandlerAdded = false;
-    private boolean                                cursorHandlerAdded = false;
+    private boolean changeHandlerAdded = false;
+    private boolean focusHandlerAdded  = false;
+    private boolean blurHandlerAdded   = false;
+    private boolean scrollHandlerAdded = false;
+    private boolean cursorHandlerAdded = false;
 
-    private Keymap                                 keymap;
+    private Keymap keymap;
 
     @AssistedInject
     public OrionEditorWidget(final ModuleHolder moduleHolder,
                              final KeyModeInstances keyModeInstances,
                              final EventBus eventBus,
                              final KeymapPrefReader keymapPrefReader,
-                             @Assisted final List<String> editorModes) {
+                             final AppContext appContext,
+                             @RestContext String restContext,
+                             @Named("workspaceId") String workspaceId,
+                             @Assisted final List<String> editorModes,
+                             @Assisted final WidgetInitializedCallback widgetInitializedCallback) {
+        this.moduleHolder = moduleHolder;
+        this.keyModeInstances = keyModeInstances;
+        this.eventBus = eventBus;
+        this.appContext = appContext;
+        this.projectApiBaseURL = restContext + "/project/" + workspaceId;
         initWidget(UIBINDER.createAndBindUi(this));
 
         this.keymapPrefReader = keymapPrefReader;
 
-        this.orionEditorModule = moduleHolder.getModule("OrionEditor");
+        this.codeEditWidgetModule = moduleHolder.getModule("CodeEditWidget").cast();
 
         // just first choice for the moment
         if (editorModes != null && !editorModes.isEmpty()) {
@@ -128,22 +153,9 @@ public class OrionEditorWidget extends CompositeEditorWidget implements HasChang
 
         panel.getElement().setId("orion-parent-" + Document.get().createUniqueId());
         panel.getElement().addClassName(this.editorElementStyle.editorParent());
-        this.editorOverlay = OrionEditorOverlay.createEditor(panel.getElement(), getConfiguration(), orionEditorModule);
 
-        this.keyModeInstances = keyModeInstances;
-        final OrionTextViewOverlay textView = this.editorOverlay.getTextView();
-        this.keyModeInstances.add(KeyMode.VI, OrionKeyModeOverlay.getViKeyMode(moduleHolder.getModule("OrionVi"), textView));
-        this.keyModeInstances.add(KeyMode.EMACS, OrionKeyModeOverlay.getEmacsKeyMode(moduleHolder.getModule("OrionEmacs"), textView));
-
-        setupKeymode();
-        eventBus.addHandler(KeymapChangeEvent.TYPE, new KeymapChangeHandler() {
-
-            @Override
-            public void onKeymapChanged(final KeymapChangeEvent event) {
-                setupKeymode();
-            }
-        });
-        this.undoRedo = new OrionUndoRedo(this.editorOverlay.getUndoStack());
+        codeEditWidgetModule.createEditorView(panel.getElement(), getConfiguration())
+                            .then(new EditorViewCreatedOperation(widgetInitializedCallback));
     }
 
     @Override
@@ -153,15 +165,21 @@ public class OrionEditorWidget extends CompositeEditorWidget implements HasChang
 
     @Override
     public void setValue(String newValue) {
-        this.editorOverlay.setText(newValue);
+        this.editorViewOverlay.setContents(newValue, modeName);
         this.editorOverlay.getUndoStack().reset();
     }
 
     private JavaScriptObject getConfiguration() {
         final JSONObject json = new JSONObject();
 
+        JSONArray userPlugins = new JSONArray();
+        final String projectPath = appContext.getCurrentProject().getRootProject().getPath();
+        final String proposalsURL = projectApiBaseURL + "/file" + projectPath + "/.codenvy/proposals.json";
+        userPlugins.set(0, new JSONString(GWT.getModuleBaseForStaticFiles() +
+                                          "orion-10.0/che/plugins/jsContentAssistPlugin.html?proposals=" + proposalsURL));
+
+        json.put("userPlugins", userPlugins);
         json.put("theme", new JSONObject(OrionTextThemeOverlay.getDefautTheme()));
-        json.put("contentType", new JSONString(this.modeName));
         json.put("noComputeSize", JSONBoolean.getInstance(true));
 
         return json.getJavaScriptObject();
@@ -216,10 +234,10 @@ public class OrionEditorWidget extends CompositeEditorWidget implements HasChang
         }
         if (KeyMode.DEFAULT.equals(usedKeymap)) {
             // nothing to do
-        } else if (KeyMode.EMACS.equals(usedKeymap)) {
-            this.editorOverlay.getTextView().addKeyMode(keyModeInstances.getInstance(KeyMode.EMACS));
-        } else if (KeyMode.VI.equals(usedKeymap)) {
-            this.editorOverlay.getTextView().addKeyMode(keyModeInstances.getInstance(KeyMode.VI));
+        } else if (EMACS.equals(usedKeymap)) {
+            this.editorOverlay.getTextView().addKeyMode(keyModeInstances.getInstance(EMACS));
+        } else if (VI.equals(usedKeymap)) {
+            this.editorOverlay.getTextView().addKeyMode(keyModeInstances.getInstance(VI));
         } else {
             usedKeymap = KeyMode.DEFAULT;
             Log.error(OrionEditorWidget.class, "Unknown keymap type: " + keymap + " - changing to defaut one.");
@@ -228,14 +246,14 @@ public class OrionEditorWidget extends CompositeEditorWidget implements HasChang
     }
 
     private void resetKeyModes() {
-        this.editorOverlay.getTextView().removeKeyMode(keyModeInstances.getInstance(KeyMode.VI));
-        this.editorOverlay.getTextView().removeKeyMode(keyModeInstances.getInstance(KeyMode.EMACS));
+        this.editorOverlay.getTextView().removeKeyMode(keyModeInstances.getInstance(VI));
+        this.editorOverlay.getTextView().removeKeyMode(keyModeInstances.getInstance(EMACS));
     }
 
     @Override
     public EmbeddedDocument getDocument() {
         if (this.embeddedDocument == null) {
-            this.embeddedDocument = new OrionDocument(this.editorOverlay.getTextView(), this);
+            this.embeddedDocument = new OrionDocument(this.editorOverlay.getTextView(), this, editorOverlay);
         }
         return this.embeddedDocument;
     }
@@ -490,5 +508,34 @@ public class OrionEditorWidget extends CompositeEditorWidget implements HasChang
 
         @ClassName("editor-parent")
         String editorParent();
+    }
+
+    private class EditorViewCreatedOperation implements Operation<OrionEditorViewOverlay> {
+        private final WidgetInitializedCallback widgetInitializedCallback;
+
+        private EditorViewCreatedOperation(WidgetInitializedCallback widgetInitializedCallback) {
+            this.widgetInitializedCallback = widgetInitializedCallback;
+        }
+
+        @Override
+        public void apply(OrionEditorViewOverlay arg) throws OperationException {
+            editorViewOverlay = arg;
+            editorOverlay = arg.getEditor();
+
+            final OrionTextViewOverlay textView = editorOverlay.getTextView();
+            keyModeInstances.add(VI, getViKeyMode(moduleHolder.getModule("OrionVi"), textView));
+            keyModeInstances.add(EMACS, getEmacsKeyMode(moduleHolder.getModule("OrionEmacs"), textView));
+
+            setupKeymode();
+            eventBus.addHandler(KeymapChangeEvent.TYPE, new KeymapChangeHandler() {
+                @Override
+                public void onKeymapChanged(final KeymapChangeEvent event) {
+                    setupKeymode();
+                }
+            });
+            undoRedo = new OrionUndoRedo(editorOverlay.getUndoStack());
+
+            widgetInitializedCallback.initialized(OrionEditorWidget.this);
+        }
     }
 }

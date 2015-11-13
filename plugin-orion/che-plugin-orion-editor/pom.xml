@@ -28,6 +28,10 @@
     <dependencies>
         <dependency>
             <groupId>com.google.gwt</groupId>
+            <artifactId>gwt-elemental</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.gwt</groupId>
             <artifactId>gwt-user</artifactId>
         </dependency>
         <dependency>
@@ -41,6 +45,10 @@
         <dependency>
             <groupId>javax.inject</groupId>
             <artifactId>javax.inject</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.che.core</groupId>
+            <artifactId>che-core-api-project</artifactId>
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.core</groupId>
@@ -85,9 +93,8 @@
                 <configuration>
                     <excludes>
                         <!-- Orion - EPL License -->
-                        <exclude>**/org/eclipse/che/ide/editor/orion/public/orion/**</exclude>
-                        <exclude>**/org/eclipse/che/ide/editor/orion/public/orion-6.0/**</exclude>
-                        <exclude>**/org/eclipse/che/ide/editor/orion/public/built-editor-compat.css</exclude>
+                        <exclude>**/org/eclipse/che/ide/editor/orion/public/orion-10.0/**</exclude>
+                        <exclude>**/org/eclipse/che/ide/editor/orion/public/built-codeEdit-compat.css</exclude>
                     </excludes>
                 </configuration>
             </plugin>
