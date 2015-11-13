@@ -242,7 +242,8 @@ public class CodeMirrorEditorWidget extends CompositeEditorWidget implements
                                                                                          @Assisted final List<String> editorModes,
                                                                                          final RequireJsLoader requirejs,
                                                                                          final MinimapFactory minimapFactory,
-                                                                                         final BasePathConstant basePathConstant) {
+                                                                                         final BasePathConstant basePathConstant,
+                                                                                         @Assisted final WidgetInitializedCallback widgetInitializedCallback) {
                                                                                      initWidget(UIBINDER.createAndBindUi(this));
 
                                                                                      this.keymapPrefReader = keymapPrefReader;
@@ -315,6 +316,7 @@ public class CodeMirrorEditorWidget extends CompositeEditorWidget implements
                                                                                      buildKeybindingInfo();
                                                                                      this.undoRedo = new CodeMirrorUndoRedo(
                                                                                              this.editorOverlay.getDoc());
+                                                                                     widgetInitializedCallback.initialized(this);
                                                                                  }
 
                                                                                  private void initKeyBindings() {

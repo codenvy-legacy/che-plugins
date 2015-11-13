@@ -10,10 +10,15 @@
  *******************************************************************************/
 package org.eclipse.che.ide.editor.orion.client;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.inject.Inject;
+import com.google.gwt.core.client.Callback;
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.JavaScriptException;
+import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.JsArrayString;
+import com.google.gwt.core.client.RunAsyncCallback;
+import com.google.gwt.dom.client.Document;
+import com.google.gwt.dom.client.LinkElement;
+import com.google.gwt.dom.client.Node;
 
 import org.eclipse.che.ide.api.extension.Extension;
 import org.eclipse.che.ide.api.notification.Notification;
@@ -33,15 +38,10 @@ import org.eclipse.che.ide.jseditor.client.texteditor.AbstractEditorModule.Initi
 import org.eclipse.che.ide.jseditor.client.texteditor.ConfigurableTextEditor;
 import org.eclipse.che.ide.jseditor.client.texteditor.EmbeddedTextEditorPresenter;
 import org.eclipse.che.ide.util.loging.Log;
-import com.google.gwt.core.client.Callback;
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.core.client.JavaScriptException;
-import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.core.client.JsArrayString;
-import com.google.gwt.core.client.RunAsyncCallback;
-import com.google.gwt.dom.client.Document;
-import com.google.gwt.dom.client.LinkElement;
-import com.google.gwt.dom.client.Node;
+
+import javax.inject.Inject;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Extension(title = "Orion Editor", version = "1.1.0")
 public class OrionEditorExtension {
@@ -103,11 +103,8 @@ public class OrionEditorExtension {
     }
 
     private void injectOrion(final InitializerCallback callback) {
-        // styler scripts are loaded on-demand by orion
         final String[] scripts = new String[]{
-                "orion-6.0/built-editor-amd.min",
-                "orion/emacs",
-                "orion/vi",
+                "orion-10.0/code_edit/built-codeEdit-amd.min",
         };
 
         this.requireJsLoader.require(new Callback<JavaScriptObject[], Throwable>() {
@@ -136,7 +133,7 @@ public class OrionEditorExtension {
             }
         }, scripts, new String[0]);
 
-        injectCssLink(GWT.getModuleBaseForStaticFiles() + "built-editor-compat.css");
+        injectCssLink(GWT.getModuleBaseForStaticFiles() + "built-codeEdit-compat.css");
     }
 
     private static void injectCssLink(final String url) {
@@ -158,19 +155,19 @@ public class OrionEditorExtension {
     private void requireOrion(final InitializerCallback callback) {
         this.requireJsLoader.require(new Callback<JavaScriptObject[], Throwable>() {
 
-            @Override
-            public void onFailure(final Throwable reason) {
-                LOG.log(Level.SEVERE, "Unable to initialize Orion ", reason);
-                initializationFailed(callback, "Unable to initialize Orion.", reason);
-            }
+                                         @Override
+                                         public void onFailure(final Throwable reason) {
+                                             LOG.log(Level.SEVERE, "Unable to initialize Orion ", reason);
+                                             initializationFailed(callback, "Unable to initialize Orion.", reason);
+                                         }
 
-            @Override
-            public void onSuccess(final JavaScriptObject[] result) {
-                endConfiguration(callback);
-            }
-        },
-         new String[]{"orion/editor/edit", "orion/editor/emacs", "orion/editor/vi", "orion/keyBinding"},
-         new String[]{"OrionEditor", "OrionEmacs", "OrionVi", "OrionKeyBinding"});
+                                         @Override
+                                         public void onSuccess(final JavaScriptObject[] result) {
+                                             endConfiguration(callback);
+                                         }
+                                     },
+                                     new String[]{"orion/codeEdit", "orion/editor/emacs", "orion/editor/vi", "orion/keyBinding"},
+                                     new String[]{"CodeEditWidget", "OrionEmacs", "OrionVi", "OrionKeyBinding"});
     }
 
     private void endConfiguration(final InitializerCallback callback) {
