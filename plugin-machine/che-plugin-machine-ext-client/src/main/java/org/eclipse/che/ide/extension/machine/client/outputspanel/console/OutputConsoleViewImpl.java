@@ -32,7 +32,7 @@ import com.google.inject.Inject;
  */
 public class OutputConsoleViewImpl extends Composite implements OutputConsoleView {
 
-    private static final CommandOutputConsoleViewUiBinder UI_BINDER = GWT.create(CommandOutputConsoleViewUiBinder.class);
+    private static final OutputConsoleViewUiBinder UI_BINDER = GWT.create(OutputConsoleViewUiBinder.class);
 
     private static final String PRE_STYLE = "style='margin:0px;'";
 
@@ -116,6 +116,6 @@ public class OutputConsoleViewImpl extends Composite implements OutputConsoleVie
         }
     }
 
-    interface CommandOutputConsoleViewUiBinder extends UiBinder<Widget, OutputConsoleViewImpl> {
+    interface OutputConsoleViewUiBinder extends UiBinder<Widget, OutputConsoleViewImpl> {
     }
 }
