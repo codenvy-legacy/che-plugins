@@ -136,6 +136,7 @@ public class OrionEditorWidget extends CompositeEditorWidget implements HasChang
                              @Assisted final List<String> editorModes,
                              @Assisted final WidgetInitializedCallback widgetInitializedCallback) {
         this.moduleHolder = moduleHolder;
+        this.keyModeInstances = keyModeInstances;
         this.eventBus = eventBus;
         this.appContext = appContext;
         this.projectApiBaseURL = restContext + "/project/" + workspaceId;
