@@ -906,7 +906,7 @@ public class DockerConnector {
             }
             final DockerResponse response = connection.request();
             final int status = response.getStatus();
-            if (CREATED.getStatusCode() != status) {
+            if (status / 100 != 2) {
                 throw new DockerException(getDockerExceptionMessage(response), status);
             }
         }

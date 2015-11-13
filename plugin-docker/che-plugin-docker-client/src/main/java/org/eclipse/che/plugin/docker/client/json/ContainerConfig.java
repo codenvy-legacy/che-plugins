@@ -17,8 +17,6 @@ import java.util.Map;
 /** @author andrew00x */
 public class ContainerConfig {
     private String     domainName;
-    private long       memory;
-    private long       memorySwap;
     private int        cpuShares;
     private String     cpuset;
     private boolean    attachStdin;
@@ -75,22 +73,6 @@ public class ContainerConfig {
 
     public void setCpuShares(int cpuShares) {
         this.cpuShares = cpuShares;
-    }
-
-    public long getMemory() {
-        return memory;
-    }
-
-    public void setMemory(long memory) {
-        this.memory = memory;
-    }
-
-    public long getMemorySwap() {
-        return memorySwap;
-    }
-
-    public void setMemorySwap(long memorySwap) {
-        this.memorySwap = memorySwap;
     }
 
     public boolean isAttachStdin() {
@@ -198,16 +180,6 @@ public class ContainerConfig {
 
     public ContainerConfig withCpuShares(int cpuShares) {
         this.cpuShares = cpuShares;
-        return this;
-    }
-
-    public ContainerConfig withMemory(long memory) {
-        this.memory = memory;
-        return this;
-    }
-
-    public ContainerConfig withMemorySwap(long memorySwap) {
-        this.memorySwap = memorySwap;
         return this;
     }
 
@@ -374,8 +346,6 @@ public class ContainerConfig {
     public String toString() {
         return "ContainerConfig{" +
                "domainName='" + domainName + '\'' +
-               ", memory=" + memory +
-               ", memorySwap=" + memorySwap +
                ", cpuShares=" + cpuShares +
                ", cpuset='" + cpuset + '\'' +
                ", attachStdin=" + attachStdin +

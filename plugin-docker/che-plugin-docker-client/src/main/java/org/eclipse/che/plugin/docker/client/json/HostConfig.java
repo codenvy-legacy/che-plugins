@@ -42,7 +42,8 @@ public class HostConfig {
     private boolean        readonlyRootfs;
     private Ulimit[]       ulimits;
 
-    private Map<String, PortBinding[]> portBindings = new HashMap<>();
+    private Map<String, PortBinding[]> portBindings     = new HashMap<>();
+    private int                        memorySwappiness = -1;
 
     public String[] getBinds() {
         return binds;
@@ -278,6 +279,19 @@ public class HostConfig {
         return this;
     }
 
+    public int getMemorySwappiness() {
+        return memorySwappiness;
+    }
+
+    public void setMemorySwappiness(int memorySwappiness) {
+        this.memorySwappiness = memorySwappiness;
+    }
+
+    public HostConfig withMemorySwappiness(int memorySwappiness) {
+        this.memorySwappiness = memorySwappiness;
+        return this;
+    }
+
     public LogConfig getLogConfig() {
         return logConfig;
     }
@@ -411,6 +425,7 @@ public class HostConfig {
                ", readonlyRootfs=" + readonlyRootfs +
                ", ulimits=" + Arrays.toString(ulimits) +
                ", portBindings=" + portBindings +
+               ", memorySwappiness=" + memorySwappiness +
                '}';
     }
 }

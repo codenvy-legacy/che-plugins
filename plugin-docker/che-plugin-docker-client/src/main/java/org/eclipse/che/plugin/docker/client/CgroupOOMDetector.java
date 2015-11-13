@@ -75,7 +75,7 @@ public class CgroupOOMDetector implements DockerOOMDetector {
                 return;
             }
             try {
-                final long memory = dockerConnector.inspectContainer(container).getConfig().getMemory();
+                final long memory = dockerConnector.inspectContainer(container).getConfig().getHostConfig().getMemory();
                 OOMDetector oomDetector = new OOMDetector(container, containerLogProcessor, memory);
                 oomDetectors.putIfAbsent(container, oomDetector);
                 oomDetector = oomDetectors.get(container);

@@ -79,8 +79,6 @@ public class DockerInstanceMetadata implements MachineMetadata {
         md.put("config.securityOpts", Arrays.toString(info.getConfig().getSecurityOpts()));
         md.put("config.cpuShares", Integer.toString(info.getConfig().getCpuShares()));
         md.put("config.env", Arrays.toString(info.getConfig().getEnv()));
-        md.put("config.memory", Long.toString(info.getConfig().getMemory()));
-        md.put("config.memorySwap", Long.toString(info.getConfig().getMemorySwap()));
         md.put("config.attachStderr", Boolean.toString(info.getConfig().isAttachStderr()));
         md.put("config.attachStdin", Boolean.toString(info.getConfig().isAttachStdin()));
         md.put("config.attachStdout", Boolean.toString(info.getConfig().isAttachStdout()));
@@ -134,6 +132,8 @@ public class DockerInstanceMetadata implements MachineMetadata {
         md.put("hostConfig.restartPolicy", String.valueOf(info.getHostConfig().getRestartPolicy()));
         md.put("hostConfig.ulimits", Arrays.toString(info.getHostConfig().getUlimits()));
         md.put("hostConfig.volumesFrom", Arrays.toString(info.getHostConfig().getVolumesFrom()));
+        md.put("hostConfig.memory", Long.toString(info.getHostConfig().getMemory()));
+        md.put("hostConfig.memorySwap", Long.toString(info.getHostConfig().getMemorySwap()));
 
         return md;
     }
