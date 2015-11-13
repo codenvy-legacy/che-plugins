@@ -9,7 +9,7 @@
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
 
-package org.eclipse.che.jdt.maven;
+package org.eclipse.che.ide.extension.maven.server.core;
 
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -27,7 +27,6 @@ import java.util.List;
 /**
  * @author Evgen Vidolob
  */
-//TODO move this class to maven extension
 public class MavenClasspathUtil {
     private static final IClasspathEntry[] EMPTY = new IClasspathEntry[0];
     private static final Logger            LOG   = LoggerFactory.getLogger(MavenClasspathUtil.class);
