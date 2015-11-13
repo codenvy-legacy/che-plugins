@@ -14,8 +14,6 @@ package org.eclipse.jdt.internal.core;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.che.jdt.core.launching.JREContainerInitializer;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
-import org.eclipse.che.jdt.maven.MavenClasspathContainer;
-import org.eclipse.che.jdt.maven.MavenClasspathContainerInitializer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -281,9 +279,7 @@ public class JavaModelManager {
         this.externalFiles = new HashSet(); //loadClasspathListCache(EXTERNAL_FILES_CACHE);
         this.assumedExternalFiles = new HashSet(); //loadClasspathListCache(ASSUMED_EXTERNAL_FILES_CACHE);
         String includeContainerReferencedLib = System.getProperty(RESOLVE_REFERENCED_LIBRARIES_FOR_CONTAINERS);
-//        this.resolveReferencedLibrariesForContainers = TRUE.equalsIgnoreCase(includeContainerReferencedLib);
         containerInitializersCache.put(JREContainerInitializer.JRE_CONTAINER, new JREContainerInitializer());
-        containerInitializersCache.put(MavenClasspathContainer.CONTAINER_ID, new MavenClasspathContainerInitializer());
         startIndexing();
     }
 

@@ -11,11 +11,14 @@
 package org.eclipse.che.ide.extension.maven.server.inject;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.Singleton;
 import com.google.inject.multibindings.Multibinder;
 
 import org.eclipse.che.api.project.server.ValueProviderFactory;
 import org.eclipse.che.api.project.server.handlers.ProjectHandler;
 import org.eclipse.che.api.project.server.type.ProjectType;
+import org.eclipse.che.ide.ext.java.server.classpath.ClassPathBuilder;
+import org.eclipse.che.ide.extension.maven.server.core.MavenClassPathBuilder;
 import org.eclipse.che.ide.extension.maven.server.projecttype.MavenProjectType;
 import org.eclipse.che.ide.extension.maven.server.projecttype.MavenValueProviderFactory;
 import org.eclipse.che.ide.extension.maven.server.projecttype.handler.AddMavenModuleHandler;
@@ -46,5 +49,6 @@ public class MavenModule extends AbstractModule {
         projectHandlerMultibinder.addBinding().to(MavenProjectCreatedHandler.class);
 
         Multibinder.newSetBinder(binder(), GeneratorStrategy.class).addBinding().to(ArchetypeGenerationStrategy.class);
+        bind(ClassPathBuilder.class).to(MavenClassPathBuilder.class).in(Singleton.class);
     }
 }
