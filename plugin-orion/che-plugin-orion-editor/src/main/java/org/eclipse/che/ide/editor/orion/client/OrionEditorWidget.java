@@ -519,13 +519,12 @@ public class OrionEditorWidget extends CompositeEditorWidget implements HasChang
 
         @Override
         public void apply(OrionEditorViewOverlay arg) throws OperationException {
-            OrionEditorWidget.this.editorViewOverlay = arg;
-            OrionEditorWidget.this.editorOverlay = arg.getEditor();
+            editorViewOverlay = arg;
+            editorOverlay = arg.getEditor();
 
-            OrionEditorWidget.this.keyModeInstances = keyModeInstances;
-            final OrionTextViewOverlay textView = OrionEditorWidget.this.editorOverlay.getTextView();
-            OrionEditorWidget.this.keyModeInstances.add(VI, getViKeyMode(moduleHolder.getModule("OrionVi"), textView));
-            OrionEditorWidget.this.keyModeInstances.add(EMACS, getEmacsKeyMode(moduleHolder.getModule("OrionEmacs"), textView));
+            final OrionTextViewOverlay textView = editorOverlay.getTextView();
+            keyModeInstances.add(VI, getViKeyMode(moduleHolder.getModule("OrionVi"), textView));
+            keyModeInstances.add(EMACS, getEmacsKeyMode(moduleHolder.getModule("OrionEmacs"), textView));
 
             setupKeymode();
             eventBus.addHandler(KeymapChangeEvent.TYPE, new KeymapChangeHandler() {
@@ -534,7 +533,7 @@ public class OrionEditorWidget extends CompositeEditorWidget implements HasChang
                     setupKeymode();
                 }
             });
-            OrionEditorWidget.this.undoRedo = new OrionUndoRedo(OrionEditorWidget.this.editorOverlay.getUndoStack());
+            undoRedo = new OrionUndoRedo(editorOverlay.getUndoStack());
 
             widgetInitializedCallback.initialized(OrionEditorWidget.this);
         }
