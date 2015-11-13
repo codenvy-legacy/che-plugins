@@ -276,11 +276,11 @@
 }
 .contentassist .proposal-noemphasis-title-keywords {
     background-color: darkslategrey;
-    color: gray;
+    color: #dbdbdb;
 }
 .contentassist .proposal-noemphasis-title {
     background-color: darkslategrey;
-    color: gray;
+    color: #dbdbdb;
     padding-top: 5px;
 }
 .contentassist .proposal-default {
