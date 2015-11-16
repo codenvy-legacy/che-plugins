@@ -23,7 +23,7 @@ public interface ClassPathBuilder {
     /**
      * Builds classpath for the current project.
      *
-     * @param projectPath  path to current project
+     * @param projectPath  relative path to current project from the workspace
      * @return information about building project classpath
      */
     ClassPathBuilderResult buildClassPath(String projectPath);
