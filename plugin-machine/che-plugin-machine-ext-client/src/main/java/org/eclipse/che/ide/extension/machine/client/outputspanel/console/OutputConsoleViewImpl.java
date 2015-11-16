@@ -11,6 +11,7 @@
 package org.eclipse.che.ide.extension.machine.client.outputspanel.console;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
@@ -25,17 +26,20 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 
 /**
- * View for {@link CommandOutputConsole}.
+ * View for {@link OutputConsole}.
  *
  * @author Artem Zatsarynnyy
  */
-public class CommandOutputConsoleView extends Composite implements OutputConsoleView {
+public class OutputConsoleViewImpl extends Composite implements OutputConsoleView {
 
-    private static final CommandOutputConsoleViewUiBinder UI_BINDER = GWT.create(CommandOutputConsoleViewUiBinder.class);
+    private static final OutputConsoleViewUiBinder UI_BINDER = GWT.create(OutputConsoleViewUiBinder.class);
 
     private static final String PRE_STYLE = "style='margin:0px;'";
 
     private ActionDelegate delegate;
+
+    /** scroll events to the bottom if view is visible */
+    private boolean scrollBottomRequired = false;
 
     @UiField
     ScrollPanel scrollPanel;
@@ -46,7 +50,7 @@ public class CommandOutputConsoleView extends Composite implements OutputConsole
     private boolean carriageReturn;
 
     @Inject
-    public CommandOutputConsoleView() {
+    public OutputConsoleViewImpl() {
         initWidget(UI_BINDER.createAndBindUi(this));
     }
 
@@ -88,9 +92,30 @@ public class CommandOutputConsoleView extends Composite implements OutputConsole
 
     @Override
     public void scrollBottom() {
-        scrollPanel.getElement().setScrollTop(scrollPanel.getElement().getScrollHeight());
+        /** scroll bottom immediately if view is visible */
+        if (scrollPanel.getElement().getOffsetParent() != null) {
+            scrollPanel.getElement().setScrollTop(scrollPanel.getElement().getScrollHeight());
+            return;
+        }
+
+        /** otherwise, check the visibility periodically and scroll the view when it's visible */
+        if (!scrollBottomRequired) {
+            scrollBottomRequired = true;
+
+            Scheduler.get().scheduleFixedPeriod(new Scheduler.RepeatingCommand() {
+                @Override
+                public boolean execute() {
+                    if (scrollPanel.getElement().getOffsetParent() != null) {
+                        scrollPanel.getElement().setScrollTop(scrollPanel.getElement().getScrollHeight());
+                        scrollBottomRequired = false;
+                        return false;
+                    }
+                    return true;
+                }
+            }, 500);
+        }
     }
 
-    interface CommandOutputConsoleViewUiBinder extends UiBinder<Widget, CommandOutputConsoleView> {
+    interface OutputConsoleViewUiBinder extends UiBinder<Widget, OutputConsoleViewImpl> {
     }
 }

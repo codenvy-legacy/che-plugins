@@ -185,14 +185,11 @@ public class SelectCommandComboBoxReady extends AbstractPerspectiveAction implem
                 return configuration;
             }
         }
-
         return null;
     }
 
     public void setSelectedCommand(CommandConfiguration command) {
-        if (appContext.getCurrentProject() != null) {
-            dropDownHeaderWidget.selectElement(command.getName());
-        }
+        dropDownHeaderWidget.selectElement(command.getName());
     }
 
     @Override
@@ -296,23 +293,17 @@ public class SelectCommandComboBoxReady extends AbstractPerspectiveAction implem
 
     @Override
     public void onConfigurationAdded(CommandConfiguration command) {
-        if (appContext.getCurrentProject() != null) {
             loadCommands(command);
-        }
     }
 
     @Override
     public void onConfigurationRemoved(CommandConfiguration command) {
-        if (appContext.getCurrentProject() != null) {
             loadCommands(null);
-        }
     }
 
     @Override
     public void onConfigurationsUpdated(CommandConfiguration command) {
-        if (appContext.getCurrentProject() != null) {
             loadCommands(command);
-        }
     }
 
     @Override

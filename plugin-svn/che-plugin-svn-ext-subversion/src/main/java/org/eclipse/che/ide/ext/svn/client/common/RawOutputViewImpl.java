@@ -67,7 +67,7 @@ public class RawOutputViewImpl extends BaseView<RawOutputView.ActionDelegate> im
         FlowPanel f = new FlowPanel();
         f.setWidth("100%");
         f.setHeight("18px");
-        f.getElement().getStyle().setBackgroundColor(org.eclipse.che.ide.api.theme.Style.getPartBackground());
+        f.getElement().getStyle().setBackgroundColor(org.eclipse.che.ide.api.theme.Style.theme.partBackground());
 
         toolBar.addSouth(f, 18);
         setToolbarHeight(22+18);

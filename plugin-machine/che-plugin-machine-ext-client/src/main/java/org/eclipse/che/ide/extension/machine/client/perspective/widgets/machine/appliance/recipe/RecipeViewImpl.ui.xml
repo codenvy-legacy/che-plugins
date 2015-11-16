@@ -15,7 +15,7 @@
     <ui:with field="locale" type="org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant"/>
 
     <ui:style>
-        @eval partBackground org.eclipse.che.ide.api.theme.Style.getPartBackground();
+        @eval partBackground org.eclipse.che.ide.api.theme.Style.theme.partBackground();
         @eval fontColor org.eclipse.che.ide.api.theme.Style.getMainFontColor();
 
         .recipeContent {

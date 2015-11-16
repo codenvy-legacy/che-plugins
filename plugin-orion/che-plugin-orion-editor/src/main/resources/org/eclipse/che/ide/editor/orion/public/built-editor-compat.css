@@ -124,33 +124,11 @@
 .tooltipTheme .textviewScroll {
     padding: 0px;
 }
-.textviewTooltip {
-    font-family: "Consolas", "Monaco", "Vera Mono", monospace;
-    font-size: 12px;
-    background-color: #325C80;
-    color: #FAFAFA;
-    padding: 8px;
-    border-radius: 3px;
-    z-index: 101;
-    position: fixed;
-    overflow: hidden;
-}
-.textviewTooltip em {
-    font-style: normal;
-    font-weight: bold;
-}
-.textviewTooltip span {
-    vertical-align: baseline;
-}
-.textviewTooltip .tooltipRow {
-    display: table-row;
-}
-.textviewTooltip .tooltipTitle {
-    float: right;
-}
+
 .tooltipTheme .annotationLine.currentLine {
     background-color: transparent !important;
 }
+
 .textViewFind {
     background-color: #ddd;
     position: absolute;
@@ -163,6 +141,7 @@
     padding: 2px;
     z-index: 100;
 }
+
 .textViewFind.show {
     top: 0;
     right: 40px;
@@ -172,24 +151,31 @@
     -webkit-transition: top 0.3s ease-out;
     -o-transition: top 0.3s ease-out;
 }
+
 .textViewFindButton {
     margin-right: 1px;
     margin-left: 0;
 }
+
 .textViewFindButton:first-child {
     margin-left: 5px;
 }
+
 .textViewFindButton:last-child {
     margin-right: 5px;
 }
+
 .textViewFindButton.checked {
     color: blue;
     text-decoration: underline;
 }
+
 .textViewReplaceInput {
 }
+
 .textViewFindInput {
 }
+
 .textViewFindCloseButton {
     width: 16px;
     height: 16px;
@@ -200,6 +186,7 @@
     background-repeat: no-repeat;
     background-image: url(data:image/gif;base64,R0lGODlhEAAQAJEAAAAAAP///4CAgP///yH5BAEAAAMALAAAAAAQABAAAAIdnI+py+1vhECSyTluu9px+HkctnSdUh0pxLYuVAAAOw==);
 }
+
 .contentassist {
     font-size:9pt;
     display: none;

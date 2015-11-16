@@ -11776,8 +11776,9 @@ function Tooltip (view) {
 		 * @param target
 		 * @param giveFocus
 		 */
-		onHover: function(tooltipInfo, x, y) {
+		onHover: function(tooltipInfo, x, y, clientX, clientY) {
 			if (!tooltipInfo) {
+				this.hide();
 				return;
 			}
 			
@@ -11786,10 +11787,72 @@ function Tooltip (view) {
 					|| this._isInRect(this._tooltipArea, x, y)
 					|| this._locked
 					|| this._hasFocus()) {
+				this.hide();
 				return;
 			}
-			
-			this._processInfo(tooltipInfo.getTooltipInfo());
+
+			var _x = clientX;
+			var _y = clientY;
+			var self = this;
+
+			var info = tooltipInfo.getTooltipInfo();
+			if (!info) {
+				this.hide();
+				return;
+			}
+
+			this._processInfo(info);
+
+			try {
+				var nodes = self._tooltipDiv.firstChild.firstChild;
+				var lines = nodes.getElementsByClassName("tooltipRow");
+
+				for (var i = 0; i < lines.length; i++) {
+					var line = lines[i];
+					if (line.getElementsByClassName("tooltipImage").length == 0 &&
+						line.getElementsByClassName("tooltipTitle").length == 1) {
+						var img = document.createElement("div");
+						img.className = "tooltipImage";
+						img.innerHTML = "<div style=\"width:14px; height:14px;\">";
+						line.insertBefore(img, line.childNodes[0])
+					}
+				}
+			} catch (err) {
+				console.log(err.message);
+			}
+
+			window.setTimeout(function() {
+				if (self._tooltipDiv) {
+					var position = info.position ? info.position : "below";
+					var rect = self._tooltipDiv.getBoundingClientRect();
+					var padding = 16;
+
+					switch (position) {
+						case "left":
+							_x -= rect.width;
+							_x -= padding;
+							break;
+
+						case "right":
+							_x += padding;
+							break;
+
+						case "below":
+							break;
+					}
+
+					if (_y + padding + rect.height > window.innerHeight) {
+						_y -= rect.height;
+						_y -= padding;
+					} else {
+						_y += padding;
+					}
+
+					self._tooltipDiv.style.left = _x + "px";
+					self._tooltipDiv.style.top = _y + "px";
+					self._tooltipDiv.style.opacity = "1";
+				}
+			}, 10);
 		},		
 	
 		/**
@@ -11834,7 +11897,9 @@ function Tooltip (view) {
 			this._tooltipDiv.style.height = "auto";		 //$NON-NLS-0$	
 			this._tooltipDiv.style.maxHeight = "";		 //$NON-NLS-0$
 			this._tooltipDiv.style.overflowX = "";		 //$NON-NLS-0$	
-			this._tooltipDiv.style.overflowY = "";		 //$NON-NLS-0$	
+			this._tooltipDiv.style.overflowY = "";		 //$NON-NLS-0$
+
+			this._tooltipDiv.style.opacity = "0";
 			
 			this._giveFocus = undefined;
 			this._locked = undefined;
@@ -11891,7 +11956,7 @@ function Tooltip (view) {
 			if (!this._tooltipDiv){
 				return;
 			}
-			
+
 			var newTooltipContents;
 			if (update && this._tooltipContents) {
 				this._tooltipContents.innerHTML = "";
@@ -12040,6 +12105,10 @@ function Tooltip (view) {
 		 * @private
 		 */
 		_computeTooltipArea: function _computeTooltipArea(info, anchorArea, tooltipDiv){
+			tooltipDiv.style.opacity = 0;
+			tooltipDiv.style.left = "0px";
+			tooltipDiv.style.top = "0px";
+
 			var documentElement = tooltipDiv.ownerDocument.documentElement;
 			
 			// TODO This padding must match what is in tooltip.css
@@ -12061,7 +12130,7 @@ function Tooltip (view) {
 				width: divBounds.width,
 				height: divBounds.height
 			};
-			
+
 			var position = info.position ? info.position : "below"; //$NON-NLS-0$
 			
 			var viewBounds = (this._view._rootDiv ? this._view._rootDiv : documentElement).getBoundingClientRect();
@@ -12069,7 +12138,7 @@ function Tooltip (view) {
 			var viewportTop = viewBounds.top;
 			var viewportWidth = viewBounds.width;
 			var viewportHeight = viewBounds.height;
-			
+
 			// Set a default size for the tooltip
 			var defWidth = viewportWidth;
 			if (!info.allowFullWidth){
@@ -12099,7 +12168,7 @@ function Tooltip (view) {
 			
 			var offsetX = info.tooltipOffsetX ? info.tooltipOffsetX : 0;
 			var offsetY = info.tooltipOffsetY ? info.tooltipOffsetY : 0;
-			
+
 			// Attempt to line up tooltip with the anchor area
 			// If not enough space, shift the tooltip horiz (above/below) or vert (left/right) until it fits
 			// Force the tooltip to start within the viewport area
@@ -12149,14 +12218,7 @@ function Tooltip (view) {
 			
 			tipRect.maxWidth = Math.min(viewportWidth + viewportLeft - tipRect.left, viewportWidth);
 			tipRect.maxHeight = Math.min(viewportHeight + viewportTop - tipRect.top, viewportHeight);
-			
-			// Adjust sizes for div padding, but not the actual tooltip box.
-			tooltipDiv.style.maxWidth = (tipRect.maxWidth - padding) + "px"; //$NON-NLS-0$
-			tooltipDiv.style.maxHeight = (tipRect.maxHeight - padding) + "px"; //$NON-NLS-0$
-			tooltipDiv.style.width = (tipRect.width - padding) + "px"; //$NON-NLS-1$
-			tooltipDiv.style.height = (tipRect.height - padding) + "px"; //$NON-NLS-1$
-			tooltipDiv.style.left = tipRect.left + "px"; //$NON-NLS-0$
-			tooltipDiv.style.top = tipRect.top + "px"; //$NON-NLS-0$
+
 			return tipRect;
 		},
 		
@@ -14392,6 +14454,9 @@ define("orion/editor/editor", [ //$NON-NLS-0$
 						window.clearTimeout(self._hoverTimeout);
 						self._hoverTimeout = null;
 					}
+
+					var clientX = e.event.clientX;
+					var clientY = e.event.clientY;
 					self._hoverTimeout = window.setTimeout(function() {
 						self._hoverTimeout = null;
 						
@@ -14406,7 +14471,7 @@ define("orion/editor/editor", [ //$NON-NLS-0$
 							getTooltipInfo: function() {
 								return self._getTooltipInfo(this.x, this.y);
 							}
-						}, e.x, e.y);
+						}, e.x, e.y, clientX, clientY);
 					}, 175);
 				},
 				onMouseOut: function(e) {
@@ -17557,7 +17622,7 @@ define("orion/editor/rulers", [
 			if (this._onTextModelChanged && this._view) {
 				this._view.addEventListener("ModelChanged", this._listener.onTextModelChanged); //$NON-NLS-0$
 			}
-		},
+		}
 	};
 
 	/**
@@ -17825,7 +17890,7 @@ define("orion/editor/rulers", [
 			if (!tooltip) { return; }
 			if (tooltip.isVisible() && this._tooltipLineIndex === lineIndex) { return; }
 			this._tooltipLineIndex = lineIndex;
-			
+
 			// Prevent spurious mouse event (e.g. on a scroll)					
 			if (e.clientX === this._lastMouseX
 				&& e.clientY === this._lastMouseY) {
@@ -17834,6 +17899,9 @@ define("orion/editor/rulers", [
 			
 			this._lastMouseX = e.clientX;
 			this._lastMouseY = e.clientY;
+
+			var _x = e.clientX;
+			var _y = e.clientY;
 
 			if (this._hoverTimeout) {
 				window.clearTimeout(this._hoverTimeout);
@@ -17857,7 +17925,7 @@ define("orion/editor/rulers", [
 						var content = self._getTooltipContents(self._tooltipLineIndex, annotations);
 						return self._getTooltipInfo(content, e.clientY, {source: "ruler", rulerLocation: self.getLocation()}); //$NON-NLS-0$
 					}
-				}, e.clientX, e.clientY);
+				}, _x, _y, _x, _y);
 			}, 175);
 		},
 		/**
@@ -17974,6 +18042,7 @@ define("orion/editor/rulers", [
 			}
 			return annotations;
 		},
+
 		/** @ignore */
 		_getTooltipInfo: function(contents, y, context) {
 			if (!contents) { return null; } // TODO: shouldn't this check the length, it'll never be null
@@ -17988,13 +18057,12 @@ define("orion/editor/rulers", [
 				hoverArea.top = y;
 				hoverArea.height = 1;
 			}
-			
+
 			var rulerLocation = this.getLocation();
 			var rulerStyle = this.getRulerStyle();
 			// The tooltip is positioned opposite to where the ruler is
 			var position = rulerLocation === "left" ? "right" : "left"; //$NON-NLS-0$ //$NON-NLS-1$ //$NON-NLS-2$
-			
-			
+
 			var viewRect = this._view._clientDiv.getBoundingClientRect();
 			var offsetX = 0;
 			var offsetY = 0;
@@ -18022,6 +18090,7 @@ define("orion/editor/rulers", [
 			};
 			return info;
 		},
+
 		/**
 		 * @name _getTooltipContents
 		 * @description Overridden by different rulers to provide customer tooltip content
@@ -18060,6 +18129,7 @@ define("orion/editor/rulers", [
 			}
 			return info;
 		},
+
 		/** @ignore */
 		_onAnnotationModelChanged: function(e) {
 			var view = this._view;
@@ -18091,6 +18161,7 @@ define("orion/editor/rulers", [
 			redraw(e.removed);
 			redraw(e.changed);
 		},
+
 		/** @ignore */
 		_mergeAnnotation: function(result, annotation, annotationLineIndex, annotationLineCount) {
 			if (!result) { result = {}; }
@@ -18109,6 +18180,7 @@ define("orion/editor/rulers", [
 			result.style = this._mergeStyle(result.style, annotation.style);
 			return result;
 		},
+
 		/** @ignore */
 		_mergeStyle: function(result, style) {
 			if (style) {
@@ -18138,6 +18210,7 @@ define("orion/editor/rulers", [
 			}
 			return result;
 		},
+
 		_setCurrentGroup: function(lineIndex) {
 			var annotationModel = this._annotationModel;
 			var groupAnnotation = null;
@@ -18217,6 +18290,7 @@ define("orion/editor/rulers", [
 		this._firstLine = 1;
 	}
 	LineNumberRuler.prototype = new Ruler(); 
+
 	/** @ignore */
 	LineNumberRuler.prototype.getAnnotations = function(startLine, endLine) {
 		var result = Ruler.prototype.getAnnotations.call(this, startLine, endLine);
@@ -18234,11 +18308,13 @@ define("orion/editor/rulers", [
 		}
 		return result;
 	};
+
 	/** @ignore */
 	LineNumberRuler.prototype.getWidestAnnotation = function() {
 		var lineCount = this._view.getModel().getLineCount();
 		return this.getAnnotations(lineCount - 1, lineCount)[lineCount - 1];
 	};
+
 	/**
 	 * Sets the line index displayed for the first line. The default value is
 	 * <code>1</code>.
@@ -18248,6 +18324,7 @@ define("orion/editor/rulers", [
 	LineNumberRuler.prototype.setFirstLine = function(lineIndex) {
 		this._firstLine = lineIndex !== undefined ? lineIndex : 1;
 	};
+
 	/** @ignore */
 	LineNumberRuler.prototype._onTextModelChanged = function(e) {
 		var start = e.start;
@@ -18294,6 +18371,7 @@ define("orion/editor/rulers", [
 	function AnnotationRuler (annotationModel, rulerLocation, rulerStyle) {
 		Ruler.call(this, annotationModel, rulerLocation, "page", rulerStyle); //$NON-NLS-0$
 	}
+
 	AnnotationRuler.prototype = new Ruler();
 	
 	/**

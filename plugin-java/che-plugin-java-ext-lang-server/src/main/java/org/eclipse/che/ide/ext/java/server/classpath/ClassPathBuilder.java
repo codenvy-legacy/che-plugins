@@ -8,25 +8,23 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.ide.ext.java.client.dependenciesupdater;
+package org.eclipse.che.ide.ext.java.server.classpath;
 
 import org.eclipse.che.ide.ext.java.shared.dto.ClassPathBuilderResult;
-import org.eclipse.che.ide.rest.AsyncRequestCallback;
 
 /**
- * Client for Java classpath service.
+ *The build classpath specifies which Java source files and resource files in a project are considered by the Java builder and specifies
+ * how to find types outside of the project.
  *
- * @author Artem Zatsarynnyy
+ * @author Valeriy Svydenko
  */
-public interface JavaClasspathServiceClient {
+public interface ClassPathBuilder {
 
     /**
-     * Update project dependencies.
+     * Builds classpath for the current project.
      *
-     * @param projectPath
-     *         path to the project to update its dependencies
-     * @param callback
-     *         the callback to use for the response
+     * @param projectPath  path to current project
+     * @return information about building project classpath
      */
-    void updateDependencies(String projectPath, AsyncRequestCallback<ClassPathBuilderResult> callback);
+    ClassPathBuilderResult buildClassPath(String projectPath);
 }
