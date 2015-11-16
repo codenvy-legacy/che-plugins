@@ -18,9 +18,9 @@
         <groupId>org.eclipse.che.plugin</groupId>
         <version>4.0.0-M4-SNAPSHOT</version>
     </parent>
-    <artifactId>org.eclipse.ltk.core.refactoring</artifactId>
+    <artifactId>org.eclipse.ui.ide</artifactId>
     <packaging>jar</packaging>
-    <name>Che Plugin :: Java :: Eclipse LTK Refactoring</name>
+    <name>Che Plugin :: Java :: Eclipse IDE UI</name>
     <dependencies>
         <dependency>
             <groupId>org.eclipse.birt.runtime</groupId>
@@ -28,15 +28,7 @@
         </dependency>
         <dependency>
             <groupId>org.eclipse.birt.runtime</groupId>
-            <artifactId>org.eclipse.core.runtime</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.birt.runtime</groupId>
             <artifactId>org.eclipse.equinox.common</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.che.plugin</groupId>
-            <artifactId>org.eclipse.core.filebuffers</artifactId>
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.plugin</groupId>
@@ -47,38 +39,12 @@
             <artifactId>org.eclipse.core.resources</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.core</groupId>
-            <artifactId>org.eclipse.core.commands</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.equinox</groupId>
-            <artifactId>preferences</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.equinox</groupId>
-            <artifactId>registry</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.text</groupId>
-            <artifactId>org.eclipse.text</artifactId>
+            <groupId>org.eclipse.che.plugin</groupId>
+            <artifactId>org.eclipse.jface</artifactId>
         </dependency>
         <dependency>
             <groupId>org.eclipse.tycho</groupId>
             <artifactId>org.eclipse.osgi</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.mod4j.org.eclipse.core</groupId>
-            <artifactId>expressions</artifactId>
-            <exclusions>
-                <exclusion>
-                    <artifactId>runtime</artifactId>
-                    <groupId>org.mod4j.org.eclipse.core</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
         </dependency>
     </dependencies>
     <build>
@@ -88,16 +54,7 @@
                 <artifactId>license-maven-plugin</artifactId>
                 <configuration>
                     <excludes>
-                        <exclude>**/*.svg</exclude>
-                        <exclude>**/*.png</exclude>
-                        <exclude>**/*.gif</exclude>
-                        <exclude>**/*.rscjson</exclude>
-                        <exclude>**/*.zip</exclude>
-                        <exclude>**/*.txt</exclude>
-                        <exclude>**/*.jpg</exclude>
-                        <exclude>**/*.rsc</exclude>
-                        <exclude>**/*.json</exclude>
-                        <exclude>**/org/eclipse/ltk/**</exclude>
+                        <exclude>**/org/eclipse/ui/**</exclude>
                     </excludes>
                 </configuration>
             </plugin>
