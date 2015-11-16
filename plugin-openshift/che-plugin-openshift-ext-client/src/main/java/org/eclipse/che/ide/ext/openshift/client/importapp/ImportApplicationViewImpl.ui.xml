@@ -1,0 +1,72 @@
+<!--
+
+    Copyright (c) 2012-2015 Codenvy, S.A.
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License v1.0
+    which accompanies this distribution, and is available at
+    http://www.eclipse.org/legal/epl-v10.html
+
+    Contributors:
+      Codenvy, S.A. - initial API and implementation
+
+-->
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'
+             xmlns:che='urn:import:org.eclipse.che.ide.ui.listbox'>
+    <ui:with field='resources' type='org.eclipse.che.ide.ext.openshift.client.OpenshiftResources'/>
+    <ui:with field='locale' type='org.eclipse.che.ide.ext.openshift.client.OpenshiftLocalizationConstant'/>
+    <ui:with field='coreLocale' type='org.eclipse.che.ide.CoreLocalizationConstant'/>
+    <ui:style>
+        .spacing {
+            margin-top: 15px;
+        }
+
+        .marginH {
+            margin: 0px 8px;
+        }
+
+        .marginV {
+            margin: 8px 0px;
+        }
+
+        .label {
+            float: left;
+            width: 70px;
+        }
+
+        .floatLeft {
+            float: left;
+        }
+    </ui:style>
+    <g:DockLayoutPanel width="600px" height="450px" addStyleNames="{style.marginH}">
+        <g:center>
+             <g:SimplePanel ui:field="categoriesPanel" addStyleNames="{resources.css.projectApplicationBox} {style.marginV}"/>
+        </g:center>
+        <g:east size="300">
+            <g:FlowPanel addStyleNames="{style.marginV}">
+                <g:Label text="{coreLocale.importProjectInfo}" styleName="{resources.css.sectionTitle}"/>
+                <g:Label text="{coreLocale.createProjectFromTemplateName}"/>
+                <g:TextBox ui:field="projectName" addStyleNames="{resources.css.textInput}"/>
+                <g:Label text="{coreLocale.createProjectFromTemplateDescription}" addStyleNames="{style.spacing}"/>
+                <g:TextArea ui:field="projectDescription" addStyleNames="{resources.css.textInput}" height="60px"/>
+
+                <g:Label text="{locale.importApplicationInfo}" styleName="{resources.css.sectionTitle}" addStyleNames="{style.spacing}"/>
+                <g:FlowPanel addStyleNames="{style.spacing}" width="100%" height="40px">
+                    <g:Label text="{locale.importApplicationSourceUrl}" addStyleNames="{style.label} {style.floatLeft}"/>
+                    <g:Label ui:field="sourceUrl"/>
+                </g:FlowPanel>
+                <g:FlowPanel ui:field="branchPanel" addStyleNames="{style.floatLeft}" width="100%" visible="false">
+                    <g:Label text="{locale.importApplicationBranchName}" addStyleNames="{style.label} {style.floatLeft}"/>
+                    <g:Label ui:field="branchName" addStyleNames="{style.floatLeft}"/>
+                </g:FlowPanel>
+                <g:FlowPanel ui:field="contextDirPanel" addStyleNames="{style.floatLeft}" width="100%" visible="false">
+                    <g:Label text="{locale.importApplicationContextDir}" addStyleNames="{style.label} {style.floatLeft}"/>
+                    <g:Label ui:field="contextDir" addStyleNames="{style.floatLeft}"/>
+                </g:FlowPanel>
+            </g:FlowPanel>
+        </g:east>
+        <g:east size="18">
+            <g:FlowPanel addStyleNames="{resources.css.sectionSeparator}"></g:FlowPanel>
+        </g:east>
+    </g:DockLayoutPanel>
+</ui:UiBinder>

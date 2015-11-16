@@ -77,6 +77,27 @@ public interface OpenshiftLocalizationConstant extends Messages {
     @Key("new.application.action")
     String newApplicationAction();
 
+    @Key("import.application.action")
+    String importApplicationAction();
+
+    @Key("import.application.view.title")
+    String importApplicationViewTitle();
+
+    @Key("import.application.import.button")
+    String importApplicationImportButton();
+
+    @Key("import.application.info")
+    String importApplicationInfo();
+
+    @Key("import.application.source.url")
+    String importApplicationSourceUrl();
+
+    @Key("import.application.branch.name")
+    String importApplicationBranchName();
+
+    @Key("import.application.context.dir")
+    String importApplicationContextDir();
+
     @Key("not.git.repository.warning")
     String notGitRepositoryWarning(String project);
 

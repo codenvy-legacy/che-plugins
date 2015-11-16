@@ -49,6 +49,9 @@ public class ConnectAccountAction extends Action {
         openshiftAuthenticator.authorize(new AsyncCallback<OAuthStatus>() {
             @Override
             public void onSuccess(OAuthStatus result) {
+                if (result == OAuthStatus.NOT_PERFORMED) {
+                    return;
+                }
                 openshiftAuthorizationHandler.registerLogin();
                 notificationManager.showInfo(locale.loginSuccessful());
             }

@@ -19,6 +19,7 @@ import org.eclipse.che.ide.ext.openshift.client.deploy.LinkProjectWithExistingAp
 import org.eclipse.che.ide.ext.openshift.client.deploy._new.NewApplicationAction;
 import org.eclipse.che.ide.ext.openshift.client.oauth.ConnectAccountAction;
 import org.eclipse.che.ide.ext.openshift.client.oauth.DisconnectAccountAction;
+import org.eclipse.che.ide.ext.openshift.client.importapp.ImportApplicationAction;
 import org.eclipse.che.ide.ext.openshift.client.project.CreateApplicationFromTemplateAction;
 
 import javax.inject.Inject;
@@ -36,7 +37,7 @@ import static org.eclipse.che.ide.api.constraints.Anchor.BEFORE;
 @Singleton
 @Extension(title = "Git", version = "3.0.0")
 public class OpenshiftExtension {
-    public static final String OPENSHIFT_GROUP_MAIN_MENU = "Openshift";
+    public static final String OPENSHIFT_GROUP_MAIN_MENU = "OpenShift";
 
     @Inject
     public OpenshiftExtension(ActionManager actionManager,
@@ -48,7 +49,8 @@ public class OpenshiftExtension {
                               NewApplicationAction newApplicationAction,
                               ShowApplicationUrlAction showApplicationUrlAction,
                               ShowWebhooksAction showWebhooksAction,
-                              StartBuildAction startBuildAction) {
+                              StartBuildAction startBuildAction,
+                              ImportApplicationAction importApplicationAction) {
         openshiftResources.css().ensureInjected();
         DefaultActionGroup mainMenu = (DefaultActionGroup)actionManager.getAction(GROUP_MAIN_MENU);
 
@@ -78,6 +80,9 @@ public class OpenshiftExtension {
         openshift.addSeparator();
         actionManager.registerAction("createOpenshiftApplicationFromTemplate", createApplicationFromTemplateAction);
         openshift.add(createApplicationFromTemplateAction);
+
+        actionManager.registerAction("importApplication", importApplicationAction);
+        openshift.add(importApplicationAction);
 
         actionManager.registerAction("showOpenshiftApplicationUrl", showApplicationUrlAction);
         openshift.add(showApplicationUrlAction);
