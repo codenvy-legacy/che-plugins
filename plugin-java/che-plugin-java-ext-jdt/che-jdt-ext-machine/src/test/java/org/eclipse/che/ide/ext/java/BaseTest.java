@@ -37,7 +37,7 @@ public abstract class BaseTest {
     protected static       Map<String, String> options       = new HashMap<>();
     protected static JavaProject project;
     protected static EventService    eventService      = new EventService();
-    protected static ResourcesPlugin plugin            = new ResourcesPlugin("index", workspacePath,
+    protected static ResourcesPlugin plugin            = new ResourcesPlugin("target/index", workspacePath,
                                                                              new DummyProjectManager(workspacePath, eventService));
     protected static JavaPlugin      javaPlugin        = new JavaPlugin(wsPath + "/set");
     protected static FileBuffersPlugin
