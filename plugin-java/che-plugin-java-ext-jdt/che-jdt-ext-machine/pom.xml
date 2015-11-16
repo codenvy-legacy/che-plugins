@@ -64,10 +64,6 @@
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.core</groupId>
-            <artifactId>che-core-commons-env</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.che.core</groupId>
             <artifactId>che-core-commons-gwt</artifactId>
         </dependency>
         <dependency>
@@ -129,10 +125,6 @@
             <artifactId>org.eclipse.search</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.che.plugin</groupId>
-            <artifactId>org.eclipse.ui.ide</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.eclipse.search</groupId>
             <artifactId>org.eclipse.search</artifactId>
         </dependency>
@@ -172,7 +164,17 @@
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.core</groupId>
+            <artifactId>che-core-commons-env</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.che.core</groupId>
             <artifactId>che-core-vfs-impl</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.che.plugin</groupId>
+            <artifactId>org.eclipse.ui.ide</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
