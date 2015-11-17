@@ -39,10 +39,13 @@ import com.google.web.bindery.event.shared.EventBus;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.ide.api.app.AppContext;
+import org.eclipse.che.ide.api.event.SelectionChangedEvent;
+import org.eclipse.che.ide.api.event.SelectionChangedHandler;
 import org.eclipse.che.ide.api.text.Region;
 import org.eclipse.che.ide.api.text.RegionImpl;
 import org.eclipse.che.ide.api.texteditor.HandlesUndoRedo;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionCodeEditWidgetOverlay;
+import org.eclipse.che.ide.editor.orion.client.jso.OrionContentAssistOverlay;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionEditorOverlay;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionEditorViewOverlay;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionSelectionOverlay;
@@ -521,6 +524,16 @@ public class OrionEditorWidget extends CompositeEditorWidget implements HasChang
         public void apply(OrionEditorViewOverlay arg) throws OperationException {
             editorViewOverlay = arg;
             editorOverlay = arg.getEditor();
+
+            final OrionContentAssistOverlay contentAssist = editorOverlay.getContentAssist();
+            eventBus.addHandler(SelectionChangedEvent.TYPE, new SelectionChangedHandler() {
+                @Override
+                public void onSelectionChanged(SelectionChangedEvent event) {
+                    if (contentAssist.isActive()) {
+                        contentAssist.deactivate();
+                    }
+                }
+            });
 
             final OrionTextViewOverlay textView = editorOverlay.getTextView();
             keyModeInstances.add(VI, getViKeyMode(moduleHolder.getModule("OrionVi"), textView));
