@@ -15,7 +15,6 @@ import org.eclipse.che.api.core.rest.HttpJsonHelper;
 import org.eclipse.che.api.project.server.DefaultProjectManager;
 import org.eclipse.che.api.project.server.FileEntry;
 import org.eclipse.che.api.project.server.FolderEntry;
-import org.eclipse.che.api.project.server.ProjectConfig;
 import org.eclipse.che.api.project.server.ProjectManager;
 import org.eclipse.che.api.project.server.VirtualFileEntry;
 import org.eclipse.che.api.project.server.handlers.ProjectHandlerRegistry;
@@ -132,6 +131,7 @@ public class SimpleGeneratorStrategyTest {
         ProjectHandlerRegistry handlerRegistry = new ProjectHandlerRegistry(new HashSet<>());
 
         pm = new DefaultProjectManager(vfsRegistry, eventService, projectTypeRegistry, handlerRegistry, "");
-        pm.createProject(workspace, "my_project", new ProjectConfig("", pt.getId()), null, "public");
+        pm.createProject(workspace, "my_project", DtoFactory.getInstance().createDto(ProjectConfigDto.class)
+                                                            .withType(pt.getId()), null);
     }
 }

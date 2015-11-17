@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.maven.client.wizard;
 
-import org.eclipse.che.api.project.shared.dto.ImportProject;
+import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.ide.api.project.type.wizard.ProjectWizardRegistrar;
 import org.eclipse.che.ide.api.wizard.WizardPage;
 import com.google.inject.Inject;
@@ -30,7 +30,7 @@ import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.MAVEN_I
  * @author Artem Zatsarynnyy
  */
 public class MavenProjectWizardRegistrar implements ProjectWizardRegistrar {
-    private final List<Provider<? extends WizardPage<ImportProject>>> wizardPages;
+    private final List<Provider<? extends WizardPage<ProjectConfigDto>>> wizardPages;
 
     @Inject
     public MavenProjectWizardRegistrar(Provider<MavenPagePresenter> mavenPagePresenter) {
@@ -49,7 +49,7 @@ public class MavenProjectWizardRegistrar implements ProjectWizardRegistrar {
     }
 
     @NotNull
-    public List<Provider<? extends WizardPage<ImportProject>>> getWizardPages() {
+    public List<Provider<? extends WizardPage<ProjectConfigDto>>> getWizardPages() {
         return wizardPages;
     }
 }

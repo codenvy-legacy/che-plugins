@@ -14,7 +14,6 @@ import org.eclipse.che.api.core.ConflictException;
 import org.eclipse.che.api.core.ForbiddenException;
 import org.eclipse.che.api.core.ServerException;
 import org.eclipse.che.api.project.server.FolderEntry;
-import org.eclipse.che.api.project.server.ProjectConfig;
 import org.eclipse.che.api.project.server.VirtualFileEntry;
 import org.eclipse.che.api.project.server.handlers.CreateModuleHandler;
 import org.eclipse.che.ide.extension.maven.shared.MavenAttributes;
@@ -28,15 +27,16 @@ import java.util.Map;
 
 /**
  * @author Vitaly Parfonov
+ * @author Dmitry Shnurenko
  */
 public class AddMavenModuleHandler implements CreateModuleHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(AddMavenModuleHandler.class);
 
     @Override
-    public void onCreateModule(FolderEntry parentFolder, String modulePath, ProjectConfig moduleConfig, Map<String, String> options)
+    public void onCreateModule(FolderEntry parentFolder, String modulePath, String moduleType, Map<String, String> options)
             throws ForbiddenException, ConflictException, ServerException {
-        if (!moduleConfig.getTypeId().equals(MavenAttributes.MAVEN_ID)) {
+        if (!moduleType.equals(MavenAttributes.MAVEN_ID)) {
             LOG.warn("Module must be Maven project to able be added to Maven project");
             throw new IllegalArgumentException("Module must be Maven project to able be added to Maven project");
         }
