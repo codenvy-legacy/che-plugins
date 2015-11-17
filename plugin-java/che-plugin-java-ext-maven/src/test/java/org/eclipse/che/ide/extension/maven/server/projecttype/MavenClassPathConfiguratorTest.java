@@ -14,12 +14,12 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
+import org.eclipse.che.api.core.model.workspace.ProjectConfig;
 import org.eclipse.che.api.core.notification.EventService;
 import org.eclipse.che.api.core.rest.HttpJsonHelper;
 import org.eclipse.che.api.project.server.DefaultProjectManager;
 import org.eclipse.che.api.project.server.FileEntry;
 import org.eclipse.che.api.project.server.Project;
-import org.eclipse.che.api.project.server.ProjectConfig;
 import org.eclipse.che.api.project.server.ProjectManager;
 import org.eclipse.che.api.project.server.VirtualFileEntry;
 import org.eclipse.che.api.project.server.handlers.ProjectHandlerRegistry;
@@ -139,7 +139,9 @@ public class MavenClassPathConfiguratorTest {
     @Test
     public void testConfigureWhenPomNotContainsSourceDirectory() throws Exception {
         String classPath = String.format(CLASS_PATH_CONTENT, DEFAULT_SOURCE_DIRECTORY, DEFAULT_TEST_SOURCE_DIRECTORY);
-        Project testProject = projectManager.createProject(WORKSPACE, "projectName", new ProjectConfig("maven", "maven"), null, null);
+        Project testProject =
+                projectManager.createProject(WORKSPACE, "projectName", DtoFactory.getInstance().createDto(ProjectConfigDto.class)
+                                                                                 .withType("maven"), null);
         testProject.getBaseFolder().createFile("pom.xml", POM_CONTENT_WITHOUT_BUILD.getBytes(), "text/xml");
 
         MavenClassPathConfigurator.configure(testProject.getBaseFolder());
@@ -152,7 +154,9 @@ public class MavenClassPathConfiguratorTest {
 
     @Test
     public void testConfigureWhenPomContainsDefaultSourceDirectory() throws Exception {
-        Project testProject = projectManager.createProject(WORKSPACE, "projectName", new ProjectConfig("maven", "maven"), null, null);
+        Project testProject =
+                projectManager.createProject(WORKSPACE, "projectName", DtoFactory.getInstance().createDto(ProjectConfigDto.class)
+                                                                                 .withType("maven"), null);
         String pom = String.format(POM_CONTENT, DEFAULT_SOURCE_DIRECTORY);
         String classPath = String.format(CLASS_PATH_CONTENT, DEFAULT_SOURCE_DIRECTORY, DEFAULT_TEST_SOURCE_DIRECTORY);
         testProject.getBaseFolder().createFile("pom.xml", pom.getBytes(), "text/xml");
@@ -167,7 +171,9 @@ public class MavenClassPathConfiguratorTest {
 
     @Test
     public void testConfigureWhenPomContainsNotDefaultSourceDirectory() throws Exception {
-        Project testProject = projectManager.createProject(WORKSPACE, "projectName", new ProjectConfig("maven", "maven"), null, null);
+        Project testProject =
+                projectManager.createProject(WORKSPACE, "projectName", DtoFactory.getInstance().createDto(ProjectConfigDto.class)
+                                                                                 .withType("maven"), null);
         String pom = String.format(POM_CONTENT, SOURCE_DIRECTORY);
         String classPath = String.format(CLASS_PATH_CONTENT, SOURCE_DIRECTORY, DEFAULT_TEST_SOURCE_DIRECTORY);
         testProject.getBaseFolder().createFile("pom.xml", pom.getBytes(), "text/xml");

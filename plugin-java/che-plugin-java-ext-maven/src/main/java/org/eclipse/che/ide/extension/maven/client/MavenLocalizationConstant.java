@@ -16,6 +16,7 @@ import com.google.gwt.i18n.client.Messages;
  * Represents the localization constants contained in resource bundle: 'MavenLocalizationConstant.properties'.
  *
  * @author Artem Zatsarynnyy
+ * @author Dmitry Shnurenko
  */
 public interface MavenLocalizationConstant extends Messages {
 
@@ -47,4 +48,7 @@ public interface MavenLocalizationConstant extends Messages {
 
     @Key("maven.page.groupIdTooltip")
     String mavenPageGroupIdTooltip();
+
+    @Key("maven.create.module.multy.selection.error")
+    String mavenCreateModuleMultySelectionError();
 }

@@ -13,8 +13,8 @@ package org.eclipse.che.ide.extension.maven.server.projecttype.handler;
 import org.eclipse.che.api.core.ConflictException;
 import org.eclipse.che.api.core.ForbiddenException;
 import org.eclipse.che.api.core.ServerException;
+import org.eclipse.che.api.core.model.workspace.ModuleConfig;
 import org.eclipse.che.api.project.server.FolderEntry;
-import org.eclipse.che.api.project.server.ProjectConfig;
 import org.eclipse.che.api.project.server.VirtualFileEntry;
 import org.eclipse.che.api.project.server.handlers.RemoveModuleHandler;
 import org.eclipse.che.ide.extension.maven.shared.MavenAttributes;
@@ -39,9 +39,9 @@ public class RemoveMavenModuleHandler implements RemoveModuleHandler {
     }
 
     @Override
-    public void onRemoveModule(FolderEntry parentFolder, String modulePath, ProjectConfig moduleConfig)
+    public void onRemoveModule(FolderEntry parentFolder, String modulePath, ModuleConfig moduleConfig)
             throws ForbiddenException, ConflictException, ServerException {
-        if (!moduleConfig.getTypeId().equals(MavenAttributes.MAVEN_ID)) {
+        if (!moduleConfig.getType().equals(MavenAttributes.MAVEN_ID)) {
             logger.warn("Module isn't Maven module");
             throw new IllegalArgumentException("Module isn't Maven module");
         }

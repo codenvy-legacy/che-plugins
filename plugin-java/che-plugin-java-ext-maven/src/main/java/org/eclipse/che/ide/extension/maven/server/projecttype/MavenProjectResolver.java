@@ -14,15 +14,18 @@ import org.eclipse.che.api.core.ConflictException;
 import org.eclipse.che.api.core.ForbiddenException;
 import org.eclipse.che.api.core.NotFoundException;
 import org.eclipse.che.api.core.ServerException;
+import org.eclipse.che.api.core.model.workspace.ModuleConfig;
 import org.eclipse.che.api.project.server.FolderEntry;
 import org.eclipse.che.api.project.server.Project;
-import org.eclipse.che.api.project.server.ProjectConfig;
 import org.eclipse.che.api.project.server.ProjectManager;
 import org.eclipse.che.api.project.server.VirtualFileEntry;
-import org.eclipse.che.api.project.server.type.AttributeValue;
+import org.eclipse.che.api.workspace.server.model.impl.ModuleConfigImpl;
+import org.eclipse.che.api.workspace.server.model.impl.ProjectConfigImpl;
 import org.eclipse.che.ide.maven.tools.Model;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,65 +38,99 @@ import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.VERSION
 
 /**
  * @author Evgen Vidolob
+ * @author Dmitry Shnurenko
  */
 public class MavenProjectResolver {
 
-    public static void resolve(FolderEntry projectFolder, ProjectManager projectManager)
-            throws ConflictException, ForbiddenException, ServerException, NotFoundException, IOException {
+    /**
+     * The method allows define project structure as it is in project tree. Project can has got some modules and each module can has got
+     * own modules.
+     *
+     * @param projectFolder
+     *         base folder which represents project
+     * @param projectManager
+     *         special manager which is necessary for updating project after resolve
+     * @throws ConflictException
+     * @throws ForbiddenException
+     * @throws ServerException
+     * @throws NotFoundException
+     * @throws IOException
+     */
+    public static void resolve(FolderEntry projectFolder, ProjectManager projectManager) throws ConflictException,
+                                                                                                ForbiddenException,
+                                                                                                ServerException,
+                                                                                                NotFoundException,
+                                                                                                IOException {
         VirtualFileEntry pom = projectFolder.getChild("pom.xml");
-        if (pom != null) {
-            Model model = Model.readFrom(pom.getVirtualFile());
-            MavenClassPathConfigurator.configure(projectFolder, model);
 
-            String packaging = model.getPackaging();
-            if (packaging != null && packaging.equals("pom")) {
-                String ws = projectFolder.getWorkspace();
-                Project project = projectManager.getProject(ws, projectFolder.getPath());
-                createProjectsOnModules(model, project, ws, projectManager);
+        if (pom == null) {
+            return;
+        }
+
+        Model model = Model.readFrom(pom.getVirtualFile());
+        MavenClassPathConfigurator.configure(projectFolder, model);
+
+        String packaging = model.getPackaging();
+        if (packaging != null && packaging.equals("pom")) {
+            String workspaceId = projectFolder.getWorkspace();
+            Project project = projectManager.getProject(workspaceId, projectFolder.getPath());
+
+            Map<String, List<String>> attributes = new HashMap<>();
+            attributes.put(ARTIFACT_ID, Arrays.asList(model.getArtifactId()));
+            attributes.put(GROUP_ID, Arrays.asList(model.getGroupId()));
+            attributes.put(VERSION, Arrays.asList(model.getVersion()));
+            attributes.put(PACKAGING, Arrays.asList(model.getPackaging()));
+
+            ProjectConfigImpl projectConfig = new ProjectConfigImpl();
+            projectConfig.setName(projectFolder.getName());
+            projectConfig.setDescription(model.getDescription());
+            projectConfig.setAttributes(attributes);
+            projectConfig.setType(MAVEN_ID);
+
+            List<ModuleConfig> modules = new ArrayList<>();
+
+            for (FolderEntry folderEntry : project.getBaseFolder().getChildFolders()) {
+                defineModules(folderEntry, modules);
             }
+
+            projectConfig.setModules(modules);
+
+            project.updateConfig(projectConfig);
         }
     }
 
-    private static void createProjectsOnModules(Model model, Project parentProject, String ws, ProjectManager projectManager)
-            throws ServerException, ForbiddenException, ConflictException, NotFoundException, IOException {
-        List<String> modules = model.getModules();
-        for (String module : modules) {
-            FolderEntry parentFolder = getParentFolder(module, parentProject);
-            module = module.replaceAll("\\.{2}/", "");
-            FolderEntry moduleEntry = (FolderEntry)parentFolder.getChild(module);
-            if (moduleEntry != null && moduleEntry.getVirtualFile().getChild("pom.xml") != null) {
-                Project project = projectManager.getProject(ws, moduleEntry.getPath());
-                ProjectConfig projectConfig = createProjectConfig(moduleEntry);
-                if (project == null) {
-                    project = new Project(moduleEntry, projectManager);
-                }
-                project.updateConfig(projectConfig);
-                parentProject.getModules().add(module);
-                resolve(project.getBaseFolder(), projectManager);
-            }
-        }
-    }
-
-    private static FolderEntry getParentFolder(String module, Project parentProject) {
-        FolderEntry parentFolder = parentProject.getBaseFolder();
-        int level = module.split("\\.{2}/").length - 1;
-        while (level != 0 && parentFolder != null) {
-            parentFolder = parentFolder.getParent();
-            level--;
-        }
-        return parentFolder;
-    }
-
-    private static ProjectConfig createProjectConfig(FolderEntry folderEntry) throws ServerException, ForbiddenException, IOException {
+    private static void defineModules(FolderEntry folderEntry, List<ModuleConfig> modules) throws ServerException,
+                                                                                                  ForbiddenException,
+                                                                                                  IOException {
         VirtualFileEntry pom = folderEntry.getChild("pom.xml");
+
+        if (pom == null) {
+            return;
+        }
+
         Model model = Model.readFrom(pom.getVirtualFile());
 
-        Map<String, AttributeValue> attributes = new HashMap<>();
-        attributes.put(ARTIFACT_ID, new AttributeValue(model.getArtifactId()));
-        attributes.put(GROUP_ID, new AttributeValue(model.getGroupId()));
-        attributes.put(VERSION, new AttributeValue(model.getVersion()));
-        attributes.put(PACKAGING, new AttributeValue(model.getPackaging()));
+        Map<String, List<String>> attributes = new HashMap<>();
+        attributes.put(ARTIFACT_ID, Arrays.asList(model.getArtifactId()));
+        attributes.put(GROUP_ID, Arrays.asList(model.getGroupId()));
+        attributes.put(VERSION, Arrays.asList(model.getVersion()));
+        attributes.put(PACKAGING, Arrays.asList(model.getPackaging()));
 
-        return new ProjectConfig("Maven", MAVEN_ID, attributes, null, null);
+        ModuleConfigImpl moduleConfig = new ModuleConfigImpl();
+        moduleConfig.setType(MAVEN_ID);
+        moduleConfig.setName(folderEntry.getName());
+        moduleConfig.setPath(folderEntry.getPath());
+        moduleConfig.setAttributes(attributes);
+        moduleConfig.setDescription(model.getDescription());
+
+        List<ModuleConfig> internalModules = new ArrayList<>();
+
+        for (FolderEntry internalModule : folderEntry.getChildFolders()) {
+            defineModules(internalModule, internalModules);
+        }
+
+        moduleConfig.setModules(internalModules);
+
+        modules.add(moduleConfig);
     }
 }

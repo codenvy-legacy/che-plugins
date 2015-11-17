@@ -15,6 +15,7 @@ import org.eclipse.che.api.core.ConflictException;
 import org.eclipse.che.api.core.ForbiddenException;
 import org.eclipse.che.api.core.NotFoundException;
 import org.eclipse.che.api.core.ServerException;
+import org.eclipse.che.api.core.model.workspace.ModuleConfig;
 import org.eclipse.che.api.project.server.ProjectManager;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -30,12 +31,12 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
  * @author Evgen Vidolob
+ * @author Dmitry Shnurenko
  */
 public class WorkspaceRoot extends Container implements IWorkspaceRoot {
     public static final  String PROJECT_INNER_SETTING_DIR = ".codenvy";
@@ -119,7 +120,10 @@ public class WorkspaceRoot extends Container implements IWorkspaceRoot {
         try {
             List<org.eclipse.che.api.project.server.Project> rootProjects = manager.getProjects(workspace.getWsId());
             for (org.eclipse.che.api.project.server.Project rootProject : rootProjects) {
-                projects.add(new Project(new Path(rootProject.getPath()), workspace));
+                Project project = new Project(new Path(rootProject.getPath()), workspace);
+                
+                projects.add(project);
+               
                 addAllModules(projects, rootProject, manager);
             }
         } catch (ServerException | NotFoundException | ForbiddenException | IOException | ConflictException e) {
@@ -129,12 +133,27 @@ public class WorkspaceRoot extends Container implements IWorkspaceRoot {
         return projects.toArray(new IProject[projects.size()]);
     }
 
-    private void addAllModules(List<IProject> projects, org.eclipse.che.api.project.server.Project project, ProjectManager manager)
-            throws IOException, ForbiddenException, ConflictException, NotFoundException, ServerException {
-        Set<org.eclipse.che.api.project.server.Project> modules = manager.getProjectModules(project);
-        for (org.eclipse.che.api.project.server.Project module : modules) {
-            projects.add(new Project(new Path(module.getPath()), workspace));
-            addAllModules(projects, module, manager);
+    private void addAllModules(List<IProject> projects,
+                               org.eclipse.che.api.project.server.Project rootProject,
+                               ProjectManager manager) throws IOException,
+                                                              ForbiddenException,
+                                                              ConflictException,
+                                                              NotFoundException,
+                                                              ServerException {
+	List<? extends ModuleConfig> modules = manager.getProjectModules(rootProject);
+                                                                  
+        for (ModuleConfig module : modules) {
+            addModules(projects, module);
+        }
+    }
+
+    private void addModules(List<IProject> projects, ModuleConfig moduleConfig) {
+        for (ModuleConfig module : moduleConfig.getModules()) {
+            Project project = new Project(new Path(module.getPath()), workspace);
+
+            projects.add(project);
+
+            addModules(projects, module);
         }
     }
 

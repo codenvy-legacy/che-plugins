@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.github.client.importer;
 
-import org.eclipse.che.api.project.shared.dto.ImportProject;
+import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.ide.api.project.wizard.ImportWizardRegistrar;
 import org.eclipse.che.ide.api.wizard.WizardPage;
 import org.eclipse.che.ide.ext.github.client.importer.page.GithubImporterPagePresenter;
@@ -28,7 +28,7 @@ import java.util.List;
  */
 public class GitHubImportWizardRegistrar implements ImportWizardRegistrar {
     private final static String ID = "github";
-    private final List<Provider<? extends WizardPage<ImportProject>>> wizardPages;
+    private final List<Provider<? extends WizardPage<ProjectConfigDto>>> wizardPages;
 
     @Inject
     public GitHubImportWizardRegistrar(Provider<GithubImporterPagePresenter> provider) {
@@ -42,7 +42,7 @@ public class GitHubImportWizardRegistrar implements ImportWizardRegistrar {
     }
 
     @NotNull
-    public List<Provider<? extends WizardPage<ImportProject>>> getWizardPages() {
+    public List<Provider<? extends WizardPage<ProjectConfigDto>>> getWizardPages() {
         return wizardPages;
     }
 }
