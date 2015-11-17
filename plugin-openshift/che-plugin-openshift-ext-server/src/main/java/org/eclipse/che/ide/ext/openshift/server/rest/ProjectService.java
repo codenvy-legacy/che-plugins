@@ -20,11 +20,13 @@ import org.eclipse.che.api.core.ForbiddenException;
 import org.eclipse.che.api.core.ServerException;
 import org.eclipse.che.api.core.UnauthorizedException;
 import org.eclipse.che.ide.ext.openshift.server.ClientFactory;
+import org.eclipse.che.ide.ext.openshift.shared.dto.ObjectMeta;
 import org.eclipse.che.ide.ext.openshift.shared.dto.Project;
 import org.eclipse.che.ide.ext.openshift.shared.dto.ProjectRequest;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -32,9 +34,11 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.eclipse.che.dto.server.DtoFactory.newDto;
 import static org.eclipse.che.ide.ext.openshift.server.DtoConverter.toDto;
 import static org.eclipse.che.ide.ext.openshift.server.DtoConverter.toOpenshiftResource;
 
@@ -94,5 +98,14 @@ public class ProjectService {
         }
         final IClient client = clientFactory.getOpenshiftClient();
         return toDto(Project.class, client.update(toOpenshiftResource(client, project)));
+    }
+
+    @DELETE
+    @Path("/{project}")
+    public void removeProject(@PathParam("project") String projectName) throws UnauthorizedException, ServerException {
+        final IClient client = clientFactory.getOpenshiftClient();
+        client.delete(toOpenshiftResource(client, newDto(Project.class).withKind(ResourceKind.PROJECT)
+                                                                       .withMetadata(newDto(ObjectMeta.class)
+                                                                                             .withName(projectName))));
     }
 }
