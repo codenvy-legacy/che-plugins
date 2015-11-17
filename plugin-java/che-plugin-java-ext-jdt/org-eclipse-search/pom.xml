@@ -21,6 +21,9 @@
     <artifactId>org.eclipse.search</artifactId>
     <packaging>jar</packaging>
     <name>Che Plugin :: Java :: Eclipse Search</name>
+    <properties>
+        <maven.javadoc.skip>true</maven.javadoc.skip>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>org.eclipse.birt.runtime</groupId>
