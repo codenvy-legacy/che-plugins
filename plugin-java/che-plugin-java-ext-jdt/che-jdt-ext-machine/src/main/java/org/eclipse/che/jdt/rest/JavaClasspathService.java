@@ -13,7 +13,6 @@ package org.eclipse.che.jdt.rest;
 
 import org.eclipse.che.ide.ext.java.server.classpath.ClassPathBuilder;
 import org.eclipse.che.ide.ext.java.shared.dto.ClassPathBuilderResult;
-import org.eclipse.core.resources.ResourcesPlugin;
 
 import javax.inject.Inject;
 import javax.ws.rs.GET;
@@ -43,6 +42,6 @@ public class JavaClasspathService {
     @Produces(MediaType.APPLICATION_JSON)
     @GET
     public ClassPathBuilderResult update(@QueryParam("projectpath") final String projectPath) {
-        return classPathBuilder.buildClassPath(ResourcesPlugin.getPathToWorkspace() + projectPath);
+        return classPathBuilder.buildClassPath(projectPath);
     }
 }
