@@ -641,12 +641,12 @@ public class CompletionProposalCollector extends CompletionRequestor {
 	private void acceptPotentialMethodDeclaration(CompletionProposal proposal) {
 		try {
 			IJavaElement enclosingElement= null;
-			if (getContext().isExtended()) {
-				enclosingElement= getContext().getEnclosingElement();
-			} else if (fCompilationUnit != null) {
+//			if (getContext().isExtended()) {
+//				enclosingElement= getContext().getEnclosingElement();
+//			} else if (fCompilationUnit != null) {
 				// kept for backward compatibility: CU is not reconciled at this moment, information is missing (bug 70005)
 				enclosingElement= fCompilationUnit.getElementAt(proposal.getCompletionLocation() + 1);
-			}
+//			}
 			if (enclosingElement == null)
 				return;
 			IType type= (IType) enclosingElement.getAncestor(IJavaElement.TYPE);
