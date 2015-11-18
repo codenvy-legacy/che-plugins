@@ -93,7 +93,7 @@ public class CreateProjectWizard extends AbstractWizard<NewApplicationRequest> {
             return;
         }
 
-        appNameParam.setValue(dataObject.getImportProject().getProject().getName());
+        appNameParam.setValue(dataObject.getProjectConfigDto().getName());
 
         getProject().thenPromise(setUpMixinType())
                     .thenPromise(processTemplate())
@@ -108,7 +108,7 @@ public class CreateProjectWizard extends AbstractWizard<NewApplicationRequest> {
             @Override
             public void apply(JsArrayMixed arg) throws OperationException {
                 callback.onCompleted();
-                importWizardFactory.newWizard(dataObject.getImportProject()).complete(callback);
+                importWizardFactory.newWizard(dataObject.getProjectConfigDto()).complete(callback);
             }
         };
     }
@@ -137,11 +137,11 @@ public class CreateProjectWizard extends AbstractWizard<NewApplicationRequest> {
             @Override
             public Promise<Project> apply(Project project) throws FunctionException {
                 Map<String, List<String>> attributes = new HashMap<>(2);
-                attributes.put(OPENSHIFT_APPLICATION_VARIABLE_NAME, singletonList(dataObject.getImportProject().getProject().getName()));
+                attributes.put(OPENSHIFT_APPLICATION_VARIABLE_NAME, singletonList(dataObject.getProjectConfigDto().getName()));
                 attributes.put(OPENSHIFT_NAMESPACE_VARIABLE_NAME, singletonList(project.getMetadata().getName()));
 
-                dataObject.getImportProject().getProject().setMixins(singletonList(OPENSHIFT_PROJECT_TYPE_ID));
-                dataObject.getImportProject().getProject().withAttributes(attributes);
+                dataObject.getProjectConfigDto().setMixinTypes(singletonList(OPENSHIFT_PROJECT_TYPE_ID));
+                dataObject.getProjectConfigDto().withAttributes(attributes);
 
                 return Promises.resolve(project);
             }
@@ -169,7 +169,7 @@ public class CreateProjectWizard extends AbstractWizard<NewApplicationRequest> {
                     final JSONObject object = (JSONObject)o;
                     final JSONValue metadata = object.get("metadata");
                     final String namespace =
-                            dataObject.getImportProject().getProject().getAttributes().get(OPENSHIFT_NAMESPACE_VARIABLE_NAME).get(0);
+                            dataObject.getProjectConfigDto().getAttributes().get(OPENSHIFT_NAMESPACE_VARIABLE_NAME).get(0);
                     ((JSONObject)metadata).put("namespace", new JSONString(namespace));
                     final String kind = ((JSONString)object.get("kind")).stringValue();
 

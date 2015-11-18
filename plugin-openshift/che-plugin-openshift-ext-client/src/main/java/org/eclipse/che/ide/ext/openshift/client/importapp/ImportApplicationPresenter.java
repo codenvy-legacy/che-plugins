@@ -11,18 +11,21 @@
 package org.eclipse.che.ide.ext.openshift.client.importapp;
 
 import com.google.inject.Inject;
-
 import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.api.git.gwt.client.GitServiceClient;
 import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
-import org.eclipse.che.api.project.shared.dto.*;
+import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
+import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
+import org.eclipse.che.api.workspace.shared.dto.SourceStorageDto;
 import org.eclipse.che.ide.api.app.AppContext;
+import org.eclipse.che.ide.api.event.ConfigureProjectEvent;
 import org.eclipse.che.ide.api.event.project.CreateProjectEvent;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.project.wizard.ImportProjectNotificationSubscriber;
+import org.eclipse.che.ide.api.wizard.Wizard;
 import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.ext.openshift.client.OpenshiftLocalizationConstant;
 import org.eclipse.che.ide.ext.openshift.client.OpenshiftServiceClient;
@@ -32,7 +35,9 @@ import org.eclipse.che.ide.ext.openshift.client.oauth.OpenshiftAuthorizationHand
 import org.eclipse.che.ide.ext.openshift.shared.OpenshiftProjectTypeConstants;
 import org.eclipse.che.ide.ext.openshift.shared.dto.BuildConfig;
 import org.eclipse.che.ide.ext.openshift.shared.dto.Project;
+import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
+import org.eclipse.che.ide.rest.Unmarshallable;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 import org.eclipse.che.ide.websocket.rest.RequestCallback;
 
@@ -121,10 +126,8 @@ public class ImportApplicationPresenter extends ValidateAuthenticationPresenter 
      * Fills project data and imports project.
      */
     private void doImport() {
-        ImportProject importProject = dtoFactory.createDto(ImportProject.class)
-                                                .withProject(dtoFactory.createDto(NewProject.class))
-                                                .withSource(dtoFactory.createDto(Source.class)
-                                                                      .withProject(dtoFactory.createDto(ImportSourceDescriptor.class)));
+        final ProjectConfigDto projectConfig = dtoFactory.createDto(ProjectConfigDto.class)
+                                                         .withSource(dtoFactory.createDto(SourceStorageDto.class));
         Map<String, String> importOptions = new HashMap<String, String>();
         String branch = selectedBuildConfig.getSpec().getSource().getGit().getRef();
         if (branch != null && !branch.isEmpty()) {
@@ -134,7 +137,6 @@ public class ImportApplicationPresenter extends ValidateAuthenticationPresenter 
         String contextDir = selectedBuildConfig.getSpec().getSource().getContextDir();
         if (contextDir != null && !contextDir.isEmpty()) {
             importOptions.put("keepDirectory", contextDir);
-            importProject.getProject().withContentRoot(contextDir);
         }
 
         Map<String, List<String>> attributes = new HashMap<String, List<String>>();
@@ -144,23 +146,32 @@ public class ImportApplicationPresenter extends ValidateAuthenticationPresenter 
         attributes.put(OpenshiftProjectTypeConstants.OPENSHIFT_NAMESPACE_VARIABLE_NAME, Arrays.asList(
                 selectedBuildConfig.getMetadata().getNamespace()));
 
-        importProject.getProject().withMixins(Arrays.asList(OpenshiftProjectTypeConstants.OPENSHIFT_PROJECT_TYPE_ID))
+        projectConfig.withMixinTypes(Arrays.asList(OpenshiftProjectTypeConstants.OPENSHIFT_PROJECT_TYPE_ID))
                      .withAttributes(attributes);
 
-        importProject.getSource().getProject().withType("git").withParameters(importOptions)
+        projectConfig.getSource().withType("git").withParameters(importOptions)
                      .withLocation(selectedBuildConfig.getSpec().getSource().getGit().getUri());
 
-        importProject.getProject().withType("blank").withDescription(view.getProjectDescription());
+        projectConfig.withType("blank").withDescription(view.getProjectDescription());
 
         importProjectNotificationSubscriber.subscribe(view.getProjecName());
 
-        projectServiceClient.importProject(view.getProjecName(), false, importProject, new RequestCallback<ImportResponse>(
-                dtoUnmarshallerFactory.newWSUnmarshaller(ImportResponse.class)) {
+
+        projectServiceClient.importProject(view.getProjecName(), false, projectConfig.getSource(), new RequestCallback<Void>(
+                dtoUnmarshallerFactory.newWSUnmarshaller(Void.class)) {
             @Override
-            protected void onSuccess(final ImportResponse result) {
-                importProjectNotificationSubscriber.onSuccess();
-                eventBus.fireEvent(new CreateProjectEvent(result.getProjectDescriptor()));
-                view.closeView();
+            protected void onSuccess(final Void result) {
+                createProject(new Wizard.CompleteCallback() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onFailure(Throwable e) {
+
+                    }
+                }, projectConfig);
             }
 
             @Override
@@ -168,6 +179,28 @@ public class ImportApplicationPresenter extends ValidateAuthenticationPresenter 
                 view.setErrorMessage(exception.getMessage());
                 importProjectNotificationSubscriber.onFailure(exception.getMessage());
                 //TODO
+            }
+        });
+    }
+
+    private void createProject(final Wizard.CompleteCallback callback, ProjectConfigDto projectConfig) {
+        final String projectName = projectConfig.getName();
+        Unmarshallable<ProjectDescriptor> unmarshaller = dtoUnmarshallerFactory.newUnmarshaller(ProjectDescriptor.class);
+        projectServiceClient.updateProject(projectName, projectConfig, new AsyncRequestCallback<ProjectDescriptor>(unmarshaller) {
+            @Override
+            protected void onSuccess(ProjectDescriptor result) {
+                eventBus.fireEvent(new CreateProjectEvent(result));
+                if (!result.getProblems().isEmpty()) {
+                    eventBus.fireEvent(new ConfigureProjectEvent(result));
+                }
+                importProjectNotificationSubscriber.onSuccess();
+                callback.onCompleted();
+            }
+
+            @Override
+            protected void onFailure(Throwable exception) {
+                view.setErrorMessage(exception.getMessage());
+                importProjectNotificationSubscriber.onFailure(exception.getMessage());
             }
         });
     }

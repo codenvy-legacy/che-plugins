@@ -91,9 +91,8 @@ public class SelectTemplatePresenter extends AbstractWizardPage<NewApplicationRe
         for (Parameter parameter : template.getParameters()) {
             if ("GIT_URI".equals(parameter.getName())) {
                 String value = parameter.getValue();
-                dataObject.getImportProject()
+                dataObject.getProjectConfigDto()
                           .getSource()
-                          .getProject()
                           .withType("git")
                           .withLocation(value)
                           .withParameters(importOptions);
@@ -111,10 +110,6 @@ public class SelectTemplatePresenter extends AbstractWizardPage<NewApplicationRe
                 }
 
                 importOptions.put("keepDirectory", value);
-                dataObject.getImportProject()
-                          .getProject()
-                          .withType("blank")
-                          .withContentRoot(value);
             }
         }
 

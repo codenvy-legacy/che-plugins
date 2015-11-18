@@ -13,18 +13,15 @@ package org.eclipse.che.ide.ext.openshift.client.project.wizard;
 
 import com.google.inject.Inject;
 
-import org.eclipse.che.api.project.shared.dto.ImportProject;
-import org.eclipse.che.api.project.shared.dto.ImportSourceDescriptor;
-import org.eclipse.che.api.project.shared.dto.NewProject;
-import org.eclipse.che.api.project.shared.dto.Source;
+import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.wizard.Wizard;
 import org.eclipse.che.ide.api.wizard.WizardPage;
 import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.ext.openshift.client.OpenshiftLocalizationConstant;
+import org.eclipse.che.ide.ext.openshift.client.dto.NewApplicationRequest;
 import org.eclipse.che.ide.ext.openshift.client.project.wizard.page.configure.ConfigureProjectPresenter;
 import org.eclipse.che.ide.ext.openshift.client.project.wizard.page.template.SelectTemplatePresenter;
-import org.eclipse.che.ide.ext.openshift.client.dto.NewApplicationRequest;
 
 import javax.validation.constraints.NotNull;
 
@@ -126,13 +123,7 @@ public class CreateProjectPresenter implements Wizard.UpdateDelegate, CreateProj
     private CreateProjectWizard createDefaultWizard() {
         NewApplicationRequest newApplicationRequest = dtoFactory.createDto(NewApplicationRequest.class);
 
-        ImportProject dataObject = dtoFactory.createDto(ImportProject.class)
-                                             .withProject(dtoFactory.createDto(NewProject.class))
-                                             .withSource(dtoFactory.createDto(Source.class)
-                                                                   .withProject(dtoFactory.createDto(ImportSourceDescriptor.class)
-                                                                                          .withLocation("")));
-
-        newApplicationRequest.setImportProject(dataObject);
+        newApplicationRequest.setProjectConfigDto(dtoFactory.createDto(ProjectConfigDto.class));
 
         CreateProjectWizard createProjectWizard = wizardFactory.newWizard(newApplicationRequest);
         createProjectWizard.setUpdateDelegate(this);

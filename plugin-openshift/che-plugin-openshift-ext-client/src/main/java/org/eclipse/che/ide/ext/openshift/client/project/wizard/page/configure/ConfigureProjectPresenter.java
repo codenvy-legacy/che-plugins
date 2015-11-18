@@ -17,11 +17,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
-import org.eclipse.che.api.project.shared.dto.ImportProject;
-import org.eclipse.che.api.project.shared.dto.ImportSourceDescriptor;
-import org.eclipse.che.api.project.shared.dto.NewProject;
 import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
-import org.eclipse.che.api.project.shared.dto.Source;
 import org.eclipse.che.api.promises.client.Function;
 import org.eclipse.che.api.promises.client.FunctionException;
 import org.eclipse.che.api.promises.client.Operation;
@@ -29,6 +25,8 @@ import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.api.promises.client.callback.AsyncPromiseHelper;
 import org.eclipse.che.api.promises.client.js.Promises;
+import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
+import org.eclipse.che.api.workspace.shared.dto.SourceStorageDto;
 import org.eclipse.che.ide.api.wizard.AbstractWizardPage;
 import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.ext.openshift.client.OpenshiftServiceClient;
@@ -278,20 +276,15 @@ public class ConfigureProjectPresenter extends AbstractWizardPage<NewApplication
     }
 
     private void setUpCodenvyProjectRequest() {
-        ImportProject importProject;
+        ProjectConfigDto projectConfig;
 
-        if (dataObject.getImportProject() == null) {
-            ImportProject dtoImportProject = dtoFactory.createDto(ImportProject.class);
-            dtoImportProject.withProject(dtoFactory.createDto(NewProject.class))
-                            .withSource(dtoFactory.createDto(Source.class).withProject(dtoFactory.createDto(ImportSourceDescriptor.class)));
-
-            dataObject.withImportProject(dtoImportProject);
+        if (dataObject.getProjectConfigDto() == null) {
+            dataObject.withProjectConfigDto(dtoFactory.createDto(ProjectConfigDto.class)
+                                                      .withSource(dtoFactory.createDto(SourceStorageDto.class)));
         }
 
-        importProject = dataObject.getImportProject();
-        importProject.getProject()
-                     .withName(view.getCodenvyNewProjectName())
-                     .withDescription(view.getCodenvyProjectDescription())
-                     .withVisibility(view.isCodenvyPublicProject() ? "public" : "private");
+        projectConfig = dataObject.getProjectConfigDto();
+        projectConfig.withName(view.getCodenvyNewProjectName())
+                     .withDescription(view.getCodenvyProjectDescription());
     }
 }

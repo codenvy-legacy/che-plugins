@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.openshift.client.dto;
 
-import org.eclipse.che.api.project.shared.dto.ImportProject;
+import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.dto.shared.DTO;
 import org.eclipse.che.ide.ext.openshift.shared.dto.Project;
 import org.eclipse.che.ide.ext.openshift.shared.dto.ProjectRequest;
@@ -40,9 +40,9 @@ public interface NewApplicationRequest {
 
     NewApplicationRequest withTemplate(Template template);
 
-    ImportProject getImportProject();
+    ProjectConfigDto getProjectConfigDto();
 
-    void setImportProject(ImportProject importProject);
+    void setProjectConfigDto(ProjectConfigDto projectConfigDto);
 
-    NewApplicationRequest withImportProject(ImportProject importProject);
+    NewApplicationRequest withProjectConfigDto(ProjectConfigDto projectConfigDto);
 }

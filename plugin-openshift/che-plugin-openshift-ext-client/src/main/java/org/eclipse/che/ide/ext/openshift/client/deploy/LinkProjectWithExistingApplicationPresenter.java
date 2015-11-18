@@ -16,9 +16,9 @@ import org.eclipse.che.api.git.gwt.client.GitServiceClient;
 import org.eclipse.che.api.git.shared.Remote;
 import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
 import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
-import org.eclipse.che.api.project.shared.dto.ProjectUpdate;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
+import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.dto.DtoFactory;
@@ -184,12 +184,13 @@ public class LinkProjectWithExistingApplicationPresenter implements LinkProjectW
 
         attributes.put(OpenshiftProjectTypeConstants.OPENSHIFT_NAMESPACE_VARIABLE_NAME, Arrays.asList(
                 buildConfig.getMetadata().getNamespace()));
-        ProjectUpdate updateProject = dtoFactory.createDto(ProjectUpdate.class)
-                                                .withMixins(mixins)
-                                                .withType(appContext.getCurrentProject().getProjectDescription().getType())
-                                                .withAttributes(attributes);
 
-        projectServiceClient.updateProject(appContext.getCurrentProject().getProjectDescription().getPath(), updateProject,
+        final ProjectDescriptor projectDescription = appContext.getCurrentProject().getProjectDescription();
+        projectDescription.withMixins(mixins)
+                          .withType(appContext.getCurrentProject().getProjectDescription().getType())
+                          .withAttributes(attributes);
+
+        projectServiceClient.updateProject(appContext.getCurrentProject().getProjectDescription().getPath(), projectDescription,
                                            new AsyncRequestCallback<ProjectDescriptor>(
                                                    dtoUnmarshaller.newUnmarshaller(ProjectDescriptor.class)) {
                                                @Override
