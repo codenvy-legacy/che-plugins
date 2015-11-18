@@ -22,7 +22,6 @@ import com.google.web.bindery.event.shared.HandlerRegistration;
 
 import org.eclipse.che.api.machine.gwt.client.events.ExtServerStateEvent;
 import org.eclipse.che.api.machine.gwt.client.events.ExtServerStateHandler;
-import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.PromiseError;
@@ -36,8 +35,6 @@ import org.eclipse.che.ide.api.event.ActivePartChangedHandler;
 import org.eclipse.che.ide.api.event.FileEvent;
 import org.eclipse.che.ide.api.event.project.CloseCurrentProjectEvent;
 import org.eclipse.che.ide.api.event.project.CloseCurrentProjectHandler;
-import org.eclipse.che.ide.api.event.project.ProjectReadyEvent;
-import org.eclipse.che.ide.api.event.project.ProjectReadyHandler;
 import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.parts.PartPresenter;
@@ -53,6 +50,7 @@ import org.eclipse.che.ide.debug.Debugger;
 import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.ext.java.client.project.node.JavaNodeManager;
 import org.eclipse.che.ide.ext.java.client.project.node.jar.ContentNode;
+import org.eclipse.che.ide.ext.java.client.projecttree.JavaSourceFolderUtil;
 import org.eclipse.che.ide.ext.java.jdi.client.JavaRuntimeExtension;
 import org.eclipse.che.ide.ext.java.jdi.client.JavaRuntimeLocalizationConstant;
 import org.eclipse.che.ide.ext.java.jdi.client.debug.changevalue.ChangeValuePresenter;
@@ -89,14 +87,13 @@ import org.vectomatic.dom.svg.ui.SVGResource;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import static org.eclipse.che.ide.api.event.FileEvent.FileOperation.OPEN;
 import static org.eclipse.che.ide.api.notification.Notification.Type.ERROR;
 import static org.eclipse.che.ide.api.notification.Notification.Type.INFO;
 import static org.eclipse.che.ide.api.notification.Notification.Type.WARNING;
-import static org.eclipse.che.ide.ext.java.client.projecttree.JavaSourceFolderUtil.getProjectBuilder;
 import static org.eclipse.che.ide.ext.java.jdi.shared.DebuggerEvent.BREAKPOINT;
 import static org.eclipse.che.ide.ext.java.jdi.shared.DebuggerEvent.STEP;
 
@@ -142,7 +139,6 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
 
     private String host;
     private int    port;
-    private String srcFolder;
 
     @Inject
     public DebuggerPresenter(DebuggerView view,
@@ -254,26 +250,6 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
             }
         });
 
-        eventBus.addHandler(ProjectReadyEvent.TYPE, new ProjectReadyHandler() {
-            @Override
-            public void onProjectReady(ProjectReadyEvent event) {
-                CurrentProject currentProject = appContext.getCurrentProject();
-
-                if (currentProject == null) {
-                    return;
-                }
-
-                ProjectDescriptor descriptor = currentProject.getProjectDescription();
-                String projectBuilder = getProjectBuilder(descriptor.getType());
-
-                Map<String, List<String>> attributes = descriptor.getAttributes();
-                String key = projectBuilder + ".source.folder";
-
-                List<String> sources = attributes.get(key);
-                srcFolder = sources == null ? "src/main/java" : sources.get(0);
-            }
-        });
-
         eventBus.addHandler(CloseCurrentProjectEvent.TYPE, new CloseCurrentProjectHandler() {
             @Override
             public void onCloseCurrentProject(CloseCurrentProjectEvent event) {
@@ -358,15 +334,14 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
             }
             this.executionPoint = location;
 
-            final String filePath = resolveFilePathByLocation(location);
-            if (activeFile == null || !filePath.equalsIgnoreCase(activeFile.getPath())) {
+            List<String> filePaths = resolveFilePathByLocation(location);
+
+            if (activeFile == null || !filePaths.contains(activeFile.getPath())) {
                 final Location finalLocation = location;
-                openFile(location, new AsyncCallback<VirtualFile>() {
+                openFile(location, filePaths, 0, new AsyncCallback<VirtualFile>() {
                     @Override
                     public void onSuccess(VirtualFile result) {
-                        if (result != null && filePath != null && filePath.equalsIgnoreCase(result.getPath())) {
-                            breakpointManager.markCurrentBreakpoint(finalLocation.getLineNumber() - 1);
-                        }
+                        breakpointManager.markCurrentBreakpoint(finalLocation.getLineNumber() - 1);
                     }
 
                     @Override
@@ -392,65 +367,78 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
      * @return file path
      */
     @NotNull
-    private String resolveFilePathByLocation(@NotNull Location location) {
+    private List<String> resolveFilePathByLocation(@NotNull Location location) {
         CurrentProject currentProject = appContext.getCurrentProject();
+
         if (currentProject == null) {
-            return "";
+            return Collections.emptyList();
         }
 
-        return currentProject.getProjectDescription().getPath()
-               + "/"
-               + srcFolder
-               + "/"
-               + location.getClassName().replace(".", "/")
-               + ".java";
+        String pathSuffix = location.getClassName().replace(".", "/") + ".java";
+
+        List<String> sourceFolders = JavaSourceFolderUtil.getSourceFolders(currentProject);
+        List<String> filePaths = new ArrayList<>(sourceFolders.size());
+
+        for (String sourceFolder : sourceFolders) {
+            filePaths.add(sourceFolder + pathSuffix);
+        }
+
+        return filePaths;
     }
 
     /**
      * Tries to open file from the project.
      * If fails then method will try to find resource from external dependencies.
      */
-    private void openFile(@NotNull final Location location, final AsyncCallback<VirtualFile> callback) {
-        if (appContext.getCurrentProject() != null) {
-            final String filePath = resolveFilePathByLocation(location);
+    private void openFile(@NotNull final Location location,
+                          final List<String> filePaths,
+                          final int pathNumber,
+                          final AsyncCallback<VirtualFile> callback) {
 
-            projectExplorer.getNodeByPath(new HasStorablePath.StorablePath(filePath)).then(new Operation<Node>() {
-                public HandlerRegistration handlerRegistration;
+        String filePath = filePaths.get(pathNumber);
 
-                @Override
-                public void apply(final Node node) throws OperationException {
-                    if (!(node instanceof FileReferenceNode)) {
-                        return;
-                    }
+        projectExplorer.getNodeByPath(new HasStorablePath.StorablePath(filePath)).then(new Operation<Node>() {
+            public HandlerRegistration handlerRegistration;
 
-                    handlerRegistration = eventBus.addHandler(ActivePartChangedEvent.TYPE, new ActivePartChangedHandler() {
-                        @Override
-                        public void onActivePartChanged(ActivePartChangedEvent event) {
-                            if (event.getActivePart() instanceof EditorPartPresenter) {
-                                final VirtualFile openedFile = ((EditorPartPresenter)event.getActivePart()).getEditorInput().getFile();
-                                if (((FileReferenceNode)node).getStorablePath().equals(openedFile.getPath())) {
-                                    handlerRegistration.removeHandler();
-                                    // give the editor some time to fully render it's view
-                                    new Timer() {
-                                        @Override
-                                        public void run() {
-                                            callback.onSuccess((VirtualFile)node);
-                                        }
-                                    }.schedule(300);
-                                }
+            @Override
+            public void apply(final Node node) throws OperationException {
+                if (!(node instanceof FileReferenceNode)) {
+                    return;
+                }
+
+                handlerRegistration = eventBus.addHandler(ActivePartChangedEvent.TYPE, new ActivePartChangedHandler() {
+                    @Override
+                    public void onActivePartChanged(ActivePartChangedEvent event) {
+                        if (event.getActivePart() instanceof EditorPartPresenter) {
+                            final VirtualFile openedFile = ((EditorPartPresenter)event.getActivePart()).getEditorInput().getFile();
+                            if (((FileReferenceNode)node).getStorablePath().equals(openedFile.getPath())) {
+                                handlerRegistration.removeHandler();
+                                // give the editor some time to fully render it's view
+                                new Timer() {
+                                    @Override
+                                    public void run() {
+                                        callback.onSuccess((VirtualFile)node);
+                                    }
+                                }.schedule(300);
                             }
                         }
-                    });
-                    eventBus.fireEvent(new FileEvent((VirtualFile)node, OPEN));
-                }
-            }).catchError(new Operation<PromiseError>() {
-                @Override
-                public void apply(PromiseError error) throws OperationException {
+                    }
+                });
+                eventBus.fireEvent(new FileEvent((VirtualFile)node, OPEN));
+            }
+        }).catchError(new Operation<PromiseError>() {
+            @Override
+            public void apply(PromiseError error) throws OperationException {
+                if (pathNumber + 1 == filePaths.size()) {
                     openExternalResource(location);
+                } else {
+                    // try another path
+                    openFile(location, filePaths, pathNumber + 1, callback);
                 }
-            });
-        }
+            }
+        });
     }
+
 
     private void openExternalResource(Location location) {
         String className = location.getClassName();
