@@ -68,7 +68,7 @@ public class MavenProjectResolver {
         }
 
         Model model = Model.readFrom(pom.getVirtualFile());
-        MavenClassPathConfigurator.configure(projectFolder, model);
+        MavenClassPathConfigurator.configure(projectFolder);
 
         String packaging = model.getPackaging();
         if (packaging != null && packaging.equals("pom")) {
@@ -90,6 +90,8 @@ public class MavenProjectResolver {
             List<ModuleConfig> modules = new ArrayList<>();
 
             for (FolderEntry folderEntry : project.getBaseFolder().getChildFolders()) {
+                MavenClassPathConfigurator.configure(folderEntry);
+
                 defineModules(folderEntry, modules);
             }
 
@@ -101,7 +103,8 @@ public class MavenProjectResolver {
 
     private static void defineModules(FolderEntry folderEntry, List<ModuleConfig> modules) throws ServerException,
                                                                                                   ForbiddenException,
-                                                                                                  IOException {
+                                                                                                  IOException,
+                                                                                                  ConflictException {
         VirtualFileEntry pom = folderEntry.getChild("pom.xml");
 
         if (pom == null) {
@@ -126,6 +129,8 @@ public class MavenProjectResolver {
         List<ModuleConfig> internalModules = new ArrayList<>();
 
         for (FolderEntry internalModule : folderEntry.getChildFolders()) {
+            MavenClassPathConfigurator.configure(folderEntry);
+
             defineModules(internalModule, internalModules);
         }
 
