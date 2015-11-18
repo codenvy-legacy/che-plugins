@@ -48,6 +48,7 @@ import org.eclipse.che.ide.editor.orion.client.jso.OrionAnnotationOverlay;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionEditorOverlay;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionExtRulerOverlay;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionKeyBindingModule;
+import org.eclipse.che.ide.editor.orion.client.jso.OrionKeyBindingsRelationOverlay;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionKeyModeOverlay;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionKeyStrokeOverlay;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionProblemOverlay;
@@ -56,6 +57,7 @@ import org.eclipse.che.ide.editor.orion.client.jso.OrionSelectionOverlay;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionStyleOverlay;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionTextThemeOverlay;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionTextViewOverlay;
+import org.eclipse.che.ide.editor.orion.client.jso.UiUtilsOverlay;
 import org.eclipse.che.ide.jseditor.client.annotation.AnnotationModel;
 import org.eclipse.che.ide.jseditor.client.annotation.AnnotationModelEvent;
 import org.eclipse.che.ide.jseditor.client.codeassist.CompletionProposal;
@@ -85,9 +87,11 @@ import org.eclipse.che.ide.jseditor.client.text.TextRange;
 import org.eclipse.che.ide.jseditor.client.texteditor.CompositeEditorWidget;
 import org.eclipse.che.ide.jseditor.client.texteditor.EditorWidget;
 import org.eclipse.che.ide.jseditor.client.texteditor.LineStyler;
+import org.eclipse.che.ide.hotkeys.HotKeyItem;
 import org.eclipse.che.ide.util.browser.UserAgent;
 import org.eclipse.che.ide.util.loging.Log;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -120,6 +124,7 @@ public class OrionEditorWidget extends CompositeEditorWidget implements HasChang
     private       String                     modeName;
     private final KeyModeInstances           keyModeInstances;
     private final JavaScriptObject           orionEditorModule;
+    private final JavaScriptObject           uiUtilsOverlay;
     private final KeymapPrefReader           keymapPrefReader;
     private final ContentAssistWidgetFactory contentAssistWidgetFactory;
 
@@ -160,6 +165,7 @@ public class OrionEditorWidget extends CompositeEditorWidget implements HasChang
         this.keymapPrefReader = keymapPrefReader;
 
         this.orionEditorModule = moduleHolder.getModule("OrionEditor");
+        this.uiUtilsOverlay = moduleHolder.getModule("UiUtils");
 
         // just first choice for the moment
         if (editorModes != null && !editorModes.isEmpty()) {
@@ -536,6 +542,11 @@ public class OrionEditorWidget extends CompositeEditorWidget implements HasChang
 
     /** {@inheritDoc} */
     public void addKeybinding(final Keybinding keybinding) {
+        addKeybinding(keybinding, "");
+    }
+
+    /** {@inheritDoc} */
+    public void addKeybinding(final Keybinding keybinding, String actionDescription) {
 
         OrionKeyStrokeOverlay strokeOverlay;
         if (UserAgent.isMac()) {
@@ -555,15 +566,34 @@ public class OrionEditorWidget extends CompositeEditorWidget implements HasChang
                                                          "keydown",
                                                          keyBindingModuleProvider.get());
         }
-        String actionId = "che-action" + keybinding.getAction().toString();
+        String actionId = "che-action-" + keybinding.getAction().toString();
         editorOverlay.getTextView().setKeyBinding(strokeOverlay, actionId);
         editorOverlay.getTextView().setAction(actionId, new Action() {
             @Override
             public void onAction() {
                 keybinding.getAction().action();
             }
-        });
+        }, actionDescription);
 
+    }
+
+    @Override
+    public List<HotKeyItem> getHotKeys() {
+        OrionTextViewOverlay orionTextViewOverlay = editorOverlay.getTextView();
+        List<HotKeyItem> hotKeyItems = new ArrayList<>();
+        JsArray<OrionKeyBindingsRelationOverlay> keyBindings = OrionKeyModeOverlay.getKeyBindings_(orionTextViewOverlay);
+        for (int i = 0; i < keyBindings.length(); i++) {
+            OrionKeyBindingsRelationOverlay key = keyBindings.get(i);
+
+            String actionId = key.getActionId();
+            String actionDescription = orionTextViewOverlay.getActionDescription(actionId);
+            String hotKey = UiUtilsOverlay.getUserKeyString(uiUtilsOverlay, key.getKeyBindings());
+
+            if (actionDescription != null) {
+                hotKeyItems.add(new HotKeyItem(actionDescription, hotKey));
+            }
+        }
+        return hotKeyItems;
     }
 
     /** {@inheritDoc} */

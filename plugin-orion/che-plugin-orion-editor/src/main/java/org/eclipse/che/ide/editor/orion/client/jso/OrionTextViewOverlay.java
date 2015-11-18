@@ -145,10 +145,18 @@ public class OrionTextViewOverlay extends JavaScriptObject {
         });
     }-*/;
 
+    /**
+     * Set custom action
+     * @param actionId actonId
+     * @param action implementation of action
+     * @param description action description
+     */
     public final native void setAction(String actionId, Action action, String description) /*-{
+        var actionDescription = {name : description};
         this.setAction(actionId, function() {
             action.@org.eclipse.che.ide.editor.orion.client.Action::onAction()();
-        }, description);
+            return true;
+        }, actionDescription);
     }-*/;
 
     public final native void setKeyBinding(OrionKeyStrokeOverlay keyBinding, String actionId) /*-{
@@ -297,5 +305,15 @@ public class OrionTextViewOverlay extends JavaScriptObject {
 
     public final native <T extends OrionEventOverlay> void removeEventListener(String eventType, EventHandler<T> handler,boolean useCapture) /*-{
         this.removeEventListener(eventType, $wnd.che_handels[handler], useCapture)
+    }-*/;
+
+    /**
+     * Get action description by actionId
+     * @param actionId
+     * @return action description
+     */
+    public final native String getActionDescription(String actionId) /*-{
+        var object = this.getActionDescription(actionId);
+        return (object != null) ? object.name : null;
     }-*/;
 }

@@ -62,7 +62,7 @@ public class RenameRefactoringAction extends Action {
                                    SelectionAgent selectionAgent,
                                    JavaRefactoringRename javaRefactoringRename,
                                    AppContext appContext) {
-        super(locale.renameRefactoringActionName(), "");
+        super(locale.renameRefactoringActionName(), locale.renameRefactoringActionDescription());
         this.editorAgent = editorAgent;
         this.renamePresenter = renamePresenter;
         this.selectionAgent = selectionAgent;

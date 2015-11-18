@@ -110,6 +110,7 @@ public class OrionEditorExtension implements Provider<OrionKeyBindingModule>{
                 "orion/emacs",
                 "orion/vi",
                 "orion/ext-rulers",
+                "orion/uiUtils"
         };
 
         this.requireJsLoader.require(new Callback<JavaScriptObject[], Throwable>() {
@@ -174,8 +175,14 @@ public class OrionEditorExtension implements Provider<OrionKeyBindingModule>{
 
             }
         },
-         new String[]{"orion/editor/edit", "orion/editor/emacs", "orion/editor/vi", "orion/keyBinding","che/editor/contentAssist", "orion/editor/ext-rulers"},
-         new String[]{"OrionEditor", "OrionEmacs", "OrionVi", "OrionKeyBinding", "CheContentAssistMode", "OrionExtRulers"});
+         new String[]{"orion/editor/edit",
+                      "orion/editor/emacs",
+                      "orion/editor/vi",
+                      "orion/keyBinding",
+                      "che/editor/contentAssist",
+                      "orion/editor/ext-rulers",
+                      "uiUtils"},
+         new String[]{"OrionEditor", "OrionEmacs", "OrionVi", "OrionKeyBinding", "CheContentAssistMode", "OrionExtRulers", "UiUtils"});
     }
 
     private void endConfiguration(final InitializerCallback callback) {
