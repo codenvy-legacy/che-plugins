@@ -83,7 +83,6 @@ public class CodeAssistService {
     public String getJavaDoc(@QueryParam("sessionid") String sessionId,
                              @QueryParam("index") int index, @Context UriInfo uriInfo) {
 
-        UrlContextProvider.setUriBuilder(uriInfo.getBaseUriBuilder().clone());
         return codeAssist.getJavaDoc(sessionId, index);
     }
 

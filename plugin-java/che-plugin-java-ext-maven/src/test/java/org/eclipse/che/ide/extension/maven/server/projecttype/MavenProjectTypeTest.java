@@ -10,11 +10,11 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.maven.server.projecttype;
 
+import org.eclipse.che.api.core.model.workspace.ProjectConfig;
 import org.eclipse.che.api.core.notification.EventService;
 import org.eclipse.che.api.core.rest.HttpJsonHelper;
 import org.eclipse.che.api.project.server.DefaultProjectManager;
 import org.eclipse.che.api.project.server.Project;
-import org.eclipse.che.api.project.server.ProjectConfig;
 import org.eclipse.che.api.project.server.ProjectManager;
 import org.eclipse.che.api.project.server.ValueStorageException;
 import org.eclipse.che.api.project.server.VirtualFileEntry;
@@ -45,6 +45,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -118,21 +119,22 @@ public class MavenProjectTypeTest {
                                                          .withType(MavenAttributes.MAVEN_ID);
         when(usersWorkspaceMock.getProjects()).thenReturn(Collections.singletonList(projectConfig));
 
-        Map<String, AttributeValue> attributes = new HashMap<>();
-        attributes.put(MavenAttributes.ARTIFACT_ID, new AttributeValue("myartifact"));
-        attributes.put(MavenAttributes.GROUP_ID, new AttributeValue("mygroup"));
-        attributes.put(MavenAttributes.VERSION, new AttributeValue("1.0"));
-        attributes.put(MavenAttributes.PACKAGING, new AttributeValue("jar"));
+        Map<String, List<String>> attributes = new HashMap<>();
+        attributes.put(MavenAttributes.ARTIFACT_ID, Collections.singletonList("myartifact"));
+        attributes.put(MavenAttributes.GROUP_ID, Collections.singletonList("mygroup"));
+        attributes.put(MavenAttributes.VERSION, Collections.singletonList("1.0"));
+        attributes.put(MavenAttributes.PACKAGING, Collections.singletonList("jar"));
 
         Project project = pm.createProject(workspace, "myProject",
-                                           new ProjectConfig("my config", "maven", attributes, null, null),
-                                           null, "public");
+                                           DtoFactory.getInstance().createDto(ProjectConfigDto.class)
+                                                     .withType("maven").withAttributes(attributes),
+                                           null);
 
         ProjectConfig config = project.getConfig();
 
-        Assert.assertEquals(config.getAttributes().get(MavenAttributes.ARTIFACT_ID).getString(), "myartifact");
-        Assert.assertEquals(config.getAttributes().get(MavenAttributes.VERSION).getString(), "1.0");
-        Assert.assertEquals(config.getAttributes().get("language").getString(), "java");
+        Assert.assertEquals(config.getAttributes().get(MavenAttributes.ARTIFACT_ID).get(0), "myartifact");
+        Assert.assertEquals(config.getAttributes().get(MavenAttributes.VERSION).get(0), "1.0");
+        Assert.assertEquals(config.getAttributes().get("language").get(0), "java");
 
         for (VirtualFileEntry file : project.getBaseFolder().getChildren()) {
             if (file.getName().equals("pom.xml")) {
@@ -144,19 +146,21 @@ public class MavenProjectTypeTest {
 
     @Test
     public void testEstimation() throws Exception {
-        Map<String, AttributeValue> attributes = new HashMap<>();
-        attributes.put(MavenAttributes.ARTIFACT_ID, new AttributeValue("myartifact"));
-        attributes.put(MavenAttributes.GROUP_ID, new AttributeValue("mygroup"));
-        attributes.put(MavenAttributes.VERSION, new AttributeValue("1.0"));
-        attributes.put(MavenAttributes.PACKAGING, new AttributeValue("jar"));
+        Map<String, List<String>> attributes = new HashMap<>();
+        attributes.put(MavenAttributes.ARTIFACT_ID, Collections.singletonList("myartifact"));
+        attributes.put(MavenAttributes.GROUP_ID, Collections.singletonList("mygroup"));
+        attributes.put(MavenAttributes.VERSION, Collections.singletonList("1.0"));
+        attributes.put(MavenAttributes.PACKAGING, Collections.singletonList("jar"));
 
         pm.createProject(workspace, "testEstimate",
-                         new ProjectConfig("my config", "maven", attributes, null, null),
-                         null, "public");
+                         DtoFactory.getInstance().createDto(ProjectConfigDto.class)
+                                   .withType("maven").withAttributes(attributes),
+                         null);
 
         pm.createProject(workspace, "testEstimateBad",
-                         new ProjectConfig("my config", "blank", null, null, null),
-                         null, "public");
+                         DtoFactory.getInstance().createDto(ProjectConfigDto.class)
+                                   .withType("blank"),
+                         null);
 
         Map<String, AttributeValue> out = pm.estimateProject(workspace, "testEstimate", "maven");
 
@@ -166,7 +170,7 @@ public class MavenProjectTypeTest {
         try {
             pm.estimateProject(workspace, "testEstimateBad", "maven");
             Assert.fail("ValueStorageException expected");
-        } catch (ValueStorageException e) {
+        } catch (ValueStorageException ignored) {
         }
     }
 }

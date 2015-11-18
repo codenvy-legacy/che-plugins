@@ -18,6 +18,7 @@ import java.util.List;
 
 /**
  * @author Evgen Vidolob
+ * @author Dmitry Shnurenko
  */
 @ImplementedBy(CreateMavenModuleViewImpl.class)
 public interface CreateMavenModuleView extends View<CreateMavenModuleView.ActionDelegate> {
@@ -49,6 +50,10 @@ public interface CreateMavenModuleView extends View<CreateMavenModuleView.Action
     String getGroupId();
 
     String getVersion();
+
+    String getArtifactId();
+
+    String getName();
 
     void setPackagingVisibility(boolean visible);
 

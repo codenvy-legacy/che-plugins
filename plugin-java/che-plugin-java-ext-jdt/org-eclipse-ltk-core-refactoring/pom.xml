@@ -20,7 +20,7 @@
     </parent>
     <artifactId>org.eclipse.ltk.core.refactoring</artifactId>
     <packaging>jar</packaging>
-    <name>Che Plugin :: Java :: org.eclipse.ltk.core.refactoring</name>
+    <name>Che Plugin :: Java :: Eclipse LTK Refactoring</name>
     <dependencies>
         <dependency>
             <groupId>org.eclipse.birt.runtime</groupId>

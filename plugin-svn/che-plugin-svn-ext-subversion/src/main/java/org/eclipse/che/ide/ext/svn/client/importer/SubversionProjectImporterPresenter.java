@@ -10,8 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.svn.client.importer;
 
-import org.eclipse.che.api.project.shared.dto.ImportProject;
-import org.eclipse.che.api.project.shared.dto.NewProject;
+import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.ide.api.wizard.AbstractWizardPage;
 import org.eclipse.che.ide.util.NameUtils;
 
@@ -28,7 +27,7 @@ import org.eclipse.che.ide.ext.svn.shared.ImportParameterKeys;
  *
  * @author vzhukovskii@codenvy.com
  */
-public class SubversionProjectImporterPresenter extends AbstractWizardPage<ImportProject>
+public class SubversionProjectImporterPresenter extends AbstractWizardPage<ProjectConfigDto>
         implements SubversionProjectImporterView.ActionDelegate {
 
     public static final String PUBLIC_VISIBILITY  = "public";
@@ -45,12 +44,9 @@ public class SubversionProjectImporterPresenter extends AbstractWizardPage<Impor
     /** {@inheritDoc} */
     @Override
     public void go(AcceptsOneWidget container) {
-        final NewProject project = dataObject.getProject();
-
-        view.setProjectName(project.getName());
-        view.setProjectDescription(project.getDescription());
-        view.setProjectVisibility(PUBLIC_VISIBILITY.equals(project.getVisibility()));
-        view.setProjectUrl(dataObject.getSource().getProject().getLocation());
+        view.setProjectName(dataObject.getName());
+        view.setProjectDescription(dataObject.getDescription());
+        view.setProjectUrl(dataObject.getSource().getLocation());
 
         container.setWidget(view);
 
@@ -60,7 +56,7 @@ public class SubversionProjectImporterPresenter extends AbstractWizardPage<Impor
     /** {@inheritDoc} */
     @Override
     public void onProjectNameChanged() {
-        dataObject.getProject().setName(view.getProjectName());
+        dataObject.setName(view.getProjectName());
         updateDelegate.updateControls();
 
         view.setNameErrorVisibility(!NameUtils.checkProjectName(view.getProjectName()));
@@ -78,7 +74,7 @@ public class SubversionProjectImporterPresenter extends AbstractWizardPage<Impor
         String calcUrl = getUrl(view.getProjectUrl(), view.getProjectRelativePath());
 
         view.setProjectName(projectName);
-        dataObject.getSource().getProject().setLocation(calcUrl);
+        dataObject.getSource().setLocation(calcUrl);
         updateDelegate.updateControls();
     }
 
@@ -86,28 +82,27 @@ public class SubversionProjectImporterPresenter extends AbstractWizardPage<Impor
     @Override
     public void onProjectRelativePathChanged() {
         String calcUrl = getUrl(view.getProjectUrl(), view.getProjectRelativePath());
-        dataObject.getSource().getProject().setLocation(calcUrl);
+        dataObject.getSource().setLocation(calcUrl);
     }
 
     /** {@inheritDoc} */
     @Override
     public void onProjectDescriptionChanged() {
-        dataObject.getProject().setDescription(view.getProjectDescription());
+        dataObject.setDescription(view.getProjectDescription());
         updateDelegate.updateControls();
     }
 
     /** {@inheritDoc} */
     @Override
     public void onProjectVisibilityChanged() {
-        dataObject.getProject().setVisibility(view.getProjectVisibility() ? PUBLIC_VISIBILITY : PRIVATE_VISIBILITY);
         updateDelegate.updateControls();
     }
 
     /** {@inheritDoc} */
     @Override
     public void onCredentialsChanged() {
-        dataObject.getSource().getProject().getParameters().put(ImportParameterKeys.PARAMETER_USERNAME, view.getUserName());
-        dataObject.getSource().getProject().getParameters().put(ImportParameterKeys.PARAMETER_PASSWORD, view.getPassword());
+        dataObject.getSource().getParameters().put(ImportParameterKeys.PARAMETER_USERNAME, view.getUserName());
+        dataObject.getSource().getParameters().put(ImportParameterKeys.PARAMETER_PASSWORD, view.getPassword());
     }
 
     private String getUrl(String url, String relPath) {

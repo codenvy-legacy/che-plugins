@@ -17,9 +17,9 @@ import org.eclipse.che.api.core.NotFoundException;
 import org.eclipse.che.api.core.ServerException;
 import org.eclipse.che.api.project.server.FileEntry;
 import org.eclipse.che.api.project.server.FolderEntry;
-import org.eclipse.che.api.project.server.ProjectConfig;
 import org.eclipse.che.api.project.server.ProjectManager;
 import org.eclipse.che.api.project.server.VirtualFileEntry;
+import org.eclipse.che.api.workspace.server.model.impl.ProjectConfigImpl;
 import org.eclipse.che.core.internal.utils.Policy;
 import org.eclipse.core.commands.operations.IUndoContext;
 import org.eclipse.core.commands.operations.UndoContext;
@@ -809,7 +809,7 @@ public class Workspace implements IWorkspace {
                     projectsRoot.createFolder(path.toOSString());
                     break;
                 case IResource.PROJECT:
-                    projectManager.createProject(wsId, resource.getName(), new ProjectConfig(), new HashMap<>(), "public");
+                    projectManager.createProject(wsId, resource.getName(), new ProjectConfigImpl(), new HashMap<>());
                     break;
                 default:
                     throw new UnsupportedOperationException();
@@ -845,7 +845,7 @@ public class Workspace implements IWorkspace {
 
     public void delete(Resource resource) {
         try {
-            projectManager.delete(wsId, resource.getFullPath().toOSString(), null);
+            projectManager.delete(wsId, resource.getFullPath().toOSString());
         } catch (ServerException | ForbiddenException | ConflictException | NotFoundException e) {
             LOG.error(e.getMessage(), e);
         }

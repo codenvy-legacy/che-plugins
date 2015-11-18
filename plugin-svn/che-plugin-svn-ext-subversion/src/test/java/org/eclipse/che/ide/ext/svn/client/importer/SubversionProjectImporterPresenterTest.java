@@ -10,11 +10,9 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.svn.client.importer;
 
-import org.eclipse.che.api.project.shared.dto.ImportProject;
-import org.eclipse.che.api.project.shared.dto.ImportSourceDescriptor;
-import org.eclipse.che.api.project.shared.dto.NewProject;
 import org.eclipse.che.api.project.shared.dto.ProjectImporterDescriptor;
-import org.eclipse.che.api.project.shared.dto.Source;
+import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
+import org.eclipse.che.api.workspace.shared.dto.SourceStorageDto;
 import org.eclipse.che.ide.api.wizard.Wizard;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 
@@ -37,11 +35,9 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class SubversionProjectImporterPresenterTest {
     @Mock
-    private ImportProject                            dataObject;
+    private ProjectConfigDto                         dataObject;
     @Mock
-    private ImportSourceDescriptor                   importSourceDescriptor;
-    @Mock
-    private NewProject                               newProject;
+    private SourceStorageDto                         source;
     @Mock
     private Map<String, String>                      parameters;
     @Mock
@@ -60,11 +56,7 @@ public class SubversionProjectImporterPresenterTest {
      */
     @Before
     public void setUp() throws Exception {
-        Source source = mock(Source.class);
-        when(importSourceDescriptor.getParameters()).thenReturn(parameters);
-        when(source.getProject()).thenReturn(importSourceDescriptor);
         when(dataObject.getSource()).thenReturn(source);
-        when(dataObject.getProject()).thenReturn(newProject);
         when(view.getProjectRelativePath()).thenReturn("");
 
         presenter.setUpdateDelegate(updateDelegate);
@@ -84,7 +76,7 @@ public class SubversionProjectImporterPresenterTest {
 
         presenter.onProjectNameChanged();
 
-        verify(dataObject.getProject()).setName(eq(projectName));
+        verify(dataObject).setName(eq(projectName));
         verify(updateDelegate).updateControls();
         verify(view).setNameErrorVisibility(eq(true));
     }
@@ -102,7 +94,7 @@ public class SubversionProjectImporterPresenterTest {
 
         presenter.onProjectNameChanged();
 
-        verify(dataObject.getProject()).setName(eq(projectName));
+        verify(dataObject).setName(eq(projectName));
         verify(updateDelegate).updateControls();
         verify(view).setNameErrorVisibility(eq(true));
     }
@@ -120,7 +112,7 @@ public class SubversionProjectImporterPresenterTest {
 
         presenter.onProjectNameChanged();
 
-        verify(dataObject.getProject()).setName(eq(projectName));
+        verify(dataObject).setName(eq(projectName));
         verify(updateDelegate).updateControls();
         verify(view).setNameErrorVisibility(eq(false));
     }
@@ -140,7 +132,7 @@ public class SubversionProjectImporterPresenterTest {
 
         verify(view).setProjectName(eq(projectUrl));
         verify(view, never()).setNameErrorVisibility(anyBoolean());
-        verify(dataObject.getSource().getProject()).setLocation(projectUrl + "/");
+        verify(dataObject.getSource()).setLocation(projectUrl + "/");
         verify(updateDelegate, times(1)).updateControls();
     }
 
@@ -158,7 +150,7 @@ public class SubversionProjectImporterPresenterTest {
         presenter.onProjectUrlChanged();
 
         verify(view).setProjectName(eq("trunk"));
-        verify(dataObject.getSource().getProject()).setLocation(projectUrl);
+        verify(dataObject.getSource()).setLocation(projectUrl);
         verify(updateDelegate).updateControls();
     }
 
@@ -175,7 +167,7 @@ public class SubversionProjectImporterPresenterTest {
 
         presenter.onProjectDescriptionChanged();
 
-        verify(dataObject.getProject()).setDescription(eq(description));
+        verify(dataObject).setDescription(eq(description));
         verify(view, never()).setNameErrorVisibility(anyBoolean());
         verify(updateDelegate).updateControls();
     }
@@ -189,7 +181,6 @@ public class SubversionProjectImporterPresenterTest {
     public void testProjectVisibility() throws Exception {
         presenter.onProjectVisibilityChanged();
 
-        verify(dataObject.getProject()).setVisibility(eq(SubversionProjectImporterPresenter.PRIVATE_VISIBILITY));
         verify(view, never()).setNameErrorVisibility(anyBoolean());
         verify(updateDelegate).updateControls();
     }
@@ -212,7 +203,6 @@ public class SubversionProjectImporterPresenterTest {
         verify(container).setWidget(eq(view));
         verify(view).setProjectName(anyString());
         verify(view).setProjectDescription(anyString());
-        verify(view).setProjectVisibility(anyBoolean());
         verify(view).setProjectUrl(anyString());
         verify(view).setUrlTextBoxFocused();
     }

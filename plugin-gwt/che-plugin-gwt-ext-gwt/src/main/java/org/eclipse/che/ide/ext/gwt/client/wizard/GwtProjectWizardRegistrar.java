@@ -13,7 +13,7 @@ package org.eclipse.che.ide.ext.gwt.client.wizard;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
-import org.eclipse.che.api.project.shared.dto.ImportProject;
+import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.ide.api.project.type.wizard.ProjectWizardRegistrar;
 import org.eclipse.che.ide.api.wizard.WizardPage;
 import org.eclipse.che.ide.extension.maven.client.wizard.MavenPagePresenter;
@@ -31,7 +31,7 @@ import static org.eclipse.che.ide.ext.java.shared.Constants.JAVA_CATEGORY;
  * @author Artem Zatsarynnyy
  */
 public class GwtProjectWizardRegistrar implements ProjectWizardRegistrar {
-    private final List<Provider<? extends WizardPage<ImportProject>>> wizardPages;
+    private final List<Provider<? extends WizardPage<ProjectConfigDto>>> wizardPages;
 
     @Inject
     public GwtProjectWizardRegistrar(Provider<MavenPagePresenter> mavenPagePresenter) {
@@ -50,7 +50,7 @@ public class GwtProjectWizardRegistrar implements ProjectWizardRegistrar {
     }
 
     @NotNull
-    public List<Provider<? extends WizardPage<ImportProject>>> getWizardPages() {
+    public List<Provider<? extends WizardPage<ProjectConfigDto>>> getWizardPages() {
         return wizardPages;
     }
 }

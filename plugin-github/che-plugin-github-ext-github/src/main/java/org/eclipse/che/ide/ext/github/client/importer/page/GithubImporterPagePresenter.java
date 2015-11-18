@@ -15,7 +15,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.inject.Inject;
 
-import org.eclipse.che.api.project.shared.dto.ImportProject;
+import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.wizard.AbstractWizardPage;
 import org.eclipse.che.ide.commons.exception.UnauthorizedException;
@@ -41,7 +41,7 @@ import java.util.Map;
 /**
  * @author Roman Nikitenko
  */
-public class GithubImporterPagePresenter extends AbstractWizardPage<ImportProject> implements GithubImporterPageView.ActionDelegate {
+public class GithubImporterPagePresenter extends AbstractWizardPage<ProjectConfigDto> implements GithubImporterPageView.ActionDelegate {
 
     private static final String PUBLIC_VISIBILITY  = "public";
     private static final String PRIVATE_VISIBILITY = "private";
@@ -85,12 +85,12 @@ public class GithubImporterPagePresenter extends AbstractWizardPage<ImportProjec
 
     @Override
     public boolean isCompleted() {
-        return isGitUrlCorrect(dataObject.getSource().getProject().getLocation());
+        return isGitUrlCorrect(dataObject.getSource().getLocation());
     }
 
     @Override
     public void projectNameChanged(@NotNull String name) {
-        dataObject.getProject().setName(name);
+        dataObject.setName(name);
         updateDelegate.updateControls();
 
         validateProjectName();
@@ -109,14 +109,14 @@ public class GithubImporterPagePresenter extends AbstractWizardPage<ImportProjec
 
     @Override
     public void projectUrlChanged(@NotNull String url) {
-        dataObject.getSource().getProject().setLocation(url);
+        dataObject.getSource().setLocation(url);
         isGitUrlCorrect(url);
 
         String projectName = view.getProjectName();
         if (projectName.isEmpty()) {
             projectName = extractProjectNameFromUri(url);
 
-            dataObject.getProject().setName(projectName);
+            dataObject.setName(projectName);
             view.setProjectName(projectName);
             validateProjectName();
         }
@@ -126,13 +126,12 @@ public class GithubImporterPagePresenter extends AbstractWizardPage<ImportProjec
 
     @Override
     public void projectDescriptionChanged(@NotNull String projectDescription) {
-        dataObject.getProject().setDescription(projectDescription);
+        dataObject.setDescription(projectDescription);
         updateDelegate.updateControls();
     }
 
     @Override
     public void projectVisibilityChanged(boolean visible) {
-        dataObject.getProject().setVisibility(visible ? PUBLIC_VISIBILITY : PRIVATE_VISIBILITY);
         updateDelegate.updateControls();
     }
 
@@ -142,10 +141,10 @@ public class GithubImporterPagePresenter extends AbstractWizardPage<ImportProjec
      * @return parameters map
      */
     private Map<String, String> projectParameters() {
-        Map<String, String> parameters = dataObject.getSource().getProject().getParameters();
+        Map<String, String> parameters = dataObject.getSource().getParameters();
         if (parameters == null) {
             parameters = new HashMap<>();
-            dataObject.getSource().getProject().setParameters(parameters);
+            dataObject.getSource().setParameters(parameters);
         }
 
         return parameters;
@@ -157,12 +156,12 @@ public class GithubImporterPagePresenter extends AbstractWizardPage<ImportProjec
 
         if (keepDirectory) {
             projectParameters().put("keepDirectory", view.getDirectoryName());
-            dataObject.getProject().withType("blank");
+            dataObject.withType("blank");
             view.highlightDirectoryNameField(!NameUtils.checkProjectName(view.getDirectoryName()));
             view.focusDirectoryNameFiend();
         } else {
             projectParameters().remove("keepDirectory");
-            dataObject.getProject().withType(null);
+            dataObject.withType(null);
             view.highlightDirectoryNameField(false);
         }
     }
@@ -171,13 +170,13 @@ public class GithubImporterPagePresenter extends AbstractWizardPage<ImportProjec
     public void keepDirectoryNameChanged(@NotNull String directoryName) {
         if (view.keepDirectory()) {
             projectParameters().put("keepDirectory", directoryName);
-            dataObject.getProject().setContentRoot(view.getDirectoryName());
-            dataObject.getProject().withType("blank");
+            dataObject.setPath(view.getDirectoryName());
+            dataObject.withType("blank");
             view.highlightDirectoryNameField(!NameUtils.checkProjectName(view.getDirectoryName()));
         } else {
             projectParameters().remove("keepDirectory");
-            dataObject.getProject().setContentRoot(null);
-            dataObject.getProject().withType(null);
+            dataObject.setPath(null);
+            dataObject.withType(null);
             view.highlightDirectoryNameField(false);
         }
     }
@@ -201,10 +200,9 @@ public class GithubImporterPagePresenter extends AbstractWizardPage<ImportProjec
      * Updates the view.
      */
     private void updateView() {
-        view.setProjectName(dataObject.getProject().getName());
-        view.setProjectDescription(dataObject.getProject().getDescription());
-        view.setProjectVisibility(PUBLIC_VISIBILITY.equals(dataObject.getProject().getVisibility()));
-        view.setProjectUrl(dataObject.getSource().getProject().getLocation());
+        view.setProjectName(dataObject.getName());
+        view.setProjectDescription(dataObject.getDescription());
+        view.setProjectUrl(dataObject.getSource().getLocation());
     }
 
     @Override
@@ -256,9 +254,9 @@ public class GithubImporterPagePresenter extends AbstractWizardPage<ImportProjec
 
     @Override
     public void onRepositorySelected(@NotNull ProjectData repository) {
-        dataObject.getProject().setName(repository.getName());
-        dataObject.getProject().setDescription(repository.getDescription());
-        dataObject.getSource().getProject().setLocation(repository.getRepositoryUrl());
+        dataObject.setName(repository.getName());
+        dataObject.setDescription(repository.getDescription());
+        dataObject.getSource().setLocation(repository.getRepositoryUrl());
 
         updateView();
 

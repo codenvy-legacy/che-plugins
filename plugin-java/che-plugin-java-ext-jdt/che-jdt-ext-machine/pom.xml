@@ -35,10 +35,6 @@
             <artifactId>guice</artifactId>
         </dependency>
         <dependency>
-            <groupId>javax.annotation</groupId>
-            <artifactId>javax.annotation-api</artifactId>
-        </dependency>
-        <dependency>
             <groupId>javax.inject</groupId>
             <artifactId>javax.inject</artifactId>
         </dependency>
@@ -49,14 +45,6 @@
         <dependency>
             <groupId>javax.ws.rs</groupId>
             <artifactId>javax.ws.rs-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.birt.runtime</groupId>
-            <artifactId>org.eclipse.core.jobs</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.birt.runtime</groupId>
-            <artifactId>org.eclipse.core.runtime</artifactId>
         </dependency>
         <dependency>
             <groupId>org.eclipse.birt.runtime</groupId>
@@ -73,10 +61,6 @@
         <dependency>
             <groupId>org.eclipse.che.core</groupId>
             <artifactId>che-core-api-project</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.che.core</groupId>
-            <artifactId>che-core-commons-env</artifactId>
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.core</groupId>
@@ -118,31 +102,27 @@
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.plugin</groupId>
-            <artifactId>org.eclipse.core.filesystem</artifactId>
+            <artifactId>org.eclipse.core.resources</artifactId>
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.plugin</groupId>
-            <artifactId>org.eclipse.core.resources</artifactId>
+            <artifactId>org.eclipse.jdt.ui</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.che.plugin</groupId>
+            <artifactId>org.eclipse.jface</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.che.plugin</groupId>
+            <artifactId>org.eclipse.jface.text</artifactId>
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.plugin</groupId>
             <artifactId>org.eclipse.ltk.core.refactoring</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.core</groupId>
-            <artifactId>contenttype</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.core</groupId>
-            <artifactId>org.eclipse.core.commands</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.equinox</groupId>
-            <artifactId>preferences</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.equinox</groupId>
-            <artifactId>registry</artifactId>
+            <groupId>org.eclipse.che.plugin</groupId>
+            <artifactId>org.eclipse.search</artifactId>
         </dependency>
         <dependency>
             <groupId>org.eclipse.search</groupId>
@@ -157,10 +137,6 @@
                     <groupId>org.eclipse.equinox</groupId>
                 </exclusion>
             </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.tycho</groupId>
-            <artifactId>org.eclipse.osgi</artifactId>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -188,7 +164,22 @@
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.core</groupId>
+            <artifactId>che-core-api-workspace</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.che.core</groupId>
+            <artifactId>che-core-commons-env</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.che.core</groupId>
             <artifactId>che-core-vfs-impl</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.che.plugin</groupId>
+            <artifactId>org.eclipse.ui.ide</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -286,16 +277,11 @@
                         <exclude>**/RenameVirtualMethodInClass/**</exclude>
                         <exclude>**/projects/**</exclude>
                         <exclude>**/org/eclipse/che/jdt/javadoc/**</exclude>
-                        <exclude>**/org/eclipse/jdt/**</exclude>
-                        <exclude>**/org/eclipse/swt/**</exclude>
                         <exclude>**/org/eclipse/che/jface/**</exclude>
                         <exclude>**/org/eclipse/che/jdt/internal/codeassist/**</exclude>
-                        <exclude>**/org/eclipse/ui/**</exclude>
                         <exclude>**/org/eclipse/core/**</exclude>
                         <exclude>**/org/eclipse/search/**</exclude>
-                        <exclude>**/org/eclipse/jface/**</exclude>
                         <exclude>**/org/eclipse/ltk/**</exclude>
-                        <exclude>**/templates/**</exclude>
                         <exclude>**/org/eclipse/che/jdt/core/**</exclude>
                         <exclude>**/org/eclipse/che/jdt/dom/**</exclude>
                         <exclude>**/org/eclipse/che/jdt/corext/util/**</exclude>

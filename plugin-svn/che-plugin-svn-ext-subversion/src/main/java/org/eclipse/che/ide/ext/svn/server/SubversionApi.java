@@ -20,7 +20,6 @@ import org.eclipse.che.api.core.ServerException;
 import org.eclipse.che.api.core.util.LineConsumerFactory;
 import org.eclipse.che.api.vfs.server.util.DeleteOnCloseFileInputStream;
 import org.eclipse.che.commons.lang.IoUtil;
-import org.eclipse.che.commons.lang.Strings;
 import org.eclipse.che.commons.lang.ZipUtils;
 import org.eclipse.che.dto.server.DtoFactory;
 import org.eclipse.che.ide.ext.svn.server.credentials.CredentialsException;
@@ -58,6 +57,7 @@ import org.eclipse.che.ide.ext.svn.shared.ShowLogRequest;
 import org.eclipse.che.ide.ext.svn.shared.StatusRequest;
 import org.eclipse.che.ide.ext.svn.shared.SubversionItem;
 import org.eclipse.che.ide.ext.svn.shared.UpdateRequest;
+import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

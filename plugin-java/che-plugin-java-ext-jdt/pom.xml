@@ -22,11 +22,16 @@
     <packaging>pom</packaging>
     <name>Che Plugin :: Java :: Extension JDT</name>
     <modules>
+        <module>org-eclipse-jface</module>
+        <module>org-eclipse-jface-text</module>
         <module>org-eclipse-core-filesystem</module>
         <module>org-eclipse-core-resources</module>
         <module>org-eclipse-core-filebuffers</module>
-        <module>org-eclipse-ltk-core-refactoring</module>
+        <module>org-eclipse-search</module>
+        <module>org-eclipse-ui-ide</module>
         <module>che-plugin-java-jdt-core-repack</module>
+        <module>org-eclipse-jdt-ui</module>
+        <module>org-eclipse-ltk-core-refactoring</module>
         <module>che-jdt-ext-machine</module>
     </modules>
 </project>

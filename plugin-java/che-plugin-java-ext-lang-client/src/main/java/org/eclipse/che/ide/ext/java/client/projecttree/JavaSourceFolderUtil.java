@@ -12,12 +12,15 @@ package org.eclipse.che.ide.ext.java.client.projecttree;
 
 import org.eclipse.che.api.project.shared.dto.ItemReference;
 import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
+import org.eclipse.che.commons.annotation.Nullable;
+import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.project.node.HasProjectDescriptor;
 import org.eclipse.che.ide.api.project.tree.TreeNode;
 import org.eclipse.che.ide.api.project.tree.VirtualFile;
 import org.eclipse.che.ide.ext.java.client.project.node.JavaFileNode;
 import org.eclipse.che.ide.ext.java.client.project.node.PackageNode;
 
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import java.util.LinkedList;
 import java.util.List;
@@ -73,14 +76,32 @@ public class JavaSourceFolderUtil {
      * Returns source folders list of the project to which the specified node belongs.
      * Every path in the returned list starts and ends with separator char /.
      */
+    @NotNull
     public static List<String> getSourceFolders(TreeNode<?> node) {
-        List<String> allSourceFolders = new LinkedList<>();
-
         HasProjectDescriptor project = node.getProject();
         String projectBuilder = getProjectBuilder(project);
-        String projectPath = removeEndingPathSeparator(project.getProjectDescriptor().getPath());
 
-        Map<String, List<String>> attributes = project.getProjectDescriptor().getAttributes();
+        return doGetSourceFolders(project.getProjectDescriptor(), projectBuilder);
+    }
+
+    /**
+     * Returns source folders list of the project.
+     * Every path in the returned list starts and ends with separator char /.
+     */
+    @NotNull
+    public static List<String> getSourceFolders(@NotNull CurrentProject project) {
+        ProjectDescriptor descriptor = project.getProjectDescription();
+        String projectBuilder = getProjectBuilder(descriptor.getType());
+
+        return doGetSourceFolders(descriptor, projectBuilder);
+    }
+
+    @NotNull
+    private static List<String> doGetSourceFolders(ProjectDescriptor descriptor, String projectBuilder) {
+        List<String> allSourceFolders = new LinkedList<>();
+
+        String projectPath = removeEndingPathSeparator(descriptor.getPath());
+        Map<String, List<String>> attributes = descriptor.getAttributes();
 
         List<String> sourceFolders = attributes.get(projectBuilder + ".source.folder");
         if (sourceFolders != null) {
@@ -111,9 +132,6 @@ public class JavaSourceFolderUtil {
             return packageName + file.getName().substring(0, file.getName().lastIndexOf('.'));
         }
 
-//        if (file instanceof JavaFileNode) {
-//            return file.getPath();
-//        }
         return file.getName().substring(0, file.getName().lastIndexOf('.'));
     }
 
@@ -133,13 +151,13 @@ public class JavaSourceFolderUtil {
         return path;
     }
 
-    @Null
+    @Nullable
     public static String getProjectBuilder(HasProjectDescriptor node) {
         return getProjectBuilder(node.getProjectDescriptor().getType());
     }
 
-    @Null
-    public static String getProjectBuilder(@Null String projectType) {
+    @Nullable
+    public static String getProjectBuilder(@Nullable String projectType) {
         if (projectType == null) {
             return null;
         }

@@ -15,11 +15,12 @@ import org.eclipse.che.api.core.ConflictException;
 import org.eclipse.che.api.core.ForbiddenException;
 import org.eclipse.che.api.core.NotFoundException;
 import org.eclipse.che.api.core.ServerException;
+import org.eclipse.che.api.core.model.workspace.ModuleConfig;
+import org.eclipse.che.api.core.model.workspace.ProjectConfig;
 import org.eclipse.che.api.core.notification.EventService;
 import org.eclipse.che.api.project.server.FolderEntry;
 import org.eclipse.che.api.project.server.InvalidValueException;
 import org.eclipse.che.api.project.server.Project;
-import org.eclipse.che.api.project.server.ProjectConfig;
 import org.eclipse.che.api.project.server.ProjectManager;
 import org.eclipse.che.api.project.server.ProjectMisc;
 import org.eclipse.che.api.project.server.ProjectTypeConstraintException;
@@ -30,6 +31,8 @@ import org.eclipse.che.api.project.server.type.AttributeValue;
 import org.eclipse.che.api.project.server.type.ProjectTypeRegistry;
 import org.eclipse.che.api.project.shared.dto.SourceEstimation;
 import org.eclipse.che.api.vfs.server.VirtualFileSystemRegistry;
+import org.eclipse.che.api.workspace.shared.dto.ModuleConfigDto;
+import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.commons.env.EnvironmentContext;
 import org.eclipse.che.commons.user.UserImpl;
 import org.eclipse.che.vfs.impl.fs.LocalFSMountStrategy;
@@ -48,7 +51,9 @@ import java.util.Set;
 
 /**
  * Dummy implementation of ProjectManager used for tests
+ *
  * @author Evgen Vidolob
+ * @author Dmitry Shnurenko
  */
 public class DummyProjectManager implements ProjectManager {
 
@@ -99,20 +104,16 @@ public class DummyProjectManager implements ProjectManager {
     }
 
     @Override
-    public Project createProject(String workspace, String name, ProjectConfig projectConfig, Map<String, String> options, String visibility)
+    public Project createProject(String workspace, String name, ProjectConfig projectConfig, Map<String, String> options)
             throws ConflictException, ForbiddenException, ServerException, ProjectTypeConstraintException, NotFoundException {
         final FolderEntry myRoot = getProjectsRoot(workspace);
         final FolderEntry projectFolder = myRoot.createFolder(name);
         final Project project = new Project(projectFolder, this);
-
-        if (visibility != null) {
-            project.setVisibility(visibility);
-        }
         return project;
     }
 
     @Override
-    public Project updateProject(String workspace, String path, ProjectConfig newConfig, String newVisibility)
+    public Project updateProject(String workspace, String path, ProjectConfig newConfig)
             throws ForbiddenException, ServerException, NotFoundException, ConflictException, IOException {
         throw new UnsupportedOperationException();
     }
@@ -144,9 +145,12 @@ public class DummyProjectManager implements ProjectManager {
     }
 
     @Override
-    public Set<Project> getProjectModules(Project project)
-            throws ServerException, ForbiddenException, ConflictException, IOException, NotFoundException {
-        return Collections.emptySet();
+    public List<ModuleConfig> getProjectModules(Project project) throws ServerException,
+                                                                        ForbiddenException,
+                                                                        ConflictException,
+                                                                        IOException,
+                                                                        NotFoundException {
+        return Collections.emptyList();
     }
 
     @Override
@@ -171,8 +175,10 @@ public class DummyProjectManager implements ProjectManager {
     }
 
     @Override
-    public Project addModule(String workspace, String projectPath, String modulePath, ProjectConfig moduleConfig,
-                             Map<String, String> options, String visibility)
+    public ProjectConfigDto addModule(String workspace,
+                                      String modulePath,
+                                      ModuleConfigDto moduleConfig,
+                                      Map<String, String> options)
             throws ConflictException, ForbiddenException, ServerException, NotFoundException {
         throw new UnsupportedOperationException();
     }
@@ -184,7 +190,7 @@ public class DummyProjectManager implements ProjectManager {
     }
 
     @Override
-    public Project convertFolderToProject(String workspace, String path, ProjectConfig projectConfig, String visibility)
+    public Project convertFolderToProject(String workspace, String path, ProjectConfig projectConfig)
             throws ConflictException, ForbiddenException, ServerException, NotFoundException {
         throw new UnsupportedOperationException();
     }
@@ -196,7 +202,7 @@ public class DummyProjectManager implements ProjectManager {
     }
 
     @Override
-    public boolean delete(String workspace, String path, String modulePath)
+    public boolean delete(String workspace, String path)
             throws ServerException, ForbiddenException, NotFoundException, ConflictException {
         final FolderEntry root = getProjectsRoot(workspace);
         final VirtualFileEntry entry = root.getChild(path);
@@ -210,5 +216,10 @@ public class DummyProjectManager implements ProjectManager {
     @Override
     public boolean isProjectFolder(FolderEntry folder) throws ServerException {
         return new Path(folder.getPath()).segmentCount() == 1;
+    }
+
+    @Override
+    public boolean isModuleFolder(FolderEntry folder) throws ServerException {
+        return false;
     }
 }

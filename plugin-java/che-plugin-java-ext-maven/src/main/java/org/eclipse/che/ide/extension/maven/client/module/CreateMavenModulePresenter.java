@@ -15,14 +15,23 @@ import com.google.inject.Singleton;
 
 import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
 import org.eclipse.che.api.project.shared.dto.GeneratorDescription;
-import org.eclipse.che.api.project.shared.dto.NewProject;
 import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
+import org.eclipse.che.api.workspace.shared.dto.ModuleConfigDto;
+import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
+import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
+import org.eclipse.che.ide.api.project.node.HasStorablePath;
+import org.eclipse.che.ide.api.selection.Selection;
+import org.eclipse.che.ide.api.selection.SelectionAgent;
 import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.extension.maven.client.MavenArchetype;
 import org.eclipse.che.ide.extension.maven.client.MavenExtension;
+import org.eclipse.che.ide.extension.maven.client.MavenLocalizationConstant;
 import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
+import org.eclipse.che.ide.project.node.ModuleDescriptorNode;
+import org.eclipse.che.ide.project.node.ProjectDescriptorNode;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
+import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 import org.eclipse.che.ide.util.NameUtils;
 import org.eclipse.che.ide.util.loging.Log;
@@ -35,29 +44,30 @@ import java.util.Map;
 
 import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.ARCHETYPE_GENERATION_STRATEGY;
 import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.ARTIFACT_ID;
-import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.DEFAULT_SOURCE_FOLDER;
-import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.DEFAULT_TEST_SOURCE_FOLDER;
 import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.GROUP_ID;
 import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.MAVEN_ID;
 import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.PACKAGING;
 import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.PARENT_ARTIFACT_ID;
 import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.PARENT_GROUP_ID;
 import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.PARENT_VERSION;
-import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.SOURCE_FOLDER;
-import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.TEST_SOURCE_FOLDER;
 import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.VERSION;
 
 /**
  * @author Evgen Vidolob
+ * @author Dmitry Shnurenko
  */
 @Singleton
 public class CreateMavenModulePresenter implements CreateMavenModuleView.ActionDelegate {
 
-    private       CreateMavenModuleView    view;
-    private       ProjectServiceClient     projectService;
-    private       DtoFactory               dtoFactory;
-    private       DialogFactory            dialogFactory;
-    private final ProjectExplorerPresenter projectExplorer;
+    private final AppContext                appContext;
+    private final CreateMavenModuleView     view;
+    private final ProjectServiceClient      projectService;
+    private final DtoFactory                dtoFactory;
+    private final DialogFactory             dialogFactory;
+    private final ProjectExplorerPresenter  projectExplorer;
+    private final MavenLocalizationConstant locale;
+    private final SelectionAgent            selectionAgent;
+    private final DtoUnmarshallerFactory    unmarshallerFactory;
 
     private String moduleName;
 
@@ -65,14 +75,26 @@ public class CreateMavenModulePresenter implements CreateMavenModuleView.ActionD
     private CurrentProject parentProject;
 
     @Inject
-    public CreateMavenModulePresenter(CreateMavenModuleView view, ProjectServiceClient projectService, DtoFactory dtoFactory,
-                                      DialogFactory dialogFactory, ProjectExplorerPresenter projectExplorer) {
+    public CreateMavenModulePresenter(AppContext appContext,
+                                      CreateMavenModuleView view,
+                                      ProjectServiceClient projectService,
+                                      DtoFactory dtoFactory,
+                                      DialogFactory dialogFactory,
+                                      ProjectExplorerPresenter projectExplorer,
+                                      MavenLocalizationConstant locale,
+                                      SelectionAgent selectionAgent,
+                                      DtoUnmarshallerFactory unmarshallerFactory) {
         this.view = view;
+        this.view.setDelegate(this);
+
+        this.appContext = appContext;
         this.projectService = projectService;
         this.dtoFactory = dtoFactory;
         this.dialogFactory = dialogFactory;
         this.projectExplorer = projectExplorer;
-        view.setDelegate(this);
+        this.locale = locale;
+        this.selectionAgent = selectionAgent;
+        this.unmarshallerFactory = unmarshallerFactory;
     }
 
     public void showDialog(@NotNull CurrentProject project) {
@@ -91,9 +113,8 @@ public class CreateMavenModulePresenter implements CreateMavenModuleView.ActionD
 
     @Override
     public void create() {
-        NewProject newProject = dtoFactory.createDto(NewProject.class);
-        newProject.setType(MAVEN_ID);
-        newProject.setVisibility(parentProject.getProjectDescription().getVisibility());
+        ProjectConfigDto projectConfig = dtoFactory.createDto(ProjectConfigDto.class);
+        projectConfig.setType(MAVEN_ID);
 
         Map<String, List<String>> attributes = new HashMap<>();
         attributes.put(ARTIFACT_ID, Arrays.asList(artifactId));
@@ -103,39 +124,111 @@ public class CreateMavenModulePresenter implements CreateMavenModuleView.ActionD
         attributes.put(PARENT_ARTIFACT_ID, Arrays.asList(parentProject.getAttributeValue(ARTIFACT_ID)));
         attributes.put(PARENT_GROUP_ID, Arrays.asList(parentProject.getAttributeValue(GROUP_ID)));
         attributes.put(PARENT_VERSION, Arrays.asList(parentProject.getAttributeValue(VERSION)));
-        newProject.setAttributes(attributes);
 
-        GeneratorDescription generatorDescription;
-        if (view.isGenerateFromArchetypeSelected()) {
-            generatorDescription = getGeneratorDescription(view.getArchetype());
-        } else {
-            generatorDescription = dtoFactory.createDto(GeneratorDescription.class);
-            if (!"pom".equals(view.getPackaging())) {
-                attributes.put(SOURCE_FOLDER, Arrays.asList(DEFAULT_SOURCE_FOLDER));
-                attributes.put(TEST_SOURCE_FOLDER, Arrays.asList(DEFAULT_TEST_SOURCE_FOLDER));
-            }
-        }
-        newProject.setGeneratorDescription(generatorDescription);
+        projectConfig.setAttributes(attributes);
+        projectConfig.setName(view.getName());
 
         view.showButtonLoader(true);
 
-        projectService.createModule(parentProject.getProjectDescription().getPath(), moduleName, newProject,
-                                    new AsyncRequestCallback<ProjectDescriptor>() {
+        String pathToSelectedNode = getPathToSelectedNode();
+
+        if (pathToSelectedNode.isEmpty()) {
+            showErrorDialog(locale.mavenCreateModuleMultySelectionError());
+
+            return;
+        }
+
+        projectService.createModule(pathToSelectedNode,
+                                    projectConfig,
+                                    new AsyncRequestCallback<ModuleConfigDto>(unmarshallerFactory.newUnmarshaller(ModuleConfigDto.class)) {
                                         @Override
-                                        protected void onSuccess(ProjectDescriptor result) {
+                                        protected void onSuccess(ModuleConfigDto addedModule) {
                                             view.close();
                                             view.showButtonLoader(false);
 
-                                            projectExplorer.reloadChildren();
+                                            Selection<?> selection = selectionAgent.getSelection();
+
+                                            Object parentFolder = selection.getHeadElement();
+
+                                            boolean isParentModule = parentFolder instanceof ModuleDescriptorNode;
+                                            boolean isParentProject = parentFolder instanceof ProjectDescriptorNode;
+
+                                            ProjectDescriptor descriptor = appContext.getCurrentProject().getProjectDescription();
+
+                                            if (isParentModule) {
+                                                reloadModuleChildren((ModuleDescriptorNode)parentFolder, addedModule, descriptor);
+
+                                                return;
+                                            }
+
+                                            if (isParentProject) {
+                                                descriptor.getModules().add(addedModule);
+
+                                                projectExplorer.reloadChildren((ProjectDescriptorNode)parentFolder);
+                                            }
                                         }
 
                                         @Override
                                         protected void onFailure(Throwable exception) {
-                                            view.showButtonLoader(false);
-                                            dialogFactory.createMessageDialog("", exception.getMessage(), null).show();
-                                            Log.error(CreateMavenModulePresenter.class, exception);
+                                            showErrorDialog(exception.getMessage());
                                         }
                                     });
+    }
+
+    private String getPathToSelectedNode() {
+        Selection<?> selection = projectExplorer.getSelection();
+
+        if (selection.isMultiSelection() || selection.isEmpty()) {
+            return "";
+        }
+
+        Object selectedElement = selection.getHeadElement();
+
+        if (selectedElement instanceof HasStorablePath) {
+            return ((HasStorablePath)selectedElement).getStorablePath();
+        }
+
+        return "";
+    }
+
+    private void reloadModuleChildren(HasStorablePath parentFolder, ModuleConfigDto module, ProjectDescriptor descriptor) {
+        for (ModuleConfigDto configDto : descriptor.getModules()) {
+            ModuleConfigDto foundNode = findModuleRecursive(configDto, parentFolder.getStorablePath());
+
+            if (foundNode != null) {
+                configDto.getModules().add(module);
+
+                projectExplorer.reloadChildren((ModuleDescriptorNode)parentFolder);
+
+                return;
+            }
+        }
+    }
+
+    private ModuleConfigDto findModuleRecursive(ModuleConfigDto moduleConfig, String pathToParent) {
+        if (pathToParent.equals(moduleConfig.getPath())) {
+            return moduleConfig;
+        }
+
+        for (ModuleConfigDto configDto : moduleConfig.getModules()) {
+            if (pathToParent.equals(configDto.getPath())) {
+                return configDto;
+            }
+
+            ModuleConfigDto foundConfig = findModuleRecursive(configDto, pathToParent);
+
+            if (foundConfig != null) {
+                return foundConfig;
+            }
+        }
+
+        return null;
+    }
+
+    private void showErrorDialog(String error) {
+        view.showButtonLoader(false);
+        dialogFactory.createMessageDialog("", error, null).show();
+        Log.error(CreateMavenModulePresenter.class, error);
     }
 
     @Override

@@ -14,14 +14,15 @@ import org.eclipse.che.api.core.ApiException;
 import org.eclipse.che.api.core.ForbiddenException;
 import org.eclipse.che.api.core.NotFoundException;
 import org.eclipse.che.api.core.ServerException;
+import org.eclipse.che.api.core.model.project.SourceStorage;
 import org.eclipse.che.api.core.rest.Service;
-import org.eclipse.che.api.project.shared.dto.ImportSourceDescriptor;
 import org.eclipse.che.api.vfs.server.MountPoint;
 import org.eclipse.che.api.vfs.server.VirtualFile;
 import org.eclipse.che.api.vfs.server.VirtualFileSystem;
 import org.eclipse.che.api.vfs.server.VirtualFileSystemRegistry;
 import org.eclipse.che.api.vfs.shared.PropertyFilter;
 import org.eclipse.che.api.vfs.shared.dto.Item;
+import org.eclipse.che.api.workspace.shared.dto.SourceStorageDto;
 import org.eclipse.che.ide.ext.svn.server.SubversionApi;
 import org.eclipse.che.ide.ext.svn.server.SubversionException;
 import org.eclipse.che.ide.ext.svn.server.credentials.CredentialsException;
@@ -569,11 +570,11 @@ public class SubversionService extends Service {
     @Path("import-source-descriptor")
     @Produces(MediaType.APPLICATION_JSON)
     @GET
-    public ImportSourceDescriptor importDescriptor(@Context UriInfo uriInfo,
+    public SourceStorage importDescriptor(@Context UriInfo uriInfo,
                                                    @QueryParam("projectPath") String projectPath) throws ApiException, IOException {
         final VirtualFile virtualFile = vfsRegistry.getProvider(workspaceId).getMountPoint(true).getVirtualFile(projectPath);
         if (virtualFile.getChild(".svn") != null) {
-            return newDto(ImportSourceDescriptor.class)
+            return newDto(SourceStorageDto.class)
                     .withType("subversion")
                     .withLocation(subversionApi.getRepositoryUrl(((VirtualFileImpl)virtualFile).getIoFile().getPath()));
         } else {

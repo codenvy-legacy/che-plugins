@@ -71,15 +71,19 @@ public abstract class AbstractJavaContentRootInterceptor implements NodeIntercep
         }
 
         final FolderReferenceNode folderNode = (FolderReferenceNode)node;
-        final ProjectDescriptor descriptor = folderNode.getProjectDescriptor();
+//        final ProjectDescriptor descriptor = folderNode.getProjectDescriptor();
 
-        String srcFolder = _getSourceFolder(descriptor, getSrcFolderAttribute());
-        if (folderNode.getStorablePath().equals(srcFolder)) {
+        //TODO  it's a temporary solution. Determination of source folder for different modules and projects will be improved during
+        //TODO  work on this issue IDEX-3468.
+//        String srcFolder = _getSourceFolder(descriptor, getSrcFolderAttribute());
+        if (folderNode.getStorablePath().endsWith("src/main/java")) {
             return ContentRoot.SOURCE;
         }
 
-        String testSrcFolder = _getSourceFolder(descriptor, getTestSrcFolderAttribute());
-        if (folderNode.getStorablePath().equals(testSrcFolder)) {
+        //TODO  it's a temporary solution. Determination of test source folder for different modules and projects will be improved during
+        //TODO  work on this issue IDEX-3468.
+//        String testSrcFolder = _getSourceFolder(descriptor, getTestSrcFolderAttribute());
+        if (folderNode.getStorablePath().endsWith("src/test/java")) {
             return ContentRoot.TEST_SOURCE;
         }
 
@@ -91,14 +95,14 @@ public abstract class AbstractJavaContentRootInterceptor implements NodeIntercep
         return null;
     }
 
-    private String _getSourceFolder(ProjectDescriptor descriptor, String srcAttribute) {
-        if (descriptor.getAttributes().containsKey(srcAttribute)) { //TODO avoid hard code those values
-            final String srcFolder = descriptor.getAttributes().get(srcAttribute).get(0);
-            return descriptor.getPath() + (srcFolder.startsWith("/") ? srcFolder : "/" + srcFolder);
-        }
-
-        return null;
-    }
+//    private String _getSourceFolder(ProjectDescriptor descriptor, String srcAttribute) {
+//        if (descriptor.getAttributes().containsKey(srcAttribute)) { //TODO avoid hard code those values
+//            final String srcFolder = descriptor.getAttributes().get(srcAttribute).get(0);
+//            return descriptor.getPath() + (srcFolder.startsWith("/") ? srcFolder : "/" + srcFolder);
+//        }
+//
+//        return null;
+//    }
 
     public abstract String getSrcFolderAttribute();
 

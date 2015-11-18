@@ -62,7 +62,6 @@ public class CompletionJavadocTest extends QuickFixTest {
     public CompletionJavadocTest() {
 
         super(new Java18ProjectTestSetup());
-        UrlContextProvider.setUriBuilder(new GuiceUriBuilderImpl());
     }
 
     private static List<ICompletionProposal> computeProposals(ICompilationUnit compilationUnit, int offset) throws JavaModelException {

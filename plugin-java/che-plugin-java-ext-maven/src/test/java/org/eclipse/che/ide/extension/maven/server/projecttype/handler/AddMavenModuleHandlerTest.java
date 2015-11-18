@@ -14,7 +14,6 @@ import org.eclipse.che.api.core.notification.EventService;
 import org.eclipse.che.api.core.rest.HttpJsonHelper;
 import org.eclipse.che.api.project.server.DefaultProjectManager;
 import org.eclipse.che.api.project.server.Project;
-import org.eclipse.che.api.project.server.ProjectConfig;
 import org.eclipse.che.api.project.server.VirtualFileEntry;
 import org.eclipse.che.api.project.server.handlers.ProjectHandler;
 import org.eclipse.che.api.project.server.handlers.ProjectHandlerRegistry;
@@ -25,8 +24,10 @@ import org.eclipse.che.api.vfs.server.VirtualFileSystemRegistry;
 import org.eclipse.che.api.vfs.server.VirtualFileSystemUser;
 import org.eclipse.che.api.vfs.server.VirtualFileSystemUserContext;
 import org.eclipse.che.api.vfs.server.impl.memory.MemoryFileSystemProvider;
+import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.commons.lang.IoUtil;
 import org.eclipse.che.commons.lang.NameGenerator;
+import org.eclipse.che.dto.server.DtoFactory;
 import org.eclipse.che.ide.extension.maven.shared.MavenAttributes;
 import org.junit.After;
 import org.junit.Assert;
@@ -49,6 +50,7 @@ import static org.mockito.Mockito.mock;
 
 /**
  * @author Vitaly Parfonov
+ * @author Dmitry Shnurenko
  */
 @RunWith(MockitoJUnitRunner.class)
 public class AddMavenModuleHandlerTest {
@@ -109,10 +111,11 @@ public class AddMavenModuleHandlerTest {
         String parent = NameGenerator.generate("parent", 5);
         String module = NameGenerator.generate("module", 5);
         Project project =
-                projectManager.createProject(workspace, parent, new ProjectConfig(null, MavenAttributes.MAVEN_ID), null, "public");
+                projectManager.createProject(workspace, parent, DtoFactory.getInstance().createDto(ProjectConfigDto.class)
+                                                                          .withType(MavenAttributes.MAVEN_ID), null);
         project.getBaseFolder().createFile("pom.xml", String.format(POM_XML_TEMPL, "jar").getBytes(), "text/xml");
         addMavenModuleHandler
-                .onCreateModule(project.getBaseFolder(), project.getPath() + "/" + module, new ProjectConfig(null, "maven"),
+                .onCreateModule(project.getBaseFolder(), project.getPath() + "/" + module, "maven",
                                 Collections.<String, String>emptyMap());
     }
 
@@ -120,9 +123,11 @@ public class AddMavenModuleHandlerTest {
     public void pomNotFound() throws Exception {
         String parent = NameGenerator.generate("parent", 5);
         String module = NameGenerator.generate("module", 5);
-        Project project =  projectManager.createProject(workspace, parent, new ProjectConfig(null, MavenAttributes.MAVEN_ID), null, "public");
+        Project project =
+                projectManager.createProject(workspace, parent, DtoFactory.getInstance().createDto(ProjectConfigDto.class)
+                                                                          .withType(MavenAttributes.MAVEN_ID), null);
         addMavenModuleHandler
-                .onCreateModule(project.getBaseFolder(), project.getPath() + "/" + module, new ProjectConfig(null, "maven"),
+                .onCreateModule(project.getBaseFolder(), project.getPath() + "/" + module, "maven",
                                 Collections.<String, String>emptyMap());
     }
 
@@ -136,11 +141,18 @@ public class AddMavenModuleHandlerTest {
 
         String parent = NameGenerator.generate("parent", 5);
         String module = NameGenerator.generate("module", 5);
-        Project project =
-                projectManager.createProject(workspace, parent, new ProjectConfig(null, MavenAttributes.MAVEN_ID), null, "public");
+
+        Project project = projectManager.createProject(workspace,
+                                                       parent,
+                                                       DtoFactory.getInstance()
+                                                                 .createDto(ProjectConfigDto.class)
+                                                                 .withType(MavenAttributes.MAVEN_ID), null);
+
         project.getBaseFolder().createFile("pom.xml", String.format(POM_XML_TEMPL, "pom").getBytes(), "text/xml");
-        addMavenModuleHandler.onCreateModule(project.getBaseFolder(), project.getPath() + "/" + module,
-                                             new ProjectConfig(null, notMaven.getId()),
+
+        addMavenModuleHandler.onCreateModule(project.getBaseFolder(),
+                                             project.getPath() + "/" + module,
+                                             "notMaven",
                                              Collections.<String, String>emptyMap());
     }
 
@@ -149,10 +161,10 @@ public class AddMavenModuleHandlerTest {
         String parent = NameGenerator.generate("parent", 5);
         String module = NameGenerator.generate("module", 5);
         Project project =
-                projectManager.createProject(workspace, parent, new ProjectConfig(null, MavenAttributes.MAVEN_ID), null, "public");
+                projectManager.createProject(workspace, parent, DtoFactory.getInstance().createDto(ProjectConfigDto.class)
+                                                                          .withType(MavenAttributes.MAVEN_ID), null);
         project.getBaseFolder().createFile("pom.xml", String.format(POM_XML_TEMPL, "pom").getBytes(), "text/xml");
-        addMavenModuleHandler.onCreateModule(project.getBaseFolder(), project.getPath() + "/" + module,
-                                             new ProjectConfig(null, MavenAttributes.MAVEN_ID),
+        addMavenModuleHandler.onCreateModule(project.getBaseFolder(), project.getPath() + "/" + module, "maven",
                                              Collections.<String, String>emptyMap());
 
         VirtualFileEntry pom = project.getBaseFolder().getChild("pom.xml");

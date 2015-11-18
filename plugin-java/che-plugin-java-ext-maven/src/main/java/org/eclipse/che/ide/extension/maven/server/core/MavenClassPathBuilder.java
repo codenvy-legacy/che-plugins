@@ -73,7 +73,7 @@ public class MavenClassPathBuilder implements ClassPathBuilder {
 
     private ClassPathBuilderResult dependencyUpdateProcessor(String projectPath) {
         String command = MavenUtils.getMavenExecCommand();
-        File projectDir = new File(projectPath);
+        File projectDir = new File(ResourcesPlugin.getPathToWorkspace() + projectPath);
 
         ProcessBuilder classPathProcessBuilder = new ProcessBuilder().command(command,
                                                                               "dependency:build-classpath",

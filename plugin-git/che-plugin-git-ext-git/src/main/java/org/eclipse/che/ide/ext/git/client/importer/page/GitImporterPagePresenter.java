@@ -14,7 +14,7 @@ import com.google.gwt.regexp.shared.RegExp;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.inject.Inject;
 
-import org.eclipse.che.api.project.shared.dto.ImportProject;
+import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.ide.api.wizard.AbstractWizardPage;
 import org.eclipse.che.ide.ext.git.client.GitLocalizationConstant;
 import org.eclipse.che.ide.util.NameUtils;
@@ -26,10 +26,7 @@ import java.util.Map;
 /**
  * @author Roman Nikitenko
  */
-public class GitImporterPagePresenter extends AbstractWizardPage<ImportProject> implements GitImporterPageView.ActionDelegate {
-
-    private static final String PUBLIC_VISIBILITY  = "public";
-    private static final String PRIVATE_VISIBILITY = "private";
+public class GitImporterPagePresenter extends AbstractWizardPage<ProjectConfigDto> implements GitImporterPageView.ActionDelegate {
 
     // An alternative scp-like syntax: [user@]host.xz:path/to/repo.git/
     private static final RegExp SCP_LIKE_SYNTAX = RegExp.compile("([A-Za-z0-9_\\-]+\\.[A-Za-z0-9_\\-:]+)+:");
@@ -57,12 +54,12 @@ public class GitImporterPagePresenter extends AbstractWizardPage<ImportProject> 
 
     @Override
     public boolean isCompleted() {
-        return isGitUrlCorrect(dataObject.getSource().getProject().getLocation());
+        return isGitUrlCorrect(dataObject.getSource().getLocation());
     }
 
     @Override
     public void projectNameChanged(@NotNull String name) {
-        dataObject.getProject().setName(name);
+        dataObject.setName(name);
         updateDelegate.updateControls();
 
         validateProjectName();
@@ -78,14 +75,14 @@ public class GitImporterPagePresenter extends AbstractWizardPage<ImportProject> 
 
     @Override
     public void projectUrlChanged(@NotNull String url) {
-        dataObject.getSource().getProject().setLocation(url);
+        dataObject.getSource().setLocation(url);
         isGitUrlCorrect(url);
 
         String projectName = view.getProjectName();
         if (projectName.isEmpty()) {
             projectName = extractProjectNameFromUri(url);
 
-            dataObject.getProject().setName(projectName);
+            dataObject.setName(projectName);
             view.setProjectName(projectName);
             validateProjectName();
         }
@@ -95,13 +92,12 @@ public class GitImporterPagePresenter extends AbstractWizardPage<ImportProject> 
 
     @Override
     public void projectDescriptionChanged(@NotNull String projectDescription) {
-        dataObject.getProject().setDescription(projectDescription);
+        dataObject.setDescription(projectDescription);
         updateDelegate.updateControls();
     }
 
     @Override
     public void projectVisibilityChanged(boolean visible) {
-        dataObject.getProject().setVisibility(visible ? PUBLIC_VISIBILITY : PRIVATE_VISIBILITY);
         updateDelegate.updateControls();
     }
 
@@ -111,10 +107,10 @@ public class GitImporterPagePresenter extends AbstractWizardPage<ImportProject> 
      * @return parameters map
      */
     private Map<String, String> projectParameters() {
-        Map<String, String> parameters = dataObject.getSource().getProject().getParameters();
+        Map<String, String> parameters = dataObject.getSource().getParameters();
         if (parameters == null) {
             parameters = new HashMap<String, String>();
-            dataObject.getSource().getProject().setParameters(parameters);
+            dataObject.getSource().setParameters(parameters);
         }
 
         return parameters;
@@ -126,12 +122,12 @@ public class GitImporterPagePresenter extends AbstractWizardPage<ImportProject> 
 
         if (keepDirectory) {
             projectParameters().put("keepDirectory", view.getDirectoryName());
-            dataObject.getProject().withType("blank");
+            dataObject.withType("blank");
             view.highlightDirectoryNameField(!NameUtils.checkProjectName(view.getDirectoryName()));
             view.focusDirectoryNameFiend();
         } else {
             projectParameters().remove("keepDirectory");
-            dataObject.getProject().withType(null);
+            dataObject.withType(null);
             view.highlightDirectoryNameField(false);
         }
     }
@@ -140,13 +136,13 @@ public class GitImporterPagePresenter extends AbstractWizardPage<ImportProject> 
     public void keepDirectoryNameChanged(@NotNull String directoryName) {
         if (view.keepDirectory()) {
             projectParameters().put("keepDirectory", directoryName);
-            dataObject.getProject().setContentRoot(view.getDirectoryName());
-            dataObject.getProject().withType("blank");
+            dataObject.setPath(view.getDirectoryName());
+            dataObject.withType("blank");
             view.highlightDirectoryNameField(!NameUtils.checkProjectName(view.getDirectoryName()));
         } else {
             projectParameters().remove("keepDirectory");
-            dataObject.getProject().setContentRoot(null);
-            dataObject.getProject().withType(null);
+            dataObject.setPath(null);
+            dataObject.withType(null);
             view.highlightDirectoryNameField(false);
         }
     }
@@ -175,10 +171,9 @@ public class GitImporterPagePresenter extends AbstractWizardPage<ImportProject> 
     public void go(@NotNull AcceptsOneWidget container) {
         container.setWidget(view);
 
-        view.setProjectName(dataObject.getProject().getName());
-        view.setProjectDescription(dataObject.getProject().getDescription());
-        view.setProjectVisibility(PUBLIC_VISIBILITY.equals(dataObject.getProject().getVisibility()));
-        view.setProjectUrl(dataObject.getSource().getProject().getLocation());
+        view.setProjectName(dataObject.getName());
+        view.setProjectDescription(dataObject.getDescription());
+        view.setProjectUrl(dataObject.getSource().getLocation());
 
         view.setKeepDirectoryChecked(false);
         view.setBranchChecked(false);
