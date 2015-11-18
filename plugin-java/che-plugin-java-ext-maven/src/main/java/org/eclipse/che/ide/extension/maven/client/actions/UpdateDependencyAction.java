@@ -51,7 +51,7 @@ public class UpdateDependencyAction extends AbstractPerspectiveAction {
     @Override
     public void actionPerformed(ActionEvent e) {
         eventLogger.log(this);
-        dependenciesUpdater.updateDependencies(appContext.getCurrentProject().getProjectDescription());
+        dependenciesUpdater.updateDependencies(appContext.getCurrentProject().getProjectDescription().getPath());
     }
 
     /** {@inheritDoc} */

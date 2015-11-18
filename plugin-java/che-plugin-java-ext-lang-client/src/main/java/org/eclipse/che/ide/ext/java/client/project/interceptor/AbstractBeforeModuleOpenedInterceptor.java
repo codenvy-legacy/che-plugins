@@ -14,7 +14,7 @@ import com.google.inject.Provider;
 
 import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.api.promises.client.js.Promises;
-import org.eclipse.che.ide.api.project.node.HasProjectDescriptor;
+import org.eclipse.che.ide.api.project.node.HasStorablePath;
 import org.eclipse.che.ide.api.project.node.Node;
 import org.eclipse.che.ide.api.project.node.interceptor.NodeInterceptor;
 import org.eclipse.che.ide.ext.java.client.dependenciesupdater.DependenciesUpdater;
@@ -40,7 +40,8 @@ public abstract class AbstractBeforeModuleOpenedInterceptor implements NodeInter
 
         if ((parent instanceof ModuleDescriptorNode || parent instanceof ProjectDescriptorNode)
             && JavaNodeManager.isJavaProject(parent) && isValid(parent)) {
-            dependenciesUpdater.get().updateDependencies(((HasProjectDescriptor)parent).getProjectDescriptor());
+
+            dependenciesUpdater.get().updateDependencies(((HasStorablePath)parent).getStorablePath());
         }
 
         return Promises.resolve(children);

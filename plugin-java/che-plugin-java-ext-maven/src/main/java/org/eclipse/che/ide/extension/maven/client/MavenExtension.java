@@ -75,7 +75,7 @@ public class MavenExtension {
             public void onProjectReady(ProjectReadyEvent event) {
                 project = event.getProject();
                 if (isValidForResolveDependencies(project)) {
-                    dependenciesUpdater.updateDependencies(project);
+                    dependenciesUpdater.updateDependencies(project.getPath());
                 }
             }
         });
@@ -88,7 +88,7 @@ public class MavenExtension {
                         new Timer() {
                             @Override
                             public void run() {
-                                dependenciesUpdater.updateDependencies(project);
+                                dependenciesUpdater.updateDependencies(project.getPath());
                             }
                         }.schedule(5000);
                     }

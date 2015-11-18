@@ -14,7 +14,6 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.event.shared.EventBus;
 
-import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.event.project.OpenProjectEvent;
 import org.eclipse.che.ide.api.event.project.OpenProjectHandler;
@@ -85,12 +84,12 @@ public class DependenciesUpdater {
         eventBus.addHandler(OpenProjectEvent.TYPE, new OpenProjectHandler() {
             @Override
             public void onProjectOpened(OpenProjectEvent event) {
-                updateDependencies(event.getDescriptor());
+                updateDependencies(event.getDescriptor().getPath());
             }
         });
     }
 
-    public void updateDependencies(final ProjectDescriptor project) {
+    public void updateDependencies(final String path) {
         if (updating) {
             return;
         }
@@ -105,7 +104,7 @@ public class DependenciesUpdater {
 
         Unmarshallable<ClassPathBuilderResult> unmarshaller = dtoUnmarshallerFactory.newUnmarshaller(ClassPathBuilderResult.class);
 
-        classpathServiceClient.updateDependencies(project.getPath(), new AsyncRequestCallback<ClassPathBuilderResult>(unmarshaller) {
+        classpathServiceClient.updateDependencies(path, new AsyncRequestCallback<ClassPathBuilderResult>(unmarshaller) {
             @Override
             protected void onSuccess(ClassPathBuilderResult result) {
                 if (SUCCESS.equals(result.getStatus())) {
@@ -121,7 +120,7 @@ public class DependenciesUpdater {
 
             @Override
             protected void onFailure(Throwable exception) {
-                Log.warn(DependenciesUpdater.class, "Failed to launch update dependency process for " + project);
+                Log.warn(DependenciesUpdater.class, "Failed to launch update dependency process for " + path);
                 updateFinishedWithError(exception.getMessage(), notification);
             }
         });
