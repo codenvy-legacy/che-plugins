@@ -146,7 +146,7 @@ public class ImportApplicationPresenter extends ValidateAuthenticationPresenter 
         attributes.put(OpenshiftProjectTypeConstants.OPENSHIFT_NAMESPACE_VARIABLE_NAME, Arrays.asList(
                 selectedBuildConfig.getMetadata().getNamespace()));
 
-        projectConfig.withMixinTypes(Arrays.asList(OpenshiftProjectTypeConstants.OPENSHIFT_PROJECT_TYPE_ID))
+        projectConfig.withMixins(Arrays.asList(OpenshiftProjectTypeConstants.OPENSHIFT_PROJECT_TYPE_ID))
                      .withAttributes(attributes);
 
         projectConfig.getSource().withType("git").withParameters(importOptions)
