@@ -136,7 +136,7 @@ public class GitHubDTOFactory {
     //TODO: can be removed after accepting  https://github.com/kohsuke/github-api/pull/233
     public GitHubRepository createRepositoryWithMirrorUrl(GHRepositoryWithMirrorUrl ghRepository) throws ApiException, IOException {
         GitHubRepository dtoRepository = createRepository(ghRepository);
-        dtoRepository.setMirrorUrl(String.valueOf(ghRepository.getMirrorUrl()));
+        dtoRepository.setMirrorUrl(ghRepository.getMirrorUrl());
         return dtoRepository;
     }
 
