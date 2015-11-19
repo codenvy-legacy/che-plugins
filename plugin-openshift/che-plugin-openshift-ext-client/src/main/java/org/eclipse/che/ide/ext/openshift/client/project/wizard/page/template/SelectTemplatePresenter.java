@@ -17,7 +17,9 @@ import com.google.inject.Singleton;
 
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
+import org.eclipse.che.api.workspace.shared.dto.SourceStorageDto;
 import org.eclipse.che.ide.api.wizard.AbstractWizardPage;
+import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.ext.openshift.client.OpenshiftServiceClient;
 import org.eclipse.che.ide.ext.openshift.client.dto.NewApplicationRequest;
 import org.eclipse.che.ide.ext.openshift.shared.dto.Parameter;
@@ -37,6 +39,7 @@ public class SelectTemplatePresenter extends AbstractWizardPage<NewApplicationRe
 
     private final SelectTemplateView     view;
     private final OpenshiftServiceClient openshiftClient;
+    private final DtoFactory             dtoFactory;
 
     public static final String DEF_NAMESPACE = "openshift";
 
@@ -44,9 +47,11 @@ public class SelectTemplatePresenter extends AbstractWizardPage<NewApplicationRe
 
     @Inject
     public SelectTemplatePresenter(SelectTemplateView view,
-                                   OpenshiftServiceClient openshiftClient) {
+                                   OpenshiftServiceClient openshiftClient,
+                                   DtoFactory dtoFactory) {
         this.view = view;
         this.openshiftClient = openshiftClient;
+        this.dtoFactory = dtoFactory;
 
         view.setDelegate(this);
     }
@@ -92,10 +97,9 @@ public class SelectTemplatePresenter extends AbstractWizardPage<NewApplicationRe
             if ("GIT_URI".equals(parameter.getName())) {
                 String value = parameter.getValue();
                 dataObject.getProjectConfigDto()
-                          .getSource()
-                          .withType("git")
-                          .withLocation(value)
-                          .withParameters(importOptions);
+                          .withSource(dtoFactory.createDto(SourceStorageDto.class).withType("git")
+                                                .withLocation(value)
+                                                .withParameters(importOptions));
             } else if ("GIT_REF".equals(parameter.getName())) {
 //                String value = parameter.getValue();
                 String value = "7.0.x-develop";
