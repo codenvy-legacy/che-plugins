@@ -115,16 +115,23 @@ public class CommandOutputConsole implements OutputConsole, OutputConsoleView.Ac
         final MessageHandler handler = new SubscriptionHandler<MachineProcessEvent>(unmarshaller) {
             @Override
             protected void onMessageReceived(MachineProcessEvent result) {
-                if (pid == result.getProcessId()) {
-                    switch (result.getEventType()) {
-                        case STOPPED:
-                        case ERROR:
-                            isFinished = true;
-                            wsUnsubscribe(processStateChannel, this);
-                            wsUnsubscribe(outputChannel, outputHandler);
-                            view.print(result.getError(), false);
-                            view.scrollBottom();
-                    }
+                if (pid != result.getProcessId()) {
+                    return;
+                }
+
+                switch (result.getEventType()) {
+                    case STOPPED:
+                    case ERROR:
+                        isFinished = true;
+                        wsUnsubscribe(processStateChannel, this);
+                        wsUnsubscribe(outputChannel, outputHandler);
+
+                        String error = result.getError();
+                        if (error == null) {
+                            return;
+                        }
+                        view.print(error, false);
+                        view.scrollBottom();
                 }
             }
 
