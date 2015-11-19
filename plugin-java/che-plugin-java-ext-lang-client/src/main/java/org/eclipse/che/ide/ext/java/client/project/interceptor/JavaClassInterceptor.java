@@ -84,7 +84,7 @@ public class JavaClassInterceptor implements NodeInterceptor {
                               .withAttributes(moduleConfigDto.getAttributes())
                               .withModules(moduleConfigDto.getModules())
                               .withDescription(moduleConfigDto.getDescription())
-                              .withMixins(moduleConfigDto.getMixinTypes())
+                              .withMixins(moduleConfigDto.getMixins())
                               .withType(moduleConfigDto.getType());
                 }
 
