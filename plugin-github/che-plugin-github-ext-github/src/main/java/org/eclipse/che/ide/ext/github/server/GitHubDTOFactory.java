@@ -25,6 +25,7 @@ import org.kohsuke.github.GHCommitPointer;
 import org.kohsuke.github.GHPersonSet;
 import org.kohsuke.github.GHPullRequest;
 import org.kohsuke.github.GHRepository;
+import org.kohsuke.github.GHRepositoryWithMirrorUrl;
 import org.kohsuke.github.GHUser;
 import org.kohsuke.github.PagedIterable;
 
@@ -129,6 +130,13 @@ public class GitHubDTOFactory {
                                                            .getRepository(ghRepository.getName()).getParent()));
         }
 
+        return dtoRepository;
+    }
+
+    //TODO: can be removed after accepting  https://github.com/kohsuke/github-api/pull/233
+    public GitHubRepository createRepositoryWithMirrorUrl(GHRepositoryWithMirrorUrl ghRepository) throws ApiException, IOException {
+        GitHubRepository dtoRepository = createRepository(ghRepository);
+        dtoRepository.setMirrorUrl(String.valueOf(ghRepository.getMirrorUrl()));
         return dtoRepository;
     }
 

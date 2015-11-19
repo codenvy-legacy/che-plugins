@@ -19,6 +19,15 @@ import org.eclipse.che.dto.shared.DTO;
  */
 @DTO
 public interface GitHubRepository {
+
+    /**
+     *
+     * @return  mirror url if it mirrored repository like http://github.com/apache/tomee
+     */
+    String getMirrorUrl();
+
+    void setMirrorUrl(String mirrorUrl);
+
     /**
      * Get repository's name.
      *
