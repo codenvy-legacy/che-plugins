@@ -46,10 +46,14 @@ public class MavenClassPathConfigurator {
         }
     }
 
-    public static void configure(FolderEntry projectFolder, Model model)
-            throws ServerException, ForbiddenException, ConflictException {
-        VirtualFileEntry child = projectFolder.getChild(".codenvy");
-        if (child != null && child.getVirtualFile().getChild("classpath") == null) {
+    public static void configure(FolderEntry projectFolder, Model model) throws ServerException, ForbiddenException, ConflictException {
+        FolderEntry cheFolder = (FolderEntry)projectFolder.getChild(".codenvy");
+
+        if (cheFolder == null) {
+            cheFolder = projectFolder.createFolder(".codenvy");
+        }
+
+        if (cheFolder != null && cheFolder.getVirtualFile().getChild("classpath") == null) {
             String sourceDirectory = null;
             String testDirectory = null;
             Build build = model.getBuild();
@@ -61,7 +65,7 @@ public class MavenClassPathConfigurator {
             testDirectory = testDirectory != null && !testDirectory.isEmpty() ? testDirectory : "src/test/java";
 
             String classPathContent = String.format(CLASS_PATH_CONTENT, sourceDirectory, testDirectory);
-            child.getVirtualFile().createFile("classpath", null, new ByteArrayInputStream(classPathContent.getBytes()));
+            cheFolder.getVirtualFile().createFile("classpath", null, new ByteArrayInputStream(classPathContent.getBytes()));
         }
     }
 }

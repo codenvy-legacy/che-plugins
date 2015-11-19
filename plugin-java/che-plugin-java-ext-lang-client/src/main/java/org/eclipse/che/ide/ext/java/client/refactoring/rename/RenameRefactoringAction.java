@@ -62,7 +62,7 @@ public class RenameRefactoringAction extends Action {
                                    SelectionAgent selectionAgent,
                                    JavaRefactoringRename javaRefactoringRename,
                                    AppContext appContext) {
-        super(locale.renameRefactoringActionName(), "");
+        super(locale.renameRefactoringActionName(), locale.renameRefactoringActionDescription());
         this.editorAgent = editorAgent;
         this.renamePresenter = renamePresenter;
         this.selectionAgent = selectionAgent;
@@ -103,7 +103,6 @@ public class RenameRefactoringAction extends Action {
 
             Object selectedItem = selectedItems.get(0);
 
-
             if (!(selectedItem instanceof HasStorablePath)) {
                 event.getPresentation().setEnabled(false);
                 return;
@@ -134,10 +133,16 @@ public class RenameRefactoringAction extends Action {
             event.getPresentation().setEnabled(false);
             return;
         }
+
         //todo Warning:we need improve this code for multi-module projects
-        boolean isJavaProject = currentProject.getRootProject().getAttributes().get("language").contains("java");
+        final List<String> language = currentProject.getRootProject().getAttributes().get("language");
+        if (language == null || !language.contains("java")) {
+            event.getPresentation().setEnabled(false);
+            return;
+        }
+
         EditorPartPresenter editorPart = editorAgent.getActiveEditor();
-        if (isJavaProject && editorPart != null && editorPart instanceof TextEditor && ((TextEditor)editorPart).isFocused()) {
+        if (editorPart != null && editorPart instanceof TextEditor && ((TextEditor)editorPart).isFocused()) {
             VirtualFile virtualFile = editorPart.getEditorInput().getFile();
             String mediaType = virtualFile.getMediaType();
 
@@ -148,7 +153,6 @@ public class RenameRefactoringAction extends Action {
             } else {
                 event.getPresentation().setEnabled(false);
             }
-
         } else {
             event.getPresentation().setEnabled(false);
         }

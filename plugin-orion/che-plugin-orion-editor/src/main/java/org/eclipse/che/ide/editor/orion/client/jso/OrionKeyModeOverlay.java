@@ -53,4 +53,15 @@ public class OrionKeyModeOverlay extends JavaScriptObject {
         var keyModes = textView.getKeyModes();
         return keyModes[0];
     }-*/;
+
+    /**
+     * Return list objects with relation actionId and keyBindings for this action
+     * @param textView text view
+     * @return objects with relation actionId and keyBindings
+     */
+    public static final native JsArray<OrionKeyBindingsRelationOverlay> getKeyBindings_(OrionTextViewOverlay textView) /*-{
+        var keyModes = textView.getKeyModes();
+        var size = keyModes.length;
+        return keyModes[size - 1]._keyBindings;
+    }-*/;
 }

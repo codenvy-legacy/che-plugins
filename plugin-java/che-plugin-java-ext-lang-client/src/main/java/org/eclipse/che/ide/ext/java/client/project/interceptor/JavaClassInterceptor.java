@@ -17,16 +17,21 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import org.eclipse.che.api.project.shared.dto.ItemReference;
+import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.api.promises.client.js.Promises;
+import org.eclipse.che.api.workspace.shared.dto.ModuleConfigDto;
 import org.eclipse.che.commons.annotation.Nullable;
 import org.eclipse.che.ide.api.project.node.HasProjectDescriptor;
 import org.eclipse.che.ide.api.project.node.Node;
 import org.eclipse.che.ide.api.project.node.interceptor.NodeInterceptor;
+import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.ext.java.client.project.node.JavaFileNode;
 import org.eclipse.che.ide.ext.java.client.project.node.JavaNodeManager;
 import org.eclipse.che.ide.ext.java.client.project.settings.JavaNodeSettings;
+import org.eclipse.che.ide.project.node.AbstractProjectBasedNode;
 import org.eclipse.che.ide.project.node.FileReferenceNode;
+import org.eclipse.che.ide.project.node.ModuleDescriptorNode;
 
 import java.util.List;
 
@@ -36,11 +41,15 @@ import java.util.List;
 @Singleton
 public class JavaClassInterceptor implements NodeInterceptor {
 
-    private JavaNodeManager nodeManager;
+    private final JavaNodeManager nodeManager;
+    private final DtoFactory      dtoFactory;
+
+    private ProjectDescriptor descriptor;
 
     @Inject
-    public JavaClassInterceptor(JavaNodeManager nodeManager) {
+    public JavaClassInterceptor(JavaNodeManager nodeManager, DtoFactory dtoFactory) {
         this.nodeManager = nodeManager;
+        this.dtoFactory = dtoFactory;
     }
 
     @Override
@@ -60,6 +69,25 @@ public class JavaClassInterceptor implements NodeInterceptor {
             @Nullable
             @Override
             public Node apply(@Nullable Node child) {
+                //TODO it's a temporary solution. This code will be rewriting during work on this issue IDEX-3468.
+                Node parentNode = child.getParent();
+
+                if (parentNode instanceof ModuleDescriptorNode) {
+                    descriptor = dtoFactory.createDto(ProjectDescriptor.class);
+
+                    AbstractProjectBasedNode abstractNode = (AbstractProjectBasedNode)parentNode;
+
+                    ModuleConfigDto moduleConfigDto = (ModuleConfigDto)abstractNode.getData();
+
+                    descriptor.withName(moduleConfigDto.getName())
+                              .withPath(moduleConfigDto.getPath())
+                              .withAttributes(moduleConfigDto.getAttributes())
+                              .withModules(moduleConfigDto.getModules())
+                              .withDescription(moduleConfigDto.getDescription())
+                              .withMixins(moduleConfigDto.getMixins())
+                              .withType(moduleConfigDto.getType());
+                }
+
                 if (!(child instanceof FileReferenceNode)) {
                     return child;
                 }
@@ -72,7 +100,8 @@ public class JavaClassInterceptor implements NodeInterceptor {
 
                 JavaFileNode node =
                         nodeManager.getJavaNodeFactory().newJavaFileNode(data,
-                                                                         ((HasProjectDescriptor)child).getProjectDescriptor(),
+                                                                         descriptor == null ? ((HasProjectDescriptor)child)
+                                                                                 .getProjectDescriptor() : descriptor,
                                                                          (JavaNodeSettings)nodeManager.getJavaSettingsProvider()
                                                                                                       .getSettings());
 
