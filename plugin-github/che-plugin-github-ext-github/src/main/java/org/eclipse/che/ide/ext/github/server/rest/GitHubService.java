@@ -33,8 +33,10 @@ import org.kohsuke.github.GHOrganization;
 import org.kohsuke.github.GHPersonSet;
 import org.kohsuke.github.GHPullRequest;
 import org.kohsuke.github.GHRepository;
+import org.kohsuke.github.GHRepositoryWithMirrorUrl;
 import org.kohsuke.github.GitHub;
 
+import org.kohsuke.github.CheGitHubClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,7 +84,9 @@ public class GitHubService {
     public GitHubRepository getUserRepository(@PathParam("user") String user, @PathParam("repository") String repository)
             throws ApiException {
         try {
-            return gitHubDTOFactory.createRepository(gitHubFactory.connect().getUser(user).getRepository(repository));
+            final GitHub gitHub = gitHubFactory.connect();
+            //TODO: temporary solution can be remove after accepting  https://github.com/kohsuke/github-api/pull/233
+            return gitHubDTOFactory.createRepositoryWithMirrorUrl(CheGitHubClient.getRepository(gitHub, user, repository)) ;
         } catch (IOException e) {
             LOG.error("Get user info error", e);
             throw new ServerException(e.getMessage());
