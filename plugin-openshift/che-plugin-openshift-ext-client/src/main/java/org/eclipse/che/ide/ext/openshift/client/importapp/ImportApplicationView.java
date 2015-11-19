@@ -94,6 +94,12 @@ public interface ImportApplicationView extends View<ImportApplicationView.Action
      */
     void setErrorMessage(String message);
 
+    /** Show invalid Che project name error message. */
+    void showCheProjectNameError(String message);
+
+    /** Hide invalid Che project name error message. */
+    void hideCheProjectNameError();
+
     /** Action handler for */
     interface ActionDelegate {
 

@@ -10,25 +10,20 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.openshift.client.project.wizard.page.configure;
 
-import com.google.common.base.Strings;
-import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.common.collect.FluentIterable;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
 import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
-import org.eclipse.che.api.promises.client.Function;
-import org.eclipse.che.api.promises.client.FunctionException;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
-import org.eclipse.che.api.promises.client.Promise;
-import org.eclipse.che.api.promises.client.callback.AsyncPromiseHelper;
-import org.eclipse.che.api.promises.client.js.Promises;
 import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.api.workspace.shared.dto.SourceStorageDto;
 import org.eclipse.che.ide.api.wizard.AbstractWizardPage;
 import org.eclipse.che.ide.dto.DtoFactory;
+import org.eclipse.che.ide.ext.openshift.client.OpenshiftLocalizationConstant;
 import org.eclipse.che.ide.ext.openshift.client.OpenshiftServiceClient;
 import org.eclipse.che.ide.ext.openshift.client.dto.NewApplicationRequest;
 import org.eclipse.che.ide.ext.openshift.shared.dto.ObjectMeta;
@@ -37,11 +32,10 @@ import org.eclipse.che.ide.ext.openshift.shared.dto.ProjectRequest;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.util.NameUtils;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Collections;
 
-import static org.eclipse.che.api.promises.client.callback.PromiseHelper.newCallback;
-import static org.eclipse.che.api.promises.client.callback.PromiseHelper.newPromise;
 
 /**
  * Presenter for configuring OpenShift project.
@@ -51,33 +45,31 @@ import static org.eclipse.che.api.promises.client.callback.PromiseHelper.newProm
 @Singleton
 public class ConfigureProjectPresenter extends AbstractWizardPage<NewApplicationRequest> implements ConfigureProjectView.ActionDelegate {
 
-    private final ConfigureProjectView    view;
-    private final OpenshiftServiceClient  openShiftClient;
-    private final ProjectServiceClient    projectServiceClient;
-    private final DtoUnmarshallerFactory  dtoUnmarshaller;
-    private final DtoFactory              dtoFactory;
-    private       List<Project>           cachedOpenShiftProjects;
-    private       List<ProjectDescriptor> cachedCodenvyProjects;
-
-    private AbstractProjectNameValidator<Project>           openShiftProjectNameValidator;
-    private AbstractProjectNameValidator<ProjectDescriptor> codenvyProjectNameValidator;
+    private final ConfigureProjectView          view;
+    private final OpenshiftServiceClient        openShiftClient;
+    private final ProjectServiceClient          projectServiceClient;
+    private final DtoUnmarshallerFactory        dtoUnmarshaller;
+    private final DtoFactory                    dtoFactory;
+    private final OpenshiftLocalizationConstant locale;
+    private       List<String>                  openShiftProjects;
+    private       List<String>                  cheProjects;
 
     @Inject
     public ConfigureProjectPresenter(ConfigureProjectView view,
                                      OpenshiftServiceClient openShiftClient,
                                      ProjectServiceClient projectServiceClient,
                                      DtoUnmarshallerFactory dtoUnmarshaller,
-                                     DtoFactory dtoFactory) {
+                                     DtoFactory dtoFactory,
+                                     OpenshiftLocalizationConstant locale) {
         this.view = view;
         this.openShiftClient = openShiftClient;
         this.projectServiceClient = projectServiceClient;
         this.dtoUnmarshaller = dtoUnmarshaller;
         this.dtoFactory = dtoFactory;
-
+        this.locale = locale;
+        openShiftProjects = new ArrayList<>();
+        cheProjects = new ArrayList<>();
         view.setDelegate(this);
-
-        openShiftProjectNameValidator = new OpenShiftProjectNameValidator();
-        codenvyProjectNameValidator = new CodenvyProjectNameValidator();
     }
 
     /** {@inheritDoc} */
@@ -87,37 +79,66 @@ public class ConfigureProjectPresenter extends AbstractWizardPage<NewApplication
 
         view.resetControls();
 
-        openShiftClient.getProjects()
-                       .then(processOpenShiftProjects())
-                       .then(getCodenvyProjects())
-                       .thenPromise(processCodenvyProjects());
+        openShiftClient.getProjects().then(new Operation<List<Project>>() {
+                           @Override
+                           public void apply(final List<Project> projects) throws OperationException {
+                               openShiftProjects.clear();
+                               for (Project project : projects) {
+                                   openShiftProjects.add(project.getMetadata().getName());
+                               }
+                               view.setExistOpenShiftProjects(projects);
+                           }
+                       });
+
+        projectServiceClient.getProjects(false).then(new Operation<List<ProjectDescriptor>>() {
+            @Override
+            public void apply(List<ProjectDescriptor> projects) throws OperationException {
+                openShiftProjects.clear();
+                for (ProjectDescriptor project : projects) {
+                    cheProjects.add(project.getName());
+                }
+            }
+        });
     }
+
 
     /** {@inheritDoc} */
     @Override
     public boolean isCompleted() {
         if (view.isNewOpenShiftProjectSelected()) {
-            final String osNewProjectName = view.getOpenShiftNewProjectName();
-            boolean b1 = openShiftProjectNameValidator.isValid(osNewProjectName,
-                                                               cachedOpenShiftProjects == null ? Collections.<Project>emptyList()
-                                                                                               : cachedOpenShiftProjects);
-
-            final String cdNewProjectName = view.getCodenvyNewProjectName();
-            boolean b2 = NameUtils.checkProjectName(cdNewProjectName)
-                         && codenvyProjectNameValidator.isValid(cdNewProjectName,
-                                                                cachedCodenvyProjects == null ? Collections.<ProjectDescriptor>emptyList()
-                                                                                              : cachedCodenvyProjects);
-
-            return b1 && b2;
+            return isOpenShiftProjectNameValid(view.getOpenShiftNewProjectName()) & isCheProjectNameValid(view.getCheNewProjectName());
         } else {
-            final String cdNewProjectName = view.getCodenvyNewProjectName();
-            boolean b2 = NameUtils.checkProjectName(cdNewProjectName)
-                         && codenvyProjectNameValidator.isValid(cdNewProjectName,
-                                                                cachedCodenvyProjects == null ? Collections.<ProjectDescriptor>emptyList()
-                                                                                              : cachedCodenvyProjects);
-
-            return view.getExistedSelectedProject() != null && b2;
+            return view.getExistedSelectedProject() != null && isCheProjectNameValid(view.getCheNewProjectName());
         }
+    }
+
+    private boolean isOpenShiftProjectNameValid(String name) {
+        if (openShiftProjects.contains(name)) {
+            view.showOsProjectNameError(locale.existingProjectNameError());
+            return false;
+        }
+        if (name.length() > 63
+            || name.isEmpty()
+            || !name.matches("[a-z0-9]([-a-z0-9]*[a-z0-9])?")) {
+            view.showOsProjectNameError(locale.invalidOpenShiftProjectNameError());
+            return false;
+        }
+
+        view.hideOsProjectNameError();
+        return true;
+    }
+
+    private boolean isCheProjectNameValid(String projectName) {
+        if (cheProjects.contains(projectName)) {
+            view.showCheProjectNameError(locale.existingProjectNameError());
+            return false;
+        }
+        if (!NameUtils.checkProjectName(projectName)) {
+            view.showCheProjectNameError(locale.invalidCheProjectNameError());
+            return false;
+        }
+        view.hideCheProjectNameError();
+        return true;
     }
 
     /** {@inheritDoc} */
@@ -130,92 +151,14 @@ public class ConfigureProjectPresenter extends AbstractWizardPage<NewApplication
     @Override
     public void onOpenShiftNewProjectNameChanged() {
         setUpNewProjectRequest();
-        view.showOpenShiftNewProjectNameInvalidValueMessage(!isOpenShiftProjectNameValid(view.getOpenShiftNewProjectName()));
         updateDelegate.updateControls();
-    }
-
-    private boolean isOpenShiftProjectNameValid(String name) {
-        return name.length() < 63 && name.matches("[a-z0-9]([-a-z0-9]*[a-z0-9])?");
     }
 
     /** {@inheritDoc} */
     @Override
-    public void onCodenvyNewProjectNameChanged() {
-        setUpCodenvyProjectRequest();
-        view.showCodenvyNewProjectNameInvalidValueMessage(!isCodenvyProjectNameValid(view.getCodenvyNewProjectName()));
+    public void onCheNewProjectNameChanged() {
+        setUpCheProjectRequest();
         updateDelegate.updateControls();
-    }
-
-    private boolean isCodenvyProjectNameValid(String name) {
-        return NameUtils.checkProjectName(name);
-    }
-
-    private Promise<List<ProjectDescriptor>> getCodenvyProjects() {
-        return newPromise(new AsyncPromiseHelper.RequestCall<List<ProjectDescriptor>>() {
-            @Override
-            public void makeCall(AsyncCallback<List<ProjectDescriptor>> callback) {
-                projectServiceClient
-                        .getProjects(false, newCallback(callback, dtoUnmarshaller.newListUnmarshaller(ProjectDescriptor.class)));
-            }
-        });
-    }
-
-    private Function<List<ProjectDescriptor>, Promise<List<ProjectDescriptor>>> processCodenvyProjects() {
-        return new Function<List<ProjectDescriptor>, Promise<List<ProjectDescriptor>>>() {
-            @Override
-            public Promise<List<ProjectDescriptor>> apply(List<ProjectDescriptor> projects) throws FunctionException {
-                cachedCodenvyProjects = projects;
-                return Promises.resolve(projects);
-            }
-        };
-    }
-
-    private Operation<List<Project>> processOpenShiftProjects() {
-        return new Operation<List<Project>>() {
-            @Override
-            public void apply(List<Project> projects) throws OperationException {
-                cachedOpenShiftProjects = projects;
-                view.setExistOpenShiftProjects(projects);
-            }
-        };
-    }
-
-    protected abstract class AbstractProjectNameValidator<T> {
-
-        abstract String getProjectName(T project);
-
-        public boolean isValid(String proposedName, List<T> existedProjects) {
-            if (Strings.isNullOrEmpty(proposedName)) {
-                return false;
-            }
-
-            for (T project : existedProjects) {
-                final String projectName = getProjectName(project);
-                if (Strings.isNullOrEmpty(projectName)) {
-                    continue;
-                }
-
-                if (projectName.equals(proposedName)) {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-    }
-
-    protected class OpenShiftProjectNameValidator extends AbstractProjectNameValidator<Project> {
-        @Override
-        String getProjectName(Project project) {
-            return project.getMetadata().getName();
-        }
-    }
-
-    protected class CodenvyProjectNameValidator extends AbstractProjectNameValidator<ProjectDescriptor> {
-        @Override
-        String getProjectName(ProjectDescriptor project) {
-            return project.getName();
-        }
     }
 
     /** {@inheritDoc} */
@@ -233,20 +176,14 @@ public class ConfigureProjectPresenter extends AbstractWizardPage<NewApplication
 
     /** {@inheritDoc} */
     @Override
-    public void onCodenvyDescriptionChanged() {
-        setUpCodenvyProjectRequest();
+    public void onCheDescriptionChanged() {
+        setUpCheProjectRequest();
     }
 
     /** {@inheritDoc} */
     @Override
     public void onOpenShiftDisplayNameChanged() {
         setUpNewProjectRequest();
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void onCodenvyProjectPrivacyChanged() {
-        setUpCodenvyProjectRequest();
     }
 
     private void setUpNewProjectRequest() {
@@ -275,7 +212,7 @@ public class ConfigureProjectPresenter extends AbstractWizardPage<NewApplication
         }
     }
 
-    private void setUpCodenvyProjectRequest() {
+    private void setUpCheProjectRequest() {
         ProjectConfigDto projectConfig;
 
         if (dataObject.getProjectConfigDto() == null) {
@@ -284,7 +221,7 @@ public class ConfigureProjectPresenter extends AbstractWizardPage<NewApplication
         }
 
         projectConfig = dataObject.getProjectConfigDto();
-        projectConfig.withName(view.getCodenvyNewProjectName())
-                     .withDescription(view.getCodenvyProjectDescription());
+        projectConfig.withName(view.getCheNewProjectName())
+                     .withDescription(view.getCheProjectDescription());
     }
 }

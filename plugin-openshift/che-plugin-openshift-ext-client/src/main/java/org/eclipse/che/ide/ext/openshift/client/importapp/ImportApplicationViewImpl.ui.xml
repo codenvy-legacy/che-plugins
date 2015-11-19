@@ -47,6 +47,7 @@
                 <g:Label text="{coreLocale.importProjectInfo}" styleName="{resources.css.sectionTitle}"/>
                 <g:Label text="{coreLocale.createProjectFromTemplateName}"/>
                 <g:TextBox ui:field="projectName" addStyleNames="{resources.css.textInput}"/>
+                <g:Label ui:field="projectNameErrorLabel" width="100%" wordWrap="true" addStyleNames="{resources.css.labelErrorPosition}"/>
                 <g:Label text="{coreLocale.createProjectFromTemplateDescription}" addStyleNames="{style.spacing}"/>
                 <g:TextArea ui:field="projectDescription" addStyleNames="{resources.css.textInput}" height="60px"/>
 

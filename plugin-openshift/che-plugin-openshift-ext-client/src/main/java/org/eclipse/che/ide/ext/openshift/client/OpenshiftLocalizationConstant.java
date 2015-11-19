@@ -181,4 +181,13 @@ public interface OpenshiftLocalizationConstant extends Messages {
 
     @Key("unlink.project.failed")
     String unlinkProjectFailed();
+
+    @Key("invalid.openshift.project.name.error")
+    String invalidOpenShiftProjectNameError();
+
+    @Key("existing.project.name.error")
+    String existingProjectNameError();
+
+    @Key("invalid.che.project.name.error")
+    String invalidCheProjectNameError();
 }

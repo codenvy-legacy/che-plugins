@@ -35,12 +35,13 @@
         <!-- OpenShift configuration -->
         <g:Dock direction="WEST" width="50%" height="100%">
             <g:DockLayoutPanel unit="PX" addStyleNames="{style.leftPanel}">
-                <g:north size="250">
+                <g:north size="260">
                     <g:FlowPanel>
                         <g:Label text="Select OpenShift Project" styleName="{resources.css.sectionTitle}"/>
                         <g:RadioButton name="osState" text="New Project" ui:field="osNewProjectButton" checked="true" addStyleNames="{resources.css.choiceTitle}"/>
                         <g:Label text="Name"/>
-                        <g:TextBox ui:field="osProjectNameInput" addStyleNames="{resources.css.textInput} {style.spacing}"/>
+                        <g:TextBox ui:field="osProjectNameInput" addStyleNames="{resources.css.textInput}"/>
+                        <g:Label ui:field="osProjectNameErrorLabel" width="100%" wordWrap="true" addStyleNames="{resources.css.labelErrorPosition}"/>
                         <g:Label text="Display Name"/>
                         <g:TextBox ui:field="osProjectDisplayNameInput" addStyleNames="{resources.css.textInput} {style.spacing}"/>
                         <g:Label text="Description"/>
@@ -67,12 +68,13 @@
                     <g:FlowPanel>
                         <g:Label text="Project Information" styleName="{resources.css.sectionTitle}"/>
                         <g:Label text="Name"/>
-                        <g:TextBox ui:field="cdProjectNameInput" addStyleNames="{resources.css.textInput} {style.spacing}"/>
+                        <g:TextBox ui:field="cheProjectNameInput" addStyleNames="{resources.css.textInput}"/>
+                        <g:Label ui:field="cheProjectNameErrorLabel" width="100%" wordWrap="true" addStyleNames="{resources.css.labelErrorPosition}"/>
                         <g:Label text="Description"/>
-                        <g:TextArea ui:field="cdProjectDescriptionInput" addStyleNames="{resources.css.textInput} {style.spacing}" height="60px"/>
+                        <g:TextArea ui:field="cheProjectDescriptionInput" addStyleNames="{resources.css.textInput} {style.spacing}" height="60px"/>
                         <g:Label text="Privacy"/>
-                        <g:RadioButton name="privacy" ui:field="cdPublicProject" text="Public" checked="true" addStyleNames="{style.spacingChoice}"/>
-                        <g:RadioButton name="privacy" ui:field="cdPrivateProject" text="Private"/>
+                        <g:RadioButton name="privacy" ui:field="chePublicProject" text="Public" checked="true" addStyleNames="{style.spacingChoice}"/>
+                        <g:RadioButton name="privacy" ui:field="chePrivateProject" text="Private"/>
                     </g:FlowPanel>
                 </g:north>
             </g:DockLayoutPanel>

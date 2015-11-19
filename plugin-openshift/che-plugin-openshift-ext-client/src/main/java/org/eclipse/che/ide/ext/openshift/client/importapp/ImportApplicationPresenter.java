@@ -10,10 +10,10 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.openshift.client.importapp;
 
+import com.google.common.collect.FluentIterable;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 
-import org.eclipse.che.api.git.gwt.client.GitServiceClient;
 import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
 import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.api.promises.client.Operation;
@@ -39,12 +39,16 @@ import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.rest.Unmarshallable;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
+import org.eclipse.che.ide.util.NameUtils;
 import org.eclipse.che.ide.websocket.rest.RequestCallback;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Collections;
+
 
 /**
  * Presenter, which handles logic for importing OpenShift application to Codenvy.
@@ -54,32 +58,24 @@ import java.util.Map;
 public class ImportApplicationPresenter extends ValidateAuthenticationPresenter implements ImportApplicationView.ActionDelegate {
 
     private final ImportApplicationView               view;
-    private final AppContext                          appContext;
-    private final OpenshiftLocalizationConstant       locale;
-    private final NotificationManager                 notificationManager;
-    private final DialogFactory                       dialogFactory;
     private final OpenshiftServiceClient              openShiftClient;
     private final ProjectServiceClient                projectServiceClient;
-    private final GitServiceClient                    gitService;
-    private final DtoUnmarshallerFactory              dtoUnmarshaller;
     private final DtoFactory                          dtoFactory;
     private final Map<String, List<BuildConfig>>      buildConfigMap;
     private       BuildConfig                         selectedBuildConfig;
+    private       List<String>                        cheProjects;
     private final ImportProjectNotificationSubscriber importProjectNotificationSubscriber;
     private final DtoUnmarshallerFactory              dtoUnmarshallerFactory;
     private final EventBus                            eventBus;
+    private final OpenshiftLocalizationConstant       locale;
 
 
     @Inject
     public ImportApplicationPresenter(OpenshiftLocalizationConstant locale, ImportApplicationView view,
                                       OpenshiftServiceClient openShiftClient,
                                       ProjectServiceClient projectServiceClient,
-                                      DtoUnmarshallerFactory dtoUnmarshaller,
                                       DtoUnmarshallerFactory dtoUnmarshallerFactory,
-                                      GitServiceClient gitService,
                                       NotificationManager notificationManager,
-                                      DialogFactory dialogFactory,
-                                      AppContext appContext,
                                       OpenshiftAuthenticator openshiftAuthenticator,
                                       OpenshiftAuthorizationHandler openshiftAuthorizationHandler,
                                       ImportProjectNotificationSubscriber importProjectNotificationSubscriber,
@@ -89,20 +85,15 @@ public class ImportApplicationPresenter extends ValidateAuthenticationPresenter 
         this.view = view;
         this.view.setDelegate(this);
 
-        this.appContext = appContext;
-        this.locale = locale;
-        this.notificationManager = notificationManager;
-        this.dialogFactory = dialogFactory;
         this.openShiftClient = openShiftClient;
         this.projectServiceClient = projectServiceClient;
-        this.gitService = gitService;
-        this.dtoUnmarshaller = dtoUnmarshaller;
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
         this.dtoFactory = dtoFactory;
         this.importProjectNotificationSubscriber = importProjectNotificationSubscriber;
         this.eventBus = eventBus;
-
+        this.locale = locale;
         buildConfigMap = new HashMap<>();
+        cheProjects = new ArrayList<>();
     }
 
     /**
@@ -225,18 +216,40 @@ public class ImportApplicationPresenter extends ValidateAuthenticationPresenter 
 
     @Override
     public void onProjectNameChanged(String name) {
-        view.enableImportButton((selectedBuildConfig != null && view.getProjecName() != null && !view.getProjecName().isEmpty()));
+        view.enableImportButton(selectedBuildConfig != null & isCheProjectNameValid(view.getProjecName()));
     }
 
-    /**
-     * Load OpenShift Project and Application data.
-     */
+    private boolean isCheProjectNameValid(String projectName) {
+        if (cheProjects.contains(projectName)) {
+            view.showCheProjectNameError(locale.existingProjectNameError());
+            return false;
+        }
+        if (!NameUtils.checkProjectName(projectName)) {
+            view.showCheProjectNameError(locale.invalidCheProjectNameError());
+            return false;
+        }
+        view.hideCheProjectNameError();
+        return true;
+    }
+
     private void loadOpenShiftData() {
         openShiftClient.getProjects().then(new Operation<List<Project>>() {
             @Override
             public void apply(List<Project> result) throws OperationException {
                 for (Project project : result) {
                     getBuildConfigs(project.getMetadata().getName());
+                }
+            }
+        });
+    }
+
+    private void loadCheProjects() {
+        projectServiceClient.getProjects(false).then(new Operation<List<ProjectDescriptor>>() {
+            @Override
+            public void apply(List<ProjectDescriptor> result) throws OperationException {
+                cheProjects.clear();
+                for (ProjectDescriptor project : result) {
+                    cheProjects.add(project.getName());
                 }
             }
         });
@@ -262,5 +275,6 @@ public class ImportApplicationPresenter extends ValidateAuthenticationPresenter 
     protected void onSuccessAuthentication() {
         prepareView();
         loadOpenShiftData();
+        loadCheProjects();
     }
 }

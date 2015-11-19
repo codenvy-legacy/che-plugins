@@ -37,26 +37,29 @@ public interface ConfigureProjectView extends View<ConfigureProjectView.ActionDe
     /** @return new OpenShift project name. */
     String getOpenShiftNewProjectName();
 
-    /** Show or hide error tooltip when user entered invalid project name. */
-    void showOpenShiftNewProjectNameInvalidValueMessage(boolean show);
+    /** Show invalid OpenShift project name error message. */
+    void showOsProjectNameError(String message);
 
-    /** @return new Codenvy project name. */
-    String getCodenvyNewProjectName();
+    /** Hide invalid OpenShift project name error message. */
+    void hideOsProjectNameError();
 
-    /** Show or hide error tooltip when user entered invalid project name. */
-    void showCodenvyNewProjectNameInvalidValueMessage(boolean show);
+    /** Show invalid Che project name error message. */
+    void showCheProjectNameError(String message);
+
+    /** Hide invalid Che project name error message. */
+    void hideCheProjectNameError();
+
+    /** @return new Che project name. */
+    String getCheNewProjectName();
 
     /** @return open shift project description */
     String getOpenShiftProjectDescription();
 
-    /** @return codenvy project description. */
-    String getCodenvyProjectDescription();
+    /** @return Che project description. */
+    String getCheProjectDescription();
 
     /** @return open shift project display name */
     String getOpenShiftProjectDisplayName();
-
-    /**@return true if user selected public project.  */
-    boolean isCodenvyPublicProject();
 
     /** @return selected existed OpenShift project or null. */
     Project getExistedSelectedProject();
@@ -66,20 +69,17 @@ public interface ConfigureProjectView extends View<ConfigureProjectView.ActionDe
         /** Process operations when openshift project name changed. */
         void onOpenShiftNewProjectNameChanged();
 
-        /** Process operations when codenvy project name changed. */
-        void onCodenvyNewProjectNameChanged();
+        /** Process operations when che project name changed. */
+        void onCheNewProjectNameChanged();
 
         /** Process operations when openshift project description changed. */
         void onOpenShiftDescriptionChanged();
 
-        /** Process operations when codenvy project description changed. */
-        void onCodenvyDescriptionChanged();
+        /** Process operations when che project description changed. */
+        void onCheDescriptionChanged();
 
         /** Process operations when openshift project display name changed. */
         void onOpenShiftDisplayNameChanged();
-
-        /** Process operations when codenvy project privacy changed. */
-        void onCodenvyProjectPrivacyChanged();
 
         /** Process operation when existed project selected. */
         void onExistProjectSelected();
