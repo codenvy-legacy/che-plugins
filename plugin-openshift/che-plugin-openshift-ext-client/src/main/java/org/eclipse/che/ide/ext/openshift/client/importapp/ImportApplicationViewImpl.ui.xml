@@ -11,8 +11,7 @@
 
 -->
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
-             xmlns:g='urn:import:com.google.gwt.user.client.ui'
-             xmlns:che='urn:import:org.eclipse.che.ide.ui.listbox'>
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'>
     <ui:with field='resources' type='org.eclipse.che.ide.ext.openshift.client.OpenshiftResources'/>
     <ui:with field='locale' type='org.eclipse.che.ide.ext.openshift.client.OpenshiftLocalizationConstant'/>
     <ui:with field='coreLocale' type='org.eclipse.che.ide.CoreLocalizationConstant'/>
@@ -40,7 +39,9 @@
     </ui:style>
     <g:DockLayoutPanel width="600px" height="450px" addStyleNames="{style.marginH}">
         <g:center>
-             <g:SimplePanel ui:field="categoriesPanel" addStyleNames="{resources.css.projectApplicationBox} {style.marginV}"/>
+             <g:AbsolutePanel ui:field="categoriesPanel" addStyleNames="{resources.css.projectApplicationBox} {style.marginV}">
+                 <g:Label ui:field="loadingCategoriesLabel" addStyleNames="{resources.css.loadingCategoriesLabel} {resources.css.flashingLabel}" visible="false"></g:Label>
+             </g:AbsolutePanel>
         </g:center>
         <g:east size="300">
             <g:FlowPanel addStyleNames="{style.marginV}">

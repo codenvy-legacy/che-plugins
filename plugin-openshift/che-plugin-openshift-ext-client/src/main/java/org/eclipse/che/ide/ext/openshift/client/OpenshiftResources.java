@@ -52,5 +52,9 @@ public interface OpenshiftResources extends ClientBundle {
         String templateSectionTags();
 
         String labelErrorPosition();
+
+        String loadingCategoriesLabel();
+
+        String flashingLabel();
     }
 }

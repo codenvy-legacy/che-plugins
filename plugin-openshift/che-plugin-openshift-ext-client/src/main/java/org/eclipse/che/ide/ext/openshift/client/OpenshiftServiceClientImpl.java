@@ -95,7 +95,6 @@ public class OpenshiftServiceClientImpl implements OpenshiftServiceClient {
             public void makeCall(AsyncCallback<List<Project>> callback) {
                 asyncRequestFactory.createGetRequest(openshiftPath + "/project")
                                    .header(ACCEPT, MimeType.APPLICATION_JSON)
-                                   .loader(loader, "Getting projects...")
                                    .send(newCallback(callback, dtoUnmarshaller.newListUnmarshaller(Project.class)));
             }
         });
@@ -174,7 +173,6 @@ public class OpenshiftServiceClientImpl implements OpenshiftServiceClient {
                 }
                 asyncRequestFactory.createGetRequest(url)
                                    .header(ACCEPT, MimeType.APPLICATION_JSON)
-                                   .loader(loader, "Getting build configs...")
                                    .send(newCallback(callback, dtoUnmarshaller.newListUnmarshaller(BuildConfig.class)));
             }
         });
