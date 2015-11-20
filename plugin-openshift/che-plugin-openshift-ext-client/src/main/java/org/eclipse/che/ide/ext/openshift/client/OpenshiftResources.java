@@ -12,10 +12,8 @@ package org.eclipse.che.ide.ext.openshift.client;
 
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.CssResource;
-import com.google.gwt.resources.client.ImageResource;
-import com.google.gwt.resources.client.TextResource;
 
-import org.vectomatic.dom.svg.ui.SVGResource;
+import org.eclipse.che.ide.ui.Styles;
 
 /**
  * The resource interface for the Openshift extension.
@@ -25,11 +23,11 @@ import org.vectomatic.dom.svg.ui.SVGResource;
 public interface OpenshiftResources extends ClientBundle {
 
     /** Returns the CSS resource for the Openshift extension. */
-    @Source({"openshift.css", "org/eclipse/che/ide/api/ui/style.css"})
+    @Source({"openshift.css", "org/eclipse/che/ide/api/ui/style.css", "org/eclipse/che/ide/ui/Styles.css"})
     Css css();
 
     /** The CssResource interface for the Machine extension. */
-    interface Css extends CssResource {
+    interface Css extends CssResource, Styles {
 
         String sectionTitle();
 
@@ -52,5 +50,7 @@ public interface OpenshiftResources extends ClientBundle {
         String templateSectionSecondary();
 
         String templateSectionTags();
+
+        String labelErrorPosition();
     }
 }

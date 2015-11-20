@@ -63,3 +63,9 @@
     margin-top: 7px;
     text-transform : uppercase;
 }
+
+.labelErrorPosition {
+    color: errorEventColor;
+    font-weight: lighter;
+    float: left;
+}

@@ -22,6 +22,7 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.ui.DockPanel;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.TextArea;
@@ -33,12 +34,10 @@ import com.google.inject.Singleton;
 import org.eclipse.che.ide.Resources;
 import org.eclipse.che.ide.ext.openshift.client.OpenshiftResources;
 import org.eclipse.che.ide.ext.openshift.shared.dto.Project;
-import org.eclipse.che.ide.ui.Tooltip;
 import org.eclipse.che.ide.ui.list.SimpleList;
-import org.eclipse.che.ide.ui.menu.PositionController;
-import org.eclipse.che.ide.ui.smartTree.DelayedTask;
 import org.eclipse.che.ide.util.dom.Elements;
 
+import javax.validation.constraints.NotNull;
 import java.util.Collections;
 import java.util.List;
 
@@ -56,6 +55,12 @@ public class ConfigureProjectViewImpl implements ConfigureProjectView {
     }
 
     @UiField
+    Label osProjectNameErrorLabel;
+
+    @UiField
+    Label cheProjectNameErrorLabel;
+
+    @UiField
     TextBox osProjectNameInput;
 
     @UiField
@@ -71,30 +76,26 @@ public class ConfigureProjectViewImpl implements ConfigureProjectView {
     RadioButton osExistProjectButton;
 
     @UiField
-    TextBox cdProjectNameInput;
+    TextBox cheProjectNameInput;
 
     @UiField
-    TextArea cdProjectDescriptionInput;
-
-    @UiField
-    RadioButton cdPrivateProject;
-
-    @UiField
-    RadioButton cdPublicProject;
+    TextArea cheProjectDescriptionInput;
 
     @UiField
     ScrollPanel osExistProjectListPanel;
+
+    OpenshiftResources openshiftResources;
 
     private SimpleList<Project> projectsList;
 
     private ActionDelegate delegate;
     private DockPanel      widget;
-
-    private Tooltip osInvalidNameTooltip;
-    private Tooltip cdInvalidNameTooltip;
+    private boolean        rewriteCheProjectName;
 
     @Inject
-    public ConfigureProjectViewImpl(Resources resources, OpenshiftResources openshiftResources) {
+    public ConfigureProjectViewImpl(Resources resources, final OpenshiftResources openshiftResources) {
+        this.openshiftResources = openshiftResources;
+
         widget = uiBinder.createAndBindUi(this);
 
         TableElement breakPointsElement = Elements.createTableElement();
@@ -116,6 +117,7 @@ public class ConfigureProjectViewImpl implements ConfigureProjectView {
                                              public void onListItemClicked(Element listItemBase, Project itemData) {
                                                  if (osExistProjectButton.getValue()) {
                                                      projectsList.getSelectionModel().setSelectedItem(itemData);
+                                                     cheProjectNameInput.setValue(itemData.getMetadata().getName());
                                                      delegate.onExistProjectSelected();
                                                  }
                                              }
@@ -126,6 +128,7 @@ public class ConfigureProjectViewImpl implements ConfigureProjectView {
                                              }
                                          });
         osExistProjectListPanel.add(projectsList);
+        rewriteCheProjectName = true;
     }
 
     /** {@inheritDoc} */
@@ -160,79 +163,36 @@ public class ConfigureProjectViewImpl implements ConfigureProjectView {
         }
     }
 
-    @UiHandler({"cdPublicProject", "cdPrivateProject"})
-    public void onCodenvyPrivacyRadioButtonClicked(ClickEvent event) {
-        delegate.onCodenvyProjectPrivacyChanged();
-    }
-
     @UiHandler({"osProjectNameInput"})
     public void onOpenShiftProjectNameChanged(KeyUpEvent event) {
-        if (osProjectNameInput.getValue().startsWith(cdProjectNameInput.getValue())) {
-            cdProjectNameInput.setValue(osProjectNameInput.getValue(), true);
+        if (isRewriteCheProjectName()) {
+            cheProjectNameInput.setValue(osProjectNameInput.getValue(), true);
         }
-
-        if (event.getNativeKeyCode() == KeyCodes.KEY_BACKSPACE && cdProjectNameInput.getValue().startsWith(osProjectNameInput.getValue())) {
-            cdProjectNameInput.setValue(cdProjectNameInput.getValue().substring(0, cdProjectNameInput.getValue().length() - 1), true);
+        if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
+            return;
         }
-
         delegate.onOpenShiftNewProjectNameChanged();
-        delegate.onCodenvyNewProjectNameChanged();
     }
 
-    @Override
-    public void showOpenShiftNewProjectNameInvalidValueMessage(boolean show) {
-        if (osInvalidNameTooltip == null) {
-            osInvalidNameTooltip = Tooltip.create((Element)osProjectNameInput.getElement(),
-                                                  PositionController.VerticalAlign.MIDDLE,
-                                                  PositionController.HorizontalAlign.LEFT,
-                                                  "Project name must not be empty and be a DNS label (at most 63 characters, matching regex [a-z0-9]([-a-z0-9]*[a-z0-9])?)");
-            osInvalidNameTooltip.setTitle("Wrong value");
-        }
-
-        if (show) {
-            osInvalidNameTooltip.show();
+    @UiHandler({"cheProjectNameInput"})
+    public void onCheProjectNameChanged(KeyUpEvent event) {
+        if (cheProjectNameInput.getValue().isEmpty()) {
+            setRewriteCheProjectName(true);
         } else {
-            osInvalidNameTooltip.forceHide();
+            setRewriteCheProjectName(false);
         }
-    }
-
-    @UiHandler({"cdProjectNameInput"})
-    public void onCodenvyProjectNameChanged(KeyUpEvent event) {
-        delegate.onCodenvyNewProjectNameChanged();
-    }
-
-    @Override
-    public void showCodenvyNewProjectNameInvalidValueMessage(boolean show) {
-        if (cdInvalidNameTooltip == null) {
-            cdInvalidNameTooltip = Tooltip.create((Element)cdProjectNameInput.getElement(),
-                                                  PositionController.VerticalAlign.MIDDLE,
-                                                  PositionController.HorizontalAlign.LEFT,
-                                                  "Project name must not be empty and contains only letters, digits and '-', '_', '.' chars.");
-            cdInvalidNameTooltip.setTitle("Wrong value");
-        }
-
-        if (show) {
-            cdInvalidNameTooltip.show();
-        } else {
-            cdInvalidNameTooltip.forceHide();
-        }
+        delegate.onCheNewProjectNameChanged();
     }
 
     @UiHandler({"osProjectDescriptionInput"})
     public void onOpenShiftProjectDescriptionChanged(KeyUpEvent event) {
-        if (osProjectDescriptionInput.getValue().startsWith(cdProjectDescriptionInput.getValue())) {
-            cdProjectDescriptionInput.setValue(osProjectDescriptionInput.getValue(), true);
-        }
-
-        if (event.getNativeKeyCode() == KeyCodes.KEY_BACKSPACE && cdProjectDescriptionInput.getValue().startsWith(osProjectDescriptionInput.getValue())) {
-            cdProjectDescriptionInput.setValue(cdProjectDescriptionInput.getValue().substring(0, cdProjectDescriptionInput.getValue().length() - 1), true);
-        }
+        cheProjectDescriptionInput.setValue(osProjectDescriptionInput.getValue(), true);
         delegate.onOpenShiftDescriptionChanged();
     }
 
-    @UiHandler({"cdProjectDescriptionInput"})
-    public void onCodenvyProjectDescriptionChanged(KeyUpEvent event) {
-        delegate.onCodenvyDescriptionChanged();
+    @UiHandler({"cheProjectDescriptionInput"})
+    public void onCheProjectDescriptionChanged(KeyUpEvent event) {
+        delegate.onCheDescriptionChanged();
     }
 
     @UiHandler({"osProjectDisplayNameInput"})
@@ -254,9 +214,8 @@ public class ConfigureProjectViewImpl implements ConfigureProjectView {
         osProjectDescriptionInput.setValue("", true);
         osNewProjectButton.setValue(Boolean.TRUE, true);
 
-        cdProjectNameInput.setValue("", true);
-        cdProjectDescriptionInput.setValue("", true);
-        cdPublicProject.setValue(Boolean.TRUE, true);
+        cheProjectNameInput.setValue("", true);
+        cheProjectDescriptionInput.setValue("", true);
 
         projectsList.render(Collections.<Project>emptyList());
     }
@@ -275,8 +234,8 @@ public class ConfigureProjectViewImpl implements ConfigureProjectView {
 
     /** {@inheritDoc} */
     @Override
-    public String getCodenvyNewProjectName() {
-        return cdProjectNameInput.getValue();
+    public String getCheNewProjectName() {
+        return cheProjectNameInput.getValue();
     }
 
     /** {@inheritDoc} */
@@ -287,8 +246,8 @@ public class ConfigureProjectViewImpl implements ConfigureProjectView {
 
     /** {@inheritDoc} */
     @Override
-    public String getCodenvyProjectDescription() {
-        return cdProjectDescriptionInput.getValue();
+    public String getCheProjectDescription() {
+        return cheProjectDescriptionInput.getValue();
     }
 
     /** {@inheritDoc} */
@@ -297,9 +256,35 @@ public class ConfigureProjectViewImpl implements ConfigureProjectView {
         return osProjectDisplayNameInput.getValue();
     }
 
-    /** {@inheritDoc} */
     @Override
-    public boolean isCodenvyPublicProject() {
-        return cdPublicProject.getValue();
+    public void showOsProjectNameError(@NotNull String message) {
+        osProjectNameInput.addStyleName(openshiftResources.css().inputError());
+        osProjectNameErrorLabel.setText(message);
+    }
+
+    @Override
+    public void hideOsProjectNameError() {
+        osProjectNameInput.removeStyleName(openshiftResources.css().inputError());
+        osProjectNameErrorLabel.setText("");
+    }
+
+    @Override
+    public void showCheProjectNameError(@NotNull String message) {
+        cheProjectNameInput.addStyleName(openshiftResources.css().inputError());
+        cheProjectNameErrorLabel.setText(message);
+    }
+
+    @Override
+    public void hideCheProjectNameError() {
+        cheProjectNameInput.removeStyleName(openshiftResources.css().inputError());
+        cheProjectNameErrorLabel.setText("");
+    }
+
+    private boolean isRewriteCheProjectName() {
+        return rewriteCheProjectName;
+    }
+
+    private void setRewriteCheProjectName(boolean rewriteCheProjectName) {
+        this.rewriteCheProjectName = rewriteCheProjectName;
     }
 }

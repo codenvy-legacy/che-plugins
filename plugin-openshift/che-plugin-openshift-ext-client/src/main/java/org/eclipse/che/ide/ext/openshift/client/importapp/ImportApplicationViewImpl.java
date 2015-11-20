@@ -32,12 +32,14 @@ import com.google.inject.Inject;
 
 import org.eclipse.che.ide.CoreLocalizationConstant;
 import org.eclipse.che.ide.ext.openshift.client.OpenshiftLocalizationConstant;
+import org.eclipse.che.ide.ext.openshift.client.OpenshiftResources;
 import org.eclipse.che.ide.ext.openshift.shared.dto.BuildConfig;
 import org.eclipse.che.ide.ui.list.CategoriesList;
 import org.eclipse.che.ide.ui.list.Category;
 import org.eclipse.che.ide.ui.list.CategoryRenderer;
 import org.eclipse.che.ide.ui.window.Window;
 
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -64,6 +66,9 @@ public class ImportApplicationViewImpl extends Window implements ImportApplicati
     TextBox projectName;
 
     @UiField
+    Label projectNameErrorLabel;
+
+    @UiField
     TextArea projectDescription;
 
     @UiField
@@ -85,10 +90,9 @@ public class ImportApplicationViewImpl extends Window implements ImportApplicati
     FlowPanel contextDirPanel;
 
     private Button importButton;
-
     private Button cancelButton;
-
     private CategoriesList buildConfigList;
+    private final OpenshiftResources openshiftResources;
 
     private final Category.CategoryEventDelegate<BuildConfig> buildConfigDelegate =
             new Category.CategoryEventDelegate<BuildConfig>() {
@@ -114,9 +118,13 @@ public class ImportApplicationViewImpl extends Window implements ImportApplicati
 
 
     @Inject
-    public ImportApplicationViewImpl(OpenshiftLocalizationConstant locale, CoreLocalizationConstant constants,
-                                     org.eclipse.che.ide.Resources resources) {
+    public ImportApplicationViewImpl(OpenshiftLocalizationConstant locale,
+                                     CoreLocalizationConstant constants,
+                                     org.eclipse.che.ide.Resources resources,
+                                     OpenshiftResources openshiftResources) {
         this.locale = locale;
+        this.openshiftResources = openshiftResources;
+
         ensureDebugId("importApplication");
         setTitle(locale.importApplicationViewTitle());
 
@@ -208,6 +216,18 @@ public class ImportApplicationViewImpl extends Window implements ImportApplicati
     @Override
     public void setErrorMessage(String message) {
         //TODO
+    }
+
+    @Override
+    public void showCheProjectNameError(@NotNull String message) {
+        projectName.addStyleName(openshiftResources.css().inputError());
+        projectNameErrorLabel.setText(message);
+    }
+
+    @Override
+    public void hideCheProjectNameError() {
+        projectName.removeStyleName(openshiftResources.css().inputError());
+        projectNameErrorLabel.setText("");
     }
 
     @UiHandler({"projectName"})
