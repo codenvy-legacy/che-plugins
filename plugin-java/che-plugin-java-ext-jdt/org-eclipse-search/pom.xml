@@ -22,6 +22,7 @@
     <packaging>jar</packaging>
     <name>Che Plugin :: Java :: Eclipse Search</name>
     <properties>
+        <maven.javadoc.failOnError>false</maven.javadoc.failOnError>
         <maven.javadoc.skip>true</maven.javadoc.skip>
     </properties>
     <dependencies>
