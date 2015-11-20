@@ -115,6 +115,19 @@ public class OpenshiftServiceClientImpl implements OpenshiftServiceClient {
     }
 
     @Override
+    public Promise<Void> deleteProject(final String project) {
+        return newPromise(new AsyncPromiseHelper.RequestCall<Void>() {
+            @Override
+            public void makeCall(AsyncCallback<Void> callback) {
+                String url = openshiftPath + "/project/" + project;
+                asyncRequestFactory.createDeleteRequest(url)
+                                   .loader(loader, "Deleting OpenShift project...")
+                                   .send(newCallback(callback));
+            }
+        });
+    }
+
+    @Override
     public Promise<BuildConfig> createBuildConfig(final BuildConfig config) {
         return newPromise(new AsyncPromiseHelper.RequestCall<BuildConfig>() {
             @Override

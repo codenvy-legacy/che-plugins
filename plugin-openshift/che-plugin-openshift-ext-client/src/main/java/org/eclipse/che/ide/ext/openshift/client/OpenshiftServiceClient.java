@@ -37,6 +37,8 @@ public interface OpenshiftServiceClient {
 
     Promise<Project> createProject(ProjectRequest request);
 
+    Promise<Void> deleteProject(String project);
+
     Promise<BuildConfig> createBuildConfig(BuildConfig config);
 
     Promise<BuildConfig> updateBuildConfig(BuildConfig config);

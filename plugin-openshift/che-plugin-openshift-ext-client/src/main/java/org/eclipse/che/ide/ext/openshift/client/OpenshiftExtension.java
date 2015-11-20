@@ -22,6 +22,7 @@ import org.eclipse.che.ide.ext.openshift.client.oauth.DisconnectAccountAction;
 import org.eclipse.che.ide.ext.openshift.client.importapp.ImportApplicationAction;
 import org.eclipse.che.ide.ext.openshift.client.project.CreateApplicationFromTemplateAction;
 import org.eclipse.che.ide.ext.openshift.client.project.UnlinkProjectAction;
+import org.eclipse.che.ide.ext.openshift.client.delete.DeleteProjectAction;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -48,6 +49,7 @@ public class OpenshiftExtension {
                               CreateApplicationFromTemplateAction createApplicationFromTemplateAction,
                               LinkProjectWithExistingApplicationAction deployToExistingApplicationAction,
                               NewApplicationAction newApplicationAction,
+                              DeleteProjectAction deleteProjectAction,
                               ShowApplicationUrlAction showApplicationUrlAction,
                               ShowWebhooksAction showWebhooksAction,
                               StartBuildAction startBuildAction,
@@ -97,5 +99,8 @@ public class OpenshiftExtension {
 
         actionManager.registerAction("startOpenshiftBuild", startBuildAction);
         openshift.add(startBuildAction);
+
+        actionManager.registerAction("deleteOpenshiftProject", deleteProjectAction);
+        openshift.add(deleteProjectAction);
     }
 }
