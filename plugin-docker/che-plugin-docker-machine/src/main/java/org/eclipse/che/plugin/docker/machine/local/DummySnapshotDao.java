@@ -27,6 +27,11 @@ import java.util.List;
 public class DummySnapshotDao implements SnapshotDao {
 
     @Override
+    public SnapshotImpl getSnapshot(String workspaceId, String envName, String machineName) throws NotFoundException, SnapshotException {
+        throw new SnapshotException ("Not available for dummy implementation");
+    }
+
+    @Override
     public SnapshotImpl getSnapshot(String snapshotId) throws NotFoundException, SnapshotException {
         throw new SnapshotException ("Not available for dummy implementation");
     }

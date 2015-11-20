@@ -38,7 +38,7 @@ public class LocalDockerModule extends AbstractModule {
 
     @Override
     protected void configure() {
-        bind(SnapshotDao.class).to(DummySnapshotDao.class);
+//        bind(SnapshotDao.class).to(DummySnapshotDao.class);
         bind(MachineService.class);
 
         Multibinder<String> exposedPortsMultibinder =
