@@ -9,8 +9,6 @@
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
 
-@CHARSET "UTF-8";
-
 .cells {
     font-family: mainFontFamily;
     font-size: fontSize;
