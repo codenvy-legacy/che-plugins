@@ -218,6 +218,6 @@ public interface OpenshiftLocalizationConstant extends Messages {
     @Key("project.successfully.reset")
     String projectSuccessfullyReset(String cheProjectName);
 
-    @Key("project.attribute.namespace.is.empty")
-    String projectAttributeNameSpaceIsEmpty();
+    @Key("project.is.not.linked.to.openshift.error")
+    String projectIsNotLinkedToOpenShiftError(String projectName);
 }

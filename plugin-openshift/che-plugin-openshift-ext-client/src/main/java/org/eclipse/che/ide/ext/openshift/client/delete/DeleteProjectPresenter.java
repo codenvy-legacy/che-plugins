@@ -87,7 +87,7 @@ public class DeleteProjectPresenter extends ValidateAuthenticationPresenter {
             buildConfigs.then(showConfirmDialog(descriptor, namespace))
                         .catchError(handleError(namespace));
         } else {
-            notificationManager.showError(locale.projectAttributeNameSpaceIsEmpty());
+            notificationManager.showError(locale.projectIsNotLinkedToOpenShiftError(descriptor.getName()));
         }
     }
 
