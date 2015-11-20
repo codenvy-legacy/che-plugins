@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.openshift.client.importapp;
 
-import com.google.common.collect.FluentIterable;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 
@@ -20,12 +19,10 @@ import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.api.workspace.shared.dto.SourceStorageDto;
-import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.event.ConfigureProjectEvent;
 import org.eclipse.che.ide.api.event.project.CreateProjectEvent;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.project.wizard.ImportProjectNotificationSubscriber;
-import org.eclipse.che.ide.api.wizard.Wizard;
 import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.ext.openshift.client.OpenshiftLocalizationConstant;
 import org.eclipse.che.ide.ext.openshift.client.OpenshiftServiceClient;
@@ -37,8 +34,6 @@ import org.eclipse.che.ide.ext.openshift.shared.dto.BuildConfig;
 import org.eclipse.che.ide.ext.openshift.shared.dto.Project;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
-import org.eclipse.che.ide.rest.Unmarshallable;
-import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 import org.eclipse.che.ide.util.NameUtils;
 import org.eclipse.che.ide.websocket.rest.RequestCallback;
 
@@ -47,28 +42,30 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Collections;
-
 
 /**
  * Presenter, which handles logic for importing OpenShift application to Codenvy.
  *
  * @author Anna Shumilova
+ * @author Vitaliy Guliy
  */
 public class ImportApplicationPresenter extends ValidateAuthenticationPresenter implements ImportApplicationView.ActionDelegate {
 
     private final ImportApplicationView               view;
+    private final OpenshiftLocalizationConstant       locale;
     private final OpenshiftServiceClient              openShiftClient;
     private final ProjectServiceClient                projectServiceClient;
     private final DtoFactory                          dtoFactory;
-    private final Map<String, List<BuildConfig>>      buildConfigMap;
-    private       BuildConfig                         selectedBuildConfig;
-    private       List<String>                        cheProjects;
+
     private final ImportProjectNotificationSubscriber importProjectNotificationSubscriber;
     private final DtoUnmarshallerFactory              dtoUnmarshallerFactory;
     private final EventBus                            eventBus;
-    private final OpenshiftLocalizationConstant       locale;
 
+    private final List<Project>                       projectList;
+    private final Map<String, List<BuildConfig>>      buildConfigMap;
+    private       BuildConfig                         selectedBuildConfig;
+
+    private       List<String>                        cheProjects;
 
     @Inject
     public ImportApplicationPresenter(OpenshiftLocalizationConstant locale, ImportApplicationView view,
@@ -84,7 +81,6 @@ public class ImportApplicationPresenter extends ValidateAuthenticationPresenter 
         super(openshiftAuthenticator, openshiftAuthorizationHandler, locale, notificationManager);
         this.view = view;
         this.view.setDelegate(this);
-
         this.openShiftClient = openShiftClient;
         this.projectServiceClient = projectServiceClient;
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
@@ -92,33 +88,114 @@ public class ImportApplicationPresenter extends ValidateAuthenticationPresenter 
         this.importProjectNotificationSubscriber = importProjectNotificationSubscriber;
         this.eventBus = eventBus;
         this.locale = locale;
+        projectList = new ArrayList<>();
         buildConfigMap = new HashMap<>();
         cheProjects = new ArrayList<>();
     }
 
-    /**
-     * Prepare the view state to be shown.
-     */
-    private void prepareView() {
+    @Override
+    protected void onSuccessAuthentication() {
+        projectList.clear();
+        buildConfigMap.clear();
         selectedBuildConfig = null;
+
         view.setErrorMessage("");
         view.setProjectName("");
         view.setProjectDescription("");
+        view.setApplicationInfo(null);
+
         view.enableImportButton(false);
+        view.animateImportButton(false);
+        view.enableCancelButton(true);
+
+        view.setBuildConfigs(buildConfigMap);
+        view.enableBuildConfigs(true);
+
+        view.enableNameField(false);
+        view.enableDescriptionField(false);
+
         view.showView();
+
+        view.showLoadingBuildConfigs("Loading projects...");
+
+		loadCheProjects();
+    }
+
+    /**
+     * Load che projects for following verifications.
+     */
+    private void loadCheProjects() {
+        projectServiceClient.getProjects(false).then(new Operation<List<ProjectDescriptor>>() {
+            @Override
+            public void apply(List<ProjectDescriptor> result) throws OperationException {
+                cheProjects.clear();
+                for (ProjectDescriptor project : result) {
+                    cheProjects.add(project.getName());
+                }
+
+                loadOpenshiftProjects();
+            }
+        });
+    }
+
+    /**
+     * Load OpenShift Project and Application data.
+     */
+    private void loadOpenshiftProjects() {
+        openShiftClient.getProjects().then(new Operation<List<Project>>() {
+            @Override
+            public void apply(List<Project> result) throws OperationException {
+                projectList.addAll(result);
+                for (Project project : result) {
+                    getBuildConfigs(project.getMetadata().getName());
+                }
+            }
+        });
+    }
+
+    /**
+     * Get OpenShift Build Configs by namespace.
+     *
+     * @param namespace
+     *         namespace
+     */
+    private void getBuildConfigs(final String namespace) {
+        openShiftClient.getBuildConfigs(namespace).then(new Operation<List<BuildConfig>>() {
+            @Override
+            public void apply(List<BuildConfig> result) throws OperationException {
+                buildConfigMap.put(namespace, result);
+
+                if (buildConfigMap.size() == projectList.size()) {
+                    view.setBuildConfigs(buildConfigMap);
+                }
+            }
+        });
     }
 
     @Override
     public void onImportApplicationClicked() {
-        doImport();
+        view.enableBuildConfigs(false);
+        view.enableNameField(false);
+        view.enableDescriptionField(false);
+
+        view.enableImportButton(false);
+        view.animateImportButton(true);
+
+        view.enableCancelButton(false);
+        view.setBlocked(true);
+
+        importProject();
     }
 
     /**
      * Fills project data and imports project.
      */
-    private void doImport() {
+    private void importProject() {
         final ProjectConfigDto projectConfig = dtoFactory.createDto(ProjectConfigDto.class)
                                                          .withSource(dtoFactory.createDto(SourceStorageDto.class));
+
+        projectConfig.setName(view.getProjecName());
+
         Map<String, String> importOptions = new HashMap<String, String>();
         String branch = selectedBuildConfig.getSpec().getSource().getGit().getRef();
         if (branch != null && !branch.isEmpty()) {
@@ -147,53 +224,76 @@ public class ImportApplicationPresenter extends ValidateAuthenticationPresenter 
 
         importProjectNotificationSubscriber.subscribe(view.getProjecName());
 
+        try {
+            projectServiceClient.importProject(view.getProjecName(), false, projectConfig.getSource(), new RequestCallback<Void>(
+                    dtoUnmarshallerFactory.newWSUnmarshaller(Void.class)) {
+                @Override
+                protected void onSuccess(final Void result) {
+                    createProject(projectConfig);
+                }
 
-        projectServiceClient.importProject(view.getProjecName(), false, projectConfig.getSource(), new RequestCallback<Void>(
-                dtoUnmarshallerFactory.newWSUnmarshaller(Void.class)) {
-            @Override
-            protected void onSuccess(final Void result) {
-                createProject(new Wizard.CompleteCallback() {
-                    @Override
-                    public void onCompleted() {
-
-                    }
-
-                    @Override
-                    public void onFailure(Throwable e) {
-
-                    }
-                }, projectConfig);
-            }
-
-            @Override
-            protected void onFailure(Throwable exception) {
-                view.setErrorMessage(exception.getMessage());
-                importProjectNotificationSubscriber.onFailure(exception.getMessage());
-                //TODO
-            }
-        });
+                @Override
+                protected void onFailure(Throwable exception) {
+                    createProjectFailure(exception);
+                }
+            });
+        } catch (Exception e) {
+            createProjectFailure(e);
+        }
     }
 
-    private void createProject(final Wizard.CompleteCallback callback, ProjectConfigDto projectConfig) {
-        final String projectName = projectConfig.getName();
-        Unmarshallable<ProjectDescriptor> unmarshaller = dtoUnmarshallerFactory.newUnmarshaller(ProjectDescriptor.class);
-        projectServiceClient.updateProject(projectName, projectConfig, new AsyncRequestCallback<ProjectDescriptor>(unmarshaller) {
-            @Override
-            protected void onSuccess(ProjectDescriptor result) {
-                eventBus.fireEvent(new CreateProjectEvent(result));
-                if (!result.getProblems().isEmpty()) {
-                    eventBus.fireEvent(new ConfigureProjectEvent(result));
-                }
-                importProjectNotificationSubscriber.onSuccess();
-                callback.onCompleted();
-            }
+    /**
+     * Creates Codenvy project from imported sources.
+     *
+     * @param projectConfig
+     *         project config
+     */
+    private void createProject(ProjectConfigDto projectConfig) {
+        try {
+            projectServiceClient.updateProject(projectConfig.getName(), projectConfig, new AsyncRequestCallback<ProjectDescriptor>(
+                    dtoUnmarshallerFactory.newUnmarshaller(ProjectDescriptor.class)) {
+                @Override
+                protected void onSuccess(ProjectDescriptor result) {
+                    view.animateImportButton(false);
+                    view.setBlocked(false);
+                    view.closeView();
 
-            @Override
-            protected void onFailure(Throwable exception) {
-                view.setErrorMessage(exception.getMessage());
-                importProjectNotificationSubscriber.onFailure(exception.getMessage());
-            }
-        });
+                    eventBus.fireEvent(new CreateProjectEvent(result));
+
+                    if (!result.getProblems().isEmpty()) {
+                        eventBus.fireEvent(new ConfigureProjectEvent(result));
+                    }
+
+                    importProjectNotificationSubscriber.onSuccess();
+                }
+
+                @Override
+                protected void onFailure(Throwable exception) {
+                    createProjectFailure(exception);
+                }
+            });
+        } catch (Exception e) {
+            createProjectFailure(e);
+        }
+    }
+
+    /**
+     * Handles errors when creating a project.
+     *
+     * @param exception
+     *         cause
+     */
+    private void createProjectFailure(Throwable exception) {
+        view.animateImportButton(false);
+        view.enableImportButton(true);
+        view.enableCancelButton(true);
+        view.setBlocked(false);
+
+        view.enableNameField(true);
+        view.enableDescriptionField(true);
+
+        view.setErrorMessage(exception.getMessage());
+        importProjectNotificationSubscriber.onFailure(exception.getMessage());
     }
 
     @Override
@@ -206,8 +306,10 @@ public class ImportApplicationPresenter extends ValidateAuthenticationPresenter 
         selectedBuildConfig = buildConfig;
 
         if (buildConfig != null) {
-            view.setProjectName(buildConfig.getMetadata().getName());
+            view.enableNameField(true);
+            view.enableDescriptionField(true);
 
+            view.setProjectName(buildConfig.getMetadata().getName());
             view.setApplicationInfo(buildConfig);
         }
 
@@ -232,49 +334,4 @@ public class ImportApplicationPresenter extends ValidateAuthenticationPresenter 
         return true;
     }
 
-    private void loadOpenShiftData() {
-        openShiftClient.getProjects().then(new Operation<List<Project>>() {
-            @Override
-            public void apply(List<Project> result) throws OperationException {
-                for (Project project : result) {
-                    getBuildConfigs(project.getMetadata().getName());
-                }
-            }
-        });
-    }
-
-    private void loadCheProjects() {
-        projectServiceClient.getProjects(false).then(new Operation<List<ProjectDescriptor>>() {
-            @Override
-            public void apply(List<ProjectDescriptor> result) throws OperationException {
-                cheProjects.clear();
-                for (ProjectDescriptor project : result) {
-                    cheProjects.add(project.getName());
-                }
-            }
-        });
-    }
-
-    /**
-     * Get OpenShift Build Configs by namespace.
-     *
-     * @param namespace
-     */
-    private void getBuildConfigs(final String namespace) {
-        openShiftClient.getBuildConfigs(namespace).then(new Operation<List<BuildConfig>>() {
-            @Override
-            public void apply(List<BuildConfig> result) throws OperationException {
-                buildConfigMap.put(namespace, result);
-                //TODO update by portions?
-                view.setBuildConfigs(buildConfigMap);
-            }
-        });
-    }
-
-    @Override
-    protected void onSuccessAuthentication() {
-        prepareView();
-        loadOpenShiftData();
-        loadCheProjects();
-    }
 }

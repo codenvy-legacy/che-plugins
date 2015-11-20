@@ -21,11 +21,11 @@ import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
+import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.inject.Inject;
@@ -48,16 +48,18 @@ import java.util.Map;
  * View implementation for {@ImportApplicationView}.
  *
  * @author Anna Shumilova
+ * @author Vitaliy Guliy
  */
 public class ImportApplicationViewImpl extends Window implements ImportApplicationView {
 
     interface ImportApplicationViewUiBinder extends UiBinder<DockLayoutPanel, ImportApplicationViewImpl> {
     }
 
-    private static ImportApplicationViewUiBinder uiBinder =
-            GWT.create(ImportApplicationViewUiBinder.class);
+    private static ImportApplicationViewUiBinder uiBinder = GWT.create(ImportApplicationViewUiBinder.class);
 
     private ActionDelegate delegate;
+
+    private final OpenshiftResources openshiftResources;
 
     @UiField(provided = true)
     OpenshiftLocalizationConstant locale;
@@ -81,7 +83,10 @@ public class ImportApplicationViewImpl extends Window implements ImportApplicati
     Label sourceUrl;
 
     @UiField
-    SimplePanel categoriesPanel;
+    AbsolutePanel categoriesPanel;
+
+    @UiField
+    Label loadingCategoriesLabel;
 
     @UiField
     FlowPanel branchPanel;
@@ -90,9 +95,10 @@ public class ImportApplicationViewImpl extends Window implements ImportApplicati
     FlowPanel contextDirPanel;
 
     private Button importButton;
+
     private Button cancelButton;
+
     private CategoriesList buildConfigList;
-    private final OpenshiftResources openshiftResources;
 
     private final Category.CategoryEventDelegate<BuildConfig> buildConfigDelegate =
             new Category.CategoryEventDelegate<BuildConfig>() {
@@ -116,11 +122,10 @@ public class ImportApplicationViewImpl extends Window implements ImportApplicati
         }
     };
 
-
     @Inject
     public ImportApplicationViewImpl(OpenshiftLocalizationConstant locale,
                                      CoreLocalizationConstant constants,
-                                     org.eclipse.che.ide.Resources resources,
+                                     org.eclipse.che.ide.Resources ideResources,
                                      OpenshiftResources openshiftResources) {
         this.locale = locale;
         this.openshiftResources = openshiftResources;
@@ -129,6 +134,7 @@ public class ImportApplicationViewImpl extends Window implements ImportApplicati
         setTitle(locale.importApplicationViewTitle());
 
         setWidget(uiBinder.createAndBindUi(this));
+        getWidget().getElement().getStyle().setPadding(0, Style.Unit.PX);
 
         importButton = createPrimaryButton(locale.importApplicationImportButton(),
                                            "importApplication-import-button", new ClickHandler() {
@@ -138,6 +144,7 @@ public class ImportApplicationViewImpl extends Window implements ImportApplicati
                     }
                 });
         addButtonToFooter(importButton);
+        importButton.addStyleName(ideResources.Css().buttonLoader());
 
         cancelButton = createButton(constants.cancel(), "importApplication-cancel-button", new ClickHandler() {
             @Override
@@ -147,9 +154,9 @@ public class ImportApplicationViewImpl extends Window implements ImportApplicati
         });
         addButtonToFooter(cancelButton);
 
-        buildConfigList = new CategoriesList(resources);
+        buildConfigList = new CategoriesList(ideResources);
+        buildConfigList.setVisible(false);
         categoriesPanel.add(buildConfigList);
-        getWidget().getElement().getStyle().setPadding(0, Style.Unit.PX);
     }
 
     @Override
@@ -163,7 +170,23 @@ public class ImportApplicationViewImpl extends Window implements ImportApplicati
     }
 
     @Override
+    public void setBlocked(boolean blocked) {
+        super.setBlocked(blocked);
+    }
+
+    @Override
+    public void showLoadingBuildConfigs(String message) {
+        buildConfigList.setVisible(false);
+
+        loadingCategoriesLabel.setText(message);
+        loadingCategoriesLabel.setVisible(true);
+    }
+
+    @Override
     public void setBuildConfigs(Map<String, List<BuildConfig>> buildConfigs) {
+        loadingCategoriesLabel.setVisible(false);
+        buildConfigList.setVisible(true);
+
         buildConfigList.clear();
         List<Category<?>> categoriesList = new ArrayList<>();
         for (String categoryTitle : buildConfigs.keySet()) {
@@ -177,8 +200,35 @@ public class ImportApplicationViewImpl extends Window implements ImportApplicati
     }
 
     @Override
-    public void enableImportButton(boolean isEnabled) {
-        importButton.setEnabled(isEnabled);
+    public void enableBuildConfigs(boolean enable) {
+        buildConfigList.setEnabled(enable);
+    }
+
+    @Override
+    public void enableImportButton(boolean enable) {
+        importButton.setEnabled(enable);
+    }
+
+    @Override
+    public void animateImportButton(boolean animate) {
+        if (animate && !importButton.getElement().hasAttribute("animated")) {
+            // save state and start animation
+            importButton.getElement().setAttribute("originText", importButton.getText());
+            importButton.getElement().getStyle().setProperty("minWidth", importButton.getOffsetWidth() + "px");
+            importButton.setHTML("<i></i>");
+            importButton.getElement().setAttribute("animated", "true");
+        } else if (!animate && importButton.getElement().hasAttribute("animated")) {
+            // stop animation and restore state
+            importButton.setText(importButton.getElement().getAttribute("originText"));
+            importButton.getElement().removeAttribute("originText");
+            importButton.getElement().getStyle().clearProperty("minWidth");
+            importButton.getElement().removeAttribute("animated");
+        }
+    }
+
+    @Override
+    public void enableCancelButton(boolean enable) {
+        cancelButton.setEnabled(enable);
     }
 
     @Override
@@ -193,6 +243,15 @@ public class ImportApplicationViewImpl extends Window implements ImportApplicati
 
     @Override
     public void setApplicationInfo(BuildConfig buildConfig) {
+        if (buildConfig == null) {
+            sourceUrl.setText("");
+            contextDir.setText("");
+            branchName.setText("");
+            contextDirPanel.setVisible(false);
+            branchPanel.setVisible(false);
+            return;
+        }
+
         sourceUrl.setText(buildConfig.getSpec().getSource().getGit().getUri());
         contextDir.setText(buildConfig.getSpec().getSource().getContextDir());
         branchName.setText(buildConfig.getSpec().getSource().getGit().getRef());
@@ -228,6 +287,16 @@ public class ImportApplicationViewImpl extends Window implements ImportApplicati
     public void hideCheProjectNameError() {
         projectName.removeStyleName(openshiftResources.css().inputError());
         projectNameErrorLabel.setText("");
+    }
+
+    @Override
+    public void enableNameField(boolean enable) {
+        projectName.setEnabled(enable);
+    }
+
+    @Override
+    public void enableDescriptionField(boolean enable) {
+        projectDescription.setEnabled(enable);
     }
 
     @UiHandler({"projectName"})
