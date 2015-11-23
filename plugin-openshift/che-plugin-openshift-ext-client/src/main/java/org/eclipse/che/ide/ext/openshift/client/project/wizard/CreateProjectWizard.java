@@ -107,7 +107,6 @@ public class CreateProjectWizard extends AbstractWizard<NewApplicationRequest> {
         return new Operation<JsArrayMixed>() {
             @Override
             public void apply(JsArrayMixed arg) throws OperationException {
-                callback.onCompleted();
                 importWizardFactory.newWizard(dataObject.getProjectConfigDto()).complete(callback);
             }
         };
