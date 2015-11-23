@@ -21,6 +21,7 @@ import org.eclipse.che.ide.ext.openshift.server.rest.DeploymentConfigService;
 import org.eclipse.che.ide.ext.openshift.server.rest.ImageStreamService;
 import org.eclipse.che.ide.ext.openshift.server.rest.OpenshiftExceptionMapper;
 import org.eclipse.che.ide.ext.openshift.server.rest.ProjectService;
+import org.eclipse.che.ide.ext.openshift.server.rest.ReplicationControllerService;
 import org.eclipse.che.ide.ext.openshift.server.rest.RouteService;
 import org.eclipse.che.ide.ext.openshift.server.rest.ServiceService;
 import org.eclipse.che.ide.ext.openshift.server.rest.TemplateService;
@@ -39,6 +40,7 @@ public class OpenshiftModule extends AbstractModule {
         bind(TemplateService.class);
         bind(ProjectService.class);
         bind(BuildService.class);
+        bind(ReplicationControllerService.class);
         bind(OpenshiftExceptionMapper.class);
 
         final Multibinder<ProjectType> projectTypeMultibinder = Multibinder.newSetBinder(binder(), ProjectType.class);

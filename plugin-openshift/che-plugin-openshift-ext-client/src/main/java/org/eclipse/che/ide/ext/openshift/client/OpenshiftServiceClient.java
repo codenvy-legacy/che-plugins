@@ -18,6 +18,7 @@ import org.eclipse.che.ide.ext.openshift.shared.dto.ImageStream;
 import org.eclipse.che.ide.ext.openshift.shared.dto.ImageStreamTag;
 import org.eclipse.che.ide.ext.openshift.shared.dto.Project;
 import org.eclipse.che.ide.ext.openshift.shared.dto.ProjectRequest;
+import org.eclipse.che.ide.ext.openshift.shared.dto.ReplicationController;
 import org.eclipse.che.ide.ext.openshift.shared.dto.Route;
 import org.eclipse.che.ide.ext.openshift.shared.dto.Service;
 import org.eclipse.che.ide.ext.openshift.shared.dto.Template;
@@ -66,4 +67,8 @@ public interface OpenshiftServiceClient {
     Promise<List<Build>> getBuilds(String namespace, String application);
 
     Promise<Build> startBuild(String namespace, String buildConfig);
+
+    Promise<List<ReplicationController>> getReplicationControllers(String namespace, String application);
+
+    Promise<ReplicationController> updateReplicationController(ReplicationController controller);
 }

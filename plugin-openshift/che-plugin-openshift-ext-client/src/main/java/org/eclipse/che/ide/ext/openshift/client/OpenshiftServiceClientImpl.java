@@ -23,6 +23,7 @@ import org.eclipse.che.ide.ext.openshift.shared.dto.ImageStream;
 import org.eclipse.che.ide.ext.openshift.shared.dto.ImageStreamTag;
 import org.eclipse.che.ide.ext.openshift.shared.dto.Project;
 import org.eclipse.che.ide.ext.openshift.shared.dto.ProjectRequest;
+import org.eclipse.che.ide.ext.openshift.shared.dto.ReplicationController;
 import org.eclipse.che.ide.ext.openshift.shared.dto.Route;
 import org.eclipse.che.ide.ext.openshift.shared.dto.Service;
 import org.eclipse.che.ide.ext.openshift.shared.dto.Template;
@@ -328,6 +329,38 @@ public class OpenshiftServiceClientImpl implements OpenshiftServiceClient {
                                    .header(ACCEPT, MimeType.APPLICATION_JSON)
                                    .loader(loader, "Starting build...")
                                    .send(newCallback(callback, dtoUnmarshaller.newUnmarshaller(Build.class)));
+            }
+        });
+    }
+
+    @Override
+    public Promise<List<ReplicationController>> getReplicationControllers(final String namespace, final String application) {
+        return newPromise(new AsyncPromiseHelper.RequestCall<List<ReplicationController>>() {
+            @Override
+            public void makeCall(AsyncCallback<List<ReplicationController>> callback) {
+                String url = openshiftPath + "/namespace/" + namespace + "/replicationcontroller";
+                if (application != null) {
+                    url += "?application=" + application;
+                }
+                asyncRequestFactory.createGetRequest(url)
+                                   .header(ACCEPT, MimeType.APPLICATION_JSON)
+                                   .loader(loader, "Getting replication controllers...")
+                                   .send(newCallback(callback, dtoUnmarshaller.newListUnmarshaller(ReplicationController.class)));
+            }
+        });
+    }
+
+    @Override
+    public Promise<ReplicationController> updateReplicationController(final ReplicationController controller) {
+        return newPromise(new AsyncPromiseHelper.RequestCall<ReplicationController>() {
+            @Override
+            public void makeCall(AsyncCallback<ReplicationController> callback) {
+                asyncRequestFactory.createRequest(PUT, openshiftPath + "/namespace/" + controller.getMetadata().getNamespace()
+                                                       + "/replicationcontroller" + controller.getMetadata().getName(), controller, false)
+                                   .header(CONTENT_TYPE, MimeType.APPLICATION_JSON)
+                                   .header(ACCEPT, MimeType.APPLICATION_JSON)
+                                   .loader(loader, "Updating replication controller...")
+                                   .send(newCallback(callback, dtoUnmarshaller.newUnmarshaller(ReplicationController.class)));
             }
         });
     }
