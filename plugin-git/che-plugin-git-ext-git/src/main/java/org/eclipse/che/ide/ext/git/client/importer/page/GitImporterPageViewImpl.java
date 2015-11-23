@@ -11,23 +11,24 @@
 package org.eclipse.che.ide.ext.git.client.importer.page;
 
 import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.resources.client.CssResource;
-import com.google.gwt.user.client.ui.CheckBox;
-import com.google.gwt.user.client.ui.FlowPanel;
-import org.eclipse.che.ide.ext.git.client.GitResources;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
+import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
+import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.inject.Inject;
+
+import org.eclipse.che.ide.ext.git.client.GitResources;
 
 import javax.validation.constraints.NotNull;
 
@@ -47,12 +48,6 @@ public class GitImporterPageViewImpl extends Composite implements GitImporterPag
 
     @UiField
     TextArea    projectDescription;
-
-    @UiField
-    RadioButton projectPrivate;
-
-    @UiField
-    RadioButton projectPublic;
 
     @UiField
     TextBox     projectUrl;
@@ -112,11 +107,6 @@ public class GitImporterPageViewImpl extends Composite implements GitImporterPag
             return;
         }
         delegate.projectDescriptionChanged(projectDescription.getValue());
-    }
-
-    @UiHandler({"projectPublic", "projectPrivate"})
-    void visibilityHandler(ValueChangeEvent<Boolean> event) {
-        delegate.projectVisibilityChanged(projectPublic.getValue());
     }
 
     @UiHandler({"keepDirectory"})
@@ -209,12 +199,6 @@ public class GitImporterPageViewImpl extends Composite implements GitImporterPag
     }
 
     @Override
-    public void setProjectVisibility(boolean visibility) {
-        projectPublic.setValue(visibility, false);
-        projectPrivate.setValue(!visibility, false);
-    }
-
-    @Override
     public boolean keepDirectory() {
         return keepDirectory.getValue();
     }
@@ -299,15 +283,11 @@ public class GitImporterPageViewImpl extends Composite implements GitImporterPag
 
         String labelPosition();
 
-        String marginTop();
-
         String alignRight();
 
         String alignLeft();
 
         String labelErrorPosition();
-
-        String radioButtonPosition();
 
         String description();
 
@@ -319,5 +299,4 @@ public class GitImporterPageViewImpl extends Composite implements GitImporterPag
 
         String inputError();
     }
-
 }

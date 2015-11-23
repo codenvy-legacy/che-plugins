@@ -23,9 +23,6 @@ import com.google.gwt.i18n.client.Messages;
 public interface SubversionExtensionLocalizationConstants extends Messages {
 
     /** Action Constants */
-    @Key("action.not.implemented")
-    String actionNotImplemented();
-
     @Key("add.description")
     String addDescription();
 
@@ -82,9 +79,6 @@ public interface SubversionExtensionLocalizationConstants extends Messages {
 
     @Key("copy.title")
     String copyTitle();
-
-    @Key("copy.fail.to.get.project")
-    String copyFailToGetProject();
 
     @Key("copy.view.title.file")
     String copyViewTitleFile();
@@ -224,9 +218,6 @@ public interface SubversionExtensionLocalizationConstants extends Messages {
     @Key("status.title")
     String statusTitle();
 
-    @Key("status.started")
-    String statusStarted(String suffix);
-
     @Key("switch.description")
     String switchDescription();
 
@@ -263,12 +254,6 @@ public interface SubversionExtensionLocalizationConstants extends Messages {
     /** Subversion Constants */
     @Key("subversion.label")
     String subversionLabel();
-
-    @Key("subversion.homepage.url")
-    String subversionHomepageUrl();
-
-    @Key("subversion.repository.url.trunk")
-    String subversionRepositoryUrlTrunk();
 
     @Key("subversion.depth.infinity.label")
     String subversionDepthInfinityLabel();
@@ -343,18 +328,6 @@ public interface SubversionExtensionLocalizationConstants extends Messages {
     @Key("importer.projectDescriptionPrompt")
     String importerProjectDescriptionPrompt();
 
-    @Key("importer.projectPrivacy")
-    String importerProjectPrivacy();
-
-    @Key("importer.projectVisibilityPublic")
-    String importerProjectVisibilityPublic();
-
-    @Key("importer.projectVisibilityPrivate")
-    String importerProjectVisibilityPrivate();
-
-    @Key("status.successful")
-    String statusSuccessful();
-
     /* Commit dialog */
 
     @Key("dialog.commit.commitAllFieldTitle")
@@ -403,9 +376,6 @@ public interface SubversionExtensionLocalizationConstants extends Messages {
 
     @Key("ask.credentials.field.password")
     String askCredentialsPassword();
-
-    @Key("ask.credentials.warn.notsubversion")
-    String warnNotSubversionproject();
 
     // lock&unlock
 
@@ -459,23 +429,8 @@ public interface SubversionExtensionLocalizationConstants extends Messages {
 
     /* Export dialog */
 
-    @Key("download.title")
-    String downloadTitle();
-
-    @Key("download.finished")
-    String downloadFinished(String path);
-
-    @Key("download.button")
-    String downloadButton();
-
-    @Key("download.button.cancel")
-    String downloadButtonCanceled();
-
     @Key("export.started")
     String exportStarted(String path);
-
-    @Key("export.successful")
-    String exportSuccessful(String path);
 
     /* Move dialog */
     @Key("move.fail.to.get.project")

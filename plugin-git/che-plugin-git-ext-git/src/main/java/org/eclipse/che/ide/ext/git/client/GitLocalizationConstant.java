@@ -13,9 +13,7 @@ package org.eclipse.che.ide.ext.git.client;
 import com.google.gwt.i18n.client.Messages;
 import com.google.gwt.safehtml.shared.SafeHtml;
 
-/**
- * @author <a href="mailto:evidolob@exoplatform.com">Evgen Vidolob</a>
- */
+/** @author Evgen Vidolob */
 public interface GitLocalizationConstant extends Messages {
     // BUTTONS
     @Key("button.add")
@@ -235,9 +233,6 @@ public interface GitLocalizationConstant extends Messages {
     // ----VIEWS------------------------------------------------------------------
 
     // GitImporterPage
-    @Key("view.import.gitImporterPage.importerInfo")
-    String gitImporterPageImporterInfo();
-
     @Key("view.import.gitImporterPage.projectUrl")
     String gitImporterPageProjectUrl();
 
@@ -255,15 +250,6 @@ public interface GitLocalizationConstant extends Messages {
 
     @Key("view.import.gitImporterPage.projectDescriptionPrompt")
     String gitImporterPageProjectDescriptionPrompt();
-
-    @Key("view.import.gitImporterPage.projectPrivacy")
-    String gitImporterPageProjectPrivacy();
-
-    @Key("view.import.gitImporterPage.projectVisibilityPublic")
-    String gitImporterPageprojectVisibilityPublic();
-
-    @Key("view.import.gitImporterPage.projectVisibilityPrivate")
-    String gitImporterPageprojectVisibilityPrivate();
 
     @Key("view.import.gitImporterPage.keepDirectory")
     String gitImporterPageKeepDirectory();
@@ -334,9 +320,6 @@ public interface GitLocalizationConstant extends Messages {
     @Key("view.commit.title")
     String commitTitle();
 
-    @Key("view.commit.message_field_title")
-    String commitMessageFieldTitle();
-
     @Key("view.commit.all_field_title")
     String commitAllFieldTitle();
 
@@ -394,12 +377,6 @@ public interface GitLocalizationConstant extends Messages {
 
     @Key("view.reset.hard.type.description")
     String resetHardTypeDescription();
-
-    @Key("view.reset.keep.type.title")
-    String resetKeepTypeTitle();
-
-    @Key("view.reset.merge.type.title")
-    String resetMergeTypeTitle();
 
     // Remove
     @Key("view.remove_from_index.all")
@@ -622,24 +599,6 @@ public interface GitLocalizationConstant extends Messages {
 
     @Key("control.ro.url.prompt")
     String projectReadOnlyGitUrlPrompt();
-
-    /*
-     * CloneRepositoryView
-     */
-    @Key("noIncorrectProjectNameMessage")
-    String noIncorrectProjectNameMessage();
-
-    @Key("noIncorrectProjectNameTitle")
-    String noIncorrectProjectNameTitle();
-
-    @Key("projectNameStartWith_Message")
-    String projectNameStartWith_Message();
-
-    /*
-     * Project
-     */
-    @Key("project.name")
-    String projectName();
 
     @Key("committer.preference.category")
     String committerPreferenceCategory();

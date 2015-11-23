@@ -43,9 +43,6 @@ import java.util.Map;
  */
 public class GithubImporterPagePresenter extends AbstractWizardPage<ProjectConfigDto> implements GithubImporterPageView.ActionDelegate {
 
-    private static final String PUBLIC_VISIBILITY  = "public";
-    private static final String PRIVATE_VISIBILITY = "private";
-
     // An alternative scp-like syntax: [user@]host.xz:path/to/repo.git/
     private static final RegExp SCP_LIKE_SYNTAX = RegExp.compile("([A-Za-z0-9_\\-]+\\.[A-Za-z0-9_\\-:]+)+:");
     // the transport protocol
@@ -127,11 +124,6 @@ public class GithubImporterPagePresenter extends AbstractWizardPage<ProjectConfi
     @Override
     public void projectDescriptionChanged(@NotNull String projectDescription) {
         dataObject.setDescription(projectDescription);
-        updateDelegate.updateControls();
-    }
-
-    @Override
-    public void projectVisibilityChanged(boolean visible) {
         updateDelegate.updateControls();
     }
 
@@ -366,5 +358,4 @@ public class GithubImporterPagePresenter extends AbstractWizardPage<ProjectConfi
         view.hideUrlError();
         return true;
     }
-
 }
