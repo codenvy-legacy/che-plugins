@@ -25,4 +25,10 @@ public class GHRepositoryWithMirrorUrl extends GHRepository {
     public String getMirrorUrl() {
         return mirror_url;
     }
+
+    @Override
+    GHRepositoryWithMirrorUrl wrap(GitHub root) {
+        this.root = root;
+        return this;
+    }
 }

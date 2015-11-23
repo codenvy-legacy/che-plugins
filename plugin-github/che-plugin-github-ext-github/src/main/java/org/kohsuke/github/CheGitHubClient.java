@@ -22,6 +22,6 @@ import java.io.IOException;
 public class CheGitHubClient {
 
     public static GHRepositoryWithMirrorUrl getRepository(GitHub gitHub, String user, String repo) throws IOException {
-        return gitHub.retrieve().to("/repos/" + user + '/' + repo, GHRepositoryWithMirrorUrl.class);
+        return gitHub.retrieve().to("/repos/" + user + '/' + repo, GHRepositoryWithMirrorUrl.class).wrap(gitHub);
     }
 }
