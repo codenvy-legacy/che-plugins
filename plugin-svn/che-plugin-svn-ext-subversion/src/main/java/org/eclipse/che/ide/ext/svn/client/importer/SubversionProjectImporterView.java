@@ -20,7 +20,7 @@ import org.eclipse.che.ide.api.mvp.View;
 public interface SubversionProjectImporterView extends View<SubversionProjectImporterView.ActionDelegate> {
 
     /** Action handler for the view actions/controls. */
-    public interface ActionDelegate {
+    interface ActionDelegate {
         /** Performs any actions appropriate in response to the user having changed the project's name. */
         void onProjectNameChanged();
 
@@ -29,9 +29,6 @@ public interface SubversionProjectImporterView extends View<SubversionProjectImp
 
         /** Performs any actions appropriate in response to the user having changed the project's description. */
         void onProjectDescriptionChanged();
-
-        /** Performs any actions appropriate in response to the user having changed the project's visibility. */
-        void onProjectVisibilityChanged();
 
         /** Performs any actions appropriate in response to the user having changed the relative path in the project. */
         void onProjectRelativePathChanged();
@@ -59,12 +56,6 @@ public interface SubversionProjectImporterView extends View<SubversionProjectImp
 
     /** Set project name. */
     void setProjectName(String name);
-
-    /** Set project visibility. */
-    void setProjectVisibility(boolean visible);
-
-    /** Return project visibility. */
-    boolean getProjectVisibility();
 
     /** Set active window focus to url text box. */
     void setUrlTextBoxFocused();

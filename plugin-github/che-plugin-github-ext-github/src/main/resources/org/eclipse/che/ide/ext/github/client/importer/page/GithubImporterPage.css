@@ -24,10 +24,6 @@
     min-height: 22px;
 }
 
-.marginTop {
-    margin-top: 10px;
-}
-
 .horizontalLine {
     border-top: 1px solid popupBorderColor;
     margin: 0 !important;
@@ -66,16 +62,6 @@
 
 .alignRight {
     float: right;
-}
-
-.radioButtonPosition {
-    position: relative;
-    float: left;
-    left: 0;
-}
-
-.radioButtonPosition:last-child {
-    margin-left: 55px;
 }
 
 .bottomSpace {

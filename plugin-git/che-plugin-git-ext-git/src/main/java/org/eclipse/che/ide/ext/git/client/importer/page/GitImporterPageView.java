@@ -31,9 +31,6 @@ public interface GitImporterPageView extends View<GitImporterPageView.ActionDele
         /** Performs any actions appropriate in response to the user having changed the project's description. */
         void projectDescriptionChanged(@NotNull String projectDescriptionValue);
 
-        /** Performs any actions appropriate in response to the user having changed the project's visibility. */
-        void projectVisibilityChanged(boolean aPublic);
-
         /** Perform actions when selecting Keep Directory checkbox. */
         void keepDirectorySelected(boolean keepDirectory);
 
@@ -110,13 +107,6 @@ public interface GitImporterPageView extends View<GitImporterPageView.ActionDele
      * @param projectDescription project description
      */
     void setProjectDescription(@NotNull String projectDescription);
-
-    /**
-     * Updates project visibility.
-     *
-     * @param visibility project visibility
-     */
-    void setProjectVisibility(boolean visibility);
 
     /**
      * Returns whether user wants to checkout a special directory.
@@ -199,5 +189,4 @@ public interface GitImporterPageView extends View<GitImporterPageView.ActionDele
      * @param enable true or false to enable or disable the field
      */
     void enableBranchNameField(boolean enable);
-
 }

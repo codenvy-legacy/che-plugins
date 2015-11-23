@@ -10,16 +10,9 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.github.client.importer.page;
 
-import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.resources.client.CssResource;
-import com.google.gwt.user.client.ui.CheckBox;
-import org.eclipse.che.ide.Resources;
-import org.eclipse.che.ide.ext.github.client.GitHubLocalizationConstant;
-import org.eclipse.che.ide.ext.github.client.GitHubResources;
-import org.eclipse.che.ide.ext.github.client.load.ProjectData;
-
 import com.google.gwt.cell.client.ImageResourceCell;
 import com.google.gwt.cell.client.SafeHtmlCell;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -27,6 +20,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
@@ -38,17 +32,22 @@ import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
-import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.inject.Inject;
+
+import org.eclipse.che.ide.Resources;
+import org.eclipse.che.ide.ext.github.client.GitHubLocalizationConstant;
+import org.eclipse.che.ide.ext.github.client.GitHubResources;
+import org.eclipse.che.ide.ext.github.client.load.ProjectData;
 
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
@@ -74,12 +73,6 @@ public class GithubImporterPageViewImpl extends Composite implements GithubImpor
 
     @UiField
     TextArea               projectDescription;
-
-    @UiField
-    RadioButton            projectPrivate;
-
-    @UiField
-    RadioButton            projectPublic;
 
     @UiField
     TextBox                projectUrl;
@@ -112,7 +105,6 @@ public class GithubImporterPageViewImpl extends Composite implements GithubImpor
                                       GitHubLocalizationConstant locale,
                                       Resources ideResources,
                                       GithubImporterPageViewImplUiBinder uiBinder) {
-
         style = resources.githubImporterPageStyle();
         style.ensureInjected();
 
@@ -140,7 +132,7 @@ public class GithubImporterPageViewImpl extends Composite implements GithubImpor
      * @param resources
      */
     private void createRepositoriesTable(final Resources resources, GitHubLocalizationConstant locale) {
-        repositories = new CellTable<ProjectData>(15, resources);
+        repositories = new CellTable<>(15, resources);
 
         Column<ProjectData, ImageResource> iconColumn = new Column<ProjectData, ImageResource>(new ImageResourceCell()) {
             @Override
@@ -176,7 +168,7 @@ public class GithubImporterPageViewImpl extends Composite implements GithubImpor
         // don't show loading indicator
         repositories.setLoadingIndicator(null);
 
-        final SingleSelectionModel<ProjectData> selectionModel = new SingleSelectionModel<ProjectData>();
+        final SingleSelectionModel<ProjectData> selectionModel = new SingleSelectionModel<>();
         selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
@@ -216,11 +208,6 @@ public class GithubImporterPageViewImpl extends Composite implements GithubImpor
         delegate.projectDescriptionChanged(projectDescription.getValue());
     }
 
-    @UiHandler({"projectPublic", "projectPrivate"})
-    void visibilityHandler(ValueChangeEvent<Boolean> event) {
-        delegate.projectVisibilityChanged(projectPublic.getValue());
-    }
-
     @UiHandler("accountName")
     public void onAccountChange(ChangeEvent event) {
         delegate.onAccountChanged();
@@ -247,18 +234,10 @@ public class GithubImporterPageViewImpl extends Composite implements GithubImpor
     }
 
     @Override
-    public void setProjectVisibility(boolean visible) {
-        projectPublic.setValue(visible, false);
-        projectPrivate.setValue(!visible, false);
-    }
-
-    @Override
     public void reset() {
         projectUrl.setText("");
         projectName.setText("");
         projectDescription.setText("");
-        projectPublic.setValue(true);
-        projectPrivate.setValue(false);
         githubPanel.removeFromParent();
         hideUrlError();
         hideNameError();
@@ -373,7 +352,7 @@ public class GithubImporterPageViewImpl extends Composite implements GithubImpor
     @Override
     public void setRepositories(@NotNull List<ProjectData> repositories) {
         // Wraps Array in java.util.List
-        List<ProjectData> list = new ArrayList<ProjectData>();
+        List<ProjectData> list = new ArrayList<>();
         for (ProjectData repository : repositories) {
             list.add(repository);
         }
@@ -423,15 +402,11 @@ public class GithubImporterPageViewImpl extends Composite implements GithubImpor
 
         String labelPosition();
 
-        String marginTop();
-
         String alignRight();
 
         String alignLeft();
 
         String labelErrorPosition();
-
-        String radioButtonPosition();
 
         String description();
 

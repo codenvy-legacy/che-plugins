@@ -41,11 +41,6 @@ public interface GithubImporterPageView extends View<GithubImporterPageView.Acti
         void projectDescriptionChanged(@NotNull String projectDescriptionValue);
 
         /**
-         * Performs any actions appropriate in response to the user having changed the project's visibility.
-         */
-        void projectVisibilityChanged(boolean aPublic);
-
-        /**
          * Performs any actions appropriate in response to the user having clicked the 'LoadRepo' key.
          */
         void onLoadRepoClicked();
@@ -97,13 +92,6 @@ public interface GithubImporterPageView extends View<GithubImporterPageView.Acti
      *         the project's URL to set
      */
     void setProjectUrl(@NotNull String url);
-
-    /**
-     * Updates project visibility.
-     *
-     * @param visibility project visibility
-     */
-    void setProjectVisibility(boolean visibility);
 
     /**
      * Get the project's name value.
@@ -231,5 +219,4 @@ public interface GithubImporterPageView extends View<GithubImporterPageView.Acti
      * Focuses directory name field.
      */
     void focusDirectoryNameFiend();
-
 }

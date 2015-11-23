@@ -173,19 +173,6 @@ public class SubversionProjectImporterPresenterTest {
     }
 
     /**
-     * Test for {@link SubversionProjectImporterPresenter#onProjectVisibilityChanged()}.
-     *
-     * @throws Exception if anything goes wrong
-     */
-    @Test
-    public void testProjectVisibility() throws Exception {
-        presenter.onProjectVisibilityChanged();
-
-        verify(view, never()).setNameErrorVisibility(anyBoolean());
-        verify(updateDelegate).updateControls();
-    }
-
-    /**
      * Test for {@link SubversionProjectImporterPresenter#go(AcceptsOneWidget)}.
      *
      * @throws Exception if anything goes wrong
@@ -206,5 +193,4 @@ public class SubversionProjectImporterPresenterTest {
         verify(view).setProjectUrl(anyString());
         verify(view).setUrlTextBoxFocused();
     }
-
 }
