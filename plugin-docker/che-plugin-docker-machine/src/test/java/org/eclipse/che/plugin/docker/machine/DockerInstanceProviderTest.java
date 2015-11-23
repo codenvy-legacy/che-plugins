@@ -349,7 +349,7 @@ public class DockerInstanceProviderTest {
         verify(dockerConnector).createContainer(createContainerCaptor.capture(), anyString());
         verify(dockerConnector).startContainer(anyString(), eq(null));
         // docker accepts memory size in bytes
-        assertEquals(createContainerCaptor.getValue().getMemory(), memorySizeMB * 1024 * 1024);
+        assertEquals(createContainerCaptor.getValue().getHostConfig().getMemory(), memorySizeMB * 1024 * 1024);
     }
 
     @Test
@@ -364,7 +364,7 @@ public class DockerInstanceProviderTest {
         verify(dockerConnector).createContainer(createContainerCaptor.capture(), anyString());
         verify(dockerConnector).startContainer(anyString(), eq(null));
         // docker accepts memory size in bytes
-        assertEquals(createContainerCaptor.getValue().getMemory(), memorySizeMB * 1024 * 1024);
+        assertEquals(createContainerCaptor.getValue().getHostConfig().getMemory(), memorySizeMB * 1024 * 1024);
     }
 
     @Test
@@ -374,7 +374,7 @@ public class DockerInstanceProviderTest {
         ArgumentCaptor<ContainerConfig> createContainerCaptor = ArgumentCaptor.forClass(ContainerConfig.class);
         verify(dockerConnector).createContainer(createContainerCaptor.capture(), anyString());
         verify(dockerConnector).startContainer(anyString(), eq(null));
-        assertEquals(createContainerCaptor.getValue().getMemorySwap(), -1);
+        assertEquals(createContainerCaptor.getValue().getHostConfig().getMemorySwap(), -1);
     }
 
     @Test
@@ -384,7 +384,7 @@ public class DockerInstanceProviderTest {
         ArgumentCaptor<ContainerConfig> createContainerCaptor = ArgumentCaptor.forClass(ContainerConfig.class);
         verify(dockerConnector).createContainer(createContainerCaptor.capture(), anyString());
         verify(dockerConnector).startContainer(anyString(), eq(null));
-        assertEquals(createContainerCaptor.getValue().getMemorySwap(), -1);
+        assertEquals(createContainerCaptor.getValue().getHostConfig().getMemorySwap(), -1);
     }
 
     @Test

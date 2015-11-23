@@ -84,7 +84,7 @@ public class InitialAuthConfig {
         if (predefinedConfig != null) {
             return Base64.encodeBase64String(JsonHelper.toJson(predefinedConfig).getBytes());
         } else {
-            return "";
+            return "{}";
         }
     }
 
