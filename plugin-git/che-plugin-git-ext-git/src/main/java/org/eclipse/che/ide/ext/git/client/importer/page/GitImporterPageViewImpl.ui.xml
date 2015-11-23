@@ -42,6 +42,10 @@
                                debugId="file-importProject-projectUrl"/>
                     <g:Label ui:field="labelUrlError" width="290px" wordWrap="true" addStyleNames="{style.labelErrorPosition}"/>
                 </g:FlowPanel>
+                <g:FlowPanel height="17px" addStyleNames="{style.namePanel}">
+                    <g:CheckBox ui:field="recursive" text="{locale.gitImporterPageRecursive}"
+                                debugId="file-importProject-recursive" addStyleNames="{style.alignLeft}" />
+                </g:FlowPanel>
 
                 <g:FlowPanel height="20px" addStyleNames="{style.namePanel} {style.marginTop}">
                     <g:HTMLPanel addStyleNames="{style.horizontalLine}"/>
