@@ -36,6 +36,7 @@ import java.io.Reader;
 import java.io.Writer;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -65,7 +66,7 @@ public class ArchetypeGenerator {
     private final long                                keepResultTimeMillis;
     private       ExecutorService                     executor;
     private       ScheduledExecutorService            scheduler;
-    private       File                                projectsFolder;
+    private       Path                                archetypeGeneratorTempFolder;
 
     @Inject
     public ArchetypeGenerator() {
@@ -75,11 +76,8 @@ public class ArchetypeGenerator {
 
     /** Initialize generator. */
     @PostConstruct
-    void start() {
-        projectsFolder = new File("/projects");
-        if (!(projectsFolder.exists() || projectsFolder.mkdirs())) {
-            throw new IllegalStateException(String.format("Unable to create directory %s", projectsFolder.getAbsolutePath()));
-        }
+    void start() throws IOException {
+        archetypeGeneratorTempFolder = Files.createTempDirectory("archetype-generator");
 
         executor = Executors.newCachedThreadPool(new ThreadFactoryBuilder().setNameFormat("ArchetypeGenerator-[%d]").setDaemon(true).build());
         scheduler = Executors.newSingleThreadScheduledExecutor(new ThreadFactoryBuilder().setNameFormat("ArchetypeGeneratorSchedulerPool-%d")
@@ -133,20 +131,10 @@ public class ArchetypeGenerator {
             interrupted |= true;
             executor.shutdownNow();
         }
-        final File[] files = projectsFolder.listFiles();
-        if (files != null && files.length > 0) {
-            for (File file : files) {
-                boolean deleted;
-                if (file.isDirectory()) {
-                    deleted = IoUtil.deleteRecursive(file);
-                } else {
-                    deleted = file.delete();
-                }
-                if (!deleted) {
-                    LOG.warn("Failed to delete {}", file);
-                }
-            }
+        if (IoUtil.deleteRecursive(archetypeGeneratorTempFolder.toFile())) {
+            LOG.warn("Error occurs on removing " + archetypeGeneratorTempFolder.toString());
         }
+
         tasks.clear();
         if (interrupted) {
             Thread.currentThread().interrupt();
@@ -195,7 +183,7 @@ public class ArchetypeGenerator {
 
         final File workDir;
         try {
-            workDir = Files.createTempDirectory(projectsFolder.toPath(), "project-").toFile();
+            workDir = Files.createTempDirectory(archetypeGeneratorTempFolder, "project-").toFile();
         } catch (IOException e) {
             throw new ServerException(e);
         }
