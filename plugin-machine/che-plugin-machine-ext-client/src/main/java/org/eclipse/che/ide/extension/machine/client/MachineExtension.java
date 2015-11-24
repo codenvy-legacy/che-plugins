@@ -16,6 +16,7 @@ import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.api.machine.gwt.client.events.ExtServerStateEvent;
 import org.eclipse.che.api.machine.gwt.client.events.ExtServerStateHandler;
+import org.eclipse.che.ide.actions.CreateSnapshotAction;
 import org.eclipse.che.ide.actions.StopWorkspaceAction;
 import org.eclipse.che.ide.api.action.ActionManager;
 import org.eclipse.che.ide.api.action.DefaultActionGroup;
@@ -92,7 +93,8 @@ public class MachineExtension {
                                 RestartMachineAction restartMachine,
                                 DestroyMachineAction destroyMachineAction,
                                 StopWorkspaceAction stopWorkspaceAction,
-                                SwitchPerspectiveAction switchPerspectiveAction) {
+                                SwitchPerspectiveAction switchPerspectiveAction,
+                                CreateSnapshotAction createSnapshotAction) {
         final DefaultActionGroup mainMenu = (DefaultActionGroup)actionManager.getAction(GROUP_MAIN_MENU);
         final DefaultActionGroup runMenu = new DefaultActionGroup(localizationConstant.mainMenuRunName(), true, actionManager);
 
@@ -114,12 +116,14 @@ public class MachineExtension {
         actionManager.registerAction("destroyMachine", destroyMachineAction);
         actionManager.registerAction("restartMachine", restartMachine);
         actionManager.registerAction("stopWorkspace", stopWorkspaceAction);
+        actionManager.registerAction("createSnapshot", createSnapshotAction);
 
         mainMenu.add(machineMenu, new Constraints(AFTER, "run"));
         machineMenu.add(createMachine);
         machineMenu.add(restartMachine);
         machineMenu.add(destroyMachineAction);
         machineMenu.add(stopWorkspaceAction);
+        machineMenu.add(createSnapshotAction);
 
         // add actions on center part of toolbar
         final DefaultActionGroup centerToolbarGroup = (DefaultActionGroup)actionManager.getAction(GROUP_CENTER_TOOLBAR);

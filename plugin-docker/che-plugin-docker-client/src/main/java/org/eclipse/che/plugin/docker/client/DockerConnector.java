@@ -203,28 +203,6 @@ public class DockerConnector {
     }
 
     /**
-     * Lists running docker containers.
-     *
-     * @return list of running containers or
-     * @throws IOException
-     *         when any error occurs
-     */
-    public ContainerInfo[] listContainers() throws IOException {
-        try (DockerConnection connection = connectionFactory.openConnection(dockerDaemonUri)
-                                                            .method("GET")
-                                                            .path("/containers/json")) {
-            final DockerResponse response = connection.request();
-            final int status = response.getStatus();
-            if (OK.getStatusCode() != status) {
-                throw new DockerException(getDockerExceptionMessage(response), status);
-            }
-            return parseResponseStreamAndClose(response.getInputStream(), ContainerInfo[].class);
-        } catch (JsonParseException e) {
-            throw new IOException(e.getLocalizedMessage(), e);
-        }
-    }
-
-    /**
      * Builds new docker image from specified dockerfile.
      *
      * @param repository

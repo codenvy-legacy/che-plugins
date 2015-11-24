@@ -38,7 +38,6 @@ public class LocalDockerModule extends AbstractModule {
 
     @Override
     protected void configure() {
-//        bind(SnapshotDao.class).to(DummySnapshotDao.class);
         bind(MachineService.class);
 
         Multibinder<String> exposedPortsMultibinder =
@@ -65,5 +64,7 @@ public class LocalDockerModule extends AbstractModule {
 
         bind(org.eclipse.che.plugin.docker.machine.node.WorkspaceFolderPathProvider.class)
                 .to(org.eclipse.che.plugin.docker.machine.local.node.LocalWorkspaceFolderPathProvider.class);
+
+        bind(org.eclipse.che.plugin.docker.client.DockerRegistryChecker.class).asEagerSingleton();
     }
 }
