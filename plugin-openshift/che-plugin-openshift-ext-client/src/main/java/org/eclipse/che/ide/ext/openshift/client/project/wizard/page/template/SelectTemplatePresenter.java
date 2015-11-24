@@ -10,7 +10,9 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.openshift.client.project.wizard.page.template;
 
+import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
+import com.google.common.collect.Iterables;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -25,6 +27,7 @@ import org.eclipse.che.ide.ext.openshift.client.dto.NewApplicationRequest;
 import org.eclipse.che.ide.ext.openshift.shared.dto.Parameter;
 import org.eclipse.che.ide.ext.openshift.shared.dto.Template;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,6 +47,13 @@ public class SelectTemplatePresenter extends AbstractWizardPage<NewApplicationRe
     public static final String DEF_NAMESPACE = "openshift";
 
     private Template template;
+
+    private Predicate<Parameter> GIT_URI = new Predicate<Parameter>() {
+        @Override
+        public boolean apply(Parameter input) {
+            return "GIT_URI".equals(input.getName());
+        }
+    };
 
     @Inject
     public SelectTemplatePresenter(SelectTemplateView view,
@@ -79,8 +89,17 @@ public class SelectTemplatePresenter extends AbstractWizardPage<NewApplicationRe
     private Operation<List<Template>> showTemplates(final boolean keepExisting) {
         return new Operation<List<Template>>() {
             @Override
-            public void apply(List<Template> templates) throws OperationException {
-                view.setTemplates(templates, keepExisting);
+            public void apply(final List<Template> templates) throws OperationException {
+                List<Template> filtered = new ArrayList<>();
+                for (Template t : templates) {
+                    Parameter parameter = Iterables.find(t.getParameters(), GIT_URI, null);
+                    if (parameter == null || Strings.isNullOrEmpty(parameter.getValue())) {
+                        continue;
+                    }
+
+                    filtered.add(t);
+                }
+                view.setTemplates(filtered, keepExisting);
             }
         };
     }

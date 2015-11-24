@@ -39,6 +39,18 @@
     font-weight: bold;
 }
 
+.smallButton, .deployApplicationTable button {
+    padding: 0px 5px;
+    height: 18px;
+    line-height: 14px;
+    min-width: 18px;
+    font-weight: bold;
+}
+
+.deployApplicationTable {
+    border: 1px solid separatorColor;
+}
+
 .templateSection {
     border-bottom: 1px solid separatorColor;
     padding: 10px 8px;

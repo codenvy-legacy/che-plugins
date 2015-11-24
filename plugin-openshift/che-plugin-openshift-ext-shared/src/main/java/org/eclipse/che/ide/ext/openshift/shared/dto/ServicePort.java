@@ -32,11 +32,11 @@ public interface ServicePort {
 
     ServicePort withName(String name);
 
-    String getTargetPort();
+    Integer getTargetPort();
 
-    void setTargetPort(String targetPort);
+    void setTargetPort(Integer targetPort);
 
-    ServicePort withTargetPort(String targetPort);
+    ServicePort withTargetPort(Integer targetPort);
 
     Integer getNodePort();
 

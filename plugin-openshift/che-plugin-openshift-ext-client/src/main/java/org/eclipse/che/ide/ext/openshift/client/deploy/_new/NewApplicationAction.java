@@ -28,6 +28,8 @@ import static org.eclipse.che.ide.workspace.perspectives.project.ProjectPerspect
 import static org.eclipse.che.ide.ext.openshift.shared.OpenshiftProjectTypeConstants.OPENSHIFT_PROJECT_TYPE_ID;
 
 /**
+ * Action for deploying Che project to OpenShift new application.
+ *
  * @author Vlad Zhukovskiy
  */
 @Singleton
@@ -36,7 +38,6 @@ public class NewApplicationAction extends AbstractPerspectiveAction {
     private final AnalyticsEventLogger          eventLogger;
     private final NewApplicationPresenter       presenter;
     private final AppContext                    appContext;
-    private final OpenshiftAuthorizationHandler authHandler;
 
     @Inject
     public NewApplicationAction(final AnalyticsEventLogger eventLogger,
@@ -48,13 +49,11 @@ public class NewApplicationAction extends AbstractPerspectiveAction {
         this.eventLogger = eventLogger;
         this.presenter = presenter;
         this.appContext = appContext;
-        this.authHandler = authHandler;
     }
 
     @Override
     public void updateInPerspective(@NotNull ActionEvent event) {
         event.getPresentation().setVisible(appContext.getCurrentProject() != null);
-        event.getPresentation().setEnabled(authHandler.isLoggedIn() && appContext.getCurrentProject() != null);
         event.getPresentation().setEnabled(appContext.getCurrentProject() != null
                                            && !appContext.getCurrentProject().getProjectDescription().getMixins()
                                                          .contains(OPENSHIFT_PROJECT_TYPE_ID));
