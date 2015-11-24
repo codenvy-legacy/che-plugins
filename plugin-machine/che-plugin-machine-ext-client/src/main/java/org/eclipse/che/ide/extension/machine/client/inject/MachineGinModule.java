@@ -17,6 +17,7 @@ import com.google.gwt.inject.client.multibindings.GinMultibinder;
 import com.google.inject.Singleton;
 import com.google.inject.name.Names;
 
+import org.eclipse.che.api.machine.gwt.client.MachineManager;
 import org.eclipse.che.ide.api.extension.ExtensionGinModule;
 import org.eclipse.che.ide.api.parts.Perspective;
 import org.eclipse.che.ide.core.Component;
@@ -33,6 +34,7 @@ import org.eclipse.che.ide.extension.machine.client.command.valueproviders.DevMa
 import org.eclipse.che.ide.extension.machine.client.inject.factories.EntityFactory;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.TerminalFactory;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.WidgetsFactory;
+import org.eclipse.che.ide.extension.machine.client.machine.MachineManagerImpl;
 import org.eclipse.che.ide.extension.machine.client.machine.console.MachineConsoleToolbar;
 import org.eclipse.che.ide.extension.machine.client.machine.console.MachineConsoleView;
 import org.eclipse.che.ide.extension.machine.client.machine.console.MachineConsoleViewImpl;
@@ -102,5 +104,7 @@ public class MachineGinModule extends AbstractGinModule {
                                              .build(WidgetsFactory.class));
         install(new GinFactoryModuleBuilder().implement(Tab.class, TabImpl.class).build(EntityFactory.class));
         install(new GinFactoryModuleBuilder().build(TerminalFactory.class));
+
+        bind(MachineManager.class).to(MachineManagerImpl.class).in(Singleton.class);
     }
 }

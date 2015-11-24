@@ -11,8 +11,10 @@
 package org.eclipse.che.ide.extension.machine.client;
 
 import com.google.gwt.core.client.Callback;
+import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.api.core.model.machine.MachineStatus;
+import org.eclipse.che.api.machine.gwt.client.MachineManager;
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
 import org.eclipse.che.api.machine.shared.dto.MachineStateDto;
 import org.eclipse.che.api.promises.client.Operation;
@@ -20,7 +22,6 @@ import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.api.workspace.shared.dto.UsersWorkspaceDto;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.core.Component;
-import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -56,14 +57,16 @@ public class MachineComponentTest {
     private Callback<Component, Exception> componentCallback;
     @Mock
     private MachineStateDto                machineStateDescriptor;
+    @Mock
+    private EventBus                       eventBus;
 
     @InjectMocks
     private MachineComponent machineComponent;
 
     @Mock
-    private Promise<List<MachineStateDto>> machinesPromise;
+    private Promise<List<MachineStateDto>>                   machinesPromise;
     @Mock
-    private UsersWorkspaceDto              usersWorkspaceDto;
+    private UsersWorkspaceDto                                usersWorkspaceDto;
     @Captor
     private ArgumentCaptor<Operation<List<MachineStateDto>>> machinesCaptor;
 
@@ -86,6 +89,26 @@ public class MachineComponentTest {
         verify(machineStateDescriptor).getStatus();
         verify(appContext).setDevMachineId(eq(DEV_MACHINE_ID));
         verify(machineManager).onMachineRunning(eq(DEV_MACHINE_ID));
+        verify(componentCallback).onSuccess(eq(machineComponent));
+    }
+
+    @Test
+    public void shouldTransmitControlToMachineManager() throws Exception {
+        when(machineServiceClient.getMachinesStates(anyString(), anyString())).thenReturn(machinesPromise);
+        when(machinesPromise.then(any(Operation.class))).thenReturn(machinesPromise);
+        when(machineStateDescriptor.isDev()).thenReturn(true);
+        when(machineStateDescriptor.getStatus()).thenReturn(MachineStatus.CREATING);
+        when(machineStateDescriptor.getId()).thenReturn(DEV_MACHINE_ID);
+        when(appContext.getWorkspace()).thenReturn(usersWorkspaceDto);
+        when(usersWorkspaceDto.getId()).thenReturn(TEXT);
+
+        machineComponent.start(componentCallback);
+
+        verify(machineServiceClient).getMachinesStates(anyString(), anyString());
+        verify(machinesPromise).then(machinesCaptor.capture());
+        machinesCaptor.getValue().apply(Collections.singletonList(machineStateDescriptor));
+        verify(machineStateDescriptor).isDev();
+        verify(machineStateDescriptor).getStatus();
         verify(componentCallback).onSuccess(eq(machineComponent));
     }
 }

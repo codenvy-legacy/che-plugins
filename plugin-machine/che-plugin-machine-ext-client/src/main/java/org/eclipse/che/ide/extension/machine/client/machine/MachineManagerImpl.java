@@ -16,15 +16,18 @@ import com.google.inject.Singleton;
 import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.api.machine.gwt.client.ExtServerStateController;
+import org.eclipse.che.api.machine.gwt.client.MachineManager;
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
 import org.eclipse.che.api.machine.gwt.client.OutputMessageUnmarshaller;
 import org.eclipse.che.api.machine.gwt.client.events.DevMachineStateEvent;
 import org.eclipse.che.api.machine.gwt.client.events.DevMachineStateHandler;
+import org.eclipse.che.api.machine.shared.dto.ChannelsDto;
 import org.eclipse.che.api.machine.shared.dto.LimitsDto;
 import org.eclipse.che.api.machine.shared.dto.MachineConfigDto;
 import org.eclipse.che.api.machine.shared.dto.MachineDto;
 import org.eclipse.che.api.machine.shared.dto.MachineSourceDto;
 import org.eclipse.che.api.machine.shared.dto.MachineStateDto;
+import org.eclipse.che.api.machine.shared.dto.event.MachineStatusEvent;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.Promise;
@@ -32,25 +35,34 @@ import org.eclipse.che.api.workspace.gwt.client.WorkspaceServiceClient;
 import org.eclipse.che.api.workspace.shared.dto.UsersWorkspaceDto;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.notification.NotificationManager;
+import org.eclipse.che.ide.api.parts.PerspectiveManager;
 import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.EntityFactory;
 import org.eclipse.che.ide.extension.machine.client.machine.MachineStatusNotifier.RunningListener;
 import org.eclipse.che.ide.extension.machine.client.machine.console.MachineConsolePresenter;
-import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStartingEvent;
+import org.eclipse.che.api.machine.gwt.client.events.MachineStartingEvent;
 import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateEvent;
 import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateHandler;
 import org.eclipse.che.ide.extension.machine.client.watcher.SystemFileWatcher;
+import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
+import org.eclipse.che.ide.ui.loaders.initializationLoader.InitialLoadingInfo;
 import org.eclipse.che.ide.util.loging.Log;
 import org.eclipse.che.ide.websocket.MessageBus;
 import org.eclipse.che.ide.websocket.MessageBusProvider;
 import org.eclipse.che.ide.websocket.WebSocketException;
 import org.eclipse.che.ide.websocket.rest.SubscriptionHandler;
+import org.eclipse.che.ide.websocket.rest.Unmarshallable;
 import org.eclipse.che.ide.workspace.start.StartWorkspaceEvent;
 import org.eclipse.che.ide.workspace.start.StartWorkspaceHandler;
 
-import static org.eclipse.che.ide.extension.machine.client.machine.MachineManager.MachineOperationType.DESTROY;
-import static org.eclipse.che.ide.extension.machine.client.machine.MachineManager.MachineOperationType.RESTART;
-import static org.eclipse.che.ide.extension.machine.client.machine.MachineManager.MachineOperationType.START;
+import static org.eclipse.che.api.machine.gwt.client.MachineManager.MachineOperationType.START;
+import static org.eclipse.che.api.machine.gwt.client.MachineManager.MachineOperationType.RESTART;
+import static org.eclipse.che.api.machine.gwt.client.MachineManager.MachineOperationType.DESTROY;
+import static org.eclipse.che.ide.ui.loaders.initializationLoader.InitialLoadingInfo.Operations.MACHINE_BOOTING;
+import static org.eclipse.che.ide.ui.loaders.initializationLoader.OperationInfo.Status.ERROR;
+import static org.eclipse.che.ide.ui.loaders.initializationLoader.OperationInfo.Status.IN_PROGRESS;
+import static org.eclipse.che.ide.ui.loaders.initializationLoader.OperationInfo.Status.SUCCESS;
+import static org.eclipse.che.ide.extension.machine.client.perspective.MachinePerspective.MACHINE_PERSPECTIVE_ID;
 
 /**
  * Manager for machine operations.
@@ -58,14 +70,17 @@ import static org.eclipse.che.ide.extension.machine.client.machine.MachineManage
  * @author Artem Zatsarynnyy
  */
 @Singleton
-public class MachineManager {
+public class MachineManagerImpl implements MachineManager {
 
     private final ExtServerStateController extServerStateController;
+    private final DtoUnmarshallerFactory   dtoUnmarshallerFactory;
     private final MachineServiceClient     machineServiceClient;
     private final WorkspaceServiceClient   workspaceServiceClient;
     private final MachineConsolePresenter  machineConsolePresenter;
     private final NotificationManager      notificationManager;
     private final MachineStatusNotifier    machineStatusNotifier;
+    private final InitialLoadingInfo       initialLoadingInfo;
+    private final PerspectiveManager       perspectiveManager;
     private final EntityFactory            entityFactory;
     private final AppContext               appContext;
     private final DtoFactory               dtoFactory;
@@ -76,24 +91,30 @@ public class MachineManager {
     private boolean    isMachineRestarting;
 
     @Inject
-    public MachineManager(ExtServerStateController extServerStateController,
-                          MachineServiceClient machineServiceClient,
-                          WorkspaceServiceClient workspaceServiceClient,
-                          MachineConsolePresenter machineConsolePresenter,
-                          NotificationManager notificationManager,
-                          MachineStatusNotifier machineStatusNotifier,
-                          final MessageBusProvider messageBusProvider,
-                          EntityFactory entityFactory,
-                          EventBus eventBus,
-                          AppContext appContext,
-                          Provider<SystemFileWatcher> systemFileWatcherProvider,
-                          DtoFactory dtoFactory) {
+    public MachineManagerImpl(ExtServerStateController extServerStateController,
+                              DtoUnmarshallerFactory dtoUnmarshallerFactory,
+                              MachineServiceClient machineServiceClient,
+                              WorkspaceServiceClient workspaceServiceClient,
+                              MachineConsolePresenter machineConsolePresenter,
+                              NotificationManager notificationManager,
+                              MachineStatusNotifier machineStatusNotifier,
+                              final MessageBusProvider messageBusProvider,
+                              final InitialLoadingInfo initialLoadingInfo,
+                              final PerspectiveManager perspectiveManager,
+                              EntityFactory entityFactory,
+                              EventBus eventBus,
+                              AppContext appContext,
+                              Provider<SystemFileWatcher> systemFileWatcherProvider,
+                              DtoFactory dtoFactory) {
         this.extServerStateController = extServerStateController;
+        this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
         this.machineServiceClient = machineServiceClient;
         this.workspaceServiceClient = workspaceServiceClient;
         this.machineConsolePresenter = machineConsolePresenter;
         this.notificationManager = notificationManager;
         this.machineStatusNotifier = machineStatusNotifier;
+        this.initialLoadingInfo = initialLoadingInfo;
+        this.perspectiveManager = perspectiveManager;
         this.entityFactory = entityFactory;
         this.appContext = appContext;
         this.dtoFactory = dtoFactory;
@@ -123,6 +144,7 @@ public class MachineManager {
         });
     }
 
+    @Override
     public void restartMachine(final MachineStateDto machineState) {
         eventBus.addHandler(MachineStateEvent.TYPE, new MachineStateHandler() {
             @Override
@@ -153,11 +175,13 @@ public class MachineManager {
     }
 
     /** Start new machine. */
+    @Override
     public void startMachine(String recipeURL, String displayName) {
         startMachine(recipeURL, displayName, false, START);
     }
 
     /** Start new machine as dev-machine (bind workspace to running machine). */
+    @Override
     public void startDevMachine(String recipeURL, String displayName) {
         startMachine(recipeURL, displayName, true, START);
     }
@@ -205,6 +229,7 @@ public class MachineManager {
         });
     }
 
+    @Override
     public void onMachineRunning(final String machineId) {
         machineServiceClient.getMachine(machineId).then(new Operation<MachineDto>() {
             @Override
@@ -217,6 +242,7 @@ public class MachineManager {
         });
     }
 
+    @Override
     public Promise<Void> destroyMachine(final MachineStateDto machineState) {
         return machineServiceClient.destroyMachine(machineState.getId()).then(new Operation<Void>() {
             @Override
@@ -247,12 +273,56 @@ public class MachineManager {
                         }
                     });
         } catch (WebSocketException e) {
-            Log.error(MachineManager.class, e);
+            Log.error(MachineManagerImpl.class, e);
             notificationManager.showError(e.getMessage());
         }
     }
 
-    enum MachineOperationType {
-        START, RESTART, DESTROY
+    private void subscribeToMachineStatus(String machineStatusChanel) {
+        final Unmarshallable<MachineStatusEvent> unmarshaller = dtoUnmarshallerFactory.newWSUnmarshaller(MachineStatusEvent.class);
+        try {
+            messageBus.subscribe(machineStatusChanel, new SubscriptionHandler<MachineStatusEvent>(unmarshaller) {
+                @Override
+                protected void onMessageReceived(MachineStatusEvent event) {
+                    onMachineStatusChanged(event);
+                }
+
+                @Override
+                protected void onErrorReceived(Throwable exception) {
+                    notificationManager.showError(exception.getMessage());
+                }
+            });
+        } catch (WebSocketException exception) {
+            Log.error(getClass(), exception);
+        }
+    }
+
+    private void onMachineStatusChanged(MachineStatusEvent event) {
+        switch (event.getEventType()) {
+            case RUNNING:
+                initialLoadingInfo.setOperationStatus(MACHINE_BOOTING.getValue(), SUCCESS);
+
+                String machineId = event.getMachineId();
+                appContext.setDevMachineId(machineId);
+                onMachineRunning(machineId);
+
+                eventBus.fireEvent(new DevMachineStateEvent(event));
+                break;
+            case ERROR:
+                initialLoadingInfo.setOperationStatus(MACHINE_BOOTING.getValue(), ERROR);
+                break;
+            default:
+        }
+    }
+
+
+    @Override
+    public void onDevMachineCreating(MachineStateDto machineState) {
+        perspectiveManager.setPerspectiveId(MACHINE_PERSPECTIVE_ID);
+        initialLoadingInfo.setOperationStatus(MACHINE_BOOTING.getValue(), IN_PROGRESS);
+
+        ChannelsDto channels = machineState.getChannels();
+        subscribeToOutput(channels.getOutput());
+        subscribeToMachineStatus(channels.getStatus());
     }
 }
