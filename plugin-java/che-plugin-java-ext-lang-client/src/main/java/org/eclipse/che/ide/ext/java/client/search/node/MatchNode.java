@@ -20,14 +20,21 @@ import com.google.inject.assistedinject.Assisted;
 import org.eclipse.che.api.promises.client.Function;
 import org.eclipse.che.api.promises.client.FunctionException;
 import org.eclipse.che.api.promises.client.Promise;
+import org.eclipse.che.commons.annotation.Nullable;
+import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.editor.EditorPartPresenter;
 import org.eclipse.che.ide.api.project.node.HasAction;
 import org.eclipse.che.ide.api.project.node.HasStorablePath;
 import org.eclipse.che.ide.api.project.node.Node;
 import org.eclipse.che.ide.api.project.tree.VirtualFile;
+import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.ext.java.client.JavaResources;
+import org.eclipse.che.ide.ext.java.client.project.node.JavaNodeManager;
+import org.eclipse.che.ide.ext.java.client.project.node.jar.ContentNode;
+import org.eclipse.che.ide.ext.java.shared.JarEntry;
 import org.eclipse.che.ide.ext.java.shared.dto.Region;
+import org.eclipse.che.ide.ext.java.shared.dto.model.ClassFile;
 import org.eclipse.che.ide.ext.java.shared.dto.model.CompilationUnit;
 import org.eclipse.che.ide.ext.java.shared.dto.search.Match;
 import org.eclipse.che.ide.jseditor.client.text.LinearRange;
@@ -53,22 +60,33 @@ public class MatchNode extends AbstractPresentationNode implements HasAction {
     private EditorAgent     editorAgent;
     private ProjectExplorerPresenter
                             projectExplorer;
+    private DtoFactory      dtoFactory;
+    private JavaNodeManager javaNodeManager;
+    private AppContext      appContext;
     private Match           match;
     private CompilationUnit compilationUnit;
+    private ClassFile       classFile;
 
     @Inject
     public MatchNode(TreeStyles styles,
                      JavaResources resources,
                      EditorAgent editorAgent,
                      ProjectExplorerPresenter projectExplorer,
+                     DtoFactory dtoFactory,
+                     JavaNodeManager javaNodeManager,
+                     AppContext appContext,
                      @Assisted Match match,
-                     @Assisted CompilationUnit compilationUnit) {
+                     @Nullable @Assisted CompilationUnit compilationUnit, @Nullable @Assisted ClassFile classFile) {
         this.styles = styles;
         this.resources = resources;
         this.editorAgent = editorAgent;
         this.projectExplorer = projectExplorer;
+        this.dtoFactory = dtoFactory;
+        this.javaNodeManager = javaNodeManager;
+        this.appContext = appContext;
         this.match = match;
         this.compilationUnit = compilationUnit;
+        this.classFile = classFile;
     }
 
     @Override
@@ -87,14 +105,18 @@ public class MatchNode extends AbstractPresentationNode implements HasAction {
         SpanElement textElement = Elements.createSpanElement();
         Region matchInLine = match.getMatchInLine();
         String matchedLine = match.getMatchedLine();
-        String startLine = matchedLine.substring(0, matchInLine.getOffset());
-        textElement.appendChild(Elements.createTextNode(startLine));
+        if (matchedLine != null && matchInLine != null) {
+            String startLine = matchedLine.substring(0, matchInLine.getOffset());
+            textElement.appendChild(Elements.createTextNode(startLine));
+            SpanElement highlightElement = Elements.createSpanElement(resources.css().searchMatch());
+            highlightElement
+                    .setInnerText(matchedLine.substring(matchInLine.getOffset(), matchInLine.getOffset() + matchInLine.getLength()));
+            textElement.appendChild(highlightElement);
 
-        SpanElement highlightElement = Elements.createSpanElement(resources.css().searchMatch());
-        highlightElement.setInnerText(matchedLine.substring(matchInLine.getOffset(), matchInLine.getOffset() + matchInLine.getLength()));
-        textElement.appendChild(highlightElement);
-
-        textElement.appendChild(Elements.createTextNode(matchedLine.substring(matchInLine.getOffset() + matchInLine.getLength())));
+            textElement.appendChild(Elements.createTextNode(matchedLine.substring(matchInLine.getOffset() + matchInLine.getLength())));
+        } else {
+            textElement.appendChild(Elements.createTextNode("Can't find sources"));
+        }
         spanElement.appendChild(textElement);
 
         presentation.setPresentableIcon(resources.searchMatch());
@@ -117,16 +139,32 @@ public class MatchNode extends AbstractPresentationNode implements HasAction {
 
     @Override
     public void actionPerformed() {
-        EditorPartPresenter editorPartPresenter = editorAgent.getOpenedEditors().get(compilationUnit.getPath());
-        if (editorPartPresenter != null) {
-            editorAgent.activateEditor(editorPartPresenter);
-            fileOpened(editorPartPresenter);
-            return;
-        }
+        if (compilationUnit != null) {
+            EditorPartPresenter editorPartPresenter = editorAgent.getOpenedEditors().get(compilationUnit.getPath());
+            if (editorPartPresenter != null) {
+                editorAgent.activateEditor(editorPartPresenter);
+                fileOpened(editorPartPresenter);
+                return;
+            }
 
-        projectExplorer.getNodeByPath(new HasStorablePath.StorablePath(compilationUnit.getPath()))
-                       .then(selectNode())
-                       .then(openNode());
+            projectExplorer.getNodeByPath(new HasStorablePath.StorablePath(compilationUnit.getPath()))
+                           .then(selectNode())
+                           .then(openNode());
+        } else if (classFile != null) {
+            String className = classFile.getElementName();
+
+            JarEntry jarEntry = dtoFactory.createDto(JarEntry.class);
+            jarEntry.setName(className);
+            jarEntry.setType(JarEntry.JarEntryType.CLASS_FILE);
+            jarEntry.setPath(classFile.getPath());
+
+            ContentNode contentNode = javaNodeManager
+                    .getJavaNodeFactory()
+                    .newContentNode(jarEntry,
+                                    appContext.getCurrentProject().getProjectDescription(),
+                                    javaNodeManager.getJavaSettingsProvider().getSettings());
+            openFile(contentNode);
+        }
     }
 
     private Function<Node, Node> selectNode() {

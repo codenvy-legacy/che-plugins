@@ -11,8 +11,6 @@
 
 package org.eclipse.che.ide.ext.java.client.search;
 
-import com.google.inject.ImplementedBy;
-
 import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.ide.ext.java.shared.dto.search.FindUsagesRequest;
 import org.eclipse.che.ide.ext.java.shared.dto.search.FindUsagesResponse;
@@ -22,7 +20,6 @@ import org.eclipse.che.ide.ext.java.shared.dto.search.FindUsagesResponse;
  *
  * @author Evgen Vidolob
  */
-@ImplementedBy(JavaSearchServiceImpl.class)
 public interface JavaSearchService {
 
     /**

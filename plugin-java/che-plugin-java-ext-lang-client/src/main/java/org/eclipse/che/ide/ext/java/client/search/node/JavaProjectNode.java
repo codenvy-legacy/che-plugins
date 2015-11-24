@@ -58,7 +58,7 @@ public class JavaProjectNode extends AbstractPresentationNode {
                 List<Node> children = new ArrayList<>();
                 for (PackageFragmentRoot packageFragmentRoot : project.getPackageFragmentRoots()) {
                     for (PackageFragment packageFragment : packageFragmentRoot.getPackageFragments()) {
-                        children.add(nodeFactory.create(packageFragment, matches));
+                        children.add(nodeFactory.create(packageFragment, matches, packageFragmentRoot));
                     }
                 }
                 callback.onSuccess(children);

@@ -318,7 +318,7 @@ public class NewSearchUI {
      */
     public static boolean arePotentialMatchesIgnored() {
 //		return SearchPreferencePage.arePotentialMatchesIgnored();
-        return false;
+        return true;
     }
 
 //	/**

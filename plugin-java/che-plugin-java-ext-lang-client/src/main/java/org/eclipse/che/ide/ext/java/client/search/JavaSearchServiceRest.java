@@ -35,7 +35,7 @@ import static org.eclipse.che.ide.rest.HTTPHeader.CONTENT_TYPE;
  * @author Evgen Vidolob
  */
 @Singleton
-class JavaSearchServiceImpl implements JavaSearchService {
+public class JavaSearchServiceRest implements JavaSearchService {
 
     private final AsyncRequestFactory    asyncRequestFactory;
     private final DtoUnmarshallerFactory unmarshallerFactory;
@@ -43,7 +43,7 @@ class JavaSearchServiceImpl implements JavaSearchService {
     private final String                 pathToService;
 
     @Inject
-    public JavaSearchServiceImpl(AsyncRequestFactory asyncRequestFactory,
+    public JavaSearchServiceRest(AsyncRequestFactory asyncRequestFactory,
                                  DtoUnmarshallerFactory unmarshallerFactory,
                                  IdeLoader loader,
                                  @Named("cheExtensionPath") String extPath,

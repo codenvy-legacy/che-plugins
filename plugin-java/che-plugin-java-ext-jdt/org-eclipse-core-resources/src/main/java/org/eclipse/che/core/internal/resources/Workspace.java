@@ -737,12 +737,13 @@ public class Workspace implements IWorkspace {
             return IResource.FILE;
         } else {
             try {
-                if (projectManager.isProjectFolder((FolderEntry)file)) {
+                FolderEntry folder = (FolderEntry)file;
+                if (folder.getChild(".codenvy") != null /*projectManager.isProjectFolder(folder)*/) {
                     return IResource.PROJECT;
                 } else {
                     return IResource.FOLDER;
                 }
-            } catch (ServerException e) {
+            } catch (ServerException | ForbiddenException e) {
                 LOG.error(e.getMessage(), e);
                 return IResource.FOLDER;
             }

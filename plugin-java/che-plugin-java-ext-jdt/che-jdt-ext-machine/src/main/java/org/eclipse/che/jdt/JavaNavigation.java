@@ -539,12 +539,16 @@ public class JavaNavigation {
     public String getContent(IJavaProject project, String path) throws JavaModelException {
         //java class or file
         IType type = project.findType(path);
-        if (type != null && type.isBinary()) {
-            IClassFile classFile = type.getClassFile();
-            if (classFile.getSourceRange() != null) {
-                return classFile.getSource();
+        if (type != null) {
+            if (type.isBinary()) {
+                IClassFile classFile = type.getClassFile();
+                if (classFile.getSourceRange() != null) {
+                    return classFile.getSource();
+                } else {
+                    return sourcesGenerator.generateSource(classFile.getType());
+                }
             } else {
-                return sourcesGenerator.generateSource(classFile.getType());
+                return type.getCompilationUnit().getSource();
             }
         }
         throw new JavaModelException(new JavaModelStatus(0, "Can't find type: " + path));
