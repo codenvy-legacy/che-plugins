@@ -242,7 +242,8 @@ public class JavaElementToDtoConverter {
                 ClassFile classFile = DtoFactory.newDto(ClassFile.class);
                 IClassFile clazz = (IClassFile)children;
                 classFile.setHandleIdentifier(clazz.getHandleIdentifier());
-                classFile.setPath(clazz.getPath().toOSString());
+                classFile.setElementName(clazz.getElementName());
+                classFile.setPath(clazz.getType().getFullyQualifiedName());
                 classFile.setLabel(JavaElementLabels.getElementLabel(clazz, JavaElementLabels.ALL_DEFAULT));
                 classFile.setProjectPath(clazz.getJavaProject().getPath().toOSString());
                 classFile.setType(getTypes(children).get(0));

@@ -11,10 +11,12 @@
 
 package org.eclipse.che.ide.ext.java.client.search.node;
 
+import org.eclipse.che.ide.ext.java.shared.dto.model.ClassFile;
 import org.eclipse.che.ide.ext.java.shared.dto.model.CompilationUnit;
 import org.eclipse.che.ide.ext.java.shared.dto.model.JavaProject;
 import org.eclipse.che.ide.ext.java.shared.dto.model.Method;
 import org.eclipse.che.ide.ext.java.shared.dto.model.PackageFragment;
+import org.eclipse.che.ide.ext.java.shared.dto.model.PackageFragmentRoot;
 import org.eclipse.che.ide.ext.java.shared.dto.model.Type;
 import org.eclipse.che.ide.ext.java.shared.dto.search.FindUsagesResponse;
 import org.eclipse.che.ide.ext.java.shared.dto.search.Match;
@@ -33,12 +35,12 @@ public interface NodeFactory {
 
     JavaProjectNode create(JavaProject javaProject, Map<String, List<Match>> matches);
 
-    PackageFragmentNode create(PackageFragment packageFragment, Map<String, List<Match>> matches);
+    PackageFragmentNode create(PackageFragment packageFragment, Map<String, List<Match>> matches, PackageFragmentRoot parent);
 
-    TypeNode create(Type type, CompilationUnit compilationUnit, Map<String, List<Match>> matches);
+    TypeNode create(Type type, CompilationUnit compilationUnit, ClassFile classFile, Map<String, List<Match>> matches);
 
-    MethodNode create(Method method, Map<String, List<Match>> matches, CompilationUnit compilationUnit);
+    MethodNode create(Method method, Map<String, List<Match>> matches, CompilationUnit compilationUnit, ClassFile classFile);
 
-    MatchNode create(Match match, CompilationUnit compilationUnit);
+    MatchNode create(Match match, CompilationUnit compilationUnit, ClassFile classFile);
 
 }

@@ -23,6 +23,7 @@ import org.eclipse.che.jdt.rest.CompilerSetupService;
 import org.eclipse.che.jdt.rest.FormatService;
 import org.eclipse.che.jdt.rest.JavaClasspathService;
 import org.eclipse.che.jdt.rest.JavaReconcileService;
+import org.eclipse.che.jdt.rest.JdtExceptionMapper;
 import org.eclipse.che.jdt.rest.RefactoringService;
 import org.eclipse.che.jdt.rest.SearchService;
 import org.eclipse.core.internal.filebuffers.FileBuffersPlugin;
@@ -37,8 +38,6 @@ import java.nio.file.Paths;
 @DynaModule
 public class JdtGuiceModule extends AbstractModule {
 
-    private static final String CHE = "/.che";
-
     @Override
     protected void configure() {
         bind(JavadocService.class);
@@ -47,6 +46,7 @@ public class JdtGuiceModule extends AbstractModule {
         bind(JavaClasspathService.class);
         bind(FormatService.class);
         bind(CodeAssistService.class);
+        bind(JdtExceptionMapper.class);
         bind(CompilerSetupService.class);
         bind(ResourcesPlugin.class).asEagerSingleton();
         bind(JavaPlugin.class).asEagerSingleton();

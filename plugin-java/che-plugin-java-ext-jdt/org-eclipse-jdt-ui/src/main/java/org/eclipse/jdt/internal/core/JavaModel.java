@@ -10,12 +10,12 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -30,7 +30,6 @@ import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 import org.eclipse.jdt.internal.core.util.Messages;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Map;
 
 /**
@@ -203,10 +202,23 @@ public IJavaProject getJavaProject(IResource resource) {
  * @see org.eclipse.jdt.core.IJavaModel
  */
 public IJavaProject[] getJavaProjects() throws JavaModelException {
-    ArrayList list = getChildrenOfType(IJavaElement.JAVA_PROJECT);
-    IJavaProject[] array = new IJavaProject[list.size()];
-    list.toArray(array);
-    return array;
+//    ArrayList list = getChildrenOfType(IJavaElement.JAVA_PROJECT);
+	// determine my children
+	IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
+	int length = projects.length;
+	IJavaProject[] children = new IJavaProject[length];
+	int index = 0;
+	for (int i = 0; i < length; i++) {
+		IProject project = projects[i];
+		if (org.eclipse.jdt.internal.core.JavaProject.hasJavaNature(project)) {
+			children[index++] = getJavaProject(project);
+		}
+	}
+	if (index < length)
+		System.arraycopy(children, 0, children = new IJavaProject[index], 0, index);
+//    IJavaProject[] array = new IJavaProject[list.size()];
+//    list.toArray(array);
+	return children;
 }
 /**
  * @see org.eclipse.jdt.core.IJavaModel

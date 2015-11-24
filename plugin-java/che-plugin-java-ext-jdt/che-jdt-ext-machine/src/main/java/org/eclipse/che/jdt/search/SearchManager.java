@@ -17,7 +17,6 @@ import org.eclipse.che.dto.server.DtoFactory;
 import org.eclipse.che.ide.ext.java.shared.dto.Region;
 import org.eclipse.che.ide.ext.java.shared.dto.model.JavaProject;
 import org.eclipse.che.ide.ext.java.shared.dto.search.FindUsagesResponse;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IField;
@@ -25,6 +24,7 @@ import org.eclipse.jdt.core.IImportDeclaration;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.ILocalVariable;
+import org.eclipse.jdt.core.IMember;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IPackageDeclaration;
 import org.eclipse.jdt.core.IPackageFragment;
@@ -32,6 +32,7 @@ import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.ITypeParameter;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
+import org.eclipse.jdt.internal.core.DefaultWorkingCopyOwner;
 import org.eclipse.jdt.internal.core.DocumentAdapter;
 import org.eclipse.jdt.internal.ui.search.JavaSearchQuery;
 import org.eclipse.jdt.internal.ui.search.JavaSearchResult;
@@ -61,22 +62,29 @@ import java.util.Map;
 public class SearchManager {
     private static final Logger LOG = LoggerFactory.getLogger(SearchManager.class);
 
-    private static final Class<?>[] TYPES_FOR_FIND_USAGE = new Class[]{ICompilationUnit.class,
-                                                                       IType.class,
-                                                                       IMethod.class,
-                                                                       IField.class,
-                                                                       IPackageDeclaration.class,
-                                                                       IImportDeclaration.class,
-                                                                       IPackageFragment.class,
-                                                                       ILocalVariable.class,
-                                                                       ITypeParameter.class};
+    private static final Class<?>[] TYPES_FOR_FIND_USAGE = new Class[] {ICompilationUnit.class,
+                                                                        IType.class,
+                                                                        IMethod.class,
+                                                                        IField.class,
+                                                                        IPackageDeclaration.class,
+                                                                        IImportDeclaration.class,
+                                                                        IPackageFragment.class,
+                                                                        ILocalVariable.class,
+                                                                        ITypeParameter.class};
 
 
-    public FindUsagesResponse findUsage(IJavaProject javaProject, String filePath, int offset) throws SearchException {
-        String packagePath = filePath.substring(0, filePath.lastIndexOf("/"));
+    public FindUsagesResponse findUsage(IJavaProject javaProject, String fqn, int offset) throws SearchException {
         try {
-            IPackageFragment packageFragment = javaProject.findPackageFragment(new Path(packagePath));
-            ICompilationUnit compilationUnit = packageFragment.getCompilationUnit(filePath.substring(filePath.lastIndexOf('/') + 1));
+            ICompilationUnit compilationUnit;
+            IType type = javaProject.findType(fqn);
+            if (type.isBinary()) {
+                compilationUnit = type.getCompilationUnit();
+                if (compilationUnit == null) {
+                    throw new SearchException("Can't find sources for: " + fqn + " type");
+                }
+            } else {
+                compilationUnit = type.getCompilationUnit();
+            }
             IJavaElement[] elements = compilationUnit.codeSelect(offset, 0);
             if (elements != null && elements.length == 1) {
                 IJavaElement element = elements[0];
@@ -92,7 +100,8 @@ public class SearchManager {
 
         } catch (JavaModelException e) {
             LOG.error(e.getMessage(), e);
-            throw new SearchException(String.format("Can't find project: %s or file: %s", javaProject.getPath().toOSString(), filePath), e);
+            throw new SearchException(String.format("Can't find project: %s or file for FQN: %s", javaProject.getPath().toOSString(), fqn),
+                                      e);
         } catch (BadLocationException e) {
             LOG.error(e.getMessage(), e);
             throw new SearchException("Some error happened when formatting search result", e);
@@ -102,7 +111,7 @@ public class SearchManager {
     private FindUsagesResponse performFindUsageSearch(IJavaElement element) throws JavaModelException, BadLocationException {
         JavaSearchQuery
                 query = new JavaSearchQuery(new ElementQuerySpecification(element, IJavaSearchConstants.REFERENCES,
-                                                                          JavaSearchScopeFactory.getInstance().createWorkspaceScope(true),
+                                                                          JavaSearchScopeFactory.getInstance().createWorkspaceScope(false),
                                                                           "workspace scope"));
         NewSearchUI.runQueryInForeground(null, query);
         ISearchResult result = query.getSearchResult();
@@ -112,30 +121,41 @@ public class SearchManager {
         JavaElementToDtoConverter converter = new JavaElementToDtoConverter(javaResult);
         for (Object o : javaResult.getElements()) {
             IJavaElement javaElement = (IJavaElement)o;
+            IDocument document = null;
+            if (javaElement instanceof IMember) {
+                IMember member = ((IMember)javaElement);
+                if (member.isBinary()) {
+                    ICompilationUnit workingCopy = member.getClassFile().getWorkingCopy(DefaultWorkingCopyOwner.PRIMARY, null);
+                    if (workingCopy != null) {
+                        document = getDocument(workingCopy);
+                    }
+                } else {
+                    document = getDocument(member.getCompilationUnit());
+                }
+            } else if (javaElement instanceof IPackageDeclaration) {
+                ICompilationUnit ancestor = (ICompilationUnit)(javaElement).getAncestor(IJavaElement.COMPILATION_UNIT);
+                document = getDocument(ancestor);
+
+            }
             converter.addElementToProjectHierarchy(javaElement);
 
             Match[] matches = javaResult.getMatches(o);
+
             List<org.eclipse.che.ide.ext.java.shared.dto.search.Match> matchList = new ArrayList<>();
             for (Match match : matches) {
-                ICompilationUnit ancestor = (ICompilationUnit)(javaElement).getAncestor(IJavaElement.COMPILATION_UNIT);
-                IBuffer buffer = ancestor.getBuffer();
-                IDocument document;
-                if (buffer instanceof org.eclipse.jdt.internal.ui.javaeditor.DocumentAdapter) {
-                    document = ((org.eclipse.jdt.internal.ui.javaeditor.DocumentAdapter)buffer).getDocument();
-                } else {
-                    document = new DocumentAdapter(buffer);
-                }
-                IRegion lineInformation = document.getLineInformationOfOffset(match.getOffset());
                 org.eclipse.che.ide.ext.java.shared.dto.search.Match dtoMatch = DtoFactory.newDto(
                         org.eclipse.che.ide.ext.java.shared.dto.search.Match.class);
+                if (document != null) {
+                    IRegion lineInformation = document.getLineInformationOfOffset(match.getOffset());
 
-                int offsetInLine = match.getOffset() - lineInformation.getOffset();
-                Region matchInLine = DtoFactory.newDto(Region.class).withOffset(offsetInLine).withLength(match.getLength());
-
-                dtoMatch.setFileMatchRegion(DtoFactory.newDto(Region.class).withOffset(match.getOffset()).withLength(match.getLength()));
-                dtoMatch.setMatchInLine(matchInLine);
-                dtoMatch.setMatchedLine(document.get(lineInformation.getOffset(), lineInformation.getLength()));
-                dtoMatch.setMatchLineNumber(document.getLineOfOffset(match.getOffset()));
+                    int offsetInLine = match.getOffset() - lineInformation.getOffset();
+                    Region matchInLine = DtoFactory.newDto(Region.class).withOffset(offsetInLine).withLength(match.getLength());
+                    dtoMatch.setMatchInLine(matchInLine);
+                    dtoMatch.setMatchLineNumber(document.getLineOfOffset(match.getOffset()));
+                    dtoMatch.setMatchedLine(document.get(lineInformation.getOffset(), lineInformation.getLength()));
+                }
+                dtoMatch.setFileMatchRegion(
+                        DtoFactory.newDto(Region.class).withOffset(match.getOffset()).withLength(match.getLength()));
                 matchList.add(dtoMatch);
 
             }
@@ -146,6 +166,17 @@ public class SearchManager {
         response.setMatches(mapMaches);
         response.setSearchElementLabel(JavaElementLabels.getElementLabel(element, JavaElementLabels.ALL_DEFAULT));
         return response;
+    }
+
+    private IDocument getDocument(ICompilationUnit ancestor) throws JavaModelException {
+        IDocument document;
+        IBuffer buffer = ancestor.getBuffer();
+        if (buffer instanceof org.eclipse.jdt.internal.ui.javaeditor.DocumentAdapter) {
+            document = ((org.eclipse.jdt.internal.ui.javaeditor.DocumentAdapter)buffer).getDocument();
+        } else {
+            document = new DocumentAdapter(buffer);
+        }
+        return document;
     }
 
     private boolean isTypeValid(IJavaElement element, Class<?>[] classes) {

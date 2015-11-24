@@ -21,6 +21,7 @@ import org.eclipse.che.api.promises.client.callback.PromiseHelper;
 import org.eclipse.che.ide.api.project.node.Node;
 import org.eclipse.che.ide.ext.java.client.JavaResources;
 import org.eclipse.che.ide.ext.java.client.util.Flags;
+import org.eclipse.che.ide.ext.java.shared.dto.model.ClassFile;
 import org.eclipse.che.ide.ext.java.shared.dto.model.CompilationUnit;
 import org.eclipse.che.ide.ext.java.shared.dto.model.Method;
 import org.eclipse.che.ide.ext.java.shared.dto.search.Match;
@@ -44,16 +45,22 @@ public class MethodNode extends AbstractPresentationNode {
     private JavaResources            resources;
     private Method                   method;
     private Map<String, List<Match>> matches;
-    private CompilationUnit compilationUnit;
+    private CompilationUnit          compilationUnit;
+    private ClassFile                classFile;
 
     @Inject
-    public MethodNode(NodeFactory nodeFactory, JavaResources resources, @Assisted Method method,
-                      @Assisted Map<String, List<Match>> matches, @Assisted CompilationUnit compilationUnit) {
+    public MethodNode(NodeFactory nodeFactory,
+                      JavaResources resources,
+                      @Assisted Method method,
+                      @Assisted Map<String, List<Match>> matches,
+                      @Assisted CompilationUnit compilationUnit,
+                      @Assisted ClassFile classFile) {
         this.nodeFactory = nodeFactory;
         this.resources = resources;
         this.method = method;
         this.matches = matches;
         this.compilationUnit = compilationUnit;
+        this.classFile = classFile;
     }
 
     @Override
@@ -64,7 +71,7 @@ public class MethodNode extends AbstractPresentationNode {
                 List<Node> children = new ArrayList<>();
                 if (matches.containsKey(method.getHandleIdentifier())) {
                     for (Match match : matches.get(method.getHandleIdentifier())) {
-                        children.add(nodeFactory.create(match, compilationUnit));
+                        children.add(nodeFactory.create(match, compilationUnit, classFile));
                     }
                 }
 

@@ -224,4 +224,6 @@ public interface JavaResources extends ClientBundle {
     @Source("svg/searchMatch.svg")
     SVGResource searchMatch();
 
+    @Source("svg/find_usages.svg")
+    SVGResource findUsages();
 }

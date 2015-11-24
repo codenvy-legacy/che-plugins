@@ -18,6 +18,7 @@ import org.eclipse.che.ide.api.action.ActionEvent;
 import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.editor.EditorPartPresenter;
 import org.eclipse.che.ide.ext.java.client.JavaLocalizationConstant;
+import org.eclipse.che.ide.ext.java.client.JavaResources;
 import org.eclipse.che.ide.ext.java.client.search.FindUsagesPresenter;
 import org.eclipse.che.ide.jseditor.client.texteditor.TextEditor;
 
@@ -32,8 +33,9 @@ public class FindUsagesAction extends JavaEditorAction {
     private FindUsagesPresenter presenter;
 
     @Inject
-    public FindUsagesAction(JavaLocalizationConstant constant, EditorAgent editorAgent, FindUsagesPresenter presenter) {
-        super(constant.actionFindUsagesTitle(), constant.actionFindUsagesDescription(), editorAgent);
+    public FindUsagesAction(JavaLocalizationConstant constant, EditorAgent editorAgent, FindUsagesPresenter presenter,
+                            JavaResources resources) {
+        super(constant.actionFindUsagesTitle(), constant.actionFindUsagesDescription(), resources.findUsages(), editorAgent);
         this.presenter = presenter;
     }
 
