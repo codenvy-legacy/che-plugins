@@ -84,6 +84,11 @@ public class DockerInstanceProvider implements InstanceProvider {
      */
     public static final String CHE_WORKSPACE_ID = "CHE_WORKSPACE_ID";
 
+    /**
+     * Environment variable that will be setup in developer machine and contains user token.
+     */
+    public static final String USER_TOKEN = "USER_TOKEN";
+
     private final DockerConnector                  docker;
     private final DockerInstanceStopDetector       dockerInstanceStopDetector;
     private final WorkspaceFolderPathProvider      workspaceFolderPathProvider;
@@ -362,7 +367,9 @@ public class DockerInstanceProvider implements InstanceProvider {
                 // 1 extra element that contains workspace FS folder will be added further
                 volumes = Sets.newHashSetWithExpectedSize(systemVolumesForDevMachine.size() + 1);
                 volumes.addAll(systemVolumesForDevMachine);
-                env = ObjectArrays.concat(devMachineEnvVariables, CHE_WORKSPACE_ID + '=' + machineState.getWorkspaceId());
+                String[] vars = {CHE_WORKSPACE_ID + '=' + machineState.getWorkspaceId(),
+                                 USER_TOKEN + '=' + EnvironmentContext.getCurrent().getUser().getToken()};
+                env = ObjectArrays.concat(devMachineEnvVariables, vars, String.class);
 
                 // add workspace FS folder to volumes
                 final String projectFolderVolume = String.format("%s:%s",
@@ -378,10 +385,10 @@ public class DockerInstanceProvider implements InstanceProvider {
 
             final HostConfig hostConfig = new HostConfig().withBinds(volumes.toArray(new String[volumes.size()]))
                                                           .withExtraHosts(machineExtraHosts)
-                                                          .withPublishAllPorts(true);
+                                                          .withPublishAllPorts(true)
+                                                          .withMemorySwap(-1)
+                                                          .withMemory((long)machineState.getLimits().getMemory() * 1024 * 1024);
             final ContainerConfig config = new ContainerConfig().withImage(imageId)
-                                                                .withMemorySwap(-1)
-                                                                .withMemory((long)machineState.getLimits().getMemory() * 1024 * 1024)
                                                                 .withLabels(labels)
                                                                 .withExposedPorts(portsToExpose)
                                                                 .withHostConfig(hostConfig)

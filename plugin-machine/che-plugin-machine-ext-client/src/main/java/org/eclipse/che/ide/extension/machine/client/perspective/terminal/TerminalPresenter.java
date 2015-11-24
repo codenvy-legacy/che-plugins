@@ -207,6 +207,10 @@ public class TerminalPresenter implements TabPresenter, TerminalView.ActionDeleg
 
     @Override
     public void setTerminalSize(int x, int y) {
+        if (!isTerminalConnected) {
+            return;
+        }
+
         terminal.resize(x, y);
         Jso jso = Jso.create();
         JsArrayInteger arr = Jso.createArray().cast();
@@ -215,6 +219,5 @@ public class TerminalPresenter implements TabPresenter, TerminalView.ActionDeleg
         jso.addField("type", "resize");
         jso.addField("data", arr);
         socket.send(jso.serialize());
-
     }
 }

@@ -15,7 +15,7 @@
     <ui:with field='locale' type='org.eclipse.che.ide.ext.git.client.GitLocalizationConstant'/>
     <ui:with field="style" type="org.eclipse.che.ide.ext.git.client.importer.page.GitImporterPageViewImpl.Style"/>
     <g:DockLayoutPanel unit="PX" addStyleNames="{style.mainPanel}">
-        <g:north size="450">
+        <g:north size="400">
             <g:FlowPanel ui:field="importerPanel">
                 <g:FlowPanel height="65px" addStyleNames="{style.namePanel}">
                     <g:Label text="{locale.gitImporterPageProjectUrl}"
@@ -42,16 +42,6 @@
                     <g:TextArea height="42px" ui:field="projectDescription" addStyleNames="{style.inputField} {style.alignRight}"
                                 debugId="file-importProject-projectDescription" title="{locale.gitImporterPageProjectDescriptionPrompt}"
                                 tabIndex="5"/>
-                </g:FlowPanel>
-
-                <g:FlowPanel height="45px" addStyleNames="{style.namePanel}">
-                    <g:Label text="{locale.gitImporterPageProjectPrivacy}" addStyleNames="{style.labelPosition}"/>
-                    <g:RadioButton name="privacy" text="{locale.gitImporterPageprojectVisibilityPublic}"
-                                   addStyleNames="{style.radioButtonPosition}" checked="true"
-                                   ui:field="projectPublic" debugId="file-importProject-public" tabIndex="7"/>
-                    <g:RadioButton name="privacy" text="{locale.gitImporterPageprojectVisibilityPrivate}"
-                                   addStyleNames="{style.radioButtonPosition}"
-                                   ui:field="projectPrivate" debugId="file-importProject-private" tabIndex="6"/>
                 </g:FlowPanel>
 
                 <g:FlowPanel height="25px" addStyleNames="{style.namePanel}">

@@ -11,12 +11,14 @@
 
 package org.eclipse.che.jdt.search;
 
+import org.eclipse.che.jdt.JdtException;
+
 /**
  * Represents problem in Java search.
  *
  * @author Evgen Vidolob
  */
-public class SearchException extends Exception {
+public class SearchException extends JdtException {
     public SearchException(String message) {
         super(message);
     }

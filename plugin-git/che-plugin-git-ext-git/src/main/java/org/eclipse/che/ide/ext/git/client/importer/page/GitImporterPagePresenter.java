@@ -96,11 +96,6 @@ public class GitImporterPagePresenter extends AbstractWizardPage<ProjectConfigDt
         updateDelegate.updateControls();
     }
 
-    @Override
-    public void projectVisibilityChanged(boolean visible) {
-        updateDelegate.updateControls();
-    }
-
     /**
      * Returns project parameters map.
      *
@@ -109,7 +104,7 @@ public class GitImporterPagePresenter extends AbstractWizardPage<ProjectConfigDt
     private Map<String, String> projectParameters() {
         Map<String, String> parameters = dataObject.getSource().getParameters();
         if (parameters == null) {
-            parameters = new HashMap<String, String>();
+            parameters = new HashMap<>();
             dataObject.getSource().setParameters(parameters);
         }
 
@@ -232,5 +227,4 @@ public class GitImporterPagePresenter extends AbstractWizardPage<ProjectConfigDt
         view.hideUrlError();
         return true;
     }
-
 }

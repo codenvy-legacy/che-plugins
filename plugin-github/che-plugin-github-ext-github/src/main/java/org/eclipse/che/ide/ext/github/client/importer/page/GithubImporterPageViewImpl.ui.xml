@@ -17,7 +17,7 @@
     <ui:with field='resources' type='org.eclipse.che.ide.ext.github.client.GitHubResources'/>
     <ui:with field="style" type="org.eclipse.che.ide.ext.github.client.importer.page.GithubImporterPageViewImpl.GithubStyle"/>
     <g:DockLayoutPanel unit="PX" addStyleNames="{style.mainPanel}">
-        <g:north size="365">
+        <g:north size="325">
             <g:FlowPanel ui:field="importerPanel">
                 <g:FlowPanel height="65px" addStyleNames="{style.namePanel}">
                     <g:Label text="{locale.githubImporterPageProjectUrl}"
@@ -45,15 +45,6 @@
                                 addStyleNames="{style.inputField} {style.alignRight}"
                                 debugId="file-importProject-projectDescription" title="{locale.githubImporterPageProjectDescriptionPrompt}"
                                 tabIndex="5"/>
-                </g:FlowPanel>
-                <g:FlowPanel height="45px" addStyleNames="{style.namePanel}">
-                    <g:Label text="{locale.githubImporterPageProjectPrivacy}" addStyleNames="{style.labelPosition}"/>
-                    <g:RadioButton name="privacy" text="{locale.githubImporterPageprojectVisibilityPublic}"
-                                   addStyleNames="{style.radioButtonPosition}" checked="true"
-                                   ui:field="projectPublic" debugId="file-importProject-public" tabIndex="7"/>
-                    <g:RadioButton name="privacy" text="{locale.githubImporterPageprojectVisibilityPrivate}"
-                                   addStyleNames="{style.radioButtonPosition}"
-                                   ui:field="projectPrivate" debugId="file-importProject-private" tabIndex="6"/>
                 </g:FlowPanel>
                 <g:FlowPanel height="25px" addStyleNames="{style.namePanel}">
                     <g:CheckBox ui:field="keepDirectory" text="{locale.githubImporterPageKeepDirectory}"

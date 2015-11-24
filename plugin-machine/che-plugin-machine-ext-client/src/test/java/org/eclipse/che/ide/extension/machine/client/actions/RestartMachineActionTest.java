@@ -13,11 +13,11 @@ package org.eclipse.che.ide.extension.machine.client.actions;
 import com.google.gwtmockito.GwtMockitoTestRunner;
 
 import org.eclipse.che.api.analytics.client.logger.AnalyticsEventLogger;
+import org.eclipse.che.api.machine.gwt.client.MachineManager;
 import org.eclipse.che.api.machine.shared.dto.MachineStateDto;
 import org.eclipse.che.ide.api.action.ActionEvent;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.machine.Machine;
-import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.panel.MachinePanelPresenter;
 import org.junit.Before;
 import org.junit.Test;

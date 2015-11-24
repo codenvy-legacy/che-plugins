@@ -31,13 +31,13 @@ public interface FindUsagesRequest {
     void setProjectPath(String projectPath);
 
     /** @return the path of the file where search invoked */
-    String getFilePath();
+    String getFQN();
 
     /**
-     * Set file path.
-     * @param filePath the file path where search invoked
+     * Set java class FQN.
+     * @param fqn the FQN where search invoked
      */
-    void setFilePath(String filePath);
+    void setFQN(String fqn);
 
     /** @return the offset (cursor position) in file*/
     int getOffset();

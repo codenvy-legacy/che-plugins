@@ -37,6 +37,8 @@ import org.eclipse.che.ide.ext.java.client.project.interceptor.JavaClassIntercep
 import org.eclipse.che.ide.ext.java.client.project.node.JavaNodeFactory;
 import org.eclipse.che.ide.ext.java.client.project.node.JavaNodeManager;
 import org.eclipse.che.ide.ext.java.client.project.settings.JavaNodeSettingsProvider;
+import org.eclipse.che.ide.ext.java.client.search.JavaSearchService;
+import org.eclipse.che.ide.ext.java.client.search.JavaSearchServiceWS;
 import org.eclipse.che.ide.ext.java.client.search.node.NodeFactory;
 import org.eclipse.che.ide.ext.java.client.settings.compiler.ErrorWarningsPresenter;
 import org.eclipse.che.ide.ext.java.client.settings.property.PropertyWidget;
@@ -57,6 +59,7 @@ public class JavaGinModule extends AbstractGinModule {
         bind(QuickDocumentation.class).to(QuickDocPresenter.class).in(Singleton.class);
         bind(JavaNavigationService.class).to(JavaNavigationServiceImpl.class);
         bind(JavaClasspathServiceClient.class).to(JavaClasspathServiceClientImpl.class);
+        bind(JavaSearchService.class).to(JavaSearchServiceWS.class);
 
         bind(JavaNodeManager.class);
 

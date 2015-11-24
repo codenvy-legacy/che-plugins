@@ -19,6 +19,7 @@ import org.eclipse.che.ide.api.project.tree.TreeNode;
 import org.eclipse.che.ide.api.project.tree.VirtualFile;
 import org.eclipse.che.ide.ext.java.client.project.node.JavaFileNode;
 import org.eclipse.che.ide.ext.java.client.project.node.PackageNode;
+import org.eclipse.che.ide.ext.java.client.project.node.jar.ContentNode;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
@@ -130,6 +131,8 @@ public class JavaSourceFolderUtil {
                 packageName = packageName + ".";
             }
             return packageName + file.getName().substring(0, file.getName().lastIndexOf('.'));
+        } else if (file instanceof ContentNode) {
+            return file.getPath();
         }
 
         return file.getName().substring(0, file.getName().lastIndexOf('.'));

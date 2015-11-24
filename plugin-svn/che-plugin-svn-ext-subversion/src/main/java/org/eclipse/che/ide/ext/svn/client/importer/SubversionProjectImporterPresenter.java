@@ -30,9 +30,6 @@ import org.eclipse.che.ide.ext.svn.shared.ImportParameterKeys;
 public class SubversionProjectImporterPresenter extends AbstractWizardPage<ProjectConfigDto>
         implements SubversionProjectImporterView.ActionDelegate {
 
-    public static final String PUBLIC_VISIBILITY  = "public";
-    public static final String PRIVATE_VISIBILITY = "private";
-
     private SubversionProjectImporterView view;
 
     @Inject
@@ -89,12 +86,6 @@ public class SubversionProjectImporterPresenter extends AbstractWizardPage<Proje
     @Override
     public void onProjectDescriptionChanged() {
         dataObject.setDescription(view.getProjectDescription());
-        updateDelegate.updateControls();
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void onProjectVisibilityChanged() {
         updateDelegate.updateControls();
     }
 

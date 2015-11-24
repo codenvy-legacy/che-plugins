@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.svn.client.importer;
 
-import org.eclipse.che.ide.ui.Styles;
-
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
@@ -22,14 +20,14 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.inject.Inject;
 
-import javax.validation.constraints.NotNull;
-
 import org.eclipse.che.ide.ext.svn.client.SubversionExtensionResources;
+import org.eclipse.che.ide.ui.Styles;
+
+import javax.validation.constraints.NotNull;
 
 /**
  * View implementation for the Subversion project importer.
@@ -54,10 +52,6 @@ public class SubversionProjectImporterViewImpl extends Composite implements Subv
     TextBox     projectName;
     @UiField
     TextArea    projectDescription;
-    @UiField
-    RadioButton projectPrivate;
-    @UiField
-    RadioButton projectPublic;
     @UiField
     TextBox     projectUrl;
     @UiField
@@ -141,19 +135,6 @@ public class SubversionProjectImporterViewImpl extends Composite implements Subv
 
     /** {@inheritDoc} */
     @Override
-    public void setProjectVisibility(final boolean visible) {
-        projectPublic.setValue(visible);
-        projectPrivate.setValue(!visible);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public boolean getProjectVisibility() {
-        return projectPrivate.getValue();
-    }
-
-    /** {@inheritDoc} */
-    @Override
     public void setUrlTextBoxFocused() {
         projectUrl.setFocus(true);
     }
@@ -209,12 +190,6 @@ public class SubversionProjectImporterViewImpl extends Composite implements Subv
         delegate.onProjectDescriptionChanged();
     }
 
-    @UiHandler({"projectPublic", "projectPrivate"})
-    @SuppressWarnings("unused")
-    void visibilityHandler(ValueChangeEvent<Boolean> event) {
-        delegate.onProjectVisibilityChanged();
-    }
-
     @UiHandler({"username", "password"})
     @SuppressWarnings("unused")
     void credentialChangeHandler(final ValueChangeEvent<String> event) {
@@ -232,11 +207,7 @@ public class SubversionProjectImporterViewImpl extends Composite implements Subv
 
         String alignRight();
 
-        String alignLeft();
-
         String labelErrorPosition();
-
-        String radioButtonPosition();
 
         String description();
 
@@ -244,5 +215,4 @@ public class SubversionProjectImporterViewImpl extends Composite implements Subv
 
         String horizontalLine();
     }
-
 }

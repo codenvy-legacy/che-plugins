@@ -22,6 +22,7 @@ import org.eclipse.che.commons.annotation.Nullable;
 import org.eclipse.che.ide.api.project.node.Node;
 import org.eclipse.che.ide.ext.java.client.JavaResources;
 import org.eclipse.che.ide.ext.java.client.util.Flags;
+import org.eclipse.che.ide.ext.java.shared.dto.model.ClassFile;
 import org.eclipse.che.ide.ext.java.shared.dto.model.CompilationUnit;
 import org.eclipse.che.ide.ext.java.shared.dto.model.Field;
 import org.eclipse.che.ide.ext.java.shared.dto.model.ImportDeclaration;
@@ -50,15 +51,21 @@ public class TypeNode extends AbstractPresentationNode {
     private final Type                     type;
     private final CompilationUnit          compilationUnit;
     private       NodeFactory              nodeFactory;
+    private       ClassFile                classFile;
     private       Map<String, List<Match>> matches;
 
     @Inject
-    public TypeNode(JavaResources resources, NodeFactory nodeFactory, @Assisted Type type,
-                    @Nullable @Assisted CompilationUnit compilationUnit, @Assisted Map<String, List<Match>> matches) {
+    public TypeNode(JavaResources resources,
+                    NodeFactory nodeFactory,
+                    @Assisted Type type,
+                    @Nullable @Assisted CompilationUnit compilationUnit,
+                    @Assisted ClassFile classFile,
+                    @Assisted Map<String, List<Match>> matches) {
         this.resources = resources;
         this.nodeFactory = nodeFactory;
         this.type = type;
         this.compilationUnit = compilationUnit;
+        this.classFile = classFile;
         this.matches = matches;
     }
 
@@ -76,7 +83,7 @@ public class TypeNode extends AbstractPresentationNode {
                         if (subType == type) {
                             continue;
                         }
-                        child.add(nodeFactory.create(subType, null, matches));
+                        child.add(nodeFactory.create(subType, compilationUnit, classFile, matches));
                     }
                 }
                 createNodeForAllMatches(type.getHandleIdentifier(), child);
@@ -90,11 +97,11 @@ public class TypeNode extends AbstractPresentationNode {
                 }
 
                 for (Type subType : type.getTypes()) {
-                    child.add(nodeFactory.create(subType, null, matches));
+                    child.add(nodeFactory.create(subType, compilationUnit, classFile, matches));
                 }
 
                 for (Method method : type.getMethods()) {
-                    child.add(nodeFactory.create(method, matches, compilationUnit));
+                    child.add(nodeFactory.create(method, matches, compilationUnit, classFile));
                 }
 
                 Collections.sort(child, new NodeComparator());
@@ -108,7 +115,7 @@ public class TypeNode extends AbstractPresentationNode {
     private void createNodeForAllMatches(String id, List<Node> list) {
         if (matches.containsKey(id)) {
             for (Match match : matches.get(id)) {
-                list.add(nodeFactory.create(match, compilationUnit));
+                list.add(nodeFactory.create(match, compilationUnit, classFile));
             }
         }
     }

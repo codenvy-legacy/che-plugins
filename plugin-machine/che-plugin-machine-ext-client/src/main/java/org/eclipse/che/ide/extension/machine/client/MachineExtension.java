@@ -12,13 +12,17 @@ package org.eclipse.che.ide.extension.machine.client;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.google.web.bindery.event.shared.EventBus;
 
+import org.eclipse.che.api.machine.gwt.client.events.ExtServerStateEvent;
+import org.eclipse.che.api.machine.gwt.client.events.ExtServerStateHandler;
 import org.eclipse.che.ide.actions.StopWorkspaceAction;
 import org.eclipse.che.ide.api.action.ActionManager;
 import org.eclipse.che.ide.api.action.DefaultActionGroup;
 import org.eclipse.che.ide.api.constraints.Constraints;
 import org.eclipse.che.ide.api.extension.Extension;
 import org.eclipse.che.ide.api.parts.PartStackType;
+import org.eclipse.che.ide.api.parts.PerspectiveManager;
 import org.eclipse.che.ide.api.parts.WorkspaceAgent;
 import org.eclipse.che.ide.extension.machine.client.actions.CreateMachineAction;
 import org.eclipse.che.ide.extension.machine.client.actions.DestroyMachineAction;
@@ -39,6 +43,7 @@ import static org.eclipse.che.ide.api.action.IdeActions.GROUP_MAIN_MENU;
 import static org.eclipse.che.ide.api.action.IdeActions.GROUP_RIGHT_TOOLBAR;
 import static org.eclipse.che.ide.api.constraints.Anchor.AFTER;
 import static org.eclipse.che.ide.api.constraints.Constraints.FIRST;
+import static org.eclipse.che.ide.workspace.perspectives.project.ProjectPerspective.PROJECT_PERSPECTIVE_ID;
 
 /**
  * Machine extension entry point.
@@ -55,8 +60,26 @@ public class MachineExtension {
     public static final String GROUP_COMMANDS_LIST           = "CommandsListGroup";
 
     @Inject
-    public MachineExtension(MachineResources machineResources) {
+    public MachineExtension(MachineResources machineResources,
+                            final EventBus eventBus,
+                            final WorkspaceAgent workspaceAgent,
+                            //projectApiComponentInitializer has handler which will work at the right time
+                            final ProjectApiComponentInitializer projectApiComponentInitializer,
+                            final OutputsContainerPresenter outputsContainerPresenter,
+                            final PerspectiveManager perspectiveManager) {
         machineResources.getCss().ensureInjected();
+
+        eventBus.addHandler(ExtServerStateEvent.TYPE, new ExtServerStateHandler() {
+            @Override
+            public void onExtServerStarted(ExtServerStateEvent event) {
+                perspectiveManager.setPerspectiveId(PROJECT_PERSPECTIVE_ID);
+                workspaceAgent.openPart(outputsContainerPresenter, PartStackType.INFORMATION);
+            }
+
+            @Override
+            public void onExtServerStopped(ExtServerStateEvent event) {
+            }
+        });
     }
 
     @Inject
@@ -129,15 +152,5 @@ public class MachineExtension {
         consoleToolbarActionGroup.add(clearConsoleAction);
         consoleToolbarActionGroup.addSeparator();
         machineConsoleToolbar.bindMainGroup(consoleToolbarActionGroup);
-    }
-
-    @Inject
-    private void setUpOutputsConsole(WorkspaceAgent workspaceAgent, OutputsContainerPresenter outputsContainerPresenter) {
-        workspaceAgent.openPart(outputsContainerPresenter, PartStackType.INFORMATION);
-    }
-
-    @Inject
-    private void createProjectApiComponent(ProjectApiComponentInitializer projectApiComponentInitializer) {
-        //projectApiComponentInitializer has handler which will work at the right time
     }
 }

@@ -11,8 +11,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search;
 
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaElement;
@@ -315,7 +315,7 @@ public IndexLocation[] getIndexLocations() {
  * Returns null if the path doesn't correspond to a project.
  */
 private static IJavaProject getJavaProject(IPath path, IJavaModel model) {
-	IJavaProject project = model.getJavaProject(path.lastSegment());
+	IJavaProject project = model.getJavaProject(path.toOSString()/*.lastSegment()*/);
 	if (project.exists()) {
 		return project;
 	}

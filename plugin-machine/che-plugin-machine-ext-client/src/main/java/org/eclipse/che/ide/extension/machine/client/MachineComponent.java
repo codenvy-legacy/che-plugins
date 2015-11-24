@@ -15,6 +15,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import org.eclipse.che.api.core.model.machine.MachineStatus;
+import org.eclipse.che.api.machine.gwt.client.MachineManager;
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
 import org.eclipse.che.api.machine.shared.dto.MachineStateDto;
 import org.eclipse.che.api.promises.client.Operation;
@@ -22,9 +23,11 @@ import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.PromiseError;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.core.Component;
-import org.eclipse.che.ide.extension.machine.client.machine.MachineManager;
 
 import java.util.List;
+
+import static org.eclipse.che.api.core.model.machine.MachineStatus.RUNNING;
+import static org.eclipse.che.api.core.model.machine.MachineStatus.CREATING;
 
 /** @author Artem Zatsarynnyy */
 @Singleton
@@ -35,7 +38,9 @@ public class MachineComponent implements Component {
     private final MachineManager       machineManager;
 
     @Inject
-    public MachineComponent(MachineServiceClient machineServiceClient, AppContext appContext, MachineManager machineManager) {
+    public MachineComponent(AppContext appContext,
+                            MachineManager machineManager,
+                            MachineServiceClient machineServiceClient) {
         this.machineServiceClient = machineServiceClient;
         this.appContext = appContext;
         this.machineManager = machineManager;
@@ -48,14 +53,23 @@ public class MachineComponent implements Component {
             public void apply(List<MachineStateDto> arg) throws OperationException {
                 if (arg.isEmpty()) {
                     callback.onSuccess(MachineComponent.this);
-                } else {
-                    for (MachineStateDto descriptor : arg) {
-                        if (descriptor.isDev() && descriptor.getStatus() == MachineStatus.RUNNING) {
-                            appContext.setDevMachineId(descriptor.getId());
-                            machineManager.onMachineRunning(descriptor.getId());
-                            callback.onSuccess(MachineComponent.this);
-                            break;
-                        }
+                    return;
+                }
+
+                for (MachineStateDto descriptor : arg) {
+                    boolean isDev = descriptor.isDev();
+                    MachineStatus status = descriptor.getStatus();
+
+                    if (isDev && status == RUNNING) {
+                        callback.onSuccess(MachineComponent.this);
+
+                        appContext.setDevMachineId(descriptor.getId());
+                        machineManager.onMachineRunning(descriptor.getId());
+                        break;
+                    }
+                    if (isDev && status == CREATING) {
+                        callback.onSuccess(MachineComponent.this);
+                        break;
                     }
                 }
             }

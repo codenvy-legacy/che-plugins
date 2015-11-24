@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.github.client;
 
+import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.ext.github.shared.Collaborators;
 import org.eclipse.che.ide.ext.github.shared.GitHubIssueComment;
 import org.eclipse.che.ide.ext.github.shared.GitHubIssueCommentInput;
@@ -27,6 +28,7 @@ import org.eclipse.che.ide.rest.RestContext;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
+import javax.inject.Named;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Map;
@@ -61,10 +63,11 @@ public class GitHubClientServiceImpl implements GitHubClientService {
     private final AsyncRequestFactory asyncRequestFactory;
 
     @Inject
-    protected GitHubClientServiceImpl(@RestContext String baseUrl,
+    protected GitHubClientServiceImpl(@Named("cheExtensionPath") String extPath,
                                       AsyncRequestLoader loader,
-                                      AsyncRequestFactory asyncRequestFactory) {
-        this.baseUrl = baseUrl + "/github";
+                                      AsyncRequestFactory asyncRequestFactory,
+                                      AppContext appContext) {
+        this.baseUrl = extPath + "/github/" + appContext.getWorkspace().getId();
         this.loader = loader;
         this.asyncRequestFactory = asyncRequestFactory;
     }

@@ -46,6 +46,6 @@ public class SearchService {
     public FindUsagesResponse findUsages(FindUsagesRequest request) throws SearchException {
         JavaModel javaModel = JavaModelManager.getJavaModelManager().getJavaModel();
         IJavaProject javaProject = javaModel.getJavaProject(request.getProjectPath());
-        return manager.findUsage(javaProject, request.getFilePath(), request.getOffset());
+        return manager.findUsage(javaProject, request.getFQN(), request.getOffset());
     }
 }

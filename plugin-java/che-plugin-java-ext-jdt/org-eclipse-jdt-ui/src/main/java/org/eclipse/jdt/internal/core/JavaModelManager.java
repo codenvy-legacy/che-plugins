@@ -11,15 +11,14 @@
 
 package org.eclipse.jdt.internal.core;
 
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.che.jdt.core.launching.JREContainerInitializer;
-import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -41,10 +40,10 @@ import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IParent;
 import org.eclipse.jdt.core.IProblemRequestor;
 import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.JavaConventions;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaConventions;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
@@ -55,6 +54,7 @@ import org.eclipse.jdt.internal.core.builder.JavaBuilder;
 import org.eclipse.jdt.internal.core.search.BasicSearchEngine;
 import org.eclipse.jdt.internal.core.search.IRestrictedAccessTypeRequestor;
 import org.eclipse.jdt.internal.core.search.JavaWorkspaceScope;
+import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.jdt.internal.core.util.HashtableOfArrayToObject;
 import org.eclipse.jdt.internal.core.util.LRUCache;
 import org.eclipse.jdt.internal.core.util.Messages;
@@ -2865,9 +2865,9 @@ public class JavaModelManager {
     }
 
     public JavaWorkspaceScope getWorkspaceScope() {
-        if (this.workspaceScope == null) {
+//        if (this.workspaceScope == null) {
             this.workspaceScope = new JavaWorkspaceScope();
-        }
+//        }
         return this.workspaceScope;
     }
 }

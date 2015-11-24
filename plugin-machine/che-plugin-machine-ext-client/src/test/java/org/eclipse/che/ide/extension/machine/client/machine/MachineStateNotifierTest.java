@@ -12,6 +12,7 @@ package org.eclipse.che.ide.extension.machine.client.machine;
 
 import com.google.web.bindery.event.shared.EventBus;
 
+import org.eclipse.che.api.machine.gwt.client.MachineManager;
 import org.eclipse.che.api.machine.shared.dto.MachineStateDto;
 import org.eclipse.che.api.machine.shared.dto.event.MachineStatusEvent;
 import org.eclipse.che.api.workspace.shared.dto.UsersWorkspaceDto;
