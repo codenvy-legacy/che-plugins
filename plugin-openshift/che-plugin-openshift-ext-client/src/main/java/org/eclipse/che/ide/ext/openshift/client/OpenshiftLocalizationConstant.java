@@ -182,6 +182,54 @@ public interface OpenshiftLocalizationConstant extends Messages {
     @Key("unlink.project.failed")
     String unlinkProjectFailed();
 
+    @Key("deploy.project.window.title")
+    String deployProjectWindowTitle();
+
+    @Key("deploy.project.window.deploy")
+    String deployProjectWindowDeploy();
+
+    @Key("deploy.project.window.application.section")
+    String deployProjectWindowApplicationSection();
+
+    @Key("deploy.project.window.application.name")
+    String deployProjectWindowApplicationName();
+
+    @Key("deploy.project.window.create.openshift.project")
+    String deployProjectWindowCreateOpenShiftProject();
+
+    @Key("deploy.project.window.project.name")
+    String deployProjectWindowProjectName();
+
+    @Key("deploy.project.window.display.name")
+    String deployProjectWindowDisplayName();
+
+    @Key("deploy.project.window.description")
+    String deployProjectWindowDescription();
+
+    @Key("deploy.project.window.choose.existing.project")
+    String deployProjectWindowChooseExistingProject();
+
+    @Key("deploy.project.window.deploy.section")
+    String deployProjectWindowDeploySection();
+
+    @Key("deploy.project.window.build.image")
+    String deployProjectWindowBuildImage();
+
+    @Key("deploy.project.window.labels.section")
+    String deployProjectWindowLabelsSection();
+
+    @Key("deploy.project.window.variables.section")
+    String deployProjectWindowVariablesSection();
+
+    @Key("deploy.project.window.variables.add.tooltip")
+    String deployProjectWindowVariablesAddTooltip();
+
+    @Key("deploy.project.window.labels.add.tooltip")
+    String deployProjectWindowLabelsAddTooltip();
+
+    @Key("deploy.project.success")
+    String deployProjectSuccess(String project);
+
     @Key("invalid.openshift.project.name.error")
     String invalidOpenShiftProjectNameError();
 

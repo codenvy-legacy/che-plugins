@@ -11,37 +11,100 @@
 
 -->
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:che='urn:import:org.eclipse.che.ide.ui.listbox'
+             xmlns:c='urn:import:com.google.gwt.user.cellview.client'
              xmlns:g='urn:import:com.google.gwt.user.client.ui'>
     <ui:with field='resources' type='org.eclipse.che.ide.ext.openshift.client.OpenshiftResources'/>
     <ui:with field='locale' type='org.eclipse.che.ide.ext.openshift.client.OpenshiftLocalizationConstant'/>
     <ui:style>
-        .spacing {
+        .spacing5 {
+            margin-top: 5px;
+        }
+
+        .spacing20 {
             margin-top: 20px;
         }
+
+        .description {
+            width: 270px;
+        }
+
+        .marginV {
+            margin: 8px 0px;
+        }
+
+        .marginH {
+            margin: 0px 8px;
+        }
+
+        .floatLeft {
+            float: left;
+        }
+
+        .addButton {
+            float: right;
+        }
     </ui:style>
-    <g:DockLayoutPanel width="600px" height="450px">
+    <g:DockLayoutPanel width="700px" height="450px" addStyleNames="{style.marginH}">
         <g:center>
-            <g:FlowPanel>
-                <g:Label text="Application"/>
-                <g:Label text="Name"/>
+            <g:FlowPanel addStyleNames="{style.marginV}">
+                <g:Label text="{locale.deployProjectWindowApplicationSection}" styleName="{resources.css.sectionTitle}"/>
+                <g:Label text="{locale.deployProjectWindowApplicationName}"/>
                 <g:TextBox ui:field="applicationName" addStyleNames="{resources.css.textInput}"/>
-                <g:RadioButton name="createMode" text="Create New OpenShift Project" ui:field="createNewProject"/>
-                <g:Label text="Project Name"/>
+                <g:FlowPanel height="24px" addStyleNames="{style.spacing20}">
+                    <g:RadioButton name="createMode" text="{locale.deployProjectWindowCreateOpenShiftProject}" ui:field="createNewProject"/>
+                </g:FlowPanel>
+                <g:Label text="{locale.deployProjectWindowProjectName}" addStyleNames="{style.spacing5}"/>
                 <g:TextBox ui:field="projectName" addStyleNames="{resources.css.textInput}"/>
-                <g:Label text="Display Name"/>
+                <g:Label text="{locale.deployProjectWindowDisplayName}" addStyleNames="{style.spacing5}"/>
                 <g:TextBox ui:field="displayName" addStyleNames="{resources.css.textInput}"/>
-                <g:Label text="Description"/>
-                <g:TextArea ui:field="description"/>
-                <g:RadioButton name="createMode" text="Choose Existing OpenShift Project" ui:field="choseExistProject"/>
-                <g:ListBox ui:field="projectsList" addStyleNames="{resources.css.textInput}"/>
+                <g:Label text="{locale.deployProjectWindowDescription}" addStyleNames="{style.spacing5} {style.description}"/>
+                <g:TextArea ui:field="description" addStyleNames="{resources.css.textInput}"/>
+                <g:FlowPanel height="24px" addStyleNames="{style.spacing20}">
+                    <g:RadioButton name="createMode" text="{locale.deployProjectWindowChooseExistingProject}" ui:field="choseExistProject"/>
+                </g:FlowPanel>
+                <g:ScrollPanel ui:field="osProjectListPanel" height="100%" visible="false"/>
             </g:FlowPanel>
         </g:center>
-        <g:east size="300">
-            <g:FlowPanel>
-                <g:Label text="Deploy Information"/>
-                <g:Label text="Build image"/>
-                <g:ListBox ui:field="buildImages" addStyleNames="{resources.css.textInput}"/>
-                <g:Label text="Labels"/>
+        <g:east size="400">
+            <g:FlowPanel addStyleNames="{style.marginV}">
+                <g:Label text="{locale.deployProjectWindowDeploySection}" styleName="{resources.css.sectionTitle}"/>
+                <g:Label text="{locale.deployProjectWindowBuildImage}"/>
+                <che:CustomListBox ui:field="images" addStyleNames="{resources.css.textInput}"/>
+
+                <g:DockLayoutPanel height="160px" addStyleNames="{style.spacing20}">
+                    <g:north size="24">
+                        <g:FlowPanel width="100%">
+                            <g:Label text="{locale.deployProjectWindowVariablesSection}" addStyleNames="{style.floatLeft}"></g:Label>
+                            <g:Button text="+" ui:field="addVariableButton" addStyleNames="{style.addButton} {resources.css.smallButton}"
+                                      title="{locale.deployProjectWindowVariablesAddTooltip}"></g:Button>
+                        </g:FlowPanel>
+                    </g:north>
+                    <g:center>
+                        <g:ScrollPanel addStyleNames="{resources.css.deployApplicationTable}">
+                            <g:SimplePanel>
+                                <c:CellTable pageSize='7' ui:field='environmentVariables' width="100%" tableLayoutFixed="true"/>
+                            </g:SimplePanel>
+                        </g:ScrollPanel>
+                    </g:center>
+                </g:DockLayoutPanel>
+
+                <g:DockLayoutPanel height="158px" addStyleNames="{style.spacing20}">
+                    <g:north size="24">
+                        <g:FlowPanel width="100%">
+                            <g:Label text="{locale.deployProjectWindowLabelsSection}" addStyleNames="{style.floatLeft}"></g:Label>
+                            <g:Button text="+" ui:field="addLabelButton" addStyleNames="{style.addButton} {resources.css.smallButton}"
+                                      title="{locale.deployProjectWindowLabelsAddTooltip}"></g:Button>
+                        </g:FlowPanel>
+                    </g:north>
+                    <g:center>
+                        <g:ScrollPanel addStyleNames="{resources.css.deployApplicationTable}">
+                            <g:SimplePanel>
+                                <c:CellTable pageSize='7' ui:field='environmentLabels' width="100%" tableLayoutFixed="true"/>
+                            </g:SimplePanel>
+                        </g:ScrollPanel>
+                    </g:center>
+                </g:DockLayoutPanel>
             </g:FlowPanel>
         </g:east>
         <g:east size="18">
