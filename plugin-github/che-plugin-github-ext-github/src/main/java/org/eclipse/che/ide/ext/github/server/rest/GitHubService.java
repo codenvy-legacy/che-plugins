@@ -60,7 +60,7 @@ import java.util.Map;
  * @author Kevin Pollet
  * @author Igor vinokur
  */
-@Path("github")
+@Path("/github/{ws-id}")
 public class GitHubService {
     @Inject
     private GitHubFactory gitHubFactory;
