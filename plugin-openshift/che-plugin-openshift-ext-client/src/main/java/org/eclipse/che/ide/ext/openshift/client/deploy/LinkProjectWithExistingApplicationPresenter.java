@@ -18,12 +18,14 @@ import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
 import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
-import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.ext.openshift.client.OpenshiftLocalizationConstant;
 import org.eclipse.che.ide.ext.openshift.client.OpenshiftServiceClient;
+import org.eclipse.che.ide.ext.openshift.client.ValidateAuthenticationPresenter;
+import org.eclipse.che.ide.ext.openshift.client.oauth.OpenshiftAuthenticator;
+import org.eclipse.che.ide.ext.openshift.client.oauth.OpenshiftAuthorizationHandler;
 import org.eclipse.che.ide.ext.openshift.shared.OpenshiftProjectTypeConstants;
 import org.eclipse.che.ide.ext.openshift.shared.dto.BuildConfig;
 import org.eclipse.che.ide.ext.openshift.shared.dto.Project;
@@ -41,7 +43,8 @@ import java.util.Map;
  *
  * @author Anna Shumilova
  */
-public class LinkProjectWithExistingApplicationPresenter implements LinkProjectWithExistingApplicationView.ActionDelegate {
+public class LinkProjectWithExistingApplicationPresenter extends ValidateAuthenticationPresenter
+        implements LinkProjectWithExistingApplicationView.ActionDelegate {
 
     private final LinkProjectWithExistingApplicationView view;
     private final AppContext                             appContext;
@@ -52,13 +55,13 @@ public class LinkProjectWithExistingApplicationPresenter implements LinkProjectW
     private final ProjectServiceClient                   projectServiceClient;
     private final GitServiceClient                       gitService;
     private final DtoUnmarshallerFactory                 dtoUnmarshaller;
-    private final DtoFactory                             dtoFactory;
     private final Map<String, List<BuildConfig>>         buildConfigMap;
     private       BuildConfig                            selectedBuildConfig;
 
 
     @Inject
-    public LinkProjectWithExistingApplicationPresenter(OpenshiftLocalizationConstant locale, LinkProjectWithExistingApplicationView view,
+    public LinkProjectWithExistingApplicationPresenter(OpenshiftLocalizationConstant locale,
+                                                       LinkProjectWithExistingApplicationView view,
                                                        OpenshiftServiceClient openShiftClient,
                                                        ProjectServiceClient projectServiceClient,
                                                        DtoUnmarshallerFactory dtoUnmarshaller,
@@ -66,7 +69,10 @@ public class LinkProjectWithExistingApplicationPresenter implements LinkProjectW
                                                        NotificationManager notificationManager,
                                                        DialogFactory dialogFactory,
                                                        AppContext appContext,
-                                                       DtoFactory dtoFactory) {
+                                                       DtoFactory dtoFactory,
+                                                       OpenshiftAuthenticator openshiftAuthenticator,
+                                                       OpenshiftAuthorizationHandler openshiftAuthorizationHandler) {
+        super(openshiftAuthenticator, openshiftAuthorizationHandler, locale, notificationManager);
         this.view = view;
         this.view.setDelegate(this);
 
@@ -78,7 +84,6 @@ public class LinkProjectWithExistingApplicationPresenter implements LinkProjectW
         this.projectServiceClient = projectServiceClient;
         this.gitService = gitService;
         this.dtoUnmarshaller = dtoUnmarshaller;
-        this.dtoFactory = dtoFactory;
 
         buildConfigMap = new HashMap<>();
     }
@@ -86,7 +91,8 @@ public class LinkProjectWithExistingApplicationPresenter implements LinkProjectW
     /**
      * Show dialog box for managing linking project to OpenShift application.
      */
-    public void show() {
+    @Override
+    protected void onSuccessAuthentication() {
         if (appContext.getCurrentProject() != null) {
             //Check is Git repository:
             List<String> listVcsProvider = appContext.getCurrentProject().getProjectDescription().getAttributes().get("vcs.provider.name");
@@ -151,7 +157,7 @@ public class LinkProjectWithExistingApplicationPresenter implements LinkProjectW
     /**
      * Update OpenShift Build Config object.
      *
-     * @param {BuildConfig}
+     * @param buildConfig
      *         buildConfig data to be updated
      */
     private void updateBuildConfig(BuildConfig buildConfig) {
@@ -169,7 +175,7 @@ public class LinkProjectWithExistingApplicationPresenter implements LinkProjectW
     /**
      * Mark current project as OpenShift one.
      *
-     * @param {BuildConfig}
+     * @param buildConfig
      *         OpenShift application info
      */
     private void markAsOpenshiftProject(final BuildConfig buildConfig) {
@@ -254,6 +260,6 @@ public class LinkProjectWithExistingApplicationPresenter implements LinkProjectW
                 //TODO update by portions?
                 view.setBuildConfigs(buildConfigMap);
             }
-        });
+        });//TODO add catching of error
     }
 }

@@ -31,15 +31,14 @@ import static org.eclipse.che.ide.workspace.perspectives.project.ProjectPerspect
  */
 @Singleton
 public class CreateApplicationFromTemplateAction extends AbstractPerspectiveAction {
-
     private final AnalyticsEventLogger          eventLogger;
     private final CreateProjectPresenter        wizard;
     private final OpenshiftAuthorizationHandler authorizationHandler;
 
     @Inject
-    public CreateApplicationFromTemplateAction(final AnalyticsEventLogger eventLogger,
-                                               final CreateProjectPresenter wizard,
-                                               final OpenshiftAuthorizationHandler authorizationHandler) {
+    public CreateApplicationFromTemplateAction(AnalyticsEventLogger eventLogger,
+                                               CreateProjectPresenter wizard,
+                                               OpenshiftAuthorizationHandler authorizationHandler) {
         super(Collections.singletonList(PROJECT_PERSPECTIVE_ID), "Create Application From Template", null, null, null);
         this.eventLogger = eventLogger;
         this.wizard = wizard;

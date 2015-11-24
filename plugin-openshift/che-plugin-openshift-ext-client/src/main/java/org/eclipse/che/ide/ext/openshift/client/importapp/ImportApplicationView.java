@@ -116,7 +116,7 @@ public interface ImportApplicationView extends View<ImportApplicationView.Action
      *
      * @return project's name
      */
-    String getProjecName();
+    String getProjectName();
 
     /**
      * Return project's description from input.

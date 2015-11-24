@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.openshift.client.project.wizard.page.configure;
 
-import com.google.common.collect.FluentIterable;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -29,12 +28,10 @@ import org.eclipse.che.ide.ext.openshift.client.dto.NewApplicationRequest;
 import org.eclipse.che.ide.ext.openshift.shared.dto.ObjectMeta;
 import org.eclipse.che.ide.ext.openshift.shared.dto.Project;
 import org.eclipse.che.ide.ext.openshift.shared.dto.ProjectRequest;
-import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.util.NameUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Collections;
 
 
 /**
@@ -48,7 +45,6 @@ public class ConfigureProjectPresenter extends AbstractWizardPage<NewApplication
     private final ConfigureProjectView          view;
     private final OpenshiftServiceClient        openShiftClient;
     private final ProjectServiceClient          projectServiceClient;
-    private final DtoUnmarshallerFactory        dtoUnmarshaller;
     private final DtoFactory                    dtoFactory;
     private final OpenshiftLocalizationConstant locale;
     private       List<String>                  openShiftProjects;
@@ -58,13 +54,11 @@ public class ConfigureProjectPresenter extends AbstractWizardPage<NewApplication
     public ConfigureProjectPresenter(ConfigureProjectView view,
                                      OpenshiftServiceClient openShiftClient,
                                      ProjectServiceClient projectServiceClient,
-                                     DtoUnmarshallerFactory dtoUnmarshaller,
                                      DtoFactory dtoFactory,
                                      OpenshiftLocalizationConstant locale) {
         this.view = view;
         this.openShiftClient = openShiftClient;
         this.projectServiceClient = projectServiceClient;
-        this.dtoUnmarshaller = dtoUnmarshaller;
         this.dtoFactory = dtoFactory;
         this.locale = locale;
         openShiftProjects = new ArrayList<>();
@@ -80,15 +74,15 @@ public class ConfigureProjectPresenter extends AbstractWizardPage<NewApplication
         view.resetControls();
 
         openShiftClient.getProjects().then(new Operation<List<Project>>() {
-                           @Override
-                           public void apply(final List<Project> projects) throws OperationException {
-                               openShiftProjects.clear();
-                               for (Project project : projects) {
-                                   openShiftProjects.add(project.getMetadata().getName());
-                               }
-                               view.setExistOpenShiftProjects(projects);
-                           }
-                       });
+            @Override
+            public void apply(final List<Project> projects) throws OperationException {
+                openShiftProjects.clear();
+                for (Project project : projects) {
+                    openShiftProjects.add(project.getMetadata().getName());
+                }
+                view.setExistOpenShiftProjects(projects);
+            }
+        });
 
         projectServiceClient.getProjects(false).then(new Operation<List<ProjectDescriptor>>() {
             @Override

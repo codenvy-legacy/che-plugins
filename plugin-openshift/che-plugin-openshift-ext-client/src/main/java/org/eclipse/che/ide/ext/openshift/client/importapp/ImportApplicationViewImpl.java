@@ -263,7 +263,7 @@ public class ImportApplicationViewImpl extends Window implements ImportApplicati
     }
 
     @Override
-    public String getProjecName() {
+    public String getProjectName() {
         return projectName.getValue();
     }
 

@@ -56,16 +56,14 @@ public class ImportApplicationPresenter extends ValidateAuthenticationPresenter 
     private final OpenshiftServiceClient              openShiftClient;
     private final ProjectServiceClient                projectServiceClient;
     private final DtoFactory                          dtoFactory;
-
     private final ImportProjectNotificationSubscriber importProjectNotificationSubscriber;
     private final DtoUnmarshallerFactory              dtoUnmarshallerFactory;
     private final EventBus                            eventBus;
 
-    private final List<Project>                       projectList;
-    private final Map<String, List<BuildConfig>>      buildConfigMap;
-    private       BuildConfig                         selectedBuildConfig;
-
-    private       List<String>                        cheProjects;
+    private final List<String>                   cheProjects;
+    private final List<Project>                  projectList;
+    private final Map<String, List<BuildConfig>> buildConfigMap;
+    private       BuildConfig                    selectedBuildConfig;
 
     @Inject
     public ImportApplicationPresenter(OpenshiftLocalizationConstant locale, ImportApplicationView view,
@@ -118,7 +116,7 @@ public class ImportApplicationPresenter extends ValidateAuthenticationPresenter 
 
         view.showLoadingBuildConfigs("Loading projects...");
 
-		loadCheProjects();
+        loadCheProjects();
     }
 
     /**
@@ -194,7 +192,7 @@ public class ImportApplicationPresenter extends ValidateAuthenticationPresenter 
         final ProjectConfigDto projectConfig = dtoFactory.createDto(ProjectConfigDto.class)
                                                          .withSource(dtoFactory.createDto(SourceStorageDto.class));
 
-        projectConfig.setName(view.getProjecName());
+        projectConfig.setName(view.getProjectName());
 
         Map<String, String> importOptions = new HashMap<String, String>();
         String branch = selectedBuildConfig.getSpec().getSource().getGit().getRef();
@@ -222,10 +220,10 @@ public class ImportApplicationPresenter extends ValidateAuthenticationPresenter 
 
         projectConfig.withType("blank").withDescription(view.getProjectDescription());
 
-        importProjectNotificationSubscriber.subscribe(view.getProjecName());
+        importProjectNotificationSubscriber.subscribe(view.getProjectName());
 
         try {
-            projectServiceClient.importProject(view.getProjecName(), false, projectConfig.getSource(), new RequestCallback<Void>(
+            projectServiceClient.importProject(view.getProjectName(), false, projectConfig.getSource(), new RequestCallback<Void>(
                     dtoUnmarshallerFactory.newWSUnmarshaller(Void.class)) {
                 @Override
                 protected void onSuccess(final Void result) {
@@ -313,12 +311,12 @@ public class ImportApplicationPresenter extends ValidateAuthenticationPresenter 
             view.setApplicationInfo(buildConfig);
         }
 
-        view.enableImportButton((buildConfig != null && view.getProjecName() != null && !view.getProjecName().isEmpty()));
+        view.enableImportButton((buildConfig != null && view.getProjectName() != null && !view.getProjectName().isEmpty()));
     }
 
     @Override
     public void onProjectNameChanged(String name) {
-        view.enableImportButton(selectedBuildConfig != null & isCheProjectNameValid(view.getProjecName()));
+        view.enableImportButton(selectedBuildConfig != null & isCheProjectNameValid(view.getProjectName()));
     }
 
     private boolean isCheProjectNameValid(String projectName) {

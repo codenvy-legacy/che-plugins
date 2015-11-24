@@ -100,8 +100,8 @@ public class BuildStatusWatcher {
         if (!namespacesToChannels.containsKey(namespace)) {
             final WebSocketWatcher webSocketWatcher = new WebSocketWatcher(namespace);
             OpenshiftBuildChannel buildChannel = new OpenshiftBuildChannel.Builder(namespace, authorizationHandler.getToken())
-                    .withMessageHanlder(webSocketWatcher)
-                    .withClosedHanlder(webSocketWatcher)
+                    .withMessageHandler(webSocketWatcher)
+                    .withClosedHandler(webSocketWatcher)
                     .build();
             namespacesToChannels.put(namespace, buildChannel);
         }

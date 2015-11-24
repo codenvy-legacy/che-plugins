@@ -54,22 +54,22 @@ public class OpenshiftBuildChannel {
             this.token = token;
         }
 
-        public Builder withOpenedHanlder(ConnectionOpenedHandler openedHandler) {
+        public Builder withOpenedHandler(ConnectionOpenedHandler openedHandler) {
             this.openedHandler = openedHandler;
             return this;
         }
 
-        public Builder withErrorHanlder(ConnectionErrorHandler errorHandler) {
+        public Builder withErrorHandler(ConnectionErrorHandler errorHandler) {
             this.errorHandler = errorHandler;
             return this;
         }
 
-        public Builder withClosedHanlder(ConnectionClosedHandler closedHandler) {
+        public Builder withClosedHandler(ConnectionClosedHandler closedHandler) {
             this.closedHandler = closedHandler;
             return this;
         }
 
-        public Builder withMessageHanlder(MessageReceivedHandler messageHandler) {
+        public Builder withMessageHandler(MessageReceivedHandler messageHandler) {
             this.messageHandler = messageHandler;
             return this;
         }

@@ -16,9 +16,7 @@ import com.google.inject.Singleton;
 import org.eclipse.che.api.analytics.client.logger.AnalyticsEventLogger;
 import org.eclipse.che.ide.api.action.AbstractPerspectiveAction;
 import org.eclipse.che.ide.api.action.ActionEvent;
-import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.ext.openshift.client.OpenshiftLocalizationConstant;
-import org.eclipse.che.ide.ext.openshift.client.oauth.OpenshiftAuthorizationHandler;
 
 import javax.validation.constraints.NotNull;
 import java.util.Collections;
@@ -33,23 +31,16 @@ import static org.eclipse.che.ide.workspace.perspectives.project.ProjectPerspect
 @Singleton
 public class ImportApplicationAction extends AbstractPerspectiveAction {
 
-    private final AnalyticsEventLogger          eventLogger;
-    private final ImportApplicationPresenter    presenter;
-    private final AppContext                    appContext;
-    private final OpenshiftAuthorizationHandler openshiftAuthorizationHandler;
-
+    private final AnalyticsEventLogger       eventLogger;
+    private final ImportApplicationPresenter presenter;
 
     @Inject
     public ImportApplicationAction(final AnalyticsEventLogger eventLogger, OpenshiftLocalizationConstant locale,
-                                   final ImportApplicationPresenter presenter,
-                                   AppContext appContext,
-                                   OpenshiftAuthorizationHandler openshiftAuthorizationHandler) {
+                                   final ImportApplicationPresenter presenter) {
         super(Collections.singletonList(PROJECT_PERSPECTIVE_ID), locale.importApplicationAction(),
               locale.linkProjectWithExistingApplicationAction(), null, null);
         this.eventLogger = eventLogger;
         this.presenter = presenter;
-        this.appContext = appContext;
-        this.openshiftAuthorizationHandler = openshiftAuthorizationHandler;
     }
 
     /**
