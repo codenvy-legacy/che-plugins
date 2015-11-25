@@ -61,5 +61,9 @@
             <groupId>org.eclipse.che.core</groupId>
             <artifactId>che-core-commons-inject</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
     </dependencies>
 </project>
