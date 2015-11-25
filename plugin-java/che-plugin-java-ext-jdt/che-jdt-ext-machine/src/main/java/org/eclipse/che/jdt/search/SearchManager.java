@@ -40,6 +40,7 @@ import org.eclipse.jdt.internal.ui.search.JavaSearchScopeFactory;
 import org.eclipse.jdt.ui.JavaElementLabels;
 import org.eclipse.jdt.ui.search.ElementQuerySpecification;
 import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.search.NewSearchUI;
@@ -77,8 +78,11 @@ public class SearchManager {
         try {
             ICompilationUnit compilationUnit;
             IType type = javaProject.findType(fqn);
+            if (type == null) {
+                throw new SearchException("Can't find type: " + fqn);
+            }
             if (type.isBinary()) {
-                compilationUnit = type.getCompilationUnit();
+                compilationUnit = type.getClassFile().getWorkingCopy(DefaultWorkingCopyOwner.PRIMARY, null);
                 if (compilationUnit == null) {
                     throw new SearchException("Can't find sources for: " + fqn + " type");
                 }
@@ -109,9 +113,11 @@ public class SearchManager {
     }
 
     private FindUsagesResponse performFindUsageSearch(IJavaElement element) throws JavaModelException, BadLocationException {
+        JavaSearchScopeFactory factory = JavaSearchScopeFactory.getInstance();
+        boolean isInsideJRE = factory.isInsideJRE(element);
         JavaSearchQuery
                 query = new JavaSearchQuery(new ElementQuerySpecification(element, IJavaSearchConstants.REFERENCES,
-                                                                          JavaSearchScopeFactory.getInstance().createWorkspaceScope(false),
+                                                                          factory.createWorkspaceScope(isInsideJRE),
                                                                           "workspace scope"));
         NewSearchUI.runQueryInForeground(null, query);
         ISearchResult result = query.getSearchResult();
@@ -125,9 +131,8 @@ public class SearchManager {
             if (javaElement instanceof IMember) {
                 IMember member = ((IMember)javaElement);
                 if (member.isBinary()) {
-                    ICompilationUnit workingCopy = member.getClassFile().getWorkingCopy(DefaultWorkingCopyOwner.PRIMARY, null);
-                    if (workingCopy != null) {
-                        document = getDocument(workingCopy);
+                    if (member.getClassFile().getSource() != null) {
+                        document = new Document(member.getClassFile().getSource());
                     }
                 } else {
                     document = getDocument(member.getCompilationUnit());
