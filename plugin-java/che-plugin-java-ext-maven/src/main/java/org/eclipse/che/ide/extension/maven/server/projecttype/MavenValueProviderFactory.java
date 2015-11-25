@@ -90,8 +90,10 @@ public class MavenValueProviderFactory implements ValueProviderFactory {
                     value = model.getArtifactId();
                 if (attributeName.equals(MavenAttributes.GROUP_ID))
                     value = model.getGroupId();
-                if (attributeName.equals(MavenAttributes.PACKAGING))
-                    value = model.getPackaging();
+                if (attributeName.equals(MavenAttributes.PACKAGING)) {
+                    final String packaging = model.getPackaging();
+                    value = packaging == null ? MavenAttributes.DEFAULT_PACKAGING : packaging;
+                }
                 if (attributeName.equals(MavenAttributes.VERSION))
                     value = model.getVersion();
                 if (attributeName.equals(MavenAttributes.PARENT_ARTIFACT_ID) && model.getParent() != null)

@@ -26,11 +26,13 @@ import org.eclipse.che.ide.maven.tools.Model;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.ARTIFACT_ID;
+import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.DEFAULT_PACKAGING;
 import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.GROUP_ID;
 import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.MAVEN_ID;
 import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.PACKAGING;
@@ -117,7 +119,9 @@ public class MavenProjectResolver {
         attributes.put(ARTIFACT_ID, Arrays.asList(model.getArtifactId()));
         attributes.put(GROUP_ID, Arrays.asList(model.getGroupId()));
         attributes.put(VERSION, Arrays.asList(model.getVersion()));
-        attributes.put(PACKAGING, Arrays.asList(model.getPackaging()));
+
+        final String packaging = model.getPackaging();
+        attributes.put(PACKAGING, Collections.singletonList(packaging == null ? DEFAULT_PACKAGING : packaging));
 
         ModuleConfigImpl moduleConfig = new ModuleConfigImpl();
         moduleConfig.setType(MAVEN_ID);
