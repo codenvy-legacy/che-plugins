@@ -26,9 +26,4 @@ public interface Resources extends ClientBundle {
     @Source("actions/help.svg")
     SVGResource help();
 
-    @Source("actions/forums.svg")
-    SVGResource forums();
-
-    @Source("actions/feature-vote.svg")
-    SVGResource featureVote();
 }

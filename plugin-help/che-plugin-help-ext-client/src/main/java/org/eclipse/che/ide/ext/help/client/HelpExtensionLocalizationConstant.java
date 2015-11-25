@@ -17,33 +17,19 @@ public interface HelpExtensionLocalizationConstant extends Messages {
 
     /* Redirect Actions */
     @Key("action.redirectToHelp.title")
+    @DefaultMessage("Support")
     String actionRedirectToHelpTitle();
 
     @Key("action.redirectToHelp.description")
+    @DefaultMessage("Redirect to support page")
     String actionRedirectToHelpDescription();
 
     @Key("action.redirectToHelp.url")
+    @DefaultMessage("https://www.eclipse.org/che/")
     String actionRedirectToHelpUrl();
-
-    @Key("action.redirectToForums.title")
-    String actionRedirectToForumsTitle();
-
-    @Key("action.redirectToForums.description")
-    String actionRedirectToForumsDescription();
-
-    @Key("action.redirectToForums.url")
-    String actionRedirectToForumsUrl();
-
-    @Key("action.redirectToFeedback.title")
-    String actionRedirectToFeedbackTitle();
-
-    @Key("action.redirectToFeedback.description")
-    String actionRedirectToFeedbackDescription();
-
-    @Key("action.redirectToFeedback.url")
-    String actionRedirectToFeedbackUrl();
 
     /* Buttons */
     @Key("ok")
+    @DefaultMessage("OK")
     String ok();
 }
