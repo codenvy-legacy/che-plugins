@@ -11,7 +11,9 @@
       Codenvy, S.A. - initial API and implementation
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>che-plugin-parent</artifactId>
@@ -19,17 +21,13 @@
         <version>4.0.0-M5-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <artifactId>che-plugin-java-parent</artifactId>
+    <artifactId>che-plugin-maven-parent</artifactId>
     <packaging>pom</packaging>
-    <name>Che Plugin :: Java :: Parent</name>
+    <name>Che Plugin :: Maven :: Parent</name>
     <modules>
-        <module>che-plugin-java-ext-jdt</module>
-        <module>che-plugin-java-ext-lang-shared</module>
-        <module>che-plugin-java-ext-lang-server</module>
-        <module>che-plugin-java-ext-lang-client</module>
-        <module>che-plugin-java-ext-debugger-java-server</module>
-        <module>che-plugin-java-ext-debugger-java-client</module>
-        <module>che-plugin-java-ext-debugger-java-shared</module>
+        <module>che-plugin-java-maven-tools</module>
+        <module>che-plugin-java-generator-archetype</module>
+        <module>che-plugin-java-ext-maven</module>
     </modules>
     <build>
         <pluginManagement>
@@ -42,18 +40,4 @@
             </plugins>
         </pluginManagement>
     </build>
-    <!-- skip tests on Windows -->
-    <profiles>
-        <profile>
-            <id>windows</id>
-            <activation>
-                <os>
-                    <family>Windows</family>
-                </os>
-            </activation>
-            <properties>
-                <skipTests>true</skipTests>
-            </properties>
-        </profile>
-    </profiles>
 </project>
