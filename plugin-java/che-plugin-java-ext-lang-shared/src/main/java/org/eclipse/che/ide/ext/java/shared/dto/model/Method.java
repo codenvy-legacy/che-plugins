@@ -8,7 +8,6 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-
 package org.eclipse.che.ide.ext.java.shared.dto.model;
 
 import org.eclipse.che.dto.shared.DTO;
@@ -17,6 +16,7 @@ import org.eclipse.che.dto.shared.DTO;
  * Represents a method (or constructor) declared in a type.
  *
  * @author Evgen Vidolob
+ * @author Valeriy Svydenko
  */
 @DTO
 public interface Method extends Member {
@@ -33,5 +33,10 @@ public interface Method extends Member {
     String getElementName();
 
     void setElementName(String elementName);
+
+    /** @return name of the return type */
+    String getReturnType();
+
+    void setReturnType(String returnType);
 
 }

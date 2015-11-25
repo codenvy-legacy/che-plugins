@@ -29,8 +29,8 @@ import org.eclipse.che.ide.ext.java.client.dependenciesupdater.JavaClasspathServ
 import org.eclipse.che.ide.ext.java.client.documentation.QuickDocPresenter;
 import org.eclipse.che.ide.ext.java.client.documentation.QuickDocumentation;
 import org.eclipse.che.ide.ext.java.client.inject.factories.PropertyWidgetFactory;
-import org.eclipse.che.ide.ext.java.client.navigation.JavaNavigationService;
-import org.eclipse.che.ide.ext.java.client.navigation.JavaNavigationServiceImpl;
+import org.eclipse.che.ide.ext.java.client.navigation.service.JavaNavigationService;
+import org.eclipse.che.ide.ext.java.client.navigation.service.JavaNavigationServiceImpl;
 import org.eclipse.che.ide.ext.java.client.newsourcefile.NewJavaSourceFileView;
 import org.eclipse.che.ide.ext.java.client.newsourcefile.NewJavaSourceFileViewImpl;
 import org.eclipse.che.ide.ext.java.client.project.interceptor.JavaClassInterceptor;
@@ -75,6 +75,7 @@ public class JavaGinModule extends AbstractGinModule {
                                              .build(PropertyWidgetFactory.class));
 
         install(new GinFactoryModuleBuilder().build(NodeFactory.class));
+        install(new GinFactoryModuleBuilder().build(org.eclipse.che.ide.ext.java.client.navigation.factory.NodeFactory.class));
 
         GinMultibinder<SettingsPagePresenter> settingsBinder = GinMultibinder.newSetBinder(binder(), SettingsPagePresenter.class);
         settingsBinder.addBinding().to(ErrorWarningsPresenter.class);

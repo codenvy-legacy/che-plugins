@@ -110,9 +110,6 @@ public interface JavaResources extends ClientBundle {
     @Source("org/eclipse/che/ide/ext/java/client/images/newJavaclass_wiz.gif")
     ImageResource newClassWizz();
 
-    @Source("org/eclipse/che/ide/ext/java/client/images/outline.png")
-    ImageResource outline();
-
     @Source("org/eclipse/che/ide/ext/java/client/images/loader.gif")
     ImageResource loader();
 
@@ -224,6 +221,10 @@ public interface JavaResources extends ClientBundle {
     @Source("svg/searchMatch.svg")
     SVGResource searchMatch();
 
+    @Source("svg/file-navigation.svg")
+    SVGResource fileNavigation();
+
     @Source("svg/find_usages.svg")
     SVGResource findUsages();
+
 }

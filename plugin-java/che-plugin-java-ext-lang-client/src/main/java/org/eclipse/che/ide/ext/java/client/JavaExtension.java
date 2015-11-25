@@ -28,6 +28,7 @@ import org.eclipse.che.ide.ext.java.client.action.NewJavaSourceFileAction;
 import org.eclipse.che.ide.ext.java.client.action.NewPackageAction;
 import org.eclipse.che.ide.ext.java.client.action.OpenDeclarationAction;
 import org.eclipse.che.ide.ext.java.client.action.QuickDocumentationAction;
+import org.eclipse.che.ide.ext.java.client.navigation.action.FileStructureAction;
 import org.eclipse.che.ide.ext.java.client.refactoring.move.MoveAction;
 import org.eclipse.che.ide.ext.java.client.refactoring.rename.RenameRefactoringAction;
 import org.eclipse.che.ide.ext.java.shared.Constants;
@@ -67,6 +68,7 @@ public class JavaExtension {
                                 NewJavaSourceFileAction newJavaSourceFileAction,
                                 ActionManager actionManager,
                                 MoveAction moveAction,
+                                FileStructureAction classStructureAction,
                                 RenameRefactoringAction renameRefactoringAction,
                                 QuickDocumentationAction quickDocumentationAction,
                                 OpenDeclarationAction openDeclarationAction,
@@ -89,15 +91,19 @@ public class JavaExtension {
         actionManager.registerAction("javaRenameRefactoring", renameRefactoringAction);
         actionManager.registerAction("javaMoveRefactoring", moveAction);
         actionManager.registerAction("javaFindUsages", findUsagesAction);
+        actionManager.registerAction("javaClassStructure", classStructureAction);
 
         DefaultActionGroup codeGroup = (DefaultActionGroup)actionManager.getAction(GROUP_CODE);
         codeGroup.add(quickDocumentationAction, Constraints.LAST);
         codeGroup.add(openDeclarationAction, Constraints.LAST);
+        codeGroup.add(classStructureAction, Constraints.LAST);
         codeGroup.add(findUsagesAction, Constraints.LAST);
         if (UserAgent.isMac()) {
             keyBinding.getGlobal().addKey(new KeyBuilder().control().charCode('j').build(), "showQuickDoc");
+            keyBinding.getGlobal().addKey(new KeyBuilder().control().charCode(KeyCodeMap.F12).build(), "javaClassStructure");
         } else {
             keyBinding.getGlobal().addKey(new KeyBuilder().action().charCode('q').build(), "showQuickDoc");
+            keyBinding.getGlobal().addKey(new KeyBuilder().action().charCode(KeyCodeMap.F12).build(), "javaClassStructure");
         }
         keyBinding.getGlobal().addKey(new KeyBuilder().none().charCode(KeyCodeMap.F4).build(), "openJavaDeclaration");
         keyBinding.getGlobal().addKey(new KeyBuilder().shift().charCode(KeyCodeMap.F6).build(), "javaRenameRefactoring");
