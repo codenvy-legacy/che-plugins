@@ -8,7 +8,7 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.ide.ext.java.client.navigation;
+package org.eclipse.che.ide.ext.java.client.navigation.service;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
@@ -17,10 +17,10 @@ import com.google.inject.name.Named;
 
 import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.api.promises.client.callback.AsyncPromiseHelper;
-import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.ext.java.shared.Jar;
 import org.eclipse.che.ide.ext.java.shared.JarEntry;
 import org.eclipse.che.ide.ext.java.shared.OpenDeclarationDescriptor;
+import org.eclipse.che.ide.ext.java.shared.dto.model.CompilationUnit;
 import org.eclipse.che.ide.ext.java.shared.dto.model.JavaProject;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.AsyncRequestFactory;
@@ -41,7 +41,6 @@ public class JavaNavigationServiceImpl implements JavaNavigationService {
 
     private final String                 restContext;
     private final AsyncRequestFactory    requestFactory;
-    private final AppContext             appContext;
     private final String                 workspaceId;
     private final DtoUnmarshallerFactory unmarshallerFactory;
 
@@ -49,11 +48,9 @@ public class JavaNavigationServiceImpl implements JavaNavigationService {
     public JavaNavigationServiceImpl(@Named("cheExtensionPath") String restContext,
                                      @Named("workspaceId") String workspaceId,
                                      DtoUnmarshallerFactory unmarshallerFactory,
-                                     AsyncRequestFactory asyncRequestFactory,
-                                     AppContext appContext) {
+                                     AsyncRequestFactory asyncRequestFactory) {
         this.restContext = restContext;
         this.requestFactory = asyncRequestFactory;
-        this.appContext = appContext;
         this.workspaceId = workspaceId;
         this.unmarshallerFactory = unmarshallerFactory;
     }
@@ -101,6 +98,22 @@ public class JavaNavigationServiceImpl implements JavaNavigationService {
     public void getContent(String projectPath, String fqn, AsyncRequestCallback<String> callback) {
         String url = restContext + "/jdt/" + workspaceId + "/navigation/contentbyfqn?projectpath=" + projectPath + "&fqn=" + fqn;
         requestFactory.createGetRequest(url).send(callback);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public Promise<CompilationUnit> getCompilationUnit(String projectPath, String fqn, boolean showInherited) {
+        final String url = restContext + "/jdt/" + workspaceId + "/navigation/compilation-unit?projectpath=" + projectPath + "&fqn=" + fqn +
+                           "&showinherited=" + showInherited;
+
+        return newPromise(new AsyncPromiseHelper.RequestCall<CompilationUnit>() {
+            @Override
+            public void makeCall(AsyncCallback<CompilationUnit> callback) {
+                requestFactory.createGetRequest(url)
+                                   .header(ACCEPT, APPLICATION_JSON)
+                                   .send(newCallback(callback, unmarshallerFactory.newUnmarshaller(CompilationUnit.class)));
+            }
+        });
     }
 
     @Override

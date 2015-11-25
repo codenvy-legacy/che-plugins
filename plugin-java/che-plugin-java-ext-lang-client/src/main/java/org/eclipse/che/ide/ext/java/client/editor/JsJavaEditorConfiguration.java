@@ -14,9 +14,6 @@ import com.google.inject.Provider;
 import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
 
-import org.eclipse.che.ide.api.texteditor.outline.OutlineModel;
-import org.eclipse.che.ide.ext.java.client.JavaResources;
-import org.eclipse.che.ide.ext.java.client.editor.outline.JavaNodeRenderer;
 import org.eclipse.che.ide.jseditor.client.annotation.AnnotationModel;
 import org.eclipse.che.ide.jseditor.client.changeintercept.ChangeInterceptorProvider;
 import org.eclipse.che.ide.jseditor.client.codeassist.CodeAssistProcessor;
@@ -42,7 +39,6 @@ import static org.eclipse.che.ide.jseditor.client.partition.DocumentPartitioner.
  */
 public class JsJavaEditorConfiguration extends DefaultTextEditorConfiguration {
 
-    private final OutlineModel                     outlineModel;
     private final Map<String, CodeAssistProcessor> codeAssistProcessors;
     private final UserActivityManager              userActivityManager;
     private final Reconciler                       reconciler;
@@ -56,7 +52,6 @@ public class JsJavaEditorConfiguration extends DefaultTextEditorConfiguration {
     @AssistedInject
     public JsJavaEditorConfiguration(@Assisted final EmbeddedTextEditorPresenter<?> editor,
                                      final UserActivityManager userActivityManager,
-                                     final JavaResources javaResources,
                                      final JavaCodeAssistProcessorFactory codeAssistProcessorFactory,
                                      final JavaQuickAssistProcessorFactory quickAssistProcessorFactory,
                                      final ReconcilerFactory reconcilerFactory,
@@ -66,7 +61,6 @@ public class JsJavaEditorConfiguration extends DefaultTextEditorConfiguration {
                                      final JavaAnnotationModelFactory javaAnnotationModelFactory,
                                      final ContentFormatter contentFormatter) {
         this.contentFormatter = contentFormatter;
-        this.outlineModel = new OutlineModel(new JavaNodeRenderer(javaResources));
 
         final JavaCodeAssistProcessor codeAssistProcessor = codeAssistProcessorFactory.create(editor);
         this.codeAssistProcessors = new HashMap<>();
@@ -79,7 +73,6 @@ public class JsJavaEditorConfiguration extends DefaultTextEditorConfiguration {
         this.annotationModel = javaAnnotationModelFactory.create(this.documentPositionMap);
 
         final JavaReconcilerStrategy javaReconcilerStrategy = strategyFactory.create(editor,
-                                                                                     this.outlineModel,
                                                                                      codeAssistProcessor,
                                                                                      this.annotationModel);
 
@@ -87,11 +80,6 @@ public class JsJavaEditorConfiguration extends DefaultTextEditorConfiguration {
         this.reconciler = initReconciler(reconcilerFactory, javaReconcilerStrategy);
 
         this.changeInterceptors = new JavaChangeInterceptorProvider();
-    }
-
-    @Override
-    public OutlineModel getOutline() {
-        return this.outlineModel;
     }
 
     @Override

@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * <p/>
  * Contributors:
- *   Codenvy, S.A. - initial API and implementation
+ * Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
 package org.eclipse.che.jdt;
 
@@ -21,23 +21,37 @@ import org.eclipse.che.ide.ext.java.shared.Jar;
 import org.eclipse.che.ide.ext.java.shared.JarEntry;
 import org.eclipse.che.ide.ext.java.shared.JarEntry.JarEntryType;
 import org.eclipse.che.ide.ext.java.shared.OpenDeclarationDescriptor;
+import org.eclipse.che.ide.ext.java.shared.dto.Region;
+import org.eclipse.che.ide.ext.java.shared.dto.model.CompilationUnit;
+import org.eclipse.che.ide.ext.java.shared.dto.model.Field;
+import org.eclipse.che.ide.ext.java.shared.dto.model.Initializer;
 import org.eclipse.che.ide.ext.java.shared.dto.model.JavaProject;
+import org.eclipse.che.ide.ext.java.shared.dto.model.Member;
+import org.eclipse.che.ide.ext.java.shared.dto.model.Method;
 import org.eclipse.che.ide.ext.java.shared.dto.model.PackageFragment;
 import org.eclipse.che.ide.ext.java.shared.dto.model.PackageFragmentRoot;
+import org.eclipse.che.ide.ext.java.shared.dto.model.Type;
 import org.eclipse.che.jdt.javadoc.JavaElementLabels;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICodeAssist;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IField;
+import org.eclipse.jdt.core.IInitializer;
 import org.eclipse.jdt.core.IJarEntryResource;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IMember;
+import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.ISourceRange;
 import org.eclipse.jdt.core.ISourceReference;
 import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.ITypeHierarchy;
+import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.internal.core.JarEntryDirectory;
 import org.eclipse.jdt.internal.core.JarEntryFile;
 import org.eclipse.jdt.internal.core.JarEntryResource;
@@ -45,6 +59,7 @@ import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
 import org.eclipse.jdt.internal.core.JavaModel;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaModelStatus;
+import org.eclipse.jdt.internal.corext.util.SuperTypeHierarchyCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,7 +74,11 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 /**
+ * Manager for java navigation operations.
+ * Contains methods that convert jdt Java models to DTO objects.
+ *
  * @author Evgen Vidolob
+ * @author Valeriy Svydenko
  */
 @Singleton
 public class JavaNavigation {
@@ -174,18 +193,18 @@ public class JavaNavigation {
         IJavaElement originalElement = null;
         IType type = project.findType(fqn);
         ICodeAssist codeAssist;
-        if(type.isBinary()){
+        if (type.isBinary()) {
             codeAssist = type.getClassFile();
         } else {
             codeAssist = type.getCompilationUnit();
         }
 
         IJavaElement[] elements = null;
-        if(codeAssist != null) {
+        if (codeAssist != null) {
             elements = codeAssist.codeSelect(offset, 0);
         }
 
-        if(elements != null && elements.length > 0){
+        if (elements != null && elements.length > 0) {
             originalElement = elements[0];
         }
         IJavaElement element = originalElement;
@@ -227,6 +246,171 @@ public class JavaNavigation {
         Object[] rootContent = getPackageFragmentRootContent(packageFragmentRoot);
 
         return convertToJarEntry(rootContent, packageFragmentRoot);
+    }
+
+    /**
+     * Get the compilation unit representation of the java file.
+     *
+     * @param javaProject
+     *         path to the project which is contained class file
+     * @param fqn
+     *         fully qualified name of the class file
+     * @param isShowingInheritedMembers
+     *         <code>true</code> iff inherited members are shown
+     * @return instance of {@link CompilationUnit}
+     * @throws JavaModelException
+     *         when JavaModel has a failure
+     */
+    public CompilationUnit getCompilationUnitByPath(IJavaProject javaProject,
+                                                    String fqn,
+                                                    boolean isShowingInheritedMembers) throws JavaModelException {
+        IType type = javaProject.findType(fqn);
+        CompilationUnit compilationUnit = DtoFactory.newDto(CompilationUnit.class);
+        ITypeRoot unit;
+        if (type.isBinary()) {
+            unit = type.getClassFile();
+            compilationUnit.setPath(((IClassFile)unit).getType().getFullyQualifiedName());
+        }   else {
+            unit = type.getCompilationUnit();
+            compilationUnit.setProjectPath(unit.getJavaProject().getPath().toOSString());
+            compilationUnit.setPath(unit.getResource().getFullPath().toOSString());
+        }
+
+        compilationUnit.setElementName(unit.getElementName());
+        compilationUnit.setHandleIdentifier(unit.getHandleIdentifier());
+        compilationUnit.setLabel(org.eclipse.jdt.ui.JavaElementLabels.getElementLabel(unit,
+                                                                                      org.eclipse.jdt.ui.JavaElementLabels.ALL_DEFAULT));
+        List<Type> types = new ArrayList<>(1);
+        Type dtoType = convertToDTOType(type);
+        dtoType.setPrimary(true);
+        types.add(dtoType);
+        compilationUnit.setTypes(types);
+
+        if (isShowingInheritedMembers) {
+            compilationUnit.setSuperTypes(calculateSuperTypes(type));
+        }
+
+        return compilationUnit;
+    }
+
+    private List<Type> calculateSuperTypes(IType type) throws JavaModelException {
+        List<Type> superTypes = new ArrayList<>();
+        ITypeHierarchy superTypeHierarchy = SuperTypeHierarchyCache.getTypeHierarchy(type);
+        if (superTypeHierarchy != null) {
+            IType[] superITypes = superTypeHierarchy.getAllSupertypes(type);
+            for (IType iType : superITypes) {
+                superTypes.add(convertToDTOType(iType));
+            }
+        }
+        return superTypes;
+    }
+
+    private Type convertToDTOType(IType iType) throws JavaModelException {
+        List<Type> types = new ArrayList<>();
+        List<Method> methods = new ArrayList<>();
+        List<Field> fields = new ArrayList<>();
+        List<Initializer> initializers = new ArrayList<>();
+
+        Type type = DtoFactory.newDto(Type.class);
+
+        setRootPath(iType, type);
+
+        type.setElementName(iType.getElementName());
+        type.setLabel(
+                org.eclipse.jdt.ui.JavaElementLabels.getElementLabel(iType, org.eclipse.jdt.ui.JavaElementLabels.ALL_DEFAULT));
+        type.setHandleIdentifier(iType.getHandleIdentifier());
+        type.setFlags(iType.getFlags());
+        type.setFileRegion(convertToDTORegion(iType.getNameRange()));
+
+        if (!iType.hasChildren()) {
+            type.setTypes(types);
+            return type;
+        }
+
+        IJavaElement[] children = iType.getChildren();
+        for (IJavaElement child : children) {
+            switch (child.getElementType()) {
+                case 7: //type
+                    types.add(convertToDTOType((IType)child));
+                    break;
+                case 8: //field
+                    fields.add(convertToDTOField((IField)child));
+                    break;
+                case 9: //method
+                    methods.add(convertToDTOMethod((IMethod)child));
+                    break;
+                case 10: //initializer
+                    initializers.add(convertToDTOInitializer((IInitializer)child));
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        type.setFields(fields);
+        type.setMethods(methods);
+        type.setInitializers(initializers);
+        type.setTypes(types);
+
+        return type;
+    }
+
+    private Field convertToDTOField(IField iField) throws JavaModelException {
+        Field field = DtoFactory.newDto(Field.class);
+
+        setRootPath(iField, field);
+
+        field.setFileRegion(convertToDTORegion(iField.getNameRange()));
+        field.setElementName(iField.getElementName());
+        field.setHandleIdentifier(iField.getHandleIdentifier());
+        field.setFlags(iField.getFlags());
+        field.setLabel(org.eclipse.jdt.ui.JavaElementLabels.getElementLabel(iField, org.eclipse.jdt.ui.JavaElementLabels.ALL_DEFAULT));
+
+        return field;
+    }
+
+    private Method convertToDTOMethod(IMethod iMethod) throws JavaModelException {
+        Method method = DtoFactory.newDto(Method.class);
+
+        setRootPath(iMethod, method);
+
+        method.setFileRegion(convertToDTORegion(iMethod.getNameRange()));
+        method.setElementName(iMethod.getElementName());
+        method.setReturnType(Signature.toString(iMethod.getReturnType()));
+        method.setHandleIdentifier(iMethod.getHandleIdentifier());
+        method.setFlags(iMethod.getFlags());
+        method.setLabel(org.eclipse.jdt.ui.JavaElementLabels.getElementLabel(iMethod, org.eclipse.jdt.ui.JavaElementLabels.ALL_DEFAULT));
+
+        return method;
+    }
+
+    private void setRootPath(IMember iMember, Member member) {
+        if (iMember.isBinary()) {
+            member.setBinary(true);
+            member.setRootPath(iMember.getClassFile().getType().getFullyQualifiedName());
+            member.setLibId(iMember.getClassFile().getAncestor(IPackageFragmentRoot.PACKAGE_FRAGMENT_ROOT).hashCode());
+        } else {
+            member.setBinary(false);
+            member.setRootPath(iMember.getCompilationUnit().getPath().toOSString());
+        }
+    }
+
+    private Initializer convertToDTOInitializer(IInitializer iInitializer) throws JavaModelException {
+        Initializer initializer = DtoFactory.newDto(Initializer.class);
+
+        initializer.setFileRegion(convertToDTORegion(iInitializer.getSourceRange()));
+        initializer.setElementName(iInitializer.getElementName());
+        initializer.setHandleIdentifier(iInitializer.getHandleIdentifier());
+        initializer.setFlags(iInitializer.getFlags());
+        initializer.setLabel(org.eclipse.jdt.ui.JavaElementLabels.getElementLabel(iInitializer,
+                                                                                  org.eclipse.jdt.ui.JavaElementLabels.ALL_DEFAULT));
+
+        return initializer;
+    }
+
+    private Region convertToDTORegion(ISourceRange iSourceRange) {
+        Region region = DtoFactory.newDto(Region.class);
+        return iSourceRange == null ? region : region.withLength(iSourceRange.getLength()).withOffset(iSourceRange.getOffset());
     }
 
     private IPackageFragmentRoot getPackageFragmentRoot(IJavaProject project, int hash) throws JavaModelException {
@@ -638,7 +822,7 @@ public class JavaNavigation {
         IJavaProject[] javaProjects = javaModel.getJavaProjects();
         List<JavaProject> result = new ArrayList<>();
         for (IJavaProject javaProject : javaProjects) {
-            if(javaProject.exists()) {
+            if (javaProject.exists()) {
                 JavaProject project = DtoFactory.newDto(JavaProject.class);
                 project.setName(javaProject.getElementName());
                 project.setPath(javaProject.getPath().toOSString());
@@ -653,11 +837,11 @@ public class JavaNavigation {
         IPackageFragmentRoot[] packageFragmentRoots = javaProject.getPackageFragmentRoots();
         List<PackageFragmentRoot> result = new ArrayList<>();
         for (IPackageFragmentRoot packageFragmentRoot : packageFragmentRoots) {
-            if(packageFragmentRoot.getKind() == IPackageFragmentRoot.K_SOURCE){
+            if (packageFragmentRoot.getKind() == IPackageFragmentRoot.K_SOURCE) {
                 PackageFragmentRoot root = DtoFactory.newDto(PackageFragmentRoot.class);
                 root.setPath(packageFragmentRoot.getPath().toOSString());
                 root.setProjectPath(packageFragmentRoot.getJavaProject().getPath().toOSString());
-                if(includePackages) {
+                if (includePackages) {
                     root.setPackageFragments(toPackageFragments(packageFragmentRoot));
                 }
                 result.add(root);
@@ -668,12 +852,12 @@ public class JavaNavigation {
 
     private List<PackageFragment> toPackageFragments(IPackageFragmentRoot packageFragmentRoot) throws JavaModelException {
         IJavaElement[] children = packageFragmentRoot.getChildren();
-        if(children == null){
+        if (children == null) {
             return null;
         }
         List<PackageFragment> result = new ArrayList<>();
         for (IJavaElement child : children) {
-            if(child instanceof IPackageFragment){
+            if (child instanceof IPackageFragment) {
                 IPackageFragment packageFragment = (IPackageFragment)child;
                 PackageFragment fragment = DtoFactory.newDto(PackageFragment.class);
                 fragment.setElementName(packageFragment.getElementName());

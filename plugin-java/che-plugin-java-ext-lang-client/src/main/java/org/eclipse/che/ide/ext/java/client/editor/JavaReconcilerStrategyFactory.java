@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.java.client.editor;
 
-import org.eclipse.che.ide.api.texteditor.outline.OutlineModel;
 import org.eclipse.che.ide.jseditor.client.annotation.AnnotationModel;
 import org.eclipse.che.ide.jseditor.client.texteditor.EmbeddedTextEditorPresenter;
 
@@ -19,7 +18,6 @@ import org.eclipse.che.ide.jseditor.client.texteditor.EmbeddedTextEditorPresente
  */
 public interface JavaReconcilerStrategyFactory {
     JavaReconcilerStrategy create(EmbeddedTextEditorPresenter< ? > editor,
-                                  OutlineModel outlineModel,
                                   JavaCodeAssistProcessor codeAssistProcessor,
                                   AnnotationModel annotationModel);
 }
