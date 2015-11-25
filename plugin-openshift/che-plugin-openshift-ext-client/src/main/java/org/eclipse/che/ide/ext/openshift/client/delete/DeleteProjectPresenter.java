@@ -79,7 +79,7 @@ public class DeleteProjectPresenter extends ValidateAuthenticationPresenter {
 
     @Override
     protected void onSuccessAuthentication() {
-        ProjectDescriptor descriptor = appContext.getCurrentProject().getProjectDescription();
+        ProjectDescriptor descriptor = appContext.getCurrentProject().getRootProject();
         final String namespace = getAttributeValue(descriptor, OPENSHIFT_NAMESPACE_VARIABLE_NAME);
         
         if (!Strings.isNullOrEmpty(namespace)) {
@@ -161,7 +161,7 @@ public class DeleteProjectPresenter extends ValidateAuthenticationPresenter {
         }).then(new Operation<ProjectDescriptor>() {
             @Override
             public void apply(ProjectDescriptor projectDescriptor) throws OperationException {
-                appContext.getCurrentProject().setProjectDescription(projectDescriptor);
+                appContext.getCurrentProject().setRootProject(projectDescriptor);
                 notificationManager.showInfo(locale.projectSuccessfullyReset(projectDescriptor.getName()));
             }
         }).catchError(handleError(nameSpace));

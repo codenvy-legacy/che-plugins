@@ -53,7 +53,7 @@ public class LinkProjectWithExistingApplicationAction extends AbstractPerspectiv
     public void updateInPerspective(@NotNull ActionEvent event) {
         event.getPresentation().setVisible(appContext.getCurrentProject() != null);
         event.getPresentation().setEnabled(appContext.getCurrentProject() != null
-                                           && !appContext.getCurrentProject().getProjectDescription().getMixins()
+                                           && !appContext.getCurrentProject().getRootProject().getMixins()
                                                          .contains(OPENSHIFT_PROJECT_TYPE_ID));
     }
 

@@ -18,8 +18,6 @@ import org.eclipse.che.ide.api.action.AbstractPerspectiveAction;
 import org.eclipse.che.ide.api.action.ActionEvent;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.ext.openshift.client.OpenshiftLocalizationConstant;
-import org.eclipse.che.ide.ext.openshift.client.oauth.OpenshiftAuthorizationHandler;
-
 import javax.validation.constraints.NotNull;
 
 import java.util.Collections;
@@ -43,7 +41,6 @@ public class NewApplicationAction extends AbstractPerspectiveAction {
     public NewApplicationAction(final AnalyticsEventLogger eventLogger,
                                 final NewApplicationPresenter presenter,
                                 final AppContext appContext,
-                                final OpenshiftAuthorizationHandler authHandler,
                                 OpenshiftLocalizationConstant locale) {
         super(Collections.singletonList(PROJECT_PERSPECTIVE_ID), locale.newApplicationAction(), null, null, null);
         this.eventLogger = eventLogger;
@@ -55,7 +52,7 @@ public class NewApplicationAction extends AbstractPerspectiveAction {
     public void updateInPerspective(@NotNull ActionEvent event) {
         event.getPresentation().setVisible(appContext.getCurrentProject() != null);
         event.getPresentation().setEnabled(appContext.getCurrentProject() != null
-                                           && !appContext.getCurrentProject().getProjectDescription().getMixins()
+                                           && !appContext.getCurrentProject().getRootProject().getMixins()
                                                          .contains(OPENSHIFT_PROJECT_TYPE_ID));
     }
 
