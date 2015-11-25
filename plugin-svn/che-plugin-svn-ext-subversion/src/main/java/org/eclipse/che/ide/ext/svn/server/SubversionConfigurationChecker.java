@@ -31,6 +31,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import static org.eclipse.che.api.project.server.Constants.CODENVY_DIR;
+
 /**
  * Checks Subversion configuration to ensure properly work SVN-extension in Codenvy.
  * <p/>
@@ -48,7 +50,7 @@ public class SubversionConfigurationChecker {
     private static final Set<String> SUBVERSION_IGNORE_PATTERNS = new LinkedHashSet<>();
 
     static {
-        SUBVERSION_IGNORE_PATTERNS.add(".codenvy");
+        SUBVERSION_IGNORE_PATTERNS.add(CODENVY_DIR);
         SUBVERSION_IGNORE_PATTERNS.add(".vfs");
     }
 

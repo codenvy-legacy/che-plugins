@@ -40,8 +40,10 @@ public interface MavenAttributes {
 
     String RESOURCE_FOLDER = "maven.resource.folder";
 
-    String DEFAULT_SOURCE_FOLDER      = "src/main/java";
-    String DEFAULT_TEST_SOURCE_FOLDER = "src/test/java";
-    String DEFAULT_VERSION            = "1.0-SNAPSHOT";
-    String DEFAULT_PACKAGING          = "jar";
+    String DEFAULT_SOURCE_FOLDER         = "src/main/java";
+    String DEFAULT_RESOURCES_FOLDER      = "src/main/resources";
+    String DEFAULT_TEST_SOURCE_FOLDER    = "src/test/java";
+    String DEFAULT_TEST_RESOURCES_FOLDER = "src/test/resources";
+    String DEFAULT_VERSION               = "1.0-SNAPSHOT";
+    String DEFAULT_PACKAGING             = "jar";
 }

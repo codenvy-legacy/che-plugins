@@ -23,8 +23,8 @@ import java.util.Map;
  */
 public interface GeneratorStrategy  {
 
-    public String getId();
+    String getId();
 
-    public void generateProject(final FolderEntry baseFolder, Map<String, AttributeValue> attributes, Map<String, String> options)
+    void generateProject(final FolderEntry baseFolder, Map<String, AttributeValue> attributes, Map<String, String> options)
             throws ForbiddenException, ConflictException, ServerException;
 }

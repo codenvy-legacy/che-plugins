@@ -10,9 +10,12 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.maven.client.wizard;
 
+import com.google.gwt.user.client.ui.AcceptsOneWidget;
+import com.google.inject.Inject;
+import com.google.web.bindery.event.shared.EventBus;
+
 import org.eclipse.che.api.core.rest.shared.dto.ServiceError;
 import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
-import org.eclipse.che.api.project.shared.dto.GeneratorDescription;
 import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.ide.api.project.type.wizard.ProjectWizardMode;
 import org.eclipse.che.ide.api.wizard.AbstractWizardPage;
@@ -23,13 +26,9 @@ import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.StringMapListUnmarshaller;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 import org.eclipse.che.ide.util.loging.Log;
-import com.google.gwt.user.client.ui.AcceptsOneWidget;
-import com.google.inject.Inject;
-import com.google.web.bindery.event.shared.EventBus;
 
 import javax.validation.constraints.NotNull;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -39,16 +38,11 @@ import static org.eclipse.che.ide.api.project.type.wizard.ProjectWizardMode.CREA
 import static org.eclipse.che.ide.api.project.type.wizard.ProjectWizardMode.UPDATE;
 import static org.eclipse.che.ide.api.project.type.wizard.ProjectWizardRegistrar.PROJECT_PATH_KEY;
 import static org.eclipse.che.ide.api.project.type.wizard.ProjectWizardRegistrar.WIZARD_MODE_KEY;
-import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.ARCHETYPE_ARTIFACT_ID_OPTION;
-import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.ARCHETYPE_GENERATION_STRATEGY;
-import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.ARCHETYPE_GROUP_ID_OPTION;
-import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.ARCHETYPE_REPOSITORY_OPTION;
-import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.ARCHETYPE_VERSION_OPTION;
 import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.ARTIFACT_ID;
+import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.DEFAULT_PACKAGING;
 import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.DEFAULT_SOURCE_FOLDER;
 import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.DEFAULT_TEST_SOURCE_FOLDER;
 import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.DEFAULT_VERSION;
-import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.GENERATION_STRATEGY_OPTION;
 import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.GROUP_ID;
 import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.MAVEN_ID;
 import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.PACKAGING;
@@ -93,7 +87,7 @@ public class MavenPagePresenter extends AbstractWizardPage<ProjectConfigDto> imp
         if (CREATE == wizardMode) {
             // set default values
             setAttribute(VERSION, DEFAULT_VERSION);
-            setAttribute(PACKAGING, "jar");
+            setAttribute(PACKAGING, DEFAULT_PACKAGING);
             setAttribute(SOURCE_FOLDER, DEFAULT_SOURCE_FOLDER);
             setAttribute(TEST_SOURCE_FOLDER, DEFAULT_TEST_SOURCE_FOLDER);
         } else if (CREATE_MODULE == wizardMode || UPDATE == wizardMode && getAttribute(ARTIFACT_ID).isEmpty()) {
