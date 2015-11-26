@@ -14,7 +14,6 @@ import org.eclipse.che.api.core.ServerException;
 import org.eclipse.che.dto.server.DtoFactory;
 import org.eclipse.che.generator.archetype.dto.GenerationTaskDescriptor;
 import org.eclipse.che.generator.archetype.dto.MavenArchetype;
-
 import org.everrest.core.impl.uri.UriBuilderImpl;
 import org.junit.Assert;
 import org.junit.Before;
@@ -70,7 +69,7 @@ public class ArchetypeGeneratorServiceTest {
                                              .withArtifactId("archetypeArtifactId")
                                              .withVersion("archetypeVersion");
 
-        when(archetypeGenerator.generateFromArchetype((MavenArchetype)anyObject(), anyString(), anyString(), anyString()))
+        when(archetypeGenerator.generateFromArchetype(anyObject(), anyString(), anyString(), anyString()))
                 .thenReturn(taskMock);
 
         GenerationTaskDescriptor task = service.generate(uriInfo, "groupId", "artifactId", "version", archetype);

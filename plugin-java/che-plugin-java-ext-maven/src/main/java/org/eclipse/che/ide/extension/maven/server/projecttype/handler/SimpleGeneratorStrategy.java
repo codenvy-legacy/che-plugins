@@ -15,13 +15,14 @@ import org.eclipse.che.api.core.ForbiddenException;
 import org.eclipse.che.api.core.ServerException;
 import org.eclipse.che.api.project.server.FolderEntry;
 import org.eclipse.che.api.project.server.type.AttributeValue;
-
 import org.eclipse.che.ide.maven.tools.Build;
 import org.eclipse.che.ide.maven.tools.Model;
 
 import java.util.Map;
 
 import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.ARTIFACT_ID;
+import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.DEFAULT_SOURCE_FOLDER;
+import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.DEFAULT_TEST_SOURCE_FOLDER;
 import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.GROUP_ID;
 import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.PACKAGING;
 import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.PARENT_ARTIFACT_ID;
@@ -47,18 +48,20 @@ public class SimpleGeneratorStrategy implements GeneratorStrategy {
     @Override
     public void generateProject(FolderEntry baseFolder, Map<String, AttributeValue> attributes, Map<String, String> options)
             throws ForbiddenException, ConflictException, ServerException {
-        //Map<String, List<String>> attributes = newProjectDescriptor.getAttributes();
         AttributeValue artifactId = attributes.get(ARTIFACT_ID);
         AttributeValue groupId = attributes.get(GROUP_ID);
         AttributeValue version = attributes.get(VERSION);
-        if (artifactId == null)
+        if (artifactId == null) {
             throw new ConflictException("Missed required attribute artifactId");
+        }
 
-        if (groupId == null)
+        if (groupId == null) {
             throw new ConflictException("Missed required attribute groupId");
+        }
 
-        if (version == null)
+        if (version == null) {
             throw new ConflictException("Missed required attribute version");
+        }
 
         Model model = Model.createModel();
         model.setModelVersion("4.0.0");
@@ -87,7 +90,7 @@ public class SimpleGeneratorStrategy implements GeneratorStrategy {
         if (sourceFolders != null) {
             final String sourceFolder = sourceFolders.getString();
             baseFolder.createFolder(sourceFolder);
-            if (!"src/main/java".equals(sourceFolder)) {
+            if (!DEFAULT_SOURCE_FOLDER.equals(sourceFolder)) {
                 model.setBuild(new Build().setSourceDirectory(sourceFolder));
             }
         }
@@ -95,7 +98,7 @@ public class SimpleGeneratorStrategy implements GeneratorStrategy {
         if (testSourceFolders != null) {
             final String testSourceFolder = testSourceFolders.getString();
             baseFolder.createFolder(testSourceFolder);
-            if (!"src/test/java".equals(testSourceFolder)) {
+            if (!DEFAULT_TEST_SOURCE_FOLDER.equals(testSourceFolder)) {
                 Build build = model.getBuild();
                 if (build != null) {
                     build.setTestSourceDirectory(testSourceFolder);

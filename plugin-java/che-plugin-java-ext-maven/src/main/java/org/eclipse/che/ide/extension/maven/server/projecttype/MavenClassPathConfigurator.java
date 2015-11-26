@@ -21,6 +21,10 @@ import org.eclipse.che.ide.maven.tools.Model;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
+import static org.eclipse.che.api.project.server.Constants.CODENVY_DIR;
+import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.DEFAULT_SOURCE_FOLDER;
+import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.DEFAULT_TEST_SOURCE_FOLDER;
+
 /**
  * @author Roman Nikitenko
  */
@@ -47,10 +51,10 @@ public class MavenClassPathConfigurator {
     }
 
     public static void configure(FolderEntry projectFolder, Model model) throws ServerException, ForbiddenException, ConflictException {
-        FolderEntry cheFolder = (FolderEntry)projectFolder.getChild(".codenvy");
+        FolderEntry cheFolder = (FolderEntry)projectFolder.getChild(CODENVY_DIR);
 
         if (cheFolder == null) {
-            cheFolder = projectFolder.createFolder(".codenvy");
+            cheFolder = projectFolder.createFolder(CODENVY_DIR);
         }
 
         if (cheFolder != null && cheFolder.getVirtualFile().getChild("classpath") == null) {
@@ -61,8 +65,8 @@ public class MavenClassPathConfigurator {
                 sourceDirectory = build.getSourceDirectory();
                 testDirectory = build.getTestSourceDirectory();
             }
-            sourceDirectory = sourceDirectory != null && !sourceDirectory.isEmpty() ? sourceDirectory : "src/main/java";
-            testDirectory = testDirectory != null && !testDirectory.isEmpty() ? testDirectory : "src/test/java";
+            sourceDirectory = sourceDirectory != null && !sourceDirectory.isEmpty() ? sourceDirectory : DEFAULT_SOURCE_FOLDER;
+            testDirectory = testDirectory != null && !testDirectory.isEmpty() ? testDirectory : DEFAULT_TEST_SOURCE_FOLDER;
 
             String classPathContent = String.format(CLASS_PATH_CONTENT, sourceDirectory, testDirectory);
             cheFolder.getVirtualFile().createFile("classpath", null, new ByteArrayInputStream(classPathContent.getBytes()));
