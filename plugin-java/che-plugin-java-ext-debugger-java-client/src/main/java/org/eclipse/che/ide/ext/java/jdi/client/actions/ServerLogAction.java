@@ -35,7 +35,7 @@ import org.eclipse.che.ide.extension.machine.client.outputspanel.console.OutputC
 public class ServerLogAction extends Action {
 
     //TODO This is a temporary solution
-    private static final String SERVER_LOG_PATH = "/home/user/che/ext-server/logs/catalina.out";
+    private static final String SERVER_LOG_PATH = "~/che/ext-server/logs/catalina.out";
 
     private final AppContext                      appContext;
     private final AnalyticsEventLogger            eventLogger;

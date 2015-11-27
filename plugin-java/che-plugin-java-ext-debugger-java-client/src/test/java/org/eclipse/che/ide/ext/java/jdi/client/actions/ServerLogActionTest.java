@@ -48,7 +48,7 @@ import static org.mockito.Mockito.when;
 public class ServerLogActionTest {
     private static final String MACHINE_ID      = "machineID";
     private static final String TAB_TITLE       = "Server Log";
-    private static final String SERVER_LOG_PATH = "/home/user/che/ext-server/logs/catalina.out";
+    private static final String SERVER_LOG_PATH = "~/che/ext-server/logs/catalina.out";
     private static final String FILE_CONTENT    = "some logs from server";
 
     @Mock
