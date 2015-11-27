@@ -92,6 +92,7 @@ public class DockerInstanceProvider implements InstanceProvider {
     private final DockerConnector                  docker;
     private final DockerInstanceStopDetector       dockerInstanceStopDetector;
     private final WorkspaceFolderPathProvider      workspaceFolderPathProvider;
+    private final boolean                          doForcePullOnBuild;
     private final Set<String>                      supportedRecipeTypes;
     private final DockerMachineFactory             dockerMachineFactory;
     private final Map<String, String>              devMachineContainerLabels;
@@ -116,13 +117,15 @@ public class DockerInstanceProvider implements InstanceProvider {
                                   @Nullable @Named("machine.docker.machine_extra_hosts") String machineExtraHosts,
                                   @Named("machine.docker.che_api.endpoint") String apiEndpoint,
                                   WorkspaceFolderPathProvider workspaceFolderPathProvider,
-                                  @Named("che.projects.root") String projectFolderPath)
+                                  @Named("che.projects.root") String projectFolderPath,
+                                  @Named("machine.docker.pull_image") boolean doForcePullOnBuild)
             throws IOException {
 
         this.docker = docker;
         this.dockerMachineFactory = dockerMachineFactory;
         this.dockerInstanceStopDetector = dockerInstanceStopDetector;
         this.workspaceFolderPathProvider = workspaceFolderPathProvider;
+        this.doForcePullOnBuild = doForcePullOnBuild;
         this.supportedRecipeTypes = Collections.singleton("Dockerfile");
 
         this.systemVolumesForDevMachine = Sets.newHashSetWithExpectedSize(allMachinesSystemVolumes.size()
@@ -301,7 +304,11 @@ public class DockerInstanceProvider implements InstanceProvider {
                     LOG.error(e.getLocalizedMessage(), e);
                 }
             };
-            docker.buildImage(imageName, progressMonitor, null, files.toArray(new File[files.size()]));
+            docker.buildImage(imageName,
+                              progressMonitor,
+                              null,
+                              doForcePullOnBuild,
+                              files.toArray(new File[files.size()]));
         } catch (IOException | InterruptedException e) {
             throw new MachineException(e.getMessage(), e);
         } finally {
