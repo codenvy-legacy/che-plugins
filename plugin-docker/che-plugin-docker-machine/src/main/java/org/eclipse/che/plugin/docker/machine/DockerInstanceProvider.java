@@ -221,10 +221,45 @@ public class DockerInstanceProvider implements InstanceProvider {
                                    LineConsumer creationLogsOutput) throws MachineException {
         final Dockerfile dockerfile = parseRecipe(recipe);
 
-        final String dockerImage = buildImage(dockerfile, creationLogsOutput);
+        final String machineContainerName = generateContainerName(machineState.getWorkspaceId(), machineState.getName());
+        final String machineImageName = "eclipse-che/" + machineContainerName;
 
-        return createInstance(dockerImage,
+        buildImage(dockerfile, creationLogsOutput, machineImageName);
+
+        return createInstance(machineContainerName,
                               machineState,
+                              machineImageName,
+                              creationLogsOutput);
+    }
+
+    @Override
+    public Instance createInstance(InstanceKey instanceKey,
+                                   MachineState machineState,
+                                   LineConsumer creationLogsOutput) throws NotFoundException, MachineException {
+        final DockerInstanceKey dockerInstanceKey = new DockerInstanceKey(instanceKey);
+
+        pullImage(dockerInstanceKey, creationLogsOutput);
+
+        final String machineContainerName = generateContainerName(machineState.getWorkspaceId(), machineState.getName());
+        final String machineImageName = "eclipse-che/" + machineContainerName;
+        final String fullNameOfPulledImage = dockerInstanceKey.getFullName();
+        try {
+            // tag image with generated name to allow sysadmin recognize it
+            docker.tag(fullNameOfPulledImage, machineImageName, null);
+        } catch (IOException e) {
+            LOG.error(e.getLocalizedMessage(), e);
+            throw new MachineException("Can't create machine from snapshot.");
+        }
+        try {
+            // remove unneeded tag
+            docker.removeImage(fullNameOfPulledImage, false);
+        } catch (IOException e) {
+            LOG.error(e.getLocalizedMessage(), e);
+        }
+
+        return createInstance(machineContainerName,
+                              machineState,
+                              machineImageName,
                               creationLogsOutput);
     }
 
@@ -249,7 +284,7 @@ public class DockerInstanceProvider implements InstanceProvider {
         }
     }
 
-    private String buildImage(Dockerfile dockerfile, final LineConsumer creationLogsOutput) throws MachineException {
+    private void buildImage(Dockerfile dockerfile, final LineConsumer creationLogsOutput, String imageName) throws MachineException {
         File workDir = null;
         try {
             // build docker image
@@ -266,7 +301,7 @@ public class DockerInstanceProvider implements InstanceProvider {
                     LOG.error(e.getLocalizedMessage(), e);
                 }
             };
-            return docker.buildImage(null, progressMonitor, null, files.toArray(new File[files.size()]));
+            docker.buildImage(imageName, progressMonitor, null, files.toArray(new File[files.size()]));
         } catch (IOException | InterruptedException e) {
             throw new MachineException(e.getMessage(), e);
         } finally {
@@ -276,39 +311,25 @@ public class DockerInstanceProvider implements InstanceProvider {
         }
     }
 
-    @Override
-    public Instance createInstance(InstanceKey instanceKey,
-                                   MachineState machineState,
-                                   LineConsumer creationLogsOutput) throws NotFoundException, MachineException {
-        final String imageId = pullImage(instanceKey, creationLogsOutput);
-
-        return createInstance(imageId,
-                              machineState,
-                              creationLogsOutput);
-    }
-
-    private String pullImage(InstanceKey instanceKey, final LineConsumer creationLogsOutput) throws MachineException {
-        final DockerInstanceKey dockerInstanceKey = new DockerInstanceKey(instanceKey);
-        final String repository = dockerInstanceKey.getRepository();
-        final String imageId = dockerInstanceKey.getImageId();
-        if (repository == null || imageId == null) {
-            throw new MachineException("Machine creation failed. Image attributes are not valid");
+    private void pullImage(DockerInstanceKey dockerInstanceKey, final LineConsumer creationLogsOutput) throws MachineException {
+        if (dockerInstanceKey.getRepository() == null) {
+            throw new MachineException("Machine creation failed. Snapshot state is invalid. Please, contact support.");
         }
         try {
             final ProgressLineFormatterImpl progressLineFormatter = new ProgressLineFormatterImpl();
-            docker.pull(repository, dockerInstanceKey.getTag(), dockerInstanceKey.getRegistry(), currentProgressStatus -> {
-                try {
-                    creationLogsOutput.writeLine(progressLineFormatter.format(currentProgressStatus));
-                } catch (IOException e) {
-                    LOG.error(e.getLocalizedMessage(), e);
-                }
-            });
-
+            docker.pull(dockerInstanceKey.getRepository(),
+                        dockerInstanceKey.getTag(),
+                        dockerInstanceKey.getRegistry(),
+                        currentProgressStatus -> {
+                            try {
+                                creationLogsOutput.writeLine(progressLineFormatter.format(currentProgressStatus));
+                            } catch (IOException e) {
+                                LOG.error(e.getLocalizedMessage(), e);
+                            }
+                        });
         } catch (IOException | InterruptedException e) {
             throw new MachineException(e.getLocalizedMessage(), e);
         }
-
-        return imageId;
     }
 
     // TODO rework in accordance with v2 docker registry API
@@ -351,8 +372,9 @@ public class DockerInstanceProvider implements InstanceProvider {
         }
     }
 
-    private Instance createInstance(String imageId,
+    private Instance createInstance(String containerName,
                                     MachineState machineState,
+                                    String imageName,
                                     LineConsumer outputConsumer)
             throws MachineException {
         try {
@@ -388,16 +410,13 @@ public class DockerInstanceProvider implements InstanceProvider {
                                                           .withPublishAllPorts(true)
                                                           .withMemorySwap(-1)
                                                           .withMemory((long)machineState.getLimits().getMemory() * 1024 * 1024);
-            final ContainerConfig config = new ContainerConfig().withImage(imageId)
+            final ContainerConfig config = new ContainerConfig().withImage(imageName)
                                                                 .withLabels(labels)
                                                                 .withExposedPorts(portsToExpose)
                                                                 .withHostConfig(hostConfig)
                                                                 .withEnv(env);
 
-            final String containerId = docker.createContainer(config,
-                                                              generateContainerName(machineState.getWorkspaceId(),
-                                                                                    machineState.getName()))
-                                             .getId();
+            final String containerId = docker.createContainer(config, containerName).getId();
 
             docker.startContainer(containerId, null);
 

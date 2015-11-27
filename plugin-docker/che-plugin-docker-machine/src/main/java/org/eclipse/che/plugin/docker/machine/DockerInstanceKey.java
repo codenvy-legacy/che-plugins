@@ -63,6 +63,24 @@ public class DockerInstanceKey implements InstanceKey {
         return fields.get(REGISTRY);
     }
 
+    /**
+     * Returns full name of docker image.
+     *
+     * It consists of registry, userspace, repository name, tag.
+     * E.g. docker-registry.company.com:5000/userspace1/my-repository:some-tag
+     */
+    public String getFullName() {
+        final StringBuilder fullRepoId = new StringBuilder();
+        if (getRegistry() != null) {
+            fullRepoId.append(getRegistry()).append('/');
+        }
+        fullRepoId.append(getRepository());
+        if (getTag() != null) {
+            fullRepoId.append(':').append(getTag());
+        }
+        return fullRepoId.toString();
+    }
+
     @Override
     public Map<String, String> getFields() {
         return Collections.unmodifiableMap(fields);
