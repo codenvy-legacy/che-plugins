@@ -85,7 +85,7 @@ public class OutputConsoleViewImpl extends Composite implements OutputConsoleVie
     private SafeHtml buildSafeHtmlMessage(String message) {
         return new SafeHtmlBuilder()
                 .appendHtmlConstant("<pre " + PRE_STYLE + ">")
-                .append(SimpleHtmlSanitizer.sanitizeHtml(message))
+                .append(SimpleHtmlSanitizer.sanitizeHtml(message.isEmpty() ? " " : message))
                 .appendHtmlConstant("</pre>")
                 .toSafeHtml();
     }
