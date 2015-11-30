@@ -203,6 +203,7 @@ public class DockerInstanceProviderTest {
                                                                    new ChannelsImpl("chan1", "chan2"),
                                                                    "workspaceId",
                                                                    "userId",
+                                                                   "envName",
                                                                    MachineStatus.CREATING);
 
 
@@ -228,6 +229,7 @@ public class DockerInstanceProviderTest {
                                                                    new ChannelsImpl("chan1", "chan2"),
                                                                    "workspaceId",
                                                                    "userId",
+                                                                   "envName",
                                                                    MachineStatus.CREATING);
 
         createInstanceFromRecipe(recipe, machineState);
@@ -1319,6 +1321,7 @@ public class DockerInstanceProviderTest {
                                                                    channels,
                                                                    workspaceId,
                                                                    userId,
+                                                                   "envName",
                                                                    machineStatus),
                                               LineConsumer.DEV_NULL);
     }
@@ -1373,7 +1376,8 @@ public class DockerInstanceProviderTest {
                                    "machineType",
                                    new MachineSourceImpl("source type", "source location"),
                                    new ChannelsImpl("channel1", "channel2"),
-                                   MachineStatus.CREATING);
+                                   MachineStatus.CREATING,
+                                   "envName");
     }
 
     private void createInstanceFromSnapshot(String repo,
@@ -1388,7 +1392,8 @@ public class DockerInstanceProviderTest {
                                             String machineType,
                                             MachineSource machineSource,
                                             Channels channels,
-                                            MachineStatus machineStatus)
+                                            MachineStatus machineStatus,
+                                            String envName)
             throws NotFoundException, MachineException {
 
         dockerInstanceProvider.createInstance(new DockerInstanceKey(repo, tag, "imageId", registry),
@@ -1401,6 +1406,7 @@ public class DockerInstanceProviderTest {
                                                                    channels,
                                                                    workspaceId,
                                                                    userId,
+                                                                   envName,
                                                                    machineStatus),
                                               LineConsumer.DEV_NULL);
     }

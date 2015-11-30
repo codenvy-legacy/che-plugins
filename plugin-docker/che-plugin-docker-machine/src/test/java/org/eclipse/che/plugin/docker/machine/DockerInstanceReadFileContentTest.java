@@ -71,6 +71,7 @@ public class DockerInstanceReadFileContentTest {
                                                                      new ChannelsImpl("chan1", "chan2"),
                                                                      "workspaceId",
                                                                      "userId",
+                                                                     "envName",
                                                                      MachineStatus.CREATING),
                                                 null,
                                                 null,
