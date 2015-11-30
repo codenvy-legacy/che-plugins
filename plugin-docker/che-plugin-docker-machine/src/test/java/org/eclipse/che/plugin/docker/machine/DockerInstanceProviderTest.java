@@ -54,7 +54,9 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
@@ -64,12 +66,10 @@ import static org.testng.Assert.assertTrue;
 @Listeners(MockitoTestNGListener.class)
 public class DockerInstanceProviderTest {
     private static final String PROJECT_FOLDER_PATH = "/projects";
-
     private static final String API_ENDPOINT_VALUE = "apiEndpoint";
-
     private static final String CONTAINER_ID = "containerId";
-
     private static final String WORKSPACE_ID = "wsId";
+    private static final String DISPLAY_NAME = "Display Name";
 
     @Mock
     private DockerConnector dockerConnector;
@@ -92,17 +92,17 @@ public class DockerInstanceProviderTest {
     public void setUp() throws Exception {
         when(dockerConnector.getDockerHostIp()).thenReturn("123.123.123.123");
 
-        dockerInstanceProvider = new DockerInstanceProvider(dockerConnector,
-                                                            dockerMachineFactory,
-                                                            dockerInstanceStopDetector,
-                                                            Collections.<ServerConf>emptySet(),
-                                                            Collections.<ServerConf>emptySet(),
-                                                            Collections.<String>emptySet(),
-                                                            Collections.<String>emptySet(),
-                                                            null,
-                                                            API_ENDPOINT_VALUE,
-                                                            workspaceFolderPathProvider,
-                                                            PROJECT_FOLDER_PATH);
+        dockerInstanceProvider = spy(new DockerInstanceProvider(dockerConnector,
+                                                                dockerMachineFactory,
+                                                                dockerInstanceStopDetector,
+                                                                Collections.<ServerConf>emptySet(),
+                                                                Collections.<ServerConf>emptySet(),
+                                                                Collections.<String>emptySet(),
+                                                                Collections.<String>emptySet(),
+                                                                null,
+                                                                API_ENDPOINT_VALUE,
+                                                                workspaceFolderPathProvider,
+                                                                PROJECT_FOLDER_PATH));
 
         EnvironmentContext envCont = new EnvironmentContext();
         envCont.setUser(new UserImpl("user", null, null, null, false));
@@ -132,14 +132,17 @@ public class DockerInstanceProviderTest {
 
     @Test
     public void shouldBuildDockerfileOnInstanceCreationFromRecipe() throws Exception {
-        when(dockerConnector.buildImage(anyString(), any(ProgressMonitor.class), any(AuthConfigs.class), anyVararg()))
-                .thenReturn("builtImageId");
+        String generatedContainerId = "genContainerId";
+        doReturn(generatedContainerId).when(dockerInstanceProvider).generateContainerName(WORKSPACE_ID, DISPLAY_NAME);
 
 
         createInstanceFromRecipe();
 
 
-        verify(dockerConnector).buildImage(anyString(), any(ProgressMonitor.class), any(AuthConfigs.class), anyVararg());
+        verify(dockerConnector).buildImage(eq("eclipse-che/" + generatedContainerId),
+                                           any(ProgressMonitor.class),
+                                           any(AuthConfigs.class),
+                                           anyVararg());
     }
 
     @Test
@@ -156,10 +159,25 @@ public class DockerInstanceProviderTest {
     }
 
     @Test
+    public void shouldReTagBuiltImageWithPredictableOnInstanceCreationFromRecipe() throws Exception {
+        String generatedContainerId = "genContainerId";
+        doReturn(generatedContainerId).when(dockerInstanceProvider).generateContainerName(WORKSPACE_ID, DISPLAY_NAME);
+        String repo = "repo1";
+        String registry = "registry1";
+        String tag = "tag1";
+
+
+        createInstanceFromSnapshot(repo, tag, registry);
+
+
+        verify(dockerConnector).tag(eq(registry + "/" + repo + ":" + tag), eq("eclipse-che/" + generatedContainerId), eq(null));
+        verify(dockerConnector).removeImage(eq(registry + "/" + repo + ":" + tag), eq(false));
+    }
+
+    @Test
     public void shouldCreateContainerOnInstanceCreationFromRecipe() throws Exception {
-        String builtImageId = "builtImageId";
-        when(dockerConnector.buildImage(anyString(), any(ProgressMonitor.class), any(AuthConfigs.class), anyVararg()))
-                .thenReturn(builtImageId);
+        String generatedContainerId = "genContainerId";
+        doReturn(generatedContainerId).when(dockerInstanceProvider).generateContainerName(WORKSPACE_ID, DISPLAY_NAME);
 
 
         createInstanceFromRecipe();
@@ -167,7 +185,7 @@ public class DockerInstanceProviderTest {
 
         ArgumentCaptor<ContainerConfig> argumentCaptor = ArgumentCaptor.forClass(ContainerConfig.class);
         verify(dockerConnector).createContainer(argumentCaptor.capture(), anyString());
-        assertEquals(argumentCaptor.getValue().getImage(), builtImageId);
+        assertEquals(argumentCaptor.getValue().getImage(), "eclipse-che/" + generatedContainerId);
     }
 
     @Test
@@ -179,9 +197,14 @@ public class DockerInstanceProviderTest {
 
     @Test
     public void shouldCreateContainerOnInstanceCreationFromSnapshot() throws Exception {
+        String generatedContainerId = "genContainerId";
+        doReturn(generatedContainerId).when(dockerInstanceProvider).generateContainerName(WORKSPACE_ID, DISPLAY_NAME);
         createInstanceFromSnapshot();
 
-        verify(dockerConnector).createContainer(any(ContainerConfig.class), anyString());
+
+        ArgumentCaptor<ContainerConfig> argumentCaptor = ArgumentCaptor.forClass(ContainerConfig.class);
+        verify(dockerConnector).createContainer(argumentCaptor.capture(), anyString());
+        assertEquals(argumentCaptor.getValue().getImage(), "eclipse-che/" + generatedContainerId);
     }
 
     @Test
@@ -1259,7 +1282,7 @@ public class DockerInstanceProviderTest {
                                  "machineId",
                                  "userId",
                                  WORKSPACE_ID,
-                                 "Display Name",
+                                 DISPLAY_NAME,
                                  new RecipeImpl().withType("Dockerfile")
                                                  .withScript("FROM busybox"));
     }
