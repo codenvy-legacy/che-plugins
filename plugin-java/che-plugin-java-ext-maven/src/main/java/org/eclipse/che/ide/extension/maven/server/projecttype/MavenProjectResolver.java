@@ -83,7 +83,7 @@ public class MavenProjectResolver {
             attributes.put(VERSION, Arrays.asList(model.getVersion()));
             attributes.put(PACKAGING, Arrays.asList(model.getPackaging()));
 
-            ProjectConfigImpl projectConfig  = new ProjectConfigImpl(project.getConfig());
+            ProjectConfigImpl projectConfig = new ProjectConfigImpl(project.getConfig());
             projectConfig.setName(projectFolder.getName());
             projectConfig.setDescription(model.getDescription());
             projectConfig.setAttributes(attributes);
