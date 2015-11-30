@@ -69,7 +69,7 @@ public class DockerInstanceProviderTest {
     private static final String API_ENDPOINT_VALUE = "apiEndpoint";
     private static final String CONTAINER_ID = "containerId";
     private static final String WORKSPACE_ID = "wsId";
-    private static final String DISPLAY_NAME = "Display Name";
+    private static final String DISPLAY_NAME = "DisplayName";
 
     @Mock
     private DockerConnector dockerConnector;
@@ -133,7 +133,7 @@ public class DockerInstanceProviderTest {
     @Test
     public void shouldBuildDockerfileOnInstanceCreationFromRecipe() throws Exception {
         String generatedContainerId = "genContainerId";
-        doReturn(generatedContainerId).when(dockerInstanceProvider).generateContainerName(WORKSPACE_ID, DISPLAY_NAME);
+        doReturn(generatedContainerId).when(dockerInstanceProvider).generateContainerName(eq(WORKSPACE_ID), eq(DISPLAY_NAME));
 
 
         createInstanceFromRecipe();
@@ -218,8 +218,8 @@ public class DockerInstanceProviderTest {
     public void shouldCallCreationDockerInstanceWithFactoryOnCreateInstanceFromSnapshot() throws Exception {
         final MachineSourceImpl machineSource = new MachineSourceImpl("type", "location");
         final MachineStateImpl machineState = new MachineStateImpl(false,
-                                                                   "Display name",
                                                                    "machineType",
+                                                                   DISPLAY_NAME,
                                                                    machineSource,
                                                                    new LimitsImpl(64),
                                                                    "machineId",
@@ -244,8 +244,8 @@ public class DockerInstanceProviderTest {
         final MachineSourceImpl machineSource = new MachineSourceImpl("type", "location");
         final Recipe recipe = new RecipeImpl().withType("Dockerfile").withScript("FROM busybox");
         final MachineStateImpl machineState = new MachineStateImpl(false,
-                                                                   "Display name",
                                                                    "machineType",
+                                                                   "Display name",
                                                                    machineSource,
                                                                    new LimitsImpl(64),
                                                                    "machineId",
@@ -1312,7 +1312,7 @@ public class DockerInstanceProviderTest {
                                  machineId == null ? "machineId" : machineId,
                                  userId == null ? "userId" : userId,
                                  workspaceId == null ? WORKSPACE_ID : workspaceId,
-                                 displayName == null ? "Display Name" : displayName,
+                                 displayName == null ? DISPLAY_NAME : displayName,
                                  recipe == null ? new RecipeImpl().withType("Dockerfile")
                                                                   .withScript("FROM busybox") : recipe,
                                  "machineType",
@@ -1336,8 +1336,8 @@ public class DockerInstanceProviderTest {
 
         dockerInstanceProvider.createInstance(recipe,
                                               new MachineStateImpl(isDev,
-                                                                   displayName,
                                                                    machineType,
+                                                                   displayName,
                                                                    machineSource,
                                                                    new LimitsImpl(memorySizeInMB),
                                                                    machineId,
@@ -1395,7 +1395,7 @@ public class DockerInstanceProviderTest {
                                    machineId == null ? "machineId" : machineId,
                                    userId == null ? "userId" : userId,
                                    workspaceId == null ? WORKSPACE_ID : workspaceId,
-                                   displayName == null ? "Display Name" : displayName,
+                                   displayName == null ? DISPLAY_NAME : displayName,
                                    "machineType",
                                    new MachineSourceImpl("source type", "source location"),
                                    new ChannelsImpl("channel1", "channel2"),
@@ -1421,8 +1421,8 @@ public class DockerInstanceProviderTest {
 
         dockerInstanceProvider.createInstance(new DockerInstanceKey(repo, tag, "imageId", registry),
                                               new MachineStateImpl(isDev,
-                                                                   displayName,
                                                                    machineType,
+                                                                   displayName,
                                                                    machineSource,
                                                                    new LimitsImpl(memorySizeInMB),
                                                                    machineId,
