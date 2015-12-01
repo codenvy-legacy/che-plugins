@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.core.internal.resources.mapping;
 
-import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.che.core.internal.resources.Workspace;
 import org.eclipse.che.core.internal.utils.Policy;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -18,7 +18,9 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IResourceVisitor;
+import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.resources.mapping.IResourceChangeDescriptionFactory;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -123,12 +125,18 @@ public class ResourceChangeDescriptionFactory implements IResourceChangeDescript
 		return root;
 	}
 
-	ProposedResourceDelta getDelta(IResource resource) {
+	private ProposedResourceDelta getDelta(IResource resource) {
 		ProposedResourceDelta delta = (ProposedResourceDelta) root.findMember(resource.getFullPath());
 		if (delta != null) {
 			return delta;
 		}
-		ProposedResourceDelta parent = getDelta(resource.getParent());
+		IWorkspace workspace = ResourcesPlugin.getWorkspace();
+
+		IResource iResource = resource.getParent();
+		if (iResource == null) {
+			iResource = ((Workspace)workspace).newResource(resource.getFullPath().removeLastSegments(1), IResource.FOLDER);
+		}
+		ProposedResourceDelta parent = getDelta(iResource);
 		delta = new ProposedResourceDelta(resource);
 		parent.add(delta);
 		return delta;
