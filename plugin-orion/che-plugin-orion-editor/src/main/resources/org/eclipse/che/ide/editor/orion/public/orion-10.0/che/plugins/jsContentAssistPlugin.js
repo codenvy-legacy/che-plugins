@@ -9,8 +9,6 @@
  *   Codenvy, S.A. - initial API and implementation
  */
 window.onload = function () {
-    var proposalsURL = window.document.location.search.replace('?proposals=', '');
-    window.keywords = httpGet(proposalsURL);
 
     /**
      * Plug-in headers
@@ -24,40 +22,62 @@ window.onload = function () {
 
     var contentAssistServiceProvider = {
         computeProposals: function (buffer, offset, context) {
-            var newLineDelimiterRegExp = new RegExp(context.delimiter, 'g');
-            var proposals = [];
-            var keywords = JSON.parse(window.keywords);
-            for (var i = 0; i < keywords.length; i++) {
-                var keyword = keywords[i];
-                //if (keyword.proposal.indexOf(context.prefix) === 0) {
-                var proposal = {
-                    proposal: keyword.proposal,
-                    description: keyword.description,
-                    overwrite: keyword.overwrite,
-                    doc: keyword.doc
-                };
-                if (keyword.group == true) {
-                    proposal.unselectable = true;
-                    proposal.style = "noemphasis_title";
-                }
-                // indent multiline block
-                if (keyword.proposal !== undefined && keyword.proposal.indexOf(context.delimiter) > -1) {
-                    proposal.proposal = keyword.proposal.replace(newLineDelimiterRegExp, context.delimiter + context.indentation)
-                }
-                if (keyword.escapePosition > 0) {
-                    proposal.escapePosition = keyword.escapePosition + offset + context.indentation.length;
-                }
-                if (keyword.positions !== undefined) {
-                    for (var j = 0; j < keyword.positions.length; j++) {
-                        var pos = keyword.positions[j];
-                        pos.offset = pos.offset + offset;
-                    }
-                    proposal.positions = keyword.positions;
-                }
-                proposals.push(proposal);
-                //}
+            var proposalsURL = window.document.location.search.replace('?proposals=', '');
+            if (proposalsURL == undefined) {
+                return [];
             }
-            return proposals;
+
+            return getContent(proposalsURL).then(function (proposalsContent) {
+                var newLineDelimiterRegExp = new RegExp(context.delimiter, 'g');
+
+                var keywords;
+                try {
+                    keywords = JSON.parse(proposalsContent);
+                } catch(e) {
+                    throw Error("Unable to parse proposals.json: " + e.message);
+                }
+
+                var prefixLength = context.prefix.length;
+                var proposals = [];
+                for (var i = 0; i < keywords.length; i++) {
+                    var keyword = keywords[i];
+
+                    // skip inappropriate proposals
+                    if (keyword.proposal !== undefined && keyword.proposal.indexOf(context.prefix) != 0) {
+                        continue;
+                    }
+
+                    var proposal = {
+                        proposal: keyword.proposal,
+                        description: keyword.description,
+                        overwrite: true,
+                        doc: keyword.doc
+                    };
+                    if (keyword.group == true) {
+                        proposal.unselectable = true;
+                        proposal.style = "noemphasis_title";
+                    }
+                    // indent multiline block
+                    if (keyword.proposal !== undefined && keyword.proposal.indexOf(context.delimiter) > -1) {
+                        proposal.proposal = keyword.proposal.replace(newLineDelimiterRegExp, context.delimiter + context.indentation)
+                    }
+                    if (keyword.escapePosition > 0) {
+                        proposal.escapePosition = keyword.escapePosition + offset + context.indentation.length - prefixLength;
+                    }
+                    if (keyword.positions !== undefined) {
+                        for (var j = 0; j < keyword.positions.length; j++) {
+                            var pos = keyword.positions[j];
+                            pos.offset = pos.offset + offset - prefixLength;
+                        }
+                        proposal.positions = keyword.positions;
+                    }
+                    proposals.push(proposal);
+                    //}
+                }
+                return proposals;
+            }).catch(function (err) {
+                console.log(err.message);
+            });
         }
     };
 
@@ -84,9 +104,23 @@ window.onload = function () {
     provider.connect();
 };
 
-function httpGet(theUrl) {
-    var xmlHttp = new XMLHttpRequest();
-    xmlHttp.open("GET", theUrl, false); // false for synchronous request
-    xmlHttp.send(null);
-    return xmlHttp.responseText;
+function getContent(url) {
+    return new Promise(function (resolve, reject) {
+        var request = new XMLHttpRequest();
+        request.open('GET', url);
+
+        request.onload = function () {
+            if (this.status == 200) {
+                resolve(this.response);
+            } else {
+                reject(Error("Unable to get " + url + ": " + this.statusText));
+            }
+        };
+        // handle network errors
+        request.onerror = function () {
+            reject(Error("Unable to get " + url + ": " + this.statusText));
+        };
+
+        request.send();
+    });
 }
