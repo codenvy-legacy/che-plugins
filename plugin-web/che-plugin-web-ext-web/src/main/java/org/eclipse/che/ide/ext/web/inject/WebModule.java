@@ -10,19 +10,15 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.web.inject;
 
-import org.eclipse.che.ide.MimeType;
-import org.eclipse.che.ide.api.extension.ExtensionGinModule;
-import org.eclipse.che.ide.api.filetypes.FileType;
-import org.eclipse.che.ide.ext.web.html.editor.HtmlEditorConfiguration;
-import org.eclipse.che.ide.ext.web.js.editor.JsEditorConfigurationProvider;
-import org.eclipse.che.ide.ext.web.WebExtensionResource;
-import org.eclipse.che.ide.ext.web.html.editor.HTMLEditorConfigurationProvider;
-import org.eclipse.che.ide.ext.web.js.editor.JsEditorConfiguration;
-
 import com.google.gwt.inject.client.AbstractGinModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
+
+import org.eclipse.che.ide.MimeType;
+import org.eclipse.che.ide.api.extension.ExtensionGinModule;
+import org.eclipse.che.ide.api.filetypes.FileType;
+import org.eclipse.che.ide.ext.web.WebExtensionResource;
 
 import java.util.Arrays;
 
@@ -34,11 +30,8 @@ import java.util.Arrays;
 @ExtensionGinModule
 public class WebModule extends AbstractGinModule {
 
-    /** {@inheritDoc} */
     @Override
     protected void configure() {
-        bind(HtmlEditorConfiguration.class).toProvider(HTMLEditorConfigurationProvider.class).in(Singleton.class);
-        bind(JsEditorConfiguration.class).toProvider(JsEditorConfigurationProvider.class).in(Singleton.class);
     }
 
     @Provides
