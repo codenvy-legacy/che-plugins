@@ -13,11 +13,11 @@ package org.eclipse.che.ide.ext.java.client.project.interceptor;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.api.promises.client.js.Promises;
+import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.commons.annotation.Nullable;
-import org.eclipse.che.ide.api.project.node.HasProjectDescriptor;
+import org.eclipse.che.ide.api.project.node.HasProjectConfig;
 import org.eclipse.che.ide.api.project.node.Node;
 import org.eclipse.che.ide.api.project.node.interceptor.NodeInterceptor;
 import org.eclipse.che.ide.api.project.node.settings.NodeSettings;
@@ -50,7 +50,7 @@ public abstract class AbstractExternalLibrariesNodeInterceptor implements NodeIn
             return Promises.resolve(children);
         }
 
-        if (getSettings() == null || !getSettings().isShowExternalLibrariesNode() || !show((HasProjectDescriptor)parent)) {
+        if (getSettings() == null || !getSettings().isShowExternalLibrariesNode() || !show((HasProjectConfig)parent)) {
             return Promises.resolve(children);
         }
 
@@ -59,7 +59,7 @@ public abstract class AbstractExternalLibrariesNodeInterceptor implements NodeIn
         return Promises.resolve(children);
     }
 
-    public abstract boolean show(HasProjectDescriptor node);
+    public abstract boolean show(HasProjectConfig node);
 
     private void insertExternalLibrariesNode(@NotNull List<Node> children, @Nullable Node externalLibrariesNode) {
         if (externalLibrariesNode != null) {
@@ -77,8 +77,8 @@ public abstract class AbstractExternalLibrariesNodeInterceptor implements NodeIn
             return null;
         }
 
-        ProjectDescriptor projectDescriptor = ((AbstractProjectBasedNode)parent).getProjectDescriptor();
-        return javaResourceNodeManager.getJavaNodeFactory().newExternalLibrariesNode(projectDescriptor, getSettings());
+        ProjectConfigDto projectConfig = ((AbstractProjectBasedNode)parent).getProjectConfig();
+        return javaResourceNodeManager.getJavaNodeFactory().newExternalLibrariesNode(projectConfig, getSettings());
     }
 
     @Nullable

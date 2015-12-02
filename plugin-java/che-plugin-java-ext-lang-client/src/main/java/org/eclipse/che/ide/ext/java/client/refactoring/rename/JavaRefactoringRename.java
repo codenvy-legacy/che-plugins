@@ -263,7 +263,7 @@ public class JavaRefactoringRename {
         String fqn = JavaSourceFolderUtil.getFQNForFile(editor.getEditorInput().getFile());
         dto.setPath(fqn);
 
-        String projectPath = appContext.getCurrentProject().getProjectDescription().getPath();
+        String projectPath = appContext.getCurrentProject().getProjectConfig().getPath();
         dto.setProjectPath(projectPath);
 
         dto.setType(JAVA_ELEMENT);

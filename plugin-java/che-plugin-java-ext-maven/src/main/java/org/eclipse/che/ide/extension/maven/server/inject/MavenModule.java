@@ -14,9 +14,9 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Singleton;
 import com.google.inject.multibindings.Multibinder;
 
+import org.eclipse.che.api.core.model.project.type.ProjectType;
 import org.eclipse.che.api.project.server.ValueProviderFactory;
 import org.eclipse.che.api.project.server.handlers.ProjectHandler;
-import org.eclipse.che.api.project.server.type.ProjectType;
 import org.eclipse.che.ide.ext.java.server.classpath.ClassPathBuilder;
 import org.eclipse.che.ide.extension.maven.server.core.MavenClassPathBuilder;
 import org.eclipse.che.ide.extension.maven.server.projecttype.MavenProjectType;

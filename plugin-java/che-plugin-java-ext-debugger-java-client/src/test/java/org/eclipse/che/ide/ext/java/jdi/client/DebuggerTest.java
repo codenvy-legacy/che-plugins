@@ -16,7 +16,7 @@ import com.googlecode.gwt.test.utils.GwtReflectionUtils;
 import org.eclipse.che.api.machine.gwt.client.events.ExtServerStateEvent;
 import org.eclipse.che.api.machine.gwt.client.events.ExtServerStateHandler;
 import org.eclipse.che.api.project.shared.dto.ItemReference;
-import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
+import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.api.workspace.shared.dto.UsersWorkspaceDto;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
@@ -94,7 +94,7 @@ public class DebuggerTest extends BaseTest {
     @Mock
     private AsyncCallback<Breakpoint>           asyncCallbackBreakpoint;
     @Mock
-    private ProjectDescriptor                   project;
+    private ProjectConfigDto                    project;
     @Mock
     private AsyncCallback<Void>                 asyncCallbackVoid;
     @Mock

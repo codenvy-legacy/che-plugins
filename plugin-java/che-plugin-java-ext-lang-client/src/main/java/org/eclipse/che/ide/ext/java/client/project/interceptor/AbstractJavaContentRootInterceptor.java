@@ -10,9 +10,9 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.java.client.project.interceptor;
 
-import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.api.promises.client.js.Promises;
+import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.commons.annotation.Nullable;
 import org.eclipse.che.ide.api.project.node.Node;
 import org.eclipse.che.ide.api.project.node.interceptor.NodeInterceptor;
@@ -23,6 +23,7 @@ import org.eclipse.che.ide.project.node.FolderReferenceNode;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Vlad Zhukovskiy
@@ -52,7 +53,7 @@ public abstract class AbstractJavaContentRootInterceptor implements NodeIntercep
             JavaNodeSettings settings = (JavaNodeSettings)nodeManager.getJavaSettingsProvider().getSettings();
 
             nodes.add(nodeManager.getJavaNodeFactory().newSourceFolderNode(oldNode.getData(),
-                                                                           oldNode.getProjectDescriptor(),
+                                                                           oldNode.getProjectConfig(),
                                                                            settings,
                                                                            contentRoot));
         }
@@ -71,38 +72,54 @@ public abstract class AbstractJavaContentRootInterceptor implements NodeIntercep
         }
 
         final FolderReferenceNode folderNode = (FolderReferenceNode)node;
-//        final ProjectDescriptor descriptor = folderNode.getProjectDescriptor();
+        final ProjectConfigDto projectConfig = folderNode.getProjectConfig();
 
-        //TODO  it's a temporary solution. Determination of source folder for different modules and projects will be improved during
-        //TODO  work on this issue IDEX-3468.
-//        String srcFolder = _getSourceFolder(descriptor, getSrcFolderAttribute());
-        if (folderNode.getStorablePath().endsWith("src/main/java")) {
+        String srcFolder = _getSourceFolder(projectConfig, getSrcFolderAttribute());
+        if (folderNode.getStorablePath().endsWith(srcFolder)) {
             return ContentRoot.SOURCE;
         }
 
-        //TODO  it's a temporary solution. Determination of test source folder for different modules and projects will be improved during
-        //TODO  work on this issue IDEX-3468.
-//        String testSrcFolder = _getSourceFolder(descriptor, getTestSrcFolderAttribute());
-        if (folderNode.getStorablePath().endsWith("src/test/java")) {
+        String testSrcFolder = _getSourceFolder(projectConfig, getTestSrcFolderAttribute());
+        if (folderNode.getStorablePath().endsWith(testSrcFolder)) {
             return ContentRoot.TEST_SOURCE;
         }
 
-//        String resourceFolder = _getSourceFolder(descriptor, getResourceFolderAttribute());
-//        if (folderNode.getStorablePath().equals(resourceFolder)) {
-//            return ContentRoot.RESOURCE;
-//        }
+        String resourceFolder = _getSourceFolder(projectConfig, getResourceFolderAttribute());
+        if (folderNode.getStorablePath().equals(resourceFolder)) {
+            return ContentRoot.RESOURCE;
+        }
 
         return null;
     }
 
-//    private String _getSourceFolder(ProjectDescriptor descriptor, String srcAttribute) {
-//        if (descriptor.getAttributes().containsKey(srcAttribute)) { //TODO avoid hard code those values
-//            final String srcFolder = descriptor.getAttributes().get(srcAttribute).get(0);
-//            return descriptor.getPath() + (srcFolder.startsWith("/") ? srcFolder : "/" + srcFolder);
-//        }
-//
-//        return null;
-//    }
+    private String _getSourceFolder(ProjectConfigDto projectConfig, String srcAttribute) {
+        Map<String, List<String>> attributes = projectConfig.getAttributes();
+        if (!attributes.containsKey(srcAttribute)) {
+            return "";
+        }
+
+        List<String> values = attributes.get(srcAttribute);
+
+        if (values.isEmpty()) {
+            return "";
+        }
+
+        String srcFolder = "";
+
+        if ("maven.resource.folder".equals(srcAttribute)) {
+            for (String srcFolderValue : values) {
+                if (srcFolderValue.endsWith("/resources")) {
+                    srcFolder = srcFolderValue;
+
+                    break;
+                }
+            }
+        } else {
+            srcFolder = values.get(0);
+        }
+
+        return projectConfig.getPath() + (srcFolder.startsWith("/") ? srcFolder : "/" + srcFolder);
+    }
 
     public abstract String getSrcFolderAttribute();
 

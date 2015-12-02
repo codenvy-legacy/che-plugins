@@ -15,8 +15,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.event.shared.EventBus;
 
-import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
-import org.eclipse.che.api.workspace.shared.dto.ModuleConfigDto;
+import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.ide.api.action.ActionManager;
 import org.eclipse.che.ide.api.action.DefaultActionGroup;
 import org.eclipse.che.ide.api.action.IdeActions;
@@ -39,8 +38,8 @@ import org.eclipse.che.ide.extension.maven.client.actions.UpdateDependencyAction
 import org.eclipse.che.ide.extension.maven.shared.MavenAttributes;
 import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.eclipse.che.ide.project.node.AbstractProjectBasedNode;
-import org.eclipse.che.ide.project.node.ModuleDescriptorNode;
-import org.eclipse.che.ide.project.node.ProjectDescriptorNode;
+import org.eclipse.che.ide.project.node.ModuleNode;
+import org.eclipse.che.ide.project.node.ProjectNode;
 import org.eclipse.che.ide.ui.smartTree.event.BeforeExpandNodeEvent;
 
 import java.util.Arrays;
@@ -59,7 +58,7 @@ import static org.eclipse.che.ide.api.action.IdeActions.GROUP_FILE_NEW;
 @Extension(title = "Maven", version = "3.0.0")
 public class MavenExtension {
     private static List<MavenArchetype> archetypes;
-    private        ProjectDescriptor    project;
+    private        ProjectConfigDto     project;
 
     @Inject
     public MavenExtension(PreSelectedProjectTypeManager preSelectedProjectManager) {
@@ -94,7 +93,7 @@ public class MavenExtension {
         eventBus.addHandler(ProjectReadyEvent.TYPE, new ProjectReadyHandler() {
             @Override
             public void onProjectReady(ProjectReadyEvent event) {
-                project = event.getProject();
+                project = event.getProjectConfig();
                 if (isValidForResolveDependencies(project)) {
                     dependenciesUpdater.updateDependencies(project.getPath());
                 }
@@ -123,27 +122,26 @@ public class MavenExtension {
     }
 
     private boolean isValid(Node node) {
-        ModuleConfigDto nodeDescriptor = null;
-        ProjectDescriptor projectDescriptor = null;
+        ProjectConfigDto projectConfig = null;
 
         //TODO it's a temporary solution. This code will be rewriting during work on this issue IDEX-3468.
-        if (node instanceof ModuleDescriptorNode) {
+        if (node instanceof ModuleNode) {
             AbstractProjectBasedNode abstractNode = (AbstractProjectBasedNode)node;
 
-            nodeDescriptor = (ModuleConfigDto)abstractNode.getData();
+            projectConfig = (ProjectConfigDto)abstractNode.getData();
         }
 
-        if (node instanceof ProjectDescriptorNode) {
+        if (node instanceof ProjectNode) {
             AbstractProjectBasedNode abstractNode = (AbstractProjectBasedNode)node;
 
-            projectDescriptor = (ProjectDescriptor)abstractNode.getData();
+            projectConfig = (ProjectConfigDto)abstractNode.getData();
         }
 
-        if (nodeDescriptor == null && projectDescriptor == null) {
+        if (projectConfig == null) {
             return false;
         }
 
-        Map<String, List<String>> attr = nodeDescriptor == null ? projectDescriptor.getAttributes() : nodeDescriptor.getAttributes();
+        Map<String, List<String>> attr = projectConfig.getAttributes();
         return attr.containsKey(MavenAttributes.PACKAGING) && !"pom".equals(attr.get(MavenAttributes.PACKAGING).get(0));
     }
 
@@ -174,7 +172,7 @@ public class MavenExtension {
         iconRegistry.registerIcon(new Icon("maven/pom.xml.file.small.icon", mavenResources.maven()));
     }
 
-    private boolean isValidForResolveDependencies(ProjectDescriptor project) {
+    private boolean isValidForResolveDependencies(ProjectConfigDto project) {
         Map<String, List<String>> attr = project.getAttributes();
         return !(attr.containsKey(MavenAttributes.PACKAGING) && "pom".equals(attr.get(MavenAttributes.PACKAGING).get(0)));
     }

@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.maven.server.projecttype;
 
+import org.eclipse.che.api.core.model.project.type.ProjectType;
 import org.eclipse.che.api.core.model.workspace.ProjectConfig;
 import org.eclipse.che.api.core.notification.EventService;
 import org.eclipse.che.api.core.rest.HttpJsonHelper;
@@ -21,7 +22,6 @@ import org.eclipse.che.api.project.server.VirtualFileEntry;
 import org.eclipse.che.api.project.server.handlers.ProjectHandler;
 import org.eclipse.che.api.project.server.handlers.ProjectHandlerRegistry;
 import org.eclipse.che.api.project.server.type.AttributeValue;
-import org.eclipse.che.api.project.server.type.ProjectType;
 import org.eclipse.che.api.project.server.type.ProjectTypeRegistry;
 import org.eclipse.che.api.vfs.server.VirtualFileSystemRegistry;
 import org.eclipse.che.api.vfs.server.VirtualFileSystemUser;
@@ -61,7 +61,7 @@ import static org.mockito.Mockito.when;
 public class MavenProjectTypeTest {
     private static final String workspace = "my_ws";
 
-    private ProjectManager pm;
+    private ProjectManager                    pm;
     private HttpJsonHelper.HttpJsonHelperImpl httpJsonHelper;
 
     @Before
@@ -115,6 +115,7 @@ public class MavenProjectTypeTest {
         UsersWorkspaceDto usersWorkspaceMock = mock(UsersWorkspaceDto.class);
         when(httpJsonHelper.request(any(), anyString(), eq(GET), isNull())).thenReturn(usersWorkspaceMock);
         final ProjectConfigDto projectConfig = DtoFactory.getInstance().createDto(ProjectConfigDto.class)
+                                                         .withName("project")
                                                          .withPath("/myProject")
                                                          .withType(MavenAttributes.MAVEN_ID);
         when(usersWorkspaceMock.getProjects()).thenReturn(Collections.singletonList(projectConfig));

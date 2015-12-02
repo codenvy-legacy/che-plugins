@@ -15,7 +15,7 @@ import com.google.inject.assistedinject.Assisted;
 import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.api.project.shared.dto.ItemReference;
-import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
+import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.commons.annotation.Nullable;
 import org.eclipse.che.ide.api.project.node.MutableNode;
 import org.eclipse.che.ide.api.project.node.resource.DeleteProcessor;
@@ -31,17 +31,14 @@ import javax.validation.constraints.NotNull;
  */
 public class JavaFileNode extends FileReferenceNode implements MutableNode {
 
-    private final JavaNodeManager nodeManager;
-
     @Inject
     public JavaFileNode(@Assisted ItemReference itemReference,
-                        @Assisted ProjectDescriptor projectDescriptor,
+                        @Assisted ProjectConfigDto projectConfig,
                         @Assisted JavaNodeSettings nodeSettings,
                         @NotNull EventBus eventBus,
                         @NotNull JavaNodeManager nodeManager,
                         @NotNull JavaItemReferenceProcessor resourceProcessor) {
-        super(itemReference, projectDescriptor, nodeSettings, eventBus, nodeManager, resourceProcessor);
-        this.nodeManager = nodeManager;
+        super(itemReference, projectConfig, nodeSettings, eventBus, nodeManager, resourceProcessor);
     }
 
     @Override

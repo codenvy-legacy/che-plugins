@@ -11,8 +11,8 @@
 package org.eclipse.che.ide.ext.git.client.checkout;
 
 import org.eclipse.che.api.git.shared.CheckoutRequest;
-import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
-import org.eclipse.che.api.project.shared.dto.ProjectProblem;
+import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
+import org.eclipse.che.api.core.model.workspace.ProjectProblem;
 import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.editor.EditorInput;
 import org.eclipse.che.ide.api.editor.EditorPartPresenter;
@@ -55,21 +55,21 @@ public class CheckoutReferenceTest extends BaseTest {
     private static final String INCORRECT_REFERENCE = "";
 
     @Captor
-    private ArgumentCaptor<AsyncRequestCallback<String>> asyncCallbackCaptor;
+    private ArgumentCaptor<AsyncRequestCallback<String>>           asyncCallbackCaptor;
     @Captor
-    private ArgumentCaptor<AsyncRequestCallback<ProjectDescriptor>> projectDescriptorCaptor;
+    private ArgumentCaptor<AsyncRequestCallback<ProjectConfigDto>> projectDescriptorCaptor;
 
     @Mock
-    private CheckoutReferenceView      view;
+    private CheckoutReferenceView view;
     @Mock
-    private CheckoutRequest      checkoutRequest;
+    private CheckoutRequest       checkoutRequest;
 
     @Mock
-    private EditorPartPresenter    partPresenter;
+    private EditorPartPresenter partPresenter;
     @Mock
-    private EditorInput            editorInput;
+    private EditorInput         editorInput;
     @Mock
-    private EditorAgent            editorAgent;
+    private EditorAgent         editorAgent;
 
     @InjectMocks
     private CheckoutReferencePresenter presenter;
@@ -158,7 +158,7 @@ public class CheckoutReferenceTest extends BaseTest {
         when(checkoutRequest.withCreateNew(anyBoolean())).thenReturn(checkoutRequest);
         reset(service);
         when(view.getReference()).thenReturn(CORRECT_REFERENCE);
-        when(rootProjectDescriptor.getPath()).thenReturn(PROJECT_PATH);
+        when(rootProjectConfig.getPath()).thenReturn(PROJECT_PATH);
 
         presenter.onEnterClicked();
 
@@ -171,9 +171,9 @@ public class CheckoutReferenceTest extends BaseTest {
         verifyNoMoreInteractions(checkoutRequest);
         verify(view).close();
         verify(projectServiceClient).getProject(eq(PROJECT_PATH), projectDescriptorCaptor.capture());
-        AsyncRequestCallback<ProjectDescriptor> asyncRequestCallback = projectDescriptorCaptor.getValue();
-        GwtReflectionUtils.callOnSuccess(asyncRequestCallback, projectDescriptor);
-        verify(projectDescriptor).getProblems();
+        AsyncRequestCallback<ProjectConfigDto> asyncRequestCallback = projectDescriptorCaptor.getValue();
+        GwtReflectionUtils.callOnSuccess(asyncRequestCallback, projectConfig);
+        verify(projectConfig).getProblems();
         verify(projectExplorer).reloadChildren();
         verify(editorAgent).getOpenedEditors();
         verify(partPresenter).getEditorInput();
@@ -184,14 +184,14 @@ public class CheckoutReferenceTest extends BaseTest {
     @Test
     public void testOnCheckoutClickedWhenCheckoutIsSuccessfulButProjectIsNotConfigurated() throws Exception {
         List<ProjectProblem> problemList = Collections.singletonList(mock(ProjectProblem.class));
-        when(projectDescriptor.getProblems()).thenReturn(problemList);
+        when(projectConfig.getProblems()).thenReturn(problemList);
 
         when(dtoFactory.createDto(CheckoutRequest.class)).thenReturn(checkoutRequest);
         when(checkoutRequest.withName(anyString())).thenReturn(checkoutRequest);
         when(checkoutRequest.withCreateNew(anyBoolean())).thenReturn(checkoutRequest);
         reset(service);
         when(view.getReference()).thenReturn(CORRECT_REFERENCE);
-        when(rootProjectDescriptor.getPath()).thenReturn(PROJECT_PATH);
+        when(rootProjectConfig.getPath()).thenReturn(PROJECT_PATH);
 
         presenter.onEnterClicked();
 
@@ -204,9 +204,9 @@ public class CheckoutReferenceTest extends BaseTest {
         verifyNoMoreInteractions(checkoutRequest);
         verify(view).close();
         verify(projectServiceClient).getProject(eq(PROJECT_PATH), projectDescriptorCaptor.capture());
-        AsyncRequestCallback<ProjectDescriptor> asyncRequestCallback = projectDescriptorCaptor.getValue();
-        GwtReflectionUtils.callOnSuccess(asyncRequestCallback, projectDescriptor);
-        verify(projectDescriptor).getProblems();
+        AsyncRequestCallback<ProjectConfigDto> asyncRequestCallback = projectDescriptorCaptor.getValue();
+        GwtReflectionUtils.callOnSuccess(asyncRequestCallback, projectConfig);
+        verify(projectConfig).getProblems();
         verify(eventBus).fireEvent(Matchers.<OpenProjectEvent>anyObject());
     }
 
@@ -218,7 +218,7 @@ public class CheckoutReferenceTest extends BaseTest {
 
         reset(service);
         when(view.getReference()).thenReturn(CORRECT_REFERENCE);
-        when(rootProjectDescriptor.getPath()).thenReturn(PROJECT_PATH);
+        when(rootProjectConfig.getPath()).thenReturn(PROJECT_PATH);
 
         presenter.onEnterClicked();
 

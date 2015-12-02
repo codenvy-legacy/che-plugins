@@ -84,7 +84,7 @@ public class DependenciesUpdater {
         eventBus.addHandler(OpenProjectEvent.TYPE, new OpenProjectHandler() {
             @Override
             public void onProjectOpened(OpenProjectEvent event) {
-                updateDependencies(event.getDescriptor().getPath());
+                updateDependencies(event.getProjectConfig().getPath());
             }
         });
     }

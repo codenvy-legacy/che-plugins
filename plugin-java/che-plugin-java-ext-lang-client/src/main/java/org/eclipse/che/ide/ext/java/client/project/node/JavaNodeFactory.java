@@ -11,8 +11,8 @@
 package org.eclipse.che.ide.ext.java.client.project.node;
 
 import org.eclipse.che.api.project.shared.dto.ItemReference;
-import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.commons.annotation.Nullable;
+import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.ide.api.project.node.settings.NodeSettings;
 import org.eclipse.che.ide.ext.java.client.project.node.jar.ExternalLibrariesNode;
 import org.eclipse.che.ide.ext.java.client.project.node.jar.JarContainerNode;
@@ -29,11 +29,11 @@ import javax.validation.constraints.NotNull;
  * @author Vlad Zhukovskiy
  */
 public interface JavaNodeFactory {
-    ExternalLibrariesNode newExternalLibrariesNode(@NotNull ProjectDescriptor projectDescriptor,
+    ExternalLibrariesNode newExternalLibrariesNode(@NotNull ProjectConfigDto projectConfig,
                                                    @NotNull NodeSettings nodeSettings);
 
     JarContainerNode newJarContainerNode(@NotNull Jar jar,
-                                         @NotNull ProjectDescriptor projectDescriptor,
+                                         @NotNull ProjectConfigDto projectConfig,
                                          @NotNull NodeSettings nodeSettings);
 
     /**
@@ -44,7 +44,7 @@ public interface JavaNodeFactory {
      * @param libId
      *         ID of the library which contains current JAR entry.
      *         This field may be null, then content of the node will be searched by FQN
-     * @param projectDescriptor
+     * @param projectConfig
      *         project descriptor for the current project
      * @param nodeSettings
      *         special settings for the tree
@@ -52,24 +52,24 @@ public interface JavaNodeFactory {
      */
     JarFileNode newJarFileNode(@NotNull JarEntry jarEntry,
                                @Nullable Integer libId,
-                               @NotNull ProjectDescriptor projectDescriptor,
+                               @NotNull ProjectConfigDto projectConfig,
                                @NotNull NodeSettings nodeSettings);
 
     JarFolderNode newJarFolderNode(@NotNull JarEntry jarEntry,
                                    int libId,
-                                   @NotNull ProjectDescriptor projectDescriptor,
+                                   @NotNull ProjectConfigDto projectConfig,
                                    @NotNull NodeSettings nodeSettings);
 
     PackageNode newPackageNode(@NotNull ItemReference itemReference,
-                               @NotNull ProjectDescriptor projectDescriptor,
+                               @NotNull ProjectConfigDto projectConfig,
                                @NotNull JavaNodeSettings nodeSettings);
 
     JavaFileNode newJavaFileNode(@NotNull ItemReference itemReference,
-                                 @NotNull ProjectDescriptor projectDescriptor,
+                                 @NotNull ProjectConfigDto projectConfig,
                                  @NotNull JavaNodeSettings nodeSettings);
 
     SourceFolderNode newSourceFolderNode(@NotNull ItemReference itemReference,
-                                         @NotNull ProjectDescriptor projectDescriptor,
+                                         @NotNull ProjectConfigDto projectConfig,
                                          @NotNull JavaNodeSettings nodeSettings,
                                          @NotNull ContentRoot contentRootType);
 }

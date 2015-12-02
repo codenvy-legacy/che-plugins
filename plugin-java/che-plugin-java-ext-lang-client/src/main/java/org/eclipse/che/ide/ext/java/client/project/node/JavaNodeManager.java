@@ -18,14 +18,15 @@ import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
 import org.eclipse.che.api.project.shared.dto.ItemReference;
-import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.api.promises.client.Function;
 import org.eclipse.che.api.promises.client.FunctionException;
 import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.api.promises.client.callback.AsyncPromiseHelper;
 import org.eclipse.che.api.promises.client.callback.AsyncPromiseHelper.RequestCall;
 import org.eclipse.che.api.promises.client.js.Promises;
-import org.eclipse.che.ide.api.project.node.HasProjectDescriptor;
+import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
+import org.eclipse.che.ide.api.app.AppContext;
+import org.eclipse.che.ide.api.project.node.HasProjectConfig;
 import org.eclipse.che.ide.api.project.node.Node;
 import org.eclipse.che.ide.api.project.node.settings.NodeSettings;
 import org.eclipse.che.ide.api.project.node.settings.SettingsProvider;
@@ -80,8 +81,9 @@ public class JavaNodeManager extends NodeManager {
                            Map<String, SettingsProvider> settingsProviderMap,
                            JavaResources javaResources,
                            EventBus eventBus,
-                           Set<NodeIconProvider> nodeIconProvider) {
-        super(nodeFactory, projectService, dtoUnmarshaller, nodesResources, nodeSettingsProvider, dtoFactory, nodeIconProvider);
+                           Set<NodeIconProvider> nodeIconProvider,
+                           AppContext appContext) {
+        super(nodeFactory, projectService, dtoUnmarshaller, nodesResources, nodeSettingsProvider, dtoFactory, nodeIconProvider, appContext);
 
         this.javaService = javaService;
         this.javaNodeFactory = javaNodeFactory;
@@ -95,12 +97,12 @@ public class JavaNodeManager extends NodeManager {
         this.settingsProvider = (JavaNodeSettingsProvider)settingsProviderMap.get("java");
     }
 
-    /** ************** External Libraries operations ********************* */
+    /** ******** External Libraries operations ********************* */
 
     @NotNull
-    public Promise<List<Node>> getExternalLibraries(@NotNull ProjectDescriptor descriptor) {
-        return AsyncPromiseHelper.createFromAsyncRequest(getExternalLibrariesRC(descriptor.getPath()))
-                                 .then(createJarNodes(descriptor, settingsProvider.getSettings()));
+    public Promise<List<Node>> getExternalLibraries(ProjectConfigDto projectConfig) {
+        return AsyncPromiseHelper.createFromAsyncRequest(getExternalLibrariesRC(projectConfig.getPath()))
+                                 .then(createJarNodes(projectConfig, settingsProvider.getSettings()));
     }
 
     @NotNull
@@ -114,7 +116,7 @@ public class JavaNodeManager extends NodeManager {
     }
 
     @NotNull
-    private Function<List<Jar>, List<Node>> createJarNodes(@NotNull final ProjectDescriptor descriptor,
+    private Function<List<Jar>, List<Node>> createJarNodes(@NotNull final ProjectConfigDto projectConfig,
                                                            @NotNull final NodeSettings nodeSettings) {
         return new Function<List<Jar>, List<Node>>() {
             @Override
@@ -122,7 +124,7 @@ public class JavaNodeManager extends NodeManager {
                 List<Node> nodes = new ArrayList<>(jars.size());
 
                 for (Jar jar : jars) {
-                    JarContainerNode jarContainerNode = javaNodeFactory.newJarContainerNode(jar, descriptor, nodeSettings);
+                    JarContainerNode jarContainerNode = javaNodeFactory.newJarContainerNode(jar, projectConfig, nodeSettings);
                     nodes.add(jarContainerNode);
                 }
 
@@ -131,12 +133,12 @@ public class JavaNodeManager extends NodeManager {
         };
     }
 
-    /** ************** Jar Library Children operations ********************* */
+    /** ******** Jar Library Children operations ********************* */
 
     @NotNull
-    public Promise<List<Node>> getJarLibraryChildren(@NotNull ProjectDescriptor descriptor, int libId, @NotNull NodeSettings nodeSettings) {
-        return AsyncPromiseHelper.createFromAsyncRequest(getLibraryChildrenRC(descriptor.getPath(), libId))
-                                 .then(createJarEntryNodes(libId, descriptor, nodeSettings));
+    public Promise<List<Node>> getJarLibraryChildren(ProjectConfigDto projectConfig, int libId, @NotNull NodeSettings nodeSettings) {
+        return AsyncPromiseHelper.createFromAsyncRequest(getLibraryChildrenRC(projectConfig.getPath(), libId))
+                                 .then(createJarEntryNodes(libId, projectConfig, nodeSettings));
     }
 
     @NotNull
@@ -151,10 +153,10 @@ public class JavaNodeManager extends NodeManager {
     }
 
     @NotNull
-    public Promise<List<Node>> getJarChildren(@NotNull ProjectDescriptor descriptor, int libId, @NotNull String path,
+    public Promise<List<Node>> getJarChildren(ProjectConfigDto projectConfig, int libId, @NotNull String path,
                                               @NotNull NodeSettings nodeSettings) {
-        return AsyncPromiseHelper.createFromAsyncRequest(getChildrenRC(descriptor.getPath(), libId, path))
-                                 .then(createJarEntryNodes(libId, descriptor, nodeSettings));
+        return AsyncPromiseHelper.createFromAsyncRequest(getChildrenRC(projectConfig.getPath(), libId, path))
+                                 .then(createJarEntryNodes(libId, projectConfig, nodeSettings));
     }
 
     @NotNull
@@ -169,8 +171,9 @@ public class JavaNodeManager extends NodeManager {
     }
 
     @NotNull
-    private Function<List<JarEntry>, List<Node>> createJarEntryNodes(final int libId, @NotNull final ProjectDescriptor descriptor,
-                                                                     @NotNull final NodeSettings nodeSettings) {
+    private Function<List<JarEntry>, List<Node>> createJarEntryNodes(final int libId,
+                                                                     final ProjectConfigDto projectConfig,
+                                                                     final NodeSettings nodeSettings) {
         return new Function<List<JarEntry>, List<Node>>() {
             @Override
             public List<Node> apply(List<JarEntry> entries) throws FunctionException {
@@ -178,7 +181,7 @@ public class JavaNodeManager extends NodeManager {
                 List<Node> nodes = new ArrayList<>();
 
                 for (JarEntry jarEntry : entries) {
-                    Node node = createNode(jarEntry, libId, descriptor, nodeSettings);
+                    Node node = createNode(jarEntry, libId, projectConfig, nodeSettings);
                     if (node != null) {
                         nodes.add(node);
                     }
@@ -189,25 +192,25 @@ public class JavaNodeManager extends NodeManager {
         };
     }
 
-    private Node createNode(JarEntry entry, int id, ProjectDescriptor descriptor, NodeSettings nodeSettings) {
+    private Node createNode(JarEntry entry, int id, ProjectConfigDto projectConfig, NodeSettings nodeSettings) {
 
         if (entry.getType() == JarEntry.JarEntryType.FOLDER || entry.getType() == JarEntry.JarEntryType.PACKAGE) {
-            return javaNodeFactory.newJarFolderNode(entry, id, descriptor, nodeSettings);
+            return javaNodeFactory.newJarFolderNode(entry, id, projectConfig, nodeSettings);
         } else if (entry.getType() == JarEntry.JarEntryType.FILE || entry.getType() == JarEntry.JarEntryType.CLASS_FILE) {
-            return javaNodeFactory.newJarFileNode(entry, id, descriptor, nodeSettings);
+            return javaNodeFactory.newJarFileNode(entry, id, projectConfig, nodeSettings);
         }
 
         return null;
     }
 
-    /** ************** Common methods ********************* */
+    /** ******** Common methods ********************* */
 
     public static boolean isJavaProject(Node node) {
-        if (!(node instanceof HasProjectDescriptor)) {
+        if (!(node instanceof HasProjectConfig)) {
             return false;
         }
 
-        ProjectDescriptor descriptor = ((HasProjectDescriptor)node).getProjectDescriptor();
+        ProjectConfigDto descriptor = ((HasProjectConfig)node).getProjectConfig();
         Map<String, List<String>> attributes = descriptor.getAttributes();
 
         return attributes.containsKey(Constants.LANGUAGE)
@@ -228,21 +231,21 @@ public class JavaNodeManager extends NodeManager {
     }
 
     @Override
-    public Node createNodeByType(ItemReference itemReference, ProjectDescriptor descriptor, NodeSettings settings) {
+    public Node createNodeByType(ItemReference itemReference, ProjectConfigDto projectConfig, NodeSettings settings) {
         if ("folder".equals(itemReference.getType()) || "project".equals(itemReference.getType())) {
-            return javaNodeFactory.newPackageNode(itemReference, descriptor, (JavaNodeSettings)settingsProvider.getSettings());
+            return javaNodeFactory.newPackageNode(itemReference, projectConfig, (JavaNodeSettings)settingsProvider.getSettings());
         } else if ("file".equals(itemReference.getType())) {
-            return createFileNodeByType(itemReference, descriptor, settings);
+            return createFileNodeByType(itemReference, projectConfig, settings);
         }
         return null;
     }
 
-    public Node createFileNodeByType(ItemReference itemReference, ProjectDescriptor descriptor, NodeSettings settings) {
+    public Node createFileNodeByType(ItemReference itemReference, ProjectConfigDto projectConfig, NodeSettings settings) {
         if (isJavaItemReference(itemReference)) {
-            return javaNodeFactory.newJavaFileNode(itemReference, descriptor, (JavaNodeSettings)settingsProvider.getSettings());
+            return javaNodeFactory.newJavaFileNode(itemReference, projectConfig, (JavaNodeSettings)settingsProvider.getSettings());
         }
 
-        return nodeFactory.newFileReferenceNode(itemReference, descriptor, settings);
+        return nodeFactory.newFileReferenceNode(itemReference, projectConfig, settings);
     }
 
     public boolean isJavaItemReference(ItemReference itemReference) {
@@ -264,15 +267,15 @@ public class JavaNodeManager extends NodeManager {
         return javaService;
     }
 
-    public Promise<Node> getClassNode(final ProjectDescriptor descriptor, final int libId, final String path) {
+    public Promise<Node> getClassNode(final ProjectConfigDto projectConfig, final int libId, final String path) {
         return AsyncPromiseHelper.createFromAsyncRequest(new RequestCall<Node>() {
             @Override
             public void makeCall(final AsyncCallback<Node> callback) {
                 Unmarshallable<JarEntry> u = dtoUnmarshaller.newUnmarshaller(JarEntry.class);
-                javaService.getEntry(descriptor.getPath(), libId, path, new AsyncRequestCallback<JarEntry>(u) {
+                javaService.getEntry(projectConfig.getPath(), libId, path, new AsyncRequestCallback<JarEntry>(u) {
                     @Override
                     protected void onSuccess(JarEntry entry) {
-                        Node node = createNode(entry, libId, descriptor, settingsProvider.getSettings());
+                        Node node = createNode(entry, libId, projectConfig, settingsProvider.getSettings());
                         callback.onSuccess(node);
                     }
 

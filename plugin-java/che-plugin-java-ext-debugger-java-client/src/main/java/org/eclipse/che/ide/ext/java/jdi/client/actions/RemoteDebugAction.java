@@ -73,7 +73,7 @@ public class RemoteDebugAction extends ProjectAction {
     }
 
     private String getProjectLanguage(CurrentProject currentProject) {
-        String projectType = currentProject.getProjectDescription().getType();
+        String projectType = currentProject.getProjectConfig().getType();
         ProjectTypeDefinition definition = typeRegistry.getProjectType(projectType);
 
         if (definition != null) {

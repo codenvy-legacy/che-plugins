@@ -12,14 +12,14 @@ package org.eclipse.che.ide.ext.java.server.projecttype;
 
 import com.google.inject.Inject;
 
-import org.eclipse.che.api.project.server.type.ProjectType;
+import org.eclipse.che.api.project.server.type.AbstractProjectType;
 import org.eclipse.che.ide.ext.java.shared.Constants;
 
 /**
  * @author gazarenkov
  * @author Dmitry Shnurenko
  */
-public class JavaProjectType extends ProjectType {
+public class JavaProjectType extends AbstractProjectType {
     @Inject
     public JavaProjectType() {
         super("java", "Java", true, false);

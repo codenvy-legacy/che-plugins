@@ -160,7 +160,7 @@ public class MatchNode extends AbstractPresentationNode implements HasAction {
             JarFileNode jarFileNode = javaNodeManager.getJavaNodeFactory()
                                                      .newJarFileNode(jarEntry,
                                                                      null,
-                                                                     appContext.getCurrentProject().getProjectDescription(),
+                                                                     appContext.getCurrentProject().getProjectConfig(),
                                                                      javaNodeManager.getJavaSettingsProvider().getSettings());
             openFile(jarFileNode);
         }

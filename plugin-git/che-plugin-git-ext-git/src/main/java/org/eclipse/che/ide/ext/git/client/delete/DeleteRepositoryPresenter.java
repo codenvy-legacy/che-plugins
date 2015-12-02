@@ -16,7 +16,7 @@ import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.api.git.gwt.client.GitServiceClient;
 import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
-import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
+import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.event.project.ProjectUpdatedEvent;
@@ -88,12 +88,12 @@ public class DeleteRepositoryPresenter {
         });
     }
 
-    private void getRootProject(final ProjectDescriptor descriptor) {
-        projectService.getProject(descriptor.getPath(),
-                                  new AsyncRequestCallback<ProjectDescriptor>(dtoUnmarshaller.newUnmarshaller(ProjectDescriptor.class)) {
+    private void getRootProject(final ProjectConfigDto config) {
+        projectService.getProject(config.getPath(),
+                                  new AsyncRequestCallback<ProjectConfigDto>(dtoUnmarshaller.newUnmarshaller(ProjectConfigDto.class)) {
                                       @Override
-                                      protected void onSuccess(ProjectDescriptor result) {
-                                          eventBus.fireEvent(new ProjectUpdatedEvent(descriptor.getPath(), result));
+                                      protected void onSuccess(ProjectConfigDto projectConfig) {
+                                          eventBus.fireEvent(new ProjectUpdatedEvent(config.getPath(), projectConfig));
                                       }
 
                                       @Override

@@ -13,8 +13,8 @@ package org.eclipse.che.ide.ext.java.client.project.node.jar;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
-import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.api.promises.client.Promise;
+import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.ide.api.project.node.Node;
 import org.eclipse.che.ide.api.project.node.settings.NodeSettings;
 import org.eclipse.che.ide.ext.java.client.project.node.JavaNodeManager;
@@ -32,17 +32,16 @@ public class ExternalLibrariesNode extends SyntheticBasedNode<String> {
     private final JavaNodeManager javaNodeManager;
 
     @Inject
-    public ExternalLibrariesNode(@Assisted ProjectDescriptor projectDescriptor,
+    public ExternalLibrariesNode(@Assisted ProjectConfigDto projectConfig,
                                  @Assisted NodeSettings nodeSettings,
                                  JavaNodeManager javaNodeManager) {
-        super("External-Libraries:" + projectDescriptor.getPath(), projectDescriptor, nodeSettings);
+        super("External-Libraries:" + projectConfig.getPath(), projectConfig, nodeSettings);
         this.javaNodeManager = javaNodeManager;
     }
 
-    @NotNull
     @Override
     protected Promise<List<Node>> getChildrenImpl() {
-        return javaNodeManager.getExternalLibraries(getProjectDescriptor());
+        return javaNodeManager.getExternalLibraries(getProjectConfig());
     }
 
     @Override

@@ -10,13 +10,14 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.git.client.remote.add;
 
-import org.eclipse.che.api.git.gwt.client.GitServiceClient;
-import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
-import org.eclipse.che.ide.api.app.AppContext;
-import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+
+import org.eclipse.che.api.git.gwt.client.GitServiceClient;
+import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
+import org.eclipse.che.ide.api.app.AppContext;
+import org.eclipse.che.ide.rest.AsyncRequestCallback;
 
 import javax.validation.constraints.NotNull;
 
@@ -61,7 +62,7 @@ public class AddRemoteRepositoryPresenter implements AddRemoteRepositoryView.Act
     public void onOkClicked() {
         String name = view.getName();
         String url = view.getUrl();
-        final ProjectDescriptor project = appContext.getCurrentProject().getRootProject();
+        final ProjectConfigDto project = appContext.getCurrentProject().getRootProject();
 
         service.remoteAdd(project, name, url, new AsyncRequestCallback<String>() {
             @Override

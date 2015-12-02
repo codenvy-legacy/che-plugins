@@ -12,7 +12,7 @@ package org.eclipse.che.ide.extension.maven.server.projecttype;
 
 import com.google.inject.Inject;
 
-import org.eclipse.che.api.project.server.type.ProjectType;
+import org.eclipse.che.api.project.server.type.AbstractProjectType;
 import org.eclipse.che.ide.ext.java.server.projecttype.JavaProjectType;
 import org.eclipse.che.ide.extension.maven.shared.MavenAttributes;
 
@@ -24,7 +24,7 @@ import javax.inject.Singleton;
  * @author Artem Zatsarynnyy
  */
 @Singleton
-public class MavenProjectType extends ProjectType {
+public class MavenProjectType extends AbstractProjectType {
 
     @Inject
     public MavenProjectType(MavenValueProviderFactory mavenValueProviderFactory, JavaProjectType javaProjectType) {

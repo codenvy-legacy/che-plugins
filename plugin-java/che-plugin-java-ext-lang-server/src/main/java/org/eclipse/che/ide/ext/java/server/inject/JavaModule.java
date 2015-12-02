@@ -13,7 +13,7 @@ package org.eclipse.che.ide.ext.java.server.inject;
 import com.google.inject.AbstractModule;
 import com.google.inject.multibindings.Multibinder;
 
-import org.eclipse.che.api.project.server.type.ProjectType;
+import org.eclipse.che.api.core.model.project.type.ProjectType;
 import org.eclipse.che.ide.ext.java.server.projecttype.JavaProjectType;
 import org.eclipse.che.inject.DynaModule;
 

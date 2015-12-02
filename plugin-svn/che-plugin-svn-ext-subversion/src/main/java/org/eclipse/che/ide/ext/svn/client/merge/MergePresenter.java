@@ -15,19 +15,18 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.event.shared.EventBus;
 
-import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
+import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.commons.annotation.Nullable;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.parts.WorkspaceAgent;
-import org.eclipse.che.ide.api.project.node.HasProjectDescriptor;
+import org.eclipse.che.ide.api.project.node.HasProjectConfig;
 import org.eclipse.che.ide.api.project.node.HasStorablePath;
 import org.eclipse.che.ide.api.project.tree.TreeNode;
 import org.eclipse.che.ide.api.project.tree.TreeStructure;
 import org.eclipse.che.ide.ext.svn.client.SubversionClientService;
 import org.eclipse.che.ide.ext.svn.client.common.RawOutputPresenter;
 import org.eclipse.che.ide.ext.svn.client.common.SubversionActionPresenter;
-import org.eclipse.che.ide.ext.svn.client.common.filteredtree.FilteredTreeStructureProvider;
 import org.eclipse.che.ide.ext.svn.shared.CLIOutputResponse;
 import org.eclipse.che.ide.ext.svn.shared.InfoResponse;
 import org.eclipse.che.ide.ext.svn.shared.SubversionItem;
@@ -54,10 +53,6 @@ public class MergePresenter extends SubversionActionPresenter implements MergeVi
     private final AppContext                    appContext;
     private final DtoUnmarshallerFactory        dtoUnmarshallerFactory;
     private final NotificationManager           notificationManager;
-    private final FilteredTreeStructureProvider treeStructureProvider;
-
-    /** Target tree node to merge. */
-    private HasStorablePath targetNode;
 
     /** Subversion target to merge. */
     private SubversionItem mergeTarget;
@@ -77,8 +72,7 @@ public class MergePresenter extends SubversionActionPresenter implements MergeVi
                           final RawOutputPresenter console,
                           final WorkspaceAgent workspaceAgent,
                           final ProjectExplorerPresenter projectExplorerPart,
-                          final NotificationManager notificationManager,
-                          final FilteredTreeStructureProvider treeStructureProvider) {
+                          final NotificationManager notificationManager) {
         super(appContext, eventBus, console, workspaceAgent, projectExplorerPart);
 
         this.view = view;
@@ -86,7 +80,6 @@ public class MergePresenter extends SubversionActionPresenter implements MergeVi
         this.appContext = appContext;
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
         this.notificationManager = notificationManager;
-        this.treeStructureProvider = treeStructureProvider;
 
         view.setDelegate(this);
     }
@@ -95,7 +88,8 @@ public class MergePresenter extends SubversionActionPresenter implements MergeVi
      * Prepares to merging and opens Merge dialog.
      */
     public void merge() {
-        targetNode = getSelectedNode();
+        /* Target tree node to merge. */
+        HasStorablePath targetNode = getSelectedNode();
         if (targetNode == null) {
             return;
         }
@@ -344,16 +338,16 @@ public class MergePresenter extends SubversionActionPresenter implements MergeVi
 
         @NotNull
         @Override
-        public HasProjectDescriptor getProject() {
-            return new HasProjectDescriptor() {
+        public HasProjectConfig getProject() {
+            return new HasProjectConfig() {
                 @NotNull
                 @Override
-                public ProjectDescriptor getProjectDescriptor() {
+                public ProjectConfigDto getProjectConfig() {
                     return null;
                 }
 
                 @Override
-                public void setProjectDescriptor(@NotNull ProjectDescriptor projectDescriptor) {
+                public void setProjectConfig(@NotNull ProjectConfigDto project) {
                     //stub
                 }
             };

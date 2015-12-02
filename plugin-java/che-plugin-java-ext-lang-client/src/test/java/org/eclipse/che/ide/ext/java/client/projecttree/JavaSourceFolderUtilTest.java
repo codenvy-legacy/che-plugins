@@ -10,8 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.java.client.projecttree;
 
-import org.eclipse.che.api.project.server.dto.DtoServerImpls;
-import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
+import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,14 +30,15 @@ public class JavaSourceFolderUtilTest {
 
     @Before
     public void setUp() throws Exception {
-        ProjectDescriptor descriptor = new DtoServerImpls.ProjectDescriptorImpl();
-        descriptor.setPath("/test");
-        descriptor.setType("maven");
-        descriptor.setAttributes(new HashMap<String, List<String>>() {{
+        ProjectConfigDto projectConfig = new org.eclipse.che.api.workspace.server.dto.DtoServerImpls.ProjectConfigDtoImpl();
+        projectConfig.setPath("/test");
+        projectConfig.setType("maven");
+        projectConfig.setAttributes(new HashMap<String, List<String>>() {{
             put("maven.source.folder", Collections.singletonList("src/main/java"));
         }});
 
-        project = new CurrentProject(descriptor);
+        project = new CurrentProject();
+        project.setProjectConfig(projectConfig);
     }
 
     @Test

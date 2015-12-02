@@ -161,7 +161,7 @@ public class JavaCodeAssistProcessor implements CodeAssistProcessor {
         }
         this.eventLogger.log(this, "Autocompleting");
         final VirtualFile file = editor.getEditorInput().getFile();
-        final String projectPath = file.getProject().getProjectDescriptor().getPath();
+        final String projectPath = file.getProject().getProjectConfig().getPath();
         String fqn = JavaSourceFolderUtil.getFQNForFile(file);
         Unmarshallable<Proposals> unmarshaller = unmarshallerFactory.newUnmarshaller(Proposals.class);
         client.computeProposals(projectPath, fqn, offset, textEditor.getDocument().getContents(), new AsyncRequestCallback<Proposals>(unmarshaller) {

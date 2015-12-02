@@ -13,7 +13,7 @@ package org.eclipse.che.ide.extension.machine.client.perspective.widgets.recipe.
 import org.eclipse.che.api.project.shared.dto.ItemReference;
 import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.api.promises.client.js.Promises;
-import org.eclipse.che.ide.api.project.node.HasProjectDescriptor;
+import org.eclipse.che.ide.api.project.node.HasProjectConfig;
 import org.eclipse.che.ide.api.project.tree.VirtualFile;
 
 /**
@@ -58,7 +58,7 @@ public class RecipeFile implements VirtualFile {
     }
 
     @Override
-    public HasProjectDescriptor getProject() {
+    public HasProjectConfig getProject() {
         return null;
     }
 

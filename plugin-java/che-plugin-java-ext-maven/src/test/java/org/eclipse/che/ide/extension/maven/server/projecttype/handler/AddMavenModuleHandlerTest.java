@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.maven.server.projecttype.handler;
 
+import org.eclipse.che.api.core.model.project.type.ProjectType;
 import org.eclipse.che.api.core.notification.EventService;
 import org.eclipse.che.api.core.rest.HttpJsonHelper;
 import org.eclipse.che.api.project.server.DefaultProjectManager;
@@ -17,7 +18,7 @@ import org.eclipse.che.api.project.server.Project;
 import org.eclipse.che.api.project.server.VirtualFileEntry;
 import org.eclipse.che.api.project.server.handlers.ProjectHandler;
 import org.eclipse.che.api.project.server.handlers.ProjectHandlerRegistry;
-import org.eclipse.che.api.project.server.type.ProjectType;
+import org.eclipse.che.api.project.server.type.AbstractProjectType;
 import org.eclipse.che.api.project.server.type.ProjectTypeRegistry;
 import org.eclipse.che.api.vfs.server.ContentStream;
 import org.eclipse.che.api.vfs.server.VirtualFileSystemRegistry;
@@ -66,7 +67,7 @@ public class AddMavenModuleHandlerTest {
     @Before
     public void setUp() throws Exception {
         addMavenModuleHandler = new AddMavenModuleHandler();
-        ProjectType mavenProjectType = Mockito.mock(ProjectType.class);
+        AbstractProjectType mavenProjectType = Mockito.mock(AbstractProjectType.class);
         Mockito.when(mavenProjectType.getId()).thenReturn(MavenAttributes.MAVEN_ID);
         Mockito.when(mavenProjectType.getDisplayName()).thenReturn(MavenAttributes.MAVEN_ID);
         Mockito.when(mavenProjectType.canBePrimary()).thenReturn(true);
@@ -133,7 +134,7 @@ public class AddMavenModuleHandlerTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void shouldNotAddModuleIfModuleNotMaven() throws Exception {
-        ProjectType notMaven = Mockito.mock(ProjectType.class);
+        AbstractProjectType notMaven = Mockito.mock(AbstractProjectType.class);
         Mockito.when(notMaven.getId()).thenReturn("notMaven");
         Mockito.when(notMaven.getDisplayName()).thenReturn("notMaven");
         Mockito.when(notMaven.canBePrimary()).thenReturn(true);

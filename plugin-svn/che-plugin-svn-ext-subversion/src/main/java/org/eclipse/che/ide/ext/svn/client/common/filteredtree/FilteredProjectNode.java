@@ -10,19 +10,20 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.svn.client.common.filteredtree;
 
-import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
-import org.eclipse.che.api.project.shared.dto.ItemReference;
-import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
-import org.eclipse.che.ide.api.project.tree.AbstractTreeNode;
-import org.eclipse.che.ide.api.project.tree.TreeNode;
-import org.eclipse.che.ide.api.project.tree.generic.ProjectNode;
-import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
 import com.google.web.bindery.event.shared.EventBus;
 
-import javax.validation.constraints.NotNull;
+import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
+import org.eclipse.che.api.project.shared.dto.ItemReference;
+import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.commons.annotation.Nullable;
+import org.eclipse.che.ide.api.project.tree.AbstractTreeNode;
+import org.eclipse.che.ide.api.project.tree.TreeNode;
+import org.eclipse.che.ide.api.project.tree.generic.ProjectNode;
+import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
+
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -34,7 +35,7 @@ public class FilteredProjectNode extends ProjectNode {
 
     @AssistedInject
     public FilteredProjectNode(@Assisted TreeNode<?> parent,
-                               @Assisted ProjectDescriptor data,
+                               @Assisted ProjectConfigDto data,
                                @Assisted FilteredTreeStructure treeStructure,
                                EventBus eventBus,
                                ProjectServiceClient projectServiceClient,
@@ -52,7 +53,7 @@ public class FilteredProjectNode extends ProjectNode {
     /** {@inheritDoc} */
     @Nullable
     @Override
-    protected AbstractTreeNode<?> createChildNode(ItemReference item, List<ProjectDescriptor> modules) {
+    protected AbstractTreeNode<?> createChildNode(ItemReference item, List<ProjectConfigDto> modules) {
         if ("file".equals(item.getType())) {
             return getTreeStructure().newFileNode(FilteredProjectNode.this, item);
         } else if ("folder".equals(item.getType()) || "project".equals(item.getType())) {

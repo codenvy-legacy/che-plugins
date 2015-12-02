@@ -14,7 +14,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
-import org.eclipse.che.api.core.model.workspace.ProjectConfig;
+import org.eclipse.che.api.core.model.project.type.ProjectType;
 import org.eclipse.che.api.core.notification.EventService;
 import org.eclipse.che.api.core.rest.HttpJsonHelper;
 import org.eclipse.che.api.project.server.DefaultProjectManager;
@@ -23,7 +23,7 @@ import org.eclipse.che.api.project.server.Project;
 import org.eclipse.che.api.project.server.ProjectManager;
 import org.eclipse.che.api.project.server.VirtualFileEntry;
 import org.eclipse.che.api.project.server.handlers.ProjectHandlerRegistry;
-import org.eclipse.che.api.project.server.type.ProjectType;
+import org.eclipse.che.api.project.server.type.AbstractProjectType;
 import org.eclipse.che.api.project.server.type.ProjectTypeRegistry;
 import org.eclipse.che.api.vfs.server.VirtualFileSystemRegistry;
 import org.eclipse.che.api.vfs.server.VirtualFileSystemUser;
@@ -97,7 +97,7 @@ public class MavenClassPathConfiguratorTest {
     @Before
     public void setup() throws Exception {
         Set<ProjectType> pts = new HashSet<>();
-        final ProjectType pt = new ProjectType("maven", "Maven type", true, false) {
+        final AbstractProjectType pt = new AbstractProjectType("maven", "Maven type", true, false) {
         };
         pts.add(pt);
         final ProjectTypeRegistry projectTypeRegistry = new ProjectTypeRegistry(pts);

@@ -10,16 +10,16 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.java.client.navigation.filestructure;
 
-import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.api.promises.client.Function;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.api.promises.client.PromiseError;
+import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.editor.EditorInput;
-import org.eclipse.che.ide.api.project.node.HasProjectDescriptor;
+import org.eclipse.che.ide.api.project.node.HasProjectConfig;
 import org.eclipse.che.ide.api.project.node.Node;
 import org.eclipse.che.ide.api.project.tree.VirtualFile;
 import org.eclipse.che.ide.ext.java.client.navigation.service.JavaNavigationService;
@@ -77,9 +77,9 @@ public class FileStructurePresenterTest {
     @Mock
     private VirtualFile                 virtualFile;
     @Mock
-    private HasProjectDescriptor        hasProjectDescriptor;
+    private HasProjectConfig            hasProjectConfig;
     @Mock
-    private ProjectDescriptor           profileDescriptor;
+    private ProjectConfigDto            profileConfig;
     @Mock
     private CurrentProject              currentProject;
     @Mock
@@ -117,14 +117,14 @@ public class FileStructurePresenterTest {
         when(editorPartPresenter.getDocument()).thenReturn(document);
         when(editorInput.getFile()).thenReturn(virtualFile);
         when(virtualFile.getName()).thenReturn(CLASS_NAME);
-        when(virtualFile.getProject()).thenReturn(hasProjectDescriptor);
-        when(hasProjectDescriptor.getProjectDescriptor()).thenReturn(profileDescriptor);
-        when(profileDescriptor.getPath()).thenReturn(PROJECT_PATH);
+        when(virtualFile.getProject()).thenReturn(hasProjectConfig);
+        when(hasProjectConfig.getProjectConfig()).thenReturn(profileConfig);
+        when(profileConfig.getPath()).thenReturn(PROJECT_PATH);
         when(javaNavigationService.getCompilationUnit(anyString(), anyString(), anyBoolean())).thenReturn(promice);
         when(promice.then(Matchers.<Operation<CompilationUnit>>anyObject())).thenReturn(promice);
         when(promice.catchError(Matchers.<Operation<PromiseError>>anyObject())).thenReturn(promice);
         when(context.getCurrentProject()).thenReturn(currentProject);
-        when(currentProject.getProjectDescription()).thenReturn(profileDescriptor);
+        when(currentProject.getProjectConfig()).thenReturn(profileConfig);
         when(member.getLibId()).thenReturn(1);
         when(member.getRootPath()).thenReturn(PROJECT_PATH);
         when(member.getFileRegion()).thenReturn(region);
@@ -147,7 +147,7 @@ public class FileStructurePresenterTest {
 
         verify(loader).show();
         verify(view).setTitle(CLASS_NAME);
-        verify(profileDescriptor).getPath();
+        verify(profileConfig).getPath();
         verify(javaNavigationService).getCompilationUnit(PROJECT_PATH, "Class", false);
 
         verify(promice).then(operationSuccessCapture.capture());
@@ -173,7 +173,7 @@ public class FileStructurePresenterTest {
     @Test
     public void binaryClassShouldBeOpenedIfMemberIsBinary() throws Exception {
         when(member.isBinary()).thenReturn(true);
-        when(javaNodeManager.getClassNode(profileDescriptor, 1, PROJECT_PATH)).thenReturn(nodePromise);
+        when(javaNodeManager.getClassNode(profileConfig, 1, PROJECT_PATH)).thenReturn(nodePromise);
         when(nodePromise.then(Matchers.<Operation<Node>>anyObject())).thenReturn(nodePromise);
 
         presenter.show(editorPartPresenter);
