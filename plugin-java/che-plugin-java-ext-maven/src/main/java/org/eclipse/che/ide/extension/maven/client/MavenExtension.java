@@ -16,6 +16,7 @@ import com.google.inject.Singleton;
 import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
+import org.eclipse.che.api.workspace.shared.dto.ModuleConfigDto;
 import org.eclipse.che.ide.api.action.ActionManager;
 import org.eclipse.che.ide.api.action.DefaultActionGroup;
 import org.eclipse.che.ide.api.action.IdeActions;
@@ -26,13 +27,21 @@ import org.eclipse.che.ide.api.event.project.ProjectReadyHandler;
 import org.eclipse.che.ide.api.extension.Extension;
 import org.eclipse.che.ide.api.icon.Icon;
 import org.eclipse.che.ide.api.icon.IconRegistry;
+import org.eclipse.che.ide.api.project.node.HasStorablePath;
+import org.eclipse.che.ide.api.project.node.Node;
 import org.eclipse.che.ide.api.project.type.wizard.PreSelectedProjectTypeManager;
 import org.eclipse.che.ide.ext.java.client.dependenciesupdater.DependenciesUpdater;
+import org.eclipse.che.ide.ext.java.client.project.node.JavaNodeManager;
 import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateEvent;
 import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateHandler;
 import org.eclipse.che.ide.extension.maven.client.actions.CreateMavenModuleAction;
 import org.eclipse.che.ide.extension.maven.client.actions.UpdateDependencyAction;
 import org.eclipse.che.ide.extension.maven.shared.MavenAttributes;
+import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
+import org.eclipse.che.ide.project.node.AbstractProjectBasedNode;
+import org.eclipse.che.ide.project.node.ModuleDescriptorNode;
+import org.eclipse.che.ide.project.node.ProjectDescriptorNode;
+import org.eclipse.che.ide.ui.smartTree.event.BeforeExpandNodeEvent;
 
 import java.util.Arrays;
 import java.util.List;
@@ -68,7 +77,19 @@ public class MavenExtension {
     }
 
     @Inject
-    private void bindEvents(final EventBus eventBus, final DependenciesUpdater dependenciesUpdater) {
+    private void bindEvents(final EventBus eventBus,
+                            final DependenciesUpdater dependenciesUpdater,
+                            final ProjectExplorerPresenter projectExplorerPresenter) {
+
+        projectExplorerPresenter.addBeforeExpandHandler(new BeforeExpandNodeEvent.BeforeExpandNodeHandler() {
+            @Override
+            public void onBeforeExpand(BeforeExpandNodeEvent event) {
+                Node node = event.getNode();
+                if (!projectExplorerPresenter.isLoaded(node) && JavaNodeManager.isJavaProject(node) && isValid(node)) {
+                    dependenciesUpdater.updateDependencies(((HasStorablePath)node).getStorablePath());
+                }
+            }
+        });
 
         eventBus.addHandler(ProjectReadyEvent.TYPE, new ProjectReadyHandler() {
             @Override
@@ -99,6 +120,31 @@ public class MavenExtension {
             public void onMachineDestroyed(MachineStateEvent event) {
             }
         });
+    }
+
+    private boolean isValid(Node node) {
+        ModuleConfigDto nodeDescriptor = null;
+        ProjectDescriptor projectDescriptor = null;
+
+        //TODO it's a temporary solution. This code will be rewriting during work on this issue IDEX-3468.
+        if (node instanceof ModuleDescriptorNode) {
+            AbstractProjectBasedNode abstractNode = (AbstractProjectBasedNode)node;
+
+            nodeDescriptor = (ModuleConfigDto)abstractNode.getData();
+        }
+
+        if (node instanceof ProjectDescriptorNode) {
+            AbstractProjectBasedNode abstractNode = (AbstractProjectBasedNode)node;
+
+            projectDescriptor = (ProjectDescriptor)abstractNode.getData();
+        }
+
+        if (nodeDescriptor == null && projectDescriptor == null) {
+            return false;
+        }
+
+        Map<String, List<String>> attr = nodeDescriptor == null ? projectDescriptor.getAttributes() : nodeDescriptor.getAttributes();
+        return attr.containsKey(MavenAttributes.PACKAGING) && !"pom".equals(attr.get(MavenAttributes.PACKAGING).get(0));
     }
 
     @Inject

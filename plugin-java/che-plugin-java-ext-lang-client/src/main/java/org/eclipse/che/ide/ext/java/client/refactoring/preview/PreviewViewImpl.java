@@ -20,8 +20,8 @@ import com.google.gwt.user.cellview.client.CellTree;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SelectionModel;
@@ -61,15 +61,15 @@ final class PreviewViewImpl extends Window implements PreviewView {
     @UiField(provided = true)
     final JavaLocalizationConstant locale;
     @UiField
-    SimplePanel diff;
+    SimplePanel   diff;
     @UiField
-    FlowPanel   diffPanelToHide;
+    FlowPanel     diffPanelToHide;
     @UiField
-    SimplePanel noPreviewToHide;
+    SimplePanel   noPreviewToHide;
     @UiField
-    ScrollPanel treePanel;
+    VerticalPanel treePanel;
     @UiField
-    Label       errorLabel;
+    Label         errorLabel;
 
     private ActionDelegate delegate;
     private FileOptions    newFile;
