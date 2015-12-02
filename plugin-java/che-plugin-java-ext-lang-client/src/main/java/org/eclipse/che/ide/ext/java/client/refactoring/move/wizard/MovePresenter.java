@@ -158,7 +158,7 @@ public class MovePresenter implements MoveView.ActionDelegate {
             throw new IllegalArgumentException(getClass() + " Current project undefined...");
         }
 
-        return currentProject.getProjectDescription().getPath();
+        return currentProject.getProjectConfig().getPath();
     }
 
     private void showProjectsAndPackages() {

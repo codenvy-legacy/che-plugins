@@ -10,15 +10,15 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.git.client.status;
 
+import com.googlecode.gwt.test.utils.GwtReflectionUtils;
+
 import org.eclipse.che.api.git.shared.StatusFormat;
-import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
+import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.api.parts.WorkspaceAgent;
 import org.eclipse.che.ide.ext.git.client.BaseTest;
 import org.eclipse.che.ide.ext.git.client.GitOutputPartPresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
-import com.googlecode.gwt.test.utils.GwtReflectionUtils;
-
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Matchers;
@@ -72,14 +72,14 @@ public class StatusCommandPresenterTest extends BaseTest {
                 onSuccess.invoke(callback, EMPTY_TEXT);
                 return callback;
             }
-        }).when(service).statusText(Matchers.<ProjectDescriptor>anyObject(),
+        }).when(service).statusText(Matchers.<ProjectConfigDto>anyObject(),
                                     Matchers.<StatusFormat>anyObject(),
                                     Matchers.<AsyncRequestCallback<String>>anyObject());
 
         presenter.showStatus();
 
         verify(appContext).getCurrentProject();
-        verify(service).statusText(eq(rootProjectDescriptor),
+        verify(service).statusText(eq(rootProjectConfig),
                                    eq(IS_NOT_FORMATTED),
                                    Matchers.<AsyncRequestCallback<String>>anyObject());
     }
@@ -95,14 +95,14 @@ public class StatusCommandPresenterTest extends BaseTest {
                 onFailure.invoke(callback, mock(Throwable.class));
                 return callback;
             }
-        }).when(service).statusText(Matchers.<ProjectDescriptor> anyObject(),
-                                    Matchers.<StatusFormat> anyObject(),
-                                    Matchers.<AsyncRequestCallback<String>> anyObject());
+        }).when(service).statusText(Matchers.<ProjectConfigDto>anyObject(),
+                                    Matchers.<StatusFormat>anyObject(),
+                                    Matchers.<AsyncRequestCallback<String>>anyObject());
 
         presenter.showStatus();
 
         verify(appContext).getCurrentProject();
-        verify(service).statusText(eq(rootProjectDescriptor), eq(IS_NOT_FORMATTED), Matchers.<AsyncRequestCallback<String>> anyObject());
+        verify(service).statusText(eq(rootProjectConfig), eq(IS_NOT_FORMATTED), Matchers.<AsyncRequestCallback<String>>anyObject());
         verify(notificationManager).showNotification((Notification)anyObject());
         verify(constant).statusFailed();
     }

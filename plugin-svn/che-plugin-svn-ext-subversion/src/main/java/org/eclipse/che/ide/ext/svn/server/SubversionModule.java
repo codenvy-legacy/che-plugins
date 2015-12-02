@@ -10,6 +10,12 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.svn.server;
 
+import com.google.inject.AbstractModule;
+import com.google.inject.multibindings.Multibinder;
+
+import org.eclipse.che.api.core.model.project.type.ProjectType;
+import org.eclipse.che.api.project.server.ProjectImporter;
+import org.eclipse.che.api.project.server.ValueProviderFactory;
 import org.eclipse.che.ide.ext.svn.server.credentials.CredentialsProvider;
 import org.eclipse.che.ide.ext.svn.server.credentials.CurrentUserPreferencesAccess;
 import org.eclipse.che.ide.ext.svn.server.credentials.CurrentUserPreferencesAccessImpl;
@@ -17,13 +23,7 @@ import org.eclipse.che.ide.ext.svn.server.credentials.PreferencesCredentialsProv
 import org.eclipse.che.ide.ext.svn.server.repository.RepositoryUrlProvider;
 import org.eclipse.che.ide.ext.svn.server.repository.RepositoryUrlProviderImpl;
 import org.eclipse.che.ide.ext.svn.server.rest.SubversionService;
-
-import org.eclipse.che.api.project.server.ProjectImporter;
-import org.eclipse.che.api.project.server.ValueProviderFactory;
-import org.eclipse.che.api.project.server.type.ProjectType;
 import org.eclipse.che.inject.DynaModule;
-import com.google.inject.AbstractModule;
-import com.google.inject.multibindings.Multibinder;
 
 /**
  * Module for wiring up the server-side portion of this extension.

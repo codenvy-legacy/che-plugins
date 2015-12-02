@@ -15,8 +15,8 @@ import com.google.inject.assistedinject.Assisted;
 import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.api.project.shared.dto.ItemReference;
-import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.api.promises.client.Promise;
+import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.ide.api.project.node.HasStorablePath;
 import org.eclipse.che.ide.api.project.node.Node;
 import org.eclipse.che.ide.api.project.node.resource.RenameProcessor;
@@ -37,12 +37,12 @@ public class PackageNode extends FolderReferenceNode {
 
     @Inject
     public PackageNode(@Assisted ItemReference itemReference,
-                       @Assisted ProjectDescriptor projectDescriptor,
+                       @Assisted ProjectConfigDto projectConfig,
                        @Assisted JavaNodeSettings nodeSettings,
                        @NotNull EventBus eventBus,
                        @NotNull JavaNodeManager nodeManager,
                        @NotNull ItemReferenceProcessor resourceProcessor) {
-        super(itemReference, projectDescriptor, nodeSettings, eventBus, nodeManager, resourceProcessor);
+        super(itemReference, projectConfig, nodeSettings, eventBus, nodeManager, resourceProcessor);
         this.nodeManager = nodeManager;
     }
 
@@ -51,7 +51,7 @@ public class PackageNode extends FolderReferenceNode {
     @Override
     protected Promise<List<Node>> getChildrenImpl() {
         return nodeManager.getChildren(getStorablePath(),
-                                       getProjectDescriptor(),
+                                       getProjectConfig(),
                                        getSettings());
     }
 

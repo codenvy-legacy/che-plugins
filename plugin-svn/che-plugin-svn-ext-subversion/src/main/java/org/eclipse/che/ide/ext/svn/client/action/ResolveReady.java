@@ -98,7 +98,7 @@ public class ResolveReady extends SubversionAction implements SelectionChangedHa
         }
 
         for (String conflictPath : conflictsList) {
-            final String absPath = (appContext.getCurrentProject().getProjectDescription().getPath() + "/" + conflictPath.trim());
+            final String absPath = (appContext.getCurrentProject().getProjectConfig().getPath() + "/" + conflictPath.trim());
 
             if (absPath.startsWith(selectedNode.getStorablePath())) {
                 enable = true;

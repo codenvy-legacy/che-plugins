@@ -10,8 +10,8 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.java.client.project.node.jar;
 
-import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.commons.annotation.Nullable;
+import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.ide.api.project.node.settings.NodeSettings;
 import org.eclipse.che.ide.ext.java.client.project.node.JavaNodeManager;
 import org.eclipse.che.ide.ext.java.shared.JarEntry;
@@ -28,10 +28,10 @@ public abstract class AbstractJarEntryNode extends AbstractJavaSyntheticNode<Jar
 
     public AbstractJarEntryNode(@NotNull JarEntry jarEntry,
                                 @Nullable Integer libId,
-                                @NotNull ProjectDescriptor projectDescriptor,
+                                @NotNull ProjectConfigDto projectConfig,
                                 @NotNull NodeSettings nodeSettings,
                                 @NotNull JavaNodeManager nodeManager) {
-        super(jarEntry, projectDescriptor, nodeSettings, nodeManager);
+        super(jarEntry, projectConfig, nodeSettings, nodeManager);
         this.libId = libId;
     }
 

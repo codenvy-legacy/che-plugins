@@ -34,8 +34,11 @@ public class ProjectHasBecomeMaven implements ProjectTypeChangedHandler {
     private ProjectManager projectManager;
 
     @Override
-    public void onProjectTypeChanged(FolderEntry projectFolder)
-            throws ForbiddenException, ConflictException, ServerException, IOException, NotFoundException {
+    public void onProjectTypeChanged(FolderEntry projectFolder) throws ForbiddenException,
+                                                                       ConflictException,
+                                                                       ServerException,
+                                                                       IOException,
+                                                                       NotFoundException {
         MavenProjectResolver.resolve(projectFolder, projectManager);
     }
 

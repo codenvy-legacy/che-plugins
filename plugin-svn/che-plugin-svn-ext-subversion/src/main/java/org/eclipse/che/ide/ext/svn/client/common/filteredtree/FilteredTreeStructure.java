@@ -10,9 +10,11 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.svn.client.common.filteredtree;
 
+import com.google.web.bindery.event.shared.EventBus;
+
 import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
 import org.eclipse.che.api.project.shared.dto.ItemReference;
-import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
+import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.project.tree.TreeNode;
 import org.eclipse.che.ide.api.project.tree.generic.FileNode;
@@ -20,7 +22,6 @@ import org.eclipse.che.ide.api.project.tree.generic.FolderNode;
 import org.eclipse.che.ide.api.project.tree.generic.GenericTreeStructure;
 import org.eclipse.che.ide.api.project.tree.generic.NodeFactory;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
-import com.google.web.bindery.event.shared.EventBus;
 
 import javax.validation.constraints.NotNull;
 
@@ -50,7 +51,7 @@ public class FilteredTreeStructure extends GenericTreeStructure {
 
     /** {@inheritDoc} */
     @Override
-    public FilteredProjectNode newProjectNode(@NotNull ProjectDescriptor data) {
+    public FilteredProjectNode newProjectNode(@NotNull ProjectConfigDto data) {
         return getNodeFactory().newFilteredProjectNode(null, data, this);
     }
 

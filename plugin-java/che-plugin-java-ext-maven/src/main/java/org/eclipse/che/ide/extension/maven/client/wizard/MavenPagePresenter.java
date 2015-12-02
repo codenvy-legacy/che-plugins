@@ -251,7 +251,6 @@ public class MavenPagePresenter extends AbstractWizardPage<ProjectConfigDto> imp
 
     @Override
     public void archetypeChanged(MavenArchetype archetype) {
-        //fillGeneratorDescription(dataObject.getProject().getGeneratorDescription());
         updateDelegate.updateControls();
     }
 

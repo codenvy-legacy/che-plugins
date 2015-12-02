@@ -14,14 +14,13 @@ import com.google.gwt.safehtml.shared.SafeHtml;
 import com.googlecode.gwt.test.utils.GwtReflectionUtils;
 
 import org.eclipse.che.api.git.shared.Status;
-import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.ide.api.project.node.HasStorablePath;
 import org.eclipse.che.ide.api.selection.Selection;
 import org.eclipse.che.ide.ext.git.client.BaseTest;
 import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.eclipse.che.ide.project.node.FileReferenceNode;
 import org.eclipse.che.ide.project.node.FolderReferenceNode;
-import org.eclipse.che.ide.project.node.ProjectDescriptorNode;
+import org.eclipse.che.ide.project.node.ProjectNode;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.websocket.WebSocketException;
 import org.eclipse.che.ide.websocket.rest.RequestCallback;
@@ -87,7 +86,7 @@ public class AddToIndexPresenterTest extends BaseTest {
     public void testDialogWillNotBeShownWhenStatusRequestIsFailed() throws Exception {
         presenter.showDialog();
 
-        verify(service).status(eq(rootProjectDescriptor), asyncRequestCallbackStatusCaptor.capture());
+        verify(service).status(eq(rootProjectConfig), asyncRequestCallbackStatusCaptor.capture());
         AsyncRequestCallback<Status> callback = asyncRequestCallbackStatusCaptor.getValue();
 
         //noinspection NonJREEmulationClassesInClientCode
@@ -106,7 +105,7 @@ public class AddToIndexPresenterTest extends BaseTest {
 
         presenter.showDialog();
 
-        verify(service).status(eq(rootProjectDescriptor), asyncRequestCallbackStatusCaptor.capture());
+        verify(service).status(eq(rootProjectConfig), asyncRequestCallbackStatusCaptor.capture());
         AsyncRequestCallback<Status> callback = asyncRequestCallbackStatusCaptor.getValue();
 
         //noinspection NonJREEmulationClassesInClientCode
@@ -116,13 +115,13 @@ public class AddToIndexPresenterTest extends BaseTest {
         verify(console).printInfo(anyString());
         verify(notificationManager).showInfo(anyString());
         verify(view, never()).showDialog();
-        verify(constant,times(2)).nothingAddToIndex();
+        verify(constant, times(2)).nothingAddToIndex();
     }
 
     @Test
     public void testShowDialogWhenRootFolderIsSelected() throws Exception {
         Selection selection = mock(Selection.class);
-        ProjectDescriptorNode project = mock(ProjectDescriptorNode.class);
+        ProjectNode project = mock(ProjectNode.class);
         when(project.getStorablePath()).thenReturn(PROJECT_PATH);
         when(selection.getHeadElement()).thenReturn(project);
         when(selection.isEmpty()).thenReturn(false);
@@ -133,7 +132,7 @@ public class AddToIndexPresenterTest extends BaseTest {
 
         presenter.showDialog();
 
-        verify(service).status(eq(rootProjectDescriptor), asyncRequestCallbackStatusCaptor.capture());
+        verify(service).status(eq(rootProjectConfig), asyncRequestCallbackStatusCaptor.capture());
         AsyncRequestCallback<Status> callback = asyncRequestCallbackStatusCaptor.getValue();
 
         //noinspection NonJREEmulationClassesInClientCode
@@ -162,7 +161,7 @@ public class AddToIndexPresenterTest extends BaseTest {
 
         presenter.showDialog();
 
-        verify(service).status(eq(rootProjectDescriptor), asyncRequestCallbackStatusCaptor.capture());
+        verify(service).status(eq(rootProjectConfig), asyncRequestCallbackStatusCaptor.capture());
         AsyncRequestCallback<Status> callback = asyncRequestCallbackStatusCaptor.getValue();
 
         //noinspection NonJREEmulationClassesInClientCode
@@ -193,7 +192,7 @@ public class AddToIndexPresenterTest extends BaseTest {
 
         presenter.showDialog();
 
-        verify(service).status(eq(rootProjectDescriptor), asyncRequestCallbackStatusCaptor.capture());
+        verify(service).status(eq(rootProjectConfig), asyncRequestCallbackStatusCaptor.capture());
         AsyncRequestCallback<Status> callback = asyncRequestCallbackStatusCaptor.getValue();
 
         //noinspection NonJREEmulationClassesInClientCode
@@ -237,7 +236,7 @@ public class AddToIndexPresenterTest extends BaseTest {
 
         presenter.showDialog();
 
-        verify(service).status(eq(rootProjectDescriptor), asyncRequestCallbackStatusCaptor.capture());
+        verify(service).status(eq(rootProjectConfig), asyncRequestCallbackStatusCaptor.capture());
         final AsyncRequestCallback<Status> callback = asyncRequestCallbackStatusCaptor.getValue();
 
         //noinspection NonJREEmulationClassesInClientCode
@@ -260,7 +259,7 @@ public class AddToIndexPresenterTest extends BaseTest {
         presenter.onAddClicked();
 
         verify(service)
-                .add(eq(rootProjectDescriptor), eq(NEED_UPDATING), (List<String>)anyObject(), requestCallbackAddToIndexCaptor.capture());
+                .add(eq(rootProjectConfig), eq(NEED_UPDATING), (List<String>)anyObject(), requestCallbackAddToIndexCaptor.capture());
         RequestCallback<Void> callback = requestCallbackAddToIndexCaptor.getValue();
 
         //noinspection NonJREEmulationClassesInClientCode
@@ -269,7 +268,7 @@ public class AddToIndexPresenterTest extends BaseTest {
 
         verify(view).isUpdated();
         verify(view).close();
-        verify(service).add(eq(rootProjectDescriptor), eq(NEED_UPDATING), (List<String>)anyObject(),
+        verify(service).add(eq(rootProjectConfig), eq(NEED_UPDATING), (List<String>)anyObject(),
                             (RequestCallback<Void>)anyObject());
         verify(console).printInfo(anyString());
         verify(notificationManager).showInfo(anyString());
@@ -284,7 +283,7 @@ public class AddToIndexPresenterTest extends BaseTest {
         presenter.onAddClicked();
 
         verify(service)
-                .add(eq(rootProjectDescriptor), eq(NEED_UPDATING), (List<String>)anyObject(), requestCallbackAddToIndexCaptor.capture());
+                .add(eq(rootProjectConfig), eq(NEED_UPDATING), (List<String>)anyObject(), requestCallbackAddToIndexCaptor.capture());
         RequestCallback<Void> callback = requestCallbackAddToIndexCaptor.getValue();
 
         //noinspection NonJREEmulationClassesInClientCode
@@ -301,17 +300,14 @@ public class AddToIndexPresenterTest extends BaseTest {
     @Test
     public void testOnAddClickedWhenAddRequestIsFailed() throws Exception {
         doThrow(WebSocketException.class).when(service)
-                                         .add((ProjectDescriptor)anyObject(), anyBoolean(), (List<String>)anyObject(),
-                                              (RequestCallback<Void>)anyObject());
+                                         .add(anyObject(), anyBoolean(), anyObject(), anyObject());
         when(view.isUpdated()).thenReturn(NEED_UPDATING);
 
         presenter.showDialog();
         presenter.onAddClicked();
 
         verify(view).isUpdated();
-        verify(service)
-                .add(eq(rootProjectDescriptor), eq(NEED_UPDATING), (List<String>)anyObject(),
-                     (RequestCallback<Void>)anyObject());
+        verify(service).add(eq(rootProjectConfig), eq(NEED_UPDATING), anyObject(), anyObject());
         verify(view).close();
         verify(console).printError(anyString());
         verify(notificationManager).showError(anyString());

@@ -14,7 +14,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import org.eclipse.che.api.git.gwt.client.GitServiceClient;
 import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
-import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
+import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.api.notification.NotificationManager;
@@ -24,7 +24,6 @@ import org.eclipse.che.ide.rest.StringUnmarshaller;
 import org.eclipse.che.ide.websocket.WebSocketException;
 import org.eclipse.che.ide.websocket.rest.RequestCallback;
 
-import javax.validation.constraints.NotNull;
 import javax.inject.Inject;
 import java.util.List;
 
@@ -56,7 +55,7 @@ public class GitRepositoryInitializer {
         this.projectServiceClient = projectServiceClient;
     }
 
-    public static boolean isGitRepository(@NotNull ProjectDescriptor project) {
+    public static boolean isGitRepository(ProjectConfigDto project) {
         List<String> listVcsProvider = project.getAttributes().get("vcs.provider.name");
 
         return listVcsProvider != null
@@ -67,19 +66,19 @@ public class GitRepositoryInitializer {
     /**
      * Initializes GIT repository.
      */
-    public void initGitRepository(@NotNull final ProjectDescriptor project, final AsyncCallback<Void> callback) {
+    public void initGitRepository(final ProjectConfigDto project, final AsyncCallback<Void> callback) {
         try {
             gitService.init(project, false, new RequestCallback<Void>() {
                                 @Override
                                 protected void onSuccess(Void result) {
-                                    updateGitProvider(project, new AsyncCallback<ProjectDescriptor>() {
+                                    updateGitProvider(project, new AsyncCallback<ProjectConfigDto>() {
                                         @Override
                                         public void onFailure(Throwable caught) {
                                             callback.onFailure(caught);
                                         }
 
                                         @Override
-                                        public void onSuccess(ProjectDescriptor result) {
+                                        public void onSuccess(ProjectConfigDto result) {
                                             callback.onSuccess(null);
                                         }
                                     });
@@ -99,7 +98,7 @@ public class GitRepositoryInitializer {
     /**
      * Returns git url using callback. If the project has no repository then method initializes it.
      */
-    public void getGitUrlWithAutoInit(@NotNull final ProjectDescriptor project, final AsyncCallback<String> callback) {
+    public void getGitUrlWithAutoInit(final ProjectConfigDto project, final AsyncCallback<String> callback) {
         if (!GitRepositoryInitializer.isGitRepository(project)) {
             initGitRepository(project, new AsyncCallback<Void>() {
                 @Override
@@ -135,15 +134,15 @@ public class GitRepositoryInitializer {
     /**
      * Update information about vcs provider name of current project in application context.
      */
-    void updateGitProvider(@NotNull final ProjectDescriptor project, final AsyncCallback<ProjectDescriptor> callback) {
+    void updateGitProvider(final ProjectConfigDto project, final AsyncCallback<ProjectConfigDto> callback) {
         // update 'vcs.provider.name' attribute value
         projectServiceClient.getProject(project.getPath(),
-                                        new AsyncRequestCallback<ProjectDescriptor>(
-                                                dtoUnmarshallerFactory.newUnmarshaller(ProjectDescriptor.class)) {
+                                        new AsyncRequestCallback<ProjectConfigDto>(
+                                                dtoUnmarshallerFactory.newUnmarshaller(ProjectConfigDto.class)) {
                                             @Override
-                                            protected void onSuccess(ProjectDescriptor projectDescriptor) {
-                                                appContext.getCurrentProject().setRootProject(projectDescriptor);
-                                                callback.onSuccess(projectDescriptor);
+                                            protected void onSuccess(ProjectConfigDto projectConfig) {
+                                                appContext.getCurrentProject().setRootProject(projectConfig);
+                                                callback.onSuccess(projectConfig);
                                             }
 
                                             @Override

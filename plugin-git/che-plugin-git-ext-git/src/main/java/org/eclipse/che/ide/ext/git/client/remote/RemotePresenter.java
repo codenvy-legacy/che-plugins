@@ -10,24 +10,23 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.git.client.remote;
 
-import org.eclipse.che.ide.ext.git.client.GitLocalizationConstant;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+
 import org.eclipse.che.api.git.gwt.client.GitServiceClient;
 import org.eclipse.che.api.git.shared.Remote;
-import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
+import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.api.notification.NotificationManager;
+import org.eclipse.che.ide.ext.git.client.GitLocalizationConstant;
 import org.eclipse.che.ide.ext.git.client.GitOutputPartPresenter;
 import org.eclipse.che.ide.ext.git.client.remote.add.AddRemoteRepositoryPresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
-
 import javax.validation.constraints.NotNull;
-
 import java.util.List;
 
 import static org.eclipse.che.ide.api.notification.Notification.Type.ERROR;
@@ -49,7 +48,7 @@ public class RemotePresenter implements RemoteView.ActionDelegate {
     private AddRemoteRepositoryPresenter addRemoteRepositoryPresenter;
     private NotificationManager          notificationManager;
     private Remote                       selectedRemote;
-    private ProjectDescriptor            project;
+    private ProjectConfigDto             project;
 
     @Inject
     public RemotePresenter(RemoteView view,

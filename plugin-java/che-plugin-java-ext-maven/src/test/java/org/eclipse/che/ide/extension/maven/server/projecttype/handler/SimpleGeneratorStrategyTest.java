@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.maven.server.projecttype.handler;
 
+import org.eclipse.che.api.core.model.project.type.ProjectType;
 import org.eclipse.che.api.core.notification.EventService;
 import org.eclipse.che.api.core.rest.HttpJsonHelper;
 import org.eclipse.che.api.project.server.DefaultProjectManager;
@@ -18,8 +19,8 @@ import org.eclipse.che.api.project.server.FolderEntry;
 import org.eclipse.che.api.project.server.ProjectManager;
 import org.eclipse.che.api.project.server.VirtualFileEntry;
 import org.eclipse.che.api.project.server.handlers.ProjectHandlerRegistry;
+import org.eclipse.che.api.project.server.type.AbstractProjectType;
 import org.eclipse.che.api.project.server.type.AttributeValue;
-import org.eclipse.che.api.project.server.type.ProjectType;
 import org.eclipse.che.api.project.server.type.ProjectTypeRegistry;
 import org.eclipse.che.api.vfs.server.VirtualFileSystemRegistry;
 import org.eclipse.che.api.vfs.server.VirtualFileSystemUser;
@@ -102,7 +103,7 @@ public class SimpleGeneratorStrategyTest {
         final Set<String> vfsUserGroups = new LinkedHashSet<>(Collections.singletonList("workspace/developer"));
 
         Set<ProjectType> pts = new HashSet<>();
-        final ProjectType pt = new ProjectType("mytype", "mytype type", true, false) {};
+        final ProjectType pt = new AbstractProjectType("mytype", "mytype type", true, false) {};
         pts.add(pt);
 
         final ProjectTypeRegistry projectTypeRegistry = new ProjectTypeRegistry(pts);

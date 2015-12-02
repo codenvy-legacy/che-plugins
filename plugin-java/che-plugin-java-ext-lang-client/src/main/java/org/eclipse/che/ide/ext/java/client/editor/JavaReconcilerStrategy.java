@@ -95,7 +95,7 @@ public class JavaReconcilerStrategy implements ReconcilingStrategy {
 
 
         String fqn = JavaSourceFolderUtil.getFQNForFile(file);
-        client.reconcile(file.getProject().getProjectDescriptor().getPath(), fqn, new JavaReconcileClient.ReconcileCallback() {
+        client.reconcile(file.getProject().getProjectConfig().getPath(), fqn, new JavaReconcileClient.ReconcileCallback() {
             @Override
             public void onReconcile(ReconcileResult result) {
                 if (result == null) {

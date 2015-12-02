@@ -13,7 +13,7 @@ package org.eclipse.che.ide.extension.maven.client.project;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import org.eclipse.che.ide.api.project.node.HasProjectDescriptor;
+import org.eclipse.che.ide.api.project.node.HasProjectConfig;
 import org.eclipse.che.ide.ext.java.client.project.interceptor.AbstractExternalLibrariesNodeInterceptor;
 import org.eclipse.che.ide.ext.java.client.project.node.JavaNodeManager;
 import org.eclipse.che.ide.extension.maven.shared.MavenAttributes;
@@ -31,8 +31,8 @@ public class MavenExternalLibrariesInterceptor extends AbstractExternalLibraries
     }
 
     @Override
-    public boolean show(HasProjectDescriptor node) {
-        List<String> packaging = node.getProjectDescriptor().getAttributes().get(MavenAttributes.PACKAGING);
+    public boolean show(HasProjectConfig node) {
+        List<String> packaging = node.getProjectConfig().getAttributes().get(MavenAttributes.PACKAGING);
         return packaging != null && !packaging.isEmpty() && !packaging.get(0).equals("pom");
 
     }

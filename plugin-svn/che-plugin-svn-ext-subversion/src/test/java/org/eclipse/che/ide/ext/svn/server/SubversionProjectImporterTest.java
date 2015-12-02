@@ -30,7 +30,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.eclipse.che.api.project.server.FolderEntry;
 import org.eclipse.che.api.project.server.ProjectImporter;
 import org.eclipse.che.api.project.server.ValueProviderFactory;
-import org.eclipse.che.api.project.server.type.ProjectType;
+import org.eclipse.che.api.project.server.type.AbstractProjectType;
 import org.eclipse.che.api.user.server.dao.UserProfileDao;
 import org.eclipse.che.api.vfs.server.VirtualFileSystem;
 import com.google.inject.AbstractModule;
@@ -61,7 +61,7 @@ public class SubversionProjectImporterTest {
             @Override
             protected void configure() {
                 Multibinder.newSetBinder(binder(), ProjectImporter.class).addBinding().to(SubversionProjectImporter.class);
-                Multibinder.newSetBinder(binder(), ProjectType.class).addBinding().to(SubversionProjectType.class);
+                Multibinder.newSetBinder(binder(), AbstractProjectType.class).addBinding().to(SubversionProjectType.class);
                 Multibinder.newSetBinder(binder(), ValueProviderFactory.class).addBinding()
                            .to(SubversionValueProviderFactory.class);
 

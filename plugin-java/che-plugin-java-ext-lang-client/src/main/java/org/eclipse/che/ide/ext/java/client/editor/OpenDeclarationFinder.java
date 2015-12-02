@@ -82,7 +82,7 @@ public class OpenDeclarationFinder {
         Unmarshallable<OpenDeclarationDescriptor> unmarshaller =
                 factory.newUnmarshaller(OpenDeclarationDescriptor.class);
         navigationService
-                .findDeclaration(file.getProject().getProjectDescriptor().getPath(), JavaSourceFolderUtil.getFQNForFile(file), offset,
+                .findDeclaration(file.getProject().getProjectConfig().getPath(), JavaSourceFolderUtil.getFQNForFile(file), offset,
                                  new AsyncRequestCallback<OpenDeclarationDescriptor>(unmarshaller) {
                                      @Override
                                      protected void onSuccess(OpenDeclarationDescriptor result) {
@@ -111,7 +111,7 @@ public class OpenDeclarationFinder {
 
 
         if (descriptor.isBinary()) {
-            javaNodeManager.getClassNode(context.getCurrentProject().getProjectDescription(), descriptor.getLibId(), descriptor.getPath())
+            javaNodeManager.getClassNode(context.getCurrentProject().getProjectConfig(), descriptor.getLibId(), descriptor.getPath())
                            .then(new Operation<Node>() {
                                @Override
                                public void apply(Node node) throws OperationException {

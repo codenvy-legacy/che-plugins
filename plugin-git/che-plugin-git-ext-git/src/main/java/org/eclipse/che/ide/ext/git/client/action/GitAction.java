@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.git.client.action;
 
-import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
+import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.ide.api.action.AbstractPerspectiveAction;
 import org.eclipse.che.ide.api.action.ActionEvent;
 import org.eclipse.che.ide.api.app.AppContext;
@@ -47,7 +47,7 @@ public abstract class GitAction extends AbstractPerspectiveAction {
         boolean isGitRepository = false;
 
         if (getActiveProject() != null) {
-            ProjectDescriptor rootProjectDescriptor = getActiveProject().getRootProject();
+            ProjectConfigDto rootProjectDescriptor = getActiveProject().getRootProject();
             List<String> listVcsProvider = rootProjectDescriptor.getAttributes().get("vcs.provider.name");
 
             if (listVcsProvider != null && (!listVcsProvider.isEmpty()) && listVcsProvider.contains("git")) {

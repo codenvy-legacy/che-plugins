@@ -137,7 +137,7 @@ public class BranchPresenterTest extends BaseTest {
 
         presenter.showBranches();
 
-        verify(service).branchList(eq(rootProjectDescriptor), eq(LIST_ALL), branchListCallbackCaptor.capture());
+        verify(service).branchList(eq(rootProjectConfig), eq(LIST_ALL), branchListCallbackCaptor.capture());
         AsyncRequestCallback<List<Branch>> branchListCallback = branchListCallbackCaptor.getValue();
         GwtReflectionUtils.callOnSuccess(branchListCallback, branches);
 
@@ -153,7 +153,7 @@ public class BranchPresenterTest extends BaseTest {
     public void testShowBranchesWhenGetBranchesRequestIsFailed() throws Exception {
         presenter.showBranches();
 
-        verify(service).branchList(eq(rootProjectDescriptor), eq(LIST_ALL), branchListCallbackCaptor.capture());
+        verify(service).branchList(eq(rootProjectConfig), eq(LIST_ALL), branchListCallbackCaptor.capture());
         AsyncRequestCallback<List<Branch>> branchListCallback = branchListCallbackCaptor.getValue();
         GwtReflectionUtils.callOnFailure(branchListCallback, mock(Throwable.class));
 
@@ -190,12 +190,12 @@ public class BranchPresenterTest extends BaseTest {
 
 
         verify(service)
-                .branchRename(eq(rootProjectDescriptor), eq(BRANCH_NAME), eq(RETURNED_MESSAGE), asyncRequestCallbackCaptor.capture());
+                .branchRename(eq(rootProjectConfig), eq(BRANCH_NAME), eq(RETURNED_MESSAGE), asyncRequestCallbackCaptor.capture());
         AsyncRequestCallback<String> renameBranchCallback = asyncRequestCallbackCaptor.getValue();
         GwtReflectionUtils.callOnSuccess(renameBranchCallback, PROJECT_PATH);
 
         verify(selectedBranch, times(2)).getDisplayName();
-        verify(service, times(2)).branchList(eq(rootProjectDescriptor), eq(LIST_ALL), anyObject());
+        verify(service, times(2)).branchList(eq(rootProjectConfig), eq(LIST_ALL), anyObject());
         verify(dialogFactory, never()).createConfirmDialog(anyString(), anyString(), anyObject(), anyObject());
         verify(gitConsole, never()).printError(anyString());
         verify(notificationManager, never()).showError(anyString());
@@ -226,14 +226,14 @@ public class BranchPresenterTest extends BaseTest {
         inputCallback.accepted(RETURNED_MESSAGE);
 
 
-        verify(service).branchRename(eq(rootProjectDescriptor), eq(REMOTE_BRANCH_NAME), eq(RETURNED_MESSAGE),
+        verify(service).branchRename(eq(rootProjectConfig), eq(REMOTE_BRANCH_NAME), eq(RETURNED_MESSAGE),
                                      asyncRequestCallbackCaptor.capture());
         AsyncRequestCallback<String> renameBranchCallback = asyncRequestCallbackCaptor.getValue();
         GwtReflectionUtils.callOnSuccess(renameBranchCallback, PROJECT_PATH);
 
         verify(selectedBranch, times(2)).getDisplayName();
         verify(service, times(2))
-                .branchList(eq(rootProjectDescriptor), eq(LIST_ALL), anyObject());
+                .branchList(eq(rootProjectConfig), eq(LIST_ALL), anyObject());
         verify(gitConsole, never()).printError(anyString());
         verify(notificationManager, never()).showError(anyString());
         verify(constant, never()).branchRenameFailed();
@@ -262,7 +262,7 @@ public class BranchPresenterTest extends BaseTest {
         inputCallback.accepted(RETURNED_MESSAGE);
 
         verify(service)
-                .branchRename(eq(rootProjectDescriptor), eq(BRANCH_NAME), eq(RETURNED_MESSAGE), asyncRequestCallbackCaptor.capture());
+                .branchRename(eq(rootProjectConfig), eq(BRANCH_NAME), eq(RETURNED_MESSAGE), asyncRequestCallbackCaptor.capture());
         AsyncRequestCallback<String> renameBranchCallback = asyncRequestCallbackCaptor.getValue();
         GwtReflectionUtils.callOnFailure(renameBranchCallback, mock(Throwable.class));
 
@@ -277,12 +277,12 @@ public class BranchPresenterTest extends BaseTest {
         selectBranch();
         presenter.onDeleteClicked();
 
-        verify(service).branchDelete(eq(rootProjectDescriptor), eq(BRANCH_NAME), eq(NEED_DELETING), asyncRequestCallbackCaptor.capture());
+        verify(service).branchDelete(eq(rootProjectConfig), eq(BRANCH_NAME), eq(NEED_DELETING), asyncRequestCallbackCaptor.capture());
         AsyncRequestCallback<String> deleteBranchCallback = asyncRequestCallbackCaptor.getValue();
         GwtReflectionUtils.callOnSuccess(deleteBranchCallback, PROJECT_PATH);
 
         verify(selectedBranch).getName();
-        verify(service, times(2)).branchList(eq(rootProjectDescriptor), eq(LIST_ALL), anyObject());
+        verify(service, times(2)).branchList(eq(rootProjectConfig), eq(LIST_ALL), anyObject());
         verify(constant, never()).branchDeleteFailed();
         verify(gitConsole, never()).printError(anyString());
         verify(notificationManager, never()).showError(anyString());
@@ -293,7 +293,7 @@ public class BranchPresenterTest extends BaseTest {
         selectBranch();
         presenter.onDeleteClicked();
 
-        verify(service).branchDelete(eq(rootProjectDescriptor), eq(BRANCH_NAME), eq(NEED_DELETING), asyncRequestCallbackCaptor.capture());
+        verify(service).branchDelete(eq(rootProjectConfig), eq(BRANCH_NAME), eq(NEED_DELETING), asyncRequestCallbackCaptor.capture());
         AsyncRequestCallback<String> deleteBranchCallback = asyncRequestCallbackCaptor.getValue();
         GwtReflectionUtils.callOnFailure(deleteBranchCallback, mock(Throwable.class));
 
@@ -313,7 +313,7 @@ public class BranchPresenterTest extends BaseTest {
 
         verify(checkoutRequest).setName(eq(BRANCH_NAME));
         verifyNoMoreInteractions(checkoutRequest);
-        verify(service).checkout(eq(rootProjectDescriptor),
+        verify(service).checkout(eq(rootProjectConfig),
                                        eq(checkoutRequest),
                                        asyncRequestCallbackCaptor.capture());
     }
@@ -327,7 +327,7 @@ public class BranchPresenterTest extends BaseTest {
 
         verify(checkoutRequest).setTrackBranch(eq(BRANCH_NAME));
         verifyNoMoreInteractions(checkoutRequest);
-        verify(service).checkout(eq(rootProjectDescriptor),
+        verify(service).checkout(eq(rootProjectConfig),
                                        eq(checkoutRequest),
                                        asyncRequestCallbackCaptor.capture());
     }
@@ -346,7 +346,7 @@ public class BranchPresenterTest extends BaseTest {
 
         verify(checkoutRequest).setTrackBranch(eq(BRANCH_NAME));
         verifyNoMoreInteractions(checkoutRequest);
-        verify(service).checkout(eq(rootProjectDescriptor),
+        verify(service).checkout(eq(rootProjectConfig),
                                        eq(checkoutRequest),
                                        asyncRequestCallbackCaptor.capture());
 
@@ -356,10 +356,10 @@ public class BranchPresenterTest extends BaseTest {
         verify(editorAgent).getOpenedEditors();
         verify(selectedBranch, times(2)).getDisplayName();
         verify(selectedBranch).isRemote();
-        verify(service).checkout(eq(rootProjectDescriptor),
+        verify(service).checkout(eq(rootProjectConfig),
                                        eq(checkoutRequest),
                                        anyObject());
-        verify(service, times(2)).branchList(eq(rootProjectDescriptor), eq(LIST_ALL), anyObject());
+        verify(service, times(2)).branchList(eq(rootProjectConfig), eq(LIST_ALL), anyObject());
         verify(appContext).getCurrentProject();
         verify(gitConsole, never()).printError(anyString());
         verify(notificationManager, never()).showError(anyString());
@@ -382,7 +382,7 @@ public class BranchPresenterTest extends BaseTest {
 
         verify(checkoutRequest).setTrackBranch(eq(BRANCH_NAME));
         verifyNoMoreInteractions(checkoutRequest);
-        verify(service).checkout(eq(rootProjectDescriptor),
+        verify(service).checkout(eq(rootProjectConfig),
                                        eq(checkoutRequest),
                                        asyncRequestCallbackCaptor.capture());
         AsyncRequestCallback<String> checkoutBranchCallback = asyncRequestCallbackCaptor.getValue();
@@ -391,7 +391,7 @@ public class BranchPresenterTest extends BaseTest {
         verify(editorAgent).getOpenedEditors();
         verify(selectedBranch, times(2)).getDisplayName();
         verify(selectedBranch).isRemote();
-        verify(service, times(2)).branchList(eq(rootProjectDescriptor), eq(LIST_ALL), anyObject());
+        verify(service, times(2)).branchList(eq(rootProjectConfig), eq(LIST_ALL), anyObject());
         verify(eventBus).fireEvent(Matchers.<FileContentUpdateEvent>anyObject());
         verify(appContext).getCurrentProject();
     }
@@ -404,7 +404,7 @@ public class BranchPresenterTest extends BaseTest {
 
         verify(checkoutRequest).setTrackBranch(eq(BRANCH_NAME));
         verifyNoMoreInteractions(checkoutRequest);
-        verify(service).checkout(eq(rootProjectDescriptor),
+        verify(service).checkout(eq(rootProjectConfig),
                                        eq(checkoutRequest),
                                        asyncRequestCallbackCaptor.capture());
         AsyncRequestCallback<String> checkoutBranchCallback = asyncRequestCallbackCaptor.getValue();
@@ -431,8 +431,8 @@ public class BranchPresenterTest extends BaseTest {
         GwtReflectionUtils.callOnSuccess(createBranchCallback, selectedBranch);
 
         verify(constant).branchTypeNew();
-        verify(service).branchCreate(eq(rootProjectDescriptor), anyString(), anyString(), anyObject());
-        verify(service, times(2)).branchList(eq(rootProjectDescriptor), eq(LIST_ALL), anyObject());
+        verify(service).branchCreate(eq(rootProjectConfig), anyString(), anyString(), anyObject());
+        verify(service, times(2)).branchList(eq(rootProjectConfig), eq(LIST_ALL), anyObject());
     }
 
     @Test

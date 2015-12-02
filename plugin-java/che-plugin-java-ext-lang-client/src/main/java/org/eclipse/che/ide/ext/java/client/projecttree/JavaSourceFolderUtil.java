@@ -11,10 +11,10 @@
 package org.eclipse.che.ide.ext.java.client.projecttree;
 
 import org.eclipse.che.api.project.shared.dto.ItemReference;
-import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
+import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.commons.annotation.Nullable;
 import org.eclipse.che.ide.api.app.CurrentProject;
-import org.eclipse.che.ide.api.project.node.HasProjectDescriptor;
+import org.eclipse.che.ide.api.project.node.HasProjectConfig;
 import org.eclipse.che.ide.api.project.tree.TreeNode;
 import org.eclipse.che.ide.api.project.tree.VirtualFile;
 import org.eclipse.che.ide.ext.java.client.project.node.JavaFileNode;
@@ -34,15 +34,15 @@ import java.util.Map;
 public class JavaSourceFolderUtil {
 
     /** Indicates if the specified item is a source folder. */
-    public static boolean isSourceFolder(ItemReference item, HasProjectDescriptor projectNode) {
+    public static boolean isSourceFolder(ItemReference item, HasProjectConfig projectNode) {
         if ("folder".equals(item.getType())) {
             String projectBuilder = getProjectBuilder(projectNode);
 
             if (projectBuilder != null) {
-                ProjectDescriptor projectDescriptor = projectNode.getProjectDescriptor();
-                Map<String, List<String>> attributes = projectDescriptor.getAttributes();
+                ProjectConfigDto projectConfig = projectNode.getProjectConfig();
+                Map<String, List<String>> attributes = projectConfig.getAttributes();
 
-                final String projectPath = projectDescriptor.getPath();
+                final String projectPath = projectConfig.getPath();
                 final String itemPath = item.getPath();
 
                 List<String> sourceFolders = attributes.get(projectBuilder + ".source.folder");
@@ -79,10 +79,10 @@ public class JavaSourceFolderUtil {
      */
     @NotNull
     public static List<String> getSourceFolders(TreeNode<?> node) {
-        HasProjectDescriptor project = node.getProject();
+        HasProjectConfig project = node.getProject();
         String projectBuilder = getProjectBuilder(project);
 
-        return doGetSourceFolders(project.getProjectDescriptor(), projectBuilder);
+        return doGetSourceFolders(project.getProjectConfig(), projectBuilder);
     }
 
     /**
@@ -91,18 +91,18 @@ public class JavaSourceFolderUtil {
      */
     @NotNull
     public static List<String> getSourceFolders(@NotNull CurrentProject project) {
-        ProjectDescriptor descriptor = project.getProjectDescription();
-        String projectBuilder = getProjectBuilder(descriptor.getType());
+        ProjectConfigDto projectConfig = project.getProjectConfig();
+        String projectBuilder = getProjectBuilder(projectConfig.getType());
 
-        return doGetSourceFolders(descriptor, projectBuilder);
+        return doGetSourceFolders(projectConfig, projectBuilder);
     }
 
     @NotNull
-    private static List<String> doGetSourceFolders(ProjectDescriptor descriptor, String projectBuilder) {
+    private static List<String> doGetSourceFolders(ProjectConfigDto projectConfig, String projectBuilder) {
         List<String> allSourceFolders = new LinkedList<>();
 
-        String projectPath = removeEndingPathSeparator(descriptor.getPath());
-        Map<String, List<String>> attributes = descriptor.getAttributes();
+        String projectPath = removeEndingPathSeparator(projectConfig.getPath());
+        Map<String, List<String>> attributes = projectConfig.getAttributes();
 
         List<String> sourceFolders = attributes.get(projectBuilder + ".source.folder");
         if (sourceFolders != null) {
@@ -154,8 +154,8 @@ public class JavaSourceFolderUtil {
     }
 
     @Nullable
-    public static String getProjectBuilder(HasProjectDescriptor node) {
-        return getProjectBuilder(node.getProjectDescriptor().getType());
+    public static String getProjectBuilder(HasProjectConfig node) {
+        return getProjectBuilder(node.getProjectConfig().getType());
     }
 
     @Nullable

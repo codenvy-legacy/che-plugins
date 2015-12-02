@@ -13,7 +13,6 @@ package org.eclipse.che.ide.ext.git.client.remove;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.googlecode.gwt.test.utils.GwtReflectionUtils;
 
-import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.editor.EditorInput;
 import org.eclipse.che.ide.api.editor.EditorPartPresenter;
@@ -23,7 +22,7 @@ import org.eclipse.che.ide.ext.git.client.BaseTest;
 import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.eclipse.che.ide.project.node.FileReferenceNode;
 import org.eclipse.che.ide.project.node.FolderReferenceNode;
-import org.eclipse.che.ide.project.node.ProjectDescriptorNode;
+import org.eclipse.che.ide.project.node.ProjectNode;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -31,7 +30,6 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import java.lang.reflect.Method;
-import java.util.List;
 import java.util.NavigableMap;
 import java.util.TreeMap;
 
@@ -131,7 +129,7 @@ public class RemoveFromIndexPresenterTest extends BaseTest {
     @Test
     public void testShowDialogWhenRootFolderIsSelected() throws Exception {
         Selection selection = mock(Selection.class);
-        ProjectDescriptorNode project = mock(ProjectDescriptorNode.class);
+        ProjectNode project = mock(ProjectNode.class);
         when(project.getStorablePath()).thenReturn(PROJECT_PATH);
         when(selection.getHeadElement()).thenReturn(project);
         when(selectionAgent.getSelection()).thenReturn(selection);
@@ -158,14 +156,12 @@ public class RemoveFromIndexPresenterTest extends BaseTest {
                 onSuccess.invoke(callback, EMPTY_TEXT);
                 return callback;
             }
-        }).when(service).remove((ProjectDescriptor)anyObject(), (List<String>)anyObject(), anyBoolean(),
-                                (AsyncRequestCallback<String>)anyObject());
+        }).when(service).remove(anyObject(), anyObject(), anyBoolean(), anyObject());
 
         presenter.showDialog();
         presenter.onRemoveClicked();
 
-        verify(service).remove(eq(rootProjectDescriptor), (List<String>)anyObject(), eq(REMOVED),
-                               (AsyncRequestCallback<String>)anyObject());
+        verify(service).remove(eq(rootProjectConfig), anyObject(), eq(REMOVED), anyObject());
         verify(notificationManager).showNotification((Notification)anyObject());
         verify(console).printInfo(anyString());
         verify(constant, times(2)).removeFilesSuccessfull();
@@ -185,14 +181,12 @@ public class RemoveFromIndexPresenterTest extends BaseTest {
                 onFailure.invoke(callback, mock(Throwable.class));
                 return callback;
             }
-        }).when(service).remove((ProjectDescriptor)anyObject(), (List<String>)anyObject(), anyBoolean(),
-                                (AsyncRequestCallback<String>)anyObject());
+        }).when(service).remove(anyObject(), anyObject(), anyBoolean(), anyObject());
 
         presenter.showDialog();
         presenter.onRemoveClicked();
 
-        verify(service).remove(eq(rootProjectDescriptor), (List<String>)anyObject(), eq(REMOVED),
-                               (AsyncRequestCallback<String>)anyObject());
+        verify(service).remove(eq(rootProjectConfig), anyObject(), eq(REMOVED), anyObject());
         verify(constant).removeFilesFailed();
         verify(console).printError(anyString());
         verify(notificationManager).showNotification((Notification)anyObject());

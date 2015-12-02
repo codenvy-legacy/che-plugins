@@ -451,7 +451,7 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
         JarFileNode jarFileNode = javaNodeManager.getJavaNodeFactory()
                                                  .newJarFileNode(jarEntry,
                                                                  null,
-                                                                 appContext.getCurrentProject().getProjectDescription(),
+                                                                 appContext.getCurrentProject().getProjectConfig(),
                                                                  javaNodeManager.getJavaSettingsProvider().getSettings());
 
         openFile(jarFileNode);

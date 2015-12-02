@@ -10,15 +10,13 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.git.client.commit;
 
+import com.googlecode.gwt.test.utils.GwtReflectionUtils;
+
 import org.eclipse.che.api.git.shared.Revision;
-import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.ext.git.client.BaseTest;
 import org.eclipse.che.ide.ext.git.client.DateTimeFormatter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
-
-import com.googlecode.gwt.test.utils.GwtReflectionUtils;
-
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -108,7 +106,7 @@ public class CommitPresenterTest extends BaseTest {
                 onSuccess.invoke(callback, revision);
                 return callback;
             }
-        }).when(service).commit((ProjectDescriptor)anyObject(), anyString(), anyBoolean(), anyBoolean(),
+        }).when(service).commit(anyObject(), anyString(), anyBoolean(), anyBoolean(),
                                 (AsyncRequestCallback<Revision>)anyObject());
 
         presenter.showDialog();
@@ -120,7 +118,7 @@ public class CommitPresenterTest extends BaseTest {
         verify(view).close();
         verify(view).setMessage(eq(EMPTY_TEXT));
 
-        verify(service).commit(eq(rootProjectDescriptor), eq(COMMIT_TEXT), eq(ALL_FILE_INCLUDES), eq(IS_OVERWRITTEN),
+        verify(service).commit(eq(rootProjectConfig), eq(COMMIT_TEXT), eq(ALL_FILE_INCLUDES), eq(IS_OVERWRITTEN),
                                (AsyncRequestCallback<Revision>)anyObject());
         verify(console).printInfo(anyString());
         verify(notificationManager).showNotification((Notification)anyObject());
@@ -140,7 +138,7 @@ public class CommitPresenterTest extends BaseTest {
                 onFailure.invoke(callback, mock(Throwable.class));
                 return callback;
             }
-        }).when(service).commit((ProjectDescriptor)anyObject(), anyString(), anyBoolean(), anyBoolean(),
+        }).when(service).commit(anyObject(), anyString(), anyBoolean(), anyBoolean(),
                                 (AsyncRequestCallback<Revision>)anyObject());
 
         presenter.showDialog();
@@ -152,7 +150,7 @@ public class CommitPresenterTest extends BaseTest {
         verify(view).close();
         verify(view, times(0)).setMessage(anyString());
 
-        verify(service).commit(eq(rootProjectDescriptor), eq(COMMIT_TEXT), eq(ALL_FILE_INCLUDES), eq(IS_OVERWRITTEN),
+        verify(service).commit(eq(rootProjectConfig), eq(COMMIT_TEXT), eq(ALL_FILE_INCLUDES), eq(IS_OVERWRITTEN),
                                (AsyncRequestCallback<Revision>)anyObject());
         verify(constant).commitFailed();
         verify(console).printError(anyString());

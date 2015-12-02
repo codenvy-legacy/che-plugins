@@ -65,7 +65,7 @@ public class QuickDocPresenter implements QuickDocumentation, QuickDocView.Actio
         final PositionConverter.PixelCoordinates coordinates = editor.getPositionConverter().offsetToPixel(offset);
         view.show(caContext + "/jdt/" + workspaceId + "/javadoc/find?fqn=" +
                   JavaSourceFolderUtil.getFQNForFile(editor.getEditorInput().getFile()) + "&projectpath=" +
-                  appContext.getCurrentProject().getProjectDescription().getPath() + "&offset=" + offset, coordinates.getX(),
+                  appContext.getCurrentProject().getProjectConfig().getPath() + "&offset=" + offset, coordinates.getX(),
                   coordinates.getY());
     }
 

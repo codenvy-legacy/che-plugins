@@ -349,7 +349,7 @@ public class RenamePresenter implements ActionDelegate {
             }
         }
 
-        String projectPath = appContext.getCurrentProject().getProjectDescription().getPath();
+        String projectPath = appContext.getCurrentProject().getProjectConfig().getPath();
         dto.setProjectPath(projectPath);
 
         return dto;

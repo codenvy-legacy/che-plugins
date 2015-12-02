@@ -14,16 +14,16 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
-import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.api.promises.client.callback.AsyncPromiseHelper;
 import org.eclipse.che.api.promises.client.js.JsPromiseError;
 import org.eclipse.che.api.promises.client.js.Promises;
+import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.commons.annotation.Nullable;
 import org.eclipse.che.ide.api.event.FileEvent;
 import org.eclipse.che.ide.api.icon.IconRegistry;
 import org.eclipse.che.ide.api.project.node.HasAction;
-import org.eclipse.che.ide.api.project.node.HasProjectDescriptor;
+import org.eclipse.che.ide.api.project.node.HasProjectConfig;
 import org.eclipse.che.ide.api.project.node.Node;
 import org.eclipse.che.ide.api.project.node.settings.NodeSettings;
 import org.eclipse.che.ide.api.project.tree.VirtualFile;
@@ -52,11 +52,11 @@ public class JarFileNode extends AbstractJarEntryNode implements VirtualFile, Ha
     @Inject
     public JarFileNode(@Assisted JarEntry jarEntry,
                        @Nullable @Assisted Integer libId,
-                       @Assisted ProjectDescriptor projectDescriptor,
+                       @Assisted ProjectConfigDto projectConfig,
                        @Assisted NodeSettings nodeSettings,
                        @NotNull JavaNodeManager nodeManager,
                        @NotNull IconRegistry iconRegistry) {
-        super(jarEntry, libId, projectDescriptor, nodeSettings, nodeManager);
+        super(jarEntry, libId, projectConfig, nodeSettings, nodeManager);
         this.iconRegistry = iconRegistry;
     }
 
@@ -129,7 +129,7 @@ public class JarFileNode extends AbstractJarEntryNode implements VirtualFile, Ha
     /** {@inheritDoc} */
     @Nullable
     @Override
-    public HasProjectDescriptor getProject() {
+    public HasProjectConfig getProject() {
         return this;
     }
 
@@ -147,7 +147,7 @@ public class JarFileNode extends AbstractJarEntryNode implements VirtualFile, Ha
             public void makeCall(final AsyncCallback<String> callback) {
                 JavaNavigationService javaService = nodeManager.getJavaService();
                 if (libId != null) {
-                    javaService.getContent(getProjectDescriptor().getPath(), libId, getData().getPath(),
+                    javaService.getContent(getProjectConfig().getPath(), libId, getData().getPath(),
                                            new AsyncRequestCallback<String>(new StringUnmarshaller()) {
                                                @Override
                                                protected void onSuccess(String result) {
@@ -160,7 +160,7 @@ public class JarFileNode extends AbstractJarEntryNode implements VirtualFile, Ha
                                                }
                                            });
                 } else {
-                    javaService.getContent(getProjectDescriptor().getPath(), getData().getPath(),
+                    javaService.getContent(getProjectConfig().getPath(), getData().getPath(),
                                            new AsyncRequestCallback<String>(new StringUnmarshaller()) {
                                                @Override
                                                protected void onSuccess(String result) {
@@ -190,6 +190,6 @@ public class JarFileNode extends AbstractJarEntryNode implements VirtualFile, Ha
     private SVGImage getFileIcon() {
         String[] split = getData().getName().split("\\.");
         String ext = split[split.length - 1];
-        return iconRegistry.getIcon(getProjectDescriptor().getType() + "/" + ext + ".file.small.icon").getSVGImage();
+        return iconRegistry.getIcon(getProjectConfig().getType() + "/" + ext + ".file.small.icon").getSVGImage();
     }
 }

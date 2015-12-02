@@ -60,7 +60,7 @@ public class SettingsServiceClientImpl implements SettingsServiceClient {
             return "";
         }
 
-        return currentProject.getProjectDescription().getPath();
+        return currentProject.getProjectConfig().getPath();
     }
 
     /** {@inheritDoc} */

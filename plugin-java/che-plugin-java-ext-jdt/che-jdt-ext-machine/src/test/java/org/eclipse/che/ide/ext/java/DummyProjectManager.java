@@ -15,7 +15,6 @@ import org.eclipse.che.api.core.ConflictException;
 import org.eclipse.che.api.core.ForbiddenException;
 import org.eclipse.che.api.core.NotFoundException;
 import org.eclipse.che.api.core.ServerException;
-import org.eclipse.che.api.core.model.workspace.ModuleConfig;
 import org.eclipse.che.api.core.model.workspace.ProjectConfig;
 import org.eclipse.che.api.core.notification.EventService;
 import org.eclipse.che.api.project.server.FolderEntry;
@@ -31,7 +30,6 @@ import org.eclipse.che.api.project.server.type.AttributeValue;
 import org.eclipse.che.api.project.server.type.ProjectTypeRegistry;
 import org.eclipse.che.api.project.shared.dto.SourceEstimation;
 import org.eclipse.che.api.vfs.server.VirtualFileSystemRegistry;
-import org.eclipse.che.api.workspace.shared.dto.ModuleConfigDto;
 import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.commons.env.EnvironmentContext;
 import org.eclipse.che.commons.user.UserImpl;
@@ -145,11 +143,11 @@ public class DummyProjectManager implements ProjectManager {
     }
 
     @Override
-    public List<ModuleConfig> getProjectModules(Project project) throws ServerException,
-                                                                        ForbiddenException,
-                                                                        ConflictException,
-                                                                        IOException,
-                                                                        NotFoundException {
+    public List<ProjectConfig> getProjectModules(Project project) throws ServerException,
+                                                                         ForbiddenException,
+                                                                         ConflictException,
+                                                                         IOException,
+                                                                         NotFoundException {
         return Collections.emptyList();
     }
 
@@ -177,7 +175,7 @@ public class DummyProjectManager implements ProjectManager {
     @Override
     public ProjectConfigDto addModule(String workspace,
                                       String modulePath,
-                                      ModuleConfigDto moduleConfig,
+                                      ProjectConfigDto moduleConfig,
                                       Map<String, String> options)
             throws ConflictException, ForbiddenException, ServerException, NotFoundException {
         throw new UnsupportedOperationException();
@@ -202,15 +200,23 @@ public class DummyProjectManager implements ProjectManager {
     }
 
     @Override
-    public boolean delete(String workspace, String path)
-            throws ServerException, ForbiddenException, NotFoundException, ConflictException {
+    public void delete(String workspace, String path) throws ServerException, ForbiddenException, NotFoundException, ConflictException {
+        deleteEntry(workspace, path);
+    }
+
+    private void deleteEntry(String workspace, String deleteEntryPath) throws ServerException, NotFoundException, ForbiddenException {
         final FolderEntry root = getProjectsRoot(workspace);
-        final VirtualFileEntry entry = root.getChild(path);
-        if (entry == null) {
-            return false;
-        }
+        final VirtualFileEntry entry = root.getChild(deleteEntryPath);
+
         entry.remove();
-        return true;
+    }
+
+    @Override
+    public void deleteModule(String workspaceId, String pathToParent, String pathToModule) throws ServerException,
+                                                                                                  NotFoundException,
+                                                                                                  ForbiddenException,
+                                                                                                  ConflictException {
+        deleteEntry(workspaceId, pathToModule);
     }
 
     @Override

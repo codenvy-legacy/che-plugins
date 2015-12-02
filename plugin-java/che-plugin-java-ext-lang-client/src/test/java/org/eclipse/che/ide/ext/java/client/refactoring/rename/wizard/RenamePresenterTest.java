@@ -13,12 +13,12 @@ package org.eclipse.che.ide.ext.java.client.refactoring.rename.wizard;
 import com.google.gwtmockito.GwtMockitoTestRunner;
 import com.google.web.bindery.event.shared.EventBus;
 
-import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.api.promises.client.Function;
 import org.eclipse.che.api.promises.client.FunctionException;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.api.promises.client.PromiseError;
+import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.editor.EditorAgent;
@@ -121,7 +121,7 @@ public class RenamePresenterTest {
     @Mock
     private CurrentProject           currentProject;
     @Mock
-    private ProjectDescriptor        projectDescriptor;
+    private ProjectConfigDto         projectConfig;
     @Mock
     private PromiseError             promiseError;
     @Mock
@@ -163,12 +163,12 @@ public class RenamePresenterTest {
         when(dtoFactory.createDto(RenameSettings.class)).thenReturn(renameSettings);
         when(refactoringSession.getSessionId()).thenReturn(SESSION_ID);
         when(appContext.getCurrentProject()).thenReturn(currentProject);
-        when(currentProject.getProjectDescription()).thenReturn(projectDescriptor);
+        when(currentProject.getProjectConfig()).thenReturn(projectConfig);
         when(javaFileNode.getParent()).thenReturn(javaFileNode);
         when(javaFileNode.getName()).thenReturn(TEXT);
         when(promiseError.getMessage()).thenReturn(TEXT);
         when(session.getOldName()).thenReturn(TEXT);
-        when(projectDescriptor.getPath()).thenReturn(PROJECT_PATH);
+        when(projectConfig.getPath()).thenReturn(PROJECT_PATH);
         when(session.getSessionId()).thenReturn(SESSION_ID);
         when(refactorService.createRenameRefactoring(createRenameRefactoringDto)).thenReturn(renameRefactoringSessionPromise);
         List<?> selectedElements = Collections.singletonList(javaFileNode);

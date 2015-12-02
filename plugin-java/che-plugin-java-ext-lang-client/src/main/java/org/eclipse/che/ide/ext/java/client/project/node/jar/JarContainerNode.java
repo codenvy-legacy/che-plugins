@@ -13,8 +13,8 @@ package org.eclipse.che.ide.ext.java.client.project.node.jar;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
-import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.api.promises.client.Promise;
+import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.ide.api.project.node.Node;
 import org.eclipse.che.ide.api.project.node.settings.NodeSettings;
 import org.eclipse.che.ide.ext.java.client.project.node.JavaNodeManager;
@@ -30,16 +30,16 @@ import java.util.List;
 public class JarContainerNode extends AbstractJavaSyntheticNode<Jar> {
     @Inject
     public JarContainerNode(@Assisted Jar jar,
-                            @Assisted ProjectDescriptor projectDescriptor,
+                            @Assisted ProjectConfigDto projectConfig,
                             @Assisted NodeSettings nodeSettings,
                             @NotNull JavaNodeManager javaResourceNodeManager) {
-        super(jar, projectDescriptor, nodeSettings, javaResourceNodeManager);
+        super(jar, projectConfig, nodeSettings, javaResourceNodeManager);
     }
 
     @NotNull
     @Override
     protected Promise<List<Node>> getChildrenImpl() {
-        return nodeManager.getJarLibraryChildren(getProjectDescriptor(), getData().getId(), getSettings());
+        return nodeManager.getJarLibraryChildren(getProjectConfig(), getData().getId(), getSettings());
     }
 
     @Override

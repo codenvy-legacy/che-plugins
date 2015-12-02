@@ -73,7 +73,7 @@ public class RemoteDebugActionTest {
     @Before
     public void setUp() {
         when(appContext.getCurrentProject()).thenReturn(currentProject);
-        when(currentProject.getProjectDescription().getType()).thenReturn(PROJECT_TYPE);
+        when(currentProject.getProjectConfig().getType()).thenReturn(PROJECT_TYPE);
         when(typeRegistry.getProjectType(PROJECT_TYPE)).thenReturn(definition);
         when(definition.getAttributeDescriptors()).thenReturn(ImmutableList.of(attributeDescriptor));
         when(attributeDescriptor.getName()).thenReturn(Constants.LANGUAGE);
@@ -101,7 +101,7 @@ public class RemoteDebugActionTest {
         action.updateProjectAction(actionEvent);
 
         verify(appContext).getCurrentProject();
-        verify(currentProject, times(2)).getProjectDescription();
+        verify(currentProject, times(2)).getProjectConfig();
         verify(typeRegistry).getProjectType(PROJECT_TYPE);
         verify(actionEvent.getPresentation()).setEnabledAndVisible(true);
     }
@@ -113,7 +113,7 @@ public class RemoteDebugActionTest {
         action.updateProjectAction(actionEvent);
 
         verify(appContext).getCurrentProject();
-        verify(currentProject, times(2)).getProjectDescription();
+        verify(currentProject, times(2)).getProjectConfig();
         verify(typeRegistry).getProjectType(PROJECT_TYPE);
         verify(actionEvent.getPresentation(), never()).setEnabledAndVisible(true);
     }

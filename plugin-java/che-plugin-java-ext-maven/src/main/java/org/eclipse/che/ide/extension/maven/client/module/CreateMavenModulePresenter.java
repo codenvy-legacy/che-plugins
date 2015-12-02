@@ -15,8 +15,6 @@ import com.google.inject.Singleton;
 
 import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
 import org.eclipse.che.api.project.shared.dto.GeneratorDescription;
-import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
-import org.eclipse.che.api.workspace.shared.dto.ModuleConfigDto;
 import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
@@ -28,8 +26,8 @@ import org.eclipse.che.ide.extension.maven.client.MavenArchetype;
 import org.eclipse.che.ide.extension.maven.client.MavenExtension;
 import org.eclipse.che.ide.extension.maven.client.MavenLocalizationConstant;
 import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
-import org.eclipse.che.ide.project.node.ModuleDescriptorNode;
-import org.eclipse.che.ide.project.node.ProjectDescriptorNode;
+import org.eclipse.che.ide.project.node.ModuleNode;
+import org.eclipse.che.ide.project.node.ProjectNode;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
@@ -140,31 +138,37 @@ public class CreateMavenModulePresenter implements CreateMavenModuleView.ActionD
 
         projectService.createModule(pathToSelectedNode,
                                     projectConfig,
-                                    new AsyncRequestCallback<ModuleConfigDto>(unmarshallerFactory.newUnmarshaller(ModuleConfigDto.class)) {
+                                    new AsyncRequestCallback<ProjectConfigDto>(
+                                            unmarshallerFactory.newUnmarshaller(ProjectConfigDto.class)) {
                                         @Override
-                                        protected void onSuccess(ModuleConfigDto addedModule) {
+                                        protected void onSuccess(ProjectConfigDto addedModule) {
                                             view.close();
                                             view.showButtonLoader(false);
 
                                             Selection<?> selection = selectionAgent.getSelection();
 
-                                            Object parentFolder = selection.getHeadElement();
+                                            HasStorablePath parentFolder = (HasStorablePath)selection.getHeadElement();
 
-                                            boolean isParentModule = parentFolder instanceof ModuleDescriptorNode;
-                                            boolean isParentProject = parentFolder instanceof ProjectDescriptorNode;
+                                            boolean isModule = parentFolder instanceof ModuleNode;
+                                            boolean isProject = parentFolder instanceof ProjectNode;
 
-                                            ProjectDescriptor descriptor = appContext.getCurrentProject().getProjectDescription();
+                                            ProjectConfigDto projectConfigDto = appContext.getCurrentProject().getProjectConfig();
 
-                                            if (isParentModule) {
-                                                reloadModuleChildren((ModuleDescriptorNode)parentFolder, addedModule, descriptor);
+                                            ProjectConfigDto parentConfig =
+                                                    projectConfigDto.findModule(parentFolder.getStorablePath());
 
-                                                return;
+                                            if (parentConfig == null) {
+                                                throw new IllegalArgumentException("Parent folder not fount for " + addedModule.getPath());
                                             }
 
-                                            if (isParentProject) {
-                                                descriptor.getModules().add(addedModule);
+                                            parentConfig.getModules().add(addedModule);
 
-                                                projectExplorer.reloadChildren((ProjectDescriptorNode)parentFolder);
+                                            if (isModule) {
+                                                projectExplorer.reloadChildren((ModuleNode)parentFolder);
+                                            }
+
+                                            if (isProject) {
+                                                projectExplorer.reloadChildren((ProjectNode)parentFolder);
                                             }
                                         }
 
@@ -189,40 +193,6 @@ public class CreateMavenModulePresenter implements CreateMavenModuleView.ActionD
         }
 
         return "";
-    }
-
-    private void reloadModuleChildren(HasStorablePath parentFolder, ModuleConfigDto module, ProjectDescriptor descriptor) {
-        for (ModuleConfigDto configDto : descriptor.getModules()) {
-            ModuleConfigDto foundNode = findModuleRecursive(configDto, parentFolder.getStorablePath());
-
-            if (foundNode != null) {
-                configDto.getModules().add(module);
-
-                projectExplorer.reloadChildren((ModuleDescriptorNode)parentFolder);
-
-                return;
-            }
-        }
-    }
-
-    private ModuleConfigDto findModuleRecursive(ModuleConfigDto moduleConfig, String pathToParent) {
-        if (pathToParent.equals(moduleConfig.getPath())) {
-            return moduleConfig;
-        }
-
-        for (ModuleConfigDto configDto : moduleConfig.getModules()) {
-            if (pathToParent.equals(configDto.getPath())) {
-                return configDto;
-            }
-
-            ModuleConfigDto foundConfig = findModuleRecursive(configDto, pathToParent);
-
-            if (foundConfig != null) {
-                return foundConfig;
-            }
-        }
-
-        return null;
     }
 
     private void showErrorDialog(String error) {

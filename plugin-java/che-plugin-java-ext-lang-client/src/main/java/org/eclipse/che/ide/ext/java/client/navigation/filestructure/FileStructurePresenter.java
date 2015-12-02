@@ -91,7 +91,7 @@ public class FileStructurePresenter implements FileStructure.ActionDelegate {
         activeEditor = ((EmbeddedTextEditorPresenter)editorPartPresenter);
         VirtualFile file = activeEditor.getEditorInput().getFile();
 
-        String projectPath = file.getProject().getProjectDescriptor().getPath();
+        String projectPath = file.getProject().getProjectConfig().getPath();
         String fqn = JavaSourceFolderUtil.getFQNForFile(file);
 
         Promise<CompilationUnit> promice = javaNavigationService.getCompilationUnit(projectPath, fqn, showInheritedMembers);
@@ -115,7 +115,7 @@ public class FileStructurePresenter implements FileStructure.ActionDelegate {
     @Override
     public void actionPerformed(final Member member) {
         if (member.isBinary()) {
-            javaNodeManager.getClassNode(context.getCurrentProject().getProjectDescription(), member.getLibId(), member.getRootPath())
+            javaNodeManager.getClassNode(context.getCurrentProject().getProjectConfig(), member.getLibId(), member.getRootPath())
                            .then(new Operation<Node>() {
                                @Override
                                public void apply(Node node) throws OperationException {

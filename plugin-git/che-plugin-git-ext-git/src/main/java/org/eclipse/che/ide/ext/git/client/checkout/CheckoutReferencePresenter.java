@@ -17,7 +17,7 @@ import com.google.web.bindery.event.shared.EventBus;
 import org.eclipse.che.api.git.gwt.client.GitServiceClient;
 import org.eclipse.che.api.git.shared.CheckoutRequest;
 import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
-import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
+import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.editor.EditorPartPresenter;
@@ -96,48 +96,48 @@ public class CheckoutReferencePresenter implements CheckoutReferenceView.ActionD
     @Override
     public void onCheckoutClicked(final String reference) {
         view.close();
-        final ProjectDescriptor project = appContext.getCurrentProject().getRootProject();
+        final ProjectConfigDto project = appContext.getCurrentProject().getRootProject();
         service.checkout(project,
-                               dtoFactory.createDto(CheckoutRequest.class)
-                                         .withName(reference)
-                                         .withCreateNew(false),
-                               new AsyncRequestCallback<String>() {
-                                   @Override
-                                   protected void onSuccess(String result) {
-                                       //In this case we can have unconfigured state of the project,
-                                       //so we must repeat the logic which is performed when we open a project
-                                       Unmarshallable<ProjectDescriptor> unmarshaller =
-                                               dtoUnmarshallerFactory.newUnmarshaller(ProjectDescriptor.class);
-                                       projectService.getProject(project.getPath(),
-                                                                 new AsyncRequestCallback<ProjectDescriptor>(unmarshaller) {
-                                                                     @Override
-                                                                     protected void onSuccess(final ProjectDescriptor result) {
-                                                                         if (!result.getProblems().isEmpty()) {
-                                                                             eventBus.fireEvent(new OpenProjectEvent(result));
-                                                                         } else {
-                                                                             projectExplorer.reloadChildren();
+                         dtoFactory.createDto(CheckoutRequest.class)
+                                   .withName(reference)
+                                   .withCreateNew(false),
+                         new AsyncRequestCallback<String>() {
+                             @Override
+                             protected void onSuccess(String result) {
+                                 //In this case we can have unconfigured state of the project,
+                                 //so we must repeat the logic which is performed when we open a project
+                                 Unmarshallable<ProjectConfigDto> unmarshaller =
+                                         dtoUnmarshallerFactory.newUnmarshaller(ProjectConfigDto.class);
+                                 projectService.getProject(project.getPath(),
+                                                           new AsyncRequestCallback<ProjectConfigDto>(unmarshaller) {
+                                                               @Override
+                                                               protected void onSuccess(final ProjectConfigDto result) {
+                                                                   if (!result.getProblems().isEmpty()) {
+                                                                       eventBus.fireEvent(new OpenProjectEvent(result));
+                                                                   } else {
+                                                                       projectExplorer.reloadChildren();
 
-                                                                             updateOpenedFiles();
-                                                                         }
-                                                                     }
+                                                                       updateOpenedFiles();
+                                                                   }
+                                                               }
 
-                                                                     @Override
-                                                                     protected void onFailure(Throwable exception) {
-                                                                         Log.error(getClass(), "Can't get project by path");
-                                                                     }
-                                                                 });
-                                   }
+                                                               @Override
+                                                               protected void onFailure(Throwable exception) {
+                                                                   Log.error(getClass(), "Can't get project by path");
+                                                               }
+                                                           });
+                             }
 
-                                   @Override
-                                   protected void onFailure(Throwable exception) {
-                                       final String errorMessage = (exception.getMessage() != null)
-                                                                   ? exception.getMessage()
-                                                                   : constant.checkoutFailed(reference);
-                                       console.printError(errorMessage);
-                                       notificationManager.showError(errorMessage);
-                                   }
-                               }
-                              );
+                             @Override
+                             protected void onFailure(Throwable exception) {
+                                 final String errorMessage = (exception.getMessage() != null)
+                                                             ? exception.getMessage()
+                                                             : constant.checkoutFailed(reference);
+                                 console.printError(errorMessage);
+                                 notificationManager.showError(errorMessage);
+                             }
+                         }
+                        );
     }
 
     private void updateOpenedFiles() {

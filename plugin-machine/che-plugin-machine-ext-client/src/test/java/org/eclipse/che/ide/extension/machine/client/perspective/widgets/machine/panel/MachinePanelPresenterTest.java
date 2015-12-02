@@ -17,11 +17,11 @@ import com.google.web.bindery.event.shared.EventBus;
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
 import org.eclipse.che.api.machine.shared.dto.MachineDto;
 import org.eclipse.che.api.machine.shared.dto.MachineStateDto;
-import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.api.promises.client.PromiseError;
+import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.api.workspace.shared.dto.UsersWorkspaceDto;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
@@ -94,7 +94,7 @@ public class MachinePanelPresenterTest {
     @Mock
     private CurrentProject                 currentProject;
     @Mock
-    private ProjectDescriptor              projectDescriptor;
+    private ProjectConfigDto               projectConfig;
     @Mock
     private MachineDto                     machineDescriptor1;
     @Mock

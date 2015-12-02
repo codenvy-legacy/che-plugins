@@ -11,7 +11,7 @@
 package org.eclipse.che.ide.ext.svn.client.action;
 
 import org.eclipse.che.api.analytics.client.logger.AnalyticsEventLogger;
-import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
+import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.ide.api.action.ActionEvent;
 import org.eclipse.che.ide.api.action.ProjectAction;
 import org.eclipse.che.ide.api.app.AppContext;
@@ -101,7 +101,7 @@ public abstract class SubversionAction extends ProjectAction {
         boolean isSubversionWC = false;
 
         if (currentProject != null) {
-            final ProjectDescriptor rootProjectDescriptor = currentProject.getRootProject();
+            final ProjectConfigDto rootProjectDescriptor = currentProject.getRootProject();
             final List<String> mixins = rootProjectDescriptor.getMixins();
             if (mixins != null && mixins.contains(SubversionTypeConstant.SUBVERSION_MIXIN_TYPE)) {
                 isSubversionWC = true;

@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.maven.server.projecttype.handler;
 
+import org.eclipse.che.api.core.model.project.type.ProjectType;
 import org.eclipse.che.api.core.notification.EventService;
 import org.eclipse.che.api.core.rest.HttpJsonHelper;
 import org.eclipse.che.api.project.server.DefaultProjectManager;
@@ -17,7 +18,7 @@ import org.eclipse.che.api.project.server.Project;
 import org.eclipse.che.api.project.server.VirtualFileEntry;
 import org.eclipse.che.api.project.server.handlers.ProjectHandler;
 import org.eclipse.che.api.project.server.handlers.ProjectHandlerRegistry;
-import org.eclipse.che.api.project.server.type.ProjectType;
+import org.eclipse.che.api.project.server.type.AbstractProjectType;
 import org.eclipse.che.api.project.server.type.ProjectTypeRegistry;
 import org.eclipse.che.api.vfs.server.ContentStream;
 import org.eclipse.che.api.vfs.server.VirtualFileSystemRegistry;
@@ -75,7 +76,7 @@ public class RemoveMavenModuleHandlerTest {
     @Before
     public void setUp() throws Exception {
         removeMavenModuleHandler = new RemoveMavenModuleHandler();
-        ProjectType mavenProjectType = Mockito.mock(ProjectType.class);
+        AbstractProjectType mavenProjectType = Mockito.mock(AbstractProjectType.class);
         Mockito.when(mavenProjectType.getId()).thenReturn(MavenAttributes.MAVEN_ID);
         Mockito.when(mavenProjectType.getDisplayName()).thenReturn(MavenAttributes.MAVEN_ID);
         Mockito.when(mavenProjectType.canBePrimary()).thenReturn(true);
@@ -108,6 +109,7 @@ public class RemoveMavenModuleHandlerTest {
         f.setAccessible(true);
         f.set(null, httpJsonHelper);
     }
+
     @After
     public void cleanup() throws IllegalAccessException, NoSuchFieldException {
         Field f = HttpJsonHelper.class.getDeclaredField("httpJsonHelperImpl");
@@ -120,11 +122,11 @@ public class RemoveMavenModuleHandlerTest {
         String parent = NameGenerator.generate("parent", 5);
         String module = NameGenerator.generate("module", 5);
         Project project =
-                projectManager.createProject(workspace, parent, DtoFactory.getInstance().createDto(ProjectConfigDto.class)
+                projectManager.createProject(workspace, parent, DtoFactory.getInstance()
+                                                                          .createDto(ProjectConfigDto.class)
                                                                           .withType(MavenAttributes.MAVEN_ID), null);
         removeMavenModuleHandler
-                .onRemoveModule(project.getBaseFolder(), project.getPath() + "/" + module, DtoFactory.getInstance().createDto(ProjectConfigDto.class)
-                                                                                                     .withType("maven"));
+                .onRemoveModule(project.getBaseFolder(), DtoFactory.getInstance().createDto(ProjectConfigDto.class).withType("maven"));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -136,8 +138,7 @@ public class RemoveMavenModuleHandlerTest {
                                                                           .withType(MavenAttributes.MAVEN_ID), null);
         project.getBaseFolder().createFile("pom.xml", POM_XML_TEMPL.getBytes(), "text/xml");
         removeMavenModuleHandler
-                .onRemoveModule(project.getBaseFolder(), project.getPath() + "/" + module, DtoFactory.getInstance().createDto(ProjectConfigDto.class)
-                                                                                                     .withType("notmaven"));
+                .onRemoveModule(project.getBaseFolder(), DtoFactory.getInstance().createDto(ProjectConfigDto.class).withType("notmaven"));
     }
 
     @Test
@@ -147,8 +148,10 @@ public class RemoveMavenModuleHandlerTest {
                 projectManager.createProject(workspace, parent, DtoFactory.getInstance().createDto(ProjectConfigDto.class)
                                                                           .withType(MavenAttributes.MAVEN_ID), null);
         project.getBaseFolder().createFile("pom.xml", POM_XML_TEMPL.getBytes(), "text/xml");
-        removeMavenModuleHandler.onRemoveModule(project.getBaseFolder(), FIRST_MODULE, DtoFactory.getInstance().createDto(ProjectConfigDto.class)
-                                                                                                 .withType(MavenAttributes.MAVEN_ID));
+        removeMavenModuleHandler.onRemoveModule(project.getBaseFolder(), DtoFactory.getInstance()
+                                                                                   .createDto(ProjectConfigDto.class)
+                                                                                   .withName(FIRST_MODULE)
+                                                                                   .withType(MavenAttributes.MAVEN_ID));
 
         VirtualFileEntry pom = project.getBaseFolder().getChild("pom.xml");
         Assert.assertNotNull(pom);
@@ -170,11 +173,12 @@ public class RemoveMavenModuleHandlerTest {
         String parent = NameGenerator.generate("parent", 5);
         String module = NameGenerator.generate("module", 5);
         Project project =
-                projectManager.createProject(workspace, parent,DtoFactory.getInstance().createDto(ProjectConfigDto.class)
-                                                                         .withType(MavenAttributes.MAVEN_ID), null);
+                projectManager.createProject(workspace, parent, DtoFactory.getInstance().createDto(ProjectConfigDto.class)
+                                                                          .withType(MavenAttributes.MAVEN_ID), null);
         project.getBaseFolder().createFile("pom.xml", POM_XML_TEMPL.getBytes(), "text/xml");
-        removeMavenModuleHandler.onRemoveModule(project.getBaseFolder(), module,DtoFactory.getInstance().createDto(ProjectConfigDto.class)
-                                                                                          .withType(MavenAttributes.MAVEN_ID));
+        removeMavenModuleHandler.onRemoveModule(project.getBaseFolder(), DtoFactory.getInstance()
+                                                                                   .createDto(ProjectConfigDto.class)
+                                                                                   .withType(MavenAttributes.MAVEN_ID));
 
         VirtualFileEntry pom = project.getBaseFolder().getChild("pom.xml");
         Assert.assertNotNull(pom);

@@ -10,12 +10,11 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.git.client.remote.add;
 
-import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
-import org.eclipse.che.ide.ext.git.client.BaseTest;
-import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.googlecode.gwt.test.utils.GwtReflectionUtils;
 
+import org.eclipse.che.ide.ext.git.client.BaseTest;
+import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
@@ -75,12 +74,12 @@ public class AddRemoteRepositoryPresenterTest extends BaseTest {
                 onSuccess.invoke(callback, EMPTY_TEXT);
                 return callback;
             }
-        }).when(service).remoteAdd((ProjectDescriptor)anyObject(), anyString(), anyString(), (AsyncRequestCallback<String>)anyObject());
+        }).when(service).remoteAdd(anyObject(), anyString(), anyString(), (AsyncRequestCallback<String>)anyObject());
 
         presenter.showDialog(callback);
         presenter.onOkClicked();
 
-        verify(service).remoteAdd((ProjectDescriptor)anyObject(), eq(REMOTE_NAME), eq(REMOTE_URI), (AsyncRequestCallback<String>)anyObject());
+        verify(service).remoteAdd(anyObject(), eq(REMOTE_NAME), eq(REMOTE_URI), (AsyncRequestCallback<String>)anyObject());
         verify(callback).onSuccess(eq((Void)null));
         verify(callback, never()).onFailure((Throwable)anyObject());
         verify(view).close();
@@ -97,13 +96,13 @@ public class AddRemoteRepositoryPresenterTest extends BaseTest {
                 onFailure.invoke(callback, mock(Throwable.class));
                 return callback;
             }
-        }).when(service).remoteAdd((ProjectDescriptor)anyObject(), anyString(), anyString(), (AsyncRequestCallback<String>)anyObject());
+        }).when(service).remoteAdd(anyObject(), anyString(), anyString(), (AsyncRequestCallback<String>)anyObject());
 
 
         presenter.showDialog(callback);
         presenter.onOkClicked();
 
-        verify(service).remoteAdd((ProjectDescriptor)anyObject(), eq(REMOTE_NAME), eq(REMOTE_URI), (AsyncRequestCallback<String>)anyObject());
+        verify(service).remoteAdd(anyObject(), eq(REMOTE_NAME), eq(REMOTE_URI), (AsyncRequestCallback<String>)anyObject());
         verify(callback).onFailure((Throwable)anyObject());
     }
 

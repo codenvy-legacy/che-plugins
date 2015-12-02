@@ -15,6 +15,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.multibindings.Multibinder;
 
+import org.eclipse.che.api.core.model.project.type.ProjectType;
 import org.eclipse.che.api.core.notification.EventService;
 import org.eclipse.che.api.core.rest.HttpJsonHelper;
 import org.eclipse.che.api.project.server.DefaultProjectManager;
@@ -23,7 +24,7 @@ import org.eclipse.che.api.project.server.Project;
 import org.eclipse.che.api.project.server.ProjectManager;
 import org.eclipse.che.api.project.server.handlers.ProjectHandler;
 import org.eclipse.che.api.project.server.handlers.ProjectHandlerRegistry;
-import org.eclipse.che.api.project.server.type.ProjectType;
+import org.eclipse.che.api.project.server.type.AbstractProjectType;
 import org.eclipse.che.api.project.server.type.ProjectTypeRegistry;
 import org.eclipse.che.api.vfs.server.VirtualFileSystemRegistry;
 import org.eclipse.che.api.vfs.server.VirtualFileSystemUser;
@@ -34,7 +35,6 @@ import org.eclipse.che.api.workspace.shared.dto.UsersWorkspaceDto;
 import org.eclipse.che.dto.server.DtoFactory;
 import org.eclipse.che.ide.extension.maven.shared.MavenAttributes;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.MockitoAnnotations;
@@ -112,7 +112,7 @@ public class MavenProjectImportedTest {
     public void setUp() throws Exception {
 
         Set<ProjectType> pts = new HashSet<>();
-        final ProjectType pt = new ProjectType("maven", "Maven type", true, false) {
+        final ProjectType pt = new AbstractProjectType("maven", "Maven type", true, false) {
         };
 
 
@@ -187,13 +187,12 @@ public class MavenProjectImportedTest {
     @Test
     public void shouldNotChangeParentProjectType() throws Exception {
         Project test = projectManager.createProject(workspace, "test", DtoFactory.getInstance().createDto(ProjectConfigDto.class)
+                                                                                 .withName("module1")
                                                                                  .withType("maven"), null);
         test.getBaseFolder().createFile("pom.xml", pomJar.getBytes(), "text/xml");
+        test.getBaseFolder().createFolder("module1");
         mavenProjectImportedHandler.onProjectImported(test.getBaseFolder());
         assertNotNull(projectManager.getProject(workspace, "test"));
-        assertNotNull(projectManager.getProject(workspace, "test").getConfig());
-        assertNotNull(projectManager.getProject(workspace, "test").getConfig().getType());
-        Assert.assertEquals("maven", projectManager.getProject(workspace, "test").getConfig().getType());
     }
 
     @Test
@@ -215,8 +214,8 @@ public class MavenProjectImportedTest {
 
     @Test
     public void withPomXmlMultiModule() throws Exception {
-        Project test = projectManager.createProject(workspace, "test",  DtoFactory.getInstance().createDto(ProjectConfigDto.class)
-                                                                                  .withType("maven"), null);
+        Project test = projectManager.createProject(workspace, "test", DtoFactory.getInstance().createDto(ProjectConfigDto.class)
+                                                                                 .withType("maven"), null);
         test.getBaseFolder().createFile("pom.xml", pom.getBytes(), "text/xml");
 
         FolderEntry module1 = test.getBaseFolder().createFolder("module1");
@@ -240,8 +239,8 @@ public class MavenProjectImportedTest {
     public void withPomXmlMultiModuleWithNesting() throws Exception {
         //test for multi module project in which the modules are specified in format: <module>../module</module>
         FolderEntry rootProject =
-                projectManager.createProject(workspace, "test",  DtoFactory.getInstance().createDto(ProjectConfigDto.class)
-                                                                           .withType("maven"), null).getBaseFolder();
+                projectManager.createProject(workspace, "test", DtoFactory.getInstance().createDto(ProjectConfigDto.class)
+                                                                          .withType("maven"), null).getBaseFolder();
         rootProject.createFile("pom.xml", pom.getBytes(), "text/xml");
 
         FolderEntry module1 = rootProject.createFolder("module1");
@@ -255,7 +254,6 @@ public class MavenProjectImportedTest {
 
         FolderEntry moduleNotDescribedInParentPom = rootProject.createFolder("moduleNotDescribedInParentPom");
         moduleNotDescribedInParentPom.createFile("pom.xml", pom.getBytes(), "text/xml");
-
 
         mavenProjectImportedHandler.onProjectImported(rootProject);
         assertNotNull(projectManager.getProject(workspace, "test"));

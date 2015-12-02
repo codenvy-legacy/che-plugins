@@ -79,7 +79,7 @@ public class CurrentProjectPathProvider implements CommandPropertyValueProvider,
             return;
         }
 
-        value = currentProject.getProjectDescription().getPath();
+        value = currentProject.getProjectConfig().getPath();
     }
 
     @Override
@@ -106,7 +106,7 @@ public class CurrentProjectPathProvider implements CommandPropertyValueProvider,
             return;
         }
 
-        value = appContext.getProjectsRoot() + currentProject.getProjectDescription().getPath();
+        value = appContext.getProjectsRoot() + currentProject.getProjectConfig().getPath();
     }
 
     @Override
