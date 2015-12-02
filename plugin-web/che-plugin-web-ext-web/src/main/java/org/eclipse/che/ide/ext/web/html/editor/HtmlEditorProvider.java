@@ -10,33 +10,26 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.web.html.editor;
 
+import com.google.inject.Inject;
+
 import org.eclipse.che.ide.api.editor.EditorPartPresenter;
 import org.eclipse.che.ide.api.editor.EditorProvider;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.jseditor.client.defaulteditor.DefaultEditorProvider;
 import org.eclipse.che.ide.jseditor.client.texteditor.ConfigurableTextEditor;
-import com.google.inject.Inject;
-import com.google.inject.Provider;
-
 
 /**
  * {@link EditorProvider} for HTML files.
  */
 public class HtmlEditorProvider implements EditorProvider {
+    private final DefaultEditorProvider           editorProvider;
+    private final NotificationManager             notificationManager;
+    private final HTMLEditorConfigurationProvider htmlEditorConfigurationProvider;
 
-    private final DefaultEditorProvider editorProvider;
-    private final NotificationManager notificationManager;
-
-    /**
-     * HTML editor configuration.
-     */
-    private Provider<HtmlEditorConfiguration> htmlEditorConfigurationProvider;
-
-    /** @param documentProvider */
     @Inject
     public HtmlEditorProvider(final DefaultEditorProvider editorProvider,
                               final NotificationManager notificationManager,
-                              final Provider<HtmlEditorConfiguration> htmlEditorConfigurationProvider) {
+                              final HTMLEditorConfigurationProvider htmlEditorConfigurationProvider) {
         this.editorProvider = editorProvider;
         this.notificationManager = notificationManager;
         this.htmlEditorConfigurationProvider = htmlEditorConfigurationProvider;
@@ -52,7 +45,6 @@ public class HtmlEditorProvider implements EditorProvider {
         return "Codenvy HTML Editor";
     }
 
-    /** {@inheritDoc} */
     @Override
     public EditorPartPresenter getEditor() {
         ConfigurableTextEditor textEditor = editorProvider.getEditor();
