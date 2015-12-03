@@ -50,12 +50,16 @@ public class CheConnectionClosedInformer implements ConnectionClosedInformer {
     @Override
     public void onConnectionClosed(WebSocketClosedEvent event) {
         switch (event.getCode()) {
+            case CLOSE_ABNORMAL:
+                String reason = event.getReason();
+                if (reason == null || reason.isEmpty()) {
+                    break;
+                }
             case CLOSE_NORMAL:
             case CLOSE_GOING_AWAY:
             case CLOSE_PROTOCOL_ERROR:
             case CLOSE_UNSUPPORTED:
             case CLOSE_NO_STATUS:
-            case CLOSE_ABNORMAL:
             case CLOSE_INCONSISTENT_DATA:
             case CLOSE_VIOLATE_POLICY:
             case CLOSE_TOO_LARGE:
