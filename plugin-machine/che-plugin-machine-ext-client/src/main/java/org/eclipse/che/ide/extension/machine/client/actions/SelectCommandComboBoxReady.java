@@ -188,6 +188,21 @@ public class SelectCommandComboBoxReady extends AbstractPerspectiveAction implem
         return null;
     }
 
+    /** Returns command by it's name. */
+    @Nullable
+    public CommandConfiguration getCommandByName(String name) {
+        if (commands.isEmpty()) {
+            return null;
+        }
+
+        for (CommandConfiguration configuration : commands) {
+            if (configuration.getName().equals(name)) {
+                return configuration;
+            }
+        }
+        return null;
+    }
+
     public void setSelectedCommand(CommandConfiguration command) {
         dropDownHeaderWidget.selectElement(command.getName());
     }
