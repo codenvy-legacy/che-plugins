@@ -432,7 +432,8 @@ public class DockerInstanceProvider implements InstanceProvider {
                 node.bindWorkspace();
             }
 
-            dockerInstanceStopDetector.startDetection(containerId, machineState.getId());
+            // Fixme
+            //dockerInstanceStopDetector.startDetection(containerId, machineState.getId());
 
             return dockerMachineFactory.createInstance(machineState,
                                                        containerId,
