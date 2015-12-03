@@ -30,6 +30,7 @@ import org.eclipse.che.ide.extension.machine.client.actions.DestroyMachineAction
 import org.eclipse.che.ide.extension.machine.client.actions.EditCommandsAction;
 import org.eclipse.che.ide.extension.machine.client.actions.ExecuteSelectedCommandAction;
 import org.eclipse.che.ide.extension.machine.client.actions.RestartMachineAction;
+import org.eclipse.che.ide.extension.machine.client.actions.RunCommandAction;
 import org.eclipse.che.ide.extension.machine.client.actions.SelectCommandComboBoxReady;
 import org.eclipse.che.ide.extension.machine.client.actions.SwitchPerspectiveAction;
 import org.eclipse.che.ide.extension.machine.client.machine.console.ClearConsoleAction;
@@ -94,7 +95,8 @@ public class MachineExtension {
                                 DestroyMachineAction destroyMachineAction,
                                 StopWorkspaceAction stopWorkspaceAction,
                                 SwitchPerspectiveAction switchPerspectiveAction,
-                                CreateSnapshotAction createSnapshotAction) {
+                                CreateSnapshotAction createSnapshotAction,
+                                RunCommandAction runCommandAction) {
         final DefaultActionGroup mainMenu = (DefaultActionGroup)actionManager.getAction(GROUP_MAIN_MENU);
         final DefaultActionGroup runMenu = new DefaultActionGroup(localizationConstant.mainMenuRunName(), true, actionManager);
 
@@ -117,6 +119,7 @@ public class MachineExtension {
         actionManager.registerAction("restartMachine", restartMachine);
         actionManager.registerAction("stopWorkspace", stopWorkspaceAction);
         actionManager.registerAction("createSnapshot", createSnapshotAction);
+        actionManager.registerAction("runCommand", runCommandAction);
 
         mainMenu.add(machineMenu, new Constraints(AFTER, "run"));
         machineMenu.add(createMachine);
