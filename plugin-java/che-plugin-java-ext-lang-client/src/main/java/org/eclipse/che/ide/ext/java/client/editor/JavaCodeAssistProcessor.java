@@ -21,6 +21,7 @@ import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.project.tree.VirtualFile;
 import org.eclipse.che.ide.ext.java.client.JavaResources;
 import org.eclipse.che.ide.ext.java.client.projecttree.JavaSourceFolderUtil;
+import org.eclipse.che.ide.ext.java.client.refactoring.RefactoringUpdater;
 import org.eclipse.che.ide.ext.java.shared.dto.ProposalPresentation;
 import org.eclipse.che.ide.ext.java.shared.dto.Proposals;
 import org.eclipse.che.ide.jseditor.client.codeassist.CodeAssistCallback;
@@ -42,14 +43,16 @@ import java.util.Map;
 public class JavaCodeAssistProcessor implements CodeAssistProcessor {
 
     private static Map<String, ImageResource> images;
-    private static Map<String, SVGResource> svgs;
+    private static Map<String, SVGResource>   svgs;
 
     private final EditorPartPresenter    editor;
-    private       JavaCodeAssistClient   client;
+    private final AnalyticsEventLogger   eventLogger;
     private final JavaResources          javaResources;
+    private final RefactoringUpdater     refactoringUpdater;
+
+    private       JavaCodeAssistClient   client;
     private       DtoUnmarshallerFactory unmarshallerFactory;
     private       NotificationManager    notificationManager;
-    private final AnalyticsEventLogger eventLogger;
 
 
     private String errorMessage;
@@ -58,12 +61,14 @@ public class JavaCodeAssistProcessor implements CodeAssistProcessor {
     public JavaCodeAssistProcessor(@Assisted final EditorPartPresenter editor,
                                    final JavaCodeAssistClient client,
                                    final JavaResources javaResources,
+                                   RefactoringUpdater refactoringUpdater,
                                    DtoUnmarshallerFactory unmarshallerFactory,
                                    NotificationManager notificationManager,
                                    final AnalyticsEventLogger eventLogger) {
         this.editor = editor;
         this.client = client;
         this.javaResources = javaResources;
+        this.refactoringUpdater = refactoringUpdater;
         this.unmarshallerFactory = unmarshallerFactory;
         this.notificationManager = notificationManager;
         this.eventLogger = eventLogger;
@@ -164,18 +169,19 @@ public class JavaCodeAssistProcessor implements CodeAssistProcessor {
         final String projectPath = file.getProject().getProjectConfig().getPath();
         String fqn = JavaSourceFolderUtil.getFQNForFile(file);
         Unmarshallable<Proposals> unmarshaller = unmarshallerFactory.newUnmarshaller(Proposals.class);
-        client.computeProposals(projectPath, fqn, offset, textEditor.getDocument().getContents(), new AsyncRequestCallback<Proposals>(unmarshaller) {
-            @Override
-            protected void onSuccess(Proposals proposals) {
-                showProposals(callback, proposals);
-            }
+        client.computeProposals(projectPath, fqn, offset, textEditor.getDocument().getContents(),
+                                new AsyncRequestCallback<Proposals>(unmarshaller) {
+                                    @Override
+                                    protected void onSuccess(Proposals proposals) {
+                                        showProposals(callback, proposals);
+                                    }
 
-            @Override
-            protected void onFailure(Throwable throwable) {
-                Log.error(JavaCodeAssistProcessor.class, throwable);
-                notificationManager.showError(throwable.getMessage());
-            }
-        });
+                                    @Override
+                                    protected void onFailure(Throwable throwable) {
+                                        Log.error(JavaCodeAssistProcessor.class, throwable);
+                                        notificationManager.showError(throwable.getMessage());
+                                    }
+                                });
     }
 
     private void showProposals(final CodeAssistCallback callback, final Proposals respons) {
@@ -183,11 +189,12 @@ public class JavaCodeAssistProcessor implements CodeAssistProcessor {
         final List<CompletionProposal> proposals = new ArrayList<>(presentations.size());
         HasLinkedMode linkedEditor = editor instanceof HasLinkedMode ? (HasLinkedMode)editor : null;
         for (final ProposalPresentation proposal : presentations) {
-            final CompletionProposal completionProposal = new JavaCompletionProposal(
-                    proposal.getIndex(),
-                    insertStyle(javaResources, proposal.getDisplayString()),
-                    getIcon(proposal.getImage()),
-                    client, respons.getSessionId(), linkedEditor, notificationManager);
+            final CompletionProposal completionProposal = new JavaCompletionProposal(proposal.getIndex(),
+                                                                                     insertStyle(javaResources,
+                                                                                                 proposal.getDisplayString()),
+                                                                                     getIcon(proposal.getImage()),
+                                                                                     client, respons.getSessionId(), linkedEditor,
+                                                                                     notificationManager, refactoringUpdater);
 
             proposals.add(completionProposal);
         }
