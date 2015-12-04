@@ -16,7 +16,7 @@
     <parent>
         <artifactId>che-plugin-tour-parent</artifactId>
         <groupId>org.eclipse.che.plugin</groupId>
-        <version>3.13.4.4-SNAPSHOT</version>
+        <version>3.13.4.4</version>
     </parent>
     <artifactId>che-plugin-tour-dto-gen</artifactId>
     <name>Che Plugin :: Tour :: DTO Generation</name>
