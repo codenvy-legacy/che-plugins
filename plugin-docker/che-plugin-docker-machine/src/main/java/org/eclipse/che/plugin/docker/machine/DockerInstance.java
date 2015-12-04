@@ -195,7 +195,8 @@ public class DockerInstance extends AbstractInstance {
 
     @Override
     public void destroy() throws MachineException {
-        dockerInstanceStopDetector.stopDetection(container);
+        // Fixme
+        //dockerInstanceStopDetector.stopDetection(container);
         try {
             if (isDev()) {
                 node.unbindWorkspace();
