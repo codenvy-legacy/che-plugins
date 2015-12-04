@@ -8,26 +8,37 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-
 package org.eclipse.che.ide.ext.java.shared.dto;
 
 import org.eclipse.che.dto.shared.DTO;
 
 /**
+ * DTO represents the information about the proposal change.
+ *
  * @author Evgen Vidolob
+ * @author Valeriy Svydenko
  */
 @DTO
 public interface Change {
 
+    /** Returns the offset of the change. */
     int getOffset();
 
     void setOffset(int offset);
 
+    Change withOffset(int offset);
+
+    /** Returns length of the text change. */
     int getLength();
 
     void setLength(int length);
 
+    Change withLength(int length);
+
+    /** Returns text of the change. */
     String getText();
 
     void setText(String text);
+
+    Change withText(String text);
 }
