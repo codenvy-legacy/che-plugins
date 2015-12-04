@@ -10,9 +10,12 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.maven.server.projecttype.handler;
 
+import com.google.inject.Provider;
+
 import org.eclipse.che.api.core.model.project.type.ProjectType;
 import org.eclipse.che.api.core.notification.EventService;
 import org.eclipse.che.api.core.rest.HttpJsonHelper;
+import org.eclipse.che.api.project.server.AttributeFilter;
 import org.eclipse.che.api.project.server.DefaultProjectManager;
 import org.eclipse.che.api.project.server.Project;
 import org.eclipse.che.api.project.server.VirtualFileEntry;
@@ -35,6 +38,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -46,6 +50,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Roman Nikitenko
@@ -73,8 +78,14 @@ public class RemoveMavenModuleHandlerTest {
     private RemoveMavenModuleHandler removeMavenModuleHandler;
     private DefaultProjectManager    projectManager;
 
+    @Mock
+    private Provider<AttributeFilter> filterProvider;
+    @Mock
+    private AttributeFilter           filter;
+
     @Before
     public void setUp() throws Exception {
+        when(filterProvider.get()).thenReturn(filter);
         removeMavenModuleHandler = new RemoveMavenModuleHandler();
         AbstractProjectType mavenProjectType = Mockito.mock(AbstractProjectType.class);
         Mockito.when(mavenProjectType.getId()).thenReturn(MavenAttributes.MAVEN_ID);
@@ -102,7 +113,7 @@ public class RemoveMavenModuleHandlerTest {
         Set<ProjectHandler> handlers = new HashSet<>();
         ProjectHandlerRegistry handlerRegistry = new ProjectHandlerRegistry(handlers);
 
-        projectManager = new DefaultProjectManager(vfsRegistry, eventService, projectTypeRegistry, handlerRegistry, apiEndpoint);
+        projectManager = new DefaultProjectManager(vfsRegistry, eventService, projectTypeRegistry, handlerRegistry,filterProvider, apiEndpoint);
 
         HttpJsonHelper.HttpJsonHelperImpl httpJsonHelper = mock(HttpJsonHelper.HttpJsonHelperImpl.class);
         Field f = HttpJsonHelper.class.getDeclaredField("httpJsonHelperImpl");

@@ -13,11 +13,13 @@ package org.eclipse.che.ide.extension.maven.server.projecttype.handler;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Provider;
 import com.google.inject.multibindings.Multibinder;
 
 import org.eclipse.che.api.core.model.project.type.ProjectType;
 import org.eclipse.che.api.core.notification.EventService;
 import org.eclipse.che.api.core.rest.HttpJsonHelper;
+import org.eclipse.che.api.project.server.AttributeFilter;
 import org.eclipse.che.api.project.server.DefaultProjectManager;
 import org.eclipse.che.api.project.server.FolderEntry;
 import org.eclipse.che.api.project.server.Project;
@@ -37,6 +39,7 @@ import org.eclipse.che.ide.extension.maven.shared.MavenAttributes;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.lang.reflect.Field;
@@ -103,6 +106,11 @@ public class MavenProjectImportedTest {
 
     private MavenProjectImportedHandler mavenProjectImportedHandler;
 
+    @Mock
+    private Provider<AttributeFilter> filterProvider;
+    @Mock
+    private AttributeFilter           filter;
+
     private static final String      vfsUser       = "dev";
     private static final Set<String> vfsUserGroups = new LinkedHashSet<>(Arrays.asList("workspace/developer"));
 
@@ -110,23 +118,21 @@ public class MavenProjectImportedTest {
 
     @Before
     public void setUp() throws Exception {
-
+        MockitoAnnotations.initMocks(this);
+        when(filterProvider.get()).thenReturn(filter);
         Set<ProjectType> pts = new HashSet<>();
         final ProjectType pt = new AbstractProjectType("maven", "Maven type", true, false) {
         };
 
-
         pts.add(pt);
         final ProjectTypeRegistry projectTypeRegistry = new ProjectTypeRegistry(pts);
-
 
         VirtualFileSystemRegistry virtualFileSystemRegistry = new VirtualFileSystemRegistry();
         EventService eventService = new EventService();
         ProjectHandlerRegistry handlerRegistry = new ProjectHandlerRegistry(new HashSet<>());
         projectManager = new DefaultProjectManager(virtualFileSystemRegistry,
                                                    eventService,
-                                                   projectTypeRegistry, handlerRegistry, "");
-        MockitoAnnotations.initMocks(this);
+                                                   projectTypeRegistry, handlerRegistry, filterProvider, "");
         // Bind components
         Injector injector = Guice.createInjector(new AbstractModule() {
             @Override
