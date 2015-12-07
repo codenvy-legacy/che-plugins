@@ -13,10 +13,12 @@ package org.eclipse.che.ide.extension.maven.server.projecttype;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Provider;
 
 import org.eclipse.che.api.core.model.project.type.ProjectType;
 import org.eclipse.che.api.core.notification.EventService;
 import org.eclipse.che.api.core.rest.HttpJsonHelper;
+import org.eclipse.che.api.project.server.AttributeFilter;
 import org.eclipse.che.api.project.server.DefaultProjectManager;
 import org.eclipse.che.api.project.server.FileEntry;
 import org.eclipse.che.api.project.server.Project;
@@ -35,6 +37,8 @@ import org.eclipse.che.dto.server.DtoFactory;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
@@ -94,8 +98,15 @@ public class MavenClassPathConfiguratorTest {
             "</project>";
     private ProjectManager projectManager;
 
+    @Mock
+    private Provider<AttributeFilter> filterProvider;
+    @Mock
+    private AttributeFilter           filter;
+
     @Before
     public void setup() throws Exception {
+        MockitoAnnotations.initMocks(this);
+        when(filterProvider.get()).thenReturn(filter);
         Set<ProjectType> pts = new HashSet<>();
         final AbstractProjectType pt = new AbstractProjectType("maven", "Maven type", true, false) {
         };
@@ -107,7 +118,7 @@ public class MavenClassPathConfiguratorTest {
         ProjectHandlerRegistry handlerRegistry = new ProjectHandlerRegistry(new HashSet<>());
         projectManager = new DefaultProjectManager(virtualFileSystemRegistry,
                                                    eventService,
-                                                   projectTypeRegistry, handlerRegistry, "");
+                                                   projectTypeRegistry, handlerRegistry, filterProvider, "");
         Injector injector = Guice.createInjector(new AbstractModule() {
             @Override
             protected void configure() {
