@@ -335,4 +335,19 @@ public interface MachineLocalizationConstant extends Messages {
 
     @Key("unavailable.machine.starting")
     String unavailableMachineStarting(String machineName);
+
+    @Key("view.processes.title")
+    String viewProcessesTitle();
+
+    @Key("view.processes.tooltip")
+    String viewProcessesTooltip();
+
+    @Key("view.processes.dev.title")
+    String viewProcessesDevTitle();
+
+    @Key("view.processes.command.title")
+    String viewProcessesCommandTitle();
+
+    @Key("view.processes.url.title")
+    String viewProcessesUrlTitle();
 }

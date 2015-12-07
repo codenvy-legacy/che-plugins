@@ -49,6 +49,15 @@ public interface MachineResources extends ClientBundle {
     @Source("command/arbitrary/arbitrary-command-type.svg")
     SVGResource arbitraryCommandType();
 
+    @Source("images/process/add-terminal.svg")
+    SVGResource addTerminal();
+
+    @Source("images/process/output-icon.svg")
+    SVGResource output();
+
+    @Source("images/process/terminal-icon.svg")
+    SVGResource terminal();
+
     @Source("images/project-perspective.svg")
     SVGResource projectPerspective();
 
@@ -120,5 +129,23 @@ public interface MachineResources extends ClientBundle {
         String selectCommandBox();
 
         String selectCommandBoxIconPanel();
+
+        String processTree();
+
+        String devMachineLabel();
+
+        String machineStatus();
+
+        String processIcon();
+
+        String processButton();
+
+        String processNavigation();
+
+        String processHeaderTitle();
+
+        String processUrlValue();
+
+        String processCommandValue();
     }
 }
