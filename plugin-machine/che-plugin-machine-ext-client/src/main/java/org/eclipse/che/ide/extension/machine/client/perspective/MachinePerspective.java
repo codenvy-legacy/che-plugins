@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.machine.client.perspective;
 
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -21,6 +22,7 @@ import org.eclipse.che.ide.extension.machine.client.outputspanel.OutputsContaine
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.appliance.MachineAppliancePresenter;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.machine.panel.MachinePanelPresenter;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.recipe.RecipePartPresenter;
+import org.eclipse.che.ide.extension.machine.client.processes.ProcessesPresenter;
 import org.eclipse.che.ide.workspace.PartStackPresenterFactory;
 import org.eclipse.che.ide.workspace.PartStackViewFactory;
 import org.eclipse.che.ide.workspace.WorkBenchControllerFactory;
@@ -57,6 +59,7 @@ public class MachinePerspective extends AbstractPerspective {
                               RecipePartPresenter recipePanel,
                               NotificationManager notificationManager,
                               OutputsContainerPresenter outputsContainer,
+                              ProcessesPresenter processes,
                               MachineAppliancePresenter infoContainer) {
         super(MACHINE_PERSPECTIVE_ID, view, stackPresenterFactory, partViewFactory, controllerFactory);
 
@@ -70,6 +73,7 @@ public class MachinePerspective extends AbstractPerspective {
         addPart(console, INFORMATION);
         addPart(notificationManager, INFORMATION, FIRST);
         addPart(outputsContainer, INFORMATION);
+        addPart(processes, INFORMATION);
         addPart(machinePanel, NAVIGATION);
         addPart(recipePanel, NAVIGATION);
 

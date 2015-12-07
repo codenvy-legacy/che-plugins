@@ -27,6 +27,7 @@ import org.eclipse.che.ide.extension.machine.client.command.valueproviders.Comma
 import org.eclipse.che.ide.extension.machine.client.outputspanel.OutputsContainerPresenter;
 import org.eclipse.che.ide.extension.machine.client.outputspanel.console.CommandConsoleFactory;
 import org.eclipse.che.ide.extension.machine.client.outputspanel.console.OutputConsole;
+import org.eclipse.che.ide.extension.machine.client.processes.ProcessesPresenter;
 import org.eclipse.che.ide.util.UUID;
 
 import javax.validation.constraints.NotNull;
@@ -41,6 +42,7 @@ public class CommandManager {
 
     private final MachineServiceClient                 machineServiceClient;
     private final OutputsContainerPresenter            outputsContainerPresenter;
+    private final ProcessesPresenter                   processesPresenter;
     private final CommandConsoleFactory                commandConsoleFactory;
     private final NotificationManager                  notificationManager;
     private final MachineLocalizationConstant          localizationConstant;
@@ -50,6 +52,7 @@ public class CommandManager {
 
     @Inject
     public CommandManager(MachineServiceClient machineServiceClient,
+                          ProcessesPresenter processesPresenter,
                           OutputsContainerPresenter outputsContainerPresenter,
                           CommandConsoleFactory commandConsoleFactory,
                           NotificationManager notificationManager,
@@ -58,6 +61,7 @@ public class CommandManager {
                           AppContext appContext,
                           CommandPropertyValueProviderRegistry commandPropertyValueProviderRegistry) {
         this.machineServiceClient = machineServiceClient;
+        this.processesPresenter = processesPresenter;
         this.outputsContainerPresenter = outputsContainerPresenter;
         this.commandConsoleFactory = commandConsoleFactory;
         this.notificationManager = notificationManager;
@@ -79,8 +83,9 @@ public class CommandManager {
 
         final OutputConsole console = commandConsoleFactory.create(configuration, devMachineId);
         console.listenToOutput(outputChannel);
-        outputsContainerPresenter.addConsole(console);
-        workspaceAgent.setActivePart(outputsContainerPresenter);
+        //outputsContainerPresenter.addConsole(console);
+        processesPresenter.addCommand(devMachineId, configuration, console);
+        workspaceAgent.setActivePart(processesPresenter);
 
         final String commandLine = substituteProperties(configuration.toCommandLine());
 

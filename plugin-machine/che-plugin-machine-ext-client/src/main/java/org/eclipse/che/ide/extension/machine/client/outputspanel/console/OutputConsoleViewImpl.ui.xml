@@ -14,8 +14,32 @@
 <ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
              xmlns:g="urn:import:com.google.gwt.user.client.ui">
     <ui:with field="resources" type="org.eclipse.che.ide.extension.machine.client.MachineResources"/>
+    <ui:with field="locale" type="org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant"/>
+    <ui:style>
+        .label {
+            width: 60px;
+            float: left;
+            font-weight: bold;
+        }
+
+        .noMargin {
+            margin: 0px;
+        }
+
+        .smallMargin {
+            margin-top: 3px;
+        }
+    </ui:style>
 
     <g:DockLayoutPanel unit="PX" width="100%" height="100%">
+        <g:north size="29">
+            <g:FlowPanel styleName="{style.smallMargin}">
+                <g:Label text="{locale.viewProcessesCommandTitle}" addStyleNames="{style.label} {style.noMargin} {resources.getCss.processHeaderTitle}"></g:Label>
+                <g:Label ui:field="commandLabel" addStyleNames="{style.noMargin} {resources.getCss.processHeaderTitle} {resources.getCss.processCommandValue}"></g:Label>
+                <g:Label text="{locale.viewProcessesUrlTitle}" addStyleNames="{style.label} {style.noMargin} {resources.getCss.processHeaderTitle}"></g:Label>
+                <g:Label ui:field="urlLabel" addStyleNames="{style.noMargin} {resources.getCss.processHeaderTitle} {resources.getCss.processUrlValue}"></g:Label>
+            </g:FlowPanel>
+        </g:north>
         <g:center>
             <g:ScrollPanel ui:field="scrollPanel" debugId="commandConsolePart" addStyleNames="{resources.getCss.commandConsole}">
                 <g:FlowPanel width="100%" height="100%" ui:field="consoleArea"/>

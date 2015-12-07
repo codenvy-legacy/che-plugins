@@ -37,6 +37,7 @@ import org.eclipse.che.ide.extension.machine.client.machine.console.ClearConsole
 import org.eclipse.che.ide.extension.machine.client.machine.console.MachineConsoleToolbar;
 import org.eclipse.che.ide.extension.machine.client.machine.extserver.ProjectApiComponentInitializer;
 import org.eclipse.che.ide.extension.machine.client.outputspanel.OutputsContainerPresenter;
+import org.eclipse.che.ide.extension.machine.client.processes.ProcessesPresenter;
 import org.eclipse.che.ide.ui.toolbar.ToolbarPresenter;
 
 import static org.eclipse.che.ide.api.action.IdeActions.GROUP_CENTER_TOOLBAR;
@@ -159,5 +160,20 @@ public class MachineExtension {
         consoleToolbarActionGroup.add(clearConsoleAction);
         consoleToolbarActionGroup.addSeparator();
         machineConsoleToolbar.bindMainGroup(consoleToolbarActionGroup);
+    }
+
+    @Inject
+    private void setUpOutputsConsole(WorkspaceAgent workspaceAgent, OutputsContainerPresenter outputsContainerPresenter) {
+        workspaceAgent.openPart(outputsContainerPresenter, PartStackType.INFORMATION);
+    }
+
+    @Inject
+    private void setUpProcessesPanel(WorkspaceAgent workspaceAgent, ProcessesPresenter processesPresenter) {
+        workspaceAgent.openPart(processesPresenter, PartStackType.INFORMATION);
+    }
+
+    @Inject
+    private void createProjectApiComponent(ProjectApiComponentInitializer projectApiComponentInitializer) {
+        //projectApiComponentInitializer has handler which will work at the right time
     }
 }
