@@ -156,7 +156,7 @@ public class MavenValueProviderFactory implements ValueProviderFactory {
                 if (pom == null) {
                     Model model = Model.createModel();
                     model.setModelVersion("4.0.0");
-                    pom = projectFolder.createFile("pom.xml", new byte[0], "text/xml").getVirtualFile();
+                    pom = projectFolder.createFile("pom.xml", new byte[0]).getVirtualFile();
                     model.writeTo(pom);
                 }
 
