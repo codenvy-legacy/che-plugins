@@ -70,7 +70,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import static com.google.common.net.UrlEscapers.urlPathSegmentEscaper;
-import static java.io.File.separatorChar;
 import static javax.ws.rs.core.Response.Status.CREATED;
 import static javax.ws.rs.core.Response.Status.NOT_MODIFIED;
 import static javax.ws.rs.core.Response.Status.NO_CONTENT;
@@ -85,39 +84,6 @@ import static javax.ws.rs.core.Response.Status.OK;
  */
 @Singleton
 public class DockerConnector {
-    public static final String UNIX_SOCKET_SCHEME = "unix";
-    public static final String UNIX_SOCKET_PATH   = "/var/run/docker.sock";
-    public static final URI    UNIX_SOCKET_URI    = URI.create(UNIX_SOCKET_SCHEME + "://" + UNIX_SOCKET_PATH);
-
-    /**
-     * System variable used to define location of certificates.
-     */
-    public static final String DOCKER_CERT_PATH_PROPERTY = "DOCKER_CERT_PATH";
-
-    /**
-     * System variable used to define if TLS is used or not.
-     */
-    public static final String DOCKER_TLS_VERIFY_PROPERTY = "DOCKER_TLS_VERIFY";
-
-    /**
-     * System variable used to define host of docker.
-     */
-    public static final String DOCKER_HOST_PROPERTY = "DOCKER_HOST";
-
-    /**
-     * Default URL of docker when using Docker Machine.
-     */
-    public static final URI DEFAULT_DOCKER_MACHINE_URI = URI.create("https://192.168.99.100:2376");
-
-    /**
-     * Default of Docker Machine certificates (machine named default)
-     */
-    public static final String DEFAULT_DOCKER_MACHINE_CERTS_DIR = System.getProperty("user.home")
-                                                                  + separatorChar + ".docker"
-                                                                  + separatorChar + "machine"
-                                                                  + separatorChar + "machines"
-                                                                  + separatorChar + "default";
-
     private static final Logger LOG = LoggerFactory.getLogger(DockerConnector.class);
 
     private final URI                     dockerDaemonUri;
@@ -187,6 +153,7 @@ public class DockerConnector {
      * @return list of docker images
      * @throws IOException
      */
+    @SuppressWarnings("unused")
     public Image[] listImages() throws IOException {
         try (DockerConnection connection = connectionFactory.openConnection(dockerDaemonUri)
                                                             .method("GET")
@@ -266,6 +233,7 @@ public class DockerConnector {
      * @return detailed information about {@code image}
      * @throws IOException
      */
+    @SuppressWarnings("unused")
     public ImageInfo inspectImage(String image) throws IOException {
         return doInspectImage(image, dockerDaemonUri);
     }
@@ -422,6 +390,7 @@ public class DockerConnector {
      * @return exit code
      * @throws IOException
      */
+    @SuppressWarnings("unused")
     public int waitContainer(String container) throws IOException {
         final List<Pair<String, ?>> headers = new ArrayList<>(2);
         headers.add(Pair.of("Content-Type", MediaType.TEXT_PLAIN));
@@ -481,6 +450,7 @@ public class DockerConnector {
      *         stream} is {@code true} since this method blocks until container is running.
      * @throws java.io.IOException
      */
+    @SuppressWarnings("unused")
     public void attachContainer(String container, MessageProcessor<LogMessage> containerLogsProcessor, boolean stream) throws IOException {
         final List<Pair<String, ?>> headers = new ArrayList<>(2);
         headers.add(Pair.of("Content-Type", MediaType.TEXT_PLAIN));
@@ -524,6 +494,7 @@ public class DockerConnector {
      * and {@link #putResource(String, String, InputStream, boolean) putResource}
      */
     @Deprecated
+    @SuppressWarnings("unused")
     public void copy(String container, String path, File hostPath) throws IOException {
         final String entity = JsonHelper.toJson(new ContainerResource().withResource(path), FIRST_LETTER_LOWERCASE);
         final List<Pair<String, ?>> headers = new ArrayList<>(2);
@@ -615,6 +586,7 @@ public class DockerConnector {
      * @return detailed information about {@code execId}
      * @throws IOException
      */
+    @SuppressWarnings("unused")
     public ExecInfo getExecInfo(String execId) throws IOException {
         try (DockerConnection connection = connectionFactory.openConnection(dockerDaemonUri)
                                                             .method("GET")
@@ -630,6 +602,7 @@ public class DockerConnector {
         }
     }
 
+    @SuppressWarnings("unused")
     public ContainerProcesses top(String container, String... psArgs) throws IOException {
         final List<Pair<String, ?>> headers = new ArrayList<>(2);
         headers.add(Pair.of("Content-Type", MediaType.TEXT_PLAIN));
@@ -1174,10 +1147,6 @@ public class DockerConnector {
             return Character.toLowerCase(jsonName.charAt(0)) + jsonName.substring(1);
         }
     };
-
-    public static boolean isUnixSocketUri(URI uri) {
-        return UNIX_SOCKET_SCHEME.equals(uri.getScheme());
-    }
 
     private void createTarArchive(File tar, File... files) throws IOException {
         TarUtils.tarFiles(tar, 0, files);

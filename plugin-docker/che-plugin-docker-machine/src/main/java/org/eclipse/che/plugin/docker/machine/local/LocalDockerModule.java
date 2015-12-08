@@ -17,7 +17,6 @@ import com.google.inject.name.Names;
 
 import org.eclipse.che.api.core.util.SystemInfo;
 import org.eclipse.che.api.machine.server.MachineService;
-import org.eclipse.che.api.machine.server.dao.SnapshotDao;
 import org.eclipse.che.api.machine.server.spi.Instance;
 import org.eclipse.che.api.machine.server.spi.InstanceProcess;
 import org.eclipse.che.api.machine.server.spi.InstanceProvider;
@@ -26,6 +25,10 @@ import org.eclipse.che.plugin.docker.machine.DockerInstanceProvider;
 import org.eclipse.che.plugin.docker.machine.DockerMachineFactory;
 import org.eclipse.che.plugin.docker.machine.node.DockerNode;
 import org.eclipse.che.plugin.docker.machine.DockerProcess;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Provider;
 
 /**
  * The Module for Local Docker components
@@ -40,12 +43,6 @@ public class LocalDockerModule extends AbstractModule {
     protected void configure() {
         bind(MachineService.class);
 
-        Multibinder<String> exposedPortsMultibinder =
-                Multibinder.newSetBinder(binder(), String.class, Names.named("machine.docker.system_exposed_ports"));
-
-        Multibinder<String> volumesMultibinder =
-                Multibinder.newSetBinder(binder(), String.class, Names.named("machine.docker.system_volumes"));
-
         install(new FactoryModuleBuilder()
                         .implement(Instance.class, DockerInstance.class)
                         .implement(InstanceProcess.class, DockerProcess.class)
@@ -54,17 +51,36 @@ public class LocalDockerModule extends AbstractModule {
 
         Multibinder.newSetBinder(binder(), InstanceProvider.class).addBinding().to(DockerInstanceProvider.class);
 
-        if (SystemInfo.isWindows()) {
-            bind(String.class).annotatedWith(Names.named("host.projects.root"))
-                              .toProvider(org.eclipse.che.plugin.docker.machine.ext.HostProjectsFolderProviderWinOS.class);
-        } else {
-            bind(String.class).annotatedWith(Names.named("host.projects.root"))
-                              .toProvider(org.eclipse.che.plugin.docker.machine.ext.HostProjectsFolderProviderUnix.class);
-        }
+        bind(String.class).annotatedWith(Names.named("host.projects.root"))
+                          .toProvider(org.eclipse.che.plugin.docker.machine.local.LocalDockerModule.HostProjectFolderProvider.class);
 
         bind(org.eclipse.che.plugin.docker.machine.node.WorkspaceFolderPathProvider.class)
                 .to(org.eclipse.che.plugin.docker.machine.local.node.LocalWorkspaceFolderPathProvider.class);
 
         bind(org.eclipse.che.plugin.docker.client.DockerRegistryChecker.class).asEagerSingleton();
+    }
+
+    /**
+     * Provide path to the project folder on hosted machine
+     *
+     * On Unix managed by vfs.local.fs_root_dir property.
+     * On Windows MUST be locate in "user.home" directory in case limitation windows+docker
+     *
+     * @author Alexander Garagatyi
+     * @author Vitalii Parfonov
+     */
+    private class HostProjectFolderProvider implements Provider<String> {
+        @Inject
+        @Named("vfs.local.fs_root_dir")
+        private String projectsFolder;
+
+        @Override
+        public String get() {
+            if (SystemInfo.isWindows()) {
+                return System.getProperty("user.home") + "\\che\\projects";
+            } else {
+                return projectsFolder;
+            }
+        }
     }
 }

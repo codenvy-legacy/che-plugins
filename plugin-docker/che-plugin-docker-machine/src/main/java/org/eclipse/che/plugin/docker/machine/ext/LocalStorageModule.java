@@ -14,6 +14,10 @@ import com.google.inject.AbstractModule;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Provider;
+
 /**
  * Guice module that adds volume for local storage in docker dev machines
  *
@@ -26,5 +30,21 @@ public class LocalStorageModule extends AbstractModule {
         Multibinder<String> volumesMultibinder =
                 Multibinder.newSetBinder(binder(), String.class, Names.named("machine.docker.dev_machine.machine_volumes"));
         volumesMultibinder.addBinding().toProvider(LocalStorageDockerVolumePathProvider.class);
+    }
+
+    /**
+     * Provides volumes configuration of machine for local storage
+     *
+     * @author Alexander Garagatyi
+     */
+    private class LocalStorageDockerVolumePathProvider implements Provider<String> {
+        @Inject
+        @Named("local.storage.path")
+        private String localStoragePath;
+
+        @Override
+        public String get() {
+            return localStoragePath + ":/local-storage";
+        }
     }
 }

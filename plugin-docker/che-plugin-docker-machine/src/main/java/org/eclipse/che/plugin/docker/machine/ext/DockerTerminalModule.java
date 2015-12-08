@@ -11,11 +11,16 @@
 package org.eclipse.che.plugin.docker.machine.ext;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.Singleton;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
 
 import org.eclipse.che.api.core.util.SystemInfo;
 import org.eclipse.che.plugin.docker.machine.ServerConf;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Provider;
 
 /**
  * Guice module for terminal feature in docker machines
@@ -40,10 +45,29 @@ public class DockerTerminalModule extends AbstractModule {
 
         Multibinder<String> volumesMultibinder =
                 Multibinder.newSetBinder(binder(), String.class, Names.named("machine.docker.machine_volumes"));
-        if (SystemInfo.isWindows()) {
-            volumesMultibinder.addBinding().toProvider(TerminalServerBindingProviderWinOS.class);
-        } else {
-            volumesMultibinder.addBinding().toProvider(TerminalServerBindingProviderUnix.class);
+        volumesMultibinder.addBinding().toProvider(TerminalVolumeProvider.class).in(Singleton.class);
+    }
+
+    /**
+     * Provides volumes configuration of machine for terminal
+     *
+     * On Windows MUST be locate in "user.home" directory in case limitation windows+docker.
+     *
+     * @author Alexander Garagatyi
+     * @author Vitalii Parfonov
+     */
+    private class TerminalVolumeProvider implements Provider<String> {
+        @Inject
+        @Named("machine.server.terminal.archive")
+        private String terminalArchivePath;
+
+        @Override
+        public String get() {
+            if (SystemInfo.isWindows()) {
+                return System.getProperty("user.home") + "\\AppData\\Local\\che\\terminal" + ":/mnt/che/terminal:ro";
+            } else {
+                return terminalArchivePath + ":/mnt/che/terminal:ro";
+            }
         }
     }
 }

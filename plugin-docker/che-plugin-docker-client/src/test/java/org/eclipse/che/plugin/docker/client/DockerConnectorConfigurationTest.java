@@ -25,8 +25,6 @@ import java.util.Map;
 import java.util.Optional;
 
 import static java.util.Collections.emptyMap;
-import static org.eclipse.che.plugin.docker.client.DockerConnector.DEFAULT_DOCKER_MACHINE_CERTS_DIR;
-import static org.eclipse.che.plugin.docker.client.DockerConnector.DEFAULT_DOCKER_MACHINE_URI;
 import static org.eclipse.che.plugin.docker.client.DockerConnectorConfiguration.BRIDGE_LINUX_INTERFACE_NAME;
 import static org.eclipse.che.plugin.docker.client.DockerConnectorConfiguration.DEFAULT_DOCKER_MACHINE_DOCKER_HOST_IP;
 import static org.eclipse.che.plugin.docker.client.DockerConnectorConfiguration.DEFAULT_LINUX_DOCKER_HOST_IP;
@@ -50,7 +48,7 @@ public class DockerConnectorConfigurationTest {
     @Test
     public void testDockerOnLinux() {
         URI uri = DockerConnectorConfiguration.dockerDaemonUri(true, emptyMap());
-        assertEquals(DockerConnector.UNIX_SOCKET_URI, uri);
+        assertEquals(DockerConnectorConfiguration.UNIX_SOCKET_URI, uri);
 
         String path = DockerConnectorConfiguration.dockerMachineCertsDirectoryPath(true, emptyMap());
         assertNull(path, "On Linux, there is no need of certificates");
@@ -67,9 +65,9 @@ public class DockerConnectorConfigurationTest {
         tmpDirectory.deleteOnExit();
 
         Map<String, String> env = new HashMap<>();
-        env.put(DockerConnector.DOCKER_HOST_PROPERTY, "tcp://192.168.59.104:2376");
-        env.put(DockerConnector.DOCKER_TLS_VERIFY_PROPERTY, "1");
-        env.put(DockerConnector.DOCKER_CERT_PATH_PROPERTY, tmpDirectory.getAbsolutePath());
+        env.put(DockerConnectorConfiguration.DOCKER_HOST_PROPERTY, "tcp://192.168.59.104:2376");
+        env.put(DockerConnectorConfiguration.DOCKER_TLS_VERIFY_PROPERTY, "1");
+        env.put(DockerConnectorConfiguration.DOCKER_CERT_PATH_PROPERTY, tmpDirectory.getAbsolutePath());
 
         URI uri = DockerConnectorConfiguration.dockerDaemonUri(false, env);
         assertEquals(uri, new URI("https://192.168.59.104:2376"));
@@ -90,8 +88,8 @@ public class DockerConnectorConfigurationTest {
         tmpDirectory.deleteOnExit();
 
         Map<String, String> env = new HashMap<>();
-        env.put(DockerConnector.DOCKER_HOST_PROPERTY, "tcp://192.168.59.104:2375");
-        env.put(DockerConnector.DOCKER_CERT_PATH_PROPERTY, tmpDirectory.getAbsolutePath());
+        env.put(DockerConnectorConfiguration.DOCKER_HOST_PROPERTY, "tcp://192.168.59.104:2375");
+        env.put(DockerConnectorConfiguration.DOCKER_CERT_PATH_PROPERTY, tmpDirectory.getAbsolutePath());
 
         URI uri = DockerConnectorConfiguration.dockerDaemonUri(false, env);
         assertEquals(uri, new URI("http://192.168.59.104:2375"));
@@ -113,14 +111,14 @@ public class DockerConnectorConfigurationTest {
         tmpDirectory.deleteOnExit();
 
         Map<String, String> env = new HashMap<>();
-        env.put(DockerConnector.DOCKER_HOST_PROPERTY, "this is an invalid host");
-        env.put(DockerConnector.DOCKER_CERT_PATH_PROPERTY, "invalid");
+        env.put(DockerConnectorConfiguration.DOCKER_HOST_PROPERTY, "this is an invalid host");
+        env.put(DockerConnectorConfiguration.DOCKER_CERT_PATH_PROPERTY, "invalid");
 
         URI uri = DockerConnectorConfiguration.dockerDaemonUri(false, env);
-        assertEquals(uri, DEFAULT_DOCKER_MACHINE_URI);
+        assertEquals(uri, DockerConnectorConfiguration.DEFAULT_DOCKER_MACHINE_URI);
 
         String path = DockerConnectorConfiguration.dockerMachineCertsDirectoryPath(false, env);
-        assertEquals(path, DEFAULT_DOCKER_MACHINE_CERTS_DIR);
+        assertEquals(path, DockerConnectorConfiguration.DEFAULT_DOCKER_MACHINE_CERTS_DIR);
 
     }
 
@@ -136,10 +134,10 @@ public class DockerConnectorConfigurationTest {
         tmpDirectory.deleteOnExit();
 
         URI uri = DockerConnectorConfiguration.dockerDaemonUri(false, emptyMap());
-        assertEquals(uri, DEFAULT_DOCKER_MACHINE_URI);
+        assertEquals(uri, DockerConnectorConfiguration.DEFAULT_DOCKER_MACHINE_URI);
 
         String path = DockerConnectorConfiguration.dockerMachineCertsDirectoryPath(false, emptyMap());
-        assertEquals(path, DEFAULT_DOCKER_MACHINE_CERTS_DIR);
+        assertEquals(path, DockerConnectorConfiguration.DEFAULT_DOCKER_MACHINE_CERTS_DIR);
 
     }
 
@@ -207,7 +205,7 @@ public class DockerConnectorConfigurationTest {
         doReturn(Optional.of(inetAddress)).when(networkFinder).getMatchingInetAddress(anyString());
         DockerConnectorConfiguration dockerConnectorConfiguration = new DockerConnectorConfiguration(null, null, null, networkFinder);
 
-        Map<String, String> env = Collections.singletonMap(DockerConnector.DOCKER_HOST_PROPERTY, "tcp://192.168.59.104:2375");
+        Map<String, String> env = Collections.singletonMap(DockerConnectorConfiguration.DOCKER_HOST_PROPERTY, "tcp://192.168.59.104:2375");
 
         String ip = dockerConnectorConfiguration.getDockerHostIp(false, env);
         assertEquals(ip, myCustomIpAddress);
@@ -226,7 +224,7 @@ public class DockerConnectorConfigurationTest {
         doReturn(Optional.empty()).when(networkFinder).getMatchingInetAddress(anyString());
         DockerConnectorConfiguration dockerConnectorConfiguration = new DockerConnectorConfiguration(null, null, null, networkFinder);
 
-        Map<String, String> env = Collections.singletonMap(DockerConnector.DOCKER_HOST_PROPERTY, "tcp://192.168.59.104:2375");
+        Map<String, String> env = Collections.singletonMap(DockerConnectorConfiguration.DOCKER_HOST_PROPERTY, "tcp://192.168.59.104:2375");
 
         String ip = dockerConnectorConfiguration.getDockerHostIp(false, env);
         assertEquals(ip, DEFAULT_DOCKER_MACHINE_DOCKER_HOST_IP);
