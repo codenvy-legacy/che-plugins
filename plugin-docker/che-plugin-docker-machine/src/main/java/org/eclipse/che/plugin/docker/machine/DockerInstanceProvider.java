@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.plugin.docker.machine;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import com.google.common.collect.ObjectArrays;
 import com.google.common.collect.Sets;
@@ -140,6 +141,8 @@ public class DockerInstanceProvider implements InstanceProvider {
             devMachineContainerLabels.put("che:server:" + serverConf.getPort() + ":protocol", serverConf.getProtocol());
         }
 
+        allMachinesEnvVariables = filterEmptyAndNullValues(allMachinesEnvVariables);
+        devMachineEnvVariables = filterEmptyAndNullValues(devMachineEnvVariables);
         this.commonMachineEnvVariables = allMachinesEnvVariables.toArray(new String[allMachinesEnvVariables.size()]);
         final HashSet<String> envVariablesForDevMachine = Sets.newHashSetWithExpectedSize(allMachinesEnvVariables.size() +
                                                                                           devMachineEnvVariables.size());
@@ -434,5 +437,14 @@ public class DockerInstanceProvider implements InstanceProvider {
 
         // removing all not allowed characters + generating random name suffix
         return NameGenerator.generate(containerName.replaceAll("[^a-zA-Z0-9_-]+", ""), 5);
+    }
+
+    /**
+     * Returns set that contains all non empty and non nullable values from specified set
+     */
+    protected Set<String> filterEmptyAndNullValues(Set<String> paths) {
+        return paths.stream()
+                    .filter(path -> !Strings.isNullOrEmpty(path))
+                    .collect(Collectors.toSet());
     }
 }

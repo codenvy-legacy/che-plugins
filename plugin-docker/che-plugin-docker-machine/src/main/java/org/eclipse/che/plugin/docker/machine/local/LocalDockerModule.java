@@ -11,6 +11,7 @@
 package org.eclipse.che.plugin.docker.machine.local;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.Singleton;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
@@ -20,6 +21,7 @@ import org.eclipse.che.api.machine.server.MachineService;
 import org.eclipse.che.api.machine.server.spi.Instance;
 import org.eclipse.che.api.machine.server.spi.InstanceProcess;
 import org.eclipse.che.api.machine.server.spi.InstanceProvider;
+import org.eclipse.che.plugin.docker.client.DockerConnectorConfiguration;
 import org.eclipse.che.plugin.docker.machine.DockerInstance;
 import org.eclipse.che.plugin.docker.machine.DockerInstanceProvider;
 import org.eclipse.che.plugin.docker.machine.DockerMachineFactory;
@@ -29,6 +31,7 @@ import org.eclipse.che.plugin.docker.machine.DockerProcess;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Provider;
+import java.net.URI;
 
 /**
  * The Module for Local Docker components
@@ -58,6 +61,13 @@ public class LocalDockerModule extends AbstractModule {
                 .to(org.eclipse.che.plugin.docker.machine.local.node.LocalWorkspaceFolderPathProvider.class);
 
         bind(org.eclipse.che.plugin.docker.client.DockerRegistryChecker.class).asEagerSingleton();
+
+        Multibinder<String> debMachineEnvVars = Multibinder.newSetBinder(binder(),
+                                                                         String.class,
+                                                                         Names.named("machine.docker.dev_machine.machine_env"))
+                                                           .permitDuplicates();
+        debMachineEnvVars.addBinding().toProvider(DockerApiHostEnvVariableProvider.class).in(Singleton.class);
+        debMachineEnvVars.addBinding().toProvider(DockerApiTlsVerifyEnvVariableProvider.class).in(Singleton.class);
     }
 
     /**
@@ -81,6 +91,44 @@ public class LocalDockerModule extends AbstractModule {
             } else {
                 return projectsFolder;
             }
+        }
+    }
+
+    /**
+     * Provides DOCKER_HOST env variable for the sake of access to docker API within docker container
+     *
+     * @author Alexander Garagatyi
+     */
+    private class DockerApiHostEnvVariableProvider implements Provider<String> {
+        @Inject
+        private DockerConnectorConfiguration dockerConnectorConfiguration;
+
+        @Override
+        public String get() {
+            final URI dockerApiUri = dockerConnectorConfiguration.getDockerDaemonUri();
+            if ("http".equals(dockerApiUri.getScheme())) {
+                return DockerConnectorConfiguration.DOCKER_HOST_PROPERTY + "=" + dockerApiUri.getHost();
+            }
+            return "";
+        }
+    }
+
+    /**
+     * Provides DOCKER_TLS_VERIFY env variable for the sake of access to docker API within docker container
+     *
+     * @author Alexander Garagatyi
+     */
+    private class DockerApiTlsVerifyEnvVariableProvider implements Provider<String> {
+        @Inject
+        private DockerConnectorConfiguration dockerConnectorConfiguration;
+
+        @Override
+        public String get() {
+            final URI dockerApiUri = dockerConnectorConfiguration.getDockerDaemonUri();
+            if ("http".equals(dockerApiUri.getScheme())) {
+                return DockerConnectorConfiguration.DOCKER_TLS_VERIFY_PROPERTY + "=false";
+            }
+            return "";
         }
     }
 }
