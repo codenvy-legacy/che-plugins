@@ -49,6 +49,7 @@ public class TerminalPresenter implements TabPresenter, TerminalView.ActionDeleg
 
     //event which is performed when user input data into terminal
     private static final String DATA_EVENT_NAME          = "data";
+    private static final String EXIT_COMMAND             = "\nexit";
     private static final int    TIME_BETWEEN_CONNECTIONS = 2_000;
 
     private final TerminalView                view;
@@ -57,11 +58,12 @@ public class TerminalPresenter implements TabPresenter, TerminalView.ActionDeleg
     private final Machine                     machine;
     private final Timer                       retryConnectionTimer;
 
-    private Promise<Boolean> promise;
-    private WebSocket        socket;
-    private boolean          isTerminalConnected;
-    private int              countRetry;
-    private TerminalJso      terminal;
+    private Promise<Boolean>      promise;
+    private WebSocket             socket;
+    private boolean               isTerminalConnected;
+    private int                   countRetry;
+    private TerminalJso           terminal;
+    private TerminalStateListener terminalStateListener;
 
     @Inject
     public TerminalPresenter(TerminalView view,
@@ -168,7 +170,13 @@ public class TerminalPresenter implements TabPresenter, TerminalView.ActionDeleg
                 socket.setOnMessageHandler(new MessageReceivedHandler() {
                     @Override
                     public void onMessageReceived(MessageReceivedEvent event) {
-                        terminal.write(event.getMessage());
+                        String message = event.getMessage();
+
+                        terminal.write(message);
+
+                        if (message.contains(EXIT_COMMAND) && terminalStateListener != null) {
+                            terminalStateListener.onExit();
+                        }
                     }
                 });
             }
@@ -184,6 +192,18 @@ public class TerminalPresenter implements TabPresenter, TerminalView.ActionDeleg
                 tryToReconnect();
             }
         });
+    }
+
+    /**
+     * Sends 'exit' command on server side to stop terminal.
+     */
+    public void stopTerminal() {
+        if (isTerminalConnected) {
+            Jso jso = Jso.create();
+            jso.addField("type", "data");
+            jso.addField("data", "exit\n");
+            socket.send(jso.serialize());
+        }
     }
 
     /** {@inheritDoc} */
@@ -219,5 +239,17 @@ public class TerminalPresenter implements TabPresenter, TerminalView.ActionDeleg
         jso.addField("type", "resize");
         jso.addField("data", arr);
         socket.send(jso.serialize());
+    }
+
+    /**
+     * Sets listener that will be called when a terminal state changed
+     */
+    public void setListener(TerminalStateListener listener) {
+        this.terminalStateListener = listener;
+    }
+
+    /** Listener that will be called when a terminal state changed. */
+    public interface TerminalStateListener {
+        void onExit();
     }
 }

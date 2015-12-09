@@ -23,6 +23,7 @@ import org.eclipse.che.ide.extension.machine.client.command.valueproviders.Comma
 import org.eclipse.che.ide.extension.machine.client.outputspanel.OutputsContainerPresenter;
 import org.eclipse.che.ide.extension.machine.client.outputspanel.console.CommandConsoleFactory;
 import org.eclipse.che.ide.extension.machine.client.outputspanel.console.OutputConsole;
+import org.eclipse.che.ide.extension.machine.client.processes.ConsolesPanelPresenter;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -50,6 +51,8 @@ public class CommandManagerTest {
     @Mock
     private OutputsContainerPresenter            outputsContainerPresenter;
     @Mock
+    private ConsolesPanelPresenter               consolesPanelPresenter;
+    @Mock
     private CommandConsoleFactory                commandConsoleFactory;
     @Mock
     private NotificationManager                  notificationManager;
@@ -63,7 +66,7 @@ public class CommandManagerTest {
     private CommandPropertyValueProviderRegistry commandPropertyValueProviderRegistry;
 
     @Mock
-    private Promise<MachineProcessDto>                          processPromise;
+    private Promise<MachineProcessDto>                   processPromise;
     @Captor
     private ArgumentCaptor<Operation<MachineProcessDto>> processCaptor;
 
@@ -99,8 +102,8 @@ public class CommandManagerTest {
         verify(appContext).getDevMachineId();
         verify(commandConsoleFactory).create(eq(command), eq(devMachineId));
         verify(outputConsole).listenToOutput(anyString());
-        verify(outputsContainerPresenter).addConsole(eq(outputConsole));
-        verify(workspaceAgent).setActivePart(eq(outputsContainerPresenter));
+        verify(consolesPanelPresenter).addCommand(eq(devMachineId), eq(command), eq(outputConsole));
+        verify(workspaceAgent).setActivePart(eq(consolesPanelPresenter));
         verify(command).toCommandLine();
         verify(machineServiceClient).executeCommand(eq(devMachineId), eq(commandLine), anyString());
         verify(processPromise).then(processCaptor.capture());
