@@ -79,6 +79,7 @@ public class MavenProjectResolver {
             }
 
             projectConfig.setModules(modules);
+            projectConfig.setSource(project.getConfig().getSource());
 
             project.updateConfig(projectConfig);
         }
