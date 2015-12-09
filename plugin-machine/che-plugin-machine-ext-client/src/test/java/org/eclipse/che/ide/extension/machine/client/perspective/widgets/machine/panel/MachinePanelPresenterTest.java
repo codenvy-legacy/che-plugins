@@ -155,7 +155,7 @@ public class MachinePanelPresenterTest {
 
         presenter = new MachinePanelPresenter(view, service, entityFactory, locale, appliance, eventBus, resources, appContext);
 
-        when(service.getMachinesStates(anyString(), anyString())).thenReturn(machineStatePromise);
+        when(service.getMachinesStates(anyString())).thenReturn(machineStatePromise);
         when(machineStatePromise.then(Matchers.<Operation<List<MachineStateDto>>>anyObject())).thenReturn(machineStatePromise);
 
         when(service.getMachine(anyString())).thenReturn(machinePromise);
@@ -179,7 +179,7 @@ public class MachinePanelPresenterTest {
     public void treeShouldBeDisplayedWithMachines() throws Exception {
         presenter.showMachines();
 
-        verify(service).getMachinesStates(anyString(), isNull(String.class));
+        verify(service).getMachinesStates(anyString());
 
         verify(machineStatePromise).then(operationMachineStateCaptor.capture());
         operationMachineStateCaptor.getValue().apply(Collections.singletonList(machineState1));

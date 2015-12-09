@@ -72,7 +72,7 @@ public class MachineComponentTest {
 
     @Test
     public void shouldUseRunningDevMachine() throws Exception {
-        when(machineServiceClient.getMachinesStates(anyString(), anyString())).thenReturn(machinesPromise);
+        when(machineServiceClient.getMachinesStates(anyString())).thenReturn(machinesPromise);
         when(machinesPromise.then(any(Operation.class))).thenReturn(machinesPromise);
         when(machineStateDescriptor.isDev()).thenReturn(true);
         when(machineStateDescriptor.getStatus()).thenReturn(MachineStatus.RUNNING);
@@ -82,7 +82,7 @@ public class MachineComponentTest {
 
         machineComponent.start(componentCallback);
 
-        verify(machineServiceClient).getMachinesStates(anyString(), anyString());
+        verify(machineServiceClient).getMachinesStates(anyString());
         verify(machinesPromise).then(machinesCaptor.capture());
         machinesCaptor.getValue().apply(Collections.singletonList(machineStateDescriptor));
         verify(machineStateDescriptor).isDev();
@@ -94,7 +94,7 @@ public class MachineComponentTest {
 
     @Test
     public void shouldTransmitControlToMachineManager() throws Exception {
-        when(machineServiceClient.getMachinesStates(anyString(), anyString())).thenReturn(machinesPromise);
+        when(machineServiceClient.getMachinesStates(anyString())).thenReturn(machinesPromise);
         when(machinesPromise.then(any(Operation.class))).thenReturn(machinesPromise);
         when(machineStateDescriptor.isDev()).thenReturn(true);
         when(machineStateDescriptor.getStatus()).thenReturn(MachineStatus.CREATING);
@@ -104,7 +104,7 @@ public class MachineComponentTest {
 
         machineComponent.start(componentCallback);
 
-        verify(machineServiceClient).getMachinesStates(anyString(), anyString());
+        verify(machineServiceClient).getMachinesStates(anyString());
         verify(machinesPromise).then(machinesCaptor.capture());
         machinesCaptor.getValue().apply(Collections.singletonList(machineStateDescriptor));
         verify(machineStateDescriptor).isDev();
