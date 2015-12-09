@@ -28,32 +28,51 @@ import java.util.Collection;
  */
 public class ProcessTreeNode {
 
+    /** The set of nodes. */
+    public enum ProcessNodeType {
+        ROOT_NODE,
+        MACHINE_NODE,
+        COMMAND_NODE,
+        TERMINAL_NODE
+    }
+
     public final static String ROOT = "root";
 
-    private final String                      id;
-    private final String                      name;
-    private final ProcessTreeNode             parent;
-    private final Object                      data;
-    private final Collection<ProcessTreeNode> children;
-    private TreeNodeElement<ProcessTreeNode> treeNodeElement;
+    private final ProcessNodeType                  type;
+    private final String                           id;
+    private final String                           displayName;
+    private final ProcessTreeNode                  parent;
+    private final Object                           data;
+    private final Collection<ProcessTreeNode>      children;
+    private       TreeNodeElement<ProcessTreeNode> treeNodeElement;
 
     @Inject
-    public ProcessTreeNode(@Assisted ProcessTreeNode parent,
+    public ProcessTreeNode(@Assisted ProcessNodeType type,
+                           @Assisted ProcessTreeNode parent,
                            @Assisted("data") Object data,
                            @Assisted Collection<ProcessTreeNode> children) {
+        this.type = type;
         this.parent = parent;
         this.data = data;
         this.children = children;
 
-        if (data instanceof MachineDto) {
-            id = ((MachineDto)data).getId();
-            name = ((MachineDto)data).getName();
-        } else if (data instanceof CommandConfiguration) {
-            id = ((CommandConfiguration)data).getName();
-            name = ((CommandConfiguration)data).getName();
-        } else {
-            id = ROOT;
-            name = ROOT;
+        switch (type) {
+            case MACHINE_NODE:
+                id = ((MachineDto)data).getId();
+                displayName = ((MachineDto)data).getName();
+                break;
+            case COMMAND_NODE:
+                String name = ((CommandConfiguration)data).getName();
+                id = name;
+                displayName = name;
+                break;
+            case TERMINAL_NODE:
+                id = (String)data;
+                displayName = (String)data;
+                break;
+            default:
+                id = ROOT;
+                displayName = ROOT;
         }
     }
 
@@ -64,7 +83,12 @@ public class ProcessTreeNode {
 
     @NotNull
     public String getName() {
-        return name;
+        return displayName;
+    }
+
+    @NotNull
+    public ProcessNodeType getType() {
+        return type;
     }
 
     @NotNull

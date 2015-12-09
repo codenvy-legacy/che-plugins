@@ -42,8 +42,14 @@ final class TerminalViewImpl extends Composite implements TerminalView, Requires
     };
 
     private void resizeTerminal() {
-        int x = (int)(Math.floor(terminalPanel.getOffsetWidth() / 6.6221374) - 1);
-        int y = (int)Math.floor(terminalPanel.getOffsetHeight() / 13);
+        int offsetWidth = terminalPanel.getOffsetWidth();
+        int offsetHeight = terminalPanel.getOffsetHeight();
+        if (offsetWidth == 0 || offsetHeight == 0) {
+            return;
+        }
+
+        int x = (int)(Math.floor(offsetWidth / 6.6221374) - 1);
+        int y = (int)Math.floor(offsetHeight / 13);
         delegate.setTerminalSize(x, y);
     }
 
@@ -79,7 +85,7 @@ final class TerminalViewImpl extends Composite implements TerminalView, Requires
     @Override
     public void onResize() {
         resizeTimer.cancel();
-        resizeTimer.schedule(500);
+        resizeTimer.schedule(200);
     }
 
 

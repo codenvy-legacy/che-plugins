@@ -13,17 +13,18 @@ package org.eclipse.che.ide.extension.machine.client.processes;
 import javax.validation.constraints.NotNull;
 
 /**
- * Handler for the processing of click on 'Add new terminal' button
+ * Handler for the processing of click on 'Close' button on process node
  *
- * @author Anna Shumilova
+ * @author Roman Nikitenko
  */
-public interface AddTerminalClickHandler {
+
+public interface StopProcessHandler {
 
     /**
-     * Will be called when user clicks 'Add new terminal' button
+     * Will be called when user clicks 'Close' button
      *
-     * @param machineId
-     *         id of machine in which the terminal will be added
+     * @param node
+     *         node of process to stop
      */
-    void onAddTerminalClick(@NotNull String machineId);
+    void onStopProcessClick(@NotNull ProcessTreeNode node);
 }

@@ -48,9 +48,6 @@ public class OutputConsoleViewImpl extends Composite implements OutputConsoleVie
     FlowPanel   consoleArea;
     @UiField
     Label commandLabel;
-    @UiField
-    Label urlLabel;
-
 
     /** If true - next printed line should replace the previous one. */
     private boolean carriageReturn;
@@ -68,8 +65,6 @@ public class OutputConsoleViewImpl extends Composite implements OutputConsoleVie
     @Override
     public void printCommandLine(String commandLine) {
         commandLabel.setText(commandLine);
-        //TODO
-        urlLabel.setText("http://TODO");
     }
 
     @Override

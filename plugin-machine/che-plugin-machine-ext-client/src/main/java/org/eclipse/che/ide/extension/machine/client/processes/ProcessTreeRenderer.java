@@ -10,19 +10,18 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.machine.client.processes;
 
-import com.google.gwt.user.client.Window;
 import elemental.dom.Element;
 import elemental.dom.Node;
 import elemental.events.Event;
 import elemental.events.EventListener;
 import elemental.html.SpanElement;
 
+import com.google.gwt.user.client.ui.Image;
 import com.google.inject.Inject;
 
 import org.eclipse.che.api.machine.shared.dto.MachineDto;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.MachineResources;
-import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
 import org.eclipse.che.ide.ui.tree.NodeRenderer;
 import org.eclipse.che.ide.ui.tree.TreeNodeElement;
 import org.eclipse.che.ide.util.dom.Elements;
@@ -32,12 +31,14 @@ import org.vectomatic.dom.svg.ui.SVGImage;
  * Renderer for {@ProcessTreeNode} UI presentation.
  *
  * @author Anna Shumilova
+ * @author Roman Nikitenko
  */
 public class ProcessTreeRenderer implements NodeRenderer<ProcessTreeNode> {
 
-    private final MachineResources resources;
+    private final MachineResources            resources;
     private final MachineLocalizationConstant locale;
-    private AddTerminalClickHandler addTerminalClickHandler;
+    private       AddTerminalClickHandler     addTerminalClickHandler;
+    private       StopProcessHandler          stopProcessHandler;
 
     @Inject
     public ProcessTreeRenderer(MachineResources resources, MachineLocalizationConstant locale) {
@@ -52,14 +53,17 @@ public class ProcessTreeRenderer implements NodeRenderer<ProcessTreeNode> {
 
     @Override
     public SpanElement renderNodeContents(ProcessTreeNode node) {
-        if (node.getData() instanceof MachineDto) {
-            return createMachineElement((MachineDto)node.getData());
-        } else if (node.getData() instanceof CommandConfiguration) {
-            return createCommandElement((CommandConfiguration)node.getData());
-        } else {
-            //TODO terminal node
+        ProcessTreeNode.ProcessNodeType type = node.getType();
+        switch (type) {
+            case MACHINE_NODE:
+                return createMachineElement((MachineDto)node.getData());
+            case COMMAND_NODE:
+                return createCommandElement(node);
+            case TERMINAL_NODE:
+                return createTerminalElement(node);
+            default:
+                return Elements.createSpanElement();
         }
-        return Elements.createSpanElement();
     }
 
 
@@ -73,14 +77,14 @@ public class ProcessTreeRenderer implements NodeRenderer<ProcessTreeNode> {
         Element nameElement = Elements.createSpanElement();
         nameElement.setTextContent(machine.getName());
 
-        SpanElement buttonElement = Elements.createSpanElement(resources.getCss().processButton());
-        buttonElement.setTextContent("+");
-        root.appendChild(buttonElement);
+        SpanElement newTerminalButton = Elements.createSpanElement(resources.getCss().processButton());
+        newTerminalButton.setTextContent("+");
+        root.appendChild(newTerminalButton);
 
         Element statusElement = Elements.createSpanElement(resources.getCss().machineStatus());
         root.appendChild(statusElement);
 
-        buttonElement.addEventListener(Event.CLICK, new EventListener() {
+        newTerminalButton.addEventListener(Event.CLICK, new EventListener() {
             @Override
             public void handleEvent(Event event) {
                 if (addTerminalClickHandler != null) {
@@ -95,18 +99,55 @@ public class ProcessTreeRenderer implements NodeRenderer<ProcessTreeNode> {
         return root;
     }
 
-    private SpanElement createCommandElement(CommandConfiguration command) {
+    private SpanElement createCommandElement(ProcessTreeNode node) {
         SpanElement root = Elements.createSpanElement();
+        root.appendChild(createStopProcessElement(node));
 
         SpanElement iconElement = Elements.createSpanElement(resources.getCss().processIcon());
-        iconElement.appendChild((Node)resources.output().getSvg().getElement());
+        SVGImage icon = new SVGImage(resources.output());
+        icon.setStyleName(resources.getCss().processIcon());
+        iconElement.appendChild((Node)icon.getElement());
+        iconElement.setClassName(resources.getCss().processIcon());
         root.appendChild(iconElement);
 
         Element nameElement = Elements.createSpanElement();
-        nameElement.setTextContent(command.getName());
+        nameElement.setTextContent(node.getName());
         root.appendChild(nameElement);
 
         return root;
+    }
+
+    private SpanElement createTerminalElement(ProcessTreeNode node) {
+        SpanElement root = Elements.createSpanElement();
+        root.appendChild(createStopProcessElement(node));
+
+        SpanElement iconElement = Elements.createSpanElement();
+        SVGImage icon = new SVGImage(resources.terminal());
+        icon.setStyleName(resources.getCss().processIcon());
+        iconElement.appendChild((Node)icon.getElement());
+        iconElement.setClassName(resources.getCss().processIcon());
+        root.appendChild(iconElement);
+
+        Element nameElement = Elements.createSpanElement();
+        nameElement.setTextContent(node.getName());
+        root.appendChild(nameElement);
+        return root;
+    }
+
+    private SpanElement createStopProcessElement(final ProcessTreeNode node) {
+        SpanElement stopProcessButton = Elements.createSpanElement();
+        Image icon = new Image(resources.close());
+        icon.setStyleName(resources.getCss().processesPanelCloseButtonForProcess());
+        stopProcessButton.appendChild((Node)icon.getElement());
+        stopProcessButton.addEventListener(Event.CLICK, new EventListener() {
+            @Override
+            public void handleEvent(Event event) {
+                if (stopProcessHandler != null) {
+                    stopProcessHandler.onStopProcessClick(node);
+                }
+            }
+        }, true);
+        return stopProcessButton;
     }
 
 
@@ -116,5 +157,9 @@ public class ProcessTreeRenderer implements NodeRenderer<ProcessTreeNode> {
 
     public void setAddTerminalClickHandler(AddTerminalClickHandler addTerminalClickHandler) {
         this.addTerminalClickHandler = addTerminalClickHandler;
+    }
+
+    public void setStopProcessHandler(StopProcessHandler stopProcessHandler) {
+        this.stopProcessHandler = stopProcessHandler;
     }
 }

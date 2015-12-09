@@ -24,10 +24,9 @@ import org.eclipse.che.ide.api.parts.WorkspaceAgent;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.command.valueproviders.CommandPropertyValueProvider;
 import org.eclipse.che.ide.extension.machine.client.command.valueproviders.CommandPropertyValueProviderRegistry;
-import org.eclipse.che.ide.extension.machine.client.outputspanel.OutputsContainerPresenter;
 import org.eclipse.che.ide.extension.machine.client.outputspanel.console.CommandConsoleFactory;
 import org.eclipse.che.ide.extension.machine.client.outputspanel.console.OutputConsole;
-import org.eclipse.che.ide.extension.machine.client.processes.ProcessesPresenter;
+import org.eclipse.che.ide.extension.machine.client.processes.ConsolesPanelPresenter;
 import org.eclipse.che.ide.util.UUID;
 
 import javax.validation.constraints.NotNull;
@@ -41,8 +40,7 @@ import javax.validation.constraints.NotNull;
 public class CommandManager {
 
     private final MachineServiceClient                 machineServiceClient;
-    private final OutputsContainerPresenter            outputsContainerPresenter;
-    private final ProcessesPresenter                   processesPresenter;
+    private final ConsolesPanelPresenter               consolesPanelPresenter;
     private final CommandConsoleFactory                commandConsoleFactory;
     private final NotificationManager                  notificationManager;
     private final MachineLocalizationConstant          localizationConstant;
@@ -52,8 +50,7 @@ public class CommandManager {
 
     @Inject
     public CommandManager(MachineServiceClient machineServiceClient,
-                          ProcessesPresenter processesPresenter,
-                          OutputsContainerPresenter outputsContainerPresenter,
+                          ConsolesPanelPresenter consolesPanelPresenter,
                           CommandConsoleFactory commandConsoleFactory,
                           NotificationManager notificationManager,
                           MachineLocalizationConstant localizationConstant,
@@ -61,8 +58,7 @@ public class CommandManager {
                           AppContext appContext,
                           CommandPropertyValueProviderRegistry commandPropertyValueProviderRegistry) {
         this.machineServiceClient = machineServiceClient;
-        this.processesPresenter = processesPresenter;
-        this.outputsContainerPresenter = outputsContainerPresenter;
+        this.consolesPanelPresenter = consolesPanelPresenter;
         this.commandConsoleFactory = commandConsoleFactory;
         this.notificationManager = notificationManager;
         this.localizationConstant = localizationConstant;
@@ -83,9 +79,8 @@ public class CommandManager {
 
         final OutputConsole console = commandConsoleFactory.create(configuration, devMachineId);
         console.listenToOutput(outputChannel);
-        //outputsContainerPresenter.addConsole(console);
-        processesPresenter.addCommand(devMachineId, configuration, console);
-        workspaceAgent.setActivePart(processesPresenter);
+        consolesPanelPresenter.addCommand(devMachineId, configuration, console);
+        workspaceAgent.setActivePart(consolesPanelPresenter);
 
         final String commandLine = substituteProperties(configuration.toCommandLine());
 

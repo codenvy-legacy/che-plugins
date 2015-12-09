@@ -88,6 +88,12 @@ public interface MachineLocalizationConstant extends Messages {
     @Key("control.machine.destroy.description")
     String machineDestroyDescription();
 
+    @Key("control.terminal.create.text")
+    String newTerminalTitle();
+
+    @Key("control.terminal.create.description")
+    String newTerminalDescription();
+
 
     /* Messages */
     @Key("messages.noDevMachine")
@@ -98,6 +104,9 @@ public interface MachineLocalizationConstant extends Messages {
 
     @Key("messages.devMachineCanNotBeDestroyed.title")
     String devMachineCanNotBeDestroyedTitle();
+
+    @Key("messages.machine.not.found")
+    String machineNotFound(String machineId);
 
     /* MachineStateNotifier */
     @Key("notification.creatingMachine")
@@ -336,8 +345,8 @@ public interface MachineLocalizationConstant extends Messages {
     @Key("unavailable.machine.starting")
     String unavailableMachineStarting(String machineName);
 
-    @Key("view.processes.title")
-    String viewProcessesTitle();
+    @Key("view.consoles.title")
+    String viewConsolesTitle();
 
     @Key("view.processes.tooltip")
     String viewProcessesTooltip();
@@ -350,4 +359,7 @@ public interface MachineLocalizationConstant extends Messages {
 
     @Key("view.processes.url.title")
     String viewProcessesUrlTitle();
+
+    @Key("view.processes.terminal.node.title")
+    String viewProcessesTerminalNodeTitle(String terminalIndex);
 }

@@ -22,6 +22,8 @@ import org.eclipse.che.ide.api.action.ActionManager;
 import org.eclipse.che.ide.api.action.DefaultActionGroup;
 import org.eclipse.che.ide.api.constraints.Constraints;
 import org.eclipse.che.ide.api.extension.Extension;
+import org.eclipse.che.ide.api.keybinding.KeyBindingAgent;
+import org.eclipse.che.ide.api.keybinding.KeyBuilder;
 import org.eclipse.che.ide.api.parts.PartStackType;
 import org.eclipse.che.ide.api.parts.PerspectiveManager;
 import org.eclipse.che.ide.api.parts.WorkspaceAgent;
@@ -29,6 +31,7 @@ import org.eclipse.che.ide.extension.machine.client.actions.CreateMachineAction;
 import org.eclipse.che.ide.extension.machine.client.actions.DestroyMachineAction;
 import org.eclipse.che.ide.extension.machine.client.actions.EditCommandsAction;
 import org.eclipse.che.ide.extension.machine.client.actions.ExecuteSelectedCommandAction;
+import org.eclipse.che.ide.extension.machine.client.actions.NewTerminalAction;
 import org.eclipse.che.ide.extension.machine.client.actions.RestartMachineAction;
 import org.eclipse.che.ide.extension.machine.client.actions.RunCommandAction;
 import org.eclipse.che.ide.extension.machine.client.actions.SelectCommandComboBoxReady;
@@ -37,8 +40,9 @@ import org.eclipse.che.ide.extension.machine.client.machine.console.ClearConsole
 import org.eclipse.che.ide.extension.machine.client.machine.console.MachineConsoleToolbar;
 import org.eclipse.che.ide.extension.machine.client.machine.extserver.ProjectApiComponentInitializer;
 import org.eclipse.che.ide.extension.machine.client.outputspanel.OutputsContainerPresenter;
-import org.eclipse.che.ide.extension.machine.client.processes.ProcessesPresenter;
+import org.eclipse.che.ide.extension.machine.client.processes.ConsolesPanelPresenter;
 import org.eclipse.che.ide.ui.toolbar.ToolbarPresenter;
+import org.eclipse.che.ide.util.input.KeyCodeMap;
 
 import static org.eclipse.che.ide.api.action.IdeActions.GROUP_CENTER_TOOLBAR;
 import static org.eclipse.che.ide.api.action.IdeActions.GROUP_CODE;
@@ -66,6 +70,7 @@ public class MachineExtension {
     public MachineExtension(MachineResources machineResources,
                             final EventBus eventBus,
                             final WorkspaceAgent workspaceAgent,
+                            final ConsolesPanelPresenter consolesPanelPresenter,
                             //projectApiComponentInitializer has handler which will work at the right time
                             final ProjectApiComponentInitializer projectApiComponentInitializer,
                             final OutputsContainerPresenter outputsContainerPresenter,
@@ -77,6 +82,7 @@ public class MachineExtension {
             public void onExtServerStarted(ExtServerStateEvent event) {
                 perspectiveManager.setPerspectiveId(PROJECT_PERSPECTIVE_ID);
                 workspaceAgent.openPart(outputsContainerPresenter, PartStackType.INFORMATION);
+                workspaceAgent.openPart(consolesPanelPresenter, PartStackType.INFORMATION);
             }
 
             @Override
@@ -88,6 +94,8 @@ public class MachineExtension {
     @Inject
     private void prepareActions(MachineLocalizationConstant localizationConstant,
                                 ActionManager actionManager,
+                                KeyBindingAgent keyBinding,
+                                NewTerminalAction newTerminalAction,
                                 ExecuteSelectedCommandAction executeSelectedCommandAction,
                                 SelectCommandComboBoxReady selectCommandAction,
                                 EditCommandsAction editCommandsAction,
@@ -121,6 +129,7 @@ public class MachineExtension {
         actionManager.registerAction("stopWorkspace", stopWorkspaceAction);
         actionManager.registerAction("createSnapshot", createSnapshotAction);
         actionManager.registerAction("runCommand", runCommandAction);
+        actionManager.registerAction("newTerminal", newTerminalAction);
 
         mainMenu.add(machineMenu, new Constraints(AFTER, "run"));
         machineMenu.add(createMachine);
@@ -128,6 +137,7 @@ public class MachineExtension {
         machineMenu.add(destroyMachineAction);
         machineMenu.add(stopWorkspaceAction);
         machineMenu.add(createSnapshotAction);
+        machineMenu.add(newTerminalAction);
 
         // add actions on center part of toolbar
         final DefaultActionGroup centerToolbarGroup = (DefaultActionGroup)actionManager.getAction(GROUP_CENTER_TOOLBAR);
@@ -148,6 +158,9 @@ public class MachineExtension {
         actionManager.registerAction(GROUP_COMMANDS_LIST, commandList);
         commandList.add(editCommandsAction, FIRST);
         commandList.addSeparator();
+
+        // Define hot-keys
+        keyBinding.getGlobal().addKey(new KeyBuilder().alt().charCode(KeyCodeMap.F12).build(), "newTerminal");
     }
 
     @Inject
@@ -160,20 +173,5 @@ public class MachineExtension {
         consoleToolbarActionGroup.add(clearConsoleAction);
         consoleToolbarActionGroup.addSeparator();
         machineConsoleToolbar.bindMainGroup(consoleToolbarActionGroup);
-    }
-
-    @Inject
-    private void setUpOutputsConsole(WorkspaceAgent workspaceAgent, OutputsContainerPresenter outputsContainerPresenter) {
-        workspaceAgent.openPart(outputsContainerPresenter, PartStackType.INFORMATION);
-    }
-
-    @Inject
-    private void setUpProcessesPanel(WorkspaceAgent workspaceAgent, ProcessesPresenter processesPresenter) {
-        workspaceAgent.openPart(processesPresenter, PartStackType.INFORMATION);
-    }
-
-    @Inject
-    private void createProjectApiComponent(ProjectApiComponentInitializer projectApiComponentInitializer) {
-        //projectApiComponentInitializer has handler which will work at the right time
     }
 }
