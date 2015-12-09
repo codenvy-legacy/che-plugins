@@ -129,8 +129,12 @@ public class DockerConnectorConfiguration {
         this.networkFinder = networkFinder;
     }
 
-    public static String getExpectedLocalHost() {
-        return SystemInfo.isLinux() ? "localhost" : dockerDaemonUri().getHost();
+    public String getDockerHost() {
+        if (isUnixSocketUri(dockerDaemonUri)) {
+            return "localhost";
+        } else {
+            return dockerDaemonUri.getHost();
+        }
     }
 
     private static URI dockerDaemonUri() {
@@ -149,10 +153,6 @@ public class DockerConnectorConfiguration {
      * @return URI to connect to docker
      */
     protected static URI dockerDaemonUri(final boolean isLinux, @NotNull final Map<String, String> env) {
-        if (isLinux) {
-            return UNIX_SOCKET_URI;
-        }
-
         // check if have docker variables
         String host = env.get(DOCKER_HOST_PROPERTY);
         if (host != null) {
@@ -178,10 +178,12 @@ public class DockerConnectorConfiguration {
                                         DOCKER_TLS_VERIFY_PROPERTY), e);
                 // unable to use given property, fallback to default URL
                 return DEFAULT_DOCKER_MACHINE_URI;
-
             }
+        } else if (isLinux) {
+            return UNIX_SOCKET_URI;
+        } else {
+            return DEFAULT_DOCKER_MACHINE_URI;
         }
-        return DEFAULT_DOCKER_MACHINE_URI;
     }
 
     public String getDockerHostIp() {
@@ -230,23 +232,18 @@ public class DockerConnectorConfiguration {
     }
 
     private static String dockerMachineCertsDirectoryPath() {
-        return dockerMachineCertsDirectoryPath(SystemInfo.isLinux(), System.getenv());
+        return dockerMachineCertsDirectoryPath(System.getenv());
     }
 
     /**
      * Provides the location of certificates used to connect on docker.
      * It may use extra environment to help to build this path
      *
-     * @param isLinux
-     *         if System is running on Linux
      * @param env
      *         should contain System environment
      * @return local path of the docker certificates
      */
-    protected static String dockerMachineCertsDirectoryPath(boolean isLinux, @NotNull Map<String, String> env) {
-        if (isLinux) {
-            return null;
-        }
+    protected static String dockerMachineCertsDirectoryPath(@NotNull Map<String, String> env) {
         // check if have boot2docker variables
         String certPath = env.get(DOCKER_CERT_PATH_PROPERTY);
 
