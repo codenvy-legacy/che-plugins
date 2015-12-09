@@ -127,7 +127,7 @@ public class AddMavenModuleHandlerTest {
         Project project =
                 projectManager.createProject(workspace, parent, DtoFactory.getInstance().createDto(ProjectConfigDto.class)
                                                                           .withType(MavenAttributes.MAVEN_ID), null);
-        project.getBaseFolder().createFile("pom.xml", String.format(POM_XML_TEMPL, "jar").getBytes(), "text/xml");
+        project.getBaseFolder().createFile("pom.xml", String.format(POM_XML_TEMPL, "jar").getBytes());
         addMavenModuleHandler
                 .onCreateModule(project.getBaseFolder(), project.getPath() + "/" + module, "maven",
                                 Collections.<String, String>emptyMap());
@@ -162,7 +162,7 @@ public class AddMavenModuleHandlerTest {
                                                                  .createDto(ProjectConfigDto.class)
                                                                  .withType(MavenAttributes.MAVEN_ID), null);
 
-        project.getBaseFolder().createFile("pom.xml", String.format(POM_XML_TEMPL, "pom").getBytes(), "text/xml");
+        project.getBaseFolder().createFile("pom.xml", String.format(POM_XML_TEMPL, "pom").getBytes());
 
         addMavenModuleHandler.onCreateModule(project.getBaseFolder(),
                                              project.getPath() + "/" + module,
@@ -177,7 +177,7 @@ public class AddMavenModuleHandlerTest {
         Project project =
                 projectManager.createProject(workspace, parent, DtoFactory.getInstance().createDto(ProjectConfigDto.class)
                                                                           .withType(MavenAttributes.MAVEN_ID), null);
-        project.getBaseFolder().createFile("pom.xml", String.format(POM_XML_TEMPL, "pom").getBytes(), "text/xml");
+        project.getBaseFolder().createFile("pom.xml", String.format(POM_XML_TEMPL, "pom").getBytes());
         addMavenModuleHandler.onCreateModule(project.getBaseFolder(), project.getPath() + "/" + module, "maven",
                                              Collections.<String, String>emptyMap());
 

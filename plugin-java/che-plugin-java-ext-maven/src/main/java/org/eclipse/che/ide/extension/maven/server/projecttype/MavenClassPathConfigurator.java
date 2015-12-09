@@ -69,7 +69,7 @@ public class MavenClassPathConfigurator {
             testDirectory = testDirectory != null && !testDirectory.isEmpty() ? testDirectory : DEFAULT_TEST_SOURCE_FOLDER;
 
             String classPathContent = String.format(CLASS_PATH_CONTENT, sourceDirectory, testDirectory);
-            cheFolder.getVirtualFile().createFile("classpath", null, new ByteArrayInputStream(classPathContent.getBytes()));
+            cheFolder.getVirtualFile().createFile("classpath", new ByteArrayInputStream(classPathContent.getBytes()));
         }
     }
 }

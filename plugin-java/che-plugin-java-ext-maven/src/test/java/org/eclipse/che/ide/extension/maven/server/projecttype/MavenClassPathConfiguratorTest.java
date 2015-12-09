@@ -153,7 +153,7 @@ public class MavenClassPathConfiguratorTest {
         Project testProject =
                 projectManager.createProject(WORKSPACE, "projectName", DtoFactory.getInstance().createDto(ProjectConfigDto.class)
                                                                                  .withType("maven"), null);
-        testProject.getBaseFolder().createFile("pom.xml", POM_CONTENT_WITHOUT_BUILD.getBytes(), "text/xml");
+        testProject.getBaseFolder().createFile("pom.xml", POM_CONTENT_WITHOUT_BUILD.getBytes());
 
         MavenClassPathConfigurator.configure(testProject.getBaseFolder());
         VirtualFileEntry classPathFile = projectManager.getProject(WORKSPACE, "projectName").getBaseFolder().getChild(".codenvy/classpath");
@@ -170,7 +170,7 @@ public class MavenClassPathConfiguratorTest {
                                                                                  .withType("maven"), null);
         String pom = String.format(POM_CONTENT, DEFAULT_SOURCE_DIRECTORY);
         String classPath = String.format(CLASS_PATH_CONTENT, DEFAULT_SOURCE_DIRECTORY, DEFAULT_TEST_SOURCE_DIRECTORY);
-        testProject.getBaseFolder().createFile("pom.xml", pom.getBytes(), "text/xml");
+        testProject.getBaseFolder().createFile("pom.xml", pom.getBytes());
 
         MavenClassPathConfigurator.configure(testProject.getBaseFolder());
         VirtualFileEntry classPathFile = projectManager.getProject(WORKSPACE, "projectName").getBaseFolder().getChild(".codenvy/classpath");
@@ -187,7 +187,7 @@ public class MavenClassPathConfiguratorTest {
                                                                                  .withType("maven"), null);
         String pom = String.format(POM_CONTENT, SOURCE_DIRECTORY);
         String classPath = String.format(CLASS_PATH_CONTENT, SOURCE_DIRECTORY, DEFAULT_TEST_SOURCE_DIRECTORY);
-        testProject.getBaseFolder().createFile("pom.xml", pom.getBytes(), "text/xml");
+        testProject.getBaseFolder().createFile("pom.xml", pom.getBytes());
 
         MavenClassPathConfigurator.configure(testProject.getBaseFolder());
         VirtualFileEntry classPathFile = projectManager.getProject(WORKSPACE, "projectName").getBaseFolder().getChild(".codenvy/classpath");

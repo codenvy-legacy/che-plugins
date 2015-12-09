@@ -67,7 +67,7 @@ public class SimpleGeneratorStrategy implements GeneratorStrategy {
         model.setModelVersion("4.0.0");
 
         if (baseFolder.getChild("pom.xml") == null) {
-            baseFolder.createFile("pom.xml", new byte[0], "text/xml");
+            baseFolder.createFile("pom.xml", new byte[0]);
         }
 
         AttributeValue parentArtifactId = attributes.get(PARENT_ARTIFACT_ID);

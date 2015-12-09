@@ -195,7 +195,7 @@ public class MavenProjectImportedTest {
         Project test = projectManager.createProject(workspace, "test", DtoFactory.getInstance().createDto(ProjectConfigDto.class)
                                                                                  .withName("module1")
                                                                                  .withType("maven"), null);
-        test.getBaseFolder().createFile("pom.xml", pomJar.getBytes(), "text/xml");
+        test.getBaseFolder().createFile("pom.xml", pomJar.getBytes());
         test.getBaseFolder().createFolder("module1");
         mavenProjectImportedHandler.onProjectImported(test.getBaseFolder());
         assertNotNull(projectManager.getProject(workspace, "test"));
@@ -205,12 +205,12 @@ public class MavenProjectImportedTest {
     public void withPomXmlWithFolders() throws Exception {
         Project test = projectManager.createProject(workspace, "test", DtoFactory.getInstance().createDto(ProjectConfigDto.class)
                                                                                  .withType("maven"), null);
-        test.getBaseFolder().createFile("pom.xml", pomJar.getBytes(), "text/xml");
+        test.getBaseFolder().createFile("pom.xml", pomJar.getBytes());
         FolderEntry folder = test.getBaseFolder().createFolder("folder1");
-        folder.createFile("pom.xml", pomJar.getBytes(), "text/xml");
+        folder.createFile("pom.xml", pomJar.getBytes());
 
         FolderEntry folder1 = test.getBaseFolder().createFolder("folder2");
-        folder1.createFile("pom.xml", pomJar.getBytes(), "text/xml");
+        folder1.createFile("pom.xml", pomJar.getBytes());
 
         mavenProjectImportedHandler.onProjectImported(test.getBaseFolder());
         assertNotNull(projectManager.getProject(workspace, "test"));
@@ -222,16 +222,16 @@ public class MavenProjectImportedTest {
     public void withPomXmlMultiModule() throws Exception {
         Project test = projectManager.createProject(workspace, "test", DtoFactory.getInstance().createDto(ProjectConfigDto.class)
                                                                                  .withType("maven"), null);
-        test.getBaseFolder().createFile("pom.xml", pom.getBytes(), "text/xml");
+        test.getBaseFolder().createFile("pom.xml", pom.getBytes());
 
         FolderEntry module1 = test.getBaseFolder().createFolder("module1");
-        module1.createFile("pom.xml", pom.getBytes(), "text/xml");
+        module1.createFile("pom.xml", pom.getBytes());
 
         FolderEntry module2 = test.getBaseFolder().createFolder("module2");
-        module2.createFile("pom.xml", pom.getBytes(), "text/xml");
+        module2.createFile("pom.xml", pom.getBytes());
 
         FolderEntry moduleNotDescribedInParentPom = test.getBaseFolder().createFolder("moduleNotDescribedInParentPom");
-        moduleNotDescribedInParentPom.createFile("pom.xml", pom.getBytes(), "text/xml");
+        moduleNotDescribedInParentPom.createFile("pom.xml", pom.getBytes());
 
 
         mavenProjectImportedHandler.onProjectImported(test.getBaseFolder());
@@ -247,19 +247,19 @@ public class MavenProjectImportedTest {
         FolderEntry rootProject =
                 projectManager.createProject(workspace, "test", DtoFactory.getInstance().createDto(ProjectConfigDto.class)
                                                                           .withType("maven"), null).getBaseFolder();
-        rootProject.createFile("pom.xml", pom.getBytes(), "text/xml");
+        rootProject.createFile("pom.xml", pom.getBytes());
 
         FolderEntry module1 = rootProject.createFolder("module1");
-        module1.createFile("pom.xml", pomWithNestingModule.getBytes(), "text/xml");
+        module1.createFile("pom.xml", pomWithNestingModule.getBytes());
 
         FolderEntry module2 = rootProject.createFolder("module2");
-        module2.createFile("pom.xml", pom.getBytes(), "text/xml");
+        module2.createFile("pom.xml", pom.getBytes());
 
         FolderEntry module3 = rootProject.createFolder("module3");
-        module3.createFile("pom.xml", pom.getBytes(), "text/xml");
+        module3.createFile("pom.xml", pom.getBytes());
 
         FolderEntry moduleNotDescribedInParentPom = rootProject.createFolder("moduleNotDescribedInParentPom");
-        moduleNotDescribedInParentPom.createFile("pom.xml", pom.getBytes(), "text/xml");
+        moduleNotDescribedInParentPom.createFile("pom.xml", pom.getBytes());
 
         mavenProjectImportedHandler.onProjectImported(rootProject);
         assertNotNull(projectManager.getProject(workspace, "test"));

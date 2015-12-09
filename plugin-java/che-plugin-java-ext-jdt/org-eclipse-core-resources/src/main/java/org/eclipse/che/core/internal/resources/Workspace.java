@@ -806,7 +806,7 @@ public class Workspace implements IWorkspace {
                     String newName = path.lastSegment();
                     VirtualFileEntry child = projectsRoot.getChild(path.removeLastSegments(1).toOSString());
                     FolderEntry entry = (FolderEntry)child;
-                    entry.createFile(newName, new byte[0], null);
+                    entry.createFile(newName, new byte[0]);
                     break;
                 case IResource.FOLDER:
                     projectsRoot.createFolder(path.toOSString());
@@ -858,7 +858,7 @@ public class Workspace implements IWorkspace {
         try {
             VirtualFileEntry child = projectsRoot.getChild(file.getFullPath().toOSString());
             if (child == null) {
-                projectsRoot.createFile(file.getFullPath().toOSString(), content, null);
+                projectsRoot.createFile(file.getFullPath().toOSString(), content);
             } else {
                 FileEntry fileEntry = (FileEntry)child;
                 fileEntry.updateContent(content);

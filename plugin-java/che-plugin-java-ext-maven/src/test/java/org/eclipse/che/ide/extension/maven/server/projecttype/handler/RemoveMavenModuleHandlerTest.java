@@ -147,7 +147,7 @@ public class RemoveMavenModuleHandlerTest {
         Project project =
                 projectManager.createProject(workspace, parent, DtoFactory.getInstance().createDto(ProjectConfigDto.class)
                                                                           .withType(MavenAttributes.MAVEN_ID), null);
-        project.getBaseFolder().createFile("pom.xml", POM_XML_TEMPL.getBytes(), "text/xml");
+        project.getBaseFolder().createFile("pom.xml", POM_XML_TEMPL.getBytes());
         removeMavenModuleHandler
                 .onRemoveModule(project.getBaseFolder(), DtoFactory.getInstance().createDto(ProjectConfigDto.class).withType("notmaven"));
     }
@@ -158,7 +158,7 @@ public class RemoveMavenModuleHandlerTest {
         Project project =
                 projectManager.createProject(workspace, parent, DtoFactory.getInstance().createDto(ProjectConfigDto.class)
                                                                           .withType(MavenAttributes.MAVEN_ID), null);
-        project.getBaseFolder().createFile("pom.xml", POM_XML_TEMPL.getBytes(), "text/xml");
+        project.getBaseFolder().createFile("pom.xml", POM_XML_TEMPL.getBytes());
         removeMavenModuleHandler.onRemoveModule(project.getBaseFolder(), DtoFactory.getInstance()
                                                                                    .createDto(ProjectConfigDto.class)
                                                                                    .withName(FIRST_MODULE)
@@ -186,7 +186,7 @@ public class RemoveMavenModuleHandlerTest {
         Project project =
                 projectManager.createProject(workspace, parent, DtoFactory.getInstance().createDto(ProjectConfigDto.class)
                                                                           .withType(MavenAttributes.MAVEN_ID), null);
-        project.getBaseFolder().createFile("pom.xml", POM_XML_TEMPL.getBytes(), "text/xml");
+        project.getBaseFolder().createFile("pom.xml", POM_XML_TEMPL.getBytes());
         removeMavenModuleHandler.onRemoveModule(project.getBaseFolder(), DtoFactory.getInstance()
                                                                                    .createDto(ProjectConfigDto.class)
                                                                                    .withType(MavenAttributes.MAVEN_ID));
