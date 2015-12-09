@@ -14,6 +14,7 @@ import org.eclipse.che.api.core.ConflictException;
 import org.eclipse.che.api.core.ForbiddenException;
 import org.eclipse.che.api.core.NotFoundException;
 import org.eclipse.che.api.core.ServerException;
+import org.eclipse.che.api.core.model.project.SourceStorage;
 import org.eclipse.che.api.core.model.workspace.ProjectConfig;
 import org.eclipse.che.api.project.server.FolderEntry;
 import org.eclipse.che.api.project.server.Project;
@@ -21,10 +22,12 @@ import org.eclipse.che.api.project.server.ProjectManager;
 import org.eclipse.che.api.project.server.ValueStorageException;
 import org.eclipse.che.api.project.server.VirtualFileEntry;
 import org.eclipse.che.api.workspace.server.model.impl.ProjectConfigImpl;
+import org.eclipse.che.api.workspace.server.model.impl.SourceStorageImpl;
 import org.eclipse.che.ide.maven.tools.Model;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.MAVEN_ID;
@@ -79,7 +82,7 @@ public class MavenProjectResolver {
             }
 
             projectConfig.setModules(modules);
-            projectConfig.setSource(project.getConfig().getSource());
+            projectConfig.setSource(getSourceStorage(project.getConfig()));
 
             project.updateConfig(projectConfig);
         }
@@ -92,6 +95,16 @@ public class MavenProjectResolver {
         projectConfig.setType(MAVEN_ID);
 
         return projectConfig;
+    }
+
+    private static SourceStorageImpl getSourceStorage(ProjectConfig config) {
+        SourceStorage sourceStorage = config.getSource();
+
+        if (sourceStorage == null) {
+            return new SourceStorageImpl("", "", Collections.emptyMap());
+        }
+
+        return new SourceStorageImpl(sourceStorage.getType(), sourceStorage.getLocation(), sourceStorage.getParameters());
     }
 
     private static void defineModules(FolderEntry folderEntry, List<ProjectConfig> modules) throws ServerException,
