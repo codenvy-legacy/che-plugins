@@ -48,7 +48,7 @@ public class RemoveMavenModuleHandler implements RemoveModuleHandler {
         }
         VirtualFileEntry pom = parentFolder.getChild("pom.xml");
         if (pom == null) {
-            throw new IllegalArgumentException("Can't find pom.xml file in path: " + parentFolder.getPath());
+            return;
         }
         try {
             Model model = Model.readFrom(pom.getVirtualFile());

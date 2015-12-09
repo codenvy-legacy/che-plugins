@@ -133,8 +133,8 @@ public class AddMavenModuleHandlerTest {
                                 Collections.<String, String>emptyMap());
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void pomNotFound() throws Exception {
+    @Test
+    public void methodShouldReturnedTheControlWhenPomNotFound() throws Exception {
         String parent = NameGenerator.generate("parent", 5);
         String module = NameGenerator.generate("module", 5);
         Project project =
@@ -143,6 +143,9 @@ public class AddMavenModuleHandlerTest {
         addMavenModuleHandler
                 .onCreateModule(project.getBaseFolder(), project.getPath() + "/" + module, "maven",
                                 Collections.<String, String>emptyMap());
+
+        VirtualFileEntry pom = project.getBaseFolder().getChild("pom.xml");
+        Assert.assertNull(pom);
     }
 
     @Test(expected = IllegalArgumentException.class)
