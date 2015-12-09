@@ -113,7 +113,8 @@ public class RemoveMavenModuleHandlerTest {
         Set<ProjectHandler> handlers = new HashSet<>();
         ProjectHandlerRegistry handlerRegistry = new ProjectHandlerRegistry(handlers);
 
-        projectManager = new DefaultProjectManager(vfsRegistry, eventService, projectTypeRegistry, handlerRegistry,filterProvider, apiEndpoint);
+        projectManager =
+                new DefaultProjectManager(vfsRegistry, eventService, projectTypeRegistry, handlerRegistry, filterProvider, apiEndpoint);
 
         HttpJsonHelper.HttpJsonHelperImpl httpJsonHelper = mock(HttpJsonHelper.HttpJsonHelperImpl.class);
         Field f = HttpJsonHelper.class.getDeclaredField("httpJsonHelperImpl");
@@ -128,8 +129,8 @@ public class RemoveMavenModuleHandlerTest {
         f.set(null, new HttpJsonHelper.HttpJsonHelperImpl());
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void shouldThrowExceptionWhenPomNotFound() throws Exception {
+    @Test
+    public void methodShouldReturnedTheControlWhenPomNotFound() throws Exception {
         String parent = NameGenerator.generate("parent", 5);
         String module = NameGenerator.generate("module", 5);
         Project project =
@@ -138,6 +139,8 @@ public class RemoveMavenModuleHandlerTest {
                                                                           .withType(MavenAttributes.MAVEN_ID), null);
         removeMavenModuleHandler
                 .onRemoveModule(project.getBaseFolder(), DtoFactory.getInstance().createDto(ProjectConfigDto.class).withType("maven"));
+        VirtualFileEntry pom = project.getBaseFolder().getChild("pom.xml");
+        Assert.assertNull(pom);
     }
 
     @Test(expected = IllegalArgumentException.class)
