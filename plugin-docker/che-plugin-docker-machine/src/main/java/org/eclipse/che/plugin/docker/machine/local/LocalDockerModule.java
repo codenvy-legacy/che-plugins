@@ -68,6 +68,11 @@ public class LocalDockerModule extends AbstractModule {
                                                            .permitDuplicates();
         debMachineEnvVars.addBinding().toProvider(DockerApiHostEnvVariableProvider.class).in(Singleton.class);
         debMachineEnvVars.addBinding().toProvider(DockerApiTlsVerifyEnvVariableProvider.class).in(Singleton.class);
+
+        Multibinder<String> allMachinesEnvVars = Multibinder.newSetBinder(binder(),
+                                                                          String.class,
+                                                                          Names.named("machine.docker.machine_env"))
+                                                            .permitDuplicates();
     }
 
     /**
@@ -79,7 +84,7 @@ public class LocalDockerModule extends AbstractModule {
      * @author Alexander Garagatyi
      * @author Vitalii Parfonov
      */
-    private class HostProjectFolderProvider implements Provider<String> {
+    private static class HostProjectFolderProvider implements Provider<String> {
         @Inject
         @Named("vfs.local.fs_root_dir")
         private String projectsFolder;
@@ -99,7 +104,7 @@ public class LocalDockerModule extends AbstractModule {
      *
      * @author Alexander Garagatyi
      */
-    private class DockerApiHostEnvVariableProvider implements Provider<String> {
+    private static class DockerApiHostEnvVariableProvider implements Provider<String> {
         @Inject
         private DockerConnectorConfiguration dockerConnectorConfiguration;
 
@@ -118,7 +123,7 @@ public class LocalDockerModule extends AbstractModule {
      *
      * @author Alexander Garagatyi
      */
-    private class DockerApiTlsVerifyEnvVariableProvider implements Provider<String> {
+    private static class DockerApiTlsVerifyEnvVariableProvider implements Provider<String> {
         @Inject
         private DockerConnectorConfiguration dockerConnectorConfiguration;
 

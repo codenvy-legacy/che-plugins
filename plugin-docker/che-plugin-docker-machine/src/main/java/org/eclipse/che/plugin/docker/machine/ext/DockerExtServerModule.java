@@ -66,7 +66,7 @@ public class DockerExtServerModule extends AbstractModule {
      *
      * @author Alexander Garagatyi
      */
-    private class ApiEndpointEnvVariableProvider implements Provider<String> {
+    private static class ApiEndpointEnvVariableProvider implements Provider<String> {
         @Inject
         @Named("machine.docker.che_api.endpoint")
         private String apiEndpoint;
@@ -82,7 +82,7 @@ public class DockerExtServerModule extends AbstractModule {
      *
      * @author Alexander Garagatyi
      */
-    private class ProjectsRootEnvVariableProvider implements Provider<String> {
+    private static class ProjectsRootEnvVariableProvider implements Provider<String> {
         @Inject
         @Named("che.projects.root")
         private String projectFolderPath;
@@ -101,7 +101,7 @@ public class DockerExtServerModule extends AbstractModule {
      * @author Alexander Garagatyi
      * @author Vitalii Parfonov
      */
-    private class ExtServerVolumeProvider implements Provider<String> {
+    private static class ExtServerVolumeProvider implements Provider<String> {
         @Inject
         @Named("machine.server.ext.archive")
         private String extServerArchivePath;

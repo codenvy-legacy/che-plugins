@@ -37,7 +37,7 @@ public class LocalStorageModule extends AbstractModule {
      *
      * @author Alexander Garagatyi
      */
-    private class LocalStorageDockerVolumePathProvider implements Provider<String> {
+    private static class LocalStorageDockerVolumePathProvider implements Provider<String> {
         @Inject
         @Named("local.storage.path")
         private String localStoragePath;

@@ -56,7 +56,7 @@ public class DockerTerminalModule extends AbstractModule {
      * @author Alexander Garagatyi
      * @author Vitalii Parfonov
      */
-    private class TerminalVolumeProvider implements Provider<String> {
+    private static class TerminalVolumeProvider implements Provider<String> {
         @Inject
         @Named("machine.server.terminal.archive")
         private String terminalArchivePath;
