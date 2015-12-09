@@ -110,9 +110,13 @@ public class LocalDockerModule extends AbstractModule {
 
         @Override
         public String get() {
-            final URI dockerApiUri = dockerConnectorConfiguration.getDockerDaemonUri();
-            if ("http".equals(dockerApiUri.getScheme())) {
-                return DockerConnectorConfiguration.DOCKER_HOST_PROPERTY + "=" + dockerApiUri.getHost();
+            final URI dockerDaemonUri = dockerConnectorConfiguration.getDockerDaemonUri();
+            if ("http".equals(dockerDaemonUri.getScheme())) {
+                return DockerConnectorConfiguration.DOCKER_HOST_PROPERTY
+                       + "=tcp://"
+                       + dockerConnectorConfiguration.getDockerHost()
+                       + ':'
+                       + dockerDaemonUri.getPort();
             }
             return "";
         }

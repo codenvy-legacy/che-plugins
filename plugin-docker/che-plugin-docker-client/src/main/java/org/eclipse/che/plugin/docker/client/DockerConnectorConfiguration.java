@@ -129,17 +129,47 @@ public class DockerConnectorConfiguration {
         this.networkFinder = networkFinder;
     }
 
+    public static boolean isUnixSocketUri(URI uri) {
+        return UNIX_SOCKET_SCHEME.equals(uri.getScheme());
+    }
+
     public String getDockerHost() {
         if (isUnixSocketUri(dockerDaemonUri)) {
             return "localhost";
         } else {
-            return dockerDaemonUri.getHost();
+            return getDockerHostIp();
         }
+    }
+
+    public String getDockerHostIp() {
+        return getDockerHostIp(SystemInfo.isLinux(), System.getenv());
+    }
+
+    public URI getDockerDaemonUri() {
+        return dockerDaemonUri;
+    }
+
+    public InitialAuthConfig getAuthConfigs() {
+        return authConfigs;
+    }
+
+    public DockerCertificates getDockerCertificates() {
+        if (dockerCertificatesDirectoryPath == null || !getDockerDaemonUri().getScheme().equals("https")) {
+            return null;
+        }
+        final File dockerCertificatesDirectory = new File(dockerCertificatesDirectoryPath);
+        return dockerCertificatesDirectory.isDirectory() ? DockerCertificates.loadFromDirectory(dockerCertificatesDirectory) : null;
+    }
+
+    /**
+     * For testing purposes
+     */
+    public String getDockerCertificatesDirectoryPath() {
+        return dockerCertificatesDirectoryPath;
     }
 
     private static URI dockerDaemonUri() {
         return dockerDaemonUri(SystemInfo.isLinux(), System.getenv());
-
     }
 
     /**
@@ -184,10 +214,6 @@ public class DockerConnectorConfiguration {
         } else {
             return DEFAULT_DOCKER_MACHINE_URI;
         }
-    }
-
-    public String getDockerHostIp() {
-        return getDockerHostIp(SystemInfo.isLinux(), System.getenv());
     }
 
     /**
@@ -257,32 +283,5 @@ public class DockerConnectorConfiguration {
         }
         // return default value
         return DEFAULT_DOCKER_MACHINE_CERTS_DIR;
-    }
-
-    public URI getDockerDaemonUri() {
-        return dockerDaemonUri;
-    }
-
-    public InitialAuthConfig getAuthConfigs() {
-        return authConfigs;
-    }
-
-    /**
-     * For testing purposes
-     */
-    public String getDockerCertificatesDirectoryPath() {
-        return dockerCertificatesDirectoryPath;
-    }
-
-    public DockerCertificates getDockerCertificates() {
-        if (dockerCertificatesDirectoryPath == null || !getDockerDaemonUri().getScheme().equals("https")) {
-            return null;
-        }
-        final File dockerCertificatesDirectory = new File(dockerCertificatesDirectoryPath);
-        return dockerCertificatesDirectory.isDirectory() ? DockerCertificates.loadFromDirectory(dockerCertificatesDirectory) : null;
-    }
-
-    public static boolean isUnixSocketUri(URI uri) {
-        return UNIX_SOCKET_SCHEME.equals(uri.getScheme());
     }
 }
