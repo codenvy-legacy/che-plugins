@@ -23,6 +23,7 @@ import org.eclipse.che.api.project.server.type.AttributeValue;
 import org.eclipse.che.api.project.server.type.ProjectType;
 import org.eclipse.che.api.project.server.type.ProjectTypeRegistry;
 import org.eclipse.che.api.project.shared.Builders;
+import org.eclipse.che.api.vfs.server.SystemPathsFilter;
 import org.eclipse.che.api.vfs.server.VirtualFileSystemRegistry;
 import org.eclipse.che.api.vfs.server.VirtualFileSystemUser;
 import org.eclipse.che.api.vfs.server.VirtualFileSystemUserContext;
@@ -32,7 +33,6 @@ import org.eclipse.che.ide.extension.maven.server.projecttype.handler.GeneratorS
 import org.eclipse.che.ide.extension.maven.server.projecttype.handler.MavenProjectGenerator;
 import org.eclipse.che.ide.extension.maven.shared.MavenAttributes;
 import org.eclipse.che.ide.maven.tools.Model;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -67,7 +67,7 @@ public class MavenProjectTypeTest {
                     public VirtualFileSystemUser getVirtualFileSystemUser() {
                         return new VirtualFileSystemUser(vfsUser, vfsUserGroups);
                     }
-                }, vfsRegistry);
+                }, vfsRegistry, SystemPathsFilter.ANY);
         vfsRegistry.registerProvider(workspace, memoryFileSystemProvider);
 
 
