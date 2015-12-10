@@ -12,6 +12,7 @@ package org.eclipse.che.env.local.server;
 
 import org.eclipse.che.api.core.NotFoundException;
 import org.eclipse.che.api.core.ServerException;
+import org.eclipse.che.api.core.UnauthorizedException;
 import org.eclipse.che.api.user.server.dao.UserDao;
 import org.eclipse.che.commons.env.EnvironmentContext;
 import org.eclipse.che.commons.user.User;
@@ -78,7 +79,7 @@ public class SingleEnvironmentFilter implements Filter {
                 if (password != null) {
                     userDao.authenticate(username, password);
                 }
-            } catch (NotFoundException | ServerException e) {
+            } catch (NotFoundException | ServerException | UnauthorizedException e) {
                 throw new ServletException(e);
             }
             final List<String> roles = new LinkedList<>();
