@@ -10,26 +10,28 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.java.client.project.node.jar;
 
-import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
+import org.eclipse.che.commons.annotation.Nullable;
+import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.ide.api.project.node.settings.NodeSettings;
 import org.eclipse.che.ide.ext.java.client.project.node.JavaNodeManager;
 import org.eclipse.che.ide.ext.java.shared.JarEntry;
 
 import javax.validation.constraints.NotNull;
+import java.util.Objects;
 
 /**
  * @author Vlad Zhukovskiy
  */
 public abstract class AbstractJarEntryNode extends AbstractJavaSyntheticNode<JarEntry> {
 
-    protected final int libId;
+    protected final Integer libId;
 
     public AbstractJarEntryNode(@NotNull JarEntry jarEntry,
-                                int libId,
-                                @NotNull ProjectDescriptor projectDescriptor,
+                                @Nullable Integer libId,
+                                @NotNull ProjectConfigDto projectConfig,
                                 @NotNull NodeSettings nodeSettings,
                                 @NotNull JavaNodeManager nodeManager) {
-        super(jarEntry, projectDescriptor, nodeSettings, nodeManager);
+        super(jarEntry, projectConfig, nodeSettings, nodeManager);
         this.libId = libId;
     }
 
@@ -41,9 +43,8 @@ public abstract class AbstractJarEntryNode extends AbstractJavaSyntheticNode<Jar
 
         AbstractJarEntryNode that = (AbstractJarEntryNode)o;
 
-        if (libId != that.libId) return false;
+        return Objects.equals(libId, that.libId);
 
-        return true;
     }
 
     @Override

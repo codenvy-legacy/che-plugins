@@ -17,7 +17,7 @@ import com.google.web.bindery.event.shared.EventBus;
 import org.eclipse.che.api.git.gwt.client.GitServiceClient;
 import org.eclipse.che.api.git.shared.Branch;
 import org.eclipse.che.api.git.shared.MergeResult;
-import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
+import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.editor.EditorPartPresenter;
@@ -52,28 +52,20 @@ import static org.eclipse.che.ide.ext.git.client.merge.Reference.RefType.REMOTE_
 public class MergePresenter implements MergeView.ActionDelegate {
     public static final String LOCAL_BRANCHES_TITLE  = "Local Branches";
     public static final String REMOTE_BRANCHES_TITLE = "Remote Branches";
+
     private final DtoUnmarshallerFactory   dtoUnmarshallerFactory;
-    private       MergeView                view;
+    private final MergeView                view;
     private final ProjectExplorerPresenter projectExplorer;
-    private       GitServiceClient         service;
-    private       EventBus                 eventBus;
-    private       GitLocalizationConstant  constant;
-    private       EditorAgent              editorAgent;
-    private       AppContext               appContext;
-    private       Reference                selectedReference;
-    private       NotificationManager      notificationManager;
-    private final GitOutputPartPresenter  console;
-    
-    /**
-     * Create presenter.
-     *
-     * @param view
-     * @param service
-     * @param appContext
-     * @param eventBus
-     * @param constant
-     * @param notificationManager
-     */
+    private final GitServiceClient         service;
+    private final EventBus                 eventBus;
+    private final GitLocalizationConstant  constant;
+    private final EditorAgent              editorAgent;
+    private final AppContext               appContext;
+    private final NotificationManager      notificationManager;
+    private final GitOutputPartPresenter   console;
+
+    private Reference selectedReference;
+
     @Inject
     public MergePresenter(MergeView view,
                           EventBus eventBus,
@@ -100,7 +92,7 @@ public class MergePresenter implements MergeView.ActionDelegate {
 
     /** Show dialog. */
     public void showDialog() {
-        ProjectDescriptor project = appContext.getCurrentProject().getRootProject();
+        ProjectConfigDto project = appContext.getCurrentProject().getRootProject();
         selectedReference = null;
         view.setEnableMergeButton(false);
 

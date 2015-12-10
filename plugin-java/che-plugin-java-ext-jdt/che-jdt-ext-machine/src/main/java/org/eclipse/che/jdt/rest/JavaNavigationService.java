@@ -4,16 +4,18 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * <p/>
  * Contributors:
- *   Codenvy, S.A. - initial API and implementation
+ * Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.jdt;
+package org.eclipse.che.jdt.rest;
 
 import org.eclipse.che.ide.ext.java.shared.Jar;
 import org.eclipse.che.ide.ext.java.shared.JarEntry;
 import org.eclipse.che.ide.ext.java.shared.OpenDeclarationDescriptor;
+import org.eclipse.che.ide.ext.java.shared.dto.model.CompilationUnit;
 import org.eclipse.che.ide.ext.java.shared.dto.model.JavaProject;
+import org.eclipse.che.jdt.JavaNavigation;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
@@ -82,6 +84,29 @@ public class JavaNavigationService {
         return navigation.getChildren(project, rootId, path);
     }
 
+    /**
+     * Create compilation unit model for the opened java class.
+     *
+     * @param projectPath
+     *         path to the project which is contained class file
+     * @param fqn
+     *         fully qualified name of the class file
+     * @param showInherited
+     *         <code>true</code> iff inherited members are shown
+     * @return compilation unit of the java source file
+     * @throws JavaModelException
+     *         when JavaModel has a failure
+     */
+    @GET
+    @Path("compilation-unit")
+    @Produces("application/json")
+    public CompilationUnit getCompilationUnit(@QueryParam("projectpath") String projectPath,
+                                              @QueryParam("fqn") String fqn,
+                                              @QueryParam("showinherited") boolean showInherited) throws JavaModelException {
+        IJavaProject project = MODEL.getJavaProject(projectPath);
+        return navigation.getCompilationUnitByPath(project, fqn, showInherited);
+    }
+
     @GET
     @Path("content")
     public Response getContent(@QueryParam("projectpath") String projectPath, @QueryParam("path") String path,
@@ -94,7 +119,7 @@ public class JavaNavigationService {
     @GET
     @Path("entry")
     public JarEntry getEntry(@QueryParam("projectpath") String projectPath, @QueryParam("path") String path,
-                               @QueryParam("root") int rootId) throws CoreException {
+                             @QueryParam("root") int rootId) throws CoreException {
         IJavaProject project = MODEL.getJavaProject(projectPath);
         return navigation.getEntry(project, rootId, path);
     }

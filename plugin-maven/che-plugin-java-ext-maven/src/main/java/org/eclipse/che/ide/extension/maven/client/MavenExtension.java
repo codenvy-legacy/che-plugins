@@ -15,7 +15,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.event.shared.EventBus;
 
-import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
+import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.ide.api.action.ActionManager;
 import org.eclipse.che.ide.api.action.DefaultActionGroup;
 import org.eclipse.che.ide.api.action.IdeActions;
@@ -26,13 +26,21 @@ import org.eclipse.che.ide.api.event.project.ProjectReadyHandler;
 import org.eclipse.che.ide.api.extension.Extension;
 import org.eclipse.che.ide.api.icon.Icon;
 import org.eclipse.che.ide.api.icon.IconRegistry;
+import org.eclipse.che.ide.api.project.node.HasStorablePath;
+import org.eclipse.che.ide.api.project.node.Node;
 import org.eclipse.che.ide.api.project.type.wizard.PreSelectedProjectTypeManager;
 import org.eclipse.che.ide.ext.java.client.dependenciesupdater.DependenciesUpdater;
+import org.eclipse.che.ide.ext.java.client.project.node.JavaNodeManager;
 import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateEvent;
 import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateHandler;
 import org.eclipse.che.ide.extension.maven.client.actions.CreateMavenModuleAction;
 import org.eclipse.che.ide.extension.maven.client.actions.UpdateDependencyAction;
 import org.eclipse.che.ide.extension.maven.shared.MavenAttributes;
+import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
+import org.eclipse.che.ide.project.node.AbstractProjectBasedNode;
+import org.eclipse.che.ide.project.node.ModuleNode;
+import org.eclipse.che.ide.project.node.ProjectNode;
+import org.eclipse.che.ide.ui.smartTree.event.BeforeExpandNodeEvent;
 
 import java.util.Arrays;
 import java.util.List;
@@ -50,7 +58,7 @@ import static org.eclipse.che.ide.api.action.IdeActions.GROUP_FILE_NEW;
 @Extension(title = "Maven", version = "3.0.0")
 public class MavenExtension {
     private static List<MavenArchetype> archetypes;
-    private        ProjectDescriptor    project;
+    private        ProjectConfigDto     project;
 
     @Inject
     public MavenExtension(PreSelectedProjectTypeManager preSelectedProjectManager) {
@@ -68,12 +76,24 @@ public class MavenExtension {
     }
 
     @Inject
-    private void bindEvents(final EventBus eventBus, final DependenciesUpdater dependenciesUpdater) {
+    private void bindEvents(final EventBus eventBus,
+                            final DependenciesUpdater dependenciesUpdater,
+                            final ProjectExplorerPresenter projectExplorerPresenter) {
+
+        projectExplorerPresenter.addBeforeExpandHandler(new BeforeExpandNodeEvent.BeforeExpandNodeHandler() {
+            @Override
+            public void onBeforeExpand(BeforeExpandNodeEvent event) {
+                Node node = event.getNode();
+                if (!projectExplorerPresenter.isLoaded(node) && JavaNodeManager.isJavaProject(node) && isValid(node)) {
+                    dependenciesUpdater.updateDependencies(((HasStorablePath)node).getStorablePath());
+                }
+            }
+        });
 
         eventBus.addHandler(ProjectReadyEvent.TYPE, new ProjectReadyHandler() {
             @Override
             public void onProjectReady(ProjectReadyEvent event) {
-                project = event.getProject();
+                project = event.getProjectConfig();
                 if (isValidForResolveDependencies(project)) {
                     dependenciesUpdater.updateDependencies(project.getPath());
                 }
@@ -99,6 +119,30 @@ public class MavenExtension {
             public void onMachineDestroyed(MachineStateEvent event) {
             }
         });
+    }
+
+    private boolean isValid(Node node) {
+        ProjectConfigDto projectConfig = null;
+
+        //TODO it's a temporary solution. This code will be rewriting during work on this issue IDEX-3468.
+        if (node instanceof ModuleNode) {
+            AbstractProjectBasedNode abstractNode = (AbstractProjectBasedNode)node;
+
+            projectConfig = (ProjectConfigDto)abstractNode.getData();
+        }
+
+        if (node instanceof ProjectNode) {
+            AbstractProjectBasedNode abstractNode = (AbstractProjectBasedNode)node;
+
+            projectConfig = (ProjectConfigDto)abstractNode.getData();
+        }
+
+        if (projectConfig == null) {
+            return false;
+        }
+
+        Map<String, List<String>> attr = projectConfig.getAttributes();
+        return attr.containsKey(MavenAttributes.PACKAGING) && !"pom".equals(attr.get(MavenAttributes.PACKAGING).get(0));
     }
 
     @Inject
@@ -128,7 +172,7 @@ public class MavenExtension {
         iconRegistry.registerIcon(new Icon("maven/pom.xml.file.small.icon", mavenResources.maven()));
     }
 
-    private boolean isValidForResolveDependencies(ProjectDescriptor project) {
+    private boolean isValidForResolveDependencies(ProjectConfigDto project) {
         Map<String, List<String>> attr = project.getAttributes();
         return !(attr.containsKey(MavenAttributes.PACKAGING) && "pom".equals(attr.get(MavenAttributes.PACKAGING).get(0)));
     }

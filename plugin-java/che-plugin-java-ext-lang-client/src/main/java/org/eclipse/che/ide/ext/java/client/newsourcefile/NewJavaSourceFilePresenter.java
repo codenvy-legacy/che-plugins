@@ -246,7 +246,6 @@ public class NewJavaSourceFilePresenter implements NewJavaSourceFileView.ActionD
                 projectServiceClient.createFile(folder.getPath(),
                                                 nameWithoutExtension + ".java",
                                                 content,
-                                                null,
                                                 _callback(callback, dtoUnmarshaller.newUnmarshaller(ItemReference.class)));
             }
         };

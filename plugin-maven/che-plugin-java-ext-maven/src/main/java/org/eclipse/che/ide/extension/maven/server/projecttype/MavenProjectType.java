@@ -12,7 +12,7 @@ package org.eclipse.che.ide.extension.maven.server.projecttype;
 
 import com.google.inject.Inject;
 
-import org.eclipse.che.api.project.server.type.ProjectType;
+import org.eclipse.che.api.project.server.type.AbstractProjectType;
 import org.eclipse.che.ide.ext.java.server.projecttype.JavaProjectType;
 import org.eclipse.che.ide.extension.maven.shared.MavenAttributes;
 
@@ -24,14 +24,12 @@ import javax.inject.Singleton;
  * @author Artem Zatsarynnyy
  */
 @Singleton
-public class MavenProjectType extends ProjectType {
+public class MavenProjectType extends AbstractProjectType {
 
-    public static final String DEFAULT_RECIPE =
-            "https://gist.githubusercontent.com/gazarenkov/9f11a85a157ab399aca5/raw/b9f66169588f5394f84a1893cfeccd10e18d7fc8/maven";
     @Inject
     public MavenProjectType(MavenValueProviderFactory mavenValueProviderFactory, JavaProjectType javaProjectType) {
 
-        super(MavenAttributes.MAVEN_ID, MavenAttributes.MAVEN_NAME, true, false, true, DEFAULT_RECIPE);
+        super(MavenAttributes.MAVEN_ID, MavenAttributes.MAVEN_NAME, true, false, true);
 
         addVariableDefinition(MavenAttributes.GROUP_ID, "", false, mavenValueProviderFactory);
         addVariableDefinition(MavenAttributes.ARTIFACT_ID, "", true, mavenValueProviderFactory);

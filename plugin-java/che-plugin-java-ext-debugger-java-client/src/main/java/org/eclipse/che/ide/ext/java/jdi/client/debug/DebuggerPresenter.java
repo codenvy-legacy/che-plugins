@@ -49,7 +49,7 @@ import org.eclipse.che.ide.debug.BreakpointManager;
 import org.eclipse.che.ide.debug.Debugger;
 import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.ext.java.client.project.node.JavaNodeManager;
-import org.eclipse.che.ide.ext.java.client.project.node.jar.ContentNode;
+import org.eclipse.che.ide.ext.java.client.project.node.jar.JarFileNode;
 import org.eclipse.che.ide.ext.java.client.projecttree.JavaSourceFolderUtil;
 import org.eclipse.che.ide.ext.java.jdi.client.JavaRuntimeExtension;
 import org.eclipse.che.ide.ext.java.jdi.client.JavaRuntimeLocalizationConstant;
@@ -112,7 +112,7 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
     private final DtoUnmarshallerFactory                 dtoUnmarshallerFactory;
     private final AppContext                             appContext;
     private final ProjectExplorerPresenter               projectExplorer;
-    private final JavaNodeManager javaNodeManager;
+    private final JavaNodeManager                        javaNodeManager;
     /** Channel identifier to receive events from debugger over WebSocket. */
     private       String                                 debuggerEventsChannel;
     /** Channel identifier to receive event when debugger will disconnected. */
@@ -448,13 +448,13 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
         jarEntry.setName(className.substring(className.lastIndexOf(".") + 1) + ".class");
         jarEntry.setType(JarEntry.JarEntryType.CLASS_FILE);
 
-        ContentNode contentNode = javaNodeManager
-                .getJavaNodeFactory()
-                .newContentNode(jarEntry,
-                                appContext.getCurrentProject().getProjectDescription(),
-                                javaNodeManager.getJavaSettingsProvider().getSettings());
+        JarFileNode jarFileNode = javaNodeManager.getJavaNodeFactory()
+                                                 .newJarFileNode(jarEntry,
+                                                                 null,
+                                                                 appContext.getCurrentProject().getProjectConfig(),
+                                                                 javaNodeManager.getJavaSettingsProvider().getSettings());
 
-        openFile(contentNode);
+        openFile(jarFileNode);
     }
 
     private void openFile(VirtualFile result) {

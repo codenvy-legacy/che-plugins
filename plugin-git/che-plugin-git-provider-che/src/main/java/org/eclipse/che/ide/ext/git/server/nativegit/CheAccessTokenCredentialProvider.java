@@ -18,6 +18,8 @@ import org.eclipse.che.api.git.shared.GitUser;
 import org.eclipse.che.api.user.server.dao.PreferenceDao;
 import org.eclipse.che.commons.env.EnvironmentContext;
 import org.eclipse.che.commons.user.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -37,6 +39,7 @@ import static org.eclipse.che.dto.server.DtoFactory.newDto;
  */
 @Singleton
 public class CheAccessTokenCredentialProvider implements CredentialsProvider {
+    private static final Logger LOG = LoggerFactory.getLogger(CheAccessTokenCredentialProvider.class);
 
     private static String OAUTH_PROVIDER_NAME = "che";
     private final String        cheHostName;
@@ -75,7 +78,8 @@ public class CheAccessTokenCredentialProvider implements CredentialsProvider {
                                                                                "git.committer.\\w+");
                 name = preferences.get("git.committer.name");
                 email = preferences.get("git.committer.email");
-            } catch (ServerException ignored) {
+            } catch (ServerException e) {
+                LOG.error(e.getLocalizedMessage(), e);
             }
 
             gitUser.setName(isNullOrEmpty(name) ? "Anonymous" : name);

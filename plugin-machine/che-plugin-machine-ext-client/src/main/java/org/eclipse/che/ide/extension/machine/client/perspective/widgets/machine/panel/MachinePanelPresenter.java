@@ -112,7 +112,7 @@ public class MachinePanelPresenter extends BasePresenter implements MachinePanel
     }
 
     private Promise<List<MachineStateDto>> showMachines(String workspaceId) {
-        Promise<List<MachineStateDto>> machinesPromise = service.getMachinesStates(workspaceId, null);
+        Promise<List<MachineStateDto>> machinesPromise = service.getMachinesStates(workspaceId);
 
         return machinesPromise.then(new Operation<List<MachineStateDto>>() {
             @Override

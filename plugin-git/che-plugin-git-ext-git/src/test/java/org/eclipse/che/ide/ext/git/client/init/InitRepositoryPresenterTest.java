@@ -13,7 +13,6 @@ package org.eclipse.che.ide.ext.git.client.init;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.googlecode.gwt.test.utils.GwtReflectionUtils;
 
-import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.ide.ext.git.client.BaseTest;
 import org.eclipse.che.ide.ext.git.client.GitRepositoryInitializer;
 import org.junit.Test;
@@ -66,11 +65,11 @@ public class InitRepositoryPresenterTest extends BaseTest {
                 onSuccess.invoke(callback, (Void)null);
                 return callback;
             }
-        }).when(gitRepositoryInitializer).initGitRepository((ProjectDescriptor)anyObject(), (AsyncCallback<Void>)anyObject());
+        }).when(gitRepositoryInitializer).initGitRepository(anyObject(), (AsyncCallback<Void>)anyObject());
 
         presenter.initRepository();
 
-        verify(gitRepositoryInitializer).initGitRepository(eq(rootProjectDescriptor), (AsyncCallback<Void>)anyObject());
+        verify(gitRepositoryInitializer).initGitRepository(eq(rootProjectConfig), (AsyncCallback<Void>)anyObject());
         verify(console).printInfo(eq(constant.initSuccess()));
         verify(notificationManager).showInfo(eq(constant.initSuccess()));
     }
@@ -86,11 +85,11 @@ public class InitRepositoryPresenterTest extends BaseTest {
                 onFailure.invoke(callback, mock(Throwable.class));
                 return callback;
             }
-        }).when(gitRepositoryInitializer).initGitRepository((ProjectDescriptor)anyObject(), (AsyncCallback<Void>)anyObject());
+        }).when(gitRepositoryInitializer).initGitRepository(anyObject(), (AsyncCallback<Void>)anyObject());
 
         presenter.initRepository();
 
-        verify(gitRepositoryInitializer).initGitRepository(eq(rootProjectDescriptor), (AsyncCallback<Void>)anyObject());
+        verify(gitRepositoryInitializer).initGitRepository(eq(rootProjectConfig), (AsyncCallback<Void>)anyObject());
         verify(constant).initFailed();
         verify(console).printError(eq(constant.initFailed()));
         verify(notificationManager).showError(eq(constant.initFailed()));

@@ -24,15 +24,6 @@ public interface JavaCss extends CssResource {
     @ClassName("exo-codeassistant-counter")
     String counter();
 
-    @ClassName("outline-root")
-    String outlineRoot();
-
-    @ClassName("outline-icon")
-    String outlineIcon();
-
-    @ClassName("outline-label")
-    String outlineLabel();
-
     @ClassName("imports")
     String imports();
 
@@ -74,6 +65,9 @@ public interface JavaCss extends CssResource {
 
     @ClassName("error-border")
     String errorBorder();
+
+    @ClassName("disable-text-color")
+    String disableTextColor();
 
     @ClassName("search-match")
     String searchMatch();

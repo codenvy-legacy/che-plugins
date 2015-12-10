@@ -10,16 +10,15 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.git.client.fetch;
 
+import com.googlecode.gwt.test.utils.GwtReflectionUtils;
+
 import org.eclipse.che.api.git.shared.Branch;
 import org.eclipse.che.api.git.shared.Remote;
-import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.ext.git.client.BaseTest;
 import org.eclipse.che.ide.ext.git.client.BranchSearcher;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.websocket.rest.RequestCallback;
-import com.googlecode.gwt.test.utils.GwtReflectionUtils;
-
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -86,7 +85,7 @@ public class FetchPresenterTest extends BaseTest {
                 return callback;
             }
         }).when(service)
-          .remoteList((ProjectDescriptor)anyObject(), anyString(), anyBoolean(), (AsyncRequestCallback<List<Remote>>)anyObject());
+          .remoteList(anyObject(), anyString(), anyBoolean(), (AsyncRequestCallback<List<Remote>>)anyObject());
         doAnswer(new Answer() {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
@@ -105,12 +104,12 @@ public class FetchPresenterTest extends BaseTest {
                 onSuccess.invoke(callback, branches);
                 return callback;
             }
-        }).when(service).branchList((ProjectDescriptor)anyObject(), anyString(), (AsyncRequestCallback<List<Branch>>)anyObject());
+        }).when(service).branchList(anyObject(), anyString(), (AsyncRequestCallback<List<Branch>>)anyObject());
 
         presenter.showDialog();
 
         verify(appContext).getCurrentProject();
-        verify(service).remoteList(eq(rootProjectDescriptor), anyString(), eq(SHOW_ALL_INFORMATION),
+        verify(service).remoteList(eq(rootProjectConfig), anyString(), eq(SHOW_ALL_INFORMATION),
                                    (AsyncRequestCallback<List<Remote>>)anyObject());
         verify(view).setEnableFetchButton(eq(ENABLE_BUTTON));
         verify(view).setRepositories((List<Remote>)anyObject());
@@ -135,7 +134,7 @@ public class FetchPresenterTest extends BaseTest {
                 onSuccess.invoke(callback, remotes);
                 return callback;
             }
-        }).when(service).remoteList((ProjectDescriptor)anyObject(), anyString(), anyBoolean(),
+        }).when(service).remoteList(anyObject(), anyString(), anyBoolean(),
                                     (AsyncRequestCallback<List<Remote>>)anyObject());
         doAnswer(new Answer() {
             @Override
@@ -155,12 +154,12 @@ public class FetchPresenterTest extends BaseTest {
                 onFailure.invoke(callback, mock(Throwable.class));
                 return callback;
             }
-        }).when(service).branchList((ProjectDescriptor)anyObject(), anyString(), (AsyncRequestCallback<List<Branch>>)anyObject());
+        }).when(service).branchList(anyObject(), anyString(), (AsyncRequestCallback<List<Branch>>)anyObject());
 
         presenter.showDialog();
 
         verify(appContext).getCurrentProject();
-        verify(service).remoteList(eq(rootProjectDescriptor), anyString(), eq(SHOW_ALL_INFORMATION),
+        verify(service).remoteList(eq(rootProjectConfig), anyString(), eq(SHOW_ALL_INFORMATION),
                                    (AsyncRequestCallback<List<Remote>>)anyObject());
         verify(constant).branchesListFailed();
         verify(console).printError(anyString());
@@ -179,13 +178,13 @@ public class FetchPresenterTest extends BaseTest {
                 onFailure.invoke(callback, mock(Throwable.class));
                 return callback;
             }
-        }).when(service).remoteList((ProjectDescriptor)anyObject(), anyString(), anyBoolean(),
+        }).when(service).remoteList(anyObject(), anyString(), anyBoolean(),
                                     (AsyncRequestCallback<List<Remote>>)anyObject());
 
         presenter.showDialog();
 
         verify(appContext).getCurrentProject();
-        verify(service).remoteList(eq(rootProjectDescriptor), anyString(), eq(SHOW_ALL_INFORMATION),
+        verify(service).remoteList(eq(rootProjectConfig), anyString(), eq(SHOW_ALL_INFORMATION),
                                    (AsyncRequestCallback<List<Remote>>)anyObject());
         verify(constant).remoteListFailed();
         verify(view).setEnableFetchButton(eq(DISABLE_BUTTON));
@@ -207,17 +206,17 @@ public class FetchPresenterTest extends BaseTest {
                 onSuccess.invoke(callback, EMPTY_TEXT);
                 return callback;
             }
-        }).when(service).fetch((ProjectDescriptor)anyObject(), anyString(), (List<String>)anyObject(), anyBoolean(),
+        }).when(service).fetch(anyObject(), anyString(), (List<String>)anyObject(), anyBoolean(),
                                (RequestCallback<String>)anyObject());
 
         presenter.showDialog();
         presenter.onFetchClicked();
 
-        verify(service).fetch(eq(rootProjectDescriptor), eq(REPOSITORY_NAME), (List<String>)anyObject(),
+        verify(service).fetch(eq(rootProjectConfig), eq(REPOSITORY_NAME), (List<String>)anyObject(),
                               eq(NO_REMOVE_DELETE_REFS), (RequestCallback<String>)anyObject());
         verify(view).close();
         verify(console).printInfo(anyString());
-        verify(notificationManager).showNotification((Notification) anyObject());
+        verify(notificationManager).showNotification((Notification)anyObject());
         verify(constant, times(2)).fetchSuccess(eq(REMOTE_URI));
     }
 
@@ -237,18 +236,18 @@ public class FetchPresenterTest extends BaseTest {
                 onFailure.invoke(callback, mock(Throwable.class));
                 return callback;
             }
-        }).when(service).fetch((ProjectDescriptor)anyObject(), anyString(), (List<String>)anyObject(), anyBoolean(),
+        }).when(service).fetch(anyObject(), anyString(), (List<String>)anyObject(), anyBoolean(),
                                (RequestCallback<String>)anyObject());
 
         presenter.showDialog();
         presenter.onFetchClicked();
 
-        verify(service).fetch(eq(rootProjectDescriptor), eq(REPOSITORY_NAME), (List<String>)anyObject(),
+        verify(service).fetch(eq(rootProjectConfig), eq(REPOSITORY_NAME), (List<String>)anyObject(),
                               eq(NO_REMOVE_DELETE_REFS), (RequestCallback<String>)anyObject());
         verify(view).close();
         verify(constant, times(2)).fetchFail(eq(REMOTE_URI));
         verify(console).printError(anyString());
-        verify(notificationManager).showNotification((Notification) anyObject());
+        verify(notificationManager).showNotification((Notification)anyObject());
     }
 
     @Test
@@ -290,11 +289,11 @@ public class FetchPresenterTest extends BaseTest {
                 onSuccess.invoke(callback, branches);
                 return callback;
             }
-        }).when(service).branchList((ProjectDescriptor)anyObject(), anyString(), (AsyncRequestCallback<List<Branch>>)anyObject());
+        }).when(service).branchList(anyObject(), anyString(), (AsyncRequestCallback<List<Branch>>)anyObject());
 
         presenter.onRemoteRepositoryChanged();
 
-        verify(service, times(2)).branchList(eq(rootProjectDescriptor), anyString(), (AsyncRequestCallback<List<Branch>>)anyObject());
+        verify(service, times(2)).branchList(eq(rootProjectConfig), anyString(), (AsyncRequestCallback<List<Branch>>)anyObject());
         verify(view).setRemoteBranches((List<String>)anyObject());
         verify(view).setLocalBranches((List<String>)anyObject());
         verify(view).selectRemoteBranch(anyString());

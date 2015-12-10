@@ -18,7 +18,7 @@ import org.eclipse.che.api.git.gwt.client.GitServiceClient;
 import org.eclipse.che.api.git.shared.LogResponse;
 import org.eclipse.che.api.git.shared.ResetRequest;
 import org.eclipse.che.api.git.shared.Revision;
-import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
+import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.editor.EditorPartPresenter;
@@ -148,7 +148,7 @@ public class ResetToCommitPresenter implements ResetToCommitView.ActionDelegate 
 //        type = (type == null && view.isMergeMode()) ? ResetRequest.ResetType.MERGE : type;
 
         final ResetRequest.ResetType finalType = type;
-        final ProjectDescriptor project = appContext.getCurrentProject().getRootProject();
+        final ProjectConfigDto project = appContext.getCurrentProject().getRootProject();
         service.reset(project, selectedRevision.getId(), finalType, null,
                       new AsyncRequestCallback<Void>() {
                           @Override

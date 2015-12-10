@@ -13,7 +13,7 @@ package org.eclipse.che.ide.extension.maven.server.projecttype.handler;
 import org.eclipse.che.api.core.ConflictException;
 import org.eclipse.che.api.core.ForbiddenException;
 import org.eclipse.che.api.core.ServerException;
-import org.eclipse.che.api.core.model.workspace.ModuleConfig;
+import org.eclipse.che.api.core.model.workspace.ProjectConfig;
 import org.eclipse.che.api.project.server.FolderEntry;
 import org.eclipse.che.api.project.server.VirtualFileEntry;
 import org.eclipse.che.api.project.server.handlers.RemoveModuleHandler;
@@ -39,20 +39,22 @@ public class RemoveMavenModuleHandler implements RemoveModuleHandler {
     }
 
     @Override
-    public void onRemoveModule(FolderEntry parentFolder, String modulePath, ModuleConfig moduleConfig)
-            throws ForbiddenException, ConflictException, ServerException {
-        if (!moduleConfig.getType().equals(MavenAttributes.MAVEN_ID)) {
+    public void onRemoveModule(FolderEntry parentFolder, ProjectConfig moduleConfig) throws ForbiddenException,
+                                                                                            ConflictException,
+                                                                                            ServerException {
+        if (!MavenAttributes.MAVEN_ID.equals(moduleConfig.getType())) {
             logger.warn("Module isn't Maven module");
             throw new IllegalArgumentException("Module isn't Maven module");
         }
         VirtualFileEntry pom = parentFolder.getChild("pom.xml");
         if (pom == null) {
-            throw new IllegalArgumentException("Can't find pom.xml file in path: " + parentFolder.getPath());
+            return;
         }
         try {
             Model model = Model.readFrom(pom.getVirtualFile());
-            if (model.getModules().contains(modulePath)) {
-                model.removeModule(modulePath);
+            String moduleName = moduleConfig.getName();
+            if (model.getModules().contains(moduleName)) {
+                model.removeModule(moduleName);
                 model.writeTo(pom.getVirtualFile());
             }
         } catch (IOException e) {

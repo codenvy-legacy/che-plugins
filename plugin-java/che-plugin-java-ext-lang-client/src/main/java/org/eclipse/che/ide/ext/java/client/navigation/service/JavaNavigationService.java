@@ -8,19 +8,23 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.ide.ext.java.client.navigation;
+package org.eclipse.che.ide.ext.java.client.navigation.service;
 
 import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.ide.ext.java.shared.Jar;
 import org.eclipse.che.ide.ext.java.shared.JarEntry;
 import org.eclipse.che.ide.ext.java.shared.OpenDeclarationDescriptor;
+import org.eclipse.che.ide.ext.java.shared.dto.model.CompilationUnit;
 import org.eclipse.che.ide.ext.java.shared.dto.model.JavaProject;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 
 import java.util.List;
 
 /**
+ * Service for the operations of navigation.
+ *
  * @author Evgen Vidolob
+ * @author Valeriy Svydenko
  */
 public interface JavaNavigationService {
 
@@ -51,6 +55,18 @@ public interface JavaNavigationService {
     void getContent(String projectPath, int libId, String path, AsyncRequestCallback<String> callback);
 
     void getContent(String projectPath, String fqn, AsyncRequestCallback<String> callback);
+
+    /**
+     * Get the compilation unit representation of the java file.
+     *
+     * @param projectPath
+     *         path to the project
+     * @param fqn
+     *         fully qualified name of the java file
+     * @param showInherited
+     *         <code>true</code> iff inherited members are shown
+     */
+    Promise<CompilationUnit> getCompilationUnit(String projectPath, String fqn, boolean showInherited);
 
     Promise<List<JavaProject>> getProjectsAndPackages(boolean includePackage);
 

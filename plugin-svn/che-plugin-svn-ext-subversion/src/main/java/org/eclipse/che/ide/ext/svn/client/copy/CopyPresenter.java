@@ -31,7 +31,7 @@ import org.eclipse.che.ide.ext.svn.shared.CLIOutputResponse;
 import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.eclipse.che.ide.project.node.FileReferenceNode;
 import org.eclipse.che.ide.project.node.FolderReferenceNode;
-import org.eclipse.che.ide.project.node.ProjectDescriptorNode;
+import org.eclipse.che.ide.project.node.ProjectNode;
 import org.eclipse.che.ide.project.node.ResourceBasedNode;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
@@ -54,7 +54,6 @@ import static org.eclipse.che.ide.api.notification.Notification.Type.INFO;
 public class CopyPresenter extends SubversionActionPresenter implements CopyView.ActionDelegate {
 
     private AppContext                               appContext;
-    private EventBus                                 eventBus;
     private CopyView                                 view;
     private NotificationManager                      notificationManager;
     private SubversionClientService                  service;
@@ -101,7 +100,6 @@ public class CopyPresenter extends SubversionActionPresenter implements CopyView
                             final ProjectExplorerPresenter projectExplorerPart) {
         super(appContext, eventBus, console, workspaceAgent, projectExplorerPart);
         this.appContext = appContext;
-        this.eventBus = eventBus;
         this.view = view;
         this.notificationManager = notificationManager;
         this.service = service;
@@ -120,7 +118,7 @@ public class CopyPresenter extends SubversionActionPresenter implements CopyView
 
         if (sourceNode instanceof FileReferenceNode) {
             view.setDialogTitle(constants.copyViewTitleFile());
-        } else if (sourceNode instanceof FolderReferenceNode || sourceNode instanceof ProjectDescriptorNode) {
+        } else if (sourceNode instanceof FolderReferenceNode || sourceNode instanceof ProjectNode) {
             view.setDialogTitle(constants.copyViewTitleDirectory());
         }
 

@@ -70,9 +70,9 @@
                 <g:Label text="{locale.movePreviewTitle}" addStyleNames="{style.label}"/>
             </g:FlowPanel>
 
-            <g:FlowPanel addStyleNames="{style.treePanel}">
-                <g:ScrollPanel ui:field="treePanel" width="100%" height="100%"/>
-            </g:FlowPanel>
+            <g:ScrollPanel addStyleNames="{style.treePanel}">
+                <g:VerticalPanel ui:field="treePanel"/>
+            </g:ScrollPanel>
 
         </g:FlowPanel>
 

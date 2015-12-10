@@ -12,7 +12,6 @@ package org.eclipse.che.ide.ext.git.client.delete;
 
 import com.googlecode.gwt.test.utils.GwtReflectionUtils;
 
-import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.ide.ext.git.client.BaseTest;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.ui.window.Window;
@@ -74,12 +73,12 @@ public class DeleteRepositoryPresenterTest extends BaseTest {
                 onSuccess.invoke(callback, (Void)null);
                 return callback;
             }
-        }).when(service).deleteRepository((ProjectDescriptor)anyObject(), (AsyncRequestCallback<Void>)anyObject());
+        }).when(service).deleteRepository(anyObject(), (AsyncRequestCallback<Void>)anyObject());
 
         presenter.deleteRepository();
 
         verify(appContext).getCurrentProject();
-        verify(service).deleteRepository(eq(rootProjectDescriptor), (AsyncRequestCallback<Void>)anyObject());
+        verify(service).deleteRepository(eq(rootProjectConfig), (AsyncRequestCallback<Void>)anyObject());
         verify(console).printInfo(anyString());
         verify(notificationManager).showInfo(eq(constant.deleteGitRepositorySuccess()));
     }
@@ -95,12 +94,12 @@ public class DeleteRepositoryPresenterTest extends BaseTest {
                 onFailure.invoke(callback, mock(Throwable.class));
                 return callback;
             }
-        }).when(service).deleteRepository((ProjectDescriptor)anyObject(), (AsyncRequestCallback<Void>)anyObject());
+        }).when(service).deleteRepository(anyObject(), (AsyncRequestCallback<Void>)anyObject());
 
         presenter.deleteRepository();
 
         verify(appContext).getCurrentProject();
-        verify(service).deleteRepository(eq(rootProjectDescriptor), (AsyncRequestCallback<Void>)anyObject());
+        verify(service).deleteRepository(eq(rootProjectConfig), (AsyncRequestCallback<Void>)anyObject());
         verify(console).printError(anyString());
         verify(notificationManager).showError(anyString());
     }

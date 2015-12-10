@@ -19,7 +19,6 @@ import org.eclipse.che.ide.ext.java.client.event.DependencyUpdatedEvent;
 import org.eclipse.che.ide.ext.java.client.event.DependencyUpdatedEventHandler;
 import org.eclipse.che.ide.api.project.tree.VirtualFile;
 import org.eclipse.che.ide.api.text.Region;
-import org.eclipse.che.ide.api.texteditor.outline.OutlineModel;
 import org.eclipse.che.ide.ext.java.client.project.node.jar.JarFileNode;
 import org.eclipse.che.ide.ext.java.client.projecttree.JavaSourceFolderUtil;
 import org.eclipse.che.ide.ext.java.shared.dto.Problem;
@@ -39,7 +38,6 @@ public class JavaReconcilerStrategy implements ReconcilingStrategy {
 
 
     private final EmbeddedTextEditorPresenter<?> editor;
-    private final OutlineModel              outlineModel;
     private final JavaCodeAssistProcessor   codeAssistProcessor;
     private final AnnotationModel           annotationModel;
     private final EditorResources.EditorCss editorCss;
@@ -52,7 +50,6 @@ public class JavaReconcilerStrategy implements ReconcilingStrategy {
 
     @AssistedInject
     public JavaReconcilerStrategy(@Assisted @NotNull final EmbeddedTextEditorPresenter<?> editor,
-                                  @Assisted final OutlineModel outlineModel,
                                   @Assisted final JavaCodeAssistProcessor codeAssistProcessor,
                                   @Assisted final AnnotationModel annotationModel,
                                   final JavaReconcileClient client,
@@ -61,7 +58,6 @@ public class JavaReconcilerStrategy implements ReconcilingStrategy {
                                   EventBus eventBus) {
         this.editor = editor;
         this.client = client;
-        this.outlineModel = outlineModel;
         this.codeAssistProcessor = codeAssistProcessor;
         this.annotationModel = annotationModel;
         this.highlighter = highlighter;
@@ -81,7 +77,6 @@ public class JavaReconcilerStrategy implements ReconcilingStrategy {
         file = editor.getEditorInput().getFile();
         sourceFromClass = file instanceof JarFileNode || (file.getName().endsWith(".class") || file.getName().endsWith(".java"));
         highlighter.init(editor.getHasTextMarkers(), document);
-//        new OutlineUpdater(file.getPath(), outlineModel, worker);
     }
 
     @Override
@@ -100,7 +95,7 @@ public class JavaReconcilerStrategy implements ReconcilingStrategy {
 
 
         String fqn = JavaSourceFolderUtil.getFQNForFile(file);
-        client.reconcile(file.getProject().getProjectDescriptor().getPath(), fqn, new JavaReconcileClient.ReconcileCallback() {
+        client.reconcile(file.getProject().getProjectConfig().getPath(), fqn, new JavaReconcileClient.ReconcileCallback() {
             @Override
             public void onReconcile(ReconcileResult result) {
                 if (result == null) {

@@ -10,9 +10,11 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.git.client;
 
+import com.google.web.bindery.event.shared.EventBus;
+
 import org.eclipse.che.api.git.gwt.client.GitServiceClient;
 import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
-import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
+import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.notification.NotificationManager;
@@ -21,9 +23,6 @@ import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
-
-import com.google.web.bindery.event.shared.EventBus;
-
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -57,9 +56,9 @@ public abstract class BaseTest {
     @Mock
     protected CurrentProject           currentProject;
     @Mock
-    protected ProjectDescriptor        projectDescriptor;
+    protected ProjectConfigDto         projectConfig;
     @Mock
-    protected ProjectDescriptor        rootProjectDescriptor;
+    protected ProjectConfigDto         rootProjectConfig;
     @Mock
     protected AppContext               appContext;
     @Mock
@@ -91,13 +90,13 @@ public abstract class BaseTest {
     public void disarm() {
         when(appContext.getCurrentProject()).thenReturn(currentProject);
 
-        when(currentProject.getProjectDescription()).thenReturn(projectDescriptor);
-        when(currentProject.getRootProject()).thenReturn(rootProjectDescriptor);
+        when(currentProject.getProjectConfig()).thenReturn(projectConfig);
+        when(currentProject.getRootProject()).thenReturn(rootProjectConfig);
 
-        when(projectDescriptor.getName()).thenReturn(PROJECT_NAME);
-        when(projectDescriptor.getPath()).thenReturn(PROJECT_PATH);
+        when(projectConfig.getName()).thenReturn(PROJECT_NAME);
+        when(projectConfig.getPath()).thenReturn(PROJECT_PATH);
 
-        when(rootProjectDescriptor.getName()).thenReturn(PROJECT_NAME);
-        when(rootProjectDescriptor.getPath()).thenReturn(PROJECT_PATH);
+        when(rootProjectConfig.getName()).thenReturn(PROJECT_NAME);
+        when(rootProjectConfig.getPath()).thenReturn(PROJECT_PATH);
     }
 }

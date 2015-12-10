@@ -14,7 +14,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 
-import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
+import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.notification.NotificationManager;
@@ -72,7 +72,7 @@ public class ResolvePresenter extends SubversionActionPresenter implements Resol
             return;
         }
 
-        ProjectDescriptor project = currentProject.getProjectDescription();
+        ProjectConfigDto project = currentProject.getProjectConfig();
         if (project == null) {
             return;
         }
@@ -122,7 +122,7 @@ public class ResolvePresenter extends SubversionActionPresenter implements Resol
             return;
         }
 
-        ProjectDescriptor project = currentProject.getProjectDescription();
+        ProjectConfigDto project = currentProject.getProjectConfig();
         if (project == null) {
             return;
         }

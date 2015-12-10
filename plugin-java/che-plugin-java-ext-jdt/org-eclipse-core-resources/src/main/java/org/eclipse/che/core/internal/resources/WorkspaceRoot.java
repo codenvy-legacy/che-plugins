@@ -15,7 +15,7 @@ import org.eclipse.che.api.core.ConflictException;
 import org.eclipse.che.api.core.ForbiddenException;
 import org.eclipse.che.api.core.NotFoundException;
 import org.eclipse.che.api.core.ServerException;
-import org.eclipse.che.api.core.model.workspace.ModuleConfig;
+import org.eclipse.che.api.core.model.workspace.ProjectConfig;
 import org.eclipse.che.api.project.server.ProjectManager;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -121,9 +121,9 @@ public class WorkspaceRoot extends Container implements IWorkspaceRoot {
             List<org.eclipse.che.api.project.server.Project> rootProjects = manager.getProjects(workspace.getWsId());
             for (org.eclipse.che.api.project.server.Project rootProject : rootProjects) {
                 Project project = new Project(new Path(rootProject.getPath()), workspace);
-                
+
                 projects.add(project);
-               
+
                 addAllModules(projects, rootProject, manager);
             }
         } catch (ServerException | NotFoundException | ForbiddenException | IOException | ConflictException e) {
@@ -140,15 +140,15 @@ public class WorkspaceRoot extends Container implements IWorkspaceRoot {
                                                               ConflictException,
                                                               NotFoundException,
                                                               ServerException {
-	List<? extends ModuleConfig> modules = manager.getProjectModules(rootProject);
-                                                                  
-        for (ModuleConfig module : modules) {
+        List<? extends ProjectConfig> modules = manager.getProjectModules(rootProject);
+
+        for (ProjectConfig module : modules) {
             addModules(projects, module);
         }
     }
 
-    private void addModules(List<IProject> projects, ModuleConfig moduleConfig) {
-        for (ModuleConfig module : moduleConfig.getModules()) {
+    private void addModules(List<IProject> projects, ProjectConfig moduleConfig) {
+        for (ProjectConfig module : moduleConfig.getModules()) {
             Project project = new Project(new Path(module.getPath()), workspace);
 
             projects.add(project);

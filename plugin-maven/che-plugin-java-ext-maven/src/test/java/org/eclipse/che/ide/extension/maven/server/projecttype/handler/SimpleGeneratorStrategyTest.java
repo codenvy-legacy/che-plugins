@@ -10,16 +10,20 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.maven.server.projecttype.handler;
 
+import com.google.inject.Provider;
+
+import org.eclipse.che.api.core.model.project.type.ProjectType;
 import org.eclipse.che.api.core.notification.EventService;
 import org.eclipse.che.api.core.rest.HttpJsonHelper;
+import org.eclipse.che.api.project.server.AttributeFilter;
 import org.eclipse.che.api.project.server.DefaultProjectManager;
 import org.eclipse.che.api.project.server.FileEntry;
 import org.eclipse.che.api.project.server.FolderEntry;
 import org.eclipse.che.api.project.server.ProjectManager;
 import org.eclipse.che.api.project.server.VirtualFileEntry;
 import org.eclipse.che.api.project.server.handlers.ProjectHandlerRegistry;
+import org.eclipse.che.api.project.server.type.AbstractProjectType;
 import org.eclipse.che.api.project.server.type.AttributeValue;
-import org.eclipse.che.api.project.server.type.ProjectType;
 import org.eclipse.che.api.project.server.type.ProjectTypeRegistry;
 import org.eclipse.che.api.vfs.server.VirtualFileSystemRegistry;
 import org.eclipse.che.api.vfs.server.VirtualFileSystemUser;
@@ -32,6 +36,8 @@ import org.eclipse.che.ide.extension.maven.shared.MavenAttributes;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import java.lang.reflect.Field;
 import java.nio.file.Files;
@@ -60,8 +66,15 @@ public class SimpleGeneratorStrategyTest {
     private ProjectManager    pm;
     private GeneratorStrategy simple;
 
+    @Mock
+    private Provider<AttributeFilter> filterProvider;
+    @Mock
+    private AttributeFilter           filter;
+
     @Before
     public void setUp() throws Exception {
+        MockitoAnnotations.initMocks(this);
+        when(filterProvider.get()).thenReturn(filter);
         simple = new SimpleGeneratorStrategy();
     }
 
@@ -102,7 +115,8 @@ public class SimpleGeneratorStrategyTest {
         final Set<String> vfsUserGroups = new LinkedHashSet<>(Collections.singletonList("workspace/developer"));
 
         Set<ProjectType> pts = new HashSet<>();
-        final ProjectType pt = new ProjectType("mytype", "mytype type", true, false) {};
+        final ProjectType pt = new AbstractProjectType("mytype", "mytype type", true, false) {
+        };
         pts.add(pt);
 
         final ProjectTypeRegistry projectTypeRegistry = new ProjectTypeRegistry(pts);
@@ -130,7 +144,7 @@ public class SimpleGeneratorStrategyTest {
 
         ProjectHandlerRegistry handlerRegistry = new ProjectHandlerRegistry(new HashSet<>());
 
-        pm = new DefaultProjectManager(vfsRegistry, eventService, projectTypeRegistry, handlerRegistry, "");
+        pm = new DefaultProjectManager(vfsRegistry, eventService, projectTypeRegistry, handlerRegistry, filterProvider, "");
         pm.createProject(workspace, "my_project", DtoFactory.getInstance().createDto(ProjectConfigDto.class)
                                                             .withType(pt.getId()), null);
     }

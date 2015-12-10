@@ -18,7 +18,6 @@ import org.eclipse.che.ide.api.project.node.interceptor.NodeInterceptor;
 import org.eclipse.che.ide.api.project.type.wizard.ProjectWizardRegistrar;
 import org.eclipse.che.ide.extension.machine.client.command.CommandType;
 import org.eclipse.che.ide.extension.maven.client.command.MavenCommandType;
-import org.eclipse.che.ide.extension.maven.client.project.MavenBeforeModuleOpenedInterceptor;
 import org.eclipse.che.ide.extension.maven.client.project.MavenContentRootInterceptor;
 import org.eclipse.che.ide.extension.maven.client.project.MavenExternalLibrariesInterceptor;
 import org.eclipse.che.ide.extension.maven.client.project.PomNodeInterceptor;
@@ -41,7 +40,6 @@ public class MavenGinModule extends AbstractGinModule {
 
         GinMultibinder.newSetBinder(binder(), NodeInterceptor.class).addBinding().to(MavenContentRootInterceptor.class);
         GinMultibinder.newSetBinder(binder(), NodeInterceptor.class).addBinding().to(MavenExternalLibrariesInterceptor.class);
-        GinMultibinder.newSetBinder(binder(), NodeInterceptor.class).addBinding().to(MavenBeforeModuleOpenedInterceptor.class);
         GinMultibinder.newSetBinder(binder(), NodeInterceptor.class).addBinding().to(PomNodeInterceptor.class);
     }
 }

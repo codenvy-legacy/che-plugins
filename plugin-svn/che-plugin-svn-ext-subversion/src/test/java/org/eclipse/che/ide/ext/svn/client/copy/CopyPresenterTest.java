@@ -17,7 +17,7 @@ import org.eclipse.che.ide.ext.svn.client.common.BaseSubversionPresenterTest;
 import org.eclipse.che.ide.ext.svn.client.common.filteredtree.FilteredTreeStructure;
 import org.eclipse.che.ide.ext.svn.client.common.filteredtree.FilteredTreeStructureProvider;
 import org.eclipse.che.ide.project.node.FileReferenceNode;
-import org.eclipse.che.ide.project.node.ProjectDescriptorNode;
+import org.eclipse.che.ide.project.node.ProjectNode;
 import org.eclipse.che.ide.project.node.ResourceBasedNode;
 import org.eclipse.che.test.GwtReflectionUtils;
 import org.junit.Test;
@@ -78,7 +78,7 @@ public class CopyPresenterTest extends BaseSubversionPresenterTest {
         presenter.showCopy(mock(FileReferenceNode.class));
 
         List<ResourceBasedNode<?>> children = new ArrayList<>();
-        children.add(mock(ProjectDescriptorNode.class));
+        children.add(mock(ProjectNode.class));
 
         verify(filteredTreeStructure).getRootNodes(asyncRequestCallbackStatusCaptor.capture());
         AsyncCallback<List<TreeNode<?>>> requestCallback = asyncRequestCallbackStatusCaptor.getValue();

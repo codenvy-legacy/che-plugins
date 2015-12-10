@@ -20,6 +20,7 @@ public class Event {
     private String id;
     private String from;
     private long   time;
+    private long   timeNano;
 
     public long getTime() {
         return time;
@@ -35,6 +36,10 @@ public class Event {
 
     public String getStatus() {
         return status;
+    }
+
+    public long getTimeNano() {
+        return timeNano;
     }
 
     public Event withFrom(String from) {
@@ -57,6 +62,11 @@ public class Event {
         return this;
     }
 
+    public Event withTimeNano(long timeNano) {
+        this.timeNano = timeNano;
+        return this;
+    }
+
     @Override
     public String toString() {
         return "Event{" +
@@ -64,6 +74,7 @@ public class Event {
                ", id='" + id + '\'' +
                ", from='" + from + '\'' +
                ", time=" + time +
+               ", timeNano=" + timeNano +
                '}';
     }
 }

@@ -25,7 +25,7 @@ import org.eclipse.che.ide.api.editor.EditorPartPresenter;
 import org.eclipse.che.ide.api.project.node.HasStorablePath;
 import org.eclipse.che.ide.api.project.tree.VirtualFile;
 import org.eclipse.che.ide.dto.DtoFactory;
-import org.eclipse.che.ide.ext.java.client.navigation.JavaNavigationService;
+import org.eclipse.che.ide.ext.java.client.navigation.service.JavaNavigationService;
 import org.eclipse.che.ide.ext.java.client.project.node.JavaFileNode;
 import org.eclipse.che.ide.ext.java.client.project.node.PackageNode;
 import org.eclipse.che.ide.ext.java.client.projecttree.JavaSourceFolderUtil;
@@ -158,7 +158,7 @@ public class MovePresenter implements MoveView.ActionDelegate {
             throw new IllegalArgumentException(getClass() + " Current project undefined...");
         }
 
-        return currentProject.getProjectDescription().getPath();
+        return currentProject.getProjectConfig().getPath();
     }
 
     private void showProjectsAndPackages() {

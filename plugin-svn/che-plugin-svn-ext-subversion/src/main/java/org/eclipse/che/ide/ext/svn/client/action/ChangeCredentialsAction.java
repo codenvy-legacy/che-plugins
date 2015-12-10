@@ -14,7 +14,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import org.eclipse.che.api.analytics.client.logger.AnalyticsEventLogger;
-import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
+import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.ide.api.action.ActionEvent;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
@@ -56,7 +56,7 @@ public class ChangeCredentialsAction extends SubversionAction {
         eventLogger.log(this, "IDE: Changing credentials for Subversion repository");
         final CurrentProject currentProject = appContext.getCurrentProject();
         if (currentProject != null) {
-            final ProjectDescriptor rootProjectDescriptor = currentProject.getRootProject();
+            final ProjectConfigDto rootProjectDescriptor = currentProject.getRootProject();
             if (rootProjectDescriptor != null) {
                 String repositoryUrl = null;
                 final List<String> attributeValues = rootProjectDescriptor.getAttributes().get(SUBVERSION_ATTRIBUTE_REPOSITORY_URL);

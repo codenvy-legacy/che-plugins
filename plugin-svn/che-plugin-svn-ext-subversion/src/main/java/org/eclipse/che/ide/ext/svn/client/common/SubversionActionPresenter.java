@@ -13,7 +13,7 @@ package org.eclipse.che.ide.ext.svn.client.common;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.web.bindery.event.shared.EventBus;
 
-import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
+import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.event.project.CloseCurrentProjectEvent;
@@ -26,7 +26,7 @@ import org.eclipse.che.ide.ext.svn.client.action.SubversionAction;
 import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.eclipse.che.ide.project.node.FileReferenceNode;
 import org.eclipse.che.ide.project.node.FolderReferenceNode;
-import org.eclipse.che.ide.project.node.ProjectDescriptorNode;
+import org.eclipse.che.ide.project.node.ProjectNode;
 
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
@@ -96,11 +96,11 @@ public class SubversionActionPresenter {
      */
     protected String getCurrentProjectPath() {
         final CurrentProject currentProject = appContext.getCurrentProject();
-        final ProjectDescriptor project;
+        final ProjectConfigDto project;
         String projectPath = null;
 
         if (currentProject != null) {
-            project = currentProject.getProjectDescription();
+            project = currentProject.getProjectConfig();
 
             if (project != null) {
                 projectPath = project.getPath();
@@ -174,7 +174,7 @@ public class SubversionActionPresenter {
             if (filter == ALL && node instanceof HasStorablePath
                 || filter == PathTypeFilter.FILE && node instanceof FileReferenceNode
                 || filter == PathTypeFilter.FOLDER && node instanceof FolderReferenceNode
-                || filter == PathTypeFilter.PROJECT && (node instanceof ProjectDescriptorNode)) {
+                || filter == PathTypeFilter.PROJECT && (node instanceof ProjectNode)) {
                 return true;
             }
         }

@@ -13,8 +13,8 @@ package org.eclipse.che.ide.ext.java.client.project.node.jar;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
-import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.api.promises.client.Promise;
+import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.ide.api.project.node.Node;
 import org.eclipse.che.ide.api.project.node.settings.NodeSettings;
 import org.eclipse.che.ide.ext.java.client.project.node.JavaNodeManager;
@@ -33,16 +33,16 @@ public class JarFolderNode extends AbstractJarEntryNode {
     @Inject
     public JarFolderNode(@Assisted JarEntry jarEntry,
                          @Assisted int libId,
-                         @Assisted ProjectDescriptor projectDescriptor,
+                         @Assisted ProjectConfigDto projectConfig,
                          @Assisted NodeSettings nodeSettings,
                          @NotNull JavaNodeManager nodeManager) {
-        super(jarEntry, libId, projectDescriptor, nodeSettings, nodeManager);
+        super(jarEntry, libId, projectConfig, nodeSettings, nodeManager);
     }
 
     @NotNull
     @Override
     protected Promise<List<Node>> getChildrenImpl() {
-        return nodeManager.getJarChildren(getProjectDescriptor(), libId, getData().getPath(), getSettings());
+        return nodeManager.getJarChildren(getProjectConfig(), libId, getData().getPath(), getSettings());
     }
 
     @Override

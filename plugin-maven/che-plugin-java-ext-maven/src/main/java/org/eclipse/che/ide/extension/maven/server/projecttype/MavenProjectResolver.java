@@ -14,27 +14,23 @@ import org.eclipse.che.api.core.ConflictException;
 import org.eclipse.che.api.core.ForbiddenException;
 import org.eclipse.che.api.core.NotFoundException;
 import org.eclipse.che.api.core.ServerException;
-import org.eclipse.che.api.core.model.workspace.ModuleConfig;
+import org.eclipse.che.api.core.model.project.SourceStorage;
+import org.eclipse.che.api.core.model.workspace.ProjectConfig;
 import org.eclipse.che.api.project.server.FolderEntry;
 import org.eclipse.che.api.project.server.Project;
 import org.eclipse.che.api.project.server.ProjectManager;
+import org.eclipse.che.api.project.server.ValueStorageException;
 import org.eclipse.che.api.project.server.VirtualFileEntry;
-import org.eclipse.che.api.workspace.server.model.impl.ModuleConfigImpl;
 import org.eclipse.che.api.workspace.server.model.impl.ProjectConfigImpl;
+import org.eclipse.che.api.workspace.server.model.impl.SourceStorageImpl;
 import org.eclipse.che.ide.maven.tools.Model;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
-import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.ARTIFACT_ID;
-import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.GROUP_ID;
 import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.MAVEN_ID;
-import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.PACKAGING;
-import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.VERSION;
 
 /**
  * @author Evgen Vidolob
@@ -75,19 +71,9 @@ public class MavenProjectResolver {
             String workspaceId = projectFolder.getWorkspace();
             Project project = projectManager.getProject(workspaceId, projectFolder.getPath());
 
-            Map<String, List<String>> attributes = new HashMap<>();
-            attributes.put(ARTIFACT_ID, Arrays.asList(model.getArtifactId()));
-            attributes.put(GROUP_ID, Arrays.asList(model.getGroupId()));
-            attributes.put(VERSION, Arrays.asList(model.getVersion()));
-            attributes.put(PACKAGING, Arrays.asList(model.getPackaging()));
+            ProjectConfigImpl projectConfig = createConfig(projectFolder);
 
-            ProjectConfigImpl projectConfig = new ProjectConfigImpl();
-            projectConfig.setName(projectFolder.getName());
-            projectConfig.setDescription(model.getDescription());
-            projectConfig.setAttributes(attributes);
-            projectConfig.setType(MAVEN_ID);
-
-            List<ModuleConfig> modules = new ArrayList<>();
+            List<ProjectConfig> modules = new ArrayList<>();
 
             for (FolderEntry folderEntry : project.getBaseFolder().getChildFolders()) {
                 MavenClassPathConfigurator.configure(folderEntry);
@@ -96,37 +82,44 @@ public class MavenProjectResolver {
             }
 
             projectConfig.setModules(modules);
+            projectConfig.setSource(getSourceStorage(project.getConfig()));
 
             project.updateConfig(projectConfig);
         }
     }
 
-    private static void defineModules(FolderEntry folderEntry, List<ModuleConfig> modules) throws ServerException,
-                                                                                                  ForbiddenException,
-                                                                                                  IOException,
-                                                                                                  ConflictException {
+    private static ProjectConfigImpl createConfig(FolderEntry folderEntry) throws ValueStorageException {
+        ProjectConfigImpl projectConfig = new ProjectConfigImpl();
+        projectConfig.setName(folderEntry.getName());
+        projectConfig.setPath(folderEntry.getPath());
+        projectConfig.setType(MAVEN_ID);
+
+        return projectConfig;
+    }
+
+    private static SourceStorageImpl getSourceStorage(ProjectConfig config) {
+        SourceStorage sourceStorage = config.getSource();
+
+        if (sourceStorage == null) {
+            return new SourceStorageImpl("", "", Collections.emptyMap());
+        }
+
+        return new SourceStorageImpl(sourceStorage.getType(), sourceStorage.getLocation(), sourceStorage.getParameters());
+    }
+
+    private static void defineModules(FolderEntry folderEntry, List<ProjectConfig> modules) throws ServerException,
+                                                                                                   ForbiddenException,
+                                                                                                   IOException,
+                                                                                                   ConflictException {
         VirtualFileEntry pom = folderEntry.getChild("pom.xml");
 
         if (pom == null) {
             return;
         }
 
-        Model model = Model.readFrom(pom.getVirtualFile());
+        ProjectConfigImpl moduleConfig = createConfig(folderEntry);
 
-        Map<String, List<String>> attributes = new HashMap<>();
-        attributes.put(ARTIFACT_ID, Arrays.asList(model.getArtifactId()));
-        attributes.put(GROUP_ID, Arrays.asList(model.getGroupId()));
-        attributes.put(VERSION, Arrays.asList(model.getVersion()));
-        attributes.put(PACKAGING, Arrays.asList(model.getPackaging()));
-
-        ModuleConfigImpl moduleConfig = new ModuleConfigImpl();
-        moduleConfig.setType(MAVEN_ID);
-        moduleConfig.setName(folderEntry.getName());
-        moduleConfig.setPath(folderEntry.getPath());
-        moduleConfig.setAttributes(attributes);
-        moduleConfig.setDescription(model.getDescription());
-
-        List<ModuleConfig> internalModules = new ArrayList<>();
+        List<ProjectConfig> internalModules = new ArrayList<>();
 
         for (FolderEntry internalModule : folderEntry.getChildFolders()) {
             MavenClassPathConfigurator.configure(folderEntry);

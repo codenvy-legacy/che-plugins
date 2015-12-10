@@ -39,6 +39,7 @@ import static org.eclipse.che.ide.api.project.type.wizard.ProjectWizardMode.UPDA
 import static org.eclipse.che.ide.api.project.type.wizard.ProjectWizardRegistrar.PROJECT_PATH_KEY;
 import static org.eclipse.che.ide.api.project.type.wizard.ProjectWizardRegistrar.WIZARD_MODE_KEY;
 import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.ARTIFACT_ID;
+import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.DEFAULT_PACKAGING;
 import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.DEFAULT_SOURCE_FOLDER;
 import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.DEFAULT_TEST_SOURCE_FOLDER;
 import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.DEFAULT_VERSION;
@@ -86,7 +87,7 @@ public class MavenPagePresenter extends AbstractWizardPage<ProjectConfigDto> imp
         if (CREATE == wizardMode) {
             // set default values
             setAttribute(VERSION, DEFAULT_VERSION);
-            setAttribute(PACKAGING, "jar");
+            setAttribute(PACKAGING, DEFAULT_PACKAGING);
             setAttribute(SOURCE_FOLDER, DEFAULT_SOURCE_FOLDER);
             setAttribute(TEST_SOURCE_FOLDER, DEFAULT_TEST_SOURCE_FOLDER);
         } else if (CREATE_MODULE == wizardMode || UPDATE == wizardMode && getAttribute(ARTIFACT_ID).isEmpty()) {
@@ -250,7 +251,6 @@ public class MavenPagePresenter extends AbstractWizardPage<ProjectConfigDto> imp
 
     @Override
     public void archetypeChanged(MavenArchetype archetype) {
-        //fillGeneratorDescription(dataObject.getProject().getGeneratorDescription());
         updateDelegate.updateControls();
     }
 

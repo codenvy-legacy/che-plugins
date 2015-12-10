@@ -10,12 +10,12 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.svn.client.common.filteredtree;
 
-import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
+import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
+import org.eclipse.che.commons.annotation.Nullable;
 import org.eclipse.che.ide.api.project.tree.TreeNode;
 import org.eclipse.che.ide.api.project.tree.generic.NodeFactory;
 
 import javax.validation.constraints.NotNull;
-import org.eclipse.che.commons.annotation.Nullable;
 
 /**
  * Factory that helps to create nodes for {@link FilteredTreeStructure}.
@@ -32,12 +32,12 @@ public interface FilteredNodeFactory extends NodeFactory {
      * @param parent
      *         the parent node
      * @param data
-     *         the associated {@link ProjectDescriptor}
+     *         the associated {@link ProjectConfigDto}
      * @param treeStructure
      *         the {@link FilteredTreeStructure} to create the node for
      * @return a new {@link FilteredProjectNode}
      */
     FilteredProjectNode newFilteredProjectNode(@Nullable TreeNode<?> parent,
-                                               @NotNull ProjectDescriptor data,
+                                               @NotNull ProjectConfigDto data,
                                                @NotNull FilteredTreeStructure treeStructure);
 }

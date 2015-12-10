@@ -16,6 +16,7 @@ import org.eclipse.che.api.core.ServerException;
 import org.eclipse.che.api.project.server.FolderEntry;
 import org.eclipse.che.api.project.server.VirtualFileEntry;
 import org.eclipse.che.api.project.server.handlers.CreateModuleHandler;
+import org.eclipse.che.ide.extension.maven.server.projecttype.MavenClassPathConfigurator;
 import org.eclipse.che.ide.extension.maven.shared.MavenAttributes;
 import org.eclipse.che.ide.maven.tools.Model;
 import org.slf4j.Logger;
@@ -33,15 +34,19 @@ public class AddMavenModuleHandler implements CreateModuleHandler {
     private static final Logger LOG = LoggerFactory.getLogger(AddMavenModuleHandler.class);
 
     @Override
-    public void onCreateModule(FolderEntry parentFolder, String modulePath, String moduleType, Map<String, String> options)
-            throws ForbiddenException, ConflictException, ServerException {
+    public void onCreateModule(FolderEntry parentFolder,
+                               String modulePath,
+                               String moduleType,
+                               Map<String, String> options) throws ForbiddenException, ConflictException, ServerException {
+        configureClassPath(parentFolder, modulePath);
+
         if (!moduleType.equals(MavenAttributes.MAVEN_ID)) {
             LOG.warn("Module must be Maven project to able be added to Maven project");
             throw new IllegalArgumentException("Module must be Maven project to able be added to Maven project");
         }
         VirtualFileEntry pom = parentFolder.getChild("pom.xml");
         if (pom == null) {
-            throw new IllegalArgumentException("Can't find pom.xml file in path: " + parentFolder.getPath());
+            return;
         }
         try {
             Model model = Model.readFrom(pom.getVirtualFile());
@@ -57,6 +62,20 @@ public class AddMavenModuleHandler implements CreateModuleHandler {
         } catch (IOException e) {
             throw new ServerException(e);
         }
+
+    }
+
+    private static void configureClassPath(FolderEntry parentFolder, String path) throws ServerException,
+                                                                                         ForbiddenException,
+                                                                                         ConflictException {
+        String pathToModule = path.contains("/") ? path.substring(path.lastIndexOf("/")) : path;
+        VirtualFileEntry addedModule = parentFolder.getChild(pathToModule);
+
+        if (addedModule == null) {
+            return;
+        }
+
+        MavenClassPathConfigurator.configure((FolderEntry)addedModule);
     }
 
     @Override

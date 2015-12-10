@@ -129,6 +129,18 @@ public interface JavaLocalizationConstant extends Messages {
     @Key("redundant.null.check")
     String redundantNullCheck();
 
+    @Key("file.structure.action.name")
+    String fileStructureActionName();
+
+    @Key("file.structure.action.description")
+    String fileStructureActionDescription();
+
+    @Key("show.inherited.members.label")
+    String showInheritedMembersLabel();
+
+    @Key("hide.inherited.members.label")
+    String hideInheritedMembersLabel();
+
     @Key("move.action.name")
     String moveActionName();
 

@@ -14,11 +14,10 @@ import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
 import org.eclipse.che.api.machine.shared.dto.MachineDto;
-import org.eclipse.che.api.machine.shared.dto.MachineMetadataDto;
 import org.eclipse.che.api.machine.shared.dto.MachineStateDto;
-import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.Promise;
+import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.event.project.CloseCurrentProjectEvent;
@@ -30,14 +29,10 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
-import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -70,9 +65,9 @@ public class CurrentProjectPathProviderTest {
         CurrentProject currentProjectMock = mock(CurrentProject.class);
         when(appContext.getCurrentProject()).thenReturn(currentProjectMock);
 
-        ProjectDescriptor projectDescriptorMock = mock(ProjectDescriptor.class);
-        when(projectDescriptorMock.getPath()).thenReturn(PROJECT_PATH);
-        when(currentProjectMock.getProjectDescription()).thenReturn(projectDescriptorMock);
+        ProjectConfigDto projectConfig = mock(ProjectConfigDto.class);
+        when(projectConfig.getPath()).thenReturn(PROJECT_PATH);
+        when(currentProjectMock.getProjectConfig()).thenReturn(projectConfig);
     }
 
     @Test
@@ -93,10 +88,10 @@ public class CurrentProjectPathProviderTest {
         MachineStateDto machineMock = mock(MachineStateDto.class);
         MachineStateEvent machineStateEvent = mock(MachineStateEvent.class);
         CurrentProject currentProject = mock(CurrentProject.class);
-        ProjectDescriptor projectDescriptor = mock(ProjectDescriptor.class);
+        ProjectConfigDto projectConfig = mock(ProjectConfigDto.class);
 
         when(appContext.getCurrentProject()).thenReturn(currentProject);
-        when(currentProject.getProjectDescription()).thenReturn(projectDescriptor);
+        when(currentProject.getProjectConfig()).thenReturn(projectConfig);
 
         when(machineMock.isDev()).thenReturn(Boolean.TRUE);
         when(machineStateEvent.getMachineState()).thenReturn(machineMock);
@@ -105,8 +100,8 @@ public class CurrentProjectPathProviderTest {
         currentProjectPathProvider.onMachineRunning(machineStateEvent);
 
         verify(appContext, times(2)).getCurrentProject();
-        verify(currentProject).getProjectDescription();
-        verify(projectDescriptor).getPath();
+        verify(currentProject).getProjectConfig();
+        verify(projectConfig).getPath();
     }
 
     @Test

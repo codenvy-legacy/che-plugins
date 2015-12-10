@@ -18,12 +18,16 @@ import com.google.gwt.user.client.ui.Widget;
 import org.eclipse.che.ide.api.icon.Icon;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.text.Position;
+import org.eclipse.che.ide.ext.java.client.refactoring.RefactorInfo;
+import org.eclipse.che.ide.ext.java.client.refactoring.RefactoringUpdater;
+import org.eclipse.che.ide.ext.java.client.refactoring.move.RefactoredItemType;
 import org.eclipse.che.ide.ext.java.shared.dto.Change;
 import org.eclipse.che.ide.ext.java.shared.dto.LinkedData;
 import org.eclipse.che.ide.ext.java.shared.dto.LinkedModeModel;
 import org.eclipse.che.ide.ext.java.shared.dto.LinkedPositionGroup;
 import org.eclipse.che.ide.ext.java.shared.dto.ProposalApplyResult;
 import org.eclipse.che.ide.ext.java.shared.dto.Region;
+import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ChangeInfo;
 import org.eclipse.che.ide.jseditor.client.codeassist.Completion;
 import org.eclipse.che.ide.jseditor.client.codeassist.CompletionProposal;
 import org.eclipse.che.ide.jseditor.client.codeassist.CompletionProposalExtension;
@@ -48,13 +52,19 @@ public class JavaCompletionProposal implements CompletionProposal, CompletionPro
     private final String               display;
     private final Icon                 icon;
     private final JavaCodeAssistClient client;
-    private       String               sessionId;
-    private HasLinkedMode linkedEditor;
+    private final RefactoringUpdater   refactoringUpdater;
+
+    private String              sessionId;
+    private HasLinkedMode       linkedEditor;
     private NotificationManager notificationManager;
 
-    public JavaCompletionProposal(final int id, final String display, final Icon icon,
-                                  final JavaCodeAssistClient client, String sessionId, HasLinkedMode linkedEditor,
-                                  NotificationManager notificationManager) {
+    public JavaCompletionProposal(final int id,
+                                  final String display,
+                                  final Icon icon,
+                                  final JavaCodeAssistClient client,
+                                  String sessionId, HasLinkedMode linkedEditor,
+                                  NotificationManager notificationManager,
+                                  RefactoringUpdater refactoringUpdater) {
         this.id = id;
         this.display = display;
         this.icon = icon;
@@ -62,6 +72,7 @@ public class JavaCompletionProposal implements CompletionProposal, CompletionPro
         this.sessionId = sessionId;
         this.linkedEditor = linkedEditor;
         this.notificationManager = notificationManager;
+        this.refactoringUpdater = refactoringUpdater;
     }
 
     /** {@inheritDoc} */
@@ -105,6 +116,14 @@ public class JavaCompletionProposal implements CompletionProposal, CompletionPro
             @Override
             public void onSuccess(ProposalApplyResult result) {
                 callback.onCompletion(new CompletionImpl(result.getChanges(), result.getSelection(), result.getLinkedModeModel()));
+                RefactorInfo refactorInfo = RefactorInfo.of(RefactoredItemType.JAVA_ELEMENT, null);
+                ChangeInfo changeInfo = result.getChangeInfo();
+                if (changeInfo == null) {
+                    return;
+                }
+                ArrayList<ChangeInfo> changes = new ArrayList<>(1);
+                changes.add(changeInfo);
+                refactoringUpdater.updateAfterRefactoring(refactorInfo, changes);
             }
         });
     }
@@ -132,7 +151,7 @@ public class JavaCompletionProposal implements CompletionProposal, CompletionPro
             if (linkedEditor != null && linkedModeModel != null) {
                 LinkedMode mode = linkedEditor.getLinkedMode();
                 LinkedModel model = linkedEditor.createLinkedModel();
-                if(linkedModeModel.getEscapePosition() != 0) {
+                if (linkedModeModel.getEscapePosition() != 0) {
                     model.setEscapePosition(linkedModeModel.getEscapePosition());
                 } else {
                     model.setEscapePosition(cursorOffset);

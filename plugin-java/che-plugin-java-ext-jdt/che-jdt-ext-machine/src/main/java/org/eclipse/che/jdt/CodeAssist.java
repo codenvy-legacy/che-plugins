@@ -24,6 +24,7 @@ import org.eclipse.che.ide.ext.java.shared.dto.ProposalApplyResult;
 import org.eclipse.che.ide.ext.java.shared.dto.ProposalPresentation;
 import org.eclipse.che.ide.ext.java.shared.dto.Proposals;
 import org.eclipse.che.ide.ext.java.shared.dto.Region;
+import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ChangeInfo;
 import org.eclipse.che.jdt.javadoc.HTMLPrinter;
 import org.eclipse.che.jdt.javaeditor.HasLinkedModel;
 import org.eclipse.che.jdt.javaeditor.TextViewer;
@@ -46,17 +47,22 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
+import org.eclipse.jdt.internal.core.CompilationUnit;
 import org.eclipse.jdt.internal.core.DocumentAdapter;
 import org.eclipse.jdt.internal.core.JavaModelStatus;
+import org.eclipse.jdt.internal.corext.refactoring.changes.MoveCompilationUnitChange;
+import org.eclipse.jdt.internal.corext.refactoring.changes.RenameCompilationUnitChange;
 import org.eclipse.jdt.internal.ui.text.correction.AssistContext;
 import org.eclipse.jdt.internal.ui.text.correction.JavaCorrectionProcessor;
 import org.eclipse.jdt.internal.ui.text.java.JavaAllCompletionProposalComputer;
 import org.eclipse.jdt.internal.ui.text.java.RelevanceSorter;
 import org.eclipse.jdt.internal.ui.text.java.TemplateCompletionProposalComputer;
 import org.eclipse.jdt.ui.text.java.JavaContentAssistInvocationContext;
+import org.eclipse.jdt.ui.text.java.correction.ChangeCorrectionProposal;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentListener;
+import org.eclipse.ltk.core.refactoring.CompositeChange;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
 import org.slf4j.Logger;
@@ -242,7 +248,6 @@ public class CodeAssist {
         public ProposalApplyResult apply(int index, boolean insert) {
             IDocument document = viewer.getDocument();
             final List<Change> changes = new ArrayList<>();
-            final DtoFactory dtoFactory = DtoFactory.getInstance();
             document.addDocumentListener(new IDocumentListener() {
                 @Override
                 public void documentAboutToBeChanged(DocumentEvent event) {
@@ -250,44 +255,43 @@ public class CodeAssist {
 
                 @Override
                 public void documentChanged(DocumentEvent event) {
-                    Change dto = dtoFactory.createDto(Change.class);
-                    dto.setLength(event.getLength());
-                    dto.setOffset(event.getOffset());
-                    dto.setText(event.getText());
-                    changes.add(dto);
+                    changes.add(DtoFactory.newDto(Change.class)
+                                          .withLength(event.getLength())
+                                          .withOffset(event.getOffset())
+                                          .withText(event.getText()));
                 }
             });
             try {
                 char trigger = (char)0;
                 int stateMask = insert ? 0 : SWT.CTRL;
-                ICompletionProposal p = proposals.get(index);
-                if (p instanceof ICompletionProposalExtension2) {
-                    ICompletionProposalExtension2 e = (ICompletionProposalExtension2)p;
-                    e.apply(viewer, trigger, stateMask, offset);
-                } else if (p instanceof ICompletionProposalExtension) {
-                    ICompletionProposalExtension e = (ICompletionProposalExtension)p;
-                    e.apply(document, trigger, offset);
+                ICompletionProposal completionProposal = proposals.get(index);
+                ProposalApplyResult result = DtoFactory.newDto(ProposalApplyResult.class);
+                if (completionProposal instanceof ChangeCorrectionProposal) {
+                    result.setChangeInfo(prepareChangeInfo((ChangeCorrectionProposal)completionProposal));
+                }
+                if (completionProposal instanceof ICompletionProposalExtension2) {
+                    ICompletionProposalExtension2 completionProposalExtension2 = (ICompletionProposalExtension2)completionProposal;
+                    completionProposalExtension2.apply(viewer, trigger, stateMask, offset);
+                } else if (completionProposal instanceof ICompletionProposalExtension) {
+                    ICompletionProposalExtension completionProposalExtension = (ICompletionProposalExtension)completionProposal;
+                    completionProposalExtension.apply(document, trigger, offset);
                 } else {
-                    p.apply(document);
+                    completionProposal.apply(document);
                 }
 
-                ProposalApplyResult result = dtoFactory.createDto(ProposalApplyResult.class);
                 result.setChanges(changes);
-                Point selection = p.getSelection(document);
+                Point selection = completionProposal.getSelection(document);
                 if (selection != null) {
-                    Region region = dtoFactory.createDto(Region.class);
-                    region.setOffset(selection.x);
-                    region.setLength(selection.y);
-                    result.setSelection(region);
+                    result.setSelection(DtoFactory.newDto(Region.class).withOffset(selection.x).withLength(selection.y));
                 }
-                if (p instanceof HasLinkedModel) {
-                    result.setLinkedModeModel(((HasLinkedModel)p).getLinkedModel());
+                if (completionProposal instanceof HasLinkedModel) {
+                    result.setLinkedModeModel(((HasLinkedModel)completionProposal).getLinkedModel());
                 }
                 return result;
 
 
-            } catch (IndexOutOfBoundsException e) {
-                throw new IllegalArgumentException("Can't find completion: " + index);
+            } catch (IndexOutOfBoundsException | CoreException e) {
+                throw new IllegalArgumentException("Can't find completion: " + index, e);
             }
         }
 
@@ -309,6 +313,41 @@ public class CodeAssist {
                 result = proposal.getAdditionalProposalInfo();
             }
             return result;
+        }
+
+        private ChangeInfo prepareChangeInfo(ChangeCorrectionProposal changeCorrectionProposal) throws CoreException {
+            org.eclipse.ltk.core.refactoring.Change change = changeCorrectionProposal.getChange();
+            if (change == null) {
+                return null;
+            }
+            ChangeInfo changeInfo = DtoFactory.newDto(ChangeInfo.class);
+            String changeName = change.getName();
+            if (changeName.startsWith("Rename") && change instanceof RenameCompilationUnitChange) {
+                prepareRenameCompilationUnitChange(changeInfo, change);
+            } else if (changeName.startsWith("Move")) {
+                prepareMoveChange(changeInfo, change);
+            }
+
+            return changeInfo;
+        }
+
+        private void prepareMoveChange(ChangeInfo changeInfo, org.eclipse.ltk.core.refactoring.Change ch) {
+            changeInfo.setName(ChangeInfo.ChangeName.MOVE);
+            for (org.eclipse.ltk.core.refactoring.Change change : ((CompositeChange)ch).getChildren()) {
+                if (change instanceof MoveCompilationUnitChange) {
+                    MoveCompilationUnitChange moveChange = (MoveCompilationUnitChange)change;
+                    String className = moveChange.getCu().getPath().lastSegment();
+                    changeInfo.setPath(moveChange.getDestinationPackage().getPath().append(className).toString());
+                    changeInfo.setOldPath(((CompilationUnit)change.getModifiedElement()).getPath().toString());
+                }
+            }
+        }
+
+        private void prepareRenameCompilationUnitChange(ChangeInfo changeInfo, org.eclipse.ltk.core.refactoring.Change change) {
+            changeInfo.setName(ChangeInfo.ChangeName.RENAME_COMPILATION_UNIT);
+            RenameCompilationUnitChange renameChange = (RenameCompilationUnitChange)change;
+            changeInfo.setPath(renameChange.getResourcePath().removeLastSegments(1).append(renameChange.getNewName()).toString());
+            changeInfo.setOldPath(renameChange.getResourcePath().toString());
         }
     }
 }

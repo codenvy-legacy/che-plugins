@@ -73,6 +73,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.eclipse.che.api.project.server.Constants.CODENVY_DIR;
+
 /**
  * @author Evgen Vidolob
  */
@@ -738,7 +740,7 @@ public class Workspace implements IWorkspace {
         } else {
             try {
                 FolderEntry folder = (FolderEntry)file;
-                if (folder.getChild(".codenvy") != null /*projectManager.isProjectFolder(folder)*/) {
+                if (folder.getChild(CODENVY_DIR) != null /*projectManager.isProjectFolder(folder)*/) {
                     return IResource.PROJECT;
                 } else {
                     return IResource.FOLDER;
@@ -804,7 +806,7 @@ public class Workspace implements IWorkspace {
                     String newName = path.lastSegment();
                     VirtualFileEntry child = projectsRoot.getChild(path.removeLastSegments(1).toOSString());
                     FolderEntry entry = (FolderEntry)child;
-                    entry.createFile(newName, new byte[0], null);
+                    entry.createFile(newName, new byte[0]);
                     break;
                 case IResource.FOLDER:
                     projectsRoot.createFolder(path.toOSString());
@@ -856,7 +858,7 @@ public class Workspace implements IWorkspace {
         try {
             VirtualFileEntry child = projectsRoot.getChild(file.getFullPath().toOSString());
             if (child == null) {
-                projectsRoot.createFile(file.getFullPath().toOSString(), content, null);
+                projectsRoot.createFile(file.getFullPath().toOSString(), content);
             } else {
                 FileEntry fileEntry = (FileEntry)child;
                 fileEntry.updateContent(content);

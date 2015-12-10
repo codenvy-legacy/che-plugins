@@ -8,7 +8,6 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-
 package org.eclipse.che.ide.ext.java.client.search.node;
 
 import elemental.html.SpanElement;
@@ -31,7 +30,7 @@ import org.eclipse.che.ide.api.project.tree.VirtualFile;
 import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.ext.java.client.JavaResources;
 import org.eclipse.che.ide.ext.java.client.project.node.JavaNodeManager;
-import org.eclipse.che.ide.ext.java.client.project.node.jar.ContentNode;
+import org.eclipse.che.ide.ext.java.client.project.node.jar.JarFileNode;
 import org.eclipse.che.ide.ext.java.shared.JarEntry;
 import org.eclipse.che.ide.ext.java.shared.dto.Region;
 import org.eclipse.che.ide.ext.java.shared.dto.model.ClassFile;
@@ -158,12 +157,12 @@ public class MatchNode extends AbstractPresentationNode implements HasAction {
             jarEntry.setType(JarEntry.JarEntryType.CLASS_FILE);
             jarEntry.setPath(classFile.getPath());
 
-            ContentNode contentNode = javaNodeManager
-                    .getJavaNodeFactory()
-                    .newContentNode(jarEntry,
-                                    appContext.getCurrentProject().getProjectDescription(),
-                                    javaNodeManager.getJavaSettingsProvider().getSettings());
-            openFile(contentNode);
+            JarFileNode jarFileNode = javaNodeManager.getJavaNodeFactory()
+                                                     .newJarFileNode(jarEntry,
+                                                                     null,
+                                                                     appContext.getCurrentProject().getProjectConfig(),
+                                                                     javaNodeManager.getJavaSettingsProvider().getSettings());
+            openFile(jarFileNode);
         }
     }
 

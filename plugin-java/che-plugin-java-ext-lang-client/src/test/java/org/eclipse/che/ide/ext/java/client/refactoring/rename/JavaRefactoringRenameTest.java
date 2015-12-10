@@ -13,11 +13,11 @@ package org.eclipse.che.ide.ext.java.client.refactoring.rename;
 import com.google.gwtmockito.GwtMockitoTestRunner;
 import com.google.web.bindery.event.shared.EventBus;
 
-import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.api.promises.client.PromiseError;
+import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.editor.EditorInput;
@@ -129,7 +129,7 @@ public class JavaRefactoringRenameTest {
     @Mock
     private CurrentProject                    currentProject;
     @Mock
-    private ProjectDescriptor                 projectDescriptor;
+    private ProjectConfigDto                  projectConfig;
     @Mock
     private Promise<RenameRefactoringSession> createRenamePromise;
     @Mock
@@ -176,8 +176,8 @@ public class JavaRefactoringRenameTest {
         when(textEditor.getEditorInput()).thenReturn(editorInput);
         when(editorInput.getFile()).thenReturn(virtualFile);
         when(appContext.getCurrentProject()).thenReturn(currentProject);
-        when(currentProject.getProjectDescription()).thenReturn(projectDescriptor);
-        when(projectDescriptor.getPath()).thenReturn(TEXT);
+        when(currentProject.getProjectConfig()).thenReturn(projectConfig);
+        when(projectConfig.getPath()).thenReturn(TEXT);
         when(virtualFile.getName()).thenReturn(JAVA_CLASS_FULL_NAME);
         when(refactoringServiceClient.createRenameRefactoring(createRenameRefactoringDto)).thenReturn(createRenamePromise);
         when(createRenamePromise.then((Operation<RenameRefactoringSession>)any())).thenReturn(createRenamePromise);
@@ -302,8 +302,8 @@ public class JavaRefactoringRenameTest {
         verify(createRenameRefactoringDto).setPath(JAVA_CLASS__NAME);
         verify(createRenameRefactoringDto).setProjectPath(TEXT);
         verify(appContext).getCurrentProject();
-        verify(currentProject).getProjectDescription();
-        verify(projectDescriptor).getPath();
+        verify(currentProject).getProjectConfig();
+        verify(projectConfig).getPath();
         verify(createRenameRefactoringDto).setProjectPath(TEXT);
         verify(createRenameRefactoringDto).setType(JAVA_ELEMENT);
 

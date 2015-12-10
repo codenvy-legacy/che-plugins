@@ -16,7 +16,7 @@ import com.google.inject.Singleton;
 import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
-import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
+import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.event.project.ProjectUpdatedEvent;
@@ -101,12 +101,12 @@ public class InitRepositoryPresenter {
         notificationManager.showError(errorMessage);
     }
 
-    private void getRootProject(final ProjectDescriptor descriptor) {
-        projectService.getProject(descriptor.getPath(),
-                                  new AsyncRequestCallback<ProjectDescriptor>(dtoUnmarshaller.newUnmarshaller(ProjectDescriptor.class)) {
+    private void getRootProject(final ProjectConfigDto projectConfig) {
+        projectService.getProject(projectConfig.getPath(),
+                                  new AsyncRequestCallback<ProjectConfigDto>(dtoUnmarshaller.newUnmarshaller(ProjectConfigDto.class)) {
                                       @Override
-                                      protected void onSuccess(ProjectDescriptor result) {
-                                          eventBus.fireEvent(new ProjectUpdatedEvent(descriptor.getPath(), result));
+                                      protected void onSuccess(ProjectConfigDto result) {
+                                          eventBus.fireEvent(new ProjectUpdatedEvent(projectConfig.getPath(), result));
                                       }
 
                                       @Override

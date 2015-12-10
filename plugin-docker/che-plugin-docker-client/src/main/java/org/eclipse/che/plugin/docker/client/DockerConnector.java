@@ -219,12 +219,15 @@ public class DockerConnector {
      * @throws InterruptedException
      *         if build process was interrupted
      */
-    public String buildImage(String repository, ProgressMonitor progressMonitor, AuthConfigs authConfigs, File... files)
-            throws IOException, InterruptedException {
+    public String buildImage(String repository,
+                             ProgressMonitor progressMonitor,
+                             AuthConfigs authConfigs,
+                             boolean doForcePull,
+                             File... files) throws IOException, InterruptedException {
         final File tar = Files.createTempFile(null, ".tar").toFile();
         try {
             createTarArchive(tar, files);
-            return buildImage(repository, tar, progressMonitor, authConfigs);
+            return buildImage(repository, tar, progressMonitor, authConfigs, doForcePull);
         } finally {
             FileCleaner.addFile(tar);
         }
@@ -250,8 +253,9 @@ public class DockerConnector {
     protected String buildImage(String repository,
                                 File tar,
                                 final ProgressMonitor progressMonitor,
-                                AuthConfigs authConfigs) throws IOException, InterruptedException {
-        return doBuildImage(repository, tar, progressMonitor, dockerDaemonUri, authConfigs);
+                                AuthConfigs authConfigs,
+                                boolean doForcePull) throws IOException, InterruptedException {
+        return doBuildImage(repository, tar, progressMonitor, dockerDaemonUri, authConfigs, doForcePull);
     }
 
     /**
@@ -806,7 +810,8 @@ public class DockerConnector {
                                   File tar,
                                   final ProgressMonitor progressMonitor,
                                   URI dockerDaemonUri,
-                                  AuthConfigs authConfigs) throws IOException, InterruptedException {
+                                  AuthConfigs authConfigs,
+                                  boolean doForcePull) throws IOException, InterruptedException {
         if (authConfigs == null) {
             authConfigs = initialAuthConfig.getAuthConfigs();
         }
@@ -820,7 +825,7 @@ public class DockerConnector {
                                                             .method("POST")
                                                             .path("/build")
                                                             .query("rm", 1)
-                                                            .query("pull", 1)
+                                                            .query("pull", doForcePull)
                                                             .headers(headers)
                                                             .entity(tarInput)) {
             if (repository != null) {

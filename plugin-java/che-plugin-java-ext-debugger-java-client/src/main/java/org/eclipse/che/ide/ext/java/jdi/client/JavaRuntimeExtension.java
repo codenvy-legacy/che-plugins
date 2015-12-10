@@ -22,6 +22,7 @@ import org.eclipse.che.ide.api.constraints.Constraints;
 import org.eclipse.che.ide.api.extension.Extension;
 import org.eclipse.che.ide.debug.DebuggerManager;
 import org.eclipse.che.ide.ext.java.jdi.client.actions.RemoteDebugAction;
+import org.eclipse.che.ide.ext.java.jdi.client.actions.ServerLogAction;
 import org.eclipse.che.ide.ext.java.jdi.client.debug.DebuggerPresenter;
 import org.eclipse.che.ide.ext.java.jdi.client.fqn.FqnResolverFactory;
 import org.eclipse.che.ide.ext.java.jdi.client.fqn.JavaFqnResolver;
@@ -47,11 +48,13 @@ public class JavaRuntimeExtension {
     /** Channel for the messages containing message which informs about debugger is disconnected. */
     public static final String DISCONNECT_CHANNEL = "debugger:disconnected:";
 
-    private static final String REMOTE_DEBUG_ID     = "remoteDebug";
+    private static final String REMOTE_DEBUG_ID = "remoteDebug";
+    private static final String SERVER_LOG_ID   = "serverLog";
 
     @Inject
     public JavaRuntimeExtension(ActionManager actionManager,
                                 RemoteDebugAction remoteDebugAction,
+                                ServerLogAction serverLogAction,
                                 DebuggerManager debuggerManager,
                                 DebuggerPresenter debuggerPresenter,
                                 FqnResolverFactory resolverFactory,
@@ -62,10 +65,12 @@ public class JavaRuntimeExtension {
 
         // register actions
         actionManager.registerAction(REMOTE_DEBUG_ID, remoteDebugAction);
+        actionManager.registerAction(SERVER_LOG_ID, serverLogAction);
 
         // add actions in main menu
         mainMenu.add(debugMenu, new Constraints(Anchor.AFTER, IdeActions.GROUP_CODE));
         debugMenu.add(remoteDebugAction);
+        debugMenu.add(serverLogAction);
 
         // add actions in context menu
         DefaultActionGroup runContextGroup = (DefaultActionGroup)actionManager.getAction(IdeActions.GROUP_RUN_CONTEXT_MENU);

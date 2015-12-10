@@ -69,7 +69,7 @@ public class ArchetypeGeneratorServiceTest {
                                              .withArtifactId("archetypeArtifactId")
                                              .withVersion("archetypeVersion");
 
-        when(archetypeGenerator.generateFromArchetype((MavenArchetype)anyObject(), anyString(), anyString(), anyString()))
+        when(archetypeGenerator.generateFromArchetype(anyObject(), anyString(), anyString(), anyString()))
                 .thenReturn(taskMock);
 
         GenerationTaskDescriptor task = service.generate(uriInfo, "groupId", "artifactId", "version", archetype);

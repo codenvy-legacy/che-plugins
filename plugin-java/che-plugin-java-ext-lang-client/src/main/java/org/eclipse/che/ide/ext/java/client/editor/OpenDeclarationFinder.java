@@ -23,7 +23,7 @@ import org.eclipse.che.ide.api.editor.EditorPartPresenter;
 import org.eclipse.che.ide.api.project.node.HasStorablePath;
 import org.eclipse.che.ide.api.project.node.Node;
 import org.eclipse.che.ide.api.project.tree.VirtualFile;
-import org.eclipse.che.ide.ext.java.client.navigation.JavaNavigationService;
+import org.eclipse.che.ide.ext.java.client.navigation.service.JavaNavigationService;
 import org.eclipse.che.ide.ext.java.client.project.node.JavaNodeManager;
 import org.eclipse.che.ide.ext.java.client.projecttree.JavaSourceFolderUtil;
 import org.eclipse.che.ide.ext.java.shared.OpenDeclarationDescriptor;
@@ -82,7 +82,7 @@ public class OpenDeclarationFinder {
         Unmarshallable<OpenDeclarationDescriptor> unmarshaller =
                 factory.newUnmarshaller(OpenDeclarationDescriptor.class);
         navigationService
-                .findDeclaration(file.getProject().getProjectDescriptor().getPath(), JavaSourceFolderUtil.getFQNForFile(file), offset,
+                .findDeclaration(file.getProject().getProjectConfig().getPath(), JavaSourceFolderUtil.getFQNForFile(file), offset,
                                  new AsyncRequestCallback<OpenDeclarationDescriptor>(unmarshaller) {
                                      @Override
                                      protected void onSuccess(OpenDeclarationDescriptor result) {
@@ -111,7 +111,7 @@ public class OpenDeclarationFinder {
 
 
         if (descriptor.isBinary()) {
-            javaNodeManager.getClassNode(context.getCurrentProject().getProjectDescription(), descriptor.getLibId(), descriptor.getPath())
+            javaNodeManager.getClassNode(context.getCurrentProject().getProjectConfig(), descriptor.getLibId(), descriptor.getPath())
                            .then(new Operation<Node>() {
                                @Override
                                public void apply(Node node) throws OperationException {

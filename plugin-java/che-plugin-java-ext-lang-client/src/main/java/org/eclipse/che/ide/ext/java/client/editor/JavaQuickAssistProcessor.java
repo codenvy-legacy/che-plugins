@@ -17,6 +17,7 @@ import org.eclipse.che.ide.api.text.annotation.Annotation;
 import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.ext.java.client.JavaResources;
 import org.eclipse.che.ide.ext.java.client.projecttree.JavaSourceFolderUtil;
+import org.eclipse.che.ide.ext.java.client.refactoring.RefactoringUpdater;
 import org.eclipse.che.ide.ext.java.shared.dto.Problem;
 import org.eclipse.che.ide.ext.java.shared.dto.ProposalPresentation;
 import org.eclipse.che.ide.ext.java.shared.dto.Proposals;
@@ -52,17 +53,21 @@ public class JavaQuickAssistProcessor implements QuickAssistProcessor {
     private final DtoUnmarshallerFactory unmarshallerFactory;
     private final DtoFactory             dtoFactory;
     private NotificationManager notificationManager;
+    private final RefactoringUpdater refactoringUpdater;
 
     @Inject
     public JavaQuickAssistProcessor(final JavaCodeAssistClient client,
                                     final JavaResources javaResources,
                                     DtoUnmarshallerFactory unmarshallerFactory,
-                                    DtoFactory dtoFactory, NotificationManager notificationManager) {
+                                    DtoFactory dtoFactory,
+                                    NotificationManager notificationManager,
+                                    RefactoringUpdater refactoringUpdater) {
         this.client = client;
         this.javaResources = javaResources;
         this.unmarshallerFactory = unmarshallerFactory;
         this.dtoFactory = dtoFactory;
         this.notificationManager = notificationManager;
+        this.refactoringUpdater = refactoringUpdater;
     }
 
     @Override
@@ -124,7 +129,7 @@ public class JavaQuickAssistProcessor implements QuickAssistProcessor {
                         proposal.getIndex(),
                         JavaCodeAssistProcessor.insertStyle(javaResources, proposal.getDisplayString()),
                         JavaCodeAssistProcessor.getIcon(proposal.getImage()),
-                        client, responds.getSessionId(), linkedEditor, notificationManager);
+                        client, responds.getSessionId(), linkedEditor, notificationManager, refactoringUpdater);
             }
             proposals.add(completionProposal);
         }
@@ -137,7 +142,7 @@ public class JavaQuickAssistProcessor implements QuickAssistProcessor {
                                 final int offset,
                                 final List<Problem> annotations) {
         final VirtualFile file = textEditor.getEditorInput().getFile();
-        final String projectPath = file.getProject().getProjectDescriptor().getPath();
+        final String projectPath = file.getProject().getProjectConfig().getPath();
         String fqn = JavaSourceFolderUtil.getFQNForFile(file);
         Unmarshallable<Proposals> unmarshaller = unmarshallerFactory.newUnmarshaller(Proposals.class);
         client.computeAssistProposals(projectPath, fqn, offset, annotations, new AsyncRequestCallback<Proposals>(unmarshaller) {

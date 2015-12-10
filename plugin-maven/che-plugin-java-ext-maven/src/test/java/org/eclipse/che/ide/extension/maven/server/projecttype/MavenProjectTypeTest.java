@@ -10,9 +10,12 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.maven.server.projecttype;
 
-import org.eclipse.che.api.core.model.workspace.ProjectConfig;
+import com.google.inject.Provider;
+
+import org.eclipse.che.api.core.model.project.type.ProjectType;
 import org.eclipse.che.api.core.notification.EventService;
 import org.eclipse.che.api.core.rest.HttpJsonHelper;
+import org.eclipse.che.api.project.server.AttributeFilter;
 import org.eclipse.che.api.project.server.DefaultProjectManager;
 import org.eclipse.che.api.project.server.Project;
 import org.eclipse.che.api.project.server.ProjectManager;
@@ -21,7 +24,6 @@ import org.eclipse.che.api.project.server.VirtualFileEntry;
 import org.eclipse.che.api.project.server.handlers.ProjectHandler;
 import org.eclipse.che.api.project.server.handlers.ProjectHandlerRegistry;
 import org.eclipse.che.api.project.server.type.AttributeValue;
-import org.eclipse.che.api.project.server.type.ProjectType;
 import org.eclipse.che.api.project.server.type.ProjectTypeRegistry;
 import org.eclipse.che.api.vfs.server.VirtualFileSystemRegistry;
 import org.eclipse.che.api.vfs.server.VirtualFileSystemUser;
@@ -38,6 +40,8 @@ import org.eclipse.che.ide.maven.tools.Model;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
@@ -61,12 +65,18 @@ import static org.mockito.Mockito.when;
 public class MavenProjectTypeTest {
     private static final String workspace = "my_ws";
 
-    private ProjectManager pm;
+    private ProjectManager                    pm;
     private HttpJsonHelper.HttpJsonHelperImpl httpJsonHelper;
+
+    @Mock
+    private Provider<AttributeFilter> filterProvider;
+    @Mock
+    private AttributeFilter           filter;
 
     @Before
     public void setUp() throws Exception {
-
+        MockitoAnnotations.initMocks(this);
+        when(filterProvider.get()).thenReturn(filter);
         final String vfsUser = "dev";
         final Set<String> vfsUserGroups = new LinkedHashSet<>(Arrays.asList("workspace/developer"));
 
@@ -93,7 +103,7 @@ public class MavenProjectTypeTest {
 
         ProjectHandlerRegistry handlerRegistry = new ProjectHandlerRegistry(handlers);
 
-        pm = new DefaultProjectManager(vfsRegistry, eventService, ptRegistry, handlerRegistry, "");
+        pm = new DefaultProjectManager(vfsRegistry, eventService, ptRegistry, handlerRegistry, filterProvider, "");
 
         httpJsonHelper = mock(HttpJsonHelper.HttpJsonHelperImpl.class);
         Field f = HttpJsonHelper.class.getDeclaredField("httpJsonHelperImpl");
@@ -115,6 +125,7 @@ public class MavenProjectTypeTest {
         UsersWorkspaceDto usersWorkspaceMock = mock(UsersWorkspaceDto.class);
         when(httpJsonHelper.request(any(), anyString(), eq(GET), isNull())).thenReturn(usersWorkspaceMock);
         final ProjectConfigDto projectConfig = DtoFactory.getInstance().createDto(ProjectConfigDto.class)
+                                                         .withName("project")
                                                          .withPath("/myProject")
                                                          .withType(MavenAttributes.MAVEN_ID);
         when(usersWorkspaceMock.getProjects()).thenReturn(Collections.singletonList(projectConfig));
@@ -129,12 +140,6 @@ public class MavenProjectTypeTest {
                                            DtoFactory.getInstance().createDto(ProjectConfigDto.class)
                                                      .withType("maven").withAttributes(attributes),
                                            null);
-
-        ProjectConfig config = project.getConfig();
-
-        Assert.assertEquals(config.getAttributes().get(MavenAttributes.ARTIFACT_ID).get(0), "myartifact");
-        Assert.assertEquals(config.getAttributes().get(MavenAttributes.VERSION).get(0), "1.0");
-        Assert.assertEquals(config.getAttributes().get("language").get(0), "java");
 
         for (VirtualFileEntry file : project.getBaseFolder().getChildren()) {
             if (file.getName().equals("pom.xml")) {

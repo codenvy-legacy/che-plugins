@@ -13,16 +13,19 @@ package org.eclipse.che.ide.extension.maven.server.projecttype;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Provider;
 
+import org.eclipse.che.api.core.model.project.type.ProjectType;
 import org.eclipse.che.api.core.notification.EventService;
 import org.eclipse.che.api.core.rest.HttpJsonHelper;
+import org.eclipse.che.api.project.server.AttributeFilter;
 import org.eclipse.che.api.project.server.DefaultProjectManager;
 import org.eclipse.che.api.project.server.FileEntry;
 import org.eclipse.che.api.project.server.Project;
 import org.eclipse.che.api.project.server.ProjectManager;
 import org.eclipse.che.api.project.server.VirtualFileEntry;
 import org.eclipse.che.api.project.server.handlers.ProjectHandlerRegistry;
-import org.eclipse.che.api.project.server.type.ProjectType;
+import org.eclipse.che.api.project.server.type.AbstractProjectType;
 import org.eclipse.che.api.project.server.type.ProjectTypeRegistry;
 import org.eclipse.che.api.vfs.server.VirtualFileSystemRegistry;
 import org.eclipse.che.api.vfs.server.VirtualFileSystemUser;
@@ -34,6 +37,8 @@ import org.eclipse.che.dto.server.DtoFactory;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
@@ -93,10 +98,17 @@ public class MavenClassPathConfiguratorTest {
             "</project>";
     private ProjectManager projectManager;
 
+    @Mock
+    private Provider<AttributeFilter> filterProvider;
+    @Mock
+    private AttributeFilter           filter;
+
     @Before
     public void setup() throws Exception {
+        MockitoAnnotations.initMocks(this);
+        when(filterProvider.get()).thenReturn(filter);
         Set<ProjectType> pts = new HashSet<>();
-        final ProjectType pt = new ProjectType("maven", "Maven type", true, false) {
+        final AbstractProjectType pt = new AbstractProjectType("maven", "Maven type", true, false) {
         };
         pts.add(pt);
         final ProjectTypeRegistry projectTypeRegistry = new ProjectTypeRegistry(pts);
@@ -106,7 +118,7 @@ public class MavenClassPathConfiguratorTest {
         ProjectHandlerRegistry handlerRegistry = new ProjectHandlerRegistry(new HashSet<>());
         projectManager = new DefaultProjectManager(virtualFileSystemRegistry,
                                                    eventService,
-                                                   projectTypeRegistry, handlerRegistry, "");
+                                                   projectTypeRegistry, handlerRegistry, filterProvider, "");
         Injector injector = Guice.createInjector(new AbstractModule() {
             @Override
             protected void configure() {
@@ -141,7 +153,7 @@ public class MavenClassPathConfiguratorTest {
         Project testProject =
                 projectManager.createProject(WORKSPACE, "projectName", DtoFactory.getInstance().createDto(ProjectConfigDto.class)
                                                                                  .withType("maven"), null);
-        testProject.getBaseFolder().createFile("pom.xml", POM_CONTENT_WITHOUT_BUILD.getBytes(), "text/xml");
+        testProject.getBaseFolder().createFile("pom.xml", POM_CONTENT_WITHOUT_BUILD.getBytes());
 
         MavenClassPathConfigurator.configure(testProject.getBaseFolder());
         VirtualFileEntry classPathFile = projectManager.getProject(WORKSPACE, "projectName").getBaseFolder().getChild(".codenvy/classpath");
@@ -158,7 +170,7 @@ public class MavenClassPathConfiguratorTest {
                                                                                  .withType("maven"), null);
         String pom = String.format(POM_CONTENT, DEFAULT_SOURCE_DIRECTORY);
         String classPath = String.format(CLASS_PATH_CONTENT, DEFAULT_SOURCE_DIRECTORY, DEFAULT_TEST_SOURCE_DIRECTORY);
-        testProject.getBaseFolder().createFile("pom.xml", pom.getBytes(), "text/xml");
+        testProject.getBaseFolder().createFile("pom.xml", pom.getBytes());
 
         MavenClassPathConfigurator.configure(testProject.getBaseFolder());
         VirtualFileEntry classPathFile = projectManager.getProject(WORKSPACE, "projectName").getBaseFolder().getChild(".codenvy/classpath");
@@ -175,7 +187,7 @@ public class MavenClassPathConfiguratorTest {
                                                                                  .withType("maven"), null);
         String pom = String.format(POM_CONTENT, SOURCE_DIRECTORY);
         String classPath = String.format(CLASS_PATH_CONTENT, SOURCE_DIRECTORY, DEFAULT_TEST_SOURCE_DIRECTORY);
-        testProject.getBaseFolder().createFile("pom.xml", pom.getBytes(), "text/xml");
+        testProject.getBaseFolder().createFile("pom.xml", pom.getBytes());
 
         MavenClassPathConfigurator.configure(testProject.getBaseFolder());
         VirtualFileEntry classPathFile = projectManager.getProject(WORKSPACE, "projectName").getBaseFolder().getChild(".codenvy/classpath");

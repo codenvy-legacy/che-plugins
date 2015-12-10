@@ -12,21 +12,18 @@ package org.eclipse.che.ide.ext.gwt.server;
 
 import com.google.inject.Inject;
 
-import org.eclipse.che.api.project.server.type.ProjectType;
+import org.eclipse.che.api.project.server.type.AbstractProjectType;
 import org.eclipse.che.ide.extension.maven.server.projecttype.MavenProjectType;
 
 import static org.eclipse.che.ide.ext.gwt.shared.Constants.GWT_PROJECT_TYPE_ID;
 import static org.eclipse.che.ide.ext.gwt.shared.Constants.GWT_PROJECT_TYPE_NAME;
 
 /** @author Artem Zatsarynnyy */
-public class GwtProjectType extends ProjectType {
-
-    public static final String DEFAULT_RECIPE =
-            "https://gist.githubusercontent.com/azatsarynnyy/aceb43e8f71f3d14e7aa/raw/545d35585dc3440aedd09591b863b812cab84ef8/gwt";
+public class GwtProjectType extends AbstractProjectType {
 
     @Inject
     public GwtProjectType(MavenProjectType mavenProjectType) {
-        super(GWT_PROJECT_TYPE_ID, GWT_PROJECT_TYPE_NAME, true, false, true, DEFAULT_RECIPE);
+        super(GWT_PROJECT_TYPE_ID, GWT_PROJECT_TYPE_NAME, true, false, true);
         addParent(mavenProjectType);
     }
 }

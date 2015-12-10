@@ -9,6 +9,7 @@
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
 @eval errorColor org.eclipse.che.ide.api.theme.Style.getErrorColor();
+@eval disableTextColor org.eclipse.che.ide.api.theme.Style.getEditorInfoTextColor();
 
 .exo-autocomplete-fqn {
     color: gray;
@@ -16,21 +17,6 @@
 
 .exo-codeassistant-counter {
     color: #326EED;
-}
-
-.outline-root {
-    display: inline-block;
-}
-
-.outline-icon {
-    margin: 0px 0px -1px 5px;
-}
-
-.outline-label {
-    font-family: "Lucida Grande", Verdana, Arial;
-    font-size: 11px;
-    padding: 0px 5px 0px 6px;
-    display: inline-block;
 }
 
 @sprite .imports {
@@ -130,6 +116,10 @@
 
 .error-border {
     border-bottom: 1px solid errorColor !important;
+}
+
+.disable-text-color {
+    color: disableTextColor;
 }
 
 .search-match {

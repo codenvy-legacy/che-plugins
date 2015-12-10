@@ -107,7 +107,7 @@ public class FindUsagesPresenter extends BasePresenter implements FindUsagesView
 
         VirtualFile virtualFile = activeEditor.getEditorInput().getFile();
 
-        String projectPath = virtualFile.getProject().getProjectDescriptor().getPath();
+        String projectPath = virtualFile.getProject().getProjectConfig().getPath();
         FindUsagesRequest request = dtoFactory.createDto(FindUsagesRequest.class);
         request.setFQN(JavaSourceFolderUtil.getFQNForFile(virtualFile));
         request.setProjectPath(projectPath);

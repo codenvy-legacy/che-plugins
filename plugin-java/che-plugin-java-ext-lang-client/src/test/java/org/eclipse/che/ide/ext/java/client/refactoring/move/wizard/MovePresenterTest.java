@@ -12,15 +12,15 @@ package org.eclipse.che.ide.ext.java.client.refactoring.move.wizard;
 
 import com.google.gwtmockito.GwtMockitoTestRunner;
 
-import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
 import org.eclipse.che.api.promises.client.Function;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.Promise;
+import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.dto.DtoFactory;
-import org.eclipse.che.ide.ext.java.client.navigation.JavaNavigationService;
+import org.eclipse.che.ide.ext.java.client.navigation.service.JavaNavigationService;
 import org.eclipse.che.ide.ext.java.client.project.node.JavaFileNode;
 import org.eclipse.che.ide.ext.java.client.project.node.PackageNode;
 import org.eclipse.che.ide.ext.java.client.refactoring.RefactorInfo;
@@ -119,7 +119,7 @@ public class MovePresenterTest {
     @Mock
     private JavaFileNode               sourceFileNode;
     @Mock
-    private ProjectDescriptor          projectDescriptor;
+    private ProjectConfigDto           projectConfig;
     @Mock
     private Promise<String>            sessionPromise;
     @Mock
@@ -162,8 +162,8 @@ public class MovePresenterTest {
         when(dtoFactory.createDto(CreateMoveRefactoring.class)).thenReturn(moveRefactoring);
         when(dtoFactory.createDto(ReorgDestination.class)).thenReturn(destination);
         when(appContext.getCurrentProject()).thenReturn(currentProject);
-        when(currentProject.getProjectDescription()).thenReturn(projectDescriptor);
-        when(projectDescriptor.getPath()).thenReturn(PROJECT_PATH);
+        when(currentProject.getProjectConfig()).thenReturn(projectConfig);
+        when(projectConfig.getPath()).thenReturn(PROJECT_PATH);
         when(refactorService.createMoveRefactoring(moveRefactoring)).thenReturn(sessionPromise);
         when(refactorService.applyRefactoring(session)).thenReturn(refactoringResultPromise);
         when(refactorService.setDestination(destination)).thenReturn(refactoringStatusPromise);

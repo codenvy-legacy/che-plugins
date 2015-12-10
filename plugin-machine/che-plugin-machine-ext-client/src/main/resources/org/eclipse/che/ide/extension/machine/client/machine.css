@@ -10,6 +10,7 @@
  *******************************************************************************/
 @eval partBackground org.eclipse.che.ide.api.theme.Style.theme.partBackground();
 @eval outputFontColor org.eclipse.che.ide.api.theme.Style.getOutputFontColor();
+@eval successColor org.eclipse.che.ide.api.theme.Style.getSuccessColor();
 
 .fullSize {
     width: 100% !important;
@@ -22,15 +23,13 @@
     -webkit-user-select: text;
     user-select: text;
     color: outputFontColor;
-    padding-left: 7px;
-    padding-bottom: 5px;
     margin-top: 4px;
     outline: none;
 }
 
 .machineConsole pre, .commandConsole pre {
     font-family: outputFontFamily;
-    font-size: 11px;
+    font-size: fontSize;
 }
 
 .commandHint {
@@ -177,6 +176,98 @@
     fill: selectCommandActionIconColor;
 }
 
+
 .selectCommandBoxIconPanel svg path {
     fill: selectCommandActionIconColor !important;
+}
+
+.processTree {
+    font-family: mainFontFamily;
+    font-size: fontSize;
+    color: mainFontColor;
+    text-shadow: none;
+}
+
+.processTree .devMachineLabel {
+    background-color: primaryHighlightColor;
+    text-transform: uppercase;
+    line-height: smallFontSize;
+    font-size: 9px;
+    padding: 1px 2px;
+    margin: 0px 5px;
+    font-weight: bold;
+    border-radius: 1.5px;
+}
+
+.processTree span {
+    line-height: 18px;
+}
+
+.processTree .machineStatus {
+    float: right;
+    background-color: successColor;
+    width: 10px;
+    height: 10px;
+    border-radius: 5px;
+    margin: 4px 5px;
+}
+
+.processTree .processButton {
+    float: right;
+    background-color: buttonBackground;
+    color: buttonFontColor;
+    border: 1px solid buttonBorderColor;
+    margin: 3px 5px;
+    width: 12px;
+    height: 12px;
+    font-size: 10px;
+    border-radius: 2px;
+    line-height: 10px;
+    box-sizing: border-box;
+    text-align: center;
+    cursor: pointer;
+}
+
+.processButton:hover {
+    filter: brightness(120%);
+    -webkit-filter: brightness(120%);
+}
+
+.processTree .processIcon {
+    margin: 0px 5px;
+    height: 100%;
+}
+
+.processIcon svg {
+    fill: iconColor;
+    width: 12px;
+    height: 12px;
+    vertical-align: middle;
+    padding: 0 1px 2px 0;
+}
+
+.processNavigation {
+    border-right: 1px solid separatorColor;
+    margin-right: 8px;
+}
+
+div.processHeaderTitle{
+    font-size: fontSize;
+    font-family: outputFontFamily;
+    color: mainFontColor;
+}
+
+.processUrlValue {
+    color: primaryHighlightColor !important;
+}
+
+.processCommandValue {
+    color: successColor !important;
+}
+
+.processesPanelCloseButtonForProcess {
+    cursor: pointer;
+    opacity: 0.5;
+    padding: 6px 7px;
+    float: right;
 }

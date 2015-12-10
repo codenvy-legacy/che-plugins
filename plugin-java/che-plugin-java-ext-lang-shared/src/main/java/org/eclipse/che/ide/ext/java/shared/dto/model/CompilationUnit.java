@@ -19,6 +19,7 @@ import java.util.List;
  * Represents an entire Java compilation unit (source file with one of the Java-like extensions).
  *
  * @author Evgen Vidolob
+ * @author Valeriy Svydenko
  */
 @DTO
 public interface CompilationUnit extends TypeRoot, LabelElement {
@@ -31,6 +32,16 @@ public interface CompilationUnit extends TypeRoot, LabelElement {
     List<Type> getTypes();
 
     void setTypes(List<Type> types);
+
+    /**
+     * Returns the types declared for the super classes in this compilation unit
+     * in the order in which they appear in the source.
+     *
+     * @return the super classes declared in this compilation unit
+     */
+    List<Type> getSuperTypes();
+
+    void setSuperTypes(List<Type> types);
 
     /**
      * Returns the import declarations in this compilation unit

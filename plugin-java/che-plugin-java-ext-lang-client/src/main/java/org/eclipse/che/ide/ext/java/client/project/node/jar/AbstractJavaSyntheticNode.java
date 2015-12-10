@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.java.client.project.node.jar;
 
-import org.eclipse.che.api.project.shared.dto.ProjectDescriptor;
+import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.ide.api.project.node.settings.NodeSettings;
 import org.eclipse.che.ide.ext.java.client.project.node.JavaNodeManager;
 import org.eclipse.che.ide.project.node.SyntheticBasedNode;
@@ -24,10 +24,10 @@ public abstract class AbstractJavaSyntheticNode<DataObject> extends SyntheticBas
     protected final JavaNodeManager nodeManager;
 
     public AbstractJavaSyntheticNode(@NotNull DataObject dataObject,
-                                     @NotNull ProjectDescriptor projectDescriptor,
+                                     @NotNull ProjectConfigDto projectConfig,
                                      @NotNull NodeSettings nodeSettings,
                                      @NotNull JavaNodeManager nodeManager) {
-        super(dataObject, projectDescriptor, nodeSettings);
+        super(dataObject, projectConfig, nodeSettings);
         this.nodeManager = nodeManager;
     }
 }

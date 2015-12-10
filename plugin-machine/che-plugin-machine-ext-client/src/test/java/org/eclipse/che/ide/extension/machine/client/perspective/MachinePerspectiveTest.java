@@ -12,6 +12,7 @@ package org.eclipse.che.ide.extension.machine.client.perspective;
 
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.SimpleLayoutPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.SplitLayoutPanel;
 import com.google.gwtmockito.GwtMockitoTestRunner;
@@ -78,6 +79,8 @@ public class MachinePerspectiveTest {
     @Mock
     private SimplePanel             simplePanel;
     @Mock
+    private SimpleLayoutPanel       simpleLayoutPanel;
+    @Mock
     private WorkBenchPartController workBenchController;
     @Mock
     private PartStackView           partStackView;
@@ -97,7 +100,7 @@ public class MachinePerspectiveTest {
         when(view.getSplitPanel()).thenReturn(layoutPanel);
 
         when(view.getNavigationPanel()).thenReturn(simplePanel);
-        when(view.getInformationPanel()).thenReturn(simplePanel);
+        when(view.getInformationPanel()).thenReturn(simpleLayoutPanel);
         when(view.getToolPanel()).thenReturn(simplePanel);
 
         when(controllerFactory.createController(Matchers.<SplitLayoutPanel>anyObject(),
@@ -140,9 +143,10 @@ public class MachinePerspectiveTest {
         verify(view, times(2)).getInformationPanel();
         verify(view, times(2)).getNavigationPanel();
         verify(view).getEditorPanel();
-        verify(partStackPresenter, times(2)).go(simplePanel);
+        verify(partStackPresenter).go(simplePanel);
+        verify(partStackPresenter).go(simpleLayoutPanel);
         verify(container).setWidget(view);
 
-        verify(partStackPresenter,times(2)).openPreviousActivePart();
+        verify(partStackPresenter, times(2)).openPreviousActivePart();
     }
 }

@@ -28,10 +28,10 @@ import org.eclipse.che.ide.extension.machine.client.outputspanel.console.Command
 import org.eclipse.che.ide.extension.machine.client.outputspanel.console.DefaultOutputConsole;
 import org.eclipse.che.ide.extension.machine.client.outputspanel.console.OutputConsole;
 import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
-import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
-import org.eclipse.che.ide.rest.Unmarshallable;
 import org.eclipse.che.ide.util.loging.Log;
+import org.eclipse.che.ide.websocket.rest.RequestCallback;
+import org.eclipse.che.ide.websocket.rest.Unmarshallable;
 
 import static org.eclipse.che.ide.api.notification.Notification.Status.FINISHED;
 import static org.eclipse.che.ide.api.notification.Notification.Status.PROGRESS;
@@ -84,7 +84,7 @@ public class DependenciesUpdater {
         eventBus.addHandler(OpenProjectEvent.TYPE, new OpenProjectHandler() {
             @Override
             public void onProjectOpened(OpenProjectEvent event) {
-                updateDependencies(event.getDescriptor().getPath());
+                updateDependencies(event.getProjectConfig().getPath());
             }
         });
     }
@@ -102,9 +102,9 @@ public class DependenciesUpdater {
         notification = new Notification(javaLocalizationConstant.updatingDependencies(), PROGRESS, true);
         notificationManager.showNotification(notification);
 
-        Unmarshallable<ClassPathBuilderResult> unmarshaller = dtoUnmarshallerFactory.newUnmarshaller(ClassPathBuilderResult.class);
+        Unmarshallable<ClassPathBuilderResult> unmarshaller = dtoUnmarshallerFactory.newWSUnmarshaller(ClassPathBuilderResult.class);
 
-        classpathServiceClient.updateDependencies(path, new AsyncRequestCallback<ClassPathBuilderResult>(unmarshaller) {
+        classpathServiceClient.updateDependencies(path, new RequestCallback<ClassPathBuilderResult>(unmarshaller) {
             @Override
             protected void onSuccess(ClassPathBuilderResult result) {
                 if (SUCCESS.equals(result.getStatus())) {
