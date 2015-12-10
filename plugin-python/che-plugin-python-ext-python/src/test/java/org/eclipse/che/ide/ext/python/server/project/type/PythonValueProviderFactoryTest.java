@@ -21,11 +21,11 @@ import org.eclipse.che.api.project.server.handlers.ProjectHandler;
 import org.eclipse.che.api.project.server.handlers.ProjectHandlerRegistry;
 import org.eclipse.che.api.project.server.type.ProjectType;
 import org.eclipse.che.api.project.server.type.ProjectTypeRegistry;
+import org.eclipse.che.api.vfs.server.SystemPathsFilter;
 import org.eclipse.che.api.vfs.server.VirtualFileSystemRegistry;
 import org.eclipse.che.api.vfs.server.VirtualFileSystemUser;
 import org.eclipse.che.api.vfs.server.VirtualFileSystemUserContext;
 import org.eclipse.che.api.vfs.server.impl.memory.MemoryFileSystemProvider;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,8 +38,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
 import static org.eclipse.che.ide.ext.python.shared.ProjectAttributes.HAS_PYTHON_FILES;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Testing {@link PythonValueProviderFactory} functionality.
@@ -66,7 +66,7 @@ public class PythonValueProviderFactoryTest {
                     public VirtualFileSystemUser getVirtualFileSystemUser() {
                         return new VirtualFileSystemUser(vfsUser, vfsUserGroups);
                     }
-                }, vfsRegistry);
+                }, vfsRegistry, SystemPathsFilter.ANY);
         vfsRegistry.registerProvider(workspace, memoryFileSystemProvider);
 
 
