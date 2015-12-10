@@ -198,10 +198,7 @@ public class MavenPagePresenter extends AbstractWizardPage<ProjectConfigDto> imp
             view.setVersion(getAttribute(PARENT_VERSION));
         }
 
-        final String packaging = getAttribute(PACKAGING);
-        if (!packaging.isEmpty()) {
-            view.setPackaging(packaging);
-        }
+        view.setPackaging(getAttribute(PACKAGING));
     }
 
     @Override
