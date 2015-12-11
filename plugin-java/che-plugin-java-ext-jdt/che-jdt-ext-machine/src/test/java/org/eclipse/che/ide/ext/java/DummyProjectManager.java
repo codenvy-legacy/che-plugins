@@ -37,6 +37,7 @@ import org.eclipse.che.vfs.impl.fs.LocalFSMountStrategy;
 import org.eclipse.che.vfs.impl.fs.LocalFileSystemProvider;
 import org.eclipse.core.runtime.Path;
 
+import javax.validation.constraints.NotNull;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -99,6 +100,11 @@ public class DummyProjectManager implements ProjectManager {
             return new Project((FolderEntry)child, this);
         }
         return null;
+    }
+
+    @Override
+    public ProjectConfigDto getProjectFromWorkspace(@NotNull String wsId, @NotNull String projectPath) throws ServerException {
+        throw new UnsupportedOperationException("The method unsupported in this mode.");
     }
 
     @Override
