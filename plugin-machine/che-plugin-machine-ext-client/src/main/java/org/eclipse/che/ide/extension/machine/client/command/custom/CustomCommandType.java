@@ -8,7 +8,7 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.ide.extension.machine.client.command.arbitrary;
+package org.eclipse.che.ide.extension.machine.client.command.custom;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -30,21 +30,21 @@ import java.util.LinkedList;
  * @author Artem Zatsarynnyy
  */
 @Singleton
-public class ArbitraryCommandType implements CommandType {
+public class CustomCommandType implements CommandType {
 
-    private static final String ID               = "arbitrary";
-    private static final String DISPLAY_NAME     = "Arbitrary";
+    private static final String ID               = "custom";
+    private static final String DISPLAY_NAME     = "Custom";
     private static final String COMMAND_TEMPLATE = "echo \"hello\"";
 
-    private final MachineResources                     resources;
-    private final ArbitraryCommandConfigurationFactory configurationFactory;
+    private final MachineResources                  resources;
+    private final CustomCommandConfigurationFactory configurationFactory;
 
     private final Collection<CommandConfigurationPage<? extends CommandConfiguration>> pages;
 
     @Inject
-    public ArbitraryCommandType(MachineResources resources, ArbitraryPagePresenter page) {
+    public CustomCommandType(MachineResources resources, CustomPagePresenter page) {
         this.resources = resources;
-        configurationFactory = new ArbitraryCommandConfigurationFactory(this);
+        configurationFactory = new CustomCommandConfigurationFactory(this);
         pages = new LinkedList<>();
         pages.add(page);
     }
@@ -64,7 +64,7 @@ public class ArbitraryCommandType implements CommandType {
     @NotNull
     @Override
     public SVGResource getIcon() {
-        return resources.arbitraryCommandType();
+        return resources.customCommandTypeSubElementIcon();
     }
 
     @NotNull
@@ -75,7 +75,7 @@ public class ArbitraryCommandType implements CommandType {
 
     @NotNull
     @Override
-    public CommandConfigurationFactory<ArbitraryCommandConfiguration> getConfigurationFactory() {
+    public CommandConfigurationFactory<CustomCommandConfiguration> getConfigurationFactory() {
         return configurationFactory;
     }
 

@@ -23,7 +23,7 @@ import org.eclipse.che.ide.api.parts.Perspective;
 import org.eclipse.che.ide.core.Component;
 import org.eclipse.che.ide.extension.machine.client.MachineComponent;
 import org.eclipse.che.ide.extension.machine.client.command.CommandType;
-import org.eclipse.che.ide.extension.machine.client.command.arbitrary.ArbitraryCommandType;
+import org.eclipse.che.ide.extension.machine.client.command.custom.CustomCommandType;
 import org.eclipse.che.ide.extension.machine.client.command.edit.EditCommandsView;
 import org.eclipse.che.ide.extension.machine.client.command.edit.EditCommandsViewImpl;
 import org.eclipse.che.ide.extension.machine.client.command.valueproviders.CommandPropertyValueProvider;
@@ -94,7 +94,7 @@ public class MachineGinModule extends AbstractGinModule {
 
         bind(EditCommandsView.class).to(EditCommandsViewImpl.class).in(Singleton.class);
 
-        GinMultibinder.newSetBinder(binder(), CommandType.class).addBinding().to(ArbitraryCommandType.class);
+        GinMultibinder.newSetBinder(binder(), CommandType.class).addBinding().to(CustomCommandType.class);
 
         bind(CommandPropertyValueProviderRegistry.class).to(CommandPropertyValueProviderRegistryImpl.class).in(Singleton.class);
 

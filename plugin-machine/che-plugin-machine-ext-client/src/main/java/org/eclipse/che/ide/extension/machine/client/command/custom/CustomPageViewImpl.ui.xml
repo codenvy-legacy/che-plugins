@@ -14,36 +14,32 @@
              xmlns:g='urn:import:com.google.gwt.user.client.ui'>
     <ui:style>
         .cmdField {
-            color: #dbdbdb;
-            border: 1px solid #191c1e;
-            border-radius: 1px;
-            box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.19) inset, 0px 1px 0px 0px rgba(223, 223, 223, 0.4);
-            font-size: 12px;
-            padding-left: 8px;
-            width: 558px;
-            height: 250px;
+            height: 245px;
             resize: none;
         }
 
         .commandLinePosition {
             position: relative;
-            line-height: 29px;
+            line-height: inherit;
         }
 
         .spaceRight {
             margin-right: 8px;
-            margin-top: 1px;
         }
 
         .mainDoc {
-            margin: 15px;
+            margin: 0;
+        }
+
+        .mainDoc > div {
+            margin-top: -2px;
         }
     </ui:style>
 
     <g:DockLayoutPanel unit="PX" debugId="arbitraryPageView-mainPanel" addStyleNames="{style.mainDoc}">
         <g:north size="300">
             <g:FlowPanel width="100%" height="100%">
-                <g:Label text="Command line:" addStyleNames="{style.commandLinePosition}"/>
+                <g:Label text="Command line" addStyleNames="{style.commandLinePosition}"/>
                 <g:SimplePanel addStyleNames="{style.spaceRight}">
                     <g:TextArea ui:field="commandLine" debugId="arbitraryPageView-cmdLine" addStyleNames="{style.cmdField}"/>
                 </g:SimplePanel>

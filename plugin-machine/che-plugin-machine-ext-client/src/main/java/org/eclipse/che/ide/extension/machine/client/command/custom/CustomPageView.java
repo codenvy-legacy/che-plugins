@@ -8,19 +8,19 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.ide.extension.machine.client.command.arbitrary;
+package org.eclipse.che.ide.extension.machine.client.command.custom;
 
 import com.google.inject.ImplementedBy;
 
 import org.eclipse.che.ide.api.mvp.View;
 
 /**
- * The view of {@link ArbitraryPagePresenter}.
+ * The view of {@link CustomPagePresenter}.
  *
  * @author Artem Zatsarynnyy
  */
-@ImplementedBy(ArbitraryPageViewImpl.class)
-public interface ArbitraryPageView extends View<ArbitraryPageView.ActionDelegate> {
+@ImplementedBy(CustomPageViewImpl.class)
+public interface CustomPageView extends View<CustomPageView.ActionDelegate> {
 
     /** Returns command line. */
     String getCommandLine();

@@ -8,7 +8,7 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.ide.extension.machine.client.command.arbitrary;
+package org.eclipse.che.ide.extension.machine.client.command.custom;
 
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 
@@ -29,17 +29,17 @@ import static org.mockito.Mockito.when;
 
 /** @author Artem Zatsarynnyy */
 @RunWith(MockitoJUnitRunner.class)
-public class ArbitraryPagePresenterTest {
+public class CustomPagePresenterTest {
 
     private static final String COMMAND_LINE = "cmd";
 
     @Mock
-    private ArbitraryPageView             arbitraryPageView;
+    private CustomPageView             arbitraryPageView;
     @Mock
-    private ArbitraryCommandConfiguration configuration;
+    private CustomCommandConfiguration configuration;
 
     @InjectMocks
-    private ArbitraryPagePresenter arbitraryPagePresenter;
+    private CustomPagePresenter arbitraryPagePresenter;
 
     @Before
     public void setUp() {

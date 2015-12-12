@@ -8,7 +8,7 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.ide.extension.machine.client.command.arbitrary;
+package org.eclipse.che.ide.extension.machine.client.command.custom;
 
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.inject.Inject;
@@ -24,22 +24,22 @@ import javax.validation.constraints.NotNull;
  * @author Artem Zatsarynnyy
  */
 @Singleton
-public class ArbitraryPagePresenter implements ArbitraryPageView.ActionDelegate, CommandConfigurationPage<ArbitraryCommandConfiguration> {
+public class CustomPagePresenter implements CustomPageView.ActionDelegate, CommandConfigurationPage<CustomCommandConfiguration> {
 
-    private final ArbitraryPageView view;
+    private final CustomPageView view;
 
-    private ArbitraryCommandConfiguration editedConfiguration;
-    private String                        originCommandLine;
-    private DirtyStateListener            listener;
+    private CustomCommandConfiguration editedConfiguration;
+    private String                     originCommandLine;
+    private DirtyStateListener         listener;
 
     @Inject
-    public ArbitraryPagePresenter(ArbitraryPageView view) {
+    public CustomPagePresenter(CustomPageView view) {
         this.view = view;
         view.setDelegate(this);
     }
 
     @Override
-    public void resetFrom(@NotNull ArbitraryCommandConfiguration configuration) {
+    public void resetFrom(@NotNull CustomCommandConfiguration configuration) {
         editedConfiguration = configuration;
         originCommandLine = configuration.getCommandLine();
     }

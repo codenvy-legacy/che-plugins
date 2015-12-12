@@ -78,11 +78,12 @@
 }
 
 .loadRepo {
-    position: relative;
     right: 12px;
     width: 90px;
     height: 25px;
     float: right;
+    position: relative;
+    white-space: nowrap;
 }
 
 .inputError {

@@ -47,7 +47,7 @@ public interface MachineResources extends ClientBundle {
 
     /** Returns the icon for 'Arbitrary' command type. */
     @Source("command/arbitrary/arbitrary-command-type.svg")
-    SVGResource arbitraryCommandType();
+    SVGResource customCommandTypeSubElementIcon();
 
     @Source("images/process/add-terminal.svg")
     SVGResource addTerminal();
@@ -57,6 +57,10 @@ public interface MachineResources extends ClientBundle {
 
     @Source("images/process/terminal-icon.svg")
     SVGResource terminal();
+
+    /** Returns the icon for 'Custom' command type. */
+    @Source("command/arbitrary/custom-command-type.svg")
+    SVGResource customCommandType();
 
     @Source("images/project-perspective.svg")
     SVGResource projectPerspective();

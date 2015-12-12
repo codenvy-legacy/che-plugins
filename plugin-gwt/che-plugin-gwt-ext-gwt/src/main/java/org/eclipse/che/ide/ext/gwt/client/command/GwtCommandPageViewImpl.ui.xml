@@ -45,28 +45,32 @@
             color: gray;
             line-height: 20px;
         }
+
+        .marginBottom {
+            margin-bottom: 7px !important;
+        }
     </ui:style>
 
     <g:DockLayoutPanel unit="PX" debugId="gwtPageView-mainPanel" addStyleNames="{style.mainPanel}">
         <g:north size="200">
             <g:FlowPanel>
-                <g:FlowPanel height="50px">
-                    <g:Label text="Working directory:" addStyleNames="{style.commandLineLabel} {style.floatLeft}"/>
-                    <g:TextBox width="420px" ui:field="workingDirectory" debugId="gwtPageView-workingDirectory"
+                <g:FlowPanel height="60px">
+                    <g:Label text="Working directory" addStyleNames="{style.commandLineLabel} {style.floatLeft}"/>
+                    <g:TextBox width="100%" ui:field="workingDirectory" debugId="gwtPageView-workingDirectory"
                                addStyleNames="{style.commandLineField} {style.floatRight}"/>
                 </g:FlowPanel>
-                <g:FlowPanel height="55px">
+                <g:FlowPanel height="80px">
                     <g:Label text="{locale.gwtCommandPageViewGwtModuleText}"
                              addStyleNames="{style.commandLineLabel} {style.floatLeft}"/>
-                    <g:TextBox width="420px" ui:field="gwtModule" debugId="gwtPageView-gwtModule"
-                               addStyleNames="{style.commandLineField} {style.floatRight}"/>
-                    <g:Label width="420px" text="{locale.gwtCommandPageViewGwtModuleHint}"
+                    <g:TextBox width="100%" ui:field="gwtModule" debugId="gwtPageView-gwtModule"
+                               addStyleNames="{style.commandLineField} {style.floatRight} {style.marginBottom}"/>
+                    <g:Label width="100%" text="{locale.gwtCommandPageViewGwtModuleHint}"
                              addStyleNames="{style.hint} {style.floatRight}"/>
                 </g:FlowPanel>
-                <g:FlowPanel height="50px">
+                <g:FlowPanel height="60px">
                     <g:Label text="{locale.gwtCommandPageViewCodeServerAddressText}"
                              addStyleNames="{style.commandLineLabel} {style.floatLeft}"/>
-                    <g:TextBox width="420px" ui:field="codeServerAddress" debugId="gwtPageView-codeServerAddress"
+                    <g:TextBox width="100%" ui:field="codeServerAddress" debugId="gwtPageView-codeServerAddress"
                                addStyleNames="{style.commandLineField} {style.floatRight}"/>
                 </g:FlowPanel>
             </g:FlowPanel>
