@@ -24,7 +24,7 @@ import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.api.promises.client.PromiseError;
 import org.eclipse.che.api.workspace.gwt.client.WorkspaceServiceClient;
 import org.eclipse.che.api.workspace.shared.dto.UsersWorkspaceDto;
-import org.eclipse.che.commons.annotation.Nullable;
+import org.eclipse.che.ide.CoreLocalizationConstant;
 import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.actions.SelectCommandComboBoxReady;
@@ -38,18 +38,22 @@ import org.eclipse.che.ide.ui.dialogs.ConfirmCallback;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 import org.eclipse.che.ide.ui.dialogs.choice.ChoiceDialog;
 import org.eclipse.che.ide.ui.dialogs.confirm.ConfirmDialog;
-import org.eclipse.che.ide.util.UUID;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
+import java.util.Map;
 
 /**
  * Presenter for managing commands.
  *
  * @author Artem Zatsarynnyy
+ * @author Oleksii Orel
  */
 @Singleton
 public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
@@ -61,23 +65,27 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
     private final DtoFactory                           dtoFactory;
     private final CommandTypeRegistry                  commandTypeRegistry;
     private final DialogFactory                        dialogFactory;
-    private final MachineLocalizationConstant          localizationConstant;
+    private final MachineLocalizationConstant          machineLocale;
+    private final CoreLocalizationConstant             coreLocale;
     private final Provider<SelectCommandComboBoxReady> selectCommandActionProvider;
 
     private final Set<ConfigurationChangedListener> configurationChangedListeners;
 
-    private CommandConfigurationPage<CommandConfiguration> editedPage;
+    private       CommandConfigurationPage<CommandConfiguration> editedPage;
     /** Command that being edited. */
-    private CommandConfiguration                           editedCommand;
+    private       CommandConfiguration                           editedCommand;
     /** Name of the edited command before editing. */
-    private String                                         editedCommandOriginName;
+    private       String                                         editedCommandOriginName;
+    /** Map of the existing command names(command type id as key). */
+    private final Map<String, HashSet<String>>                   commandNames;
 
     @Inject
     protected EditCommandsPresenter(EditCommandsView view,
                                     WorkspaceServiceClient workspaceServiceClient,
                                     CommandTypeRegistry commandTypeRegistry,
                                     DialogFactory dialogFactory,
-                                    MachineLocalizationConstant localizationConstant,
+                                    MachineLocalizationConstant machineLocale,
+                                    CoreLocalizationConstant coreLocale,
                                     Provider<SelectCommandComboBoxReady> selectCommandActionProvider,
                                     CommandManager commandManager,
                                     @Named("workspaceId") String workspaceId,
@@ -89,16 +97,19 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
         this.dtoFactory = dtoFactory;
         this.commandTypeRegistry = commandTypeRegistry;
         this.dialogFactory = dialogFactory;
-        this.localizationConstant = localizationConstant;
+        this.machineLocale = machineLocale;
+        this.coreLocale = coreLocale;
         this.selectCommandActionProvider = selectCommandActionProvider;
         this.view.setDelegate(this);
 
         configurationChangedListeners = new HashSet<>();
+        commandNames = new HashMap<>();
     }
 
     @Override
-    public void onOkClicked() {
+    public void onCloseClicked() {
         final CommandConfiguration selectedConfiguration = view.getSelectedConfiguration();
+        onNameChanged();
         if (!isViewModified() || selectedConfiguration == null) {
             if (selectedConfiguration != null) {
                 selectCommandOnToolbar(selectedConfiguration);
@@ -121,8 +132,9 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
     }
 
     @Override
-    public void onApplyClicked() {
+    public void onSaveClicked() {
         final CommandConfiguration selectedConfiguration = view.getSelectedConfiguration();
+        onNameChanged();
         if (selectedConfiguration == null) {
             return;
         }
@@ -130,7 +142,7 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
         updateCommand(selectedConfiguration).then(new Operation<UsersWorkspaceDto>() {
             @Override
             public void apply(UsersWorkspaceDto arg) throws OperationException {
-                fetchCommands(arg.getName());
+                fetchCommands();
                 fireConfigurationUpdated(selectedConfiguration);
             }
         });
@@ -158,6 +170,16 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
     @Override
     public void onCancelClicked() {
         view.close();
+    }
+
+    @Override
+    public void onDuplicateClicked() {
+        final CommandConfiguration selectedConfiguration = view.getSelectedConfiguration();
+        if (selectedConfiguration == null) {
+            return;
+        }
+
+        createCommand(selectedConfiguration.getType(), selectedConfiguration.toCommandLine(), selectedConfiguration.getName());
     }
 
     @Override
@@ -192,28 +214,58 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
         };
 
         final ChoiceDialog dialog = dialogFactory.createChoiceDialog(
-                localizationConstant.editCommandsSaveChangesTitle(),
-                localizationConstant.editCommandsSaveChangesConfirmation(editedCommand.getName()),
-                localizationConstant.editCommandsSaveChangesSave(),
-                localizationConstant.editCommandsSaveChangesDiscard(),
+                machineLocale.editCommandsSaveChangesTitle(),
+                machineLocale.editCommandsSaveChangesConfirmation(editedCommand.getName()),
+                coreLocale.save(),
+                machineLocale.editCommandsSaveChangesDiscard(),
                 saveCallback,
                 discardCallback);
         dialog.show();
     }
 
+    private String getUniqueCommandName(CommandType customType, String customName) {
+        final String newCommandName;
+        final HashSet<String> typeNames = commandNames.get(customType.getId());
+
+        if (customName != null) {
+            if (!typeNames.contains(customName)) {
+                return customName;
+            }
+            newCommandName = customName + " copy";
+            if (!typeNames.contains(newCommandName)) {
+                return newCommandName;
+            }
+        } else {
+            newCommandName = "new" + customType.getDisplayName();
+        }
+
+        int count = 0;
+        while (typeNames.contains(newCommandName + "-" + ++count)) {
+            if (count > 10000) {
+                break;
+            }
+        }
+        return newCommandName + "-" + count;
+    }
+
     private void createCommand(CommandType type) {
-        final String name = type.getDisplayName() + " (" + UUID.uuid(2, 10) + ')';
+        createCommand(type, null, null);
+    }
+
+    private void createCommand(CommandType type, String customCommand, String customName) {
         final CommandDto commandDto = dtoFactory.createDto(CommandDto.class)
-                                                .withName(name)
-                                                .withCommandLine(type.getCommandTemplate())
+                                                .withName(getUniqueCommandName(type, customName))
+                                                .withCommandLine(customCommand != null ? customCommand : type.getCommandTemplate())
                                                 .withType(type.getId());
         workspaceServiceClient.addCommand(workspaceId, commandDto).then(new Operation<UsersWorkspaceDto>() {
             @Override
             public void apply(UsersWorkspaceDto arg) throws OperationException {
-                fetchCommands(arg.getName());
+                fetchCommands();
 
                 final CommandType type = commandTypeRegistry.getCommandTypeById(commandDto.getType());
-                fireConfigurationAdded(type.getConfigurationFactory().createFromDto(commandDto));
+                final CommandConfiguration command = type.getConfigurationFactory().createFromDto(commandDto);
+                fireConfigurationAdded(command);
+                view.selectCommand(command);
             }
         });
     }
@@ -231,7 +283,7 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
                 workspaceServiceClient.deleteCommand(workspaceId, selectedConfiguration.getName()).then(new Operation<UsersWorkspaceDto>() {
                     @Override
                     public void apply(UsersWorkspaceDto arg) throws OperationException {
-                        fetchCommands(null);
+                        fetchCommands();
                         fireConfigurationRemoved(selectedConfiguration);
                     }
                 });
@@ -239,8 +291,8 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
         };
 
         final ConfirmDialog confirmDialog = dialogFactory.createConfirmDialog(
-                "",
-                localizationConstant.editCommandsRemoveConfirmation(selectedConfiguration.getName()),
+                machineLocale.editCommandsViewRemoveTitle(),
+                machineLocale.editCommandsRemoveConfirmation(selectedConfiguration.getName()),
                 confirmCallback,
                 null);
         confirmDialog.show();
@@ -254,7 +306,7 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
         }
 
         if (isViewModified()) {
-            dialogFactory.createMessageDialog("", localizationConstant.editCommandsExecuteMessage(), null).show();
+            dialogFactory.createMessageDialog("", machineLocale.editCommandsExecuteMessage(), null).show();
             return;
         }
 
@@ -264,10 +316,6 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
 
     @Override
     public void onCommandTypeSelected(CommandType type) {
-        view.setAddButtonState(true);
-        view.setRemoveButtonState(false);
-        view.setExecuteButtonState(false);
-
         if (!isViewModified()) {
             reset();
             return;
@@ -279,7 +327,7 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
                 updateCommand(editedCommand).then(new Operation<UsersWorkspaceDto>() {
                     @Override
                     public void apply(UsersWorkspaceDto arg) throws OperationException {
-                        fetchCommands(null);
+                        fetchCommands();
                         fireConfigurationUpdated(editedCommand);
                     }
                 });
@@ -289,15 +337,15 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
         final ConfirmCallback discardCallback = new ConfirmCallback() {
             @Override
             public void accepted() {
-                fetchCommands(null);
+                fetchCommands();
             }
         };
 
         final ChoiceDialog dialog = dialogFactory.createChoiceDialog(
-                localizationConstant.editCommandsSaveChangesTitle(),
-                localizationConstant.editCommandsSaveChangesConfirmation(editedCommand.getName()),
-                localizationConstant.editCommandsSaveChangesSave(),
-                localizationConstant.editCommandsSaveChangesDiscard(),
+                machineLocale.editCommandsSaveChangesTitle(),
+                machineLocale.editCommandsSaveChangesConfirmation(editedCommand.getName()),
+                coreLocale.save(),
+                machineLocale.editCommandsSaveChangesDiscard(),
                 saveCallback,
                 discardCallback);
         dialog.show();
@@ -325,7 +373,7 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
                 updateCommand(editedCommand).then(new Operation<UsersWorkspaceDto>() {
                     @Override
                     public void apply(UsersWorkspaceDto arg) throws OperationException {
-                        fetchCommands(configuration.getName());
+                        fetchCommands();
                         fireConfigurationUpdated(editedCommand);
                         handleCommandSelection(configuration);
                     }
@@ -336,16 +384,16 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
         final ConfirmCallback discardCallback = new ConfirmCallback() {
             @Override
             public void accepted() {
-                fetchCommands(configuration.getName());
+                fetchCommands();
                 handleCommandSelection(configuration);
             }
         };
 
         final ChoiceDialog dialog = dialogFactory.createChoiceDialog(
-                localizationConstant.editCommandsSaveChangesTitle(),
-                localizationConstant.editCommandsSaveChangesConfirmation(editedCommand.getName()),
-                localizationConstant.editCommandsSaveChangesSave(),
-                localizationConstant.editCommandsSaveChangesDiscard(),
+                machineLocale.editCommandsSaveChangesTitle(),
+                machineLocale.editCommandsSaveChangesConfirmation(editedCommand.getName()),
+                coreLocale.save(),
+                machineLocale.editCommandsSaveChangesDiscard(),
                 saveCallback,
                 discardCallback);
         dialog.show();
@@ -355,9 +403,6 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
         editedCommand = configuration;
         editedCommandOriginName = configuration.getName();
 
-        view.setAddButtonState(true);
-        view.setRemoveButtonState(true);
-        view.setExecuteButtonState(true);
         view.setConfigurationName(configuration.getName());
 
         final Collection<CommandConfigurationPage<? extends CommandConfiguration>> pages = configuration.getType().getConfigurationPages();
@@ -385,8 +430,7 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
     public void onNameChanged() {
         final CommandConfiguration selectedConfiguration = view.getSelectedConfiguration();
         if (selectedConfiguration != null) {
-            selectedConfiguration.setName(view.getConfigurationName());
-
+            selectedConfiguration.setName(getUniqueCommandName(selectedConfiguration.getType(), view.getConfigurationName()));
             view.setCancelButtonState(isViewModified());
             view.setApplyButtonState(isViewModified());
         }
@@ -394,22 +438,16 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
 
     /** Show dialog. */
     public void show() {
-        fetchCommands(null);
+        fetchCommands();
         view.show();
     }
 
     /**
      * Fetch commands from server and update view.
-     *
-     * @param commandNameToSelect
-     *         name of the command to select
      */
-    private void fetchCommands(@Nullable final String commandNameToSelect) {
+    private void fetchCommands() {
         reset();
 
-        view.setAddButtonState(false);
-        view.setRemoveButtonState(false);
-        view.setExecuteButtonState(false);
         view.setCancelButtonState(false);
         view.setApplyButtonState(false);
 
@@ -431,11 +469,31 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
         }).then(new Operation<List<CommandConfiguration>>() {
             @Override
             public void apply(List<CommandConfiguration> commandConfigurations) throws OperationException {
-                view.setData(commandTypeRegistry.getCommandTypes(), commandConfigurations);
+                commandNames.clear();
 
-                if (commandNameToSelect != null) {
-                    view.selectCommand(commandNameToSelect);
+                final Map<CommandType, List<CommandConfiguration>> categories = new HashMap<>();
+
+                for (CommandType type : commandTypeRegistry.getCommandTypes()) {
+                    final List<CommandConfiguration> settingsCategory = new ArrayList<>();
+                    final HashSet<String> names = new HashSet<>();
+                    for (CommandConfiguration configuration : commandConfigurations) {
+                        if (type.getId().equals(configuration.getType().getId())) {
+                            settingsCategory.add(configuration);
+                            names.add(configuration.getName());
+                        }
+                    }
+                    Collections.sort(settingsCategory, new Comparator<CommandConfiguration>() {
+                        @Override
+                        public int compare(CommandConfiguration o1, CommandConfiguration o2) {
+                            return o1.getName().compareTo(o2.getName());
+                        }
+                    });
+                    categories.put(type, settingsCategory);
+
+                    commandNames.put(type.getId(), names);
                 }
+                view.setData(categories);
+                view.setFilterState(!commandConfigurations.isEmpty());
             }
         }).catchError(new Operation<PromiseError>() {
             @Override
@@ -445,7 +503,8 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
         });
     }
 
-    private boolean isViewModified() {
+    @Override
+    public boolean isViewModified() {
         if (editedCommand == null || editedPage == null) {
             return false;
         }

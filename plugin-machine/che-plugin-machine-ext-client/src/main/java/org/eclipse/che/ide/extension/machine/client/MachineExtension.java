@@ -22,6 +22,8 @@ import org.eclipse.che.ide.api.action.ActionManager;
 import org.eclipse.che.ide.api.action.DefaultActionGroup;
 import org.eclipse.che.ide.api.constraints.Constraints;
 import org.eclipse.che.ide.api.extension.Extension;
+import org.eclipse.che.ide.api.icon.Icon;
+import org.eclipse.che.ide.api.icon.IconRegistry;
 import org.eclipse.che.ide.api.keybinding.KeyBindingAgent;
 import org.eclipse.che.ide.api.keybinding.KeyBuilder;
 import org.eclipse.che.ide.api.parts.PartStackType;
@@ -36,6 +38,7 @@ import org.eclipse.che.ide.extension.machine.client.actions.RestartMachineAction
 import org.eclipse.che.ide.extension.machine.client.actions.RunCommandAction;
 import org.eclipse.che.ide.extension.machine.client.actions.SelectCommandComboBoxReady;
 import org.eclipse.che.ide.extension.machine.client.actions.SwitchPerspectiveAction;
+import org.eclipse.che.ide.extension.machine.client.command.custom.CustomCommandType;
 import org.eclipse.che.ide.extension.machine.client.machine.console.ClearConsoleAction;
 import org.eclipse.che.ide.extension.machine.client.machine.console.MachineConsoleToolbar;
 import org.eclipse.che.ide.extension.machine.client.machine.extserver.ProjectApiComponentInitializer;
@@ -74,7 +77,9 @@ public class MachineExtension {
                             //projectApiComponentInitializer has handler which will work at the right time
                             final ProjectApiComponentInitializer projectApiComponentInitializer,
                             final OutputsContainerPresenter outputsContainerPresenter,
-                            final PerspectiveManager perspectiveManager) {
+                            final PerspectiveManager perspectiveManager,
+                            IconRegistry iconRegistry,
+                            CustomCommandType arbitraryCommandType) {
         machineResources.getCss().ensureInjected();
 
         eventBus.addHandler(ExtServerStateEvent.TYPE, new ExtServerStateHandler() {
@@ -89,6 +94,8 @@ public class MachineExtension {
             public void onExtServerStopped(ExtServerStateEvent event) {
             }
         });
+
+        iconRegistry.registerIcon(new Icon(arbitraryCommandType.getId() + ".commands.category.icon", machineResources.customCommandType()));
     }
 
     @Inject

@@ -15,11 +15,6 @@
     <ui:with field='locale' type='org.eclipse.che.ide.extension.maven.client.MavenLocalizationConstant'/>
     <ui:style>
         .commandLineField {
-            color: #dbdbdb;
-            border: 1px solid #191c1e;
-            border-radius: 1px;
-            box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.19) inset, 0px 1px 0px 0px rgba(223, 223, 223, 0.4);
-            font-size: 12px;
             padding-left: 8px;
             height: 20px;
         }
@@ -45,12 +40,12 @@
     <g:DockLayoutPanel unit="PX" debugId="mavenPageView-mainPanel" addStyleNames="{style.mainPanel}">
         <g:north size="200">
             <g:FlowPanel>
-                <g:FlowPanel height="50px">
-                    <g:Label text="Working directory:" addStyleNames="{style.commandLineLabel} {style.floatLeft}"/>
+                <g:FlowPanel height="60px">
+                    <g:Label text="Working directory" addStyleNames="{style.commandLineLabel} {style.floatLeft}"/>
                     <g:TextBox width="440px" ui:field="workingDirectory" debugId="mavenPageView-workingDirectory"
                                addStyleNames="{style.commandLineField} {style.floatRight}"/>
                 </g:FlowPanel>
-                <g:FlowPanel height="50px">
+                <g:FlowPanel height="60px">
                     <g:Label text="{locale.mavenCommandPageViewCommandLineText}"
                              addStyleNames="{style.commandLineLabel} {style.floatLeft}"/>
                     <g:TextBox width="440px" ui:field="commandLine" debugId="mavenPageView-commandLine"

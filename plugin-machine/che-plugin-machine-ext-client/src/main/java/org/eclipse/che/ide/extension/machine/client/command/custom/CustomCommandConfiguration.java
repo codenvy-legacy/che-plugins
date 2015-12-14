@@ -8,7 +8,7 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.ide.extension.machine.client.command.arbitrary;
+package org.eclipse.che.ide.extension.machine.client.command.custom;
 
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
 import org.eclipse.che.ide.extension.machine.client.command.CommandType;
@@ -20,11 +20,11 @@ import javax.validation.constraints.NotNull;
  *
  * @author Artem Zatsarynnyy
  */
-public class ArbitraryCommandConfiguration extends CommandConfiguration {
+public class CustomCommandConfiguration extends CommandConfiguration {
 
     private String commandLine;
 
-    protected ArbitraryCommandConfiguration(CommandType type, String name) {
+    protected CustomCommandConfiguration(CommandType type, String name) {
         super(type, name);
         commandLine = "";
     }

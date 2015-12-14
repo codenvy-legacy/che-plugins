@@ -29,7 +29,6 @@ public interface MachineLocalizationConstant extends Messages {
     @Key("button.cancel")
     String cancelButton();
 
-
     /* Actions */
     @Key("mainMenu.run.name")
     String mainMenuRunName();
@@ -176,6 +175,9 @@ public interface MachineLocalizationConstant extends Messages {
 
 
     /* EditCommandsView */
+    @Key("view.editCommands.placeholder")
+    String editCommandsViewPlaceholder();
+
     @Key("view.editCommands.title")
     String editCommandsViewTitle();
 
@@ -214,9 +216,6 @@ public interface MachineLocalizationConstant extends Messages {
 
     @Key("view.editCommands.saveChanges.text")
     String editCommandsSaveChangesConfirmation(String commandName);
-
-    @Key("view.editCommands.saveChanges.save")
-    String editCommandsSaveChangesSave();
 
     @Key("view.editCommands.saveChanges.discard")
     String editCommandsSaveChangesDiscard();

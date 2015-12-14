@@ -35,7 +35,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.ARTIFACT_ID;
-import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.DEFAULT_PACKAGING;
 import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.DEFAULT_RESOURCES_FOLDER;
 import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.DEFAULT_SOURCE_FOLDER;
 import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.DEFAULT_TEST_RESOURCES_FOLDER;
@@ -108,7 +107,7 @@ public class MavenValueProviderFactory implements ValueProviderFactory {
                     value = model.getGroupId();
                 } else if (attributeName.equals(PACKAGING)) {
                     final String packaging = model.getPackaging();
-                    value = packaging == null ? DEFAULT_PACKAGING : packaging;
+                    value = packaging == null ? "" : packaging;
                 } else if (attributeName.equals(VERSION)) {
                     value = model.getVersion();
                 } else if (attributeName.equals(PARENT_ARTIFACT_ID) && model.getParent() != null) {
@@ -168,7 +167,11 @@ public class MavenValueProviderFactory implements ValueProviderFactory {
                         Model.readFrom(pom).setGroupId(value.get(0)).writeTo(pom);
                         break;
                     case PACKAGING:
-                        Model.readFrom(pom).setPackaging(value.get(0)).writeTo(pom);
+                        String packaging = value.get(0);
+                        if (packaging.isEmpty()) {
+                            packaging = null;
+                        }
+                        Model.readFrom(pom).setPackaging(packaging).writeTo(pom);
                         break;
                     case VERSION:
                         Model.readFrom(pom).setVersion(value.get(0)).writeTo(pom);

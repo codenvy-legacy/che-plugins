@@ -8,7 +8,7 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.ide.extension.machine.client.command.arbitrary;
+package org.eclipse.che.ide.extension.machine.client.command.custom;
 
 import org.eclipse.che.ide.extension.machine.client.MachineResources;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
@@ -26,21 +26,21 @@ import static org.mockito.Mockito.verify;
 
 /** @author Artem Zatsarynnyy */
 @RunWith(MockitoJUnitRunner.class)
-public class ArbitraryCommandTypeTest {
+public class CustomCommandTypeTest {
 
     @Mock
-    private MachineResources       machineResources;
+    private MachineResources    machineResources;
     @Mock
-    private ArbitraryPagePresenter arbitraryPagePresenter;
+    private CustomPagePresenter arbitraryPagePresenter;
 
     @InjectMocks
-    private ArbitraryCommandType arbitraryCommandType;
+    private CustomCommandType arbitraryCommandType;
 
     @Test
     public void shouldReturnIcon() throws Exception {
         arbitraryCommandType.getIcon();
 
-        verify(machineResources).arbitraryCommandType();
+        verify(machineResources).customCommandTypeSubElementIcon();
     }
 
     @Test

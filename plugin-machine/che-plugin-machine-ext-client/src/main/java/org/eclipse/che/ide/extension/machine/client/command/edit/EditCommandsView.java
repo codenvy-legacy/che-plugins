@@ -17,7 +17,8 @@ import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration
 import org.eclipse.che.ide.extension.machine.client.command.CommandType;
 
 import org.eclipse.che.commons.annotation.Nullable;
-import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 /**
  * The view of {@link EditCommandsPresenter}.
@@ -40,12 +41,10 @@ public interface EditCommandsView extends View<EditCommandsView.ActionDelegate> 
     /**
      * Sets command types and command configurations to display.
      *
-     * @param commandTypes
-     *         available types of commands
-     * @param commandConfigurations
-     *         existed commands
+     * @param categories
+     *         available command type and list of configuration
      */
-    void setData(Collection<CommandType> commandTypes, Collection<CommandConfiguration> commandConfigurations);
+    void setData(Map<CommandType, List<CommandConfiguration>> categories);
 
     /** Returns command name. */
     String getConfigurationName();
@@ -53,27 +52,21 @@ public interface EditCommandsView extends View<EditCommandsView.ActionDelegate> 
     /** Sets command name. */
     void setConfigurationName(String name);
 
-    /** Sets enabled state of the 'Add' button. */
-    void setAddButtonState(boolean enabled);
-
-    /** Sets enabled state of the 'Remove' button. */
-    void setRemoveButtonState(boolean enabled);
-
-    /** Sets enabled state of the 'Execute' button. */
-    void setExecuteButtonState(boolean enabled);
-
     /** Sets enabled state of the 'Cancel' button. */
     void setCancelButtonState(boolean enabled);
 
     /** Sets enabled state of the 'Apply' button. */
     void setApplyButtonState(boolean enabled);
+    
+    /** Sets enabled state of the filter input field. */
+    void setFilterState(boolean enabled);
 
     /** Returns the selected command type or type of the selected command configuration. */
     @Nullable
     CommandType getSelectedCommandType();
 
     /** Select command with the given ID. */
-    void selectCommand(String commandId);
+    void selectCommand(CommandConfiguration config);
 
     /** Returns the selected command configuration. */
     @Nullable
@@ -83,16 +76,19 @@ public interface EditCommandsView extends View<EditCommandsView.ActionDelegate> 
     interface ActionDelegate {
 
         /** Called when 'Ok' button is clicked. */
-        void onOkClicked();
+        void onCloseClicked();
 
         /** Called when 'Apply' button is clicked. */
-        void onApplyClicked();
+        void onSaveClicked();
 
         /** Called when 'Cancel' button is clicked. */
         void onCancelClicked();
 
         /** Called when 'Add' button is clicked. */
         void onAddClicked();
+
+        /** Called when 'Duplicate' button is clicked. */
+        void onDuplicateClicked();
 
         /** Called when 'Remove' button is clicked. */
         void onRemoveClicked();
@@ -118,5 +114,7 @@ public interface EditCommandsView extends View<EditCommandsView.ActionDelegate> 
 
         /** Called when configuration name is changed. */
         void onNameChanged();
+
+        boolean isViewModified();
     }
 }

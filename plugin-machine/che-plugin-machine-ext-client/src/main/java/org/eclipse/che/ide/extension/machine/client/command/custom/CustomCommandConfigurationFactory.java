@@ -8,7 +8,7 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.ide.extension.machine.client.command.arbitrary;
+package org.eclipse.che.ide.extension.machine.client.command.custom;
 
 import org.eclipse.che.api.machine.shared.dto.CommandDto;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfigurationFactory;
@@ -17,20 +17,20 @@ import org.eclipse.che.ide.extension.machine.client.command.CommandType;
 import javax.validation.constraints.NotNull;
 
 /**
- * Factory for {@link ArbitraryCommandConfiguration} instances.
+ * Factory for {@link CustomCommandConfiguration} instances.
  *
  * @author Artem Zatsarynnyy
  */
-public class ArbitraryCommandConfigurationFactory extends CommandConfigurationFactory<ArbitraryCommandConfiguration> {
+public class CustomCommandConfigurationFactory extends CommandConfigurationFactory<CustomCommandConfiguration> {
 
-    protected ArbitraryCommandConfigurationFactory(@NotNull CommandType commandType) {
+    protected CustomCommandConfigurationFactory(@NotNull CommandType commandType) {
         super(commandType);
     }
 
     @NotNull
     @Override
-    public ArbitraryCommandConfiguration createFromDto(@NotNull CommandDto descriptor) {
-        final ArbitraryCommandConfiguration configuration = new ArbitraryCommandConfiguration(getCommandType(), descriptor.getName());
+    public CustomCommandConfiguration createFromDto(@NotNull CommandDto descriptor) {
+        final CustomCommandConfiguration configuration = new CustomCommandConfiguration(getCommandType(), descriptor.getName());
         configuration.setCommandLine(descriptor.getCommandLine());
         return configuration;
     }
