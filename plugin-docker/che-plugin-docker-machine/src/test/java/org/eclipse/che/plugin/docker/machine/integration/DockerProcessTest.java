@@ -84,10 +84,10 @@ public class DockerProcessTest {
 
         final DockerProcess dockerProcess = new DockerProcess(docker,
                                                               container,
+                                                              "tailf",
                                                               "tailf /dev/null",
                                                               "/tmp/chetests",
-                                                              pidGenerator.incrementAndGet(),
-                                                              false);
+                                                              pidGenerator.incrementAndGet());
 
         dockerProcess.start(new SOUTLineConsumer());
     }

@@ -17,7 +17,6 @@ import org.eclipse.che.api.core.model.machine.MachineMetadata;
 import org.eclipse.che.api.core.model.machine.MachineState;
 import org.eclipse.che.api.core.util.LineConsumer;
 import org.eclipse.che.api.core.util.ListLineConsumer;
-import org.eclipse.che.api.core.util.ValueHolder;
 import org.eclipse.che.api.machine.server.exception.MachineException;
 import org.eclipse.che.api.machine.server.impl.AbstractInstance;
 import org.eclipse.che.api.machine.server.spi.Instance;
@@ -39,9 +38,12 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static java.lang.String.format;
 
 /**
  * Docker implementation of {@link Instance}
@@ -53,19 +55,33 @@ import java.util.regex.Pattern;
 public class DockerInstance extends AbstractInstance {
     private static final Logger LOG = LoggerFactory.getLogger(DockerInstance.class);
 
-    private static final   AtomicInteger pidSequence           = new AtomicInteger(1);
-    private static final   String        PID_FILE_TEMPLATE     = "/tmp/docker-exec-%s.pid";
-    private static final   Pattern       PID_FILE_PATH_PATTERN = Pattern.compile(String.format(PID_FILE_TEMPLATE, "([0-9]+)"));
+    private static final AtomicInteger pidSequence           = new AtomicInteger(1);
+    private static final String        PID_FILE_TEMPLATE     = "/tmp/docker-exec-%s.pid";
+    private static final Pattern       PID_FILE_PATH_PATTERN = Pattern.compile(String.format(PID_FILE_TEMPLATE, "([0-9]+)"));
+    /**
+     * Produces output in form:
+     * <pre>
+     * /some/path/pid_file_template-1.pid
+     * /some/path/pid_file_template-3.pid
+     * /some/path/pid_file_template-14.pid
+     * </pre>
+     * Where each line is full path to pid file of <b>process that is running<b/>
+     */
+    private static final String GET_ALIVE_PROCESSES_COMMAND =
+            format("for pidFile in $(find %s -print 2>/dev/null); do kill -0 \"$(cat ${pidFile})\" 2>/dev/null && echo \"${pidFile}\"; done",
+                   format(PID_FILE_TEMPLATE, "*"));
 
-    private final DockerMachineFactory       dockerMachineFactory;
-    private final String                     container;
-    private final DockerConnector            docker;
-    private final LineConsumer               outputConsumer;
-    private final String                     registry;
-    private final DockerNode                 node;
-    private final DockerInstanceStopDetector dockerInstanceStopDetector;
+    private final DockerMachineFactory                        dockerMachineFactory;
+    private final String                                      container;
+    private final DockerConnector                             docker;
+    private final LineConsumer                                outputConsumer;
+    private final String                                      registry;
+    private final DockerNode                                  node;
+    private final DockerInstanceStopDetector                  dockerInstanceStopDetector;
+    private final DockerInstanceProcessesCleaner              processesCleaner;
+    private final ConcurrentHashMap<Integer, InstanceProcess> machineProcesses;
 
-    private ContainerInfo containerInfo;
+    private DockerInstanceMetadata machineMetadata;
 
     @Inject
     public DockerInstance(DockerConnector docker,
@@ -75,7 +91,8 @@ public class DockerInstance extends AbstractInstance {
                           @Assisted("container") String container,
                           @Assisted DockerNode node,
                           @Assisted LineConsumer outputConsumer,
-                          DockerInstanceStopDetector dockerInstanceStopDetector) {
+                          DockerInstanceStopDetector dockerInstanceStopDetector,
+                          DockerInstanceProcessesCleaner processesCleaner) {
         super(machineState);
         this.dockerMachineFactory = dockerMachineFactory;
         this.container = container;
@@ -84,6 +101,9 @@ public class DockerInstance extends AbstractInstance {
         this.registry = registry;
         this.node = node;
         this.dockerInstanceStopDetector = dockerInstanceStopDetector;
+        this.processesCleaner = processesCleaner;
+        this.machineProcesses = new ConcurrentHashMap<>();
+        processesCleaner.trackProcesses(this);
     }
 
     @Override
@@ -94,11 +114,12 @@ public class DockerInstance extends AbstractInstance {
     @Override
     public MachineMetadata getMetadata() {
         try {
-            if (containerInfo == null) {
-                containerInfo = docker.inspectContainer(container);
+            if (machineMetadata == null) {
+                final ContainerInfo containerInfo = docker.inspectContainer(container);
+                machineMetadata = dockerMachineFactory.createMetadata(containerInfo, node.getHost());
             }
 
-            return dockerMachineFactory.createMetadata(containerInfo, node.getHost());
+            return machineMetadata;
         } catch (IOException e) {
             LOG.error(e.getLocalizedMessage(), e);
             return null;
@@ -107,44 +128,34 @@ public class DockerInstance extends AbstractInstance {
 
     @Override
     public InstanceProcess getProcess(final int pid) throws NotFoundException, MachineException {
-        final String findPidFilesCmd = String.format("[ -r %1$s ] && echo '%1$s'", String.format(PID_FILE_TEMPLATE, pid));
-        try {
-            final Exec exec = docker.createExec(container, false, "/bin/bash", "-c", findPidFilesCmd);
-            final ValueHolder<InstanceProcess> dockerProcess = new ValueHolder<>();
-            docker.startExec(exec.getId(), logMessage -> {
-                final String pidFilePath = logMessage.getContent();
-                try {
-                    dockerProcess.set(dockerMachineFactory.createProcess(container, null, pidFilePath, pid, true));
-                } catch (MachineException ignore) {
-                }
-            });
-
-            if (dockerProcess.get() == null) {
-                throw new NotFoundException(String.format("Process with pid %s not found", pid));
+        final InstanceProcess machineProcess = machineProcesses.get(pid);
+        if (machineProcess != null) {
+            try {
+                machineProcess.checkAlive();
+                return machineProcess;
+            } catch (NotFoundException e) {
+                machineProcesses.remove(pid);
+                throw e;
             }
-            return dockerProcess.get();
-        } catch (IOException e) {
-            throw new MachineException(e);
         }
+        throw new NotFoundException(format("Process with pid %s not found", pid));
     }
 
     @Override
     public List<InstanceProcess> getProcesses() throws MachineException {
-        final String findPidFilesCmd = String.format("find %s -print", String.format(PID_FILE_TEMPLATE, "*"));
+        List<InstanceProcess> processes = new LinkedList<>();
         try {
-            final Exec exec = docker.createExec(container, false, "/bin/bash", "-c", findPidFilesCmd);
-            final List<InstanceProcess> processes = new LinkedList<>();
+            final Exec exec = docker.createExec(container, false, "/bin/bash", "-c", GET_ALIVE_PROCESSES_COMMAND);
             docker.startExec(exec.getId(), logMessage -> {
                 final String pidFilePath = logMessage.getContent().trim();
                 final Matcher matcher = PID_FILE_PATH_PATTERN.matcher(pidFilePath);
                 if (matcher.matches()) {
-                    try {
-                        processes.add(dockerMachineFactory.createProcess(container,
-                                                                         null,
-                                                                         pidFilePath,
-                                                                         Integer.parseInt(matcher.group(1)),
-                                                                         true));
-                    } catch (NumberFormatException | MachineException ignore) {
+                    final int virtualPid = Integer.parseInt(matcher.group(1));
+                    final InstanceProcess dockerProcess = machineProcesses.get(virtualPid);
+                    if (dockerProcess != null) {
+                        processes.add(dockerProcess);
+                    } else {
+                        LOG.warn("Machine process {} exists in container but missing in processes map", virtualPid);
                     }
                 }
             });
@@ -155,16 +166,22 @@ public class DockerInstance extends AbstractInstance {
     }
 
     @Override
-    public InstanceProcess createProcess(String commandLine) throws MachineException {
+    public InstanceProcess createProcess(String commandName, String commandLine) throws MachineException {
         final Integer pid = pidSequence.getAndIncrement();
-        return dockerMachineFactory.createProcess(container, commandLine, String.format(PID_FILE_TEMPLATE, pid), pid, false);
+        final InstanceProcess process = dockerMachineFactory.createProcess(container,
+                                                                           commandName,
+                                                                           commandLine,
+                                                                           String.format(PID_FILE_TEMPLATE, pid),
+                                                                           pid);
+        machineProcesses.put(pid, process);
+        return process;
     }
 
     @Override
     public InstanceKey saveToSnapshot(String owner) throws MachineException {
         try {
             final String repository = generateRepository();
-            String comment = String.format("Suspended at %1$ta %1$tb %1$td %1$tT %1$tZ %1$tY", System.currentTimeMillis());
+            String comment = format("Suspended at %1$ta %1$tb %1$td %1$tT %1$tZ %1$tY", System.currentTimeMillis());
             if (owner != null) {
                 comment = comment + " by " + owner;
             }
@@ -195,6 +212,8 @@ public class DockerInstance extends AbstractInstance {
 
     @Override
     public void destroy() throws MachineException {
+        machineProcesses.clear();
+        processesCleaner.untrackProcesses(getId());
         dockerInstanceStopDetector.stopDetection(container);
         try {
             if (isDev()) {
@@ -242,7 +261,7 @@ public class DockerInstance extends AbstractInstance {
         }
 
         // command sed getting file content from startFrom line to (startFrom + limit)
-        String bashCommand = String.format("sed -n \'%1$2s, %2$2sp\' %3$2s", startFrom, startFrom + limit, filePath);
+        String bashCommand = format("sed -n \'%1$2s, %2$2sp\' %3$2s", startFrom, startFrom + limit, filePath);
 
         final String[] command = {"/bin/bash", "-c", bashCommand};
 
@@ -251,8 +270,8 @@ public class DockerInstance extends AbstractInstance {
             Exec exec = docker.createExec(container, false, command);
             docker.startExec(exec.getId(), new LogMessagePrinter(lines, LogMessage::getContent));
         } catch (IOException e) {
-            throw new MachineException(String.format("Error occurs while initializing command %s in docker container %s: %s",
-                                                     Arrays.toString(command), container, e.getLocalizedMessage()), e);
+            throw new MachineException(format("Error occurs while initializing command %s in docker container %s: %s",
+                                              Arrays.toString(command), container, e.getLocalizedMessage()), e);
         }
 
         String content = lines.getText();
@@ -291,5 +310,14 @@ public class DockerInstance extends AbstractInstance {
         } catch (IOException e) {
             throw new MachineException(e.getLocalizedMessage());
         }
+    }
+
+    /**
+     * Removes process from the list of processes
+     *
+     * <p>Used by {@link DockerInstanceProcessesCleaner}
+     */
+    void removeProcess(int pid) {
+        machineProcesses.remove(pid);
     }
 }

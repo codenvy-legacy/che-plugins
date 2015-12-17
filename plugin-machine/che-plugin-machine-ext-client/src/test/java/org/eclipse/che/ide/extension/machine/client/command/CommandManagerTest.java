@@ -87,11 +87,13 @@ public class CommandManagerTest {
         when(appContext.getDevMachineId()).thenReturn(devMachineId);
         OutputConsole outputConsole = mock(OutputConsole.class);
         when(commandConsoleFactory.create(any(CommandConfiguration.class), anyString())).thenReturn(outputConsole);
-        when(machineServiceClient.executeCommand(anyString(), anyString(), anyString())).thenReturn(processPromise);
+        when(machineServiceClient.executeCommand(anyString(), anyString(), anyString(), anyString())).thenReturn(processPromise);
 
         String commandLine = "devMachineId";
+        String commandName = "commandName";
         CommandConfiguration command = mock(CommandConfiguration.class);
         when(command.toCommandLine()).thenReturn(commandLine);
+        when(command.getName()).thenReturn(commandName);
 
         MachineProcessDto process = mock(MachineProcessDto.class);
         int pid = 123;
@@ -105,7 +107,7 @@ public class CommandManagerTest {
         verify(consolesPanelPresenter).addCommand(eq(devMachineId), eq(command), eq(outputConsole));
         verify(workspaceAgent).setActivePart(eq(consolesPanelPresenter));
         verify(command).toCommandLine();
-        verify(machineServiceClient).executeCommand(eq(devMachineId), eq(commandLine), anyString());
+        verify(machineServiceClient).executeCommand(eq(devMachineId), eq(commandName), eq(commandLine), anyString());
         verify(processPromise).then(processCaptor.capture());
         processCaptor.getValue().apply(process);
         verify(outputConsole).attachToProcess(eq(pid));

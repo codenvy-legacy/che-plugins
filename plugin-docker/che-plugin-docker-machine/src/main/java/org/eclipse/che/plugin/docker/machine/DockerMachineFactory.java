@@ -31,17 +31,15 @@ public interface DockerMachineFactory {
      * Creates docker implementation of {@link InstanceProcess} for process that is running or can be started in container
      *
      * @param container container identifier
-     * @param command command line of process
-     * @param pidFilePath path where file that identifies running process should be placed
+     * @param commandLine command line of process
      * @param pid id of the {@code InstanceProcess}. It's external PID that may differ from PID inside container
-     * @param isStarted if process was started already
      * @throws MachineException if error occurs on creation of {@code InstanceProcess}
      */
     InstanceProcess createProcess(@Assisted("container") String container,
-                                  @Assisted("command") @Nullable String command,
+                                  @Assisted("commandName") String commandName,
+                                  @Assisted("commandLine") String commandLine,
                                   @Assisted("pid_file_path") String pidFilePath,
-                                  @Assisted int pid,
-                                  @Assisted boolean isStarted) throws MachineException;
+                                  @Assisted int pid) throws MachineException;
 
     /**
      * Creates docker implementation of {@link Instance}
