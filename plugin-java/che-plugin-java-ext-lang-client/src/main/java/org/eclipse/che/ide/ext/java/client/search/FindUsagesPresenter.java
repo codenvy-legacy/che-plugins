@@ -21,6 +21,7 @@ import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.api.promises.client.PromiseError;
+import org.eclipse.che.ide.Resources;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.parts.PartStackType;
 import org.eclipse.che.ide.api.parts.WorkspaceAgent;
@@ -29,7 +30,6 @@ import org.eclipse.che.ide.api.project.tree.VirtualFile;
 import org.eclipse.che.ide.commons.exception.ServerException;
 import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.ext.java.client.JavaLocalizationConstant;
-import org.eclipse.che.ide.ext.java.client.JavaResources;
 import org.eclipse.che.ide.ext.java.client.projecttree.JavaSourceFolderUtil;
 import org.eclipse.che.ide.ext.java.shared.dto.search.FindUsagesRequest;
 import org.eclipse.che.ide.ext.java.shared.dto.search.FindUsagesResponse;
@@ -53,7 +53,7 @@ public class FindUsagesPresenter extends BasePresenter implements FindUsagesView
     private JavaSearchService        searchService;
     private DtoFactory               dtoFactory;
     private NotificationManager      manager;
-    private JavaResources            resources;
+    private final Resources resources;
 
     @Inject
     public FindUsagesPresenter(WorkspaceAgent workspaceAgent,
@@ -62,7 +62,7 @@ public class FindUsagesPresenter extends BasePresenter implements FindUsagesView
                                JavaSearchService searchService,
                                DtoFactory dtoFactory,
                                NotificationManager manager,
-                               JavaResources resources) {
+                               Resources resources) {
         this.workspaceAgent = workspaceAgent;
         this.localizationConstant = localizationConstant;
         this.view = view;
@@ -90,12 +90,12 @@ public class FindUsagesPresenter extends BasePresenter implements FindUsagesView
 
     @Override
     public String getTitleToolTip() {
-        return null;
+        return localizationConstant.findUsagesPartTitle();
     }
 
     @Override
     public SVGResource getTitleSVGImage() {
-        return resources.findUsages();
+        return resources.find();
     }
 
     @Override

@@ -224,7 +224,4 @@ public interface JavaResources extends ClientBundle {
     @Source("svg/file-navigation.svg")
     SVGResource fileNavigation();
 
-    @Source("svg/find_usages.svg")
-    SVGResource findUsages();
-
 }
