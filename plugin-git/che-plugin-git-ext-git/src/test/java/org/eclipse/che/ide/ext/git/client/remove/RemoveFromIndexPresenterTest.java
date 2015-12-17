@@ -16,7 +16,6 @@ import com.googlecode.gwt.test.utils.GwtReflectionUtils;
 import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.editor.EditorInput;
 import org.eclipse.che.ide.api.editor.EditorPartPresenter;
-import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.api.selection.Selection;
 import org.eclipse.che.ide.ext.git.client.BaseTest;
 import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
@@ -162,7 +161,7 @@ public class RemoveFromIndexPresenterTest extends BaseTest {
         presenter.onRemoveClicked();
 
         verify(service).remove(eq(rootProjectConfig), anyObject(), eq(REMOVED), anyObject());
-        verify(notificationManager).showNotification((Notification)anyObject());
+        verify(notificationManager).notify(anyString(), rootProjectConfig);
         verify(console).printInfo(anyString());
         verify(constant, times(2)).removeFilesSuccessfull();
         verify(view).close();
@@ -189,7 +188,7 @@ public class RemoveFromIndexPresenterTest extends BaseTest {
         verify(service).remove(eq(rootProjectConfig), anyObject(), eq(REMOVED), anyObject());
         verify(constant).removeFilesFailed();
         verify(console).printError(anyString());
-        verify(notificationManager).showNotification((Notification)anyObject());
+        verify(notificationManager).notify(anyString(), rootProjectConfig);
         verify(view).close();
     }
 

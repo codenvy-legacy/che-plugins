@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.java.jdi.client.debug.changevalue;
 
-import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.ext.java.jdi.client.JavaRuntimeLocalizationConstant;
@@ -25,8 +24,6 @@ import com.google.inject.Singleton;
 
 
 import javax.validation.constraints.NotNull;
-
-import static org.eclipse.che.ide.api.notification.Notification.Type.ERROR;
 
 /**
  * Presenter for changing variables value.
@@ -94,8 +91,7 @@ public class ChangeValuePresenter implements ChangeValueView.ActionDelegate {
 
             @Override
             protected void onFailure(Throwable exception) {
-                Notification notification = new Notification(exception.getMessage(), ERROR);
-                notificationManager.showNotification(notification);
+                notificationManager.notify(exception.getMessage());
                 callback.onFailure(exception);
             }
         });

@@ -17,7 +17,6 @@ import org.eclipse.che.api.git.gwt.client.GitServiceClient;
 import org.eclipse.che.api.git.shared.LogResponse;
 import org.eclipse.che.api.git.shared.Revision;
 import org.eclipse.che.ide.api.app.AppContext;
-import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.project.node.HasStorablePath;
 import org.eclipse.che.ide.api.selection.Selection;
@@ -35,9 +34,6 @@ import org.eclipse.che.ide.websocket.rest.RequestCallback;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.eclipse.che.ide.api.notification.Notification.Type.ERROR;
-import static org.eclipse.che.ide.api.notification.Notification.Type.INFO;
 
 /**
  * Presenter for commit changes on git.
@@ -160,8 +156,7 @@ public class CommitPresenter implements CommitView.ActionDelegate {
                                        onCommitSuccess(result);
                                    } else {
                                        console.printError(result.getMessage());
-                                       final Notification notification = new Notification(result.getMessage(), ERROR);
-                                       notificationManager.showNotification(notification);
+                                       notificationManager.notify(result.getMessage(), appContext.getCurrentProject().getRootProject());
                                    }
                                }
 
@@ -184,8 +179,7 @@ public class CommitPresenter implements CommitView.ActionDelegate {
                                    onCommitSuccess(result);
                                } else {
                                    console.printError(result.getMessage());
-                                   final Notification notification = new Notification(result.getMessage(), ERROR);
-                                   notificationManager.showNotification(notification);
+                                   notificationManager.notify(result.getMessage(), appContext.getCurrentProject().getRootProject());
                                }
                            }
 
@@ -228,8 +222,7 @@ public class CommitPresenter implements CommitView.ActionDelegate {
         }
 
         console.printInfo(message);
-        Notification notification = new Notification(message, INFO);
-        notificationManager.showNotification(notification);
+        notificationManager.notify(message, appContext.getCurrentProject().getRootProject());
         view.setMessage("");
     }
 
@@ -242,8 +235,7 @@ public class CommitPresenter implements CommitView.ActionDelegate {
     private void handleError(@NotNull Throwable e) {
         String errorMessage = (e.getMessage() != null && !e.getMessage().isEmpty()) ? e.getMessage() : constant.commitFailed();
         console.printError(errorMessage);
-        Notification notification = new Notification(errorMessage, ERROR);
-        notificationManager.showNotification(notification);
+        notificationManager.notify(errorMessage, appContext.getCurrentProject().getRootProject());
     }
 
     /** {@inheritDoc} */

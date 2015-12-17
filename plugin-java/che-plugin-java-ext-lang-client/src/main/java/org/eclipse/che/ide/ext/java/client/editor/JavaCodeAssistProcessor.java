@@ -176,12 +176,12 @@ public class JavaCodeAssistProcessor implements CodeAssistProcessor {
                                         showProposals(callback, proposals);
                                     }
 
-                                    @Override
-                                    protected void onFailure(Throwable throwable) {
-                                        Log.error(JavaCodeAssistProcessor.class, throwable);
-                                        notificationManager.showError(throwable.getMessage());
-                                    }
-                                });
+            @Override
+            protected void onFailure(Throwable throwable) {
+                Log.error(JavaCodeAssistProcessor.class, throwable);
+                notificationManager.notify(throwable.getMessage(), file.getProject().getProjectConfig());
+            }
+        });
     }
 
     private void showProposals(final CodeAssistCallback callback, final Proposals respons) {

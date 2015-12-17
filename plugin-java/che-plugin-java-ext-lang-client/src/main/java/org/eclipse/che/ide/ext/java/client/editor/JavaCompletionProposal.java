@@ -110,7 +110,7 @@ public class JavaCompletionProposal implements CompletionProposal, CompletionPro
             @Override
             public void onFailure(Throwable caught) {
                 Log.error(JavaCompletionProposal.class, caught);
-                notificationManager.showError(caught.getMessage());
+                notificationManager.notify(caught.getMessage());
             }
 
             @Override

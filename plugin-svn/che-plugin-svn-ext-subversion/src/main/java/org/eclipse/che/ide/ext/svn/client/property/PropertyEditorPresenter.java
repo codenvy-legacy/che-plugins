@@ -15,10 +15,11 @@ import com.google.inject.Singleton;
 import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.ide.api.app.AppContext;
-import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.api.notification.NotificationManager;
+import org.eclipse.che.ide.api.notification.StatusNotification;
 import org.eclipse.che.ide.api.parts.WorkspaceAgent;
 import org.eclipse.che.ide.ext.svn.client.SubversionClientService;
+import org.eclipse.che.ide.ext.svn.client.SubversionExtension;
 import org.eclipse.che.ide.ext.svn.client.SubversionExtensionLocalizationConstants;
 import org.eclipse.che.ide.ext.svn.client.common.RawOutputPresenter;
 import org.eclipse.che.ide.ext.svn.client.common.SubversionActionPresenter;
@@ -31,11 +32,6 @@ import org.eclipse.che.ide.rest.Unmarshallable;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.eclipse.che.ide.api.notification.Notification.Status.FINISHED;
-import static org.eclipse.che.ide.api.notification.Notification.Status.PROGRESS;
-import static org.eclipse.che.ide.api.notification.Notification.Type.ERROR;
-import static org.eclipse.che.ide.api.notification.Notification.Type.INFO;
 
 /**
  * Presenter for the {@link org.eclipse.che.ide.ext.svn.client.property.PropertyEditorView}.
@@ -51,7 +47,7 @@ public class PropertyEditorPresenter extends SubversionActionPresenter implement
     private DtoUnmarshallerFactory                   dtoUnmarshallerFactory;
     private NotificationManager                      notificationManager;
     private SubversionExtensionLocalizationConstants constants;
-    private Notification                             notification;
+    private StatusNotification                       notification;
 
     @Inject
     protected PropertyEditorPresenter(AppContext appContext,
@@ -136,7 +132,7 @@ public class PropertyEditorPresenter extends SubversionActionPresenter implement
 
             @Override
             protected void onFailure(Throwable exception) {
-                notificationManager.showError(exception.getMessage());
+                notificationManager.notify(exception.getMessage());
             }
         });
     }
@@ -149,8 +145,8 @@ public class PropertyEditorPresenter extends SubversionActionPresenter implement
 
         String headPath = getSelectedPaths().get(0);
 
-        notification = new Notification(constants.propertyModifyStart(), PROGRESS);
-        notificationManager.showNotification(notification);
+        notification = notificationManager.notify(constants.propertyModifyStart(), null, StatusNotification.Status.PROGRESS, false
+                                                 );
 
         Unmarshallable<CLIOutputResponse> unmarshaller = dtoUnmarshallerFactory.newUnmarshaller(CLIOutputResponse.class);
         service.propertySet(projectPath, propertyName, propertyValue, depth, force, headPath,
@@ -159,18 +155,16 @@ public class PropertyEditorPresenter extends SubversionActionPresenter implement
                                 protected void onSuccess(CLIOutputResponse result) {
                                     printResponse(result.getCommand(), result.getOutput(), result.getErrOutput());
 
-                                    notification.setMessage(constants.propertyModifyFinished());
-                                    notification.setStatus(FINISHED);
-                                    notification.setType(INFO);
+                                    notification.setContent(constants.propertyModifyFinished());
+                                    notification.setStatus(StatusNotification.Status.SUCCESS);
                                 }
 
                                 @Override
                                 protected void onFailure(Throwable exception) {
                                     String errorMessage = exception.getMessage();
 
-                                    notification.setMessage(constants.propertyModifyFailed() + errorMessage);
-                                    notification.setStatus(FINISHED);
-                                    notification.setType(ERROR);
+                                    notification.setContent(constants.propertyModifyFailed() + errorMessage);
+                                    notification.setStatus(StatusNotification.Status.FAIL);
                                 }
                             });
     }
@@ -182,8 +176,8 @@ public class PropertyEditorPresenter extends SubversionActionPresenter implement
 
         String headPath = getSelectedPaths().get(0);
 
-        notification = new Notification(constants.propertyRemoveStart(), PROGRESS);
-        notificationManager.showNotification(notification);
+        notification = notificationManager.notify(constants.propertyRemoveStart(), null, StatusNotification.Status.PROGRESS, false
+                                                 );
 
         Unmarshallable<CLIOutputResponse> unmarshaller = dtoUnmarshallerFactory.newUnmarshaller(CLIOutputResponse.class);
         service.propertyDelete(projectPath, propertyName, depth, force, headPath,
@@ -192,18 +186,16 @@ public class PropertyEditorPresenter extends SubversionActionPresenter implement
                                    protected void onSuccess(CLIOutputResponse result) {
                                        printResponse(result.getCommand(), result.getOutput(), result.getErrOutput());
 
-                                       notification.setMessage(constants.propertyRemoveFinished());
-                                       notification.setStatus(FINISHED);
-                                       notification.setType(INFO);
+                                       notification.setContent(constants.propertyRemoveFinished());
+                                       notification.setStatus(StatusNotification.Status.SUCCESS);
                                    }
 
                                    @Override
                                    protected void onFailure(Throwable exception) {
                                        String errorMessage = exception.getMessage();
 
-                                       notification.setMessage(constants.propertyRemoveFailed() + errorMessage);
-                                       notification.setStatus(FINISHED);
-                                       notification.setType(ERROR);
+                                       notification.setContent(constants.propertyRemoveFailed() + errorMessage);
+                                       notification.setStatus(StatusNotification.Status.FAIL);
                                    }
                                });
     }
@@ -231,7 +223,7 @@ public class PropertyEditorPresenter extends SubversionActionPresenter implement
 
             @Override
             protected void onFailure(Throwable exception) {
-                notificationManager.showError(exception.getMessage());
+                notificationManager.notify(exception.getMessage());
             }
         });
     }

@@ -134,7 +134,7 @@ public class CheckoutReferencePresenter implements CheckoutReferenceView.ActionD
                                                              ? exception.getMessage()
                                                              : constant.checkoutFailed(reference);
                                  console.printError(errorMessage);
-                                 notificationManager.showError(errorMessage);
+                                 notificationManager.notify(errorMessage, project);
                              }
                          }
                         );

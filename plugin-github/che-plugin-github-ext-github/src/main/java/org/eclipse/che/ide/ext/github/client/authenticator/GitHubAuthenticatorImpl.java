@@ -117,7 +117,7 @@ public class GitHubAuthenticatorImpl implements GitHubAuthenticator, OAuthCallba
                 @Override
                 public void onSuccess(Void result) {
                     callback.onSuccess(authStatus);
-                    notificationManager.showInfo(locale.authMessageKeyUploadSuccess());
+                    notificationManager.notify(locale.authMessageKeyUploadSuccess(), appContext.getCurrentProject().getRootProject());
                 }
 
                 @Override

@@ -14,7 +14,6 @@ import com.googlecode.gwt.test.utils.GwtReflectionUtils;
 
 import org.eclipse.che.api.git.shared.Branch;
 import org.eclipse.che.api.git.shared.Remote;
-import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.ext.git.client.BaseTest;
 import org.eclipse.che.ide.ext.git.client.BranchSearcher;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
@@ -163,7 +162,7 @@ public class FetchPresenterTest extends BaseTest {
                                    (AsyncRequestCallback<List<Remote>>)anyObject());
         verify(constant).branchesListFailed();
         verify(console).printError(anyString());
-        verify(notificationManager).showError(anyString());
+        verify(notificationManager).notify(anyString(), rootProjectConfig);
         verify(view).setEnableFetchButton(eq(DISABLE_BUTTON));
     }
 
@@ -216,7 +215,7 @@ public class FetchPresenterTest extends BaseTest {
                               eq(NO_REMOVE_DELETE_REFS), (RequestCallback<String>)anyObject());
         verify(view).close();
         verify(console).printInfo(anyString());
-        verify(notificationManager).showNotification((Notification)anyObject());
+        verify(notificationManager).notify(anyString(), rootProjectConfig);
         verify(constant, times(2)).fetchSuccess(eq(REMOTE_URI));
     }
 
@@ -247,7 +246,7 @@ public class FetchPresenterTest extends BaseTest {
         verify(view).close();
         verify(constant, times(2)).fetchFail(eq(REMOTE_URI));
         verify(console).printError(anyString());
-        verify(notificationManager).showNotification((Notification)anyObject());
+        verify(notificationManager).notify(anyString(), rootProjectConfig);
     }
 
     @Test

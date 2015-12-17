@@ -52,7 +52,7 @@ public interface JavaLocalizationConstant extends Messages {
     String dependenciesSuccessfullyUpdated();
 
     @Key("messages.dependencies.updating.dependencies")
-    String updatingDependencies();
+    String updatingDependencies(String project);
 
     @Key("messages.dependencies.fail.updated")
     String updateDependenciesFailed();

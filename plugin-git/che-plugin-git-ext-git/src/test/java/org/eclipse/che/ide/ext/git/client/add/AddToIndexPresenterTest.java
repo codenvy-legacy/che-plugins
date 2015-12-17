@@ -94,7 +94,7 @@ public class AddToIndexPresenterTest extends BaseTest {
         onFailure.invoke(callback, mock(Throwable.class));
 
         verify(console).printError(anyString());
-        verify(notificationManager).showError(anyString());
+        verify(notificationManager).notify(anyString(), eq(rootProjectConfig));
         verify(view, never()).showDialog();
         verify(constant).statusFailed();
     }
@@ -113,7 +113,7 @@ public class AddToIndexPresenterTest extends BaseTest {
         onSuccess.invoke(callback, this.statusResponse);
 
         verify(console).printInfo(anyString());
-        verify(notificationManager).showInfo(anyString());
+        verify(notificationManager).notify(anyString(), eq(rootProjectConfig));
         verify(view, never()).showDialog();
         verify(constant, times(2)).nothingAddToIndex();
     }
@@ -271,7 +271,7 @@ public class AddToIndexPresenterTest extends BaseTest {
         verify(service).add(eq(rootProjectConfig), eq(NEED_UPDATING), (List<String>)anyObject(),
                             (RequestCallback<Void>)anyObject());
         verify(console).printInfo(anyString());
-        verify(notificationManager).showInfo(anyString());
+        verify(notificationManager).notify(anyString(), eq(rootProjectConfig));
         verify(constant, times(2)).addSuccess();
     }
 
@@ -293,7 +293,7 @@ public class AddToIndexPresenterTest extends BaseTest {
         verify(view).isUpdated();
         verify(view).close();
         verify(console).printError(anyString());
-        verify(notificationManager).showError(anyString());
+        verify(notificationManager).notify(anyString(), eq(rootProjectConfig));
         verify(constant).addFailed();
     }
 
@@ -310,7 +310,7 @@ public class AddToIndexPresenterTest extends BaseTest {
         verify(service).add(eq(rootProjectConfig), eq(NEED_UPDATING), anyObject(), anyObject());
         verify(view).close();
         verify(console).printError(anyString());
-        verify(notificationManager).showError(anyString());
+        verify(notificationManager).notify(anyString(), eq(rootProjectConfig));
         verify(constant).addFailed();
     }
 

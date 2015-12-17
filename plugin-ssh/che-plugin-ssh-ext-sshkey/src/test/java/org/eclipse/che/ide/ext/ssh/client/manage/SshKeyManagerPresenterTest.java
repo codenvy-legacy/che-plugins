@@ -150,7 +150,7 @@ public class SshKeyManagerPresenterTest {
         verify(loader).hide(anyString());
         verify(dialogFactory, never()).createMessageDialog(anyString(), anyString(), (ConfirmCallback)anyObject());
         verify(messageDialog, never()).show();
-        verify(notificationManager).showError(anyString());
+        verify(notificationManager).notify(anyString());
     }
 
     @Test
@@ -246,7 +246,7 @@ public class SshKeyManagerPresenterTest {
         verify(confirmDialog).show();
         verify(service).deleteKey((KeyItem)anyObject(), Matchers.<AsyncRequestCallback<Void>>anyObject());
         verify(loader).hide(anyString());
-        verify(notificationManager).showError(anyString());
+        verify(notificationManager).notify(anyString());
         verify(service, never()).getAllKeys(Matchers.<AsyncRequestCallback<List<KeyItem>>>anyObject());
     }
 
@@ -314,7 +314,7 @@ public class SshKeyManagerPresenterTest {
         verify(loader, times(2)).hide(anyString());
         verify(service).getAllKeys(Matchers.<AsyncRequestCallback<List<KeyItem>>>anyObject());
         verify(view, never()).setKeys(eq(keyItemArray));
-        verify(notificationManager).showError(anyString());
+        verify(notificationManager).notify(anyString());
     }
 
     @Test
@@ -402,7 +402,7 @@ public class SshKeyManagerPresenterTest {
 
         verify(service, never()).getAllKeys((AsyncRequestCallback<List<KeyItem>>)anyObject());
         verify(view, never()).setKeys((List<KeyItem>)anyObject());
-        verify(notificationManager).showError(anyString());
+        verify(notificationManager).notify(anyString());
     }
 
     @Test

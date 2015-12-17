@@ -80,7 +80,7 @@ public class DeleteRepositoryPresenterTest extends BaseTest {
         verify(appContext).getCurrentProject();
         verify(service).deleteRepository(eq(rootProjectConfig), (AsyncRequestCallback<Void>)anyObject());
         verify(console).printInfo(anyString());
-        verify(notificationManager).showInfo(eq(constant.deleteGitRepositorySuccess()));
+        verify(notificationManager).notify(anyString(), rootProjectConfig);
     }
 
     @Test
@@ -101,6 +101,6 @@ public class DeleteRepositoryPresenterTest extends BaseTest {
         verify(appContext).getCurrentProject();
         verify(service).deleteRepository(eq(rootProjectConfig), (AsyncRequestCallback<Void>)anyObject());
         verify(console).printError(anyString());
-        verify(notificationManager).showError(anyString());
+        verify(notificationManager).notify(anyString(), rootProjectConfig);
     }
 }

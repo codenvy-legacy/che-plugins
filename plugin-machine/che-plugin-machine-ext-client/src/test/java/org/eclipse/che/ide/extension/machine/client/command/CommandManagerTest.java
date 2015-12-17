@@ -78,7 +78,7 @@ public class CommandManagerTest {
         commandManager.execute(mock(CommandConfiguration.class));
 
         verify(localizationConstant).noDevMachine();
-        verify(notificationManager).showWarning(anyString());
+        notificationManager.notify(anyString());
     }
 
     @Test

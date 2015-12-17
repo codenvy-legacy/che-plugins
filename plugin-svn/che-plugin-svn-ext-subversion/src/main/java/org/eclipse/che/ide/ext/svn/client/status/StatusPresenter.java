@@ -77,8 +77,7 @@ public class StatusPresenter extends SubversionActionPresenter {
 
                            @Override
                            protected void onFailure(final Throwable exception) {
-                               String errorMessage = exception.getMessage();
-                               notificationManager.showError(constants.statusFailed() + " - " + errorMessage);
+                               notificationManager.notify(constants.statusFailed());
                            }
                        });
     }

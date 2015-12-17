@@ -19,7 +19,6 @@ import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 
-import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.ext.java.jdi.client.JavaRuntimeLocalizationConstant;
 import org.eclipse.che.ide.ext.java.jdi.client.JavaRuntimeResources;
@@ -29,8 +28,6 @@ import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 import org.eclipse.che.ide.ui.dialogs.confirm.ConfirmDialog;
 
 import javax.validation.constraints.NotNull;
-
-import static org.eclipse.che.ide.api.notification.Notification.Type.ERROR;
 
 /**
  * @author Dmitry Shnurenko
@@ -74,9 +71,7 @@ public class RemoteDebugViewImpl extends Composite implements RemoteDebugView {
                     delegate.onConfirmClicked(host.getText(), Integer.parseInt(port.getText()));
                 } catch (NumberFormatException exception) {
                     dialog.show();
-
-                    Notification notification = new Notification(port.getText() + " is bad value of port", ERROR);
-                    notificationManager.showNotification(notification);
+                    notificationManager.notify(port.getText() + " is bad value of port");
                 }
             }
         };

@@ -26,7 +26,7 @@ import org.eclipse.che.ide.api.event.project.ProjectReadyHandler;
 import org.eclipse.che.ide.api.extension.Extension;
 import org.eclipse.che.ide.api.icon.Icon;
 import org.eclipse.che.ide.api.icon.IconRegistry;
-import org.eclipse.che.ide.api.project.node.HasStorablePath;
+import org.eclipse.che.ide.api.project.node.HasProjectConfig;
 import org.eclipse.che.ide.api.project.node.Node;
 import org.eclipse.che.ide.api.project.type.wizard.PreSelectedProjectTypeManager;
 import org.eclipse.che.ide.ext.java.client.dependenciesupdater.DependenciesUpdater;
@@ -85,7 +85,7 @@ public class MavenExtension {
             public void onBeforeExpand(BeforeExpandNodeEvent event) {
                 Node node = event.getNode();
                 if (!projectExplorerPresenter.isLoaded(node) && JavaNodeManager.isJavaProject(node) && isValid(node)) {
-                    dependenciesUpdater.updateDependencies(((HasStorablePath)node).getStorablePath());
+                    dependenciesUpdater.updateDependencies(((HasProjectConfig)node).getProjectConfig());
                 }
             }
         });
@@ -95,7 +95,7 @@ public class MavenExtension {
             public void onProjectReady(ProjectReadyEvent event) {
                 project = event.getProjectConfig();
                 if (isValidForResolveDependencies(project)) {
-                    dependenciesUpdater.updateDependencies(project.getPath());
+                    dependenciesUpdater.updateDependencies(project);
                 }
             }
         });
@@ -108,7 +108,7 @@ public class MavenExtension {
                         new Timer() {
                             @Override
                             public void run() {
-                                dependenciesUpdater.updateDependencies(project.getPath());
+                                dependenciesUpdater.updateDependencies(project);
                             }
                         }.schedule(5000);
                     }
@@ -124,7 +124,6 @@ public class MavenExtension {
     private boolean isValid(Node node) {
         ProjectConfigDto projectConfig = null;
 
-        //TODO it's a temporary solution. This code will be rewriting during work on this issue IDEX-3468.
         if (node instanceof ModuleNode) {
             AbstractProjectBasedNode abstractNode = (AbstractProjectBasedNode)node;
 

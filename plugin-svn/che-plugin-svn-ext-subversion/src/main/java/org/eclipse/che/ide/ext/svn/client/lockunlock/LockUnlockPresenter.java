@@ -14,7 +14,6 @@ import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.ide.api.app.AppContext;
-import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.parts.WorkspaceAgent;
 import org.eclipse.che.ide.ext.svn.client.SubversionClientService;
@@ -34,13 +33,10 @@ import org.eclipse.che.ide.rest.Unmarshallable;
 import org.eclipse.che.ide.ui.dialogs.ConfirmCallback;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 
-import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-
-import static org.eclipse.che.ide.api.notification.Notification.Type.ERROR;
 
 /**
  * Handler for the {@link LockAction} and {@link UnlockAction} actions.
@@ -213,19 +209,8 @@ public class LockUnlockPresenter extends SubversionActionPresenter {
             }
             @Override
             protected void onFailure(final Throwable exception) {
-                handleError(exception);
+                notificationManager.notify(constants.commitFailed());
             }
         };
-    }
-
-    private void handleError(@NotNull final Throwable e) {
-        String errorMessage;
-        if (e.getMessage() != null && !e.getMessage().isEmpty()) {
-            errorMessage = e.getMessage();
-        } else {
-            errorMessage = constants.commitFailed();
-        }
-        final Notification notification = new Notification(errorMessage, ERROR);
-        this.notificationManager.showNotification(notification);
     }
 }

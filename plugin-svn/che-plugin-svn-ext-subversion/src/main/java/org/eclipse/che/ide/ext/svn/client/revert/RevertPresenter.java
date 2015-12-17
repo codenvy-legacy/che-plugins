@@ -15,8 +15,8 @@ import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
-import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.api.notification.NotificationManager;
+import org.eclipse.che.ide.api.notification.StatusNotification;
 import org.eclipse.che.ide.api.parts.WorkspaceAgent;
 import org.eclipse.che.ide.ext.svn.client.SubversionClientService;
 import org.eclipse.che.ide.ext.svn.client.SubversionExtensionLocalizationConstants;
@@ -33,12 +33,6 @@ import org.eclipse.che.ide.ui.dialogs.confirm.ConfirmDialog;
 
 import java.util.List;
 
-import static org.eclipse.che.ide.api.notification.Notification.Status.FINISHED;
-import static org.eclipse.che.ide.api.notification.Notification.Status.PROGRESS;
-import static org.eclipse.che.ide.api.notification.Notification.Type.ERROR;
-import static org.eclipse.che.ide.api.notification.Notification.Type.INFO;
-import static org.eclipse.che.ide.api.notification.Notification.Type.WARNING;
-
 public class RevertPresenter extends SubversionActionPresenter {
 
     private final AppContext                               appContext;
@@ -48,7 +42,7 @@ public class RevertPresenter extends SubversionActionPresenter {
     private final SubversionExtensionLocalizationConstants constants;
     private final DialogFactory                            dialogFactory;
 
-    private Notification                                   notification;
+    private StatusNotification notification;
 
     @Inject
     protected RevertPresenter(final AppContext appContext,
@@ -85,8 +79,8 @@ public class RevertPresenter extends SubversionActionPresenter {
         final ConfirmCallback okCallback = new ConfirmCallback() {
             @Override
             public void accepted() {
-                notification = new Notification(constants.revertStarted(), PROGRESS);
-                notificationManager.showNotification(notification);
+                notification = notificationManager.notify(constants.revertStarted(), null, StatusNotification.Status.PROGRESS, false
+                                                         );
 
                 subversionClientService.revert(project.getRootProject().getPath(),
                                                paths,
@@ -104,13 +98,11 @@ public class RevertPresenter extends SubversionActionPresenter {
                                                        printAndSpace(errOutput);
 
                                                        if (errOutput == null || errOutput.size() == 0) {
-                                                           notification.setMessage(constants.revertSuccessful());
-                                                           notification.setStatus(FINISHED);
-                                                           notification.setType(INFO);
+                                                           notification.setContent(constants.revertSuccessful());
+                                                           notification.setStatus(StatusNotification.Status.SUCCESS);
                                                        } else {
-                                                           notification.setMessage(constants.revertWarning());
-                                                           notification.setStatus(FINISHED);
-                                                           notification.setType(WARNING);
+                                                           notification.setContent(constants.revertWarning());
+                                                           notification.setStatus(StatusNotification.Status.FAIL);
                                                        }
 
                                                        updateProjectExplorer();
@@ -119,9 +111,8 @@ public class RevertPresenter extends SubversionActionPresenter {
                                                    @Override
                                                    protected void onFailure(Throwable exception) {
                                                        String errorMessage = exception.getMessage();
-                                                       notification.setMessage(constants.revertFailed() + ": " + errorMessage);
-                                                       notification.setStatus(FINISHED);
-                                                       notification.setType(ERROR);
+                                                       notification.setContent(constants.revertFailed() + ": " + errorMessage);
+                                                       notification.setStatus(StatusNotification.Status.FAIL);
                                                    }
                                                });
             }

@@ -15,7 +15,6 @@ import org.eclipse.che.api.git.gwt.client.GitServiceClient;
 import org.eclipse.che.api.git.shared.Remote;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
-import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.ext.git.client.GitOutputPartPresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
@@ -26,8 +25,6 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import java.util.List;
-
-import static org.eclipse.che.ide.api.notification.Notification.Type.ERROR;
 
 /**
  * Presenter for showing git url.
@@ -90,8 +87,7 @@ public class ShowProjectGitReadOnlyUrlPresenter implements ShowProjectGitReadOnl
                                            exception.getMessage() != null ? exception.getMessage()
                                                                           : constant.remoteListFailed();
                                    console.printError(errorMessage);
-                                   Notification notification = new Notification(errorMessage, ERROR);
-                                   notificationManager.showNotification(notification);
+                                   notificationManager.notify(errorMessage, project.getRootProject());
                                }
                            }
                           );
@@ -107,8 +103,7 @@ public class ShowProjectGitReadOnlyUrlPresenter implements ShowProjectGitReadOnl
                                           String errorMessage = exception.getMessage() != null && !exception.getMessage().isEmpty()
                                                                 ? exception.getMessage() : constant.initFailed();
                                           console.printError(errorMessage);
-                                          Notification notification = new Notification(errorMessage, ERROR);
-                                          notificationManager.showNotification(notification);
+                                          notificationManager.notify(errorMessage, project.getRootProject());
                                       }
                                   });
     }

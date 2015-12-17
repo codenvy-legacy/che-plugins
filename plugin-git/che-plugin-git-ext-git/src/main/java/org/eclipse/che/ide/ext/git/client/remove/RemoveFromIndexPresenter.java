@@ -19,7 +19,6 @@ import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.editor.EditorPartPresenter;
 import org.eclipse.che.ide.api.event.FileEvent;
-import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.project.node.HasStorablePath;
 import org.eclipse.che.ide.api.project.node.Node;
@@ -39,9 +38,6 @@ import org.eclipse.che.commons.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import static org.eclipse.che.ide.api.notification.Notification.Type.ERROR;
-import static org.eclipse.che.ide.api.notification.Notification.Type.INFO;
 
 /**
  * Presenter for removing files from index and file system.
@@ -153,8 +149,7 @@ public class RemoveFromIndexPresenter implements RemoveFromIndexView.ActionDeleg
                            @Override
                            protected void onSuccess(String result) {
                                console.printInfo(constant.removeFilesSuccessfull());
-                               Notification notification = new Notification(constant.removeFilesSuccessfull(), INFO);
-                               notificationManager.showNotification(notification);
+                               notificationManager.notify(constant.removeFilesSuccessfull(), project.getRootProject());
 
                                if (!view.isRemoved()) {
                                    projectExplorer.reloadChildren(getResourceBasedNode());
@@ -164,7 +159,7 @@ public class RemoveFromIndexPresenter implements RemoveFromIndexView.ActionDeleg
                                        for (EditorPartPresenter partPresenter : openedEditors) {
                                            VirtualFile openFile = partPresenter.getEditorInput().getFile();
                                            //to close selected file if it open
-                                           if (selectFile.getPath().equals(openFile.getPath())) {
+                                           if (selectFile.getStorablePath().equals(openFile.getPath())) {
                                                eventBus.fireEvent(new FileEvent(openFile, FileEvent.FileOperation.CLOSE));
                                            }
                                        }
@@ -237,8 +232,7 @@ public class RemoveFromIndexPresenter implements RemoveFromIndexView.ActionDeleg
     private void handleError(@NotNull Throwable e) {
         String errorMessage = (e.getMessage() != null && !e.getMessage().isEmpty()) ? e.getMessage() : constant.removeFilesFailed();
         console.printError(errorMessage);
-        Notification notification = new Notification(errorMessage, ERROR);
-        notificationManager.showNotification(notification);
+        notificationManager.notify(errorMessage, project.getRootProject());
     }
 
     /** {@inheritDoc} */

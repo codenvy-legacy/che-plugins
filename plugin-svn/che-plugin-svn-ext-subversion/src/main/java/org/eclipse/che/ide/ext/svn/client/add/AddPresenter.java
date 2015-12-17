@@ -15,8 +15,8 @@ import com.google.inject.Singleton;
 import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.ide.api.app.AppContext;
-import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.api.notification.NotificationManager;
+import org.eclipse.che.ide.api.notification.StatusNotification;
 import org.eclipse.che.ide.api.parts.WorkspaceAgent;
 import org.eclipse.che.ide.ext.svn.client.SubversionClientService;
 import org.eclipse.che.ide.ext.svn.client.SubversionExtensionLocalizationConstants;
@@ -29,12 +29,6 @@ import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 
 import java.util.List;
 
-import static org.eclipse.che.ide.api.notification.Notification.Status.FINISHED;
-import static org.eclipse.che.ide.api.notification.Notification.Status.PROGRESS;
-import static org.eclipse.che.ide.api.notification.Notification.Type.ERROR;
-import static org.eclipse.che.ide.api.notification.Notification.Type.INFO;
-import static org.eclipse.che.ide.api.notification.Notification.Type.WARNING;
-
 /**
  * Handler for the {@link org.eclipse.che.ide.ext.svn.client.action.AddAction} action.
  */
@@ -46,7 +40,7 @@ public class AddPresenter extends SubversionActionPresenter {
     private final SubversionClientService                  service;
     private final SubversionExtensionLocalizationConstants constants;
 
-    private Notification notification;
+    private StatusNotification notification;
 
     /**
      * Constructor.
@@ -76,8 +70,9 @@ public class AddPresenter extends SubversionActionPresenter {
         }
 
         final List<String> selectedPaths = getSelectedPaths();
-        notification = new Notification(constants.addStarted(selectedPaths.size()), PROGRESS);
-        notificationManager.showNotification(notification);
+        notification = notificationManager.notify(constants.addStarted(selectedPaths.size()), null, StatusNotification.Status.PROGRESS,
+                                                  false
+                                                 );
 
         service.add(projectPath, selectedPaths, null, false, true, false, false,
                     new AsyncRequestCallback<CLIOutputResponse>(dtoUnmarshallerFactory.newUnmarshaller(CLIOutputResponse.class)) {
@@ -87,13 +82,11 @@ public class AddPresenter extends SubversionActionPresenter {
                             printResponse(response.getCommand(), response.getOutput(), response.getErrOutput());
 
                             if (response.getErrOutput() == null || response.getErrOutput().size() == 0) {
-                                notification.setMessage(constants.addSuccessful());
-                                notification.setStatus(FINISHED);
-                                notification.setType(INFO);
+                                notification.setContent(constants.addSuccessful());
+                                notification.setStatus(StatusNotification.Status.SUCCESS);
                             } else {
-                                notification.setMessage(constants.addWarning());
-                                notification.setStatus(FINISHED);
-                                notification.setType(WARNING);
+                                notification.setContent(constants.addWarning());
+                                notification.setStatus(StatusNotification.Status.FAIL);
                             }
                         }
 
@@ -101,9 +94,8 @@ public class AddPresenter extends SubversionActionPresenter {
                         protected void onFailure(final Throwable exception) {
                             String errorMessage = exception.getMessage();
 
-                            notification.setMessage(constants.addFailed() + ": " + errorMessage);
-                            notification.setStatus(FINISHED);
-                            notification.setType(ERROR);
+                            notification.setContent(constants.addFailed() + ": " + errorMessage);
+                            notification.setStatus(StatusNotification.Status.FAIL);
                         }
                     });
     }

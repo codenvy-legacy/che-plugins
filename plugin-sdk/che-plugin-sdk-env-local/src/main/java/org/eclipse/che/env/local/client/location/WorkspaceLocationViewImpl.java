@@ -89,7 +89,7 @@ public class WorkspaceLocationViewImpl extends Window implements WorkspaceLocati
                                          @Override
                                          protected void onFailure(Throwable exception) {
                                              Log.error(WorkspaceLocationViewImpl.class, exception.getMessage());
-                                             notificationManager.showError(exception.getMessage());
+                                             notificationManager.notify("Workspace", exception.getMessage());
                                              dialogFactory.createMessageDialog("Workspace not set",
                                                                                JsonHelper.parseJsonMessage(exception.getMessage()),
                                                                                new ConfirmCallback() {

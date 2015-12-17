@@ -12,10 +12,8 @@ package org.eclipse.che.ide.ext.svn.client.askcredentials;
 
 import javax.inject.Inject;
 
-import org.eclipse.che.ide.api.notification.Notification;
-import org.eclipse.che.ide.api.notification.Notification.Status;
-import org.eclipse.che.ide.api.notification.Notification.Type;
 import org.eclipse.che.ide.api.notification.NotificationManager;
+import org.eclipse.che.ide.api.notification.StatusNotification;
 import org.eclipse.che.ide.ext.svn.client.SubversionClientService;
 import org.eclipse.che.ide.ext.svn.client.SubversionExtensionLocalizationConstants;
 import org.eclipse.che.ide.ext.svn.client.askcredentials.AskCredentialsView.AskCredentialsDelegate;
@@ -24,11 +22,11 @@ import org.eclipse.che.ide.rest.AsyncRequestCallback;
 
 public class AskCredentialsPresenter implements AskCredentialsDelegate {
 
-    private final AskCredentialsView view;
-    private final NotificationManager notificationManager;
+    private final AskCredentialsView                       view;
+    private final NotificationManager                      notificationManager;
     private final SubversionExtensionLocalizationConstants constants;
-    private final SubversionClientService clientService;
-    private String repositoryUrl;
+    private final SubversionClientService                  clientService;
+    private       String                                   repositoryUrl;
 
     @Inject
     public AskCredentialsPresenter(final AskCredentialsView view,
@@ -44,41 +42,42 @@ public class AskCredentialsPresenter implements AskCredentialsDelegate {
 
     @Override
     public void onSaveClicked() {
-        saveCredentials(this.view.getUsername(), this.view.getPassword());
-        this.view.clearUsername();
-        this.view.clearPassword();
-        this.view.close();
+        saveCredentials(view.getUsername(), view.getPassword());
+        view.clearUsername();
+        view.clearPassword();
+        view.close();
     }
 
     @Override
     public void onCancelClicked() {
-        this.view.clearUsername();
-        this.view.clearPassword();
-        this.view.close();
+        view.clearUsername();
+        view.clearPassword();
+        view.close();
     }
 
     public void askCredentials(final String repositoryUrl) {
-        this.view.clearUsername();
-        this.view.clearPassword();
-        this.view.setRepositoryUrl(repositoryUrl);
+        view.clearUsername();
+        view.clearPassword();
+        view.setRepositoryUrl(repositoryUrl);
         this.repositoryUrl = repositoryUrl;
-        this.view.showDialog();
+        view.showDialog();
     }
 
     private void saveCredentials(final String username, final String password) {
-        final Notification notification = new Notification(constants.notificationSavingCredentials(repositoryUrl), Status.PROGRESS);
-        this.notificationManager.showNotification(notification);
-        this.clientService.saveCredentials(this.repositoryUrl, username, password, new AsyncRequestCallback<Void>() {
+        StatusNotification notification = notificationManager.notify(constants.notificationSavingCredentials(
+                                                                             repositoryUrl), null, StatusNotification.Status.PROGRESS,
+                                                                     false);
+        clientService.saveCredentials(repositoryUrl, username, password, new AsyncRequestCallback<Void>() {
             @Override
             protected void onSuccess(final Void notUsed) {
-                notification.setMessage(constants.notificationCredentialsSaved(repositoryUrl));
-                notification.setStatus(Status.FINISHED);
+                notification.setContent(constants.notificationCredentialsSaved(repositoryUrl));
+                notification.setStatus(StatusNotification.Status.SUCCESS);
             }
 
             @Override
             protected void onFailure(final Throwable exception) {
-                notification.setMessage(constants.notificationCredentialsFailed(repositoryUrl));
-                notification.setType(Type.ERROR);
+                notification.setContent(constants.notificationCredentialsFailed(repositoryUrl));
+                notification.setStatus(StatusNotification.Status.FAIL);
             }
         });
     }

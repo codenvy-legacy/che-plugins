@@ -18,7 +18,6 @@ import org.eclipse.che.api.git.shared.MergeResult;
 import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.editor.EditorInput;
 import org.eclipse.che.ide.api.editor.EditorPartPresenter;
-import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.api.project.tree.VirtualFile;
 import org.eclipse.che.ide.ext.git.client.BaseTest;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
@@ -123,7 +122,7 @@ public class MergePresenterTest extends BaseTest {
         verify(service).branchList(eq(rootProjectConfig), eq(LIST_REMOTE), (AsyncRequestCallback<List<Branch>>)anyObject());
         verify(view).setRemoteBranches((List<Reference>)anyObject());
         verify(view).setLocalBranches((List<Reference>)anyObject());
-        verify(notificationManager, never()).showNotification((Notification)anyObject());
+        verify(notificationManager, never()).notify(anyString(), rootProjectConfig);
         verify(console, never()).printError(anyString());
     }
 
@@ -150,7 +149,7 @@ public class MergePresenterTest extends BaseTest {
         verify(service).branchList(eq(rootProjectConfig), eq(LIST_LOCAL), (AsyncRequestCallback<List<Branch>>)anyObject());
         verify(service).branchList(eq(rootProjectConfig), eq(LIST_REMOTE), (AsyncRequestCallback<List<Branch>>)anyObject());
         verify(console, times(2)).printError(anyString());
-        verify(notificationManager, times(2)).showNotification((Notification)anyObject());
+        verify(notificationManager, times(2)).notify(anyString(), rootProjectConfig);
     }
 
     @Test
@@ -180,7 +179,7 @@ public class MergePresenterTest extends BaseTest {
         verify(partPresenter).getEditorInput();
         verify(file).getPath();
         verify(console).printInfo(anyString());
-        verify(notificationManager).showNotification((Notification)anyObject());
+        verify(notificationManager).notify(anyString(), rootProjectConfig);
     }
 
     @Test

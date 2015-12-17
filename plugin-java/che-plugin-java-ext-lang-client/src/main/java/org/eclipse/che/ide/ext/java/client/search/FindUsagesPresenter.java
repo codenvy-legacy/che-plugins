@@ -133,7 +133,7 @@ public class FindUsagesPresenter extends BasePresenter implements FindUsagesView
                     return;
                 }
                 Log.error(getClass(), arg);
-                manager.showError(arg.getMessage());
+                manager.notify(arg.getMessage());
             }
         });
 
@@ -141,9 +141,9 @@ public class FindUsagesPresenter extends BasePresenter implements FindUsagesView
 
     private void handleError(int statusCode, String message) {
         if (statusCode == HTTPStatus.BAD_REQUEST) {
-            manager.showInfo(JSONParser.parseLenient(message).isObject().get("message").isString().stringValue());
+            manager.notify(JSONParser.parseLenient(message).isObject().get("message").isString().stringValue());
         } else {
-            manager.showError(message);
+            manager.notify(message);
         }
     }
 

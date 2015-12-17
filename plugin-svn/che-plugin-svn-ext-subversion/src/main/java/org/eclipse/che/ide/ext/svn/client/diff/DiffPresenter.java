@@ -70,7 +70,7 @@ public class DiffPresenter extends SubversionActionPresenter {
 
                              @Override
                              protected void onFailure(Throwable exception) {
-                                 notificationManager.showError(exception.getMessage());
+                                 notificationManager.notify(exception.getMessage());
                              }
                          });
     }

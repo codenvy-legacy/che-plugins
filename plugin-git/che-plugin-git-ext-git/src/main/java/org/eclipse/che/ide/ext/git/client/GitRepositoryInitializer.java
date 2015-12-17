@@ -16,7 +16,6 @@ import org.eclipse.che.api.git.gwt.client.GitServiceClient;
 import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
 import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.ide.api.app.AppContext;
-import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
@@ -103,8 +102,7 @@ public class GitRepositoryInitializer {
             initGitRepository(project, new AsyncCallback<Void>() {
                 @Override
                 public void onSuccess(Void result) {
-                    Notification notification = new Notification(gitLocale.initSuccess(), Notification.Type.INFO);
-                    notificationManager.showNotification(notification);
+                    notificationManager.notify(gitLocale.initSuccess(), project);
                     getGitUrlWithAutoInit(appContext.getCurrentProject().getRootProject(), callback);
                 }
 

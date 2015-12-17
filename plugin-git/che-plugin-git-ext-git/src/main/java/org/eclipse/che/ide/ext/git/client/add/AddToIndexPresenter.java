@@ -105,7 +105,7 @@ public class AddToIndexPresenter implements AddToIndexView.ActionDelegate {
                                    addSelection();
                                } else {
                                    console.printInfo(constant.nothingAddToIndex());
-                                   notificationManager.showInfo(constant.nothingAddToIndex());
+                                   notificationManager.notify(constant.nothingAddToIndex(), project.getRootProject());
                                }
                            }
 
@@ -113,7 +113,7 @@ public class AddToIndexPresenter implements AddToIndexView.ActionDelegate {
                            protected void onFailure(Throwable exception) {
                                String errorMessage = exception.getMessage() != null ? exception.getMessage() : constant.statusFailed();
                                console.printError(errorMessage);
-                               notificationManager.showError(errorMessage);
+                               notificationManager.notify(errorMessage, project.getRootProject());
                            }
                        });
     }
@@ -168,7 +168,7 @@ public class AddToIndexPresenter implements AddToIndexView.ActionDelegate {
                 @Override
                 protected void onSuccess(final Void result) {
                     console.printInfo(constant.addSuccess());
-                    notificationManager.showInfo(constant.addSuccess());
+                    notificationManager.notify(constant.addSuccess(), project.getRootProject());
                 }
 
                 @Override
@@ -287,7 +287,7 @@ public class AddToIndexPresenter implements AddToIndexView.ActionDelegate {
     private void handleError(@NotNull final Throwable e) {
         String errorMessage = (e.getMessage() != null && !e.getMessage().isEmpty()) ? e.getMessage() : constant.addFailed();
         console.printError(errorMessage);
-        notificationManager.showError(errorMessage);
+        notificationManager.notify(errorMessage, project.getRootProject());
     }
 
     /**

@@ -269,12 +269,12 @@ public class MachineManagerImpl implements MachineManager {
 
                         @Override
                         protected void onErrorReceived(Throwable exception) {
-                            notificationManager.showError(exception.getMessage());
+                            notificationManager.notify(exception.getMessage());
                         }
                     });
         } catch (WebSocketException e) {
             Log.error(MachineManagerImpl.class, e);
-            notificationManager.showError(e.getMessage());
+            notificationManager.notify(e.getMessage());
         }
     }
 
@@ -289,7 +289,7 @@ public class MachineManagerImpl implements MachineManager {
 
                 @Override
                 protected void onErrorReceived(Throwable exception) {
-                    notificationManager.showError(exception.getMessage());
+                    notificationManager.notify(exception.getMessage());
                 }
             });
         } catch (WebSocketException exception) {

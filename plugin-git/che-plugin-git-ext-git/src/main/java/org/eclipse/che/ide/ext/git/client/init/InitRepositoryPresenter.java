@@ -83,7 +83,7 @@ public class InitRepositoryPresenter {
             @Override
             public void onSuccess(Void result) {
                 console.printInfo(constant.initSuccess());
-                notificationManager.showInfo(constant.initSuccess());
+                notificationManager.notify(constant.initSuccess(), currentProject.getRootProject());
                 getRootProject(currentProject.getRootProject());
             }
         });
@@ -98,7 +98,7 @@ public class InitRepositoryPresenter {
     private void handleError(@NotNull Throwable e) {
         String errorMessage = (e.getMessage() != null && !e.getMessage().isEmpty()) ? e.getMessage() : constant.initFailed();
         console.printError(errorMessage);
-        notificationManager.showError(errorMessage);
+        notificationManager.notify(errorMessage, appContext.getCurrentProject().getRootProject());
     }
 
     private void getRootProject(final ProjectConfigDto projectConfig) {

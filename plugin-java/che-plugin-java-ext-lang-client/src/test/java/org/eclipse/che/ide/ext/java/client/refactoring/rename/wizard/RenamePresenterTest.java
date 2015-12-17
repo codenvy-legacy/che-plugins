@@ -67,6 +67,7 @@ import static org.eclipse.che.ide.ext.java.shared.dto.refactoring.CreateRenameRe
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -203,7 +204,7 @@ public class RenamePresenterTest {
         verify(refactorService).createRenameRefactoring(createRenameRefactoringDto);
         verify(renameRefactoringSessionPromise).catchError(promiseErrorCaptor.capture());
         promiseErrorCaptor.getValue().apply(promiseError);
-        verify(notificationManager).showError(TEXT);
+        verify(notificationManager).notify(anyString());
     }
 
     @Test
@@ -482,7 +483,7 @@ public class RenamePresenterTest {
         verify(changeCreationResultPromise).catchError(promiseErrorCaptor.capture());
         promiseErrorCaptor.getValue().apply(promiseError);
         verify(promiseError).getMessage();
-        verify(notificationManager).showError(TEXT);
+        verify(notificationManager).notify(anyString());
     }
 
     @Test
@@ -605,7 +606,7 @@ public class RenamePresenterTest {
         verify(changeCreationResultPromise).catchError(promiseErrorCaptor.capture());
         promiseErrorCaptor.getValue().apply(promiseError);
         verify(promiseError).getMessage();
-        verify(notificationManager).showError(TEXT);
+        verify(notificationManager).notify(anyString());
     }
 
     @Test

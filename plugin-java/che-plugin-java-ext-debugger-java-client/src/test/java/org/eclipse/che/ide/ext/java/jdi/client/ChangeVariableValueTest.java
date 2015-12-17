@@ -13,7 +13,6 @@ package org.eclipse.che.ide.ext.java.jdi.client;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.googlecode.gwt.test.utils.GwtReflectionUtils;
 
-import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.ext.java.jdi.client.debug.changevalue.ChangeValuePresenter;
 import org.eclipse.che.ide.ext.java.jdi.client.debug.changevalue.ChangeValueView;
 import org.eclipse.che.ide.ext.java.jdi.shared.UpdateVariableRequest;
@@ -144,7 +143,7 @@ public class ChangeVariableValueTest extends BaseTest {
 
         verify(service).setValue(anyString(), (UpdateVariableRequest)anyObject(), (AsyncRequestCallback<Void>)anyObject());
         verify(asyncCallback).onFailure((Throwable)anyObject());
-        verify(notificationManager).showNotification((Notification)anyObject());
+        verify(notificationManager).notify(anyString());
         verify(view).close();
     }
 

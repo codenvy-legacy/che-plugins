@@ -48,11 +48,11 @@ import java.util.List;
 @Singleton
 public class MergePresenter extends SubversionActionPresenter implements MergeView.ActionDelegate {
 
-    private final MergeView                     view;
-    private final SubversionClientService       subversionClientService;
-    private final AppContext                    appContext;
-    private final DtoUnmarshallerFactory        dtoUnmarshallerFactory;
-    private final NotificationManager           notificationManager;
+    private final MergeView               view;
+    private final SubversionClientService subversionClientService;
+    private final AppContext              appContext;
+    private final DtoUnmarshallerFactory  dtoUnmarshallerFactory;
+    private final NotificationManager     notificationManager;
 
     /** Subversion target to merge. */
     private SubversionItem mergeTarget;
@@ -105,7 +105,8 @@ public class MergePresenter extends SubversionActionPresenter implements MergeVi
                                          protected void onSuccess(InfoResponse result) {
                                              if (result.getErrorOutput() != null && !result.getErrorOutput().isEmpty()) {
                                                  printResponse(null, null, result.getErrorOutput());
-                                                 notificationManager.showError("Unable to execute subversion command");
+                                                 notificationManager
+                                                         .notify("Unable to execute subversion command");
                                                  return;
                                              }
 
@@ -114,46 +115,51 @@ public class MergePresenter extends SubversionActionPresenter implements MergeVi
 
                                              String repositoryRoot = mergeTarget.getRepositoryRoot();
 
-                                             subversionClientService.info(appContext.getCurrentProject().getRootProject().getPath(), repositoryRoot, "HEAD", true,
-                                                                          new AsyncRequestCallback<InfoResponse>(dtoUnmarshallerFactory.newUnmarshaller(InfoResponse.class)) {
-                                                                              @Override
-                                                                              protected void onSuccess(InfoResponse result) {
-                                                                                  if (result.getErrorOutput() != null && !result.getErrorOutput().isEmpty()) {
-                                                                                      printResponse(null, null, result.getErrorOutput());
-                                                                                      notificationManager.showError("Unable to execute subversion command");
-                                                                                      return;
-                                                                                  }
+                                             subversionClientService
+                                                     .info(appContext.getCurrentProject().getRootProject().getPath(), repositoryRoot,
+                                                           "HEAD", true,
+                                                           new AsyncRequestCallback<InfoResponse>(
+                                                                   dtoUnmarshallerFactory.newUnmarshaller(InfoResponse.class)) {
+                                                               @Override
+                                                               protected void onSuccess(InfoResponse result) {
+                                                                   if (result.getErrorOutput() != null &&
+                                                                       !result.getErrorOutput().isEmpty()) {
+                                                                       printResponse(null, null, result.getErrorOutput());
+                                                                       notificationManager.notify("Unable to execute subversion command");
+                                                                       return;
+                                                                   }
 
-                                                                                  sourceURL = result.getItems().get(0).getURL();
-                                                                                  SubversionTreeNode subversionTreeNode = new SubversionTreeNode(result.getItems().get(0));
+                                                                   sourceURL = result.getItems().get(0).getURL();
+                                                                   SubversionTreeNode subversionTreeNode =
+                                                                           new SubversionTreeNode(result.getItems().get(0));
 
-                                                                                  List<TreeNode<?>> children = new ArrayList<>();
-                                                                                  if (result.getItems().size() > 1) {
-                                                                                      for (int i = 1; i < result.getItems().size(); i++) {
-                                                                                          SubversionItem item = result.getItems().get(i);
-                                                                                          if (!"file".equals(item.getNodeKind())) {
-                                                                                              children.add(new SubversionTreeNode(item));
-                                                                                          }
-                                                                                      }
-                                                                                      Collections.sort(children, svnDirectoryComparator);
-                                                                                  }
+                                                                   List<TreeNode<?>> children = new ArrayList<>();
+                                                                   if (result.getItems().size() > 1) {
+                                                                       for (int i = 1; i < result.getItems().size(); i++) {
+                                                                           SubversionItem item = result.getItems().get(i);
+                                                                           if (!"file".equals(item.getNodeKind())) {
+                                                                               children.add(new SubversionTreeNode(item));
+                                                                           }
+                                                                       }
+                                                                       Collections.sort(children, svnDirectoryComparator);
+                                                                   }
 
-                                                                                  subversionTreeNode.setChildren(children);
-                                                                                  view.setRootNode(subversionTreeNode);
-                                                                                  view.show();
-                                                                                  validateSourceURL();
-                                                                              }
+                                                                   subversionTreeNode.setChildren(children);
+                                                                   view.setRootNode(subversionTreeNode);
+                                                                   view.show();
+                                                                   validateSourceURL();
+                                                               }
 
-                                                                              @Override
-                                                                              protected void onFailure(Throwable exception) {
-                                                                                  notificationManager.showError(exception.getMessage());
-                                                                              }
-                                                                          });
+                                                               @Override
+                                                               protected void onFailure(Throwable exception) {
+                                                                   notificationManager.notify(exception.getMessage());
+                                                               }
+                                                           });
                                          }
 
                                          @Override
                                          protected void onFailure(Throwable exception) {
-                                             notificationManager.showError(exception.getMessage());
+                                             notificationManager.notify(exception.getMessage());
                                          }
                                      });
     }
@@ -167,7 +173,8 @@ public class MergePresenter extends SubversionActionPresenter implements MergeVi
 
         String target = getSelectedPaths().get(0);
         subversionClientService.merge(appContext.getCurrentProject().getRootProject().getPath(), target, sourceURL,
-                                      new AsyncRequestCallback<CLIOutputResponse>(dtoUnmarshallerFactory.newUnmarshaller(CLIOutputResponse.class)) {
+                                      new AsyncRequestCallback<CLIOutputResponse>(
+                                              dtoUnmarshallerFactory.newUnmarshaller(CLIOutputResponse.class)) {
 
                                           @Override
                                           protected void onSuccess(CLIOutputResponse result) {
@@ -177,7 +184,7 @@ public class MergePresenter extends SubversionActionPresenter implements MergeVi
 
                                           @Override
                                           protected void onFailure(Throwable exception) {
-                                              notificationManager.showError(exception.getMessage());
+                                              notificationManager.notify(exception.getMessage());
                                           }
                                       });
     }
@@ -244,36 +251,38 @@ public class MergePresenter extends SubversionActionPresenter implements MergeVi
 
                 final SubversionTreeNode subversionTreeNode = (SubversionTreeNode)childNode;
 
-                subversionClientService.info(appContext.getCurrentProject().getRootProject().getPath(), subversionTreeNode.getData().getURL(), "HEAD", true,
-                                             new AsyncRequestCallback<InfoResponse>(dtoUnmarshallerFactory.newUnmarshaller(InfoResponse.class)) {
-                                                 @Override
-                                                 protected void onSuccess(final InfoResponse result) {
-                                                     if (result.getErrorOutput() != null && !result.getErrorOutput().isEmpty()) {
-                                                         printResponse(null, null, result.getErrorOutput());
-                                                         notificationManager.showError("Unable to execute subversion command");
-                                                         return;
-                                                     }
+                subversionClientService
+                        .info(appContext.getCurrentProject().getRootProject().getPath(), subversionTreeNode.getData().getURL(), "HEAD",
+                              true,
+                              new AsyncRequestCallback<InfoResponse>(dtoUnmarshallerFactory.newUnmarshaller(InfoResponse.class)) {
+                                  @Override
+                                  protected void onSuccess(final InfoResponse result) {
+                                      if (result.getErrorOutput() != null && !result.getErrorOutput().isEmpty()) {
+                                          printResponse(null, null, result.getErrorOutput());
+                                          notificationManager.notify("Unable to execute subversion command");
+                                          return;
+                                      }
 
-                                                     List<TreeNode<?>> children = new ArrayList<>();
-                                                     if (result.getItems().size() > 1) {
-                                                         for (int i = 1; i < result.getItems().size(); i++) {
-                                                             SubversionItem item = result.getItems().get(i);
-                                                             if (!"file".equals(item.getNodeKind())) {
-                                                                 children.add(new SubversionTreeNode(item));
-                                                             }
-                                                         }
-                                                         Collections.sort(children, svnDirectoryComparator);
-                                                     }
+                                      List<TreeNode<?>> children = new ArrayList<>();
+                                      if (result.getItems().size() > 1) {
+                                          for (int i = 1; i < result.getItems().size(); i++) {
+                                              SubversionItem item = result.getItems().get(i);
+                                              if (!"file".equals(item.getNodeKind())) {
+                                                  children.add(new SubversionTreeNode(item));
+                                              }
+                                          }
+                                          Collections.sort(children, svnDirectoryComparator);
+                                      }
 
-                                                     subversionTreeNode.setChildren(children);
-                                                     view.render(subversionTreeNode);
-                                                 }
+                                      subversionTreeNode.setChildren(children);
+                                      view.render(subversionTreeNode);
+                                  }
 
-                                                 @Override
-                                                 protected void onFailure(Throwable exception) {
-                                                     notificationManager.showError(exception.getMessage());
-                                                 }
-                                             });
+                                  @Override
+                                  protected void onFailure(Throwable exception) {
+                                      notificationManager.notify(exception.getMessage());
+                                  }
+                              });
             }
         }
     }

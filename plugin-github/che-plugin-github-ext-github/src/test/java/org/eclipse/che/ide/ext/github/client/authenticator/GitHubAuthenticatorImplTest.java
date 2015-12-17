@@ -14,7 +14,9 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwtmockito.GwtMockitoTestRunner;
 
 import org.eclipse.che.api.user.shared.dto.ProfileDescriptor;
+import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.ide.api.app.AppContext;
+import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.app.CurrentUser;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.ext.github.client.GitHubLocalizationConstant;
@@ -164,6 +166,11 @@ public class GitHubAuthenticatorImplTest {
         when(view.isGenerateKeysSelected()).thenReturn(true);
         when(sshKeyService.getSshKeyProviders()).thenReturn(providers);
 
+        CurrentProject currentProject = mock(CurrentProject.class);
+        ProjectConfigDto projectConfigDto = mock(ProjectConfigDto.class);
+        when(appContext.getCurrentProject()).thenReturn(currentProject);
+        when(currentProject.getRootProject()).thenReturn(projectConfigDto);
+
         when(appContext.getCurrentUser()).thenReturn(user);
         when(user.getProfile()).thenReturn(profile);
         when(profile.getId()).thenReturn(userId);
@@ -178,7 +185,7 @@ public class GitHubAuthenticatorImplTest {
         verify(view).isGenerateKeysSelected();
         verify(sshKeyService, times(2)).getSshKeyProviders();
         verify(appContext).getCurrentUser();
-        verify(notificationManager).showInfo(anyString());
+        verify(notificationManager).notify(anyString(), eq(projectConfigDto));
     }
 
     @Test
