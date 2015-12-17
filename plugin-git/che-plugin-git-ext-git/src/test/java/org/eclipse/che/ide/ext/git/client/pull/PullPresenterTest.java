@@ -20,7 +20,6 @@ import org.eclipse.che.api.git.shared.Remote;
 import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.editor.EditorInput;
 import org.eclipse.che.ide.api.editor.EditorPartPresenter;
-import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.ext.git.client.BaseTest;
 import org.eclipse.che.ide.ext.git.client.BranchSearcher;
 import org.eclipse.che.ide.project.node.FileReferenceNode;
@@ -245,7 +244,7 @@ public class PullPresenterTest extends BaseTest {
                                    (AsyncRequestCallback<List<Remote>>)anyObject());
         verify(constant).branchesListFailed();
         verify(console).printError(anyString());
-        verify(notificationManager).showError(anyString());
+        verify(notificationManager).notify(anyString(), rootProjectConfig);
         verify(view).setEnablePullButton(eq(DISABLE_BUTTON));
     }
 
@@ -297,7 +296,7 @@ public class PullPresenterTest extends BaseTest {
         verify(service).pull(eq(rootProjectConfig), anyString(), eq(REPOSITORY_NAME), (AsyncRequestCallback)anyObject());
         verify(console).printInfo(anyString());
         verify(constant).pullSuccess(anyString());
-        verify(notificationManager).showNotification((Notification)anyObject());
+        verify(notificationManager).notify(anyString(), rootProjectConfig);
         verify(appContext).getCurrentProject();
         verify(eventBus).fireEvent(Matchers.<Event<GwtEvent>>anyObject());
         verify(partPresenter).getEditorInput();
@@ -329,7 +328,7 @@ public class PullPresenterTest extends BaseTest {
         verify(service).pull(eq(rootProjectConfig), anyString(), eq(REPOSITORY_NAME), (AsyncRequestCallback)anyObject());
         verify(console).printInfo(anyString());
         verify(constant).pullUpToDate();
-        verify(notificationManager).showNotification((Notification)anyObject());
+        verify(notificationManager).notify(anyString(), rootProjectConfig);
         verify(appContext).getCurrentProject();
         verify(eventBus, never()).fireEvent(Matchers.<Event<GwtEvent>>anyObject());
         verify(partPresenter, never()).getEditorInput();
@@ -357,7 +356,7 @@ public class PullPresenterTest extends BaseTest {
         verify(service).pull(eq(rootProjectConfig), anyString(), eq(REPOSITORY_NAME), (AsyncRequestCallback<PullResponse>)anyObject());
         verify(view).close();
         verify(console).printError(anyString());
-        verify(notificationManager).showNotification((Notification)anyObject());
+        verify(notificationManager).notify(anyString(), rootProjectConfig);
     }
 
     @Test
@@ -381,9 +380,9 @@ public class PullPresenterTest extends BaseTest {
 
         verify(view).close();
         verify(service).pull(eq(rootProjectConfig), anyString(), eq(REPOSITORY_NAME), (AsyncRequestCallback)anyObject());
-        verify(notificationManager).showNotification((Notification)anyObject());
+        verify(notificationManager).notify(anyString(), rootProjectConfig);
         verify(console).printError(anyString());
-        verify(notificationManager).showNotification((Notification)anyObject());
+        verify(notificationManager).notify(anyString(), rootProjectConfig);
         verify(appContext).getCurrentProject();
         verify(eventBus, times(1)).fireEvent(Matchers.<Event<GwtEvent>>anyObject());
         verify(partPresenter).getEditorInput();
@@ -409,7 +408,7 @@ public class PullPresenterTest extends BaseTest {
 
         verify(view).close();
         verify(console).printInfo(anyString());
-        verify(notificationManager).showNotification((Notification)anyObject());
+        verify(notificationManager).notify(anyString(), rootProjectConfig);
         //check Refresh project is not called
         verify(eventBus, never()).fireEvent(Matchers.<Event<GwtEvent>>anyObject());
     }

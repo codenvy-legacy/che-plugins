@@ -56,13 +56,13 @@ public class GithubImporterPagePresenter extends AbstractWizardPage<ProjectConfi
     // start with white space
     private static final RegExp WHITE_SPACE     = RegExp.compile("^\\s");
 
-    private final DtoFactory                         dtoFactory;
-    private       NotificationManager                notificationManager;
-    private       GitHubClientService                gitHubClientService;
+    private final DtoFactory                          dtoFactory;
+    private       NotificationManager                 notificationManager;
+    private       GitHubClientService                 gitHubClientService;
     private       Map<String, List<GitHubRepository>> repositories;
-    private       GitHubLocalizationConstant         locale;
-    private       GithubImporterPageView             view;
-    private       GitHubAuthenticator                gitHubAuthenticator;
+    private       GitHubLocalizationConstant          locale;
+    private       GithubImporterPageView              view;
+    private       GitHubAuthenticator                 gitHubAuthenticator;
 
     @Inject
     public GithubImporterPagePresenter(GithubImporterPageView view,
@@ -219,7 +219,7 @@ public class GithubImporterPagePresenter extends AbstractWizardPage<ProjectConfi
                         if (exception instanceof UnauthorizedException) {
                             authorize();
                         } else {
-                            notificationManager.showError(exception.getMessage());
+                            notificationManager.notify(exception.getMessage());
                         }
                     }
                 });

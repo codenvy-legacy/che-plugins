@@ -12,6 +12,7 @@ package org.eclipse.che.ide.ext.git.client.branch;
 
 import org.eclipse.che.api.git.shared.Branch;
 import org.eclipse.che.api.git.shared.CheckoutRequest;
+import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.editor.EditorInput;
 import org.eclipse.che.ide.api.editor.EditorPartPresenter;
@@ -42,6 +43,7 @@ import java.util.TreeMap;
 
 import static org.eclipse.che.api.git.shared.BranchListRequest.LIST_ALL;
 import static org.eclipse.che.ide.ext.git.client.patcher.WindowPatcher.RETURNED_MESSAGE;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
@@ -145,7 +147,7 @@ public class BranchPresenterTest extends BaseTest {
         verify(view).showDialogIfClosed();
         verify(view).setBranches(eq(branches));
         verify(gitConsole, never()).printError(anyString());
-        verify(notificationManager, never()).showError(anyString());
+        verify(notificationManager, never()).notify(anyString(), any(ProjectConfigDto.class));
         verify(constant, never()).branchesListFailed();
     }
 
@@ -160,7 +162,7 @@ public class BranchPresenterTest extends BaseTest {
         verify(appContext).getCurrentProject();
         verify(view, never()).showDialogIfClosed();
         verify(gitConsole).printError(anyString());
-        verify(notificationManager).showError(anyString());
+        verify(notificationManager).notify(anyString(), eq(rootProjectConfig));
         verify(constant).branchesListFailed();
     }
 
@@ -198,7 +200,7 @@ public class BranchPresenterTest extends BaseTest {
         verify(service, times(2)).branchList(eq(rootProjectConfig), eq(LIST_ALL), anyObject());
         verify(dialogFactory, never()).createConfirmDialog(anyString(), anyString(), anyObject(), anyObject());
         verify(gitConsole, never()).printError(anyString());
-        verify(notificationManager, never()).showError(anyString());
+        verify(notificationManager, never()).notify(anyString(), eq(rootProjectConfig));
         verify(constant, never()).branchRenameFailed();
     }
 
@@ -235,7 +237,7 @@ public class BranchPresenterTest extends BaseTest {
         verify(service, times(2))
                 .branchList(eq(rootProjectConfig), eq(LIST_ALL), anyObject());
         verify(gitConsole, never()).printError(anyString());
-        verify(notificationManager, never()).showError(anyString());
+        verify(notificationManager, never()).notify(anyString(), eq(rootProjectConfig));
         verify(constant, never()).branchRenameFailed();
     }
 
@@ -268,7 +270,7 @@ public class BranchPresenterTest extends BaseTest {
 
         verify(selectedBranch, times(2)).getDisplayName();
         verify(gitConsole).printError(anyString());
-        verify(notificationManager).showError(anyString());
+        verify(notificationManager).notify(anyString(), eq(rootProjectConfig));
         verify(constant).branchRenameFailed();
     }
 
@@ -285,7 +287,7 @@ public class BranchPresenterTest extends BaseTest {
         verify(service, times(2)).branchList(eq(rootProjectConfig), eq(LIST_ALL), anyObject());
         verify(constant, never()).branchDeleteFailed();
         verify(gitConsole, never()).printError(anyString());
-        verify(notificationManager, never()).showError(anyString());
+        verify(notificationManager, never()).notify(anyString(), eq(rootProjectConfig));
     }
 
     @Test
@@ -300,7 +302,7 @@ public class BranchPresenterTest extends BaseTest {
         verify(selectedBranch).getName();
         verify(constant, times(2)).branchDeleteFailed();
         verify(gitConsole).printError(anyString());
-        verify(notificationManager).showError(anyString());
+        verify(notificationManager).notify(anyString(), eq(rootProjectConfig));
     }
 
     @Test
@@ -362,7 +364,7 @@ public class BranchPresenterTest extends BaseTest {
         verify(service, times(2)).branchList(eq(rootProjectConfig), eq(LIST_ALL), anyObject());
         verify(appContext).getCurrentProject();
         verify(gitConsole, never()).printError(anyString());
-        verify(notificationManager, never()).showError(anyString());
+        verify(notificationManager, never()).notify(anyString(), eq(rootProjectConfig));
         verify(eventBus).fireEvent(Matchers.<FileContentUpdateEvent>anyObject());
         verify(constant, never()).branchCheckoutFailed();
     }
@@ -454,7 +456,7 @@ public class BranchPresenterTest extends BaseTest {
 
         verify(constant).branchCreateFailed();
         verify(gitConsole).printError(anyString());
-        verify(notificationManager).showError(anyString());
+        verify(notificationManager).notify(anyString(), eq(rootProjectConfig));
     }
 
     @Test

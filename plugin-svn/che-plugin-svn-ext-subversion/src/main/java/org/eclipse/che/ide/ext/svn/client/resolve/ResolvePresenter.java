@@ -87,7 +87,7 @@ public class ResolvePresenter extends SubversionActionPresenter implements Resol
 
                                                   @Override
                                                   public void onFailure(Throwable exception) {
-                                                      notificationManager.showError(exception.getMessage());
+                                                      notificationManager.notify(exception.getMessage());
                                                   }
                                               });
     }
@@ -146,7 +146,7 @@ public class ResolvePresenter extends SubversionActionPresenter implements Resol
 
                                             @Override
                                             public void onFailure(Throwable exception) {
-                                                notificationManager.showError(exception.getMessage());
+                                                notificationManager.notify(exception.getMessage());
                                             }
                                         });
         view.close();

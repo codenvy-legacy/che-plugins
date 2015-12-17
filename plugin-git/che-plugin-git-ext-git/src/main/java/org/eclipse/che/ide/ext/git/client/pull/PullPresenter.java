@@ -24,8 +24,8 @@ import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.editor.EditorPartPresenter;
 import org.eclipse.che.ide.api.event.FileContentUpdateEvent;
-import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.api.notification.NotificationManager;
+import org.eclipse.che.ide.api.notification.StatusNotification;
 import org.eclipse.che.ide.api.project.tree.VirtualFile;
 import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.ext.git.client.BranchSearcher;
@@ -41,9 +41,9 @@ import java.util.List;
 
 import static org.eclipse.che.api.git.shared.BranchListRequest.LIST_LOCAL;
 import static org.eclipse.che.api.git.shared.BranchListRequest.LIST_REMOTE;
-import static org.eclipse.che.ide.api.notification.Notification.Status.PROGRESS;
-import static org.eclipse.che.ide.api.notification.Notification.Status.FINISHED;
-import static org.eclipse.che.ide.api.notification.Notification.Type.ERROR;
+import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAIL;
+import static org.eclipse.che.ide.api.notification.StatusNotification.Status.PROGRESS;
+import static org.eclipse.che.ide.api.notification.StatusNotification.Status.SUCCESS;
 
 /**
  * Presenter pulling changes from remote repository.
@@ -64,7 +64,7 @@ public class PullPresenter implements PullView.ActionDelegate {
     private final BranchSearcher           branchSearcher;
     private final ProjectExplorerPresenter projectExplorer;
     private       CurrentProject           project;
-    private final GitOutputPartPresenter  console;
+    private final GitOutputPartPresenter   console;
 
 
     @Inject
@@ -124,7 +124,7 @@ public class PullPresenter implements PullView.ActionDelegate {
                                                     exception.getMessage() != null ? exception.getMessage()
                                                                                    : constant.remoteListFailed();
                                             console.printError(errorMessage);
-                                            notificationManager.showError(errorMessage);
+                                            notificationManager.notify(errorMessage, project.getRootProject());
                                             view.setEnablePullButton(false);
                                         }
                                     }
@@ -162,7 +162,7 @@ public class PullPresenter implements PullView.ActionDelegate {
                                                     exception.getMessage() != null ? exception.getMessage()
                                                                                    : constant.branchesListFailed();
                                             console.printError(errorMessage);
-                                            notificationManager.showError(errorMessage);
+                                            notificationManager.notify(errorMessage, project.getRootProject());
                                             view.setEnablePullButton(false);
                                         }
                                     }
@@ -181,19 +181,19 @@ public class PullPresenter implements PullView.ActionDelegate {
             openedEditors.add(partPresenter);
         }
 
-        final Notification notification = new Notification(constant.pullProcess(), PROGRESS, true);
-        notificationManager.showNotification(notification);
+        final StatusNotification notification =
+                notificationManager.notify(constant.pullProcess(), null, PROGRESS, true, project.getRootProject());
         gitServiceClient.pull(project.getRootProject(), getRefs(), remoteName,
                               new AsyncRequestCallback<PullResponse>(dtoUnmarshallerFactory.newUnmarshaller(PullResponse.class)) {
                                   @Override
                                   protected void onSuccess(PullResponse result) {
                                       console.printInfo(result.getCommandOutput());
-                                      notification.setStatus(FINISHED);
+                                      notification.setStatus(SUCCESS);
                                       if (result.getCommandOutput().contains("Already up-to-date")) {
-                                          notification.setMessage(constant.pullUpToDate());
+                                          notification.setContent(constant.pullUpToDate());
                                       } else {
                                           refreshProject(openedEditors);
-                                          notification.setMessage(constant.pullSuccess(remoteUrl));
+                                          notification.setContent(constant.pullSuccess(remoteUrl));
                                       }
                                   }
 
@@ -238,12 +238,12 @@ public class PullPresenter implements PullView.ActionDelegate {
      * @param throwable
      *         exception what happened
      */
-    private void handleError(@NotNull Throwable throwable, @NotNull String remoteUrl, Notification notification) {
+    private void handleError(@NotNull Throwable throwable, @NotNull String remoteUrl, StatusNotification notification) {
         String errorMessage = throwable.getMessage();
-        notification.setType(ERROR);
+        notification.setStatus(FAIL);
         if (errorMessage == null) {
             console.printError(constant.pullFail(remoteUrl));
-            notification.setMessage(constant.pullFail(remoteUrl));
+            notification.setContent(constant.pullFail(remoteUrl));
             return;
         }
 
@@ -251,14 +251,14 @@ public class PullPresenter implements PullView.ActionDelegate {
             errorMessage = dtoFactory.createDtoFromJson(errorMessage, ServiceError.class).getMessage();
             if (errorMessage.equals("Unable get private ssh key")) {
                 console.printError(constant.messagesUnableGetSshKey());
-                notification.setMessage(constant.messagesUnableGetSshKey());
+                notification.setContent(constant.messagesUnableGetSshKey());
                 return;
             }
             console.printError(errorMessage);
-            notification.setMessage(errorMessage);
+            notification.setContent(errorMessage);
         } catch (Exception e) {
             console.printError(errorMessage);
-            notification.setMessage(errorMessage);
+            notification.setContent(errorMessage);
         }
     }
 

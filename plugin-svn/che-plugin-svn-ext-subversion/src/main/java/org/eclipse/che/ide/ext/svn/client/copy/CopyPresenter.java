@@ -18,8 +18,8 @@ import com.google.inject.Singleton;
 import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.ide.api.app.AppContext;
-import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.api.notification.NotificationManager;
+import org.eclipse.che.ide.api.notification.StatusNotification;
 import org.eclipse.che.ide.api.parts.WorkspaceAgent;
 import org.eclipse.che.ide.api.project.node.HasStorablePath;
 import org.eclipse.che.ide.api.project.tree.TreeNode;
@@ -40,11 +40,6 @@ import org.eclipse.che.ide.util.loging.Log;
 
 import org.eclipse.che.commons.annotation.Nullable;
 
-import static org.eclipse.che.ide.api.notification.Notification.Status.FINISHED;
-import static org.eclipse.che.ide.api.notification.Notification.Status.PROGRESS;
-import static org.eclipse.che.ide.api.notification.Notification.Type.ERROR;
-import static org.eclipse.che.ide.api.notification.Notification.Type.INFO;
-
 /**
  * Presenter for the {@link org.eclipse.che.ide.ext.svn.client.copy.CopyView}.
  *
@@ -60,7 +55,7 @@ public class CopyPresenter extends SubversionActionPresenter implements CopyView
     private DtoUnmarshallerFactory                   dtoUnmarshallerFactory;
     private SubversionExtensionLocalizationConstants constants;
     private ResourceBasedNode<?>                     sourceNode;
-    private Notification                             notification;
+    private StatusNotification                       notification;
     private TargetHolder targetHolder = new TargetHolder();
 
     private RegExp urlRegExp = RegExp.compile("^(https?|ftp)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]");
@@ -147,8 +142,8 @@ public class CopyPresenter extends SubversionActionPresenter implements CopyView
         final String target = view.isTargetCheckBoxSelected() ? view.getTargetUrl() : relPath(projectPath, targetHolder.normalize());
         final String comment = view.isTargetCheckBoxSelected() ? view.getComment() : null;
 
-        notification = new Notification(constants.copyNotificationStarted(src), PROGRESS);
-        notificationManager.showNotification(notification);
+        notification = notificationManager.notify(constants.copyNotificationStarted(src), null, StatusNotification.Status.PROGRESS, false
+                                                 );
 
         view.hide();
 
@@ -158,20 +153,16 @@ public class CopyPresenter extends SubversionActionPresenter implements CopyView
                          protected void onSuccess(CLIOutputResponse result) {
                              printResponse(result.getCommand(), result.getOutput(), result.getErrOutput());
 
-                             notification.setMessage(constants.copyNotificationSuccessful());
-                             notification.setStatus(FINISHED);
-                             notification.setType(INFO);
+                             notification.setContent(constants.copyNotificationSuccessful());
+                             notification.setStatus(StatusNotification.Status.SUCCESS);
 
                              refreshNodes(targetHolder.dir);
                          }
 
                          @Override
                          protected void onFailure(Throwable exception) {
-                             String errorMessage = exception.getMessage();
-
-                             notification.setMessage(constants.copyNotificationFailed() + ": " + errorMessage);
-                             notification.setStatus(FINISHED);
-                             notification.setType(ERROR);
+                             notification.setContent(constants.copyNotificationFailed());
+                             notification.setStatus(StatusNotification.Status.FAIL);
                          }
                      });
     }

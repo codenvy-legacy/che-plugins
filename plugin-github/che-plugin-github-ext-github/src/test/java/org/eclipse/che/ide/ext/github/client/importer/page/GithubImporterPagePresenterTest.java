@@ -46,6 +46,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -136,7 +137,7 @@ public class GithubImporterPagePresenterTest {
         AsyncRequestCallback<Map<String, List<GitHubRepository>>> asyncRequestCallback = asyncRequestCallbackRepoListCaptor.getValue();
         GwtReflectionUtils.callOnSuccess(asyncRequestCallback, repositories);
 
-        verify(notificationManager, never()).showError(anyString());
+        verify(notificationManager, never()).notify(anyString(), any(ProjectConfigDto.class));
         verify(view).setLoaderVisibility(eq(true));
         verify(view).setInputsEnableState(eq(false));
         verify(view).setLoaderVisibility(eq(false));
@@ -159,7 +160,7 @@ public class GithubImporterPagePresenterTest {
         AsyncRequestCallback<Map<String, List<GitHubRepository>>> asyncRequestCallback = asyncRequestCallbackRepoListCaptor.getValue();
         GwtReflectionUtils.callOnFailure(asyncRequestCallback, exception);
 
-        verify(notificationManager).showError(anyString());
+        verify(notificationManager).notify(anyString());
         verify(view).setLoaderVisibility(eq(true));
         verify(view).setInputsEnableState(eq(false));
         verify(view).setLoaderVisibility(eq(false));

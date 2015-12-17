@@ -13,7 +13,7 @@ package org.eclipse.che.ide.ext.git.client.push;
 import org.eclipse.che.api.git.shared.Branch;
 import org.eclipse.che.api.git.shared.PushResponse;
 import org.eclipse.che.api.git.shared.Remote;
-import org.eclipse.che.ide.api.notification.Notification;
+import org.eclipse.che.ide.api.notification.StatusNotification;
 import org.eclipse.che.ide.commons.exception.UnauthorizedException;
 import org.eclipse.che.ide.ext.git.client.BaseTest;
 import org.eclipse.che.ide.ext.git.client.BranchFilterByRemote;
@@ -34,7 +34,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.eclipse.che.ide.api.notification.Notification.Type.ERROR;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.anyObject;
@@ -55,30 +54,30 @@ public class PushToRemotePresenterTest extends BaseTest {
     @Captor
     private ArgumentCaptor<AsyncRequestCallback<String>>              asyncRequestCallbackStringCaptor;
     @Captor
-    private ArgumentCaptor<AsyncRequestCallback<List<Remote>>>       asyncRequestCallbackArrayRemoteCaptor;
+    private ArgumentCaptor<AsyncRequestCallback<List<Remote>>>        asyncRequestCallbackArrayRemoteCaptor;
     @Captor
-    private ArgumentCaptor<AsyncRequestCallback<List<Branch>>>       asyncRequestCallbackArrayBranchCaptor;
+    private ArgumentCaptor<AsyncRequestCallback<List<Branch>>>        asyncRequestCallbackArrayBranchCaptor;
     @Captor
     private ArgumentCaptor<AsyncRequestCallback<Map<String, String>>> asyncRequestCallbackMapCaptor;
     @Captor
     private ArgumentCaptor<AsyncRequestCallback<Branch>>              asyncRequestCallbackBranchCaptor;
     @Captor
-    private ArgumentCaptor<AsyncCallback<List<Branch>>>              asyncCallbackArrayBranchCaptor;
+    private ArgumentCaptor<AsyncCallback<List<Branch>>>               asyncCallbackArrayBranchCaptor;
     @Captor
     private ArgumentCaptor<AsyncRequestCallback<PushResponse>>        asyncCallbackVoidCaptor;
 
     @Mock
-    private PushToRemoteView view;
+    private PushToRemoteView   view;
     @Mock
-    private Branch           localBranch;
+    private Branch             localBranch;
     @Mock
-    private Branch           remoteBranch;
+    private Branch             remoteBranch;
     @Mock
-    private BranchSearcher   branchSearcher;
+    private BranchSearcher     branchSearcher;
     @Mock
-    private PushResponse     pushResponse;
+    private PushResponse       pushResponse;
     @Mock
-    private Notification     notification;
+    private StatusNotification notification;
 
     @InjectMocks
     private PushToRemotePresenter presenter;
@@ -203,7 +202,7 @@ public class PushToRemotePresenterTest extends BaseTest {
 
         verify(constant,times(2)).remoteBranchesListFailed();
         verify(console).printError(anyString());
-        verify(notificationManager).showError(anyString());
+        verify(notificationManager).notify(anyString(), rootProjectConfig);
     }
 
     @Test
@@ -224,7 +223,7 @@ public class PushToRemotePresenterTest extends BaseTest {
 
         verify(constant, times(2)).failedGettingConfig();
         verify(console).printError(anyString());
-        verify(notificationManager).showError(anyString());
+        verify(notificationManager).notify(anyString(), rootProjectConfig);
     }
 
     @Test
@@ -259,7 +258,7 @@ public class PushToRemotePresenterTest extends BaseTest {
 
         verify(constant, times(2)).localBranchesListFailed();
         verify(console).printError(anyString());
-        verify(notificationManager).showError(anyString());
+        verify(notificationManager).notify(anyString(), rootProjectConfig);
         verify(view).setEnablePushButton(eq(DISABLE_BUTTON));
     }
 
@@ -278,7 +277,7 @@ public class PushToRemotePresenterTest extends BaseTest {
                                    (AsyncRequestCallback<List<Remote>>)anyObject());
         verify(constant, times(2)).remoteListFailed();
         verify(console).printError(anyString());
-        verify(notificationManager).showError(anyString());
+        verify(notificationManager).notify(anyString(), rootProjectConfig);
         verify(view).setEnablePushButton(eq(DISABLE_BUTTON));
     }
 
@@ -300,7 +299,7 @@ public class PushToRemotePresenterTest extends BaseTest {
         verify(view).close();
         verify(console).printInfo(anyString());
         verify(constant).pushSuccess(anyString());
-        verify(notificationManager).showNotification((Notification)anyObject());
+        verify(notificationManager).notify(anyString(), rootProjectConfig);
     }
 
     @Test
@@ -321,7 +320,7 @@ public class PushToRemotePresenterTest extends BaseTest {
         verify(view).close();
         verify(console).printInfo(anyString());
         verify(constant).pushUpToDate();
-        verify(notificationManager).showNotification((Notification)anyObject());
+        verify(notificationManager).notify(anyString(), rootProjectConfig);
     }
 
     @Test
@@ -340,7 +339,7 @@ public class PushToRemotePresenterTest extends BaseTest {
         verify(view).close();
         verify(constant, times(2)).pushFail();
         verify(console).printError(anyString());
-        verify(notificationManager).showNotification((Notification) anyObject());
+        verify(notificationManager).notify(anyString(), rootProjectConfig);
     }
 
     @Test
@@ -356,8 +355,7 @@ public class PushToRemotePresenterTest extends BaseTest {
 
         presenter.handleError(mock(UnauthorizedException.class), notification);
 
-        verify(notification).setType(eq(ERROR));
-        verify(notification).setMessage("Not authorized");
+        verify(notification).setContent("Not authorized");
     }
 
     @Test
@@ -366,8 +364,7 @@ public class PushToRemotePresenterTest extends BaseTest {
 
         presenter.handleError(mock(Throwable.class), notification);
 
-        verify(notification).setType(eq(ERROR));
-        verify(notification).setMessage("Push fail");
+        verify(notification).setContent("Push fail");
     }
 
     @Test
@@ -378,8 +375,7 @@ public class PushToRemotePresenterTest extends BaseTest {
 
         presenter.handleError(exception, notification);
 
-        verify(notification).setType(eq(ERROR));
-        verify(notification).setMessage("Error");
+        verify(notification).setContent("Error");
     }
 
     @Test

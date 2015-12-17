@@ -23,7 +23,6 @@ import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.editor.EditorPartPresenter;
 import org.eclipse.che.ide.api.event.project.OpenProjectEvent;
-import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.ext.git.client.GitLocalizationConstant;
 import org.eclipse.che.ide.ext.git.client.GitOutputPartPresenter;
@@ -34,13 +33,10 @@ import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.eclipse.che.ide.api.notification.Notification.Type.ERROR;
-import static org.eclipse.che.ide.api.notification.Notification.Type.INFO;
-
 /**
  * Presenter for resetting head to commit.
  *
- * @author <a href="mailto:zhulevaanna@gmail.com">Ann Zhuleva</a>
+ * @author Ann Zhuleva
  */
 @Singleton
 public class ResetToCommitPresenter implements ResetToCommitView.ActionDelegate {
@@ -99,8 +95,7 @@ public class ResetToCommitPresenter implements ResetToCommitView.ActionDelegate 
                         protected void onFailure(Throwable exception) {
                             String errorMessage = (exception.getMessage() != null) ? exception.getMessage() : constant.logFailed();
                             console.printError(errorMessage);
-                            Notification notification = new Notification(errorMessage, ERROR);
-                            notificationManager.showNotification(notification);
+                            notificationManager.notify(errorMessage, appContext.getCurrentProject().getRootProject());
                         }
                     }
                    );
@@ -144,8 +139,6 @@ public class ResetToCommitPresenter implements ResetToCommitView.ActionDelegate 
         ResetRequest.ResetType type = view.isMixMode() ? ResetRequest.ResetType.MIXED : null;
         type = (type == null && view.isSoftMode()) ? ResetRequest.ResetType.SOFT : type;
         type = (type == null && view.isHardMode()) ? ResetRequest.ResetType.HARD : type;
-//        type = (type == null && view.isKeepMode()) ? ResetRequest.ResetType.KEEP : type;
-//        type = (type == null && view.isMergeMode()) ? ResetRequest.ResetType.MERGE : type;
 
         final ResetRequest.ResetType finalType = type;
         final ProjectConfigDto project = appContext.getCurrentProject().getRootProject();
@@ -162,8 +155,7 @@ public class ResetToCommitPresenter implements ResetToCommitView.ActionDelegate 
                                   eventBus.fireEvent(new OpenProjectEvent(project));
                               }
                               console.printInfo(constant.resetSuccessfully());
-                              Notification notification = new Notification(constant.resetSuccessfully(), INFO);
-                              notificationManager.showNotification(notification);
+                              notificationManager.notify(constant.resetSuccessfully(), project);
 
                           }
 
@@ -171,8 +163,7 @@ public class ResetToCommitPresenter implements ResetToCommitView.ActionDelegate 
                           protected void onFailure(Throwable exception) {
                               String errorMessage = (exception.getMessage() != null) ? exception.getMessage() : constant.resetFail();
                               console.printError(errorMessage);
-                              Notification notification = new Notification(errorMessage, ERROR);
-                              notificationManager.showNotification(notification);
+                              notificationManager.notify(errorMessage, project);
                           }
                       });
     }

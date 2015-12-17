@@ -14,7 +14,6 @@ import com.googlecode.gwt.test.utils.GwtReflectionUtils;
 
 import org.eclipse.che.api.git.shared.StatusFormat;
 import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
-import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.api.parts.WorkspaceAgent;
 import org.eclipse.che.ide.ext.git.client.BaseTest;
 import org.eclipse.che.ide.ext.git.client.GitOutputPartPresenter;
@@ -28,7 +27,7 @@ import org.mockito.stubbing.Answer;
 
 import java.lang.reflect.Method;
 
-import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
@@ -37,7 +36,7 @@ import static org.mockito.Mockito.verify;
 /**
  * Testing {@link StatusCommandPresenter} functionality.
  *
- * @author <a href="mailto:aplotnikov@codenvy.com">Andrey Plotnikov</a>
+ * @author Andrey Plotnikov
  */
 public class StatusCommandPresenterTest extends BaseTest {
     public static final StatusFormat IS_NOT_FORMATTED = StatusFormat.LONG;
@@ -103,7 +102,7 @@ public class StatusCommandPresenterTest extends BaseTest {
 
         verify(appContext).getCurrentProject();
         verify(service).statusText(eq(rootProjectConfig), eq(IS_NOT_FORMATTED), Matchers.<AsyncRequestCallback<String>>anyObject());
-        verify(notificationManager).showNotification((Notification)anyObject());
+        verify(notificationManager).notify(anyString(), rootProjectConfig);
         verify(constant).statusFailed();
     }
 

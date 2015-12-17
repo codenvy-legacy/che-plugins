@@ -23,6 +23,7 @@ import org.mockito.stubbing.Answer;
 import java.lang.reflect.Method;
 
 import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
@@ -71,7 +72,7 @@ public class InitRepositoryPresenterTest extends BaseTest {
 
         verify(gitRepositoryInitializer).initGitRepository(eq(rootProjectConfig), (AsyncCallback<Void>)anyObject());
         verify(console).printInfo(eq(constant.initSuccess()));
-        verify(notificationManager).showInfo(eq(constant.initSuccess()));
+        verify(notificationManager).notify(anyString(), rootProjectConfig);
     }
 
     @Test
@@ -92,6 +93,6 @@ public class InitRepositoryPresenterTest extends BaseTest {
         verify(gitRepositoryInitializer).initGitRepository(eq(rootProjectConfig), (AsyncCallback<Void>)anyObject());
         verify(constant).initFailed();
         verify(console).printError(eq(constant.initFailed()));
-        verify(notificationManager).showError(eq(constant.initFailed()));
+        verify(notificationManager).notify(anyString(), rootProjectConfig);
     }
 }

@@ -46,6 +46,7 @@ import java.util.List;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Answers.RETURNS_DEEP_STUBS;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -320,7 +321,7 @@ public class RecipePartPresenterTest {
         savedDescriptorCaptor.getValue().apply(recipeDescriptor1);
         verify(recipeDescriptor1).setScript("script");
         verify(recipeDescriptor1).setTags(recipeDescriptor1.getTags());
-        verify(notificationManager).showInfo("Recipe \"name\" was saved.");
+        verify(notificationManager).notify(eq("Recipe \"name\" was saved."));
     }
 
     @Test
@@ -392,6 +393,6 @@ public class RecipePartPresenterTest {
         verify(recipeDescriptorPromise).catchError(operationErrorArgumentCaptor.capture());
         operationErrorArgumentCaptor.getValue().apply(promiseError);
 
-        verify(notificationManager).showError("text");
+        verify(notificationManager).notify(anyString());
     }
 }

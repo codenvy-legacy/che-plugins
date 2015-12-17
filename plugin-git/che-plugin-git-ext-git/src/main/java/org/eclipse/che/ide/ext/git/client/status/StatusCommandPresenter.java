@@ -14,7 +14,6 @@ import org.eclipse.che.ide.ext.git.client.GitLocalizationConstant;
 import org.eclipse.che.api.git.gwt.client.GitServiceClient;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
-import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.ext.git.client.GitOutputPartPresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
@@ -23,13 +22,12 @@ import org.eclipse.che.ide.rest.StringUnmarshaller;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import static org.eclipse.che.ide.api.notification.Notification.Type.ERROR;
 import static org.eclipse.che.api.git.shared.StatusFormat.LONG;
 
 /**
  * Handler to process actions with displaying the status of the Git work tree.
  *
- * @author <a href="mailto:zhulevaanna@gmail.com">Ann Zhuleva</a>
+ * @author Ann Zhuleva
  */
 @Singleton
 public class StatusCommandPresenter {
@@ -59,7 +57,7 @@ public class StatusCommandPresenter {
 
     /** Show status. */
     public void showStatus() {
-        CurrentProject project = appContext.getCurrentProject();
+        final CurrentProject project = appContext.getCurrentProject();
         if (project == null) {
             return;
         }
@@ -74,8 +72,7 @@ public class StatusCommandPresenter {
                                @Override
                                protected void onFailure(Throwable exception) {
                                    String errorMessage = exception.getMessage() != null ? exception.getMessage() : constant.statusFailed();
-                                   Notification notification = new Notification(errorMessage, ERROR);
-                                   notificationManager.showNotification(notification);
+                                   notificationManager.notify(errorMessage, project.getRootProject());
                                }
                            });
     }

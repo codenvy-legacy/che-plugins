@@ -114,7 +114,7 @@ public class RenamePresenter implements ActionDelegate {
         }).catchError(new Operation<PromiseError>() {
             @Override
             public void apply(PromiseError arg) throws OperationException {
-                notificationManager.showError(arg.getMessage());
+                notificationManager.notify(arg.getMessage());
             }
         });
     }
@@ -224,7 +224,7 @@ public class RenamePresenter implements ActionDelegate {
         }).catchError(new Operation<PromiseError>() {
             @Override
             public void apply(PromiseError arg) throws OperationException {
-                notificationManager.showError(arg.getMessage());
+                notificationManager.notify(arg.getMessage());
             }
         });
     }
@@ -259,7 +259,7 @@ public class RenamePresenter implements ActionDelegate {
         }).catchError(new Operation<PromiseError>() {
             @Override
             public void apply(PromiseError arg) throws OperationException {
-                notificationManager.showError(arg.getMessage());
+                notificationManager.notify(arg.getMessage());
             }
         });
     }
@@ -291,7 +291,7 @@ public class RenamePresenter implements ActionDelegate {
         }).catchError(new Operation<PromiseError>() {
             @Override
             public void apply(PromiseError arg) throws OperationException {
-                notificationManager.showError(arg.getMessage());
+                notificationManager.notify(arg.getMessage());
             }
         });
     }

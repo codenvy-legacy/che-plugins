@@ -23,8 +23,6 @@ import com.google.inject.Provider;
 import com.google.inject.Singleton;
 
 import org.eclipse.che.ide.api.extension.Extension;
-import org.eclipse.che.ide.api.notification.Notification;
-import org.eclipse.che.ide.api.notification.Notification.Type;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionKeyBindingModule;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionTextThemeOverlay;
@@ -113,7 +111,7 @@ public class OrionEditorExtension implements Provider<OrionKeyBindingModule>{
                 "orion/uiUtils"
         };
 
-        this.requireJsLoader.require(new Callback<JavaScriptObject[], Throwable>() {
+        requireJsLoader.require(new Callback<JavaScriptObject[], Throwable>() {
             @Override
             public void onSuccess(final JavaScriptObject[] result) {
                 requireOrion(callback);
@@ -158,7 +156,7 @@ public class OrionEditorExtension implements Provider<OrionKeyBindingModule>{
     }-*/;
 
     private void requireOrion(final InitializerCallback callback) {
-        this.requireJsLoader.require(new Callback<JavaScriptObject[], Throwable>() {
+        requireJsLoader.require(new Callback<JavaScriptObject[], Throwable>() {
 
             @Override
             public void onFailure(final Throwable reason) {
@@ -192,7 +190,7 @@ public class OrionEditorExtension implements Provider<OrionKeyBindingModule>{
 
     private void registerEditor() {
         LOG.fine("Registering Orion editor type.");
-        this.editorTypeRegistry.registerEditorType(EditorType.fromKey(ORION_EDITOR_KEY), "Orion", new EditorBuilder() {
+        editorTypeRegistry.registerEditorType(EditorType.fromKey(ORION_EDITOR_KEY), "Orion", new EditorBuilder() {
 
             @Override
             public ConfigurableTextEditor buildEditor() {
@@ -205,18 +203,16 @@ public class OrionEditorExtension implements Provider<OrionKeyBindingModule>{
 
     private void defineDefaultTheme() {
         // The codenvy theme uses both an orion css file and a CssResource
-        this.orionResource.editorStyle().ensureInjected();
+        orionResource.editorStyle().ensureInjected();
         OrionTextThemeOverlay.setDefaultTheme("orionCodenvy", "orion-codenvy.css");
     }
 
     private void initializationFailed(final InitializerCallback callback, final String errorMessage, Throwable e) {
-        if (this.initFailedWarnedOnce ) {
+        if (initFailedWarnedOnce) {
             return;
         }
-        this.initFailedWarnedOnce = true;
-
-        this.notificationManager.showNotification(new Notification(errorMessage, Type.ERROR));
-        this.notificationManager.showNotification(new Notification("Orion editor is not available", Type.WARNING));
+        initFailedWarnedOnce = true;
+        notificationManager.notify(errorMessage);
         LOG.log(Level.SEVERE, errorMessage + " - ", e);
         callback.onFailure(e);
     }

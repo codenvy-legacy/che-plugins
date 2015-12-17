@@ -129,7 +129,8 @@ public class JavaRefactoringRename {
                     isActiveLinkedEditor = true;
                     activateLinkedModeIntoEditor(session, ((HasLinkedMode)textEditorPresenter), textEditorPresenter.getDocument());
                 } else {
-                    notificationManager.showError(locale.renameErrorEditor());
+                    notificationManager.notify(locale.renameErrorEditor(),
+                                               textEditorPresenter.getEditorInput().getFile().getProject().getProjectConfig());
                 }
             }
         }).catchError(new Operation<PromiseError>() {
@@ -208,7 +209,7 @@ public class JavaRefactoringRename {
                     ((EditorWithAutoSave)linkedEditor).enableAutoSave();
                 }
                 loader.hide();
-                notificationManager.showError(arg.getMessage());
+                notificationManager.notify(arg.getMessage());
             }
         });
     }
@@ -224,20 +225,11 @@ public class JavaRefactoringRename {
                 loader.hide();
                 break;
             case INFO:
-                loader.hide();
-                notificationManager.showInfo(getNotification(result));
-                break;
             case WARNING:
-                loader.hide();
-                notificationManager.showWarning(getNotification(result));
-                break;
             case ERROR:
-                loader.hide();
-                notificationManager.showError(getNotification(result));
-                break;
             case FATAL:
                 loader.hide();
-                notificationManager.showError(getNotification(result));
+                notificationManager.notify(getNotification(result));
             default:
                 break;
         }

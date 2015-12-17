@@ -19,7 +19,6 @@ import org.eclipse.che.api.git.shared.IndexFile;
 import org.eclipse.che.api.git.shared.Status;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
-import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.ext.git.client.GitOutputPartPresenter;
@@ -31,8 +30,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.eclipse.che.api.git.shared.ResetRequest.ResetType;
-import static org.eclipse.che.ide.api.notification.Notification.Type.ERROR;
-import static org.eclipse.che.ide.api.notification.Notification.Type.INFO;
 
 /**
  * Presenter for resetting files from index.
@@ -122,8 +119,7 @@ public class ResetFilesPresenter implements ResetFilesView.ActionDelegate {
                            protected void onFailure(Throwable exception) {
                                String errorMassage = exception.getMessage() != null ? exception.getMessage() : constant.statusFailed();
                                console.printError(errorMassage);
-                               Notification notification = new Notification(errorMassage, ERROR);
-                               notificationManager.showNotification(notification);
+                               notificationManager.notify(errorMassage, project.getRootProject());
                            }
                        });
     }
@@ -141,8 +137,7 @@ public class ResetFilesPresenter implements ResetFilesView.ActionDelegate {
         if (files.isEmpty()) {
             view.close();
             console.printInfo(constant.nothingToReset());
-            Notification notification = new Notification(constant.nothingToReset(), INFO);
-            notificationManager.showNotification(notification);
+            notificationManager.notify(constant.nothingToReset(), project.getRootProject());
             return;
         }
         view.close();
@@ -151,16 +146,14 @@ public class ResetFilesPresenter implements ResetFilesView.ActionDelegate {
             @Override
             protected void onSuccess(Void result) {
                 console.printInfo(constant.resetFilesSuccessfully());
-                Notification notification = new Notification(constant.resetFilesSuccessfully(), INFO);
-                notificationManager.showNotification(notification);
+                notificationManager.notify(constant.resetFilesSuccessfully(), project.getRootProject());
             }
 
             @Override
             protected void onFailure(Throwable exception) {
                 String errorMassage = exception.getMessage() != null ? exception.getMessage() : constant.resetFilesFailed();
                 console.printError(errorMassage);
-                Notification notification = new Notification(errorMassage, ERROR);
-                notificationManager.showNotification(notification);
+                notificationManager.notify(errorMassage, project.getRootProject());
             }
         });
     }

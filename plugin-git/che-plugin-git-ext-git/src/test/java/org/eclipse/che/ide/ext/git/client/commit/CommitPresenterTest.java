@@ -13,7 +13,6 @@ package org.eclipse.che.ide.ext.git.client.commit;
 import com.googlecode.gwt.test.utils.GwtReflectionUtils;
 
 import org.eclipse.che.api.git.shared.Revision;
-import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.ext.git.client.BaseTest;
 import org.eclipse.che.ide.ext.git.client.DateTimeFormatter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
@@ -121,7 +120,7 @@ public class CommitPresenterTest extends BaseTest {
         verify(service).commit(eq(rootProjectConfig), eq(COMMIT_TEXT), eq(ALL_FILE_INCLUDES), eq(IS_OVERWRITTEN),
                                (AsyncRequestCallback<Revision>)anyObject());
         verify(console).printInfo(anyString());
-        verify(notificationManager).showNotification((Notification)anyObject());
+        verify(notificationManager).notify(anyString(), rootProjectConfig);
     }
 
     @Test
@@ -154,7 +153,7 @@ public class CommitPresenterTest extends BaseTest {
                                (AsyncRequestCallback<Revision>)anyObject());
         verify(constant).commitFailed();
         verify(console).printError(anyString());
-        verify(notificationManager).showNotification((Notification)anyObject());
+        verify(notificationManager).notify(anyString(), rootProjectConfig);
     }
 
     @Test

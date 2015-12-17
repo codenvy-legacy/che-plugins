@@ -15,8 +15,8 @@ import com.google.inject.Singleton;
 import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.ide.api.app.AppContext;
-import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.api.notification.NotificationManager;
+import org.eclipse.che.ide.api.notification.StatusNotification;
 import org.eclipse.che.ide.api.parts.WorkspaceAgent;
 import org.eclipse.che.ide.ext.svn.client.SubversionClientService;
 import org.eclipse.che.ide.ext.svn.client.SubversionExtensionLocalizationConstants;
@@ -29,11 +29,6 @@ import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 
 import java.util.List;
 
-import static org.eclipse.che.ide.api.notification.Notification.Status.FINISHED;
-import static org.eclipse.che.ide.api.notification.Notification.Status.PROGRESS;
-import static org.eclipse.che.ide.api.notification.Notification.Type.ERROR;
-import static org.eclipse.che.ide.api.notification.Notification.Type.INFO;
-
 /**
  * Handler for the {@link org.eclipse.che.ide.ext.svn.client.action.RemoveAction} action.
  */
@@ -45,7 +40,7 @@ public class RemovePresenter extends SubversionActionPresenter {
     private final SubversionClientService                  service;
     private final SubversionExtensionLocalizationConstants constants;
 
-    private Notification notification;
+    private StatusNotification notification;
 
     /**
      * Constructor.
@@ -75,28 +70,29 @@ public class RemovePresenter extends SubversionActionPresenter {
         }
 
         final List<String> selectedPaths = getSelectedPaths();
-        notification = new Notification(constants.removeStarted(selectedPaths.size()), PROGRESS);
-        notificationManager.showNotification(notification);
+        notification = notificationManager.notify(constants.removeStarted(selectedPaths.size()), null, StatusNotification.Status.PROGRESS,
+                                                  false
+                                                 );
+        notificationManager.notify(notification);
 
-        service.remove(projectPath, getSelectedPaths(), new AsyncRequestCallback<CLIOutputResponse>(dtoUnmarshallerFactory.newUnmarshaller(CLIOutputResponse.class)) {
-            @Override
-            protected void onSuccess(final CLIOutputResponse response) {
-                printResponse(response.getCommand(), response.getOutput(), response.getErrOutput());
+        service.remove(projectPath, getSelectedPaths(),
+                       new AsyncRequestCallback<CLIOutputResponse>(dtoUnmarshallerFactory.newUnmarshaller(CLIOutputResponse.class)) {
+                           @Override
+                           protected void onSuccess(final CLIOutputResponse response) {
+                               printResponse(response.getCommand(), response.getOutput(), response.getErrOutput());
 
-                notification.setMessage(constants.removeSuccessful());
-                notification.setStatus(FINISHED);
-                notification.setType(INFO);
+                               notification.setContent(constants.removeSuccessful());
+                               notification.setStatus(StatusNotification.Status.SUCCESS);
 
-                updateProjectExplorer();
-            }
+                               updateProjectExplorer();
+                           }
 
-            @Override
-            protected void onFailure(final Throwable exception) {
+                           @Override
+                           protected void onFailure(final Throwable exception) {
                 String errorMessage = exception.getMessage();
 
-                notification.setMessage(constants.removeFailed() + ": " + errorMessage);
-                notification.setStatus(FINISHED);
-                notification.setType(ERROR);
+                notification.setContent(constants.removeFailed());
+                notification.setStatus(StatusNotification.Status.FAIL);
             }
         });
     }

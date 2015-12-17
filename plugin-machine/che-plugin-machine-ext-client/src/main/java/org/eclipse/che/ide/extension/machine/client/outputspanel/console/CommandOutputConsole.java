@@ -99,7 +99,7 @@ public class CommandOutputConsole implements OutputConsole, OutputConsoleView.Ac
             @Override
             protected void onErrorReceived(Throwable exception) {
                 wsUnsubscribe(outputChannel, this);
-                notificationManager.showError(exception.getMessage());
+                notificationManager.notify(exception.getMessage());
             }
         };
 
@@ -140,7 +140,7 @@ public class CommandOutputConsole implements OutputConsole, OutputConsoleView.Ac
                 isFinished = true;
                 wsUnsubscribe(processStateChannel, this);
                 wsUnsubscribe(outputChannel, outputHandler);
-                notificationManager.showError(exception.getMessage());
+                notificationManager.notify(exception.getMessage());
             }
         };
 
@@ -151,7 +151,7 @@ public class CommandOutputConsole implements OutputConsole, OutputConsoleView.Ac
         try {
             messageBus.subscribe(wsChannel, handler);
         } catch (WebSocketException e) {
-            notificationManager.showError(e.getMessage());
+            notificationManager.notify(e.getMessage());
         }
     }
 

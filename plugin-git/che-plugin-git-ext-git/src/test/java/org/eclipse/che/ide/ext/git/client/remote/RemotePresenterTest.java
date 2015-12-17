@@ -14,7 +14,6 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.googlecode.gwt.test.utils.GwtReflectionUtils;
 
 import org.eclipse.che.api.git.shared.Remote;
-import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.ext.git.client.BaseTest;
 import org.eclipse.che.ide.ext.git.client.remote.add.AddRemoteRepositoryPresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
@@ -41,7 +40,7 @@ import static org.mockito.Mockito.when;
 /**
  * Testing {@link RemotePresenter} functionality.
  *
- * @author <a href="mailto:aplotnikov@codenvy.com">Andrey Plotnikov</a>
+ * @author Andrey Plotnikov
  */
 public class RemotePresenterTest extends BaseTest {
     public static final boolean SHOW_ALL_INFORMATION = true;
@@ -143,7 +142,7 @@ public class RemotePresenterTest extends BaseTest {
         verify(service).remoteList(anyObject(), anyString(), eq(SHOW_ALL_INFORMATION),
                                    (AsyncRequestCallback<List<Remote>>)anyObject());
         verify(console, never()).printError(anyString());
-        verify(notificationManager, never()).showNotification((Notification)anyObject());
+        verify(notificationManager, never()).notify(anyString(), eq(rootProjectConfig));
     }
 
     @Test
@@ -163,7 +162,7 @@ public class RemotePresenterTest extends BaseTest {
         verify(service, never()).remoteList(anyObject(), anyString(), eq(SHOW_ALL_INFORMATION),
                                             (AsyncRequestCallback<List<Remote>>)anyObject());
         verify(console).printError(anyString());
-        verify(notificationManager).showNotification((Notification)anyObject());
+        verify(notificationManager, never()).notify(anyString(), eq(rootProjectConfig));
         verify(constant).remoteAddFailed();
     }
 
@@ -209,7 +208,7 @@ public class RemotePresenterTest extends BaseTest {
         verify(service).remoteDelete(eq(rootProjectConfig), eq(REPOSITORY_NAME), (AsyncRequestCallback<String>)anyObject());
         verify(constant).remoteDeleteFailed();
         verify(console).printError(anyString());
-        verify(notificationManager).showNotification((Notification)anyObject());
+        verify(notificationManager, never()).notify(anyString(), eq(rootProjectConfig));
     }
 
     @Test

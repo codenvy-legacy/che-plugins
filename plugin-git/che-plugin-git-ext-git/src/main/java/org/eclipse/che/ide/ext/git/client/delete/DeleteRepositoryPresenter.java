@@ -76,14 +76,14 @@ public class DeleteRepositoryPresenter {
             @Override
             protected void onSuccess(Void result) {
                 console.printInfo(constant.deleteGitRepositorySuccess());
-                notificationManager.showInfo(constant.deleteGitRepositorySuccess());
+                notificationManager.notify(constant.deleteGitRepositorySuccess(), project.getRootProject());
                 getRootProject(project.getRootProject());
             }
 
             @Override
             protected void onFailure(Throwable exception) {
                 console.printError(exception.getMessage());
-                notificationManager.showError(exception.getMessage());
+                notificationManager.notify(exception.getMessage(), project.getRootProject());
             }
         });
     }

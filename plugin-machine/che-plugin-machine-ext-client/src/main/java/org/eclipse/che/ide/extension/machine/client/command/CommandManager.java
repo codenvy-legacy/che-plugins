@@ -71,7 +71,7 @@ public class CommandManager {
     public void execute(@NotNull CommandConfiguration configuration) {
         final String devMachineId = appContext.getDevMachineId();
         if (devMachineId == null) {
-            notificationManager.showWarning(localizationConstant.noDevMachine());
+            notificationManager.notify(localizationConstant.noDevMachine());
             return;
         }
 

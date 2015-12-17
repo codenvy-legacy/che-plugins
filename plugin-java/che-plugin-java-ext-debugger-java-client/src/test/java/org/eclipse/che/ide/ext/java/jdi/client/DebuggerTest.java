@@ -22,7 +22,6 @@ import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.event.project.ProjectReadyHandler;
-import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.api.project.tree.generic.FileNode;
 import org.eclipse.che.ide.debug.Breakpoint;
 import org.eclipse.che.ide.debug.BreakpointManager;
@@ -122,6 +121,8 @@ public class DebuggerTest extends BaseTest {
         when(dtoFactory.createDto(Location.class)).thenReturn(mock(Location.class));
         when(dtoFactory.createDto(BreakPoint.class)).thenReturn(mock(BreakPoint.class));
         when(resolverFactory.getResolver(anyString())).thenReturn(mock(FqnResolver.class));
+        when(appContext.getCurrentProject()).thenReturn(currentProject);
+        when(currentProject.getRootProject()).thenReturn(project);
 
         when(messageBusProvider.getMachineMessageBus()).thenReturn(messageBus);
         verify(eventBus).addHandler(eq(ExtServerStateEvent.TYPE), extServerStateHandlerCaptor.capture());
@@ -172,7 +173,7 @@ public class DebuggerTest extends BaseTest {
         presenter.onDisconnectButtonClicked();
 
         verify(service).disconnect(anyString(), Matchers.<AsyncRequestCallback<Void>>anyObject());
-        verify(notificationManager).showNotification((Notification)anyObject());
+        verify(notificationManager).notify(anyString(), eq(project));
     }
 
     @Test
@@ -215,7 +216,7 @@ public class DebuggerTest extends BaseTest {
         presenter.onResumeButtonClicked();
 
         verify(service).resume(anyString(), Matchers.<AsyncRequestCallback<Void>>anyObject());
-        verify(notificationManager).showNotification((Notification)anyObject());
+        verify(notificationManager).notify(anyString(), eq(project));
     }
 
     @Test
@@ -268,7 +269,7 @@ public class DebuggerTest extends BaseTest {
         presenter.onStepIntoButtonClicked();
 
         verify(service).stepInto(anyString(), Matchers.<AsyncRequestCallback<Void>>anyObject());
-        verify(notificationManager).showNotification((Notification)anyObject());
+        verify(notificationManager).notify(anyString(), eq(project));
     }
 
     @Test
@@ -312,7 +313,7 @@ public class DebuggerTest extends BaseTest {
         presenter.onStepOverButtonClicked();
 
         verify(service).stepOver(anyString(), Matchers.<AsyncRequestCallback<Void>>anyObject());
-        verify(notificationManager).showNotification((Notification)anyObject());
+        verify(notificationManager).notify(anyString(), eq(project));
     }
 
     @Test
@@ -365,7 +366,7 @@ public class DebuggerTest extends BaseTest {
         presenter.onStepReturnButtonClicked();
 
         verify(service).stepReturn(anyString(), Matchers.<AsyncRequestCallback<Void>>anyObject());
-        verify(notificationManager).showNotification((Notification)anyObject());
+        verify(notificationManager).notify(anyString(), eq(project));
     }
 
     @Test

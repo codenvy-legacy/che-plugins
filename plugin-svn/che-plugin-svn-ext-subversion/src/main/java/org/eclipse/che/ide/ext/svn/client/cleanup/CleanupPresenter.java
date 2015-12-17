@@ -15,7 +15,6 @@ import com.google.inject.Singleton;
 import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.ide.api.app.AppContext;
-import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.parts.WorkspaceAgent;
 import org.eclipse.che.ide.ext.svn.client.SubversionClientService;
@@ -30,9 +29,6 @@ import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.eclipse.che.ide.api.notification.Notification.Type.ERROR;
-import static org.eclipse.che.ide.api.notification.Notification.Type.INFO;
 
 /**
  * Handler for the {@link org.eclipse.che.ide.ext.svn.client.action.CleanupAction} action.
@@ -78,24 +74,20 @@ public class CleanupPresenter extends SubversionActionPresenter {
         filters.add(PathTypeFilter.PROJECT);
         final List<String> selectedPaths = getSelectedPaths(filters);
 
-        this.service.cleanup(projectPath, selectedPaths,
-                             new AsyncRequestCallback<CLIOutputResponse>(dtoUnmarshallerFactory.newUnmarshaller(CLIOutputResponse.class)) {
-                                 @Override
-                                 protected void onSuccess(final CLIOutputResponse result) {
+        service.cleanup(projectPath, selectedPaths,
+                        new AsyncRequestCallback<CLIOutputResponse>(dtoUnmarshallerFactory.newUnmarshaller(CLIOutputResponse.class)) {
+                            @Override
+                            protected void onSuccess(final CLIOutputResponse result) {
 
-                                     printResponse(result.getCommand(), result.getOutput(), result.getErrOutput());
+                                printResponse(result.getCommand(), result.getOutput(), result.getErrOutput());
+                                notificationManager.notify(constants.cleanupSuccessful());
+                            }
 
-                                     final Notification notification = new Notification(constants.cleanupSuccessful(), INFO);
-                                     notificationManager.showNotification(notification);
-                                 }
-
-                                 @Override
-                                 protected void onFailure(final Throwable exception) {
-                                     final String errorMessage = exception.getMessage();
-                                     final Notification notification = new Notification(constants.cleanupFailed() + ": " + errorMessage, ERROR);
-                                     notificationManager.showNotification(notification);
-                                 }
-                             });
+                            @Override
+                            protected void onFailure(final Throwable exception) {
+                                notificationManager.notify(constants.cleanupFailed());
+                            }
+                        });
     }
 
 }

@@ -14,11 +14,12 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.event.shared.EventBus;
 
+import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.event.project.OpenProjectEvent;
 import org.eclipse.che.ide.api.event.project.OpenProjectHandler;
-import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.api.notification.NotificationManager;
+import org.eclipse.che.ide.api.notification.StatusNotification;
 import org.eclipse.che.ide.ext.java.client.JavaLocalizationConstant;
 import org.eclipse.che.ide.ext.java.client.event.DependencyUpdatedEvent;
 import org.eclipse.che.ide.ext.java.client.project.node.jar.ExternalLibrariesNode;
@@ -33,9 +34,8 @@ import org.eclipse.che.ide.util.loging.Log;
 import org.eclipse.che.ide.websocket.rest.RequestCallback;
 import org.eclipse.che.ide.websocket.rest.Unmarshallable;
 
-import static org.eclipse.che.ide.api.notification.Notification.Status.FINISHED;
-import static org.eclipse.che.ide.api.notification.Notification.Status.PROGRESS;
-import static org.eclipse.che.ide.api.notification.Notification.Type.ERROR;
+import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAIL;
+import static org.eclipse.che.ide.api.notification.StatusNotification.Status.PROGRESS;
 import static org.eclipse.che.ide.ext.java.shared.dto.ClassPathBuilderResult.Status.SUCCESS;
 
 /**
@@ -55,7 +55,7 @@ public class DependenciesUpdater {
     private final JavaLocalizationConstant   javaLocalizationConstant;
 
     private       boolean                  updating;
-    private       Notification             notification;
+    private       StatusNotification       notification;
     private       EventBus                 eventBus;
     private final ProjectExplorerPresenter projectExplorer;
 
@@ -84,12 +84,12 @@ public class DependenciesUpdater {
         eventBus.addHandler(OpenProjectEvent.TYPE, new OpenProjectHandler() {
             @Override
             public void onProjectOpened(OpenProjectEvent event) {
-                updateDependencies(event.getProjectConfig().getPath());
+                updateDependencies(event.getProjectConfig());
             }
         });
     }
 
-    public void updateDependencies(final String path) {
+    public void updateDependencies(final ProjectConfigDto project) {
         if (updating) {
             return;
         }
@@ -99,12 +99,12 @@ public class DependenciesUpdater {
         }
 
         updating = true;
-        notification = new Notification(javaLocalizationConstant.updatingDependencies(), PROGRESS, true);
-        notificationManager.showNotification(notification);
+        notification = notificationManager
+                .notify(javaLocalizationConstant.updatingDependencies(project.getName()), null, PROGRESS, true, project);
 
         Unmarshallable<ClassPathBuilderResult> unmarshaller = dtoUnmarshallerFactory.newWSUnmarshaller(ClassPathBuilderResult.class);
 
-        classpathServiceClient.updateDependencies(path, new RequestCallback<ClassPathBuilderResult>(unmarshaller) {
+        classpathServiceClient.updateDependencies(project.getPath(), new RequestCallback<ClassPathBuilderResult>(unmarshaller) {
             @Override
             protected void onSuccess(ClassPathBuilderResult result) {
                 if (SUCCESS.equals(result.getStatus())) {
@@ -120,7 +120,7 @@ public class DependenciesUpdater {
 
             @Override
             protected void onFailure(Throwable exception) {
-                Log.warn(DependenciesUpdater.class, "Failed to launch update dependency process for " + path);
+                Log.warn(DependenciesUpdater.class, "Failed to launch update dependency process for " + project.getPath());
                 updateFinishedWithError(exception.getMessage(), notification);
             }
         });
@@ -128,16 +128,15 @@ public class DependenciesUpdater {
 
     private void onUpdated() {
         updating = false;
-        notification.setMessage(javaLocalizationConstant.dependenciesSuccessfullyUpdated());
-        notification.setStatus(FINISHED);
+        notification.setContent(javaLocalizationConstant.dependenciesSuccessfullyUpdated());
+        notification.setStatus(StatusNotification.Status.SUCCESS);
         projectExplorer.reloadChildrenByType(ExternalLibrariesNode.class);
         eventBus.fireEvent(new DependencyUpdatedEvent());
     }
 
-    private void updateFinishedWithError(java.lang.String message, Notification notification) {
+    private void updateFinishedWithError(java.lang.String message, StatusNotification notification) {
         updating = false;
-        notification.setMessage(message);
-        notification.setType(ERROR);
-        notification.setStatus(FINISHED);
+        notification.setContent(message);
+        notification.setStatus(FAIL);
     }
 }

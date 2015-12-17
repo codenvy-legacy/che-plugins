@@ -25,7 +25,6 @@ import org.eclipse.che.commons.annotation.Nullable;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.event.project.CloseCurrentProjectEvent;
 import org.eclipse.che.ide.api.event.project.CloseCurrentProjectHandler;
-import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.parts.PartPresenter;
 import org.eclipse.che.ide.api.parts.PartStackType;
@@ -49,7 +48,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.eclipse.che.api.git.shared.DiffRequest.DiffType.RAW;
-import static org.eclipse.che.ide.api.notification.Notification.Type.ERROR;
 
 /**
  * Presenter for showing git history.
@@ -144,7 +142,7 @@ public class HistoryPresenter extends BasePresenter implements HistoryView.Actio
     }
 
     /** Get the log of the commits. If successfully received, then display in revision grid, otherwise - show error in output panel. */
-    private void getCommitsLog(ProjectConfigDto project) {
+    private void getCommitsLog(final ProjectConfigDto project) {
         service.log(project, false,
                     new AsyncRequestCallback<LogResponse>(dtoUnmarshallerFactory.newUnmarshaller(LogResponse.class)) {
                         @Override
@@ -158,8 +156,7 @@ public class HistoryPresenter extends BasePresenter implements HistoryView.Actio
                             nothingToDisplay(null);
                             String errorMessage = exception.getMessage() != null ? exception.getMessage() : constant.logFailed();
                             console.printError(errorMessage);
-                            Notification notification = new Notification(errorMessage, ERROR);
-                            notificationManager.showNotification(notification);
+                            notificationManager.notify(errorMessage, project);
                         }
                     });
     }
@@ -338,7 +335,7 @@ public class HistoryPresenter extends BasePresenter implements HistoryView.Actio
             return;
         }
 
-        ProjectConfigDto project = appContext.getCurrentProject().getRootProject();
+        final ProjectConfigDto project = appContext.getCurrentProject().getRootProject();
         service.diff(project, filePatterns, RAW, false, 0, revision.getId(), isCached,
                      new AsyncRequestCallback<String>(new StringUnmarshaller()) {
                          @Override
@@ -354,8 +351,7 @@ public class HistoryPresenter extends BasePresenter implements HistoryView.Actio
                              nothingToDisplay(revision);
                              String errorMessage = exception.getMessage() != null ? exception.getMessage() : constant.diffFailed();
                              console.printError(errorMessage);
-                             Notification notification = new Notification(errorMessage, ERROR);
-                             notificationManager.showNotification(notification);
+                             notificationManager.notify(errorMessage, project);
                          }
                      });
     }
@@ -376,7 +372,7 @@ public class HistoryPresenter extends BasePresenter implements HistoryView.Actio
         int index = revisions.indexOf(revisionB);
         if (index + 1 < revisions.size()) {
             final Revision revisionA = revisions.get(index + 1);
-            ProjectConfigDto project = appContext.getCurrentProject().getRootProject();
+            final ProjectConfigDto project = appContext.getCurrentProject().getRootProject();
             service.diff(project, filePatterns, RAW, false, 0, revisionA.getId(),
                          revisionB.getId(),
                          new AsyncRequestCallback<String>(new StringUnmarshaller()) {
@@ -393,8 +389,7 @@ public class HistoryPresenter extends BasePresenter implements HistoryView.Actio
                                  nothingToDisplay(revisionB);
                                  String errorMessage = exception.getMessage() != null ? exception.getMessage() : constant.diffFailed();
                                  console.printError(errorMessage);
-                                 Notification notification = new Notification(errorMessage, ERROR);
-                                 notificationManager.showNotification(notification);
+                                 notificationManager.notify(errorMessage, project);
                              }
                          });
         } else {

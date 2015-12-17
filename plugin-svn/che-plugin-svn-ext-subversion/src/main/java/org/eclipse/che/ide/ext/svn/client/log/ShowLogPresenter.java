@@ -36,7 +36,7 @@ public class ShowLogPresenter extends SubversionActionPresenter {
     private final SubversionClientService subversionClientService;
     private final NotificationManager     notificationManager;
 
-    private final ShowLogsView            view;
+    private final ShowLogsView view;
 
     /**
      * Creates an instance of this presenter.
@@ -90,7 +90,8 @@ public class ShowLogPresenter extends SubversionActionPresenter {
                                          protected void onSuccess(InfoResponse result) {
                                              if (result.getErrorOutput() != null && !result.getErrorOutput().isEmpty()) {
                                                  printResponse(null, null, result.getErrorOutput());
-                                                 notificationManager.showError("Unable to execute subversion command");
+                                                 notificationManager
+                                                         .notify("Unable to execute subversion command");
                                                  return;
                                              }
 
@@ -102,7 +103,7 @@ public class ShowLogPresenter extends SubversionActionPresenter {
 
                                          @Override
                                          protected void onFailure(Throwable exception) {
-                                             notificationManager.showError(exception.getMessage());
+                                             notificationManager.notify(exception.getMessage());
                                          }
                                      });
 
@@ -115,7 +116,8 @@ public class ShowLogPresenter extends SubversionActionPresenter {
      */
     private void showLogs(String range) {
         subversionClientService.showLog(appContext.getCurrentProject().getRootProject().getPath(), getSelectedPaths(), range,
-                                        new AsyncRequestCallback<CLIOutputResponse>(dtoUnmarshallerFactory.newUnmarshaller(CLIOutputResponse.class)) {
+                                        new AsyncRequestCallback<CLIOutputResponse>(
+                                                dtoUnmarshallerFactory.newUnmarshaller(CLIOutputResponse.class)) {
                                             @Override
                                             protected void onSuccess(CLIOutputResponse result) {
                                                 printCommand(result.getCommand());
@@ -124,7 +126,7 @@ public class ShowLogPresenter extends SubversionActionPresenter {
 
                                             @Override
                                             protected void onFailure(Throwable exception) {
-                                                notificationManager.showError(exception.getMessage());
+                                                notificationManager.notify(exception.getMessage());
                                             }
                                         });
     }

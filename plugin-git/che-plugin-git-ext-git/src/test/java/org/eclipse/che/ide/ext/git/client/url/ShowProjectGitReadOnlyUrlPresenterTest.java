@@ -13,7 +13,6 @@ package org.eclipse.che.ide.ext.git.client.url;
 import com.googlecode.gwt.test.utils.GwtReflectionUtils;
 
 import org.eclipse.che.api.git.shared.Remote;
-import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.ext.git.client.BaseTest;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.junit.Test;
@@ -88,7 +87,7 @@ public class ShowProjectGitReadOnlyUrlPresenterTest extends BaseTest {
 
         verify(appContext).getCurrentProject();
         verify(service).getGitReadOnlyUrl(eq(rootProjectConfig), (AsyncRequestCallback<String>)anyObject());
-        verify(notificationManager).showNotification((Notification)anyObject());
+        verify(notificationManager).notify(anyString(), rootProjectConfig);
         verify(console).printError(anyString());
         verify(constant).initFailed();
     }
@@ -126,7 +125,7 @@ public class ShowProjectGitReadOnlyUrlPresenterTest extends BaseTest {
         verify(service).remoteList(eq(rootProjectConfig), anyString(), eq(true), (AsyncRequestCallback<List<Remote>>)anyObject());
         verify(view).setRemotes(null);
         verify(console).printError(anyString());
-        verify(notificationManager).showNotification((Notification)anyObject());
+        verify(notificationManager).notify(anyString(), rootProjectConfig);
     }
 
     @Test

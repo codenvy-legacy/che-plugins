@@ -154,8 +154,7 @@ public class ConsolesPanelPresenterTest {
         OutputConsole outputConsole = mock(OutputConsole.class);
 
         presenter.addCommand(MACHINE_ID, commandConfiguration, outputConsole);
-
-        verify(notificationManager).showError(anyString());
+        verify(notificationManager).notify(anyString());
         verify(localizationConstant, times(2)).machineNotFound(eq(MACHINE_ID));
     }
 

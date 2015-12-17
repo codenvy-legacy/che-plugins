@@ -192,7 +192,7 @@ public class ConsolesPanelPresenter extends BasePresenter implements ConsolesPan
                            @NotNull OutputConsole outputConsole) {
         ProcessTreeNode machineTreeNode = findProcessTreeNodeById(machineId);
         if (machineTreeNode == null) {
-            notificationManager.showError(localizationConstant.machineNotFound(machineId));
+            notificationManager.notify(localizationConstant.machineNotFound(machineId));
             Log.error(getClass(), localizationConstant.machineNotFound(machineId));
             return;
         }
@@ -228,7 +228,7 @@ public class ConsolesPanelPresenter extends BasePresenter implements ConsolesPan
                 final ProcessTreeNode machineTreeNode = findProcessTreeNodeById(machineId);
 
                 if (machineTreeNode == null) {
-                    notificationManager.showError(localizationConstant.machineNotFound(machineId));
+                    notificationManager.notify(localizationConstant.machineNotFound(machineId));
                     Log.error(getClass(), localizationConstant.machineNotFound(machineId));
                     return;
                 }
@@ -257,7 +257,7 @@ public class ConsolesPanelPresenter extends BasePresenter implements ConsolesPan
         }).catchError(new Operation<PromiseError>() {
             @Override
             public void apply(PromiseError arg) throws OperationException {
-                notificationManager.showError(localizationConstant.machineNotFound(machineId));
+                notificationManager.notify(localizationConstant.machineNotFound(machineId));
                 Log.error(getClass(), "Can not get machine " + machineId);
             }
         });

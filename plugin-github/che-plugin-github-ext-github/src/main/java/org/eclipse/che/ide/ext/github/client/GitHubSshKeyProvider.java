@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.github.client;
 
-import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.commons.exception.UnauthorizedException;
 import org.eclipse.che.ide.ext.ssh.client.SshKeyProvider;
@@ -28,7 +27,6 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.google.inject.name.Named;
 
 import static org.eclipse.che.security.oauth.OAuthStatus.LOGGED_IN;
 
@@ -109,7 +107,7 @@ public class GitHubSshKeyProvider implements SshKeyProvider, OAuthCallback {
         if (LOGGED_IN.equals(authStatus)) {
             generateKey(userId, callback);
         } else {
-            notificationManager.showNotification(new Notification(constant.gitHubSshKeyUpdateFailed(), Notification.Type.ERROR));
+            notificationManager.notify(constant.gitHubSshKeyUpdateFailed());
         }
     }
 }

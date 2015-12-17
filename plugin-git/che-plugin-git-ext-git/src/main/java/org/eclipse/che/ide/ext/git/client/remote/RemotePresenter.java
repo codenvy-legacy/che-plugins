@@ -18,7 +18,6 @@ import org.eclipse.che.api.git.gwt.client.GitServiceClient;
 import org.eclipse.che.api.git.shared.Remote;
 import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.ide.api.app.AppContext;
-import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.ext.git.client.GitLocalizationConstant;
 import org.eclipse.che.ide.ext.git.client.GitOutputPartPresenter;
@@ -28,8 +27,6 @@ import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
-
-import static org.eclipse.che.ide.api.notification.Notification.Type.ERROR;
 
 /**
  * Presenter for working with remote repository list (view, add and delete).
@@ -126,8 +123,7 @@ public class RemotePresenter implements RemoteView.ActionDelegate {
             public void onFailure(Throwable caught) {
                 String errorMessage = caught.getMessage() != null ? caught.getMessage() : constant.remoteAddFailed();
                 console.printError(errorMessage);
-                Notification notification = new Notification(errorMessage, ERROR);
-                notificationManager.showNotification(notification);
+                notificationManager.notify(errorMessage, project);
             }
         });
     }
@@ -153,8 +149,7 @@ public class RemotePresenter implements RemoteView.ActionDelegate {
             protected void onFailure(Throwable exception) {
                 String errorMessage = exception.getMessage() != null ? exception.getMessage() : constant.remoteDeleteFailed();
                 console.printError(errorMessage);
-                Notification notification = new Notification(errorMessage, ERROR);
-                notificationManager.showNotification(notification);
+                notificationManager.notify(errorMessage, project);
             }
         });
     }
@@ -170,7 +165,6 @@ public class RemotePresenter implements RemoteView.ActionDelegate {
 
     private void handleError(@NotNull String errorMessage) {
         console.printError(errorMessage);
-        Notification notification = new Notification(errorMessage, ERROR);
-        notificationManager.showNotification(notification);
+        notificationManager.notify(errorMessage, project);
     }
 }

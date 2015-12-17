@@ -96,7 +96,7 @@ public class UploadSshKeyPresenter implements UploadSshKeyView.ActionDelegate {
             if (result.startsWith("<pre>") && result.endsWith("</pre>")) {
                 result = result.substring(5, (result.length() - 6));
             }
-            notificationManager.showError(result);
+            notificationManager.notify(result);
             callback.onFailure(new Throwable(result));
         }
     }

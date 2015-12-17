@@ -137,7 +137,7 @@ public class RecipePartPresenter extends BasePresenter implements RecipePartView
         recipeRemoved.then(new Operation<Void>() {
             @Override
             public void apply(Void arg) throws OperationException {
-                notificationManager.showInfo("Recipe \"" + selectedRecipeDescriptor.getName() + "\"  was deleted.");
+                notificationManager.notify("Recipe \"" + selectedRecipeDescriptor.getName() + "\"  was deleted.");
                 recipes.remove(selectedRecipe);
                 view.removeRecipe(selectedRecipe);
                 recipesContainerPresenter.removeRecipePanel(selectedRecipe);
@@ -203,7 +203,7 @@ public class RecipePartPresenter extends BasePresenter implements RecipePartView
             @Override
             public void apply(PromiseError arg) throws OperationException {
                 if (arg.getMessage() != null) {
-                    notificationManager.showError(arg.getMessage());
+                    notificationManager.notify(arg.getMessage());
                 }
             }
         });
@@ -231,7 +231,7 @@ public class RecipePartPresenter extends BasePresenter implements RecipePartView
 
                 selectedRecipe.setName(recipeDescriptor.getName());
 
-                notificationManager.showInfo("Recipe \"" + recipeDescriptor.getName() + "\" was saved.");
+                notificationManager.notify("Recipe \"" + recipeDescriptor.getName() + "\" was saved.");
             }
         });
 
@@ -239,7 +239,7 @@ public class RecipePartPresenter extends BasePresenter implements RecipePartView
             @Override
             public void apply(PromiseError arg) throws OperationException {
                 if (arg.getMessage() != null) {
-                    notificationManager.showError(arg.getMessage());
+                    notificationManager.notify(arg.getMessage());
                 }
             }
         });

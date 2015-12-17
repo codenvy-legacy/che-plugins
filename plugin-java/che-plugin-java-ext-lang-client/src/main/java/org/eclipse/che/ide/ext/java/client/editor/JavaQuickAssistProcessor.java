@@ -154,7 +154,7 @@ public class JavaQuickAssistProcessor implements QuickAssistProcessor {
             @Override
             protected void onFailure(Throwable throwable) {
                 Log.error(JavaCodeAssistProcessor.class, throwable);
-                notificationManager.showError(throwable.getMessage());
+                notificationManager.notify(throwable.getMessage(), file.getProject().getProjectConfig());
             }
         });
     }

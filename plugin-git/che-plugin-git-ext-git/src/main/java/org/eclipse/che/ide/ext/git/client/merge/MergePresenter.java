@@ -22,7 +22,6 @@ import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.editor.EditorPartPresenter;
 import org.eclipse.che.ide.api.event.FileContentUpdateEvent;
-import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.project.tree.VirtualFile;
 import org.eclipse.che.ide.ext.git.client.GitLocalizationConstant;
@@ -38,8 +37,6 @@ import java.util.List;
 import static org.eclipse.che.api.git.shared.BranchListRequest.LIST_LOCAL;
 import static org.eclipse.che.api.git.shared.BranchListRequest.LIST_REMOTE;
 import static org.eclipse.che.api.git.shared.MergeResult.MergeStatus.ALREADY_UP_TO_DATE;
-import static org.eclipse.che.ide.api.notification.Notification.Type.ERROR;
-import static org.eclipse.che.ide.api.notification.Notification.Type.INFO;
 import static org.eclipse.che.ide.ext.git.client.merge.Reference.RefType.LOCAL_BRANCH;
 import static org.eclipse.che.ide.ext.git.client.merge.Reference.RefType.REMOTE_BRANCH;
 
@@ -92,7 +89,7 @@ public class MergePresenter implements MergeView.ActionDelegate {
 
     /** Show dialog. */
     public void showDialog() {
-        ProjectConfigDto project = appContext.getCurrentProject().getRootProject();
+        final ProjectConfigDto project = appContext.getCurrentProject().getRootProject();
         selectedReference = null;
         view.setEnableMergeButton(false);
 
@@ -113,8 +110,7 @@ public class MergePresenter implements MergeView.ActionDelegate {
                                @Override
                                protected void onFailure(Throwable exception) {
                                    console.printError(exception.getMessage());
-                                   Notification notification = new Notification(exception.getMessage(), ERROR);
-                                   notificationManager.showNotification(notification);
+                                   notificationManager.notify(exception.getMessage(), project);
                                }
                            });
 
@@ -136,8 +132,7 @@ public class MergePresenter implements MergeView.ActionDelegate {
                                @Override
                                protected void onFailure(Throwable exception) {
                                    console.printError(exception.getMessage());
-                                   Notification notification = new Notification(exception.getMessage(), ERROR);
-                                   notificationManager.showNotification(notification);
+                                   notificationManager.notify(exception.getMessage(), project);
                                }
                            });
 
@@ -164,16 +159,14 @@ public class MergePresenter implements MergeView.ActionDelegate {
                           @Override
                           protected void onSuccess(final MergeResult result) {
                               console.printInfo(formMergeMessage(result));
-                              Notification notification = new Notification(formMergeMessage(result), INFO);
-                              notificationManager.showNotification(notification);
+                              notificationManager.notify(formMergeMessage(result), appContext.getCurrentProject().getRootProject());
                               refreshProject(openedEditors);
                           }
 
                           @Override
                           protected void onFailure(Throwable exception) {
                               console.printError(exception.getMessage());
-                              Notification notification = new Notification(exception.getMessage(), ERROR);
-                              notificationManager.showNotification(notification);
+                              notificationManager.notify(exception.getMessage(), appContext.getCurrentProject().getRootProject());
                           }
                       });
     }

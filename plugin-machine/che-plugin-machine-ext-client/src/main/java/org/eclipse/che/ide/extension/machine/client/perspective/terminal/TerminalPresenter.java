@@ -124,8 +124,7 @@ public class TerminalPresenter implements TabPresenter, TerminalView.ActionDeleg
                 @Override
                 public void apply(PromiseError arg) throws OperationException {
                     isTerminalConnected = false;
-
-                    notificationManager.showError(locale.terminalCanNotLoadScript());
+                    notificationManager.notify(locale.terminalCanNotLoadScript());
 
                     tryToReconnect();
 
@@ -187,7 +186,7 @@ public class TerminalPresenter implements TabPresenter, TerminalView.ActionDeleg
             public void onError() {
                 isTerminalConnected = false;
 
-                notificationManager.showError(locale.terminalErrorConnection());
+                notificationManager.notify(locale.terminalErrorConnection());
 
                 tryToReconnect();
             }

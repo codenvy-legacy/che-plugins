@@ -207,7 +207,7 @@ public class RefactoringUpdater {
         return new Operation<PromiseError>() {
             @Override
             public void apply(PromiseError arg) throws OperationException {
-                notificationManager.showError(arg.getMessage());
+                notificationManager.notify(arg.getMessage());
             }
         };
     }

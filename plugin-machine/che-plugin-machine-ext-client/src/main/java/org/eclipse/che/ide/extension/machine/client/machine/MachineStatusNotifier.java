@@ -18,8 +18,8 @@ import org.eclipse.che.api.machine.shared.dto.MachineStateDto;
 import org.eclipse.che.api.machine.shared.dto.event.MachineStatusEvent;
 import org.eclipse.che.api.workspace.shared.dto.UsersWorkspaceDto;
 import org.eclipse.che.ide.api.app.AppContext;
-import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.api.notification.NotificationManager;
+import org.eclipse.che.ide.api.notification.StatusNotification;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateEvent;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
@@ -35,12 +35,11 @@ import org.eclipse.che.ide.workspace.start.StartWorkspaceHandler;
 
 import javax.validation.constraints.NotNull;
 
-import static org.eclipse.che.ide.api.notification.Notification.Status.FINISHED;
-import static org.eclipse.che.ide.api.notification.Notification.Status.PROGRESS;
-import static org.eclipse.che.ide.api.notification.Notification.Type.ERROR;
-import static org.eclipse.che.ide.api.notification.Notification.Type.INFO;
 import static org.eclipse.che.api.machine.gwt.client.MachineManager.MachineOperationType;
 import static org.eclipse.che.api.machine.gwt.client.MachineManager.MachineOperationType.RESTART;
+import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAIL;
+import static org.eclipse.che.ide.api.notification.StatusNotification.Status.PROGRESS;
+import static org.eclipse.che.ide.api.notification.StatusNotification.Status.SUCCESS;
 
 /**
  * Notifies about changing machine state.
@@ -106,7 +105,8 @@ class MachineStatusNotifier {
         final String machineName = machineState.getName();
         final String workspaceId = appContext.getWorkspace().getId();
         final String wsChannel = MACHINE_STATUS_WS_CHANNEL + workspaceId + ":" + machineName;
-        final Notification notification = new Notification("", INFO, true);
+
+        final StatusNotification notification = notificationManager.notify("", PROGRESS, false);
 
         final Unmarshallable<MachineStatusEvent> unmarshaller = dtoUnmarshallerFactory.newWSUnmarshaller(MachineStatusEvent.class);
         final MessageHandler messageHandler = new SubscriptionHandler<MachineStatusEvent>(unmarshaller) {
@@ -120,19 +120,22 @@ class MachineStatusNotifier {
                             runningListener.onRunning();
                         }
 
-                        showInfo(RESTART.equals(operationType) ? locale.machineRestarted(machineName)
-                                                               : locale.notificationMachineIsRunning(machineName), notification);
+                        final String message = RESTART.equals(operationType) ? locale.machineRestarted(machineName)
+                                                                             : locale.notificationMachineIsRunning(machineName);
+                        notification.setTitle(message);
+                        notification.setStatus(SUCCESS);
                         eventBus.fireEvent(MachineStateEvent.createMachineRunningEvent(machineState));
                         break;
                     case DESTROYED:
                         unsubscribe(wsChannel, this);
-                        showInfo(locale.notificationMachineDestroyed(machineName), notification);
-
+                        notification.setStatus(SUCCESS);
+                        notification.setTitle(locale.notificationMachineDestroyed(machineName));
                         eventBus.fireEvent(MachineStateEvent.createMachineDestroyedEvent(machineState));
                         break;
                     case ERROR:
                         unsubscribe(wsChannel, this);
-                        showError(result.getError(), notification);
+                        notification.setStatus(FAIL);
+                        notification.setTitle(result.getError());
                         break;
                 }
             }
@@ -140,38 +143,26 @@ class MachineStatusNotifier {
             @Override
             protected void onErrorReceived(Throwable exception) {
                 unsubscribe(wsChannel, this);
-                showError(exception.getMessage(), notification);
+                notification.setStatus(FAIL);
+                notification.setTitle(exception.getMessage());
             }
         };
 
         switch (operationType) {
             case START:
-                notification.setMessage(locale.notificationCreatingMachine(machineName));
+                notification.setTitle(locale.notificationCreatingMachine(machineName));
                 break;
             case RESTART:
-                notification.setMessage(locale.notificationMachineRestarting(machineName));
+                notification.setTitle(locale.notificationMachineRestarting(machineName));
                 break;
             case DESTROY:
-                notification.setMessage(locale.notificationDestroyingMachine(machineName));
+                notification.setTitle(locale.notificationDestroyingMachine(machineName));
                 break;
         }
 
         notification.setStatus(PROGRESS);
-        notificationManager.showNotification(notification);
 
         subscribe(wsChannel, messageHandler);
-    }
-
-    private void showInfo(@NotNull String message, @NotNull Notification notification) {
-        notification.setMessage(message);
-        notification.setStatus(FINISHED);
-        notification.setType(INFO);
-    }
-
-    private void showError(@NotNull String message, @NotNull Notification notification) {
-        notification.setMessage(message);
-        notification.setStatus(FINISHED);
-        notification.setType(ERROR);
     }
 
     private void subscribe(@NotNull String wsChannel, @NotNull MessageHandler handler) {

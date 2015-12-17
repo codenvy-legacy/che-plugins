@@ -15,7 +15,6 @@ import com.googlecode.gwt.test.utils.GwtReflectionUtils;
 import org.eclipse.che.api.git.shared.IndexFile;
 import org.eclipse.che.api.git.shared.ResetRequest;
 import org.eclipse.che.api.git.shared.Status;
-import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.ext.git.client.BaseTest;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.ui.dialogs.ConfirmCallback;
@@ -42,7 +41,7 @@ import static org.mockito.Mockito.when;
 /**
  * Testing {@link ResetFilesPresenter} functionality.
  *
- * @author <a href="mailto:aplotnikov@codenvy.com">Andrey Plotnikov</a>
+ * @author Andrey Plotnikov
  */
 public class ResetFilesPresenterTest extends BaseTest {
     @Mock
@@ -144,7 +143,7 @@ public class ResetFilesPresenterTest extends BaseTest {
         verify(appContext).getCurrentProject();
         verify(service).status(eq(rootProjectConfig), (AsyncRequestCallback<Status>)anyObject());
         verify(console).printError(anyString());
-        verify(notificationManager).showNotification((Notification)anyObject());
+        verify(notificationManager).notify(anyString(), rootProjectConfig);
         verify(constant).statusFailed();
     }
 
@@ -182,7 +181,7 @@ public class ResetFilesPresenterTest extends BaseTest {
         verify(service, never()).reset(eq(projectConfig), anyString(), (ResetRequest.ResetType)anyObject(), (List<String>)anyObject(),
                                        (AsyncRequestCallback<Void>)anyObject());
         verify(console).printInfo(anyString());
-        verify(notificationManager).showNotification((Notification)anyObject());
+        verify(notificationManager).notify(anyString(), rootProjectConfig);
         verify(constant, times(2)).nothingToReset();
     }
 
@@ -223,7 +222,7 @@ public class ResetFilesPresenterTest extends BaseTest {
         verify(view).close();
         verify(service).reset(eq(rootProjectConfig), anyString(), (ResetRequest.ResetType)anyObject(), (List<String>)anyObject(),
                               (AsyncRequestCallback<Void>)anyObject());
-        verify(notificationManager).showNotification((Notification)anyObject());
+        verify(notificationManager).notify(anyString(), rootProjectConfig);
         verify(console).printInfo(anyString());
         verify(constant, times(2)).resetFilesSuccessfully();
     }
@@ -266,7 +265,7 @@ public class ResetFilesPresenterTest extends BaseTest {
                               (AsyncRequestCallback<Void>)anyObject());
         verify(constant).resetFilesFailed();
         verify(console).printError(anyString());
-        verify(notificationManager).showNotification((Notification)anyObject());
+        verify(notificationManager).notify(anyString(), rootProjectConfig);
     }
 
     @Test

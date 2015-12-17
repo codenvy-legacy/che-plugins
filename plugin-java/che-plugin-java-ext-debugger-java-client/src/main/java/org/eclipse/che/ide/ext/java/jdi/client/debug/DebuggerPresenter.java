@@ -35,7 +35,6 @@ import org.eclipse.che.ide.api.event.ActivePartChangedHandler;
 import org.eclipse.che.ide.api.event.FileEvent;
 import org.eclipse.che.ide.api.event.project.CloseCurrentProjectEvent;
 import org.eclipse.che.ide.api.event.project.CloseCurrentProjectHandler;
-import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.parts.PartPresenter;
 import org.eclipse.che.ide.api.parts.PartStackType;
@@ -91,9 +90,6 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.eclipse.che.ide.api.event.FileEvent.FileOperation.OPEN;
-import static org.eclipse.che.ide.api.notification.Notification.Type.ERROR;
-import static org.eclipse.che.ide.api.notification.Notification.Type.INFO;
-import static org.eclipse.che.ide.api.notification.Notification.Type.WARNING;
 import static org.eclipse.che.ide.ext.java.jdi.shared.DebuggerEvent.BREAKPOINT;
 import static org.eclipse.che.ide.ext.java.jdi.shared.DebuggerEvent.STEP;
 
@@ -214,8 +210,8 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
                         return;
                     }
                 }
-                Notification notification = new Notification(exception.getMessage(), ERROR);
-                notificationManager.showNotification(notification);
+                notificationManager
+                        .notify(exception.getMessage(), appContext.getCurrentProject().getRootProject());
             }
         };
 
@@ -346,9 +342,8 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
 
                     @Override
                     public void onFailure(Throwable caught) {
-                        Notification notification =
-                                new Notification(constant.errorSourceNotFoundForClass(finalLocation.getClassName()), WARNING);
-                        notificationManager.showNotification(notification);
+                        notificationManager.notify(constant.errorSourceNotFoundForClass(finalLocation.getClassName()),
+                                                   appContext.getCurrentProject().getRootProject());
                     }
                 });
             } else {
@@ -485,8 +480,8 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
 
                                       @Override
                                       protected void onFailure(Throwable exception) {
-                                          Notification notification = new Notification(exception.getMessage(), ERROR);
-                                          notificationManager.showNotification(notification);
+                                          notificationManager
+                                                  .notify(exception.getMessage(), appContext.getCurrentProject().getRootProject());
                                       }
                                   }
                                  );
@@ -531,8 +526,8 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
                 if (currentBreakpoint != null) {
                     breakpointManager.markCurrentBreakpoint(currentBreakpoint.getLineNumber());
                 }
-                Notification notification = new Notification(exception.getMessage(), ERROR);
-                notificationManager.showNotification(notification);
+                notificationManager
+                        .notify(exception.getMessage(), appContext.getCurrentProject().getRootProject());
             }
         });
     }
@@ -551,8 +546,8 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
 
             @Override
             protected void onFailure(Throwable exception) {
-                Notification notification = new Notification(exception.getMessage(), ERROR);
-                notificationManager.showNotification(notification);
+                notificationManager
+                        .notify(exception.getMessage(), appContext.getCurrentProject().getRootProject());
             }
 
         });
@@ -586,8 +581,8 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
                 if (currentBreakpoint != null) {
                     breakpointManager.markCurrentBreakpoint(currentBreakpoint.getLineNumber());
                 }
-                Notification notification = new Notification(exception.getMessage(), ERROR);
-                notificationManager.showNotification(notification);
+                notificationManager
+                        .notify(exception.getMessage(), appContext.getCurrentProject().getRootProject());
                 view.resetStepIntoButton(true);
             }
         });
@@ -615,8 +610,8 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
                 if (currentBreakpoint != null) {
                     breakpointManager.markCurrentBreakpoint(currentBreakpoint.getLineNumber());
                 }
-                Notification notification = new Notification(exception.getMessage(), ERROR);
-                notificationManager.showNotification(notification);
+                notificationManager
+                        .notify(exception.getMessage(), appContext.getCurrentProject().getRootProject());
                 view.resetStepOverButton(true);
             }
 
@@ -645,8 +640,8 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
                 if (currentBreakpoint != null) {
                     breakpointManager.markCurrentBreakpoint(currentBreakpoint.getLineNumber());
                 }
-                Notification notification = new Notification(exception.getMessage(), ERROR);
-                notificationManager.showNotification(notification);
+                notificationManager
+                        .notify(exception.getMessage(), appContext.getCurrentProject().getRootProject());
                 view.resetStepReturnButton(true);
             }
 
@@ -698,8 +693,7 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
 
                                  @Override
                                  protected void onFailure(Throwable exception) {
-                                     Notification notification = new Notification(exception.getMessage(), ERROR);
-                                     notificationManager.showNotification(notification);
+                                     notificationManager.notify(exception.getMessage(), appContext.getCurrentProject().getRootProject());
                                  }
                              }
                             );
@@ -766,16 +760,16 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
                             @Override
                             public void onSuccess(DebuggerInfo result) {
                                 debuggerInfo = result;
-                                Notification notification = new Notification(constant.debuggerConnected(host + ':' + port), INFO);
-                                notificationManager.showNotification(notification);
+                                notificationManager.notify(constant.debuggerConnected(host + ':' + port),
+                                                           appContext.getCurrentProject().getRootProject());
                                 showDialog(result);
                                 startCheckingEvents();
                             }
 
                             @Override
                             protected void onFailure(Throwable exception) {
-                                Notification notification = new Notification(exception.getMessage(), ERROR);
-                                notificationManager.showNotification(notification);
+                                notificationManager.notify(exception.getMessage(),
+                                                           appContext.getCurrentProject().getRootProject());
                             }
                         }
                        );
@@ -794,8 +788,7 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
 
                 @Override
                 protected void onFailure(Throwable exception) {
-                    Notification notification = new Notification(exception.getMessage(), ERROR);
-                    notificationManager.showNotification(notification);
+                    notificationManager.notify(exception.getMessage(), appContext.getCurrentProject().getRootProject());
                 }
             });
         } else {
@@ -839,8 +832,7 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
         debuggerInfo = null;
         breakpointManager.unmarkCurrentBreakpoint();
         breakpointManager.removeAllBreakpoints();
-        Notification notification = new Notification(constant.debuggerDisconnected(host + ':' + port), INFO);
-        notificationManager.showNotification(notification);
+        notificationManager.notify(constant.debuggerDisconnected(host + ':' + port), appContext.getCurrentProject().getRootProject());
     }
 
     private void updateBreakPoints() {

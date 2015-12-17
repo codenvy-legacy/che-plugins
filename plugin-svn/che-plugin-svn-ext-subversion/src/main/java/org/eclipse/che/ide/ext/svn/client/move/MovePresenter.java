@@ -18,14 +18,15 @@ import com.google.inject.Singleton;
 import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.ide.api.app.AppContext;
-import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.api.notification.NotificationManager;
+import org.eclipse.che.ide.api.notification.StatusNotification;
 import org.eclipse.che.ide.api.parts.WorkspaceAgent;
 import org.eclipse.che.ide.api.project.tree.TreeNode;
 import org.eclipse.che.ide.api.project.tree.generic.Openable;
 import org.eclipse.che.ide.api.project.tree.generic.StorableNode;
 import org.eclipse.che.ide.api.selection.Selection;
 import org.eclipse.che.ide.ext.svn.client.SubversionClientService;
+import org.eclipse.che.ide.ext.svn.client.SubversionExtension;
 import org.eclipse.che.ide.ext.svn.client.SubversionExtensionLocalizationConstants;
 import org.eclipse.che.ide.ext.svn.client.common.RawOutputPresenter;
 import org.eclipse.che.ide.ext.svn.client.common.SubversionActionPresenter;
@@ -40,11 +41,6 @@ import org.eclipse.che.ide.util.loging.Log;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import static org.eclipse.che.ide.api.notification.Notification.Status.FINISHED;
-import static org.eclipse.che.ide.api.notification.Notification.Status.PROGRESS;
-import static org.eclipse.che.ide.api.notification.Notification.Type.ERROR;
-import static org.eclipse.che.ide.api.notification.Notification.Type.INFO;
 
 /**
  * Presenter for the {@link org.eclipse.che.ide.ext.svn.client.move.MoveView}.
@@ -63,7 +59,7 @@ public class MovePresenter extends SubversionActionPresenter implements MoveView
     private DtoUnmarshallerFactory                   dtoUnmarshallerFactory;
     private List<?>                                  sources;
     private String                                   projectPath;
-    private Notification                             notification;
+    private StatusNotification                       notification;
 
     @Inject
     public MovePresenter(AppContext appContext,
@@ -98,7 +94,7 @@ public class MovePresenter extends SubversionActionPresenter implements MoveView
         treeStructureProvider.get().getRootNodes(new AsyncCallback<List<TreeNode<?>>>() {
             @Override
             public void onFailure(Throwable caught) {
-                notificationManager.showError(locale.moveFailToGetProject());
+                notificationManager.notify(locale.moveFailToGetProject());
             }
 
             @Override
@@ -121,16 +117,18 @@ public class MovePresenter extends SubversionActionPresenter implements MoveView
         final String target = getTarget();
         final String comment = view.isURLSelected() ? view.getComment() : null;
 
-        notification = new Notification(locale.moveNotificationStarted(Joiner.on(',').join(source)), PROGRESS);
-        notificationManager.showNotification(notification);
+        notification =
+                notificationManager.notify(locale.moveNotificationStarted(Joiner.on(',').join(source)), null,
+                                           StatusNotification.Status.PROGRESS, false
+                                          );
+        notificationManager.notify(notification);
 
         Unmarshallable<CLIOutputResponse> unmarshaller = dtoUnmarshallerFactory.newUnmarshaller(CLIOutputResponse.class);
         service.move(projectPath, source, target, comment, new AsyncRequestCallback<CLIOutputResponse>(unmarshaller) {
             @Override
             protected void onSuccess(CLIOutputResponse result) {
-                notification.setMessage(locale.moveNotificationSuccessful());
-                notification.setStatus(FINISHED);
-                notification.setType(INFO);
+                notification.setContent(locale.moveNotificationSuccessful());
+                notification.setStatus(StatusNotification.Status.SUCCESS);
 
                 updateProjectExplorer();
             }
@@ -139,9 +137,8 @@ public class MovePresenter extends SubversionActionPresenter implements MoveView
             protected void onFailure(Throwable exception) {
                 String errorMessage = exception.getMessage();
 
-                notification.setMessage(locale.moveNotificationFailed() + ": " + errorMessage);
-                notification.setStatus(FINISHED);
-                notification.setType(ERROR);
+                notification.setContent(locale.moveNotificationFailed() + ": " + errorMessage);
+                notification.setStatus(StatusNotification.Status.FAIL);
             }
         });
 

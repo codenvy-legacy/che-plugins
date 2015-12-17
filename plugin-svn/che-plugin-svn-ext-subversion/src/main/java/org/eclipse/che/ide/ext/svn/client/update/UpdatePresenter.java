@@ -15,8 +15,8 @@ import com.google.inject.Singleton;
 import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.ide.api.app.AppContext;
-import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.api.notification.NotificationManager;
+import org.eclipse.che.ide.api.notification.StatusNotification;
 import org.eclipse.che.ide.api.parts.WorkspaceAgent;
 import org.eclipse.che.ide.ext.svn.client.SubversionClientService;
 import org.eclipse.che.ide.ext.svn.client.SubversionExtensionLocalizationConstants;
@@ -27,24 +27,19 @@ import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 
-import static org.eclipse.che.ide.api.notification.Notification.Status.FINISHED;
-import static org.eclipse.che.ide.api.notification.Notification.Status.PROGRESS;
-import static org.eclipse.che.ide.api.notification.Notification.Type.ERROR;
-import static org.eclipse.che.ide.api.notification.Notification.Type.INFO;
-
 /**
  * Handler for the {@link import org.eclipse.che.ide.ext.svn.client.action.UpdateAction} action.
  */
 @Singleton
 public class UpdatePresenter extends SubversionActionPresenter {
 
-    private final DtoUnmarshallerFactory  dtoUnmarshallerFactory;
-    private final NotificationManager     notificationManager;
-    private final SubversionClientService service;
-    private       EventBus                eventBus;
+    private final DtoUnmarshallerFactory                   dtoUnmarshallerFactory;
+    private final NotificationManager                      notificationManager;
+    private final SubversionClientService                  service;
+    private       EventBus                                 eventBus;
     private final SubversionExtensionLocalizationConstants constants;
 
-    private Notification notification;
+    private StatusNotification notification;
 
     /**
      * Constructor.
@@ -79,9 +74,11 @@ public class UpdatePresenter extends SubversionActionPresenter {
             return;
         }
 
-        notification = new Notification(constants.updateToRevisionStarted(revision), PROGRESS);
+        notification = notificationManager.notify(constants.updateToRevisionStarted(revision), null, StatusNotification.Status.PROGRESS,
+                                                  false
+                                                 );
 
-        notificationManager.showNotification(notification);
+        notificationManager.notify(notification);
 
         // TODO: Add UI widget for "Accept" part of update
 
@@ -92,9 +89,8 @@ public class UpdatePresenter extends SubversionActionPresenter {
                            protected void onSuccess(final CLIOutputWithRevisionResponse response) {
                                printResponse(response.getCommand(), response.getOutput(), response.getErrOutput());
 
-                               notification.setMessage(constants.updateSuccessful(Long.toString(response.getRevision())));
-                               notification.setStatus(FINISHED);
-                               notification.setType(INFO);
+                               notification.setContent(constants.updateSuccessful(Long.toString(response.getRevision())));
+                               notification.setStatus(StatusNotification.Status.SUCCESS);
 
                                updateProjectExplorer();
 
@@ -107,11 +103,8 @@ public class UpdatePresenter extends SubversionActionPresenter {
 
                            @Override
                            protected void onFailure(final Throwable exception) {
-                               String errorMessage = exception.getMessage();
-
-                               notification.setMessage(constants.updateFailed() + ": " + errorMessage);
-                               notification.setStatus(FINISHED);
-                               notification.setType(ERROR);
+                               notification.setContent(constants.updateFailed());
+                               notification.setStatus(StatusNotification.Status.FAIL);
                            }
                        });
     }

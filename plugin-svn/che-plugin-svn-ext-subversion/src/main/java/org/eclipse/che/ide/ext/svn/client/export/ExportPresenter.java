@@ -19,7 +19,6 @@ import com.google.inject.name.Named;
 import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.ide.api.app.AppContext;
-import org.eclipse.che.ide.api.notification.Notification;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.parts.WorkspaceAgent;
 import org.eclipse.che.ide.api.project.node.HasStorablePath;
@@ -28,8 +27,6 @@ import org.eclipse.che.ide.ext.svn.client.common.RawOutputPresenter;
 import org.eclipse.che.ide.ext.svn.client.common.SubversionActionPresenter;
 import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.eclipse.che.ide.rest.RestContext;
-
-import static org.eclipse.che.ide.api.notification.Notification.Status.PROGRESS;
 
 /**
  * Presenter for the {@link org.eclipse.che.ide.ext.svn.client.export.ExportView}.
@@ -91,8 +88,7 @@ public class ExportPresenter extends SubversionActionPresenter implements Export
                 MoreObjects.firstNonNull(Strings.emptyToNull(relPath(projectPath, selectedNode.getStorablePath())), ".");
         final String revision = view.isRevisionSpecified() ? view.getRevision() : null;
 
-        final Notification notification = new Notification(constants.exportStarted(exportPath), PROGRESS);
-        notificationManager.showNotification(notification);
+        notificationManager.notify(constants.exportStarted(exportPath));
 
         view.onClose();
 

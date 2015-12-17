@@ -23,6 +23,7 @@ import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.editor.EditorInput;
 import org.eclipse.che.ide.api.editor.EditorWithAutoSave;
 import org.eclipse.che.ide.api.notification.NotificationManager;
+import org.eclipse.che.ide.api.project.node.HasProjectConfig;
 import org.eclipse.che.ide.api.project.tree.VirtualFile;
 import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.ext.java.client.JavaLocalizationConstant;
@@ -131,6 +132,8 @@ public class JavaRefactoringRenameTest {
     @Mock
     private ProjectConfigDto                  projectConfig;
     @Mock
+    private HasProjectConfig                  hasProjectConfig;
+    @Mock
     private Promise<RenameRefactoringSession> createRenamePromise;
     @Mock
     private RenameRefactoringSession          session;
@@ -190,6 +193,8 @@ public class JavaRefactoringRenameTest {
                 .thenReturn(dialog);
         when(refactoringServiceClient.applyLinkedModeRename(linkedRenameRefactoringApplyDto)).thenReturn(applyModelPromise);
         when(virtualFile.getPath()).thenReturn(PATH);
+        when(virtualFile.getProject()).thenReturn(hasProjectConfig);
+        when(hasProjectConfig.getProjectConfig()).thenReturn(projectConfig);
         when(textEditor.getCursorOffset()).thenReturn(CURSOR_OFFSET);
         when(textEditor.getDocument()).thenReturn(document);
         when(document.getContentRange(anyInt(), anyInt())).thenReturn(NEW_JAVA_CLASS_NAME);
@@ -256,7 +261,7 @@ public class JavaRefactoringRenameTest {
 
         mainCheckRenameRefactoring();
         verify(entry).getMessage();
-        verify(notificationManager).showError(anyString());
+        verify(notificationManager).notify(anyString());
     }
 
     @Test
@@ -267,7 +272,7 @@ public class JavaRefactoringRenameTest {
 
         mainCheckRenameRefactoring();
         verify(entry).getMessage();
-        verify(notificationManager).showError(anyString());
+        verify(notificationManager).notify(anyString());
     }
 
     @Test
@@ -278,7 +283,7 @@ public class JavaRefactoringRenameTest {
 
         mainCheckRenameRefactoring();
         verify(entry).getMessage();
-        verify(notificationManager).showWarning(anyString());
+        verify(notificationManager).notify(anyString());
     }
 
     @Test
@@ -289,7 +294,7 @@ public class JavaRefactoringRenameTest {
 
         mainCheckRenameRefactoring();
         verify(entry).getMessage();
-        verify(notificationManager).showInfo(anyString());
+        verify(notificationManager).notify(anyString());
     }
 
     private void mainCheckRenameRefactoring() throws OperationException {

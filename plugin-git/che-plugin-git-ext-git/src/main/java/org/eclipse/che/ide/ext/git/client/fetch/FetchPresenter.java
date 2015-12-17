@@ -11,7 +11,7 @@
 package org.eclipse.che.ide.ext.git.client.fetch;
 
 import org.eclipse.che.api.core.rest.shared.dto.ServiceError;
-import org.eclipse.che.ide.api.notification.Notification;
+import org.eclipse.che.ide.api.notification.StatusNotification;
 import org.eclipse.che.ide.ext.git.client.GitLocalizationConstant;
 import org.eclipse.che.api.git.gwt.client.GitServiceClient;
 import org.eclipse.che.api.git.shared.Branch;
@@ -37,9 +37,9 @@ import java.util.List;
 
 import static org.eclipse.che.api.git.shared.BranchListRequest.LIST_LOCAL;
 import static org.eclipse.che.api.git.shared.BranchListRequest.LIST_REMOTE;
-import static org.eclipse.che.ide.api.notification.Notification.Status.FINISHED;
-import static org.eclipse.che.ide.api.notification.Notification.Status.PROGRESS;
-import static org.eclipse.che.ide.api.notification.Notification.Type.ERROR;
+import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAIL;
+import static org.eclipse.che.ide.api.notification.StatusNotification.Status.PROGRESS;
+import static org.eclipse.che.ide.api.notification.StatusNotification.Status.SUCCESS;
 
 /**
  * Presenter for fetching changes from remote repository.
@@ -116,7 +116,7 @@ public class FetchPresenter implements FetchView.ActionDelegate {
 
     private void handleError(@NotNull String errorMessage) {
         console.printError(errorMessage);
-        notificationManager.showError(errorMessage);
+        notificationManager.notify(errorMessage, project.getRootProject());
     }
 
     /**
@@ -148,7 +148,7 @@ public class FetchPresenter implements FetchView.ActionDelegate {
                                    String errorMessage =
                                            exception.getMessage() != null ? exception.getMessage() : constant.branchesListFailed();
                                    console.printError(errorMessage);
-                                   notificationManager.showError(errorMessage);
+                                   notificationManager.notify(errorMessage, project.getRootProject());
                                    view.setEnableFetchButton(false);
                                }
                            });
@@ -161,16 +161,16 @@ public class FetchPresenter implements FetchView.ActionDelegate {
         String remoteName = view.getRepositoryName();
         boolean removeDeletedRefs = view.isRemoveDeletedRefs();
 
-        final Notification notification = new Notification(constant.fetchProcess(), PROGRESS, true);
-        notificationManager.showNotification(notification);
+        final StatusNotification notification =
+                notificationManager.notify(constant.fetchProcess(), null, PROGRESS, true, project.getRootProject());
         try {
             service.fetch(project.getRootProject(), remoteName, getRefs(), removeDeletedRefs,
                           new RequestCallback<String>() {
                               @Override
                               protected void onSuccess(String result) {
                                   console.printInfo(constant.fetchSuccess(remoteUrl));
-                                  notification.setStatus(FINISHED);
-                                  notification.setMessage(constant.fetchSuccess(remoteUrl));
+                                  notification.setStatus(SUCCESS);
+                                  notification.setContent(constant.fetchSuccess(remoteUrl));
                               }
 
                               @Override
@@ -206,12 +206,12 @@ public class FetchPresenter implements FetchView.ActionDelegate {
      * @param throwable
      *         exception what happened
      */
-    private void handleError(@NotNull Throwable throwable, @NotNull String remoteUrl, Notification notification) {
+    private void handleError(@NotNull Throwable throwable, @NotNull String remoteUrl, StatusNotification notification) {
         String errorMessage = throwable.getMessage();
-        notification.setType(ERROR);
+        notification.setStatus(FAIL);
         if (errorMessage == null) {
             console.printError(constant.fetchFail(remoteUrl));
-            notification.setMessage(constant.fetchFail(remoteUrl));
+            notification.setContent(constant.fetchFail(remoteUrl));
             return;
         }
 
@@ -219,14 +219,14 @@ public class FetchPresenter implements FetchView.ActionDelegate {
             errorMessage = dtoFactory.createDtoFromJson(errorMessage, ServiceError.class).getMessage();
             if (errorMessage.equals("Unable get private ssh key")) {
                 console.printError(constant.messagesUnableGetSshKey());
-                notification.setMessage(constant.messagesUnableGetSshKey());
+                notification.setContent(constant.messagesUnableGetSshKey());
                 return;
             }
             console.printError(errorMessage);
-            notification.setMessage(errorMessage);
+            notification.setContent(errorMessage);
         } catch (Exception e) {
             console.printError(errorMessage);
-            notification.setMessage(errorMessage);
+            notification.setContent(errorMessage);
         }
     }
 
