@@ -138,7 +138,9 @@ public class TypeNode extends AbstractPresentationNode implements HasAction {
 
     private void createTypeChildren(List<Node> child, Type type, boolean isFromSuper) {
         for (Method method : type.getMethods()) {
-            child.add(nodeFactory.create(method, isShowInheritedMembers, isFromSuper));
+            if (!method.getLabel().startsWith("<")) {
+                child.add(nodeFactory.create(method, isShowInheritedMembers, isFromSuper));
+            }
         }
 
         for (Field field : type.getFields()) {

@@ -34,7 +34,7 @@
         }
     </ui:style>
 
-    <g:FlowPanel addStyleNames="{style.main}">
+    <g:FlowPanel addStyleNames="{style.main}" debugId="file-structure-mainPanel">
         <g:ScrollPanel ui:field="treeContainer" addStyleNames="{style.scrollPanel}">
         </g:ScrollPanel>
         <g:Label ui:field="showInheritedLabel" addStyleNames="{style.label}"/>

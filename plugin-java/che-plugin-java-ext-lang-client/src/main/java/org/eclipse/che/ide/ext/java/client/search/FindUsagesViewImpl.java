@@ -22,6 +22,7 @@ import org.eclipse.che.ide.api.parts.PartStackUIResources;
 import org.eclipse.che.ide.api.parts.base.BaseView;
 import org.eclipse.che.ide.api.project.node.Node;
 import org.eclipse.che.ide.api.project.node.interceptor.NodeInterceptor;
+import org.eclipse.che.ide.ext.java.client.JavaLocalizationConstant;
 import org.eclipse.che.ide.ext.java.client.search.node.NodeFactory;
 import org.eclipse.che.ide.ext.java.shared.dto.search.FindUsagesResponse;
 import org.eclipse.che.ide.ui.smartTree.NodeUniqueKeyProvider;
@@ -45,9 +46,10 @@ class FindUsagesViewImpl extends BaseView<FindUsagesView.ActionDelegate> impleme
     private       NodeFactory nodeFactory;
 
     @Inject
-    public FindUsagesViewImpl(PartStackUIResources resources, NodeFactory nodeFactory) {
+    public FindUsagesViewImpl(PartStackUIResources resources, NodeFactory nodeFactory, JavaLocalizationConstant localizationConstant) {
         super(resources);
         this.nodeFactory = nodeFactory;
+        setTitle(localizationConstant.findUsagesPartTitle());
         DockLayoutPanel panel = new DockLayoutPanel(Style.Unit.PX);
         panel.addWest(new FlowPanel(), 22);
 
