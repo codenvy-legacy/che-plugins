@@ -61,7 +61,7 @@ class FindUsagesViewImpl extends BaseView<FindUsagesView.ActionDelegate> impleme
         tree = new Tree(storage, loader);
         panel.add(new ScrollPanel(tree));
         setContentWidget(panel);
-
+        panel.ensureDebugId("findUsages-panel");
     }
 
     @Override
