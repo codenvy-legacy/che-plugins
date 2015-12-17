@@ -8,21 +8,18 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.plugin.docker.machine.ext;
+package org.eclipse.che.ide.ext.dashboard.client;
 
-import com.google.inject.Provider;
+import com.google.gwt.i18n.client.Messages;
 
 /**
- * Provide path to the project folder on hosted machine under windows
- * MUST be locate in "user.home" directory in case limitation windows+docker
- *
- * @author Vitalii Parfonov
+ * @author vzhukovskii@codenvy.com
  */
-public class HostProjectsFolderProviderWinOS implements Provider<String> {
+public interface DashboardLocalizationConstant extends Messages {
 
+    @Key("open.dashboard.toolbar-button.title")
+    String openDashboardToolbarButtonTitle();
 
-    @Override
-    public String get() {
-        return System.getProperty("user.home") + "\\che\\projects";
-    }
+    @Key("open.dashboard.redirect.url")
+    String openDashboardRedirectUrl();
 }

@@ -8,30 +8,26 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.plugin.docker.machine.ext;
-
+package org.eclipse.che.plugin.docker.machine.ext.provider;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Provider;
+import javax.inject.Singleton;
 
 /**
- * Provide path to the project folder on hosted machine under *nix
- * managed by vfs.local.fs_root_dir property
+ * Provides volumes configuration of machine for local storage
  *
- *  @author Vitalii Parfonov
+ * @author Alexander Garagatyi
  */
-public class HostProjectsFolderProviderUnix implements Provider<String> {
-
-    private final String projectsFolder;
-
+@Singleton
+public class LocalStorageDockerVolumePathProvider implements Provider<String> {
     @Inject
-    public HostProjectsFolderProviderUnix(@Named("vfs.local.fs_root_dir") String projectsFolder) {
-        this.projectsFolder = projectsFolder;
-    }
+    @Named("local.storage.path")
+    private String localStoragePath;
 
     @Override
     public String get() {
-        return projectsFolder;
+        return localStoragePath + ":/local-storage";
     }
 }

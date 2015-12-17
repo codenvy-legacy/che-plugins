@@ -10,13 +10,15 @@
  *******************************************************************************/
 package org.eclipse.che.plugin.docker.machine;
 
+import com.google.inject.assistedinject.Assisted;
+
 import org.eclipse.che.api.core.model.machine.MachineMetadata;
 import org.eclipse.che.api.core.model.machine.Server;
 import org.eclipse.che.api.machine.server.model.impl.ServerImpl;
 import org.eclipse.che.plugin.docker.client.json.ContainerInfo;
 import org.eclipse.che.plugin.docker.client.json.PortBinding;
-import org.eclipse.che.plugin.docker.machine.node.DockerNode;
 
+import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -32,16 +34,42 @@ import java.util.regex.Pattern;
  * @author Alexander Garagatyi
  */
 public class DockerInstanceMetadata implements MachineMetadata {
-    protected static final String  PROJECTS_ROOT_VARIABLE = "CHE_PROJECTS_ROOT";
+    /**
+     * Env variable that points to root folder of projects in dev machine
+     */
+    public static final String PROJECTS_ROOT_VARIABLE = "CHE_PROJECTS_ROOT";
+
+    /**
+     * Env variable for dev machine that contains url of Che API
+     */
+    public static final String API_ENDPOINT_URL_VARIABLE = "CHE_API_ENDPOINT";
+
+    /**
+     * Environment variable that will be setup in developer machine will contain ID of a workspace for which this machine has been created
+     */
+    public static final String CHE_WORKSPACE_ID = "CHE_WORKSPACE_ID";
+
+    /**
+     * Default HOSTNAME that will be added in all docker containers that are started. This host will container the Docker host's ip
+     * reachable inside the container.
+     */
+    public static final String CHE_HOST = "che-host";
+
+    /**
+     * Environment variable that will be setup in developer machine and contains user token.
+     */
+    public static final String USER_TOKEN = "USER_TOKEN";
+
     protected static final Pattern SERVICE_LABEL_PATTERN  =
             Pattern.compile("che:server:(?<port>[0-9]+(/tcp|/udp)?):(?<servprop>ref|protocol)");
 
     private final ContainerInfo info;
-    private final DockerNode    node;
+    private final String        containerHost;
 
-    public DockerInstanceMetadata(ContainerInfo containerInfo, DockerNode node) {
+    @Inject
+    public DockerInstanceMetadata(@Assisted  ContainerInfo containerInfo, @Assisted String containerHost) {
         this.info = containerInfo;
-        this.node = node;
+        this.containerHost = containerHost;
     }
 
     @Override
@@ -156,7 +184,7 @@ public class DockerInstanceMetadata implements MachineMetadata {
     @Override
     public Map<String, Server> getServers() {
         return addDefaultReferenceForServersWithoutReference(
-                addRefAndUrlToServerFromImageLabels(getServersWithFilledPorts(node.getHost(),
+                addRefAndUrlToServerFromImageLabels(getServersWithFilledPorts(containerHost,
                                                                               info.getNetworkSettings().getPorts()),
                                                     info.getConfig().getLabels()));
     }
