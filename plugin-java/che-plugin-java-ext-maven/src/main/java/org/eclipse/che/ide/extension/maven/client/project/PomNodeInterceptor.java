@@ -15,12 +15,18 @@ import com.google.inject.Singleton;
 
 import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.api.promises.client.js.Promises;
+import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.ide.api.project.node.Node;
 import org.eclipse.che.ide.api.project.node.interceptor.NodeInterceptor;
 import org.eclipse.che.ide.extension.maven.client.MavenResources;
 import org.eclipse.che.ide.project.node.FileReferenceNode;
 
 import java.util.List;
+import java.util.Map;
+
+import static java.util.Collections.singletonList;
+import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.ARTIFACT_ID;
+import static org.eclipse.che.ide.project.node.FileReferenceNode.DISPLAY_NAME_ATTR;
 
 /**
  * @author Vlad Zhukovskiy
@@ -40,7 +46,12 @@ public class PomNodeInterceptor implements NodeInterceptor {
         for (Node child : children) {
             if (child instanceof FileReferenceNode && "pom.xml".equals(child.getName())) {
                 FileReferenceNode pom = (FileReferenceNode)child;
-                pom.getPresentation(false).setPresentableIcon(resources.maven());
+                ProjectConfigDto project = ((FileReferenceNode)child).getProject().getProjectConfig();
+                Map<String, List<String>> attributes = project.getAttributes();
+
+                pom.getAttributes().put(DISPLAY_NAME_ATTR, singletonList(attributes.containsKey(ARTIFACT_ID)
+                                                                         ? attributes.get(ARTIFACT_ID).get(0)
+                                                                         : project.getName() + "/" + pom.getName()));
             }
         }
 

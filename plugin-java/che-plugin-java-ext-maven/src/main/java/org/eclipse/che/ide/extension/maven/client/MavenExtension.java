@@ -24,6 +24,8 @@ import org.eclipse.che.ide.api.constraints.Constraints;
 import org.eclipse.che.ide.api.event.project.ProjectReadyEvent;
 import org.eclipse.che.ide.api.event.project.ProjectReadyHandler;
 import org.eclipse.che.ide.api.extension.Extension;
+import org.eclipse.che.ide.api.filetypes.FileType;
+import org.eclipse.che.ide.api.filetypes.FileTypeRegistry;
 import org.eclipse.che.ide.api.icon.Icon;
 import org.eclipse.che.ide.api.icon.IconRegistry;
 import org.eclipse.che.ide.api.project.node.HasProjectConfig;
@@ -166,9 +168,8 @@ public class MavenExtension {
     }
 
     @Inject
-    private void registerIcons(IconRegistry iconRegistry, MavenResources mavenResources) {
-        // icons for file names
-        iconRegistry.registerIcon(new Icon("maven/pom.xml.file.small.icon", mavenResources.maven()));
+    private void registerFileType(FileTypeRegistry fileTypeRegistry, MavenResources mavenResources) {
+        fileTypeRegistry.registerFileType(new FileType(mavenResources.maven(), "pom.xml"));
     }
 
     private boolean isValidForResolveDependencies(ProjectConfigDto project) {
