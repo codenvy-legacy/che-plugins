@@ -24,25 +24,4 @@ public interface GitHubResources extends ClientBundle {
 
     @Source({"importer/page/GithubImporterPage.css", "org/eclipse/che/ide/api/ui/style.css"})
     GithubImporterPageViewImpl.GithubStyle githubImporterPageStyle();
-
-    @Source("buttons/ok.png")
-    ImageResource ok();
-
-    @Source("buttons/add.png")
-    ImageResource add();
-
-    @Source("buttons/cancel.png")
-    ImageResource cancel();
-
-    @Source("buttons/next.png")
-    ImageResource next();
-
-    @Source("welcome/import-from-github.svg")
-    SVGResource importFromGithub();
-
-    @Source("welcome/clone-git-repository.png")
-    ImageResource welcomeClone();
-
-    @Source("welcome/project_open.png")
-    ImageResource project();
 }
