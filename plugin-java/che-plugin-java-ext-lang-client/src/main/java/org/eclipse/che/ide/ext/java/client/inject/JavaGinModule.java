@@ -34,6 +34,7 @@ import org.eclipse.che.ide.ext.java.client.navigation.service.JavaNavigationServ
 import org.eclipse.che.ide.ext.java.client.newsourcefile.NewJavaSourceFileView;
 import org.eclipse.che.ide.ext.java.client.newsourcefile.NewJavaSourceFileViewImpl;
 import org.eclipse.che.ide.ext.java.client.project.interceptor.JavaClassInterceptor;
+import org.eclipse.che.ide.ext.java.client.project.interceptor.TestContentRootDecorator;
 import org.eclipse.che.ide.ext.java.client.project.node.JavaNodeFactory;
 import org.eclipse.che.ide.ext.java.client.project.node.JavaNodeManager;
 import org.eclipse.che.ide.ext.java.client.project.settings.JavaNodeSettingsProvider;
@@ -68,6 +69,7 @@ public class JavaGinModule extends AbstractGinModule {
         mapBinder.addBinding("java").to(JavaNodeSettingsProvider.class);
 
         GinMultibinder.newSetBinder(binder(), NodeInterceptor.class).addBinding().to(JavaClassInterceptor.class);
+        GinMultibinder.newSetBinder(binder(), NodeInterceptor.class).addBinding().to(TestContentRootDecorator.class);
 
 
         install(new GinFactoryModuleBuilder().build(JavaNodeFactory.class));
