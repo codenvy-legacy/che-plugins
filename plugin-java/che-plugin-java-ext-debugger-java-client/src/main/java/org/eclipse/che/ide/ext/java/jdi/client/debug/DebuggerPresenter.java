@@ -52,10 +52,12 @@ import org.eclipse.che.ide.ext.java.client.project.node.jar.JarFileNode;
 import org.eclipse.che.ide.ext.java.client.projecttree.JavaSourceFolderUtil;
 import org.eclipse.che.ide.ext.java.jdi.client.JavaRuntimeExtension;
 import org.eclipse.che.ide.ext.java.jdi.client.JavaRuntimeLocalizationConstant;
+import org.eclipse.che.ide.ext.java.jdi.client.JavaRuntimeResources;
 import org.eclipse.che.ide.ext.java.jdi.client.debug.changevalue.ChangeValuePresenter;
 import org.eclipse.che.ide.ext.java.jdi.client.debug.expression.EvaluateExpressionPresenter;
 import org.eclipse.che.ide.ext.java.jdi.client.fqn.FqnResolver;
 import org.eclipse.che.ide.ext.java.jdi.client.fqn.FqnResolverFactory;
+import org.eclipse.che.ide.ext.java.jdi.client.fqn.FqnResolverObserver;
 import org.eclipse.che.ide.ext.java.jdi.client.marshaller.DebuggerEventListUnmarshallerWS;
 import org.eclipse.che.ide.ext.java.jdi.shared.BreakPoint;
 import org.eclipse.che.ide.ext.java.jdi.shared.BreakPointEvent;
@@ -90,6 +92,9 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.eclipse.che.ide.api.event.FileEvent.FileOperation.OPEN;
+import static org.eclipse.che.ide.debug.DebuggerStateEvent.createConnectedStateEvent;
+import static org.eclipse.che.ide.debug.DebuggerStateEvent.createDisconnectedStateEvent;
+import static org.eclipse.che.ide.debug.DebuggerStateEvent.createInitializedStateEvent;
 import static org.eclipse.che.ide.ext.java.jdi.shared.DebuggerEvent.BREAKPOINT;
 import static org.eclipse.che.ide.ext.java.jdi.shared.DebuggerEvent.STEP;
 
@@ -100,15 +105,20 @@ import static org.eclipse.che.ide.ext.java.jdi.shared.DebuggerEvent.STEP;
  * @author Artem Zatsarynnyi
  * @author Valeriy Svydenko
  * @author Dmitry Shnurenko
+ * @author Anatoliy Bazko
  */
 @Singleton
-public class DebuggerPresenter extends BasePresenter implements DebuggerView.ActionDelegate, Debugger {
+public class DebuggerPresenter extends BasePresenter implements DebuggerView.ActionDelegate,
+                                                                Debugger,
+                                                                FqnResolverObserver {
     private static final String TITLE = "Debug";
+
     private final DtoFactory                             dtoFactory;
     private final DtoUnmarshallerFactory                 dtoUnmarshallerFactory;
     private final AppContext                             appContext;
     private final ProjectExplorerPresenter               projectExplorer;
     private final JavaNodeManager                        javaNodeManager;
+    private final JavaRuntimeResources                   javaRuntimeResources;
     /** Channel identifier to receive events from debugger over WebSocket. */
     private       String                                 debuggerEventsChannel;
     /** Channel identifier to receive event when debugger will disconnected. */
@@ -153,13 +163,15 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
                              final AppContext appContext,
                              ProjectExplorerPresenter projectExplorer,
                              final MessageBusProvider messageBusProvider,
-                             final JavaNodeManager javaNodeManager) {
+                             final JavaNodeManager javaNodeManager,
+                             JavaRuntimeResources javaRuntimeResources) {
         this.view = view;
         this.eventBus = eventBus;
         this.dtoFactory = dtoFactory;
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
         this.appContext = appContext;
         this.projectExplorer = projectExplorer;
+        this.javaRuntimeResources = javaRuntimeResources;
         this.view.setDelegate(this);
         this.view.setTitle(TITLE);
         this.service = service;
@@ -167,6 +179,7 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
         this.workspaceAgent = workspaceAgent;
         this.breakpointManager = breakpointManager;
         this.resolverFactory = resolverFactory;
+        this.resolverFactory.addFqnResolverObserver(this);
         this.variables = new ArrayList<>();
         this.editorAgent = editorAgent;
         this.evaluateExpressionPresenter = evaluateExpressionPresenter;
@@ -257,6 +270,8 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
                 }
             }
         });
+
+        eventBus.fireEvent(createInitializedStateEvent(this));
     }
 
     /** {@inheritDoc} */
@@ -287,7 +302,7 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
     /** {@inheritDoc} */
     @Override
     public SVGResource getTitleSVGImage() {
-        return null;
+        return javaRuntimeResources.debug();
     }
 
     /** {@inheritDoc} */
@@ -337,7 +352,7 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
                 openFile(location, filePaths, 0, new AsyncCallback<VirtualFile>() {
                     @Override
                     public void onSuccess(VirtualFile result) {
-                        breakpointManager.markCurrentBreakpoint(finalLocation.getLineNumber() - 1);
+                        breakpointManager.setCurrentBreakpoint(finalLocation.getLineNumber() - 1);
                     }
 
                     @Override
@@ -347,7 +362,7 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
                     }
                 });
             } else {
-                breakpointManager.markCurrentBreakpoint(location.getLineNumber() - 1);
+                breakpointManager.setCurrentBreakpoint(location.getLineNumber() - 1);
             }
             getStackFrameDump();
             changeButtonsEnableState(true);
@@ -511,9 +526,7 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
     @Override
     public void onResumeButtonClicked() {
         changeButtonsEnableState(false);
-
-        final Breakpoint currentBreakpoint = breakpointManager.getCurrentBreakpoint();
-        breakpointManager.unmarkCurrentBreakpoint();
+        breakpointManager.removeCurrentBreakpoint();
 
         service.resume(debuggerInfo.getId(), new AsyncRequestCallback<Void>() {
             @Override
@@ -523,9 +536,6 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
 
             @Override
             protected void onFailure(Throwable exception) {
-                if (currentBreakpoint != null) {
-                    breakpointManager.markCurrentBreakpoint(currentBreakpoint.getLineNumber());
-                }
                 notificationManager
                         .notify(exception.getMessage(), appContext.getCurrentProject().getRootProject());
             }
@@ -535,22 +545,24 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
     /** {@inheritDoc} */
     @Override
     public void onRemoveAllBreakpointsButtonClicked() {
-        service.deleteAllBreakpoints(debuggerInfo.getId(), new AsyncRequestCallback<String>() {
-            @Override
-            protected void onSuccess(String result) {
-                breakpointManager.removeAllBreakpoints();
-                view.setBreakpoints(new ArrayList<Breakpoint>());
-                view.setExecutionPoint(true, null);
-                view.setVariables(new ArrayList<DebuggerVariable>());
-            }
+        if (debuggerInfo != null) {
+            service.deleteAllBreakpoints(debuggerInfo.getId(), new AsyncRequestCallback<String>() {
+                @Override
+                protected void onSuccess(String result) {
+                    breakpointManager.removeAllBreakpoints();
+                    updateBreakPoints();
+                }
 
-            @Override
-            protected void onFailure(Throwable exception) {
-                notificationManager
-                        .notify(exception.getMessage(), appContext.getCurrentProject().getRootProject());
-            }
-
-        });
+                @Override
+                protected void onFailure(Throwable exception) {
+                    notificationManager
+                            .notify(exception.getMessage(), appContext.getCurrentProject().getRootProject());
+                }
+            });
+        } else {
+            breakpointManager.removeAllBreakpoints();
+            updateBreakPoints();
+        }
     }
 
     /** {@inheritDoc} */
@@ -565,9 +577,7 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
         if (!view.resetStepIntoButton(false)) {
             return;
         }
-
-        final Breakpoint currentBreakpoint = breakpointManager.getCurrentBreakpoint();
-        breakpointManager.unmarkCurrentBreakpoint();
+        breakpointManager.removeCurrentBreakpoint();
 
         service.stepInto(debuggerInfo.getId(), new AsyncRequestCallback<Void>() {
             @Override
@@ -578,9 +588,6 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
 
             @Override
             protected void onFailure(Throwable exception) {
-                if (currentBreakpoint != null) {
-                    breakpointManager.markCurrentBreakpoint(currentBreakpoint.getLineNumber());
-                }
                 notificationManager
                         .notify(exception.getMessage(), appContext.getCurrentProject().getRootProject());
                 view.resetStepIntoButton(true);
@@ -594,9 +601,7 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
         if (!view.resetStepOverButton(false)) {
             return;
         }
-
-        final Breakpoint currentBreakpoint = breakpointManager.getCurrentBreakpoint();
-        breakpointManager.unmarkCurrentBreakpoint();
+        breakpointManager.removeCurrentBreakpoint();
 
         service.stepOver(debuggerInfo.getId(), new AsyncRequestCallback<Void>() {
             @Override
@@ -607,9 +612,6 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
 
             @Override
             protected void onFailure(Throwable exception) {
-                if (currentBreakpoint != null) {
-                    breakpointManager.markCurrentBreakpoint(currentBreakpoint.getLineNumber());
-                }
                 notificationManager
                         .notify(exception.getMessage(), appContext.getCurrentProject().getRootProject());
                 view.resetStepOverButton(true);
@@ -624,9 +626,7 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
         if (!view.resetStepReturnButton(false)) {
             return;
         }
-
-        final Breakpoint currentBreakpoint = breakpointManager.getCurrentBreakpoint();
-        breakpointManager.unmarkCurrentBreakpoint();
+        breakpointManager.removeCurrentBreakpoint();
 
         service.stepReturn(debuggerInfo.getId(), new AsyncRequestCallback<Void>() {
             @Override
@@ -637,9 +637,6 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
 
             @Override
             protected void onFailure(Throwable exception) {
-                if (currentBreakpoint != null) {
-                    breakpointManager.markCurrentBreakpoint(currentBreakpoint.getLineNumber());
-                }
                 notificationManager
                         .notify(exception.getMessage(), appContext.getCurrentProject().getRootProject());
                 view.resetStepReturnButton(true);
@@ -724,8 +721,7 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
         selectedVariable = null;
         updateChangeValueButtonEnableState();
         changeButtonsEnableState(false);
-        view.setEnableRemoveAllBreakpointsButton(true);
-        view.setEnableDisconnectButton(true);
+        view.setEnableDisconnectButton(false);
 
         workspaceAgent.openPart(this, PartStackType.INFORMATION);
         PartPresenter activePart = partStack.getActivePart();
@@ -737,9 +733,7 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
     private void closeView() {
         variables.clear();
         view.setVariables(variables);
-        view.setBreakpoints(new ArrayList<Breakpoint>());
         view.setExecutionPoint(true, null);
-        view.setEnableRemoveAllBreakpointsButton(false);
         view.setEnableDisconnectButton(false);
         workspaceAgent.hidePart(this);
     }
@@ -762,8 +756,11 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
                                 debuggerInfo = result;
                                 notificationManager.notify(constant.debuggerConnected(host + ':' + port),
                                                            appContext.getCurrentProject().getRootProject());
-                                showDialog(result);
+
+                                view.setEnableDisconnectButton(true);
                                 startCheckingEvents();
+
+                                eventBus.fireEvent(createConnectedStateEvent(DebuggerPresenter.this));
                             }
 
                             @Override
@@ -793,7 +790,6 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
             });
         } else {
             changeButtonsEnableState(false);
-            breakpointManager.unmarkCurrentBreakpoint();
         }
     }
 
@@ -830,13 +826,31 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
     /** Perform some action after disconnecting a debugger. */
     private void onDebuggerDisconnected() {
         debuggerInfo = null;
-        breakpointManager.unmarkCurrentBreakpoint();
-        breakpointManager.removeAllBreakpoints();
         notificationManager.notify(constant.debuggerDisconnected(host + ':' + port), appContext.getCurrentProject().getRootProject());
+        eventBus.fireEvent(createDisconnectedStateEvent(this));
     }
 
+    /**
+     * Updates breakpoints list.
+     * The main idea is to display FQN instead of file path.
+     */
     private void updateBreakPoints() {
-        view.setBreakpoints(breakpointManager.getBreakpointList());
+        List<Breakpoint> breakpoints = breakpointManager.getBreakpointList();
+        List<Breakpoint> breakpoints2Display = new ArrayList<Breakpoint>(breakpoints.size());
+
+        for (Breakpoint breakpoint : breakpoints) {
+            FqnResolver resolver = resolverFactory.getResolver(breakpoint.getFile().getMediaType());
+
+            breakpoints2Display.add(new Breakpoint(breakpoint.getType(),
+                                                   breakpoint.getLineNumber(),
+                                                   resolver == null ? breakpoint.getPath() : resolver.resolveFqn(breakpoint.getFile()),
+                                                   breakpoint.getFile(),
+                                                   breakpoint.getMessage(),
+                                                   breakpoint.isActive()));
+        }
+
+        view.setEnableRemoveAllBreakpointsButton(!breakpoints.isEmpty());
+        view.setBreakpoints(breakpoints2Display);
     }
 
     /** {@inheritDoc} */
@@ -859,18 +873,23 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
                 @Override
                 protected void onSuccess(Void result) {
                     if (resolver != null) {
-                        final String fqn = resolver.resolveFqn(file);
-                        Breakpoint breakpoint = new Breakpoint(Breakpoint.Type.BREAKPOINT, lineNumber, fqn, file);
+                        Breakpoint breakpoint = new Breakpoint(Breakpoint.Type.BREAKPOINT, lineNumber, file.getPath(), file, true);
                         callback.onSuccess(breakpoint);
+                        updateBreakPoints();
                     }
-                    updateBreakPoints();
                 }
 
                 @Override
                 protected void onFailure(Throwable exception) {
                     callback.onFailure(exception);
+                    updateBreakPoints();
+
                 }
             });
+        } else {
+            callback.onFailure(new IllegalStateException("Debugger not attached"));
+            showDialog(EmptyDebuggerInfo.INSTANCE);
+            updateBreakPoints();
         }
     }
 
@@ -901,8 +920,19 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
                 @Override
                 protected void onFailure(Throwable exception) {
                     callback.onFailure(exception);
+                    updateBreakPoints();
                 }
             });
+        } else {
+            callback.onFailure(new IllegalStateException("Debugger not attached"));
+            showDialog(EmptyDebuggerInfo.INSTANCE);
+            updateBreakPoints();
         }
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void onFqnResolverAdded(FqnResolver fqnResolver) {
+        updateBreakPoints();
     }
 }
