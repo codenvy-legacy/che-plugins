@@ -79,8 +79,6 @@ public class JarFileNode extends AbstractJarEntryNode implements VirtualFile, Ha
         presentation.setPresentableText(getDisplayName());
         presentation.setPresentableIcon(isClassFile() ? nodeManager.getJavaNodesResources().javaFile()
                                                       : nodeManager.getNodesResources().file());
-        presentation.setInfoText("r/o");
-        presentation.setInfoTextWrapper(Pair.of("(", ")"));
     }
 
     /** {@inheritDoc} */
