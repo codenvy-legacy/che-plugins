@@ -33,10 +33,14 @@ public interface EditCommandsView extends View<EditCommandsView.ActionDelegate> 
     /** Close view. */
     void close();
 
-    /** Returns the component used for command configurations display. */
-    AcceptsOneWidget getCommandConfigurationsDisplayContainer();
+    /** Select next configuration. */
+    void selectNextItem();
 
-    void clearCommandConfigurationsDisplayContainer();
+    /** Returns the component used for command configurations display. */
+    AcceptsOneWidget getCommandConfigurationsContainer();
+
+    /** Clear command configurations panel. */
+    void clearCommandConfigurationsContainer();
 
     /**
      * Sets command types and command configurations to display.
@@ -56,7 +60,7 @@ public interface EditCommandsView extends View<EditCommandsView.ActionDelegate> 
     void setCancelButtonState(boolean enabled);
 
     /** Sets enabled state of the 'Apply' button. */
-    void setApplyButtonState(boolean enabled);
+    void setSaveButtonState(boolean enabled);
     
     /** Sets enabled state of the filter input field. */
     void setFilterState(boolean enabled);
@@ -66,7 +70,7 @@ public interface EditCommandsView extends View<EditCommandsView.ActionDelegate> 
     CommandType getSelectedCommandType();
 
     /** Select command with the given ID. */
-    void selectCommand(CommandConfiguration config);
+    void setSelectedConfiguration(CommandConfiguration config);
 
     /** Returns the selected command configuration. */
     @Nullable
@@ -91,7 +95,7 @@ public interface EditCommandsView extends View<EditCommandsView.ActionDelegate> 
         void onDuplicateClicked();
 
         /** Called when 'Remove' button is clicked. */
-        void onRemoveClicked();
+        void onRemoveClicked(CommandConfiguration selectedConfiguration);
 
         /** Called when 'Execute' button is clicked. */
         void onExecuteClicked();
@@ -114,7 +118,5 @@ public interface EditCommandsView extends View<EditCommandsView.ActionDelegate> 
 
         /** Called when configuration name is changed. */
         void onNameChanged();
-
-        boolean isViewModified();
     }
 }

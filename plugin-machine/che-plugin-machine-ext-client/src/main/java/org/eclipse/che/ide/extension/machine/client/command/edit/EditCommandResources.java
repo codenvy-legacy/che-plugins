@@ -26,26 +26,15 @@ public interface EditCommandResources extends ClientBundle {
 
     interface EditCommandStyles extends CssResource {
 
-            /** Returns the CSS class name for tree root. */
-            String root();
+        String categoryHeader();
 
-            /** Returns the CSS class name for tree icons. */
-            String icon();
+        String categorySubElementHeader();
 
-            /** Returns the CSS class name for tree labels. */
-            String label();
+        String hintLabel();
 
-            /** Returns the CSS class name for category header. */
-            String categoryHeader();
+        String buttonArea();
 
-            /** Returns the CSS class name for category sub element header. */
-            String categorySubElementHeader();
-
-            /** Returns the CSS class name for button area. */
-            String buttonArea();
-
-            /** Returns the CSS class filter placeholder. */
-            String filterPlaceholder();
+        String filterPlaceholder();
     }
 
     @Source({"CommandRenderer.css", "org/eclipse/che/ide/api/ui/style.css"})

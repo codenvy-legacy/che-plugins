@@ -67,6 +67,9 @@
         .leftPart {
             border: 1px solid popupBorderColor;
             margin: 12px 10px 10px 10px;
+            -moz-user-select: none;
+            -webkit-user-select: none;
+            user-select: none;
         }
 
         .rightPart {
@@ -101,6 +104,9 @@
             min-height: 20px;
             margin: 0 3px 0 3px;
             width: literal("calc(100% - 18px)");
+            -moz-user-select: text;
+            -webkit-user-select: text;
+            user-select: text;
         }
 
         .overFooter {
@@ -111,7 +117,7 @@
         }
 
         .overFooter button {
-            margin: 5px;
+            margin-right: 6px;
         }
     </ui:style>
     <g:DockLayoutPanel unit="PX" width="780px" height="440px" addStyleNames="{style.commandPanel}">

@@ -56,27 +56,27 @@ public abstract class CommandConfiguration {
     /** Returns command line to execute in machine. */
     @NotNull
     public abstract String toCommandLine();
-    
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
 
-            if (!(o instanceof CommandConfiguration)) {
-                return false;
-            }
-
-            CommandConfiguration other = (CommandConfiguration)o;
-
-            return Objects.equals(getName(), other.getName())
-                   && Objects.equals(getType().getId(), other.getType().getId())
-                   && Objects.equals(toCommandLine(), other.toCommandLine());
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
         }
 
-        @Override
-        public int hashCode() {
-            return Objects.hash(getName(), getType().getId(), toCommandLine());
+        if (!(o instanceof CommandConfiguration)) {
+            return false;
         }
-    
+
+        CommandConfiguration other = (CommandConfiguration)o;
+
+        return Objects.equals(getName(), other.getName())
+               && Objects.equals(getType().getId(), other.getType().getId())
+               && Objects.equals(toCommandLine(), other.toCommandLine());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getName(), getType().getId(), toCommandLine());
+    }
+
 }
