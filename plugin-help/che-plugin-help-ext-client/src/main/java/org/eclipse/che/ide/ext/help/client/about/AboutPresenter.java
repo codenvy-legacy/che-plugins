@@ -25,15 +25,13 @@ import org.eclipse.che.ide.ext.help.client.BuildInfo;
 public class AboutPresenter implements AboutView.ActionDelegate {
     private AboutView                 view;
     private BuildInfo                 buildInfo;
-    private AboutLocalizationConstant locale;
 
     @Inject
-    public AboutPresenter(AboutView view, BuildInfo buildInfo, AboutLocalizationConstant locale) {
+    public AboutPresenter(AboutView view, BuildInfo buildInfo) {
         this.view = view;
         view.setDelegate(this);
 
         this.buildInfo = buildInfo;
-        this.locale = locale;
     }
 
     /**

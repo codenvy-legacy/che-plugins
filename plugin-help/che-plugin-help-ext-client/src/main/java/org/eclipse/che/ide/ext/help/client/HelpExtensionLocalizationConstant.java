@@ -16,32 +16,11 @@ import com.google.gwt.i18n.client.Messages;
 public interface HelpExtensionLocalizationConstant extends Messages {
 
     /* Redirect Actions */
-    @Key("action.redirectToHelp.title")
-    String actionRedirectToHelpTitle();
+    @Key("action.redirect.to.support.title")
+    String actionRedirectToSupportTitle();
 
-    @Key("action.redirectToHelp.description")
-    String actionRedirectToHelpDescription();
-
-    @Key("action.redirectToHelp.url")
-    String actionRedirectToHelpUrl();
-
-    @Key("action.redirectToForums.title")
-    String actionRedirectToForumsTitle();
-
-    @Key("action.redirectToForums.description")
-    String actionRedirectToForumsDescription();
-
-    @Key("action.redirectToForums.url")
-    String actionRedirectToForumsUrl();
-
-    @Key("action.redirectToFeedback.title")
-    String actionRedirectToFeedbackTitle();
-
-    @Key("action.redirectToFeedback.description")
-    String actionRedirectToFeedbackDescription();
-
-    @Key("action.redirectToFeedback.url")
-    String actionRedirectToFeedbackUrl();
+    @Key("action.redirect.to.support.description")
+    String actionRedirectToSupportDescription();
 
     /* Buttons */
     @Key("ok")

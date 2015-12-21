@@ -19,7 +19,7 @@ import org.eclipse.che.ide.api.mvp.View;
  */
 public interface AboutView extends View<AboutView.ActionDelegate> {
 
-    public interface ActionDelegate {
+    interface ActionDelegate {
 
         /**
          * Performs any actions appropriate in response to the user having pressed the OK button

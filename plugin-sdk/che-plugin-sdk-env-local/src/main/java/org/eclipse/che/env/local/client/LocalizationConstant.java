@@ -15,10 +15,10 @@ import com.google.gwt.i18n.client.Messages;
 /** @author Vitalii Parfonov */
 public interface LocalizationConstant extends Messages {
 
-    @Key("che.projectClosed.title")
+    @Key("che.none.project.selected.title")
     String cheTabTitle();
 
-    @Key("che.projectOpened.title")
+    @Key("che.project.selected.title")
     String cheTabTitle(String projectName);
 
     @Key("messages.server.failure")
@@ -26,4 +26,10 @@ public interface LocalizationConstant extends Messages {
 
     @Key("connection.closed.dialog.title")
     String connectionClosedDialogTitle();
+    
+    @Key("get.support.link")
+    String getSupportLink();
+
+    @Key("get.product.name")
+    String getProductName();
 }
