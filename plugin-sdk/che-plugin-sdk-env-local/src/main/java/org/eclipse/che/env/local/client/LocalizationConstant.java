@@ -14,31 +14,12 @@ import com.google.gwt.i18n.client.Messages;
 
 /** @author Vitalii Parfonov */
 public interface LocalizationConstant extends Messages {
-    @Key("che.rootFolder.change.dialog.title")
-    @DefaultMessage("Change workspace location")
-    String rootFolderDialogTitleChange();
-
-    @Key("che.rootFolder.dialog.label")
-    @DefaultMessage("Workspace location:")
-    String rootFolderDialogLabel();
 
     @Key("che.projectClosed.title")
     String cheTabTitle();
 
     @Key("che.projectOpened.title")
     String cheTabTitle(String projectName);
-
-    @Key("action.workspace.location")
-    @DefaultMessage("Workspace location")
-    String actionWorkspaceLocation();
-
-    @Key("action.workspace.location.title")
-    @DefaultMessage("Che stores your projects in a folder.\n" +
-                    "Choose a workspace folder to use for this session.")
-    String actionWorkspaceLocationTitle();
-
-    @Key("workspace.location.description")
-    String workspaceLocationDescription();
 
     @Key("messages.server.failure")
     String messagesServerFailure();
