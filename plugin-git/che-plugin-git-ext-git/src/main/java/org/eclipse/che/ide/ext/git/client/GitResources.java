@@ -43,24 +43,6 @@ public interface GitResources extends ClientBundle {
     @Source("push/arrow.png")
     ImageResource arrow();
 
-    @Source("buttons/ok.png")
-    ImageResource ok();
-
-    @Source("buttons/add.png")
-    ImageResource add();
-
-    @Source("buttons/cancel.png")
-    ImageResource cancel();
-
-    @Source("buttons/remove.png")
-    ImageResource remove();
-
-    @Source("buttons/rename.png")
-    ImageResource rename();
-
-    @Source("buttons/next.png")
-    ImageResource next();
-
     @Source("controls/remove.svg")
     SVGResource removeFiles();
 
@@ -103,7 +85,7 @@ public interface GitResources extends ClientBundle {
     @Source("history/history.png")
     ImageResource history();
 
-    @Source("history/show-history.svg")
+    @Source("controls/show-history.svg")
     SVGResource showHistory();
 
     @Source("history/project_level.png")
@@ -130,39 +112,6 @@ public interface GitResources extends ClientBundle {
     @Source("controls/status.svg")
     SVGResource status();
 
-    @Source("controls/checkout.png")
-    ImageResource checkout();
-
-    @Source("statuses/added.png")
-    ImageResource itemAdded();
-
-    @Source("statuses/changed.png")
-    ImageResource itemChanged();
-
-    @Source("statuses/conflicting.png")
-    ImageResource itemConflicting();
-
-    @Source("statuses/ignored_not_in_index.png")
-    ImageResource itemIgnoredNotInIndex();
-
-    @Source("statuses/in_repo.png")
-    ImageResource itemInRepo();
-
-    @Source("statuses/missing.png")
-    ImageResource itemMissing();
-
-    @Source("statuses/modified.png")
-    ImageResource itemModified();
-
-    @Source("statuses/removed.png")
-    ImageResource itemRemoved();
-
-    @Source("statuses/root.png")
-    ImageResource itemRoot();
-
-    @Source("statuses/untracked.png")
-    ImageResource itemUntracked();
-
     @Source("branch/current.png")
     ImageResource currentBranch();
 
@@ -174,7 +123,4 @@ public interface GitResources extends ClientBundle {
 
     @Source("controls/git-url.svg")
     SVGResource projectReadOnlyGitUrl();
-
-    @Source("welcome/project_open.png")
-    ImageResource project();
 }
