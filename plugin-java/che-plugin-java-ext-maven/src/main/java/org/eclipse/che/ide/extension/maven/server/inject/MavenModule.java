@@ -13,13 +13,16 @@ package org.eclipse.che.ide.extension.maven.server.inject;
 import com.google.inject.AbstractModule;
 import com.google.inject.Singleton;
 import com.google.inject.multibindings.Multibinder;
+import com.google.inject.name.Names;
 
 import org.eclipse.che.api.core.model.project.type.ProjectType;
 import org.eclipse.che.api.project.server.ValueProviderFactory;
 import org.eclipse.che.api.project.server.handlers.ProjectHandler;
+import org.eclipse.che.api.vfs.server.VirtualFileFilter;
 import org.eclipse.che.ide.ext.java.server.classpath.ClassPathBuilder;
 import org.eclipse.che.ide.extension.maven.server.core.MavenClassPathBuilder;
 import org.eclipse.che.ide.extension.maven.server.projecttype.MavenProjectType;
+import org.eclipse.che.ide.extension.maven.server.projecttype.MavenTargetFilter;
 import org.eclipse.che.ide.extension.maven.server.projecttype.MavenValueProviderFactory;
 import org.eclipse.che.ide.extension.maven.server.projecttype.handler.AddMavenModuleHandler;
 import org.eclipse.che.ide.extension.maven.server.projecttype.handler.ArchetypeGenerationStrategy;
@@ -31,15 +34,17 @@ import org.eclipse.che.ide.extension.maven.server.projecttype.handler.MavenProje
 import org.eclipse.che.ide.extension.maven.server.projecttype.handler.ProjectHasBecomeMaven;
 import org.eclipse.che.ide.extension.maven.server.projecttype.handler.RemoveMavenModuleHandler;
 
+import static com.google.inject.multibindings.Multibinder.newSetBinder;
+
 /** @author Artem Zatsarynnyi */
 public class MavenModule extends AbstractModule {
     @Override
     protected void configure() {
-        Multibinder.newSetBinder(binder(), ValueProviderFactory.class).addBinding().to(MavenValueProviderFactory.class);
+        newSetBinder(binder(), ValueProviderFactory.class).addBinding().to(MavenValueProviderFactory.class);
 
-        Multibinder.newSetBinder(binder(), ProjectType.class).addBinding().to(MavenProjectType.class);
+        newSetBinder(binder(), ProjectType.class).addBinding().to(MavenProjectType.class);
 
-        Multibinder<ProjectHandler> projectHandlerMultibinder = Multibinder.newSetBinder(binder(), ProjectHandler.class);
+        Multibinder<ProjectHandler> projectHandlerMultibinder = newSetBinder(binder(), ProjectHandler.class);
         projectHandlerMultibinder.addBinding().to(MavenProjectGenerator.class);
         projectHandlerMultibinder.addBinding().to(AddMavenModuleHandler.class);
         projectHandlerMultibinder.addBinding().to(RemoveMavenModuleHandler.class);
@@ -48,7 +53,10 @@ public class MavenModule extends AbstractModule {
         projectHandlerMultibinder.addBinding().to(GetMavenModulesHandler.class);
         projectHandlerMultibinder.addBinding().to(MavenProjectCreatedHandler.class);
 
-        Multibinder.newSetBinder(binder(), GeneratorStrategy.class).addBinding().to(ArchetypeGenerationStrategy.class);
+        newSetBinder(binder(), GeneratorStrategy.class).addBinding().to(ArchetypeGenerationStrategy.class);
         bind(ClassPathBuilder.class).to(MavenClassPathBuilder.class).in(Singleton.class);
+
+        Multibinder<VirtualFileFilter> multibinder = newSetBinder(binder(), VirtualFileFilter.class, Names.named("vfs.index_filter"));
+        multibinder.addBinding().to(MavenTargetFilter.class);
     }
 }
