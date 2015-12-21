@@ -22,6 +22,7 @@ import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.event.project.ProjectReadyHandler;
+import org.eclipse.che.ide.api.notification.StatusNotification;
 import org.eclipse.che.ide.api.project.tree.generic.FileNode;
 import org.eclipse.che.ide.debug.Breakpoint;
 import org.eclipse.che.ide.debug.BreakpointManager;
@@ -50,6 +51,8 @@ import org.mockito.stubbing.Answer;
 
 import java.lang.reflect.Method;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.anyObject;
@@ -170,7 +173,7 @@ public class DebuggerTest extends BaseTest {
         presenter.onDisconnectButtonClicked();
 
         verify(service).disconnect(anyString(), Matchers.<AsyncRequestCallback<Void>>anyObject());
-        verify(notificationManager).notify(anyString(), eq(project));
+        verify(notificationManager).notify(anyString(), any(StatusNotification.Status.class), anyBoolean());
     }
 
     @Test
@@ -213,7 +216,7 @@ public class DebuggerTest extends BaseTest {
         presenter.onResumeButtonClicked();
 
         verify(service).resume(anyString(), Matchers.<AsyncRequestCallback<Void>>anyObject());
-        verify(notificationManager).notify(anyString(), eq(project));
+        verify(notificationManager).notify(anyString(), any(StatusNotification.Status.class), anyBoolean());
     }
 
     @Test
@@ -229,7 +232,6 @@ public class DebuggerTest extends BaseTest {
                 return callback;
             }
         }).when(service).stepInto(anyString(), Matchers.<AsyncRequestCallback<Void>>anyObject());
-        when(view.resetStepIntoButton(false)).thenReturn(true);
 
         presenter.onStepIntoButtonClicked();
 
@@ -237,15 +239,6 @@ public class DebuggerTest extends BaseTest {
         verify(view).setVariables(anyListOf(DebuggerVariable.class));
         verify(view).setEnableChangeValueButtonEnable(eq(DISABLE_BUTTON));
         verify(gutterManager).removeCurrentBreakpoint();
-    }
-
-    @Test
-    public void testStepIntoRequestIfKeyUp() throws Exception {
-        when(view.resetStepIntoButton(false)).thenReturn(false);
-
-        presenter.onStepIntoButtonClicked();
-
-        verify(service, never()).stepInto(anyString(), Matchers.<AsyncRequestCallback<Void>>anyObject());
     }
 
     @Test
@@ -261,12 +254,11 @@ public class DebuggerTest extends BaseTest {
                 return callback;
             }
         }).when(service).stepInto(anyString(), Matchers.<AsyncRequestCallback<Void>>anyObject());
-        when(view.resetStepIntoButton(false)).thenReturn(true);
 
         presenter.onStepIntoButtonClicked();
 
         verify(service).stepInto(anyString(), Matchers.<AsyncRequestCallback<Void>>anyObject());
-        verify(notificationManager).notify(anyString(), eq(project));
+        verify(notificationManager).notify(anyString(), any(StatusNotification.Status.class), anyBoolean());
     }
 
     @Test
@@ -282,7 +274,6 @@ public class DebuggerTest extends BaseTest {
                 return callback;
             }
         }).when(service).stepOver(anyString(), Matchers.<AsyncRequestCallback<Void>>anyObject());
-        when(view.resetStepOverButton(false)).thenReturn(true);
 
         presenter.onStepOverButtonClicked();
 
@@ -305,21 +296,11 @@ public class DebuggerTest extends BaseTest {
                 return callback;
             }
         }).when(service).stepOver(anyString(), Matchers.<AsyncRequestCallback<Void>>anyObject());
-        when(view.resetStepOverButton(false)).thenReturn(true);
 
         presenter.onStepOverButtonClicked();
 
         verify(service).stepOver(anyString(), Matchers.<AsyncRequestCallback<Void>>anyObject());
-        verify(notificationManager).notify(anyString(), eq(project));
-    }
-
-    @Test
-    public void testStepOverRequestIfKeyup() throws Exception {
-        when(view.resetStepOverButton(false)).thenReturn(false);
-
-        presenter.onStepOverButtonClicked();
-
-        verify(service, never()).stepOver(anyString(), Matchers.<AsyncRequestCallback<Void>>anyObject());
+        verify(notificationManager).notify(anyString(), any(StatusNotification.Status.class), anyBoolean());
     }
 
     @Test
@@ -335,7 +316,6 @@ public class DebuggerTest extends BaseTest {
                 return callback;
             }
         }).when(service).stepReturn(anyString(), Matchers.<AsyncRequestCallback<Void>>anyObject());
-        when(view.resetStepReturnButton(false)).thenReturn(true);
 
         presenter.onStepReturnButtonClicked();
 
@@ -358,21 +338,11 @@ public class DebuggerTest extends BaseTest {
                 return callback;
             }
         }).when(service).stepReturn(anyString(), Matchers.<AsyncRequestCallback<Void>>anyObject());
-        when(view.resetStepReturnButton(false)).thenReturn(true);
 
         presenter.onStepReturnButtonClicked();
 
         verify(service).stepReturn(anyString(), Matchers.<AsyncRequestCallback<Void>>anyObject());
-        verify(notificationManager).notify(anyString(), eq(project));
-    }
-
-    @Test
-    public void testStepReturnRequestIfKeyup() throws Exception {
-        when(view.resetStepReturnButton(false)).thenReturn(false);
-
-        presenter.onStepReturnButtonClicked();
-
-        verify(service, never()).stepReturn(anyString(), Matchers.<AsyncRequestCallback<Void>>anyObject());
+        verify(notificationManager).notify(anyString(), any(StatusNotification.Status.class), anyBoolean());
     }
 
     @Test

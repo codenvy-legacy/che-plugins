@@ -16,10 +16,6 @@
     <ui:with field='locale' type='org.eclipse.che.ide.ext.java.jdi.client.JavaRuntimeLocalizationConstant'/>
     <ui:with field='coreRes' type='org.eclipse.che.ide.Resources'/>
     <ui:style>
-        .positionAbs {
-            position: absolute;
-        }
-
         .alignRight {
             float: right;
         }
@@ -29,8 +25,9 @@
         }
 
         .debuggerButton {
-            width: 18px;
-            height: 16px;
+            width: 20px;
+            height: 20px;
+            min-width: initial;
             float: left;
             margin-left: 1px;
             padding: 1px;
@@ -62,32 +59,32 @@
         <g:north size="26.0">
             <g:FlowPanel width="100%" height="100%">
                 <g:FlowPanel addStyleNames="{style.alignLeft} {style.buttonBorder}">
-                    <g:PushButton ui:field="btnResume" title="{locale.resumeButton}"
+                    <g:Button ui:field="btnResume" title="{locale.resumeButton}"
                                   addStyleNames="{style.debuggerButton}" debugId="debugger-btnResume">
-                    </g:PushButton>
+                    </g:Button>
 
-                    <g:ToggleButton ui:field="btnStepInto" title="{locale.stepInto}"
+                    <g:Button ui:field="btnStepInto" title="{locale.stepInto}"
                                     addStyleNames="{style.debuggerButton}" debugId="debugger-btnStepInto">
-                    </g:ToggleButton>
+                    </g:Button>
 
-                    <g:ToggleButton ui:field="btnStepOver" title="{locale.stepOver}"
+                    <g:Button ui:field="btnStepOver" title="{locale.stepOver}"
                                     addStyleNames="{style.debuggerButton}" debugId="debugger-btnStepOver">
-                    </g:ToggleButton>
-                    <g:ToggleButton ui:field="btnStepReturn" title="{locale.stepReturn}"
+                    </g:Button>
+                    <g:Button ui:field="btnStepReturn" title="{locale.stepReturn}"
                                     addStyleNames="{style.debuggerButton}" debugId="debugger-btnStepReturn">
-                    </g:ToggleButton>
-                    <g:PushButton ui:field="btnDisconnect" title="{locale.disconnectButton}"
+                    </g:Button>
+                    <g:Button ui:field="btnDisconnect" title="{locale.disconnectButton}"
                                   addStyleNames="{style.debuggerButton}" debugId="debugger-btnDisconnect">
-                    </g:PushButton>
-                    <g:PushButton ui:field="btnRemoveAllBreakpoints" title="{locale.removeBreakpointsButton}"
+                    </g:Button>
+                    <g:Button ui:field="btnRemoveAllBreakpoints" title="{locale.removeBreakpointsButton}"
                                   addStyleNames="{style.debuggerButton}" debugId="debugger-btnRemoveAllBreakpoints">
-                    </g:PushButton>
-                    <g:PushButton ui:field="btnChangeValue" title="{locale.changeValue}"
+                    </g:Button>
+                    <g:Button ui:field="btnChangeValue" title="{locale.changeValue}"
                                   addStyleNames="{style.debuggerButton}" debugId="debugger-btnChangeValue">
-                    </g:PushButton>
-                    <g:PushButton ui:field="btnEvaluateExpression" title="{locale.evaluateExpression}"
+                    </g:Button>
+                    <g:Button ui:field="btnEvaluateExpression" title="{locale.evaluateExpression}"
                                   addStyleNames="{style.debuggerButton}" debugId="debugger-btnEvaluateExpression">
-                    </g:PushButton>
+                    </g:Button>
                 </g:FlowPanel>
                 <g:Label ui:field="vmName" addStyleNames="{style.alignRight} {style.labelBorder}"/>
             </g:FlowPanel>

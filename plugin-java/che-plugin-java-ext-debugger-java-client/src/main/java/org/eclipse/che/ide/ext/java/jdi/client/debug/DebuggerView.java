@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.java.jdi.client.debug;
 
-import com.google.gwt.user.client.ui.ToggleButton;
-
 import org.eclipse.che.ide.api.mvp.View;
 import org.eclipse.che.ide.api.parts.base.BaseActionDelegate;
 import org.eclipse.che.ide.debug.Breakpoint;
@@ -132,9 +130,6 @@ public interface DebuggerView extends View<DebuggerView.ActionDelegate> {
      */
     void setEnableStepIntoButton(boolean isEnable);
 
-    /** Change state for StepIntoButton. */
-    boolean resetStepIntoButton(boolean state);
-
     /**
      * Sets whether Step over button is enabled.
      *
@@ -143,9 +138,6 @@ public interface DebuggerView extends View<DebuggerView.ActionDelegate> {
      */
     void setEnableStepOverButton(boolean isEnable);
 
-    /** Change state for StepOverButton. */
-    boolean resetStepOverButton(boolean state);
-
     /**
      * Sets whether Step return button is enabled.
      *
@@ -153,19 +145,6 @@ public interface DebuggerView extends View<DebuggerView.ActionDelegate> {
      *         <code>true</code> to enable the button, <code>false</code> to disable it
      */
     void setEnableStepReturnButton(boolean isEnable);
-
-    /** Change  state for StepReturnButton. */
-    boolean resetStepReturnButton(boolean state);
-
-    /**
-     * Sets whether Change value button is enabled.
-     *
-     * @param button
-     *         the instance of button widget
-     * @param state
-     *         the new state of button
-     */
-    boolean setButtonState(@NotNull ToggleButton button, boolean state);
 
     /**
      * Sets whether Change value button is enabled.

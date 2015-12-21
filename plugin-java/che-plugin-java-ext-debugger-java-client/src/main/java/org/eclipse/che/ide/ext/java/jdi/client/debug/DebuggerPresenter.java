@@ -36,6 +36,7 @@ import org.eclipse.che.ide.api.event.FileEvent;
 import org.eclipse.che.ide.api.event.project.CloseCurrentProjectEvent;
 import org.eclipse.che.ide.api.event.project.CloseCurrentProjectHandler;
 import org.eclipse.che.ide.api.notification.NotificationManager;
+import org.eclipse.che.ide.api.notification.StatusNotification;
 import org.eclipse.che.ide.api.parts.PartPresenter;
 import org.eclipse.che.ide.api.parts.PartStackType;
 import org.eclipse.che.ide.api.parts.WorkspaceAgent;
@@ -142,9 +143,6 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
     private       SubscriptionHandler<Void>              debuggerDisconnectedHandler;
     private       List<DebuggerVariable>                 variables;
     private       Location                               executionPoint;
-
-    private String host;
-    private int    port;
 
     @Inject
     public DebuggerPresenter(DebuggerView view,
@@ -357,8 +355,9 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
 
                     @Override
                     public void onFailure(Throwable caught) {
-                        notificationManager.notify(constant.errorSourceNotFoundForClass(finalLocation.getClassName()),
-                                                   appContext.getCurrentProject().getRootProject());
+                        notificationManager.notify(caught.getMessage(),
+                                                   StatusNotification.Status.FAIL,
+                                                   false);
                     }
                 });
             } else {
@@ -459,7 +458,7 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
         jarEntry.setType(JarEntry.JarEntryType.CLASS_FILE);
 
         JarFileNode jarFileNode = javaNodeManager.getJavaNodeFactory()
-                                                 .newJarFileNode(jarEntry,
+                                                 .newJarFileNode                                                        (jarEntry,
                                                                  null,
                                                                  appContext.getCurrentProject().getProjectConfig(),
                                                                  javaNodeManager.getJavaSettingsProvider().getSettings());
@@ -495,8 +494,9 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
 
                                       @Override
                                       protected void onFailure(Throwable exception) {
-                                          notificationManager
-                                                  .notify(exception.getMessage(), appContext.getCurrentProject().getRootProject());
+                                          notificationManager.notify(exception.getMessage(),
+                                                                     StatusNotification.Status.FAIL,
+                                                                     false);
                                       }
                                   }
                                  );
@@ -536,8 +536,9 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
 
             @Override
             protected void onFailure(Throwable exception) {
-                notificationManager
-                        .notify(exception.getMessage(), appContext.getCurrentProject().getRootProject());
+                notificationManager.notify(exception.getMessage(),
+                                           StatusNotification.Status.FAIL,
+                                           false);
             }
         });
     }
@@ -555,8 +556,9 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
 
                 @Override
                 protected void onFailure(Throwable exception) {
-                    notificationManager
-                            .notify(exception.getMessage(), appContext.getCurrentProject().getRootProject());
+                    notificationManager.notify(exception.getMessage(),
+                                               StatusNotification.Status.FAIL,
+                                               false);
                 }
             });
         } else {
@@ -574,23 +576,19 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
     /** {@inheritDoc} */
     @Override
     public void onStepIntoButtonClicked() {
-        if (!view.resetStepIntoButton(false)) {
-            return;
-        }
         breakpointManager.removeCurrentBreakpoint();
 
         service.stepInto(debuggerInfo.getId(), new AsyncRequestCallback<Void>() {
             @Override
             protected void onSuccess(Void result) {
                 resetStates();
-                view.resetStepIntoButton(true);
             }
 
             @Override
             protected void onFailure(Throwable exception) {
-                notificationManager
-                        .notify(exception.getMessage(), appContext.getCurrentProject().getRootProject());
-                view.resetStepIntoButton(true);
+                notificationManager.notify(exception.getMessage(),
+                                           StatusNotification.Status.FAIL,
+                                           false);
             }
         });
     }
@@ -598,23 +596,19 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
     /** {@inheritDoc} */
     @Override
     public void onStepOverButtonClicked() {
-        if (!view.resetStepOverButton(false)) {
-            return;
-        }
         breakpointManager.removeCurrentBreakpoint();
 
         service.stepOver(debuggerInfo.getId(), new AsyncRequestCallback<Void>() {
             @Override
             protected void onSuccess(Void result) {
                 resetStates();
-                view.resetStepOverButton(true);
             }
 
             @Override
             protected void onFailure(Throwable exception) {
-                notificationManager
-                        .notify(exception.getMessage(), appContext.getCurrentProject().getRootProject());
-                view.resetStepOverButton(true);
+                notificationManager.notify(exception.getMessage(),
+                                           StatusNotification.Status.FAIL,
+                                           false);
             }
 
         });
@@ -623,23 +617,19 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
     /** {@inheritDoc} */
     @Override
     public void onStepReturnButtonClicked() {
-        if (!view.resetStepReturnButton(false)) {
-            return;
-        }
         breakpointManager.removeCurrentBreakpoint();
 
         service.stepReturn(debuggerInfo.getId(), new AsyncRequestCallback<Void>() {
             @Override
             protected void onSuccess(Void result) {
                 resetStates();
-                view.resetStepReturnButton(true);
             }
 
             @Override
             protected void onFailure(Throwable exception) {
-                notificationManager
-                        .notify(exception.getMessage(), appContext.getCurrentProject().getRootProject());
-                view.resetStepReturnButton(true);
+                notificationManager.notify(exception.getMessage(),
+                                           StatusNotification.Status.FAIL,
+                                           false);
             }
 
         });
@@ -690,7 +680,9 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
 
                                  @Override
                                  protected void onFailure(Throwable exception) {
-                                     notificationManager.notify(exception.getMessage(), appContext.getCurrentProject().getRootProject());
+                                     notificationManager.notify(exception.getMessage(),
+                                                                StatusNotification.Status.FAIL,
+                                                                false);
                                  }
                              }
                             );
@@ -747,16 +739,13 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
      *         port which need to connect to debugger
      */
     public void attachDebugger(@NotNull final String host, @Min(1) final int port) {
-        this.host = host;
-        this.port = port;
-
         service.connect(host, port, new AsyncRequestCallback<DebuggerInfo>(dtoUnmarshallerFactory.newUnmarshaller(DebuggerInfo.class)) {
                             @Override
                             public void onSuccess(DebuggerInfo result) {
                                 debuggerInfo = result;
-                                notificationManager.notify(constant.debuggerConnected(host + ':' + port),
-                                                           appContext.getCurrentProject().getRootProject());
-
+                                notificationManager
+                                        .notify(constant.debuggerConnected(result.getHost() + ':' + result.getPort()), StatusNotification.Status.SUCCESS,
+                                                false);
                                 view.setEnableDisconnectButton(true);
                                 startCheckingEvents();
 
@@ -765,8 +754,7 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
 
                             @Override
                             protected void onFailure(Throwable exception) {
-                                notificationManager.notify(exception.getMessage(),
-                                                           appContext.getCurrentProject().getRootProject());
+                                notificationManager.notify(exception.getMessage(), StatusNotification.Status.FAIL, false);
                             }
                         }
                        );
@@ -785,7 +773,7 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
 
                 @Override
                 protected void onFailure(Throwable exception) {
-                    notificationManager.notify(exception.getMessage(), appContext.getCurrentProject().getRootProject());
+                    notificationManager.notify(exception.getMessage(), StatusNotification.Status.FAIL, false);
                 }
             });
         } else {
@@ -825,8 +813,10 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
 
     /** Perform some action after disconnecting a debugger. */
     private void onDebuggerDisconnected() {
+        notificationManager.notify(constant.debuggerDisconnected(debuggerInfo.getHost() + ':' + debuggerInfo.getPort()),
+                                   StatusNotification.Status.SUCCESS,
+                                   false);
         debuggerInfo = null;
-        notificationManager.notify(constant.debuggerDisconnected(host + ':' + port), appContext.getCurrentProject().getRootProject());
         eventBus.fireEvent(createDisconnectedStateEvent(this));
     }
 

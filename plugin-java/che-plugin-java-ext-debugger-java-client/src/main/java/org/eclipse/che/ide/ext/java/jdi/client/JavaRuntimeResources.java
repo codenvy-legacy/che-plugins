@@ -21,14 +21,11 @@ public interface JavaRuntimeResources extends ClientBundle {
     @Source("resume.svg")
     SVGResource resumeButton();
 
+    @Source("connect.svg")
+    SVGResource connectButton();
+
     @Source("disconnect.svg")
     SVGResource disconnectButton();
-
-    @Source("cancel.png")
-    ImageResource cancelButton();
-
-    @Source("ok.png")
-    ImageResource okButton();
 
     @Source("stepinto.svg")
     SVGResource stepIntoButton();
@@ -51,12 +48,13 @@ public interface JavaRuntimeResources extends ClientBundle {
     @Source("evaluate.svg")
     SVGResource evaluate();
 
-    @Source("breakpoint.png")
-    ImageResource breakpoint();
+    @Source("breakpoint.svg")
+    SVGResource breakpoint();
 
     @Source("remove.svg")
     SVGResource removeAllBreakpointsButton();
 
-    @Source("breakpoints.png")
-    ImageResource breakPointsIcon();
+    @Source("separator.svg")
+    SVGResource separator();
+
 }

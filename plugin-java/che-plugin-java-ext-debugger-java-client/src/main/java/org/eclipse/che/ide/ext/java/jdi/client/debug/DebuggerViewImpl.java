@@ -17,16 +17,14 @@ import elemental.html.TableCellElement;
 import elemental.html.TableElement;
 
 import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
+import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.PushButton;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.SplitLayoutPanel;
-import com.google.gwt.user.client.ui.ToggleButton;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -47,6 +45,7 @@ import org.eclipse.che.ide.ui.tree.TreeNodeElement;
 import org.eclipse.che.ide.util.dom.Elements;
 import org.eclipse.che.ide.util.input.SignalEvent;
 import org.vectomatic.dom.svg.ui.SVGImage;
+import org.vectomatic.dom.svg.ui.SVGResource;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -64,21 +63,21 @@ public class DebuggerViewImpl extends BaseView<DebuggerView.ActionDelegate> impl
     }
 
     @UiField
-    PushButton                      btnResume;
+    Button                          btnResume;
     @UiField
-    ToggleButton                    btnStepInto;
+    Button                          btnStepInto;
     @UiField
-    ToggleButton                    btnStepOver;
+    Button                          btnStepOver;
     @UiField
-    ToggleButton                    btnStepReturn;
+    Button                          btnStepReturn;
     @UiField
-    PushButton                      btnDisconnect;
+    Button                          btnDisconnect;
     @UiField
-    PushButton                      btnRemoveAllBreakpoints;
+    Button                          btnRemoveAllBreakpoints;
     @UiField
-    PushButton                      btnChangeValue;
+    Button                          btnChangeValue;
     @UiField
-    PushButton                      btnEvaluateExpression;
+    Button                          btnEvaluateExpression;
     @UiField
     Label                           vmName;
     @UiField
@@ -148,7 +147,7 @@ public class DebuggerViewImpl extends BaseView<DebuggerView.ActionDelegate> impl
                         SafeHtmlBuilder sb = new SafeHtmlBuilder();
                         // Add icon
                         sb.appendHtmlConstant("<table><tr><td>");
-                        ImageResource icon = res.breakpoint();
+                        SVGResource icon = res.breakpoint();
                         if (icon != null) {
                             sb.appendHtmlConstant("<img src=\"" + icon.getSafeUri().asString() + "\">");
                         }
@@ -170,7 +169,7 @@ public class DebuggerViewImpl extends BaseView<DebuggerView.ActionDelegate> impl
                     }
                 };
 
-        breakpoints = SimpleList.create((SimpleList.View)breakPointsElement,
+        breakpoints = SimpleList.create                            ((SimpleList.View)breakPointsElement,
                                         coreRes.defaultSimpleListCss(),
                                         breakpointListItemRenderer,
                                         breakpointListEventDelegate);
@@ -294,45 +293,14 @@ public class DebuggerViewImpl extends BaseView<DebuggerView.ActionDelegate> impl
 
     /** {@inheritDoc} */
     @Override
-    public boolean resetStepIntoButton(boolean state) {
-        return setButtonState(btnStepInto, state);
-    }
-
-    /** {@inheritDoc} */
-    @Override
     public void setEnableStepOverButton(boolean isEnable) {
         btnStepOver.setEnabled(isEnable);
     }
 
     /** {@inheritDoc} */
     @Override
-    public boolean resetStepOverButton(boolean state) {
-        return setButtonState(btnStepOver, state);
-    }
-
-    /** {@inheritDoc} */
-    @Override
     public void setEnableStepReturnButton(boolean isEnable) {
         btnStepReturn.setEnabled(isEnable);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public boolean resetStepReturnButton(boolean state) {
-        return setButtonState(btnStepReturn, state);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public boolean setButtonState(@NotNull ToggleButton button, boolean state) {
-        if (state) {
-            if (!button.isDown()) return true;
-            button.setDown(false);
-        } else {
-            if (button.isDown()) return true;
-            button.setDown(true);
-        }
-        return false;
     }
 
     /** {@inheritDoc} */
