@@ -11,24 +11,32 @@
 package org.eclipse.che.ide.ext.help.client;
 
 import com.google.gwt.resources.client.ClientBundle;
-import com.google.gwt.resources.client.ImageResource;
 
+import com.google.gwt.resources.client.CssResource;
 import org.vectomatic.dom.svg.ui.SVGResource;
 
-public interface Resources extends ClientBundle {
-
-    @Source("about/logo.png")
-    ImageResource logo();
+public interface AboutResources extends ClientBundle {
 
     @Source("actions/about.svg")
     SVGResource about();
 
-    @Source("actions/help.svg")
-    SVGResource help();
+    @Source("actions/support.svg")
+    SVGResource getSupport();
 
-    @Source("actions/forums.svg")
-    SVGResource forums();
+    @Source("About.css")
+    AboutCss aboutCss();
 
-    @Source("actions/feature-vote.svg")
-    SVGResource featureVote();
+    interface AboutCss extends CssResource {
+        String emptyBorder();
+
+        String label();
+
+        String spacing();
+
+        String value();
+
+        String mainText();
+
+        String logo();
+    }
 }

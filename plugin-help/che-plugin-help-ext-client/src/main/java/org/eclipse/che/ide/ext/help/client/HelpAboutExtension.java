@@ -29,24 +29,15 @@ public class HelpAboutExtension {
     @Inject
     public HelpAboutExtension(ActionManager actionManager,
                               final ShowAboutAction showAboutAction,
-                              final RedirectToHelpAction redirectToHelpAction,
-                              final RedirectToForumsAction redirectToForumsAction,
-                              final RedirectToFeedbackAction redirectToFeedbackAction) {
+                              final RedirectToSupportAction redirectToSupportAction) {
 
         // Compose Help menu
         DefaultActionGroup helpGroup = (DefaultActionGroup)actionManager.getAction(IdeActions.GROUP_HELP);
         actionManager.registerAction("showAbout", showAboutAction);
-        actionManager.registerAction("redirectToHelp", redirectToHelpAction);
-        actionManager.registerAction("redirectToForums", redirectToForumsAction);
-        actionManager.registerAction("redirectToFeedback", redirectToFeedbackAction);
-
+        actionManager.registerAction("redirectToSupport", redirectToSupportAction);
 
         helpGroup.add(showAboutAction);
         helpGroup.addSeparator();
-        helpGroup.add(redirectToHelpAction);
-        helpGroup.addSeparator();
-        helpGroup.add(redirectToForumsAction);
-        helpGroup.add(redirectToFeedbackAction);
-
+        helpGroup.add(redirectToSupportAction);
     }
 }

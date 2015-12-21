@@ -11,8 +11,6 @@
 package org.eclipse.che.ide.ext.help.client;
 
 import org.eclipse.che.api.analytics.client.logger.AnalyticsEventLogger;
-
-
 import org.eclipse.che.ide.api.action.Action;
 import org.eclipse.che.ide.api.action.ActionEvent;
 
@@ -20,31 +18,33 @@ import com.google.gwt.user.client.Window;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
+import org.eclipse.che.ide.api.ProductInfoDataProvider;
+
 /**
- * Open a new window with the forums URL
+ * Redirect to support window
  *
  * @author Oleksii Orel
+ * @author Alexander Andrienko
  */
 @Singleton
-public class RedirectToForumsAction extends Action {
+public class RedirectToSupportAction extends Action {
 
-    private final AnalyticsEventLogger              eventLogger;
-    private final HelpExtensionLocalizationConstant locale;
+    private final AnalyticsEventLogger    eventLogger;
+    private final ProductInfoDataProvider productInfoDataProvider;
 
     @Inject
-    public RedirectToForumsAction(HelpExtensionLocalizationConstant locale,
-                                  AnalyticsEventLogger eventLogger,
-                                  Resources resources) {
-        super(locale.actionRedirectToForumsTitle(), locale.actionRedirectToForumsDescription(), null, resources.forums());
+    public RedirectToSupportAction(HelpExtensionLocalizationConstant locale,
+                                   ProductInfoDataProvider productInfoDataProvider,
+                                   AnalyticsEventLogger eventLogger,
+                                   AboutResources resources) {
+        super(locale.actionRedirectToSupportTitle(), locale.actionRedirectToSupportDescription(), null, resources.getSupport());
         this.eventLogger = eventLogger;
-        this.locale = locale;
+        this.productInfoDataProvider = productInfoDataProvider;
     }
 
-    /** {@inheritDoc} */
     @Override
     public void actionPerformed(ActionEvent e) {
         eventLogger.log(this);
-        Window.open(locale.actionRedirectToForumsUrl(), "_blank", "");
+        Window.open(productInfoDataProvider.getSupportLink(), "_blank", null);
     }
-
 }

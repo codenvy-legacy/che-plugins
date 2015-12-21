@@ -10,13 +10,17 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.help.client.about;
 
+import org.eclipse.che.ide.api.ProductInfoDataProvider;
+import org.eclipse.che.ide.ext.help.client.AboutResources;
 import org.eclipse.che.ide.ext.help.client.HelpExtensionLocalizationConstant;
 import org.eclipse.che.ide.ui.window.Window;
+import org.vectomatic.dom.svg.ui.SVGImage;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
@@ -41,15 +45,23 @@ public class AboutViewImpl extends Window implements AboutView {
     Label                     buildTime;
     @UiField(provided = true)
     AboutLocalizationConstant locale;
+    @UiField
+    FlowPanel                 logoPanel;
 
     private ActionDelegate delegate;
 
 
     @Inject
-    public AboutViewImpl(Resources resources, AboutViewImplUiBinder uiBinder, AboutLocalizationConstant locale,
-                         HelpExtensionLocalizationConstant coreLocale) {
+    public AboutViewImpl(ProductInfoDataProvider productInfoDataProvider,
+                         AboutViewImplUiBinder uiBinder,
+                         AboutLocalizationConstant locale,
+                         HelpExtensionLocalizationConstant coreLocale,
+                         AboutResources aboutResources) {
         this.locale = locale;
-        this.setTitle(locale.aboutViewTitle());
+
+        aboutResources.aboutCss().ensureInjected();
+        String title = locale.aboutControlTitle() + " " + productInfoDataProvider.getName();
+        this.setTitle(title);
         this.setWidget(uiBinder.createAndBindUi(this));
         this.ensureDebugId("aboutView-window");
 
@@ -61,6 +73,8 @@ public class AboutViewImpl extends Window implements AboutView {
             }
         });
         addButtonToFooter(btnOk);
+
+        logoPanel.add(new SVGImage(productInfoDataProvider.getLogo()));
     }
 
     /** {@inheritDoc} */
