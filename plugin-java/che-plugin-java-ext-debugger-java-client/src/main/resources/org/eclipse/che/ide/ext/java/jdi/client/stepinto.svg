@@ -1,17 +1,10 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<svg width="339px" height="206px" viewBox="0 0 339 206" version="1.1" xmlns="http://www.w3.org/2000/svg"
-     xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
-    <!-- Generator: Sketch 3.0.1 (7597) - http://www.bohemiancoding.com/sketch -->
-    <title>Slice 1</title>
-    <desc>Created with Sketch.</desc>
-    <defs></defs>
-    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-        <rect fill="#E7D600" x="0" y="0" width="160" height="60"></rect>
-        <rect fill="#3087ED" x="39" y="167" width="80" height="39"></rect>
-        <rect fill="#3087ED" x="259" y="167" width="80" height="39"></rect>
-        <rect fill="#E7D600" transform="translate(189.000000, 80.000000) rotate(-90.000000) translate(-189.000000, -80.000000) " x="109"
-              y="50" width="160" height="60"></rect>
-        <polygon fill="#E7D600" transform="translate(189.000000, 169.000000) scale(-1, -1) translate(-189.000000, -169.000000) "
-                 points="189 132 259 206 119 206 "></polygon>
-    </g>
+<?xml version="1.0" encoding="utf-8"?>
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="32px"
+	 height="32px" viewBox="6 6 20 20" xml:space="preserve">
+	<g>
+		<path fill-rule="evenodd" clip-rule="evenodd" fill="#3193D4" d="M8,10.5h8c0.55,0,1,0.451,1,1v7.172h1.828L16,21.5l-2.829-2.828
+			H15V12.5H9c-0.55,0-1-0.45-1-1V10.5z"/>
+		<path fill-rule="evenodd" clip-rule="evenodd" fill="#808080" d="M18.242,20.672H23c0.55,0,1-0.449,1-1l0,0c0-0.55-0.45-1-1-1
+			h-2.758L18.242,20.672L18.242,20.672z M9,20.672h4.757l-2-2H9c-0.551,0-1,0.45-1,1l0,0C8,20.223,8.449,20.672,9,20.672z"/>
+	</g>
 </svg>
