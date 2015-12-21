@@ -114,6 +114,8 @@
     color: mainFontColor;
     font-family: mainFontFamily;
     border: 1px solid black;
+    padding: 5px;
+    border-radius: 0px;
 }
 .orionCodenvy .textViewFind.show {
 }
@@ -124,19 +126,29 @@
 .orionCodenvy .textViewFindButton:last-child {
 }
 .orionCodenvy .textViewFindButton.checked {
+    color: buttonFontColor;
 }
 .orionCodenvy input {
 	/* duplicated from Core.css gwt-TextBox style */
+    outline: none;
+    border-radius: 0;
+    box-shadow: none;
+    text-align: start;
     color: textFieldColor;
+    background-color: textFieldBackgroundColor;
     border: 1px solid textFieldBorderColor;
-    border-radius: 1px;
-    font-family: mainFontFamily;
+    font-size: textFieldFontSize;
+    font-family: textFieldFontFamily;
+    min-height: 22px;
+    padding: 0 5px 0 5px;
 }
 .orionCodenvy .textViewReplaceInput {
 }
 .orionCodenvy .textViewFindInput {
 }
 .orionCodenvy .textViewFindCloseButton {
+    height: 18px;
+    padding: 4px 8px;
     border: 1px solid transparent;
     background: transparent url(data:image/gif;base64,R0lGODlhEAAQAJEAAAAAAP///4CAgP///yH5BAEAAAMALAAAAAAQABAAAAIdnI+py+1vhECSyTluu9px+HkctnSdUh0pxLYuVAAAOw==) no-repeat;
 }
@@ -177,6 +189,15 @@
     color: #FEEE35;
     background-color: #3C514D;
     outline: none;
+}
+
+.orionCodenvy .annotationRange.matchingSearch{
+    background-color: primaryHighlightColor;
+}
+
+.orionCodenvy .annotationRange.currentSearch{
+    background-color: primaryHighlightColor;
+    color: #FFFFFF;
 }
 
 .textviewScroll::-webkit-scrollbar-corner {
