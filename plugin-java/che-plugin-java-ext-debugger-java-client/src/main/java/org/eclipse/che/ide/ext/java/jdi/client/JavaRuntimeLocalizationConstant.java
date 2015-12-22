@@ -16,28 +16,10 @@ package org.eclipse.che.ide.ext.java.jdi.client;
  * @author Artem Zatsarynnyi
  */
 public interface JavaRuntimeLocalizationConstant extends com.google.gwt.i18n.client.Messages {
-    /* Actions */
-    @Key("control.debugApp.id")
-    String debugAppActionId();
-
-    @Key("control.debugApp.text")
-    String debugAppActionText();
-
-    @Key("control.debugApp.description")
-    String debugAppActionDescription();
-
-    @Key("mainMenu.debug.name")
-    String mainMenuDebugName();
 
     /* Buttons */
     @Key("breakpoints")
     String breakpoints();
-
-    @Key("cancelButton")
-    String cancelButton();
-
-    @Key("connectButton")
-    String connectButton();
 
     @Key("debug")
     String debug();
@@ -48,26 +30,14 @@ public interface JavaRuntimeLocalizationConstant extends com.google.gwt.i18n.cli
     @Key("host")
     String host();
 
-    @Key("okButton")
-    String okButton();
-
     @Key("port")
     String port();
-
-    @Key("vmVersion")
-    String vmVersion();
-
-    @Key("vmName")
-    String vmName();
 
     @Key("removeBreakpointsButton")
     String removeBreakpointsButton();
 
     @Key("resumeButton")
     String resumeButton();
-
-    @Key("runButton")
-    String runButton();
 
     @Key("variables")
     String variables();
@@ -101,12 +71,6 @@ public interface JavaRuntimeLocalizationConstant extends com.google.gwt.i18n.cli
 
     @Key("debugger.disconnected")
     String debuggerDisconnected(String address);
-
-    @Key("debugger.runnerNotSpecified")
-    String debuggerRunnerNotSpecified();
-
-    @Key("error.source-not-found-for-class")
-    String errorSourceNotFoundForClass(String className);
 
     /* ChangeValueView */
     @Key("view.changeValue.title")

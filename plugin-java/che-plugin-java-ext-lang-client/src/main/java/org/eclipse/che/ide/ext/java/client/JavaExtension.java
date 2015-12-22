@@ -15,6 +15,7 @@ import com.google.inject.name.Named;
 
 import org.eclipse.che.ide.api.action.ActionManager;
 import org.eclipse.che.ide.api.action.DefaultActionGroup;
+import org.eclipse.che.ide.api.constraints.Anchor;
 import org.eclipse.che.ide.api.constraints.Constraints;
 import org.eclipse.che.ide.api.extension.Extension;
 import org.eclipse.che.ide.api.filetypes.FileType;
@@ -35,14 +36,14 @@ import org.eclipse.che.ide.ext.java.shared.Constants;
 import org.eclipse.che.ide.util.browser.UserAgent;
 import org.eclipse.che.ide.util.input.KeyCodeMap;
 
-import static org.eclipse.che.ide.api.action.IdeActions.GROUP_CODE;
+import static org.eclipse.che.ide.api.action.IdeActions.GROUP_ASSISTANT;
 import static org.eclipse.che.ide.api.action.IdeActions.GROUP_FILE_NEW;
-import static org.eclipse.che.ide.api.action.IdeActions.GROUP_REFACTORING;
 
 /** @author Evgen Vidolob */
 @Extension(title = "Java", version = "3.0.0")
 public class JavaExtension {
 
+    private final String GROUP_ASSISTANT_REFACTORING  = "assistantRefactoringGroup";
 
     @Inject
     public JavaExtension(FileTypeRegistry fileTypeRegistry,
@@ -60,7 +61,6 @@ public class JavaExtension {
     public JavaExtension() {
     }
 
-
     @Inject
     private void prepareActions(JavaLocalizationConstant localizationConstant,
                                 NewPackageAction newPackageAction,
@@ -68,36 +68,44 @@ public class JavaExtension {
                                 NewJavaSourceFileAction newJavaSourceFileAction,
                                 ActionManager actionManager,
                                 MoveAction moveAction,
-                                FileStructureAction classStructureAction,
+                                FileStructureAction fileStructureAction,
                                 RenameRefactoringAction renameRefactoringAction,
                                 QuickDocumentationAction quickDocumentationAction,
                                 OpenDeclarationAction openDeclarationAction,
                                 FindUsagesAction findUsagesAction) {
-        // add actions in File -> New group
-        actionManager.registerAction(localizationConstant.actionNewPackageId(), newPackageAction);
-        actionManager.registerAction(localizationConstant.actionNewClassId(), newJavaSourceFileAction);
-        DefaultActionGroup newGroup = (DefaultActionGroup)actionManager.getAction(GROUP_FILE_NEW);
-        newGroup.addSeparator();
-        newGroup.add(newJavaSourceFileAction);
-        newGroup.add(newPackageAction);
 
-        DefaultActionGroup refactorGroup = (DefaultActionGroup)actionManager.getAction(GROUP_REFACTORING);
+        DefaultActionGroup newGroup = (DefaultActionGroup)actionManager.getAction(GROUP_FILE_NEW);
+
+        actionManager.registerAction("newJavaClass", newJavaSourceFileAction);
+        newGroup.add(newJavaSourceFileAction, Constraints.FIRST);
+
+        actionManager.registerAction("newJavaPackage", newPackageAction);
+        newGroup.add(newPackageAction, new Constraints(Anchor.AFTER, "newJavaClass"));
+
+        DefaultActionGroup refactorGroup = (DefaultActionGroup)actionManager.getAction(GROUP_ASSISTANT_REFACTORING);
+        if (refactorGroup == null) {
+            refactorGroup = new DefaultActionGroup("Refactoring", true, actionManager);
+            actionManager.registerAction(GROUP_ASSISTANT_REFACTORING, refactorGroup);
+        }
+
+        DefaultActionGroup assistantGroup = (DefaultActionGroup)actionManager.getAction(GROUP_ASSISTANT);
         refactorGroup.addSeparator();
         refactorGroup.add(moveAction);
         refactorGroup.add(renameRefactoringAction);
+        assistantGroup.add(refactorGroup, new Constraints(Anchor.BEFORE, "updateDependency"));
 
         actionManager.registerAction("showQuickDoc", quickDocumentationAction);
         actionManager.registerAction("openJavaDeclaration", openDeclarationAction);
         actionManager.registerAction("javaRenameRefactoring", renameRefactoringAction);
         actionManager.registerAction("javaMoveRefactoring", moveAction);
         actionManager.registerAction("javaFindUsages", findUsagesAction);
-        actionManager.registerAction("javaClassStructure", classStructureAction);
+        actionManager.registerAction("javaClassStructure", fileStructureAction);
 
-        DefaultActionGroup codeGroup = (DefaultActionGroup)actionManager.getAction(GROUP_CODE);
-        codeGroup.add(quickDocumentationAction, Constraints.LAST);
-        codeGroup.add(openDeclarationAction, Constraints.LAST);
-        codeGroup.add(classStructureAction, Constraints.LAST);
-        codeGroup.add(findUsagesAction, Constraints.LAST);
+        assistantGroup.add(quickDocumentationAction, new Constraints(Anchor.BEFORE, GROUP_ASSISTANT_REFACTORING));
+        assistantGroup.add(openDeclarationAction, new Constraints(Anchor.BEFORE, GROUP_ASSISTANT_REFACTORING));
+        assistantGroup.add(fileStructureAction, new Constraints(Anchor.BEFORE, GROUP_ASSISTANT_REFACTORING));
+        assistantGroup.add(findUsagesAction, new Constraints(Anchor.BEFORE, GROUP_ASSISTANT_REFACTORING));
+
         if (UserAgent.isMac()) {
             keyBinding.getGlobal().addKey(new KeyBuilder().control().charCode('j').build(), "showQuickDoc");
             keyBinding.getGlobal().addKey(new KeyBuilder().control().charCode(KeyCodeMap.F12).build(), "javaClassStructure");
@@ -116,4 +124,5 @@ public class JavaExtension {
         // icon for category in Wizard
         iconRegistry.registerIcon(new Icon(Constants.JAVA_CATEGORY + ".samples.category.icon", resources.javaCategoryIcon()));
     }
+
 }

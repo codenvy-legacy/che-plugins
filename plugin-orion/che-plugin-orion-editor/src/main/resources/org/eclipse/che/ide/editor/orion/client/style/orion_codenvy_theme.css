@@ -74,37 +74,61 @@
 .orionCodenvy .annotationLine.currentLine {
     background-color: editorCurrentLineColor !important;
 }
+
 .orionCodenvy .entity-name-tag {
     color: tag;
 }
+
 .orionCodenvy .entity-other-attribute-name {
     color: attribute;
 }
+
 .orionCodenvy .string-quoted {
 }
+
 .orionCodenvy .meta.annotation.currentLine {
     background-color: editorCurrentLineColor !important;
 }
+
+.orionCodenvy .variable.parameter {
+    color: #48D4C9;
+}
+
+.orionCodenvy .variable.language {
+    color: #B985A8;
+    font-weight: bold;
+}
+
 .orionCodenvy .annotation {
     color: smeta;
 }
+
 .orionCodenvy .keyword {
     color: keyword;
     font-weight: normal;
 }
+
+.orionCodenvy .support {
+    color: #21439c;
+}
+
 .orionCodenvy .constant {
     color: keyword;
     font-weight: normal;
 }
+
 .orionCodenvy .string {
     color: string;
 }
+
 .orionCodenvy .comment {
     color: #808080;
 }
+
 .orionCodenvy .comment.block.documentation {
     color: comment;
 }
+
 .orionCodenvy .keyword.other.documentation.markup {
     color: comment;
 }

@@ -30,17 +30,11 @@ public interface JavaLocalizationConstant extends Messages {
     String buttonCancel();
 
     /* Actions */
-    @Key("action.newClass.id")
-    String actionNewClassId();
-
     @Key("action.newClass.title")
     String actionNewClassTitle();
 
     @Key("action.newClass.description")
     String actionNewClassDescription();
-
-    @Key("action.newPackage.id")
-    String actionNewPackageId();
 
     @Key("action.newPackage.title")
     String actionNewPackageTitle();

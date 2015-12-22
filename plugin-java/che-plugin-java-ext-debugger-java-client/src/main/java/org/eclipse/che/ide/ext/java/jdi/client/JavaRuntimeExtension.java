@@ -17,7 +17,6 @@ import org.eclipse.che.ide.Constants;
 import org.eclipse.che.ide.api.action.ActionManager;
 import org.eclipse.che.ide.api.action.DefaultActionGroup;
 import org.eclipse.che.ide.api.action.IdeActions;
-import org.eclipse.che.ide.api.constraints.Anchor;
 import org.eclipse.che.ide.api.constraints.Constraints;
 import org.eclipse.che.ide.api.extension.Extension;
 import org.eclipse.che.ide.debug.DebuggerManager;
@@ -31,6 +30,7 @@ import org.eclipse.che.ide.extension.maven.shared.MavenAttributes;
 import static org.eclipse.che.ide.MimeType.TEXT_X_JAVA;
 import static org.eclipse.che.ide.MimeType.TEXT_X_JAVA_SOURCE;
 import static org.eclipse.che.ide.api.action.IdeActions.GROUP_MAIN_MENU;
+import static org.eclipse.che.ide.api.action.IdeActions.GROUP_RUN;
 
 /**
  * Extension allows debug Java web applications.
@@ -61,16 +61,15 @@ public class JavaRuntimeExtension {
                                 JavaFqnResolver javaFqnResolver,
                                 JavaRuntimeLocalizationConstant localizationConstant) {
         final DefaultActionGroup mainMenu = (DefaultActionGroup)actionManager.getAction(GROUP_MAIN_MENU);
-        final DefaultActionGroup debugMenu = new DefaultActionGroup(localizationConstant.mainMenuDebugName(), true, actionManager);
+
+        final DefaultActionGroup runMenu = (DefaultActionGroup)actionManager.getAction(GROUP_RUN);
 
         // register actions
         actionManager.registerAction(REMOTE_DEBUG_ID, remoteDebugAction);
         actionManager.registerAction(SERVER_LOG_ID, serverLogAction);
 
         // add actions in main menu
-        mainMenu.add(debugMenu, new Constraints(Anchor.AFTER, IdeActions.GROUP_CODE));
-        debugMenu.add(remoteDebugAction);
-        debugMenu.add(serverLogAction);
+        runMenu.add(remoteDebugAction, Constraints.LAST);
 
         // add actions in context menu
         DefaultActionGroup runContextGroup = (DefaultActionGroup)actionManager.getAction(IdeActions.GROUP_RUN_CONTEXT_MENU);

@@ -16,6 +16,8 @@ import com.google.inject.Singleton;
 import org.eclipse.che.api.analytics.client.logger.AnalyticsEventLogger;
 import org.eclipse.che.ide.api.action.ActionEvent;
 import org.eclipse.che.ide.api.action.ProjectAction;
+import org.eclipse.che.ide.api.app.AppContext;
+import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.selection.Selection;
 import org.eclipse.che.ide.ext.java.client.JavaLocalizationConstant;
 import org.eclipse.che.ide.ext.java.client.JavaResources;
@@ -24,8 +26,6 @@ import org.eclipse.che.ide.ext.java.client.project.node.PackageNode;
 import org.eclipse.che.ide.ext.java.client.project.node.SourceFolderNode;
 import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 
-import java.util.List;
-
 /**
  * Action to create new Java source file.
  *
@@ -33,6 +33,10 @@ import java.util.List;
  */
 @Singleton
 public class NewJavaSourceFileAction extends ProjectAction {
+
+    private static final String MAVEN = "maven";
+
+    private final AppContext                 appContext;
     private final AnalyticsEventLogger       eventLogger;
     private       ProjectExplorerPresenter   projectExplorer;
     private       NewJavaSourceFilePresenter newJavaSourceFilePresenter;
@@ -42,11 +46,13 @@ public class NewJavaSourceFileAction extends ProjectAction {
                                    NewJavaSourceFilePresenter newJavaSourceFilePresenter,
                                    JavaLocalizationConstant constant,
                                    JavaResources resources,
-                                   AnalyticsEventLogger eventLogger) {
+                                   AnalyticsEventLogger eventLogger,
+                                   AppContext appContext) {
         super(constant.actionNewClassTitle(), constant.actionNewClassDescription(), resources.javaFile());
         this.newJavaSourceFilePresenter = newJavaSourceFilePresenter;
         this.projectExplorer = projectExplorer;
         this.eventLogger = eventLogger;
+        this.appContext = appContext;
     }
 
     @Override
@@ -57,22 +63,20 @@ public class NewJavaSourceFileAction extends ProjectAction {
 
     @Override
     public void updateProjectAction(ActionEvent e) {
-        Selection<?> selection = projectExplorer.getSelection();
+        CurrentProject project = appContext.getCurrentProject();
+        if (project == null || !MAVEN.equals(project.getRootProject().getType())) {
+            e.getPresentation().setEnabledAndVisible(false);
+            return;
+        }
 
+        Selection<?> selection = projectExplorer.getSelection();
         if (selection == null) {
             e.getPresentation().setEnabledAndVisible(false);
             return;
         }
 
-        List<?> elements = selection.getAllElements();
-
-        if (elements == null || elements.isEmpty() || elements.size() > 1) {
-            e.getPresentation().setEnabledAndVisible(false);
-            return;
-        }
-
-        Object o = elements.get(0);
-
-        e.getPresentation().setEnabledAndVisible(o instanceof SourceFolderNode || o instanceof PackageNode);
+        e.getPresentation().setVisible(true);
+        e.getPresentation().setEnabled(selection.isSingleSelection() &&
+                (selection.getHeadElement() instanceof SourceFolderNode || selection.getHeadElement() instanceof PackageNode));
     }
 }

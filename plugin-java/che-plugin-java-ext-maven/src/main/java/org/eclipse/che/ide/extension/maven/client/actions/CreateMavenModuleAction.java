@@ -20,6 +20,7 @@ import org.eclipse.che.ide.api.action.Presentation;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.extension.maven.client.MavenLocalizationConstant;
+import org.eclipse.che.ide.extension.maven.client.MavenResources;
 import org.eclipse.che.ide.extension.maven.client.module.CreateMavenModulePresenter;
 import org.eclipse.che.ide.extension.maven.shared.MavenAttributes;
 
@@ -45,12 +46,13 @@ public class CreateMavenModuleAction extends AbstractPerspectiveAction {
     public CreateMavenModuleAction(MavenLocalizationConstant constant,
                                    CreateMavenModulePresenter presenter,
                                    AnalyticsEventLogger eventLogger,
-                                   AppContext appContext) {
+                                   AppContext appContext,
+                                   MavenResources mavenResources) {
         super(Collections.singletonList(PROJECT_PERSPECTIVE_ID),
               constant.actionCreateMavenModuleText(),
               constant.actionCreateMavenModuleDescription(),
               null,
-              null);
+              mavenResources.maven());
         this.presenter = presenter;
         this.eventLogger = eventLogger;
         this.appContext = appContext;
