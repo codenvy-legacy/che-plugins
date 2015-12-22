@@ -13,12 +13,12 @@ package org.eclipse.che.plugin.docker.machine;
 import com.google.inject.assistedinject.Assisted;
 
 import org.eclipse.che.api.core.ConflictException;
+import org.eclipse.che.api.core.NotFoundException;
 import org.eclipse.che.api.core.util.LineConsumer;
 import org.eclipse.che.api.core.util.ListLineConsumer;
 import org.eclipse.che.api.core.util.ValueHolder;
 import org.eclipse.che.api.machine.server.exception.MachineException;
 import org.eclipse.che.api.machine.server.spi.InstanceProcess;
-import org.eclipse.che.commons.annotation.Nullable;
 import org.eclipse.che.plugin.docker.client.DockerConnector;
 import org.eclipse.che.plugin.docker.client.Exec;
 import org.eclipse.che.plugin.docker.client.LogMessage;
@@ -42,23 +42,25 @@ public class DockerProcess implements InstanceProcess {
     private final String          container;
     private final String          pidFilePath;
     private final int             pid;
+    private final String          commandLine;
+    private final String          commandName;
 
-    private boolean started;
-    private String  command;
+    private volatile boolean started;
 
     @Inject
     public DockerProcess(DockerConnector docker,
                          @Assisted("container") String container,
-                         @Assisted("command") @Nullable String command,
+                         @Assisted("commandName") String commandName,
+                         @Assisted("commandLine") String commandLine,
                          @Assisted("pid_file_path") String pidFilePath,
-                         @Assisted int pid,
-                         @Assisted boolean isStarted) {
+                         @Assisted int pid) {
         this.docker = docker;
         this.container = container;
-        this.command = command;
+        this.commandLine = commandLine;
+        this.commandName = commandName;
         this.pidFilePath = pidFilePath;
-        this.started = isStarted;
         this.pid = pid;
+        this.started = false;
     }
 
     @Override
@@ -68,10 +70,28 @@ public class DockerProcess implements InstanceProcess {
 
     @Override
     public String getCommandLine() {
-        if (command == null) {
-            command = readCommandLine();
+        return commandLine;
+    }
+
+    @Override
+    public String getCommandName() {
+        return commandName;
+    }
+
+    @Override
+    public boolean isAlive() {
+        if (!started) {
+            return false;
         }
-        return command;
+        try {
+            checkAlive();
+            return true;
+        } catch (MachineException | NotFoundException e) {
+            // when process is not found (may be finished or killed)
+            // when process is not running yet
+            // when docker is not accessible or responds in an unexpected way - should never happen
+            return false;
+        }
     }
 
     @Override
@@ -84,11 +104,11 @@ public class DockerProcess implements InstanceProcess {
         if (started) {
             throw new ConflictException("Process already started.");
         }
-        // Trap is invoked when bash session ends. Here we kill all subprocesses of shell and remove pid-file.
+        // Trap is invoked when bash session ends. Here we kill all sub-processes of shell and remove pid-file.
         final String trap = format("trap '[ -z \"$(jobs -p)\" ] || kill $(jobs -p); [ -e %1$s ] && rm %1$s' EXIT", pidFilePath);
         // 'echo' saves shell pid in file, then run command
-        final String bashCommand = trap + "; echo $$>" + pidFilePath + "; " + command;
-        final String[] command = {"/bin/bash", "-c", bashCommand};
+        final String shellCommand = trap + "; echo $$>" + pidFilePath + "; " + commandLine;
+        final String[] command = {"/bin/bash", "-c", shellCommand};
         Exec exec;
         try {
             exec = docker.createExec(container, output == null, command);
@@ -110,36 +130,35 @@ public class DockerProcess implements InstanceProcess {
     }
 
     @Override
-    public boolean isAlive() {
-        if (!started) {
-            return false;
-        }
+    public void checkAlive() throws MachineException, NotFoundException {
         // Read pid from file and run 'kill -0 [pid]' command.
-        final String isAliveCmd = format("[ -r %1$s ] && kill -0 $(<%1$s) || echo 'Unable read PID file'", pidFilePath);
+        final String isAliveCmd = format("[ -r %1$s ] && kill -0 $(cat %1$s) || echo 'Unable read PID file'", pidFilePath);
         final ListLineConsumer output = new ListLineConsumer();
         final String[] command = {"/bin/bash", "-c", isAliveCmd};
         Exec exec;
         try {
             exec = docker.createExec(container, false, command);
         } catch (IOException e) {
-            throw new DockerRuntimeException(format("Error occurs while initializing command %s in docker container %s: %s",
-                                                    Arrays.toString(command), container, e.getMessage()), e);
+            throw new MachineException(format("Error occurs while initializing command %s in docker container %s: %s",
+                                              Arrays.toString(command), container, e.getMessage()), e);
         }
         try {
             docker.startExec(exec.getId(), new LogMessagePrinter(output));
         } catch (IOException e) {
-            throw new DockerRuntimeException(format("Error occurs while executing command %s in docker container %s: %s",
-                                                    Arrays.toString(exec.getCommand()), container, e.getMessage()), e);
+            throw new MachineException(format("Error occurs while executing command %s in docker container %s: %s",
+                                              Arrays.toString(exec.getCommand()), container, e.getMessage()), e);
         }
         // 'kill -0 [pid]' is silent if process is running or print "No such process" message otherwise
-        return output.getText().isEmpty();
+        if (!output.getText().isEmpty()) {
+            throw new NotFoundException(format("Process with pid %s not found", pid));
+        }
     }
 
     @Override
     public void kill() throws MachineException {
         if (started) {
             // Read pid from file and run 'kill [pid]' command.
-            final String killCmd = format("[ -r %1$s ] && kill $(<%1$s)", pidFilePath);
+            final String killCmd = format("[ -r %1$s ] && kill $(cat %1$s)", pidFilePath);
             final String[] command = {"/bin/bash", "-c", killCmd};
             Exec exec;
             try {
@@ -157,27 +176,6 @@ public class DockerProcess implements InstanceProcess {
         }
     }
 
-    private String readCommandLine() {
-        final String readCommandLineCmd = format(
-                "[ ! -r %1$s ] && echo 'Unable read PID file' || echo $(<%1$s) | xargs ps -o command= -p | sed 's/^.*; //g'", pidFilePath);
-        final ValueHolder<String> cmdLineHolder = new ValueHolder<>();
-        final String[] command = {"/bin/bash", "-c", readCommandLineCmd};
-        Exec exec;
-        try {
-            exec = docker.createExec(container, false, command);
-        } catch (IOException e) {
-            throw new DockerRuntimeException(format("Error occurs while initializing command %s in docker container %s: %s",
-                                                    Arrays.toString(command), container, e.getMessage()), e);
-        }
-        try {
-            docker.startExec(exec.getId(), logMessage -> cmdLineHolder.set(logMessage.getContent()));
-        } catch (IOException e) {
-            throw new DockerRuntimeException(format("Error occurs while executing command %s in docker container %s: %s",
-                                                    Arrays.toString(exec.getCommand()), container, e.getMessage()), e);
-        }
-        return cmdLineHolder.get();
-    }
-
     private String getErrorMessage() {
         final StringBuilder errorMessage = new StringBuilder("Command output read timeout is reached.");
         try {
@@ -185,7 +183,7 @@ public class DockerProcess implements InstanceProcess {
             final Exec checkProcessExec =
                     docker.createExec(container,
                                       false,
-                                      "/bin/sh",
+                                      "/bin/bash",
                                       "-c",
                                       format("if kill -0 $(cat %1$s 2>/dev/null) 2>/dev/null; then cat %1$s; fi", pidFilePath));
             ValueHolder<String> pidHolder = new ValueHolder<>();

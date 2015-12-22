@@ -84,7 +84,10 @@ public class CommandManager {
 
         final String commandLine = substituteProperties(configuration.toCommandLine());
 
-        final Promise<MachineProcessDto> processPromise = machineServiceClient.executeCommand(devMachineId, commandLine, outputChannel);
+        final Promise<MachineProcessDto> processPromise = machineServiceClient.executeCommand(devMachineId,
+                                                                                              configuration.getName(),
+                                                                                              commandLine,
+                                                                                              outputChannel);
         processPromise.then(new Operation<MachineProcessDto>() {
             @Override
             public void apply(MachineProcessDto arg) throws OperationException {

@@ -76,7 +76,8 @@ public class DockerInstanceReadFileContentTest {
                                                 null,
                                                 null,
                                                 null,
-                                                dockerInstanceStopDetector));
+                                                dockerInstanceStopDetector,
+                                                null));
     }
 
 
