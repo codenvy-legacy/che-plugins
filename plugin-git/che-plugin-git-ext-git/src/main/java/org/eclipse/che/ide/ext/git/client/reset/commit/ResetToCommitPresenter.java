@@ -33,6 +33,8 @@ import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAIL;
+
 /**
  * Presenter for resetting head to commit.
  *
@@ -95,7 +97,7 @@ public class ResetToCommitPresenter implements ResetToCommitView.ActionDelegate 
                         protected void onFailure(Throwable exception) {
                             String errorMessage = (exception.getMessage() != null) ? exception.getMessage() : constant.logFailed();
                             console.printError(errorMessage);
-                            notificationManager.notify(errorMessage, appContext.getCurrentProject().getRootProject());
+                            notificationManager.notify(constant.logFailed(), FAIL, true, appContext.getCurrentProject().getRootProject());
                         }
                     }
                    );
@@ -163,7 +165,7 @@ public class ResetToCommitPresenter implements ResetToCommitView.ActionDelegate 
                           protected void onFailure(Throwable exception) {
                               String errorMessage = (exception.getMessage() != null) ? exception.getMessage() : constant.resetFail();
                               console.printError(errorMessage);
-                              notificationManager.notify(errorMessage, project);
+                              notificationManager.notify(constant.resetFail(), FAIL, true, project);
                           }
                       });
     }

@@ -25,6 +25,8 @@ import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 
+import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAIL;
+
 /**
  * Handler for the {@link org.eclipse.che.ide.ext.svn.client.action.DiffAction} action.
  */
@@ -70,7 +72,7 @@ public class DiffPresenter extends SubversionActionPresenter {
 
                              @Override
                              protected void onFailure(Throwable exception) {
-                                 notificationManager.notify(exception.getMessage());
+                                 notificationManager.notify(exception.getMessage(), FAIL, true);
                              }
                          });
     }

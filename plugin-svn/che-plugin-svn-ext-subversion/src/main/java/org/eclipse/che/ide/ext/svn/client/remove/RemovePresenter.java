@@ -29,6 +29,8 @@ import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 
 import java.util.List;
 
+import static org.eclipse.che.ide.api.notification.StatusNotification.Status.PROGRESS;
+
 /**
  * Handler for the {@link org.eclipse.che.ide.ext.svn.client.action.RemoveAction} action.
  */
@@ -70,10 +72,7 @@ public class RemovePresenter extends SubversionActionPresenter {
         }
 
         final List<String> selectedPaths = getSelectedPaths();
-        notification = notificationManager.notify(constants.removeStarted(selectedPaths.size()), null, StatusNotification.Status.PROGRESS,
-                                                  false
-                                                 );
-        notificationManager.notify(notification);
+        notification = notificationManager.notify(constants.removeStarted(selectedPaths.size()), PROGRESS, true);
 
         service.remove(projectPath, getSelectedPaths(),
                        new AsyncRequestCallback<CLIOutputResponse>(dtoUnmarshallerFactory.newUnmarshaller(CLIOutputResponse.class)) {
@@ -81,7 +80,7 @@ public class RemovePresenter extends SubversionActionPresenter {
                            protected void onSuccess(final CLIOutputResponse response) {
                                printResponse(response.getCommand(), response.getOutput(), response.getErrOutput());
 
-                               notification.setContent(constants.removeSuccessful());
+                               notification.setTitle(constants.removeSuccessful());
                                notification.setStatus(StatusNotification.Status.SUCCESS);
 
                                updateProjectExplorer();
@@ -89,12 +88,10 @@ public class RemovePresenter extends SubversionActionPresenter {
 
                            @Override
                            protected void onFailure(final Throwable exception) {
-                String errorMessage = exception.getMessage();
-
-                notification.setContent(constants.removeFailed());
-                notification.setStatus(StatusNotification.Status.FAIL);
-            }
-        });
+                               notification.setTitle(constants.removeFailed());
+                               notification.setStatus(StatusNotification.Status.FAIL);
+                           }
+                       });
     }
 
 }

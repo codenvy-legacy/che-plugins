@@ -76,7 +76,7 @@ public class UserProfileSshKeyStore implements SshKeyStore {
             final String sshKeyAttributeName = sshKeyAttributeName(host, PRIVATE);
             final Map<String, String> keys = getSshKeys();
             if (keys.containsKey(sshKeyAttributeName)) {
-                throw new SshKeyStoreException("Private key for host: '" + host + "' already exists.");
+                throw new SshKeyStoreException("Private ssh key for host: '" + host + "' already exists.");
             }
             keys.put(sshKeyAttributeName, new String(key));
             updateSshKeys(keys);
@@ -161,10 +161,10 @@ public class UserProfileSshKeyStore implements SshKeyStore {
             final String sshPublicKeyAttributeName = sshKeyAttributeName(host, PUBLIC);
             // Be sure keys are not created yet.
             if (keys.containsKey(sshPrivateKeyAttributeName)) {
-                throw new SshKeyStoreException("Private key for host: '" + host + "' already exists.");
+                throw new SshKeyStoreException("Private ssh key for host: '" + host + "' already exists.");
             }
             if (keys.containsKey(sshPublicKeyAttributeName)) {
-                throw new SshKeyStoreException("Public key for host: '" + host + "' already exists.");
+                throw new SshKeyStoreException("Public ssh key for host: '" + host + "' already exists.");
             }
             // Gen key pair.
             KeyPair keyPair = KeyPair.genKeyPair(genJsch, 2, 2048);
@@ -183,7 +183,7 @@ public class UserProfileSshKeyStore implements SshKeyStore {
             updateSshKeys(keys);
             return new SshKeyPair(publicKey, privateKey);
         } catch (ApiException | IOException | JsonParseException | JSchException e) {
-            throw new SshKeyStoreException("Failed to generate keys for'" + host + "'. ", e);
+            throw new SshKeyStoreException("Failed to generate keys for'" + host + "'.", e);
         }
     }
 
@@ -201,7 +201,7 @@ public class UserProfileSshKeyStore implements SshKeyStore {
             removeSshKeys(Arrays.asList(sshKeyAttributeName(host, PRIVATE),
                     sshKeyAttributeName(host, PUBLIC)));
         } catch (ApiException | IOException e) {
-            throw new SshKeyStoreException("Failed to remove keys for host '" + host + "'.");
+            throw new SshKeyStoreException("Failed to remove ssh keys for host '" + host + "'");
         }
     }
 
@@ -262,7 +262,7 @@ public class UserProfileSshKeyStore implements SshKeyStore {
             }
             return (keyAsString != null) ? new SshKey(keyIdentifier, keyAsString.getBytes()) : null;
         } catch (ApiException | IOException | JsonParseException e) {
-            throw new SshKeyStoreException("Failed to get key for host '" + host + "'.", e);
+            throw new SshKeyStoreException("Failed to get ssh key for host '" + host + "'", e);
         }
     }
 

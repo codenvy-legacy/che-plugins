@@ -66,7 +66,7 @@ public interface JavaRuntimeLocalizationConstant extends com.google.gwt.i18n.cli
     @Key("debugger.disconnecting")
     String debuggerDisconnecting();
 
-    @Key("debugger.connected")
+    @Key("debugger.connected.description")
     String debuggerConnected(String address);
 
     @Key("debugger.disconnected")
@@ -119,4 +119,18 @@ public interface JavaRuntimeLocalizationConstant extends com.google.gwt.i18n.cli
     @Key("server.log.tab.title")
     String serverLogTabTitle();
 
+    @Key("failed.to.connect.to.remote.debugger")
+    String failedToConnectToRemoteDebugger();
+
+    @Key("failed.to.connect.to.remote.debugger.description")
+    String failedToConnectToRemoteDebuggerDescription(String port);
+
+    @Key("failed.to.get.variable.value")
+    String failedToGetVariableValue();
+
+    @Key("remote.debugger.connected")
+    String remoteDebuggerConnected();
+
+    @Key("remote.debugger.disconnected")
+    String remoteDebuggerDisconnected();
 }

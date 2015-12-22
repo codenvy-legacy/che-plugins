@@ -17,7 +17,6 @@ import com.google.inject.assistedinject.Assisted;
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
 import org.eclipse.che.api.machine.gwt.client.OutputMessageUnmarshaller;
 import org.eclipse.che.api.machine.shared.dto.event.MachineProcessEvent;
-import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
 import org.eclipse.che.ide.extension.machine.client.command.CommandManager;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
@@ -37,7 +36,6 @@ import org.eclipse.che.ide.websocket.rest.Unmarshallable;
 public class CommandOutputConsole implements OutputConsole, OutputConsoleView.ActionDelegate {
 
     private final OutputConsoleView      view;
-    private final NotificationManager    notificationManager;
     private final DtoUnmarshallerFactory dtoUnmarshallerFactory;
     private final MachineServiceClient   machineServiceClient;
     private final CommandConfiguration   commandConfiguration;
@@ -51,7 +49,6 @@ public class CommandOutputConsole implements OutputConsole, OutputConsoleView.Ac
 
     @Inject
     public CommandOutputConsole(OutputConsoleView view,
-                                NotificationManager notificationManager,
                                 DtoUnmarshallerFactory dtoUnmarshallerFactory,
                                 final MessageBusProvider messageBusProvider,
                                 MachineServiceClient machineServiceClient,
@@ -59,7 +56,6 @@ public class CommandOutputConsole implements OutputConsole, OutputConsoleView.Ac
                                 @Assisted CommandConfiguration commandConfiguration,
                                 @Assisted String machineId) {
         this.view = view;
-        this.notificationManager = notificationManager;
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
         this.machineServiceClient = machineServiceClient;
         this.commandConfiguration = commandConfiguration;
@@ -99,7 +95,6 @@ public class CommandOutputConsole implements OutputConsole, OutputConsoleView.Ac
             @Override
             protected void onErrorReceived(Throwable exception) {
                 wsUnsubscribe(outputChannel, this);
-                notificationManager.notify(exception.getMessage());
             }
         };
 
@@ -140,7 +135,6 @@ public class CommandOutputConsole implements OutputConsole, OutputConsoleView.Ac
                 isFinished = true;
                 wsUnsubscribe(processStateChannel, this);
                 wsUnsubscribe(outputChannel, outputHandler);
-                notificationManager.notify(exception.getMessage());
             }
         };
 
@@ -151,7 +145,7 @@ public class CommandOutputConsole implements OutputConsole, OutputConsoleView.Ac
         try {
             messageBus.subscribe(wsChannel, handler);
         } catch (WebSocketException e) {
-            notificationManager.notify(e.getMessage());
+            Log.error(getClass(), e);
         }
     }
 

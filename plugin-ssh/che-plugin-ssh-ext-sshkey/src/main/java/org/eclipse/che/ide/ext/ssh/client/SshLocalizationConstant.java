@@ -82,4 +82,14 @@ public interface SshLocalizationConstant extends Messages {
 
     @Key("loader.getPublicSshKey.message")
     String loaderGetPublicSshKeyMessage(String host);
+
+    @Key("failed.to.generate.ssh.key")
+    String failedToGenerateSshKey();
+
+    @Key("failed.to.load.ssh.keys")
+    String failedToLoadSshKeys();
+
+    @Key("failed.to.upload.ssh.key")
+    String failedToUploadSshKey();
+
 }

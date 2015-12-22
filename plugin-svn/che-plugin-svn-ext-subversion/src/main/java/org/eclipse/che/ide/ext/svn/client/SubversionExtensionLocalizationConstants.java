@@ -30,7 +30,7 @@ public interface SubversionExtensionLocalizationConstants extends Messages {
     String addFailed();
 
     @Key("add.started")
-    String addStarted(long pathCount);
+    String addStarted();
 
     @Key("add.warning")
     String addWarning();

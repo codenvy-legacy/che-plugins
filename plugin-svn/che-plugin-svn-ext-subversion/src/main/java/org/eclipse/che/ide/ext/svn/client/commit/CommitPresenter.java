@@ -39,6 +39,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAIL;
+
 /**
  * Presenter for the {@link org.eclipse.che.ide.ext.svn.client.commit.CommitView}.
  *
@@ -179,7 +181,7 @@ public class CommitPresenter extends SubversionActionPresenter implements Action
 
                                        @Override
                                        protected void onFailure(Throwable exception) {
-                                           notificationManager.notify(exception.getMessage());
+                                           notificationManager.notify(exception.getMessage(), FAIL, true);
                                        }
                                    });
     }
@@ -204,7 +206,7 @@ public class CommitPresenter extends SubversionActionPresenter implements Action
 
                                      @Override
                                      protected void onFailure(final Throwable exception) {
-                                         notificationManager.notify(constants.commitFailed());
+                                         notificationManager.notify(constants.commitFailed(), FAIL, true);
                                      }
                                  }
                                 );

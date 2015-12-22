@@ -106,17 +106,11 @@ public class FetchPresenter implements FetchView.ActionDelegate {
 
                                @Override
                                protected void onFailure(Throwable exception) {
-                                   String errorMessage =
-                                           exception.getMessage() != null ? exception.getMessage() : constant.remoteListFailed();
-                                   handleError(errorMessage);
+                                   console.printError(constant.remoteListFailed());
+                                   notificationManager.notify(constant.remoteListFailed(), FAIL, true, project.getRootProject());
                                    view.setEnableFetchButton(false);
                                }
                            });
-    }
-
-    private void handleError(@NotNull String errorMessage) {
-        console.printError(errorMessage);
-        notificationManager.notify(errorMessage, project.getRootProject());
     }
 
     /**
@@ -148,7 +142,7 @@ public class FetchPresenter implements FetchView.ActionDelegate {
                                    String errorMessage =
                                            exception.getMessage() != null ? exception.getMessage() : constant.branchesListFailed();
                                    console.printError(errorMessage);
-                                   notificationManager.notify(errorMessage, project.getRootProject());
+                                   notificationManager.notify(constant.branchesListFailed(), FAIL, true, project.getRootProject());
                                    view.setEnableFetchButton(false);
                                }
                            });
@@ -162,7 +156,7 @@ public class FetchPresenter implements FetchView.ActionDelegate {
         boolean removeDeletedRefs = view.isRemoveDeletedRefs();
 
         final StatusNotification notification =
-                notificationManager.notify(constant.fetchProcess(), null, PROGRESS, true, project.getRootProject());
+                notificationManager.notify(constant.fetchProcess(), PROGRESS, true, project.getRootProject());
         try {
             service.fetch(project.getRootProject(), remoteName, getRefs(), removeDeletedRefs,
                           new RequestCallback<String>() {
@@ -170,7 +164,7 @@ public class FetchPresenter implements FetchView.ActionDelegate {
                               protected void onSuccess(String result) {
                                   console.printInfo(constant.fetchSuccess(remoteUrl));
                                   notification.setStatus(SUCCESS);
-                                  notification.setContent(constant.fetchSuccess(remoteUrl));
+                                  notification.setTitle(constant.fetchSuccess(remoteUrl));
                               }
 
                               @Override
@@ -211,7 +205,7 @@ public class FetchPresenter implements FetchView.ActionDelegate {
         notification.setStatus(FAIL);
         if (errorMessage == null) {
             console.printError(constant.fetchFail(remoteUrl));
-            notification.setContent(constant.fetchFail(remoteUrl));
+            notification.setTitle(constant.fetchFail(remoteUrl));
             return;
         }
 
@@ -219,14 +213,14 @@ public class FetchPresenter implements FetchView.ActionDelegate {
             errorMessage = dtoFactory.createDtoFromJson(errorMessage, ServiceError.class).getMessage();
             if (errorMessage.equals("Unable get private ssh key")) {
                 console.printError(constant.messagesUnableGetSshKey());
-                notification.setContent(constant.messagesUnableGetSshKey());
+                notification.setTitle(constant.messagesUnableGetSshKey());
                 return;
             }
             console.printError(errorMessage);
-            notification.setContent(errorMessage);
+            notification.setTitle(errorMessage);
         } catch (Exception e) {
             console.printError(errorMessage);
-            notification.setContent(errorMessage);
+            notification.setTitle(errorMessage);
         }
     }
 

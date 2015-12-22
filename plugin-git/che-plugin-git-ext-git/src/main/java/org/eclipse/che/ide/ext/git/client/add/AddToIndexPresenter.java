@@ -38,6 +38,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAIL;
+
 /**
  * Presenter for add changes to Git index.
  *
@@ -111,9 +113,8 @@ public class AddToIndexPresenter implements AddToIndexView.ActionDelegate {
 
                            @Override
                            protected void onFailure(Throwable exception) {
-                               String errorMessage = exception.getMessage() != null ? exception.getMessage() : constant.statusFailed();
-                               console.printError(errorMessage);
-                               notificationManager.notify(errorMessage, project.getRootProject());
+                               console.printError(exception.getMessage() != null ? exception.getMessage() : constant.statusFailed());
+                               notificationManager.notify(constant.statusFailed(), FAIL, true, project.getRootProject());
                            }
                        });
     }
@@ -287,7 +288,7 @@ public class AddToIndexPresenter implements AddToIndexView.ActionDelegate {
     private void handleError(@NotNull final Throwable e) {
         String errorMessage = (e.getMessage() != null && !e.getMessage().isEmpty()) ? e.getMessage() : constant.addFailed();
         console.printError(errorMessage);
-        notificationManager.notify(errorMessage, project.getRootProject());
+        notificationManager.notify(constant.addFailed(), FAIL, true, project.getRootProject());
     }
 
     /**

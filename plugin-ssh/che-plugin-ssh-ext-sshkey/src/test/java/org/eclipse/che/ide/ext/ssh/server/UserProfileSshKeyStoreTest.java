@@ -113,7 +113,7 @@ public class UserProfileSshKeyStoreTest {
         doThrow(IOException.class).when(sshKeyStore).getUserProfile();
 
         thrown.expect(SshKeyStoreException.class);
-        thrown.expectMessage(new StringContains("Failed to generate keys for'" + host + "'. "));
+        thrown.expectMessage(new StringContains("Failed to generate keys for'" + host + "'."));
 
         sshKeyStore.genKeyPair(host, null, null);
     }
@@ -130,7 +130,7 @@ public class UserProfileSshKeyStoreTest {
         doReturn(keys).when(sshKeyStore).getSshKeys();
 
         thrown.expect(SshKeyStoreException.class);
-        thrown.expectMessage(new StringContains("Private key for host: '" + host + "' already exists."));
+        thrown.expectMessage(new StringContains("Private ssh key for host: '" + host + "' already exists."));
 
         sshKeyStore.genKeyPair(host, null, null);
     }
@@ -147,7 +147,7 @@ public class UserProfileSshKeyStoreTest {
         doReturn(keys).when(sshKeyStore).getSshKeys();
 
         thrown.expect(SshKeyStoreException.class);
-        thrown.expectMessage(new StringContains("Public key for host: '" + host + "' already exists."));
+        thrown.expectMessage(new StringContains("Public ssh key for host: '" + host + "' already exists."));
 
         sshKeyStore.genKeyPair(host, null, null);
     }
@@ -165,7 +165,7 @@ public class UserProfileSshKeyStoreTest {
         doThrow(IOException.class).when(sshKeyStore).updateSshKeys(any());
 
         thrown.expect(SshKeyStoreException.class);
-        thrown.expectMessage(new StringContains("Failed to generate keys for'" + host + "'. "));
+        thrown.expectMessage(new StringContains("Failed to generate keys for'" + host + "'."));
 
         sshKeyStore.genKeyPair(host, null, null);
     }
@@ -189,7 +189,7 @@ public class UserProfileSshKeyStoreTest {
         doThrow(IOException.class).when(sshKeyStore).updateSshKeys(any());
 
         thrown.expect(SshKeyStoreException.class);
-        thrown.expectMessage(new StringContains("Failed to remove keys for host '" + host + "'."));
+        thrown.expectMessage(new StringContains("Failed to remove ssh keys for host '" + host + "'"));
 
         sshKeyStore.removeKeys(host);
     }

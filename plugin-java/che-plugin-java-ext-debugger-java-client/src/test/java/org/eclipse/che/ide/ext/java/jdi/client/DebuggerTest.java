@@ -173,7 +173,6 @@ public class DebuggerTest extends BaseTest {
         presenter.onDisconnectButtonClicked();
 
         verify(service).disconnect(anyString(), Matchers.<AsyncRequestCallback<Void>>anyObject());
-        verify(notificationManager).notify(anyString(), any(StatusNotification.Status.class), anyBoolean());
     }
 
     @Test
@@ -216,7 +215,6 @@ public class DebuggerTest extends BaseTest {
         presenter.onResumeButtonClicked();
 
         verify(service).resume(anyString(), Matchers.<AsyncRequestCallback<Void>>anyObject());
-        verify(notificationManager).notify(anyString(), any(StatusNotification.Status.class), anyBoolean());
     }
 
     @Test
@@ -258,7 +256,6 @@ public class DebuggerTest extends BaseTest {
         presenter.onStepIntoButtonClicked();
 
         verify(service).stepInto(anyString(), Matchers.<AsyncRequestCallback<Void>>anyObject());
-        verify(notificationManager).notify(anyString(), any(StatusNotification.Status.class), anyBoolean());
     }
 
     @Test
@@ -300,7 +297,6 @@ public class DebuggerTest extends BaseTest {
         presenter.onStepOverButtonClicked();
 
         verify(service).stepOver(anyString(), Matchers.<AsyncRequestCallback<Void>>anyObject());
-        verify(notificationManager).notify(anyString(), any(StatusNotification.Status.class), anyBoolean());
     }
 
     @Test
@@ -342,7 +338,6 @@ public class DebuggerTest extends BaseTest {
         presenter.onStepReturnButtonClicked();
 
         verify(service).stepReturn(anyString(), Matchers.<AsyncRequestCallback<Void>>anyObject());
-        verify(notificationManager).notify(anyString(), any(StatusNotification.Status.class), anyBoolean());
     }
 
     @Test

@@ -12,6 +12,8 @@ package org.eclipse.che.ide.extension.machine.client;
 
 import com.google.gwt.i18n.client.Messages;
 
+import org.eclipse.che.ide.api.notification.Notification;
+
 /**
  * I18n constants for the Machine extension.
  *
@@ -297,11 +299,17 @@ public interface MachineLocalizationConstant extends Messages {
     @Key("editor.button.clone")
     String editorButtonClone();
 
+    @Key("connection.failed.with.terminal")
+    String connectionFailedWithTerminal();
+
     @Key("terminal.error.connection")
     String terminalErrorConnection();
 
     @Key("terminal.can.not.load.script")
     String terminalCanNotLoadScript();
+
+    @Key("failed.to.connect.the.terminal")
+    String failedToConnectTheTerminal();
 
     @Key("terminal.restart.trying")
     String terminalTryRestarting();
@@ -326,4 +334,16 @@ public interface MachineLocalizationConstant extends Messages {
 
     @Key("view.processes.terminal.node.title")
     String viewProcessesTerminalNodeTitle(String terminalIndex);
+
+    @Key("failed.to.execute.command")
+    String failedToExecuteCommand();
+
+    @Key("failed.to.create.recipe")
+    String failedToCreateRecipe();
+
+    @Key("failed.to.save.recipe")
+    String failedToSaveRecipe();
+
+    @Key("failed.to.find.machine")
+    String failedToFindMachine(String machineId);
 }

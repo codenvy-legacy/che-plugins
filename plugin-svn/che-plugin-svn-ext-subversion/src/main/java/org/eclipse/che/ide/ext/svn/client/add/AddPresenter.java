@@ -70,9 +70,7 @@ public class AddPresenter extends SubversionActionPresenter {
         }
 
         final List<String> selectedPaths = getSelectedPaths();
-        notification = notificationManager.notify(constants.addStarted(selectedPaths.size()), null, StatusNotification.Status.PROGRESS,
-                                                  false
-                                                 );
+        notification = notificationManager.notify(constants.addStarted(), StatusNotification.Status.PROGRESS, true);
 
         service.add(projectPath, selectedPaths, null, false, true, false, false,
                     new AsyncRequestCallback<CLIOutputResponse>(dtoUnmarshallerFactory.newUnmarshaller(CLIOutputResponse.class)) {
@@ -82,19 +80,18 @@ public class AddPresenter extends SubversionActionPresenter {
                             printResponse(response.getCommand(), response.getOutput(), response.getErrOutput());
 
                             if (response.getErrOutput() == null || response.getErrOutput().size() == 0) {
-                                notification.setContent(constants.addSuccessful());
+                                notification.setTitle(constants.addSuccessful());
                                 notification.setStatus(StatusNotification.Status.SUCCESS);
                             } else {
-                                notification.setContent(constants.addWarning());
+                                notification.setTitle(constants.addWarning());
                                 notification.setStatus(StatusNotification.Status.FAIL);
                             }
                         }
 
                         @Override
                         protected void onFailure(final Throwable exception) {
-                            String errorMessage = exception.getMessage();
-
-                            notification.setContent(constants.addFailed() + ": " + errorMessage);
+                            notification.setTitle(constants.addFailed());
+                            notification.setContent(exception.getMessage());
                             notification.setStatus(StatusNotification.Status.FAIL);
                         }
                     });

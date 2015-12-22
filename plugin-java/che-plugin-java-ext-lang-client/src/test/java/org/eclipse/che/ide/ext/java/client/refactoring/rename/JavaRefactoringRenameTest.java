@@ -23,6 +23,7 @@ import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.editor.EditorInput;
 import org.eclipse.che.ide.api.editor.EditorWithAutoSave;
 import org.eclipse.che.ide.api.notification.NotificationManager;
+import org.eclipse.che.ide.api.notification.StatusNotification;
 import org.eclipse.che.ide.api.project.node.HasProjectConfig;
 import org.eclipse.che.ide.api.project.tree.VirtualFile;
 import org.eclipse.che.ide.dto.DtoFactory;
@@ -71,6 +72,7 @@ import static org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringSta
 import static org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatus.OK;
 import static org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatus.WARNING;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
@@ -260,8 +262,6 @@ public class JavaRefactoringRenameTest {
         refactoringRename.refactor(textEditor);
 
         mainCheckRenameRefactoring();
-        verify(entry).getMessage();
-        verify(notificationManager).notify(anyString());
     }
 
     @Test
@@ -271,8 +271,6 @@ public class JavaRefactoringRenameTest {
         refactoringRename.refactor(textEditor);
 
         mainCheckRenameRefactoring();
-        verify(entry).getMessage();
-        verify(notificationManager).notify(anyString());
     }
 
     @Test
@@ -282,8 +280,6 @@ public class JavaRefactoringRenameTest {
         refactoringRename.refactor(textEditor);
 
         mainCheckRenameRefactoring();
-        verify(entry).getMessage();
-        verify(notificationManager).notify(anyString());
     }
 
     @Test
@@ -293,8 +289,6 @@ public class JavaRefactoringRenameTest {
         refactoringRename.refactor(textEditor);
 
         mainCheckRenameRefactoring();
-        verify(entry).getMessage();
-        verify(notificationManager).notify(anyString());
     }
 
     private void mainCheckRenameRefactoring() throws OperationException {

@@ -144,7 +144,6 @@ class MachineStatusNotifier {
             protected void onErrorReceived(Throwable exception) {
                 unsubscribe(wsChannel, this);
                 notification.setStatus(FAIL);
-                notification.setTitle(exception.getMessage());
             }
         };
 

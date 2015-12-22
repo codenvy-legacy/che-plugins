@@ -27,6 +27,8 @@ import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 
+import static org.eclipse.che.ide.api.notification.StatusNotification.Status.PROGRESS;
+
 /**
  * Handler for the {@link import org.eclipse.che.ide.ext.svn.client.action.UpdateAction} action.
  */
@@ -74,11 +76,7 @@ public class UpdatePresenter extends SubversionActionPresenter {
             return;
         }
 
-        notification = notificationManager.notify(constants.updateToRevisionStarted(revision), null, StatusNotification.Status.PROGRESS,
-                                                  false
-                                                 );
-
-        notificationManager.notify(notification);
+        notification = notificationManager.notify(constants.updateToRevisionStarted(revision), PROGRESS, true);
 
         // TODO: Add UI widget for "Accept" part of update
 
@@ -89,7 +87,7 @@ public class UpdatePresenter extends SubversionActionPresenter {
                            protected void onSuccess(final CLIOutputWithRevisionResponse response) {
                                printResponse(response.getCommand(), response.getOutput(), response.getErrOutput());
 
-                               notification.setContent(constants.updateSuccessful(Long.toString(response.getRevision())));
+                               notification.setTitle(constants.updateSuccessful(Long.toString(response.getRevision())));
                                notification.setStatus(StatusNotification.Status.SUCCESS);
 
                                updateProjectExplorer();
@@ -103,7 +101,7 @@ public class UpdatePresenter extends SubversionActionPresenter {
 
                            @Override
                            protected void onFailure(final Throwable exception) {
-                               notification.setContent(constants.updateFailed());
+                               notification.setTitle(constants.updateFailed());
                                notification.setStatus(StatusNotification.Status.FAIL);
                            }
                        });

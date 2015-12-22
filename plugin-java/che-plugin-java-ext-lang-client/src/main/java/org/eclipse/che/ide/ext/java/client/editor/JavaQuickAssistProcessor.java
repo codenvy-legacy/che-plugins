@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.java.client.editor;
 
-import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.project.tree.VirtualFile;
 import org.eclipse.che.ide.api.text.Position;
 import org.eclipse.che.ide.api.text.annotation.Annotation;
@@ -52,21 +51,18 @@ public class JavaQuickAssistProcessor implements QuickAssistProcessor {
     private final JavaResources          javaResources;
     private final DtoUnmarshallerFactory unmarshallerFactory;
     private final DtoFactory             dtoFactory;
-    private NotificationManager notificationManager;
-    private final RefactoringUpdater refactoringUpdater;
+    private final RefactoringUpdater     refactoringUpdater;
 
     @Inject
     public JavaQuickAssistProcessor(final JavaCodeAssistClient client,
                                     final JavaResources javaResources,
                                     DtoUnmarshallerFactory unmarshallerFactory,
                                     DtoFactory dtoFactory,
-                                    NotificationManager notificationManager,
                                     RefactoringUpdater refactoringUpdater) {
         this.client = client;
         this.javaResources = javaResources;
         this.unmarshallerFactory = unmarshallerFactory;
         this.dtoFactory = dtoFactory;
-        this.notificationManager = notificationManager;
         this.refactoringUpdater = refactoringUpdater;
     }
 
@@ -129,7 +125,7 @@ public class JavaQuickAssistProcessor implements QuickAssistProcessor {
                         proposal.getIndex(),
                         JavaCodeAssistProcessor.insertStyle(javaResources, proposal.getDisplayString()),
                         JavaCodeAssistProcessor.getIcon(proposal.getImage()),
-                        client, responds.getSessionId(), linkedEditor, notificationManager, refactoringUpdater);
+                        client, responds.getSessionId(), linkedEditor, refactoringUpdater);
             }
             proposals.add(completionProposal);
         }
@@ -154,7 +150,6 @@ public class JavaQuickAssistProcessor implements QuickAssistProcessor {
             @Override
             protected void onFailure(Throwable throwable) {
                 Log.error(JavaCodeAssistProcessor.class, throwable);
-                notificationManager.notify(throwable.getMessage(), file.getProject().getProjectConfig());
             }
         });
     }

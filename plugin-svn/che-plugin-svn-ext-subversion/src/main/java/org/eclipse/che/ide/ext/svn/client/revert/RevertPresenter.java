@@ -33,6 +33,8 @@ import org.eclipse.che.ide.ui.dialogs.confirm.ConfirmDialog;
 
 import java.util.List;
 
+import static org.eclipse.che.ide.api.notification.StatusNotification.Status.PROGRESS;
+
 public class RevertPresenter extends SubversionActionPresenter {
 
     private final AppContext                               appContext;
@@ -79,13 +81,11 @@ public class RevertPresenter extends SubversionActionPresenter {
         final ConfirmCallback okCallback = new ConfirmCallback() {
             @Override
             public void accepted() {
-                notification = notificationManager.notify(constants.revertStarted(), null, StatusNotification.Status.PROGRESS, false
-                                                         );
+                notification = notificationManager.notify(constants.revertStarted(), PROGRESS, true);
 
-                subversionClientService.revert(project.getRootProject().getPath(),
-                                               paths,
-                                               "infinity",
-                                               new AsyncRequestCallback<CLIOutputResponse>(dtoUnmarshallerFactory.newUnmarshaller(CLIOutputResponse.class)) {
+                subversionClientService.revert(project.getRootProject().getPath(), paths, "infinity",
+                                               new AsyncRequestCallback<CLIOutputResponse>(
+                                                       dtoUnmarshallerFactory.newUnmarshaller(CLIOutputResponse.class)) {
 
                                                    @Override
                                                    protected void onSuccess(CLIOutputResponse result) {
@@ -98,10 +98,10 @@ public class RevertPresenter extends SubversionActionPresenter {
                                                        printAndSpace(errOutput);
 
                                                        if (errOutput == null || errOutput.size() == 0) {
-                                                           notification.setContent(constants.revertSuccessful());
+                                                           notification.setTitle(constants.revertSuccessful());
                                                            notification.setStatus(StatusNotification.Status.SUCCESS);
                                                        } else {
-                                                           notification.setContent(constants.revertWarning());
+                                                           notification.setTitle(constants.revertWarning());
                                                            notification.setStatus(StatusNotification.Status.FAIL);
                                                        }
 
@@ -110,8 +110,8 @@ public class RevertPresenter extends SubversionActionPresenter {
 
                                                    @Override
                                                    protected void onFailure(Throwable exception) {
-                                                       String errorMessage = exception.getMessage();
-                                                       notification.setContent(constants.revertFailed() + ": " + errorMessage);
+                                                       notification.setTitle(constants.revertFailed());
+                                                       notification.setContent(exception.getMessage());
                                                        notification.setStatus(StatusNotification.Status.FAIL);
                                                    }
                                                });
@@ -129,8 +129,7 @@ public class RevertPresenter extends SubversionActionPresenter {
         for (String path : paths) {
             if (pathsString == null) {
                 pathsString = path;
-            }
-            else {
+            } else {
                 pathsString += ", " + path;
             }
         }

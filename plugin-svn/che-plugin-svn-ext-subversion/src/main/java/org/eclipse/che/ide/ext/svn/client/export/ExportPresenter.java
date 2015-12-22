@@ -28,6 +28,8 @@ import org.eclipse.che.ide.ext.svn.client.common.SubversionActionPresenter;
 import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.eclipse.che.ide.rest.RestContext;
 
+import static org.eclipse.che.ide.api.notification.StatusNotification.Status.SUCCESS;
+
 /**
  * Presenter for the {@link org.eclipse.che.ide.ext.svn.client.export.ExportView}.
  *
@@ -88,7 +90,7 @@ public class ExportPresenter extends SubversionActionPresenter implements Export
                 MoreObjects.firstNonNull(Strings.emptyToNull(relPath(projectPath, selectedNode.getStorablePath())), ".");
         final String revision = view.isRevisionSpecified() ? view.getRevision() : null;
 
-        notificationManager.notify(constants.exportStarted(exportPath));
+        notificationManager.notify(constants.exportStarted(exportPath), SUCCESS, true);
 
         view.onClose();
 

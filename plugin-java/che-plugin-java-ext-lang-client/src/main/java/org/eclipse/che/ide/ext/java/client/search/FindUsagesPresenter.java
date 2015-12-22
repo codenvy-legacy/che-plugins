@@ -38,6 +38,8 @@ import org.eclipse.che.ide.rest.HTTPStatus;
 import org.eclipse.che.ide.util.loging.Log;
 import org.vectomatic.dom.svg.ui.SVGResource;
 
+import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAIL;
+
 /**
  * Presenter for Find Usages tree
  *
@@ -133,7 +135,7 @@ public class FindUsagesPresenter extends BasePresenter implements FindUsagesView
                     return;
                 }
                 Log.error(getClass(), arg);
-                manager.notify(arg.getMessage());
+                manager.notify(localizationConstant.failedToProcessFindUsage(), arg.getMessage(), FAIL, true);
             }
         });
 
@@ -141,9 +143,10 @@ public class FindUsagesPresenter extends BasePresenter implements FindUsagesView
 
     private void handleError(int statusCode, String message) {
         if (statusCode == HTTPStatus.BAD_REQUEST) {
-            manager.notify(JSONParser.parseLenient(message).isObject().get("message").isString().stringValue());
+            manager.notify(localizationConstant.failedToProcessFindUsage(),
+                           JSONParser.parseLenient(message).isObject().get("message").isString().stringValue(), FAIL, true);
         } else {
-            manager.notify(message);
+            manager.notify(localizationConstant.failedToProcessFindUsage(), message, FAIL, true);
         }
     }
 

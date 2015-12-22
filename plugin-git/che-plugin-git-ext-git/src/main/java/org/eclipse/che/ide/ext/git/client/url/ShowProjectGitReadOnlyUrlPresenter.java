@@ -26,6 +26,8 @@ import com.google.inject.Singleton;
 
 import java.util.List;
 
+import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAIL;
+
 /**
  * Presenter for showing git url.
  *
@@ -87,7 +89,7 @@ public class ShowProjectGitReadOnlyUrlPresenter implements ShowProjectGitReadOnl
                                            exception.getMessage() != null ? exception.getMessage()
                                                                           : constant.remoteListFailed();
                                    console.printError(errorMessage);
-                                   notificationManager.notify(errorMessage, project.getRootProject());
+                                   notificationManager.notify(constant.remoteListFailed(), FAIL, true, project.getRootProject());
                                }
                            }
                           );
@@ -103,7 +105,7 @@ public class ShowProjectGitReadOnlyUrlPresenter implements ShowProjectGitReadOnl
                                           String errorMessage = exception.getMessage() != null && !exception.getMessage().isEmpty()
                                                                 ? exception.getMessage() : constant.initFailed();
                                           console.printError(errorMessage);
-                                          notificationManager.notify(errorMessage, project.getRootProject());
+                                          notificationManager.notify(constant.initFailed(), FAIL, true, project.getRootProject());
                                       }
                                   });
     }

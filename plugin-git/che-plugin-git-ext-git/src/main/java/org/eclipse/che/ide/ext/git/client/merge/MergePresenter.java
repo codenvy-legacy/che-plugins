@@ -37,6 +37,7 @@ import java.util.List;
 import static org.eclipse.che.api.git.shared.BranchListRequest.LIST_LOCAL;
 import static org.eclipse.che.api.git.shared.BranchListRequest.LIST_REMOTE;
 import static org.eclipse.che.api.git.shared.MergeResult.MergeStatus.ALREADY_UP_TO_DATE;
+import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAIL;
 import static org.eclipse.che.ide.ext.git.client.merge.Reference.RefType.LOCAL_BRANCH;
 import static org.eclipse.che.ide.ext.git.client.merge.Reference.RefType.REMOTE_BRANCH;
 
@@ -110,7 +111,7 @@ public class MergePresenter implements MergeView.ActionDelegate {
                                @Override
                                protected void onFailure(Throwable exception) {
                                    console.printError(exception.getMessage());
-                                   notificationManager.notify(exception.getMessage(), project);
+                                   notificationManager.notify(constant.branchesListFailed(), FAIL, true, project);
                                }
                            });
 
@@ -132,7 +133,7 @@ public class MergePresenter implements MergeView.ActionDelegate {
                                @Override
                                protected void onFailure(Throwable exception) {
                                    console.printError(exception.getMessage());
-                                   notificationManager.notify(exception.getMessage(), project);
+                                   notificationManager.notify(constant.branchesListFailed(), FAIL, true, project);
                                }
                            });
 
@@ -166,7 +167,8 @@ public class MergePresenter implements MergeView.ActionDelegate {
                           @Override
                           protected void onFailure(Throwable exception) {
                               console.printError(exception.getMessage());
-                              notificationManager.notify(exception.getMessage(), appContext.getCurrentProject().getRootProject());
+                              notificationManager
+                                      .notify(constant.mergeFailed(), FAIL, true, appContext.getCurrentProject().getRootProject());
                           }
                       });
     }
@@ -215,7 +217,7 @@ public class MergePresenter implements MergeView.ActionDelegate {
 
         String message = "<b>" + mergeResult.getMergeStatus().getValue() + "</b>";
         String conflictText = conflictMessage.toString();
-        message += (!conflictText.isEmpty()) ? constant.mergedConflicts(conflictText) : "";
+        message += (!conflictText.isEmpty()) ? constant.mergedConflicts() : "";
 
 
         String commitText = commitsMessage.toString();

@@ -48,6 +48,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.eclipse.che.api.git.shared.DiffRequest.DiffType.RAW;
+import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAIL;
 
 /**
  * Presenter for showing git history.
@@ -156,7 +157,7 @@ public class HistoryPresenter extends BasePresenter implements HistoryView.Actio
                             nothingToDisplay(null);
                             String errorMessage = exception.getMessage() != null ? exception.getMessage() : constant.logFailed();
                             console.printError(errorMessage);
-                            notificationManager.notify(errorMessage, project);
+                            notificationManager.notify(constant.logFailed(), FAIL, true, project);
                         }
                     });
     }
@@ -351,7 +352,7 @@ public class HistoryPresenter extends BasePresenter implements HistoryView.Actio
                              nothingToDisplay(revision);
                              String errorMessage = exception.getMessage() != null ? exception.getMessage() : constant.diffFailed();
                              console.printError(errorMessage);
-                             notificationManager.notify(errorMessage, project);
+                             notificationManager.notify(constant.diffFailed(), FAIL, true, project);
                          }
                      });
     }
@@ -389,7 +390,7 @@ public class HistoryPresenter extends BasePresenter implements HistoryView.Actio
                                  nothingToDisplay(revisionB);
                                  String errorMessage = exception.getMessage() != null ? exception.getMessage() : constant.diffFailed();
                                  console.printError(errorMessage);
-                                 notificationManager.notify(errorMessage, project);
+                                 notificationManager.notify(constant.diffFailed(), FAIL, true, project);
                              }
                          });
         } else {

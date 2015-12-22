@@ -38,6 +38,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAIL;
+
 /**
  * Handler for the {@link LockAction} and {@link UnlockAction} actions.
  */
@@ -209,7 +211,7 @@ public class LockUnlockPresenter extends SubversionActionPresenter {
             }
             @Override
             protected void onFailure(final Throwable exception) {
-                notificationManager.notify(constants.commitFailed());
+                notificationManager.notify(constants.commitFailed(), FAIL, true);
             }
         };
     }

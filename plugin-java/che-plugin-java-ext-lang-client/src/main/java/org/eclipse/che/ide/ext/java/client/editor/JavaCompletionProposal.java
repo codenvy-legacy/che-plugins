@@ -16,7 +16,6 @@ import com.google.gwt.user.client.ui.Frame;
 import com.google.gwt.user.client.ui.Widget;
 
 import org.eclipse.che.ide.api.icon.Icon;
-import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.text.Position;
 import org.eclipse.che.ide.ext.java.client.refactoring.RefactorInfo;
 import org.eclipse.che.ide.ext.java.client.refactoring.RefactoringUpdater;
@@ -56,14 +55,12 @@ public class JavaCompletionProposal implements CompletionProposal, CompletionPro
 
     private String              sessionId;
     private HasLinkedMode       linkedEditor;
-    private NotificationManager notificationManager;
 
     public JavaCompletionProposal(final int id,
                                   final String display,
                                   final Icon icon,
                                   final JavaCodeAssistClient client,
                                   String sessionId, HasLinkedMode linkedEditor,
-                                  NotificationManager notificationManager,
                                   RefactoringUpdater refactoringUpdater) {
         this.id = id;
         this.display = display;
@@ -71,7 +68,6 @@ public class JavaCompletionProposal implements CompletionProposal, CompletionPro
         this.client = client;
         this.sessionId = sessionId;
         this.linkedEditor = linkedEditor;
-        this.notificationManager = notificationManager;
         this.refactoringUpdater = refactoringUpdater;
     }
 
@@ -110,7 +106,6 @@ public class JavaCompletionProposal implements CompletionProposal, CompletionPro
             @Override
             public void onFailure(Throwable caught) {
                 Log.error(JavaCompletionProposal.class, caught);
-                notificationManager.notify(caught.getMessage());
             }
 
             @Override

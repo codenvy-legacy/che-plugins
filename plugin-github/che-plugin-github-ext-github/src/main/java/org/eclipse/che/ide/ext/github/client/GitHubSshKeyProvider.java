@@ -11,6 +11,7 @@
 package org.eclipse.che.ide.ext.github.client;
 
 import org.eclipse.che.ide.api.notification.NotificationManager;
+import org.eclipse.che.ide.api.notification.StatusNotification;
 import org.eclipse.che.ide.commons.exception.UnauthorizedException;
 import org.eclipse.che.ide.ext.ssh.client.SshKeyProvider;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
@@ -107,7 +108,7 @@ public class GitHubSshKeyProvider implements SshKeyProvider, OAuthCallback {
         if (LOGGED_IN.equals(authStatus)) {
             generateKey(userId, callback);
         } else {
-            notificationManager.notify(constant.gitHubSshKeyUpdateFailed());
+            notificationManager.notify(constant.gitHubSshKeyUpdateFailed(), StatusNotification.Status.FAIL, true);
         }
     }
 }
