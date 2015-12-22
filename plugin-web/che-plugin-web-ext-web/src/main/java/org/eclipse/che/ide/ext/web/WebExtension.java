@@ -96,7 +96,6 @@ public class WebExtension {
 
         // add actions in main menu
         DefaultActionGroup newGroup = (DefaultActionGroup)actionManager.getAction(GROUP_FILE_NEW);
-        newGroup.addSeparator();
         newGroup.add(newCssFileAction);
         newGroup.add(newLessFileAction);
         newGroup.add(newHtmlFileAction);

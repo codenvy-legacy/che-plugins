@@ -36,8 +36,8 @@ public class HelpAboutExtension {
         actionManager.registerAction("showAbout", showAboutAction);
         actionManager.registerAction("redirectToSupport", redirectToSupportAction);
 
-        helpGroup.add(showAboutAction);
         helpGroup.addSeparator();
         helpGroup.add(redirectToSupportAction);
+        helpGroup.add(showAboutAction);
     }
 }

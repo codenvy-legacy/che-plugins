@@ -36,8 +36,8 @@ import org.eclipse.che.ide.ext.git.client.action.ShowMergeAction;
 import org.eclipse.che.ide.ext.git.client.action.ShowRemoteAction;
 import org.eclipse.che.ide.ext.git.client.action.ShowStatusAction;
 
+import static org.eclipse.che.ide.api.action.IdeActions.GROUP_HELP;
 import static org.eclipse.che.ide.api.action.IdeActions.GROUP_MAIN_MENU;
-import static org.eclipse.che.ide.api.action.IdeActions.GROUP_WINDOW;
 import static org.eclipse.che.ide.api.constraints.Anchor.BEFORE;
 
 /**
@@ -82,8 +82,7 @@ public class GitExtension {
 
         DefaultActionGroup git = new DefaultActionGroup(GIT_GROUP_MAIN_MENU, true, actionManager);
         actionManager.registerAction("git", git);
-        Constraints beforeWindow = new Constraints(BEFORE, GROUP_WINDOW);
-        mainMenu.add(git, beforeWindow);
+        mainMenu.add(git, new Constraints(BEFORE, GROUP_HELP));
 
         DefaultActionGroup commandGroup = new DefaultActionGroup(COMMAND_GROUP_MAIN_MENU, false, actionManager);
         actionManager.registerAction("gitCommandGroup", commandGroup);

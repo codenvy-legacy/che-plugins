@@ -16,6 +16,8 @@ import com.google.inject.Singleton;
 import org.eclipse.che.api.project.shared.dto.ItemReference;
 import org.eclipse.che.commons.annotation.Nullable;
 import org.eclipse.che.ide.api.action.ActionEvent;
+import org.eclipse.che.ide.api.app.AppContext;
+import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.project.node.HasStorablePath;
 import org.eclipse.che.ide.api.selection.Selection;
 import org.eclipse.che.ide.ext.java.client.JavaLocalizationConstant;
@@ -32,7 +34,6 @@ import org.eclipse.che.ide.ui.dialogs.input.InputDialog;
 import org.eclipse.che.ide.ui.dialogs.input.InputValidator;
 
 import javax.validation.constraints.NotNull;
-import java.util.List;
 
 /**
  * Action to create new Java package.
@@ -41,13 +42,39 @@ import java.util.List;
  */
 @Singleton
 public class NewPackageAction extends AbstractNewResourceAction {
+
+    private static final String MAVEN = "maven";
+
+    private final AppContext appContext;
     private final InputValidator nameValidator = new NameValidator();
 
     @Inject
-    public NewPackageAction(JavaResources javaResources, JavaLocalizationConstant localizationConstant) {
+    public NewPackageAction(JavaResources javaResources,
+                            JavaLocalizationConstant localizationConstant,
+                            AppContext appContex) {
         super(localizationConstant.actionNewPackageTitle(),
               localizationConstant.actionNewPackageDescription(),
               javaResources.packageIcon());
+        this.appContext = appContex;
+    }
+
+    @Override
+    public void updateInPerspective(@NotNull ActionEvent e) {
+        CurrentProject project = appContext.getCurrentProject();
+        if (project == null || !MAVEN.equals(project.getRootProject().getType())) {
+            e.getPresentation().setEnabledAndVisible(false);
+            return;
+        }
+
+        Selection<?> selection = projectExplorer.getSelection();
+        if (selection == null) {
+            e.getPresentation().setEnabledAndVisible(false);
+            return;
+        }
+
+        e.getPresentation().setVisible(true);
+        e.getPresentation().setEnabled(selection.isSingleSelection() &&
+                (selection.getHeadElement() instanceof SourceFolderNode || selection.getHeadElement() instanceof PackageNode));
     }
 
     @Override
@@ -89,27 +116,6 @@ public class NewPackageAction extends AbstractNewResourceAction {
                                                   null).show();
             }
         };
-    }
-
-    @Override
-    public void updateInPerspective(@NotNull ActionEvent e) {
-        Selection<?> selection = projectExplorer.getSelection();
-
-        if (selection == null) {
-            e.getPresentation().setEnabledAndVisible(false);
-            return;
-        }
-
-        List<?> elements = selection.getAllElements();
-
-        if (elements == null || elements.isEmpty() || elements.size() > 1) {
-            e.getPresentation().setEnabledAndVisible(false);
-            return;
-        }
-
-        Object o = elements.get(0);
-
-        e.getPresentation().setEnabledAndVisible(o instanceof SourceFolderNode || o instanceof PackageNode);
     }
 
     private class NameValidator implements InputValidator {

@@ -19,19 +19,8 @@ import com.google.gwt.i18n.client.Messages;
  */
 public interface MachineLocalizationConstant extends Messages {
 
-    /* Buttons */
-    @Key("button.apply")
-    String applyButton();
-
-    @Key("button.ok")
-    String okButton();
-
     @Key("button.cancel")
     String cancelButton();
-
-    /* Actions */
-    @Key("mainMenu.run.name")
-    String mainMenuRunName();
 
     @Key("main.menu.machine")
     String mainMenuMachine();
@@ -97,12 +86,6 @@ public interface MachineLocalizationConstant extends Messages {
     /* Messages */
     @Key("messages.noDevMachine")
     String noDevMachine();
-
-    @Key("messages.devMachineCanNotBeDestroyed")
-    String devMachineCanNotBeDestroyed();
-
-    @Key("messages.devMachineCanNotBeDestroyed.title")
-    String devMachineCanNotBeDestroyedTitle();
 
     @Key("messages.machine.not.found")
     String machineNotFound(String machineId);
@@ -187,26 +170,11 @@ public interface MachineLocalizationConstant extends Messages {
     @Key("view.editCommands.name.text")
     String editCommandsViewNameText();
 
-    @Key("view.editCommands.add.text")
-    String editCommandsViewAddText();
-
-    @Key("view.editCommands.add.title")
-    String editCommandsViewAddTitle();
-
-    @Key("view.editCommands.remove.text")
-    String editCommandsViewRemoveText();
-
     @Key("view.editCommands.remove.title")
     String editCommandsViewRemoveTitle();
 
     @Key("view.editCommands.remove.confirmation")
     String editCommandsRemoveConfirmation(String commandName);
-
-    @Key("view.editCommands.execute.text")
-    String editCommandsViewExecuteText();
-
-    @Key("view.editCommands.execute.title")
-    String editCommandsViewExecuteTitle();
 
     @Key("view.editCommands.execute.message")
     String editCommandsExecuteMessage();
@@ -355,9 +323,6 @@ public interface MachineLocalizationConstant extends Messages {
 
     @Key("view.processes.command.title")
     String viewProcessesCommandTitle();
-
-    @Key("view.processes.url.title")
-    String viewProcessesUrlTitle();
 
     @Key("view.processes.terminal.node.title")
     String viewProcessesTerminalNodeTitle(String terminalIndex);

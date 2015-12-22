@@ -48,9 +48,10 @@ import org.eclipse.che.ide.ui.toolbar.ToolbarPresenter;
 import org.eclipse.che.ide.util.input.KeyCodeMap;
 
 import static org.eclipse.che.ide.api.action.IdeActions.GROUP_CENTER_TOOLBAR;
-import static org.eclipse.che.ide.api.action.IdeActions.GROUP_CODE;
 import static org.eclipse.che.ide.api.action.IdeActions.GROUP_MAIN_MENU;
 import static org.eclipse.che.ide.api.action.IdeActions.GROUP_RIGHT_TOOLBAR;
+import static org.eclipse.che.ide.api.action.IdeActions.GROUP_RUN;
+import static org.eclipse.che.ide.api.action.IdeActions.GROUP_WORKSPACE;
 import static org.eclipse.che.ide.api.constraints.Anchor.AFTER;
 import static org.eclipse.che.ide.api.constraints.Constraints.FIRST;
 import static org.eclipse.che.ide.workspace.perspectives.project.ProjectPerspective.PROJECT_PERSPECTIVE_ID;
@@ -114,16 +115,16 @@ public class MachineExtension {
                                 CreateSnapshotAction createSnapshotAction,
                                 RunCommandAction runCommandAction) {
         final DefaultActionGroup mainMenu = (DefaultActionGroup)actionManager.getAction(GROUP_MAIN_MENU);
-        final DefaultActionGroup runMenu = new DefaultActionGroup(localizationConstant.mainMenuRunName(), true, actionManager);
+
+        final DefaultActionGroup workspaceMenu = (DefaultActionGroup)actionManager.getAction(GROUP_WORKSPACE);
+        final DefaultActionGroup runMenu = (DefaultActionGroup)actionManager.getAction(GROUP_RUN);
 
         // register actions
-        actionManager.registerAction("run", runMenu);
         actionManager.registerAction("editCommands", editCommandsAction);
         actionManager.registerAction("selectCommandAction", selectCommandAction);
         actionManager.registerAction("executeSelectedCommand", executeSelectedCommandAction);
 
         // add actions in main menu
-        mainMenu.add(runMenu, new Constraints(AFTER, GROUP_CODE));
         runMenu.add(editCommandsAction);
 
         //add actions in machine menu
@@ -143,8 +144,8 @@ public class MachineExtension {
         machineMenu.add(restartMachine);
         machineMenu.add(destroyMachineAction);
         machineMenu.add(stopWorkspaceAction);
+        workspaceMenu.add(stopWorkspaceAction);
         machineMenu.add(createSnapshotAction);
-        machineMenu.add(newTerminalAction);
 
         // add actions on center part of toolbar
         final DefaultActionGroup centerToolbarGroup = (DefaultActionGroup)actionManager.getAction(GROUP_CENTER_TOOLBAR);

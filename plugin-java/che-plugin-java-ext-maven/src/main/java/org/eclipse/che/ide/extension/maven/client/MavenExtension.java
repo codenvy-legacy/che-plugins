@@ -155,11 +155,11 @@ public class MavenExtension {
         actionManager.registerAction("createMavenModule", createMavenModuleAction);
 
         // add actions in main menu
-        DefaultActionGroup buildMenuActionGroup = (DefaultActionGroup)actionManager.getAction(IdeActions.GROUP_CODE);
-        buildMenuActionGroup.add(updateDependencyAction);
+        DefaultActionGroup assistantGroup = (DefaultActionGroup)actionManager.getAction(IdeActions.GROUP_ASSISTANT);
+        assistantGroup.add(updateDependencyAction, Constraints.LAST);
 
         DefaultActionGroup newGroup = (DefaultActionGroup)actionManager.getAction(GROUP_FILE_NEW);
-        newGroup.add(createMavenModuleAction, new Constraints(Anchor.AFTER, "newProject"));
+        newGroup.add(createMavenModuleAction, new Constraints(Anchor.AFTER, "newJavaPackage"));
 
         // add actions in context menu
         DefaultActionGroup buildContextMenuGroup = (DefaultActionGroup)actionManager.getAction(GROUP_BUILD_CONTEXT_MENU);
