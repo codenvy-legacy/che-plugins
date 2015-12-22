@@ -21,6 +21,8 @@ import org.eclipse.che.ide.api.extension.Extension;
 import org.eclipse.che.ide.ext.git.client.action.AddToIndexAction;
 import org.eclipse.che.ide.ext.git.client.action.CheckoutReferenceAction;
 import org.eclipse.che.ide.ext.git.client.action.CommitAction;
+import org.eclipse.che.ide.ext.git.client.action.CompareWithBranchAction;
+import org.eclipse.che.ide.ext.git.client.action.CompareWithLatestAction;
 import org.eclipse.che.ide.ext.git.client.action.DeleteRepositoryAction;
 import org.eclipse.che.ide.ext.git.client.action.FetchAction;
 import org.eclipse.che.ide.ext.git.client.action.HistoryAction;
@@ -74,6 +76,8 @@ public class GitExtension {
                         PullAction pullAction,
                         GitLocalizationConstant constant,
                         HistoryAction historyAction,
+                        CompareWithLatestAction compareWithLatestAction,
+                        CompareWithBranchAction compareWithBranchAction,
                         AppContext appContext) {
 
         resources.gitCSS().ensureInjected();
@@ -105,6 +109,9 @@ public class GitExtension {
 
         actionManager.registerAction("gitAddToIndex", addToIndexAction);
         commandGroup.add(addToIndexAction);
+        DefaultActionGroup compareGroup = new DefaultActionGroup("Compare", true, actionManager);
+        actionManager.registerAction("gitCompareGroup", compareGroup);
+        commandGroup.add(compareGroup);
         actionManager.registerAction("gitResetToCommit", resetToCommitAction);
         commandGroup.add(resetToCommitAction);
         actionManager.registerAction("gitRemoveFromIndexCommit", removeFromIndexAction);
@@ -142,5 +149,10 @@ public class GitExtension {
         remoteGroup.add(pullAction);
         actionManager.registerAction("gitRemote", showRemoteAction);
         remoteGroup.add(showRemoteAction);
+
+        actionManager.registerAction("gitCompareWithLatest", compareWithLatestAction);
+        compareGroup.add(compareWithLatestAction);
+        actionManager.registerAction("gitCompareWithBranch", compareWithBranchAction);
+        compareGroup.add(compareWithBranchAction);
     }
 }
