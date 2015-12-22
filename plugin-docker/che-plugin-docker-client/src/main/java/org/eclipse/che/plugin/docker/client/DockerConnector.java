@@ -908,6 +908,9 @@ public class DockerConnector {
                 JsonMessageReader<ProgressStatus> progressReader = new JsonMessageReader<>(responseStream, ProgressStatus.class);
 
                 final ValueHolder<IOException> errorHolder = new ValueHolder<>();
+                //it is necessary to track errors during the push, this is useful in the case when docker API returns status 200 OK,
+                //but in fact we have an error (e.g docker registry is not accessible but we are trying to push).
+                final ValueHolder<String> exceptionHolder = new ValueHolder<>();
                 // Here do some trick to be able interrupt push process. Basically for now it is not possible interrupt docker daemon while
                 // it's pushing images but here we need just be able to close connection to the unix socket. Thread is blocking while read
                 // from the socket stream so need one more thread that is able to close socket. In this way we can release thread that is
@@ -917,8 +920,11 @@ public class DockerConnector {
                     public void run() {
                         try {
                             ProgressStatus progressStatus;
-                            while ((progressStatus = progressReader.next()) != null) {
+                            while ((progressStatus = progressReader.next()) != null && exceptionHolder.get() == null) {
                                 progressMonitor.updateProgress(progressStatus);
+                                if (progressStatus.getError() != null) {
+                                    exceptionHolder.set(progressStatus.getError());
+                                }
                             }
                         } catch (IOException e) {
                             errorHolder.set(e);
@@ -932,6 +938,9 @@ public class DockerConnector {
                 // noinspection SynchronizationOnLocalVariableOrMethodParameter
                 synchronized (runnable) {
                     runnable.wait();
+                }
+                if (exceptionHolder.get() != null) {
+                    throw new DockerException(exceptionHolder.get(), 500);
                 }
                 final IOException ioe = errorHolder.get();
                 if (ioe != null) {
