@@ -25,6 +25,7 @@ import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.editor.EditorInput;
 import org.eclipse.che.ide.api.editor.EditorPartPresenter;
 import org.eclipse.che.ide.api.notification.NotificationManager;
+import org.eclipse.che.ide.api.notification.StatusNotification;
 import org.eclipse.che.ide.api.project.tree.VirtualFile;
 import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.ext.java.client.JavaLocalizationConstant;
@@ -204,7 +205,7 @@ public class RenamePresenterTest {
         verify(refactorService).createRenameRefactoring(createRenameRefactoringDto);
         verify(renameRefactoringSessionPromise).catchError(promiseErrorCaptor.capture());
         promiseErrorCaptor.getValue().apply(promiseError);
-        verify(notificationManager).notify(anyString());
+        verify(notificationManager).notify(anyString(), anyString(), any(StatusNotification.Status.class), anyBoolean());
     }
 
     @Test
@@ -483,7 +484,7 @@ public class RenamePresenterTest {
         verify(changeCreationResultPromise).catchError(promiseErrorCaptor.capture());
         promiseErrorCaptor.getValue().apply(promiseError);
         verify(promiseError).getMessage();
-        verify(notificationManager).notify(anyString());
+        verify(notificationManager).notify(anyString(), anyString(), any(StatusNotification.Status.class), anyBoolean());
     }
 
     @Test
@@ -606,7 +607,7 @@ public class RenamePresenterTest {
         verify(changeCreationResultPromise).catchError(promiseErrorCaptor.capture());
         promiseErrorCaptor.getValue().apply(promiseError);
         verify(promiseError).getMessage();
-        verify(notificationManager).notify(anyString());
+        verify(notificationManager).notify(anyString(), anyString(), any(StatusNotification.Status.class), anyBoolean());
     }
 
     @Test

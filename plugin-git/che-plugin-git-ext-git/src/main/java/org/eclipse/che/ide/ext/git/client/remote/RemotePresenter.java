@@ -28,6 +28,8 @@ import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
+import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAIL;
+
 /**
  * Presenter for working with remote repository list (view, add and delete).
  *
@@ -123,7 +125,7 @@ public class RemotePresenter implements RemoteView.ActionDelegate {
             public void onFailure(Throwable caught) {
                 String errorMessage = caught.getMessage() != null ? caught.getMessage() : constant.remoteAddFailed();
                 console.printError(errorMessage);
-                notificationManager.notify(errorMessage, project);
+                notificationManager.notify(constant.remoteAddFailed(), FAIL, true, project);
             }
         });
     }
@@ -149,7 +151,7 @@ public class RemotePresenter implements RemoteView.ActionDelegate {
             protected void onFailure(Throwable exception) {
                 String errorMessage = exception.getMessage() != null ? exception.getMessage() : constant.remoteDeleteFailed();
                 console.printError(errorMessage);
-                notificationManager.notify(errorMessage, project);
+                notificationManager.notify(constant.remoteDeleteFailed(), FAIL, true, project);
             }
         });
     }

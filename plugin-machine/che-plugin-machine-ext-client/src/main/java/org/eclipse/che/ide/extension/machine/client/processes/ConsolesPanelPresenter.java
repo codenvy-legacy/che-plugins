@@ -49,6 +49,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAIL;
 import static org.eclipse.che.ide.extension.machine.client.processes.ProcessTreeNode.ProcessNodeType.ROOT_NODE;
 import static org.eclipse.che.ide.extension.machine.client.processes.ProcessTreeNode.ProcessNodeType.MACHINE_NODE;
 import static org.eclipse.che.ide.extension.machine.client.processes.ProcessTreeNode.ProcessNodeType.COMMAND_NODE;
@@ -192,7 +193,8 @@ public class ConsolesPanelPresenter extends BasePresenter implements ConsolesPan
                            @NotNull OutputConsole outputConsole) {
         ProcessTreeNode machineTreeNode = findProcessTreeNodeById(machineId);
         if (machineTreeNode == null) {
-            notificationManager.notify(localizationConstant.machineNotFound(machineId));
+            notificationManager.notify(localizationConstant.failedToExecuteCommand(), localizationConstant.machineNotFound(machineId),
+                                       FAIL, true);
             Log.error(getClass(), localizationConstant.machineNotFound(machineId));
             return;
         }
@@ -228,7 +230,8 @@ public class ConsolesPanelPresenter extends BasePresenter implements ConsolesPan
                 final ProcessTreeNode machineTreeNode = findProcessTreeNodeById(machineId);
 
                 if (machineTreeNode == null) {
-                    notificationManager.notify(localizationConstant.machineNotFound(machineId));
+                    notificationManager.notify(localizationConstant.failedToConnectTheTerminal(),
+                                               localizationConstant.machineNotFound(machineId), FAIL, true);
                     Log.error(getClass(), localizationConstant.machineNotFound(machineId));
                     return;
                 }
@@ -257,8 +260,7 @@ public class ConsolesPanelPresenter extends BasePresenter implements ConsolesPan
         }).catchError(new Operation<PromiseError>() {
             @Override
             public void apply(PromiseError arg) throws OperationException {
-                notificationManager.notify(localizationConstant.machineNotFound(machineId));
-                Log.error(getClass(), "Can not get machine " + machineId);
+                notificationManager.notify(localizationConstant.failedToFindMachine(machineId));
             }
         });
 

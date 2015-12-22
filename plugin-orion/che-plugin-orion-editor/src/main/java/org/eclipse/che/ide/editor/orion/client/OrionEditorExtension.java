@@ -24,6 +24,7 @@ import com.google.inject.Singleton;
 
 import org.eclipse.che.ide.api.extension.Extension;
 import org.eclipse.che.ide.api.notification.NotificationManager;
+import org.eclipse.che.ide.api.notification.StatusNotification;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionKeyBindingModule;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionTextThemeOverlay;
 import org.eclipse.che.ide.editor.orion.client.style.OrionResource;
@@ -133,7 +134,7 @@ public class OrionEditorExtension implements Provider<OrionKeyBindingModule>{
                         Log.debug(OrionEditorExtension.class, message);
                     }
                 }
-                initializationFailed(callback, "Unable to inject Orion", e);
+                initializationFailed(callback, "Failed to inject Orion editor", e);
             }
         }, scripts, new String[0]);
         injectCssLink(GWT.getModuleBaseForStaticFiles() + "built-editor-compat.css");
@@ -161,7 +162,7 @@ public class OrionEditorExtension implements Provider<OrionKeyBindingModule>{
             @Override
             public void onFailure(final Throwable reason) {
                 LOG.log(Level.SEVERE, "Unable to initialize Orion ", reason);
-                initializationFailed(callback, "Unable to initialize Orion.", reason);
+                initializationFailed(callback, "Failed to initialize Orion editor", reason);
             }
 
             @Override
@@ -212,7 +213,7 @@ public class OrionEditorExtension implements Provider<OrionKeyBindingModule>{
             return;
         }
         initFailedWarnedOnce = true;
-        notificationManager.notify(errorMessage);
+        notificationManager.notify(errorMessage, StatusNotification.Status.FAIL, true);
         LOG.log(Level.SEVERE, errorMessage + " - ", e);
         callback.onFailure(e);
     }

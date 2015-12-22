@@ -32,6 +32,8 @@ import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 import java.util.HashMap;
 import java.util.List;
 
+import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAIL;
+
 public class ResolvePresenter extends SubversionActionPresenter implements ResolveView.ActionDelegate {
 
     private final AppContext                               appContext;
@@ -87,7 +89,7 @@ public class ResolvePresenter extends SubversionActionPresenter implements Resol
 
                                                   @Override
                                                   public void onFailure(Throwable exception) {
-                                                      notificationManager.notify(exception.getMessage());
+                                                      notificationManager.notify(exception.getMessage(), FAIL, true);
                                                   }
                                               });
     }
@@ -146,7 +148,7 @@ public class ResolvePresenter extends SubversionActionPresenter implements Resol
 
                                             @Override
                                             public void onFailure(Throwable exception) {
-                                                notificationManager.notify(exception.getMessage());
+                                                notificationManager.notify(exception.getMessage(), FAIL, true);
                                             }
                                         });
         view.close();

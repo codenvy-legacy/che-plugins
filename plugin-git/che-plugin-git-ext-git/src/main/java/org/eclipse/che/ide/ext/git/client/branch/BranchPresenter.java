@@ -43,6 +43,7 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 
 import static org.eclipse.che.api.git.shared.BranchListRequest.LIST_ALL;
+import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAIL;
 
 /**
  * Presenter for displaying and work with branches.
@@ -157,7 +158,7 @@ public class BranchPresenter implements BranchView.ActionDelegate {
                 String errorMessage =
                         (exception.getMessage() != null) ? exception.getMessage() : constant.branchRenameFailed();
                 gitConsole.printError(errorMessage);
-                notificationManager.notify(errorMessage, project.getRootProject());
+                notificationManager.notify(constant.branchRenameFailed(), FAIL, true, project.getRootProject());
                 getBranches();//rename of remote branch occurs in three stages, so needs update list of branches on view
             }
         });
@@ -267,7 +268,7 @@ public class BranchPresenter implements BranchView.ActionDelegate {
                                    final String errorMessage =
                                            (exception.getMessage() != null) ? exception.getMessage() : constant.branchesListFailed();
                                    gitConsole.printError(errorMessage);
-                                   notificationManager.notify(errorMessage, project.getRootProject());
+                                   notificationManager.notify(constant.branchesListFailed(), FAIL, true, project.getRootProject());
                                }
                            }
                           );
@@ -293,7 +294,8 @@ public class BranchPresenter implements BranchView.ActionDelegate {
                                                                              ? exception.getMessage()
                                                                              : constant.branchCreateFailed();
                                                  gitConsole.printError(errorMessage);
-                                                 notificationManager.notify(errorMessage, project.getRootProject());
+                                                 notificationManager
+                                                         .notify(constant.branchCreateFailed(), FAIL, true, project.getRootProject());
                                              }
                                          }
                                         );
@@ -333,7 +335,7 @@ public class BranchPresenter implements BranchView.ActionDelegate {
         String errorMessage = throwable.getMessage();
         if (errorMessage == null) {
             gitConsole.printError(constant.branchDeleteFailed());
-            notificationManager.notify(constant.branchDeleteFailed(), project.getRootProject());
+            notificationManager.notify(constant.branchDeleteFailed(), FAIL, true, project.getRootProject());
             return;
         }
 
@@ -341,14 +343,15 @@ public class BranchPresenter implements BranchView.ActionDelegate {
             errorMessage = dtoFactory.createDtoFromJson(errorMessage, ServiceError.class).getMessage();
             if (errorMessage.equals("Unable get private ssh key")) {
                 gitConsole.printError(constant.messagesUnableGetSshKey());
-                notificationManager.notify(constant.messagesUnableGetSshKey(), project.getRootProject());
+                notificationManager.notify(constant.messagesUnableGetSshKeyTitle(), constant.messagesUnableGetSshKey(), FAIL, true,
+                                           project.getRootProject());
                 return;
             }
             gitConsole.printError(errorMessage);
-            notificationManager.notify(errorMessage, project.getRootProject());
+            notificationManager.notify(errorMessage, FAIL, true, project.getRootProject());
         } catch (Exception e) {
             gitConsole.printError(errorMessage);
-            notificationManager.notify(errorMessage, project.getRootProject());
+            notificationManager.notify(errorMessage, FAIL, true, project.getRootProject());
         }
     }
 }

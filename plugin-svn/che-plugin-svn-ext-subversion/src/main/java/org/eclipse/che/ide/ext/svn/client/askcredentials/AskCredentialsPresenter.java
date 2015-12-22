@@ -19,6 +19,8 @@ import org.eclipse.che.ide.ext.svn.client.SubversionExtensionLocalizationConstan
 import org.eclipse.che.ide.ext.svn.client.askcredentials.AskCredentialsView.AskCredentialsDelegate;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 
+import static org.eclipse.che.ide.api.notification.StatusNotification.Status.PROGRESS;
+
 
 public class AskCredentialsPresenter implements AskCredentialsDelegate {
 
@@ -64,19 +66,18 @@ public class AskCredentialsPresenter implements AskCredentialsDelegate {
     }
 
     private void saveCredentials(final String username, final String password) {
-        StatusNotification notification = notificationManager.notify(constants.notificationSavingCredentials(
-                                                                             repositoryUrl), null, StatusNotification.Status.PROGRESS,
+        StatusNotification notification = notificationManager.notify(constants.notificationSavingCredentials(repositoryUrl), PROGRESS,
                                                                      false);
         clientService.saveCredentials(repositoryUrl, username, password, new AsyncRequestCallback<Void>() {
             @Override
             protected void onSuccess(final Void notUsed) {
-                notification.setContent(constants.notificationCredentialsSaved(repositoryUrl));
+                notification.setTitle(constants.notificationCredentialsSaved(repositoryUrl));
                 notification.setStatus(StatusNotification.Status.SUCCESS);
             }
 
             @Override
             protected void onFailure(final Throwable exception) {
-                notification.setContent(constants.notificationCredentialsFailed(repositoryUrl));
+                notification.setTitle(constants.notificationCredentialsFailed(repositoryUrl));
                 notification.setStatus(StatusNotification.Status.FAIL);
             }
         });

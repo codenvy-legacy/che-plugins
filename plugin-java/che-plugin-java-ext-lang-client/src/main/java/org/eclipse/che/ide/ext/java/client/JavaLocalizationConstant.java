@@ -287,4 +287,13 @@ public interface JavaLocalizationConstant extends Messages {
 
     @Key("rename.refactoring.action.description")
     String renameRefactoringActionDescription();
+
+    @Key("failed.to.rename")
+    String failedToRename();
+
+    @Key("failed.to.process.refactoring.operation")
+    String failedToProcessRefactoringOperation();
+
+    @Key("failed.to.process.fin.usage")
+    String failedToProcessFindUsage();
 }

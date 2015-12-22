@@ -40,6 +40,8 @@ import org.eclipse.che.ide.util.loging.Log;
 
 import org.eclipse.che.commons.annotation.Nullable;
 
+import static org.eclipse.che.ide.api.notification.StatusNotification.Status.PROGRESS;
+
 /**
  * Presenter for the {@link org.eclipse.che.ide.ext.svn.client.copy.CopyView}.
  *
@@ -142,8 +144,7 @@ public class CopyPresenter extends SubversionActionPresenter implements CopyView
         final String target = view.isTargetCheckBoxSelected() ? view.getTargetUrl() : relPath(projectPath, targetHolder.normalize());
         final String comment = view.isTargetCheckBoxSelected() ? view.getComment() : null;
 
-        notification = notificationManager.notify(constants.copyNotificationStarted(src), null, StatusNotification.Status.PROGRESS, false
-                                                 );
+        notification = notificationManager.notify(constants.copyNotificationStarted(src), PROGRESS, true);
 
         view.hide();
 
@@ -153,7 +154,7 @@ public class CopyPresenter extends SubversionActionPresenter implements CopyView
                          protected void onSuccess(CLIOutputResponse result) {
                              printResponse(result.getCommand(), result.getOutput(), result.getErrOutput());
 
-                             notification.setContent(constants.copyNotificationSuccessful());
+                             notification.setTitle(constants.copyNotificationSuccessful());
                              notification.setStatus(StatusNotification.Status.SUCCESS);
 
                              refreshNodes(targetHolder.dir);
@@ -161,7 +162,7 @@ public class CopyPresenter extends SubversionActionPresenter implements CopyView
 
                          @Override
                          protected void onFailure(Throwable exception) {
-                             notification.setContent(constants.copyNotificationFailed());
+                             notification.setTitle(constants.copyNotificationFailed());
                              notification.setStatus(StatusNotification.Status.FAIL);
                          }
                      });

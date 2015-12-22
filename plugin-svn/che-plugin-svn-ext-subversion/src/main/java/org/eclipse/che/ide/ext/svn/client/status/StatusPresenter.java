@@ -28,6 +28,8 @@ import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 
 import java.util.List;
 
+import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAIL;
+
 /**
  * Handler for the {@link org.eclipse.che.ide.ext.svn.client.action.StatusAction} action.
  */
@@ -77,7 +79,7 @@ public class StatusPresenter extends SubversionActionPresenter {
 
                            @Override
                            protected void onFailure(final Throwable exception) {
-                               notificationManager.notify(constants.statusFailed());
+                               notificationManager.notify(constants.statusFailed(), FAIL, true);
                            }
                        });
     }

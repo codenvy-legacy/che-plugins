@@ -40,6 +40,8 @@ import org.eclipse.che.ide.websocket.events.MessageReceivedHandler;
 
 import javax.validation.constraints.NotNull;
 
+import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAIL;
+
 /**
  * The class defines methods which contains business logic to control machine's terminal.
  *
@@ -124,7 +126,7 @@ public class TerminalPresenter implements TabPresenter, TerminalView.ActionDeleg
                 @Override
                 public void apply(PromiseError arg) throws OperationException {
                     isTerminalConnected = false;
-                    notificationManager.notify(locale.terminalCanNotLoadScript());
+                    notificationManager.notify(locale.failedToConnectTheTerminal(), locale.terminalCanNotLoadScript(), FAIL, true);
 
                     tryToReconnect();
 
@@ -186,7 +188,7 @@ public class TerminalPresenter implements TabPresenter, TerminalView.ActionDeleg
             public void onError() {
                 isTerminalConnected = false;
 
-                notificationManager.notify(locale.terminalErrorConnection());
+                notificationManager.notify(locale.connectionFailedWithTerminal(), locale.terminalErrorConnection(), FAIL, true);
 
                 tryToReconnect();
             }

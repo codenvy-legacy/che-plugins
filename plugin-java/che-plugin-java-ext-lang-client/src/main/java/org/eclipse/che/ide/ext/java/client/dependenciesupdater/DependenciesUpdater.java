@@ -100,7 +100,7 @@ public class DependenciesUpdater {
 
         updating = true;
         notification = notificationManager
-                .notify(javaLocalizationConstant.updatingDependencies(project.getName()), null, PROGRESS, true, project);
+                .notify(javaLocalizationConstant.updatingDependencies(project.getName()), PROGRESS, false, project);
 
         Unmarshallable<ClassPathBuilderResult> unmarshaller = dtoUnmarshallerFactory.newWSUnmarshaller(ClassPathBuilderResult.class);
 
@@ -136,6 +136,7 @@ public class DependenciesUpdater {
 
     private void updateFinishedWithError(java.lang.String message, StatusNotification notification) {
         updating = false;
+        notification.setBalloon(true);
         notification.setContent(message);
         notification.setStatus(FAIL);
     }

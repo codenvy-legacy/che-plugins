@@ -19,7 +19,6 @@ import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.notification.StatusNotification;
 import org.eclipse.che.ide.api.parts.WorkspaceAgent;
 import org.eclipse.che.ide.ext.svn.client.SubversionClientService;
-import org.eclipse.che.ide.ext.svn.client.SubversionExtension;
 import org.eclipse.che.ide.ext.svn.client.SubversionExtensionLocalizationConstants;
 import org.eclipse.che.ide.ext.svn.client.common.RawOutputPresenter;
 import org.eclipse.che.ide.ext.svn.client.common.SubversionActionPresenter;
@@ -32,6 +31,8 @@ import org.eclipse.che.ide.rest.Unmarshallable;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.eclipse.che.ide.api.notification.StatusNotification.Status.PROGRESS;
 
 /**
  * Presenter for the {@link org.eclipse.che.ide.ext.svn.client.property.PropertyEditorView}.
@@ -145,8 +146,7 @@ public class PropertyEditorPresenter extends SubversionActionPresenter implement
 
         String headPath = getSelectedPaths().get(0);
 
-        notification = notificationManager.notify(constants.propertyModifyStart(), null, StatusNotification.Status.PROGRESS, false
-                                                 );
+        notification = notificationManager.notify(constants.propertyModifyStart(), PROGRESS, true);
 
         Unmarshallable<CLIOutputResponse> unmarshaller = dtoUnmarshallerFactory.newUnmarshaller(CLIOutputResponse.class);
         service.propertySet(projectPath, propertyName, propertyValue, depth, force, headPath,
@@ -155,15 +155,14 @@ public class PropertyEditorPresenter extends SubversionActionPresenter implement
                                 protected void onSuccess(CLIOutputResponse result) {
                                     printResponse(result.getCommand(), result.getOutput(), result.getErrOutput());
 
-                                    notification.setContent(constants.propertyModifyFinished());
+                                    notification.setTitle(constants.propertyModifyFinished());
                                     notification.setStatus(StatusNotification.Status.SUCCESS);
                                 }
 
                                 @Override
                                 protected void onFailure(Throwable exception) {
-                                    String errorMessage = exception.getMessage();
-
-                                    notification.setContent(constants.propertyModifyFailed() + errorMessage);
+                                    notification.setTitle(constants.propertyModifyFailed());
+                                    notification.setContent(exception.getMessage());
                                     notification.setStatus(StatusNotification.Status.FAIL);
                                 }
                             });
@@ -176,8 +175,7 @@ public class PropertyEditorPresenter extends SubversionActionPresenter implement
 
         String headPath = getSelectedPaths().get(0);
 
-        notification = notificationManager.notify(constants.propertyRemoveStart(), null, StatusNotification.Status.PROGRESS, false
-                                                 );
+        notification = notificationManager.notify(constants.propertyRemoveStart(), PROGRESS, true);
 
         Unmarshallable<CLIOutputResponse> unmarshaller = dtoUnmarshallerFactory.newUnmarshaller(CLIOutputResponse.class);
         service.propertyDelete(projectPath, propertyName, depth, force, headPath,
@@ -186,15 +184,14 @@ public class PropertyEditorPresenter extends SubversionActionPresenter implement
                                    protected void onSuccess(CLIOutputResponse result) {
                                        printResponse(result.getCommand(), result.getOutput(), result.getErrOutput());
 
-                                       notification.setContent(constants.propertyRemoveFinished());
+                                       notification.setTitle(constants.propertyRemoveFinished());
                                        notification.setStatus(StatusNotification.Status.SUCCESS);
                                    }
 
                                    @Override
                                    protected void onFailure(Throwable exception) {
-                                       String errorMessage = exception.getMessage();
-
-                                       notification.setContent(constants.propertyRemoveFailed() + errorMessage);
+                                       notification.setTitle(constants.propertyRemoveFailed());
+                                       notification.setContent(exception.getMessage());
                                        notification.setStatus(StatusNotification.Status.FAIL);
                                    }
                                });

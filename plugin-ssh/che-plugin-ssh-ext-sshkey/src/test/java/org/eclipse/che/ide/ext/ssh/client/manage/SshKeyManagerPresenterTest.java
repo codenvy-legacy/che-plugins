@@ -17,6 +17,7 @@ import com.google.gwtmockito.GwtMockitoTestRunner;
 
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.notification.NotificationManager;
+import org.eclipse.che.ide.api.notification.StatusNotification;
 import org.eclipse.che.ide.ext.ssh.client.SshKeyService;
 import org.eclipse.che.ide.ext.ssh.client.SshLocalizationConstant;
 import org.eclipse.che.ide.ext.ssh.client.SshResources;
@@ -45,6 +46,8 @@ import org.mockito.Mock;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -150,7 +153,7 @@ public class SshKeyManagerPresenterTest {
         verify(loader).hide(anyString());
         verify(dialogFactory, never()).createMessageDialog(anyString(), anyString(), (ConfirmCallback)anyObject());
         verify(messageDialog, never()).show();
-        verify(notificationManager).notify(anyString());
+        verify(notificationManager).notify(anyString(), any(StatusNotification.Status.class), anyBoolean());
     }
 
     @Test
@@ -246,7 +249,7 @@ public class SshKeyManagerPresenterTest {
         verify(confirmDialog).show();
         verify(service).deleteKey((KeyItem)anyObject(), Matchers.<AsyncRequestCallback<Void>>anyObject());
         verify(loader).hide(anyString());
-        verify(notificationManager).notify(anyString());
+        verify(notificationManager).notify(anyString(), any(StatusNotification.Status.class), anyBoolean());
         verify(service, never()).getAllKeys(Matchers.<AsyncRequestCallback<List<KeyItem>>>anyObject());
     }
 
@@ -314,7 +317,7 @@ public class SshKeyManagerPresenterTest {
         verify(loader, times(2)).hide(anyString());
         verify(service).getAllKeys(Matchers.<AsyncRequestCallback<List<KeyItem>>>anyObject());
         verify(view, never()).setKeys(eq(keyItemArray));
-        verify(notificationManager).notify(anyString());
+        verify(notificationManager).notify(anyString(), any(StatusNotification.Status.class), anyBoolean());
     }
 
     @Test
@@ -402,7 +405,7 @@ public class SshKeyManagerPresenterTest {
 
         verify(service, never()).getAllKeys((AsyncRequestCallback<List<KeyItem>>)anyObject());
         verify(view, never()).setKeys((List<KeyItem>)anyObject());
-        verify(notificationManager).notify(anyString());
+        verify(notificationManager).notify(anyString(), anyString(), any(StatusNotification.Status.class), anyBoolean());
     }
 
     @Test

@@ -124,7 +124,7 @@ public class PullPresenter implements PullView.ActionDelegate {
                                                     exception.getMessage() != null ? exception.getMessage()
                                                                                    : constant.remoteListFailed();
                                             console.printError(errorMessage);
-                                            notificationManager.notify(errorMessage, project.getRootProject());
+                                            notificationManager.notify(constant.remoteListFailed(), FAIL, true, project.getRootProject());
                                             view.setEnablePullButton(false);
                                         }
                                     }
@@ -162,7 +162,7 @@ public class PullPresenter implements PullView.ActionDelegate {
                                                     exception.getMessage() != null ? exception.getMessage()
                                                                                    : constant.branchesListFailed();
                                             console.printError(errorMessage);
-                                            notificationManager.notify(errorMessage, project.getRootProject());
+                                            notificationManager.notify(constant.branchesListFailed(), FAIL, true, project.getRootProject());
                                             view.setEnablePullButton(false);
                                         }
                                     }
@@ -182,7 +182,7 @@ public class PullPresenter implements PullView.ActionDelegate {
         }
 
         final StatusNotification notification =
-                notificationManager.notify(constant.pullProcess(), null, PROGRESS, true, project.getRootProject());
+                notificationManager.notify(constant.pullProcess(), PROGRESS, true, project.getRootProject());
         gitServiceClient.pull(project.getRootProject(), getRefs(), remoteName,
                               new AsyncRequestCallback<PullResponse>(dtoUnmarshallerFactory.newUnmarshaller(PullResponse.class)) {
                                   @Override
@@ -190,10 +190,10 @@ public class PullPresenter implements PullView.ActionDelegate {
                                       console.printInfo(result.getCommandOutput());
                                       notification.setStatus(SUCCESS);
                                       if (result.getCommandOutput().contains("Already up-to-date")) {
-                                          notification.setContent(constant.pullUpToDate());
+                                          notification.setTitle(constant.pullUpToDate());
                                       } else {
                                           refreshProject(openedEditors);
-                                          notification.setContent(constant.pullSuccess(remoteUrl));
+                                          notification.setTitle(constant.pullSuccess(remoteUrl));
                                       }
                                   }
 
@@ -243,7 +243,7 @@ public class PullPresenter implements PullView.ActionDelegate {
         notification.setStatus(FAIL);
         if (errorMessage == null) {
             console.printError(constant.pullFail(remoteUrl));
-            notification.setContent(constant.pullFail(remoteUrl));
+            notification.setTitle(constant.pullFail(remoteUrl));
             return;
         }
 
@@ -251,14 +251,14 @@ public class PullPresenter implements PullView.ActionDelegate {
             errorMessage = dtoFactory.createDtoFromJson(errorMessage, ServiceError.class).getMessage();
             if (errorMessage.equals("Unable get private ssh key")) {
                 console.printError(constant.messagesUnableGetSshKey());
-                notification.setContent(constant.messagesUnableGetSshKey());
+                notification.setTitle(constant.messagesUnableGetSshKey());
                 return;
             }
             console.printError(errorMessage);
-            notification.setContent(errorMessage);
+            notification.setTitle(errorMessage);
         } catch (Exception e) {
             console.printError(errorMessage);
-            notification.setContent(errorMessage);
+            notification.setTitle(errorMessage);
         }
     }
 

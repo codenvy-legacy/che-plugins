@@ -34,7 +34,6 @@ import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.api.workspace.gwt.client.WorkspaceServiceClient;
 import org.eclipse.che.api.workspace.shared.dto.UsersWorkspaceDto;
 import org.eclipse.che.ide.api.app.AppContext;
-import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.parts.PerspectiveManager;
 import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.EntityFactory;
@@ -77,7 +76,6 @@ public class MachineManagerImpl implements MachineManager {
     private final MachineServiceClient     machineServiceClient;
     private final WorkspaceServiceClient   workspaceServiceClient;
     private final MachineConsolePresenter  machineConsolePresenter;
-    private final NotificationManager      notificationManager;
     private final MachineStatusNotifier    machineStatusNotifier;
     private final InitialLoadingInfo       initialLoadingInfo;
     private final PerspectiveManager       perspectiveManager;
@@ -96,7 +94,6 @@ public class MachineManagerImpl implements MachineManager {
                               MachineServiceClient machineServiceClient,
                               WorkspaceServiceClient workspaceServiceClient,
                               MachineConsolePresenter machineConsolePresenter,
-                              NotificationManager notificationManager,
                               MachineStatusNotifier machineStatusNotifier,
                               final MessageBusProvider messageBusProvider,
                               final InitialLoadingInfo initialLoadingInfo,
@@ -111,7 +108,6 @@ public class MachineManagerImpl implements MachineManager {
         this.machineServiceClient = machineServiceClient;
         this.workspaceServiceClient = workspaceServiceClient;
         this.machineConsolePresenter = machineConsolePresenter;
-        this.notificationManager = notificationManager;
         this.machineStatusNotifier = machineStatusNotifier;
         this.initialLoadingInfo = initialLoadingInfo;
         this.perspectiveManager = perspectiveManager;
@@ -269,12 +265,11 @@ public class MachineManagerImpl implements MachineManager {
 
                         @Override
                         protected void onErrorReceived(Throwable exception) {
-                            notificationManager.notify(exception.getMessage());
+                            Log.error(MachineManagerImpl.class, exception);
                         }
                     });
         } catch (WebSocketException e) {
             Log.error(MachineManagerImpl.class, e);
-            notificationManager.notify(e.getMessage());
         }
     }
 
@@ -289,7 +284,7 @@ public class MachineManagerImpl implements MachineManager {
 
                 @Override
                 protected void onErrorReceived(Throwable exception) {
-                    notificationManager.notify(exception.getMessage());
+                    Log.error(MachineManagerImpl.class, exception);
                 }
             });
         } catch (WebSocketException exception) {

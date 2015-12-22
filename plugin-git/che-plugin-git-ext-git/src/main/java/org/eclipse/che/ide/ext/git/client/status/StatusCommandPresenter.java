@@ -23,6 +23,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import static org.eclipse.che.api.git.shared.StatusFormat.LONG;
+import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAIL;
 
 /**
  * Handler to process actions with displaying the status of the Git work tree.
@@ -71,8 +72,7 @@ public class StatusCommandPresenter {
 
                                @Override
                                protected void onFailure(Throwable exception) {
-                                   String errorMessage = exception.getMessage() != null ? exception.getMessage() : constant.statusFailed();
-                                   notificationManager.notify(errorMessage, project.getRootProject());
+                                   notificationManager.notify(constant.statusFailed(), FAIL, true, project.getRootProject());
                                }
                            });
     }

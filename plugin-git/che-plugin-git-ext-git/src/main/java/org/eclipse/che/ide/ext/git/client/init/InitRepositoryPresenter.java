@@ -30,6 +30,8 @@ import org.eclipse.che.ide.util.loging.Log;
 
 import javax.validation.constraints.NotNull;
 
+import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAIL;
+
 /**
  * Presenter for Git command Init Repository.
  *
@@ -98,7 +100,7 @@ public class InitRepositoryPresenter {
     private void handleError(@NotNull Throwable e) {
         String errorMessage = (e.getMessage() != null && !e.getMessage().isEmpty()) ? e.getMessage() : constant.initFailed();
         console.printError(errorMessage);
-        notificationManager.notify(errorMessage, appContext.getCurrentProject().getRootProject());
+        notificationManager.notify(constant.initFailed(), FAIL, true, appContext.getCurrentProject().getRootProject());
     }
 
     private void getRootProject(final ProjectConfigDto projectConfig) {

@@ -16,7 +16,6 @@ import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.inject.Inject;
 
 import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
-import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.wizard.AbstractWizardPage;
 import org.eclipse.che.ide.commons.exception.UnauthorizedException;
 import org.eclipse.che.ide.dto.DtoFactory;
@@ -57,7 +56,6 @@ public class GithubImporterPagePresenter extends AbstractWizardPage<ProjectConfi
     private static final RegExp WHITE_SPACE     = RegExp.compile("^\\s");
 
     private final DtoFactory                          dtoFactory;
-    private       NotificationManager                 notificationManager;
     private       GitHubClientService                 gitHubClientService;
     private       Map<String, List<GitHubRepository>> repositories;
     private       GitHubLocalizationConstant          locale;
@@ -67,13 +65,11 @@ public class GithubImporterPagePresenter extends AbstractWizardPage<ProjectConfi
     @Inject
     public GithubImporterPagePresenter(GithubImporterPageView view,
                                        GitHubAuthenticator gitHubAuthenticator,
-                                       NotificationManager notificationManager,
                                        GitHubClientService gitHubClientService,
                                        DtoFactory dtoFactory,
                                        GitHubLocalizationConstant locale) {
         this.view = view;
         this.gitHubAuthenticator = gitHubAuthenticator;
-        this.notificationManager = notificationManager;
         this.gitHubClientService = gitHubClientService;
         this.dtoFactory = dtoFactory;
         this.view.setDelegate(this);
@@ -218,8 +214,6 @@ public class GithubImporterPagePresenter extends AbstractWizardPage<ProjectConfi
                         showProcessing(false);
                         if (exception instanceof UnauthorizedException) {
                             authorize();
-                        } else {
-                            notificationManager.notify(exception.getMessage());
                         }
                     }
                 });

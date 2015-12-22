@@ -30,6 +30,7 @@ import org.eclipse.che.ide.api.event.FileContentUpdateEvent;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.project.node.HasStorablePath.StorablePath;
 import org.eclipse.che.ide.api.project.node.Node;
+import org.eclipse.che.ide.ext.java.client.JavaLocalizationConstant;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ChangeInfo;
 import org.eclipse.che.ide.jseditor.client.texteditor.TextEditor;
 import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
@@ -38,6 +39,8 @@ import org.eclipse.che.ide.rest.AsyncRequestCallback;
 
 import java.util.Iterator;
 import java.util.List;
+
+import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAIL;
 
 /**
  * Utility class for the refactoring operations.
@@ -50,20 +53,23 @@ public class RefactoringUpdater {
     private final EditorAgent              editorAgent;
     private final EventBus                 eventBus;
     private final ProjectExplorerPresenter projectExplorer;
-    private final NotificationManager      notificationManager;
-    private final ProjectServiceClient     projectServiceClient;
+    private final JavaLocalizationConstant locale;
+    private final NotificationManager  notificationManager;
+    private final ProjectServiceClient projectServiceClient;
 
     @Inject
     public RefactoringUpdater(EditorAgent editorAgent,
                               EventBus eventBus,
                               NotificationManager notificationManager,
                               ProjectServiceClient projectServiceClient,
-                              ProjectExplorerPresenter projectExplorer) {
+                              ProjectExplorerPresenter projectExplorer,
+                              JavaLocalizationConstant locale) {
         this.editorAgent = editorAgent;
         this.notificationManager = notificationManager;
         this.projectServiceClient = projectServiceClient;
         this.eventBus = eventBus;
         this.projectExplorer = projectExplorer;
+        this.locale = locale;
     }
 
     /**
@@ -207,7 +213,7 @@ public class RefactoringUpdater {
         return new Operation<PromiseError>() {
             @Override
             public void apply(PromiseError arg) throws OperationException {
-                notificationManager.notify(arg.getMessage());
+                notificationManager.notify(locale.failedToProcessRefactoringOperation(), arg.getMessage(), FAIL, true);
             }
         };
     }

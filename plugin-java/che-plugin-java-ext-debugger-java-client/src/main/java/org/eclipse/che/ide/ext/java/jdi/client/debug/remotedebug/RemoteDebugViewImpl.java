@@ -29,6 +29,8 @@ import org.eclipse.che.ide.ui.dialogs.confirm.ConfirmDialog;
 
 import javax.validation.constraints.NotNull;
 
+import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAIL;
+
 /**
  * @author Dmitry Shnurenko
  */
@@ -55,7 +57,7 @@ public class RemoteDebugViewImpl extends Composite implements RemoteDebugView {
     private final ConfirmDialog dialog;
 
     @Inject
-    public RemoteDebugViewImpl(JavaRuntimeLocalizationConstant locale,
+    public RemoteDebugViewImpl(final JavaRuntimeLocalizationConstant locale,
                                JavaRuntimeResources resources,
                                DialogFactory dialogFactory,
                                final NotificationManager notificationManager) {
@@ -71,7 +73,8 @@ public class RemoteDebugViewImpl extends Composite implements RemoteDebugView {
                     delegate.onConfirmClicked(host.getText(), Integer.parseInt(port.getText()));
                 } catch (NumberFormatException exception) {
                     dialog.show();
-                    notificationManager.notify(port.getText() + " is bad value of port");
+                    notificationManager.notify(locale.failedToConnectToRemoteDebugger(),
+                                               locale.failedToConnectToRemoteDebuggerDescription(port.getValue()), FAIL, true);
                 }
             }
         };

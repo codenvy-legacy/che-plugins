@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.java.jdi.client.debug.changevalue;
 
-import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.ext.java.jdi.client.JavaRuntimeLocalizationConstant;
 import org.eclipse.che.ide.ext.java.jdi.client.debug.DebuggerServiceClient;
@@ -40,19 +39,17 @@ public class ChangeValuePresenter implements ChangeValueView.ActionDelegate {
     private       DebuggerInfo                    debuggerInfo;
     private       DebuggerServiceClient           service;
     private       JavaRuntimeLocalizationConstant constant;
-    private       NotificationManager             notificationManager;
     private       AsyncCallback<String>           callback;
 
     /** Create presenter. */
     @Inject
     public ChangeValuePresenter(ChangeValueView view, DebuggerServiceClient service, JavaRuntimeLocalizationConstant constant,
-                                NotificationManager notificationManager, DtoFactory dtoFactory) {
+                                DtoFactory dtoFactory) {
         this.view = view;
         this.dtoFactory = dtoFactory;
         this.view.setDelegate(this);
         this.service = service;
         this.constant = constant;
-        this.notificationManager = notificationManager;
     }
 
     /** Show dialog. */
@@ -91,7 +88,6 @@ public class ChangeValuePresenter implements ChangeValueView.ActionDelegate {
 
             @Override
             protected void onFailure(Throwable exception) {
-                notificationManager.notify(exception.getMessage());
                 callback.onFailure(exception);
             }
         });

@@ -17,7 +17,6 @@ import com.google.inject.assistedinject.AssistedInject;
 import org.eclipse.che.api.analytics.client.logger.AnalyticsEventLogger;
 import org.eclipse.che.ide.api.editor.EditorPartPresenter;
 import org.eclipse.che.ide.api.icon.Icon;
-import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.project.tree.VirtualFile;
 import org.eclipse.che.ide.ext.java.client.JavaResources;
 import org.eclipse.che.ide.ext.java.client.projecttree.JavaSourceFolderUtil;
@@ -52,8 +51,6 @@ public class JavaCodeAssistProcessor implements CodeAssistProcessor {
 
     private       JavaCodeAssistClient   client;
     private       DtoUnmarshallerFactory unmarshallerFactory;
-    private       NotificationManager    notificationManager;
-
 
     private String errorMessage;
 
@@ -63,14 +60,12 @@ public class JavaCodeAssistProcessor implements CodeAssistProcessor {
                                    final JavaResources javaResources,
                                    RefactoringUpdater refactoringUpdater,
                                    DtoUnmarshallerFactory unmarshallerFactory,
-                                   NotificationManager notificationManager,
                                    final AnalyticsEventLogger eventLogger) {
         this.editor = editor;
         this.client = client;
         this.javaResources = javaResources;
         this.refactoringUpdater = refactoringUpdater;
         this.unmarshallerFactory = unmarshallerFactory;
-        this.notificationManager = notificationManager;
         this.eventLogger = eventLogger;
         if (images == null) {
             initImages(javaResources);
@@ -179,7 +174,6 @@ public class JavaCodeAssistProcessor implements CodeAssistProcessor {
             @Override
             protected void onFailure(Throwable throwable) {
                 Log.error(JavaCodeAssistProcessor.class, throwable);
-                notificationManager.notify(throwable.getMessage(), file.getProject().getProjectConfig());
             }
         });
     }
@@ -194,7 +188,7 @@ public class JavaCodeAssistProcessor implements CodeAssistProcessor {
                                                                                                  proposal.getDisplayString()),
                                                                                      getIcon(proposal.getImage()),
                                                                                      client, respons.getSessionId(), linkedEditor,
-                                                                                     notificationManager, refactoringUpdater);
+                                                                                     refactoringUpdater);
 
             proposals.add(completionProposal);
         }

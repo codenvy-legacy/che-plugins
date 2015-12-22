@@ -30,6 +30,8 @@ import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAIL;
+
 /**
  * Handler for the {@link org.eclipse.che.ide.ext.svn.client.action.CleanupAction} action.
  */
@@ -85,7 +87,7 @@ public class CleanupPresenter extends SubversionActionPresenter {
 
                             @Override
                             protected void onFailure(final Throwable exception) {
-                                notificationManager.notify(constants.cleanupFailed());
+                                notificationManager.notify(constants.cleanupFailed(), FAIL, true);
                             }
                         });
     }

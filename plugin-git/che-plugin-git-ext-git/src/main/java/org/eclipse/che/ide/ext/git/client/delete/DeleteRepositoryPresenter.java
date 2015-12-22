@@ -26,6 +26,8 @@ import org.eclipse.che.ide.ext.git.client.GitOutputPartPresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 
+import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAIL;
+
 /**
  * Delete repository command handler, performs deleting Git repository.
  *
@@ -83,7 +85,7 @@ public class DeleteRepositoryPresenter {
             @Override
             protected void onFailure(Throwable exception) {
                 console.printError(exception.getMessage());
-                notificationManager.notify(exception.getMessage(), project.getRootProject());
+                notificationManager.notify(constant.failedToDeleteRepository(), FAIL, true, project.getRootProject());
             }
         });
     }

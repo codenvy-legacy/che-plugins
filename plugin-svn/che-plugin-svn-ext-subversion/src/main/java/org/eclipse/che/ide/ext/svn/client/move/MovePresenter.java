@@ -26,7 +26,6 @@ import org.eclipse.che.ide.api.project.tree.generic.Openable;
 import org.eclipse.che.ide.api.project.tree.generic.StorableNode;
 import org.eclipse.che.ide.api.selection.Selection;
 import org.eclipse.che.ide.ext.svn.client.SubversionClientService;
-import org.eclipse.che.ide.ext.svn.client.SubversionExtension;
 import org.eclipse.che.ide.ext.svn.client.SubversionExtensionLocalizationConstants;
 import org.eclipse.che.ide.ext.svn.client.common.RawOutputPresenter;
 import org.eclipse.che.ide.ext.svn.client.common.SubversionActionPresenter;
@@ -41,6 +40,8 @@ import org.eclipse.che.ide.util.loging.Log;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import static org.eclipse.che.ide.api.notification.StatusNotification.Status.PROGRESS;
 
 /**
  * Presenter for the {@link org.eclipse.che.ide.ext.svn.client.move.MoveView}.
@@ -117,17 +118,13 @@ public class MovePresenter extends SubversionActionPresenter implements MoveView
         final String target = getTarget();
         final String comment = view.isURLSelected() ? view.getComment() : null;
 
-        notification =
-                notificationManager.notify(locale.moveNotificationStarted(Joiner.on(',').join(source)), null,
-                                           StatusNotification.Status.PROGRESS, false
-                                          );
-        notificationManager.notify(notification);
+        notification = notificationManager.notify(locale.moveNotificationStarted(Joiner.on(',').join(source)), PROGRESS, false);
 
         Unmarshallable<CLIOutputResponse> unmarshaller = dtoUnmarshallerFactory.newUnmarshaller(CLIOutputResponse.class);
         service.move(projectPath, source, target, comment, new AsyncRequestCallback<CLIOutputResponse>(unmarshaller) {
             @Override
             protected void onSuccess(CLIOutputResponse result) {
-                notification.setContent(locale.moveNotificationSuccessful());
+                notification.setTitle(locale.moveNotificationSuccessful());
                 notification.setStatus(StatusNotification.Status.SUCCESS);
 
                 updateProjectExplorer();
@@ -135,9 +132,8 @@ public class MovePresenter extends SubversionActionPresenter implements MoveView
 
             @Override
             protected void onFailure(Throwable exception) {
-                String errorMessage = exception.getMessage();
-
-                notification.setContent(locale.moveNotificationFailed() + ": " + errorMessage);
+                notification.setTitle(locale.moveNotificationFailed());
+                notification.setContent(exception.getMessage());
                 notification.setStatus(StatusNotification.Status.FAIL);
             }
         });

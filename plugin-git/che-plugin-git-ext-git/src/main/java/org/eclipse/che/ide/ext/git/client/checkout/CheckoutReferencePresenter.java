@@ -34,6 +34,8 @@ import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.rest.Unmarshallable;
 import org.eclipse.che.ide.util.loging.Log;
 
+import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAIL;
+
 /**
  * Presenter for checkout reference(branch, tag) name or commit hash.
  *
@@ -132,9 +134,9 @@ public class CheckoutReferencePresenter implements CheckoutReferenceView.ActionD
                              protected void onFailure(Throwable exception) {
                                  final String errorMessage = (exception.getMessage() != null)
                                                              ? exception.getMessage()
-                                                             : constant.checkoutFailed(reference);
+                                                             : constant.checkoutFailed();
                                  console.printError(errorMessage);
-                                 notificationManager.notify(errorMessage, project);
+                                 notificationManager.notify(constant.checkoutFailed(), FAIL, true, project);
                              }
                          }
                         );

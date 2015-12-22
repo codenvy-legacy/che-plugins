@@ -34,10 +34,14 @@ import org.eclipse.che.ide.ext.git.client.GitOutputPartPresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 
 import javax.validation.constraints.NotNull;
+
 import org.eclipse.che.commons.annotation.Nullable;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAIL;
 
 /**
  * Presenter for removing files from index and file system.
@@ -56,7 +60,7 @@ public class RemoveFromIndexPresenter implements RemoveFromIndexView.ActionDeleg
     private       NotificationManager       notificationManager;
     private       List<EditorPartPresenter> openedEditors;
     private       EditorAgent               editorAgent;
-    private final GitOutputPartPresenter console;
+    private final GitOutputPartPresenter    console;
 
     /**
      * Create presenter
@@ -232,7 +236,7 @@ public class RemoveFromIndexPresenter implements RemoveFromIndexView.ActionDeleg
     private void handleError(@NotNull Throwable e) {
         String errorMessage = (e.getMessage() != null && !e.getMessage().isEmpty()) ? e.getMessage() : constant.removeFilesFailed();
         console.printError(errorMessage);
-        notificationManager.notify(errorMessage, project.getRootProject());
+        notificationManager.notify(constant.removeFilesFailed(), FAIL, true, project.getRootProject());
     }
 
     /** {@inheritDoc} */

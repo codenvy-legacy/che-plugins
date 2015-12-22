@@ -47,6 +47,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAIL;
+
 /**
  * The class defines methods which contains business logic to control recipe's script.
  *
@@ -203,7 +205,7 @@ public class RecipePartPresenter extends BasePresenter implements RecipePartView
             @Override
             public void apply(PromiseError arg) throws OperationException {
                 if (arg.getMessage() != null) {
-                    notificationManager.notify(arg.getMessage());
+                    notificationManager.notify(locale.failedToCreateRecipe(), arg.getMessage(), FAIL, true);
                 }
             }
         });
@@ -239,7 +241,7 @@ public class RecipePartPresenter extends BasePresenter implements RecipePartView
             @Override
             public void apply(PromiseError arg) throws OperationException {
                 if (arg.getMessage() != null) {
-                    notificationManager.notify(arg.getMessage());
+                    notificationManager.notify(locale.failedToSaveRecipe(), arg.getMessage(), FAIL, true);
                 }
             }
         });

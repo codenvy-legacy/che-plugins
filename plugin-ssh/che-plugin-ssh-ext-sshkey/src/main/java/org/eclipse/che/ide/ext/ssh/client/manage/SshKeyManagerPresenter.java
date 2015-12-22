@@ -36,6 +36,8 @@ import org.eclipse.che.ide.ui.dialogs.InputCallback;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
+import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAIL;
+
 /**
  * The presenter for managing ssh keys.
  *
@@ -94,7 +96,7 @@ public class SshKeyManagerPresenter extends AbstractPreferencePagePresenter impl
             @Override
             public void onFailure(Throwable exception) {
                 loader.hide(constant.loaderGetPublicSshKeyMessage(key.getHost()));
-                notificationManager.notify(exception.getMessage());
+                notificationManager.notify(exception.getMessage(), FAIL, true);
             }
         });
     }
@@ -137,7 +139,7 @@ public class SshKeyManagerPresenter extends AbstractPreferencePagePresenter impl
             @Override
             public void onFailure(Throwable exception) {
                 loader.hide(constant.loaderDeleteSshKeyMessage(key.getHost()));
-                notificationManager.notify(exception.getMessage());
+                notificationManager.notify(exception.getMessage(), FAIL, true);
             }
         });
     }
@@ -170,7 +172,7 @@ public class SshKeyManagerPresenter extends AbstractPreferencePagePresenter impl
 
             @Override
             protected void onFailure(Throwable exception) {
-                notificationManager.notify(exception.getMessage());
+                notificationManager.notify(constant.failedToGenerateSshKey(), exception.getMessage(), FAIL, true);
             }
         });
     }
@@ -197,7 +199,7 @@ public class SshKeyManagerPresenter extends AbstractPreferencePagePresenter impl
         if (user != null && service.getSshKeyProviders().containsKey(GITHUB_HOST)) {
             generateGithubKey(user);
         } else {
-            notificationManager.notify(constant.sshKeysProviderNotFound(GITHUB_HOST));
+            notificationManager.notify(constant.failedToGenerateSshKey(), constant.sshKeysProviderNotFound(GITHUB_HOST), FAIL, true);
         }
     }
 
@@ -234,7 +236,7 @@ public class SshKeyManagerPresenter extends AbstractPreferencePagePresenter impl
             public void onFailure(Throwable exception) {
                 loader.hide(constant.loaderGetSshKeysMessage());
                 refreshKeys();
-                notificationManager.notify(exception.getMessage());
+                notificationManager.notify(constant.failedToLoadSshKeys(), FAIL, true);
             }
         });
     }
@@ -250,7 +252,7 @@ public class SshKeyManagerPresenter extends AbstractPreferencePagePresenter impl
             @Override
             public void onFailure(Throwable caught) {
                 loader.hide(constant.loaderDeleteSshKeyMessage(key.getHost()));
-                notificationManager.notify(constant.deleteSshKeyFailed());
+                notificationManager.notify(constant.deleteSshKeyFailed(), FAIL, true);
                 refreshKeys();
             }
 
@@ -287,7 +289,7 @@ public class SshKeyManagerPresenter extends AbstractPreferencePagePresenter impl
             @Override
             public void onFailure(Throwable exception) {
                 loader.hide(constant.loaderGetSshKeysMessage());
-                notificationManager.notify(exception.getMessage());
+                notificationManager.notify(constant.failedToLoadSshKeys(), FAIL, true);
             }
         });
     }

@@ -31,6 +31,8 @@ import org.eclipse.che.ide.util.UUID;
 
 import javax.validation.constraints.NotNull;
 
+import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAIL;
+
 /**
  * Manager for command operations.
  *
@@ -71,7 +73,7 @@ public class CommandManager {
     public void execute(@NotNull CommandConfiguration configuration) {
         final String devMachineId = appContext.getDevMachineId();
         if (devMachineId == null) {
-            notificationManager.notify(localizationConstant.noDevMachine());
+            notificationManager.notify(localizationConstant.failedToExecuteCommand(), localizationConstant.noDevMachine(), FAIL, true);
             return;
         }
 

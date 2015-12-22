@@ -68,6 +68,9 @@ public interface GitLocalizationConstant extends Messages {
     String buttonScroll();
 
     // MESSAGES
+    @Key("messages.unableGetSshKeyTitle")
+    String messagesUnableGetSshKeyTitle();
+
     @Key("messages.unableGetSshKey")
     String messagesUnableGetSshKey();
 
@@ -153,7 +156,7 @@ public interface GitLocalizationConstant extends Messages {
     String pullFail(String remoteUrl);
 
     @Key("messages.checkout_failed")
-    String checkoutFailed(String reference);
+    String checkoutFailed();
 
     @Key("messages.fetch.process")
     String fetchProcess();
@@ -494,7 +497,7 @@ public interface GitLocalizationConstant extends Messages {
     String mergedNewHead(String newHead);
 
     @Key("merged.conflicts")
-    String mergedConflicts(String conflicts);
+    String mergedConflicts();
 
     /* Checkout reference */
     @Key("checkout.reference.title")
@@ -605,4 +608,13 @@ public interface GitLocalizationConstant extends Messages {
 
     @Key("committer.title")
     String committerTitle();
+
+    @Key("commited")
+    String commited();
+
+    @Key("failed.to.delete.repository")
+    String failedToDeleteRepository();
+
+    @Key("merge.failed")
+    String mergeFailed();
 }

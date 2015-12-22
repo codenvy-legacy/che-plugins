@@ -44,6 +44,7 @@ import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RenameSettings;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ValidateNewName;
 import org.eclipse.che.ide.jseditor.client.texteditor.TextEditor;
 
+import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAIL;
 import static org.eclipse.che.ide.ext.java.shared.dto.refactoring.CreateRenameRefactoring.RenameType.COMPILATION_UNIT;
 import static org.eclipse.che.ide.ext.java.shared.dto.refactoring.CreateRenameRefactoring.RenameType.JAVA_ELEMENT;
 import static org.eclipse.che.ide.ext.java.shared.dto.refactoring.CreateRenameRefactoring.RenameType.PACKAGE;
@@ -114,7 +115,7 @@ public class RenamePresenter implements ActionDelegate {
         }).catchError(new Operation<PromiseError>() {
             @Override
             public void apply(PromiseError arg) throws OperationException {
-                notificationManager.notify(arg.getMessage());
+                notificationManager.notify(locale.failedToRename(), arg.getMessage(), FAIL, true);
             }
         });
     }
@@ -224,7 +225,7 @@ public class RenamePresenter implements ActionDelegate {
         }).catchError(new Operation<PromiseError>() {
             @Override
             public void apply(PromiseError arg) throws OperationException {
-                notificationManager.notify(arg.getMessage());
+                notificationManager.notify(locale.failedToRename(), arg.getMessage(), FAIL, true);
             }
         });
     }
@@ -259,7 +260,7 @@ public class RenamePresenter implements ActionDelegate {
         }).catchError(new Operation<PromiseError>() {
             @Override
             public void apply(PromiseError arg) throws OperationException {
-                notificationManager.notify(arg.getMessage());
+                notificationManager.notify(locale.failedToRename(), arg.getMessage(), FAIL, true);
             }
         });
     }
@@ -291,7 +292,7 @@ public class RenamePresenter implements ActionDelegate {
         }).catchError(new Operation<PromiseError>() {
             @Override
             public void apply(PromiseError arg) throws OperationException {
-                notificationManager.notify(arg.getMessage());
+                notificationManager.notify(locale.failedToRename(), arg.getMessage(), FAIL, true);
             }
         });
     }

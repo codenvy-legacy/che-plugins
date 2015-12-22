@@ -143,7 +143,6 @@ public class ChangeVariableValueTest extends BaseTest {
 
         verify(service).setValue(anyString(), (UpdateVariableRequest)anyObject(), (AsyncRequestCallback<Void>)anyObject());
         verify(asyncCallback).onFailure((Throwable)anyObject());
-        verify(notificationManager).notify(anyString());
         verify(view).close();
     }
 

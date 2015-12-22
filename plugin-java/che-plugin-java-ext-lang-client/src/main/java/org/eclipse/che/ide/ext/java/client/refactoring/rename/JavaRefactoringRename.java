@@ -36,8 +36,6 @@ import org.eclipse.che.ide.ext.java.shared.dto.Region;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.CreateRenameRefactoring;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.LinkedRenameRefactoringApply;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringResult;
-import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatus;
-import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatusEntry;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RenameRefactoringSession;
 import org.eclipse.che.ide.jseditor.client.document.Document;
 import org.eclipse.che.ide.jseditor.client.link.HasLinkedMode;
@@ -46,7 +44,6 @@ import org.eclipse.che.ide.jseditor.client.link.LinkedModel;
 import org.eclipse.che.ide.jseditor.client.link.LinkedModelData;
 import org.eclipse.che.ide.jseditor.client.link.LinkedModelGroup;
 import org.eclipse.che.ide.jseditor.client.texteditor.TextEditor;
-import org.eclipse.che.ide.json.JsonHelper;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 import org.eclipse.che.ide.ui.loaders.requestLoader.IdeLoader;
 
@@ -54,6 +51,7 @@ import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAIL;
 import static org.eclipse.che.ide.ext.java.shared.dto.refactoring.CreateRenameRefactoring.RenameType.JAVA_ELEMENT;
 import static org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatus.ERROR;
 import static org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatus.FATAL;
@@ -129,7 +127,7 @@ public class JavaRefactoringRename {
                     isActiveLinkedEditor = true;
                     activateLinkedModeIntoEditor(session, ((HasLinkedMode)textEditorPresenter), textEditorPresenter.getDocument());
                 } else {
-                    notificationManager.notify(locale.renameErrorEditor(),
+                    notificationManager.notify(locale.failedToRename(), locale.renameErrorEditor(), FAIL, true,
                                                textEditorPresenter.getEditorInput().getFile().getProject().getProjectConfig());
                 }
             }
@@ -209,7 +207,7 @@ public class JavaRefactoringRename {
                     ((EditorWithAutoSave)linkedEditor).enableAutoSave();
                 }
                 loader.hide();
-                notificationManager.notify(arg.getMessage());
+                notificationManager.notify(locale.failedToRename(), arg.getMessage(), FAIL, true);
             }
         });
     }
@@ -229,20 +227,9 @@ public class JavaRefactoringRename {
             case ERROR:
             case FATAL:
                 loader.hide();
-                notificationManager.notify(getNotification(result));
             default:
                 break;
         }
-    }
-
-    private String getNotification(RefactoringStatus status) {
-        StringBuilder notificationMessage = new StringBuilder();
-        for (RefactoringStatusEntry entry : status.getEntries()) {
-            String message = JsonHelper.parseJsonMessage(entry.getMessage());
-            notificationMessage.append(message);
-            notificationMessage.append(". ");
-        }
-        return notificationMessage.toString();
     }
 
     @NotNull

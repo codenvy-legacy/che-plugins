@@ -35,6 +35,8 @@ import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAIL;
+
 /**
  * Presenter for commit changes on git.
  *
@@ -156,7 +158,8 @@ public class CommitPresenter implements CommitView.ActionDelegate {
                                        onCommitSuccess(result);
                                    } else {
                                        console.printError(result.getMessage());
-                                       notificationManager.notify(result.getMessage(), appContext.getCurrentProject().getRootProject());
+                                       notificationManager.notify(constant.commited(), result.getMessage(),
+                                                                  appContext.getCurrentProject().getRootProject());
                                    }
                                }
 
@@ -179,7 +182,8 @@ public class CommitPresenter implements CommitView.ActionDelegate {
                                    onCommitSuccess(result);
                                } else {
                                    console.printError(result.getMessage());
-                                   notificationManager.notify(result.getMessage(), appContext.getCurrentProject().getRootProject());
+                                   notificationManager.notify(constant.commitFailed(), FAIL, true,
+                                                              appContext.getCurrentProject().getRootProject());
                                }
                            }
 
@@ -235,7 +239,7 @@ public class CommitPresenter implements CommitView.ActionDelegate {
     private void handleError(@NotNull Throwable e) {
         String errorMessage = (e.getMessage() != null && !e.getMessage().isEmpty()) ? e.getMessage() : constant.commitFailed();
         console.printError(errorMessage);
-        notificationManager.notify(errorMessage, appContext.getCurrentProject().getRootProject());
+        notificationManager.notify(constant.commitFailed(), FAIL, true, appContext.getCurrentProject().getRootProject());
     }
 
     /** {@inheritDoc} */

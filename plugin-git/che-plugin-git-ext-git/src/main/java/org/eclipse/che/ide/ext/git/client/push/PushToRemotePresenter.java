@@ -116,7 +116,7 @@ public class PushToRemotePresenter implements PushToRemoteView.ActionDelegate {
                                    String errorMessage =
                                            exception.getMessage() != null ? exception.getMessage() : constant.remoteListFailed();
                                    console.printError(errorMessage);
-                                   notificationManager.notify(errorMessage, project.getRootProject());
+                                   notificationManager.notify(constant.remoteListFailed(), FAIL, true, project.getRootProject());
                                    view.setEnablePushButton(false);
                                }
                            }
@@ -149,7 +149,7 @@ public class PushToRemotePresenter implements PushToRemoteView.ActionDelegate {
             public void onFailure(Throwable exception) {
                 String errorMessage = exception.getMessage() != null ? exception.getMessage() : constant.localBranchesListFailed();
                 console.printError(errorMessage);
-                notificationManager.notify(errorMessage, project.getRootProject());
+                notificationManager.notify(constant.localBranchesListFailed(), FAIL, true, project.getRootProject());
                 view.setEnablePushButton(false);
             }
         });
@@ -197,7 +197,7 @@ public class PushToRemotePresenter implements PushToRemoteView.ActionDelegate {
                     @Override
                     public void onFailure(Throwable caught) {
                         console.printError(constant.failedGettingConfig());
-                        notificationManager.notify(constant.failedGettingConfig(), project.getRootProject());
+                        notificationManager.notify(constant.failedGettingConfig(), FAIL, true, project.getRootProject());
                     }
                 });
             }
@@ -206,7 +206,7 @@ public class PushToRemotePresenter implements PushToRemoteView.ActionDelegate {
             public void onFailure(Throwable exception) {
                 String errorMessage = exception.getMessage() != null ? exception.getMessage() : constant.remoteBranchesListFailed();
                 console.printError(errorMessage);
-                notificationManager.notify(errorMessage, project.getRootProject());
+                notificationManager.notify(constant.remoteBranchesListFailed(), FAIL, true, project.getRootProject());
                 view.setEnablePushButton(false);
             }
 
@@ -274,7 +274,7 @@ public class PushToRemotePresenter implements PushToRemoteView.ActionDelegate {
     @Override
     public void onPushClicked() {
         final StatusNotification notification =
-                notificationManager.notify(constant.pushProcess(), null, PROGRESS, true, project.getRootProject());
+                notificationManager.notify(constant.pushProcess(), PROGRESS, true, project.getRootProject());
 
         final String repository = view.getRepository();
         service.push(project.getRootProject(), getRefs(), repository, false,
@@ -284,9 +284,9 @@ public class PushToRemotePresenter implements PushToRemoteView.ActionDelegate {
                              console.printInfo(result.getCommandOutput());
                              notification.setStatus(SUCCESS);
                              if (result.getCommandOutput().contains("Everything up-to-date")) {
-                                 notification.setContent(constant.pushUpToDate());
+                                 notification.setTitle(constant.pushUpToDate());
                              } else {
-                                 notification.setContent(constant.pushSuccess(repository));
+                                 notification.setTitle(constant.pushSuccess(repository));
                              }
                          }
 
@@ -334,14 +334,14 @@ public class PushToRemotePresenter implements PushToRemoteView.ActionDelegate {
         notification.setStatus(FAIL);
         if (throwable instanceof UnauthorizedException) {
             console.printError(constant.messagesNotAuthorized());
-            notification.setContent(constant.messagesNotAuthorized());
+            notification.setTitle(constant.messagesNotAuthorized());
             return;
         }
 
         String errorMessage = throwable.getMessage();
         if (errorMessage == null) {
             console.printError(constant.pushFail());
-            notification.setContent(constant.pushFail());
+            notification.setTitle(constant.pushFail());
             return;
         }
 
@@ -349,14 +349,14 @@ public class PushToRemotePresenter implements PushToRemoteView.ActionDelegate {
             errorMessage = dtoFactory.createDtoFromJson(errorMessage, ServiceError.class).getMessage();
             if (errorMessage.equals("Unable get private ssh key")) {
                 console.printError(constant.messagesUnableGetSshKey());
-                notification.setContent(constant.messagesUnableGetSshKey());
+                notification.setTitle(constant.messagesUnableGetSshKey());
                 return;
             }
             console.printError(errorMessage);
-            notification.setContent(errorMessage);
+            notification.setTitle(errorMessage);
         } catch (Exception e) {
             console.printError(errorMessage);
-            notification.setContent(errorMessage);
+            notification.setTitle(errorMessage);
         }
     }
 }

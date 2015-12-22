@@ -24,6 +24,8 @@ import com.google.web.bindery.event.shared.EventBus;
 
 import javax.validation.constraints.NotNull;
 
+import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAIL;
+
 /**
  * Main appointment of this class is upload private SSH key to the server.
  *
@@ -96,7 +98,7 @@ public class UploadSshKeyPresenter implements UploadSshKeyView.ActionDelegate {
             if (result.startsWith("<pre>") && result.endsWith("</pre>")) {
                 result = result.substring(5, (result.length() - 6));
             }
-            notificationManager.notify(result);
+            notificationManager.notify(constant.failedToUploadSshKey(), result, FAIL, true);
             callback.onFailure(new Throwable(result));
         }
     }

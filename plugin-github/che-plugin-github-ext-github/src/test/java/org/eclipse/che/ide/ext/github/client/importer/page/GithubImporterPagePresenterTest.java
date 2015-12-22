@@ -160,7 +160,6 @@ public class GithubImporterPagePresenterTest {
         AsyncRequestCallback<Map<String, List<GitHubRepository>>> asyncRequestCallback = asyncRequestCallbackRepoListCaptor.getValue();
         GwtReflectionUtils.callOnFailure(asyncRequestCallback, exception);
 
-        verify(notificationManager).notify(anyString());
         verify(view).setLoaderVisibility(eq(true));
         verify(view).setInputsEnableState(eq(false));
         verify(view).setLoaderVisibility(eq(false));
