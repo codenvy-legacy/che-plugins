@@ -34,6 +34,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
@@ -77,7 +78,7 @@ public class DockerInstanceReadFileContentTest {
                                                 null,
                                                 null,
                                                 dockerInstanceStopDetector,
-                                                null));
+                                                mock(DockerInstanceProcessesCleaner.class)));
     }
 
 

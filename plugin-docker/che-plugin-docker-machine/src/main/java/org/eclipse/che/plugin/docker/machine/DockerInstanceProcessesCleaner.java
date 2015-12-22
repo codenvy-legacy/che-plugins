@@ -15,6 +15,7 @@ import org.eclipse.che.api.machine.shared.dto.event.MachineProcessEvent.EventTyp
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -25,6 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @author Alexander Garagatyi
  */
+@Singleton
 public class DockerInstanceProcessesCleaner implements EventSubscriber<MachineProcessEvent> {
     private final EventService                        eventService;
     private final ConcurrentHashMap<String, Instance> dockerMachines;
