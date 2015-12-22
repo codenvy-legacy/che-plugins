@@ -354,7 +354,9 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
 
                     @Override
                     public void onFailure(Throwable caught) {
-                        notificationManager.notify(constant.errorSourceNotFoundForClass(finalLocation.getClassName()), FAIL, true);
+                        notificationManager.notify(caught.getMessage(),
+                                                   StatusNotification.Status.FAIL,
+                                                   false);
                     }
                 });
             } else {
