@@ -38,6 +38,7 @@ import org.eclipse.che.ide.ui.dialogs.ConfirmCallback;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 import org.eclipse.che.ide.ui.dialogs.choice.ChoiceDialog;
 import org.eclipse.che.ide.ui.dialogs.confirm.ConfirmDialog;
+import org.eclipse.che.ide.util.loging.Log;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -457,7 +458,11 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
                     final CommandType type = commandTypeRegistry.getCommandTypeById(descriptor.getType());
                     // skip command if it's type isn't registered
                     if (type != null) {
-                        configurationList.add(type.getConfigurationFactory().createFromDto(descriptor));
+                        try {
+                            configurationList.add(type.getConfigurationFactory().createFromDto(descriptor));
+                        } catch (IllegalArgumentException e) {
+                            Log.warn(EditCommandsPresenter.class, e.getMessage());
+                        }
                     }
                 }
 

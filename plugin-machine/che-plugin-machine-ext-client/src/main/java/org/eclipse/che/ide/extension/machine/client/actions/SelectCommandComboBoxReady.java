@@ -47,6 +47,7 @@ import org.eclipse.che.ide.extension.machine.client.command.CommandTypeRegistry;
 import org.eclipse.che.ide.extension.machine.client.command.edit.EditCommandsPresenter;
 import org.eclipse.che.ide.ui.dropdown.DropDownHeaderWidget;
 import org.eclipse.che.ide.ui.dropdown.DropDownListFactory;
+import org.eclipse.che.ide.util.loging.Log;
 import org.vectomatic.dom.svg.ui.SVGImage;
 
 import javax.validation.constraints.NotNull;
@@ -229,7 +230,11 @@ public class SelectCommandComboBoxReady extends AbstractPerspectiveAction implem
                     final CommandType type = commandTypeRegistry.getCommandTypeById(command.getType());
                     // skip command if it's type isn't registered
                     if (type != null) {
-                        configurationList.add(type.getConfigurationFactory().createFromDto(command));
+                        try {
+                            configurationList.add(type.getConfigurationFactory().createFromDto(command));
+                        } catch (IllegalArgumentException e) {
+                            Log.warn(EditCommandsPresenter.class, e.getMessage());
+                        }
                     }
                 }
 
