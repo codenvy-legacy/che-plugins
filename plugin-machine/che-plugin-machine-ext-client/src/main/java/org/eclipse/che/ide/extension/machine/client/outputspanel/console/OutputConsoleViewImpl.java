@@ -47,7 +47,9 @@ public class OutputConsoleViewImpl extends Composite implements OutputConsoleVie
     @UiField
     FlowPanel   consoleArea;
     @UiField
-    Label commandLabel;
+    Label       commandLabel;
+    @UiField
+    Label       commandTitle;
 
     /** If true - next printed line should replace the previous one. */
     private boolean carriageReturn;
@@ -114,6 +116,12 @@ public class OutputConsoleViewImpl extends Composite implements OutputConsoleVie
                 }
             }, 500);
         }
+    }
+
+    @Override
+    public void hideCommand() {
+        commandTitle.setVisible(false);
+        commandLabel.setVisible(false);
     }
 
     interface OutputConsoleViewUiBinder extends UiBinder<Widget, OutputConsoleViewImpl> {

@@ -17,9 +17,11 @@ import org.eclipse.che.ide.ext.java.shared.dto.ClassPathBuilderResult;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Service for building project classpath.
@@ -30,6 +32,8 @@ import javax.ws.rs.core.MediaType;
 public class JavaClasspathService {
     @Inject
     private ClassPathBuilder classPathBuilder;
+    @PathParam("wsId")
+    private String           workspaceId;
 
     /**
      * Update dependencies.
@@ -41,7 +45,8 @@ public class JavaClasspathService {
     @Path("update")
     @Produces(MediaType.APPLICATION_JSON)
     @GET
-    public ClassPathBuilderResult update(@QueryParam("projectpath") final String projectPath) {
-        return classPathBuilder.buildClassPath(projectPath);
+    public ClassPathBuilderResult update(@QueryParam("projectpath") final String projectPath) throws ExecutionException,
+                                                                                                     InterruptedException {
+        return classPathBuilder.buildClassPath(workspaceId, projectPath);
     }
 }

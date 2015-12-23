@@ -52,7 +52,7 @@ public interface JavaLocalizationConstant extends Messages {
     String updateDependenciesFailed();
 
     @Key("dependencies.output.tab.title")
-    String updateDependenciesTabTitle();
+    String dependenciesOutputTabTitle(String modulePath);
 
     @Key("action.quickdoc.title")
     String actionQuickdocTitle();

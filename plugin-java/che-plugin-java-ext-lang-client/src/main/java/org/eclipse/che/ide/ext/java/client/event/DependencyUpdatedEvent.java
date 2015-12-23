@@ -14,11 +14,22 @@ import com.google.gwt.event.shared.GwtEvent;
 
 /**
  * Event that describes the fact that dependencies were updated.
+ *
  * @author Alexander Andrienko
  */
 public class DependencyUpdatedEvent extends GwtEvent<DependencyUpdatedEventHandler> {
 
     public static final Type<DependencyUpdatedEventHandler> TYPE = new Type<>();
+
+    private final String channel;
+
+    public DependencyUpdatedEvent(String channel) {
+        this.channel = channel;
+    }
+
+    public String getChannel() {
+        return channel;
+    }
 
     @Override
     public Type<DependencyUpdatedEventHandler> getAssociatedType() {

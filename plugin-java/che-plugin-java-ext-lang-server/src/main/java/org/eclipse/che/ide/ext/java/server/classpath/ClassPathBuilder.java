@@ -12,8 +12,10 @@ package org.eclipse.che.ide.ext.java.server.classpath;
 
 import org.eclipse.che.ide.ext.java.shared.dto.ClassPathBuilderResult;
 
+import java.util.concurrent.ExecutionException;
+
 /**
- *The build classpath specifies which Java source files and resource files in a project are considered by the Java builder and specifies
+ * The build classpath specifies which Java source files and resource files in a project are considered by the Java builder and specifies
  * how to find types outside of the project.
  *
  * @author Valeriy Svydenko
@@ -23,8 +25,15 @@ public interface ClassPathBuilder {
     /**
      * Builds classpath for the current project.
      *
-     * @param projectPath  relative path to current project from the workspace
+     * @param workspaceId
+     *         id of current workspace
+     * @param projectPath
+     *         relative path to current project from the workspace
      * @return information about building project classpath
+     * @throws ExecutionException
+     *         if the computation threw an exception
+     * @throws InterruptedException
+     *         if the current thread was interrupted
      */
-    ClassPathBuilderResult buildClassPath(String projectPath);
+    ClassPathBuilderResult buildClassPath(String workspaceId, String projectPath) throws ExecutionException, InterruptedException;
 }

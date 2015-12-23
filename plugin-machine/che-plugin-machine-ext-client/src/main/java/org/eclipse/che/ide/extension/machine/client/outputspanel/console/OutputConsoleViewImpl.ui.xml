@@ -18,11 +18,11 @@
     <ui:style>
         .label {
             width: 60px;
-            float: left;            
+            float: left;
         }
 
         .noMargin {
-            margin: 0px;
+            margin: 0;
         }
 
         .smallMargin {
@@ -33,8 +33,10 @@
     <g:DockLayoutPanel unit="PX" width="100%" height="100%">
         <g:north size="16">
             <g:FlowPanel styleName="{style.smallMargin}">
-                <g:Label text="{locale.viewProcessesCommandTitle}" addStyleNames="{style.label} {style.noMargin} {resources.getCss.processHeaderTitle}"/>
-                <g:Label ui:field="commandLabel" addStyleNames="{style.noMargin} {resources.getCss.processHeaderTitle} {resources.getCss.processCommandValue}"/>
+                <g:Label ui:field="commandTitle" text="{locale.viewProcessesCommandTitle}"
+                         addStyleNames="{style.label} {style.noMargin} {resources.getCss.processHeaderTitle}"/>
+                <g:Label ui:field="commandLabel"
+                         addStyleNames="{style.noMargin} {resources.getCss.processHeaderTitle} {resources.getCss.processCommandValue}"/>
             </g:FlowPanel>
         </g:north>
         <g:center>

@@ -10,13 +10,14 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.maven.server.core;
 
-import org.eclipse.che.api.core.util.Cancellable;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.google.inject.Inject;
+
 import org.eclipse.che.api.core.util.CancellableProcessWrapper;
-import org.eclipse.che.api.core.util.ListLineConsumer;
 import org.eclipse.che.api.core.util.ProcessUtil;
 import org.eclipse.che.api.core.util.StreamPump;
 import org.eclipse.che.api.core.util.Watchdog;
-import org.eclipse.che.dto.server.DtoFactory;
+import org.eclipse.che.commons.env.EnvironmentContext;
 import org.eclipse.che.ide.ext.java.server.classpath.ClassPathBuilder;
 import org.eclipse.che.ide.ext.java.shared.dto.ClassPathBuilderResult;
 import org.eclipse.che.ide.maven.tools.MavenUtils;
@@ -29,10 +30,17 @@ import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
+import javax.annotation.PreDestroy;
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+
+import static org.eclipse.che.dto.server.DtoFactory.newDto;
 
 /**
  * Implementation of classpath building for the Maven.
@@ -42,50 +50,62 @@ import java.util.concurrent.TimeUnit;
 public class MavenClassPathBuilder implements ClassPathBuilder {
     private static final Logger LOG = LoggerFactory.getLogger(MavenClassPathBuilder.class);
 
-    private final ResourcesPlugin resourcesPlugin;
+    private final ExecutorService executorService;
+
+    private String workspaceId;
 
     @Inject
     public MavenClassPathBuilder(ResourcesPlugin resourcesPlugin) {
-        this.resourcesPlugin = resourcesPlugin;
         JavaModelManager.getJavaModelManager().containerInitializersCache.put(MavenClasspathContainer.CONTAINER_ID,
                                                                               new MavenClasspathContainerInitializer());
+
+        ThreadFactory threadFactory = new ThreadFactoryBuilder().setNameFormat(MavenClassPathBuilder.class.getSimpleName() + "-%d").build();
+
+        executorService = Executors.newFixedThreadPool(5, threadFactory);
     }
 
     /** {@inheritDoc} */
     @Override
-    public ClassPathBuilderResult buildClassPath(String projectPath) {
-        IJavaProject javaProject = JavaModelManager.getJavaModelManager().getJavaModel().getJavaProject(projectPath);
-        ClassPathBuilderResult result = dependencyUpdateProcessor(projectPath);
-        if (ClassPathBuilderResult.Status.SUCCESS.equals(result.getStatus())) {
-            IClasspathContainer container = MavenClasspathUtil.readMavenClasspath(javaProject);
-            try {
-                JavaCore.setClasspathContainer(container.getPath(),
-                                               new IJavaProject[]{javaProject},
-                                               new IClasspathContainer[]{container},
-                                               null);
-            } catch (JavaModelException e) {
-                LOG.error(e.getMessage(), e);
-                e.printStackTrace();
+    public ClassPathBuilderResult buildClassPath(String workspaceId, String projectPath) throws ExecutionException, InterruptedException {
+        this.workspaceId = workspaceId;
+
+        Callable<ClassPathBuilderResult> callable = () -> {
+
+            ClassPathBuilderResult result = dependencyUpdateProcessor(projectPath);
+
+            IJavaProject javaProject = JavaModelManager.getJavaModelManager().getJavaModel().getJavaProject(projectPath);
+
+            if (ClassPathBuilderResult.Status.SUCCESS.equals(result.getStatus())) {
+                IClasspathContainer container = MavenClasspathUtil.readMavenClasspath(javaProject);
+                try {
+                    JavaCore.setClasspathContainer(container.getPath(), new IJavaProject[]{javaProject},
+                                                   new IClasspathContainer[]{container},
+                                                   null);
+                } catch (JavaModelException e) {
+                    LOG.error(e.getMessage(), e);
+                    e.printStackTrace();
+                }
             }
-        }
-        return result;
+
+            return result;
+
+        };
+
+        return executorService.submit(callable).get();
     }
 
     private ClassPathBuilderResult dependencyUpdateProcessor(String projectPath) {
         String command = MavenUtils.getMavenExecCommand();
         File projectDir = new File(ResourcesPlugin.getPathToWorkspace() + projectPath);
 
-        ProcessBuilder classPathProcessBuilder = new ProcessBuilder().command(command,
-                                                                              "dependency:build-classpath",
+        ProcessBuilder classPathProcessBuilder = new ProcessBuilder().command(command, "dependency:build-classpath",
                                                                               "-Dmdep.outputFile=.codenvy/classpath.maven")
                                                                      .directory(projectDir)
                                                                      .redirectErrorStream(true);
-
         ClassPathBuilderResult result = executeBuilderProcess(projectPath, classPathProcessBuilder);
+
         if (ClassPathBuilderResult.Status.SUCCESS.equals(result.getStatus())) {
-            ProcessBuilder sourcesProcessBuilder = new ProcessBuilder().command(command,
-                                                                                "dependency:sources",
-                                                                                "-Dclassifier=sources")
+            ProcessBuilder sourcesProcessBuilder = new ProcessBuilder().command(command, "dependency:sources", "-Dclassifier=sources")
                                                                        .directory(projectDir)
                                                                        .redirectErrorStream(true);
             result = executeBuilderProcess(projectPath, sourcesProcessBuilder);
@@ -97,33 +117,36 @@ public class MavenClassPathBuilder implements ClassPathBuilder {
     private ClassPathBuilderResult executeBuilderProcess(final String projectPath, ProcessBuilder processBuilder) {
         StreamPump output = null;
         Watchdog watcher = null;
-        ClassPathBuilderResult classPathBuilderResult = DtoFactory.newDto(ClassPathBuilderResult.class);
+
+        ClassPathBuilderResult classPathBuilderResult = newDto(ClassPathBuilderResult.class);
         int timeout = 10; //10 minutes
         int result = -1;
         try {
             Process process = processBuilder.start();
 
             watcher = new Watchdog("Maven classpath" + "-WATCHDOG", timeout, TimeUnit.MINUTES);
-            watcher.start(new CancellableProcessWrapper(process, new Cancellable.Callback() {
-                @Override
-                public void cancelled(Cancellable cancellable) {
-                    LOG.warn("Update dependency process has been shutdown due to timeout. Project: " + projectPath);
-                }
-            }));
-            ListLineConsumer lines = new ListLineConsumer();
+            watcher.start(new CancellableProcessWrapper(process,
+                                                        cancellable -> LOG.warn("Update dependency process has been shutdown "
+                                                                                + "due to timeout. Project: "
+                                                                                + projectPath)));
+
+            String channel = "dependencyUpdate:output:" + workspaceId + ':' + projectPath;
+
+            classPathBuilderResult.setChannel(channel);
+
+            BufferOutputFixedRateSender fixedRateSender = new BufferOutputFixedRateSender(channel, 2_000);
             output = new StreamPump();
-            output.start(process, lines);
+            output.start(process, fixedRateSender);
             try {
                 result = process.waitFor();
-                if (process.exitValue() != 0) {
-                    classPathBuilderResult.setLogs(lines.getText());
-                }
             } catch (InterruptedException e) {
                 Thread.interrupted(); // we interrupt thread when cancel task
                 ProcessUtil.kill(process);
             }
             try {
                 output.await(); // wait for logger
+
+                fixedRateSender.close();
             } catch (InterruptedException e) {
                 Thread.interrupted(); // we interrupt thread when cancel task, NOTE: logs may be incomplete
             }
@@ -137,7 +160,14 @@ public class MavenClassPathBuilder implements ClassPathBuilder {
                 output.stop();
             }
         }
+
         classPathBuilderResult.setStatus(result == 0 ? ClassPathBuilderResult.Status.SUCCESS : ClassPathBuilderResult.Status.ERROR);
+
         return classPathBuilderResult;
+    }
+
+    @PreDestroy
+    public void destroy() {
+        executorService.shutdown();
     }
 }

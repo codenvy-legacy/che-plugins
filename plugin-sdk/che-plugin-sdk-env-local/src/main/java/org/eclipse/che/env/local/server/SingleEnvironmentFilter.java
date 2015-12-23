@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.che.env.local.server;
 
+import com.google.inject.Inject;
+
 import org.eclipse.che.api.core.NotFoundException;
 import org.eclipse.che.api.core.ServerException;
 import org.eclipse.che.api.core.UnauthorizedException;
@@ -18,7 +20,6 @@ import org.eclipse.che.commons.env.EnvironmentContext;
 import org.eclipse.che.commons.user.User;
 import org.eclipse.che.commons.user.UserImpl;
 
-import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -42,21 +43,18 @@ import java.util.List;
  */
 @Singleton
 public class SingleEnvironmentFilter implements Filter {
+
     @Inject
     private UserDao userDao;
 
-    private String wsName;
-    private String wsId;
-
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        wsName = filterConfig.getInitParameter("ws-name");
-        wsId = filterConfig.getInitParameter("ws-id");
     }
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        final HttpServletRequest httpRequest = (HttpServletRequest)request;
+    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException,
+                                                                                                                         ServletException {
+        final HttpServletRequest httpRequest = (HttpServletRequest)servletRequest;
         HttpSession session = httpRequest.getSession(false);
         User user = null;
         if (session != null) {
@@ -90,12 +88,21 @@ public class SingleEnvironmentFilter implements Filter {
         }
         final EnvironmentContext env = EnvironmentContext.getCurrent();
         try {
-            env.setWorkspaceName(wsName);
-            env.setWorkspaceId(wsId);
+            setWorkspaceIdToContext(env, httpRequest);
             env.setUser(user);
-            chain.doFilter(addUserInRequest(httpRequest, user), response);
+            filterChain.doFilter(addUserInRequest(httpRequest, user), servletResponse);
         } finally {
             EnvironmentContext.reset();
+        }
+    }
+
+    private void setWorkspaceIdToContext(EnvironmentContext environmentContext, HttpServletRequest httpRequest) {
+        String requestURI = httpRequest.getRequestURI();
+
+        String[] uriParts = requestURI.split("/", 5);
+
+        if (requestURI.contains("/ws") && uriParts.length >= 4) {
+            environmentContext.setWorkspaceId(uriParts[4]);
         }
     }
 
