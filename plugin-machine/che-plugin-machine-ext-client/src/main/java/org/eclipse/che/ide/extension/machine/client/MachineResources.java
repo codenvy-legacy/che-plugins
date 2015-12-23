@@ -146,6 +146,8 @@ public interface MachineResources extends ClientBundle {
 
         String processNavigation();
 
+        String processOutputPanel();
+
         String processHeaderTitle();
 
         String processUrlValue();

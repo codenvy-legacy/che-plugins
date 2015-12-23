@@ -135,8 +135,6 @@ public class TerminalPresenter implements TabPresenter, TerminalView.ActionDeleg
                     }
                 }
             });
-
-            isTerminalConnected = true;
         }
     }
 
@@ -156,6 +154,7 @@ public class TerminalPresenter implements TabPresenter, TerminalView.ActionDeleg
             @Override
             public void onOpen() {
                 terminal = TerminalJso.create(TerminalOptionsJso.createDefault());
+                isTerminalConnected = true;
 
                 view.openTerminal(terminal);
 
@@ -233,6 +232,7 @@ public class TerminalPresenter implements TabPresenter, TerminalView.ActionDeleg
         }
 
         terminal.resize(x, y);
+        terminal.focus();
         Jso jso = Jso.create();
         JsArrayInteger arr = Jso.createArray().cast();
         arr.set(0, x);
@@ -240,6 +240,14 @@ public class TerminalPresenter implements TabPresenter, TerminalView.ActionDeleg
         jso.addField("type", "resize");
         jso.addField("data", arr);
         socket.send(jso.serialize());
+    }
+
+    /** Set focus on terminal */
+    public void setFocus() {
+        if (!isTerminalConnected) {
+            return;
+        }
+        terminal.focus();
     }
 
     /**
