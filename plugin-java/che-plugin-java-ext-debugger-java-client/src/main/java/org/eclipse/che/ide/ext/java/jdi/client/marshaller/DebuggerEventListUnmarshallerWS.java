@@ -17,6 +17,7 @@ import com.google.gwt.json.client.JSONParser;
 import org.eclipse.che.ide.commons.exception.UnmarshallerException;
 import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.ext.java.jdi.shared.BreakPointEvent;
+import org.eclipse.che.ide.ext.java.jdi.shared.BreakpointActivatedEvent;
 import org.eclipse.che.ide.ext.java.jdi.shared.DebuggerEvent;
 import org.eclipse.che.ide.ext.java.jdi.shared.DebuggerEventList;
 import org.eclipse.che.ide.ext.java.jdi.shared.StepEvent;
@@ -61,6 +62,10 @@ public class DebuggerEventListUnmarshallerWS implements Unmarshallable<DebuggerE
                     } else if (DebuggerEvent.STEP == type) {
                         StepEvent stepEvent = dtoFactory.createDtoFromJson(event.toString(), StepEvent.class);
                         this.events.getEvents().add(stepEvent);
+                    } else if (DebuggerEvent.BREAKPOINT_ACTIVATED == type) {
+                        BreakpointActivatedEvent breakpointActivatedEvent =
+                                dtoFactory.createDtoFromJson(event.toString(), BreakpointActivatedEvent.class);
+                        this.events.getEvents().add(breakpointActivatedEvent);
                     }
                 }
             }
