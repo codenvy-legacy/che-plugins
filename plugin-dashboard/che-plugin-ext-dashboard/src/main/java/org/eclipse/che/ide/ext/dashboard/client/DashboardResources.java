@@ -30,6 +30,9 @@ public interface DashboardResources extends ClientBundle {
     @Source({"Dashboard.css", "org/eclipse/che/ide/api/ui/style.css"})
     DashboardCSS dashboardCSS();
 
-    @Source("icons/dashboard.svg")
-    SVGResource dashboard();
+    @Source("icons/dashboardButtonBackground.svg")
+    SVGResource dashboardButtonBackground();
+
+    @Source("icons/dashboardButtonIcon.svg")
+    SVGResource dashboardButtonIcon();
 }

@@ -8,9 +8,8 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-@eval buttonColor "#5F8AE6";
 @eval buttonIconColor "#FFFFFF";
-@eval iconFilter org.eclipse.che.ide.api.theme.Style.getToolbarSelectedIconFilter();
+@eval buttonIconHoverColor "#E3E3E3";
 
 div.tooltip {
     position: absolute;
@@ -68,33 +67,24 @@ div.tooltip {
     box-shadow: none;
     cursor: pointer;
     text-align: center;
-    border-bottom-right-radius: 6px;
-    background-color: buttonColor;
 }
 
-.dashboardButton::after {
-    content: "";
+.dashboardButton svg:first-child {
     position: absolute;
-    border-radius: 0;
-    left: literal("calc(100% - 2.5px)");
-    height: 0;
-    width: 0;
-    border-top: 23px solid buttonColor;
-    border-right: 23px solid transparent;
+    left: 0;
+    top: 0;
+    width: 68px;
+    height: 24px;
 }
 
-.dashboardButton svg {
+.dashboardButton svg + svg {
+    position: absolute;
     width: 18px;
     height: 100%;
-    margin-left: 10px;
     fill: buttonIconColor;
-    -moz-filter: iconFilter;
-    -webkit-filter: iconFilter;
-    filter: iconFilter;
+    left: literal("calc(50% - 3px)");
 }
 
-.dashboardButton:hover svg {
-    -moz-filter: none;
-    -webkit-filter: none;
-    filter: none;
+.dashboardButton:hover svg + svg {
+    fill: buttonIconHoverColor;
 }

@@ -56,7 +56,8 @@ public class RedirectToDashboardAction extends Action implements CustomComponent
         dashboardButton.addStyleName(resources.dashboardCSS().dashboardButton());
         dashboardButton.setHref(constant.openDashboardRedirectUrl());
         dashboardButton.getElement().setAttribute("target", "_blank");
-        dashboardButton.getElement().insertFirst(resources.dashboard().getSvg().getElement());
+        dashboardButton.getElement().insertFirst(resources.dashboardButtonBackground().getSvg().getElement());
+        dashboardButton.getElement().appendChild(resources.dashboardButtonIcon().getSvg().getElement());
         tooltipElement.setInnerText(constant.openDashboardToolbarButtonTitle());
         tooltipContainer.appendChild(tooltipElement);
         tooltipContainer.setClassName(resources.dashboardCSS().tooltip());
