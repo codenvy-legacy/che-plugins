@@ -23,6 +23,7 @@ import org.eclipse.che.ide.api.extension.ExtensionGinModule;
 import org.eclipse.che.ide.api.filetypes.FileType;
 import org.eclipse.che.ide.api.project.node.interceptor.NodeInterceptor;
 import org.eclipse.che.ide.api.project.node.settings.SettingsProvider;
+import org.eclipse.che.ide.ext.java.client.CurrentClassFQNProvider;
 import org.eclipse.che.ide.ext.java.client.JavaResources;
 import org.eclipse.che.ide.ext.java.client.dependenciesupdater.JavaClasspathServiceClient;
 import org.eclipse.che.ide.ext.java.client.dependenciesupdater.JavaClasspathServiceClientImpl;
@@ -44,6 +45,7 @@ import org.eclipse.che.ide.ext.java.client.search.node.NodeFactory;
 import org.eclipse.che.ide.ext.java.client.settings.compiler.ErrorWarningsPresenter;
 import org.eclipse.che.ide.ext.java.client.settings.property.PropertyWidget;
 import org.eclipse.che.ide.ext.java.client.settings.property.PropertyWidgetImpl;
+import org.eclipse.che.ide.extension.machine.client.command.valueproviders.CommandPropertyValueProvider;
 import org.eclipse.che.ide.settings.common.SettingsPagePresenter;
 
 /**
@@ -81,6 +83,8 @@ public class JavaGinModule extends AbstractGinModule {
 
         GinMultibinder<SettingsPagePresenter> settingsBinder = GinMultibinder.newSetBinder(binder(), SettingsPagePresenter.class);
         settingsBinder.addBinding().to(ErrorWarningsPresenter.class);
+
+        GinMultibinder.newSetBinder(binder(), CommandPropertyValueProvider.class).addBinding().to(CurrentClassFQNProvider.class);
     }
 
     @Provides
