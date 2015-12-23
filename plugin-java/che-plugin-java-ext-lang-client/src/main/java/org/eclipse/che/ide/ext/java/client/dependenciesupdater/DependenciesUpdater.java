@@ -11,30 +11,27 @@
 package org.eclipse.che.ide.ext.java.client.dependenciesupdater;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import com.google.web.bindery.event.shared.EventBus;
 
-import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
+import org.eclipse.che.api.core.model.workspace.ProjectConfig;
 import org.eclipse.che.ide.api.app.AppContext;
-import org.eclipse.che.ide.api.event.project.OpenProjectEvent;
-import org.eclipse.che.ide.api.event.project.OpenProjectHandler;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.notification.StatusNotification;
 import org.eclipse.che.ide.ext.java.client.JavaLocalizationConstant;
 import org.eclipse.che.ide.ext.java.client.event.DependencyUpdatedEvent;
 import org.eclipse.che.ide.ext.java.client.project.node.jar.ExternalLibrariesNode;
 import org.eclipse.che.ide.ext.java.shared.dto.ClassPathBuilderResult;
-import org.eclipse.che.ide.extension.machine.client.outputspanel.OutputsContainerPresenter;
-import org.eclipse.che.ide.extension.machine.client.outputspanel.console.CommandConsoleFactory;
-import org.eclipse.che.ide.extension.machine.client.outputspanel.console.DefaultOutputConsole;
-import org.eclipse.che.ide.extension.machine.client.outputspanel.console.OutputConsole;
 import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.util.loging.Log;
 import org.eclipse.che.ide.websocket.rest.RequestCallback;
 import org.eclipse.che.ide.websocket.rest.Unmarshallable;
 
-import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAIL;
+import java.util.HashMap;
+import java.util.Map;
+
 import static org.eclipse.che.ide.api.notification.StatusNotification.Status.PROGRESS;
 import static org.eclipse.che.ide.ext.java.shared.dto.ClassPathBuilderResult.Status.SUCCESS;
 
@@ -46,98 +43,89 @@ import static org.eclipse.che.ide.ext.java.shared.dto.ClassPathBuilderResult.Sta
  */
 @Singleton
 public class DependenciesUpdater {
-    private final NotificationManager        notificationManager;
-    private final AppContext                 appContext;
-    private final CommandConsoleFactory      commandConsoleFactory;
-    private final OutputsContainerPresenter  outputsContainerPresenter;
-    private final DtoUnmarshallerFactory     dtoUnmarshallerFactory;
-    private final JavaClasspathServiceClient classpathServiceClient;
-    private final JavaLocalizationConstant   javaLocalizationConstant;
-
-    private       boolean                  updating;
-    private       StatusNotification       notification;
-    private       EventBus                 eventBus;
-    private final ProjectExplorerPresenter projectExplorer;
+    private final NotificationManager             notificationManager;
+    private final AppContext                      appContext;
+    private final DtoUnmarshallerFactory          dtoUnmarshallerFactory;
+    private final JavaClasspathServiceClient      classpathServiceClient;
+    private final JavaLocalizationConstant        locale;
+    private final ProjectExplorerPresenter        projectExplorer;
+    private final EventBus                        eventBus;
+    private final Provider<LogsOutputHandler>     outputHandlerProvider;
+    private final Map<String, StatusNotification> notifications;
 
     @Inject
-    public DependenciesUpdater(JavaLocalizationConstant javaLocalizationConstant,
+    public DependenciesUpdater(JavaLocalizationConstant locale,
                                NotificationManager notificationManager,
                                AppContext appContext,
-                               CommandConsoleFactory commandConsoleFactory,
-                               OutputsContainerPresenter outputsContainerPresenter,
                                DtoUnmarshallerFactory dtoUnmarshallerFactory,
                                JavaClasspathServiceClient classpathServiceClient,
                                EventBus eventBus,
-                               ProjectExplorerPresenter projectExplorer) {
-        this.javaLocalizationConstant = javaLocalizationConstant;
+                               ProjectExplorerPresenter projectExplorer,
+                               Provider<LogsOutputHandler> outputHandlerProvider) {
+        this.locale = locale;
         this.notificationManager = notificationManager;
         this.appContext = appContext;
-        this.commandConsoleFactory = commandConsoleFactory;
-        this.outputsContainerPresenter = outputsContainerPresenter;
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
         this.classpathServiceClient = classpathServiceClient;
         this.eventBus = eventBus;
         this.projectExplorer = projectExplorer;
-
-        updating = false;
-
-        eventBus.addHandler(OpenProjectEvent.TYPE, new OpenProjectHandler() {
-            @Override
-            public void onProjectOpened(OpenProjectEvent event) {
-                updateDependencies(event.getProjectConfig());
-            }
-        });
+        this.outputHandlerProvider = outputHandlerProvider;
+        this.notifications = new HashMap<>();
     }
 
-    public void updateDependencies(final ProjectConfigDto project) {
-        if (updating) {
-            return;
-        }
-
+    public void updateDependencies(ProjectConfig config) {
         if (appContext.getCurrentProject() == null) {
             return;
         }
 
-        updating = true;
-        notification = notificationManager
-                .notify(javaLocalizationConstant.updatingDependencies(project.getName()), PROGRESS, false, project);
+        final String path = config.getPath();
+
+        final StatusNotification notification = new StatusNotification(locale.updatingDependencies(path), PROGRESS, true);
+        notificationManager.notify(notification);
 
         Unmarshallable<ClassPathBuilderResult> unmarshaller = dtoUnmarshallerFactory.newWSUnmarshaller(ClassPathBuilderResult.class);
 
-        classpathServiceClient.updateDependencies(project.getPath(), new RequestCallback<ClassPathBuilderResult>(unmarshaller) {
+        final String channel = "dependencyUpdate:output:" + appContext.getWorkspace().getId() + ':' + path;
+
+        notifications.put(channel, notification);
+
+        final LogsOutputHandler logsOutputHandler = outputHandlerProvider.get();
+
+        classpathServiceClient.updateDependencies(path, new RequestCallback<ClassPathBuilderResult>(unmarshaller) {
             @Override
             protected void onSuccess(ClassPathBuilderResult result) {
-                if (SUCCESS.equals(result.getStatus())) {
-                    onUpdated();
-                } else {
-                    updateFinishedWithError(javaLocalizationConstant.updateDependenciesFailed(), notification);
+                String updatedChannel = result.getChannel();
 
-                    OutputConsole console = commandConsoleFactory.create(javaLocalizationConstant.updateDependenciesTabTitle());
-                    outputsContainerPresenter.addConsole(console);
-                    ((DefaultOutputConsole)console).printText(result.getLogs());
+                StatusNotification notification = notifications.get(updatedChannel);
+
+                if (SUCCESS.equals(result.getStatus())) {
+                    onUpdated(updatedChannel, notification);
+                } else {
+                    updateFinishedWithError(locale.updateDependenciesFailed(), notification);
                 }
             }
 
             @Override
             protected void onFailure(Throwable exception) {
-                Log.warn(DependenciesUpdater.class, "Failed to launch update dependency process for " + project.getPath());
+                Log.warn(DependenciesUpdater.class, "Failed to launch update dependency process for " + path);
                 updateFinishedWithError(exception.getMessage(), notification);
             }
         });
+
+        String moduleName = path.substring(path.lastIndexOf('/'));
+
+        logsOutputHandler.subscribeToOutput(channel, locale.dependenciesOutputTabTitle(moduleName));
     }
 
-    private void onUpdated() {
-        updating = false;
-        notification.setContent(javaLocalizationConstant.dependenciesSuccessfullyUpdated());
+    private void onUpdated(String channel, StatusNotification notification) {
+        notification.setContent(locale.dependenciesSuccessfullyUpdated());
         notification.setStatus(StatusNotification.Status.SUCCESS);
         projectExplorer.reloadChildrenByType(ExternalLibrariesNode.class);
-        eventBus.fireEvent(new DependencyUpdatedEvent());
+        eventBus.fireEvent(new DependencyUpdatedEvent(channel));
     }
 
-    private void updateFinishedWithError(java.lang.String message, StatusNotification notification) {
-        updating = false;
-        notification.setBalloon(true);
+    private void updateFinishedWithError(String message, StatusNotification notification) {
         notification.setContent(message);
-        notification.setStatus(FAIL);
+        notification.setStatus(StatusNotification.Status.FAIL);
     }
 }

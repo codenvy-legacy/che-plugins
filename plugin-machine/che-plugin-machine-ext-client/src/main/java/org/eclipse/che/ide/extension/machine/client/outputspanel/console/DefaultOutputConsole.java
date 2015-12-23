@@ -30,6 +30,8 @@ public class DefaultOutputConsole implements OutputConsole {
     public DefaultOutputConsole(OutputConsoleView view, @Assisted String title) {
         this.view = view;
         this.title = title;
+
+        this.view.hideCommand();
     }
 
     /**
@@ -39,7 +41,26 @@ public class DefaultOutputConsole implements OutputConsole {
      *         message which should be printed
      */
     public void printText(String text) {
-        view.print(text, false);
+        view.print(text, text.endsWith("\r"));
+        view.scrollBottom();
+    }
+
+    /**
+     * Print message in console. If next string repeat previous, the previous string will be removed and the next string will be shown.
+     *
+     * @param text
+     *         message which will be printed
+     * @param isRepeat
+     *         flag which define string repeats or not {@code true} string repeats, {@code false} string doesn't repeat
+     */
+    public void printText(String text, boolean isRepeat) {
+        text = text.trim();
+
+        if (text.isEmpty()) {
+            return;
+        }
+
+        view.print(text, isRepeat);
         view.scrollBottom();
     }
 

@@ -29,6 +29,10 @@ public interface ClassPathBuilderResult {
 
     void setLogs(String logs);
 
+    String getChannel();
+
+    void setChannel(String channel);
+
     enum Status {
         SUCCESS,
         ERROR,
