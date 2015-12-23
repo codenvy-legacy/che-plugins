@@ -34,7 +34,7 @@ public class GwtCheCommandType implements CommandType {
 
     public static final String CODE_SERVER_FQN  = "com.google.gwt.dev.codeserver.CodeServer";
     public static final String COMMAND_TEMPLATE =
-            "java -classpath $CHE_CLASSPATH " + CODE_SERVER_FQN + " $GWT_MODULE -noincremental";
+            "java -classpath $CHE_CLASSPATH " + CODE_SERVER_FQN + " $GWT_MODULE -noincremental -noprecompile";
 
     private static final String ID             = "gwt_sdm_che";
     private static final String DISPLAY_NAME   = "GWT SDM for Che";
