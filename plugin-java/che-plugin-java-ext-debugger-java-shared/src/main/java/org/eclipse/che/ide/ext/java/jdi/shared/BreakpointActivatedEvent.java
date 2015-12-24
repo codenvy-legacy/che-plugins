@@ -12,16 +12,16 @@ package org.eclipse.che.ide.ext.java.jdi.shared;
 
 import org.eclipse.che.dto.shared.DTO;
 
-/** @author andrew00x */
+/**
+ * Event will be generated when breakpoint become active.
+ *
+ * @author Anatoliy Bazko
+ */
 @DTO
-public interface DebuggerEvent {
-    int BREAKPOINT           = 1;
-    int STEP                 = 2;
-    int BREAKPOINT_ACTIVATED = 3;
+public interface BreakpointActivatedEvent extends DebuggerEvent {
+    BreakPoint getBreakPoint();
 
-    int getType();
+    void setBreakPoint(BreakPoint breakPoint);
 
-    void setType(int type);
-
-    DebuggerEvent withType(int type);
+    BreakpointActivatedEvent withBreakPoint(BreakPoint breakPoint);
 }

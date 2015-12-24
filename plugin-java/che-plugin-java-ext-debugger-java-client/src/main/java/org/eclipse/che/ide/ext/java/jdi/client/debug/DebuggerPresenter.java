@@ -46,6 +46,7 @@ import org.eclipse.che.ide.api.project.node.Node;
 import org.eclipse.che.ide.api.project.tree.VirtualFile;
 import org.eclipse.che.ide.debug.Breakpoint;
 import org.eclipse.che.ide.debug.BreakpointManager;
+import org.eclipse.che.ide.debug.BreakpointStateEvent;
 import org.eclipse.che.ide.debug.Debugger;
 import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.ext.java.client.project.node.JavaNodeManager;
@@ -62,6 +63,7 @@ import org.eclipse.che.ide.ext.java.jdi.client.fqn.FqnResolverObserver;
 import org.eclipse.che.ide.ext.java.jdi.client.marshaller.DebuggerEventListUnmarshallerWS;
 import org.eclipse.che.ide.ext.java.jdi.shared.BreakPoint;
 import org.eclipse.che.ide.ext.java.jdi.shared.BreakPointEvent;
+import org.eclipse.che.ide.ext.java.jdi.shared.BreakpointActivatedEvent;
 import org.eclipse.che.ide.ext.java.jdi.shared.DebuggerEvent;
 import org.eclipse.che.ide.ext.java.jdi.shared.DebuggerEventList;
 import org.eclipse.che.ide.ext.java.jdi.shared.DebuggerInfo;
@@ -98,6 +100,7 @@ import static org.eclipse.che.ide.debug.DebuggerStateEvent.createConnectedStateE
 import static org.eclipse.che.ide.debug.DebuggerStateEvent.createDisconnectedStateEvent;
 import static org.eclipse.che.ide.debug.DebuggerStateEvent.createInitializedStateEvent;
 import static org.eclipse.che.ide.ext.java.jdi.shared.DebuggerEvent.BREAKPOINT;
+import static org.eclipse.che.ide.ext.java.jdi.shared.DebuggerEvent.BREAKPOINT_ACTIVATED;
 import static org.eclipse.che.ide.ext.java.jdi.shared.DebuggerEvent.STEP;
 
 /**
@@ -333,6 +336,10 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
                 case STEP:
                     location = ((StepEvent)event).getLocation();
                     break;
+                case BREAKPOINT_ACTIVATED:
+                    BreakPoint breakPoint = ((BreakpointActivatedEvent)event).getBreakPoint();
+                    activateBreakpoint(breakPoint);
+                    return;
                 case BREAKPOINT:
                     location = ((BreakPointEvent)event).getBreakPoint().getLocation();
                     break;
@@ -364,6 +371,22 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
             }
             getStackFrameDump();
             changeButtonsEnableState(true);
+        }
+    }
+
+    /**
+     * Breakpoint became active. It might happens because of different reasons:
+     * <li>breakpoint was deferred and VM eventually loaded class and added it</li>
+     * <li>condition triggered</li>
+     * <li>etc</li>
+     */
+    private void activateBreakpoint(BreakPoint breakPoint) {
+        Location location = breakPoint.getLocation();
+        List<String> filePaths = resolveFilePathByLocation(location);
+        for (String filePath : filePaths) {
+            eventBus.fireEvent(new BreakpointStateEvent(BreakpointStateEvent.BreakpointState.ACTIVE,
+                                                        filePath,
+                                                        location.getLineNumber() - 1));
         }
     }
 
@@ -739,7 +762,9 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
 
                             @Override
                             protected void onFailure(Throwable exception) {
-                                notificationManager.notify(constant.failedToConnectToRemoteDebugger(), exception.getMessage(), FAIL, true);
+                                notificationManager.notify(constant.debuggerConnectionError(host + ':' + port),
+                                                           StatusNotification.Status.FAIL,
+                                                           false);
                             }
                         }
                        );

@@ -36,6 +36,7 @@ import org.eclipse.che.ide.ext.java.jdi.shared.BreakPoint;
 import org.eclipse.che.ide.ext.java.jdi.shared.BreakPointEvent;
 import org.eclipse.che.ide.ext.java.jdi.shared.DebuggerEvent;
 import org.eclipse.che.ide.ext.java.jdi.shared.DebuggerEventList;
+import org.eclipse.che.ide.ext.java.jdi.shared.BreakpointActivatedEvent;
 import org.eclipse.che.ide.ext.java.jdi.shared.Field;
 import org.eclipse.che.ide.ext.java.jdi.shared.Location;
 import org.eclipse.che.ide.ext.java.jdi.shared.StackFrameDump;
@@ -208,7 +209,7 @@ public class Debugger implements EventsHandler {
         // it may mean that class doesn't loaded by a target JVM yet
         if (classes.isEmpty()) {
             deferBreakpoint(breakpoint);
-            return;
+            throw new DebuggerException("Class not loaded");
         }
 
         ReferenceType clazz = classes.get(0);
@@ -270,6 +271,8 @@ public class Debugger implements EventsHandler {
             request.enable();
             classPrepareRequests.put(className, request);
         }
+
+        LOG.debug("Deferred breakpoint: {}", breakpoint.getLocation());
     }
 
     /**
@@ -612,7 +615,8 @@ public class Debugger implements EventsHandler {
     private boolean processBreakPointEvent(com.sun.jdi.event.BreakpointEvent event) throws DebuggerException {
         setCurrentThread(event.thread());
         boolean hitBreakpoint;
-        ExpressionParser parser = (ExpressionParser)event.request().getProperty("org.eclipse.che.ide.java.debug.condition.expression.parser");
+        ExpressionParser parser =
+                (ExpressionParser)event.request().getProperty("org.eclipse.che.ide.java.debug.condition.expression.parser");
         if (parser != null) {
             com.sun.jdi.Value result = evaluate(parser);
             hitBreakpoint = result instanceof com.sun.jdi.BooleanValue && ((com.sun.jdi.BooleanValue)result).value();
@@ -681,12 +685,25 @@ public class Debugger implements EventsHandler {
     }
 
     private boolean processClassPrepareEvent(com.sun.jdi.event.ClassPrepareEvent event) throws DebuggerException {
+        setCurrentThread(event.thread());
         final String className = event.referenceType().name();
+
         // add deferred breakpoints
         List<BreakPoint> breakpointsToAdd = deferredBreakpoints.get(className);
         if (breakpointsToAdd != null) {
+            List<DebuggerEvent> eventsList = new ArrayList<>();
+
             for (BreakPoint b : breakpointsToAdd) {
                 addBreakpoint(b);
+
+                BreakpointActivatedEvent breakpointActivatedEvent;
+                synchronized (events) {
+                    breakpointActivatedEvent = DtoFactory.getInstance().createDto(BreakpointActivatedEvent.class);
+                    breakpointActivatedEvent.setType(DebuggerEvent.BREAKPOINT_ACTIVATED);
+                    breakpointActivatedEvent.setBreakPoint(b);
+                    events.add(breakpointActivatedEvent);
+                }
+                eventsList.add(breakpointActivatedEvent);
             }
             deferredBreakpoints.remove(className);
 
@@ -696,6 +713,9 @@ public class Debugger implements EventsHandler {
             if (request != null) {
                 getEventManager().deleteEventRequest(request);
             }
+
+            publishWebSocketMessage(DtoFactory.getInstance().createDto(DebuggerEventList.class).withEvents(eventsList),
+                                    EVENTS_CHANNEL + id);
         }
         return true;
     }
