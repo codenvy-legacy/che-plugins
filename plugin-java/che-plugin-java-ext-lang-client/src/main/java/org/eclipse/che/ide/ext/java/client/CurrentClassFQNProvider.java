@@ -34,7 +34,7 @@ import static org.eclipse.che.ide.api.event.FileEvent.FileOperation.CLOSE;
 @Singleton
 public class CurrentClassFQNProvider implements CommandPropertyValueProvider, ActivePartChangedHandler, FileEventHandler {
 
-    private static final String KEY = "${class.current.fqn}";
+    private static final String KEY = "${current.class.fqn}";
     private final EditorAgent editorAgent;
 
     private String value;

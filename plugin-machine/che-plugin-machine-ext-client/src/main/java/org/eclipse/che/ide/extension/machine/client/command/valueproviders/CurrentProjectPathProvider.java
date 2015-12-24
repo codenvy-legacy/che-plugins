@@ -41,7 +41,7 @@ public class CurrentProjectPathProvider implements CommandPropertyValueProvider,
                                                    ProjectReadyHandler,
                                                    CurrentProjectChangedHandler {
 
-    private static final String KEY = "${project.current.path}";
+    private static final String KEY = "${current.project.path}";
 
     private final AppContext           appContext;
 
