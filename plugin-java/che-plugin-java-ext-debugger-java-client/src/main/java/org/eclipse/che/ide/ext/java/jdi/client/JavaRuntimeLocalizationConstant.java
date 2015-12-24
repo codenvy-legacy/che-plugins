@@ -60,20 +60,37 @@ public interface JavaRuntimeLocalizationConstant extends com.google.gwt.i18n.cli
     @Key("evaluateExpression")
     String evaluateExpression();
 
-    @Key("debugger.connecting")
-    String debuggerConnecting();
+    /* messages */
+    @Key("debugger.connecting.title")
+    String debuggerConnectingTitle(String address);
 
-    @Key("debugger.disconnecting")
-    String debuggerDisconnecting();
+    @Key("debugger.connected.title")
+    String debuggerConnectedTitle();
 
     @Key("debugger.connected.description")
-    String debuggerConnected(String address);
+    String debuggerConnectedDescription(String address);
 
-    @Key("debugger.disconnected")
-    String debuggerDisconnected(String address);
+    @Key("debugger.disconnecting.Title")
+    String debuggerDisconnectingTitle();
 
-    @Key("debugger.connectionError")
-    String debuggerConnectionError(String address);
+    @Key("debugger.disconnected.title")
+    String debuggerDisconnectedTitle();
+
+    @Key("debugger.disconnected.description")
+    String debuggerDisconnectedDescription(String address);
+
+    @Key("failed.to.connect.to.remote.debugger.title")
+    String failedToConnectToRemoteDebuggerTitle();
+
+    @Key("failed.to.connect.to.remote.debugger.wrong.port")
+    String failedToConnectToRemoteDebuggerWrongPort(String port);
+
+    @Key("failed.to.connect.to.remote.debugger.description")
+    String failedToConnectToRemoteDebuggerDescription(String address);
+
+    @Key("failed.to.get.variable.value.title")
+    String failedToGetVariableValueTitle();
+
 
     /* ChangeValueView */
     @Key("view.changeValue.title")
@@ -121,19 +138,4 @@ public interface JavaRuntimeLocalizationConstant extends com.google.gwt.i18n.cli
 
     @Key("server.log.tab.title")
     String serverLogTabTitle();
-
-    @Key("failed.to.connect.to.remote.debugger")
-    String failedToConnectToRemoteDebugger();
-
-    @Key("failed.to.connect.to.remote.debugger.description")
-    String failedToConnectToRemoteDebuggerDescription(String port);
-
-    @Key("failed.to.get.variable.value")
-    String failedToGetVariableValue();
-
-    @Key("remote.debugger.connected")
-    String remoteDebuggerConnected();
-
-    @Key("remote.debugger.disconnected")
-    String remoteDebuggerDisconnected();
 }

@@ -73,8 +73,8 @@ public class RemoteDebugViewImpl extends Composite implements RemoteDebugView {
                     delegate.onConfirmClicked(host.getText(), Integer.parseInt(port.getText()));
                 } catch (NumberFormatException exception) {
                     dialog.show();
-                    notificationManager.notify(locale.failedToConnectToRemoteDebugger(),
-                                               locale.failedToConnectToRemoteDebuggerDescription(port.getValue()), FAIL, true);
+                    notificationManager.notify(locale.failedToConnectToRemoteDebuggerTitle(),
+                                               locale.failedToConnectToRemoteDebuggerWrongPort(port.getValue()), FAIL, true);
                 }
             }
         };
