@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.java.client.navigation.filestructure;
 
+import com.google.gwt.core.client.Scheduler;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -94,13 +95,14 @@ public class FileStructurePresenter implements FileStructure.ActionDelegate {
         String projectPath = file.getProject().getProjectConfig().getPath();
         String fqn = JavaSourceFolderUtil.getFQNForFile(file);
 
-        Promise<CompilationUnit> promice = javaNavigationService.getCompilationUnit(projectPath, fqn, showInheritedMembers);
-        promice.then(new Operation<CompilationUnit>() {
+        Promise<CompilationUnit> promise = javaNavigationService.getCompilationUnit(projectPath, fqn, showInheritedMembers);
+        promise.then(new Operation<CompilationUnit>() {
             @Override
             public void apply(CompilationUnit arg) throws OperationException {
-                view.showStructure(arg, showInheritedMembers);
+                view.setStructure(arg, showInheritedMembers);
                 showInheritedMembers = !showInheritedMembers;
                 loader.hide();
+                view.show();
             }
         }).catchError(new Operation<PromiseError>() {
             @Override
@@ -129,9 +131,13 @@ public class FileStructurePresenter implements FileStructure.ActionDelegate {
                            .then(selectNode())
                            .then(openNode(member));
         }
-        setCursorPosition(member.getFileRegion());
+        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+            @Override
+            public void execute() {
+                setCursorPosition(member.getFileRegion());
+            }
+        });
         showInheritedMembers = false;
-        view.close();
     }
 
     private void openFile(VirtualFile result, final Member member) {

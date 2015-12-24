@@ -20,11 +20,6 @@
             height: 450px;
         }
 
-        .scrollPanel {
-            width: 100%;
-            height: 100%;
-        }
-
         .label {
             float: right;
             margin-bottom: 1px;
@@ -34,10 +29,8 @@
         }
     </ui:style>
 
-    <g:FlowPanel addStyleNames="{style.main}" debugId="file-structure-mainPanel">
-        <g:ScrollPanel ui:field="treeContainer" addStyleNames="{style.scrollPanel}">
-        </g:ScrollPanel>
-        <g:Label ui:field="showInheritedLabel" addStyleNames="{style.label}"/>
-    </g:FlowPanel>
+    <g:DockLayoutPanel addStyleNames="{style.main}" unit="PX" ui:field="treeContainer" debugId="file-structure-mainPanel">
+        <g:south size="20"><g:Label ui:field="showInheritedLabel" addStyleNames="{style.label}"/></g:south>
+    </g:DockLayoutPanel>
 
 </ui:UiBinder>

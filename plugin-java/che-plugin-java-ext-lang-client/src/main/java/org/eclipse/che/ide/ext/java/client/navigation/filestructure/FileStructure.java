@@ -40,10 +40,15 @@ interface FileStructure extends View<FileStructure.ActionDelegate> {
      * @param showInheritedMembers
      *         <code>true</code> iff inherited members are shown
      */
-    void showStructure(CompilationUnit compilationUnit, boolean showInheritedMembers);
+    void setStructure(CompilationUnit compilationUnit, boolean showInheritedMembers);
 
     /** Closes window. */
     void close();
+
+    /**
+     * Show dialog.
+     */
+    void show();
 
     interface ActionDelegate {
         /**

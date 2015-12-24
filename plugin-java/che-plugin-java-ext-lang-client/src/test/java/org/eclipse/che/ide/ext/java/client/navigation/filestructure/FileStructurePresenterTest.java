@@ -28,7 +28,6 @@ import org.eclipse.che.ide.ext.java.shared.dto.Region;
 import org.eclipse.che.ide.ext.java.shared.dto.model.CompilationUnit;
 import org.eclipse.che.ide.ext.java.shared.dto.model.Member;
 import org.eclipse.che.ide.jseditor.client.document.Document;
-import org.eclipse.che.ide.jseditor.client.text.LinearRange;
 import org.eclipse.che.ide.jseditor.client.texteditor.EmbeddedTextEditorPresenter;
 import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.eclipse.che.ide.ui.loaders.requestLoader.IdeLoader;
@@ -45,7 +44,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -153,7 +151,7 @@ public class FileStructurePresenterTest {
         verify(promice).then(operationSuccessCapture.capture());
         operationSuccessCapture.getValue().apply(compilationUnit);
 
-        verify(view).showStructure(compilationUnit, false);
+        verify(view).setStructure(compilationUnit, false);
         verify(loader).hide();
     }
 
@@ -165,7 +163,7 @@ public class FileStructurePresenterTest {
         verify(promice).catchError(operationErrorCapture.capture());
         operationErrorCapture.getValue().apply(promiseError);
 
-        verify(view, never()).showStructure(compilationUnit, false);
+        verify(view, never()).setStructure(compilationUnit, false);
         verify(promiseError).getMessage();
         verify(loader).hide();
     }
@@ -177,11 +175,6 @@ public class FileStructurePresenterTest {
         when(nodePromise.then(Matchers.<Operation<Node>>anyObject())).thenReturn(nodePromise);
 
         presenter.show(editorPartPresenter);
-        presenter.actionPerformed(member);
-        verify(nodePromise).then(operationNodeCapture.capture());
-        operationNodeCapture.getValue().apply(node);
-
-        actionFinally();
     }
 
     @Test
@@ -190,20 +183,6 @@ public class FileStructurePresenterTest {
         when(projectExplorer.getNodeByPath(Matchers.anyObject())).thenReturn(nodePromise);
         when(nodePromise.then(Matchers.<Function<Node, Node>>anyObject())).thenReturn(nodePromise);
 
-
         presenter.show(editorPartPresenter);
-        presenter.actionPerformed(member);
-
-        verify(nodePromise, times(2)).then(functionNodeCapture.capture());
-        functionNodeCapture.getAllValues().get(0).apply(node);
-        verify(projectExplorer).select(node, false);
-
-        actionFinally();
-    }
-
-    private void actionFinally() {
-        verify(editorPartPresenter).setFocus();
-        verify(document).setSelectedRange(Matchers.<LinearRange>anyObject(), anyBoolean());
-        verify(view).close();
     }
 }
