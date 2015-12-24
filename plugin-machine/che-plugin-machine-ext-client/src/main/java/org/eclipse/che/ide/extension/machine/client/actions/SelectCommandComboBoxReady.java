@@ -64,12 +64,14 @@ import static org.eclipse.che.ide.workspace.perspectives.project.ProjectPerspect
  * Action that allows user to select command from list of all commands.
  *
  * @author Artem Zatsarynnyi
+ * @author Oleksii Orel
  */
 @Singleton
 public class SelectCommandComboBoxReady extends AbstractPerspectiveAction implements CustomComponentAction,
                                                                                      EditCommandsPresenter.ConfigurationChangedListener,
                                                                                      CloseCurrentProjectHandler,
-                                                                                     ExtServerStateHandler {
+                                                                                     ExtServerStateHandler,
+                                                                                     DropDownHeaderWidget.ActionDelegate {
 
     public static final  String                           GROUP_COMMANDS     = "CommandsGroup";
     private static final Comparator<CommandConfiguration> commandsComparator = new CommandsComparator();
@@ -128,6 +130,13 @@ public class SelectCommandComboBoxReady extends AbstractPerspectiveAction implem
         actionManager.registerAction(GROUP_COMMANDS, commandActions);
 
         lastDevMachineId = null;
+
+        dropDownHeaderWidget.setDelegate(this);
+    }
+
+    @Override
+    public void onSelect() {
+        //do nothing
     }
 
     @Override
@@ -268,13 +277,10 @@ public class SelectCommandComboBoxReady extends AbstractPerspectiveAction implem
         Collections.sort(commandConfigurations, commandsComparator);
         CommandConfiguration prevCommand = null;
         for (CommandConfiguration configuration : commandConfigurations) {
-            if (prevCommand != null && !configuration.getType().getId().equals(prevCommand.getType().getId())) {
-                commandActions.addSeparator();
+            if (prevCommand == null || !configuration.getType().getId().equals(prevCommand.getType().getId())) {
+                commandActions.addSeparator(configuration.getType().getDisplayName());
             }
-
-            commandActions.add(dropDownListFactory.createElement(configuration.getName(),
-                                                                 configuration.getType().getIcon(),
-                                                                 dropDownHeaderWidget));
+            commandActions.add(dropDownListFactory.createElement(configuration.getName(), configuration.getName(), dropDownHeaderWidget));
             prevCommand = configuration;
         }
 
@@ -313,17 +319,17 @@ public class SelectCommandComboBoxReady extends AbstractPerspectiveAction implem
 
     @Override
     public void onConfigurationAdded(CommandConfiguration command) {
-            loadCommands(command);
+        loadCommands(command);
     }
 
     @Override
     public void onConfigurationRemoved(CommandConfiguration command) {
-            loadCommands(null);
+        loadCommands(null);
     }
 
     @Override
     public void onConfigurationsUpdated(CommandConfiguration command) {
-            loadCommands(command);
+        loadCommands(command);
     }
 
     @Override
