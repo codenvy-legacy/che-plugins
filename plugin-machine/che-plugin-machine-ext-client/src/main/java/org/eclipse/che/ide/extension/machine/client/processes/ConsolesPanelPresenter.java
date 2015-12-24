@@ -305,6 +305,7 @@ public class ConsolesPanelPresenter extends BasePresenter implements ConsolesPan
     @Override
     public void onTerminalSelected(@NotNull String terminalId) {
         view.showProcessOutput(terminalId);
+        terminals.get(terminalId).setFocus();
     }
 
     @Override

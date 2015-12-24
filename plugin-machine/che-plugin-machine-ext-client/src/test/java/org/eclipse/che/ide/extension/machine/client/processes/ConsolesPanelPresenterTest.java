@@ -320,6 +320,9 @@ public class ConsolesPanelPresenterTest {
 
     @Test
     public void shouldShowTerminalWhenTerminalNodeSelected() throws Exception {
+        TerminalPresenter terminal = mock(TerminalPresenter.class);
+        presenter.terminals.put(PROCESS_ID, terminal);
+
         presenter.onTerminalSelected(PROCESS_ID);
 
         verify(view).showProcessOutput(eq(PROCESS_ID));

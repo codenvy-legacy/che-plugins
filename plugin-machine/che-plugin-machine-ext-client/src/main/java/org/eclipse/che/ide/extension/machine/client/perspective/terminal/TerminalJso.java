@@ -18,6 +18,7 @@ import org.eclipse.che.api.promises.client.Operation;
 
 /**
  * GWT binding to term.js script
+ *
  * @author Evgen Vidolob
  */
 class TerminalJso extends JavaScriptObject {
@@ -33,7 +34,7 @@ class TerminalJso extends JavaScriptObject {
     }-*/;
 
     public final native void on(String event, Operation<String> operation) /*-{
-        this.on(event, $entry(function (data){
+        this.on(event, $entry(function (data) {
             operation.@org.eclipse.che.api.promises.client.Operation::apply(*)(data);
         }));
     }-*/;
@@ -44,5 +45,9 @@ class TerminalJso extends JavaScriptObject {
 
     public final native void write(String data) /*-{
         this.write(data);
+    }-*/;
+
+    public final native void focus() /*-{
+        this.focus();
     }-*/;
 }

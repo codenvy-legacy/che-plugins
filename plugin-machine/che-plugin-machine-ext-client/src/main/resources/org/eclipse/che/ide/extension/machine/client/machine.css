@@ -178,7 +178,6 @@
     fill: selectCommandActionIconColor;
 }
 
-
 .selectCommandBoxIconPanel svg path {
     fill: selectCommandActionIconColor !important;
 }
@@ -259,7 +258,13 @@
     margin-right: 8px;
 }
 
-div.processHeaderTitle{
+.processOutputPanel {
+    -moz-user-select: text;
+    -webkit-user-select: auto;
+    user-select: text;
+}
+
+div.processHeaderTitle {
     font-size: fontSize;
     font-family: outputFontFamily;
     color: mainFontColor;
