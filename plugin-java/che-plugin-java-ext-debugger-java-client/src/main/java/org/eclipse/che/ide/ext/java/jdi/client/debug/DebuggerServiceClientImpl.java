@@ -63,14 +63,14 @@ public class DebuggerServiceClientImpl implements DebuggerServiceClient {
     public void connect(@NotNull String host, int port, @NotNull AsyncRequestCallback<DebuggerInfo> callback) {
         final String requestUrl = baseUrl + "/connect";
         final String params = "?host=" + host + "&port=" + port;
-        asyncRequestFactory.createGetRequest(requestUrl + params).loader(loader, localizationConstant.debuggerConnecting()).send(callback);
+        asyncRequestFactory.createGetRequest(requestUrl + params).send(callback);
     }
 
     /** {@inheritDoc} */
     @Override
     public void disconnect(@NotNull String id, @NotNull AsyncRequestCallback<Void> callback) {
         final String requestUrl = baseUrl + "/disconnect/" + id;
-        asyncRequestFactory.createGetRequest(requestUrl).loader(loader, localizationConstant.debuggerDisconnecting()).send(callback);
+        asyncRequestFactory.createGetRequest(requestUrl).loader(loader, localizationConstant.debuggerDisconnectingTitle()).send(callback);
     }
 
     /** {@inheritDoc} */

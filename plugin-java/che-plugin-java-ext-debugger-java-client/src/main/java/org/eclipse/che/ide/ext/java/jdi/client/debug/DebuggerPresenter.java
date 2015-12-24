@@ -96,6 +96,8 @@ import java.util.List;
 
 import static org.eclipse.che.ide.api.event.FileEvent.FileOperation.OPEN;
 import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAIL;
+import static org.eclipse.che.ide.api.notification.StatusNotification.Status.SUCCESS;
+import static org.eclipse.che.ide.api.notification.StatusNotification.Status.PROGRESS;
 import static org.eclipse.che.ide.debug.DebuggerStateEvent.createConnectedStateEvent;
 import static org.eclipse.che.ide.debug.DebuggerStateEvent.createDisconnectedStateEvent;
 import static org.eclipse.che.ide.debug.DebuggerStateEvent.createInitializedStateEvent;
@@ -690,7 +692,7 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
 
                                  @Override
                                  protected void onFailure(Throwable exception) {
-                                     notificationManager.notify(constant.failedToGetVariableValue(), exception.getMessage(), FAIL, true);
+                                     notificationManager.notify(constant.failedToGetVariableValueTitle(), exception.getMessage(), FAIL, true);
                                  }
                              }
                             );
@@ -747,27 +749,30 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
      *         port which need to connect to debugger
      */
     public void attachDebugger(@NotNull final String host, @Min(1) final int port) {
+        final String address = host + ':' + port;
+        final StatusNotification notification = notificationManager.notify(constant.debuggerConnectingTitle(address), PROGRESS, true);
         service.connect(host, port, new AsyncRequestCallback<DebuggerInfo>(dtoUnmarshallerFactory.newUnmarshaller(DebuggerInfo.class)) {
-                            @Override
-                            public void onSuccess(DebuggerInfo result) {
-                                debuggerInfo = result;
-                                notificationManager.notify(constant.remoteDebuggerConnected(),
-                                                           constant.debuggerConnected(host + ':' + port));
+            @Override
+            protected void onSuccess(DebuggerInfo result) {
+                debuggerInfo = result;
+                notification.setTitle(constant.debuggerConnectedTitle());
+                notification.setContent(constant.debuggerConnectedDescription(address));
+                notification.setStatus(SUCCESS);
 
-                                view.setEnableDisconnectButton(true);
-                                startCheckingEvents();
+                view.setEnableDisconnectButton(true);
+                startCheckingEvents();
 
-                                eventBus.fireEvent(createConnectedStateEvent(DebuggerPresenter.this));
-                            }
+                eventBus.fireEvent(createConnectedStateEvent(DebuggerPresenter.this));
+            }
 
-                            @Override
-                            protected void onFailure(Throwable exception) {
-                                notificationManager.notify(constant.debuggerConnectionError(host + ':' + port),
-                                                           StatusNotification.Status.FAIL,
-                                                           false);
-                            }
-                        }
-                       );
+            @Override
+            protected void onFailure(Throwable exception) {
+                notification.setTitle(constant.failedToConnectToRemoteDebuggerDescription(address));
+                notification.setStatus(FAIL);
+                notification.setBalloon(true);
+
+            }
+        });
     }
 
     private void disconnectDebugger() {
@@ -823,8 +828,8 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
 
     /** Perform some action after disconnecting a debugger. */
     private void onDebuggerDisconnected() {
-        notificationManager.notify(constant.remoteDebuggerDisconnected(),
-                                   constant.debuggerDisconnected(debuggerInfo.getHost() + ':' + debuggerInfo.getPort()));
+        notificationManager.notify(constant.debuggerDisconnectedTitle(),
+                                   constant.debuggerDisconnectedDescription(debuggerInfo.getHost() + ':' + debuggerInfo.getPort()));
         debuggerInfo = null;
         eventBus.fireEvent(createDisconnectedStateEvent(this));
     }
