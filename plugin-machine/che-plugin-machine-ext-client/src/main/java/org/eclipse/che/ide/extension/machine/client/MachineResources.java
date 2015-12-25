@@ -49,9 +49,6 @@ public interface MachineResources extends ClientBundle {
     @Source("command/arbitrary/arbitrary-command-type.svg")
     SVGResource customCommandTypeSubElementIcon();
 
-    @Source("images/process/add-terminal.svg")
-    SVGResource addTerminal();
-
     @Source("images/process/output-icon.svg")
     SVGResource output();
 
@@ -96,9 +93,6 @@ public interface MachineResources extends ClientBundle {
 
         /** Returns the CSS class name for tab-panel in 'Outputs' console. */
         String outputsConsoleTabsPanel();
-
-        /** Returns the CSS class name for hint label in 'Edit Commands' dialog. */
-        String commandHint();
 
         /** Returns the CSS class name for tab button in 'Outputs' console. */
         String outputsContainerConsoleTab();
@@ -149,8 +143,6 @@ public interface MachineResources extends ClientBundle {
         String processOutputPanel();
 
         String processHeaderTitle();
-
-        String processUrlValue();
 
         String processCommandValue();
 

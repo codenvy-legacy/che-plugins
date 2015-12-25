@@ -25,7 +25,6 @@ import org.eclipse.che.ide.api.extension.Extension;
 public class GwtExtension {
 
     @Inject
-    public GwtExtension(GwtResources resources) {
-        resources.gwtCss().ensureInjected();
+    public GwtExtension() {
     }
 }

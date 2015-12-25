@@ -11,7 +11,6 @@
 package org.eclipse.che.ide.ext.gwt.client;
 
 import com.google.gwt.resources.client.ClientBundle;
-import com.google.gwt.resources.client.CssResource;
 
 import org.vectomatic.dom.svg.ui.SVGResource;
 
@@ -22,13 +21,6 @@ import org.vectomatic.dom.svg.ui.SVGResource;
  */
 public interface GwtResources extends ClientBundle {
 
-    @Source("GWT.css")
-    GwtCss gwtCss();
-
     @Source("images/gwt-command-type.svg")
     SVGResource gwtCommandType();
-
-    interface GwtCss extends CssResource {
-        String scrollPanel();
-    }
 }

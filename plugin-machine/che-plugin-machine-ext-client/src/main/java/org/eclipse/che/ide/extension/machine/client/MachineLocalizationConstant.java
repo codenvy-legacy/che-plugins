@@ -12,8 +12,6 @@ package org.eclipse.che.ide.extension.machine.client;
 
 import com.google.gwt.i18n.client.Messages;
 
-import org.eclipse.che.ide.api.notification.Notification;
-
 /**
  * I18n constants for the Machine extension.
  *

@@ -13,7 +13,6 @@ package org.eclipse.che.ide.ext.java.jdi.client;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import org.eclipse.che.ide.Constants;
 import org.eclipse.che.ide.api.action.ActionManager;
 import org.eclipse.che.ide.api.action.DefaultActionGroup;
 import org.eclipse.che.ide.api.action.IdeActions;
@@ -29,7 +28,6 @@ import org.eclipse.che.ide.extension.maven.shared.MavenAttributes;
 
 import static org.eclipse.che.ide.MimeType.TEXT_X_JAVA;
 import static org.eclipse.che.ide.MimeType.TEXT_X_JAVA_SOURCE;
-import static org.eclipse.che.ide.api.action.IdeActions.GROUP_MAIN_MENU;
 import static org.eclipse.che.ide.api.action.IdeActions.GROUP_RUN;
 
 /**
@@ -58,10 +56,7 @@ public class JavaRuntimeExtension {
                                 DebuggerManager debuggerManager,
                                 DebuggerPresenter debuggerPresenter,
                                 FqnResolverFactory resolverFactory,
-                                JavaFqnResolver javaFqnResolver,
-                                JavaRuntimeLocalizationConstant localizationConstant) {
-        final DefaultActionGroup mainMenu = (DefaultActionGroup)actionManager.getAction(GROUP_MAIN_MENU);
-
+                                JavaFqnResolver javaFqnResolver) {
         final DefaultActionGroup runMenu = (DefaultActionGroup)actionManager.getAction(GROUP_RUN);
 
         // register actions
@@ -76,7 +71,6 @@ public class JavaRuntimeExtension {
         runContextGroup.add(remoteDebugAction);
 
         debuggerManager.registeredDebugger(MavenAttributes.MAVEN_ID, debuggerPresenter);
-        debuggerManager.registeredDebugger(Constants.CODENVY_PLUGIN_ID, debuggerPresenter);
         resolverFactory.addResolver(TEXT_X_JAVA, javaFqnResolver);
         resolverFactory.addResolver("application/java", javaFqnResolver);
         resolverFactory.addResolver(TEXT_X_JAVA_SOURCE, javaFqnResolver);

@@ -34,11 +34,6 @@
     font-size: fontSize;
 }
 
-.commandHint {
-    margin-top: 3px;
-    margin-left: 6px;
-}
-
 .consoleToolbar {
     box-shadow: 0 2px 5px 0 rgba(50, 50, 50, 0.75);
 }
@@ -268,10 +263,6 @@ div.processHeaderTitle {
     font-size: fontSize;
     font-family: outputFontFamily;
     color: mainFontColor;
-}
-
-.processUrlValue {
-    color: primaryHighlightColor !important;
 }
 
 .processCommandValue {
