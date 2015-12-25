@@ -317,7 +317,7 @@ public class SelectCommandComboBoxReady extends AbstractPerspectiveAction implem
 
     @Override
     public void onConfigurationAdded(CommandConfiguration command) {
-        loadCommands(command);
+        loadCommands(null);
     }
 
     @Override
