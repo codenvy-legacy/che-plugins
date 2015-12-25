@@ -10,16 +10,14 @@
  *******************************************************************************/
 package org.eclipse.che.plugin.docker.machine.ext;
 
+import org.eclipse.che.api.core.BadRequestException;
 import org.eclipse.che.api.core.NotFoundException;
 import org.eclipse.che.api.core.notification.EventService;
 import org.eclipse.che.api.core.notification.EventSubscriber;
 import org.eclipse.che.api.machine.server.MachineManager;
 import org.eclipse.che.api.machine.server.exception.MachineException;
-import org.eclipse.che.api.machine.server.spi.Instance;
+import org.eclipse.che.api.machine.server.model.impl.CommandImpl;
 import org.eclipse.che.api.machine.shared.dto.event.MachineStatusEvent;
-import org.eclipse.che.plugin.docker.client.DockerConnector;
-import org.eclipse.che.plugin.docker.client.Exec;
-import org.eclipse.che.plugin.docker.client.MessageProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,59 +25,51 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
-import java.io.File;
-import java.io.IOException;
-
-import static java.nio.file.Files.notExists;
 
 /**
  * Starts extensions server in the machine after start
  *
  * @author Alexander Garagatyi
  */
-@Singleton // must be eager
+@Singleton
 public class DockerMachineExtServerLauncher {
-    public static final String START_EXT_SERVER_COMMAND = "machine.server.ext.run_command";
+    public static final String WS_AGENT_PROCESS_START_COMMAND  = "machine.server.ext.run_command";
+    public static final String WS_AGENT_PROCESS_OUTPUT_CHANNEL = "workspace:%s:ext-server:output";
+    public static final String WS_AGENT_PROCESS_NAME           = "CheWsAgent";
 
     private static final Logger LOG = LoggerFactory.getLogger(DockerMachineExtServerLauncher.class);
 
-    private final EventService    eventService;
-    private final DockerConnector docker;
-    private final MachineManager  machineManager;
-    private final String          extServerStartCommand;
+    private final EventService   eventService;
+    private final MachineManager machineManager;
+    private final String         extServerStartCommandLine;
 
     @Inject
     public DockerMachineExtServerLauncher(EventService eventService,
-                                          DockerConnector docker,
                                           MachineManager machineManager,
-                                          @Named(START_EXT_SERVER_COMMAND) String extServerStartCommand) {
+                                          @Named(WS_AGENT_PROCESS_START_COMMAND) String extServerStartCommandLine) {
         this.eventService = eventService;
-        this.docker = docker;
         this.machineManager = machineManager;
-        this.extServerStartCommand = extServerStartCommand;
+        this.extServerStartCommandLine = extServerStartCommandLine;
     }
 
     @PostConstruct
-    public void start() {
+    void start() {
         eventService.subscribe(new EventSubscriber<MachineStatusEvent>() {
             @Override
             public void onEvent(MachineStatusEvent event) {
                 // TODO launch it on dev machines only
                 if (event.getEventType() == MachineStatusEvent.EventType.RUNNING) {
-                    try {
-                        final Instance machine = machineManager.getMachine(event.getMachineId());
 
-                        // ext server doesn't exist in non-dev machines
-                        if (machine.isDev()) {
-                            final String containerId = machine.getMetadata().getProperties().get("id");
-
-                            final Exec exec = docker.createExec(containerId, true, "/bin/sh", "-c", extServerStartCommand);
-                            // TODO check that ext server starts successfully
-                            docker.startExec(exec.getId(), MessageProcessor.DEV_NULL);
+                    // ext server doesn't exist in non-dev machines
+                    if (event.isDev()) {
+                        try {
+                            machineManager.exec(event.getMachineId(),
+                                                new CommandImpl(WS_AGENT_PROCESS_NAME, extServerStartCommandLine, "Arbitrary"),
+                                                String.format(WS_AGENT_PROCESS_OUTPUT_CHANNEL, event.getWorkspaceId()));
+                        } catch (MachineException | NotFoundException | BadRequestException wsAgentLaunchingExc) {
+                            // TODO send event about failed start of ws agent
+                            LOG.error(wsAgentLaunchingExc.getLocalizedMessage(), wsAgentLaunchingExc);
                         }
-                    } catch (IOException | MachineException | NotFoundException e) {
-                        LOG.error(e.getLocalizedMessage(), e);
-                        // TODO send event that ext server is unavailable
                     }
                 }
             }
