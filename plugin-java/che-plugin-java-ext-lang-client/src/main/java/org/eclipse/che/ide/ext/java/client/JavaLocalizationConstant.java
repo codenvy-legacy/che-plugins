@@ -213,12 +213,6 @@ public interface JavaLocalizationConstant extends Messages {
     @Key("rename.mark.deprecated")
     String renameMarkDeprecated();
 
-    @Key("rename.getter.method")
-    String renameGetterMethod();
-
-    @Key("rename.setter.method")
-    String renameSetterMethod();
-
     @Key("rename.subpackages")
     String renameSubpackages();
 

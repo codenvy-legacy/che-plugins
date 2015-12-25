@@ -56,9 +56,6 @@ public interface JavaResources extends ClientBundle {
     @Source("org/eclipse/che/ide/ext/java/client/images/public-field.png")
     ImageResource publicField();
 
-    @Source("org/eclipse/che/ide/ext/java/client/images/blank.png")
-    ImageResource blankImage();
-
     @Source("org/eclipse/che/ide/ext/java/client/images/default-method.png")
     ImageResource defaultMethod();
 
@@ -74,56 +71,14 @@ public interface JavaResources extends ClientBundle {
     @Source("org/eclipse/che/ide/ext/java/client/images/package.png")
     ImageResource packageItem();
 
-    @Source("org/eclipse/che/ide/ext/java/client/images/import.png")
-    ImageResource importItem();
-
-    @Source("org/eclipse/che/ide/ext/java/client/images/imports.png")
-    ImageResource imports();
-
-    @Source("org/eclipse/che/ide/ext/java/client/images/local.png")
-    ImageResource variable();
-
-    @Source("org/eclipse/che/ide/ext/java/client/images/row-selected.png")
-    ImageResource itemSelected();
-
-    @Source("org/eclipse/che/ide/ext/java/client/images/jsp-tag.png")
-    ImageResource jspTagItem();
-
-    @Source("org/eclipse/che/ide/ext/java/client/images/class-private.png")
-    ImageResource classPrivateItem();
-
-    @Source("org/eclipse/che/ide/ext/java/client/images/class-protected.png")
-    ImageResource classProtectedItem();
-
     @Source("org/eclipse/che/ide/ext/java/client/images/class-default.png")
     ImageResource classDefaultItem();
-
-    @Source("org/eclipse/che/ide/ext/java/client/images/clock.png")
-    ImageResource clockItem();
-
-    @Source("org/eclipse/che/ide/ext/java/client/images/groovy-tag.png")
-    ImageResource groovyTagItem();
-
-    @Source("org/eclipse/che/ide/ext/java/client/images/java.png")
-    ImageResource java();
-
-    @Source("org/eclipse/che/ide/ext/java/client/images/newJavaclass_wiz.gif")
-    ImageResource newClassWizz();
-
-    @Source("org/eclipse/che/ide/ext/java/client/images/loader.gif")
-    ImageResource loader();
 
     @Source("org/eclipse/che/ide/ext/java/client/images/template.png")
     ImageResource template();
 
-    @Source("org/eclipse/che/ide/ext/java/client/images/package_Disabled.png")
-    ImageResource packageDisabled();
-
     @Source("org/eclipse/che/ide/ext/java/client/images/breakpoint-current.gif")
     ImageResource breakpointCurrent();
-
-    @Source("org/eclipse/che/ide/ext/java/client/images/breakpoint.gif")
-    ImageResource breakpoint();
 
     @Source("org/eclipse/che/ide/ext/java/client/internal/text/correction/proposals/correction_change.gif")
     ImageResource correction_change();
@@ -139,9 +94,6 @@ public interface JavaResources extends ClientBundle {
 
     @Source("org/eclipse/che/ide/ext/java/client/internal/text/correction/proposals/correction_delete_import.gif")
     ImageResource correction_delete_import();
-
-    @Source("org/eclipse/che/ide/ext/java/client/internal/text/correction/proposals/field_public_obj.gif")
-    ImageResource field_public();
 
     @Source("org/eclipse/che/ide/ext/java/client/internal/text/correction/proposals/imp_obj.gif")
     ImageResource imp_obj();
@@ -161,12 +113,6 @@ public interface JavaResources extends ClientBundle {
     @Source("org/eclipse/che/ide/ext/java/client/images/taskmrk.gif")
     ImageResource taskmrk();
 
-    @Source("org/eclipse/che/ide/ext/java/client/images/javaProj.png")
-    ImageResource javaProject();
-
-    @Source("org/eclipse/che/ide/ext/java/client/images/newProjJava.png")
-    ImageResource newJavaProject();
-
     @Source("svg/mark-error.svg")
     SVGResource markError();
 
@@ -184,9 +130,6 @@ public interface JavaResources extends ClientBundle {
 
     @Source("svg/packageIcon.svg")
     SVGResource packageIcon();
-
-    @Source("svg/emptyPackageIcon.svg")
-    SVGResource emptyPackageIcon();
 
     @Source("svg/update-dependencies.svg")
     SVGResource updateDependencies();

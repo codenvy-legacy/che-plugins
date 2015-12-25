@@ -89,7 +89,6 @@ public class JavaCodeAssistProcessor implements CodeAssistProcessor {
         svgs.put("privateEnum", resources.enumItem());
         svgs.put("protectedEnum", resources.enumItem());
 
-//        images.put("interface", resources.interfaceItem());
         svgs.put("interface", resources.svgInterfaceItem());
 
         images.put("defaultInterface", resources.interfaceItem());
@@ -97,7 +96,6 @@ public class JavaCodeAssistProcessor implements CodeAssistProcessor {
         images.put("innerInterfacePrivate", resources.interfaceItem());
         images.put("innerInterfaceProtected", resources.interfaceItem());
 
-//        images.put("class", resources.classItem());
         svgs.put("class", resources.svgClassItem());
 
         images.put("defaultClass", resources.classDefaultItem());
@@ -131,8 +129,6 @@ public class JavaCodeAssistProcessor implements CodeAssistProcessor {
         images.put("toolDelete", resources.delete_obj()); //????
 
         images.put("linkedRename", resources.linkedRename());
-
-
     }
 
     public static String insertStyle(final JavaResources javaResources, final String display) {
