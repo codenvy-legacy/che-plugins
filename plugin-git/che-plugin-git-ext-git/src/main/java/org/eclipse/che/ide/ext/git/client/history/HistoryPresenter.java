@@ -68,6 +68,7 @@ public class HistoryPresenter extends BasePresenter implements HistoryView.Actio
     private final WorkspaceAgent          workspaceAgent;
     private final GitOutputPartPresenter  console;
     private final DateTimeFormatter       dateTimeFormatter;
+    private final String                  workspaceId;
     /** If <code>true</code> then show all changes in project, if <code>false</code> then show changes of the selected resource. */
     private       boolean                 showChangesInProject;
     private       DiffWith                diffType;
@@ -103,6 +104,7 @@ public class HistoryPresenter extends BasePresenter implements HistoryView.Actio
         this.notificationManager = notificationManager;
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
         this.selectionAgent = selectionAgent;
+        this.workspaceId = appContext.getWorkspaceId();
 
         eventBus.addHandler(CloseCurrentProjectEvent.TYPE, new CloseCurrentProjectHandler() {
             @Override
@@ -144,7 +146,7 @@ public class HistoryPresenter extends BasePresenter implements HistoryView.Actio
 
     /** Get the log of the commits. If successfully received, then display in revision grid, otherwise - show error in output panel. */
     private void getCommitsLog(final ProjectConfigDto project) {
-        service.log(project, false,
+        service.log(workspaceId, project, false,
                     new AsyncRequestCallback<LogResponse>(dtoUnmarshallerFactory.newUnmarshaller(LogResponse.class)) {
                         @Override
                         protected void onSuccess(LogResponse result) {
@@ -337,7 +339,7 @@ public class HistoryPresenter extends BasePresenter implements HistoryView.Actio
         }
 
         final ProjectConfigDto project = appContext.getCurrentProject().getRootProject();
-        service.diff(project, filePatterns, RAW, false, 0, revision.getId(), isCached,
+        service.diff(workspaceId, project, filePatterns, RAW, false, 0, revision.getId(), isCached,
                      new AsyncRequestCallback<String>(new StringUnmarshaller()) {
                          @Override
                          protected void onSuccess(String result) {
@@ -374,7 +376,7 @@ public class HistoryPresenter extends BasePresenter implements HistoryView.Actio
         if (index + 1 < revisions.size()) {
             final Revision revisionA = revisions.get(index + 1);
             final ProjectConfigDto project = appContext.getCurrentProject().getRootProject();
-            service.diff(project, filePatterns, RAW, false, 0, revisionA.getId(),
+            service.diff(workspaceId, project, filePatterns, RAW, false, 0, revisionA.getId(),
                          revisionB.getId(),
                          new AsyncRequestCallback<String>(new StringUnmarshaller()) {
                              @Override

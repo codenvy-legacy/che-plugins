@@ -67,6 +67,7 @@ public class BranchPresenter implements BranchView.ActionDelegate {
     private       Branch                   selectedBranch;
     private       AppContext               appContext;
     private       NotificationManager      notificationManager;
+    private       String                   workspaceId;
 
     /** Create presenter. */
     @Inject
@@ -97,6 +98,7 @@ public class BranchPresenter implements BranchView.ActionDelegate {
         this.appContext = appContext;
         this.notificationManager = notificationManager;
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
+        this.workspaceId = appContext.getWorkspaceId();
     }
 
     /** Open dialog if closed and shows branches. */
@@ -147,7 +149,7 @@ public class BranchPresenter implements BranchView.ActionDelegate {
     }
 
     private void renameBranch(String newName) {
-        service.branchRename(project.getRootProject(), selectedBranch.getDisplayName(), newName, new AsyncRequestCallback<String>() {
+        service.branchRename(workspaceId, project.getRootProject(), selectedBranch.getDisplayName(), newName, new AsyncRequestCallback<String>() {
             @Override
             protected void onSuccess(String result) {
                 getBranches();
@@ -176,7 +178,7 @@ public class BranchPresenter implements BranchView.ActionDelegate {
     public void onDeleteClicked() {
         final String name = selectedBranch.getName();
 
-        service.branchDelete(project.getRootProject(), name, true, new AsyncRequestCallback<String>() {
+        service.branchDelete(workspaceId, project.getRootProject(), name, true, new AsyncRequestCallback<String>() {
             @Override
             protected void onSuccess(String result) {
                 getBranches();
@@ -205,7 +207,7 @@ public class BranchPresenter implements BranchView.ActionDelegate {
             checkoutRequest.setName(selectedBranch.getDisplayName());
         }
 
-        service.checkout(project.getRootProject(), checkoutRequest, new AsyncRequestCallback<String>() {
+        service.checkout(workspaceId, project.getRootProject(), checkoutRequest, new AsyncRequestCallback<String>() {
             @Override
             protected void onSuccess(String result) {
                 getBranches();
@@ -255,7 +257,7 @@ public class BranchPresenter implements BranchView.ActionDelegate {
 
     /** Get the list of branches. */
     private void getBranches() {
-        service.branchList(project.getRootProject(), LIST_ALL,
+        service.branchList(workspaceId, project.getRootProject(), LIST_ALL,
                            new AsyncRequestCallback<List<Branch>>(dtoUnmarshallerFactory.newListUnmarshaller(Branch.class)) {
                                @Override
                                protected void onSuccess(List<Branch> result) {
@@ -281,7 +283,7 @@ public class BranchPresenter implements BranchView.ActionDelegate {
             @Override
             public void accepted(String value) {
                 if (!value.isEmpty()) {
-                    service.branchCreate(project.getRootProject(), value, null,
+                    service.branchCreate(workspaceId, project.getRootProject(), value, null,
                                          new AsyncRequestCallback<Branch>(dtoUnmarshallerFactory.newUnmarshaller(Branch.class)) {
                                              @Override
                                              protected void onSuccess(Branch result) {

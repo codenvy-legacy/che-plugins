@@ -17,6 +17,7 @@ import com.google.inject.name.Named;
 
 import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.api.promises.client.callback.AsyncPromiseHelper;
+import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ChangeCreationResult;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ChangeEnabledState;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ChangePreview;
@@ -59,11 +60,11 @@ final class RefactoringServiceClientImpl implements RefactoringServiceClient {
     public RefactoringServiceClientImpl(AsyncRequestFactory asyncRequestFactory,
                                         DtoUnmarshallerFactory unmarshallerFactory,
                                         @Named("cheExtensionPath") String extPath,
-                                        @Named("workspaceId") String workspaceId) {
+                                        AppContext appContext) {
         this.asyncRequestFactory = asyncRequestFactory;
         this.unmarshallerFactory = unmarshallerFactory;
 
-        this.pathToService = extPath + "/jdt/" + workspaceId + "/refactoring/";
+        this.pathToService = extPath + "/jdt/" + appContext.getWorkspace().getId() + "/refactoring/";
     }
 
     /** {@inheritDoc} */

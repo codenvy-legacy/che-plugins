@@ -61,6 +61,7 @@ public class MergePresenter implements MergeView.ActionDelegate {
     private final AppContext               appContext;
     private final NotificationManager      notificationManager;
     private final GitOutputPartPresenter   console;
+    private final String                   workspaceId;
 
     private Reference selectedReference;
 
@@ -86,6 +87,8 @@ public class MergePresenter implements MergeView.ActionDelegate {
         this.appContext = appContext;
         this.notificationManager = notificationManager;
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
+        
+        this.workspaceId = appContext.getWorkspaceId();
     }
 
     /** Show dialog. */
@@ -94,7 +97,7 @@ public class MergePresenter implements MergeView.ActionDelegate {
         selectedReference = null;
         view.setEnableMergeButton(false);
 
-        service.branchList(project, LIST_LOCAL,
+        service.branchList(workspaceId, project, LIST_LOCAL,
                            new AsyncRequestCallback<List<Branch>>(dtoUnmarshallerFactory.newListUnmarshaller(Branch.class)) {
                                @Override
                                protected void onSuccess(List<Branch> result) {
@@ -115,7 +118,7 @@ public class MergePresenter implements MergeView.ActionDelegate {
                                }
                            });
 
-        service.branchList(project, LIST_REMOTE,
+        service.branchList(workspaceId, project, LIST_REMOTE,
                            new AsyncRequestCallback<List<Branch>>(dtoUnmarshallerFactory.newListUnmarshaller(Branch.class)) {
                                @Override
                                protected void onSuccess(List<Branch> result) {
@@ -155,7 +158,7 @@ public class MergePresenter implements MergeView.ActionDelegate {
         for (EditorPartPresenter partPresenter : editorAgent.getOpenedEditors().values()) {
             openedEditors.add(partPresenter);
         }
-        service.merge(appContext.getCurrentProject().getRootProject(), selectedReference.getDisplayName(),
+        service.merge(workspaceId, appContext.getCurrentProject().getRootProject(), selectedReference.getDisplayName(),
                       new AsyncRequestCallback<MergeResult>(dtoUnmarshallerFactory.newUnmarshaller(MergeResult.class)) {
                           @Override
                           protected void onSuccess(final MergeResult result) {

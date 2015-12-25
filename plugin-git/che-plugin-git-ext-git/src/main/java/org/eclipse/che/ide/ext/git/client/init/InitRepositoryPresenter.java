@@ -55,7 +55,7 @@ public class InitRepositoryPresenter {
                                    GitOutputPartPresenter console,
                                    NotificationManager notificationManager,
                                    GitRepositoryInitializer gitRepositoryInitializer,
-                                   ProjectServiceClient projectService,
+                                   ProjectServiceClient projectServiceClient,
                                    DtoUnmarshallerFactory dtoUnmarshaller,
                                    EventBus eventBus) {
         this.appContext = appContext;
@@ -63,7 +63,7 @@ public class InitRepositoryPresenter {
         this.console = console;
         this.notificationManager = notificationManager;
         this.gitRepositoryInitializer = gitRepositoryInitializer;
-        this.projectService = projectService;
+        this.projectService = projectServiceClient;
         this.dtoUnmarshaller = dtoUnmarshaller;
         this.eventBus = eventBus;
     }
@@ -104,7 +104,8 @@ public class InitRepositoryPresenter {
     }
 
     private void getRootProject(final ProjectConfigDto projectConfig) {
-        projectService.getProject(projectConfig.getPath(),
+        projectService.getProject(appContext.getWorkspace().getId(),
+                                  projectConfig.getPath(),
                                   new AsyncRequestCallback<ProjectConfigDto>(dtoUnmarshaller.newUnmarshaller(ProjectConfigDto.class)) {
                                       @Override
                                       protected void onSuccess(ProjectConfigDto result) {

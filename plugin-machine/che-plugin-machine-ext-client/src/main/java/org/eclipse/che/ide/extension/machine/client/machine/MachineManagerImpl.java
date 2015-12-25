@@ -51,8 +51,8 @@ import org.eclipse.che.ide.websocket.MessageBusProvider;
 import org.eclipse.che.ide.websocket.WebSocketException;
 import org.eclipse.che.ide.websocket.rest.SubscriptionHandler;
 import org.eclipse.che.ide.websocket.rest.Unmarshallable;
-import org.eclipse.che.ide.workspace.start.StartWorkspaceEvent;
-import org.eclipse.che.ide.workspace.start.StartWorkspaceHandler;
+import org.eclipse.che.api.workspace.gwt.client.event.StartWorkspaceEvent;
+import org.eclipse.che.api.workspace.gwt.client.event.StartWorkspaceHandler;
 
 import static org.eclipse.che.api.machine.gwt.client.MachineManager.MachineOperationType.START;
 import static org.eclipse.che.api.machine.gwt.client.MachineManager.MachineOperationType.RESTART;

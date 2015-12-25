@@ -23,6 +23,7 @@ import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.api.promises.client.PromiseError;
 import org.eclipse.che.api.promises.client.callback.AsyncPromiseHelper;
+import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.project.node.HasStorablePath;
 import org.eclipse.che.ide.api.project.node.HasStorablePath.StorablePath;
 import org.eclipse.che.ide.api.project.node.Node;
@@ -63,10 +64,12 @@ public class NewJavaSourceFilePresenter implements NewJavaSourceFileView.ActionD
     private final DtoUnmarshallerFactory   dtoUnmarshaller;
     private final List<JavaSourceFileType> sourceFileTypes;
     private final DialogFactory            dialogFactory;
+    private final String                   workspaceId;
 
     @Inject
     public NewJavaSourceFilePresenter(NewJavaSourceFileView view,
                                       ProjectExplorerPresenter projectExplorer,
+                                      AppContext appContext,
                                       ProjectServiceClient projectServiceClient,
                                       DtoUnmarshallerFactory dtoUnmarshaller,
                                       DialogFactory dialogFactory) {
@@ -77,6 +80,8 @@ public class NewJavaSourceFilePresenter implements NewJavaSourceFileView.ActionD
         this.projectServiceClient = projectServiceClient;
         this.dtoUnmarshaller = dtoUnmarshaller;
         this.view.setDelegate(this);
+        
+        this.workspaceId = appContext.getWorkspace().getId();
     }
 
     public void showDialog() {
@@ -243,7 +248,8 @@ public class NewJavaSourceFilePresenter implements NewJavaSourceFileView.ActionD
         return new AsyncPromiseHelper.RequestCall<ItemReference>() {
             @Override
             public void makeCall(AsyncCallback<ItemReference> callback) {
-                projectServiceClient.createFile(folder.getPath(),
+                projectServiceClient.createFile(workspaceId,
+                                                folder.getPath(),
                                                 nameWithoutExtension + ".java",
                                                 content,
                                                 _callback(callback, dtoUnmarshaller.newUnmarshaller(ItemReference.class)));
@@ -260,7 +266,7 @@ public class NewJavaSourceFilePresenter implements NewJavaSourceFileView.ActionD
         return new AsyncPromiseHelper.RequestCall<ItemReference>() {
             @Override
             public void makeCall(AsyncCallback<ItemReference> callback) {
-                projectServiceClient.getItem(path, _callback(callback, dtoUnmarshaller.newUnmarshaller(ItemReference.class)));
+                projectServiceClient.getItem(workspaceId, path, _callback(callback, dtoUnmarshaller.newUnmarshaller(ItemReference.class)));
             }
         };
     }
@@ -297,7 +303,7 @@ public class NewJavaSourceFilePresenter implements NewJavaSourceFileView.ActionD
         return new AsyncPromiseHelper.RequestCall<ItemReference>() {
             @Override
             public void makeCall(AsyncCallback<ItemReference> callback) {
-                projectServiceClient.createFolder(path, _callback(callback, dtoUnmarshaller.newUnmarshaller(ItemReference.class)));
+                projectServiceClient.createFolder(workspaceId, path, _callback(callback, dtoUnmarshaller.newUnmarshaller(ItemReference.class)));
             }
         };
     }

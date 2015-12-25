@@ -39,12 +39,11 @@ public class QuickDocPresenter implements QuickDocumentation, QuickDocView.Actio
     public QuickDocPresenter(QuickDocView view,
                              AppContext appContext,
                              @Named("cheExtensionPath") String caContext,
-                             @Named("workspaceId") String workspaceId,
                              EditorAgent editorAgent) {
         this.view = view;
         this.appContext = appContext;
         this.caContext = caContext;
-        this.workspaceId = workspaceId;
+        this.workspaceId = appContext.getWorkspace().getId();
         this.editorAgent = editorAgent;
     }
 

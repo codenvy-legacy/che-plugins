@@ -38,21 +38,13 @@ import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAI
 public class ShowProjectGitReadOnlyUrlPresenter implements ShowProjectGitReadOnlyUrlView.ActionDelegate {
     private final DtoUnmarshallerFactory        dtoUnmarshallerFactory;
     private final GitOutputPartPresenter        console;
-    private       ShowProjectGitReadOnlyUrlView view;
-    private       GitServiceClient              service;
-    private       AppContext                    appContext;
-    private       GitLocalizationConstant       constant;
-    private       NotificationManager           notificationManager;
+    private final ShowProjectGitReadOnlyUrlView view;
+    private final GitServiceClient              service;
+    private final AppContext                    appContext;
+    private final GitLocalizationConstant       constant;
+    private final NotificationManager           notificationManager;
+    private final String                        workspaceId;
 
-    /**
-     * Create presenter.
-     *
-     * @param view
-     * @param service
-     * @param appContext
-     * @param constant
-     * @param notificationManager
-     */
     @Inject
     public ShowProjectGitReadOnlyUrlPresenter(ShowProjectGitReadOnlyUrlView view,
                                               GitServiceClient service,
@@ -69,13 +61,14 @@ public class ShowProjectGitReadOnlyUrlPresenter implements ShowProjectGitReadOnl
         this.constant = constant;
         this.notificationManager = notificationManager;
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
+        this.workspaceId = appContext.getWorkspaceId();
     }
 
     /** Show dialog. */
     public void showDialog() {
         final CurrentProject project = appContext.getCurrentProject();
         view.showDialog();
-        service.remoteList(project.getRootProject(), null, true,
+        service.remoteList(workspaceId, project.getRootProject(), null, true,
                            new AsyncRequestCallback<List<Remote>>(dtoUnmarshallerFactory.newListUnmarshaller(Remote.class)) {
                                @Override
                                protected void onSuccess(List<Remote> result) {
@@ -93,7 +86,7 @@ public class ShowProjectGitReadOnlyUrlPresenter implements ShowProjectGitReadOnl
                                }
                            }
                           );
-        service.getGitReadOnlyUrl(project.getRootProject(),
+        service.getGitReadOnlyUrl(workspaceId, project.getRootProject(),
                                   new AsyncRequestCallback<String>(new StringUnmarshaller()) {
                                       @Override
                                       protected void onSuccess(String result) {

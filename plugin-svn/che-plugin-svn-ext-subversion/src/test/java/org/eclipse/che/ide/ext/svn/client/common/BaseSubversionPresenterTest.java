@@ -13,6 +13,7 @@ package org.eclipse.che.ide.ext.svn.client.common;
 import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
+import org.eclipse.che.api.workspace.shared.dto.UsersWorkspaceDto;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.notification.NotificationManager;
@@ -62,10 +63,13 @@ public abstract class BaseSubversionPresenterTest {
     protected WorkspaceAgent                           workspaceAgent;
     @Mock
     protected ProjectExplorerPresenter                 projectExplorerPart;
+    @Mock
+    protected UsersWorkspaceDto                        workspace;
 
     @Before
     public void setUp() throws Exception {
         when(appContext.getCurrentProject()).thenReturn(currentProject);
+        when(appContext.getWorkspace()).thenReturn(workspace);
 
         when(currentProject.getProjectConfig()).thenReturn(projectConfig);
         when(currentProject.getRootProject()).thenReturn(rootProjectConfig);

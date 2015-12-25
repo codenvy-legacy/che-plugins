@@ -60,6 +60,7 @@ public class AddToIndexPresenter implements AddToIndexView.ActionDelegate {
     private NotificationManager      notificationManager;
 
     private final DtoUnmarshallerFactory dtoUnmarshallerFactory;
+    private final String                 workspaceId;
 
     /**
      * Create presenter
@@ -88,6 +89,7 @@ public class AddToIndexPresenter implements AddToIndexView.ActionDelegate {
         this.projectExplorer = projectExplorer;
         this.notificationManager = notificationManager;
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
+        this.workspaceId = appContext.getWorkspaceId();
     }
 
     /**
@@ -99,7 +101,7 @@ public class AddToIndexPresenter implements AddToIndexView.ActionDelegate {
             return;
         }
         final Unmarshallable<Status> unmarshall = this.dtoUnmarshallerFactory.newUnmarshaller(Status.class);
-        service.status(project.getRootProject(),
+        service.status(workspaceId, project.getRootProject(),
                        new AsyncRequestCallback<Status>(unmarshall) {
                            @Override
                            protected void onSuccess(final Status result) {
@@ -165,7 +167,7 @@ public class AddToIndexPresenter implements AddToIndexView.ActionDelegate {
         boolean update = view.isUpdated();
 
         try {
-            service.add(project.getRootProject(), update, getMultipleFilePatterns(), new RequestCallback<Void>() {
+            service.add(workspaceId, project.getRootProject(), update, getMultipleFilePatterns(), new RequestCallback<Void>() {
                 @Override
                 protected void onSuccess(final Void result) {
                     console.printInfo(constant.addSuccess());

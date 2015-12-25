@@ -17,6 +17,7 @@ import com.googlecode.gwt.test.utils.GwtReflectionUtils;
 import org.eclipse.che.api.git.shared.Branch;
 import org.eclipse.che.api.git.shared.PullResponse;
 import org.eclipse.che.api.git.shared.Remote;
+import org.eclipse.che.api.workspace.shared.dto.UsersWorkspaceDto;
 import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.editor.EditorInput;
 import org.eclipse.che.ide.api.editor.EditorPartPresenter;
@@ -25,7 +26,6 @@ import org.eclipse.che.ide.ext.git.client.BranchSearcher;
 import org.eclipse.che.ide.project.node.FileReferenceNode;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.junit.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
@@ -73,13 +73,16 @@ public class PullPresenterTest extends BaseTest {
     private BranchSearcher      branchSearcher;
     @Mock
     private PullResponse        pullResponse;
+    @Mock
+    private UsersWorkspaceDto   workspace;
 
-    @InjectMocks
     private PullPresenter presenter;
 
     @Override
     public void disarm() {
         super.disarm();
+
+        when(appContext.getWorkspaceId()).thenReturn("id");
 
         NavigableMap<String, EditorPartPresenter> partPresenterMap = new TreeMap<>();
         partPresenterMap.put("partPresenter", partPresenter);
@@ -93,6 +96,19 @@ public class PullPresenterTest extends BaseTest {
         when(partPresenter.getEditorInput()).thenReturn(editorInput);
         when(editorInput.getFile()).thenReturn(file);
         when(file.getPath()).thenReturn(FILE_PATH);
+
+        presenter = new PullPresenter(view,
+                                      editorAgent,
+                                      service,
+                                      console,
+                                      eventBus,
+                                      appContext,
+                                      constant,
+                                      notificationManager,
+                                      dtoUnmarshallerFactory,
+                                      dtoFactory,
+                                      branchSearcher,
+                                      projectExplorer);
     }
 
     @Test
@@ -111,7 +127,7 @@ public class PullPresenterTest extends BaseTest {
                 onSuccess.invoke(callback, remotes);
                 return callback;
             }
-        }).when(service).remoteList(anyObject(), anyString(), anyBoolean(),
+        }).when(service).remoteList(anyObject(),anyObject(), anyString(), anyBoolean(),
                                     (AsyncRequestCallback<List<Remote>>)anyObject());
         doAnswer(new Answer() {
             @Override
@@ -131,12 +147,12 @@ public class PullPresenterTest extends BaseTest {
                 onSuccess.invoke(callback, branches);
                 return callback;
             }
-        }).when(service).branchList(anyObject(), anyString(), (AsyncRequestCallback<List<Branch>>)anyObject());
+        }).when(service).branchList(anyObject(),anyObject(), anyString(), (AsyncRequestCallback<List<Branch>>)anyObject());
 
         presenter.showDialog();
 
         verify(appContext).getCurrentProject();
-        verify(service).remoteList(eq(rootProjectConfig), anyString(), eq(SHOW_ALL_INFORMATION),
+        verify(service).remoteList(anyObject(),eq(rootProjectConfig), anyString(), eq(SHOW_ALL_INFORMATION),
                                    (AsyncRequestCallback<List<Remote>>)anyObject());
         verify(view, times(2)).setEnablePullButton(eq(ENABLE_BUTTON));
         verify(view).setRepositories((List<Remote>)anyObject());
@@ -162,7 +178,7 @@ public class PullPresenterTest extends BaseTest {
                 onSuccess.invoke(callback, remotes);
                 return callback;
             }
-        }).when(service).remoteList(anyObject(), anyString(), anyBoolean(),
+        }).when(service).remoteList(anyObject(),anyObject(), anyString(), anyBoolean(),
                                     (AsyncRequestCallback<List<Remote>>)anyObject());
         doAnswer(new Answer() {
             @Override
@@ -182,14 +198,14 @@ public class PullPresenterTest extends BaseTest {
                 onSuccess.invoke(callback, branches);
                 return callback;
             }
-        }).when(service).branchList(anyObject(), anyString(), (AsyncRequestCallback<List<Branch>>)anyObject());
+        }).when(service).branchList(anyObject(),anyObject(), anyString(), (AsyncRequestCallback<List<Branch>>)anyObject());
 
         presenter.showDialog();
 
         verify(appContext).getCurrentProject();
-        verify(service).remoteList(eq(rootProjectConfig), anyString(), eq(SHOW_ALL_INFORMATION),
+        verify(service).remoteList(anyObject(),eq(rootProjectConfig), anyString(), eq(SHOW_ALL_INFORMATION),
                                    (AsyncRequestCallback<List<Remote>>)anyObject());
-        verify(service, times(2)).branchList(eq(rootProjectConfig), anyString(), (AsyncRequestCallback<List<Branch>>)anyObject());
+        verify(service, times(2)).branchList(anyObject(),eq(rootProjectConfig), anyString(), (AsyncRequestCallback<List<Branch>>)anyObject());
         verify(view, times(2)).setEnablePullButton(eq(ENABLE_BUTTON));
         verify(view).setRepositories((List<Remote>)anyObject());
         verify(view).showDialog();
@@ -216,7 +232,7 @@ public class PullPresenterTest extends BaseTest {
                 return callback;
             }
         }).when(service)
-          .remoteList(anyObject(), anyString(), anyBoolean(), (AsyncRequestCallback<List<Remote>>)anyObject());
+          .remoteList(anyObject(),anyObject(), anyString(), anyBoolean(), (AsyncRequestCallback<List<Remote>>)anyObject());
         doAnswer(new Answer() {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
@@ -235,12 +251,12 @@ public class PullPresenterTest extends BaseTest {
                 onFailure.invoke(callback, mock(Throwable.class));
                 return callback;
             }
-        }).when(service).branchList(anyObject(), anyString(), (AsyncRequestCallback<List<Branch>>)anyObject());
+        }).when(service).branchList(anyObject(),anyObject(), anyString(), (AsyncRequestCallback<List<Branch>>)anyObject());
 
         presenter.showDialog();
 
         verify(appContext).getCurrentProject();
-        verify(service).remoteList(eq(rootProjectConfig), anyString(), eq(SHOW_ALL_INFORMATION),
+        verify(service).remoteList(anyObject(),eq(rootProjectConfig), anyString(), eq(SHOW_ALL_INFORMATION),
                                    (AsyncRequestCallback<List<Remote>>)anyObject());
         verify(constant).branchesListFailed();
         verify(console).printError(anyString());
@@ -259,13 +275,13 @@ public class PullPresenterTest extends BaseTest {
                 onFailure.invoke(callback, mock(Throwable.class));
                 return callback;
             }
-        }).when(service).remoteList(anyObject(), anyString(), anyBoolean(),
+        }).when(service).remoteList(anyObject(),anyObject(), anyString(), anyBoolean(),
                                     (AsyncRequestCallback<List<Remote>>)anyObject());
 
         presenter.showDialog();
 
         verify(appContext).getCurrentProject();
-        verify(service).remoteList(eq(rootProjectConfig), anyString(), eq(SHOW_ALL_INFORMATION),
+        verify(service).remoteList(anyObject(),eq(rootProjectConfig), anyString(), eq(SHOW_ALL_INFORMATION),
                                    (AsyncRequestCallback<List<Remote>>)anyObject());
         verify(constant).remoteListFailed();
         verify(view).setEnablePullButton(eq(DISABLE_BUTTON));
@@ -284,7 +300,7 @@ public class PullPresenterTest extends BaseTest {
                 onSuccess.invoke(callback, pullResponse);
                 return callback;
             }
-        }).when(service).pull(anyObject(), anyString(), anyString(), (AsyncRequestCallback<PullResponse>)anyObject());
+        }).when(service).pull(anyObject(),anyObject(), anyString(), anyString(), (AsyncRequestCallback<PullResponse>)anyObject());
 
         presenter.showDialog();
         presenter.onPullClicked();
@@ -293,7 +309,7 @@ public class PullPresenterTest extends BaseTest {
         verify(view).getRepositoryUrl();
         verify(view).close();
         verify(editorAgent).getOpenedEditors();
-        verify(service).pull(eq(rootProjectConfig), anyString(), eq(REPOSITORY_NAME), (AsyncRequestCallback)anyObject());
+        verify(service).pull(anyObject(),eq(rootProjectConfig), anyString(), eq(REPOSITORY_NAME), (AsyncRequestCallback)anyObject());
         verify(console).printInfo(anyString());
         verify(constant).pullSuccess(anyString());
         verify(notificationManager).notify(anyString(), rootProjectConfig);
@@ -316,7 +332,7 @@ public class PullPresenterTest extends BaseTest {
                 onSuccess.invoke(callback, pullResponse);
                 return callback;
             }
-        }).when(service).pull(anyObject(), anyString(), anyString(), (AsyncRequestCallback<PullResponse>)anyObject());
+        }).when(service).pull(anyObject(),anyObject(), anyString(), anyString(), (AsyncRequestCallback<PullResponse>)anyObject());
 
         presenter.showDialog();
         presenter.onPullClicked();
@@ -325,7 +341,7 @@ public class PullPresenterTest extends BaseTest {
         verify(view).getRepositoryUrl();
         verify(view).close();
         verify(editorAgent).getOpenedEditors();
-        verify(service).pull(eq(rootProjectConfig), anyString(), eq(REPOSITORY_NAME), (AsyncRequestCallback)anyObject());
+        verify(service).pull(anyObject(),eq(rootProjectConfig), anyString(), eq(REPOSITORY_NAME), (AsyncRequestCallback)anyObject());
         verify(console).printInfo(anyString());
         verify(constant).pullUpToDate();
         verify(notificationManager).notify(anyString(), rootProjectConfig);
@@ -347,13 +363,13 @@ public class PullPresenterTest extends BaseTest {
                 onFailure.invoke(callback, exception);
                 return callback;
             }
-        }).when(service).pull(anyObject(), anyString(), anyString(), (AsyncRequestCallback<PullResponse>)anyObject());
+        }).when(service).pull(anyObject(),anyObject(), anyString(), anyString(), (AsyncRequestCallback<PullResponse>)anyObject());
         when(exception.getMessage()).thenReturn("error Message");
 
         presenter.showDialog();
         presenter.onPullClicked();
 
-        verify(service).pull(eq(rootProjectConfig), anyString(), eq(REPOSITORY_NAME), (AsyncRequestCallback<PullResponse>)anyObject());
+        verify(service).pull(anyObject(),eq(rootProjectConfig), anyString(), eq(REPOSITORY_NAME), (AsyncRequestCallback<PullResponse>)anyObject());
         verify(view).close();
         verify(console).printError(anyString());
         verify(notificationManager).notify(anyString(), rootProjectConfig);
@@ -373,13 +389,13 @@ public class PullPresenterTest extends BaseTest {
                 onFailure.invoke(callback, exception);
                 return callback;
             }
-        }).when(service).pull(anyObject(), anyString(), anyString(), (AsyncRequestCallback<PullResponse>)anyObject());
+        }).when(service).pull(anyObject(),anyObject(), anyString(), anyString(), (AsyncRequestCallback<PullResponse>)anyObject());
 
         presenter.showDialog();
         presenter.onPullClicked();
 
         verify(view).close();
-        verify(service).pull(eq(rootProjectConfig), anyString(), eq(REPOSITORY_NAME), (AsyncRequestCallback)anyObject());
+        verify(service).pull(anyObject(),eq(rootProjectConfig), anyString(), eq(REPOSITORY_NAME), (AsyncRequestCallback)anyObject());
         verify(notificationManager).notify(anyString(), rootProjectConfig);
         verify(console).printError(anyString());
         verify(notificationManager).notify(anyString(), rootProjectConfig);
@@ -401,7 +417,7 @@ public class PullPresenterTest extends BaseTest {
                 onSuccess.invoke(callback, pullResponse);
                 return callback;
             }
-        }).when(service).pull(anyObject(), anyString(), anyString(), (AsyncRequestCallback<PullResponse>)anyObject());
+        }).when(service).pull(anyObject(),anyObject(), anyString(), anyString(), (AsyncRequestCallback<PullResponse>)anyObject());
 
         presenter.showDialog();
         presenter.onPullClicked();
@@ -437,11 +453,11 @@ public class PullPresenterTest extends BaseTest {
                 onSuccess.invoke(callback, branches);
                 return callback;
             }
-        }).when(service).branchList(anyObject(), anyString(), (AsyncRequestCallback<List<Branch>>)anyObject());
+        }).when(service).branchList(anyObject(),anyObject(), anyString(), (AsyncRequestCallback<List<Branch>>)anyObject());
 
         presenter.onRemoteRepositoryChanged();
 
-        verify(service, times(2)).branchList(eq(rootProjectConfig), anyString(), (AsyncRequestCallback<List<Branch>>)anyObject());
+        verify(service, times(2)).branchList(anyObject(),eq(rootProjectConfig), anyString(), (AsyncRequestCallback<List<Branch>>)anyObject());
         verify(view).setRemoteBranches((List<String>)anyObject());
         verify(view).setLocalBranches((List<String>)anyObject());
         verify(view).selectRemoteBranch(anyString());

@@ -10,13 +10,11 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.svn.client;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
-import javax.validation.constraints.NotNull;
-
+import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.ext.svn.shared.AddRequest;
 import org.eclipse.che.ide.ext.svn.shared.CLIOutputResponse;
@@ -53,10 +51,11 @@ import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.rest.RestContext;
 import org.eclipse.che.ide.rest.Unmarshallable;
 
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
-import com.google.inject.name.Named;
+import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Implementation of the {@link SubversionClientService}.
@@ -77,7 +76,7 @@ public class SubversionClientServiceImpl implements SubversionClientService {
      */
     @Inject
     public SubversionClientServiceImpl(@RestContext String restContext,
-                                       @Named("workspaceId") String workspaceId,
+                                       AppContext appContext,
                                        final AsyncRequestFactory asyncRequestFactory,
                                        final DtoFactory dtoFactory,
                                        final AsyncRequestLoader loader,
@@ -85,7 +84,7 @@ public class SubversionClientServiceImpl implements SubversionClientService {
         this.asyncRequestFactory = asyncRequestFactory;
         this.dtoFactory = dtoFactory;
         this.loader = loader;
-        this.baseHttpUrl = restContext + "/svn/" + workspaceId;
+        this.baseHttpUrl = restContext + "/svn/" + appContext.getWorkspace().getId();
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
     }
 

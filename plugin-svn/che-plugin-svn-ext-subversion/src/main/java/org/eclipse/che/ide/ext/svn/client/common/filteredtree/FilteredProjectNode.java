@@ -18,12 +18,14 @@ import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
 import org.eclipse.che.api.project.shared.dto.ItemReference;
 import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.commons.annotation.Nullable;
+import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.project.tree.AbstractTreeNode;
 import org.eclipse.che.ide.api.project.tree.TreeNode;
 import org.eclipse.che.ide.api.project.tree.generic.ProjectNode;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 
 import javax.validation.constraints.NotNull;
+
 import java.util.List;
 
 /**
@@ -38,9 +40,10 @@ public class FilteredProjectNode extends ProjectNode {
                                @Assisted ProjectConfigDto data,
                                @Assisted FilteredTreeStructure treeStructure,
                                EventBus eventBus,
+                               AppContext appContext,
                                ProjectServiceClient projectServiceClient,
                                DtoUnmarshallerFactory dtoUnmarshallerFactory) {
-        super(parent, data, treeStructure, eventBus, projectServiceClient, dtoUnmarshallerFactory);
+        super(parent, data, treeStructure, appContext, eventBus, projectServiceClient, dtoUnmarshallerFactory);
     }
 
     /** {@inheritDoc} */

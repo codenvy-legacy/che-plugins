@@ -31,17 +31,14 @@ public class JavaReconcileClient {
     private final String                 javaCAPath;
     private final DtoUnmarshallerFactory dtoUnmarshallerFactory;
     private final AsyncRequestFactory    asyncRequestFactory;
-    private       String                 workspaceId;
-    private final AppContext appContext;
+    private final String                 workspaceId;
 
     @Inject
     public JavaReconcileClient(@Named("cheExtensionPath") String javaCAPath,
-                               @Named("workspaceId") String workspaceId,
                                DtoUnmarshallerFactory dtoUnmarshallerFactory,
                                AppContext appContext,
                                AsyncRequestFactory asyncRequestFactory) {
-        this.workspaceId = workspaceId;
-        this.appContext = appContext;
+        this.workspaceId = appContext.getWorkspace().getId();
         this.javaCAPath = javaCAPath;
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
         this.asyncRequestFactory = asyncRequestFactory;

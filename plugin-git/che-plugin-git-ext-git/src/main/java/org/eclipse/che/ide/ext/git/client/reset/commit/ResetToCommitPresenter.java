@@ -44,19 +44,18 @@ import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAI
 public class ResetToCommitPresenter implements ResetToCommitView.ActionDelegate {
     private final DtoUnmarshallerFactory    dtoUnmarshallerFactory;
     private final GitOutputPartPresenter    console;
-    private       ResetToCommitView         view;
-    private       GitServiceClient          service;
-    private       Revision                  selectedRevision;
-    private       AppContext                appContext;
-    private       GitLocalizationConstant   constant;
-    private       NotificationManager       notificationManager;
-    private       EditorAgent               editorAgent;
-    private       EventBus                  eventBus;
-    private       List<EditorPartPresenter> openedEditors;
+    private final ResetToCommitView         view;
+    private final GitServiceClient          service;
+    private final AppContext                appContext;
+    private final GitLocalizationConstant   constant;
+    private final NotificationManager       notificationManager;
+    private final EditorAgent               editorAgent;
+    private final EventBus                  eventBus;
+    private final String                    workspaceId;
+    
+    private List<EditorPartPresenter> openedEditors;
+    private Revision                  selectedRevision;
 
-    /**
-     * Create presenter.
-     */
     @Inject
     public ResetToCommitPresenter(ResetToCommitView view,
                                   GitServiceClient service,
@@ -77,13 +76,14 @@ public class ResetToCommitPresenter implements ResetToCommitView.ActionDelegate 
         this.appContext = appContext;
         this.notificationManager = notificationManager;
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
+        this.workspaceId = appContext.getWorkspaceId();
     }
 
     /**
      * Show dialog.
      */
     public void showDialog() {
-        service.log(appContext.getCurrentProject().getRootProject(), false,
+        service.log(workspaceId, appContext.getCurrentProject().getRootProject(), false,
                     new AsyncRequestCallback<LogResponse>(dtoUnmarshallerFactory.newUnmarshaller(LogResponse.class)) {
                         @Override
                         protected void onSuccess(LogResponse result) {
@@ -144,7 +144,7 @@ public class ResetToCommitPresenter implements ResetToCommitView.ActionDelegate 
 
         final ResetRequest.ResetType finalType = type;
         final ProjectConfigDto project = appContext.getCurrentProject().getRootProject();
-        service.reset(project, selectedRevision.getId(), finalType, null,
+        service.reset(workspaceId, project, selectedRevision.getId(), finalType, null,
                       new AsyncRequestCallback<Void>() {
                           @Override
                           protected void onSuccess(Void result) {

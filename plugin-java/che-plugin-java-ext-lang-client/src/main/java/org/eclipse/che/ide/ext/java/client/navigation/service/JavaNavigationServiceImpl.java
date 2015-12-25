@@ -17,6 +17,7 @@ import com.google.inject.name.Named;
 
 import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.api.promises.client.callback.AsyncPromiseHelper;
+import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.ext.java.shared.Jar;
 import org.eclipse.che.ide.ext.java.shared.JarEntry;
 import org.eclipse.che.ide.ext.java.shared.OpenDeclarationDescriptor;
@@ -46,12 +47,12 @@ public class JavaNavigationServiceImpl implements JavaNavigationService {
 
     @Inject
     public JavaNavigationServiceImpl(@Named("cheExtensionPath") String restContext,
-                                     @Named("workspaceId") String workspaceId,
+                                     AppContext appContext,
                                      DtoUnmarshallerFactory unmarshallerFactory,
                                      AsyncRequestFactory asyncRequestFactory) {
         this.restContext = restContext;
         this.requestFactory = asyncRequestFactory;
-        this.workspaceId = workspaceId;
+        this.workspaceId = appContext.getWorkspace().getId();
         this.unmarshallerFactory = unmarshallerFactory;
     }
 
@@ -110,8 +111,8 @@ public class JavaNavigationServiceImpl implements JavaNavigationService {
             @Override
             public void makeCall(AsyncCallback<CompilationUnit> callback) {
                 requestFactory.createGetRequest(url)
-                                   .header(ACCEPT, APPLICATION_JSON)
-                                   .send(newCallback(callback, unmarshallerFactory.newUnmarshaller(CompilationUnit.class)));
+                              .header(ACCEPT, APPLICATION_JSON)
+                              .send(newCallback(callback, unmarshallerFactory.newUnmarshaller(CompilationUnit.class)));
             }
         });
     }

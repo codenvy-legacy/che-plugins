@@ -43,22 +43,19 @@ import static org.eclipse.che.ide.rest.HTTPHeader.CONTENT_TYPE;
 @Singleton
 public class JavaCodeAssistClient {
 
-    private final String              machineExtPath;
+    private final String                 machineExtPath;
     private final DtoUnmarshallerFactory unmarshallerFactory;
-    private final AppContext          appContext;
-    private final AsyncRequestFactory asyncRequestFactory;
-    private       String              workspaceId;
+    private final AsyncRequestFactory    asyncRequestFactory;
+    private final String                 workspaceId;
 
     @Inject
     public JavaCodeAssistClient(@Named("cheExtensionPath") String machineExtPath,
-                                @Named("workspaceId") String workspaceId,
                                 DtoUnmarshallerFactory unmarshallerFactory,
                                 AppContext appContext,
                                 AsyncRequestFactory asyncRequestFactory) {
         this.machineExtPath = machineExtPath;
-        this.workspaceId = workspaceId;
+        this.workspaceId = appContext.getWorkspace().getId();
         this.unmarshallerFactory = unmarshallerFactory;
-        this.appContext = appContext;
         this.asyncRequestFactory = asyncRequestFactory;
     }
 

@@ -10,24 +10,23 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.github.client;
 
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+
+import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.notification.StatusNotification;
 import org.eclipse.che.ide.commons.exception.UnauthorizedException;
 import org.eclipse.che.ide.ext.ssh.client.SshKeyProvider;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
-
 import org.eclipse.che.ide.rest.RestContext;
 import org.eclipse.che.ide.ui.dialogs.ConfirmCallback;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 import org.eclipse.che.security.oauth.JsOAuthWindow;
 import org.eclipse.che.security.oauth.OAuthCallback;
 import org.eclipse.che.security.oauth.OAuthStatus;
-import org.eclipse.che.ide.util.Config;
-
-import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 
 import static org.eclipse.che.security.oauth.OAuthStatus.LOGGED_IN;
 
@@ -39,25 +38,29 @@ import static org.eclipse.che.security.oauth.OAuthStatus.LOGGED_IN;
 @Singleton
 public class GitHubSshKeyProvider implements SshKeyProvider, OAuthCallback {
 
-    private GitHubClientService        gitHubService;
-    private String                     baseUrl;
-    private GitHubLocalizationConstant constant;
-    private AsyncCallback<Void>        callback;
-    private String                     userId;
-    private NotificationManager        notificationManager;
-    private DialogFactory              dialogFactory;
+    private final GitHubClientService        gitHubService;
+    private final String                     baseUrl;
+    private final GitHubLocalizationConstant constant;
+    private final NotificationManager        notificationManager;
+    private final DialogFactory              dialogFactory;
+    private final AppContext                 appContext;
+
+    private AsyncCallback<Void> callback;
+    private String              userId;
 
     @Inject
     public GitHubSshKeyProvider(GitHubClientService gitHubService,
                                 @RestContext String baseUrl,
                                 GitHubLocalizationConstant constant,
                                 NotificationManager notificationManager,
-                                DialogFactory dialogFactory) {
+                                DialogFactory dialogFactory,
+                                AppContext appContext) {
         this.gitHubService = gitHubService;
         this.baseUrl = baseUrl;
         this.constant = constant;
         this.notificationManager = notificationManager;
         this.dialogFactory = dialogFactory;
+        this.appContext = appContext;
     }
 
     /** {@inheritDoc} */
@@ -97,7 +100,7 @@ public class GitHubSshKeyProvider implements SshKeyProvider, OAuthCallback {
     private void showPopUp() {
         String authUrl = baseUrl + "/oauth/authenticate?oauth_provider=github"
                          + "&scope=user,repo,write:public_key&userId=" + userId + "&redirect_after_login=" +
-                         Window.Location.getProtocol() + "//" + Window.Location.getHost() + "/ws/" + Config.getWorkspaceName();
+                         Window.Location.getProtocol() + "//" + Window.Location.getHost() + "/ws/" + appContext.getWorkspace().getName();
         JsOAuthWindow authWindow = new JsOAuthWindow(authUrl, "error.url", 500, 980, this);
         authWindow.loginWithOAuth();
     }

@@ -84,8 +84,8 @@ import org.eclipse.che.ide.websocket.MessageBusProvider;
 import org.eclipse.che.ide.websocket.WebSocketException;
 import org.eclipse.che.ide.websocket.rest.SubscriptionHandler;
 import org.eclipse.che.ide.websocket.rest.exceptions.ServerException;
-import org.eclipse.che.ide.workspace.start.StartWorkspaceEvent;
-import org.eclipse.che.ide.workspace.start.StartWorkspaceHandler;
+import org.eclipse.che.api.workspace.gwt.client.event.StartWorkspaceEvent;
+import org.eclipse.che.api.workspace.gwt.client.event.StartWorkspaceHandler;
 import org.vectomatic.dom.svg.ui.SVGResource;
 
 import javax.validation.constraints.Min;

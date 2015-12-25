@@ -30,8 +30,8 @@ import org.eclipse.che.ide.websocket.WebSocketException;
 import org.eclipse.che.ide.websocket.events.MessageHandler;
 import org.eclipse.che.ide.websocket.rest.SubscriptionHandler;
 import org.eclipse.che.ide.websocket.rest.Unmarshallable;
-import org.eclipse.che.ide.workspace.start.StartWorkspaceEvent;
-import org.eclipse.che.ide.workspace.start.StartWorkspaceHandler;
+import org.eclipse.che.api.workspace.gwt.client.event.StartWorkspaceEvent;
+import org.eclipse.che.api.workspace.gwt.client.event.StartWorkspaceHandler;
 
 import javax.validation.constraints.NotNull;
 

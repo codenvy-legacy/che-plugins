@@ -17,6 +17,7 @@ import com.google.web.bindery.event.shared.EventBus;
 import org.eclipse.che.api.core.rest.shared.dto.ServiceError;
 import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
 import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
+import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.project.type.wizard.ProjectWizardMode;
 import org.eclipse.che.ide.api.wizard.AbstractWizardPage;
 import org.eclipse.che.ide.dto.DtoFactory;
@@ -60,13 +61,15 @@ public class MavenPagePresenter extends AbstractWizardPage<ProjectConfigDto> imp
 
     protected final MavenPageView        view;
     protected final EventBus             eventBus;
-    private final   ProjectServiceClient projectServiceClient;
-    private final   DtoFactory           dtoFactory;
-    private DialogFactory dialogFactory;
+    private final ProjectServiceClient projectServiceClient;
+    private final DtoFactory           dtoFactory;
+    private final DialogFactory        dialogFactory;
+    private final AppContext           appContext;
 
     @Inject
     public MavenPagePresenter(MavenPageView view,
                               EventBus eventBus,
+                              AppContext appContext,
                               ProjectServiceClient projectServiceClient,
                               DtoFactory dtoFactory,
                               DialogFactory dialogFactory) {
@@ -77,6 +80,8 @@ public class MavenPagePresenter extends AbstractWizardPage<ProjectConfigDto> imp
         this.dtoFactory = dtoFactory;
         this.dialogFactory = dialogFactory;
         view.setDelegate(this);
+        
+        this.appContext = appContext;
     }
 
     @Override
@@ -96,7 +101,7 @@ public class MavenPagePresenter extends AbstractWizardPage<ProjectConfigDto> imp
     }
 
     private void estimateAndSetAttributes() {
-        projectServiceClient.estimateProject(
+        projectServiceClient.estimateProject(appContext.getWorkspace().getId(),
                 context.get(PROJECT_PATH_KEY), MAVEN_ID,
                 new AsyncRequestCallback<Map<String, List<String>>>(new StringMapListUnmarshaller()) {
                     @Override
