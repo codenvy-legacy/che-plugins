@@ -148,7 +148,7 @@ public class RemoveFromIndexPresenter implements RemoveFromIndexView.ActionDeleg
             openedEditors.add(partPresenter);
         }
 
-        service.remove(project.getRootProject(), getFilePatterns(), view.isRemoved(),
+        service.remove(appContext.getWorkspaceId(), project.getRootProject(), getFilePatterns(), view.isRemoved(),
                        new AsyncRequestCallback<String>() {
                            @Override
                            protected void onSuccess(String result) {

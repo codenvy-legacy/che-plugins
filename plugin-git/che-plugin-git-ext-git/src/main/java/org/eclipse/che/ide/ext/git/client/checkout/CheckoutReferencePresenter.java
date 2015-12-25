@@ -67,7 +67,7 @@ public class CheckoutReferencePresenter implements CheckoutReferenceView.ActionD
                                       DtoFactory dtoFactory,
                                       EditorAgent editorAgent,
                                       EventBus eventBus,
-                                      ProjectServiceClient projectService,
+                                      ProjectServiceClient projectServiceClient,
                                       DtoUnmarshallerFactory dtoUnmarshallerFactory) {
         this.view = view;
         this.console = console;
@@ -80,7 +80,7 @@ public class CheckoutReferencePresenter implements CheckoutReferenceView.ActionD
         this.appContext = appContext;
         this.constant = constant;
         this.notificationManager = notificationManager;
-        this.projectService = projectService;
+        this.projectService = projectServiceClient;
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
     }
 
@@ -99,7 +99,8 @@ public class CheckoutReferencePresenter implements CheckoutReferenceView.ActionD
     public void onCheckoutClicked(final String reference) {
         view.close();
         final ProjectConfigDto project = appContext.getCurrentProject().getRootProject();
-        service.checkout(project,
+        service.checkout(appContext.getWorkspaceId(),
+                         project,
                          dtoFactory.createDto(CheckoutRequest.class)
                                    .withName(reference)
                                    .withCreateNew(false),
@@ -110,7 +111,8 @@ public class CheckoutReferencePresenter implements CheckoutReferenceView.ActionD
                                  //so we must repeat the logic which is performed when we open a project
                                  Unmarshallable<ProjectConfigDto> unmarshaller =
                                          dtoUnmarshallerFactory.newUnmarshaller(ProjectConfigDto.class);
-                                 projectService.getProject(project.getPath(),
+                                 projectService.getProject(appContext.getWorkspace().getId(),
+                                                           project.getPath(),
                                                            new AsyncRequestCallback<ProjectConfigDto>(unmarshaller) {
                                                                @Override
                                                                protected void onSuccess(final ProjectConfigDto result) {

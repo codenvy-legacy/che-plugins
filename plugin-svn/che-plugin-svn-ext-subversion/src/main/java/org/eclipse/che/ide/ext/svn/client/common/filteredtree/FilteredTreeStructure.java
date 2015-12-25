@@ -32,9 +32,16 @@ import javax.validation.constraints.NotNull;
  */
 public class FilteredTreeStructure extends GenericTreeStructure {
 
-    public FilteredTreeStructure(NodeFactory nodeFactory, EventBus eventBus, AppContext appContext,
-                                 ProjectServiceClient projectServiceClient, DtoUnmarshallerFactory dtoUnmarshallerFactory) {
-        super(nodeFactory, eventBus, appContext, projectServiceClient, dtoUnmarshallerFactory);
+    public FilteredTreeStructure(NodeFactory nodeFactory,
+                                 EventBus eventBus,
+                                 AppContext appContext,
+                                 ProjectServiceClient projectServiceClient,
+                                 DtoUnmarshallerFactory dtoUnmarshallerFactory) {
+        super(nodeFactory,
+              eventBus,
+              appContext,
+              projectServiceClient,
+              dtoUnmarshallerFactory);
     }
 
     /** {@inheritDoc} */

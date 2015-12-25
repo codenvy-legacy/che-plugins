@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.ssh.client;
 
+import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.ext.ssh.dto.GenKeyRequest;
 import org.eclipse.che.ide.ext.ssh.dto.KeyItem;
@@ -21,7 +22,6 @@ import org.eclipse.che.ide.rest.RestContext;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.google.inject.name.Named;
 
 import javax.validation.constraints.NotNull;
 import java.util.HashMap;
@@ -44,12 +44,12 @@ public class SshKeyServiceImpl implements SshKeyService {
 
     @Inject
     protected SshKeyServiceImpl(@RestContext String baseUrl,
-                                @Named("workspaceId") String workspaceId,
+                                AppContext appContext,
                                 AsyncRequestLoader loader,
                                 DtoFactory dtoFactory,
                                 AsyncRequestFactory asyncRequestFactory) {
         this.baseUrl = baseUrl;
-        this.workspaceId = workspaceId;
+        this.workspaceId = appContext.getWorkspace().getId();
         this.loader = loader;
         this.dtoFactory = dtoFactory;
         this.asyncRequestFactory = asyncRequestFactory;

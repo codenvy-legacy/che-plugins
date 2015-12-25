@@ -75,7 +75,7 @@ public class CreateMavenModulePresenter implements CreateMavenModuleView.ActionD
     @Inject
     public CreateMavenModulePresenter(AppContext appContext,
                                       CreateMavenModuleView view,
-                                      ProjectServiceClient projectService,
+                                      ProjectServiceClient projectServiceClient,
                                       DtoFactory dtoFactory,
                                       DialogFactory dialogFactory,
                                       ProjectExplorerPresenter projectExplorer,
@@ -86,7 +86,7 @@ public class CreateMavenModulePresenter implements CreateMavenModuleView.ActionD
         this.view.setDelegate(this);
 
         this.appContext = appContext;
-        this.projectService = projectService;
+        this.projectService = projectServiceClient;
         this.dtoFactory = dtoFactory;
         this.dialogFactory = dialogFactory;
         this.projectExplorer = projectExplorer;
@@ -136,7 +136,8 @@ public class CreateMavenModulePresenter implements CreateMavenModuleView.ActionD
             return;
         }
 
-        projectService.createModule(pathToSelectedNode,
+        projectService.createModule(appContext.getWorkspace().getId(),
+                                    pathToSelectedNode,
                                     projectConfig,
                                     new AsyncRequestCallback<ProjectConfigDto>(
                                             unmarshallerFactory.newUnmarshaller(ProjectConfigDto.class)) {

@@ -18,6 +18,7 @@ import com.google.inject.name.Named;
 
 import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.api.promises.client.callback.AsyncPromiseHelper;
+import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.ext.java.shared.dto.search.FindUsagesRequest;
 import org.eclipse.che.ide.ext.java.shared.dto.search.FindUsagesResponse;
 import org.eclipse.che.ide.rest.AsyncRequestFactory;
@@ -39,7 +40,7 @@ public class JavaSearchServiceRest implements JavaSearchService {
 
     private final AsyncRequestFactory    asyncRequestFactory;
     private final DtoUnmarshallerFactory unmarshallerFactory;
-    private IdeLoader loader;
+    private       IdeLoader              loader;
     private final String                 pathToService;
 
     @Inject
@@ -47,11 +48,11 @@ public class JavaSearchServiceRest implements JavaSearchService {
                                  DtoUnmarshallerFactory unmarshallerFactory,
                                  IdeLoader loader,
                                  @Named("cheExtensionPath") String extPath,
-                                 @Named("workspaceId") String workspaceId) {
+                                 AppContext appContext) {
         this.asyncRequestFactory = asyncRequestFactory;
         this.unmarshallerFactory = unmarshallerFactory;
         this.loader = loader;
-        this.pathToService = extPath + "/jdt/" + workspaceId + "/search/";
+        this.pathToService = extPath + "/jdt/" + appContext.getWorkspace().getId() + "/search/";
     }
 
     @Override

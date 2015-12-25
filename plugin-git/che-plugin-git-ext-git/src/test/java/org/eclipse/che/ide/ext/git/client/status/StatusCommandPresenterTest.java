@@ -71,14 +71,16 @@ public class StatusCommandPresenterTest extends BaseTest {
                 onSuccess.invoke(callback, EMPTY_TEXT);
                 return callback;
             }
-        }).when(service).statusText(Matchers.<ProjectConfigDto>anyObject(),
+        }).when(service).statusText(anyString(),
+                                    Matchers.<ProjectConfigDto>anyObject(),
                                     Matchers.<StatusFormat>anyObject(),
                                     Matchers.<AsyncRequestCallback<String>>anyObject());
 
         presenter.showStatus();
 
         verify(appContext).getCurrentProject();
-        verify(service).statusText(eq(rootProjectConfig),
+        verify(service).statusText(anyString(),
+                                   eq(rootProjectConfig),
                                    eq(IS_NOT_FORMATTED),
                                    Matchers.<AsyncRequestCallback<String>>anyObject());
     }
@@ -94,14 +96,15 @@ public class StatusCommandPresenterTest extends BaseTest {
                 onFailure.invoke(callback, mock(Throwable.class));
                 return callback;
             }
-        }).when(service).statusText(Matchers.<ProjectConfigDto>anyObject(),
+        }).when(service).statusText(anyString(),
+                                    Matchers.<ProjectConfigDto>anyObject(),
                                     Matchers.<StatusFormat>anyObject(),
                                     Matchers.<AsyncRequestCallback<String>>anyObject());
 
         presenter.showStatus();
 
         verify(appContext).getCurrentProject();
-        verify(service).statusText(eq(rootProjectConfig), eq(IS_NOT_FORMATTED), Matchers.<AsyncRequestCallback<String>>anyObject());
+        verify(service).statusText(anyString(), eq(rootProjectConfig), eq(IS_NOT_FORMATTED), Matchers.<AsyncRequestCallback<String>>anyObject());
         verify(notificationManager).notify(anyString(), rootProjectConfig);
         verify(constant).statusFailed();
     }

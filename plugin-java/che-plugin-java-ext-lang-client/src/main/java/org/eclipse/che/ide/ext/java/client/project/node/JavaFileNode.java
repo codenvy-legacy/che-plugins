@@ -17,6 +17,7 @@ import com.google.web.bindery.event.shared.EventBus;
 import org.eclipse.che.api.project.shared.dto.ItemReference;
 import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.commons.annotation.Nullable;
+import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.project.node.MutableNode;
 import org.eclipse.che.ide.api.project.node.resource.DeleteProcessor;
 import org.eclipse.che.ide.api.project.node.resource.RenameProcessor;
@@ -36,9 +37,10 @@ public class JavaFileNode extends FileReferenceNode implements MutableNode {
                         @Assisted ProjectConfigDto projectConfig,
                         @Assisted JavaNodeSettings nodeSettings,
                         @NotNull EventBus eventBus,
+                        @NotNull AppContext appContext,
                         @NotNull JavaNodeManager nodeManager,
                         @NotNull JavaItemReferenceProcessor resourceProcessor) {
-        super(itemReference, projectConfig, nodeSettings, eventBus, nodeManager, resourceProcessor);
+        super(itemReference, projectConfig, nodeSettings, eventBus, appContext, nodeManager, resourceProcessor);
     }
 
     @Override

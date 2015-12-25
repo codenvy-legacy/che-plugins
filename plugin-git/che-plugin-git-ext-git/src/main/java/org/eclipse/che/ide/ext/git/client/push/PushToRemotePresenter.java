@@ -63,9 +63,9 @@ public class PushToRemotePresenter implements PushToRemoteView.ActionDelegate {
     private       GitLocalizationConstant constant;
     private       NotificationManager     notificationManager;
     private       CurrentProject          project;
+    private       String                  workspaceId;
 
     @Inject
-
     public PushToRemotePresenter(DtoFactory dtoFactory,
                                  PushToRemoteView view,
                                  GitServiceClient service,
@@ -87,6 +87,7 @@ public class PushToRemotePresenter implements PushToRemoteView.ActionDelegate {
         this.appContext = appContext;
         this.constant = constant;
         this.notificationManager = notificationManager;
+        this.workspaceId = appContext.getWorkspaceId();
     }
 
     /** Show dialog. */
@@ -101,7 +102,7 @@ public class PushToRemotePresenter implements PushToRemoteView.ActionDelegate {
      * If remote repositories are found, then get the list of branches (remote and local).
      */
     void updateRemotes() {
-        service.remoteList(project.getRootProject(), null, true,
+        service.remoteList(workspaceId, project.getRootProject(), null, true,
                            new AsyncRequestCallback<List<Remote>>(dtoUnmarshallerFactory.newListUnmarshaller(Remote.class)) {
                                @Override
                                protected void onSuccess(List<Remote> result) {
@@ -221,7 +222,7 @@ public class PushToRemotePresenter implements PushToRemoteView.ActionDelegate {
 
         final String configBranchRemote = "branch." + view.getLocalBranch() + ".remote";
         final String configUpstreamBranch = "branch." + view.getLocalBranch() + ".merge";
-        service.config(project.getRootProject(), Arrays.asList(configUpstreamBranch, configBranchRemote), false,
+        service.config(workspaceId, project.getRootProject(), Arrays.asList(configUpstreamBranch, configBranchRemote), false,
                        new AsyncRequestCallback<Map<String, String>>(new StringMapUnmarshaller()) {
                            @Override
                            protected void onSuccess(Map<String, String> configs) {
@@ -254,7 +255,7 @@ public class PushToRemotePresenter implements PushToRemoteView.ActionDelegate {
      */
     void getBranchesForCurrentProject(@NotNull final String remoteMode,
                                       final AsyncCallback<List<Branch>> asyncResult) {
-        service.branchList(project.getRootProject(),
+        service.branchList(workspaceId, project.getRootProject(),
                            remoteMode,
                            new AsyncRequestCallback<List<Branch>>(dtoUnmarshallerFactory.newListUnmarshaller(Branch.class)) {
                                @Override
@@ -277,7 +278,7 @@ public class PushToRemotePresenter implements PushToRemoteView.ActionDelegate {
                 notificationManager.notify(constant.pushProcess(), PROGRESS, true, project.getRootProject());
 
         final String repository = view.getRepository();
-        service.push(project.getRootProject(), getRefs(), repository, false,
+        service.push(workspaceId, project.getRootProject(), getRefs(), repository, false,
                      new AsyncRequestCallback<PushResponse>(dtoUnmarshallerFactory.newUnmarshaller(PushResponse.class)) {
                          @Override
                          protected void onSuccess(PushResponse result) {

@@ -38,21 +38,24 @@ public class ComparePresenter implements CompareView.ActionDelegate {
     private final ProjectServiceClient   projectService;
     private final GitServiceClient       gitService;
     private final NotificationManager    notificationManager;
+    private final String                 workspaceId;
 
     @Inject
     public ComparePresenter(AppContext appContext,
                             DtoUnmarshallerFactory dtoUnmarshallerFactory,
                             CompareView view,
-                            ProjectServiceClient projectService,
+                            ProjectServiceClient projectServiceClient,
                             GitServiceClient gitServiceClient,
                             NotificationManager notificationManager) {
         this.appContext = appContext;
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
         this.view = view;
-        this.projectService = projectService;
+        this.projectService = projectServiceClient;
         this.gitService = gitServiceClient;
         this.notificationManager = notificationManager;
         this.view.setDelegate(this);
+        
+        this.workspaceId = appContext.getWorkspaceId();
     }
 
     /**
@@ -69,7 +72,7 @@ public class ComparePresenter implements CompareView.ActionDelegate {
         if (state.startsWith("A")) {
             showCompare(file, "", revision);
         } else if (state.startsWith("D")) {
-            gitService.showFileContent(appContext.getCurrentProject().getRootProject(), file, revision,
+            gitService.showFileContent(workspaceId, appContext.getCurrentProject().getRootProject(), file, revision,
                                        new AsyncRequestCallback<ShowFileContentResponse>(
                                                dtoUnmarshallerFactory.newUnmarshaller(ShowFileContentResponse.class)) {
                                            @Override
@@ -84,7 +87,7 @@ public class ComparePresenter implements CompareView.ActionDelegate {
                                            }
                                        });
         } else {
-            gitService.showFileContent(appContext.getCurrentProject().getRootProject(), file, revision,
+            gitService.showFileContent(workspaceId, appContext.getCurrentProject().getRootProject(), file, revision,
                                        new AsyncRequestCallback<ShowFileContentResponse>(
                                                dtoUnmarshallerFactory.newUnmarshaller(ShowFileContentResponse.class)) {
                                            @Override
@@ -109,7 +112,8 @@ public class ComparePresenter implements CompareView.ActionDelegate {
     private void showCompare(final String file, final String oldContent, final String revision) {
         String fullItemPath = appContext.getCurrentProject().getRootProject().getName() + "/" + file;
 
-        projectService.getFileContent(fullItemPath,
+        projectService.getFileContent(appContext.getWorkspace().getId(),
+                                      fullItemPath,
                                       new AsyncRequestCallback<String>(new StringUnmarshaller()) {
                                           @Override
                                           protected void onSuccess(final String newContent) {

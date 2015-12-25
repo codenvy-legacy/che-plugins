@@ -24,6 +24,7 @@ import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.api.promises.client.PromiseError;
 import org.eclipse.che.api.promises.client.js.Promises;
+import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.editor.EditorPartPresenter;
 import org.eclipse.che.ide.api.event.FileContentUpdateEvent;
@@ -54,13 +55,15 @@ public class RefactoringUpdater {
     private final EventBus                 eventBus;
     private final ProjectExplorerPresenter projectExplorer;
     private final JavaLocalizationConstant locale;
-    private final NotificationManager  notificationManager;
-    private final ProjectServiceClient projectServiceClient;
+    private final NotificationManager      notificationManager;
+    private final ProjectServiceClient     projectServiceClient;
+    private final AppContext               appContext;
 
     @Inject
     public RefactoringUpdater(EditorAgent editorAgent,
                               EventBus eventBus,
                               NotificationManager notificationManager,
+                              AppContext appContext,
                               ProjectServiceClient projectServiceClient,
                               ProjectExplorerPresenter projectExplorer,
                               JavaLocalizationConstant locale) {
@@ -70,6 +73,7 @@ public class RefactoringUpdater {
         this.eventBus = eventBus;
         this.projectExplorer = projectExplorer;
         this.locale = locale;
+        this.appContext = appContext;
     }
 
     /**
@@ -135,7 +139,7 @@ public class RefactoringUpdater {
                     return doUpdate(editor, change);
                 }
 
-                projectServiceClient.getItem(change.getPath(), new AsyncRequestCallback<ItemReference>() {
+                projectServiceClient.getItem(appContext.getWorkspace().getId(), change.getPath(), new AsyncRequestCallback<ItemReference>() {
                     @Override
                     protected void onSuccess(ItemReference result) {
                         eventBus.fireEvent(new FileContentUpdateEvent(change.getPath()));

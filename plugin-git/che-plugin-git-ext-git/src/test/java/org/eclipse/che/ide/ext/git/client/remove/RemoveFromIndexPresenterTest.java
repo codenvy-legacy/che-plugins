@@ -155,12 +155,12 @@ public class RemoveFromIndexPresenterTest extends BaseTest {
                 onSuccess.invoke(callback, EMPTY_TEXT);
                 return callback;
             }
-        }).when(service).remove(anyObject(), anyObject(), anyBoolean(), anyObject());
+        }).when(service).remove(anyString(), anyObject(), anyObject(), anyBoolean(), anyObject());
 
         presenter.showDialog();
         presenter.onRemoveClicked();
 
-        verify(service).remove(eq(rootProjectConfig), anyObject(), eq(REMOVED), anyObject());
+        verify(service).remove(anyString(), eq(rootProjectConfig), anyObject(), eq(REMOVED), anyObject());
         verify(notificationManager).notify(anyString(), rootProjectConfig);
         verify(console).printInfo(anyString());
         verify(constant, times(2)).removeFilesSuccessfull();
@@ -180,12 +180,12 @@ public class RemoveFromIndexPresenterTest extends BaseTest {
                 onFailure.invoke(callback, mock(Throwable.class));
                 return callback;
             }
-        }).when(service).remove(anyObject(), anyObject(), anyBoolean(), anyObject());
+        }).when(service).remove(anyString(), anyObject(), anyObject(), anyBoolean(), anyObject());
 
         presenter.showDialog();
         presenter.onRemoveClicked();
 
-        verify(service).remove(eq(rootProjectConfig), anyObject(), eq(REMOVED), anyObject());
+        verify(service).remove(anyString(), eq(rootProjectConfig), anyObject(), eq(REMOVED), anyObject());
         verify(constant).removeFilesFailed();
         verify(console).printError(anyString());
         verify(notificationManager).notify(anyString(), rootProjectConfig);

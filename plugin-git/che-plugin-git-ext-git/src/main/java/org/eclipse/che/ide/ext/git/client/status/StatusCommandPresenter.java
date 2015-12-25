@@ -63,7 +63,7 @@ public class StatusCommandPresenter {
             return;
         }
 
-        service.statusText(project.getRootProject(), LONG,
+        service.statusText(appContext. getWorkspaceId(), project.getRootProject(), LONG,
                            new AsyncRequestCallback<String>(new StringUnmarshaller()) {
                                @Override
                                protected void onSuccess(String result) {

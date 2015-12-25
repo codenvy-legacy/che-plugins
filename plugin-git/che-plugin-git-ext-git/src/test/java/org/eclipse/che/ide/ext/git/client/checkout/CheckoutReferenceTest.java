@@ -10,9 +10,9 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.git.client.checkout;
 
+import org.eclipse.che.api.core.model.workspace.ProjectProblem;
 import org.eclipse.che.api.git.shared.CheckoutRequest;
 import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
-import org.eclipse.che.api.core.model.workspace.ProjectProblem;
 import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.editor.EditorInput;
 import org.eclipse.che.ide.api.editor.EditorPartPresenter;
@@ -120,7 +120,7 @@ public class CheckoutReferenceTest extends BaseTest {
         presenter.onEnterClicked();
 
         verify(view, never()).close();
-        verify(service, never()).checkout(anyObject(), anyObject(), anyObject());
+        verify(service, never()).checkout(anyString(), anyObject(), anyObject(), anyObject());
     }
 
     @Test
@@ -134,7 +134,7 @@ public class CheckoutReferenceTest extends BaseTest {
         presenter.onEnterClicked();
 
         verify(view).close();
-        verify(service).checkout(anyObject(), anyObject(), anyObject());
+        verify(service).checkout(anyString(), anyObject(), anyObject(), anyObject());
         verify(checkoutRequest).withName(CORRECT_REFERENCE);
         verify(checkoutRequest).withCreateNew(false);
         verifyNoMoreInteractions(checkoutRequest);
@@ -162,7 +162,7 @@ public class CheckoutReferenceTest extends BaseTest {
 
         presenter.onEnterClicked();
 
-        verify(service).checkout(anyObject(), anyObject(), asyncCallbackCaptor.capture());
+        verify(service).checkout(anyString(), anyObject(), anyObject(), asyncCallbackCaptor.capture());
         AsyncRequestCallback<String> callback = asyncCallbackCaptor.getValue();
         GwtReflectionUtils.callOnSuccess(callback, "");
 
@@ -170,7 +170,7 @@ public class CheckoutReferenceTest extends BaseTest {
         verify(checkoutRequest).withCreateNew(false);
         verifyNoMoreInteractions(checkoutRequest);
         verify(view).close();
-        verify(projectServiceClient).getProject(eq(PROJECT_PATH), projectDescriptorCaptor.capture());
+        verify(projectServiceClient).getProject(anyString(), eq(PROJECT_PATH), projectDescriptorCaptor.capture());
         AsyncRequestCallback<ProjectConfigDto> asyncRequestCallback = projectDescriptorCaptor.getValue();
         GwtReflectionUtils.callOnSuccess(asyncRequestCallback, projectConfig);
         verify(projectConfig).getProblems();
@@ -195,7 +195,7 @@ public class CheckoutReferenceTest extends BaseTest {
 
         presenter.onEnterClicked();
 
-        verify(service).checkout(anyObject(), anyObject(), asyncCallbackCaptor.capture());
+        verify(service).checkout(anyString(), anyObject(), anyObject(), asyncCallbackCaptor.capture());
         AsyncRequestCallback<String> callback = asyncCallbackCaptor.getValue();
         GwtReflectionUtils.callOnSuccess(callback, "");
 
@@ -203,7 +203,7 @@ public class CheckoutReferenceTest extends BaseTest {
         verify(checkoutRequest).withCreateNew(false);
         verifyNoMoreInteractions(checkoutRequest);
         verify(view).close();
-        verify(projectServiceClient).getProject(eq(PROJECT_PATH), projectDescriptorCaptor.capture());
+        verify(projectServiceClient).getProject(anyString(), eq(PROJECT_PATH), projectDescriptorCaptor.capture());
         AsyncRequestCallback<ProjectConfigDto> asyncRequestCallback = projectDescriptorCaptor.getValue();
         GwtReflectionUtils.callOnSuccess(asyncRequestCallback, projectConfig);
         verify(projectConfig).getProblems();
@@ -222,7 +222,7 @@ public class CheckoutReferenceTest extends BaseTest {
 
         presenter.onEnterClicked();
 
-        verify(service).checkout(anyObject(), anyObject(), asyncCallbackCaptor.capture());
+        verify(service).checkout(anyString(), anyObject(), anyObject(), asyncCallbackCaptor.capture());
         AsyncRequestCallback<String> callback = asyncCallbackCaptor.getValue();
         GwtReflectionUtils.callOnFailure(callback, mock(Throwable.class));
 

@@ -19,7 +19,6 @@ import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -55,12 +54,23 @@ public class CommitPresenterTest extends BaseTest {
     @Mock
     private DateTimeFormatter dateTimeFormatter;
 
-    @InjectMocks
     private CommitPresenter presenter;
 
     @Override
     public void disarm() {
         super.disarm();
+
+        when(appContext.getWorkspaceId()).thenReturn("id");
+
+        presenter = new CommitPresenter(view,
+                                        service,
+                                        constant,
+                                        console,
+                                        notificationManager,
+                                        dtoUnmarshallerFactory,
+                                        appContext,
+                                        dateTimeFormatter,
+                                        selectionAgent);
 
         when(revision.isFake()).thenReturn(false);
     }
@@ -105,7 +115,7 @@ public class CommitPresenterTest extends BaseTest {
                 onSuccess.invoke(callback, revision);
                 return callback;
             }
-        }).when(service).commit(anyObject(), anyString(), anyBoolean(), anyBoolean(),
+        }).when(service).commit(anyString(), anyObject(), anyString(), anyBoolean(), anyBoolean(),
                                 (AsyncRequestCallback<Revision>)anyObject());
 
         presenter.showDialog();
@@ -117,7 +127,7 @@ public class CommitPresenterTest extends BaseTest {
         verify(view).close();
         verify(view).setMessage(eq(EMPTY_TEXT));
 
-        verify(service).commit(eq(rootProjectConfig), eq(COMMIT_TEXT), eq(ALL_FILE_INCLUDES), eq(IS_OVERWRITTEN),
+        verify(service).commit(anyString(), eq(rootProjectConfig), eq(COMMIT_TEXT), eq(ALL_FILE_INCLUDES), eq(IS_OVERWRITTEN),
                                (AsyncRequestCallback<Revision>)anyObject());
         verify(console).printInfo(anyString());
         verify(notificationManager).notify(anyString(), rootProjectConfig);
@@ -137,7 +147,7 @@ public class CommitPresenterTest extends BaseTest {
                 onFailure.invoke(callback, mock(Throwable.class));
                 return callback;
             }
-        }).when(service).commit(anyObject(), anyString(), anyBoolean(), anyBoolean(),
+        }).when(service).commit(anyString(), anyObject(), anyString(), anyBoolean(), anyBoolean(),
                                 (AsyncRequestCallback<Revision>)anyObject());
 
         presenter.showDialog();
@@ -149,7 +159,7 @@ public class CommitPresenterTest extends BaseTest {
         verify(view).close();
         verify(view, times(0)).setMessage(anyString());
 
-        verify(service).commit(eq(rootProjectConfig), eq(COMMIT_TEXT), eq(ALL_FILE_INCLUDES), eq(IS_OVERWRITTEN),
+        verify(service).commit(anyString(), eq(rootProjectConfig), eq(COMMIT_TEXT), eq(ALL_FILE_INCLUDES), eq(IS_OVERWRITTEN),
                                (AsyncRequestCallback<Revision>)anyObject());
         verify(constant).commitFailed();
         verify(console).printError(anyString());

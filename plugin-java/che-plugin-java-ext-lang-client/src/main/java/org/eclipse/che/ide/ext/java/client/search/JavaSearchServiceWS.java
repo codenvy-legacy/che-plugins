@@ -15,11 +15,11 @@ import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.google.inject.name.Named;
 
 import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.api.promises.client.callback.AsyncPromiseHelper;
 import org.eclipse.che.api.promises.client.callback.PromiseHelper;
+import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.ext.java.shared.dto.search.FindUsagesRequest;
 import org.eclipse.che.ide.ext.java.shared.dto.search.FindUsagesResponse;
@@ -51,7 +51,7 @@ public class JavaSearchServiceWS implements JavaSearchService {
 
     @Inject
     public JavaSearchServiceWS(MessageBusProvider provider,
-                               @Named("workspaceId") String workspaceId,
+                               AppContext appContext,
                                DtoFactory dtoFactory,
                                IdeLoader loader,
                                DtoUnmarshallerFactory unmarshallerFactory) {
@@ -59,7 +59,7 @@ public class JavaSearchServiceWS implements JavaSearchService {
         this.dtoFactory = dtoFactory;
         this.loader = loader;
         this.unmarshallerFactory = unmarshallerFactory;
-        this.pathToService = "/jdt/" + workspaceId + "/search/";
+        this.pathToService = "/jdt/" + appContext.getWorkspace().getId() + "/search/";
     }
 
     @Override

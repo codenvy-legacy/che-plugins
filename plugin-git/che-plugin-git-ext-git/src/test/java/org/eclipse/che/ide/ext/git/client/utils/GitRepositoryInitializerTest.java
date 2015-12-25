@@ -55,7 +55,11 @@ public class GitRepositoryInitializerTest extends BaseTest {
     public void disarm() {
         super.disarm();
 
-        gitRepositoryInitializer = new GitRepositoryInitializer(service, constant, appContext, notificationManager, dtoUnmarshallerFactory,
+        gitRepositoryInitializer = new GitRepositoryInitializer(service,
+                                                                constant,
+                                                                appContext,
+                                                                notificationManager,
+                                                                dtoUnmarshallerFactory,
                                                                 projectServiceClient);
     }
 
@@ -70,7 +74,7 @@ public class GitRepositoryInitializerTest extends BaseTest {
                 onSuccess.invoke(callback, (Void)null);
                 return callback;
             }
-        }).when(service).init(anyObject(), anyBoolean(), (RequestCallback<Void>)anyObject());
+        }).when(service).init(anyString(), anyObject(), anyBoolean(), (RequestCallback<Void>)anyObject());
 
         doAnswer(new Answer() {
             @Override
@@ -81,12 +85,12 @@ public class GitRepositoryInitializerTest extends BaseTest {
                 onSuccess.invoke(callback, rootProjectConfig);
                 return callback;
             }
-        }).when(projectServiceClient).getProject(anyString(), anyObject());
+        }).when(projectServiceClient).getProject(anyString(), anyString(), anyObject());
 
         gitRepositoryInitializer.initGitRepository(rootProjectConfig, callback);
 
-        verify(service).init(eq(rootProjectConfig), eq(BARE), (RequestCallback<Void>)anyObject());
-        verify(projectServiceClient).getProject(anyString(), anyObject());
+        verify(service).init(anyString(), eq(rootProjectConfig), eq(BARE), (RequestCallback<Void>)anyObject());
+        verify(projectServiceClient).getProject(anyString(), anyString(), anyObject());
         verify(currentProject).setRootProject(eq(rootProjectConfig));
     }
 
@@ -104,7 +108,7 @@ public class GitRepositoryInitializerTest extends BaseTest {
                 onSuccess.invoke(callback, (Void)null);
                 return callback;
             }
-        }).when(service).init(anyObject(), anyBoolean(), (RequestCallback<Void>)anyObject());
+        }).when(service).init(anyString(), anyObject(), anyBoolean(), (RequestCallback<Void>)anyObject());
 
         doAnswer(new Answer() {
             @Override
@@ -116,7 +120,7 @@ public class GitRepositoryInitializerTest extends BaseTest {
                 onSuccess.invoke(callback, rootProjectConfig);
                 return callback;
             }
-        }).when(projectServiceClient).getProject(anyString(), anyObject());
+        }).when(projectServiceClient).getProject(anyString(), anyString(), anyObject());
 
         doAnswer(new Answer() {
             @Override
@@ -127,12 +131,12 @@ public class GitRepositoryInitializerTest extends BaseTest {
                 onSuccess.invoke(callback, REMOTE_URI);
                 return callback;
             }
-        }).when(service).getGitReadOnlyUrl(anyObject(), (AsyncRequestCallback<String>)anyObject());
+        }).when(service).getGitReadOnlyUrl(anyString(), anyObject(), (AsyncRequestCallback<String>)anyObject());
 
         gitRepositoryInitializer.getGitUrlWithAutoInit(rootProjectConfig, stringCallback);
 
-        verify(service).init(eq(rootProjectConfig), eq(BARE), (RequestCallback<Void>)anyObject());
-        verify(projectServiceClient).getProject(anyString(), anyObject());
+        verify(service).init(anyString(), eq(rootProjectConfig), eq(BARE), (RequestCallback<Void>)anyObject());
+        verify(projectServiceClient).getProject(anyString(), anyString(), anyObject());
         verify(currentProject).setRootProject(eq(rootProjectConfig));
         verify(stringCallback).onSuccess(eq(REMOTE_URI));
     }
@@ -152,11 +156,11 @@ public class GitRepositoryInitializerTest extends BaseTest {
                 onSuccess.invoke(callback, REMOTE_URI);
                 return callback;
             }
-        }).when(service).getGitReadOnlyUrl(anyObject(), (AsyncRequestCallback<String>)anyObject());
+        }).when(service).getGitReadOnlyUrl(anyString(), anyObject(), (AsyncRequestCallback<String>)anyObject());
 
         gitRepositoryInitializer.getGitUrlWithAutoInit(rootProjectConfig, stringCallback);
 
-        verify(service, never()).init(anyObject(), anyBoolean(), (RequestCallback<Void>)anyObject());
+        verify(service, never()).init(anyString(), anyObject(), anyBoolean(), (RequestCallback<Void>)anyObject());
         verify(stringCallback).onSuccess(eq(REMOTE_URI));
     }
 }

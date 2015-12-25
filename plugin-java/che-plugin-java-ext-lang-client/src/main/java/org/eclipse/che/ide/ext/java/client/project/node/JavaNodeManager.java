@@ -48,6 +48,7 @@ import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.rest.Unmarshallable;
 
 import javax.validation.constraints.NotNull;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -71,7 +72,7 @@ public class JavaNodeManager extends NodeManager {
 
     @Inject
     public JavaNodeManager(NodeFactory nodeFactory,
-                           ProjectServiceClient projectService,
+                           ProjectServiceClient projectServiceClient,
                            DtoUnmarshallerFactory dtoUnmarshaller,
                            NodesResources nodesResources,
                            SettingsProvider nodeSettingsProvider,
@@ -83,7 +84,7 @@ public class JavaNodeManager extends NodeManager {
                            EventBus eventBus,
                            Set<NodeIconProvider> nodeIconProvider,
                            AppContext appContext) {
-        super(nodeFactory, projectService, dtoUnmarshaller, nodesResources, nodeSettingsProvider, dtoFactory, nodeIconProvider, appContext);
+        super(nodeFactory, projectServiceClient, dtoUnmarshaller, nodesResources, nodeSettingsProvider, dtoFactory, nodeIconProvider, appContext);
 
         this.javaService = javaService;
         this.javaNodeFactory = javaNodeFactory;

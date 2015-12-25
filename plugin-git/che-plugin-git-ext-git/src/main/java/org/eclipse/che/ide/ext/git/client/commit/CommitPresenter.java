@@ -53,6 +53,7 @@ public class CommitPresenter implements CommitView.ActionDelegate {
     private final NotificationManager     notificationManager;
     private final DateTimeFormatter       dateTimeFormatter;
     private final SelectionAgent          selectionAgent;
+    private final String                  workspaceId;
 
     @Inject
     public CommitPresenter(CommitView view,
@@ -74,6 +75,7 @@ public class CommitPresenter implements CommitView.ActionDelegate {
         this.constant = constant;
         this.notificationManager = notificationManager;
         this.selectionAgent = selectionAgent;
+        this.workspaceId = appContext.getWorkspaceId();
     }
 
     /** Show dialog. */
@@ -116,7 +118,7 @@ public class CommitPresenter implements CommitView.ActionDelegate {
             final List<String> filePattern = buildFileList(selection);
 
             try {
-                service.add(appContext.getCurrentProject().getRootProject(), false, filePattern, new RequestCallback<Void>() {
+                service.add(workspaceId, appContext.getCurrentProject().getRootProject(), false, filePattern, new RequestCallback<Void>() {
                     @Override
                     protected void onSuccess(final Void result) {
                         // then commit
@@ -150,7 +152,7 @@ public class CommitPresenter implements CommitView.ActionDelegate {
         final Selection<HasStorablePath> selection = (Selection<HasStorablePath>)this.selectionAgent.getSelection();
         if (selection != null && !selection.isEmpty() && (selection.getHeadElement() != null)) {
             final List<String> files = buildFileList(selection);
-            service.commit(appContext.getCurrentProject().getRootProject(), message, files, amend,
+            service.commit(workspaceId, appContext.getCurrentProject().getRootProject(), message, files, amend,
                            new AsyncRequestCallback<Revision>(dtoUnmarshallerFactory.newUnmarshaller(Revision.class)) {
                                @Override
                                protected void onSuccess(final Revision result) {
@@ -174,7 +176,7 @@ public class CommitPresenter implements CommitView.ActionDelegate {
     }
 
     private void doCommit(final String message, final boolean all, final boolean amend) {
-        service.commit(appContext.getCurrentProject().getRootProject(), message, all, amend,
+        service.commit(workspaceId, appContext.getCurrentProject().getRootProject(), message, all, amend,
                        new AsyncRequestCallback<Revision>(dtoUnmarshallerFactory.newUnmarshaller(Revision.class)) {
                            @Override
                            protected void onSuccess(final Revision result) {
@@ -258,7 +260,7 @@ public class CommitPresenter implements CommitView.ActionDelegate {
     @Override
     public void setAmendCommitMessage() {
         final Unmarshallable<LogResponse> unmarshall = dtoUnmarshallerFactory.newUnmarshaller(LogResponse.class);
-        this.service.log(appContext.getCurrentProject().getRootProject(), false, new AsyncRequestCallback<LogResponse>(unmarshall) {
+        this.service.log(workspaceId, appContext.getCurrentProject().getRootProject(), false, new AsyncRequestCallback<LogResponse>(unmarshall) {
             @Override
             protected void onSuccess(final LogResponse result) {
                 final List<Revision> commits = result.getCommits();

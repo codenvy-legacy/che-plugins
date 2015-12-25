@@ -14,6 +14,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 
+import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.ext.java.jdi.client.JavaRuntimeLocalizationConstant;
 import org.eclipse.che.ide.ext.java.jdi.shared.BreakPoint;
 import org.eclipse.che.ide.ext.java.jdi.shared.DebuggerEventList;
@@ -48,14 +49,14 @@ public class DebuggerServiceClientImpl implements DebuggerServiceClient {
 
     @Inject
     protected DebuggerServiceClientImpl(@Named("cheExtensionPath") String extPath,
-                                        @Named("workspaceId") String workspaceId,
+                                        AppContext appContext,
                                         AsyncRequestLoader loader,
                                         AsyncRequestFactory asyncRequestFactory,
                                         JavaRuntimeLocalizationConstant localizationConstant) {
         this.loader = loader;
         this.asyncRequestFactory = asyncRequestFactory;
         this.localizationConstant = localizationConstant;
-        this.baseUrl = extPath + "/debug-java/" + workspaceId;
+        this.baseUrl = extPath + "/debug-java/" + appContext.getWorkspace().getId();
     }
 
     /** {@inheritDoc} */

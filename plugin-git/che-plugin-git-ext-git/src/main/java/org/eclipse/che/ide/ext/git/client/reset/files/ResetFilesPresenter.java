@@ -43,17 +43,19 @@ import static org.eclipse.che.api.git.shared.ResetRequest.ResetType;
  */
 @Singleton
 public class ResetFilesPresenter implements ResetFilesView.ActionDelegate {
-    private final GitOutputPartPresenter console;
+    private final GitOutputPartPresenter  console;
     private final DtoFactory              dtoFactory;
     private final DtoUnmarshallerFactory  dtoUnmarshallerFactory;
-    private       DialogFactory           dialogFactory;
-    private       ResetFilesView          view;
-    private       GitServiceClient        service;
-    private       AppContext              appContext;
-    private       GitLocalizationConstant constant;
-    private       NotificationManager     notificationManager;
-    private       CurrentProject          project;
-    private       List<IndexFile>        indexedFiles;
+    private final DialogFactory           dialogFactory;
+    private final ResetFilesView          view;
+    private final GitServiceClient        service;
+    private final AppContext              appContext;
+    private final GitLocalizationConstant constant;
+    private final NotificationManager     notificationManager;
+    private final String                  workspaceId;
+    
+    private CurrentProject  project;
+    private List<IndexFile> indexedFiles;
 
     /** Create presenter. */
     @Inject
@@ -76,13 +78,15 @@ public class ResetFilesPresenter implements ResetFilesView.ActionDelegate {
         this.appContext = appContext;
         this.constant = constant;
         this.notificationManager = notificationManager;
+        
+        this.workspaceId = appContext.getWorkspaceId();
     }
 
     /** Show dialog. */
     public void showDialog() {
         project = appContext.getCurrentProject();
 
-        service.status(project.getRootProject(),
+        service.status(workspaceId, project.getRootProject(),
                        new AsyncRequestCallback<Status>(dtoUnmarshallerFactory.newUnmarshaller(Status.class)) {
                            @Override
                            protected void onSuccess(Status result) {
@@ -142,7 +146,7 @@ public class ResetFilesPresenter implements ResetFilesView.ActionDelegate {
         }
         view.close();
 
-        service.reset(project.getRootProject(), "HEAD", ResetType.MIXED, files, new AsyncRequestCallback<Void>() {
+        service.reset(workspaceId, project.getRootProject(), "HEAD", ResetType.MIXED, files, new AsyncRequestCallback<Void>() {
             @Override
             protected void onSuccess(Void result) {
                 console.printInfo(constant.resetFilesSuccessfully());

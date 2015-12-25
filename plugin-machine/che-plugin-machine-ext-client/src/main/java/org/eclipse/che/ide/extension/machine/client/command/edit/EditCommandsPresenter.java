@@ -13,7 +13,6 @@ package org.eclipse.che.ide.extension.machine.client.command.edit;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
-import com.google.inject.name.Named;
 
 import org.eclipse.che.api.machine.shared.dto.CommandDto;
 import org.eclipse.che.api.promises.client.Function;
@@ -25,6 +24,7 @@ import org.eclipse.che.api.promises.client.PromiseError;
 import org.eclipse.che.api.workspace.gwt.client.WorkspaceServiceClient;
 import org.eclipse.che.api.workspace.shared.dto.UsersWorkspaceDto;
 import org.eclipse.che.ide.CoreLocalizationConstant;
+import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.actions.SelectCommandComboBoxReady;
@@ -87,12 +87,12 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
                                     CoreLocalizationConstant coreLocale,
                                     Provider<SelectCommandComboBoxReady> selectCommandActionProvider,
                                     CommandManager commandManager,
-                                    @Named("workspaceId") String workspaceId,
+                                    AppContext appContext,
                                     DtoFactory dtoFactory) {
         this.view = view;
         this.workspaceServiceClient = workspaceServiceClient;
         this.commandManager = commandManager;
-        this.workspaceId = workspaceId;
+        this.workspaceId = appContext.getWorkspace().getId();
         this.dtoFactory = dtoFactory;
         this.commandTypeRegistry = commandTypeRegistry;
         this.dialogFactory = dialogFactory;

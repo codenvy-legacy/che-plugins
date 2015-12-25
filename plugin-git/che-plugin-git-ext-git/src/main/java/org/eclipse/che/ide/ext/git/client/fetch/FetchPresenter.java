@@ -53,11 +53,13 @@ public class FetchPresenter implements FetchView.ActionDelegate {
     private final DtoUnmarshallerFactory  dtoUnmarshallerFactory;
     private final NotificationManager     notificationManager;
     private final BranchSearcher          branchSearcher;
-    private       FetchView               view;
-    private       GitServiceClient        service;
-    private       AppContext              appContext;
-    private       GitLocalizationConstant constant;
-    private       CurrentProject          project;
+    private final FetchView               view;
+    private final GitServiceClient        service;
+    private final AppContext              appContext;
+    private final GitLocalizationConstant constant;
+    private final String                  workspaceId;
+    
+    private CurrentProject project;
 
     @Inject
     public FetchPresenter(DtoFactory dtoFactory,
@@ -79,6 +81,7 @@ public class FetchPresenter implements FetchView.ActionDelegate {
         this.appContext = appContext;
         this.constant = constant;
         this.notificationManager = notificationManager;
+        this.workspaceId = appContext.getWorkspaceId();
     }
 
     /** Show dialog. */
@@ -94,7 +97,7 @@ public class FetchPresenter implements FetchView.ActionDelegate {
      * local).
      */
     private void updateRemotes() {
-        service.remoteList(project.getRootProject(), null, true,
+        service.remoteList(workspaceId, project.getRootProject(), null, true,
                            new AsyncRequestCallback<List<Remote>>(dtoUnmarshallerFactory.newListUnmarshaller(Remote.class)) {
                                @Override
                                protected void onSuccess(List<Remote> result) {
@@ -119,7 +122,7 @@ public class FetchPresenter implements FetchView.ActionDelegate {
      * @param remoteMode is a remote mode
      */
     private void updateBranches(@NotNull final String remoteMode) {
-        service.branchList(project.getRootProject(), remoteMode,
+        service.branchList(workspaceId, project.getRootProject(), remoteMode,
                            new AsyncRequestCallback<List<Branch>>(dtoUnmarshallerFactory.newListUnmarshaller(Branch.class)) {
                                @Override
                                protected void onSuccess(List<Branch> result) {
@@ -158,7 +161,7 @@ public class FetchPresenter implements FetchView.ActionDelegate {
         final StatusNotification notification =
                 notificationManager.notify(constant.fetchProcess(), PROGRESS, true, project.getRootProject());
         try {
-            service.fetch(project.getRootProject(), remoteName, getRefs(), removeDeletedRefs,
+            service.fetch(workspaceId, project.getRootProject(), remoteName, getRefs(), removeDeletedRefs,
                           new RequestCallback<String>() {
                               @Override
                               protected void onSuccess(String result) {

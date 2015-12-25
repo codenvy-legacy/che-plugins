@@ -10,14 +10,15 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.svn.client.common.filteredtree;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+import com.google.web.bindery.event.shared.EventBus;
+
 import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.project.tree.TreeStructure;
 import org.eclipse.che.ide.api.project.tree.TreeStructureProvider;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
-import com.google.web.bindery.event.shared.EventBus;
 
 import javax.validation.constraints.NotNull;
 

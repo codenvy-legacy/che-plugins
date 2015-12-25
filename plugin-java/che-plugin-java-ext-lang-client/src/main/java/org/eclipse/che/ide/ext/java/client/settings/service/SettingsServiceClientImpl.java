@@ -45,11 +45,10 @@ public class SettingsServiceClientImpl implements SettingsServiceClient {
     @Inject
     public SettingsServiceClientImpl(AppContext appContext,
                                      AsyncRequestFactory asyncRequestFactory,
-                                     @Named("cheExtensionPath") String extPath,
-                                     @Named("workspaceId") String workspaceId) {
+                                     @Named("cheExtensionPath") String extPath) {
         this.appContext = appContext;
         this.extPath = extPath;
-        this.workspaceId = workspaceId;
+        this.workspaceId = appContext.getWorkspace().getId();
         this.asyncRequestFactory = asyncRequestFactory;
     }
 

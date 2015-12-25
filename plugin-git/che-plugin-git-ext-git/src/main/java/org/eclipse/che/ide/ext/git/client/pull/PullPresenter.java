@@ -65,6 +65,7 @@ public class PullPresenter implements PullView.ActionDelegate {
     private final ProjectExplorerPresenter projectExplorer;
     private       CurrentProject           project;
     private final GitOutputPartPresenter   console;
+    private final String                   workspaceId;
 
 
     @Inject
@@ -93,6 +94,7 @@ public class PullPresenter implements PullView.ActionDelegate {
         this.appContext = appContext;
         this.notificationManager = notificationManager;
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
+        this.workspaceId = appContext.getWorkspaceId();
     }
 
     /** Show dialog. */
@@ -108,7 +110,7 @@ public class PullPresenter implements PullView.ActionDelegate {
     private void updateRemotes() {
         view.setEnablePullButton(true);
 
-        gitServiceClient.remoteList(project.getRootProject(), null, true,
+        gitServiceClient.remoteList(workspaceId, project.getRootProject(), null, true,
                                     new AsyncRequestCallback<List<Remote>>(dtoUnmarshallerFactory.newListUnmarshaller(Remote.class)) {
                                         @Override
                                         protected void onSuccess(List<Remote> result) {
@@ -137,7 +139,7 @@ public class PullPresenter implements PullView.ActionDelegate {
      * @param remoteMode is a remote mode
      */
     private void updateBranches(@NotNull final String remoteMode) {
-        gitServiceClient.branchList(project.getRootProject(), remoteMode,
+        gitServiceClient.branchList(workspaceId, project.getRootProject(), remoteMode,
                                     new AsyncRequestCallback<List<Branch>>(dtoUnmarshallerFactory.newListUnmarshaller(Branch.class)) {
                                         @Override
                                         protected void onSuccess(List<Branch> result) {
@@ -183,7 +185,7 @@ public class PullPresenter implements PullView.ActionDelegate {
 
         final StatusNotification notification =
                 notificationManager.notify(constant.pullProcess(), PROGRESS, true, project.getRootProject());
-        gitServiceClient.pull(project.getRootProject(), getRefs(), remoteName,
+        gitServiceClient.pull(workspaceId, project.getRootProject(), getRefs(), remoteName,
                               new AsyncRequestCallback<PullResponse>(dtoUnmarshallerFactory.newUnmarshaller(PullResponse.class)) {
                                   @Override
                                   protected void onSuccess(PullResponse result) {

@@ -48,6 +48,7 @@ public class RemotePresenter implements RemoteView.ActionDelegate {
     private NotificationManager          notificationManager;
     private Remote                       selectedRemote;
     private ProjectConfigDto             project;
+    private String                       workspaceId;
 
     @Inject
     public RemotePresenter(RemoteView view,
@@ -67,6 +68,7 @@ public class RemotePresenter implements RemoteView.ActionDelegate {
         this.constant = constant;
         this.addRemoteRepositoryPresenter = addRemoteRepositoryPresenter;
         this.notificationManager = notificationManager;
+        this.workspaceId = appContext.getWorkspaceId();
     }
 
     /**
@@ -82,7 +84,7 @@ public class RemotePresenter implements RemoteView.ActionDelegate {
      * then get the list of branches (remote and local).
      */
     private void getRemotes() {
-        service.remoteList(project, null, true,
+        service.remoteList(workspaceId, project, null, true,
                            new AsyncRequestCallback<List<Remote>>(dtoUnmarshallerFactory.newListUnmarshaller(Remote.class)) {
                                @Override
                                protected void onSuccess(List<Remote> result) {
@@ -141,7 +143,7 @@ public class RemotePresenter implements RemoteView.ActionDelegate {
         }
 
         final String name = selectedRemote.getName();
-        service.remoteDelete(project, name, new AsyncRequestCallback<String>() {
+        service.remoteDelete(workspaceId, project, name, new AsyncRequestCallback<String>() {
             @Override
             protected void onSuccess(String result) {
                 getRemotes();

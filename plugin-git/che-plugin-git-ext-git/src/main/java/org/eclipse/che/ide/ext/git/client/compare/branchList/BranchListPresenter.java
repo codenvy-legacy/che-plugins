@@ -61,6 +61,7 @@ public class BranchListPresenter implements BranchListView.ActionDelegate {
     private final GitLocalizationConstant  locale;
     private final AppContext               appContext;
     private final NotificationManager      notificationManager;
+    private final String                  workspaceId;
 
     private CurrentProject project;
     private Branch         selectedBranch;
@@ -88,6 +89,7 @@ public class BranchListPresenter implements BranchListView.ActionDelegate {
         this.appContext = appContext;
         this.notificationManager = notificationManager;
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
+        this.workspaceId = appContext.getWorkspaceId();
 
         this.view.setDelegate(this);
     }
@@ -122,7 +124,7 @@ public class BranchListPresenter implements BranchListView.ActionDelegate {
         pattern = path.replaceFirst(project.getPath(), "");
         pattern = (pattern.startsWith("/")) ? pattern.replaceFirst("/", "") : pattern;
 
-        gitService.diff(project, Collections.singletonList(pattern), NAME_STATUS, false, 0, selectedBranch.getName(), false,
+        gitService.diff(workspaceId, project, Collections.singletonList(pattern), NAME_STATUS, false, 0, selectedBranch.getName(), false,
                         new AsyncRequestCallback<String>(new StringUnmarshaller()) {
                             @Override
                             protected void onSuccess(String result) {
@@ -174,7 +176,7 @@ public class BranchListPresenter implements BranchListView.ActionDelegate {
 
     /** Get list of branches from selected project. */
     private void getBranches() {
-        gitService.branchList(project.getRootProject(), LIST_ALL,
+        gitService.branchList(workspaceId, project.getRootProject(), LIST_ALL,
                               new AsyncRequestCallback<List<Branch>>(dtoUnmarshallerFactory.newListUnmarshaller(Branch.class)) {
                                   @Override
                                   protected void onSuccess(List<Branch> result) {

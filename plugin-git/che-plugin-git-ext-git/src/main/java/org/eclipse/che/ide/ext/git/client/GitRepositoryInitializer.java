@@ -38,6 +38,7 @@ public class GitRepositoryInitializer {
     private final NotificationManager     notificationManager;
     private final DtoUnmarshallerFactory  dtoUnmarshallerFactory;
     private final ProjectServiceClient    projectServiceClient;
+    private final String                  workspaceId;
 
     @Inject
     public GitRepositoryInitializer(GitServiceClient gitService,
@@ -52,6 +53,7 @@ public class GitRepositoryInitializer {
         this.notificationManager = notificationManager;
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
         this.projectServiceClient = projectServiceClient;
+        this.workspaceId = appContext.getWorkspaceId();
     }
 
     public static boolean isGitRepository(ProjectConfigDto project) {
@@ -67,7 +69,7 @@ public class GitRepositoryInitializer {
      */
     public void initGitRepository(final ProjectConfigDto project, final AsyncCallback<Void> callback) {
         try {
-            gitService.init(project, false, new RequestCallback<Void>() {
+            gitService.init(workspaceId, project, false, new RequestCallback<Void>() {
                                 @Override
                                 protected void onSuccess(Void result) {
                                     updateGitProvider(project, new AsyncCallback<ProjectConfigDto>() {
@@ -115,7 +117,8 @@ public class GitRepositoryInitializer {
             return;
         }
 
-        gitService.getGitReadOnlyUrl(project,
+        gitService.getGitReadOnlyUrl(workspaceId, 
+                                     project,
                                      new AsyncRequestCallback<String>(new StringUnmarshaller()) {
                                          @Override
                                          protected void onSuccess(String result) {
@@ -134,7 +137,8 @@ public class GitRepositoryInitializer {
      */
     void updateGitProvider(final ProjectConfigDto project, final AsyncCallback<ProjectConfigDto> callback) {
         // update 'vcs.provider.name' attribute value
-        projectServiceClient.getProject(project.getPath(),
+        projectServiceClient.getProject(appContext.getWorkspace().getId(),
+                                        project.getPath(),
                                         new AsyncRequestCallback<ProjectConfigDto>(
                                                 dtoUnmarshallerFactory.newUnmarshaller(ProjectConfigDto.class)) {
                                             @Override

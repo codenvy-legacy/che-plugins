@@ -73,12 +73,12 @@ public class DeleteRepositoryPresenterTest extends BaseTest {
                 onSuccess.invoke(callback, (Void)null);
                 return callback;
             }
-        }).when(service).deleteRepository(anyObject(), (AsyncRequestCallback<Void>)anyObject());
+        }).when(service).deleteRepository(anyString(), anyObject(), (AsyncRequestCallback<Void>)anyObject());
 
         presenter.deleteRepository();
 
         verify(appContext).getCurrentProject();
-        verify(service).deleteRepository(eq(rootProjectConfig), (AsyncRequestCallback<Void>)anyObject());
+        verify(service).deleteRepository(anyString(), eq(rootProjectConfig), (AsyncRequestCallback<Void>)anyObject());
         verify(console).printInfo(anyString());
         verify(notificationManager).notify(anyString(), rootProjectConfig);
     }
@@ -94,12 +94,12 @@ public class DeleteRepositoryPresenterTest extends BaseTest {
                 onFailure.invoke(callback, mock(Throwable.class));
                 return callback;
             }
-        }).when(service).deleteRepository(anyObject(), (AsyncRequestCallback<Void>)anyObject());
+        }).when(service).deleteRepository(anyString(), anyObject(), (AsyncRequestCallback<Void>)anyObject());
 
         presenter.deleteRepository();
 
         verify(appContext).getCurrentProject();
-        verify(service).deleteRepository(eq(rootProjectConfig), (AsyncRequestCallback<Void>)anyObject());
+        verify(service).deleteRepository(anyString(), eq(rootProjectConfig), (AsyncRequestCallback<Void>)anyObject());
         verify(console).printError(anyString());
         verify(notificationManager).notify(anyString(), rootProjectConfig);
     }

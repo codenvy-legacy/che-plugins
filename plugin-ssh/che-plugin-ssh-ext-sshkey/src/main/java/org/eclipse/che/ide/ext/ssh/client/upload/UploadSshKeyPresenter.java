@@ -10,17 +10,15 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.ssh.client.upload;
 
-import org.eclipse.che.ide.api.notification.NotificationManager;
-import org.eclipse.che.ide.api.parts.ConsolePart;
-import org.eclipse.che.ide.ext.ssh.client.SshLocalizationConstant;
-import org.eclipse.che.ide.rest.RestContext;
-
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.FormPanel;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.google.inject.name.Named;
-import com.google.web.bindery.event.shared.EventBus;
+
+import org.eclipse.che.ide.api.app.AppContext;
+import org.eclipse.che.ide.api.notification.NotificationManager;
+import org.eclipse.che.ide.ext.ssh.client.SshLocalizationConstant;
+import org.eclipse.che.ide.rest.RestContext;
 
 import javax.validation.constraints.NotNull;
 
@@ -37,8 +35,6 @@ public class UploadSshKeyPresenter implements UploadSshKeyView.ActionDelegate {
     private String                  workspaceId;
     private SshLocalizationConstant constant;
     private String                  restContext;
-    private EventBus                eventBus;
-    private ConsolePart             console;
     private NotificationManager     notificationManager;
     private AsyncCallback<Void>     callback;
 
@@ -46,17 +42,13 @@ public class UploadSshKeyPresenter implements UploadSshKeyView.ActionDelegate {
     public UploadSshKeyPresenter(UploadSshKeyView view,
                                  SshLocalizationConstant constant,
                                  @RestContext String restContext,
-                                 @Named("workspaceId") String workspaceId,
-                                 EventBus eventBus,
-                                 ConsolePart console,
+                                 AppContext appContext,
                                  NotificationManager notificationManager) {
         this.view = view;
-        this.workspaceId = workspaceId;
+        this.workspaceId = appContext.getWorkspace().getId();
         this.view.setDelegate(this);
         this.constant = constant;
         this.restContext = restContext;
-        this.console = console;
-        this.eventBus = eventBus;
         this.notificationManager = notificationManager;
     }
 

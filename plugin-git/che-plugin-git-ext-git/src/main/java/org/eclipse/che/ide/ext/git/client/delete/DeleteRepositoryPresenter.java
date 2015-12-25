@@ -43,6 +43,7 @@ public class DeleteRepositoryPresenter {
     private final DtoUnmarshallerFactory  dtoUnmarshaller;
     private final EventBus                eventBus;
     private final GitOutputPartPresenter  console;
+    private final String                  workspaceId;
 
     /**
      * Create presenter.
@@ -58,7 +59,7 @@ public class DeleteRepositoryPresenter {
                                      GitOutputPartPresenter console,
                                      AppContext appContext,
                                      NotificationManager notificationManager,
-                                     ProjectServiceClient projectService,
+                                     ProjectServiceClient projectServiceClient,
                                      DtoUnmarshallerFactory dtoUnmarshaller,
                                      EventBus eventBus) {
         this.service = service;
@@ -66,15 +67,17 @@ public class DeleteRepositoryPresenter {
         this.console = console;
         this.appContext = appContext;
         this.notificationManager = notificationManager;
-        this.projectService = projectService;
+        this.projectService = projectServiceClient;
         this.dtoUnmarshaller = dtoUnmarshaller;
         this.eventBus = eventBus;
+        
+        this.workspaceId = appContext.getWorkspaceId();
     }
 
     /** Delete Git repository. */
     public void deleteRepository() {
         final CurrentProject project = appContext.getCurrentProject();
-        service.deleteRepository(project.getRootProject(), new AsyncRequestCallback<Void>() {
+        service.deleteRepository(workspaceId, project.getRootProject(), new AsyncRequestCallback<Void>() {
             @Override
             protected void onSuccess(Void result) {
                 console.printInfo(constant.deleteGitRepositorySuccess());
@@ -91,7 +94,8 @@ public class DeleteRepositoryPresenter {
     }
 
     private void getRootProject(final ProjectConfigDto config) {
-        projectService.getProject(config.getPath(),
+        projectService.getProject(workspaceId,
+                                  config.getPath(),
                                   new AsyncRequestCallback<ProjectConfigDto>(dtoUnmarshaller.newUnmarshaller(ProjectConfigDto.class)) {
                                       @Override
                                       protected void onSuccess(ProjectConfigDto projectConfig) {

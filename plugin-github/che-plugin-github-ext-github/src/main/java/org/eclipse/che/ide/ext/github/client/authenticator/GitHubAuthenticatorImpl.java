@@ -27,7 +27,6 @@ import org.eclipse.che.ide.util.loging.Log;
 import org.eclipse.che.security.oauth.JsOAuthWindow;
 import org.eclipse.che.security.oauth.OAuthCallback;
 import org.eclipse.che.security.oauth.OAuthStatus;
-import org.eclipse.che.ide.util.Config;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -107,7 +106,7 @@ public class GitHubAuthenticatorImpl implements GitHubAuthenticator, OAuthCallba
                + "&redirect_after_login="
                + Window.Location.getProtocol() + "//"
                + Window.Location.getHost() + "/ws/"
-               + Config.getWorkspaceName();
+               + appContext.getWorkspace().getName();
     }
 
     private void generateSshKeys(final OAuthStatus authStatus) {

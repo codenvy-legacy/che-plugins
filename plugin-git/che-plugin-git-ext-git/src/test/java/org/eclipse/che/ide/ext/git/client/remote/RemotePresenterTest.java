@@ -83,13 +83,13 @@ public class RemotePresenterTest extends BaseTest {
                 onSuccess.invoke(callback, remotes);
                 return callback;
             }
-        }).when(service).remoteList(anyObject(), anyString(), anyBoolean(),
+        }).when(service).remoteList(anyString(), anyObject(), anyString(), anyBoolean(),
                                     (AsyncRequestCallback<List<Remote>>)anyObject());
 
         presenter.showDialog();
 
         verify(appContext).getCurrentProject();
-        verify(service).remoteList(eq(rootProjectConfig), anyString(), eq(SHOW_ALL_INFORMATION),
+        verify(service).remoteList(anyString(), eq(rootProjectConfig), anyString(), eq(SHOW_ALL_INFORMATION),
                                    (AsyncRequestCallback<List<Remote>>)anyObject());
         verify(view).setEnableDeleteButton(eq(DISABLE_BUTTON));
         verify(view).setRemotes((List<Remote>)anyObject());
@@ -107,13 +107,13 @@ public class RemotePresenterTest extends BaseTest {
                 onFailure.invoke(callback, mock(Throwable.class));
                 return callback;
             }
-        }).when(service).remoteList(anyObject(), anyString(), anyBoolean(),
+        }).when(service).remoteList(anyString(), anyObject(), anyString(), anyBoolean(),
                                     (AsyncRequestCallback<List<Remote>>)anyObject());
 
         presenter.showDialog();
 
         verify(appContext).getCurrentProject();
-        verify(service).remoteList(eq(rootProjectConfig), anyString(), eq(SHOW_ALL_INFORMATION),
+        verify(service).remoteList(anyString(), eq(rootProjectConfig), anyString(), eq(SHOW_ALL_INFORMATION),
                                    (AsyncRequestCallback<List<Remote>>)anyObject());
         verify(constant).remoteListFailed();
     }
@@ -139,7 +139,7 @@ public class RemotePresenterTest extends BaseTest {
 
         presenter.onAddClicked();
 
-        verify(service).remoteList(anyObject(), anyString(), eq(SHOW_ALL_INFORMATION),
+        verify(service).remoteList(anyString(), anyObject(), anyString(), eq(SHOW_ALL_INFORMATION),
                                    (AsyncRequestCallback<List<Remote>>)anyObject());
         verify(console, never()).printError(anyString());
         verify(notificationManager, never()).notify(anyString(), eq(rootProjectConfig));
@@ -159,7 +159,7 @@ public class RemotePresenterTest extends BaseTest {
 
         presenter.onAddClicked();
 
-        verify(service, never()).remoteList(anyObject(), anyString(), eq(SHOW_ALL_INFORMATION),
+        verify(service, never()).remoteList(anyString(), anyObject(), anyString(), eq(SHOW_ALL_INFORMATION),
                                             (AsyncRequestCallback<List<Remote>>)anyObject());
         verify(console).printError(anyString());
         verify(notificationManager, never()).notify(anyString(), eq(rootProjectConfig));
@@ -177,14 +177,14 @@ public class RemotePresenterTest extends BaseTest {
                 onSuccess.invoke(callback, EMPTY_TEXT);
                 return callback;
             }
-        }).when(service).remoteDelete(anyObject(), anyString(), (AsyncRequestCallback<String>)anyObject());
+        }).when(service).remoteDelete(anyString(), anyObject(), anyString(), (AsyncRequestCallback<String>)anyObject());
 
         presenter.showDialog();
         presenter.onRemoteSelected(selectedRemote);
         presenter.onDeleteClicked();
 
-        verify(service).remoteDelete(eq(rootProjectConfig), eq(REPOSITORY_NAME), (AsyncRequestCallback<String>)anyObject());
-        verify(service, times(2)).remoteList(anyObject(), anyString(), eq(SHOW_ALL_INFORMATION),
+        verify(service).remoteDelete(anyString(), eq(rootProjectConfig), eq(REPOSITORY_NAME), (AsyncRequestCallback<String>)anyObject());
+        verify(service, times(2)).remoteList(anyString(), anyObject(), anyString(), eq(SHOW_ALL_INFORMATION),
                                              (AsyncRequestCallback<List<Remote>>)anyObject());
     }
 
@@ -199,13 +199,13 @@ public class RemotePresenterTest extends BaseTest {
                 onFailure.invoke(callback, mock(Throwable.class));
                 return callback;
             }
-        }).when(service).remoteDelete(anyObject(), anyString(), (AsyncRequestCallback<String>)anyObject());
+        }).when(service).remoteDelete(anyString(), anyObject(), anyString(), (AsyncRequestCallback<String>)anyObject());
 
         presenter.showDialog();
         presenter.onRemoteSelected(selectedRemote);
         presenter.onDeleteClicked();
 
-        verify(service).remoteDelete(eq(rootProjectConfig), eq(REPOSITORY_NAME), (AsyncRequestCallback<String>)anyObject());
+        verify(service).remoteDelete(anyString(), eq(rootProjectConfig), eq(REPOSITORY_NAME), (AsyncRequestCallback<String>)anyObject());
         verify(constant).remoteDeleteFailed();
         verify(console).printError(anyString());
         verify(notificationManager, never()).notify(anyString(), eq(rootProjectConfig));

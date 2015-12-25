@@ -15,7 +15,6 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.google.inject.name.Named;
 import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
@@ -102,8 +101,7 @@ public class SelectCommandComboBoxReady extends AbstractPerspectiveAction implem
                                       MachineServiceClient machineServiceClient,
                                       CommandTypeRegistry commandTypeRegistry,
                                       EditCommandsPresenter editCommandsPresenter,
-                                      AppContext appContext,
-                                      @Named("workspaceId") String workspaceId) {
+                                      AppContext appContext) {
         super(Collections.singletonList(PROJECT_PERSPECTIVE_ID),
               locale.selectCommandControlTitle(),
               locale.selectCommandControlDescription(),
@@ -117,7 +115,7 @@ public class SelectCommandComboBoxReady extends AbstractPerspectiveAction implem
 
         this.dropDownListFactory = dropDownListFactory;
         this.appContext = appContext;
-        this.workspaceId = workspaceId;
+        this.workspaceId = appContext.getWorkspace().getId();
         this.dropDownHeaderWidget = dropDownListFactory.createList(GROUP_COMMANDS_LIST);
         this.devMachineLabelWidget = new HTML(locale.selectCommandEmptyCurrentDevMachineText());
 

@@ -15,7 +15,6 @@ import com.google.common.base.Strings;
 import com.google.gwt.user.client.Window;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.google.inject.name.Named;
 import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.ide.api.app.AppContext;
@@ -54,15 +53,14 @@ public class ExportPresenter extends SubversionActionPresenter implements Export
                            ExportView view,
                            NotificationManager notificationManager,
                            SubversionExtensionLocalizationConstants constants,
-                           @RestContext String restContext,
-                           @Named("workspaceId") String workspaceId) {
+                           @RestContext String restContext) {
         super(appContext, eventBus, console, workspaceAgent, projectExplorerPart);
         this.view = view;
         this.notificationManager = notificationManager;
         this.constants = constants;
         this.view.setDelegate(this);
 
-        this.baseHttpUrl = restContext + "/svn/" + workspaceId;
+        this.baseHttpUrl = restContext + "/svn/" + appContext.getWorkspace().getId();
     }
 
     public void showExport(HasStorablePath selectedNode) {

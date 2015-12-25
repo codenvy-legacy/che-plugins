@@ -18,6 +18,7 @@ import org.eclipse.che.api.project.shared.dto.ItemReference;
 import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.api.promises.client.js.Promises;
 import org.eclipse.che.commons.annotation.Nullable;
+import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.project.node.HasDataObject;
 import org.eclipse.che.ide.api.project.node.HasStorablePath;
 import org.eclipse.che.ide.project.node.resource.ItemReferenceProcessor;
@@ -35,10 +36,11 @@ public class JavaItemReferenceProcessor extends ItemReferenceProcessor {
 
     @Inject
     public JavaItemReferenceProcessor(EventBus eventBus,
-                                      ProjectServiceClient projectService,
+                                      ProjectServiceClient projectServiceClient,
+                                      AppContext appContext,
                                       DtoUnmarshallerFactory unmarshallerFactory,
                                       DialogFactory dialogFactory) {
-        super(eventBus, projectService, unmarshallerFactory);
+        super(eventBus,appContext, projectServiceClient, unmarshallerFactory);
         this.dialogFactory = dialogFactory;
     }
 

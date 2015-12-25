@@ -15,6 +15,7 @@ import com.google.web.bindery.event.shared.EventBus;
 import org.eclipse.che.api.git.gwt.client.GitServiceClient;
 import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
 import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
+import org.eclipse.che.api.workspace.shared.dto.UsersWorkspaceDto;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.notification.NotificationManager;
@@ -28,6 +29,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
 /**
@@ -88,6 +90,7 @@ public abstract class BaseTest {
 
     @Before
     public void disarm() {
+        when(appContext.getWorkspaceId()).thenReturn("id");
         when(appContext.getCurrentProject()).thenReturn(currentProject);
 
         when(currentProject.getProjectConfig()).thenReturn(projectConfig);
