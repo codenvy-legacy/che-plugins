@@ -15,18 +15,13 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
 import com.google.inject.multibindings.Multibinder;
-
 import org.eclipse.che.api.core.model.project.type.ProjectType;
 import org.eclipse.che.api.core.notification.EventService;
 import org.eclipse.che.api.core.rest.HttpJsonHelper;
-import org.eclipse.che.api.project.server.AttributeFilter;
-import org.eclipse.che.api.project.server.DefaultProjectManager;
-import org.eclipse.che.api.project.server.FolderEntry;
-import org.eclipse.che.api.project.server.Project;
-import org.eclipse.che.api.project.server.ProjectManager;
+import org.eclipse.che.api.project.server.*;
 import org.eclipse.che.api.project.server.handlers.ProjectHandler;
 import org.eclipse.che.api.project.server.handlers.ProjectHandlerRegistry;
-import org.eclipse.che.api.project.server.type.AbstractProjectType;
+import org.eclipse.che.api.project.server.type.ProjectTypeDef;
 import org.eclipse.che.api.project.server.type.ProjectTypeRegistry;
 import org.eclipse.che.api.vfs.server.SystemPathsFilter;
 import org.eclipse.che.api.vfs.server.VirtualFileSystemRegistry;
@@ -44,20 +39,12 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static javax.ws.rs.HttpMethod.GET;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.isNull;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -121,8 +108,8 @@ public class MavenProjectImportedTest {
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
         when(filterProvider.get()).thenReturn(filter);
-        Set<ProjectType> pts = new HashSet<>();
-        final ProjectType pt = new AbstractProjectType("maven", "Maven type", true, false) {
+        Set<ProjectTypeDef> pts = new HashSet<>();
+        final ProjectTypeDef pt = new ProjectTypeDef("maven", "Maven type", true, false) {
         };
 
         pts.add(pt);

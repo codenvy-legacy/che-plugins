@@ -11,19 +11,18 @@
 package org.eclipse.che.ide.ext.gwt.server;
 
 import com.google.inject.Inject;
-
-import org.eclipse.che.api.project.server.type.AbstractProjectType;
+import org.eclipse.che.api.project.server.type.ProjectTypeDef;
 import org.eclipse.che.ide.extension.maven.server.projecttype.MavenProjectType;
 
 import static org.eclipse.che.ide.ext.gwt.shared.Constants.GWT_PROJECT_TYPE_ID;
 import static org.eclipse.che.ide.ext.gwt.shared.Constants.GWT_PROJECT_TYPE_NAME;
 
 /** @author Artem Zatsarynnyi */
-public class GwtProjectType extends AbstractProjectType {
+public class GwtProjectType extends ProjectTypeDef {
 
     @Inject
     public GwtProjectType(MavenProjectType mavenProjectType) {
         super(GWT_PROJECT_TYPE_ID, GWT_PROJECT_TYPE_NAME, true, false, true);
-        addParent(mavenProjectType);
+        addParent("maven");
     }
 }

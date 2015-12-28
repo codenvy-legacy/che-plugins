@@ -11,20 +11,19 @@
 package org.eclipse.che.ide.ext.java.server.projecttype;
 
 import com.google.inject.Inject;
-
-import org.eclipse.che.api.project.server.type.AbstractProjectType;
+import org.eclipse.che.api.project.server.type.ProjectTypeDef;
 import org.eclipse.che.ide.ext.java.shared.Constants;
 
 /**
+ * Bare Java project type
  * @author gazarenkov
  * @author Dmitry Shnurenko
  */
-public class JavaProjectType extends AbstractProjectType {
+public class JavaProjectType extends ProjectTypeDef {
     @Inject
-    public JavaProjectType() {
+    public JavaProjectType(JavaPropertiesValueProviderFactory jpFactory) {
         super("java", "Java", true, false);
         addConstantDefinition(Constants.LANGUAGE, "language", "java");
-        addConstantDefinition(Constants.LANGUAGE_VERSION, "language version", "1.6");
-//        addRunnerCategories(Arrays.asList(JAVA.toString()));
+        addVariableDefinition(Constants.LANGUAGE_VERSION, "java version", true, jpFactory);
     }
 }
