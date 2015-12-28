@@ -15,9 +15,9 @@ import com.google.inject.Singleton;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
 
-import org.eclipse.che.api.core.model.project.type.ProjectType;
 import org.eclipse.che.api.project.server.ValueProviderFactory;
 import org.eclipse.che.api.project.server.handlers.ProjectHandler;
+import org.eclipse.che.api.project.server.type.ProjectTypeDef;
 import org.eclipse.che.api.vfs.server.VirtualFileFilter;
 import org.eclipse.che.ide.ext.java.server.classpath.ClassPathBuilder;
 import org.eclipse.che.ide.extension.maven.server.core.MavenClassPathBuilder;
@@ -42,7 +42,7 @@ public class MavenModule extends AbstractModule {
     protected void configure() {
         newSetBinder(binder(), ValueProviderFactory.class).addBinding().to(MavenValueProviderFactory.class);
 
-        newSetBinder(binder(), ProjectType.class).addBinding().to(MavenProjectType.class);
+        newSetBinder(binder(), ProjectTypeDef.class).addBinding().to(MavenProjectType.class);
 
         Multibinder<ProjectHandler> projectHandlerMultibinder = newSetBinder(binder(), ProjectHandler.class);
         projectHandlerMultibinder.addBinding().to(MavenProjectGenerator.class);

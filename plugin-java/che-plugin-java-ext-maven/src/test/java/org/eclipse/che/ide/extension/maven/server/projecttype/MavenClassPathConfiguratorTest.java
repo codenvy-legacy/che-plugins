@@ -25,7 +25,7 @@ import org.eclipse.che.api.project.server.Project;
 import org.eclipse.che.api.project.server.ProjectManager;
 import org.eclipse.che.api.project.server.VirtualFileEntry;
 import org.eclipse.che.api.project.server.handlers.ProjectHandlerRegistry;
-import org.eclipse.che.api.project.server.type.AbstractProjectType;
+import org.eclipse.che.api.project.server.type.ProjectTypeDef;
 import org.eclipse.che.api.project.server.type.ProjectTypeRegistry;
 import org.eclipse.che.api.vfs.server.SystemPathsFilter;
 import org.eclipse.che.api.vfs.server.VirtualFileSystemRegistry;
@@ -108,8 +108,8 @@ public class MavenClassPathConfiguratorTest {
     public void setup() throws Exception {
         MockitoAnnotations.initMocks(this);
         when(filterProvider.get()).thenReturn(filter);
-        Set<ProjectType> pts = new HashSet<>();
-        final AbstractProjectType pt = new AbstractProjectType("maven", "Maven type", true, false) {
+        Set<ProjectTypeDef> pts = new HashSet<>();
+        final ProjectTypeDef pt = new ProjectTypeDef("maven", "Maven type", true, false) {
         };
         pts.add(pt);
         final ProjectTypeRegistry projectTypeRegistry = new ProjectTypeRegistry(pts);

@@ -14,12 +14,11 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.multibindings.Multibinder;
-
 import org.eclipse.che.api.core.model.project.SourceStorage;
 import org.eclipse.che.api.project.server.FolderEntry;
 import org.eclipse.che.api.project.server.ProjectImporter;
 import org.eclipse.che.api.project.server.ValueProviderFactory;
-import org.eclipse.che.api.project.server.type.AbstractProjectType;
+import org.eclipse.che.api.project.server.type.ProjectTypeDef;
 import org.eclipse.che.api.user.server.dao.UserProfileDao;
 import org.eclipse.che.api.vfs.server.VirtualFileSystem;
 import org.eclipse.che.ide.ext.svn.server.credentials.CredentialsProvider;
@@ -36,9 +35,7 @@ import java.io.File;
 import java.nio.file.Paths;
 import java.util.regex.Pattern;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -64,7 +61,7 @@ public class SubversionProjectImporterTest {
             @Override
             protected void configure() {
                 Multibinder.newSetBinder(binder(), ProjectImporter.class).addBinding().to(SubversionProjectImporter.class);
-                Multibinder.newSetBinder(binder(), AbstractProjectType.class).addBinding().to(SubversionProjectType.class);
+                Multibinder.newSetBinder(binder(), ProjectTypeDef.class).addBinding().to(SubversionProjectType.class);
                 Multibinder.newSetBinder(binder(), ValueProviderFactory.class).addBinding()
                            .to(SubversionValueProviderFactory.class);
 

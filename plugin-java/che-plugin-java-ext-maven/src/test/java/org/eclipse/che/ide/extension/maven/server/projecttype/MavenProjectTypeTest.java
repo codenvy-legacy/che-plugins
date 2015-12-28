@@ -24,6 +24,7 @@ import org.eclipse.che.api.project.server.VirtualFileEntry;
 import org.eclipse.che.api.project.server.handlers.ProjectHandler;
 import org.eclipse.che.api.project.server.handlers.ProjectHandlerRegistry;
 import org.eclipse.che.api.project.server.type.AttributeValue;
+import org.eclipse.che.api.project.server.type.ProjectTypeDef;
 import org.eclipse.che.api.project.server.type.ProjectTypeRegistry;
 import org.eclipse.che.api.vfs.server.SystemPathsFilter;
 import org.eclipse.che.api.vfs.server.VirtualFileSystemRegistry;
@@ -34,6 +35,7 @@ import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.api.workspace.shared.dto.UsersWorkspaceDto;
 import org.eclipse.che.dto.server.DtoFactory;
 import org.eclipse.che.ide.ext.java.server.projecttype.JavaProjectType;
+import org.eclipse.che.ide.ext.java.server.projecttype.JavaPropertiesValueProviderFactory;
 import org.eclipse.che.ide.extension.maven.server.projecttype.handler.GeneratorStrategy;
 import org.eclipse.che.ide.extension.maven.server.projecttype.handler.MavenProjectGenerator;
 import org.eclipse.che.ide.extension.maven.shared.MavenAttributes;
@@ -93,9 +95,9 @@ public class MavenProjectTypeTest {
                 }, vfsRegistry, SystemPathsFilter.ANY);
         vfsRegistry.registerProvider(workspace, memoryFileSystemProvider);
 
-        Set<ProjectType> projTypes = new HashSet<>();
-        projTypes.add(new JavaProjectType());
-        projTypes.add(new MavenProjectType(new MavenValueProviderFactory(), new JavaProjectType()));
+        Set<ProjectTypeDef> projTypes = new HashSet<>();
+        projTypes.add(new JavaProjectType(new JavaPropertiesValueProviderFactory()));
+        projTypes.add(new MavenProjectType(new MavenValueProviderFactory()));
 
         ProjectTypeRegistry ptRegistry = new ProjectTypeRegistry(projTypes);
 
@@ -114,9 +116,9 @@ public class MavenProjectTypeTest {
 
     @Test
     public void testGetProjectType() throws Exception {
-        ProjectType pt = pm.getProjectTypeRegistry().getProjectType("maven");
+        ProjectTypeDef pt = pm.getProjectTypeRegistry().getProjectType("maven");
 
-        Assert.assertNotNull(pt);
+        //Assert.assertNotNull(pt);
         Assert.assertTrue(pt.getAttributes().size() > 0);
         Assert.assertTrue(pt.isTypeOf("java"));
     }
