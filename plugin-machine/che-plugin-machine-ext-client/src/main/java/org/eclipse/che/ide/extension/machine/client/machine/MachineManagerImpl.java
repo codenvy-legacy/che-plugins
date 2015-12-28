@@ -44,7 +44,7 @@ import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateE
 import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateHandler;
 import org.eclipse.che.ide.extension.machine.client.watcher.SystemFileWatcher;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
-import org.eclipse.che.ide.ui.loaders.initializationLoader.InitialLoadingInfo;
+import org.eclipse.che.ide.ui.loaders.initialization.InitialLoadingInfo;
 import org.eclipse.che.ide.util.loging.Log;
 import org.eclipse.che.ide.websocket.MessageBus;
 import org.eclipse.che.ide.websocket.MessageBusProvider;
@@ -57,10 +57,10 @@ import org.eclipse.che.api.workspace.gwt.client.event.StartWorkspaceHandler;
 import static org.eclipse.che.api.machine.gwt.client.MachineManager.MachineOperationType.START;
 import static org.eclipse.che.api.machine.gwt.client.MachineManager.MachineOperationType.RESTART;
 import static org.eclipse.che.api.machine.gwt.client.MachineManager.MachineOperationType.DESTROY;
-import static org.eclipse.che.ide.ui.loaders.initializationLoader.InitialLoadingInfo.Operations.MACHINE_BOOTING;
-import static org.eclipse.che.ide.ui.loaders.initializationLoader.OperationInfo.Status.ERROR;
-import static org.eclipse.che.ide.ui.loaders.initializationLoader.OperationInfo.Status.IN_PROGRESS;
-import static org.eclipse.che.ide.ui.loaders.initializationLoader.OperationInfo.Status.SUCCESS;
+import static org.eclipse.che.ide.ui.loaders.initialization.InitialLoadingInfo.Operations.MACHINE_BOOTING;
+import static org.eclipse.che.ide.ui.loaders.initialization.OperationInfo.Status.ERROR;
+import static org.eclipse.che.ide.ui.loaders.initialization.OperationInfo.Status.IN_PROGRESS;
+import static org.eclipse.che.ide.ui.loaders.initialization.OperationInfo.Status.SUCCESS;
 import static org.eclipse.che.ide.extension.machine.client.perspective.MachinePerspective.MACHINE_PERSPECTIVE_ID;
 
 /**

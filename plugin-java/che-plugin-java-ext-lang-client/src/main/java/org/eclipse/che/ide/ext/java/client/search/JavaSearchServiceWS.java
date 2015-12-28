@@ -24,7 +24,8 @@ import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.ext.java.shared.dto.search.FindUsagesRequest;
 import org.eclipse.che.ide.ext.java.shared.dto.search.FindUsagesResponse;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
-import org.eclipse.che.ide.ui.loaders.requestLoader.IdeLoader;
+import org.eclipse.che.ide.ui.loaders.request.LoaderFactory;
+import org.eclipse.che.ide.ui.loaders.request.MessageLoader;
 import org.eclipse.che.ide.websocket.MessageBuilder;
 import org.eclipse.che.ide.websocket.MessageBus;
 import org.eclipse.che.ide.websocket.MessageBusProvider;
@@ -45,7 +46,7 @@ public class JavaSearchServiceWS implements JavaSearchService {
 
     private MessageBusProvider     provider;
     private DtoFactory             dtoFactory;
-    private IdeLoader              loader;
+    private MessageLoader          loader;
     private DtoUnmarshallerFactory unmarshallerFactory;
     private String                 pathToService;
 
@@ -53,11 +54,11 @@ public class JavaSearchServiceWS implements JavaSearchService {
     public JavaSearchServiceWS(MessageBusProvider provider,
                                AppContext appContext,
                                DtoFactory dtoFactory,
-                               IdeLoader loader,
+                               LoaderFactory loaderFactory,
                                DtoUnmarshallerFactory unmarshallerFactory) {
         this.provider = provider;
         this.dtoFactory = dtoFactory;
-        this.loader = loader;
+        this.loader = loaderFactory.newLoader();
         this.unmarshallerFactory = unmarshallerFactory;
         this.pathToService = "/jdt/" + appContext.getWorkspace().getId() + "/search/";
     }

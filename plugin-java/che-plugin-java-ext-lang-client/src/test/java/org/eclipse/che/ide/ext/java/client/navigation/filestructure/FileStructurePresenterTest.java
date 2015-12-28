@@ -30,7 +30,8 @@ import org.eclipse.che.ide.ext.java.shared.dto.model.Member;
 import org.eclipse.che.ide.jseditor.client.document.Document;
 import org.eclipse.che.ide.jseditor.client.texteditor.EmbeddedTextEditorPresenter;
 import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
-import org.eclipse.che.ide.ui.loaders.requestLoader.IdeLoader;
+import org.eclipse.che.ide.ui.loaders.request.LoaderFactory;
+import org.eclipse.che.ide.ui.loaders.request.MessageLoader;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -62,7 +63,9 @@ public class FileStructurePresenterTest {
     @Mock
     private EditorAgent              editorAgent;
     @Mock
-    private IdeLoader                loader;
+    private MessageLoader            loader;
+    @Mock
+    private LoaderFactory            loaderFactory;
     @Mock
     private ProjectExplorerPresenter projectExplorer;
     @Mock
@@ -128,13 +131,14 @@ public class FileStructurePresenterTest {
         when(member.getFileRegion()).thenReturn(region);
         when(region.getOffset()).thenReturn(1);
         when(region.getLength()).thenReturn(2);
+        when(loaderFactory.newLoader()).thenReturn(loader);
 
 
         presenter = new FileStructurePresenter(view,
                                                javaNavigationService,
                                                context,
                                                editorAgent,
-                                               loader,
+                                               loaderFactory,
                                                projectExplorer,
                                                javaNodeManager);
     }

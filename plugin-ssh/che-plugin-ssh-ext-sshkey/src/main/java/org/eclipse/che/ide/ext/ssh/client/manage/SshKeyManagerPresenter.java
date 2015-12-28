@@ -32,6 +32,7 @@ import org.eclipse.che.ide.ui.dialogs.CancelCallback;
 import org.eclipse.che.ide.ui.dialogs.ConfirmCallback;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 import org.eclipse.che.ide.ui.dialogs.InputCallback;
+import org.eclipse.che.ide.ui.loaders.request.LoaderFactory;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -64,7 +65,7 @@ public class SshKeyManagerPresenter extends AbstractPreferencePagePresenter impl
                                   SshResources resources,
                                   AppContext appContext,
                                   SshLocalizationConstant constant,
-                                  AsyncRequestLoader loader,
+                                  LoaderFactory loaderFactory,
                                   UploadSshKeyPresenter uploadSshKeyPresenter,
                                   NotificationManager notificationManager,
                                   DtoUnmarshallerFactory dtoUnmarshallerFactory,
@@ -78,7 +79,7 @@ public class SshKeyManagerPresenter extends AbstractPreferencePagePresenter impl
         this.view.setDelegate(this);
         this.service = service;
         this.constant = constant;
-        this.loader = loader;
+        this.loader = loaderFactory.newLoader();
         this.uploadSshKeyPresenter = uploadSshKeyPresenter;
         this.notificationManager = notificationManager;
     }
@@ -89,13 +90,13 @@ public class SshKeyManagerPresenter extends AbstractPreferencePagePresenter impl
         service.getPublicKey(key, new AsyncRequestCallback<PublicKey>(dtoUnmarshallerFactory.newUnmarshaller(PublicKey.class)) {
             @Override
             public void onSuccess(PublicKey result) {
-                loader.hide(constant.loaderGetPublicSshKeyMessage(key.getHost()));
+                loader.hide();
                 dialogFactory.createMessageDialog(constant.publicSshKeyField() + key.getHost(), result.getKey(), null).show();
             }
 
             @Override
             public void onFailure(Throwable exception) {
-                loader.hide(constant.loaderGetPublicSshKeyMessage(key.getHost()));
+                loader.hide();
                 notificationManager.notify(exception.getMessage(), FAIL, true);
             }
         });
@@ -132,13 +133,13 @@ public class SshKeyManagerPresenter extends AbstractPreferencePagePresenter impl
         service.deleteKey(key, new AsyncRequestCallback<Void>() {
             @Override
             public void onSuccess(Void result) {
-                loader.hide(constant.loaderDeleteSshKeyMessage(key.getHost()));
+                loader.hide();
                 refreshKeys();
             }
 
             @Override
             public void onFailure(Throwable exception) {
-                loader.hide(constant.loaderDeleteSshKeyMessage(key.getHost()));
+                loader.hide();
                 notificationManager.notify(exception.getMessage(), FAIL, true);
             }
         });
@@ -222,7 +223,7 @@ public class SshKeyManagerPresenter extends AbstractPreferencePagePresenter impl
         service.getAllKeys(new AsyncRequestCallback<List<KeyItem>>(dtoUnmarshallerFactory.newListUnmarshaller(KeyItem.class)) {
             @Override
             public void onSuccess(List<KeyItem> result) {
-                loader.hide(constant.loaderGetSshKeysMessage());
+                loader.hide();
                 for (KeyItem key : result) {
                     if (key.getHost().equals(host)) {
                         removeFailedKey(key);
@@ -234,7 +235,7 @@ public class SshKeyManagerPresenter extends AbstractPreferencePagePresenter impl
 
             @Override
             public void onFailure(Throwable exception) {
-                loader.hide(constant.loaderGetSshKeysMessage());
+                loader.hide();
                 refreshKeys();
                 notificationManager.notify(constant.failedToLoadSshKeys(), FAIL, true);
             }
@@ -251,14 +252,14 @@ public class SshKeyManagerPresenter extends AbstractPreferencePagePresenter impl
         service.deleteKey(key, new AsyncRequestCallback<Void>() {
             @Override
             public void onFailure(Throwable caught) {
-                loader.hide(constant.loaderDeleteSshKeyMessage(key.getHost()));
+                loader.hide();
                 notificationManager.notify(constant.deleteSshKeyFailed(), FAIL, true);
                 refreshKeys();
             }
 
             @Override
             public void onSuccess(Void result) {
-                loader.hide(constant.loaderDeleteSshKeyMessage(key.getHost()));
+                loader.hide();
                 refreshKeys();
             }
         });
@@ -282,13 +283,13 @@ public class SshKeyManagerPresenter extends AbstractPreferencePagePresenter impl
         service.getAllKeys(new AsyncRequestCallback<List<KeyItem>>(dtoUnmarshallerFactory.newListUnmarshaller(KeyItem.class)) {
             @Override
             public void onSuccess(List<KeyItem> result) {
-                loader.hide(constant.loaderGetSshKeysMessage());
+                loader.hide();
                 view.setKeys(result);
             }
 
             @Override
             public void onFailure(Throwable exception) {
-                loader.hide(constant.loaderGetSshKeysMessage());
+                loader.hide();
                 notificationManager.notify(constant.failedToLoadSshKeys(), FAIL, true);
             }
         });

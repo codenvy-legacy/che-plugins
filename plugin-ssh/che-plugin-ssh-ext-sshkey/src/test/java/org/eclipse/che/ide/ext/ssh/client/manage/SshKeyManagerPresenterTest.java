@@ -25,7 +25,6 @@ import org.eclipse.che.ide.ext.ssh.client.upload.UploadSshKeyPresenter;
 import org.eclipse.che.ide.ext.ssh.dto.KeyItem;
 import org.eclipse.che.ide.ext.ssh.dto.PublicKey;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
-import org.eclipse.che.ide.rest.AsyncRequestLoader;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.ui.dialogs.CancelCallback;
 import org.eclipse.che.ide.ui.dialogs.ConfirmCallback;
@@ -34,12 +33,14 @@ import org.eclipse.che.ide.ui.dialogs.InputCallback;
 import org.eclipse.che.ide.ui.dialogs.confirm.ConfirmDialog;
 import org.eclipse.che.ide.ui.dialogs.input.InputDialog;
 import org.eclipse.che.ide.ui.dialogs.message.MessageDialog;
+import org.eclipse.che.ide.ui.loaders.request.LoaderFactory;
+import org.eclipse.che.ide.ui.loaders.request.MessageLoader;
 import org.eclipse.che.test.GwtReflectionUtils;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.mockito.InjectMocks;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 
@@ -102,13 +103,31 @@ public class SshKeyManagerPresenterTest {
     @Mock
     private SshResources            resources;
     @Mock
-    private AsyncRequestLoader      loader;
+    private MessageLoader           loader;
+    @Mock
+    private LoaderFactory           loaderFactory;
     @Mock
     private UploadSshKeyPresenter   uploadSshKeyPresenter;
     @Mock
     private NotificationManager     notificationManager;
-    @InjectMocks
-    private SshKeyManagerPresenter  presenter;
+
+    private SshKeyManagerPresenter presenter;
+
+    @Before
+    public void setUp() {
+        when(loaderFactory.newLoader()).thenReturn(loader);
+        
+        presenter = new SshKeyManagerPresenter(view,
+                                               service,
+                                               resources,
+                                               appContext,
+                                               constant,
+                                               loaderFactory,
+                                               uploadSshKeyPresenter,
+                                               notificationManager,
+                                               dtoUnmarshallerFactory,
+                                               dialogFactory);
+    }
 
     @Test
     public void testGo() {
@@ -133,7 +152,7 @@ public class SshKeyManagerPresenterTest {
         AsyncRequestCallback<PublicKey> publicKeyCallback = publicKeyCallbackCaptor.getValue();
         GwtReflectionUtils.callOnSuccess(publicKeyCallback, publicKey);
 
-        verify(loader).hide(anyString());
+        verify(loader).hide();
         verify(dialogFactory).createMessageDialog(anyString(), anyString(), (ConfirmCallback)anyObject());
         verify(messageDialog).show();
     }
@@ -150,7 +169,7 @@ public class SshKeyManagerPresenterTest {
         AsyncRequestCallback<PublicKey> publicKeyCallback = publicKeyCallbackCaptor.getValue();
         GwtReflectionUtils.callOnFailure(publicKeyCallback, new Exception(""));
 
-        verify(loader).hide(anyString());
+        verify(loader).hide();
         verify(dialogFactory, never()).createMessageDialog(anyString(), anyString(), (ConfirmCallback)anyObject());
         verify(messageDialog, never()).show();
         verify(notificationManager).notify(anyString(), any(StatusNotification.Status.class), anyBoolean());
@@ -221,7 +240,7 @@ public class SshKeyManagerPresenterTest {
 
         verify(confirmDialog).show();
         verify(service).deleteKey((KeyItem)anyObject(), Matchers.<AsyncRequestCallback<Void>>anyObject());
-        verify(loader).hide(anyString());
+        verify(loader).hide();
         verify(service).getAllKeys(Matchers.<AsyncRequestCallback<List<KeyItem>>>anyObject());
     }
 
@@ -248,7 +267,7 @@ public class SshKeyManagerPresenterTest {
 
         verify(confirmDialog).show();
         verify(service).deleteKey((KeyItem)anyObject(), Matchers.<AsyncRequestCallback<Void>>anyObject());
-        verify(loader).hide(anyString());
+        verify(loader).hide();
         verify(notificationManager).notify(anyString(), any(StatusNotification.Status.class), anyBoolean());
         verify(service, never()).getAllKeys(Matchers.<AsyncRequestCallback<List<KeyItem>>>anyObject());
     }
@@ -281,7 +300,7 @@ public class SshKeyManagerPresenterTest {
 
         verify(confirmDialog).show();
         verify(service).deleteKey((KeyItem)anyObject(), Matchers.<AsyncRequestCallback<Void>>anyObject());
-        verify(loader, times(2)).hide(anyString());
+        verify(loader, times(2)).hide();
         verify(service).getAllKeys(Matchers.<AsyncRequestCallback<List<KeyItem>>>anyObject());
         verify(view).setKeys(eq(keyItemArray));
     }
@@ -314,7 +333,7 @@ public class SshKeyManagerPresenterTest {
 
         verify(confirmDialog).show();
         verify(service).deleteKey((KeyItem)anyObject(), Matchers.<AsyncRequestCallback<Void>>anyObject());
-        verify(loader, times(2)).hide(anyString());
+        verify(loader, times(2)).hide();
         verify(service).getAllKeys(Matchers.<AsyncRequestCallback<List<KeyItem>>>anyObject());
         verify(view, never()).setKeys(eq(keyItemArray));
         verify(notificationManager).notify(anyString(), any(StatusNotification.Status.class), anyBoolean());
@@ -334,7 +353,7 @@ public class SshKeyManagerPresenterTest {
         AsyncRequestCallback<List<KeyItem>> getAllKeysCallback = getAllKeysCallbackCaptor.getValue();
         GwtReflectionUtils.callOnSuccess(getAllKeysCallback, keyItemArray);
 
-        verify(loader).hide(anyString());
+        verify(loader).hide();
         verify(view).setKeys(eq(keyItemArray));
     }
 
@@ -352,7 +371,7 @@ public class SshKeyManagerPresenterTest {
         AsyncRequestCallback<List<KeyItem>> getAllKeysCallback = getAllKeysCallbackCaptor.getValue();
         GwtReflectionUtils.callOnFailure(getAllKeysCallback, new Exception(""));
 
-        verify(loader).hide(anyString());
+        verify(loader).hide();
         verify(view, never()).setKeys(eq(keyItemArray));
     }
 
@@ -431,7 +450,7 @@ public class SshKeyManagerPresenterTest {
         AsyncRequestCallback<List<KeyItem>> getAllKeysCallback = getAllKeysCallbackCaptor.getValue();
         GwtReflectionUtils.callOnSuccess(getAllKeysCallback, keyItemArray);
 
-        verify(loader).hide(anyString());
+        verify(loader).hide();
         verify(view).setKeys(eq(keyItemArray));
     }
 

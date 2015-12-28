@@ -50,6 +50,7 @@ import org.eclipse.che.ide.rest.AsyncRequestLoader;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.rest.RestContext;
 import org.eclipse.che.ide.rest.Unmarshallable;
+import org.eclipse.che.ide.ui.loaders.request.LoaderFactory;
 
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
@@ -79,11 +80,11 @@ public class SubversionClientServiceImpl implements SubversionClientService {
                                        AppContext appContext,
                                        final AsyncRequestFactory asyncRequestFactory,
                                        final DtoFactory dtoFactory,
-                                       final AsyncRequestLoader loader,
+                                       final LoaderFactory loaderFactory,
                                        final DtoUnmarshallerFactory dtoUnmarshallerFactory) {
         this.asyncRequestFactory = asyncRequestFactory;
         this.dtoFactory = dtoFactory;
-        this.loader = loader;
+        this.loader = loaderFactory.newLoader();
         this.baseHttpUrl = restContext + "/svn/" + appContext.getWorkspace().getId();
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
     }
