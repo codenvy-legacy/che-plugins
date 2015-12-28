@@ -36,7 +36,8 @@ import org.eclipse.che.ide.jseditor.client.text.LinearRange;
 import org.eclipse.che.ide.jseditor.client.texteditor.EmbeddedTextEditorPresenter;
 import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.eclipse.che.ide.project.node.FileReferenceNode;
-import org.eclipse.che.ide.ui.loaders.requestLoader.IdeLoader;
+import org.eclipse.che.ide.ui.loaders.request.LoaderFactory;
+import org.eclipse.che.ide.ui.loaders.request.MessageLoader;
 import org.eclipse.che.ide.util.loging.Log;
 
 /**
@@ -50,7 +51,7 @@ public class FileStructurePresenter implements FileStructure.ActionDelegate {
     private final JavaNavigationService    javaNavigationService;
     private final AppContext               context;
     private final EditorAgent              editorAgent;
-    private final IdeLoader                loader;
+    private final MessageLoader            loader;
     private final ProjectExplorerPresenter projectExplorer;
     private final JavaNodeManager          javaNodeManager;
 
@@ -62,14 +63,14 @@ public class FileStructurePresenter implements FileStructure.ActionDelegate {
                                   JavaNavigationService javaNavigationService,
                                   AppContext context,
                                   EditorAgent editorAgent,
-                                  IdeLoader loader,
+                                  LoaderFactory loaderFactory,
                                   ProjectExplorerPresenter projectExplorer,
                                   JavaNodeManager javaNodeManager) {
         this.view = view;
         this.javaNavigationService = javaNavigationService;
         this.context = context;
         this.editorAgent = editorAgent;
-        this.loader = loader;
+        this.loader = loaderFactory.newLoader();
         this.projectExplorer = projectExplorer;
         this.javaNodeManager = javaNodeManager;
         this.view.setDelegate(this);

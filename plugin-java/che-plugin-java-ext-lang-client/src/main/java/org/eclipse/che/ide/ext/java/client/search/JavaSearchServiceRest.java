@@ -23,7 +23,8 @@ import org.eclipse.che.ide.ext.java.shared.dto.search.FindUsagesRequest;
 import org.eclipse.che.ide.ext.java.shared.dto.search.FindUsagesResponse;
 import org.eclipse.che.ide.rest.AsyncRequestFactory;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
-import org.eclipse.che.ide.ui.loaders.requestLoader.IdeLoader;
+import org.eclipse.che.ide.ui.loaders.request.LoaderFactory;
+import org.eclipse.che.ide.ui.loaders.request.MessageLoader;
 
 import static org.eclipse.che.api.promises.client.callback.PromiseHelper.newCallback;
 import static org.eclipse.che.api.promises.client.callback.PromiseHelper.newPromise;
@@ -40,18 +41,18 @@ public class JavaSearchServiceRest implements JavaSearchService {
 
     private final AsyncRequestFactory    asyncRequestFactory;
     private final DtoUnmarshallerFactory unmarshallerFactory;
-    private       IdeLoader              loader;
+    private       MessageLoader          loader;
     private final String                 pathToService;
 
     @Inject
     public JavaSearchServiceRest(AsyncRequestFactory asyncRequestFactory,
                                  DtoUnmarshallerFactory unmarshallerFactory,
-                                 IdeLoader loader,
+                                 LoaderFactory loaderFactory,
                                  @Named("cheExtensionPath") String extPath,
                                  AppContext appContext) {
         this.asyncRequestFactory = asyncRequestFactory;
         this.unmarshallerFactory = unmarshallerFactory;
-        this.loader = loader;
+        this.loader = loaderFactory.newLoader();
         this.pathToService = extPath + "/jdt/" + appContext.getWorkspace().getId() + "/search/";
     }
 
