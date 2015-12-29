@@ -15,6 +15,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
+import org.eclipse.che.ide.api.ProductInfoDataProvider;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.notification.StatusNotification;
@@ -22,6 +23,7 @@ import org.eclipse.che.ide.commons.exception.UnauthorizedException;
 import org.eclipse.che.ide.ext.ssh.client.SshKeyProvider;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.RestContext;
+import org.eclipse.che.ide.ui.dialogs.CancelCallback;
 import org.eclipse.che.ide.ui.dialogs.ConfirmCallback;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 import org.eclipse.che.security.oauth.JsOAuthWindow;
@@ -42,6 +44,7 @@ public class GitHubSshKeyProvider implements SshKeyProvider, OAuthCallback {
     private final String                     baseUrl;
     private final GitHubLocalizationConstant constant;
     private final NotificationManager        notificationManager;
+    private final ProductInfoDataProvider    productInfoDataProvider;
     private final DialogFactory              dialogFactory;
     private final AppContext                 appContext;
 
@@ -53,12 +56,14 @@ public class GitHubSshKeyProvider implements SshKeyProvider, OAuthCallback {
                                 @RestContext String baseUrl,
                                 GitHubLocalizationConstant constant,
                                 NotificationManager notificationManager,
+                                ProductInfoDataProvider productInfoDataProvider,
                                 DialogFactory dialogFactory,
                                 AppContext appContext) {
         this.gitHubService = gitHubService;
         this.baseUrl = baseUrl;
         this.constant = constant;
         this.notificationManager = notificationManager;
+        this.productInfoDataProvider = productInfoDataProvider;
         this.dialogFactory = dialogFactory;
         this.appContext = appContext;
     }
@@ -89,12 +94,20 @@ public class GitHubSshKeyProvider implements SshKeyProvider, OAuthCallback {
 
     /** Log in github */
     private void oAuthLoginStart() {
-        dialogFactory.createConfirmDialog(constant.githubSshKeyTitle(), constant.githubSshKeyLabel(), new ConfirmCallback() {
-            @Override
-            public void accepted() {
-                showPopUp();
-            }
-        }, null).show();
+        dialogFactory.createConfirmDialog(constant.authorizationDialogTitle(),
+                                          constant.authorizationDialogText(productInfoDataProvider.getName()),
+                                          new ConfirmCallback() {
+                                              @Override
+                                              public void accepted() {
+                                                  showPopUp();
+                                              }
+                                          },
+                                          new CancelCallback() {
+                                              @Override
+                                              public void cancelled() {
+                                                  callback.onFailure(new Exception(constant.authorizationRequestRejected()));
+                                              }
+                                          }).show();
     }
 
     private void showPopUp() {
@@ -111,7 +124,8 @@ public class GitHubSshKeyProvider implements SshKeyProvider, OAuthCallback {
         if (LOGGED_IN.equals(authStatus)) {
             generateKey(userId, callback);
         } else {
-            notificationManager.notify(constant.gitHubSshKeyUpdateFailed(), StatusNotification.Status.FAIL, true);
+            notificationManager.notify(constant.authorizationFailed(), StatusNotification.Status.FAIL, true);
+            callback.onFailure(new Exception(constant.authorizationFailed()));
         }
     }
 }
