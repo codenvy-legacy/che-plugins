@@ -174,22 +174,23 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
     @Override
     public void onDuplicateClicked() {
         final CommandConfiguration selectedConfiguration = view.getSelectedConfiguration();
-        if (selectedConfiguration == null) {
-            return;
+        if (selectedConfiguration != null) {
+            createNewCommand(selectedConfiguration.getType(), selectedConfiguration.toCommandLine(), selectedConfiguration.getName());
         }
-
-        createCommand(selectedConfiguration.getType(), selectedConfiguration.toCommandLine(), selectedConfiguration.getName());
     }
 
     @Override
     public void onAddClicked() {
         final CommandType selectedType = view.getSelectedCommandType();
-        if (selectedType == null) {
-            return;
+        if (selectedType != null) {
+            createNewCommand(selectedType, null, null);
         }
+    }
 
+    private void createNewCommand(final CommandType type, final String customCommand, final String customName) {
         if (!isViewModified()) {
-            createCommand(selectedType);
+            reset();
+            createCommand(type, customCommand, customName);
             return;
         }
 
@@ -199,7 +200,8 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
                 updateCommand(editedCommand).then(new Operation<UsersWorkspaceDto>() {
                     @Override
                     public void apply(UsersWorkspaceDto arg) throws OperationException {
-                        createCommand(selectedType);
+                        reset();
+                        createCommand(type, customCommand, customName);
                     }
                 });
             }
@@ -208,7 +210,9 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
         final ConfirmCallback discardCallback = new ConfirmCallback() {
             @Override
             public void accepted() {
-                createCommand(selectedType);
+                fetchCommands();
+                reset();
+                createCommand(type, customCommand, customName);
             }
         };
 
@@ -310,43 +314,6 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
         view.close();
     }
 
-    @Override
-    public void onCommandTypeSelected(CommandType type) {
-        if (!isViewModified()) {
-            reset();
-            return;
-        }
-
-        final ConfirmCallback saveCallback = new ConfirmCallback() {
-            @Override
-            public void accepted() {
-                updateCommand(editedCommand).then(new Operation<UsersWorkspaceDto>() {
-                    @Override
-                    public void apply(UsersWorkspaceDto arg) throws OperationException {
-                        fetchCommands();
-                        fireConfigurationUpdated(editedCommand);
-                    }
-                });
-            }
-        };
-
-        final ConfirmCallback discardCallback = new ConfirmCallback() {
-            @Override
-            public void accepted() {
-                fetchCommands();
-            }
-        };
-
-        final ChoiceDialog dialog = dialogFactory.createChoiceDialog(
-                machineLocale.editCommandsSaveChangesTitle(),
-                machineLocale.editCommandsSaveChangesConfirmation(editedCommand.getName()),
-                coreLocale.save(),
-                machineLocale.editCommandsSaveChangesDiscard(),
-                saveCallback,
-                discardCallback);
-        dialog.show();
-    }
-
     private void reset() {
         editedCommand = null;
         editedCommandOriginName = null;
@@ -380,6 +347,7 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
         final ConfirmCallback discardCallback = new ConfirmCallback() {
             @Override
             public void accepted() {
+                reset();
                 fetchCommands();
                 handleCommandSelection(configuration);
             }

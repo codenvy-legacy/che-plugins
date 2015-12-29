@@ -12,7 +12,6 @@ package org.eclipse.che.ide.extension.maven.server.projecttype.handler;
 
 import com.google.inject.Provider;
 
-import org.eclipse.che.api.core.model.project.type.ProjectType;
 import org.eclipse.che.api.core.notification.EventService;
 import org.eclipse.che.api.core.rest.HttpJsonHelper;
 import org.eclipse.che.api.project.server.AttributeFilter;
@@ -21,7 +20,7 @@ import org.eclipse.che.api.project.server.Project;
 import org.eclipse.che.api.project.server.VirtualFileEntry;
 import org.eclipse.che.api.project.server.handlers.ProjectHandler;
 import org.eclipse.che.api.project.server.handlers.ProjectHandlerRegistry;
-import org.eclipse.che.api.project.server.type.AbstractProjectType;
+import org.eclipse.che.api.project.server.type.ProjectTypeDef;
 import org.eclipse.che.api.project.server.type.ProjectTypeRegistry;
 import org.eclipse.che.api.vfs.server.ContentStream;
 import org.eclipse.che.api.vfs.server.SystemPathsFilter;
@@ -88,10 +87,10 @@ public class RemoveMavenModuleHandlerTest {
     public void setUp() throws Exception {
         when(filterProvider.get()).thenReturn(filter);
         removeMavenModuleHandler = new RemoveMavenModuleHandler();
-        AbstractProjectType mavenProjectType = Mockito.mock(AbstractProjectType.class);
+        ProjectTypeDef mavenProjectType = Mockito.mock(ProjectTypeDef.class);
         Mockito.when(mavenProjectType.getId()).thenReturn(MavenAttributes.MAVEN_ID);
         Mockito.when(mavenProjectType.getDisplayName()).thenReturn(MavenAttributes.MAVEN_ID);
-        Mockito.when(mavenProjectType.canBePrimary()).thenReturn(true);
+        Mockito.when(mavenProjectType.isPrimaryable()).thenReturn(true);
         final String vfsUser = "dev";
         final Set<String> vfsUserGroups = new LinkedHashSet<>(Arrays.asList("workspace/developer"));
         final EventService eventService = new EventService();
@@ -106,7 +105,7 @@ public class RemoveMavenModuleHandlerTest {
         vfsRegistry.registerProvider(workspace, memoryFileSystemProvider);
 
 
-        Set<ProjectType> projTypes = new HashSet<>();
+        Set<ProjectTypeDef> projTypes = new HashSet<>();
         projTypes.add(mavenProjectType);
 
         ProjectTypeRegistry projectTypeRegistry = new ProjectTypeRegistry(projTypes);

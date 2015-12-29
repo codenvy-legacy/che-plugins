@@ -101,14 +101,6 @@ public interface EditCommandsView extends View<EditCommandsView.ActionDelegate> 
         void onExecuteClicked();
 
         /**
-         * Called when some command type is selected.
-         *
-         * @param type
-         *         selected command type
-         */
-        void onCommandTypeSelected(CommandType type);
-
-        /**
          * Called when some command configuration is selected.
          *
          * @param configuration

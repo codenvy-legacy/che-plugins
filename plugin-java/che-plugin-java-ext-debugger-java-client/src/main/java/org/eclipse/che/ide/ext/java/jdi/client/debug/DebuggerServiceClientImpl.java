@@ -25,8 +25,7 @@ import org.eclipse.che.ide.ext.java.jdi.shared.Value;
 import org.eclipse.che.ide.ext.java.jdi.shared.Variable;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.AsyncRequestFactory;
-import org.eclipse.che.ide.rest.AsyncRequestLoader;
-import org.eclipse.che.ide.ui.loaders.requestLoader.EmptyLoader;
+import org.eclipse.che.ide.ui.loaders.request.LoaderFactory;
 
 import javax.validation.constraints.NotNull;
 
@@ -43,17 +42,17 @@ import static org.eclipse.che.ide.rest.HTTPHeader.CONTENTTYPE;
 @Singleton
 public class DebuggerServiceClientImpl implements DebuggerServiceClient {
     private final String                          baseUrl;
-    private final AsyncRequestLoader              loader;
+    private final LoaderFactory                   loaderFactory;
     private final AsyncRequestFactory             asyncRequestFactory;
     private final JavaRuntimeLocalizationConstant localizationConstant;
 
     @Inject
     protected DebuggerServiceClientImpl(@Named("cheExtensionPath") String extPath,
                                         AppContext appContext,
-                                        AsyncRequestLoader loader,
+                                        LoaderFactory loaderFactory,
                                         AsyncRequestFactory asyncRequestFactory,
                                         JavaRuntimeLocalizationConstant localizationConstant) {
-        this.loader = loader;
+        this.loaderFactory = loaderFactory;
         this.asyncRequestFactory = asyncRequestFactory;
         this.localizationConstant = localizationConstant;
         this.baseUrl = extPath + "/debug-java/" + appContext.getWorkspace().getId();
@@ -64,98 +63,99 @@ public class DebuggerServiceClientImpl implements DebuggerServiceClient {
     public void connect(@NotNull String host, int port, @NotNull AsyncRequestCallback<DebuggerInfo> callback) {
         final String requestUrl = baseUrl + "/connect";
         final String params = "?host=" + host + "&port=" + port;
-        asyncRequestFactory.createGetRequest(requestUrl + params).send(callback);
+        asyncRequestFactory.createGetRequest(requestUrl + params).loader(loaderFactory.newLoader()).send(callback);
     }
 
     /** {@inheritDoc} */
     @Override
     public void disconnect(@NotNull String id, @NotNull AsyncRequestCallback<Void> callback) {
         final String requestUrl = baseUrl + "/disconnect/" + id;
-        asyncRequestFactory.createGetRequest(requestUrl).loader(loader, localizationConstant.debuggerDisconnectingTitle()).send(callback);
+        asyncRequestFactory.createGetRequest(requestUrl).loader(loaderFactory.newLoader(localizationConstant.debuggerDisconnectingTitle()))
+                           .send(callback);
     }
 
     /** {@inheritDoc} */
     @Override
     public void addBreakpoint(@NotNull String id, @NotNull BreakPoint breakPoint, @NotNull AsyncRequestCallback<Void> callback) {
         final String requestUrl = baseUrl + "/breakpoints/add/" + id;
-        asyncRequestFactory.createPostRequest(requestUrl, breakPoint).loader(loader).send(callback);
+        asyncRequestFactory.createPostRequest(requestUrl, breakPoint).loader(loaderFactory.newLoader()).send(callback);
     }
 
     /** {@inheritDoc} */
     @Override
     public void getAllBreakpoints(@NotNull String id, @NotNull AsyncRequestCallback<String> callback) {
         final String requestUrl = baseUrl + "/breakpoints/" + id;
-        asyncRequestFactory.createGetRequest(requestUrl).loader(loader).send(callback);
+        asyncRequestFactory.createGetRequest(requestUrl).loader(loaderFactory.newLoader()).send(callback);
     }
 
     /** {@inheritDoc} */
     @Override
     public void deleteBreakpoint(@NotNull String id, @NotNull BreakPoint breakPoint, @NotNull AsyncRequestCallback<Void> callback) {
         final String requestUrl = baseUrl + "/breakpoints/delete/" + id;
-        asyncRequestFactory.createPostRequest(requestUrl, breakPoint).loader(new EmptyLoader()).send(callback);
+        asyncRequestFactory.createPostRequest(requestUrl, breakPoint).send(callback);
     }
 
     /** {@inheritDoc} */
     @Override
     public void deleteAllBreakpoints(@NotNull String id, @NotNull AsyncRequestCallback<String> callback) {
         final String requestUrl = baseUrl + "/breakpoints/delete_all/" + id;
-        asyncRequestFactory.createGetRequest(requestUrl).loader(loader).send(callback);
+        asyncRequestFactory.createGetRequest(requestUrl).loader(loaderFactory.newLoader()).send(callback);
     }
 
     /** {@inheritDoc} */
     @Override
     public void checkEvents(@NotNull String id, @NotNull AsyncRequestCallback<DebuggerEventList> callback) {
         final String requestUrl = baseUrl + "/events/" + id;
-        asyncRequestFactory.createGetRequest(requestUrl).loader(new EmptyLoader()).send(callback);
+        asyncRequestFactory.createGetRequest(requestUrl).send(callback);
     }
 
     /** {@inheritDoc} */
     @Override
     public void getStackFrameDump(@NotNull String id, @NotNull AsyncRequestCallback<StackFrameDump> callback) {
         final String requestUrl = baseUrl + "/dump/" + id;
-        asyncRequestFactory.createGetRequest(requestUrl).loader(loader).send(callback);
+        asyncRequestFactory.createGetRequest(requestUrl).loader(loaderFactory.newLoader()).send(callback);
     }
 
     /** {@inheritDoc} */
     @Override
     public void resume(@NotNull String id, @NotNull AsyncRequestCallback<Void> callback) {
         final String requestUrl = baseUrl + "/resume/" + id;
-        asyncRequestFactory.createGetRequest(requestUrl).loader(loader).send(callback);
+        asyncRequestFactory.createGetRequest(requestUrl).loader(loaderFactory.newLoader()).send(callback);
     }
 
     /** {@inheritDoc} */
     @Override
     public void getValue(@NotNull String id, @NotNull Variable var, @NotNull AsyncRequestCallback<Value> callback) {
         final String requestUrl = baseUrl + "/value/get/" + id;
-        asyncRequestFactory.createPostRequest(requestUrl, var.getVariablePath()).loader(loader).send(callback);
+        asyncRequestFactory.createPostRequest(requestUrl, var.getVariablePath()).loader(loaderFactory.newLoader()).send(callback);
     }
 
     /** {@inheritDoc} */
     @Override
     public void setValue(@NotNull String id, @NotNull UpdateVariableRequest request, @NotNull AsyncRequestCallback<Void> callback) {
         final String requestUrl = baseUrl + "/value/set/" + id;
-        asyncRequestFactory.createPostRequest(requestUrl, request).loader(loader).send(callback);
+        asyncRequestFactory.createPostRequest(requestUrl, request).loader(loaderFactory.newLoader()).send(callback);
     }
 
     /** {@inheritDoc} */
     @Override
     public void stepInto(@NotNull String id, @NotNull AsyncRequestCallback<Void> callback) {
         final String requestUrl = baseUrl + "/step/into/" + id;
-        asyncRequestFactory.createGetRequest(requestUrl).loader(loader).send(callback);
+        asyncRequestFactory.createGetRequest(requestUrl).loader(loaderFactory.newLoader()).send(callback);
     }
 
     /** {@inheritDoc} */
     @Override
     public void stepOver(@NotNull String id, @NotNull AsyncRequestCallback<Void> callback) {
         final String requestUrl = baseUrl + "/step/over/" + id;
-        asyncRequestFactory.createGetRequest(requestUrl).loader(loader).send(callback);
+        asyncRequestFactory.createGetRequest(requestUrl).loader(loaderFactory.newLoader()).send(callback);
     }
 
     /** {@inheritDoc} */
     @Override
     public void stepReturn(@NotNull String id, @NotNull AsyncRequestCallback<Void> callback) {
         final String requestUrl = baseUrl + "/step/out/" + id;
-        asyncRequestFactory.createGetRequest(requestUrl).loader(loader).send(callback);
+        asyncRequestFactory.createGetRequest(requestUrl).loader(loaderFactory.newLoader()).send(callback);
     }
 
     /** {@inheritDoc} */
@@ -166,7 +166,6 @@ public class DebuggerServiceClientImpl implements DebuggerServiceClient {
                            .data(expression)
                            .header(ACCEPT, TEXT_PLAIN)
                            .header(CONTENTTYPE, TEXT_PLAIN)
-                           .loader(new EmptyLoader())
                            .send(callback);
     }
 }

@@ -44,8 +44,9 @@ import org.eclipse.che.ide.jseditor.client.link.LinkedModel;
 import org.eclipse.che.ide.jseditor.client.link.LinkedModelData;
 import org.eclipse.che.ide.jseditor.client.link.LinkedModelGroup;
 import org.eclipse.che.ide.jseditor.client.texteditor.TextEditor;
+import org.eclipse.che.ide.ui.loaders.request.LoaderFactory;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
-import org.eclipse.che.ide.ui.loaders.requestLoader.IdeLoader;
+import org.eclipse.che.ide.ui.loaders.request.MessageLoader;
 
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
@@ -75,7 +76,7 @@ public class JavaRefactoringRename {
     private final AppContext               appContext;
     private final DialogFactory            dialogFactory;
     private final NotificationManager      notificationManager;
-    private final IdeLoader                loader;
+    private final MessageLoader            loader;
 
     private boolean    isActiveLinkedEditor;
     private LinkedMode mode;
@@ -89,7 +90,7 @@ public class JavaRefactoringRename {
                                  DialogFactory dialogFactory,
                                  AppContext appContext,
                                  NotificationManager notificationManager,
-                                 IdeLoader loader) {
+                                 LoaderFactory loaderFactory) {
         this.renamePresenter = renamePresenter;
         this.refactoringUpdater = refactoringUpdater;
         this.locale = locale;
@@ -98,7 +99,7 @@ public class JavaRefactoringRename {
         this.dtoFactory = dtoFactory;
         this.appContext = appContext;
         this.notificationManager = notificationManager;
-        this.loader = loader;
+        this.loader = loaderFactory.newLoader();
 
         isActiveLinkedEditor = false;
     }

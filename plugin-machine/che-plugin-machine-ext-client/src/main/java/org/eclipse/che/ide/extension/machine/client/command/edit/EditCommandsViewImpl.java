@@ -158,6 +158,7 @@ public class EditCommandsViewImpl extends Window implements EditCommandsView {
                 switch (event.getNativeKeyCode()) {
                     case KeyboardEvent.KeyCode.INSERT:
                         delegate.onAddClicked();
+                        resetFilter();
                         break;
                     case KeyboardEvent.KeyCode.DELETE:
                         delegate.onRemoveClicked(selectConfiguration);

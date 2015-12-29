@@ -11,9 +11,7 @@
 package org.eclipse.che.ide.extension.maven.server.projecttype;
 
 import com.google.inject.Inject;
-
-import org.eclipse.che.api.project.server.type.AbstractProjectType;
-import org.eclipse.che.ide.ext.java.server.projecttype.JavaProjectType;
+import org.eclipse.che.api.project.server.type.ProjectTypeDef;
 import org.eclipse.che.ide.extension.maven.shared.MavenAttributes;
 
 import javax.inject.Singleton;
@@ -24,10 +22,10 @@ import javax.inject.Singleton;
  * @author Artem Zatsarynnyi
  */
 @Singleton
-public class MavenProjectType extends AbstractProjectType {
+public class MavenProjectType extends ProjectTypeDef {
 
     @Inject
-    public MavenProjectType(MavenValueProviderFactory mavenValueProviderFactory, JavaProjectType javaProjectType) {
+    public MavenProjectType(MavenValueProviderFactory mavenValueProviderFactory) {
 
         super(MavenAttributes.MAVEN_ID, MavenAttributes.MAVEN_NAME, true, false, true);
 
@@ -42,6 +40,6 @@ public class MavenProjectType extends AbstractProjectType {
         addVariableDefinition(MavenAttributes.TEST_SOURCE_FOLDER, "", false, mavenValueProviderFactory);
         addVariableDefinition(MavenAttributes.RESOURCE_FOLDER, "", false, mavenValueProviderFactory);
 
-        addParent(javaProjectType);
+        addParent("java");
     }
 }

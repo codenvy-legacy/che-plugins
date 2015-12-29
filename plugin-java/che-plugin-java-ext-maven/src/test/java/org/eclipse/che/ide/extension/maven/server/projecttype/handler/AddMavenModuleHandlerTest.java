@@ -11,7 +11,6 @@
 package org.eclipse.che.ide.extension.maven.server.projecttype.handler;
 
 import com.google.inject.Provider;
-
 import org.eclipse.che.api.core.model.project.type.ProjectType;
 import org.eclipse.che.api.core.notification.EventService;
 import org.eclipse.che.api.core.rest.HttpJsonHelper;
@@ -21,13 +20,9 @@ import org.eclipse.che.api.project.server.Project;
 import org.eclipse.che.api.project.server.VirtualFileEntry;
 import org.eclipse.che.api.project.server.handlers.ProjectHandler;
 import org.eclipse.che.api.project.server.handlers.ProjectHandlerRegistry;
-import org.eclipse.che.api.project.server.type.AbstractProjectType;
+import org.eclipse.che.api.project.server.type.ProjectTypeDef;
 import org.eclipse.che.api.project.server.type.ProjectTypeRegistry;
-import org.eclipse.che.api.vfs.server.ContentStream;
-import org.eclipse.che.api.vfs.server.SystemPathsFilter;
-import org.eclipse.che.api.vfs.server.VirtualFileSystemRegistry;
-import org.eclipse.che.api.vfs.server.VirtualFileSystemUser;
-import org.eclipse.che.api.vfs.server.VirtualFileSystemUserContext;
+import org.eclipse.che.api.vfs.server.*;
 import org.eclipse.che.api.vfs.server.impl.memory.MemoryFileSystemProvider;
 import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.commons.lang.IoUtil;
@@ -46,11 +41,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.InputStream;
 import java.lang.reflect.Field;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.*;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -81,10 +72,10 @@ public class AddMavenModuleHandlerTest {
         MockitoAnnotations.initMocks(this);
         when(filterProvider.get()).thenReturn(filter);
         addMavenModuleHandler = new AddMavenModuleHandler();
-        AbstractProjectType mavenProjectType = Mockito.mock(AbstractProjectType.class);
+        ProjectTypeDef mavenProjectType = Mockito.mock(ProjectTypeDef.class);
         Mockito.when(mavenProjectType.getId()).thenReturn(MavenAttributes.MAVEN_ID);
         Mockito.when(mavenProjectType.getDisplayName()).thenReturn(MavenAttributes.MAVEN_ID);
-        Mockito.when(mavenProjectType.canBePrimary()).thenReturn(true);
+        Mockito.when(mavenProjectType.isPrimaryable()).thenReturn(true);
         final String vfsUser = "dev";
         final Set<String> vfsUserGroups = new LinkedHashSet<>(Arrays.asList("workspace/developer"));
         final EventService eventService = new EventService();
@@ -98,7 +89,7 @@ public class AddMavenModuleHandlerTest {
                 }, vfsRegistry, SystemPathsFilter.ANY);
         vfsRegistry.registerProvider(workspace, memoryFileSystemProvider);
 
-        Set<ProjectType> projTypes = new HashSet<>();
+        Set<ProjectTypeDef> projTypes = new HashSet<>();
         projTypes.add(mavenProjectType);
 
         projectTypeRegistry = new ProjectTypeRegistry(projTypes);
@@ -151,10 +142,10 @@ public class AddMavenModuleHandlerTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void shouldNotAddModuleIfModuleNotMaven() throws Exception {
-        AbstractProjectType notMaven = Mockito.mock(AbstractProjectType.class);
+        ProjectTypeDef notMaven = Mockito.mock(ProjectTypeDef.class);
         Mockito.when(notMaven.getId()).thenReturn("notMaven");
         Mockito.when(notMaven.getDisplayName()).thenReturn("notMaven");
-        Mockito.when(notMaven.canBePrimary()).thenReturn(true);
+        Mockito.when(notMaven.isPrimaryable()).thenReturn(true);
         projectTypeRegistry.registerProjectType(notMaven);
 
         String parent = NameGenerator.generate("parent", 5);

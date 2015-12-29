@@ -23,7 +23,7 @@ import org.eclipse.che.ide.ext.github.shared.GitHubUser;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.AsyncRequestFactory;
 import org.eclipse.che.ide.rest.AsyncRequestLoader;
-import org.eclipse.che.ide.rest.RestContext;
+import org.eclipse.che.ide.ui.loaders.request.LoaderFactory;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -64,11 +64,11 @@ public class GitHubClientServiceImpl implements GitHubClientService {
 
     @Inject
     protected GitHubClientServiceImpl(@Named("cheExtensionPath") String extPath,
-                                      AsyncRequestLoader loader,
+                                      LoaderFactory loaderFactory,
                                       AsyncRequestFactory asyncRequestFactory,
                                       AppContext appContext) {
         this.baseUrl = extPath + "/github/" + appContext.getWorkspace().getId();
-        this.loader = loader;
+        this.loader = loaderFactory.newLoader();
         this.asyncRequestFactory = asyncRequestFactory;
     }
 

@@ -23,7 +23,6 @@ import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.editor.EditorInput;
 import org.eclipse.che.ide.api.editor.EditorWithAutoSave;
 import org.eclipse.che.ide.api.notification.NotificationManager;
-import org.eclipse.che.ide.api.notification.StatusNotification;
 import org.eclipse.che.ide.api.project.node.HasProjectConfig;
 import org.eclipse.che.ide.api.project.tree.VirtualFile;
 import org.eclipse.che.ide.dto.DtoFactory;
@@ -50,13 +49,13 @@ import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 import org.eclipse.che.ide.ui.dialogs.InputCallback;
 import org.eclipse.che.ide.ui.dialogs.input.InputDialog;
 import org.eclipse.che.ide.ui.dialogs.message.MessageDialog;
-import org.eclipse.che.ide.ui.loaders.requestLoader.IdeLoader;
+import org.eclipse.che.ide.ui.loaders.request.LoaderFactory;
+import org.eclipse.che.ide.ui.loaders.request.MessageLoader;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.mockito.InjectMocks;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -72,7 +71,6 @@ import static org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringSta
 import static org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatus.OK;
 import static org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatus.WARNING;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
@@ -149,6 +147,8 @@ public class JavaRefactoringRenameTest {
     private RefactoringResult                 result;
     @Mock
     private RefactoringStatusEntry            entry;
+    @Mock
+    private LoaderFactory                     loaderFactory;
 
     @Captor
     private ArgumentCaptor<Operation<RenameRefactoringSession>> renameRefCaptor;
@@ -169,13 +169,24 @@ public class JavaRefactoringRenameTest {
     private Document document;
 
     @Mock
-    private IdeLoader loader;
+    private MessageLoader loader;
 
-    @InjectMocks
     private JavaRefactoringRename refactoringRename;
 
     @Before
     public void setUp() {
+        when(loaderFactory.newLoader()).thenReturn(loader);
+
+        refactoringRename = new JavaRefactoringRename(renamePresenter,
+                                                      refactoringUpdater,
+                                                      locale,
+                                                      refactoringServiceClient,
+                                                      dtoFactory,
+                                                      dialogFactory,
+                                                      appContext,
+                                                      notificationManager,
+                                                      loaderFactory);
+
         when(dtoFactory.createDto(CreateRenameRefactoring.class)).thenReturn(createRenameRefactoringDto);
         when(dtoFactory.createDto(LinkedRenameRefactoringApply.class)).thenReturn(linkedRenameRefactoringApplyDto);
         when(textEditor.getEditorInput()).thenReturn(editorInput);

@@ -12,7 +12,6 @@ package org.eclipse.che.ide.extension.maven.server.projecttype.handler;
 
 import com.google.inject.Provider;
 
-import org.eclipse.che.api.core.model.project.type.ProjectType;
 import org.eclipse.che.api.core.notification.EventService;
 import org.eclipse.che.api.core.rest.HttpJsonHelper;
 import org.eclipse.che.api.project.server.AttributeFilter;
@@ -22,8 +21,8 @@ import org.eclipse.che.api.project.server.FolderEntry;
 import org.eclipse.che.api.project.server.ProjectManager;
 import org.eclipse.che.api.project.server.VirtualFileEntry;
 import org.eclipse.che.api.project.server.handlers.ProjectHandlerRegistry;
-import org.eclipse.che.api.project.server.type.AbstractProjectType;
 import org.eclipse.che.api.project.server.type.AttributeValue;
+import org.eclipse.che.api.project.server.type.ProjectTypeDef;
 import org.eclipse.che.api.project.server.type.ProjectTypeRegistry;
 import org.eclipse.che.api.vfs.server.SystemPathsFilter;
 import org.eclipse.che.api.vfs.server.VirtualFileSystemRegistry;
@@ -115,8 +114,8 @@ public class SimpleGeneratorStrategyTest {
         final String vfsUser = "dev";
         final Set<String> vfsUserGroups = new LinkedHashSet<>(Collections.singletonList("workspace/developer"));
 
-        Set<ProjectType> pts = new HashSet<>();
-        final ProjectType pt = new AbstractProjectType("mytype", "mytype type", true, false) {
+        Set<ProjectTypeDef> pts = new HashSet<>();
+        final ProjectTypeDef pt = new ProjectTypeDef("mytype", "mytype type", true, false) {
         };
         pts.add(pt);
 
