@@ -10,16 +10,12 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.git.server.nativegit;
 
+import org.eclipse.che.api.auth.oauth.OAuthTokenProvider;
 import org.eclipse.che.api.auth.shared.dto.OAuthToken;
 import org.eclipse.che.api.git.GitException;
-import org.eclipse.che.api.git.shared.GitUser;
 import org.eclipse.che.commons.env.EnvironmentContext;
-import org.eclipse.che.dto.server.DtoFactory;
 import org.eclipse.che.api.git.CredentialsProvider;
 import org.eclipse.che.api.git.UserCredential;
-import org.eclipse.che.security.oauth.GitHubOAuthAuthenticator;
-import org.eclipse.che.security.oauth.OAuthAuthenticationException;
-import org.eclipse.che.security.oauth.shared.User;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,19 +33,19 @@ public class GitHubOAuthCredentialProvider implements CredentialsProvider {
     private static final Logger LOG = LoggerFactory.getLogger(GitHubOAuthCredentialProvider.class);
 
     private static String OAUTH_PROVIDER_NAME = "github";
-    private final GitHubOAuthAuthenticator authAuthenticator;
+    private final OAuthTokenProvider oAuthTokenProvider;
 
 
     @Inject
-    public GitHubOAuthCredentialProvider(GitHubOAuthAuthenticator authAuthenticator) {
-        this.authAuthenticator = authAuthenticator;
+    public GitHubOAuthCredentialProvider(OAuthTokenProvider oAuthTokenProvider) {
+        this.oAuthTokenProvider = oAuthTokenProvider;
 
     }
 
     @Override
     public UserCredential getUserCredential() throws GitException {
         try {
-            OAuthToken token = authAuthenticator.getToken(EnvironmentContext.getCurrent().getUser().getId());
+            OAuthToken token = oAuthTokenProvider.getToken(OAUTH_PROVIDER_NAME, EnvironmentContext.getCurrent().getUser().getId());
             if (token != null) {
                 return new UserCredential(token.getToken(), token.getToken(), OAUTH_PROVIDER_NAME);
             }
@@ -58,26 +54,6 @@ public class GitHubOAuthCredentialProvider implements CredentialsProvider {
         }
         return null;
     }
-
-    @Override
-    public GitUser getUser() throws GitException {
-        try {
-            OAuthToken token = authAuthenticator.getToken(EnvironmentContext.getCurrent().getUser().getId());
-            if (token != null) {
-                User user = authAuthenticator.getUser(token);
-                if (user != null) {
-                    return DtoFactory.getInstance().createDto(GitUser.class)
-                                     .withEmail(user.getEmail())
-                                     .withName(user.getName() != null && !user.getName().isEmpty() ? user.getName() : "Anonymous");
-                }
-
-            }
-        } catch (IOException | OAuthAuthenticationException e) {
-            LOG.warn(e.getLocalizedMessage());
-        }
-        return null;
-    }
-
 
     @Override
     public String getId() {
