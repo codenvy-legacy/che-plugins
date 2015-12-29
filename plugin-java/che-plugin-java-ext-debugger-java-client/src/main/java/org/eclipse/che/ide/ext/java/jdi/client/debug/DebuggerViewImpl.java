@@ -54,7 +54,7 @@ import java.util.List;
  * The class business logic which allow us to change visual representation of debugger panel.
  *
  * @author Andrey Plotnikov
- * @@author Dmitry Shnurenko
+ * @author Dmitry Shnurenko
  */
 @Singleton
 public class DebuggerViewImpl extends BaseView<DebuggerView.ActionDelegate> implements DebuggerView {

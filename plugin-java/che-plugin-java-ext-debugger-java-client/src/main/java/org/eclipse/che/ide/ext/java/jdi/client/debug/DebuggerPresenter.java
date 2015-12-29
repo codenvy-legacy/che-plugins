@@ -25,7 +25,6 @@ import org.eclipse.che.api.machine.gwt.client.events.ExtServerStateHandler;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.PromiseError;
-import org.eclipse.che.api.workspace.shared.dto.UsersWorkspaceDto;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.editor.EditorAgent;
@@ -33,11 +32,8 @@ import org.eclipse.che.ide.api.editor.EditorPartPresenter;
 import org.eclipse.che.ide.api.event.ActivePartChangedEvent;
 import org.eclipse.che.ide.api.event.ActivePartChangedHandler;
 import org.eclipse.che.ide.api.event.FileEvent;
-import org.eclipse.che.ide.api.event.project.CloseCurrentProjectEvent;
-import org.eclipse.che.ide.api.event.project.CloseCurrentProjectHandler;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.notification.StatusNotification;
-import org.eclipse.che.ide.api.parts.PartPresenter;
 import org.eclipse.che.ide.api.parts.PartStackType;
 import org.eclipse.che.ide.api.parts.WorkspaceAgent;
 import org.eclipse.che.ide.api.parts.base.BasePresenter;
@@ -79,13 +75,14 @@ import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.rest.HTTPStatus;
 import org.eclipse.che.ide.util.loging.Log;
+import org.eclipse.che.ide.util.storage.LocalStorage;
+import org.eclipse.che.ide.util.storage.LocalStorageProvider;
 import org.eclipse.che.ide.websocket.MessageBus;
 import org.eclipse.che.ide.websocket.MessageBusProvider;
 import org.eclipse.che.ide.websocket.WebSocketException;
 import org.eclipse.che.ide.websocket.rest.SubscriptionHandler;
 import org.eclipse.che.ide.websocket.rest.exceptions.ServerException;
-import org.eclipse.che.api.workspace.gwt.client.event.StartWorkspaceEvent;
-import org.eclipse.che.api.workspace.gwt.client.event.StartWorkspaceHandler;
+import org.eclipse.che.ide.workspace.perspectives.project.ProjectPerspective;
 import org.vectomatic.dom.svg.ui.SVGResource;
 
 import javax.validation.constraints.Min;
@@ -96,8 +93,8 @@ import java.util.List;
 
 import static org.eclipse.che.ide.api.event.FileEvent.FileOperation.OPEN;
 import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAIL;
-import static org.eclipse.che.ide.api.notification.StatusNotification.Status.SUCCESS;
 import static org.eclipse.che.ide.api.notification.StatusNotification.Status.PROGRESS;
+import static org.eclipse.che.ide.api.notification.StatusNotification.Status.SUCCESS;
 import static org.eclipse.che.ide.debug.DebuggerStateEvent.createConnectedStateEvent;
 import static org.eclipse.che.ide.debug.DebuggerStateEvent.createDisconnectedStateEvent;
 import static org.eclipse.che.ide.debug.DebuggerStateEvent.createInitializedStateEvent;
@@ -115,10 +112,10 @@ import static org.eclipse.che.ide.ext.java.jdi.shared.DebuggerEvent.STEP;
  * @author Anatoliy Bazko
  */
 @Singleton
-public class DebuggerPresenter extends BasePresenter implements DebuggerView.ActionDelegate,
-                                                                Debugger,
-                                                                FqnResolverObserver {
-    private static final String TITLE = "Debug";
+public class DebuggerPresenter extends BasePresenter implements DebuggerView.ActionDelegate, Debugger, FqnResolverObserver {
+
+    protected static final String LOCAL_STORAGE_DEBUGGER_KEY = "che-debugger";
+    private static final   String TITLE                      = "Debug";
 
     private final DtoFactory                             dtoFactory;
     private final DtoUnmarshallerFactory                 dtoUnmarshallerFactory;
@@ -126,6 +123,7 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
     private final ProjectExplorerPresenter               projectExplorer;
     private final JavaNodeManager                        javaNodeManager;
     private final JavaRuntimeResources                   javaRuntimeResources;
+    private final LocalStorageProvider                   localStorageProvider;
     /** Channel identifier to receive events from debugger over WebSocket. */
     private       String                                 debuggerEventsChannel;
     /** Channel identifier to receive event when debugger will disconnected. */
@@ -168,7 +166,8 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
                              ProjectExplorerPresenter projectExplorer,
                              final MessageBusProvider messageBusProvider,
                              final JavaNodeManager javaNodeManager,
-                             JavaRuntimeResources javaRuntimeResources) {
+                             JavaRuntimeResources javaRuntimeResources,
+                             LocalStorageProvider localStorageProvider) {
         this.view = view;
         this.eventBus = eventBus;
         this.dtoFactory = dtoFactory;
@@ -190,11 +189,17 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
         this.changeValuePresenter = changeValuePresenter;
         this.notificationManager = notificationManager;
         this.javaNodeManager = javaNodeManager;
+        this.addRule(ProjectPerspective.PROJECT_PERSPECTIVE_ID);
+        this.localStorageProvider = localStorageProvider;
 
         eventBus.addHandler(ExtServerStateEvent.TYPE, new ExtServerStateHandler() {
             @Override
             public void onExtServerStarted(ExtServerStateEvent event) {
                 messageBus = messageBusProvider.getMachineMessageBus();
+                debuggerInfo = loadDebugInfo();
+                if (isDebuggerConnected()) {
+                    onDebuggerConnected();
+                }
             }
 
             @Override
@@ -215,12 +220,10 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
                 } catch (WebSocketException e) {
                     Log.error(DebuggerPresenter.class, e);
                 }
-                closeView();
 
                 if (exception instanceof ServerException) {
                     ServerException serverException = (ServerException)exception;
-                    if (HTTPStatus.INTERNAL_ERROR == serverException.getHTTPStatus()
-                        && serverException.getMessage() != null
+                    if (HTTPStatus.INTERNAL_ERROR == serverException.getHTTPStatus() && serverException.getMessage() != null
                         && serverException.getMessage().contains("not found")) {
 
                         onDebuggerDisconnected();
@@ -240,7 +243,6 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
                 }
 
                 evaluateExpressionPresenter.closeDialog();
-                closeView();
                 onDebuggerDisconnected();
             }
 
@@ -253,25 +255,6 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
                 }
             }
         };
-
-        eventBus.addHandler(StartWorkspaceEvent.TYPE, new StartWorkspaceHandler() {
-            @Override
-            public void onWorkspaceStarted(UsersWorkspaceDto workspace) {
-                messageBus = messageBusProvider.getMessageBus();
-            }
-        });
-
-        eventBus.addHandler(CloseCurrentProjectEvent.TYPE, new CloseCurrentProjectHandler() {
-            @Override
-            public void onCloseCurrentProject(CloseCurrentProjectEvent event) {
-                // application will be stopped after closing a project
-                if (debuggerInfo != null) {
-                    changeButtonsEnableState(false);
-                    onDebuggerDisconnected();
-                    closeView();
-                }
-            }
-        });
 
         eventBus.fireEvent(createInitializedStateEvent(this));
     }
@@ -363,9 +346,7 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
 
                     @Override
                     public void onFailure(Throwable caught) {
-                        notificationManager.notify(caught.getMessage(),
-                                                   StatusNotification.Status.FAIL,
-                                                   false);
+                        notificationManager.notify(caught.getMessage(), StatusNotification.Status.FAIL, false);
                     }
                 });
             } else {
@@ -386,9 +367,8 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
         Location location = breakPoint.getLocation();
         List<String> filePaths = resolveFilePathByLocation(location);
         for (String filePath : filePaths) {
-            eventBus.fireEvent(new BreakpointStateEvent(BreakpointStateEvent.BreakpointState.ACTIVE,
-                                                        filePath,
-                                                        location.getLineNumber() - 1));
+            eventBus.fireEvent(
+                    new BreakpointStateEvent(BreakpointStateEvent.BreakpointState.ACTIVE, filePath, location.getLineNumber() - 1));
         }
     }
 
@@ -481,11 +461,12 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
         jarEntry.setName(className.substring(className.lastIndexOf(".") + 1) + ".class");
         jarEntry.setType(JarEntry.JarEntryType.CLASS_FILE);
 
-        JarFileNode jarFileNode = javaNodeManager.getJavaNodeFactory()
-                                                 .newJarFileNode                                                        (jarEntry,
-                                                                 null,
-                                                                 appContext.getCurrentProject().getProjectConfig(),
-                                                                 javaNodeManager.getJavaSettingsProvider().getSettings());
+        JarFileNode jarFileNode =
+                javaNodeManager.getJavaNodeFactory().newJarFileNode(jarEntry,
+                                                                    null,
+                                                                    appContext.getCurrentProject().getProjectConfig(),
+                                                                    javaNodeManager.getJavaSettingsProvider()
+                                                                                   .getSettings());
 
         openFile(jarFileNode);
     }
@@ -520,8 +501,7 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
                                       protected void onFailure(Throwable exception) {
                                           Log.error(DebuggerPresenter.class, exception);
                                       }
-                                  }
-                                 );
+                                  });
     }
 
     @NotNull
@@ -566,7 +546,7 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
     /** {@inheritDoc} */
     @Override
     public void onRemoveAllBreakpointsButtonClicked() {
-        if (debuggerInfo != null) {
+        if (isDebuggerConnected()) {
             service.deleteAllBreakpoints(debuggerInfo.getId(), new AsyncRequestCallback<String>() {
                 @Override
                 protected void onSuccess(String result) {
@@ -692,10 +672,10 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
 
                                  @Override
                                  protected void onFailure(Throwable exception) {
-                                     notificationManager.notify(constant.failedToGetVariableValueTitle(), exception.getMessage(), FAIL, true);
+                                     notificationManager
+                                             .notify(constant.failedToGetVariableValueTitle(), exception.getMessage(), FAIL, true);
                                  }
-                             }
-                            );
+                             });
         }
     }
 
@@ -718,26 +698,24 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
         updateChangeValueButtonEnableState();
     }
 
-    private void showDialog(@NotNull DebuggerInfo debuggerInfo) {
+    private void showAndUpdateView() {
         view.setVMName(debuggerInfo.getVmName() + " " + debuggerInfo.getVmVersion());
-        selectedVariable = null;
-        updateChangeValueButtonEnableState();
-        changeButtonsEnableState(false);
-        view.setEnableDisconnectButton(false);
 
-        workspaceAgent.openPart(this, PartStackType.INFORMATION);
-        PartPresenter activePart = partStack.getActivePart();
-        if (activePart != null && !activePart.equals(this)) {
+        updateChangeValueButtonEnableState();
+
+        boolean isCurrentBreakpointExists = breakpointManager.getCurrentBreakpoint() != null;
+        if (isCurrentBreakpointExists) {
+            getStackFrameDump();
+        }
+        changeButtonsEnableState(isCurrentBreakpointExists);
+
+        view.setEnableDisconnectButton(isDebuggerConnected());
+        view.setEnableRemoveAllBreakpointsButton(!breakpointManager.getBreakpointList().isEmpty());
+
+        if (partStack == null || !partStack.containsPart(this)) {
+            workspaceAgent.openPart(this, PartStackType.INFORMATION);
             partStack.setActivePart(this);
         }
-    }
-
-    private void closeView() {
-        variables.clear();
-        view.setVariables(variables);
-        view.setExecutionPoint(true, null);
-        view.setEnableDisconnectButton(false);
-        workspaceAgent.hidePart(this);
     }
 
     /**
@@ -753,16 +731,15 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
         final StatusNotification notification = notificationManager.notify(constant.debuggerConnectingTitle(address), PROGRESS, true);
         service.connect(host, port, new AsyncRequestCallback<DebuggerInfo>(dtoUnmarshallerFactory.newUnmarshaller(DebuggerInfo.class)) {
             @Override
-            protected void onSuccess(DebuggerInfo result) {
+            public void onSuccess(DebuggerInfo result) {
                 debuggerInfo = result;
+                preserveDebugInfo();
+
                 notification.setTitle(constant.debuggerConnectedTitle());
                 notification.setContent(constant.debuggerConnectedDescription(address));
                 notification.setStatus(SUCCESS);
 
-                view.setEnableDisconnectButton(true);
-                startCheckingEvents();
-
-                eventBus.fireEvent(createConnectedStateEvent(DebuggerPresenter.this));
+                onDebuggerConnected();
             }
 
             @Override
@@ -770,29 +747,33 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
                 notification.setTitle(constant.failedToConnectToRemoteDebuggerDescription(address));
                 notification.setStatus(FAIL);
                 notification.setBalloon(true);
-
             }
         });
     }
 
+    private void onDebuggerConnected() {
+        startCheckingEvents();
+        eventBus.fireEvent(createConnectedStateEvent(DebuggerPresenter.this));
+
+        showAndUpdateView();
+    }
+
     private void disconnectDebugger() {
-        if (debuggerInfo != null) {
+        if (isDebuggerConnected()) {
             stopCheckingDebugEvents();
+
             service.disconnect(debuggerInfo.getId(), new AsyncRequestCallback<Void>() {
                 @Override
                 protected void onSuccess(Void result) {
-                    changeButtonsEnableState(false);
                     onDebuggerDisconnected();
-                    closeView();
                 }
 
                 @Override
                 protected void onFailure(Throwable exception) {
+                    onDebuggerDisconnected();
                     Log.error(DebuggerPresenter.class, exception);
                 }
             });
-        } else {
-            changeButtonsEnableState(false);
         }
     }
 
@@ -829,8 +810,18 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
     /** Perform some action after disconnecting a debugger. */
     private void onDebuggerDisconnected() {
         notificationManager.notify(constant.debuggerDisconnectedTitle(),
-                                   constant.debuggerDisconnectedDescription(debuggerInfo.getHost() + ':' + debuggerInfo.getPort()));
-        debuggerInfo = null;
+                                   constant.debuggerDisconnectedDescription(debuggerInfo.getHost() + ':' + debuggerInfo.getPort()),
+                                   SUCCESS,
+                                   false);
+
+        invalidateDebugInfo();
+        preserveDebugInfo();
+
+        variables.clear();
+        view.setVariables(variables);
+        view.setExecutionPoint(true, null);
+        showAndUpdateView();
+
         eventBus.fireEvent(createDisconnectedStateEvent(this));
     }
 
@@ -845,22 +836,23 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
         for (Breakpoint breakpoint : breakpoints) {
             FqnResolver resolver = resolverFactory.getResolver(breakpoint.getFile().getMediaType());
 
-            breakpoints2Display.add(new Breakpoint(breakpoint.getType(),
-                                                   breakpoint.getLineNumber(),
-                                                   resolver == null ? breakpoint.getPath() : resolver.resolveFqn(breakpoint.getFile()),
-                                                   breakpoint.getFile(),
-                                                   breakpoint.getMessage(),
+            breakpoints2Display.add(new Breakpoint(breakpoint.getType(), breakpoint.getLineNumber(), resolver == null
+                                                                                                     ? breakpoint.getPath() : resolver
+                                                                                                             .resolveFqn(
+                                                                                                                     breakpoint.getFile()),
+                                                   breakpoint.getFile(), breakpoint.getMessage(),
                                                    breakpoint.isActive()));
         }
 
         view.setEnableRemoveAllBreakpointsButton(!breakpoints.isEmpty());
         view.setBreakpoints(breakpoints2Display);
+        showAndUpdateView();
     }
 
     /** {@inheritDoc} */
     @Override
     public void addBreakpoint(@NotNull final VirtualFile file, final int lineNumber, final AsyncCallback<Breakpoint> callback) {
-        if (debuggerInfo != null) {
+        if (isDebuggerConnected()) {
             Location location = dtoFactory.createDto(Location.class);
             location.setLineNumber(lineNumber + 1);
             final FqnResolver resolver = resolverFactory.getResolver(file.getMediaType());
@@ -892,7 +884,6 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
             });
         } else {
             callback.onFailure(new IllegalStateException("Debugger not attached"));
-            showDialog(EmptyDebuggerInfo.INSTANCE);
             updateBreakPoints();
         }
     }
@@ -900,7 +891,7 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
     /** {@inheritDoc} */
     @Override
     public void deleteBreakpoint(@NotNull VirtualFile file, int lineNumber, final AsyncCallback<Void> callback) {
-        if (debuggerInfo != null) {
+        if (isDebuggerConnected()) {
             Location location = dtoFactory.createDto(Location.class);
             location.setLineNumber(lineNumber + 1);
             FqnResolver resolver = resolverFactory.getResolver(file.getMediaType());
@@ -929,7 +920,6 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
             });
         } else {
             callback.onFailure(new IllegalStateException("Debugger not attached"));
-            showDialog(EmptyDebuggerInfo.INSTANCE);
             updateBreakPoints();
         }
     }
@@ -937,6 +927,53 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
     /** {@inheritDoc} */
     @Override
     public void onFqnResolverAdded(FqnResolver fqnResolver) {
-        updateBreakPoints();
+        if (!breakpointManager.getBreakpointList().isEmpty()) {
+            updateBreakPoints();
+        }
+    }
+
+    /**
+     * Preserves debug information into the local storage.
+     */
+    protected void preserveDebugInfo() {
+        LocalStorage localStorage = localStorageProvider.get();
+
+        if (localStorage == null) {
+            return;
+        }
+
+        String data;
+        if (!isDebuggerConnected()) {
+            data = "";
+        } else {
+            data = dtoFactory.toJson(debuggerInfo);
+        }
+
+        localStorage.setItem(LOCAL_STORAGE_DEBUGGER_KEY, data);
+    }
+
+    /**
+     *  Loads debug information from the local storage.
+     */
+    protected DebuggerInfo loadDebugInfo() {
+        LocalStorage localStorage = localStorageProvider.get();
+        if (localStorage == null) {
+            return EmptyDebuggerInfo.INSTANCE;
+        }
+
+        String data = localStorage.getItem(LOCAL_STORAGE_DEBUGGER_KEY);
+        if (data == null || data.isEmpty()) {
+            return EmptyDebuggerInfo.INSTANCE;
+        }
+
+        return dtoFactory.createDtoFromJson(data, DebuggerInfo.class);
+    }
+
+    private boolean isDebuggerConnected() {
+        return debuggerInfo != null && debuggerInfo != EmptyDebuggerInfo.INSTANCE;
+    }
+
+    private void invalidateDebugInfo() {
+        debuggerInfo = EmptyDebuggerInfo.INSTANCE;
     }
 }
