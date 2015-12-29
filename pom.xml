@@ -32,7 +32,6 @@
         <module>plugin-sdk</module>
         <module>plugin-orion</module>
         <!--<module>plugin-php</module>-->
-        <module>plugin-ssh</module>
         <module>plugin-git</module>
         <module>plugin-github</module>
         <!--<module>plugin-angularjs</module>-->

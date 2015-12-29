@@ -25,6 +25,7 @@
     <modules>
         <module>che-plugin-git-ext-git</module>
         <module>che-plugin-git-provider-che</module>
+        <module>che-plugin-git-ssh-client</module>
     </modules>
     <!-- skip tests on Windows -->
     <profiles>

@@ -8,27 +8,21 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.ide.ext.github.client;
+package org.eclipse.che.ide.ext.ssh.client;
 
 import org.eclipse.che.ide.api.extension.Extension;
-import org.eclipse.che.ide.ext.ssh.client.GitSshKeyUploaderRegistry;
-
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 /**
- * Extension adds GitHub support to the IDE Application.
+ * Extension add Ssh support to the IDE Application.
  *
  * @author Andrey Plotnikov
  */
 @Singleton
-@Extension(title = "GitHub", version = "3.0.0")
-public class GitHubExtension {
-
-    public static final String GITHUB_HOST = "github.com";
-
+@Extension(title = "Git SSH", version = "3.0.0")
+public class GitSshExtension {
     @Inject
-    public GitHubExtension(GitSshKeyUploaderRegistry registry, GitHubSshKeyUploader gitHubSshKeyProvider) {
-        registry.registerUploader(GITHUB_HOST, gitHubSshKeyProvider);
+    public GitSshExtension() {
     }
 }
