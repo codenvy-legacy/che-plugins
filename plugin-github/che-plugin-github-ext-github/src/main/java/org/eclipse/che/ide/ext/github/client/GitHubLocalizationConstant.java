@@ -17,8 +17,11 @@ import com.google.gwt.i18n.client.Messages;
  */
 public interface GitHubLocalizationConstant extends Messages {
     // MESSAGES
-    @Key("github.ssh.key.update.failed")
-    String gitHubSshKeyUpdateFailed();
+    @Key("authorization.failed")
+    String authorizationFailed();
+
+    @Key("authorization.request.rejected")
+    String authorizationRequestRejected();
 
     @Key("importProject.message.startWithWhiteSpace")
     String importProjectMessageStartWithWhiteSpace();
@@ -39,11 +42,11 @@ public interface GitHubLocalizationConstant extends Messages {
     String importFromGithubAccount();
 
     //Authorization
-    @Key("authorization.title")
-    String authTitle();
+    @Key("authorization.dialog.title")
+    String authorizationDialogTitle();
 
-    @Key("authorization.message.authRequest")
-    String authMessageAuthRequest();
+    @Key("authorization.dialog.text")
+    String authorizationDialogText(String productName);
 
     @Key("authorization.message.unableCreateSshKey")
     String authMessageUnableCreateSshKey();
@@ -62,12 +65,6 @@ public interface GitHubLocalizationConstant extends Messages {
 
     @Key("samplesListGrid.column.description")
     String samplesListDescriptionColumn();
-
-    @Key("github.sshkey.title")
-    String githubSshKeyTitle();
-
-    @Key("github.sshkey.label")
-    String githubSshKeyLabel();
 
     //GithubImporterPage
     @Key("view.import.githubImporterPage.projectUrl")

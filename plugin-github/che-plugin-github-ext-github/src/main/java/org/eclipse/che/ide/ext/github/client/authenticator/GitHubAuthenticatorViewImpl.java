@@ -17,6 +17,7 @@ import com.google.gwt.user.client.ui.InlineHTML;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 
+import org.eclipse.che.ide.api.ProductInfoDataProvider;
 import org.eclipse.che.ide.ext.github.client.GitHubLocalizationConstant;
 import org.eclipse.che.ide.ui.dialogs.CancelCallback;
 import org.eclipse.che.ide.ui.dialogs.ConfirmCallback;
@@ -37,7 +38,8 @@ public class GitHubAuthenticatorViewImpl implements GitHubAuthenticatorView{
 
     @Inject
     public GitHubAuthenticatorViewImpl(DialogFactory dialogFactory,
-                                       GitHubLocalizationConstant locale) {
+                                       GitHubLocalizationConstant locale,
+                                       ProductInfoDataProvider productInfoDataProvider) {
         this.dialogFactory = dialogFactory;
         this.locale = locale;
 
@@ -45,14 +47,14 @@ public class GitHubAuthenticatorViewImpl implements GitHubAuthenticatorView{
         isGenerateKeys.setValue(true);
 
         contentPanel = new DockLayoutPanel(Style.Unit.PX);
-        contentPanel.addNorth(new InlineHTML(locale.authMessageAuthRequest()), 20);
+        contentPanel.addNorth(new InlineHTML(locale.authorizationDialogText(productInfoDataProvider.getName())), 20);
         contentPanel.addNorth(isGenerateKeys, 20);
     }
 
     @Override
     public void showDialog() {
         isGenerateKeys.setValue(true);
-        dialogFactory.createConfirmDialog(locale.authTitle(),
+        dialogFactory.createConfirmDialog(locale.authorizationDialogTitle(),
                                           contentPanel,
                                           getConfirmCallback(),
                                           getCancelCallback()).show();

@@ -121,13 +121,13 @@ public class GitHubAuthenticatorImpl implements GitHubAuthenticator, OAuthCallba
 
                 @Override
                 public void onFailure(Throwable exception) {
-                    dialogFactory.createMessageDialog(locale.authTitle(), locale.authMessageUnableCreateSshKey(), null).show();
+                    dialogFactory.createMessageDialog(locale.authorizationDialogTitle(), locale.authMessageUnableCreateSshKey(), null).show();
                     callback.onFailure(new Exception(locale.authMessageUnableCreateSshKey()));
                     getFailedKey();
                 }
             });
         } else {
-            dialogFactory.createMessageDialog(locale.authTitle(), locale.authMessageUnableCreateSshKey(), null).show();
+            dialogFactory.createMessageDialog(locale.authorizationDialogTitle(), locale.authMessageUnableCreateSshKey(), null).show();
             callback.onFailure(new Exception(locale.authMessageUnableCreateSshKey()));
         }
     }
