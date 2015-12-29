@@ -11,16 +11,12 @@
 package org.eclipse.che.plugin.docker.machine.ext;
 
 import com.google.inject.AbstractModule;
-import com.google.inject.Singleton;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
 
+import org.eclipse.che.api.machine.server.WsAgentLauncherImpl;
 import org.eclipse.che.inject.CheBootstrap;
 import org.eclipse.che.plugin.docker.machine.ServerConf;
-import org.eclipse.che.plugin.docker.machine.ext.provider.ApiEndpointEnvVariableProvider;
-import org.eclipse.che.plugin.docker.machine.ext.provider.DockerExtConfBindingProvider;
-import org.eclipse.che.plugin.docker.machine.ext.provider.ExtServerVolumeProvider;
-import org.eclipse.che.plugin.docker.machine.ext.provider.ProjectsRootEnvVariableProvider;
 
 /**
  * Guice module for extension servers feature in docker machines
@@ -32,12 +28,10 @@ import org.eclipse.che.plugin.docker.machine.ext.provider.ProjectsRootEnvVariabl
 public class DockerExtServerModule extends AbstractModule {
     @Override
     protected void configure() {
-        bind(DockerMachineExtServerLauncher.class).asEagerSingleton();
-
         Multibinder<ServerConf> machineServers = Multibinder.newSetBinder(binder(),
                                                                           ServerConf.class,
                                                                           Names.named("machine.docker.dev_machine.machine_servers"));
-        machineServers.addBinding().toInstance(new ServerConf("extensions", "4401", "http"));
+        machineServers.addBinding().toInstance(new ServerConf("extensions", Integer.toString(WsAgentLauncherImpl.WS_AGENT_PORT), "http"));
 
         Multibinder<String> volumesMultibinder = Multibinder.newSetBinder(binder(),
                                                                           String.class,
