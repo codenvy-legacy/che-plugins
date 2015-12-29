@@ -8,7 +8,7 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.ide.ext.java.jdi.client;
+package org.eclipse.che.ide.ext.java.jdi.client.debug;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.googlecode.gwt.test.utils.GwtReflectionUtils;
@@ -22,13 +22,10 @@ import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.event.project.ProjectReadyHandler;
-import org.eclipse.che.ide.api.notification.StatusNotification;
 import org.eclipse.che.ide.api.project.tree.generic.FileNode;
 import org.eclipse.che.ide.debug.Breakpoint;
 import org.eclipse.che.ide.debug.BreakpointManager;
-import org.eclipse.che.ide.ext.java.jdi.client.debug.DebuggerPresenter;
-import org.eclipse.che.ide.ext.java.jdi.client.debug.DebuggerVariable;
-import org.eclipse.che.ide.ext.java.jdi.client.debug.DebuggerView;
+import org.eclipse.che.ide.ext.java.jdi.client.BaseTest;
 import org.eclipse.che.ide.ext.java.jdi.client.debug.changevalue.ChangeValuePresenter;
 import org.eclipse.che.ide.ext.java.jdi.client.debug.expression.EvaluateExpressionPresenter;
 import org.eclipse.che.ide.ext.java.jdi.client.fqn.FqnResolver;
@@ -38,6 +35,8 @@ import org.eclipse.che.ide.ext.java.jdi.shared.DebuggerInfo;
 import org.eclipse.che.ide.ext.java.jdi.shared.Location;
 import org.eclipse.che.ide.ext.java.jdi.shared.Variable;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
+import org.eclipse.che.ide.util.storage.LocalStorage;
+import org.eclipse.che.ide.util.storage.LocalStorageProvider;
 import org.eclipse.che.ide.websocket.MessageBusProvider;
 import org.junit.Before;
 import org.junit.Test;
@@ -51,16 +50,14 @@ import org.mockito.stubbing.Answer;
 
 import java.lang.reflect.Method;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -71,11 +68,8 @@ import static org.mockito.Mockito.when;
  * @author Valeriy Svydenko
  */
 public class DebuggerTest extends BaseTest {
-    private static final String DEBUG_HOST = "localhost";
-    private static final int    DEBUG_PORT = 8000;
-    private static final String VM_NAME    = "vm_name";
-    private static final String VM_VERSION = "vm_version";
     private static final String MIME_TYPE  = "application/java";
+    private static final String DEBUG_INFO = "debug_info";
 
     @Captor
     private ArgumentCaptor<ProjectReadyHandler> projectActionHandlerArgumentCaptor;
@@ -109,6 +103,12 @@ public class DebuggerTest extends BaseTest {
     private MessageBusProvider                  messageBusProvider;
     @Mock
     private UsersWorkspaceDto                   workspace;
+    @Mock
+    private LocalStorageProvider                localStorageProvider;
+    @Mock
+    private LocalStorage                        localStorage;
+    @Mock
+    private DebuggerInfo                        debuggerInfo;
 
     @Captor
     private ArgumentCaptor<ExtServerStateHandler> extServerStateHandlerCaptor;
@@ -119,6 +119,7 @@ public class DebuggerTest extends BaseTest {
     @Before
     public void setUp() {
         super.setUp();
+
         when(file.getData()).thenReturn(fileReference);
         when(fileReference.getMediaType()).thenReturn(MIME_TYPE);
         when(dtoFactory.createDto(Location.class)).thenReturn(mock(Location.class));
@@ -126,8 +127,12 @@ public class DebuggerTest extends BaseTest {
         when(resolverFactory.getResolver(anyString())).thenReturn(mock(FqnResolver.class));
         when(appContext.getCurrentProject()).thenReturn(currentProject);
         when(currentProject.getRootProject()).thenReturn(project);
-
         when(messageBusProvider.getMachineMessageBus()).thenReturn(messageBus);
+
+        when(localStorageProvider.get()).thenReturn(localStorage);
+        when(localStorage.getItem(DebuggerPresenter.LOCAL_STORAGE_DEBUGGER_KEY)).thenReturn(DEBUG_INFO);
+        when(dtoFactory.createDtoFromJson(DEBUG_INFO, DebuggerInfo.class)).thenReturn(debuggerInfo);
+
         verify(eventBus).addHandler(eq(ExtServerStateEvent.TYPE), extServerStateHandlerCaptor.capture());
         extServerStateHandlerCaptor.getValue().onExtServerStarted(ExtServerStateEvent.createExtServerStartedEvent());
     }
@@ -153,7 +158,7 @@ public class DebuggerTest extends BaseTest {
         verifySetEnableButtons(DISABLE_BUTTON);
 
         verify(view).setEnableDisconnectButton(DISABLE_BUTTON);
-        verify(workspaceAgent).hidePart(presenter);
+        verify(localStorage).setItem(eq(DebuggerPresenter.LOCAL_STORAGE_DEBUGGER_KEY), anyString());
     }
 
     @Test
@@ -194,7 +199,7 @@ public class DebuggerTest extends BaseTest {
         verifySetEnableButtons(DISABLE_BUTTON);
         verify(service).resume(anyString(), Matchers.<AsyncRequestCallback<Void>>anyObject());
         verify(view).setVariables(anyListOf(DebuggerVariable.class));
-        verify(view).setEnableChangeValueButtonEnable(eq(DISABLE_BUTTON));
+        verify(view, atLeastOnce()).setEnableChangeValueButtonEnable(eq(DISABLE_BUTTON));
         verify(gutterManager).removeCurrentBreakpoint();
     }
 
@@ -235,7 +240,7 @@ public class DebuggerTest extends BaseTest {
 
         verify(service).stepInto(anyString(), Matchers.<AsyncRequestCallback<Void>>anyObject());
         verify(view).setVariables(anyListOf(DebuggerVariable.class));
-        verify(view).setEnableChangeValueButtonEnable(eq(DISABLE_BUTTON));
+        verify(view, atLeastOnce()).setEnableChangeValueButtonEnable(eq(DISABLE_BUTTON));
         verify(gutterManager).removeCurrentBreakpoint();
     }
 
@@ -276,7 +281,7 @@ public class DebuggerTest extends BaseTest {
 
         verify(service).stepOver(anyString(), Matchers.<AsyncRequestCallback<Void>>anyObject());
         verify(view).setVariables(anyListOf(DebuggerVariable.class));
-        verify(view).setEnableChangeValueButtonEnable(eq(DISABLE_BUTTON));
+        verify(view, atLeastOnce()).setEnableChangeValueButtonEnable(eq(DISABLE_BUTTON));
         verify(gutterManager).removeCurrentBreakpoint();
     }
 
@@ -317,7 +322,7 @@ public class DebuggerTest extends BaseTest {
 
         verify(service).stepReturn(anyString(), Matchers.<AsyncRequestCallback<Void>>anyObject());
         verify(view).setVariables(anyListOf(DebuggerVariable.class));
-        verify(view).setEnableChangeValueButtonEnable(eq(DISABLE_BUTTON));
+        verify(view, atLeastOnce()).setEnableChangeValueButtonEnable(eq(DISABLE_BUTTON));
         verify(gutterManager).removeCurrentBreakpoint();
     }
 
@@ -425,8 +430,7 @@ public class DebuggerTest extends BaseTest {
         presenter.onSelectedVariableElement(mock(DebuggerVariable.class));
         presenter.onChangeValueButtonClicked();
 
-        verify(changeValuePresenter).showDialog((DebuggerInfo)anyObject(),
-                                                (Variable)anyObject(),
+        verify(changeValuePresenter).showDialog((DebuggerInfo)anyObject(), (Variable)anyObject(),
                                                 Matchers.<AsyncCallback<String>>anyObject());
     }
 
@@ -438,11 +442,10 @@ public class DebuggerTest extends BaseTest {
     }
 
     protected void verifySetEnableButtons(boolean enabled) {
-        verify(view).setEnableResumeButton(eq(enabled));
-        verify(view).setEnableStepIntoButton(eq(enabled));
-        verify(view).setEnableStepOverButton(eq(enabled));
-        verify(view).setEnableStepReturnButton(eq(enabled));
-        verify(view).setEnableEvaluateExpressionButtonEnable(eq(enabled));
+        verify(view, atLeastOnce()).setEnableResumeButton(eq(enabled));
+        verify(view, atLeastOnce()).setEnableStepIntoButton(eq(enabled));
+        verify(view, atLeastOnce()).setEnableStepOverButton(eq(enabled));
+        verify(view, atLeastOnce()).setEnableStepReturnButton(eq(enabled));
+        verify(view, atLeastOnce()).setEnableEvaluateExpressionButtonEnable(eq(enabled));
     }
-
 }
