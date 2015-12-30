@@ -215,7 +215,6 @@
     margin: 4px 6px 0 5px;
     width: 11px;
     height: 11px;
-    opacity: 0.5;
     font-size: 12px;
     font-weight: bold;
     border-radius: 2px;
@@ -270,8 +269,30 @@ div.processHeaderTitle {
 }
 
 .processesPanelCloseButtonForProcess {
+    display: none;
     cursor: pointer;
     opacity: 0.5;
     padding: 6px 7px;
     float: right;
+}
+
+.processesPanelStopButtonForProcess {
+    display: none;
+    float: right;
+    background-color: primaryHighlightColor;
+    margin: 4px 5px 0 5px;
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    box-sizing: border-box;
+    cursor: pointer;
+}
+
+.processesPanelStopButtonForProcess:hover {
+    background-color: categoryElementButtonHoverColor;
+}
+
+.selectedProcess img.processesPanelCloseButtonForProcess,
+.selectedProcess span.processesPanelStopButtonForProcess {
+    display: block;
 }

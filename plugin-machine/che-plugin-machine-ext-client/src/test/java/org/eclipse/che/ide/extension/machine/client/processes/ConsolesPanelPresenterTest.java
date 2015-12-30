@@ -170,7 +170,7 @@ public class ConsolesPanelPresenterTest {
         presenter.rootNode = new ProcessTreeNode(ROOT_NODE, null, null, children);
 
         CommandConfiguration commandConfiguration = mock(CommandConfiguration.class);
-        when(commandConfiguration.getName()).thenReturn(PROCESS_ID);
+        when(commandConfiguration.getName()).thenReturn(PROCESS_NAME);
         OutputConsole outputConsole = mock(OutputConsole.class);
 
         presenter.addCommand(MACHINE_ID, commandConfiguration, outputConsole);
@@ -186,6 +186,7 @@ public class ConsolesPanelPresenterTest {
         verify(view, times(2)).selectNode(anyObject());
         verify(view).setProcessesData(anyObject());
         verify(view).getNodeById(anyString());
+        verify(view).refreshStopProcessButtonState(anyString());
     }
 
     @Test
@@ -258,7 +259,7 @@ public class ConsolesPanelPresenterTest {
         verify(terminal).setVisible(eq(true));
         verify(terminal).connect();
         verify(terminal).setListener(anyObject());
-
+        verify(view).refreshStopProcessButtonState(anyString());
     }
 
     @Test
@@ -266,6 +267,33 @@ public class ConsolesPanelPresenterTest {
         presenter.onCommandSelected(PROCESS_ID);
 
         verify(view).showProcessOutput(eq(PROCESS_ID));
+        verify(view).refreshStopProcessButtonState(eq(PROCESS_ID));
+    }
+
+    @Test
+    public void shouldStopProcessWithoutCloseCommanOutput() throws Exception {
+        ProcessTreeNode machineNode = mock(ProcessTreeNode.class);
+        ProcessTreeNode commandNode = mock(ProcessTreeNode.class);
+        when(machineNode.getId()).thenReturn(MACHINE_ID);
+        List<ProcessTreeNode> children = new ArrayList<>();
+        children.add(machineNode);
+        presenter.rootNode = new ProcessTreeNode(ROOT_NODE, null, null, children);
+
+        OutputConsole outputConsole = mock(OutputConsole.class);
+        when(outputConsole.isFinished()).thenReturn(false);
+        presenter.commandConsoles.put(PROCESS_ID, outputConsole);
+        machineNode.getChildren().add(commandNode);
+
+        when(commandNode.getId()).thenReturn(PROCESS_ID);
+        when(view.getNodeIndex(anyString())).thenReturn(0);
+        when(machineNode.getChildren()).thenReturn(children);
+        when(commandNode.getParent()).thenReturn(machineNode);
+
+        presenter.onStopCommandProcess(commandNode);
+
+        verify(outputConsole).onClose();
+        verify(view, never()).hideProcessOutput(eq(PROCESS_ID));
+        verify(view, never()).removeProcessNode(eq(commandNode));
     }
 
     @Test
@@ -287,7 +315,7 @@ public class ConsolesPanelPresenterTest {
         when(machineNode.getChildren()).thenReturn(children);
         when(commandNode.getParent()).thenReturn(machineNode);
 
-        presenter.onCloseCommandConsole(commandNode);
+        presenter.onCloseCommandOutputClick(commandNode);
 
         verify(commandNode, times(2)).getId();
         verify(commandNode).getParent();
@@ -309,7 +337,7 @@ public class ConsolesPanelPresenterTest {
         when(commandNode.getId()).thenReturn(PROCESS_ID);
         when(dialogFactory.createConfirmDialog(anyString(), anyString(), anyObject(), anyObject())).thenReturn(confirmDialog);
 
-        presenter.onCloseCommandConsole(commandNode);
+        presenter.onCloseCommandOutputClick(commandNode);
 
         verify(commandNode).getId();
         verify(view, never()).hideProcessOutput(anyString());
@@ -326,6 +354,7 @@ public class ConsolesPanelPresenterTest {
         presenter.onTerminalSelected(PROCESS_ID);
 
         verify(view).showProcessOutput(eq(PROCESS_ID));
+        verify(view).refreshStopProcessButtonState(eq(PROCESS_ID));
     }
 
     @Test

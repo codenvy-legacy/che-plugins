@@ -71,6 +71,14 @@ public interface ConsolesPanelView extends View<ConsolesPanelView.ActionDelegate
     /** Returns node by given ID */
     ProcessTreeNode getNodeById(@NotNull String nodeId);
 
+    /**
+     * Sets visibility of 'Stop process' button depending on is process selected or not
+     *
+     * @param nodeId
+     *         id of selected node
+     */
+    void refreshStopProcessButtonState(String nodeId);
+
     interface ActionDelegate extends BaseActionDelegate {
 
         /**
@@ -99,12 +107,12 @@ public interface ConsolesPanelView extends View<ConsolesPanelView.ActionDelegate
 
 
         /**
-         * Will be called when user clicks 'Close' button
+         * Will be called when user clicks 'Stop' button
          *
          * @param node
-         *         command node to close
+         *         node of process to stop without closing output
          */
-        void onCloseCommandConsole(@NotNull ProcessTreeNode node);
+        void onStopCommandProcess(@NotNull ProcessTreeNode node);
 
         /**
          * Will be called when user clicks 'Close' button
@@ -113,6 +121,13 @@ public interface ConsolesPanelView extends View<ConsolesPanelView.ActionDelegate
          *         terminal node to close
          */
         void onCloseTerminal(@NotNull ProcessTreeNode node);
-    }
 
+        /**
+         * Will be called when user clicks 'Close' button
+         *
+         * @param node
+         *         node of process to stop with closing output
+         */
+        void onCloseCommandOutputClick(@NotNull ProcessTreeNode node);
+    }
 }

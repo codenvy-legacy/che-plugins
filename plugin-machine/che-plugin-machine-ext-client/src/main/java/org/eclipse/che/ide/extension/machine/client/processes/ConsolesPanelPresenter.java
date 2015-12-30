@@ -210,6 +210,7 @@ public class ConsolesPanelPresenter extends BasePresenter implements ConsolesPan
             commandId = commandNode.getId();
             view.addProcessNode(commandNode);
             addChildToMachineNode(commandNode, machineTreeNode);
+            view.refreshStopProcessButtonState(commandId);
             updateCommandOutput(commandId, outputConsole);
         }
     }
@@ -244,8 +245,9 @@ public class ConsolesPanelPresenter extends BasePresenter implements ConsolesPan
 
                 final String terminalId = terminalNode.getId();
                 terminals.put(terminalId, newTerminal);
-                view.addProcessWidget(terminalId, terminalWidget);
                 view.addProcessNode(terminalNode);
+                view.refreshStopProcessButtonState(terminalId);
+                view.addProcessWidget(terminalId, terminalWidget);
 
                 newTerminal.setVisible(true);
                 newTerminal.connect();
@@ -267,12 +269,37 @@ public class ConsolesPanelPresenter extends BasePresenter implements ConsolesPan
     }
 
     @Override
-    public void onCommandSelected(@NotNull String commandId) {
-        view.showProcessOutput(commandId);
+    public void onCloseTerminal(@NotNull ProcessTreeNode node) {
+        String terminalId = node.getId();
+        if (terminals.containsKey(terminalId)) {
+            onStopProcess(node);
+            terminals.get(terminalId).stopTerminal();
+            terminals.remove(terminalId);
+        }
     }
 
     @Override
-    public void onCloseCommandConsole(@NotNull ProcessTreeNode node) {
+    public void onTerminalSelected(@NotNull String terminalId) {
+        view.showProcessOutput(terminalId);
+        view.refreshStopProcessButtonState(terminalId);
+    }
+
+    @Override
+    public void onCommandSelected(@NotNull String commandId) {
+        view.showProcessOutput(commandId);
+        view.refreshStopProcessButtonState(commandId);
+    }
+
+    @Override
+    public void onStopCommandProcess(@NotNull ProcessTreeNode node) {
+        String commandId = node.getId();
+        if (commandConsoles.containsKey(commandId) && !commandConsoles.get(commandId).isFinished()) {
+            commandConsoles.get(commandId).onClose();
+        }
+    }
+
+    @Override
+    public void onCloseCommandOutputClick(@NotNull ProcessTreeNode node) {
         String commandId = node.getId();
         if (!commandConsoles.containsKey(commandId)) {
             return;
@@ -284,7 +311,6 @@ public class ConsolesPanelPresenter extends BasePresenter implements ConsolesPan
             commandConsoles.remove(commandId);
             return;
         }
-
         dialogFactory.createConfirmDialog("", localizationConstant.outputsConsoleViewStopProcessConfirmation(outputConsole.getTitle()),
                                           getConfirmCloseConsoleCallback(outputConsole, node), null)
                      .show();
@@ -300,22 +326,6 @@ public class ConsolesPanelPresenter extends BasePresenter implements ConsolesPan
                 commandConsoles.remove(node.getId());
             }
         };
-    }
-
-    @Override
-    public void onTerminalSelected(@NotNull String terminalId) {
-        view.showProcessOutput(terminalId);
-        terminals.get(terminalId).setFocus();
-    }
-
-    @Override
-    public void onCloseTerminal(@NotNull ProcessTreeNode node) {
-        String terminalId = node.getId();
-        if (terminals.containsKey(terminalId)) {
-            onStopProcess(node);
-            terminals.get(terminalId).stopTerminal();
-            terminals.remove(terminalId);
-        }
     }
 
     private void onStopProcess(@NotNull ProcessTreeNode node) {
@@ -338,6 +348,7 @@ public class ConsolesPanelPresenter extends BasePresenter implements ConsolesPan
         ProcessTreeNode neighborNode = view.getNodeByIndex(neighborIndex);
         removeChildFromMachineNode(node, parentNode);
         view.selectNode(neighborNode);
+        view.refreshStopProcessButtonState(neighborNode.getId());
 
         view.showProcessOutput(neighborNode.getId());
         view.hideProcessOutput(processId);

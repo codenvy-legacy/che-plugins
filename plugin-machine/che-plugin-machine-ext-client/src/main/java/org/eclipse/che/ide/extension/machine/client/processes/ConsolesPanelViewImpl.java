@@ -29,6 +29,7 @@ import org.eclipse.che.ide.ui.tree.TreeNodeElement;
 import org.eclipse.che.ide.util.input.SignalEvent;
 
 import javax.validation.constraints.NotNull;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -77,11 +78,16 @@ public class ConsolesPanelViewImpl extends BaseView<ConsolesPanelView.ActionDele
 
         renderer.setStopProcessHandler(new StopProcessHandler() {
             @Override
-            public void onStopProcessClick(ProcessTreeNode node) {
+            public void onStopProcessClick(@NotNull ProcessTreeNode node) {
+                delegate.onStopCommandProcess(node);
+            }
+
+            @Override
+            public void onCloseProcessOutputClick(@NotNull ProcessTreeNode node) {
                 ProcessTreeNode.ProcessNodeType type = node.getType();
                 switch (type) {
                     case COMMAND_NODE:
-                        delegate.onCloseCommandConsole(node);
+                        delegate.onCloseCommandOutputClick(node);
                         break;
                     case TERMINAL_NODE:
                         delegate.onCloseTerminal(node);
@@ -238,6 +244,17 @@ public class ConsolesPanelViewImpl extends BaseView<ConsolesPanelView.ActionDele
             }
         }
         return null;
+    }
+
+    @Override
+    public void refreshStopProcessButtonState(String nodeId) {
+        for (ProcessTreeNode node : processNodes) {
+            if (nodeId.equals(node.getId())) {
+                node.getTreeNodeElement().getClassList().add(machineResources.getCss().selectedProcess());
+            } else {
+                node.getTreeNodeElement().getClassList().remove(machineResources.getCss().selectedProcess());
+            }
+        }
     }
 
     @Override
