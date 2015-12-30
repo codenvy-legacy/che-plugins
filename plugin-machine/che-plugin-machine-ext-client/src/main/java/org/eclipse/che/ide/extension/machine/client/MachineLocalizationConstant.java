@@ -333,6 +333,12 @@ public interface MachineLocalizationConstant extends Messages {
     @Key("view.processes.terminal.node.title")
     String viewProcessesTerminalNodeTitle(String terminalIndex);
 
+    @Key("view.stop.process.tooltip")
+    String viewStropProcessTooltip();
+
+    @Key("view.close.processOutput.tooltip")
+    String viewCloseProcessOutputTooltip();
+
     @Key("failed.to.execute.command")
     String failedToExecuteCommand();
 

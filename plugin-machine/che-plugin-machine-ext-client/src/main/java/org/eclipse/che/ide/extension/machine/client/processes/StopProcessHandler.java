@@ -13,7 +13,7 @@ package org.eclipse.che.ide.extension.machine.client.processes;
 import javax.validation.constraints.NotNull;
 
 /**
- * Handler for the processing of click on 'Close' button on process node
+ * Handler for the processing of process stopping 
  *
  * @author Roman Nikitenko
  */
@@ -21,10 +21,18 @@ import javax.validation.constraints.NotNull;
 public interface StopProcessHandler {
 
     /**
+     * Will be called when user clicks 'Stop' button
+     *
+     * @param node
+     *         node of process to stop without closing output
+     */
+    void onStopProcessClick(@NotNull ProcessTreeNode node);
+
+    /**
      * Will be called when user clicks 'Close' button
      *
      * @param node
-     *         node of process to stop
+     *         node of process to stop with closing output
      */
-    void onStopProcessClick(@NotNull ProcessTreeNode node);
+    void onCloseProcessOutputClick(@NotNull ProcessTreeNode node);
 }

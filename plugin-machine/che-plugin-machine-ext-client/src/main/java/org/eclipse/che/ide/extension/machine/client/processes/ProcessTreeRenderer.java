@@ -101,11 +101,11 @@ public class ProcessTreeRenderer implements NodeRenderer<ProcessTreeNode> {
 
     private SpanElement createCommandElement(ProcessTreeNode node) {
         SpanElement root = Elements.createSpanElement();
+        root.appendChild(createCloseElement(node));
         root.appendChild(createStopProcessElement(node));
 
         SpanElement iconElement = Elements.createSpanElement(resources.getCss().processIcon());
         SVGImage icon = new SVGImage(resources.output());
-        icon.setStyleName(resources.getCss().processIcon());
         iconElement.appendChild((Node)icon.getElement());
         iconElement.setClassName(resources.getCss().processIcon());
         root.appendChild(iconElement);
@@ -119,11 +119,10 @@ public class ProcessTreeRenderer implements NodeRenderer<ProcessTreeNode> {
 
     private SpanElement createTerminalElement(ProcessTreeNode node) {
         SpanElement root = Elements.createSpanElement();
-        root.appendChild(createStopProcessElement(node));
+        root.appendChild(createCloseElement(node));
 
         SpanElement iconElement = Elements.createSpanElement();
         SVGImage icon = new SVGImage(resources.terminal());
-        icon.setStyleName(resources.getCss().processIcon());
         iconElement.appendChild((Node)icon.getElement());
         iconElement.setClassName(resources.getCss().processIcon());
         root.appendChild(iconElement);
@@ -134,11 +133,26 @@ public class ProcessTreeRenderer implements NodeRenderer<ProcessTreeNode> {
         return root;
     }
 
-    private SpanElement createStopProcessElement(final ProcessTreeNode node) {
-        SpanElement stopProcessButton = Elements.createSpanElement();
+    private SpanElement createCloseElement(final ProcessTreeNode node) {
+        SpanElement closeButton = Elements.createSpanElement();
         Image icon = new Image(resources.close());
         icon.setStyleName(resources.getCss().processesPanelCloseButtonForProcess());
-        stopProcessButton.appendChild((Node)icon.getElement());
+        closeButton.appendChild((Node)icon.getElement());
+        closeButton.setAttribute("title", locale.viewCloseProcessOutputTooltip());
+        closeButton.addEventListener(Event.CLICK, new EventListener() {
+            @Override
+            public void handleEvent(Event event) {
+                if (stopProcessHandler != null) {
+                    stopProcessHandler.onCloseProcessOutputClick(node);
+                }
+            }
+        }, true);
+        return closeButton;
+    }
+
+    private SpanElement createStopProcessElement(final ProcessTreeNode node) {
+        SpanElement stopProcessButton = Elements.createSpanElement(resources.getCss().processesPanelStopButtonForProcess());
+        stopProcessButton.setAttribute("title", locale.viewStropProcessTooltip());
         stopProcessButton.addEventListener(Event.CLICK, new EventListener() {
             @Override
             public void handleEvent(Event event) {

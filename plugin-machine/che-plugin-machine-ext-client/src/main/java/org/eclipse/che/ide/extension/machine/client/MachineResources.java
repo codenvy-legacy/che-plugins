@@ -146,7 +146,13 @@ public interface MachineResources extends ClientBundle {
 
         String processCommandValue();
 
-        /** Returns the CSS class name for close button of process in 'Processes' panel. */
+        /** Returns the CSS class name for close button of process in 'Consoles' panel. */
         String processesPanelCloseButtonForProcess();
+
+        /** Returns the CSS class name for stop button of process in 'Consoles' panel. */
+        String processesPanelStopButtonForProcess();
+
+        /** Returns the CSS class name for selected process in 'Consoles' panel. */
+        String selectedProcess();
     }
 }
