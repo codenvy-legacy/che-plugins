@@ -19,6 +19,7 @@ import com.google.gwt.safehtml.shared.SimpleHtmlSanitizer;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;
@@ -50,6 +51,10 @@ public class OutputConsoleViewImpl extends Composite implements OutputConsoleVie
     Label       commandLabel;
     @UiField
     Label       commandTitle;
+    @UiField
+    DockLayoutPanel consolePanel;
+    @UiField
+    FlowPanel   commandPanel;
 
     /** If true - next printed line should replace the previous one. */
     private boolean carriageReturn;
@@ -120,8 +125,7 @@ public class OutputConsoleViewImpl extends Composite implements OutputConsoleVie
 
     @Override
     public void hideCommand() {
-        commandTitle.setVisible(false);
-        commandLabel.setVisible(false);
+        consolePanel.setWidgetHidden(commandPanel, true);
     }
 
     interface OutputConsoleViewUiBinder extends UiBinder<Widget, OutputConsoleViewImpl> {

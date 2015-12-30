@@ -9,10 +9,25 @@
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
 @eval partBackground org.eclipse.che.ide.api.theme.Style.theme.partBackground();
-@eval outputFontColor org.eclipse.che.ide.api.theme.Style.getOutputFontColor();
+@eval outputFontColor org.eclipse.che.ide.api.theme.Style.theme.getOutputFontColor();
 @eval successColor org.eclipse.che.ide.api.theme.Style.getSuccessColor();
 @eval categoryHeaderButtonColor org.eclipse.che.ide.api.theme.Style.theme.categoryHeaderButtonColor();
 @eval categoryElementButtonHoverColor org.eclipse.che.ide.api.theme.Style.theme.categoryElementButtonHoverColor();
+
+@external .terminal, .terminal-cursor;
+
+.terminal {
+    border-color: #292C2F;
+    background-color: #292C2F;
+
+    border-width: 0px;
+    margin-left: 1px;
+    margin-top: 4px;
+}
+
+.terminal-cursor {
+    background: #4EABFF;
+}
 
 .fullSize {
     width: 100% !important;
@@ -55,7 +70,6 @@
 }
 
 .outputsContainerConsoleTabSelected {
-    color: #ffffff;
 }
 
 .outputsContainerConsoleTabSelected:before {
@@ -81,6 +95,7 @@
 .outputsContainerConsoleTabLabel {
     position: relative;
     top: 2px;
+    color: outputFontColor;
 }
 
 .outputsContainerConsoleTabCloseButton {
@@ -182,6 +197,9 @@
     font-size: fontSize;
     color: mainFontColor;
     text-shadow: none;
+    position: absolute;
+    width: 100%;
+    height: 100%;
 }
 
 .processTree .devMachineLabel {
@@ -201,24 +219,28 @@
 
 .processTree .machineStatus {
     float: right;
-    background-color: successColor;
     width: 10px;
     height: 10px;
     border-radius: 5px;
     margin: 4px 5px;
+
+    background-color: #46AF00;
+    border: 1px solid #7ED321;
+    box-sizing: border-box;
 }
 
 .processTree .processButton {
     float: right;
     color: categoryHeaderButtonColor;
     border: 1px solid categoryHeaderButtonColor;
-    margin: 4px 6px 0 5px;
-    width: 11px;
-    height: 11px;
-    font-size: 12px;
+    margin: 3px 6px 0 5px;
+    width: 13px;
+    height: 13px;
+    opacity: 0.5;
+    font-size: 13px;
     font-weight: bold;
     border-radius: 2px;
-    line-height: 9px;
+    line-height: 10px;
     box-sizing: border-box;
     text-align: center;
     cursor: pointer;
@@ -247,9 +269,13 @@
     padding: 0 1px 2px 0;
 }
 
+.processIcon svg path {
+    fill: #FFFFFF;
+}
+
 .processNavigation {
-    border-right: 1px solid separatorColor;
-    margin-right: 8px;
+    outline: none;
+    background-color: #21252b;
 }
 
 .processOutputPanel {

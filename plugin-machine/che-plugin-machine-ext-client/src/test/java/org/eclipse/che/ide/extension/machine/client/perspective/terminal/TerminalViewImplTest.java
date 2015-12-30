@@ -38,18 +38,6 @@ public class TerminalViewImplTest {
     private TerminalViewImpl view;
 
     @Test
-    public void terminalShouldBeOpened() {
-        when(view.terminalPanel.getElement()).thenReturn(element);
-
-        view.openTerminal(terminalJso);
-
-        verify(view.unavailableLabel).setVisible(false);
-        verify(view.terminalPanel).setVisible(true);
-        verify(view.terminalPanel).getElement();
-        verify(terminalJso).open(element);
-    }
-
-    @Test
     public void errorMessageShouldBeShown() {
         view.showErrorMessage(SOME_TEXT);
 

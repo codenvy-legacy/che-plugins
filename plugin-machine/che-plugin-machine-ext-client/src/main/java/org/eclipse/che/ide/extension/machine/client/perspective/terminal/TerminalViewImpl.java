@@ -28,12 +28,60 @@ import javax.validation.constraints.NotNull;
  * @author Dmitry Shnurenko
  */
 final class TerminalViewImpl extends Composite implements TerminalView, RequiresResize{
+
+    interface TerminalViewImplUiBinder extends UiBinder<Widget, TerminalViewImpl> {
+    }
+
     private final static TerminalViewImplUiBinder UI_BINDER = GWT.create(TerminalViewImplUiBinder.class);
+
     @UiField
     FlowPanel terminalPanel;
+
     @UiField
     Label     unavailableLabel;
+
     private ActionDelegate delegate;
+
+    public TerminalViewImpl() {
+        initWidget(UI_BINDER.createAndBindUi(this));
+    }
+
+    @Override
+    public void setDelegate(ActionDelegate delegate) {
+        this.delegate = delegate;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void openTerminal(@NotNull final TerminalJso terminal) {
+        unavailableLabel.setVisible(false);
+
+        terminalPanel.setVisible(true);
+
+        terminalPanel.getElement().getStyle().setProperty("opacity", "0");
+
+        terminal.open(terminalPanel.getElement());
+
+        resizeTerminal();
+        terminalPanel.getElement().getFirstChildElement().getStyle().clearProperty("backgroundColor");
+        terminalPanel.getElement().getStyle().clearProperty("opacity");
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void showErrorMessage(@NotNull String message) {
+        unavailableLabel.setText(message);
+        unavailableLabel.setVisible(true);
+
+        terminalPanel.setVisible(false);
+    }
+
+    @Override
+    public void onResize() {
+        resizeTimer.cancel();
+        resizeTimer.schedule(200);
+    }
+
     private Timer resizeTimer = new Timer() {
         @Override
         public void run() {
@@ -53,42 +101,4 @@ final class TerminalViewImpl extends Composite implements TerminalView, Requires
         delegate.setTerminalSize(x, y);
     }
 
-    public TerminalViewImpl() {
-        initWidget(UI_BINDER.createAndBindUi(this));
-    }
-
-    @Override
-    public void setDelegate(ActionDelegate delegate) {
-        this.delegate = delegate;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void openTerminal(@NotNull final TerminalJso terminal) {
-        unavailableLabel.setVisible(false);
-
-        terminalPanel.setVisible(true);
-
-        terminal.open(terminalPanel.getElement());
-        onResize();
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void showErrorMessage(@NotNull String message) {
-        unavailableLabel.setText(message);
-        unavailableLabel.setVisible(true);
-
-        terminalPanel.setVisible(false);
-    }
-
-    @Override
-    public void onResize() {
-        resizeTimer.cancel();
-        resizeTimer.schedule(200);
-    }
-
-
-    interface TerminalViewImplUiBinder extends UiBinder<Widget, TerminalViewImpl> {
-    }
 }

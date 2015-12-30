@@ -46,10 +46,16 @@ public class ConsolesPanelViewImpl extends BaseView<ConsolesPanelView.ActionDele
 
     @UiField(provided = true)
     MachineResources      machineResources;
+
     @UiField(provided = true)
     Tree<ProcessTreeNode> processTree;
+
+    @UiField(provided = true)
+    SplitLayoutPanel      splitLayoutPanel;
+
     @UiField
     DeckLayoutPanel       outputPanel;
+
     @UiField
     FlowPanel             navigationPanel;
 
@@ -63,11 +69,13 @@ public class ConsolesPanelViewImpl extends BaseView<ConsolesPanelView.ActionDele
                                  ProcessesViewImplUiBinder uiBinder,
                                  ProcessTreeRenderer renderer,
                                  ProcessDataAdapter adapter) {
-
         super(partStackUIResources);
+
         this.machineResources = machineResources;
         this.processWidgets = new HashMap<>();
         this.processNodes = new ArrayList<>();
+
+        splitLayoutPanel = new SplitLayoutPanel(3);
 
         renderer.setAddTerminalClickHandler(new AddTerminalClickHandler() {
             @Override
@@ -199,6 +207,8 @@ public class ConsolesPanelViewImpl extends BaseView<ConsolesPanelView.ActionDele
         selectionModel.setTreeActive(true);
         selectionModel.clearSelections();
         selectionModel.selectSingleNode(node);
+
+        node.getTreeNodeElement().scrollIntoView();
     }
 
     @Override
