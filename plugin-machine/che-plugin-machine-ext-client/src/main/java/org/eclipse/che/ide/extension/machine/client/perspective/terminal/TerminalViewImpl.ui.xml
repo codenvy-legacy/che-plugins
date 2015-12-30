@@ -16,6 +16,17 @@
     <ui:with field="locale" type="org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant"/>
 
     <ui:style>
+
+        .terminalView {
+        }
+
+        .terminalPanel {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #292C2F;
+        }
+
         .unavailable {
             width: 100%;
             height: 100%;
@@ -28,10 +39,8 @@
         }
     </ui:style>
 
-    <g:FlowPanel width="100%" height="100%">
+    <g:FlowPanel width="100%" height="100%" styleName="{style.terminalView}">
         <g:Label ui:field="unavailableLabel" visible="false" text="{locale.terminalTryRestarting}" addStyleNames="{style.unavailable}"/>
-            <g:FlowPanel ui:field="terminalPanel" width="100%" height="100%"/>
-        <!--<g:ScrollPanel width="100%" height="100%">-->
-        <!--</g:ScrollPanel>-->
+        <g:FlowPanel ui:field="terminalPanel" styleName="{style.terminalPanel}"/>
     </g:FlowPanel>
 </ui:UiBinder>

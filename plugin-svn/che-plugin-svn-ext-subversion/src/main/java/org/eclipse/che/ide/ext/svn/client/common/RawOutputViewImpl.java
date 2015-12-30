@@ -73,7 +73,6 @@ public class RawOutputViewImpl extends BaseView<RawOutputView.ActionDelegate> im
         setToolbarHeight(22+18);
 
         f.getElement().getStyle().setProperty("borderTop", "#333 1px solid");
-        //org.eclipse.che.ide.api.theme.Style.getOutputFontColor();
         f.add(clearButton);
     }
 
