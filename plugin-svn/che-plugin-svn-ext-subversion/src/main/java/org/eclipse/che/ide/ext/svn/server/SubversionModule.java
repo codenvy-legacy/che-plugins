@@ -13,7 +13,7 @@ package org.eclipse.che.ide.ext.svn.server;
 import com.google.inject.AbstractModule;
 import com.google.inject.multibindings.Multibinder;
 
-import org.eclipse.che.api.core.model.project.type.ProjectType;
+import org.eclipse.che.core.model.project.type.ProjectType;
 import org.eclipse.che.api.project.server.ProjectImporter;
 import org.eclipse.che.api.project.server.ValueProviderFactory;
 import org.eclipse.che.ide.ext.svn.server.credentials.CredentialsProvider;

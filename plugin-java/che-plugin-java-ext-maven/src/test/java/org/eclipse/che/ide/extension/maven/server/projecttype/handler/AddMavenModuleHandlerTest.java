@@ -11,7 +11,7 @@
 package org.eclipse.che.ide.extension.maven.server.projecttype.handler;
 
 import com.google.inject.Provider;
-import org.eclipse.che.api.core.model.project.type.ProjectType;
+
 import org.eclipse.che.api.core.notification.EventService;
 import org.eclipse.che.api.core.rest.HttpJsonHelper;
 import org.eclipse.che.api.project.server.AttributeFilter;
@@ -22,7 +22,11 @@ import org.eclipse.che.api.project.server.handlers.ProjectHandler;
 import org.eclipse.che.api.project.server.handlers.ProjectHandlerRegistry;
 import org.eclipse.che.api.project.server.type.ProjectTypeDef;
 import org.eclipse.che.api.project.server.type.ProjectTypeRegistry;
-import org.eclipse.che.api.vfs.server.*;
+import org.eclipse.che.api.vfs.server.ContentStream;
+import org.eclipse.che.api.vfs.server.SystemPathsFilter;
+import org.eclipse.che.api.vfs.server.VirtualFileSystemRegistry;
+import org.eclipse.che.api.vfs.server.VirtualFileSystemUser;
+import org.eclipse.che.api.vfs.server.VirtualFileSystemUserContext;
 import org.eclipse.che.api.vfs.server.impl.memory.MemoryFileSystemProvider;
 import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.commons.lang.IoUtil;
@@ -41,7 +45,11 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.InputStream;
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;

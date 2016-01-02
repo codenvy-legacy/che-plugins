@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.git.client.action;
 
-import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.ide.api.action.AbstractPerspectiveAction;
 import org.eclipse.che.ide.api.action.ActionEvent;
 import org.eclipse.che.ide.api.app.AppContext;
@@ -20,7 +19,6 @@ import org.vectomatic.dom.svg.ui.SVGResource;
 
 import javax.validation.constraints.NotNull;
 import java.util.Arrays;
-import java.util.List;
 
 import static org.eclipse.che.ide.workspace.perspectives.project.ProjectPerspective.PROJECT_PERSPECTIVE_ID;
 
@@ -44,17 +42,24 @@ public abstract class GitAction extends AbstractPerspectiveAction {
     }
 
     protected boolean isGitRepository() {
-        boolean isGitRepository = false;
 
-        if (getActiveProject() != null) {
-            ProjectConfigDto rootProjectDescriptor = getActiveProject().getRootProject();
-            List<String> listVcsProvider = rootProjectDescriptor.getAttributes().get("vcs.provider.name");
 
-            if (listVcsProvider != null && (!listVcsProvider.isEmpty()) && listVcsProvider.contains("git")) {
-                isGitRepository = true;
-            }
-        }
-        return isGitRepository;
+        return appContext.getActiveProject().isTypeOf("git");
+
+//        boolean isGitRepository = false;
+//
+//        if (getActiveProject() != null) {
+//            ProjectConfigDto rootProjectDescriptor = getActiveProject().getRootProject();
+//
+//
+//            List<String> listVcsProvider = rootProjectDescriptor.getAttributes().get("vcs.provider.name");
+//
+//            if (listVcsProvider != null && (!listVcsProvider.isEmpty()) && listVcsProvider.contains("git")) {
+//                isGitRepository = true;
+//            }
+//
+//        }
+//        return isGitRepository;
     }
 
     protected CurrentProject getActiveProject() {
