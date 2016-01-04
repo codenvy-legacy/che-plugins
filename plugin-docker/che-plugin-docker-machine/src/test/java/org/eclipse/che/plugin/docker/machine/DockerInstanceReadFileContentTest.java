@@ -77,6 +77,7 @@ public class DockerInstanceReadFileContentTest {
                                                 null,
                                                 null,
                                                 null,
+                                                null,
                                                 dockerInstanceStopDetector,
                                                 mock(DockerInstanceProcessesCleaner.class)));
     }

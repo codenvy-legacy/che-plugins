@@ -74,6 +74,7 @@ public class DockerInstance extends AbstractInstance {
     private final DockerMachineFactory                        dockerMachineFactory;
     private final String                                      container;
     private final DockerConnector                             docker;
+    private final String                                      image;
     private final LineConsumer                                outputConsumer;
     private final String                                      registry;
     private final DockerNode                                  node;
@@ -89,6 +90,7 @@ public class DockerInstance extends AbstractInstance {
                           DockerMachineFactory dockerMachineFactory,
                           @Assisted MachineState machineState,
                           @Assisted("container") String container,
+                          @Assisted("image") String image,
                           @Assisted DockerNode node,
                           @Assisted LineConsumer outputConsumer,
                           DockerInstanceStopDetector dockerInstanceStopDetector,
@@ -97,6 +99,7 @@ public class DockerInstance extends AbstractInstance {
         this.dockerMachineFactory = dockerMachineFactory;
         this.container = container;
         this.docker = docker;
+        this.image = image;
         this.outputConsumer = outputConsumer;
         this.registry = registry;
         this.node = node;
@@ -227,6 +230,11 @@ public class DockerInstance extends AbstractInstance {
             docker.removeContainer(container, true, true);
         } catch (IOException e) {
             throw new MachineException(e.getLocalizedMessage());
+        }
+
+        try {
+            docker.removeImage(image, false);
+        } catch (IOException ignore) {
         }
     }
 

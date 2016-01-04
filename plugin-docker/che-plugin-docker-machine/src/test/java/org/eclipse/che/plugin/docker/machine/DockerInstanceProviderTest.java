@@ -225,6 +225,9 @@ public class DockerInstanceProviderTest {
 
     @Test
     public void shouldCallCreationDockerInstanceWithFactoryOnCreateInstanceFromSnapshot() throws Exception {
+        String generatedContainerId = "genContainerId";
+        doReturn(generatedContainerId).when(dockerInstanceProvider).generateContainerName(eq(WORKSPACE_ID), eq(DISPLAY_NAME));
+
         final MachineSourceImpl machineSource = new MachineSourceImpl("type", "location");
         final MachineStateImpl machineState = new MachineStateImpl(false,
                                                                    "machineType",
@@ -233,7 +236,7 @@ public class DockerInstanceProviderTest {
                                                                    new LimitsImpl(64),
                                                                    "machineId",
                                                                    new ChannelsImpl("chan1", "chan2"),
-                                                                   "workspaceId",
+                                                                   WORKSPACE_ID,
                                                                    "userId",
                                                                    "envName",
                                                                    MachineStatus.CREATING);
@@ -244,22 +247,26 @@ public class DockerInstanceProviderTest {
 
         verify(dockerMachineFactory).createInstance(eq(machineState),
                                                     eq(CONTAINER_ID),
+                                                    eq("eclipse-che/" + generatedContainerId),
                                                     eq(dockerNode),
                                                     any(LineConsumer.class));
     }
 
     @Test
     public void shouldCallCreationDockerInstanceWithFactoryOnCreateInstanceFromRecipe() throws Exception {
+        String generatedContainerId = "genContainerId";
+        doReturn(generatedContainerId).when(dockerInstanceProvider).generateContainerName(eq(WORKSPACE_ID), eq(DISPLAY_NAME));
+
         final MachineSourceImpl machineSource = new MachineSourceImpl("type", "location");
         final Recipe recipe = new RecipeImpl().withType("Dockerfile").withScript("FROM busybox");
         final MachineStateImpl machineState = new MachineStateImpl(false,
                                                                    "machineType",
-                                                                   "Display name",
+                                                                   DISPLAY_NAME,
                                                                    machineSource,
                                                                    new LimitsImpl(64),
                                                                    "machineId",
                                                                    new ChannelsImpl("chan1", "chan2"),
-                                                                   "workspaceId",
+                                                                   WORKSPACE_ID,
                                                                    "userId",
                                                                    "envName",
                                                                    MachineStatus.CREATING);
@@ -269,6 +276,7 @@ public class DockerInstanceProviderTest {
 
         verify(dockerMachineFactory).createInstance(eq(machineState),
                                                     eq(CONTAINER_ID),
+                                                    eq("eclipse-che/" + generatedContainerId),
                                                     eq(dockerNode),
                                                     any(LineConsumer.class));
     }
