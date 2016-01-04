@@ -8,7 +8,7 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.ide.ext.java.client.navigation.action;
+package org.eclipse.che.ide.ext.java.client.action;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -17,7 +17,6 @@ import org.eclipse.che.ide.api.action.ActionEvent;
 import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.ext.java.client.JavaLocalizationConstant;
 import org.eclipse.che.ide.ext.java.client.JavaResources;
-import org.eclipse.che.ide.ext.java.client.action.JavaEditorAction;
 import org.eclipse.che.ide.ext.java.client.navigation.filestructure.FileStructurePresenter;
 
 /**

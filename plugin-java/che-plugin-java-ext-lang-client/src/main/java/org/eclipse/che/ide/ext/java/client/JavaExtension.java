@@ -28,8 +28,9 @@ import org.eclipse.che.ide.ext.java.client.action.FindUsagesAction;
 import org.eclipse.che.ide.ext.java.client.action.NewJavaSourceFileAction;
 import org.eclipse.che.ide.ext.java.client.action.NewPackageAction;
 import org.eclipse.che.ide.ext.java.client.action.OpenDeclarationAction;
+import org.eclipse.che.ide.ext.java.client.action.OpenImplementationAction;
 import org.eclipse.che.ide.ext.java.client.action.QuickDocumentationAction;
-import org.eclipse.che.ide.ext.java.client.navigation.action.FileStructureAction;
+import org.eclipse.che.ide.ext.java.client.action.FileStructureAction;
 import org.eclipse.che.ide.ext.java.client.refactoring.move.MoveAction;
 import org.eclipse.che.ide.ext.java.client.refactoring.rename.RenameRefactoringAction;
 import org.eclipse.che.ide.ext.java.shared.Constants;
@@ -72,6 +73,7 @@ public class JavaExtension {
                                 RenameRefactoringAction renameRefactoringAction,
                                 QuickDocumentationAction quickDocumentationAction,
                                 OpenDeclarationAction openDeclarationAction,
+                                OpenImplementationAction openImplementationAction,
                                 FindUsagesAction findUsagesAction) {
 
         DefaultActionGroup newGroup = (DefaultActionGroup)actionManager.getAction(GROUP_FILE_NEW);
@@ -96,6 +98,7 @@ public class JavaExtension {
 
         actionManager.registerAction("showQuickDoc", quickDocumentationAction);
         actionManager.registerAction("openJavaDeclaration", openDeclarationAction);
+        actionManager.registerAction("openImplementation", openImplementationAction);
         actionManager.registerAction("javaRenameRefactoring", renameRefactoringAction);
         actionManager.registerAction("javaMoveRefactoring", moveAction);
         actionManager.registerAction("javaFindUsages", findUsagesAction);
@@ -103,13 +106,16 @@ public class JavaExtension {
 
         assistantGroup.add(quickDocumentationAction, new Constraints(Anchor.BEFORE, GROUP_ASSISTANT_REFACTORING));
         assistantGroup.add(openDeclarationAction, new Constraints(Anchor.BEFORE, GROUP_ASSISTANT_REFACTORING));
+        assistantGroup.add(openImplementationAction, new Constraints(Anchor.BEFORE, GROUP_ASSISTANT_REFACTORING));
         assistantGroup.add(fileStructureAction, new Constraints(Anchor.BEFORE, GROUP_ASSISTANT_REFACTORING));
         assistantGroup.add(findUsagesAction, new Constraints(Anchor.BEFORE, GROUP_ASSISTANT_REFACTORING));
 
         if (UserAgent.isMac()) {
+            keyBinding.getGlobal().addKey(new KeyBuilder().alt().control().charCode('b').build(), "openImplementation");
             keyBinding.getGlobal().addKey(new KeyBuilder().control().charCode('j').build(), "showQuickDoc");
             keyBinding.getGlobal().addKey(new KeyBuilder().control().charCode(KeyCodeMap.F12).build(), "javaClassStructure");
         } else {
+            keyBinding.getGlobal().addKey(new KeyBuilder().alt().action().charCode('b').build(), "openImplementation");
             keyBinding.getGlobal().addKey(new KeyBuilder().action().charCode('q').build(), "showQuickDoc");
             keyBinding.getGlobal().addKey(new KeyBuilder().action().charCode(KeyCodeMap.F12).build(), "javaClassStructure");
         }

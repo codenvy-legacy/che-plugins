@@ -17,6 +17,7 @@ import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.editor.EditorPartPresenter;
 import org.eclipse.che.ide.ext.java.client.JavaLocalizationConstant;
 import org.eclipse.che.ide.ext.java.client.JavaResources;
+import org.eclipse.che.ide.ext.java.client.action.FileStructureAction;
 import org.eclipse.che.ide.ext.java.client.navigation.filestructure.FileStructurePresenter;
 import org.junit.Before;
 import org.junit.Test;
