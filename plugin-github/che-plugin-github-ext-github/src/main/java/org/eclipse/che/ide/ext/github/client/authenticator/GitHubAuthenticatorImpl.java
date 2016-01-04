@@ -14,13 +14,17 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 
+import org.eclipse.che.api.promises.client.Operation;
+import org.eclipse.che.api.promises.client.OperationException;
+import org.eclipse.che.api.promises.client.PromiseError;
+import org.eclipse.che.api.ssh.gwt.client.SshServiceClient;
+import org.eclipse.che.api.ssh.shared.dto.SshPairDto;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.ext.github.client.GitHubLocalizationConstant;
-import org.eclipse.che.ide.ext.ssh.client.SshKeyService;
-import org.eclipse.che.ide.ext.ssh.dto.KeyItem;
-import org.eclipse.che.ide.rest.AsyncRequestCallback;
-import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
+import org.eclipse.che.ide.ext.ssh.client.GitSshKeyUploaderRegistry;
+import org.eclipse.che.ide.ext.ssh.client.SshKeyUploader;
+import org.eclipse.che.ide.ext.ssh.client.manage.SshKeyManagerPresenter;
 import org.eclipse.che.ide.rest.RestContext;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 import org.eclipse.che.ide.util.loging.Log;
@@ -39,31 +43,31 @@ public class GitHubAuthenticatorImpl implements GitHubAuthenticator, OAuthCallba
 
     AsyncCallback<OAuthStatus> callback;
 
-    private SshKeyService              sshKeyService;
-    private DialogFactory              dialogFactory;
-    private DtoUnmarshallerFactory     dtoUnmarshallerFactory;
-    private GitHubAuthenticatorView    view;
-    private NotificationManager        notificationManager;
-    private GitHubLocalizationConstant locale;
-    private String                     baseUrl;
-    private AppContext                 appContext;
+    private final GitSshKeyUploaderRegistry  registry;
+    private final SshServiceClient           sshServiceClient;
+    private final DialogFactory              dialogFactory;
+    private final GitHubAuthenticatorView    view;
+    private final NotificationManager        notificationManager;
+    private final GitHubLocalizationConstant locale;
+    private final String                     baseUrl;
+    private final AppContext                 appContext;
 
     @Inject
-    public GitHubAuthenticatorImpl(SshKeyService sshKeyService,
+    public GitHubAuthenticatorImpl(GitSshKeyUploaderRegistry registry,
+                                   SshServiceClient sshServiceClient,
                                    GitHubAuthenticatorView view,
                                    DialogFactory dialogFactory,
                                    GitHubLocalizationConstant locale,
                                    @RestContext String baseUrl,
-                                   DtoUnmarshallerFactory dtoUnmarshallerFactory,
                                    NotificationManager notificationManager,
                                    AppContext appContext) {
+        this.registry = registry;
+        this.sshServiceClient = sshServiceClient;
         this.view = view;
         this.view.setDelegate(this);
         this.locale = locale;
         this.baseUrl = baseUrl;
-        this.sshKeyService = sshKeyService;
         this.dialogFactory = dialogFactory;
-        this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
         this.notificationManager = notificationManager;
         this.appContext = appContext;
     }
@@ -110,9 +114,10 @@ public class GitHubAuthenticatorImpl implements GitHubAuthenticator, OAuthCallba
     }
 
     private void generateSshKeys(final OAuthStatus authStatus) {
-        if (sshKeyService.getSshKeyProviders().containsKey(GITHUB_HOST)) {
+        final SshKeyUploader githubKeyUploader = registry.getUploader(GITHUB_HOST);
+        if (githubKeyUploader != null) {
             String userId = appContext.getCurrentUser().getProfile().getId();
-            sshKeyService.getSshKeyProviders().get(GITHUB_HOST).generateKey(userId, new AsyncCallback<Void>() {
+            githubKeyUploader.uploadKey(userId, new AsyncCallback<Void>() {
                 @Override
                 public void onSuccess(Void result) {
                     callback.onSuccess(authStatus);
@@ -121,7 +126,8 @@ public class GitHubAuthenticatorImpl implements GitHubAuthenticator, OAuthCallba
 
                 @Override
                 public void onFailure(Throwable exception) {
-                    dialogFactory.createMessageDialog(locale.authorizationDialogTitle(), locale.authMessageUnableCreateSshKey(), null).show();
+                    dialogFactory.createMessageDialog(locale.authorizationDialogTitle(), locale.authMessageUnableCreateSshKey(), null)
+                                 .show();
                     callback.onFailure(new Exception(locale.authMessageUnableCreateSshKey()));
                     getFailedKey();
                 }
@@ -132,42 +138,41 @@ public class GitHubAuthenticatorImpl implements GitHubAuthenticator, OAuthCallba
         }
     }
 
-    /** Need to remove failed uploaded keys from local storage if they can't be uploaded to github */
+    /** Need to remove failed uploaded pair from local storage if they can't be uploaded to github */
     private void getFailedKey() {
-        sshKeyService.getAllKeys(new AsyncRequestCallback<List<KeyItem>>(dtoUnmarshallerFactory.newListUnmarshaller(KeyItem.class)) {
-            @Override
-            public void onSuccess(List<KeyItem> result) {
-                for (KeyItem key : result) {
-                    if (key.getHost().equals(GITHUB_HOST)) {
-                        removeFailedKey(key);
-                        return;
-                    }
-                }
-            }
-
-            @Override
-            public void onFailure(Throwable exception) {
-                Log.error(GitHubAuthenticator.class, exception);
-            }
-        });
+        sshServiceClient.getPairs(SshKeyManagerPresenter.GIT_SSH_SERVICE)
+                        .then(new Operation<List<SshPairDto>>() {
+                            @Override
+                            public void apply(List<SshPairDto> result) throws OperationException {
+                                for (SshPairDto key : result) {
+                                    if (key.getName().equals(GITHUB_HOST)) {
+                                        removeFailedKey(key);
+                                        return;
+                                    }
+                                }
+                            }
+                        })
+                        .catchError(new Operation<PromiseError>() {
+                            @Override
+                            public void apply(PromiseError arg) throws OperationException {
+                                Log.error(GitHubAuthenticator.class, arg.getCause());
+                            }
+                        });
     }
 
     /**
-     * Remove failed key.
+     * Remove failed pair.
      *
-     * @param key
-     *         failed key
+     * @param pair
+     *         failed pair
      */
-    private void removeFailedKey(@NotNull final KeyItem key) {
-        sshKeyService.deleteKey(key, new AsyncRequestCallback<Void>() {
-            @Override
-            public void onFailure(Throwable caught) {
-                Log.error(GitHubAuthenticator.class, caught);
-            }
-
-            @Override
-            public void onSuccess(Void result) {
-            }
-        });
+    private void removeFailedKey(@NotNull final SshPairDto pair) {
+        sshServiceClient.deletePair(pair.getService(), pair.getName())
+                        .catchError(new Operation<PromiseError>() {
+                            @Override
+                            public void apply(PromiseError arg) throws OperationException {
+                                Log.error(GitHubAuthenticator.class, arg.getCause());
+                            }
+                        });
     }
 }
