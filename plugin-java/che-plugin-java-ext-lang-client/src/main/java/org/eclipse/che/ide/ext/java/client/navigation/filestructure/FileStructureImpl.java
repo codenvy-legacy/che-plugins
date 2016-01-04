@@ -12,6 +12,8 @@ package org.eclipse.che.ide.ext.java.client.navigation.filestructure;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.NativeEvent;
+import com.google.gwt.event.dom.client.DoubleClickEvent;
+import com.google.gwt.event.dom.client.DoubleClickHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
@@ -84,6 +86,12 @@ final class FileStructureImpl extends Window implements FileStructure {
                 hide();
             }
         };
+        tree.addDomHandler(new DoubleClickHandler() {
+            @Override
+            public void onDoubleClick(DoubleClickEvent event) {
+                hide();
+            }
+        }, DoubleClickEvent.getType());
 
         handler.bind(tree);
 
