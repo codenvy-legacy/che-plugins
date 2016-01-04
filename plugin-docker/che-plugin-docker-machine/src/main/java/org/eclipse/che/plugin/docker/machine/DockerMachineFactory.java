@@ -17,7 +17,6 @@ import org.eclipse.che.api.core.util.LineConsumer;
 import org.eclipse.che.api.machine.server.exception.MachineException;
 import org.eclipse.che.api.machine.server.spi.Instance;
 import org.eclipse.che.api.machine.server.spi.InstanceProcess;
-import org.eclipse.che.commons.annotation.Nullable;
 import org.eclipse.che.plugin.docker.client.json.ContainerInfo;
 import org.eclipse.che.plugin.docker.machine.node.DockerNode;
 
@@ -46,12 +45,14 @@ public interface DockerMachineFactory {
      *
      * @param machineState description of machine
      * @param container container that represents {@code Instance}
+     * @param image image from what container was created
      * @param node description of server where container is running
      * @param outputConsumer consumer of output from container main process
      * @throws MachineException if error occurs on creation of {@code Instance}
      */
     Instance createInstance(@Assisted MachineState machineState,
                             @Assisted("container") String container,
+                            @Assisted("image") String image,
                             @Assisted DockerNode node,
                             @Assisted LineConsumer outputConsumer) throws MachineException;
 
