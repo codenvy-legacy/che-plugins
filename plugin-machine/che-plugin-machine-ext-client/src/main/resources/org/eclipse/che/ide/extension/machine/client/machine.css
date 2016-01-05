@@ -13,16 +13,19 @@
 @eval successColor org.eclipse.che.ide.api.theme.Style.getSuccessColor();
 @eval categoryHeaderButtonColor org.eclipse.che.ide.api.theme.Style.theme.categoryHeaderButtonColor();
 @eval categoryElementButtonHoverColor org.eclipse.che.ide.api.theme.Style.theme.categoryElementButtonHoverColor();
+@eval processTreeBackgroundColor org.eclipse.che.ide.api.theme.Style.theme.processTreeBackgroundColor();
+@eval outputBackgroundColor org.eclipse.che.ide.api.theme.Style.theme.outputBackgroundColor();
+@eval outputFontColor org.eclipse.che.ide.api.theme.Style.theme.getOutputFontColor();
 
 @external .terminal, .terminal-cursor;
 
 .terminal {
-    border-color: #292C2F;
-    background-color: #292C2F;
-
+    border-color: outputBackgroundColor;
+    background-color: outputBackgroundColor;
     border-width: 0px;
     margin-left: 1px;
     margin-top: 4px;
+    color: outputFontColor;
 }
 
 .terminal-cursor {
@@ -34,19 +37,33 @@
     height: 100% !important;
 }
 
-.machineConsole, .commandConsole {
-    background-color: partBackground;
+.machineConsole,
+.commandConsole {
+    background-color: outputBackgroundColor;
     -moz-user-select: text;
     -webkit-user-select: text;
     user-select: text;
     color: outputFontColor;
     margin-top: 4px;
+    margin-left: 2px;
     outline: none;
 }
 
-.machineConsole pre, .commandConsole pre {
+.machineConsole pre,
+.commandConsole pre {
     font-family: outputFontFamily;
     font-size: fontSize;
+}
+
+.commandConsoleLines {
+    width: 100%;
+}
+
+.commandConsoleLines > pre {
+    width: 100%;
+    word-wrap: break-word;
+    padding: 0;
+    margin: 0;
 }
 
 .consoleToolbar {
@@ -270,12 +287,12 @@
 }
 
 .processIcon svg path {
-    fill: #FFFFFF;
+    fill: iconColor;
 }
 
 .processNavigation {
     outline: none;
-    background-color: #21252b;
+    background-color: processTreeBackgroundColor;
 }
 
 .processOutputPanel {
