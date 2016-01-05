@@ -19,6 +19,7 @@ import org.eclipse.che.api.machine.server.MachineService;
 import org.eclipse.che.api.machine.server.spi.Instance;
 import org.eclipse.che.api.machine.server.spi.InstanceProcess;
 import org.eclipse.che.plugin.docker.machine.DockerInstance;
+import org.eclipse.che.plugin.docker.machine.local.provider.CheHostVfsRootDirProvider;
 import org.eclipse.che.plugin.docker.machine.node.DockerNode;
 import org.eclipse.che.plugin.docker.machine.DockerProcess;
 
@@ -44,11 +45,12 @@ public class LocalDockerModule extends AbstractModule {
                                    org.eclipse.che.plugin.docker.machine.local.LocalDockerInstanceMetadata.class)
                         .build(org.eclipse.che.plugin.docker.machine.DockerMachineFactory.class));
 
-        bind(String.class).annotatedWith(Names.named("host.projects.root"))
-                          .toProvider(org.eclipse.che.plugin.docker.machine.local.provider.HostProjectFolderProvider.class);
 
         bind(org.eclipse.che.plugin.docker.machine.node.WorkspaceFolderPathProvider.class)
                 .to(org.eclipse.che.plugin.docker.machine.local.node.provider.LocalWorkspaceFolderPathProvider.class);
+
+        bind(String.class).annotatedWith(Names.named("host.workspaces.root"))
+                          .toProvider(CheHostVfsRootDirProvider.class);
 
         bind(org.eclipse.che.plugin.docker.client.DockerRegistryChecker.class).asEagerSingleton();
 
