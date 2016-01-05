@@ -11,8 +11,12 @@
 package org.eclipse.che.ide.ext.github.server.rest;
 
 import org.eclipse.che.api.core.ApiException;
+import org.eclipse.che.api.core.NotFoundException;
 import org.eclipse.che.api.core.ServerException;
 import org.eclipse.che.api.git.GitException;
+import org.eclipse.che.api.ssh.server.SshServiceClient;
+import org.eclipse.che.api.ssh.shared.dto.GenerateSshPairRequest;
+import org.eclipse.che.api.ssh.shared.model.SshPair;
 import org.eclipse.che.ide.ext.github.server.GitHubDTOFactory;
 import org.eclipse.che.ide.ext.github.server.GitHubFactory;
 import org.eclipse.che.ide.ext.github.server.GitHubKeyUploader;
@@ -24,17 +28,12 @@ import org.eclipse.che.ide.ext.github.shared.GitHubPullRequestList;
 import org.eclipse.che.ide.ext.github.shared.GitHubRepository;
 import org.eclipse.che.ide.ext.github.shared.GitHubRepositoryList;
 import org.eclipse.che.ide.ext.github.shared.GitHubUser;
-import org.eclipse.che.ide.ext.ssh.server.SshKey;
-import org.eclipse.che.ide.ext.ssh.server.SshKeyStore;
-import org.eclipse.che.ide.ext.ssh.server.SshKeyStoreException;
-
 import org.kohsuke.github.GHIssueState;
 import org.kohsuke.github.GHOrganization;
 import org.kohsuke.github.GHPersonSet;
 import org.kohsuke.github.GHPullRequest;
 import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GitHub;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,6 +50,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static org.eclipse.che.dto.server.DtoFactory.newDto;
 
 /**
  * REST service to get the list of repositories from GitHub (where sample projects are located).
@@ -72,7 +73,7 @@ public class GitHubService {
     private GitHubKeyUploader githubKeyUploader;
 
     @Inject
-    private SshKeyStore sshKeyStore;
+    private SshServiceClient sshServiceClient;
 
     private static final Logger LOG = LoggerFactory.getLogger(GitHubService.class);
 
@@ -312,26 +313,26 @@ public class GitHubService {
     @Path("ssh/generate")
     public void updateSSHKey() throws ApiException {
         final String host = "github.com";
-        SshKey publicKey;
-
+        SshPair sshPair = null;
         try {
-            if (sshKeyStore.getPrivateKey(host) != null) {
-                publicKey = sshKeyStore.getPublicKey(host);
-                if (publicKey == null) {
-                    sshKeyStore.removeKeys(host);
-                    publicKey = sshKeyStore.genKeyPair(host, null, null).getPublicKey();
-                }
-            } else {
-                publicKey = sshKeyStore.genKeyPair(host, null, null).getPublicKey();
+            sshPair = sshServiceClient.getPair("git", host);
+        } catch (NotFoundException ignored) {
+        }
+
+        if (sshPair != null) {
+            if (sshPair.getPublicKey() == null) {
+                sshServiceClient.removePair("git", host);
+                sshPair = sshServiceClient.generatePair(newDto(GenerateSshPairRequest.class).withService("git")
+                                                                                            .withName(host));
             }
-        } catch (SshKeyStoreException e) {
-            LOG.error("Generate github ssh key fail", e);
-            throw new GitException(e.getMessage(), e);
+        } else {
+            sshPair = sshServiceClient.generatePair(newDto(GenerateSshPairRequest.class).withService("git")
+                                                                                        .withName(host));
         }
 
         // update public key
         try {
-            githubKeyUploader.uploadKey(publicKey);
+            githubKeyUploader.uploadKey(sshPair.getPublicKey());
         } catch (IOException e) {
             LOG.error("Upload github ssh key fail", e);
             throw new GitException(e.getMessage(), e);

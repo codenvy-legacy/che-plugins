@@ -290,4 +290,16 @@ public interface JavaLocalizationConstant extends Messages {
 
     @Key("failed.to.process.fin.usage")
     String failedToProcessFindUsage();
+    
+    @Key("open.implementation.action.name")
+    String openImplementationActionName();
+    
+    @Key("open.implementation.action.description")
+    String openImplementationDescription();
+    
+    @Key("open.implementation.window.title")
+    String openImplementationWindowTitle(String declaration, int founded);
+
+    @Key("open.implementation.no.implementations")
+    String noImplementations();
 }

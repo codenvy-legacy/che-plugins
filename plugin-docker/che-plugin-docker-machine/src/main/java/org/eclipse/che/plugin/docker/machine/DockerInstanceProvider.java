@@ -426,6 +426,7 @@ public class DockerInstanceProvider implements InstanceProvider {
 
             return dockerMachineFactory.createInstance(machineState,
                                                        containerId,
+                                                       imageName,
                                                        node,
                                                        outputConsumer);
         } catch (IOException e) {

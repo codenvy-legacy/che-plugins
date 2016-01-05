@@ -11,7 +11,8 @@
 package org.eclipse.che.ide.ext.github.client;
 
 import org.eclipse.che.ide.api.extension.Extension;
-import org.eclipse.che.ide.ext.ssh.client.SshKeyService;
+import org.eclipse.che.ide.ext.ssh.client.GitSshKeyUploaderRegistry;
+
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -27,7 +28,7 @@ public class GitHubExtension {
     public static final String GITHUB_HOST = "github.com";
 
     @Inject
-    public GitHubExtension(SshKeyService sshKeyService, GitHubSshKeyProvider gitHubSshKeyProvider) {
-        sshKeyService.registerSshKeyProvider(GITHUB_HOST, gitHubSshKeyProvider);
+    public GitHubExtension(GitSshKeyUploaderRegistry registry, GitHubSshKeyUploader gitHubSshKeyProvider) {
+        registry.registerUploader(GITHUB_HOST, gitHubSshKeyProvider);
     }
 }

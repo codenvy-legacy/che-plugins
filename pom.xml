@@ -16,11 +16,11 @@
     <parent>
         <artifactId>maven-depmgt-pom</artifactId>
         <groupId>org.eclipse.che.depmgt</groupId>
-        <version>4.0.0-beta-3-SNAPSHOT</version>
+        <version>4.0.0-beta-5-SNAPSHOT</version>
     </parent>
     <groupId>org.eclipse.che.plugin</groupId>
     <artifactId>che-plugin-parent</artifactId>
-    <version>4.0.0-beta-3-SNAPSHOT</version>
+    <version>4.0.0-beta-5-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Che Plugin :: Parent</name>
     <modules>
@@ -32,7 +32,6 @@
         <module>plugin-sdk</module>
         <module>plugin-orion</module>
         <!--<module>plugin-php</module>-->
-        <module>plugin-ssh</module>
         <module>plugin-git</module>
         <module>plugin-github</module>
         <!--<module>plugin-angularjs</module>-->
