@@ -27,17 +27,18 @@ import javax.inject.Singleton;
  * @author Alexander Garagatyi
  */
 @Singleton
-public class HostProjectFolderProvider implements Provider<String> {
+public class CheHostVfsRootDirProvider implements Provider<String> {
+
     @Inject
     @Named("vfs.local.fs_root_dir")
-    private String projectsFolder;
+    private String fsRootDir;
 
     @Override
     public String get() {
         if (SystemInfo.isWindows()) {
-            return System.getProperty("user.home") + "\\che\\projects";
+            return System.getProperty("user.home") + "\\che\\vfs";
         } else {
-            return projectsFolder;
+            return fsRootDir;
         }
     }
 }

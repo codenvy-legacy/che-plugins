@@ -12,11 +12,13 @@ package org.eclipse.che.plugin.docker.machine.node;
 
 import com.google.inject.assistedinject.Assisted;
 
+import java.io.IOException;
+
 /**
  * Finds path to workspace folder on docker node.
  *
  * @author Alexander Garagatyi
  */
 public interface WorkspaceFolderPathProvider {
-    String getPath(@Assisted("workspace") String workspaceId);
+    String getPath(@Assisted("workspace") String workspaceId) throws IOException;
 }
