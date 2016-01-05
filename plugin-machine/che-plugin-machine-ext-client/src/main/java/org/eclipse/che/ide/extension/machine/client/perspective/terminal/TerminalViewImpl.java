@@ -57,13 +57,13 @@ final class TerminalViewImpl extends Composite implements TerminalView, Requires
         unavailableLabel.setVisible(false);
 
         terminalPanel.setVisible(true);
-
         terminalPanel.getElement().getStyle().setProperty("opacity", "0");
 
         terminal.open(terminalPanel.getElement());
-
         resizeTerminal();
+
         terminalPanel.getElement().getFirstChildElement().getStyle().clearProperty("backgroundColor");
+        terminalPanel.getElement().getFirstChildElement().getStyle().clearProperty("color");
         terminalPanel.getElement().getStyle().clearProperty("opacity");
     }
 

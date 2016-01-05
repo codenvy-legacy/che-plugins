@@ -91,6 +91,9 @@ public interface MachineResources extends ClientBundle {
 
         String commandConsole();
 
+        /** Style for console scrollable area */
+        String commandConsoleLines();
+
         /** Returns the CSS class name for tab-panel in 'Outputs' console. */
         String outputsConsoleTabsPanel();
 

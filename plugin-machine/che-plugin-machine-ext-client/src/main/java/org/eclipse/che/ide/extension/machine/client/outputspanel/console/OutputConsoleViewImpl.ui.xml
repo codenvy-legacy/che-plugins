@@ -41,8 +41,8 @@
             </g:FlowPanel>
         </g:north>
         <g:center>
-            <g:ScrollPanel ui:field="scrollPanel" debugId="commandConsolePart" addStyleNames="{resources.getCss.commandConsole}">
-                <g:FlowPanel width="100%" height="100%" ui:field="consoleArea"/>
+            <g:ScrollPanel ui:field="scrollPanel" debugId="commandConsoleScrollPanel" addStyleNames="{resources.getCss.commandConsole}">
+                <g:FlowPanel width="100%" ui:field="consoleLines" debugId="commandConsoleLines" styleName="{resources.getCss.commandConsoleLines}" />
             </g:ScrollPanel>
         </g:center>
     </g:DockLayoutPanel>

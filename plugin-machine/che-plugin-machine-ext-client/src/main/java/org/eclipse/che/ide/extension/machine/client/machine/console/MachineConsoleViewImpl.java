@@ -41,10 +41,12 @@ public class MachineConsoleViewImpl extends BaseView<MachineConsoleView.ActionDe
 
     @UiField
     SimplePanel toolbarPanel;
+
     @UiField
     ScrollPanel scrollPanel;
+
     @UiField
-    FlowPanel   consoleArea;
+    FlowPanel   consoleLines;
 
     @Inject
     public MachineConsoleViewImpl(PartStackUIResources resources, MachineConsoleViewImplUiBinder uiBinder) {
@@ -72,13 +74,13 @@ public class MachineConsoleViewImpl extends BaseView<MachineConsoleView.ActionDe
     public void print(String message) {
         final HTML html = new HTML(buildSafeHtmlMessage(message));
         html.getElement().getStyle().setPaddingLeft(2, Style.Unit.PX);
-        consoleArea.add(html);
+        consoleLines.add(html);
     }
 
     /** {@inheritDoc} */
     @Override
     public void clear() {
-        consoleArea.clear();
+        consoleLines.clear();
     }
 
     /** {@inheritDoc} */
