@@ -18,7 +18,9 @@ import com.google.web.bindery.event.shared.EventBus;
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
 import org.eclipse.che.api.machine.gwt.client.events.DevMachineStateEvent;
 import org.eclipse.che.api.machine.gwt.client.events.DevMachineStateHandler;
+import org.eclipse.che.api.machine.shared.dto.CommandDto;
 import org.eclipse.che.api.machine.shared.dto.MachineDto;
+import org.eclipse.che.api.machine.shared.dto.MachineProcessDto;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.api.promises.client.PromiseError;
@@ -26,12 +28,18 @@ import org.eclipse.che.api.workspace.shared.dto.UsersWorkspaceDto;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.notification.StatusNotification;
+import org.eclipse.che.ide.api.parts.WorkspaceAgent;
+import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.MachineResources;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
+import org.eclipse.che.ide.extension.machine.client.command.CommandConfigurationFactory;
+import org.eclipse.che.ide.extension.machine.client.command.CommandType;
+import org.eclipse.che.ide.extension.machine.client.command.CommandTypeRegistry;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.EntityFactory;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.TerminalFactory;
 import org.eclipse.che.ide.extension.machine.client.machine.Machine;
+import org.eclipse.che.ide.extension.machine.client.outputspanel.console.CommandConsoleFactory;
 import org.eclipse.che.ide.extension.machine.client.outputspanel.console.OutputConsole;
 import org.eclipse.che.ide.extension.machine.client.perspective.terminal.TerminalPresenter;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
@@ -66,13 +74,23 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(GwtMockitoTestRunner.class)
 public class ConsolesPanelPresenterTest {
-    private static final String MACHINE_ID   = "machineID";
-    private static final String WORKSPACE_ID = "workspaceID";
-    private static final String PROCESS_ID   = "processID";
-    private static final String PROCESS_NAME = "processName";
+    private static final String MACHINE_ID     = "machineID";
+    private static final String WORKSPACE_ID   = "workspaceID";
+    private static final String PROCESS_ID     = "processID";
+    private static final String PROCESS_NAME   = "processName";
+    private static final String OUTPUT_CHANNEL = "outputChannel";
+    private static final int    PID            = 101;
 
     @Mock
+    private DtoFactory                  dtoFactory;
+    @Mock
+    private CommandConsoleFactory       commandConsoleFactory;
+    @Mock
+    private CommandTypeRegistry         commandTypeRegistry;
+    @Mock
     private DialogFactory               dialogFactory;
+    @Mock
+    private WorkspaceAgent              workspaceAgent;
     @Mock
     private NotificationManager         notificationManager;
     @Mock
@@ -98,18 +116,23 @@ public class ConsolesPanelPresenterTest {
     private Promise<List<MachineDto>> machinesPromise;
 
     @Mock
+    private Promise<List<MachineProcessDto>> processesPromise;
+
+    @Mock
     private Promise<MachineDto> machinePromise;
 
     @Captor
-    private ArgumentCaptor<AcceptsOneWidget>            acceptsOneWidgetCaptor;
+    private ArgumentCaptor<AcceptsOneWidget>                   acceptsOneWidgetCaptor;
     @Captor
-    private ArgumentCaptor<Operation<List<MachineDto>>> machinesCaptor;
+    private ArgumentCaptor<Operation<List<MachineDto>>>        machinesCaptor;
     @Captor
-    private ArgumentCaptor<Operation<MachineDto>>       machineCaptor;
+    private ArgumentCaptor<Operation<List<MachineProcessDto>>> processesCaptor;
     @Captor
-    private ArgumentCaptor<DevMachineStateHandler>      devMachineStateHandlerCaptor;
+    private ArgumentCaptor<Operation<MachineDto>>              machineCaptor;
     @Captor
-    private ArgumentCaptor<Operation<PromiseError>>     errorOperation;
+    private ArgumentCaptor<DevMachineStateHandler>             devMachineStateHandlerCaptor;
+    @Captor
+    private ArgumentCaptor<Operation<PromiseError>>            errorOperation;
 
     private ConsolesPanelPresenter presenter;
 
@@ -122,8 +145,53 @@ public class ConsolesPanelPresenterTest {
         when(machineService.getMachine(anyString())).thenReturn(machinePromise);
         when(machinePromise.then(Matchers.<Operation<MachineDto>>anyObject())).thenReturn(machinePromise);
 
-        presenter = new ConsolesPanelPresenter(view, eventBus, terminalFactory, dialogFactory, notificationManager, localizationConstant,
-                                               machineService, entityFactory, resources, appContext);
+        when(machineService.getProcesses(anyString())).thenReturn(processesPromise);
+        when(processesPromise.then(Matchers.<Operation<List<MachineProcessDto>>>anyObject())).thenReturn(processesPromise);
+
+        presenter =
+                new ConsolesPanelPresenter(view, eventBus, dtoFactory, dialogFactory, entityFactory, terminalFactory, commandConsoleFactory,
+                                           commandTypeRegistry, workspaceAgent, notificationManager, localizationConstant,
+                                           machineService, resources, appContext);
+    }
+
+    @Test
+    public void shouldRestoreState() throws Exception {
+        CommandType commandType = mock(CommandType.class);
+        CommandConfiguration commandConfiguration = mock(CommandConfiguration.class);
+        CommandConfigurationFactory commandConfigurationFactory = mock(CommandConfigurationFactory.class);
+        OutputConsole outputConsole = mock(OutputConsole.class);
+        when(commandTypeRegistry.getCommandTypeById(anyString())).thenReturn(commandType);
+        when(commandType.getConfigurationFactory()).thenReturn(commandConfigurationFactory);
+        when(commandConfigurationFactory.createFromDto(anyObject())).thenReturn(commandConfiguration);
+        when(commandConsoleFactory.create(anyObject(), anyString())).thenReturn(outputConsole);
+
+        CommandDto commandDto = mock(CommandDto.class);
+        when(dtoFactory.createDto(anyObject())).thenReturn(commandDto);
+        when(commandDto.withName(anyString())).thenReturn(commandDto);
+        when(commandDto.withCommandLine(anyString())).thenReturn(commandDto);
+        when(commandDto.withType(anyString())).thenReturn(commandDto);
+
+        MachineProcessDto machineProcessDto = mock(MachineProcessDto.class);
+        when(machineProcessDto.getOutputChannel()).thenReturn(OUTPUT_CHANNEL);
+        when(machineProcessDto.getPid()).thenReturn(PID);
+        List<MachineProcessDto> processes = new ArrayList<>(1);
+        processes.add(machineProcessDto);
+
+        MachineDto machineDto = mock(MachineDto.class);
+        when(machineDto.isDev()).thenReturn(true);
+        when(machineDto.getId()).thenReturn(MACHINE_ID);
+        List<MachineDto> machines = new ArrayList<>(2);
+        machines.add(machineDto);
+
+        verify(machinesPromise).then(machinesCaptor.capture());
+        machinesCaptor.getValue().apply(machines);
+
+        verify(processesPromise).then(processesCaptor.capture());
+        processesCaptor.getValue().apply(processes);
+
+        verify(outputConsole).listenToOutput(eq(OUTPUT_CHANNEL));
+        verify(outputConsole).attachToProcess(eq(PID));
+        verify(workspaceAgent).setActivePart(eq(presenter));
     }
 
     @Test
