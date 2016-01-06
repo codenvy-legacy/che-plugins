@@ -336,6 +336,12 @@ public interface MachineLocalizationConstant extends Messages {
     @Key("view.stop.process.tooltip")
     String viewStropProcessTooltip();
 
+    @Key("view.new.terminal.tooltip")
+    String viewNewTerminalTooltip();
+
+    @Key("view.machine.running.tooltip")
+    String viewMachineRunningTooltip();
+
     @Key("view.close.processOutput.tooltip")
     String viewCloseProcessOutputTooltip();
 

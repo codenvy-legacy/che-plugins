@@ -79,9 +79,11 @@ public class ProcessTreeRenderer implements NodeRenderer<ProcessTreeNode> {
 
         SpanElement newTerminalButton = Elements.createSpanElement(resources.getCss().processButton());
         newTerminalButton.setTextContent("+");
+        newTerminalButton.setAttribute("title", locale.viewNewTerminalTooltip());
         root.appendChild(newTerminalButton);
 
         Element statusElement = Elements.createSpanElement(resources.getCss().machineStatus());
+        statusElement.setAttribute("title", locale.viewMachineRunningTooltip());
         root.appendChild(statusElement);
 
         newTerminalButton.addEventListener(Event.CLICK, new EventListener() {
