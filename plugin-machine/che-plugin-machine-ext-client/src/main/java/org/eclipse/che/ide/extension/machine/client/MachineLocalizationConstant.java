@@ -356,4 +356,7 @@ public interface MachineLocalizationConstant extends Messages {
 
     @Key("failed.to.find.machine")
     String failedToFindMachine(String machineId);
+
+    @Key("failed.to.get.processes")
+    String failedToGetProcesses(String machineId);
 }

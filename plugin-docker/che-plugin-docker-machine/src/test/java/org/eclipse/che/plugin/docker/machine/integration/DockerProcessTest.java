@@ -10,8 +10,10 @@
  *******************************************************************************/
 package org.eclipse.che.plugin.docker.machine.integration;
 
+import org.eclipse.che.api.core.model.machine.Command;
 import org.eclipse.che.api.core.util.LineConsumer;
 import org.eclipse.che.api.machine.server.exception.MachineException;
+import org.eclipse.che.api.machine.server.model.impl.CommandImpl;
 import org.eclipse.che.plugin.docker.client.DockerConnector;
 import org.eclipse.che.plugin.docker.client.DockerConnectorConfiguration;
 import org.eclipse.che.plugin.docker.client.InitialAuthConfig;
@@ -81,11 +83,11 @@ public class DockerProcessTest {
             docker = new DockerConnector(dockerConnectorConfiguration,
                                          new DockerConnectionFactory(dockerConnectorConfiguration));
         }
-
+        Command command = new CommandImpl("tailf", "tailf /dev/null", "mvn");
         final DockerProcess dockerProcess = new DockerProcess(docker,
+                                                              command,
                                                               container,
-                                                              "tailf",
-                                                              "tailf /dev/null",
+                                                              "outputChannel",
                                                               "/tmp/chetests",
                                                               pidGenerator.incrementAndGet());
 

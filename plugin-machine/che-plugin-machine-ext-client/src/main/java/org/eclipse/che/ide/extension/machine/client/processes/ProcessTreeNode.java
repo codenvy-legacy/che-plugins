@@ -69,7 +69,7 @@ public class ProcessTreeNode {
                 displayName = name;
                 break;
             case TERMINAL_NODE:
-                id = (String)data + UUID.uuid();
+                id = data + UUID.uuid();
                 displayName = (String)data;
                 break;
             default:

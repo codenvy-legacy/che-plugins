@@ -13,6 +13,7 @@ package org.eclipse.che.plugin.docker.machine;
 import com.google.inject.assistedinject.Assisted;
 
 import org.eclipse.che.api.core.NotFoundException;
+import org.eclipse.che.api.core.model.machine.Command;
 import org.eclipse.che.api.core.model.machine.MachineMetadata;
 import org.eclipse.che.api.core.model.machine.MachineState;
 import org.eclipse.che.api.core.util.LineConsumer;
@@ -169,11 +170,11 @@ public class DockerInstance extends AbstractInstance {
     }
 
     @Override
-    public InstanceProcess createProcess(String commandName, String commandLine) throws MachineException {
+    public InstanceProcess createProcess(Command command, String outputChannel) throws MachineException {
         final Integer pid = pidSequence.getAndIncrement();
-        final InstanceProcess process = dockerMachineFactory.createProcess(container,
-                                                                           commandName,
-                                                                           commandLine,
+        final InstanceProcess process = dockerMachineFactory.createProcess(command,
+                                                                           container,
+                                                                           outputChannel,
                                                                            String.format(PID_FILE_TEMPLATE, pid),
                                                                            pid);
         machineProcesses.put(pid, process);

@@ -12,6 +12,7 @@ package org.eclipse.che.plugin.docker.machine;
 
 import com.google.inject.assistedinject.Assisted;
 
+import org.eclipse.che.api.core.model.machine.Command;
 import org.eclipse.che.api.core.model.machine.MachineState;
 import org.eclipse.che.api.core.util.LineConsumer;
 import org.eclipse.che.api.machine.server.exception.MachineException;
@@ -29,14 +30,22 @@ public interface DockerMachineFactory {
     /**
      * Creates docker implementation of {@link InstanceProcess} for process that is running or can be started in container
      *
-     * @param container container identifier
-     * @param commandLine command line of process
-     * @param pid id of the {@code InstanceProcess}. It's external PID that may differ from PID inside container
-     * @throws MachineException if error occurs on creation of {@code InstanceProcess}
+     * @param container
+     *         container identifier
+     * @param command
+     *         command that should be executed in the machine
+     * @param outputChannel
+     *         websocket chanel for execution logs
+     * @param pidFilePath
+     *         full path to pid file of the process
+     * @param pid
+     *         id of the {@code InstanceProcess}. It's external PID that may differ from PID inside container
+     * @throws MachineException
+     *         if error occurs on creation of {@code InstanceProcess}
      */
-    InstanceProcess createProcess(@Assisted("container") String container,
-                                  @Assisted("commandName") String commandName,
-                                  @Assisted("commandLine") String commandLine,
+    InstanceProcess createProcess(@Assisted Command command,
+                                  @Assisted("container") String container,
+                                  @Assisted("outputChannel") String outputChannel,
                                   @Assisted("pid_file_path") String pidFilePath,
                                   @Assisted int pid) throws MachineException;
 
