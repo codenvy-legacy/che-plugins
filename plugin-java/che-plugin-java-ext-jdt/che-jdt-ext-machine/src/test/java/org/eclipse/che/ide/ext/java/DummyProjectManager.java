@@ -109,6 +109,11 @@ public class DummyProjectManager implements ProjectManager {
     }
 
     @Override
+    public List<ProjectConfigDto> getAllProjectsFromWorkspace(@NotNull String workspaceId) throws ServerException {
+        throw new UnsupportedOperationException("The method unsupported in this mode.");
+    }
+
+    @Override
     public Project createProject(String workspace, String name, ProjectConfig projectConfig, Map<String, String> options)
             throws ConflictException, ForbiddenException, ServerException, ProjectTypeConstraintException, NotFoundException {
         final FolderEntry myRoot = getProjectsRoot(workspace);
