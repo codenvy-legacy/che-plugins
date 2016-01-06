@@ -25,6 +25,5 @@
     <modules>
         <module>che-plugin-machine-ext-client</module>
         <module>che-plugin-machine-ext-server</module>
-        <module>che-plugin-machine-ext-machine</module>
     </modules>
 </project>
