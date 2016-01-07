@@ -63,7 +63,7 @@ public class DebuggerServiceClientImpl implements DebuggerServiceClient {
     public void connect(@NotNull String host, int port, @NotNull AsyncRequestCallback<DebuggerInfo> callback) {
         final String requestUrl = baseUrl + "/connect";
         final String params = "?host=" + host + "&port=" + port;
-        asyncRequestFactory.createGetRequest(requestUrl + params).loader(loaderFactory.newLoader()).send(callback);
+        asyncRequestFactory.createGetRequest(requestUrl + params).send(callback);
     }
 
     /** {@inheritDoc} */

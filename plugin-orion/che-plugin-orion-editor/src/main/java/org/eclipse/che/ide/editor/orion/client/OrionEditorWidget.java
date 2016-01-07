@@ -46,6 +46,7 @@ import org.eclipse.che.ide.api.texteditor.HandlesUndoRedo;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionAnnotationModelOverlay;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionAnnotationOverlay;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionEditorOverlay;
+import org.eclipse.che.ide.editor.orion.client.jso.OrionEventTargetOverlay;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionExtRulerOverlay;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionKeyBindingModule;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionKeyBindingsRelationOverlay;
@@ -58,6 +59,7 @@ import org.eclipse.che.ide.editor.orion.client.jso.OrionStyleOverlay;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionTextThemeOverlay;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionTextViewOverlay;
 import org.eclipse.che.ide.editor.orion.client.jso.UiUtilsOverlay;
+import org.eclipse.che.ide.hotkeys.HotKeyItem;
 import org.eclipse.che.ide.jseditor.client.annotation.AnnotationModel;
 import org.eclipse.che.ide.jseditor.client.annotation.AnnotationModelEvent;
 import org.eclipse.che.ide.jseditor.client.codeassist.CompletionProposal;
@@ -87,7 +89,6 @@ import org.eclipse.che.ide.jseditor.client.text.TextRange;
 import org.eclipse.che.ide.jseditor.client.texteditor.CompositeEditorWidget;
 import org.eclipse.che.ide.jseditor.client.texteditor.EditorWidget;
 import org.eclipse.che.ide.jseditor.client.texteditor.LineStyler;
-import org.eclipse.che.ide.hotkeys.HotKeyItem;
 import org.eclipse.che.ide.util.browser.UserAgent;
 import org.eclipse.che.ide.util.loging.Log;
 
@@ -120,8 +121,8 @@ public class OrionEditorWidget extends CompositeEditorWidget implements HasChang
     EditorElementStyle editorElementStyle;
 
     private final OrionEditorOverlay         editorOverlay;
-    private final OrionExtRulerOverlay       extRulerOverlay;
     private       String                     modeName;
+    private       OrionExtRulerOverlay       orionLineNumberRuler;
     private final KeyModeInstances           keyModeInstances;
     private final JavaScriptObject           orionEditorModule;
     private final JavaScriptObject           uiUtilsOverlay;
@@ -176,7 +177,6 @@ public class OrionEditorWidget extends CompositeEditorWidget implements HasChang
         panel.getElement().addClassName(this.editorElementStyle.editorParent());
         this.editorOverlay = OrionEditorOverlay.createEditor(panel.getElement(), getConfiguration(), orionEditorModule);
         this.lineStyler = new OrionLineStyler(editorOverlay);
-        this.extRulerOverlay = initBreakpointRuler(moduleHolder.getModule("OrionExtRulers"));
 
         this.keyModeInstances = keyModeInstances;
         final OrionTextViewOverlay textView = this.editorOverlay.getTextView();
@@ -197,21 +197,17 @@ public class OrionEditorWidget extends CompositeEditorWidget implements HasChang
         this.cheContentAssistMode =
                 OrionKeyModeOverlay.getCheCodeAssistMode(moduleHolder.getModule("CheContentAssistMode"), editorOverlay.getTextView());
         assistWidget = contentAssistWidgetFactory.create(this, cheContentAssistMode);
-        this.gutter = new OrionBreakpointRuler(extRulerOverlay, editorOverlay);
+        this.gutter = initBreakpointRuler(moduleHolder);
     }
 
-    private OrionExtRulerOverlay initBreakpointRuler(JavaScriptObject orionEditorExtRulerModule) {
-        OrionStyleOverlay rulerStyle = OrionStyleOverlay.create();
-        rulerStyle.setStyleClass("orionCodenvy ruler breakpoints");
+    private Gutter initBreakpointRuler(ModuleHolder moduleHolder) {
+        JavaScriptObject orionEventTargetModule = moduleHolder.getModule("OrionEventTarget");
 
-        OrionExtRulerOverlay extRulerOverlay = OrionExtRulerOverlay.create(getAnnotationModel(),
-                                                                           "left",
-                                                                           "page",
-                                                                           rulerStyle,
-                                                                           orionEditorExtRulerModule);
-        this.editorOverlay.getTextView().addRuler(extRulerOverlay, OrionBreakpointRuler.INDEX);
+        orionLineNumberRuler = editorOverlay.getTextView().getRulers()[1];
+        orionLineNumberRuler.overrideOnClickEvent();
+        OrionEventTargetOverlay.addMixin(orionEventTargetModule, orionLineNumberRuler);
 
-        return extRulerOverlay;
+        return new OrionBreakpointRuler(orionLineNumberRuler, editorOverlay);
     }
 
     /** {@inheritDoc} */
@@ -656,7 +652,7 @@ public class OrionEditorWidget extends CompositeEditorWidget implements HasChang
     public HandlerRegistration addGutterClickHandler(final GutterClickHandler handler) {
         if (!gutterClickHandlerAdded) {
             gutterClickHandlerAdded = true;
-            this.extRulerOverlay.addEventListener(OrionEventContants.RULER_CLICK_EVENT,
+            orionLineNumberRuler.addEventListener(OrionEventContants.RULER_CLICK_EVENT,
                                                   new OrionExtRulerOverlay.EventHandler<OrionRulerClickEventOverlay>() {
                                                       @Override
                                                       public void onEvent(OrionRulerClickEventOverlay parameter) {

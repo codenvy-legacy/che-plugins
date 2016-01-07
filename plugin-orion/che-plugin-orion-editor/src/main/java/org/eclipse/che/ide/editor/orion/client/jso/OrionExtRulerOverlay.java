@@ -27,6 +27,13 @@ public class OrionExtRulerOverlay extends JavaScriptObject {
     }
 
     /**
+     * @return location of the ruler. Possible values: "left", "right"
+     */
+    public final native String getLocation() /*-{
+        return this.getLocation();
+    }-*/;
+
+    /**
      * Add annotation type to the receiver.
      * Only annotations of the specified types will be shown by the receiver.
      * If the priority is not specified, the annotation type will be added to the end of the receiver's list (lowest priority).
@@ -160,6 +167,7 @@ public class OrionExtRulerOverlay extends JavaScriptObject {
 
     /**
      * Add event listener.
+     * To get advantage of this method the current ruler must be extended by adding Event Target interface.
      *
      * @param <T>
      *         the type parameter
@@ -178,26 +186,13 @@ public class OrionExtRulerOverlay extends JavaScriptObject {
     }-*/;
 
     /**
-     * Constructs a new key stroke with the given key code, modifiers and event type.
-     *
-     * @param annotationModel
-     *         the annotation model for the ruler
-     * @param rulerLocation
-     *         the location for the ruler, either left or right
-     * @param rulerOverview
-     *         the overview for the ruler, either page or document
-     * @param rulerStyle
-     *         the style for the ruler.
-     * @param orionEditorRulerModule
-     *         the orion editor ruler module
-     * @return the orion ext ruler overlay
+     * Overrides OnClick function to dispatch event.
+     * Current ruler must be extended by adding Event Target interface.
      */
-    public static final native OrionExtRulerOverlay create(JavaScriptObject annotationModel,
-                                                           String rulerLocation,
-                                                           String rulerOverview,
-                                                           JavaScriptObject rulerStyle,
-                                                           JavaScriptObject orionEditorRulerModule) /*-{
-        return new orionEditorRulerModule.ExtRuler(annotationModel, rulerLocation, rulerOverview, rulerStyle);
+    public final native void overrideOnClickEvent() /*-{
+        this.onClick = function (lineIndex, e) {
+            this.dispatchEvent({type: "RulerClick", lineIndex: lineIndex});
+        };
     }-*/;
 
     /**

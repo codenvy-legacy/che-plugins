@@ -108,7 +108,6 @@ public class OrionEditorExtension implements Provider<OrionKeyBindingModule>{
                 "orion/CheContentAssistMode",
                 "orion/emacs",
                 "orion/vi",
-                "orion/ext-rulers",
                 "orion/uiUtils"
         };
 
@@ -179,9 +178,9 @@ public class OrionEditorExtension implements Provider<OrionKeyBindingModule>{
                       "orion/editor/vi",
                       "orion/keyBinding",
                       "che/editor/contentAssist",
-                      "orion/editor/ext-rulers",
+                      "orion/editor/eventTarget",
                       "uiUtils"},
-         new String[]{"OrionEditor", "OrionEmacs", "OrionVi", "OrionKeyBinding", "CheContentAssistMode", "OrionExtRulers", "UiUtils"});
+         new String[]{"OrionEditor", "OrionEmacs", "OrionVi", "OrionKeyBinding", "CheContentAssistMode", "OrionEventTarget", "UiUtils"});
     }
 
     private void endConfiguration(final InitializerCallback callback) {
