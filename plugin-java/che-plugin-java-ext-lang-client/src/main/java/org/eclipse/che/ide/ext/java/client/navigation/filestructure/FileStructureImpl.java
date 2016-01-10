@@ -30,14 +30,14 @@ import org.eclipse.che.ide.ext.java.shared.dto.model.CompilationUnit;
 import org.eclipse.che.ide.ui.smartTree.KeyboardNavigationHandler;
 import org.eclipse.che.ide.ui.smartTree.NodeUniqueKeyProvider;
 import org.eclipse.che.ide.ui.smartTree.Tree;
-import org.eclipse.che.ide.ui.smartTree.TreeNodeLoader;
-import org.eclipse.che.ide.ui.smartTree.TreeNodeStorage;
+import org.eclipse.che.ide.ui.smartTree.NodeLoader;
+import org.eclipse.che.ide.ui.smartTree.NodeStorage;
 import org.eclipse.che.ide.ui.window.Window;
 
 import javax.validation.constraints.NotNull;
 import java.util.Collections;
 
-import static org.eclipse.che.ide.ui.smartTree.TreeSelectionModel.Mode.SINGLE;
+import static org.eclipse.che.ide.ui.smartTree.SelectionModel.Mode.SINGLE;
 
 /**
  * Implementation of {@link FileStructure} view.
@@ -69,13 +69,13 @@ final class FileStructureImpl extends Window implements FileStructure {
         this.locale = locale;
         setWidget(UI_BINDER.createAndBindUi(this));
 
-        TreeNodeStorage storage = new TreeNodeStorage(new NodeUniqueKeyProvider() {
+        NodeStorage storage = new NodeStorage(new NodeUniqueKeyProvider() {
             @Override
             public String getKey(@NotNull Node item) {
                 return String.valueOf(item.hashCode());
             }
         });
-        TreeNodeLoader loader = new TreeNodeLoader(Collections.<NodeInterceptor>emptySet());
+        NodeLoader loader = new NodeLoader(Collections.<NodeInterceptor>emptySet());
         tree = new Tree(storage, loader);
         tree.setAutoExpand(true);
         tree.getSelectionModel().setSelectionMode(SINGLE);
