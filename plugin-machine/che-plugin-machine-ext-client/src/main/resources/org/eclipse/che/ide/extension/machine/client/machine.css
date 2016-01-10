@@ -16,6 +16,7 @@
 @eval processTreeBackgroundColor org.eclipse.che.ide.api.theme.Style.theme.processTreeBackgroundColor();
 @eval outputBackgroundColor org.eclipse.che.ide.api.theme.Style.theme.outputBackgroundColor();
 @eval outputFontColor org.eclipse.che.ide.api.theme.Style.theme.getOutputFontColor();
+@eval editorTabIconColor org.eclipse.che.ide.api.theme.Style.getEditorTabIconColor();
 
 @external .terminal, .terminal-cursor;
 
@@ -312,11 +313,16 @@ div.processHeaderTitle {
 }
 
 .processesPanelCloseButtonForProcess {
-    display: none;
     cursor: pointer;
     opacity: 0.5;
     padding: 6px 7px;
     float: right;
+    fill: editorTabIconColor;
+}
+
+.processesPanelCloseButtonForProcess g,
+.processesPanelCloseButtonForProcess path {
+    fill: editorTabIconColor;
 }
 
 .processesPanelStopButtonForProcess {

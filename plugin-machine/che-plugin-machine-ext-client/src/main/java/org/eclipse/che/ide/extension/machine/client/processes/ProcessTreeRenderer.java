@@ -16,10 +16,10 @@ import elemental.events.Event;
 import elemental.events.EventListener;
 import elemental.html.SpanElement;
 
-import com.google.gwt.user.client.ui.Image;
 import com.google.inject.Inject;
 
 import org.eclipse.che.api.machine.shared.dto.MachineDto;
+import org.eclipse.che.ide.api.parts.PartStackUIResources;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.MachineResources;
 import org.eclipse.che.ide.ui.Tooltip;
@@ -40,13 +40,16 @@ public class ProcessTreeRenderer implements NodeRenderer<ProcessTreeNode> {
 
     private final MachineResources            resources;
     private final MachineLocalizationConstant locale;
+    private final PartStackUIResources        partStackUIResources;
     private       AddTerminalClickHandler     addTerminalClickHandler;
     private       StopProcessHandler          stopProcessHandler;
 
     @Inject
-    public ProcessTreeRenderer(MachineResources resources, MachineLocalizationConstant locale) {
+    public ProcessTreeRenderer(MachineResources resources, MachineLocalizationConstant locale,
+                               PartStackUIResources partStackUIResources) {
         this.resources = resources;
         this.locale = locale;
+        this.partStackUIResources = partStackUIResources;
     }
 
     @Override
@@ -149,8 +152,8 @@ public class ProcessTreeRenderer implements NodeRenderer<ProcessTreeNode> {
 
     private SpanElement createCloseElement(final ProcessTreeNode node) {
         SpanElement closeButton = Elements.createSpanElement();
-        Image icon = new Image(resources.close());
-        icon.setStyleName(resources.getCss().processesPanelCloseButtonForProcess());
+        SVGImage icon = new SVGImage(partStackUIResources.closeIcon());
+        icon.setClassNameBaseVal(resources.getCss().processesPanelCloseButtonForProcess());
         closeButton.appendChild((Node) icon.getElement());
         Tooltip.create((elemental.dom.Element)closeButton,
                 BOTTOM,
