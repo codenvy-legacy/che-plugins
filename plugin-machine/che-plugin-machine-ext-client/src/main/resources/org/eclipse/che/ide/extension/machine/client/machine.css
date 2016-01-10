@@ -292,13 +292,13 @@
 
 .processNavigation {
     outline: none;
-    background-color: processTreeBackgroundColor;
 }
 
 .processOutputPanel {
     -moz-user-select: text;
     -webkit-user-select: auto;
     user-select: text;
+    background-color: outputBackgroundColor;
 }
 
 div.processHeaderTitle {
