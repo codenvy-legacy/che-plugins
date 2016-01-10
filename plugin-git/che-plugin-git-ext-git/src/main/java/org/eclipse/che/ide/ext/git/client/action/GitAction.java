@@ -43,8 +43,10 @@ public abstract class GitAction extends AbstractPerspectiveAction {
 
     protected boolean isGitRepository() {
 
-
-        return appContext.getActiveProject().isTypeOf("git");
+        if(appContext.getActiveProject() == null)
+            return false;
+        else
+            return appContext.getActiveProject().isTypeOf("git");
 
 //        boolean isGitRepository = false;
 //
