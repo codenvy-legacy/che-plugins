@@ -169,18 +169,7 @@ public class CopyPresenter extends SubversionActionPresenter implements CopyView
     }
 
     private void refreshNodes(String forPath) {
-        appContext.getCurrentProject().getCurrentTree().getNodeByPath(forPath, new AsyncCallback<TreeNode<?>>() {
-            @Override
-            public void onFailure(Throwable caught) {
-                Log.error(CopyPresenter.class, caught);
-            }
 
-            @Override
-            public void onSuccess(TreeNode<?> result) {
-//                eventBus.fireEvent(new RefreshProjectTreeEvent(result, true));
-                updateProjectExplorer();
-            }
-        });
     }
 
     /** {@inheritDoc} */
