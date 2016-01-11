@@ -26,8 +26,8 @@ public class GwtCheCommandConfiguration extends CommandConfiguration {
     private String codeServerAddress;
     private String classPath;
 
-    protected GwtCheCommandConfiguration(CommandType type, String name) {
-        super(type, name);
+    protected GwtCheCommandConfiguration(CommandType type, String name, String previewUrl) {
+        super(type, name, previewUrl);
         gwtModule = "";
         codeServerAddress = "";
         classPath = "";

@@ -56,6 +56,12 @@ public interface EditCommandsView extends View<EditCommandsView.ActionDelegate> 
     /** Sets command name. */
     void setConfigurationName(String name);
 
+    /** Sets preview Url. */
+    void setConfigurationPreviewUrl(String previewUrl);
+
+    /** Returns preview Url. */
+    String getConfigurationPreviewUrl();
+
     /** Sets enabled state of the 'Cancel' button. */
     void setCancelButtonState(boolean enabled);
 
@@ -108,7 +114,10 @@ public interface EditCommandsView extends View<EditCommandsView.ActionDelegate> 
          */
         void onConfigurationSelected(CommandConfiguration configuration);
 
-        /** Called when configuration name is changed. */
+        /** Called when configuration name has been changed. */
         void onNameChanged();
+
+        /** Called when configuration preview url has been changed. */
+        void onPreviewUrlChanged();
     }
 }

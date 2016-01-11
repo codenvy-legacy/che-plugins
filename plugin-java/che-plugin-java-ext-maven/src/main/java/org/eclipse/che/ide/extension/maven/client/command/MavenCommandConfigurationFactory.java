@@ -39,7 +39,8 @@ public class MavenCommandConfigurationFactory extends CommandConfigurationFactor
             throw new IllegalArgumentException("Not a valid Maven command: " + descriptor.getCommandLine());
         }
 
-        final MavenCommandConfiguration configuration = new MavenCommandConfiguration(getCommandType(), descriptor.getName());
+        final MavenCommandConfiguration configuration =
+                new MavenCommandConfiguration(getCommandType(), descriptor.getName(), descriptor.getPreviewUrl());
 
         final CommandLine cmd = new CommandLine(descriptor.getCommandLine());
 

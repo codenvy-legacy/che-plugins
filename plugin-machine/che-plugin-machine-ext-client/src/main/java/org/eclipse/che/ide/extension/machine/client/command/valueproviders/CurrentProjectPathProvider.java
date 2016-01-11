@@ -30,6 +30,7 @@ import javax.validation.constraints.NotNull;
 
 /**
  * Provides current project's path.
+ * Path means full absolute path to project on the FS, e.g. /projects/project_name
  *
  * @author Artem Zatsarynnyi
  * @author Vlad Zhukovskyi
@@ -43,7 +44,7 @@ public class CurrentProjectPathProvider implements CommandPropertyValueProvider,
 
     private static final String KEY = "${current.project.path}";
 
-    private final AppContext           appContext;
+    private final AppContext appContext;
 
     private String value;
 

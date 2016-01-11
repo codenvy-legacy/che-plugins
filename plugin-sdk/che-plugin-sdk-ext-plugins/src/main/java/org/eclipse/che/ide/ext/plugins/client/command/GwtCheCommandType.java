@@ -89,4 +89,9 @@ public class GwtCheCommandType implements CommandType {
         return COMMAND_TEMPLATE.replace("$GWT_MODULE", IDE_GWT_MODULE)
                                .replace("$CHE_CLASSPATH", '"' + resources.cheClassPath().getText() + '"') + " -bindAddress 0.0.0.0";
     }
+
+    @Override
+    public String getPreviewUrlTemplate() {
+        return "";
+    }
 }
