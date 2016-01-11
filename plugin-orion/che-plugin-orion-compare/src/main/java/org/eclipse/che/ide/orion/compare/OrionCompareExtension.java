@@ -24,6 +24,5 @@ public class OrionCompareExtension {
 
     @Inject
     public OrionCompareExtension() {
-
     }
 }

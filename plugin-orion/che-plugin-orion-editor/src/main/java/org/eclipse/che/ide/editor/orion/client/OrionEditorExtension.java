@@ -27,7 +27,6 @@ import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.notification.StatusNotification;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionKeyBindingModule;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionTextThemeOverlay;
-import org.eclipse.che.ide.editor.orion.client.style.OrionResource;
 import org.eclipse.che.ide.jseditor.client.defaulteditor.EditorBuilder;
 import org.eclipse.che.ide.jseditor.client.editorconfig.AutoSaveTextEditorConfiguration;
 import org.eclipse.che.ide.jseditor.client.editortype.EditorType;
@@ -57,9 +56,7 @@ public class OrionEditorExtension implements Provider<OrionKeyBindingModule>{
     private final NotificationManager    notificationManager;
     private final EditorTypeRegistry     editorTypeRegistry;
     private final RequireJsLoader        requireJsLoader;
-
     private final OrionTextEditorFactory orionTextEditorFactory;
-
     private final OrionResource          orionResource;
 
     private boolean initFailedWarnedOnce = false;
@@ -89,6 +86,7 @@ public class OrionEditorExtension implements Provider<OrionKeyBindingModule>{
                     public void onSuccess() {
                         injectOrion(callback);
                     }
+
                     @Override
                     public void onFailure(final Throwable reason) {
                         callback.onFailure(reason);
@@ -102,13 +100,9 @@ public class OrionEditorExtension implements Provider<OrionKeyBindingModule>{
     }
 
     private void injectOrion(final InitializerCallback callback) {
-        // styler scripts are loaded on-demand by orion
         final String[] scripts = new String[]{
-                "orion-9.0/built-editor-amd",
+                "built-codeEdit-10.0/code_edit/built-codeEdit-amd",
                 "orion/CheContentAssistMode",
-                "orion/emacs",
-                "orion/vi",
-                "orion/ext-rulers",
                 "orion/uiUtils"
         };
 
@@ -137,7 +131,7 @@ public class OrionEditorExtension implements Provider<OrionKeyBindingModule>{
                 initializationFailed(callback, "Failed to inject Orion editor", e);
             }
         }, scripts, new String[0]);
-        injectCssLink(GWT.getModuleBaseForStaticFiles() + "built-editor-compat.css");
+        injectCssLink(GWT.getModuleBaseForStaticFiles() + "built-codeEdit-10.0/code_edit/built-codeEdit.css");
     }
 
     private static void injectCssLink(final String url) {
@@ -174,14 +168,20 @@ public class OrionEditorExtension implements Provider<OrionKeyBindingModule>{
 
             }
         },
-         new String[]{"orion/editor/edit",
+         new String[]{"orion/codeEdit",
                       "orion/editor/emacs",
                       "orion/editor/vi",
                       "orion/keyBinding",
                       "che/editor/contentAssist",
-                      "orion/editor/ext-rulers",
+                      "orion/editor/eventTarget",
                       "uiUtils"},
-         new String[]{"OrionEditor", "OrionEmacs", "OrionVi", "OrionKeyBinding", "CheContentAssistMode", "OrionExtRulers", "UiUtils"});
+         new String[]{"CodeEditWidget",
+                      "OrionEmacs",
+                      "OrionVi",
+                      "OrionKeyBinding",
+                      "CheContentAssistMode",
+                      "OrionEventTarget",
+                      "UiUtils"});
     }
 
     private void endConfiguration(final InitializerCallback callback) {
@@ -205,7 +205,7 @@ public class OrionEditorExtension implements Provider<OrionKeyBindingModule>{
     private void defineDefaultTheme() {
         // The codenvy theme uses both an orion css file and a CssResource
         orionResource.editorStyle().ensureInjected();
-        OrionTextThemeOverlay.setDefaultTheme("orionCodenvy", "orion-codenvy.css");
+        OrionTextThemeOverlay.setDefaultTheme("orionCodenvy", "orion-codenvy-theme.css");
     }
 
     private void initializationFailed(final InitializerCallback callback, final String errorMessage, Throwable e) {

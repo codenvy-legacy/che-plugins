@@ -24,12 +24,11 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * The css css type editor configuration.
+ * The JS type editor configuration.
  * 
  * @author <a href="mailto:evidolob@exoplatform.com">Evgen Vidolob</a>
  */
 public class JsEditorConfiguration extends AutoSaveTextEditorConfiguration {
-
 
     private Set<AutoEditStrategyFactory> autoEditStrategyFactories;
     private DefaultCodeAssistProcessor   defaultProcessor;

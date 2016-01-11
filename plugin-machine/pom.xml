@@ -16,7 +16,7 @@
     <parent>
         <artifactId>che-plugin-parent</artifactId>
         <groupId>org.eclipse.che.plugin</groupId>
-        <version>4.0.0-beta-6-SNAPSHOT</version>
+        <version>4.0.0-beta-8-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>che-plugin-machine-parent</artifactId>
@@ -25,6 +25,5 @@
     <modules>
         <module>che-plugin-machine-ext-client</module>
         <module>che-plugin-machine-ext-server</module>
-        <module>che-plugin-machine-ext-machine</module>
     </modules>
 </project>

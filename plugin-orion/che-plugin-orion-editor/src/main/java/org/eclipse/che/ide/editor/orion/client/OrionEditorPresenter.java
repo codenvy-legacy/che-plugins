@@ -14,7 +14,6 @@ import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
 import com.google.web.bindery.event.shared.EventBus;
 
-import org.eclipse.che.ide.Resources;
 import org.eclipse.che.ide.api.parts.WorkspaceAgent;
 import org.eclipse.che.ide.debug.BreakpointManager;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionLinkedModelDataOverlay;
@@ -72,11 +71,20 @@ public class OrionEditorPresenter extends EmbeddedTextEditorPresenter<OrionEdito
                                 final EventBus eventBus,
                                 final FileTypeIdentifier fileTypeIdentifier,
                                 final QuickAssistantFactory quickAssistantFactory,
-                                final Resources resources,
                                 final WorkspaceAgent workspaceAgent) {
-        super(codeAssistantFactory, breakpointManager, breakpointRendererFactory, dialogFactory, documentStorage, constant,
+        super(codeAssistantFactory,
+              breakpointManager,
+              breakpointRendererFactory,
+              dialogFactory,
+              documentStorage,
+              constant,
               editorWigetFactory,
-              editorModule, editorView, eventBus, fileTypeIdentifier, quickAssistantFactory, resources, workspaceAgent);
+              editorModule,
+              editorView,
+              eventBus,
+              fileTypeIdentifier,
+              quickAssistantFactory,
+              workspaceAgent);
     }
 
     @Override

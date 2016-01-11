@@ -11,6 +11,7 @@
 package org.eclipse.che.ide.extension.machine.client.command.valueproviders;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 import org.eclipse.che.ide.util.loging.Log;
 
@@ -34,7 +35,7 @@ public class CommandPropertyValueProviderRegistryImpl implements CommandProperty
     }
 
     @Inject(optional = true)
-    private void register(Set<CommandPropertyValueProvider> valueProviders) {
+    public void register(Set<CommandPropertyValueProvider> valueProviders) {
         for (CommandPropertyValueProvider provider : valueProviders) {
             final String key = provider.getKey();
             if (this.valueProviders.containsKey(key)) {
@@ -43,6 +44,11 @@ public class CommandPropertyValueProviderRegistryImpl implements CommandProperty
                 this.valueProviders.put(key, provider);
             }
         }
+    }
+
+    @Override
+    public void unregister(CommandPropertyValueProvider valueProvider) {
+        valueProviders.remove(valueProvider);
     }
 
     @Override

@@ -16,7 +16,7 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Timer;
-import com.google.gwt.user.client.ui.DockLayoutPanel;
+import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
@@ -32,7 +32,7 @@ public class MavenCommandPageViewImpl implements MavenCommandPageView {
 
     private static final MavenPageViewImplUiBinder UI_BINDER = GWT.create(MavenPageViewImplUiBinder.class);
 
-    private final DockLayoutPanel rootElement;
+    private final FlowPanel rootElement;
 
     @UiField
     TextBox                   workingDirectory;
@@ -104,6 +104,6 @@ public class MavenCommandPageViewImpl implements MavenCommandPageView {
         }.schedule(0);
     }
 
-    interface MavenPageViewImplUiBinder extends UiBinder<DockLayoutPanel, MavenCommandPageViewImpl> {
+    interface MavenPageViewImplUiBinder extends UiBinder<FlowPanel, MavenCommandPageViewImpl> {
     }
 }

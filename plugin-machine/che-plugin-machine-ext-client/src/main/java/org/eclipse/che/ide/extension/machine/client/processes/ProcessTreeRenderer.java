@@ -16,12 +16,15 @@ import elemental.events.Event;
 import elemental.events.EventListener;
 import elemental.html.SpanElement;
 
-import com.google.gwt.user.client.ui.Image;
 import com.google.inject.Inject;
 
 import org.eclipse.che.api.machine.shared.dto.MachineDto;
+import org.eclipse.che.ide.api.parts.PartStackUIResources;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.MachineResources;
+import org.eclipse.che.ide.ui.Tooltip;
+import static org.eclipse.che.ide.ui.menu.PositionController.HorizontalAlign.MIDDLE;
+import static org.eclipse.che.ide.ui.menu.PositionController.VerticalAlign.BOTTOM;
 import org.eclipse.che.ide.ui.tree.NodeRenderer;
 import org.eclipse.che.ide.ui.tree.TreeNodeElement;
 import org.eclipse.che.ide.util.dom.Elements;
@@ -37,13 +40,16 @@ public class ProcessTreeRenderer implements NodeRenderer<ProcessTreeNode> {
 
     private final MachineResources            resources;
     private final MachineLocalizationConstant locale;
+    private final PartStackUIResources        partStackUIResources;
     private       AddTerminalClickHandler     addTerminalClickHandler;
     private       StopProcessHandler          stopProcessHandler;
 
     @Inject
-    public ProcessTreeRenderer(MachineResources resources, MachineLocalizationConstant locale) {
+    public ProcessTreeRenderer(MachineResources resources, MachineLocalizationConstant locale,
+                               PartStackUIResources partStackUIResources) {
         this.resources = resources;
         this.locale = locale;
+        this.partStackUIResources = partStackUIResources;
     }
 
     @Override
@@ -79,12 +85,21 @@ public class ProcessTreeRenderer implements NodeRenderer<ProcessTreeNode> {
 
         SpanElement newTerminalButton = Elements.createSpanElement(resources.getCss().processButton());
         newTerminalButton.setTextContent("+");
-        newTerminalButton.setAttribute("title", locale.viewNewTerminalTooltip());
         root.appendChild(newTerminalButton);
 
+        Tooltip.create((elemental.dom.Element) newTerminalButton,
+                BOTTOM,
+                MIDDLE,
+                locale.viewNewTerminalTooltip());
+
+
         Element statusElement = Elements.createSpanElement(resources.getCss().machineStatus());
-        statusElement.setAttribute("title", locale.viewMachineRunningTooltip());
         root.appendChild(statusElement);
+
+        Tooltip.create((elemental.dom.Element)statusElement,
+                BOTTOM,
+                MIDDLE,
+                locale.viewMachineRunningTooltip());
 
         newTerminalButton.addEventListener(Event.CLICK, new EventListener() {
             @Override
@@ -137,10 +152,14 @@ public class ProcessTreeRenderer implements NodeRenderer<ProcessTreeNode> {
 
     private SpanElement createCloseElement(final ProcessTreeNode node) {
         SpanElement closeButton = Elements.createSpanElement();
-        Image icon = new Image(resources.close());
-        icon.setStyleName(resources.getCss().processesPanelCloseButtonForProcess());
-        closeButton.appendChild((Node)icon.getElement());
-        closeButton.setAttribute("title", locale.viewCloseProcessOutputTooltip());
+        SVGImage icon = new SVGImage(partStackUIResources.closeIcon());
+        icon.setClassNameBaseVal(resources.getCss().processesPanelCloseButtonForProcess());
+        closeButton.appendChild((Node) icon.getElement());
+        Tooltip.create((elemental.dom.Element)closeButton,
+                BOTTOM,
+                MIDDLE,
+                locale.viewCloseProcessOutputTooltip());
+
         closeButton.addEventListener(Event.CLICK, new EventListener() {
             @Override
             public void handleEvent(Event event) {
@@ -154,7 +173,11 @@ public class ProcessTreeRenderer implements NodeRenderer<ProcessTreeNode> {
 
     private SpanElement createStopProcessElement(final ProcessTreeNode node) {
         SpanElement stopProcessButton = Elements.createSpanElement(resources.getCss().processesPanelStopButtonForProcess());
-        stopProcessButton.setAttribute("title", locale.viewStropProcessTooltip());
+        Tooltip.create((elemental.dom.Element) stopProcessButton,
+                BOTTOM,
+                MIDDLE,
+                locale.viewStropProcessTooltip());
+
         stopProcessButton.addEventListener(Event.CLICK, new EventListener() {
             @Override
             public void handleEvent(Event event) {

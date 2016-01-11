@@ -16,6 +16,8 @@
 @eval processTreeBackgroundColor org.eclipse.che.ide.api.theme.Style.theme.processTreeBackgroundColor();
 @eval outputBackgroundColor org.eclipse.che.ide.api.theme.Style.theme.outputBackgroundColor();
 @eval outputFontColor org.eclipse.che.ide.api.theme.Style.theme.getOutputFontColor();
+@eval editorTabIconColor org.eclipse.che.ide.api.theme.Style.getEditorTabIconColor();
+@eval outputBoxShadow org.eclipse.che.ide.api.theme.Style.theme.outputBoxShadow();
 
 @external .terminal, .terminal-cursor;
 
@@ -44,9 +46,13 @@
     -webkit-user-select: text;
     user-select: text;
     color: outputFontColor;
-    margin-top: 4px;
-    margin-left: 2px;
     outline: none;
+    border-top: 1px solid separatorColor;
+    -webkit-box-shadow: outputBoxShadow;
+    -moz-box-shadow: outputBoxShadow;
+    box-shadow: outputBoxShadow;
+    padding: 3px;
+    margin-bottom: 3px;
 }
 
 .machineConsole pre,
@@ -292,13 +298,13 @@
 
 .processNavigation {
     outline: none;
-    background-color: processTreeBackgroundColor;
 }
 
 .processOutputPanel {
     -moz-user-select: text;
     -webkit-user-select: auto;
     user-select: text;
+    background-color: outputBackgroundColor;
 }
 
 div.processHeaderTitle {
@@ -312,11 +318,16 @@ div.processHeaderTitle {
 }
 
 .processesPanelCloseButtonForProcess {
-    display: none;
     cursor: pointer;
     opacity: 0.5;
     padding: 6px 7px;
     float: right;
+    fill: editorTabIconColor;
+}
+
+.processesPanelCloseButtonForProcess g,
+.processesPanelCloseButtonForProcess path {
+    fill: editorTabIconColor;
 }
 
 .processesPanelStopButtonForProcess {

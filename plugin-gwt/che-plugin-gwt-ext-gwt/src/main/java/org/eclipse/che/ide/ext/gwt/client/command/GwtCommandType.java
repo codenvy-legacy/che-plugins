@@ -95,4 +95,9 @@ public class GwtCommandType implements CommandType {
         return COMMAND_TEMPLATE + " -f " + currentProjectPathProvider.getKey() + " -Dgwt.bindAddress=" +
                devMachineHostNameProvider.getKey();
     }
+
+    @Override
+    public String getPreviewUrlTemplate() {
+        return "";
+    }
 }

@@ -30,7 +30,9 @@ import org.eclipse.che.ide.extension.machine.client.command.valueproviders.Comma
 import org.eclipse.che.ide.extension.machine.client.command.valueproviders.CommandPropertyValueProviderRegistry;
 import org.eclipse.che.ide.extension.machine.client.command.valueproviders.CommandPropertyValueProviderRegistryImpl;
 import org.eclipse.che.ide.extension.machine.client.command.valueproviders.CurrentProjectPathProvider;
+import org.eclipse.che.ide.extension.machine.client.command.valueproviders.CurrentProjectRelativePathProvider;
 import org.eclipse.che.ide.extension.machine.client.command.valueproviders.DevMachineHostNameProvider;
+import org.eclipse.che.ide.extension.machine.client.command.valueproviders.MachineHostNameProvider;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.EntityFactory;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.TerminalFactory;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.WidgetsFactory;
@@ -101,6 +103,8 @@ public class MachineGinModule extends AbstractGinModule {
         final GinMultibinder<CommandPropertyValueProvider> valueProviderBinder = GinMultibinder.newSetBinder(binder(), CommandPropertyValueProvider.class);
         valueProviderBinder.addBinding().to(DevMachineHostNameProvider.class);
         valueProviderBinder.addBinding().to(CurrentProjectPathProvider.class);
+        valueProviderBinder.addBinding().to(CurrentProjectRelativePathProvider.class);
+        valueProviderBinder.addBinding().to(MachineHostNameProvider.class);
 
         install(new GinFactoryModuleBuilder().implement(TabHeader.class, TabHeaderImpl.class)
                                              .implement(EditorButtonWidget.class, EditorButtonWidgetImpl.class)

@@ -45,4 +45,7 @@ public interface CommandType {
     /** Returns command template that will be used for newly created command. */
     @NotNull
     String getCommandTemplate();
+
+    /** Returns template for preview Url. */
+    String getPreviewUrlTemplate();
 }

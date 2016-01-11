@@ -19,7 +19,9 @@ import com.google.web.bindery.event.shared.EventBus;
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
 import org.eclipse.che.api.machine.gwt.client.events.DevMachineStateEvent;
 import org.eclipse.che.api.machine.gwt.client.events.DevMachineStateHandler;
+import org.eclipse.che.api.machine.shared.dto.CommandDto;
 import org.eclipse.che.api.machine.shared.dto.MachineDto;
+import org.eclipse.che.api.machine.shared.dto.MachineProcessDto;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.Promise;
@@ -29,13 +31,18 @@ import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.mvp.View;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.parts.HasView;
+import org.eclipse.che.ide.api.parts.WorkspaceAgent;
 import org.eclipse.che.ide.api.parts.base.BasePresenter;
+import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.MachineResources;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
+import org.eclipse.che.ide.extension.machine.client.command.CommandType;
+import org.eclipse.che.ide.extension.machine.client.command.CommandTypeRegistry;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.EntityFactory;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.TerminalFactory;
 import org.eclipse.che.ide.extension.machine.client.machine.Machine;
+import org.eclipse.che.ide.extension.machine.client.outputspanel.console.CommandConsoleFactory;
 import org.eclipse.che.ide.extension.machine.client.outputspanel.console.OutputConsole;
 import org.eclipse.che.ide.extension.machine.client.perspective.terminal.TerminalPresenter;
 import org.eclipse.che.ide.ui.dialogs.ConfirmCallback;
@@ -67,15 +74,19 @@ public class ConsolesPanelPresenter extends BasePresenter implements ConsolesPan
 
     private static final String DEFAULT_TERMINAL_NAME = "Terminal";
 
+    private final DtoFactory                  dtoFactory;
     private final DialogFactory               dialogFactory;
+    private final EntityFactory               entityFactory;
+    private final TerminalFactory             terminalFactory;
+    private final CommandConsoleFactory       commandConsoleFactory;
     private final NotificationManager         notificationManager;
     private final MachineLocalizationConstant localizationConstant;
-    private final TerminalFactory             terminalFactory;
     private final ConsolesPanelView           view;
     private final MachineResources            resources;
     private final AppContext                  appContext;
     private final MachineServiceClient        machineService;
-    private final EntityFactory               entityFactory;
+    private final WorkspaceAgent              workspaceAgent;
+    private final CommandTypeRegistry         commandTypeRegistry;
 
     ProcessTreeNode                rootNode;
     Map<String, TerminalPresenter> terminals;
@@ -84,16 +95,24 @@ public class ConsolesPanelPresenter extends BasePresenter implements ConsolesPan
     @Inject
     public ConsolesPanelPresenter(ConsolesPanelView view,
                                   EventBus eventBus,
-                                  TerminalFactory terminalFactory,
+                                  DtoFactory dtoFactory,
                                   DialogFactory dialogFactory,
+                                  EntityFactory entityFactory,
+                                  TerminalFactory terminalFactory,
+                                  CommandConsoleFactory commandConsoleFactory,
+                                  CommandTypeRegistry commandTypeRegistry,
+                                  WorkspaceAgent workspaceAgent,
                                   NotificationManager notificationManager,
                                   MachineLocalizationConstant localizationConstant,
                                   MachineServiceClient machineService,
-                                  EntityFactory entityFactory,
                                   MachineResources resources,
                                   AppContext appContext) {
         this.view = view;
         this.terminalFactory = terminalFactory;
+        this.workspaceAgent = workspaceAgent;
+        this.commandConsoleFactory = commandConsoleFactory;
+        this.commandTypeRegistry = commandTypeRegistry;
+        this.dtoFactory = dtoFactory;
         this.dialogFactory = dialogFactory;
         this.notificationManager = notificationManager;
         this.localizationConstant = localizationConstant;
@@ -171,9 +190,48 @@ public class ConsolesPanelPresenter extends BasePresenter implements ConsolesPan
                         ProcessTreeNode machineNode = new ProcessTreeNode(MACHINE_NODE, rootNode, descriptor, processTreeNodes);
                         rootChildren.add(machineNode);
                         view.setProcessesData(rootNode);
+
+                        restoreState(descriptor.getId());
                     }
                 }
 
+            }
+        });
+    }
+
+    private void restoreState(final String machineId) {
+        machineService.getProcesses(machineId).then(new Operation<List<MachineProcessDto>>() {
+            @Override
+            public void apply(List<MachineProcessDto> arg) throws OperationException {
+                boolean isOutputAvailable = false;
+                for (MachineProcessDto machineProcessDto : arg) {
+                    final CommandDto commandDto = dtoFactory.createDto(CommandDto.class)
+                                                            .withName(machineProcessDto.getName())
+                                                            .withCommandLine(machineProcessDto.getCommandLine())
+                                                            .withType(machineProcessDto.getType());
+
+                    final CommandType type = commandTypeRegistry.getCommandTypeById(commandDto.getType());
+                    if (type != null) {
+                        final CommandConfiguration configuration = type.getConfigurationFactory().createFromDto(commandDto);
+
+                        final OutputConsole console = commandConsoleFactory.create(configuration, machineId);
+                        console.listenToOutput(machineProcessDto.getOutputChannel());
+                        console.attachToProcess(machineProcessDto.getPid());
+
+                        addCommand(machineId, configuration, console);
+                        isOutputAvailable = true;
+                    }
+
+                }
+
+                if (isOutputAvailable) {
+                    workspaceAgent.setActivePart(ConsolesPanelPresenter.this);
+                }
+            }
+        }).catchError(new Operation<PromiseError>() {
+            @Override
+            public void apply(PromiseError arg) throws OperationException {
+                notificationManager.notify(localizationConstant.failedToGetProcesses(machineId));
             }
         });
     }

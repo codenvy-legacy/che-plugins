@@ -37,21 +37,17 @@
         }
     </ui:style>
 
-    <g:DockLayoutPanel unit="PX" debugId="mavenPageView-mainPanel" addStyleNames="{style.mainPanel}">
-        <g:north size="200">
-            <g:FlowPanel>
-                <g:FlowPanel height="60px">
-                    <g:Label text="Working directory" addStyleNames="{style.commandLineLabel} {style.floatLeft}"/>
-                    <g:TextBox width="440px" ui:field="workingDirectory" debugId="mavenPageView-workingDirectory"
-                               addStyleNames="{style.commandLineField} {style.floatRight}"/>
-                </g:FlowPanel>
-                <g:FlowPanel height="60px">
-                    <g:Label text="{locale.mavenCommandPageViewCommandLineText}"
-                             addStyleNames="{style.commandLineLabel} {style.floatLeft}"/>
-                    <g:TextBox width="440px" ui:field="commandLine" debugId="mavenPageView-commandLine"
-                               addStyleNames="{style.commandLineField} {style.floatRight}"/>
-                </g:FlowPanel>
-            </g:FlowPanel>
-        </g:north>
-    </g:DockLayoutPanel>
+    <g:FlowPanel debugId="mavenPageView-mainPanel" addStyleNames="{style.mainPanel}">
+        <g:FlowPanel height="60px">
+            <g:Label text="Working directory" addStyleNames="{style.commandLineLabel} {style.floatLeft}"/>
+            <g:TextBox width="440px" ui:field="workingDirectory" debugId="mavenPageView-workingDirectory"
+                       addStyleNames="{style.commandLineField} {style.floatRight}"/>
+        </g:FlowPanel>
+        <g:FlowPanel height="60px">
+            <g:Label text="{locale.mavenCommandPageViewCommandLineText}"
+                     addStyleNames="{style.commandLineLabel} {style.floatLeft}"/>
+            <g:TextBox width="440px" ui:field="commandLine" debugId="mavenPageView-commandLine"
+                       addStyleNames="{style.commandLineField} {style.floatRight}"/>
+        </g:FlowPanel>
+    </g:FlowPanel>
 </ui:UiBinder>

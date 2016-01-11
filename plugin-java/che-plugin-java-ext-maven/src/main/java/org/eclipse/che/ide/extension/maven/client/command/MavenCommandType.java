@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.maven.client.command;
 
+import com.google.gwt.user.client.Window;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -18,6 +19,9 @@ import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfigurationPage;
 import org.eclipse.che.ide.extension.machine.client.command.CommandType;
 import org.eclipse.che.ide.extension.machine.client.command.valueproviders.CurrentProjectPathProvider;
+import org.eclipse.che.ide.extension.machine.client.command.valueproviders.CurrentProjectRelativePathProvider;
+import org.eclipse.che.ide.extension.machine.client.command.valueproviders.MachinePortProvider;
+import org.eclipse.che.ide.extension.machine.client.command.valueproviders.MachineHostNameProvider;
 import org.eclipse.che.ide.extension.maven.client.MavenResources;
 import org.vectomatic.dom.svg.ui.SVGResource;
 
@@ -33,22 +37,25 @@ import java.util.LinkedList;
 @Singleton
 public class MavenCommandType implements CommandType {
 
-    private static final String ID               = "mvn";
-    private static final String DISPLAY_NAME     = "Maven";
-    private static final String COMMAND_TEMPLATE = "mvn clean install";
+    private static final String ID                   = "mvn";
+    private static final String DISPLAY_NAME         = "Maven";
+    private static final String COMMAND_TEMPLATE     = "mvn clean install";
+    private static final String DEF_PORT             = "8080";
 
-    private final MavenResources                   resources;
-    private final CurrentProjectPathProvider       currentProjectPathProvider;
-    private final MavenCommandConfigurationFactory configurationFactory;
-
+    private final MavenResources                                                       resources;
+    private final CurrentProjectPathProvider                                           currentProjectPathProvider;
+    private final CurrentProjectRelativePathProvider                                   currentProjectRelativePathProvider;
+    private final MavenCommandConfigurationFactory                                     configurationFactory;
     private final Collection<CommandConfigurationPage<? extends CommandConfiguration>> pages;
 
     @Inject
     public MavenCommandType(MavenResources resources,
                             MavenCommandPagePresenter page,
-                            CurrentProjectPathProvider currentProjectPathProvider) {
+                            CurrentProjectPathProvider currentProjectPathProvider,
+                            CurrentProjectRelativePathProvider currentProjectRelativePathProvider) {
         this.resources = resources;
         this.currentProjectPathProvider = currentProjectPathProvider;
+        this.currentProjectRelativePathProvider = currentProjectRelativePathProvider;
         configurationFactory = new MavenCommandConfigurationFactory(this);
         pages = new LinkedList<>();
         pages.add(page);
@@ -88,5 +95,11 @@ public class MavenCommandType implements CommandType {
     @Override
     public String getCommandTemplate() {
         return COMMAND_TEMPLATE + " -f " + currentProjectPathProvider.getKey();
+    }
+
+    @Override
+    public String getPreviewUrlTemplate() {
+        return Window.Location.getProtocol() + "//" + MachineHostNameProvider.KEY + ":" +
+               MachinePortProvider.KEY_TEMPLATE.replace("%", DEF_PORT) + "/" + currentProjectRelativePathProvider.getKey();
     }
 }

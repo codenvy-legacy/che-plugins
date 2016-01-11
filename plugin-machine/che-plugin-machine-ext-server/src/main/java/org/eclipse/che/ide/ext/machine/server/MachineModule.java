@@ -8,16 +8,16 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-
 package org.eclipse.che.ide.ext.machine.server;
 
 import com.google.inject.AbstractModule;
 
+import org.eclipse.che.ide.ext.machine.server.ssh.KeysInjector;
 import org.eclipse.che.inject.DynaModule;
 
 @DynaModule
 public class MachineModule extends AbstractModule {
     protected void configure() {
-        bind(ProjectListener.class).asEagerSingleton();
+        bind(KeysInjector.class).asEagerSingleton();
     }
 }

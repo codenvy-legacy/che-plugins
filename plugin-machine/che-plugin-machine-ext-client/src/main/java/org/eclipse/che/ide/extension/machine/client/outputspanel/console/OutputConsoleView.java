@@ -22,6 +22,9 @@ public interface OutputConsoleView extends View<OutputConsoleView.ActionDelegate
     /** Print the command line to the console. */
     void printCommandLine(String commandLine);
 
+    /** Print the command preview Url. */
+    void printPreviewUrl(String previewUrl);
+
     /**
      * Print the message.
      *
@@ -38,6 +41,9 @@ public interface OutputConsoleView extends View<OutputConsoleView.ActionDelegate
 
     /** Hides command title and command label */
     void hideCommand();
+
+    /** Hides preview title and preview label */
+    void hidePreview();
 
     /** Action handler for the view actions/controls. */
     interface ActionDelegate {
