@@ -114,7 +114,8 @@
                         <configuration>
                             <patchDirectory>${patches.location}</patchDirectory>
                             <patches>
-                                <patch>Orion-9.0.diff</patch>
+                                <patch>built-codeEdit-amd.js.diff</patch>
+                                <patch>javascriptPlugin.js.diff</patch>
                             </patches>
                             <optimizations>false</optimizations>
                             <strictPatching>true</strictPatching>
@@ -131,9 +132,9 @@
                     <excludes>
                         <!-- Orion - EPL License -->
                         <exclude>**/org/eclipse/che/ide/editor/orion/public/orion/**</exclude>
-                        <exclude>**/org/eclipse/che/ide/editor/orion/public/orion-9.0/**</exclude>
-                        <exclude>**/org/eclipse/che/ide/editor/orion/public/built-editor-compat.css</exclude>
-                        <exclude>**/patches/Orion.diff</exclude>
+                        <exclude>**/org/eclipse/che/ide/editor/orion/public/built-codeEdit-10.0/**</exclude>
+                        <exclude>**/patches/built-codeEdit-amd.js.diff</exclude>
+                        <exclude>**/patches/javascriptPlugin.js.diff</exclude>
                     </excludes>
                 </configuration>
             </plugin>

@@ -97,12 +97,6 @@ public class JsJavaEditorConfiguration extends DefaultTextEditorConfiguration {
         return this.reconciler;
     }
 
-//    @Override
-//    @NotNull
-//    public DocumentPartitioner getPartitioner() {
-//        return this.partitioner;
-//    }
-
     @Override
     public DocumentPositionMap getDocumentPositionMap() {
         return this.documentPositionMap;

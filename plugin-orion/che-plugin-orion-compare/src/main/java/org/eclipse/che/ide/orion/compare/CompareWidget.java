@@ -39,7 +39,7 @@ public class CompareWidget extends Composite {
 
     private Frame frame;
 
-    private Promise<Window> framePromice;
+    private Promise<Window> framePromise;
     private CompareConfig   compareConfig;
 
     public CompareWidget(final CompareConfig compareConfig, final String themeId) {
@@ -61,21 +61,19 @@ public class CompareWidget extends Composite {
                 });
             }
         };
-        framePromice = PromiseHelper.newPromise(call);
-        framePromice.then(new Operation<Window>() {
+        framePromise = PromiseHelper.newPromise(call);
+        framePromise.then(new Operation<Window>() {
             @Override
             public void apply(Window arg) throws OperationException {
                 sendThemeId(arg, themeId);
             }
         });
-        framePromice.then(new Operation<Window>() {
+        framePromise.then(new Operation<Window>() {
             @Override
             public void apply(Window arg) throws OperationException {
                 sendConfig(arg, compareConfig);
             }
         });
-
-
     }
 
     private void sendThemeId(Window arg, String themeId) {
@@ -94,7 +92,7 @@ public class CompareWidget extends Composite {
      * Refresh compare according to configuration
      */
     public void refresh() {
-        framePromice.then(new Operation<Window>() {
+        framePromise.then(new Operation<Window>() {
             @Override
             public void apply(Window arg) throws OperationException {
                 sendConfig(arg, compareConfig);

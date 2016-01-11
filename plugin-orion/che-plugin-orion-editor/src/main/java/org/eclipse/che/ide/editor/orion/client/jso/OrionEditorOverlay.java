@@ -31,6 +31,11 @@ public class OrionEditorOverlay extends JavaScriptObject {
         return this.getTextView();
     }-*/;
 
+    /** Returns the content assist of the editor. */
+    public final native OrionContentAssistOverlay getContentAssist() /*-{
+        return this.getContentAssist();
+    }-*/;
+
     public final native void focus() /*-{
         this.focus();
     }-*/;
@@ -119,15 +124,6 @@ public class OrionEditorOverlay extends JavaScriptObject {
 
     public final native void setDirty(final boolean newValue) /*-{
         this.setDirty(newValue);
-    }-*/;
-
-    public final static native OrionEditorOverlay createEditor(final Element element,
-                                                               final JavaScriptObject options,
-                                                               final JavaScriptObject orionEditor) /*-{
-
-        options.parent = element;
-        var editor = orionEditor(options);
-        return editor;
     }-*/;
 
     /**

@@ -32,6 +32,4 @@ public class DefaultCodeAssistProcessor extends DefaultChainedCodeAssistProcesso
     protected void injectProcessors(Set<JsCodeAssistProcessor> jsCodeAssistProcessors) {
         setProcessors(jsCodeAssistProcessors);
     }
-
-
 }
