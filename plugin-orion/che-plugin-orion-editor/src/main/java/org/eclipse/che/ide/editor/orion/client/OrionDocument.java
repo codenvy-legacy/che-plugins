@@ -192,8 +192,8 @@ public class OrionDocument extends AbstractEmbeddedDocument {
         }
     }
 
-    public void replace(final Region region, final String text) {
-        this.editorOverlay.setText(text, region.getOffset(), region.getOffset() + region.getLength());
+    public void replace(int offset, int length, String text) {
+        this.editorOverlay.setText(text, offset, offset + length);
     }
 
     public int getContentsCharCount() {
