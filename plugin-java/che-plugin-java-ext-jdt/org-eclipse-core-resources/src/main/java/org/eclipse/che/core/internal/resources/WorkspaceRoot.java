@@ -37,6 +37,7 @@ import java.util.concurrent.ConcurrentMap;
 /**
  * @author Evgen Vidolob
  * @author Dmitry Shnurenko
+ * @author Valeriy Svydenko
  */
 public class WorkspaceRoot extends Container implements IWorkspaceRoot {
     public static final  String PROJECT_INNER_SETTING_DIR = ".codenvy";
@@ -152,8 +153,6 @@ public class WorkspaceRoot extends Container implements IWorkspaceRoot {
         Project mp = new Project(new Path(moduleConfig.getPath()), workspace);
         projects.add(mp);
         for (ProjectConfig module : moduleConfig.getModules()) {
-            Project project = new Project(new Path(module.getPath()), workspace);
-            projects.add(project);
             addModules(projects, module);
         }
     }
