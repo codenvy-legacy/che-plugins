@@ -46,6 +46,7 @@ public class DockerProcess implements InstanceProcess {
     private final String          commandLine;
     private final String          commandName;
     private final String          commandType;
+    private final String          previewUrl;
     private final String          outputChannel;
 
     private volatile boolean started;
@@ -62,6 +63,7 @@ public class DockerProcess implements InstanceProcess {
         this.commandLine = command.getCommandLine();
         this.commandName = command.getName();
         this.commandType = command.getType();
+        this.previewUrl = command.getPreviewUrl();
         this.outputChannel = outputChannel;
         this.pidFilePath = pidFilePath;
         this.pid = pid;
@@ -88,6 +90,10 @@ public class DockerProcess implements InstanceProcess {
         return commandType;
     }
 
+    @Override
+    public String getPreviewUrl() {
+        return previewUrl;
+    }
 
     @Override
     public String getOutputChannel() {
