@@ -25,8 +25,8 @@ public class MavenCommandConfiguration extends CommandConfiguration {
     private String workingDirectory;
     private String commandLine;
 
-    protected MavenCommandConfiguration(CommandType type, String name) {
-        super(type, name);
+    protected MavenCommandConfiguration(CommandType type, String name, String previewUrl) {
+        super(type, name, previewUrl);
         workingDirectory = "";
         commandLine = "";
     }

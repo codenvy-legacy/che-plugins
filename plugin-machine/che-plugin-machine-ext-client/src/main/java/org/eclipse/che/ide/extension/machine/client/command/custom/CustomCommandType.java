@@ -84,4 +84,9 @@ public class CustomCommandType implements CommandType {
     public String getCommandTemplate() {
         return COMMAND_TEMPLATE;
     }
+
+    @Override
+    public String getPreviewUrlTemplate() {
+        return "";
+    }
 }

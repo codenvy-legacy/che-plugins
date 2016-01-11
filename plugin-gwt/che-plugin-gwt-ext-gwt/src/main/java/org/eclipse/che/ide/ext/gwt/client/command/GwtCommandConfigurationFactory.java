@@ -39,7 +39,8 @@ public class GwtCommandConfigurationFactory extends CommandConfigurationFactory<
             throw new IllegalArgumentException("Not a valid GWT command: " + descriptor.getCommandLine());
         }
 
-        final GwtCommandConfiguration configuration = new GwtCommandConfiguration(getCommandType(), descriptor.getName());
+        final GwtCommandConfiguration configuration =
+                new GwtCommandConfiguration(getCommandType(), descriptor.getName(), descriptor.getPreviewUrl());
         final CommandLine cmd = new CommandLine(descriptor.getCommandLine());
 
         if (cmd.hasArgument("-f")) {

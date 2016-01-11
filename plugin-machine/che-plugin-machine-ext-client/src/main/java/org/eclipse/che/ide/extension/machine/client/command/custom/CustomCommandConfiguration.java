@@ -24,8 +24,8 @@ public class CustomCommandConfiguration extends CommandConfiguration {
 
     private String commandLine;
 
-    protected CustomCommandConfiguration(CommandType type, String name) {
-        super(type, name);
+    protected CustomCommandConfiguration(CommandType type, String name, String previewUrl) {
+        super(type, name, previewUrl);
         commandLine = "";
     }
 

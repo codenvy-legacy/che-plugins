@@ -21,6 +21,12 @@ import java.util.Set;
  */
 public interface CommandPropertyValueProviderRegistry {
 
+    /** Register set of property value providers. */
+    void register(Set<CommandPropertyValueProvider> valueProviders);
+
+    /** Unregister specific property value provider. */
+    void unregister(CommandPropertyValueProvider valueProvider);
+
     /** Returns keys of all registered {@link CommandPropertyValueProvider}s. */
     Set<String> getKeys();
 

@@ -17,6 +17,7 @@
 @eval outputBackgroundColor org.eclipse.che.ide.api.theme.Style.theme.outputBackgroundColor();
 @eval outputFontColor org.eclipse.che.ide.api.theme.Style.theme.getOutputFontColor();
 @eval editorTabIconColor org.eclipse.che.ide.api.theme.Style.getEditorTabIconColor();
+@eval outputBoxShadow org.eclipse.che.ide.api.theme.Style.theme.outputBoxShadow();
 
 @external .terminal, .terminal-cursor;
 
@@ -45,9 +46,13 @@
     -webkit-user-select: text;
     user-select: text;
     color: outputFontColor;
-    margin-top: 4px;
-    margin-left: 2px;
     outline: none;
+    border-top: 1px solid separatorColor;
+    -webkit-box-shadow: outputBoxShadow;
+    -moz-box-shadow: outputBoxShadow;
+    box-shadow: outputBoxShadow;
+    padding: 3px;
+    margin-bottom: 3px;
 }
 
 .machineConsole pre,

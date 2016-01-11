@@ -16,7 +16,7 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Timer;
-import com.google.gwt.user.client.ui.DockLayoutPanel;
+import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
@@ -33,7 +33,7 @@ public class CommandPageViewImpl implements CommandPageView {
 
     private static final CommandPageViewImplUiBinder UI_BINDER = GWT.create(CommandPageViewImplUiBinder.class);
 
-    private final DockLayoutPanel rootElement;
+    private final FlowPanel rootElement;
 
     @UiField
     TextBox                     gwtModule;
@@ -128,6 +128,6 @@ public class CommandPageViewImpl implements CommandPageView {
         }.schedule(0);
     }
 
-    interface CommandPageViewImplUiBinder extends UiBinder<DockLayoutPanel, CommandPageViewImpl> {
+    interface CommandPageViewImplUiBinder extends UiBinder<FlowPanel, CommandPageViewImpl> {
     }
 }

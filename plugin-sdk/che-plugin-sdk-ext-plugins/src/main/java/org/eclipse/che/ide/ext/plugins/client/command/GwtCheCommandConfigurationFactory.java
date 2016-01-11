@@ -41,7 +41,8 @@ public class GwtCheCommandConfigurationFactory extends CommandConfigurationFacto
             throw new IllegalArgumentException("Not a valid GWT4CHE command: " + descriptor.getCommandLine());
         }
 
-        final GwtCheCommandConfiguration configuration = new GwtCheCommandConfiguration(getCommandType(), descriptor.getName());
+        final GwtCheCommandConfiguration configuration =
+                new GwtCheCommandConfiguration(getCommandType(), descriptor.getName(), descriptor.getPreviewUrl());
         final CommandLine cmd = new CommandLine(descriptor.getCommandLine());
 
         final String classPathArgument = cmd.getArgument(2);

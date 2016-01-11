@@ -10,12 +10,14 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.machine.client.outputspanel.console;
 
+import com.google.common.base.Strings;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Node;
 import com.google.gwt.dom.client.PreElement;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
@@ -46,6 +48,9 @@ public class OutputConsoleViewImpl extends Composite implements OutputConsoleVie
     FlowPanel   commandPanel;
 
     @UiField
+    FlowPanel   previewPanel;
+
+    @UiField
     Label       commandTitle;
 
     @UiField
@@ -53,10 +58,13 @@ public class OutputConsoleViewImpl extends Composite implements OutputConsoleVie
 
     @UiField
     ScrollPanel scrollPanel;
-
+    
     @UiField
     FlowPanel   consoleLines;
 
+    @UiField
+    Anchor      previewUrlLabel;
+    
     /** scroll events to the bottom if view is visible */
     private boolean scrollBottomRequired = false;
 
@@ -79,8 +87,24 @@ public class OutputConsoleViewImpl extends Composite implements OutputConsoleVie
     }
 
     @Override
+    public void hidePreview() {
+        consolePanel.setWidgetHidden(previewPanel, true);
+    }
+
+    @Override
     public void printCommandLine(String commandLine) {
         commandLabel.setText(commandLine);
+    }
+
+    @Override
+    public void printPreviewUrl(String previewUrl) {
+        if (!Strings.isNullOrEmpty(previewUrl)) {
+            previewUrlLabel.setText(previewUrl);
+            previewUrlLabel.setTitle(previewUrl);
+            previewUrlLabel.setHref(previewUrl);
+        } else {
+            hidePreview();
+        }
     }
 
     @Override

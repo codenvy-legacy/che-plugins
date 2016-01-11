@@ -22,6 +22,7 @@ public abstract class CommandConfiguration {
 
     private final CommandType type;
     private       String      name;
+    private       String      previewUrl;
 
     /**
      * Creates new command configuration of the specified type with the given name.
@@ -31,9 +32,10 @@ public abstract class CommandConfiguration {
      * @param name
      *         command name
      */
-    protected CommandConfiguration(@NotNull CommandType type, @NotNull String name) {
+    protected CommandConfiguration(@NotNull CommandType type, @NotNull String name, @NotNull String previewUrl) {
         this.type = type;
         this.name = name;
+        this.previewUrl = previewUrl;
     }
 
     /** Returns command configuration name. */
@@ -51,6 +53,16 @@ public abstract class CommandConfiguration {
     @NotNull
     public CommandType getType() {
         return type;
+    }
+
+    /** Returns command preview Url. */
+    public String getPreviewUrl() {
+        return previewUrl;
+    }
+
+    /** Sets command preview Url. */
+    public void setPreviewUrl(String previewUrl) {
+        this.previewUrl = previewUrl;
     }
 
     /** Returns command line to execute in machine. */
@@ -71,12 +83,13 @@ public abstract class CommandConfiguration {
 
         return Objects.equals(getName(), other.getName())
                && Objects.equals(getType().getId(), other.getType().getId())
-               && Objects.equals(toCommandLine(), other.toCommandLine());
+               && Objects.equals(toCommandLine(), other.toCommandLine())
+               && Objects.equals(getPreviewUrl(), other.getPreviewUrl());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getName(), getType().getId(), toCommandLine());
+        return Objects.hash(getName(), getType().getId(), toCommandLine(), getPreviewUrl());
     }
 
 }
