@@ -25,6 +25,7 @@ import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.api.workspace.shared.dto.UsersWorkspaceDto;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
+import org.eclipse.che.ide.api.event.ActivePartChangedEvent;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.MachineResources;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.EntityFactory;
@@ -333,5 +334,26 @@ public class MachinePanelPresenterTest {
 
         verify(view).setData(rootNode);
         verify(view, never()).selectNode(machineNode1);
+    }
+
+    @Test
+    public void shouldShowMachinesWhenMachinesPartIsActive() throws Exception {
+        ActivePartChangedEvent event = mock(ActivePartChangedEvent.class);
+        when(event.getActivePart()).thenReturn(presenter);
+
+        presenter.onActivePartChanged(event);
+
+        verify(event).getActivePart();
+        verify(appContext).getWorkspace();
+        verify(service).getMachinesStates(anyString());
+
+        verify(machineStatePromise).then(operationMachineStateCaptor.capture());
+        operationMachineStateCaptor.getValue().apply(Collections.singletonList(machineState1));
+
+        verify(entityFactory).createMachineNode(isNull(MachineTreeNode.class), eq("root"), Matchers.<List<MachineTreeNode>>anyObject());
+        verify(entityFactory).createMachineNode(eq(rootNode), eq(machineState1), eq(null));
+
+        verify(view).setData(Matchers.<MachineTreeNode>anyObject());
+        verify(view).selectNode(machineNode1);
     }
 }

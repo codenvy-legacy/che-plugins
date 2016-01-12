@@ -14,8 +14,6 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import org.eclipse.che.api.project.shared.dto.ItemReference;
-import org.eclipse.che.ide.api.app.AppContext;
-import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.dto.DtoFactory;
 
 import javax.validation.constraints.NotNull;
@@ -33,13 +31,10 @@ public class RecipeFileFactory {
     public static final String PATH = "machine_recipe";
     public static final String TYPE = "text/x-dockerfile";
 
-    private final AppContext             appContext;
-    private final DtoFactory             dtoFactory;
+    private final DtoFactory dtoFactory;
 
     @Inject
-    public RecipeFileFactory(AppContext appContext,
-                             DtoFactory dtoFactory) {
-        this.appContext = appContext;
+    public RecipeFileFactory(DtoFactory dtoFactory) {
         this.dtoFactory = dtoFactory;
     }
 
@@ -59,12 +54,6 @@ public class RecipeFileFactory {
 
     @NotNull
     private RecipeFile newInstance(@NotNull String content, @NotNull String name, @NotNull String path) {
-        CurrentProject currentProject = appContext.getCurrentProject();
-        if (currentProject == null) {
-            throw new IllegalStateException("No project is opened");
-        }
-
-
         ItemReference recipeFileItem = dtoFactory.createDto(ItemReference.class)
                                                  .withName(name)
                                                  .withPath(path)
