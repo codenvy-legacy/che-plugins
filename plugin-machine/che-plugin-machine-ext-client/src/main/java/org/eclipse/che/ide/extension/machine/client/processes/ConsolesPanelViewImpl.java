@@ -10,6 +10,11 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.machine.client.processes;
 
+import com.google.gwt.dom.client.DivElement;
+import com.google.gwt.dom.client.Document;
+import com.google.gwt.dom.client.Element;
+import com.google.gwt.dom.client.Node;
+import com.google.gwt.dom.client.NodeList;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.*;
@@ -22,6 +27,7 @@ import elemental.events.MouseEvent;
 import org.eclipse.che.commons.annotation.Nullable;
 import org.eclipse.che.ide.api.parts.PartStackUIResources;
 import org.eclipse.che.ide.api.parts.base.BaseView;
+import org.eclipse.che.ide.api.theme.Style;
 import org.eclipse.che.ide.extension.machine.client.MachineResources;
 import org.eclipse.che.ide.ui.tree.SelectionModel;
 import org.eclipse.che.ide.ui.tree.Tree;
@@ -75,7 +81,7 @@ public class ConsolesPanelViewImpl extends BaseView<ConsolesPanelView.ActionDele
         this.processWidgets = new HashMap<>();
         this.processNodes = new ArrayList<>();
 
-        splitLayoutPanel = new SplitLayoutPanel(3);
+        splitLayoutPanel = new SplitLayoutPanel(1);
 
         renderer.setAddTerminalClickHandler(new AddTerminalClickHandler() {
             @Override
@@ -169,6 +175,66 @@ public class ConsolesPanelViewImpl extends BaseView<ConsolesPanelView.ActionDele
 
         setContentWidget(uiBinder.createAndBindUi(this));
         navigationPanel.getElement().setTabIndex(0);
+
+        tuneSplitter();
+    }
+
+    /**
+     * Improves splitter visibility.
+     */
+    private void tuneSplitter() {
+        NodeList<Node> nodes = splitLayoutPanel.getElement().getChildNodes();
+        boolean found = false;
+        for (int i = 0; i < nodes.getLength(); i++) {
+            Node node = nodes.getItem(i);
+            if (node.hasChildNodes()) {
+                com.google.gwt.dom.client.Element el = node.getFirstChild().cast();
+                if ("gwt-SplitLayoutPanel-HDragger".equals(el.getClassName())) {
+                    tuneSplitter(el);
+                    return;
+                }
+            }
+        }
+    }
+
+    /**
+     * Tunes splitter. Makes it wider and adds double border to seem rich.
+     *
+     * @param el
+     *         element to tune
+     */
+    private void tuneSplitter(Element el) {
+        /** Add Z-Index to move the splitter on the top and make content visible */
+        el.getParentElement().getStyle().setProperty("zIndex", "1000");
+        el.getParentElement().getStyle().setProperty("overflow", "visible");
+
+        /** Tune splitter catch panel */
+        el.getStyle().setProperty("boxSizing", "border-box");
+        el.getStyle().setProperty("width", "5px");
+        el.getStyle().setProperty("overflow", "hidden");
+        el.getStyle().setProperty("marginLeft", "-3px");
+        el.getStyle().setProperty("backgroundColor", "transparent");
+
+        /** Add small border */
+        DivElement smallBorder = Document.get().createDivElement();
+        smallBorder.getStyle().setProperty("position", "absolute");
+        smallBorder.getStyle().setProperty("width", "1px");
+        smallBorder.getStyle().setProperty("height", "100%");
+        smallBorder.getStyle().setProperty("left", "3px");
+        smallBorder.getStyle().setProperty("top", "0px");
+        smallBorder.getStyle().setProperty("backgroundColor", Style.getSplitterSmallBorderColor());
+        el.appendChild(smallBorder);
+
+        /** Add large border */
+        DivElement largeBorder = Document.get().createDivElement();
+        largeBorder.getStyle().setProperty("position", "absolute");
+        largeBorder.getStyle().setProperty("width", "2px");
+        largeBorder.getStyle().setProperty("height", "100%");
+        largeBorder.getStyle().setProperty("left", "1px");
+        largeBorder.getStyle().setProperty("top", "0px");
+        largeBorder.getStyle().setProperty("opacity", "0.4");
+        largeBorder.getStyle().setProperty("backgroundColor", Style.getSplitterLargeBorderColor());
+        el.appendChild(largeBorder);
     }
 
     @Override
