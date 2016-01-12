@@ -246,13 +246,16 @@ private void initializeIndexLocations() {
 				JavaProject project = (JavaProject) getJavaProject(path, model);
 				if (project != null) {
 					visitedProjects.add(project);
-					int canSeeFocus = canSeeFocus(focuses, project, focusQualifiedNames);
+					/*We are adding all modules to the locations for searching in each one.
+					Now the location contains not only current module and Jars on which depends, but also all modules from the workspace.*/
+					locations.add(manager.computeIndexLocation(path));
+					/*int canSeeFocus = canSeeFocus(focuses, project, focusQualifiedNames);
 					if (canSeeFocus == PROJECT_CAN_SEE_FOCUS) {
 						locations.add(manager.computeIndexLocation(path));
 					}
 					if (canSeeFocus != PROJECT_CAN_NOT_SEE_FOCUS) {
 						projectsCanSeeFocus[projectIndex++] = project;
-					}
+					}*/
 				} else {
 					externalLibsToCheck.add(path);
 				}

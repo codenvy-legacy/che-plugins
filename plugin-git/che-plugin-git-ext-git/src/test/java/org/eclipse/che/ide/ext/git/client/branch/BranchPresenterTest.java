@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012-2015 Codenvy, S.A.
+ * Copyright (c) 2012-2016 Codenvy, S.A.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,11 +12,14 @@ package org.eclipse.che.ide.ext.git.client.branch;
 
 import org.eclipse.che.api.git.shared.Branch;
 import org.eclipse.che.api.git.shared.CheckoutRequest;
+import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
 import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.editor.EditorInput;
 import org.eclipse.che.ide.api.editor.EditorPartPresenter;
 import org.eclipse.che.ide.api.event.FileContentUpdateEvent;
+import org.eclipse.che.ide.api.event.project.ProjectUpdatedEvent;
+import org.eclipse.che.ide.api.notification.StatusNotification;
 import org.eclipse.che.ide.api.parts.WorkspaceAgent;
 import org.eclipse.che.ide.api.project.tree.VirtualFile;
 import org.eclipse.che.ide.dto.DtoFactory;
@@ -64,15 +67,17 @@ import static org.mockito.Mockito.when;
 public class BranchPresenterTest extends BaseTest {
 
     @Captor
-    private ArgumentCaptor<InputCallback>                      inputCallbackCaptor;
+    private ArgumentCaptor<InputCallback>                          inputCallbackCaptor;
     @Captor
-    private ArgumentCaptor<ConfirmCallback>                    confirmCallbackCaptor;
+    private ArgumentCaptor<ConfirmCallback>                        confirmCallbackCaptor;
     @Captor
-    private ArgumentCaptor<AsyncRequestCallback<Branch>>       createBranchCallbackCaptor;
+    private ArgumentCaptor<AsyncRequestCallback<Branch>>           createBranchCallbackCaptor;
     @Captor
-    private ArgumentCaptor<AsyncRequestCallback<List<Branch>>> branchListCallbackCaptor;
+    private ArgumentCaptor<AsyncRequestCallback<List<Branch>>>     branchListCallbackCaptor;
     @Captor
-    private ArgumentCaptor<AsyncRequestCallback<String>>       asyncRequestCallbackCaptor;
+    private ArgumentCaptor<AsyncRequestCallback<String>>           asyncRequestCallbackCaptor;
+    @Captor
+    private ArgumentCaptor<AsyncRequestCallback<ProjectConfigDto>> getProjectCallbackCaptor;
 
     public static final String  BRANCH_NAME        = "branchName";
     public static final String  REMOTE_BRANCH_NAME = "origin/branchName";
@@ -101,6 +106,8 @@ public class BranchPresenterTest extends BaseTest {
     private ProjectExplorerPresenter projectExplorer;
     @Mock
     private CheckoutRequest          checkoutRequest;
+    @Mock
+    private ProjectServiceClient     projectService;
 
     private BranchPresenter presenter;
 
@@ -113,6 +120,7 @@ public class BranchPresenterTest extends BaseTest {
                                         dtoFactory,
                                         editorAgent,
                                         service,
+                                        projectService,
                                         constant,
                                         appContext,
                                         notificationManager,
@@ -356,6 +364,9 @@ public class BranchPresenterTest extends BaseTest {
         AsyncRequestCallback<String> checkoutBranchCallback = asyncRequestCallbackCaptor.getValue();
         GwtReflectionUtils.callOnSuccess(checkoutBranchCallback, PROJECT_PATH);
 
+        AsyncRequestCallback<ProjectConfigDto> getProjectCallback = getProjectCallbackCaptor.getValue();
+        GwtReflectionUtils.callOnSuccess(getProjectCallback, PROJECT_PATH);
+
         verify(editorAgent).getOpenedEditors();
         verify(selectedBranch, times(2)).getDisplayName();
         verify(selectedBranch).isRemote();
@@ -368,6 +379,8 @@ public class BranchPresenterTest extends BaseTest {
         verify(notificationManager, never()).notify(anyString(), eq(rootProjectConfig));
         verify(eventBus).fireEvent(Matchers.<FileContentUpdateEvent>anyObject());
         verify(constant, never()).branchCheckoutFailed();
+        verify(projectService).getProject(anyString(), anyString(), anyObject());
+        verify(eventBus).fireEvent(Matchers.<ProjectUpdatedEvent>anyObject());
     }
 
     @Test
@@ -400,7 +413,7 @@ public class BranchPresenterTest extends BaseTest {
     }
 
     @Test
-    public void testOnCheckoutClickedWhenCheckoutRequestIsFailed() throws Exception {
+    public void testOnCheckoutClickedWhenCheckoutRequestAndGetProjectRequestIsFailed() throws Exception {
         when(dtoFactory.createDto(CheckoutRequest.class)).thenReturn(checkoutRequest);
         selectBranch();
         presenter.onCheckoutClicked();
@@ -413,8 +426,12 @@ public class BranchPresenterTest extends BaseTest {
         AsyncRequestCallback<String> checkoutBranchCallback = asyncRequestCallbackCaptor.getValue();
         GwtReflectionUtils.callOnFailure(checkoutBranchCallback, mock(Throwable.class));
 
+        AsyncRequestCallback<ProjectConfigDto> getProjectCallback = getProjectCallbackCaptor.getValue();
+        GwtReflectionUtils.callOnFailure(getProjectCallback, mock(Throwable.class));
+
         verify(selectedBranch, times(2)).getDisplayName();
         verify(selectedBranch).isRemote();
+        verify(notificationManager).notify(anyString(), eq(StatusNotification.Status.FAIL), eq(true), eq(rootProjectConfig));
     }
 
     @Test

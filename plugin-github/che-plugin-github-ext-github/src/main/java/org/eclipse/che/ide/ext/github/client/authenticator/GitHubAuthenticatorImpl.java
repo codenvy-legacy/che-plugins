@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012-2015 Codenvy, S.A.
+ * Copyright (c) 2012-2016 Codenvy, S.A.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,9 +22,9 @@ import org.eclipse.che.api.ssh.shared.dto.SshPairDto;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.ext.github.client.GitHubLocalizationConstant;
-import org.eclipse.che.ide.ext.ssh.client.GitSshKeyUploaderRegistry;
-import org.eclipse.che.ide.ext.ssh.client.SshKeyUploader;
-import org.eclipse.che.ide.ext.ssh.client.manage.SshKeyManagerPresenter;
+import org.eclipse.che.ide.ext.git.ssh.client.GitSshKeyUploaderRegistry;
+import org.eclipse.che.ide.ext.git.ssh.client.SshKeyUploader;
+import org.eclipse.che.ide.ext.git.ssh.client.manage.SshKeyManagerPresenter;
 import org.eclipse.che.ide.rest.RestContext;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 import org.eclipse.che.ide.util.loging.Log;
