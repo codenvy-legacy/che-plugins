@@ -20,11 +20,14 @@ import org.eclipse.che.api.core.rest.shared.dto.ServiceError;
 import org.eclipse.che.api.git.gwt.client.GitServiceClient;
 import org.eclipse.che.api.git.shared.Branch;
 import org.eclipse.che.api.git.shared.CheckoutRequest;
+import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
+import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.editor.EditorPartPresenter;
 import org.eclipse.che.ide.api.event.FileContentUpdateEvent;
+import org.eclipse.che.ide.api.event.project.ProjectUpdatedEvent;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.parts.PartStackType;
 import org.eclipse.che.ide.api.parts.WorkspaceAgent;
@@ -52,22 +55,24 @@ import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAI
  */
 @Singleton
 public class BranchPresenter implements BranchView.ActionDelegate {
-    private       DtoFactory               dtoFactory;
-    private       DtoUnmarshallerFactory   dtoUnmarshallerFactory;
-    private       BranchView               view;
-    private       GitOutputPartPresenter   gitConsole;
-    private       WorkspaceAgent           workspaceAgent;
-    private       DialogFactory            dialogFactory;
+    private final DtoFactory               dtoFactory;
+    private final DtoUnmarshallerFactory   dtoUnmarshallerFactory;
+    private final BranchView               view;
+    private final ProjectServiceClient     projectService;
+    private final GitOutputPartPresenter   gitConsole;
+    private final WorkspaceAgent           workspaceAgent;
+    private final DialogFactory            dialogFactory;
     private final ProjectExplorerPresenter projectExplorer;
     private final EventBus                 eventBus;
-    private       CurrentProject           project;
-    private       GitServiceClient         service;
-    private       GitLocalizationConstant  constant;
-    private       EditorAgent              editorAgent;
-    private       Branch                   selectedBranch;
-    private       AppContext               appContext;
-    private       NotificationManager      notificationManager;
-    private       String                   workspaceId;
+    private final GitServiceClient         service;
+    private final GitLocalizationConstant  constant;
+    private final EditorAgent              editorAgent;
+    private final AppContext               appContext;
+    private final NotificationManager      notificationManager;
+    private final String                   workspaceId;
+
+    private CurrentProject project;
+    private Branch         selectedBranch;
 
     /** Create presenter. */
     @Inject
@@ -75,6 +80,7 @@ public class BranchPresenter implements BranchView.ActionDelegate {
                            DtoFactory dtoFactory,
                            EditorAgent editorAgent,
                            GitServiceClient service,
+                           ProjectServiceClient projectServiceClient,
                            GitLocalizationConstant constant,
                            AppContext appContext,
                            NotificationManager notificationManager,
@@ -86,6 +92,7 @@ public class BranchPresenter implements BranchView.ActionDelegate {
                            EventBus eventBus) {
         this.view = view;
         this.dtoFactory = dtoFactory;
+        this.projectService = projectServiceClient;
         this.gitConsole = gitConsole;
         this.workspaceAgent = workspaceAgent;
         this.dialogFactory = dialogFactory;
@@ -207,6 +214,8 @@ public class BranchPresenter implements BranchView.ActionDelegate {
             checkoutRequest.setName(selectedBranch.getDisplayName());
         }
 
+        final String path = project.getRootProject().getPath();
+
         service.checkout(workspaceId, project.getRootProject(), checkoutRequest, new AsyncRequestCallback<String>() {
             @Override
             protected void onSuccess(String result) {
@@ -216,6 +225,22 @@ public class BranchPresenter implements BranchView.ActionDelegate {
                 projectExplorer.reloadChildren();
 
                 updateOpenedFiles();
+
+                //refresh project
+                projectService.getProject  (workspaceId, path,
+                                          new AsyncRequestCallback<ProjectConfigDto>(
+                                                  dtoUnmarshallerFactory.newUnmarshaller(ProjectConfigDto.class)) {
+                                              @Override
+                                              protected void onSuccess(ProjectConfigDto result) {
+                                                  eventBus.fireEvent(new ProjectUpdatedEvent(path, result));
+                                              }
+
+                                              @Override
+                                              protected void onFailure(Throwable exception) {
+                                                  notificationManager
+                                                          .notify(exception.getLocalizedMessage(), FAIL, true, project.getProjectConfig());
+                                              }
+                                          });
             }
 
             @Override
