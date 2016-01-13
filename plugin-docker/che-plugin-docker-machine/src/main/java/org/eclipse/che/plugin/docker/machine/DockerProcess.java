@@ -29,6 +29,7 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.Arrays;
+import java.util.Map;
 
 import static java.lang.String.format;
 
@@ -39,15 +40,15 @@ import static java.lang.String.format;
  * @author Alexander Garagatyi
  */
 public class DockerProcess implements InstanceProcess {
-    private final DockerConnector docker;
-    private final String          container;
-    private final String          pidFilePath;
-    private final int             pid;
-    private final String          commandLine;
-    private final String          commandName;
-    private final String          commandType;
-    private final String          previewUrl;
-    private final String          outputChannel;
+    private final DockerConnector     docker;
+    private final String              container;
+    private final String              pidFilePath;
+    private final int                 pid;
+    private final String              commandLine;
+    private final String              commandName;
+    private final String              commandType;
+    private final Map<String, String> attributes;
+    private final String              outputChannel;
 
     private volatile boolean started;
 
@@ -63,7 +64,7 @@ public class DockerProcess implements InstanceProcess {
         this.commandLine = command.getCommandLine();
         this.commandName = command.getName();
         this.commandType = command.getType();
-        this.previewUrl = command.getPreviewUrl();
+        this.attributes = command.getAttributes();
         this.outputChannel = outputChannel;
         this.pidFilePath = pidFilePath;
         this.pid = pid;
@@ -91,8 +92,8 @@ public class DockerProcess implements InstanceProcess {
     }
 
     @Override
-    public String getPreviewUrl() {
-        return previewUrl;
+    public Map<String, String> getAttributes() {
+        return attributes;
     }
 
     @Override
