@@ -28,6 +28,9 @@ import org.eclipse.che.ide.websocket.events.MessageHandler;
 import org.eclipse.che.ide.websocket.rest.SubscriptionHandler;
 import org.eclipse.che.ide.websocket.rest.Unmarshallable;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
+import static org.eclipse.che.ide.extension.machine.client.command.edit.EditCommandsPresenter.PREVIEW_URL_ATTR;
+
 /**
  * Console for command output.
  *
@@ -65,7 +68,11 @@ public class CommandOutputConsole implements OutputConsole, OutputConsoleView.Ac
         view.setDelegate(this);
 
         view.printCommandLine(commandManager.substituteProperties(commandConfiguration.toCommandLine()));
-        view.printPreviewUrl(commandManager.substituteProperties(commandConfiguration.getPreviewUrl()));
+
+        final String previewUrl = commandConfiguration.getAttributes().get(PREVIEW_URL_ATTR);
+        if (!isNullOrEmpty(previewUrl)) {
+            view.printPreviewUrl(commandManager.substituteProperties(previewUrl));
+        }
     }
 
     @Override

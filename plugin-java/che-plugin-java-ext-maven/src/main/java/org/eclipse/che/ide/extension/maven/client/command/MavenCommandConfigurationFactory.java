@@ -40,7 +40,7 @@ public class MavenCommandConfigurationFactory extends CommandConfigurationFactor
         }
 
         final MavenCommandConfiguration configuration =
-                new MavenCommandConfiguration(getCommandType(), descriptor.getName(), descriptor.getPreviewUrl());
+                new MavenCommandConfiguration(getCommandType(), descriptor.getName(), descriptor.getAttributes());
 
         final CommandLine cmd = new CommandLine(descriptor.getCommandLine());
 

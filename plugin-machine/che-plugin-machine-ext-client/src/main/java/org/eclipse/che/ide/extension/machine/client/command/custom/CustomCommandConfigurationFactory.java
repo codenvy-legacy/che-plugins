@@ -31,7 +31,7 @@ public class CustomCommandConfigurationFactory extends CommandConfigurationFacto
     @Override
     public CustomCommandConfiguration createFromDto(@NotNull CommandDto descriptor) {
         final CustomCommandConfiguration configuration =
-                new CustomCommandConfiguration(getCommandType(), descriptor.getName(), descriptor.getPreviewUrl());
+                new CustomCommandConfiguration(getCommandType(), descriptor.getName(), descriptor.getAttributes());
         configuration.setCommandLine(descriptor.getCommandLine());
         return configuration;
     }
