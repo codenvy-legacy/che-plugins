@@ -258,7 +258,7 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
     }
 
     private void createCommand(CommandType type, String customCommand, String customName, Map<String, String> attributes) {
-        Map<String, String> attributesToUpdate = (attributes != null) ? attributes : new HashMap<>();
+        Map<String, String> attributesToUpdate = (attributes != null) ? attributes : new HashMap<String, String>();
 
         attributesToUpdate.put(PREVIEW_URL_ATTR, type.getPreviewUrlTemplate());
 
