@@ -18,7 +18,7 @@ import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.vectomatic.dom.svg.ui.SVGResource;
 
 import javax.validation.constraints.NotNull;
-import java.util.Arrays;
+import java.util.Collections;
 
 import static org.eclipse.che.ide.workspace.perspectives.project.ProjectPerspective.PROJECT_PERSPECTIVE_ID;
 
@@ -36,17 +36,17 @@ public abstract class GitAction extends AbstractPerspectiveAction {
                      SVGResource svgIcon,
                      AppContext appContext,
                      ProjectExplorerPresenter projectExplorer) {
-        super(Arrays.asList(PROJECT_PERSPECTIVE_ID), text, description, null, svgIcon);
+        super(Collections.singletonList(PROJECT_PERSPECTIVE_ID), text, description, null, svgIcon);
         this.appContext = appContext;
         this.projectExplorer = projectExplorer;
     }
 
     protected boolean isGitRepository() {
-
-        if(appContext.getActiveProject() == null)
+        if (appContext.getActiveProject() == null) {
             return false;
-        else
+        } else {
             return appContext.getActiveProject().isTypeOf("git");
+        }
 
 //        boolean isGitRepository = false;
 //
