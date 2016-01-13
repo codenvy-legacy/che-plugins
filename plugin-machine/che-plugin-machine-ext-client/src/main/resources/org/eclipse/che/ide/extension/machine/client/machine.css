@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012-2015 Codenvy, S.A.
+ * Copyright (c) 2012-2016 Codenvy, S.A.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,16 +13,21 @@
 @eval successColor org.eclipse.che.ide.api.theme.Style.getSuccessColor();
 @eval categoryHeaderButtonColor org.eclipse.che.ide.api.theme.Style.theme.categoryHeaderButtonColor();
 @eval categoryElementButtonHoverColor org.eclipse.che.ide.api.theme.Style.theme.categoryElementButtonHoverColor();
+@eval processTreeBackgroundColor org.eclipse.che.ide.api.theme.Style.theme.processTreeBackgroundColor();
+@eval outputBackgroundColor org.eclipse.che.ide.api.theme.Style.theme.outputBackgroundColor();
+@eval outputFontColor org.eclipse.che.ide.api.theme.Style.theme.getOutputFontColor();
+@eval editorTabIconColor org.eclipse.che.ide.api.theme.Style.getEditorTabIconColor();
+@eval outputBoxShadow org.eclipse.che.ide.api.theme.Style.theme.outputBoxShadow();
 
 @external .terminal, .terminal-cursor;
 
 .terminal {
-    border-color: #292C2F;
-    background-color: #292C2F;
-
+    border-color: outputBackgroundColor;
+    background-color: outputBackgroundColor;
     border-width: 0px;
     margin-left: 1px;
     margin-top: 4px;
+    color: outputFontColor;
 }
 
 .terminal-cursor {
@@ -34,19 +39,37 @@
     height: 100% !important;
 }
 
-.machineConsole, .commandConsole {
-    background-color: partBackground;
+.machineConsole,
+.commandConsole {
+    background-color: outputBackgroundColor;
     -moz-user-select: text;
     -webkit-user-select: text;
     user-select: text;
     color: outputFontColor;
-    margin-top: 4px;
     outline: none;
+    border-top: 1px solid separatorColor;
+    -webkit-box-shadow: outputBoxShadow;
+    -moz-box-shadow: outputBoxShadow;
+    box-shadow: outputBoxShadow;
+    padding: 3px;
+    margin-bottom: 3px;
 }
 
-.machineConsole pre, .commandConsole pre {
+.machineConsole pre,
+.commandConsole pre {
     font-family: outputFontFamily;
     font-size: fontSize;
+}
+
+.commandConsoleLines {
+    width: 100%;
+}
+
+.commandConsoleLines > pre {
+    width: 100%;
+    word-wrap: break-word;
+    padding: 0;
+    margin: 0;
 }
 
 .consoleToolbar {
@@ -270,18 +293,18 @@
 }
 
 .processIcon svg path {
-    fill: #FFFFFF;
+    fill: iconColor;
 }
 
 .processNavigation {
     outline: none;
-    background-color: #21252b;
 }
 
 .processOutputPanel {
     -moz-user-select: text;
     -webkit-user-select: auto;
     user-select: text;
+    background-color: outputBackgroundColor;
 }
 
 div.processHeaderTitle {
@@ -295,11 +318,16 @@ div.processHeaderTitle {
 }
 
 .processesPanelCloseButtonForProcess {
-    display: none;
     cursor: pointer;
     opacity: 0.5;
     padding: 6px 7px;
     float: right;
+    fill: editorTabIconColor;
+}
+
+.processesPanelCloseButtonForProcess g,
+.processesPanelCloseButtonForProcess path {
+    fill: editorTabIconColor;
 }
 
 .processesPanelStopButtonForProcess {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012-2015 Codenvy, S.A.
+ * Copyright (c) 2012-2016 Codenvy, S.A.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,6 +14,7 @@ import com.google.inject.assistedinject.Assisted;
 
 import org.eclipse.che.api.core.ConflictException;
 import org.eclipse.che.api.core.NotFoundException;
+import org.eclipse.che.api.core.model.machine.Command;
 import org.eclipse.che.api.core.util.LineConsumer;
 import org.eclipse.che.api.core.util.ListLineConsumer;
 import org.eclipse.che.api.core.util.ValueHolder;
@@ -28,6 +29,7 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.Arrays;
+import java.util.Map;
 
 import static java.lang.String.format;
 
@@ -38,26 +40,32 @@ import static java.lang.String.format;
  * @author Alexander Garagatyi
  */
 public class DockerProcess implements InstanceProcess {
-    private final DockerConnector docker;
-    private final String          container;
-    private final String          pidFilePath;
-    private final int             pid;
-    private final String          commandLine;
-    private final String          commandName;
+    private final DockerConnector     docker;
+    private final String              container;
+    private final String              pidFilePath;
+    private final int                 pid;
+    private final String              commandLine;
+    private final String              commandName;
+    private final String              commandType;
+    private final Map<String, String> attributes;
+    private final String              outputChannel;
 
     private volatile boolean started;
 
     @Inject
     public DockerProcess(DockerConnector docker,
+                         @Assisted Command command,
                          @Assisted("container") String container,
-                         @Assisted("commandName") String commandName,
-                         @Assisted("commandLine") String commandLine,
+                         @Assisted("outputChannel") String outputChannel,
                          @Assisted("pid_file_path") String pidFilePath,
                          @Assisted int pid) {
         this.docker = docker;
         this.container = container;
-        this.commandLine = commandLine;
-        this.commandName = commandName;
+        this.commandLine = command.getCommandLine();
+        this.commandName = command.getName();
+        this.commandType = command.getType();
+        this.attributes = command.getAttributes();
+        this.outputChannel = outputChannel;
         this.pidFilePath = pidFilePath;
         this.pid = pid;
         this.started = false;
@@ -69,13 +77,28 @@ public class DockerProcess implements InstanceProcess {
     }
 
     @Override
+    public String getName() {
+        return commandName;
+    }
+
+    @Override
     public String getCommandLine() {
         return commandLine;
     }
 
     @Override
-    public String getCommandName() {
-        return commandName;
+    public String getType() {
+        return commandType;
+    }
+
+    @Override
+    public Map<String, String> getAttributes() {
+        return attributes;
+    }
+
+    @Override
+    public String getOutputChannel() {
+        return outputChannel;
     }
 
     @Override

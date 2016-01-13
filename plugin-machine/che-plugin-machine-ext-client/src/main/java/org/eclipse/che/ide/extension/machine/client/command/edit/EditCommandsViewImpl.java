@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012-2015 Codenvy, S.A.
+ * Copyright (c) 2012-2016 Codenvy, S.A.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -118,9 +118,13 @@ public class EditCommandsViewImpl extends Window implements EditCommandsView {
     @UiField
     TextBox                     configurationName;
     @UiField
+    TextBox                     configurationPreviewUrl;
+    @UiField
     SimplePanel                 contentPanel;
     @UiField
     FlowPanel                   savePanel;
+    @UiField
+    FlowPanel                   previewUrlPanel;
     @UiField
     FlowPanel                   overFooter;
 
@@ -169,6 +173,7 @@ public class EditCommandsViewImpl extends Window implements EditCommandsView {
         categoriesPanel.add(list);
 
         savePanel.setVisible(false);
+        previewUrlPanel.setVisible(false);
         contentPanel.clear();
 
         saveButton = createButton(coreLocale.save(), "window-edit-configurations-save", new ClickHandler() {
@@ -262,6 +267,7 @@ public class EditCommandsViewImpl extends Window implements EditCommandsView {
                 if (Event.ONCLICK == event.getTypeInt()) {
                     event.stopPropagation();
                     savePanel.setVisible(true);
+                    previewUrlPanel.setVisible(true);
                     selectType = getTypeById(commandId);
                     delegate.onAddClicked();
                     resetFilter();
@@ -319,6 +325,7 @@ public class EditCommandsViewImpl extends Window implements EditCommandsView {
             contentPanel.clear();
             contentPanel.add(hintLabel);
             savePanel.setVisible(false);
+            previewUrlPanel.setVisible(false);
         }
     }
 
@@ -388,6 +395,7 @@ public class EditCommandsViewImpl extends Window implements EditCommandsView {
     public void show() {
         super.show();
         configurationName.setText("");
+        configurationPreviewUrl.setText("");
     }
 
     @Override
@@ -408,6 +416,16 @@ public class EditCommandsViewImpl extends Window implements EditCommandsView {
     @Override
     public String getConfigurationName() {
         return configurationName.getText().trim();
+    }
+
+    @Override
+    public void setConfigurationPreviewUrl(String configurationPreviewUrl) {
+        this.configurationPreviewUrl.setText(configurationPreviewUrl);
+    }
+
+    @Override
+    public String getConfigurationPreviewUrl() {
+        return configurationPreviewUrl.getText().trim();
     }
 
     @Override
@@ -441,6 +459,7 @@ public class EditCommandsViewImpl extends Window implements EditCommandsView {
         this.selectConfiguration = selectConfiguration;
         if (selectConfiguration != null) {
             savePanel.setVisible(true);
+            previewUrlPanel.setVisible(true);
             delegate.onConfigurationSelected(selectConfiguration);
         }
     }
@@ -454,6 +473,11 @@ public class EditCommandsViewImpl extends Window implements EditCommandsView {
     @UiHandler("configurationName")
     public void onNameKeyUp(KeyUpEvent event) {
         delegate.onNameChanged();
+    }
+
+    @UiHandler("configurationPreviewUrl")
+    public void onPreviewUrlKeyUp(KeyUpEvent event) {
+        delegate.onPreviewUrlChanged();
     }
 
     @UiHandler("filterInputField")

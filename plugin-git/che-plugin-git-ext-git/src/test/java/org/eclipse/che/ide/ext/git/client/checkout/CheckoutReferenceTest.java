@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012-2015 Codenvy, S.A.
+ * Copyright (c) 2012-2016 Codenvy, S.A.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,9 +10,9 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.git.client.checkout;
 
-import org.eclipse.che.api.core.model.workspace.ProjectProblem;
 import org.eclipse.che.api.git.shared.CheckoutRequest;
 import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
+import org.eclipse.che.api.workspace.shared.dto.ProjectProblemDto;
 import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.editor.EditorInput;
 import org.eclipse.che.ide.api.editor.EditorPartPresenter;
@@ -183,7 +183,7 @@ public class CheckoutReferenceTest extends BaseTest {
 
     @Test
     public void testOnCheckoutClickedWhenCheckoutIsSuccessfulButProjectIsNotConfigurated() throws Exception {
-        List<ProjectProblem> problemList = Collections.singletonList(mock(ProjectProblem.class));
+        List<ProjectProblemDto> problemList = Collections.singletonList(mock(ProjectProblemDto.class));
         when(projectConfig.getProblems()).thenReturn(problemList);
 
         when(dtoFactory.createDto(CheckoutRequest.class)).thenReturn(checkoutRequest);

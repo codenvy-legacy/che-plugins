@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012-2015 Codenvy, S.A.
+ * Copyright (c) 2012-2016 Codenvy, S.A.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -56,6 +56,12 @@ public interface EditCommandsView extends View<EditCommandsView.ActionDelegate> 
     /** Sets command name. */
     void setConfigurationName(String name);
 
+    /** Sets preview Url. */
+    void setConfigurationPreviewUrl(String previewUrl);
+
+    /** Returns preview Url. */
+    String getConfigurationPreviewUrl();
+
     /** Sets enabled state of the 'Cancel' button. */
     void setCancelButtonState(boolean enabled);
 
@@ -108,7 +114,10 @@ public interface EditCommandsView extends View<EditCommandsView.ActionDelegate> 
          */
         void onConfigurationSelected(CommandConfiguration configuration);
 
-        /** Called when configuration name is changed. */
+        /** Called when configuration name has been changed. */
         void onNameChanged();
+
+        /** Called when configuration preview url has been changed. */
+        void onPreviewUrlChanged();
     }
 }

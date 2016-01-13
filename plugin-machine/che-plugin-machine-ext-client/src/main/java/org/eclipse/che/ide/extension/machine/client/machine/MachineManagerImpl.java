@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012-2015 Codenvy, S.A.
+ * Copyright (c) 2012-2016 Codenvy, S.A.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -42,7 +42,6 @@ import org.eclipse.che.ide.extension.machine.client.machine.console.MachineConso
 import org.eclipse.che.api.machine.gwt.client.events.MachineStartingEvent;
 import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateEvent;
 import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateHandler;
-import org.eclipse.che.ide.extension.machine.client.watcher.SystemFileWatcher;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.ui.loaders.initialization.InitialLoadingInfo;
 import org.eclipse.che.ide.util.loging.Log;
@@ -101,7 +100,6 @@ public class MachineManagerImpl implements MachineManager {
                               EntityFactory entityFactory,
                               EventBus eventBus,
                               AppContext appContext,
-                              Provider<SystemFileWatcher> systemFileWatcherProvider,
                               DtoFactory dtoFactory) {
         this.extServerStateController = extServerStateController;
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
@@ -117,8 +115,6 @@ public class MachineManagerImpl implements MachineManager {
         this.eventBus = eventBus;
 
         this.messageBus = messageBusProvider.getMessageBus();
-
-        systemFileWatcherProvider.get();
 
         eventBus.addHandler(StartWorkspaceEvent.TYPE, new StartWorkspaceHandler() {
             @Override

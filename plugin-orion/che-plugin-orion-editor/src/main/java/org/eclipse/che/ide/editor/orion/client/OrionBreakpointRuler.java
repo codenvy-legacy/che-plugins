@@ -11,13 +11,13 @@
 package org.eclipse.che.ide.editor.orion.client;
 
 import elemental.dom.Element;
-import elemental.html.DivElement;
 
 import org.eclipse.che.ide.editor.orion.client.jso.ModelChangedEventOverlay;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionAnnotationModelOverlay;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionAnnotationOverlay;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionEditorOverlay;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionExtRulerOverlay;
+import org.eclipse.che.ide.editor.orion.client.jso.OrionStyleOverlay;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionTextModelOverlay;
 import org.eclipse.che.ide.jseditor.client.gutter.Gutter;
 import org.eclipse.che.ide.jseditor.client.gutter.Gutters;
@@ -30,10 +30,7 @@ import org.eclipse.che.ide.util.dom.Elements;
  */
 public class OrionBreakpointRuler implements Gutter {
 
-    public static final int INDEX = 4;
-
-    private static final String     CHE_BREAKPOINT = "che.breakpoint";
-    private static final DivElement DIV_ELEMENT    = Elements.createDivElement();
+    private static final String CHE_BREAKPOINT = "che.breakpoint";
 
     private final OrionExtRulerOverlay        orionExtRulerOverlay;
     private final OrionEditorOverlay          editorOverlay;
@@ -108,7 +105,7 @@ public class OrionBreakpointRuler implements Gutter {
         OrionAnnotationOverlay[] annotations = getAnnotations(line);
         for (OrionAnnotationOverlay annotation : annotations) {
             if (isBreakpointAnnotation(annotation)) {
-                return DIV_ELEMENT;
+                return Elements.createDivElement(annotation.getStyle().getStyleClass());
             }
         }
 
@@ -152,10 +149,14 @@ public class OrionBreakpointRuler implements Gutter {
         int lineEnd = editorOverlay.getModel().getLineEnd(line);
 
         OrionAnnotationOverlay annotation = OrionAnnotationOverlay.create();
+
+        OrionStyleOverlay styleOverlay = OrionStyleOverlay.create();
+        styleOverlay.setStyleClass(element.getClassName());
+
+        annotation.setStyle(styleOverlay);
         annotation.setType(CHE_BREAKPOINT);
         annotation.setStart(lineStart);
         annotation.setEnd(lineEnd);
-        annotation.setHtml(element.getOuterHTML());
 
         return annotation;
     }

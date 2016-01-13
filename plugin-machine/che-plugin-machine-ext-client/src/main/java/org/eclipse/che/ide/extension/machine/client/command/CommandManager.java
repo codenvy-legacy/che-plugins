@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012-2015 Codenvy, S.A.
+ * Copyright (c) 2012-2016 Codenvy, S.A.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,6 +14,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
+import org.eclipse.che.api.machine.shared.dto.CommandDto;
 import org.eclipse.che.api.machine.shared.dto.MachineProcessDto;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
@@ -21,6 +22,7 @@ import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.parts.WorkspaceAgent;
+import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.command.valueproviders.CommandPropertyValueProvider;
 import org.eclipse.che.ide.extension.machine.client.command.valueproviders.CommandPropertyValueProviderRegistry;
@@ -41,6 +43,7 @@ import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAI
 @Singleton
 public class CommandManager {
 
+    private final DtoFactory                           dtoFactory;
     private final MachineServiceClient                 machineServiceClient;
     private final ConsolesPanelPresenter               consolesPanelPresenter;
     private final CommandConsoleFactory                commandConsoleFactory;
@@ -51,7 +54,8 @@ public class CommandManager {
     private final CommandPropertyValueProviderRegistry commandPropertyValueProviderRegistry;
 
     @Inject
-    public CommandManager(MachineServiceClient machineServiceClient,
+    public CommandManager(DtoFactory dtoFactory,
+                          MachineServiceClient machineServiceClient,
                           ConsolesPanelPresenter consolesPanelPresenter,
                           CommandConsoleFactory commandConsoleFactory,
                           NotificationManager notificationManager,
@@ -59,6 +63,7 @@ public class CommandManager {
                           WorkspaceAgent workspaceAgent,
                           AppContext appContext,
                           CommandPropertyValueProviderRegistry commandPropertyValueProviderRegistry) {
+        this.dtoFactory = dtoFactory;
         this.machineServiceClient = machineServiceClient;
         this.consolesPanelPresenter = consolesPanelPresenter;
         this.commandConsoleFactory = commandConsoleFactory;
@@ -86,10 +91,12 @@ public class CommandManager {
 
         final String commandLine = substituteProperties(configuration.toCommandLine());
 
-        final Promise<MachineProcessDto> processPromise = machineServiceClient.executeCommand(devMachineId,
-                                                                                              configuration.getName(),
-                                                                                              commandLine,
-                                                                                              outputChannel);
+        final CommandDto command = dtoFactory.createDto(CommandDto.class)
+                                             .withName(configuration.getName())
+                                             .withCommandLine(commandLine)
+                                             .withType(configuration.getType().getId());
+
+        final Promise<MachineProcessDto> processPromise = machineServiceClient.executeCommand(devMachineId, command, outputChannel);
         processPromise.then(new Operation<MachineProcessDto>() {
             @Override
             public void apply(MachineProcessDto arg) throws OperationException {

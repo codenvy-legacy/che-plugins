@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012-2015 Codenvy, S.A.
+ * Copyright (c) 2012-2016 Codenvy, S.A.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -27,6 +27,9 @@ import org.eclipse.che.ide.websocket.WebSocketException;
 import org.eclipse.che.ide.websocket.events.MessageHandler;
 import org.eclipse.che.ide.websocket.rest.SubscriptionHandler;
 import org.eclipse.che.ide.websocket.rest.Unmarshallable;
+
+import static com.google.common.base.Strings.isNullOrEmpty;
+import static org.eclipse.che.ide.extension.machine.client.command.edit.EditCommandsPresenter.PREVIEW_URL_ATTR;
 
 /**
  * Console for command output.
@@ -65,6 +68,11 @@ public class CommandOutputConsole implements OutputConsole, OutputConsoleView.Ac
         view.setDelegate(this);
 
         view.printCommandLine(commandManager.substituteProperties(commandConfiguration.toCommandLine()));
+
+        final String previewUrl = commandConfiguration.getAttributes().get(PREVIEW_URL_ATTR);
+        if (!isNullOrEmpty(previewUrl)) {
+            view.printPreviewUrl(commandManager.substituteProperties(previewUrl));
+        }
     }
 
     @Override

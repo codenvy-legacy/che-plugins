@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012-2015 Codenvy, S.A.
+ * Copyright (c) 2012-2016 Codenvy, S.A.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,6 +13,7 @@ package org.eclipse.che.plugin.docker.machine;
 import com.google.inject.assistedinject.Assisted;
 
 import org.eclipse.che.api.core.NotFoundException;
+import org.eclipse.che.api.core.model.machine.Command;
 import org.eclipse.che.api.core.model.machine.MachineMetadata;
 import org.eclipse.che.api.core.model.machine.MachineState;
 import org.eclipse.che.api.core.util.LineConsumer;
@@ -74,6 +75,7 @@ public class DockerInstance extends AbstractInstance {
     private final DockerMachineFactory                        dockerMachineFactory;
     private final String                                      container;
     private final DockerConnector                             docker;
+    private final String                                      image;
     private final LineConsumer                                outputConsumer;
     private final String                                      registry;
     private final DockerNode                                  node;
@@ -89,6 +91,7 @@ public class DockerInstance extends AbstractInstance {
                           DockerMachineFactory dockerMachineFactory,
                           @Assisted MachineState machineState,
                           @Assisted("container") String container,
+                          @Assisted("image") String image,
                           @Assisted DockerNode node,
                           @Assisted LineConsumer outputConsumer,
                           DockerInstanceStopDetector dockerInstanceStopDetector,
@@ -97,6 +100,7 @@ public class DockerInstance extends AbstractInstance {
         this.dockerMachineFactory = dockerMachineFactory;
         this.container = container;
         this.docker = docker;
+        this.image = image;
         this.outputConsumer = outputConsumer;
         this.registry = registry;
         this.node = node;
@@ -166,11 +170,11 @@ public class DockerInstance extends AbstractInstance {
     }
 
     @Override
-    public InstanceProcess createProcess(String commandName, String commandLine) throws MachineException {
+    public InstanceProcess createProcess(Command command, String outputChannel) throws MachineException {
         final Integer pid = pidSequence.getAndIncrement();
-        final InstanceProcess process = dockerMachineFactory.createProcess(container,
-                                                                           commandName,
-                                                                           commandLine,
+        final InstanceProcess process = dockerMachineFactory.createProcess(command,
+                                                                           container,
+                                                                           outputChannel,
                                                                            String.format(PID_FILE_TEMPLATE, pid),
                                                                            pid);
         machineProcesses.put(pid, process);
@@ -227,6 +231,11 @@ public class DockerInstance extends AbstractInstance {
             docker.removeContainer(container, true, true);
         } catch (IOException e) {
             throw new MachineException(e.getLocalizedMessage());
+        }
+
+        try {
+            docker.removeImage(image, false);
+        } catch (IOException ignore) {
         }
     }
 

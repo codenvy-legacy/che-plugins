@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012-2015 Codenvy, S.A.
+ * Copyright (c) 2012-2016 Codenvy, S.A.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -290,4 +290,16 @@ public interface JavaLocalizationConstant extends Messages {
 
     @Key("failed.to.process.fin.usage")
     String failedToProcessFindUsage();
+    
+    @Key("open.implementation.action.name")
+    String openImplementationActionName();
+    
+    @Key("open.implementation.action.description")
+    String openImplementationDescription();
+    
+    @Key("open.implementation.window.title")
+    String openImplementationWindowTitle(String declaration, int founded);
+
+    @Key("open.implementation.no.implementations")
+    String noImplementations();
 }

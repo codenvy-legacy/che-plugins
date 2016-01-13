@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012-2015 Codenvy, S.A.
+ * Copyright (c) 2012-2016 Codenvy, S.A.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,6 +14,7 @@ import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration
 import org.eclipse.che.ide.extension.machine.client.command.CommandType;
 
 import javax.validation.constraints.NotNull;
+import java.util.Map;
 
 /**
  * Represents GWT command.
@@ -26,8 +27,8 @@ public class GwtCommandConfiguration extends CommandConfiguration {
     private String gwtModule;
     private String codeServerAddress;
 
-    protected GwtCommandConfiguration(CommandType type, String name) {
-        super(type, name);
+    protected GwtCommandConfiguration(CommandType type, String name, Map<String, String> attributes) {
+        super(type, name, attributes);
         workingDirectory = "";
         gwtModule = "";
         codeServerAddress = "";

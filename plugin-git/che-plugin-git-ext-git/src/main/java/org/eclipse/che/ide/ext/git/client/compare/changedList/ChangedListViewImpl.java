@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012-2015 Codenvy, S.A.
+ * Copyright (c) 2012-2016 Codenvy, S.A.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,7 +19,6 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.ScrollPanel;
-import com.google.gwt.user.client.ui.UIObject;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -31,9 +30,9 @@ import org.eclipse.che.ide.ext.git.client.GitLocalizationConstant;
 import org.eclipse.che.ide.ext.git.client.GitResources;
 import org.eclipse.che.ide.ui.smartTree.NodeUniqueKeyProvider;
 import org.eclipse.che.ide.ui.smartTree.Tree;
-import org.eclipse.che.ide.ui.smartTree.TreeNodeLoader;
-import org.eclipse.che.ide.ui.smartTree.TreeNodeStorage;
-import org.eclipse.che.ide.ui.smartTree.TreeSelectionModel;
+import org.eclipse.che.ide.ui.smartTree.NodeLoader;
+import org.eclipse.che.ide.ui.smartTree.NodeStorage;
+import org.eclipse.che.ide.ui.smartTree.SelectionModel;
 import org.eclipse.che.ide.ui.smartTree.event.SelectionChangedEvent;
 import org.eclipse.che.ide.ui.window.Window;
 
@@ -75,7 +74,7 @@ public class ChangedListViewImpl extends Window implements ChangedListView {
         this.setTitle(locale.changeListTitle());
         this.setWidget(widget);
 
-        TreeNodeStorage nodeStorage = new TreeNodeStorage(new NodeUniqueKeyProvider() {
+        NodeStorage nodeStorage = new NodeStorage(new NodeUniqueKeyProvider() {
             @NotNull
             @Override
             public String getKey(@NotNull Node item) {
@@ -86,9 +85,9 @@ public class ChangedListViewImpl extends Window implements ChangedListView {
                 }
             }
         });
-        TreeNodeLoader nodeLoader = new TreeNodeLoader(Collections.<NodeInterceptor>emptySet());
+        NodeLoader nodeLoader = new NodeLoader(Collections.<NodeInterceptor>emptySet());
         tree = new Tree(nodeStorage, nodeLoader);
-        tree.getSelectionModel().setSelectionMode(TreeSelectionModel.Mode.SINGLE);
+        tree.getSelectionModel().setSelectionMode(SelectionModel.Mode.SINGLE);
         tree.getSelectionModel().addSelectionChangedHandler(new SelectionChangedEvent.SelectionChangedHandler() {
             @Override
             public void onSelectionChanged(SelectionChangedEvent event) {

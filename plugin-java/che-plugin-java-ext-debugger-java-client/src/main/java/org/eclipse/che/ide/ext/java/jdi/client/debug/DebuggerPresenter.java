@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012-2015 Codenvy, S.A.
+ * Copyright (c) 2012-2016 Codenvy, S.A.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -126,7 +126,7 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
     private final LocalStorageProvider                   localStorageProvider;
     /** Channel identifier to receive events from debugger over WebSocket. */
     private       String                                 debuggerEventsChannel;
-    /** Channel identifier to receive event when debugger will disconnected. */
+    /** Channel identifier to receive event when debugger will be disconnected. */
     private       String                                 debuggerDisconnectedChannel;
     private       DebuggerView                           view;
     private       EventBus                               eventBus;
@@ -191,6 +191,7 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
         this.javaNodeManager = javaNodeManager;
         this.addRule(ProjectPerspective.PROJECT_PERSPECTIVE_ID);
         this.localStorageProvider = localStorageProvider;
+        this.debuggerInfo = EmptyDebuggerInfo.INSTANCE;
 
         eventBus.addHandler(ExtServerStateEvent.TYPE, new ExtServerStateHandler() {
             @Override

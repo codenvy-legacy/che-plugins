@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012-2015 Codenvy, S.A.
+ * Copyright (c) 2012-2016 Codenvy, S.A.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,7 +17,10 @@ import com.google.inject.Provider;
 import com.google.inject.multibindings.Multibinder;
 
 import org.eclipse.che.api.core.notification.EventService;
-import org.eclipse.che.api.core.rest.HttpJsonHelper;
+import org.eclipse.che.api.core.rest.HttpJsonRequest;
+import org.eclipse.che.api.core.rest.HttpJsonRequestFactory;
+import org.eclipse.che.api.core.rest.HttpJsonResponse;
+import org.eclipse.che.api.core.rest.shared.dto.Link;
 import org.eclipse.che.api.project.server.AttributeFilter;
 import org.eclipse.che.api.project.server.DefaultProjectManager;
 import org.eclipse.che.api.project.server.FolderEntry;
@@ -34,29 +37,24 @@ import org.eclipse.che.api.vfs.server.VirtualFileSystemUserContext;
 import org.eclipse.che.api.vfs.server.impl.memory.MemoryFileSystemProvider;
 import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.api.workspace.shared.dto.UsersWorkspaceDto;
+import org.eclipse.che.commons.test.SelfReturningAnswer;
 import org.eclipse.che.dto.server.DtoFactory;
 import org.eclipse.che.ide.extension.maven.shared.MavenAttributes;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import static javax.ws.rs.HttpMethod.GET;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -65,7 +63,8 @@ import static org.mockito.Mockito.when;
  */
 public class MavenProjectImportedTest {
 
-    private static final String workspace = "my_ws";
+    private static final String workspace    = "my_ws";
+    private static final String API_ENDPOINT = "http://localhost:8080/che/api";
 
     private String pomJar =
             "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
@@ -105,14 +104,19 @@ public class MavenProjectImportedTest {
             "</project>";
 
     private MavenProjectImportedHandler mavenProjectImportedHandler;
+    private HttpJsonRequest             httpJsonRequest;
 
     @Mock
     private Provider<AttributeFilter> filterProvider;
     @Mock
     private AttributeFilter           filter;
+    @Mock
+    private HttpJsonRequestFactory    httpJsonRequestFactory;
+    @Mock
+    private HttpJsonResponse          httpJsonResponse;
 
     private static final String      vfsUser       = "dev";
-    private static final Set<String> vfsUserGroups = new LinkedHashSet<>(Arrays.asList("workspace/developer"));
+    private static final Set<String> vfsUserGroups = new LinkedHashSet<>(Collections.singletonList("workspace/developer"));
 
     private ProjectManager projectManager;
 
@@ -132,7 +136,11 @@ public class MavenProjectImportedTest {
         ProjectHandlerRegistry handlerRegistry = new ProjectHandlerRegistry(new HashSet<>());
         projectManager = new DefaultProjectManager(virtualFileSystemRegistry,
                                                    eventService,
-                                                   projectTypeRegistry, handlerRegistry, filterProvider, "");
+                                                   projectTypeRegistry,
+                                                   handlerRegistry,
+                                                   filterProvider,
+                                                   API_ENDPOINT,
+                                                   httpJsonRequestFactory);
         // Bind components
         Injector injector = Guice.createInjector(new AbstractModule() {
             @Override
@@ -144,25 +152,34 @@ public class MavenProjectImportedTest {
         });
 
         final MemoryFileSystemProvider memoryFileSystemProvider =
-                new MemoryFileSystemProvider(workspace, eventService, new VirtualFileSystemUserContext() {
-                    @Override
-                    public VirtualFileSystemUser getVirtualFileSystemUser() {
-                        return new VirtualFileSystemUser(vfsUser, vfsUserGroups);
-                    }
-                }, virtualFileSystemRegistry, SystemPathsFilter.ANY);
+                new MemoryFileSystemProvider(workspace,
+                                             eventService,
+                                             new VirtualFileSystemUserContext() {
+                                                 @Override
+                                                 public VirtualFileSystemUser getVirtualFileSystemUser() {
+                                                     return new VirtualFileSystemUser(vfsUser, vfsUserGroups);
+                                                 }
+                                             },
+                                             virtualFileSystemRegistry,
+                                             SystemPathsFilter.ANY);
         virtualFileSystemRegistry.registerProvider(workspace, memoryFileSystemProvider);
 
 
         mavenProjectImportedHandler = injector.getInstance(MavenProjectImportedHandler.class);
         projectManager = injector.getInstance(ProjectManager.class);
 
-        HttpJsonHelper.HttpJsonHelperImpl httpJsonHelper = mock(HttpJsonHelper.HttpJsonHelperImpl.class);
-        Field f = HttpJsonHelper.class.getDeclaredField("httpJsonHelperImpl");
-        f.setAccessible(true);
-        f.set(null, httpJsonHelper);
-
+        httpJsonRequest = mock(HttpJsonRequest.class, new SelfReturningAnswer());
         UsersWorkspaceDto usersWorkspaceMock = mock(UsersWorkspaceDto.class);
-        when(httpJsonHelper.request(any(), anyString(), eq(GET), isNull())).thenReturn(usersWorkspaceMock);
+        when(httpJsonRequestFactory.fromLink(eq(DtoFactory.newDto(Link.class)
+                                                          .withMethod("PUT")
+                                                          .withHref(API_ENDPOINT + "/workspace/" + workspace + "/project"))))
+                .thenReturn(httpJsonRequest);
+        when(httpJsonRequestFactory.fromLink(eq(DtoFactory.newDto(Link.class)
+                                                          .withMethod("GET")
+                                                          .withHref(API_ENDPOINT + "/workspace/" + workspace))))
+                .thenReturn(httpJsonRequest);
+        when(httpJsonRequest.request()).thenReturn(httpJsonResponse);
+        when(httpJsonResponse.asDto(UsersWorkspaceDto.class)).thenReturn(usersWorkspaceMock);
         final ProjectConfigDto projectConfig = DtoFactory.getInstance().createDto(ProjectConfigDto.class)
                                                          .withPath("/test")
                                                          .withType(MavenAttributes.MAVEN_ID);
@@ -181,13 +198,6 @@ public class MavenProjectImportedTest {
         projectsList.add(module2);
         projectsList.add(module3);
         when(usersWorkspaceMock.getProjects()).thenReturn(projectsList);
-    }
-
-    @After
-    public void cleanup() throws IllegalAccessException, NoSuchFieldException {
-        Field f = HttpJsonHelper.class.getDeclaredField("httpJsonHelperImpl");
-        f.setAccessible(true);
-        f.set(null, new HttpJsonHelper.HttpJsonHelperImpl());
     }
 
     @Test

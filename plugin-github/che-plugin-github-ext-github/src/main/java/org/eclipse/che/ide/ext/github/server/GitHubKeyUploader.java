@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012-2015 Codenvy, S.A.
+ * Copyright (c) 2012-2016 Codenvy, S.A.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,10 +20,9 @@ import org.eclipse.che.commons.env.EnvironmentContext;
 import org.eclipse.che.commons.json.JsonHelper;
 import org.eclipse.che.dto.server.DtoFactory;
 import org.eclipse.che.git.impl.nativegit.GitUrl;
+import org.eclipse.che.git.impl.nativegit.ssh.SshKeyUploader;
 import org.eclipse.che.ide.MimeType;
 import org.eclipse.che.ide.ext.github.shared.GitHubKey;
-import org.eclipse.che.ide.ext.ssh.server.SshKey;
-import org.eclipse.che.ide.ext.ssh.server.SshKeyUploader;
 import org.eclipse.che.ide.rest.HTTPHeader;
 import org.eclipse.che.ide.rest.HTTPMethod;
 import org.eclipse.che.ide.rest.HTTPStatus;
@@ -64,7 +63,7 @@ public class GitHubKeyUploader implements SshKeyUploader {
     }
 
     @Override
-    public void uploadKey(SshKey publicKey) throws IOException, UnauthorizedException {
+    public void uploadKey(String publicKey) throws IOException, UnauthorizedException {
         final OAuthToken token = tokenProvider.getToken("github", EnvironmentContext.getCurrent().getUser().getId());
 
         if (token == null || token.getToken() == null) {
@@ -73,12 +72,11 @@ public class GitHubKeyUploader implements SshKeyUploader {
         }
 
         StringBuilder answer = new StringBuilder();
-        final String publicKeyString = new String(publicKey.getBytes());
         final String url = String.format("https://api.github.com/user/keys?access_token=%s", token.getToken());
 
         final List<GitHubKey> gitHubUserPublicKeys = getUserPublicKeys(url, answer);
         for (GitHubKey gitHubUserPublicKey : gitHubUserPublicKeys) {
-            if (publicKeyString.startsWith(gitHubUserPublicKey.getKey())) {
+            if (publicKey.startsWith(gitHubUserPublicKey.getKey())) {
                 return;
             }
         }
