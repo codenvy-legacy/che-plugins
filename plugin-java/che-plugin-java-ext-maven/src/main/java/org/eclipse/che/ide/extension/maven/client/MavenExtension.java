@@ -26,8 +26,6 @@ import org.eclipse.che.ide.api.event.project.ProjectReadyHandler;
 import org.eclipse.che.ide.api.extension.Extension;
 import org.eclipse.che.ide.api.filetypes.FileType;
 import org.eclipse.che.ide.api.filetypes.FileTypeRegistry;
-import org.eclipse.che.ide.api.icon.Icon;
-import org.eclipse.che.ide.api.icon.IconRegistry;
 import org.eclipse.che.ide.api.project.node.HasProjectConfig;
 import org.eclipse.che.ide.api.project.node.Node;
 import org.eclipse.che.ide.api.project.type.wizard.PreSelectedProjectTypeManager;
@@ -42,7 +40,7 @@ import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.eclipse.che.ide.project.node.AbstractProjectBasedNode;
 import org.eclipse.che.ide.project.node.ModuleNode;
 import org.eclipse.che.ide.project.node.ProjectNode;
-import org.eclipse.che.ide.ui.smartTree.event.BeforeExpandNodeEvent;
+import org.eclipse.che.ide.ui.smartTree.event.BeforeLoadEvent;
 
 import java.util.Arrays;
 import java.util.List;
@@ -82,10 +80,10 @@ public class MavenExtension {
                             final DependenciesUpdater dependenciesUpdater,
                             final ProjectExplorerPresenter projectExplorerPresenter) {
 
-        projectExplorerPresenter.addBeforeExpandHandler(new BeforeExpandNodeEvent.BeforeExpandNodeHandler() {
+        projectExplorerPresenter.addBeforeNodeLoadHandler(new BeforeLoadEvent.BeforeLoadHandler() {
             @Override
-            public void onBeforeExpand(BeforeExpandNodeEvent event) {
-                Node node = event.getNode();
+            public void onBeforeLoad(BeforeLoadEvent event) {
+                Node node = event.getRequestedNode();
                 if (!projectExplorerPresenter.isLoaded(node) && JavaNodeManager.isJavaProject(node) && isValid(node)) {
                     dependenciesUpdater.updateDependencies(((HasProjectConfig)node).getProjectConfig());
                 }
