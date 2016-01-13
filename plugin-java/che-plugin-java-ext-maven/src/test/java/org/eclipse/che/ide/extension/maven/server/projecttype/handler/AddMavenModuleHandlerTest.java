@@ -52,6 +52,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
@@ -82,7 +83,7 @@ public class AddMavenModuleHandlerTest {
         MockitoAnnotations.initMocks(this);
         when(filterProvider.get()).thenReturn(filter);
         addMavenModuleHandler = new AddMavenModuleHandler();
-        ProjectTypeDef mavenProjectType = Mockito.mock(ProjectTypeDef.class);
+        ProjectTypeDef mavenProjectType = mock(ProjectTypeDef.class);
         Mockito.when(mavenProjectType.getId()).thenReturn(MavenAttributes.MAVEN_ID);
         Mockito.when(mavenProjectType.getDisplayName()).thenReturn(MavenAttributes.MAVEN_ID);
         Mockito.when(mavenProjectType.isPrimaryable()).thenReturn(true);
@@ -156,7 +157,7 @@ public class AddMavenModuleHandlerTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void shouldNotAddModuleIfModuleNotMaven() throws Exception {
-        ProjectTypeDef notMaven = Mockito.mock(ProjectTypeDef.class);
+        ProjectTypeDef notMaven = mock(ProjectTypeDef.class);
         Mockito.when(notMaven.getId()).thenReturn("notMaven");
         Mockito.when(notMaven.getDisplayName()).thenReturn("notMaven");
         Mockito.when(notMaven.isPrimaryable()).thenReturn(true);
