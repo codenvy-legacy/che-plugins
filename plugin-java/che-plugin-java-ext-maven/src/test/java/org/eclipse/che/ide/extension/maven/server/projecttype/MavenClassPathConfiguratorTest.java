@@ -15,9 +15,11 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
 
-import org.eclipse.che.api.core.model.project.type.ProjectType;
 import org.eclipse.che.api.core.notification.EventService;
-import org.eclipse.che.api.core.rest.HttpJsonHelper;
+import org.eclipse.che.api.core.rest.HttpJsonRequest;
+import org.eclipse.che.api.core.rest.HttpJsonRequestFactory;
+import org.eclipse.che.api.core.rest.HttpJsonResponse;
+import org.eclipse.che.api.core.rest.shared.dto.Link;
 import org.eclipse.che.api.project.server.AttributeFilter;
 import org.eclipse.che.api.project.server.DefaultProjectManager;
 import org.eclipse.che.api.project.server.FileEntry;
@@ -34,6 +36,7 @@ import org.eclipse.che.api.vfs.server.VirtualFileSystemUserContext;
 import org.eclipse.che.api.vfs.server.impl.memory.MemoryFileSystemProvider;
 import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.api.workspace.shared.dto.UsersWorkspaceDto;
+import org.eclipse.che.commons.test.SelfReturningAnswer;
 import org.eclipse.che.dto.server.DtoFactory;
 import org.junit.Assert;
 import org.junit.Before;
@@ -41,19 +44,12 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.lang.reflect.Field;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.Set;
 
-import static javax.ws.rs.HttpMethod.GET;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -64,7 +60,7 @@ public class MavenClassPathConfiguratorTest {
 
     private static final String      WORKSPACE                     = "workspace";
     private static final String      VFS_USER                      = "dev";
-    private static final Set<String> VFS_USER_GROUPS               = new LinkedHashSet<>(Arrays.asList("workspace/developer"));
+    private static final Set<String> VFS_USER_GROUPS               = Collections.singleton("workspace/developer");
     private static final String      SOURCE_DIRECTORY              = "src/somePath/java";
     private static final String      DEFAULT_SOURCE_DIRECTORY      = "src/main/java";
     private static final String      DEFAULT_TEST_SOURCE_DIRECTORY = "src/test/java";
@@ -97,12 +93,18 @@ public class MavenClassPathConfiguratorTest {
             "    <version>3.1.0-SNAPSHOT</version>\n" +
             "    <packaging>POM_CONTENT</packaging>\n" +
             "</project>";
+    private static final String      API_ENDPOINT                  = "http://localhost:8080/che/api";
+
     private ProjectManager projectManager;
 
     @Mock
     private Provider<AttributeFilter> filterProvider;
     @Mock
     private AttributeFilter           filter;
+    @Mock
+    private HttpJsonRequestFactory    httpJsonRequestFactory;
+    @Mock
+    private HttpJsonResponse          httpJsonResponse;
 
     @Before
     public void setup() throws Exception {
@@ -119,7 +121,11 @@ public class MavenClassPathConfiguratorTest {
         ProjectHandlerRegistry handlerRegistry = new ProjectHandlerRegistry(new HashSet<>());
         projectManager = new DefaultProjectManager(virtualFileSystemRegistry,
                                                    eventService,
-                                                   projectTypeRegistry, handlerRegistry, filterProvider, "");
+                                                   projectTypeRegistry,
+                                                   handlerRegistry,
+                                                   filterProvider,
+                                                   API_ENDPOINT,
+                                                   httpJsonRequestFactory);
         Injector injector = Guice.createInjector(new AbstractModule() {
             @Override
             protected void configure() {
@@ -127,23 +133,31 @@ public class MavenClassPathConfiguratorTest {
             }
         });
 
-        final MemoryFileSystemProvider memoryFileSystemProvider =
-                new MemoryFileSystemProvider(WORKSPACE, eventService, new VirtualFileSystemUserContext() {
+        final MemoryFileSystemProvider memoryFileSystemProvider = new MemoryFileSystemProvider(WORKSPACE,
+                                                                                               eventService,
+                                                                                               new VirtualFileSystemUserContext() {
                     @Override
                     public VirtualFileSystemUser getVirtualFileSystemUser() {
                         return new VirtualFileSystemUser(VFS_USER, VFS_USER_GROUPS);
                     }
-                }, virtualFileSystemRegistry, SystemPathsFilter.ANY);
+                },
+                                                                                               virtualFileSystemRegistry,
+                                                                                               SystemPathsFilter.ANY);
         virtualFileSystemRegistry.registerProvider(WORKSPACE, memoryFileSystemProvider);
         projectManager = injector.getInstance(ProjectManager.class);
 
-        HttpJsonHelper.HttpJsonHelperImpl httpJsonHelper = mock(HttpJsonHelper.HttpJsonHelperImpl.class);
-        Field f = HttpJsonHelper.class.getDeclaredField("httpJsonHelperImpl");
-        f.setAccessible(true);
-        f.set(null, httpJsonHelper);
-
         UsersWorkspaceDto usersWorkspaceMock = mock(UsersWorkspaceDto.class);
-        when(httpJsonHelper.request(any(), anyString(), eq(GET), isNull())).thenReturn(usersWorkspaceMock);
+        HttpJsonRequest httpJsonRequest = mock(HttpJsonRequest.class, new SelfReturningAnswer());
+        when(httpJsonRequestFactory.fromLink(eq(DtoFactory.newDto(Link.class)
+                                                          .withMethod("GET")
+                                                          .withHref(API_ENDPOINT + "/workspace/" + WORKSPACE))))
+                .thenReturn(httpJsonRequest);
+        when(httpJsonRequestFactory.fromLink(eq(DtoFactory.newDto(Link.class)
+                                                          .withMethod("PUT")
+                                                          .withHref(API_ENDPOINT + "/workspace/" + WORKSPACE + "/project"))))
+                .thenReturn(httpJsonRequest);
+        when(httpJsonRequest.request()).thenReturn(httpJsonResponse);
+        when(httpJsonResponse.asDto(UsersWorkspaceDto.class)).thenReturn(usersWorkspaceMock);
         final ProjectConfigDto projectConfigDto = DtoFactory.getInstance().createDto(ProjectConfigDto.class).withPath("/projectName");
         when(usersWorkspaceMock.getProjects()).thenReturn(Collections.singletonList(projectConfigDto));
     }

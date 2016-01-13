@@ -12,9 +12,11 @@ package org.eclipse.che.ide.extension.maven.server.projecttype;
 
 import com.google.inject.Provider;
 
-import org.eclipse.che.api.core.model.project.type.ProjectType;
 import org.eclipse.che.api.core.notification.EventService;
-import org.eclipse.che.api.core.rest.HttpJsonHelper;
+import org.eclipse.che.api.core.rest.HttpJsonRequest;
+import org.eclipse.che.api.core.rest.HttpJsonRequestFactory;
+import org.eclipse.che.api.core.rest.HttpJsonResponse;
+import org.eclipse.che.api.core.rest.shared.dto.Link;
 import org.eclipse.che.api.project.server.AttributeFilter;
 import org.eclipse.che.api.project.server.DefaultProjectManager;
 import org.eclipse.che.api.project.server.Project;
@@ -33,6 +35,7 @@ import org.eclipse.che.api.vfs.server.VirtualFileSystemUserContext;
 import org.eclipse.che.api.vfs.server.impl.memory.MemoryFileSystemProvider;
 import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.api.workspace.shared.dto.UsersWorkspaceDto;
+import org.eclipse.che.commons.test.SelfReturningAnswer;
 import org.eclipse.che.dto.server.DtoFactory;
 import org.eclipse.che.ide.ext.java.server.projecttype.JavaProjectType;
 import org.eclipse.che.ide.ext.java.server.projecttype.JavaPropertiesValueProviderFactory;
@@ -46,8 +49,6 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.lang.reflect.Field;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -56,32 +57,33 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static javax.ws.rs.HttpMethod.GET;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /** @author gazarenkov */
 public class MavenProjectTypeTest {
-    private static final String workspace = "my_ws";
+    private static final String workspace    = "my_ws";
+    private static final String API_ENDPOINT = "http://localhost:8080/che/api";
 
-    private ProjectManager                    pm;
-    private HttpJsonHelper.HttpJsonHelperImpl httpJsonHelper;
+    private ProjectManager  pm;
+    private HttpJsonRequest httpJsonRequest;
 
     @Mock
     private Provider<AttributeFilter> filterProvider;
     @Mock
     private AttributeFilter           filter;
+    @Mock
+    private HttpJsonRequestFactory    httpJsonRequestFactory;
+    @Mock
+    private HttpJsonResponse          httpJsonResponse;
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
         when(filterProvider.get()).thenReturn(filter);
         final String vfsUser = "dev";
-        final Set<String> vfsUserGroups = new LinkedHashSet<>(Arrays.asList("workspace/developer"));
+        final Set<String> vfsUserGroups = new LinkedHashSet<>(Collections.singletonList("workspace/developer"));
 
         final EventService eventService = new EventService();
 
@@ -106,12 +108,15 @@ public class MavenProjectTypeTest {
 
         ProjectHandlerRegistry handlerRegistry = new ProjectHandlerRegistry(handlers);
 
-        pm = new DefaultProjectManager(vfsRegistry, eventService, ptRegistry, handlerRegistry, filterProvider, "");
+        pm = new DefaultProjectManager(vfsRegistry,
+                                       eventService,
+                                       ptRegistry,
+                                       handlerRegistry,
+                                       filterProvider,
+                                       API_ENDPOINT,
+                                       httpJsonRequestFactory);
 
-        httpJsonHelper = mock(HttpJsonHelper.HttpJsonHelperImpl.class);
-        Field f = HttpJsonHelper.class.getDeclaredField("httpJsonHelperImpl");
-        f.setAccessible(true);
-        f.set(null, httpJsonHelper);
+        httpJsonRequest = mock(HttpJsonRequest.class, new SelfReturningAnswer());
     }
 
     @Test
@@ -126,7 +131,16 @@ public class MavenProjectTypeTest {
     @Test
     public void testMavenProject() throws Exception {
         UsersWorkspaceDto usersWorkspaceMock = mock(UsersWorkspaceDto.class);
-        when(httpJsonHelper.request(any(), anyString(), eq(GET), isNull())).thenReturn(usersWorkspaceMock);
+        when(httpJsonRequestFactory.fromLink(eq(DtoFactory.newDto(Link.class)
+                                                          .withMethod("GET")
+                                                          .withHref(API_ENDPOINT + "/workspace/" + workspace))))
+                .thenReturn(httpJsonRequest);
+        when(httpJsonRequestFactory.fromLink(eq(DtoFactory.newDto(Link.class)
+                                                          .withMethod("PUT")
+                                                          .withHref(API_ENDPOINT + "/workspace/" + workspace + "/project"))))
+                .thenReturn(httpJsonRequest);
+        when(httpJsonRequest.request()).thenReturn(httpJsonResponse);
+        when(httpJsonResponse.asDto(UsersWorkspaceDto.class)).thenReturn(usersWorkspaceMock);
         final ProjectConfigDto projectConfig = DtoFactory.getInstance().createDto(ProjectConfigDto.class)
                                                          .withName("project")
                                                          .withPath("/myProject")
@@ -159,6 +173,11 @@ public class MavenProjectTypeTest {
         attributes.put(MavenAttributes.GROUP_ID, Collections.singletonList("mygroup"));
         attributes.put(MavenAttributes.VERSION, Collections.singletonList("1.0"));
         attributes.put(MavenAttributes.PACKAGING, Collections.singletonList("jar"));
+
+        when(httpJsonRequestFactory.fromLink(eq(DtoFactory.newDto(Link.class)
+                                                          .withMethod("PUT")
+                                                          .withHref(API_ENDPOINT + "/workspace/" + workspace + "/project"))))
+                .thenReturn(httpJsonRequest);
 
         pm.createProject(workspace, "testEstimate",
                          DtoFactory.getInstance().createDto(ProjectConfigDto.class)

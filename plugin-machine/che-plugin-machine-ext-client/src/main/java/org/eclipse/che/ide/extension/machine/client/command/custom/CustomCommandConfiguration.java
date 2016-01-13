@@ -14,6 +14,7 @@ import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration
 import org.eclipse.che.ide.extension.machine.client.command.CommandType;
 
 import javax.validation.constraints.NotNull;
+import java.util.Map;
 
 /**
  * Represents command that is defined by arbitrary command line.
@@ -24,8 +25,8 @@ public class CustomCommandConfiguration extends CommandConfiguration {
 
     private String commandLine;
 
-    protected CustomCommandConfiguration(CommandType type, String name, String previewUrl) {
-        super(type, name, previewUrl);
+    protected CustomCommandConfiguration(CommandType type, String name, Map<String, String> attributes) {
+        super(type, name, attributes);
         commandLine = "";
     }
 

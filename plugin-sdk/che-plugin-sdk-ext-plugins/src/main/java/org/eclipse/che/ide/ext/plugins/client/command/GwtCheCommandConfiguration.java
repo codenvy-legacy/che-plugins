@@ -14,6 +14,7 @@ import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration
 import org.eclipse.che.ide.extension.machine.client.command.CommandType;
 
 import javax.validation.constraints.NotNull;
+import java.util.Map;
 
 /**
  * Represents 'GWT SDM for Che' command.
@@ -26,8 +27,8 @@ public class GwtCheCommandConfiguration extends CommandConfiguration {
     private String codeServerAddress;
     private String classPath;
 
-    protected GwtCheCommandConfiguration(CommandType type, String name, String previewUrl) {
-        super(type, name, previewUrl);
+    protected GwtCheCommandConfiguration(CommandType type, String name, Map<String, String> attributes) {
+        super(type, name, attributes);
         gwtModule = "";
         codeServerAddress = "";
         classPath = "";
