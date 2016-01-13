@@ -102,7 +102,6 @@ public class RemotePresenter implements RemoteView.ActionDelegate {
                                    if (!view.isShown()) {
                                        view.showDialog();
                                    }
-                                   refreshProject();
                                }
 
                                @Override
@@ -131,6 +130,7 @@ public class RemotePresenter implements RemoteView.ActionDelegate {
             @Override
             public void onSuccess(Void result) {
                 getRemotes();
+                refreshProject();
             }
 
             @Override
@@ -157,6 +157,7 @@ public class RemotePresenter implements RemoteView.ActionDelegate {
             @Override
             protected void onSuccess(String result) {
                 getRemotes();
+                refreshProject();
             }
 
             @Override
