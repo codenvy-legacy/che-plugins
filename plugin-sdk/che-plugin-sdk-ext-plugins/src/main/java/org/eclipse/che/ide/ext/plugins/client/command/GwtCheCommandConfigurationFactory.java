@@ -42,7 +42,7 @@ public class GwtCheCommandConfigurationFactory extends CommandConfigurationFacto
         }
 
         final GwtCheCommandConfiguration configuration =
-                new GwtCheCommandConfiguration(getCommandType(), descriptor.getName(), descriptor.getPreviewUrl());
+                new GwtCheCommandConfiguration(getCommandType(), descriptor.getName(), descriptor.getAttributes());
         final CommandLine cmd = new CommandLine(descriptor.getCommandLine());
 
         final String classPathArgument = cmd.getArgument(2);

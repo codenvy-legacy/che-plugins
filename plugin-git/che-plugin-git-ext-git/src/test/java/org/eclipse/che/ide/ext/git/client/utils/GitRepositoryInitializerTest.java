@@ -58,9 +58,7 @@ public class GitRepositoryInitializerTest extends BaseTest {
         gitRepositoryInitializer = new GitRepositoryInitializer(service,
                                                                 constant,
                                                                 appContext,
-                                                                notificationManager,
-                                                                dtoUnmarshallerFactory,
-                                                                projectServiceClient);
+                                                                notificationManager);
     }
 
     @Test
@@ -76,22 +74,9 @@ public class GitRepositoryInitializerTest extends BaseTest {
             }
         }).when(service).init(anyString(), anyObject(), anyBoolean(), (RequestCallback<Void>)anyObject());
 
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                Object[] arguments = invocation.getArguments();
-                AsyncRequestCallback<ProjectConfigDto> callback = (AsyncRequestCallback<ProjectConfigDto>)arguments[1];
-                Method onSuccess = GwtReflectionUtils.getMethod(callback.getClass(), "onSuccess");
-                onSuccess.invoke(callback, rootProjectConfig);
-                return callback;
-            }
-        }).when(projectServiceClient).getProject(anyString(), anyString(), anyObject());
-
         gitRepositoryInitializer.initGitRepository(rootProjectConfig, callback);
 
         verify(service).init(anyString(), eq(rootProjectConfig), eq(BARE), (RequestCallback<Void>)anyObject());
-        verify(projectServiceClient).getProject(anyString(), anyString(), anyObject());
-        verify(currentProject).setRootProject(eq(rootProjectConfig));
     }
 
     @Test
@@ -114,18 +99,6 @@ public class GitRepositoryInitializerTest extends BaseTest {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 Object[] arguments = invocation.getArguments();
-                AsyncRequestCallback<ProjectConfigDto> callback = (AsyncRequestCallback<ProjectConfigDto>)arguments[1];
-                Method onSuccess = GwtReflectionUtils.getMethod(callback.getClass(), "onSuccess");
-                attributes.put("vcs.provider.name", new ArrayList<>(Arrays.asList("git")));
-                onSuccess.invoke(callback, rootProjectConfig);
-                return callback;
-            }
-        }).when(projectServiceClient).getProject(anyString(), anyString(), anyObject());
-
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                Object[] arguments = invocation.getArguments();
                 AsyncRequestCallback<String> callback = (AsyncRequestCallback<String>)arguments[1];
                 Method onSuccess = GwtReflectionUtils.getMethod(callback.getClass(), "onSuccess");
                 onSuccess.invoke(callback, REMOTE_URI);
@@ -136,8 +109,6 @@ public class GitRepositoryInitializerTest extends BaseTest {
         gitRepositoryInitializer.getGitUrlWithAutoInit(rootProjectConfig, stringCallback);
 
         verify(service).init(anyString(), eq(rootProjectConfig), eq(BARE), (RequestCallback<Void>)anyObject());
-        verify(projectServiceClient).getProject(anyString(), anyString(), anyObject());
-        verify(currentProject).setRootProject(eq(rootProjectConfig));
         verify(stringCallback).onSuccess(eq(REMOTE_URI));
     }
 

@@ -45,8 +45,6 @@ public class MachinePerspective extends AbstractPerspective {
 
     public final static String MACHINE_PERSPECTIVE_ID = "Machine Perspective";
 
-    private final MachinePanelPresenter machinePanel;
-
     @Inject
     public MachinePerspective(PerspectiveViewImpl view,
                               PartStackViewFactory partViewFactory,
@@ -59,8 +57,6 @@ public class MachinePerspective extends AbstractPerspective {
                               OutputsContainerPresenter outputsContainer,
                               MachineAppliancePresenter infoContainer) {
         super(MACHINE_PERSPECTIVE_ID, view, stackPresenterFactory, partViewFactory, controllerFactory);
-
-        this.machinePanel = machinePanel;
 
         notificationManager.addRule(MACHINE_PERSPECTIVE_ID);
 
@@ -79,8 +75,6 @@ public class MachinePerspective extends AbstractPerspective {
     /** {@inheritDoc} */
     @Override
     public void go(@NotNull AcceptsOneWidget container) {
-        machinePanel.showMachines();
-
         PartStack information = getPartStack(INFORMATION);
         PartStack navigation = getPartStack(NAVIGATION);
         PartStack editing = getPartStack(EDITING);

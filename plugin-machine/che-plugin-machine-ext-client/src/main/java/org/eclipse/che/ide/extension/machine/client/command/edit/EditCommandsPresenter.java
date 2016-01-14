@@ -59,6 +59,8 @@ import java.util.Set;
 @Singleton
 public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
 
+    public static final String PREVIEW_URL_ATTR = "previewUrl";
+
     private final EditCommandsView                               view;
     private final WorkspaceServiceClient                         workspaceServiceClient;
     private final CommandManager                                 commandManager;
@@ -143,7 +145,7 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
                                                 .withName(selectedConfiguration.getName())
                                                 .withCommandLine(selectedConfiguration.toCommandLine())
                                                 .withType(selectedConfiguration.getType().getId())
-                                                .withPreviewUrl(selectedConfiguration.getPreviewUrl());
+                                                .withAttributes(selectedConfiguration.getAttributes());
 
         if (editedCommandOriginName.trim().equals(selectedConfiguration.getName())) {
             return workspaceServiceClient.updateCommand(workspaceId, commandDto);
@@ -178,7 +180,7 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
         final CommandConfiguration selectedConfiguration = view.getSelectedConfiguration();
         if (selectedConfiguration != null) {
             createNewCommand(selectedConfiguration.getType(), selectedConfiguration.toCommandLine(), selectedConfiguration.getName(),
-                             selectedConfiguration.getPreviewUrl());
+                             selectedConfiguration.getAttributes());
         }
     }
 
@@ -190,10 +192,10 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
         }
     }
 
-    private void createNewCommand(final CommandType type, final String customCommand, final String customName, final String previewUrl) {
+    private void createNewCommand(final CommandType type, final String customCommand, final String customName, final Map<String, String> attributes) {
         if (!isViewModified()) {
             reset();
-            createCommand(type, customCommand, customName, previewUrl);
+            createCommand(type, customCommand, customName, attributes);
             return;
         }
 
@@ -204,7 +206,7 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
                     @Override
                     public void apply(UsersWorkspaceDto arg) throws OperationException {
                         reset();
-                        createCommand(type, customCommand, customName, previewUrl);
+                        createCommand(type, customCommand, customName, attributes);
                     }
                 });
             }
@@ -215,7 +217,7 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
             public void accepted() {
                 fetchCommands();
                 reset();
-                createCommand(type, customCommand, customName, previewUrl);
+                createCommand(type, customCommand, customName, attributes);
             }
         };
 
@@ -255,11 +257,15 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
         createCommand(type, null, null, null);
     }
 
-    private void createCommand(CommandType type, String customCommand, String customName, String previewUrl) {
+    private void createCommand(CommandType type, String customCommand, String customName, Map<String, String> attributes) {
+        Map<String, String> attributesToUpdate = (attributes != null) ? attributes : new HashMap<String, String>();
+
+        attributesToUpdate.put(PREVIEW_URL_ATTR, type.getPreviewUrlTemplate());
+
         final CommandDto commandDto = dtoFactory.createDto(CommandDto.class)
                                                 .withName(getUniqueCommandName(type, customName))
                                                 .withCommandLine(customCommand != null ? customCommand : type.getCommandTemplate())
-                                                .withPreviewUrl(previewUrl != null ? previewUrl : type.getPreviewUrlTemplate())
+                                                .withAttributes(attributesToUpdate)
                                                 .withType(type.getId());
         workspaceServiceClient.addCommand(workspaceId, commandDto).then(new Operation<UsersWorkspaceDto>() {
             @Override
@@ -369,13 +375,21 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
         dialog.show();
     }
 
+    private String getPreviewUrlOrNull(CommandConfiguration configuration) {
+        if (configuration.getAttributes() != null) {
+            return configuration.getAttributes().get(PREVIEW_URL_ATTR);
+        }
+
+        return null;
+    }
+
     private void handleCommandSelection(CommandConfiguration configuration) {
         editedCommand = configuration;
         editedCommandOriginName = configuration.getName();
-        editedCommandOriginPreviewUrl = configuration.getPreviewUrl();
+        editedCommandOriginPreviewUrl = getPreviewUrlOrNull(configuration);
 
         view.setConfigurationName(configuration.getName());
-        view.setConfigurationPreviewUrl(configuration.getPreviewUrl());
+        view.setConfigurationPreviewUrl(getPreviewUrlOrNull(configuration));
 
         final Collection<CommandConfigurationPage<? extends CommandConfiguration>> pages = configuration.getType().getConfigurationPages();
         for (CommandConfigurationPage<? extends CommandConfiguration> page : pages) {
@@ -415,7 +429,7 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
         if (selectedConfiguration == null || !selectedConfiguration.equals(editedCommand)) {
             return;
         }
-        selectedConfiguration.setPreviewUrl(view.getConfigurationPreviewUrl());
+        selectedConfiguration.getAttributes().put(PREVIEW_URL_ATTR, view.getConfigurationPreviewUrl());
         view.setCancelButtonState(isViewModified());
         view.setSaveButtonState(isViewModified());
     }

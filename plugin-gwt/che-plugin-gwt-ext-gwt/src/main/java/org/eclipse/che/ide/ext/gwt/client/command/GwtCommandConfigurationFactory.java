@@ -40,7 +40,7 @@ public class GwtCommandConfigurationFactory extends CommandConfigurationFactory<
         }
 
         final GwtCommandConfiguration configuration =
-                new GwtCommandConfiguration(getCommandType(), descriptor.getName(), descriptor.getPreviewUrl());
+                new GwtCommandConfiguration(getCommandType(), descriptor.getName(), descriptor.getAttributes());
         final CommandLine cmd = new CommandLine(descriptor.getCommandLine());
 
         if (cmd.hasArgument("-f")) {

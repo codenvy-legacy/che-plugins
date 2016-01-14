@@ -11,7 +11,7 @@
 package org.eclipse.che.ide.ext.github.client;
 
 import org.eclipse.che.ide.api.extension.Extension;
-import org.eclipse.che.ide.ext.ssh.client.GitSshKeyUploaderRegistry;
+import org.eclipse.che.ide.ext.git.ssh.client.GitSshKeyUploaderRegistry;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
