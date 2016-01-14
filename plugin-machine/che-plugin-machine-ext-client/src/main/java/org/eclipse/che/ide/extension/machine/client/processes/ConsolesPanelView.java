@@ -90,6 +90,15 @@ public interface ConsolesPanelView extends View<ConsolesPanelView.ActionDelegate
         void onAddTerminal(@NotNull String machineId);
 
         /**
+         * Will be called when user clicks 'Preview Ssh' button
+         *
+         * @param machineId
+         *         id of machine in which ssh keys are located
+         *
+         */
+        void onPreviewSsh(@NotNull String machineId);
+
+        /**
          * Will be called when user selects command node
          *
          * @param commandId

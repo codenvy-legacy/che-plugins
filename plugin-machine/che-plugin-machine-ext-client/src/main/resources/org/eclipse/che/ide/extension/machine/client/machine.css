@@ -252,6 +252,14 @@
     box-sizing: border-box;
 }
 
+.sshButton {
+    font-size: 10px;
+    float: right;
+    margin-right: 2px;
+    color: categoryHeaderButtonColor;
+    cursor: pointer;
+}
+
 .processTree .processButton {
     float: right;
     color: categoryHeaderButtonColor;
@@ -274,7 +282,7 @@
     stroke: categoryHeaderButtonHoverColor;
 }
 
-.processButton:hover {
+.processButton:hover, .sshButton:hover {
     filter: brightness(120%);
     -webkit-filter: brightness(120%);
 }

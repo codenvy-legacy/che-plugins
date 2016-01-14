@@ -90,6 +90,13 @@ public class ConsolesPanelViewImpl extends BaseView<ConsolesPanelView.ActionDele
             }
         });
 
+        renderer.setPreviewSshClickHandler(new PreviewSshClickHandler() {
+            @Override
+            public void onPreviewSshClick(@NotNull String machineId) {
+                delegate.onPreviewSsh(machineId);
+            }
+        });
+
         renderer.setStopProcessHandler(new StopProcessHandler() {
             @Override
             public void onStopProcessClick(@NotNull ProcessTreeNode node) {

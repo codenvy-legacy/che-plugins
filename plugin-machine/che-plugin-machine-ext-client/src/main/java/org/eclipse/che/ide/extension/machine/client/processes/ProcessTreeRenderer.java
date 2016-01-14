@@ -23,6 +23,8 @@ import org.eclipse.che.ide.api.parts.PartStackUIResources;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.MachineResources;
 import org.eclipse.che.ide.ui.Tooltip;
+
+import static org.eclipse.che.ide.extension.machine.client.processes.ConsolesPanelPresenter.SSH_PORT;
 import static org.eclipse.che.ide.ui.menu.PositionController.HorizontalAlign.MIDDLE;
 import static org.eclipse.che.ide.ui.menu.PositionController.VerticalAlign.BOTTOM;
 import org.eclipse.che.ide.ui.tree.NodeRenderer;
@@ -42,6 +44,7 @@ public class ProcessTreeRenderer implements NodeRenderer<ProcessTreeNode> {
     private final MachineLocalizationConstant locale;
     private final PartStackUIResources        partStackUIResources;
     private       AddTerminalClickHandler     addTerminalClickHandler;
+    private       PreviewSshClickHandler      previewSshClickHandler;
     private       StopProcessHandler          stopProcessHandler;
 
     @Inject
@@ -101,6 +104,22 @@ public class ProcessTreeRenderer implements NodeRenderer<ProcessTreeNode> {
                 MIDDLE,
                 locale.viewMachineRunningTooltip());
 
+        if (machine.getMetadata().getServers().containsKey(SSH_PORT)) {
+            SpanElement sshButton = Elements.createSpanElement(resources.getCss().sshButton());
+            sshButton.setTextContent("SSH");
+            root.appendChild(sshButton);
+
+            sshButton.addEventListener(Event.CLICK, new EventListener() {
+                @Override
+                public void handleEvent(Event event) {
+                    if (previewSshClickHandler != null) {
+                        previewSshClickHandler.onPreviewSshClick(machine.getId());
+                    }
+                }
+            }, true);
+        }
+
+
         newTerminalButton.addEventListener(Event.CLICK, new EventListener() {
             @Override
             public void handleEvent(Event event) {
@@ -156,9 +175,9 @@ public class ProcessTreeRenderer implements NodeRenderer<ProcessTreeNode> {
         icon.setClassNameBaseVal(resources.getCss().processesPanelCloseButtonForProcess());
         closeButton.appendChild((Node) icon.getElement());
         Tooltip.create((elemental.dom.Element)closeButton,
-                BOTTOM,
-                MIDDLE,
-                locale.viewCloseProcessOutputTooltip());
+                       BOTTOM,
+                       MIDDLE,
+                       locale.viewCloseProcessOutputTooltip());
 
         closeButton.addEventListener(Event.CLICK, new EventListener() {
             @Override
@@ -196,6 +215,10 @@ public class ProcessTreeRenderer implements NodeRenderer<ProcessTreeNode> {
 
     public void setAddTerminalClickHandler(AddTerminalClickHandler addTerminalClickHandler) {
         this.addTerminalClickHandler = addTerminalClickHandler;
+    }
+
+    public void setPreviewSshClickHandler(PreviewSshClickHandler previewSshClickHandler) {
+        this.previewSshClickHandler = previewSshClickHandler;
     }
 
     public void setStopProcessHandler(StopProcessHandler stopProcessHandler) {

@@ -37,12 +37,15 @@ import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.MachineResources;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
+import org.eclipse.che.ide.extension.machine.client.command.CommandConfigurationFactory;
+import org.eclipse.che.ide.extension.machine.client.command.CommandConfigurationPage;
 import org.eclipse.che.ide.extension.machine.client.command.CommandType;
 import org.eclipse.che.ide.extension.machine.client.command.CommandTypeRegistry;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.EntityFactory;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.TerminalFactory;
 import org.eclipse.che.ide.extension.machine.client.machine.Machine;
 import org.eclipse.che.ide.extension.machine.client.outputspanel.console.CommandConsoleFactory;
+import org.eclipse.che.ide.extension.machine.client.outputspanel.console.DefaultOutputConsole;
 import org.eclipse.che.ide.extension.machine.client.outputspanel.console.OutputConsole;
 import org.eclipse.che.ide.extension.machine.client.perspective.terminal.TerminalPresenter;
 import org.eclipse.che.ide.ui.dialogs.ConfirmCallback;
@@ -52,10 +55,12 @@ import org.vectomatic.dom.svg.ui.SVGResource;
 
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static java.util.Collections.emptyList;
 import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAIL;
 import static org.eclipse.che.ide.extension.machine.client.processes.ProcessTreeNode.ProcessNodeType.ROOT_NODE;
 import static org.eclipse.che.ide.extension.machine.client.processes.ProcessTreeNode.ProcessNodeType.MACHINE_NODE;
@@ -68,11 +73,14 @@ import static org.eclipse.che.ide.extension.machine.client.perspective.terminal.
  *
  * @author Anna Shumilova
  * @author Roman Nikitenko
+ * @author Vlad Zhukovskyi
  */
 @Singleton
 public class ConsolesPanelPresenter extends BasePresenter implements ConsolesPanelView.ActionDelegate, HasView {
 
     private static final String DEFAULT_TERMINAL_NAME = "Terminal";
+
+    public static final String SSH_PORT = "22";
 
     private final DtoFactory                  dtoFactory;
     private final DialogFactory               dialogFactory;
@@ -91,6 +99,50 @@ public class ConsolesPanelPresenter extends BasePresenter implements ConsolesPan
     ProcessTreeNode                rootNode;
     Map<String, TerminalPresenter> terminals;
     Map<String, OutputConsole>     commandConsoles;
+
+    private CommandType sshCommandType = new CommandType() {
+        @Override
+        public String getId() {
+            return "ssh";
+        }
+
+        @Override
+        public String getDisplayName() {
+            return "SSH";
+        }
+
+        @Override
+        public SVGResource getIcon() {
+            return null;
+        }
+
+        @Override
+        public Collection<CommandConfigurationPage<? extends CommandConfiguration>> getConfigurationPages() {
+            return emptyList();
+        }
+
+        @Override
+        public CommandConfigurationFactory<? extends CommandConfiguration> getConfigurationFactory() {
+            return null;
+        }
+
+        @Override
+        public String getCommandTemplate() {
+            return "";
+        }
+
+        @Override
+        public String getPreviewUrlTemplate() {
+            return "";
+        }
+    };
+
+    private CommandConfiguration sshConfiguration = new CommandConfiguration(sshCommandType, "SSH", null) {
+        @Override
+        public String toCommandLine() {
+            return "";
+        }
+    };
 
     @Inject
     public ConsolesPanelPresenter(ConsolesPanelView view,
@@ -324,6 +376,47 @@ public class ConsolesPanelPresenter extends BasePresenter implements ConsolesPan
             }
         });
 
+    }
+
+    @Override
+    public void onPreviewSsh(@NotNull final String machineId) {
+        ProcessTreeNode machineTreeNode = findProcessTreeNodeById(machineId);
+        if (machineTreeNode == null) {
+            return;
+        }
+
+        MachineDto machine = (MachineDto)machineTreeNode.getData();
+
+        OutputConsole defaultConsole = commandConsoleFactory.create("");
+        addCommand(machineId, sshConfiguration, defaultConsole);
+
+        String machineName = machine.getName();
+        String sshServiceAddress = getSshServerAddress(machine);
+        String machineHost = "";
+        String sshPort = SSH_PORT;
+        if (sshServiceAddress != null) {
+            String[] parts = sshServiceAddress.split(":");
+            machineHost = parts[0];
+            sshPort = (parts.length == 2) ? parts[1] : sshPort;
+        }
+
+        if (defaultConsole instanceof DefaultOutputConsole) {
+            ((DefaultOutputConsole)defaultConsole).printText(localizationConstant.sshConnectInfo(machineName, machineHost, sshPort));
+        }
+    }
+
+    /**
+     * Returns the ssh service address in format - host:port (example - localhost:32899)
+     *
+     * @param machine machine to retrieve address
+     * @return ssh service address in format host:port
+     */
+    private String getSshServerAddress(MachineDto machine) {
+       if (machine.getMetadata().getServers().containsKey(SSH_PORT)) {
+           return machine.getMetadata().getServers().get(SSH_PORT).getAddress();
+       } else {
+           return null;
+       }
     }
 
     @Override
