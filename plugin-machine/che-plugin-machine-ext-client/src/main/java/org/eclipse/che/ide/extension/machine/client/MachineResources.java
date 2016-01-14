@@ -141,6 +141,8 @@ public interface MachineResources extends ClientBundle {
 
         String processButton();
 
+        String sshButton();
+
         String processNavigation();
 
         String processOutputPanel();

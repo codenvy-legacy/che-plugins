@@ -359,4 +359,7 @@ public interface MachineLocalizationConstant extends Messages {
 
     @Key("failed.to.get.processes")
     String failedToGetProcesses(String machineId);
+
+    @Key("ssh.connect.info")
+    String sshConnectInfo(String machineName, String machineHost, String machinePort);
 }
