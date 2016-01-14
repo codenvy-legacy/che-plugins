@@ -184,7 +184,7 @@ public class CommitPresenter implements CommitView.ActionDelegate {
                                    onCommitSuccess(result);
                                } else {
                                    console.printError(result.getMessage());
-                                   notificationManager.notify(constant.commitFailed(), FAIL, true,
+                                   notificationManager.notify(constant.commitFailed(), result.getMessage(), FAIL, true,
                                                               appContext.getCurrentProject().getRootProject());
                                }
                            }
