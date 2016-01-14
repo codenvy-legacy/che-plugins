@@ -11,11 +11,16 @@
 package org.eclipse.che.plugin.docker.machine.local.provider;
 
 import org.eclipse.che.api.core.util.SystemInfo;
+import org.eclipse.che.plugin.docker.machine.WindowsHostUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Provider;
 import javax.inject.Singleton;
+import java.io.IOException;
+import java.nio.file.Path;
 
 /**
  * Provide path to the project folder on hosted machine
@@ -29,6 +34,8 @@ import javax.inject.Singleton;
 @Singleton
 public class CheHostVfsRootDirProvider implements Provider<String> {
 
+    private static final Logger LOG = LoggerFactory.getLogger(CheHostVfsRootDirProvider.class);
+
     @Inject
     @Named("vfs.local.fs_root_dir")
     private String fsRootDir;
@@ -36,7 +43,15 @@ public class CheHostVfsRootDirProvider implements Provider<String> {
     @Override
     public String get() {
         if (SystemInfo.isWindows()) {
-            return System.getProperty("user.home") + "\\che\\vfs";
+            try {
+                final Path cheHome = WindowsHostUtils.ensureCheHomeExist();
+                final Path vfs = cheHome.resolve("vfs");
+                vfs.toFile().mkdir();
+                return vfs.toString();
+            } catch (IOException e) {
+                LOG.warn(e.getMessage());
+                throw new RuntimeException(e);
+            }
         } else {
             return fsRootDir;
         }
