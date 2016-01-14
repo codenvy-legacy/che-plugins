@@ -14,6 +14,8 @@ import com.google.gwt.user.client.Window;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
+import org.eclipse.che.ide.api.icon.Icon;
+import org.eclipse.che.ide.api.icon.IconRegistry;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfigurationFactory;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfigurationPage;
@@ -52,13 +54,16 @@ public class MavenCommandType implements CommandType {
     public MavenCommandType(MavenResources resources,
                             MavenCommandPagePresenter page,
                             CurrentProjectPathProvider currentProjectPathProvider,
-                            CurrentProjectRelativePathProvider currentProjectRelativePathProvider) {
+                            CurrentProjectRelativePathProvider currentProjectRelativePathProvider,
+                            IconRegistry iconRegistry) {
         this.resources = resources;
         this.currentProjectPathProvider = currentProjectPathProvider;
         this.currentProjectRelativePathProvider = currentProjectRelativePathProvider;
         configurationFactory = new MavenCommandConfigurationFactory(this);
         pages = new LinkedList<>();
         pages.add(page);
+
+        iconRegistry.registerIcon(new Icon(ID + ".commands.category.icon", resources.maven()));
     }
 
     @NotNull

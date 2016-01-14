@@ -12,6 +12,7 @@ package org.eclipse.che.ide.extension.maven.client.command;
 
 import com.google.gwtmockito.GwtMockitoTestRunner;
 
+import org.eclipse.che.ide.api.icon.IconRegistry;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfigurationPage;
 import org.eclipse.che.ide.extension.machine.client.command.valueproviders.CurrentProjectPathProvider;
@@ -36,6 +37,8 @@ public class MavenCommandTypeTest {
     private MavenCommandPagePresenter  mavenCommandPagePresenter;
     @Mock
     private CurrentProjectPathProvider currentProjectPathProvider;
+    @Mock
+    private IconRegistry iconRegistry;
 
     @InjectMocks
     private MavenCommandType mavenCommandType;
