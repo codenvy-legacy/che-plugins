@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.java.client.navigation.filestructure;
 
+import com.google.common.base.Predicate;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.dom.client.DoubleClickEvent;
@@ -37,6 +38,7 @@ import org.eclipse.che.ide.ui.window.Window;
 import javax.validation.constraints.NotNull;
 import java.util.Collections;
 
+import static com.google.common.collect.Iterables.all;
 import static org.eclipse.che.ide.ui.smartTree.SelectionModel.Mode.SINGLE;
 
 /**
@@ -61,6 +63,13 @@ final class FileStructureImpl extends Window implements FileStructure {
     private final Tree                     tree;
 
     private ActionDelegate delegate;
+
+    private Predicate<Node> LEAFS = new Predicate<Node>() {
+        @Override
+        public boolean apply(Node input) {
+            return input.isLeaf();
+        }
+    };
 
     @Inject
     public FileStructureImpl(NodeFactory nodeFactory, JavaLocalizationConstant locale) {
@@ -89,7 +98,9 @@ final class FileStructureImpl extends Window implements FileStructure {
         tree.addDomHandler(new DoubleClickHandler() {
             @Override
             public void onDoubleClick(DoubleClickEvent event) {
-                hide();
+                if (all(tree.getSelectionModel().getSelectedNodes(), LEAFS)) {
+                    hide();
+                }
             }
         }, DoubleClickEvent.getType());
 
