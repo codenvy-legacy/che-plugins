@@ -11,11 +11,17 @@
 package org.eclipse.che.plugin.docker.machine.ext.provider;
 
 import org.eclipse.che.api.core.util.SystemInfo;
+import org.eclipse.che.commons.lang.IoUtil;
 import org.eclipse.che.inject.CheBootstrap;
+import org.eclipse.che.plugin.docker.machine.WindowsHostUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Provider;
 import javax.inject.Singleton;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
 
 /**
  * Provides path to the configuration folder on hosted machine for mounting it to docker machine.
@@ -27,22 +33,38 @@ import java.io.File;
  */
 @Singleton
 public class DockerExtConfBindingProvider implements Provider<String> {
-    public static final  String EXT_CHE_LOCAL_CONF_DIR = "/mnt/che/conf";
-    private static final String CONTAINER_TARGET       = ":" + EXT_CHE_LOCAL_CONF_DIR + ":ro";
+
+    public static final String EXT_CHE_LOCAL_CONF_DIR = "/mnt/che/conf";
+
+    private static final String PLUGIN_CONF      = "plugin-conf";
+    private static final String CONTAINER_TARGET = ":" + EXT_CHE_LOCAL_CONF_DIR + ":ro";
+    private static final Logger LOG              = LoggerFactory.getLogger(DockerExtConfBindingProvider.class);
 
     @Override
     public String get() {
-        if (SystemInfo.isWindows()) {
-            return System.getProperty("user.home") + "\\AppData\\Local\\che\\ext-conf" + CONTAINER_TARGET;
+        String localConfDir = System.getenv(CheBootstrap.CHE_LOCAL_CONF_DIR);
+        if (localConfDir == null) {
+            return null;
+        }
+        File extConfDir = new File(localConfDir, PLUGIN_CONF);
+        if (!extConfDir.isDirectory()) {
+            LOG.warn("DockerExtConfBindingProvider",
+                     String.format("%s set to the %s but it must be directory not file", CheBootstrap.CHE_LOCAL_CONF_DIR, localConfDir));
+            return null;
         }
 
-        String localConfDir = System.getenv(CheBootstrap.CHE_LOCAL_CONF_DIR);
-        if (localConfDir != null) {
-            File extConfDir = new File(localConfDir, "ext");
-            if (extConfDir.isDirectory()) {
-                return extConfDir.getAbsolutePath() + CONTAINER_TARGET;
+        if (SystemInfo.isWindows()) {
+            try {
+                final Path cheHome = WindowsHostUtils.ensureCheHomeExist();
+                final Path plgConfDir = cheHome.resolve(PLUGIN_CONF);
+                IoUtil.copy(extConfDir, plgConfDir.toFile(), null, true);
+                return plgConfDir.toString() + CONTAINER_TARGET;
+            } catch (IOException e) {
+                LOG.warn(e.getMessage());
+                throw new RuntimeException(e);
             }
+        } else {
+            return extConfDir.getAbsolutePath() + CONTAINER_TARGET;
         }
-        return null;
     }
 }

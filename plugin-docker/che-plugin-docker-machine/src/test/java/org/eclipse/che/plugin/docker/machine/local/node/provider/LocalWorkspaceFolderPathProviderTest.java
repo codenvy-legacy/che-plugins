@@ -16,6 +16,7 @@ import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.UUID;
 
 import static org.testng.Assert.assertEquals;
@@ -64,8 +65,8 @@ public class LocalWorkspaceFolderPathProviderTest  {
         final String pathToWs = provider.getPath(workspaceId);
         final String pathToWs2 = provider.getPath(workspaceId2);
         assertNotEquals(pathToWs, pathToWs2);
-        assertEquals(pathToWs, workspacesPath + "/" + workspaceId);
-        assertEquals(pathToWs2, workspacesPath + "/" + workspaceId2);
+        assertEquals(pathToWs, Paths.get(workspacesPath).resolve(workspaceId).toString());
+        assertEquals(pathToWs2, Paths.get(workspacesPath).resolve(workspaceId2).toString());
     }
 
     @Test
@@ -78,5 +79,11 @@ public class LocalWorkspaceFolderPathProviderTest  {
         final String pathToWs = provider.getPath(workspaceId);
         final String pathToWs2 = provider.getPath(workspaceId2);
         assertEquals(pathToWs, pathToWs2);
+    }
+
+
+    @Test
+    public void test() {
+        System.out.println(System.getProperty("user.home"));
     }
 }
