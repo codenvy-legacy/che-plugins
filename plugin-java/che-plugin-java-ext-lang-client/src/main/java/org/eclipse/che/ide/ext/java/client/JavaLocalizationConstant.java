@@ -279,6 +279,9 @@ public interface JavaLocalizationConstant extends Messages {
     @Key("find.usages.part.title")
     String findUsagesPartTitle();
 
+    @Key("find.usages.part.title.tooltip")
+    String findUsagesPartTitleTooltip();
+
     @Key("rename.refactoring.action.description")
     String renameRefactoringActionDescription();
 
