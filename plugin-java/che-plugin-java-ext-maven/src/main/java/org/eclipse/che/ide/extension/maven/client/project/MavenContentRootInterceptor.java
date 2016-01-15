@@ -16,7 +16,6 @@ import com.google.inject.Singleton;
 import org.eclipse.che.ide.ext.java.client.project.interceptor.AbstractJavaContentRootInterceptor;
 import org.eclipse.che.ide.ext.java.client.project.node.JavaNodeManager;
 
-import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.RESOURCE_FOLDER;
 import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.SOURCE_FOLDER;
 import static org.eclipse.che.ide.extension.maven.shared.MavenAttributes.TEST_SOURCE_FOLDER;
 
@@ -39,10 +38,5 @@ public class MavenContentRootInterceptor extends AbstractJavaContentRootIntercep
     @Override
     public String getTestSrcFolderAttribute() {
         return TEST_SOURCE_FOLDER;
-    }
-
-    @Override
-    public String getResourceFolderAttribute() {
-        return RESOURCE_FOLDER;
     }
 }
