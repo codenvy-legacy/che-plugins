@@ -39,6 +39,12 @@
     </ui:style>
 
     <g:DockLayoutPanel ui:field="mainPanel" unit="PX" addStyleNames="{style.mainPanel}">
+        <g:north size="80">
+            <g:FlowPanel>
+                <g:Label text="{locale.remoteDebugViewDescription}" addStyleNames="{style.label}"/>
+            </g:FlowPanel>
+        </g:north>
+
         <g:north size="40">
             <g:FlowPanel>
                 <g:Label text="{locale.host}" addStyleNames="{style.label}"/>
