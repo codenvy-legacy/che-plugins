@@ -38,4 +38,8 @@ public class OrionEditorViewOverlay extends JavaScriptObject {
     public final native OrionEditorOverlay getEditor() /*-{
         return this.editor;
     }-*/;
+
+    public final native void updateSettings(JavaScriptObject settings) /*-{
+        return this.updateSettings(settings);
+    }-*/;
 }
