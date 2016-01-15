@@ -13,6 +13,8 @@ package org.eclipse.che.ide.ext.gwt.client.command;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
+import org.eclipse.che.ide.api.icon.Icon;
+import org.eclipse.che.ide.api.icon.IconRegistry;
 import org.eclipse.che.ide.ext.gwt.client.GwtResources;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfigurationFactory;
@@ -50,13 +52,16 @@ public class GwtCommandType implements CommandType {
     public GwtCommandType(GwtResources resources,
                           GwtCommandPagePresenter page,
                           CurrentProjectPathProvider currentProjectPathProvider,
-                          DevMachineHostNameProvider devMachineHostNameProvider) {
+                          DevMachineHostNameProvider devMachineHostNameProvider,
+                          IconRegistry iconRegistry) {
         this.resources = resources;
         this.currentProjectPathProvider = currentProjectPathProvider;
         this.devMachineHostNameProvider = devMachineHostNameProvider;
         configurationFactory = new GwtCommandConfigurationFactory(this);
         pages = new LinkedList<>();
         pages.add(page);
+
+        iconRegistry.registerIcon(new Icon(ID + ".commands.category.icon", resources.gwtCommandType()));
     }
 
     @NotNull

@@ -72,6 +72,8 @@ public class CommandOutputConsole implements OutputConsole, OutputConsoleView.Ac
         final String previewUrl = commandConfiguration.getAttributes().get(PREVIEW_URL_ATTR);
         if (!isNullOrEmpty(previewUrl)) {
             view.printPreviewUrl(commandManager.substituteProperties(previewUrl));
+        } else {
+            view.hidePreview();
         }
     }
 

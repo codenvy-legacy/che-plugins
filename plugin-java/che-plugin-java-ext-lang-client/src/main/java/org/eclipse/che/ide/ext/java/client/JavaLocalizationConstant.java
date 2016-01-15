@@ -279,6 +279,9 @@ public interface JavaLocalizationConstant extends Messages {
     @Key("find.usages.part.title")
     String findUsagesPartTitle();
 
+    @Key("find.usages.part.title.tooltip")
+    String findUsagesPartTitleTooltip();
+
     @Key("rename.refactoring.action.description")
     String renameRefactoringActionDescription();
 
@@ -302,4 +305,13 @@ public interface JavaLocalizationConstant extends Messages {
 
     @Key("open.implementation.no.implementations")
     String noImplementations();
+
+    @Key("show.packages.error")
+    String showPackagesError();
+
+    @Key("show.preview.error")
+    String showPreviewError();
+
+    @Key("apply.move.error")
+    String applyMoveError();
 }

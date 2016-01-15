@@ -32,6 +32,7 @@ public class DefaultOutputConsole implements OutputConsole {
         this.title = title;
 
         this.view.hideCommand();
+        this.view.hidePreview();
     }
 
     /**

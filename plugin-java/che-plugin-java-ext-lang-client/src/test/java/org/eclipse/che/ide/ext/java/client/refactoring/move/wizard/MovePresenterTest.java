@@ -14,12 +14,16 @@ import com.google.gwtmockito.GwtMockitoTestRunner;
 
 import org.eclipse.che.api.promises.client.Function;
 import org.eclipse.che.api.promises.client.Operation;
+import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.Promise;
+import org.eclipse.che.api.promises.client.PromiseError;
 import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.editor.EditorAgent;
+import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.dto.DtoFactory;
+import org.eclipse.che.ide.ext.java.client.JavaLocalizationConstant;
 import org.eclipse.che.ide.ext.java.client.navigation.service.JavaNavigationService;
 import org.eclipse.che.ide.ext.java.client.project.node.JavaFileNode;
 import org.eclipse.che.ide.ext.java.client.project.node.PackageNode;
@@ -38,6 +42,8 @@ import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatus;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ReorgDestination;
 import org.eclipse.che.ide.jseditor.client.texteditor.TextEditor;
 import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
+import org.eclipse.che.ide.ui.loaders.request.LoaderFactory;
+import org.eclipse.che.ide.ui.loaders.request.MessageLoader;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -50,6 +56,7 @@ import org.mockito.Mockito;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAIL;
 import static org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatus.ERROR;
 import static org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatus.FATAL;
 import static org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatus.INFO;
@@ -59,6 +66,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -90,61 +98,73 @@ public class MovePresenterTest {
     private JavaNavigationService    navigationService;
     @Mock
     private DtoFactory               dtoFactory;
+    @Mock
+    private LoaderFactory            loaderFactory;
+    @Mock
+    private JavaLocalizationConstant locale;
+    @Mock
+    private NotificationManager      notificationManager;
 
     //local params
     @Mock
-    private RefactorInfo               refactorInfo;
+    private RefactorInfo                  refactorInfo;
     @Mock
-    private RefactoringStatus          refactoringStatus;
+    private RefactoringStatus             refactoringStatus;
     @Mock
-    private RefactoringResult          refactoringResult;
+    private RefactoringResult             refactoringResult;
     @Mock
-    private ElementToMove              javaElement;
+    private ElementToMove                 javaElement;
     @Mock
-    private TextEditor                 activeEditor;
+    private TextEditor                    activeEditor;
     @Mock
-    private CreateMoveRefactoring      moveRefactoring;
+    private CreateMoveRefactoring         moveRefactoring;
     @Mock
-    private CurrentProject             currentProject;
+    private CurrentProject                currentProject;
     @Mock
-    private PackageNode                packageNode;
+    private PackageNode                   packageNode;
     @Mock
-    private EditorAgent                editorAgent;
+    private EditorAgent                   editorAgent;
     @Mock
-    private ChangeCreationResult       changeCreationResult;
+    private ChangeCreationResult          changeCreationResult;
     @Mock
-    private MoveSettings               moveSettings;
+    private MoveSettings                  moveSettings;
     @Mock
-    private ReorgDestination           destination;
+    private ReorgDestination              destination;
     @Mock
-    private JavaFileNode               sourceFileNode;
+    private JavaFileNode                  sourceFileNode;
     @Mock
-    private ProjectConfigDto           projectConfig;
+    private ProjectConfigDto              projectConfig;
     @Mock
-    private Promise<String>            sessionPromise;
+    private Promise<String>               sessionPromise;
     @Mock
-    private Promise<Void>              moveSettingsPromise;
+    private Promise<Void>                 moveSettingsPromise;
     @Mock
-    private Promise<Object>            changeCreationResultPromise;
+    private Promise<ChangeCreationResult> changeCreationResultPromise;
     @Mock
-    private Promise<List<JavaProject>> projectsPromise;
+    private Promise<List<JavaProject>>    projectsPromise;
     @Mock
-    private Promise<RefactoringStatus> refactoringStatusPromise;
+    private Promise<RefactoringStatus>    refactoringStatusPromise;
     @Mock
-    private Promise<RefactoringResult> refactoringResultPromise;
+    private Promise<RefactoringResult>    refactoringResultPromise;
+    @Mock
+    private MessageLoader                 loader;
+    @Mock
+    private PromiseError                  promiseError;
 
     @Captor
     private ArgumentCaptor<Operation<String>>                             sessionOperation;
     @Captor
     private ArgumentCaptor<Operation<List<JavaProject>>>                  projectsOperation;
     @Captor
-    private ArgumentCaptor<Operation<Object>>                             changeResultOperation;
+    private ArgumentCaptor<Operation<ChangeCreationResult>>               changeResultOperation;
     @Captor
     private ArgumentCaptor<Function<Void, Promise<ChangeCreationResult>>> changeCreationFunction;
     @Captor
     private ArgumentCaptor<Operation<RefactoringStatus>>                  refactoringStatusOperation;
     @Captor
     private ArgumentCaptor<Operation<RefactoringResult>>                  refResultOperation;
+    @Captor
+    private ArgumentCaptor<Operation<PromiseError>>                       promiseErrorCaptor;
 
     private MovePresenter presenter;
 
@@ -168,9 +188,17 @@ public class MovePresenterTest {
         when(refactorService.applyRefactoring(session)).thenReturn(refactoringResultPromise);
         when(refactorService.setDestination(destination)).thenReturn(refactoringStatusPromise);
         when(navigationService.getProjectsAndPackages(true)).thenReturn(projectsPromise);
+        when(projectsPromise.then(Matchers.<Operation<List<JavaProject>>>anyObject())).thenReturn(projectsPromise);
         when(dtoFactory.createDto(MoveSettings.class)).thenReturn(moveSettings);
         when(dtoFactory.createDto(RefactoringSession.class)).thenReturn(session);
         when(changeCreationResult.getStatus()).thenReturn(refactoringStatus);
+        when(loaderFactory.newLoader()).thenReturn(loader);
+
+        when(refactorService.setMoveSettings(moveSettings)).thenReturn(moveSettingsPromise);
+        when(moveSettingsPromise.thenPromise(Matchers.<Function<Void, Promise<ChangeCreationResult>>>anyObject()))
+                .thenReturn(changeCreationResultPromise);
+        when(changeCreationResultPromise.then(Matchers.<Operation<ChangeCreationResult>>anyObject()))
+                .thenReturn(changeCreationResultPromise);
 
         presenter = new MovePresenter(moveView,
                                       refactoringUpdater,
@@ -179,7 +207,10 @@ public class MovePresenterTest {
                                       previewPresenter,
                                       refactorService,
                                       navigationService,
-                                      dtoFactory);
+                                      dtoFactory,
+                                      loaderFactory,
+                                      locale,
+                                      notificationManager);
     }
 
     @Test
@@ -193,6 +224,7 @@ public class MovePresenterTest {
         JavaProject javaProject = Mockito.mock(JavaProject.class);
         javaProjects.add(javaProject);
 
+        when(sessionPromise.then(Matchers.<Operation<String>>anyObject())).thenReturn(sessionPromise);
         when(sourceFileNode.getName()).thenReturn("file.name");
         when(javaProject.getPath()).thenReturn(PROJECT_PATH);
 
@@ -218,12 +250,11 @@ public class MovePresenterTest {
     @Test
     public void showPreviewWindowWhenPreviewButtonClicked() throws Exception {
         when(moveSettings.isUpdateQualifiedNames()).thenReturn(true);
-        when(refactorService.setMoveSettings(moveSettings)).thenReturn(moveSettingsPromise);
-        when(moveSettingsPromise.thenPromise(any())).thenReturn(changeCreationResultPromise);
         when(changeCreationResult.isCanShowPreviewPage()).thenReturn(true);
 
         presenter.onPreviewButtonClicked();
 
+        verify(loader).show();
         verify(moveSettings).setSessionId(anyString());
         verify(moveSettings).setUpdateReferences(anyBoolean());
         verify(moveSettings).setUpdateQualifiedNames(anyBoolean());
@@ -238,13 +269,26 @@ public class MovePresenterTest {
         changeResultOperation.getValue().apply(changeCreationResult);
         verify(previewPresenter).show(anyString(), any());
         verify(moveView).hide();
+        verify(loader).hide();
+    }
+
+    @Test
+    public void errorMessageShouldBeShownDuringShowingPreviewDialog() throws OperationException {
+        presenter.onPreviewButtonClicked();
+
+        verify(loader).show();
+        verify(changeCreationResultPromise).catchError(promiseErrorCaptor.capture());
+        promiseErrorCaptor.getValue().apply(promiseError);
+
+        verify(loader).hide();
+        verify(locale).showPreviewError();
+        verify(promiseError).getMessage();
+        verify(notificationManager).notify(anyString(), anyString(), eq(FAIL), eq(true));
     }
 
     @Test
     public void showErrorMessageIfCanNotShowPreviewWindow() throws Exception {
         when(moveSettings.isUpdateQualifiedNames()).thenReturn(true);
-        when(refactorService.setMoveSettings(moveSettings)).thenReturn(moveSettingsPromise);
-        when(moveSettingsPromise.thenPromise(any())).thenReturn(changeCreationResultPromise);
         when(changeCreationResult.isCanShowPreviewPage()).thenReturn(false);
 
         presenter.onPreviewButtonClicked();
@@ -269,13 +313,12 @@ public class MovePresenterTest {
     @Test
     public void acceptButtonActionShouldShowAnErrorMessage() throws Exception {
         when(moveSettings.isUpdateQualifiedNames()).thenReturn(true);
-        when(refactorService.setMoveSettings(moveSettings)).thenReturn(moveSettingsPromise);
-        when(moveSettingsPromise.thenPromise(any())).thenReturn(changeCreationResultPromise);
         when(changeCreationResult.isCanShowPreviewPage()).thenReturn(false);
         when(changeCreationResult.getStatus()).thenReturn(refactoringStatus);
 
         presenter.onAcceptButtonClicked();
 
+        verify(loader).show();
         verify(moveSettings).setSessionId(anyString());
         verify(moveSettings).setUpdateReferences(anyBoolean());
         verify(moveSettings).setUpdateQualifiedNames(anyBoolean());
@@ -289,13 +332,26 @@ public class MovePresenterTest {
         verify(changeCreationResultPromise).then(changeResultOperation.capture());
         changeResultOperation.getValue().apply(changeCreationResult);
         verify(moveView).showErrorMessage(refactoringStatus);
+        verify(loader).hide();
+    }
+
+    @Test
+    public void notificationShouldBeShownWhenSomeErrorOccursDuringAcceptMoving() throws OperationException {
+        presenter.onAcceptButtonClicked();
+
+        loader.show();
+        verify(changeCreationResultPromise).catchError(promiseErrorCaptor.capture());
+        promiseErrorCaptor.getValue().apply(promiseError);
+
+        verify(loader).hide();
+        verify(locale).applyMoveError();
+        verify(promiseError).getMessage();
+        verify(notificationManager).notify(anyString(), anyString(), eq(FAIL), eq(true));
     }
 
     @Test
     public void acceptButtonActionShouldBePerformed() throws Exception {
         when(moveSettings.isUpdateQualifiedNames()).thenReturn(true);
-        when(refactorService.setMoveSettings(moveSettings)).thenReturn(moveSettingsPromise);
-        when(moveSettingsPromise.thenPromise(any())).thenReturn(changeCreationResultPromise);
         when(changeCreationResult.isCanShowPreviewPage()).thenReturn(true);
         when(changeCreationResult.getStatus()).thenReturn(refactoringResult);
         when(refactoringResult.getSeverity()).thenReturn(OK);
@@ -327,8 +383,6 @@ public class MovePresenterTest {
     @Test
     public void errorLabelShouldBeShowedIfRefactoringStatusIsNotOK() throws Exception {
         when(moveSettings.isUpdateQualifiedNames()).thenReturn(true);
-        when(refactorService.setMoveSettings(moveSettings)).thenReturn(moveSettingsPromise);
-        when(moveSettingsPromise.thenPromise(any())).thenReturn(changeCreationResultPromise);
         when(changeCreationResult.isCanShowPreviewPage()).thenReturn(true);
         when(changeCreationResult.getStatus()).thenReturn(refactoringResult);
         when(refactoringResult.getSeverity()).thenReturn(2);
