@@ -42,11 +42,11 @@ public class LocalWorkspaceFolderPathProvider implements WorkspaceFolderPathProv
     /**
      * Value provide path to directory on host machine where will by all created and mount to the
      * created workspaces folder that become root of workspace inside machine.
-     * Inside machine it will point to the directory described by @see che.projects.root.
+     * Inside machine it will point to the directory described by @see che.machine.projects.internal.storage.
      *
      * For example:
      * if you set "host.workspaces.root" to the /home/user/che/workspaces after creating new workspace will be created new folder
-     * /home/user/che/workspaces/{workspaceId} and it will be mount to the  dev-machine to "che.projects.root"
+     * /home/user/che/workspaces/{workspaceId} and it will be mount to the  dev-machine to "che.machine.projects.internal.storage"
      */
     final String workspacesMountPoint;
 
