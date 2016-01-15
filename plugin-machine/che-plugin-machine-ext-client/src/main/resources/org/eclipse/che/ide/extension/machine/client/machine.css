@@ -23,7 +23,6 @@
 @external .terminal, .terminal-cursor;
 
 .terminal {
-    /*border-color: outputBackgroundColor;*/
     border-color: transparent;
     background-color: outputBackgroundColor;
     border-width: 0px;
