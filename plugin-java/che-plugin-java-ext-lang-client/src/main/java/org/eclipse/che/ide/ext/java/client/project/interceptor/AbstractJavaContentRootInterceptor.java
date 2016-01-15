@@ -84,11 +84,6 @@ public abstract class AbstractJavaContentRootInterceptor implements NodeIntercep
             return ContentRoot.TEST_SOURCE;
         }
 
-        String resourceFolder = _getSourceFolder(projectConfig, getResourceFolderAttribute());
-        if (folderNode.getStorablePath().equals(resourceFolder)) {
-            return ContentRoot.RESOURCE;
-        }
-
         return null;
     }
 
@@ -124,8 +119,6 @@ public abstract class AbstractJavaContentRootInterceptor implements NodeIntercep
     public abstract String getSrcFolderAttribute();
 
     public abstract String getTestSrcFolderAttribute();
-
-    public abstract String getResourceFolderAttribute();
 
     @Override
     public int getPriority() {
