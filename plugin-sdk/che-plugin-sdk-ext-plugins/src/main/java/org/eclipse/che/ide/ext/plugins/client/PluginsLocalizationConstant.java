@@ -29,4 +29,7 @@ public interface PluginsLocalizationConstant extends Messages {
 
     @Key("view.gwtCheCommandPage.classPath.text")
     String gwtCommandPageViewClassPathText();
+
+    @Key("view.gwtCheCommandPage.warn")
+    String gwtCommandPageViewWarning();
 }
