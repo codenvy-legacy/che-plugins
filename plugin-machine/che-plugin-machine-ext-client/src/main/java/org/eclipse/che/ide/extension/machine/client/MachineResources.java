@@ -137,6 +137,8 @@ public interface MachineResources extends ClientBundle {
 
         String machineStatus();
 
+        String machineLabel();
+
         String processIcon();
 
         String processButton();
