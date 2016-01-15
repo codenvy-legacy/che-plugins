@@ -226,9 +226,8 @@ public class RefactoringService {
                 elementToRename = javaProject.findPackageFragment(new org.eclipse.core.runtime.Path(settings.getPath()));
                 break;
             case JAVA_ELEMENT:
-                ICompilationUnit compilationUnit = javaProject.findType(settings.getPath()).getCompilationUnit();
-                cu = compilationUnit;
-                elementToRename = getSelectionElement(compilationUnit, settings.getOffset());
+                cu = javaProject.findType(settings.getPath()).getCompilationUnit();
+                elementToRename = getSelectionElement(cu, settings.getOffset());
                 break;
             default:
                 elementToRename = null;

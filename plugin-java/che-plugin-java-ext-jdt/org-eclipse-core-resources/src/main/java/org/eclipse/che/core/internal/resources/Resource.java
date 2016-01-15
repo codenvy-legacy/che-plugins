@@ -459,7 +459,7 @@ public abstract class Resource implements IResource, IPathRequestor, ICoreConsta
 
     @Override
     public IPath getProjectRelativePath() {
-        return getFullPath().removeFirstSegments(ICoreConstants.PROJECT_SEGMENT_LENGTH);
+        return getFullPath().removeFirstSegments(getProject().getFullPath().segmentCount());
     }
 
     @Override
