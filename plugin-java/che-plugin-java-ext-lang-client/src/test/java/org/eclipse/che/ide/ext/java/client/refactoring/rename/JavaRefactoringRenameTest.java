@@ -18,8 +18,6 @@ import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.api.promises.client.PromiseError;
 import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
-import org.eclipse.che.ide.api.app.AppContext;
-import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.editor.EditorInput;
 import org.eclipse.che.ide.api.editor.EditorWithAutoSave;
 import org.eclipse.che.ide.api.notification.NotificationManager;
@@ -109,8 +107,6 @@ public class JavaRefactoringRenameTest {
     @Mock
     private RefactoringUpdater       refactoringUpdater;
     @Mock
-    private AppContext               appContext;
-    @Mock
     private EventBus                 eventBus;
     @Mock
     private DtoUnmarshallerFactory   unmarshallerFactory;
@@ -127,8 +123,6 @@ public class JavaRefactoringRenameTest {
     private EditorInput                       editorInput;
     @Mock
     private VirtualFile                       virtualFile;
-    @Mock
-    private CurrentProject                    currentProject;
     @Mock
     private ProjectConfigDto                  projectConfig;
     @Mock
@@ -183,7 +177,6 @@ public class JavaRefactoringRenameTest {
                                                       refactoringServiceClient,
                                                       dtoFactory,
                                                       dialogFactory,
-                                                      appContext,
                                                       notificationManager,
                                                       loaderFactory);
 
@@ -191,8 +184,6 @@ public class JavaRefactoringRenameTest {
         when(dtoFactory.createDto(LinkedRenameRefactoringApply.class)).thenReturn(linkedRenameRefactoringApplyDto);
         when(textEditor.getEditorInput()).thenReturn(editorInput);
         when(editorInput.getFile()).thenReturn(virtualFile);
-        when(appContext.getCurrentProject()).thenReturn(currentProject);
-        when(currentProject.getProjectConfig()).thenReturn(projectConfig);
         when(projectConfig.getPath()).thenReturn(TEXT);
         when(virtualFile.getName()).thenReturn(JAVA_CLASS_FULL_NAME);
         when(refactoringServiceClient.createRenameRefactoring(createRenameRefactoringDto)).thenReturn(createRenamePromise);
@@ -213,6 +204,8 @@ public class JavaRefactoringRenameTest {
         when(document.getContentRange(anyInt(), anyInt())).thenReturn(NEW_JAVA_CLASS_NAME);
         when(((HasLinkedMode)textEditor).getLinkedMode()).thenReturn(linkedMode);
         when(((HasLinkedMode)textEditor).createLinkedModel()).thenReturn(editorLinkedModel);
+        when(textEditor.getDocument()).thenReturn(document);
+        when(document.getFile()).thenReturn(virtualFile);
 
         when(result.getEntries()).thenReturn(Collections.singletonList(entry));
     }
@@ -311,8 +304,6 @@ public class JavaRefactoringRenameTest {
         verify(editorInput).getFile();
         verify(createRenameRefactoringDto).setPath(JAVA_CLASS__NAME);
         verify(createRenameRefactoringDto).setProjectPath(TEXT);
-        verify(appContext).getCurrentProject();
-        verify(currentProject).getProjectConfig();
         verify(projectConfig).getPath();
         verify(createRenameRefactoringDto).setProjectPath(TEXT);
         verify(createRenameRefactoringDto).setType(JAVA_ELEMENT);

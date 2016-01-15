@@ -17,7 +17,6 @@ import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.api.promises.client.PromiseError;
-import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.editor.EditorWithAutoSave;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.text.Position;
@@ -44,8 +43,8 @@ import org.eclipse.che.ide.jseditor.client.link.LinkedModel;
 import org.eclipse.che.ide.jseditor.client.link.LinkedModelData;
 import org.eclipse.che.ide.jseditor.client.link.LinkedModelGroup;
 import org.eclipse.che.ide.jseditor.client.texteditor.TextEditor;
-import org.eclipse.che.ide.ui.loaders.request.LoaderFactory;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
+import org.eclipse.che.ide.ui.loaders.request.LoaderFactory;
 import org.eclipse.che.ide.ui.loaders.request.MessageLoader;
 
 import javax.validation.constraints.NotNull;
@@ -73,7 +72,6 @@ public class JavaRefactoringRename {
     private final JavaLocalizationConstant locale;
     private final RefactoringServiceClient refactoringServiceClient;
     private final DtoFactory               dtoFactory;
-    private final AppContext               appContext;
     private final DialogFactory            dialogFactory;
     private final NotificationManager      notificationManager;
     private final MessageLoader            loader;
@@ -88,7 +86,6 @@ public class JavaRefactoringRename {
                                  RefactoringServiceClient refactoringServiceClient,
                                  DtoFactory dtoFactory,
                                  DialogFactory dialogFactory,
-                                 AppContext appContext,
                                  NotificationManager notificationManager,
                                  LoaderFactory loaderFactory) {
         this.renamePresenter = renamePresenter;
@@ -97,7 +94,6 @@ public class JavaRefactoringRename {
         this.dialogFactory = dialogFactory;
         this.refactoringServiceClient = refactoringServiceClient;
         this.dtoFactory = dtoFactory;
-        this.appContext = appContext;
         this.notificationManager = notificationManager;
         this.loader = loaderFactory.newLoader();
 
@@ -111,7 +107,7 @@ public class JavaRefactoringRename {
      *         editor where user makes refactoring
      */
     public void refactor(final TextEditor textEditorPresenter) {
-        final CreateRenameRefactoring createRenameRefactoring = createRenameRefactoringDto(textEditorPresenter, appContext);
+        final CreateRenameRefactoring createRenameRefactoring = createRenameRefactoringDto(textEditorPresenter);
 
         textEditorPresenter.setFocus();
 
@@ -234,7 +230,7 @@ public class JavaRefactoringRename {
     }
 
     @NotNull
-    private CreateRenameRefactoring createRenameRefactoringDto(TextEditor editor, AppContext appContext) {
+    private CreateRenameRefactoring createRenameRefactoringDto(TextEditor editor) {
         CreateRenameRefactoring dto = dtoFactory.createDto(CreateRenameRefactoring.class);
 
         dto.setOffset(editor.getCursorOffset());
@@ -243,7 +239,7 @@ public class JavaRefactoringRename {
         String fqn = JavaSourceFolderUtil.getFQNForFile(editor.getEditorInput().getFile());
         dto.setPath(fqn);
 
-        String projectPath = appContext.getCurrentProject().getProjectConfig().getPath();
+        String projectPath = editor.getDocument().getFile().getProject().getProjectConfig().getPath();
         dto.setProjectPath(projectPath);
 
         dto.setType(JAVA_ELEMENT);
