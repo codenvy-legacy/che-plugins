@@ -1,8 +1,25 @@
 This patch fixes bug with linked mode and reduces amount of scrolling lines.
-======================================================
+This patch fixes bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=482536 in Orion 10.
+Bug482536 is already fixed in Orion 11.
+===================================================================
 diff --git a/org/eclipse/che/ide/editor/orion/public/built-codeEdit-10.0/code_edit/built-codeEdit-amd.js b/org/eclipse/che/ide/editor/orion/public/built-codeEdit-10.0/code_edit/built-codeEdit-amd.js
 --- a/org/eclipse/che/ide/editor/orion/public/built-codeEdit-10.0/code_edit/built-codeEdit-amd.js
 +++ b/org/eclipse/che/ide/editor/orion/public/built-codeEdit-10.0/code_edit/built-codeEdit-amd.js
+@@ -5709,13 +5709,13 @@
+ 			var actionTaken = false;
+ 			if (!this.isVisible()) {
+ 				this.dispatchEvent({type: "triggered", dropdown: this, event: mouseEvent}); //$NON-NLS-0$
+-				lib.setFramesEnabled(false);
+ 				if (this._populate) {
+ 					this.empty();
+ 					this._populate(this._dropdownNode);
+ 				}
+ 				var items = this.getItems();
+ 				if (items.length > 0) {
++                    lib.setFramesEnabled(false);
+ 					if (this._boundAutoDismiss) {
+ 						lib.removeAutoDismiss(this._boundAutoDismiss);
+ 					} 
 @@ -17601,6 +17601,7 @@
  		},
  		_handleMouseWheel: function (e) {

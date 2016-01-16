@@ -1,5 +1,5 @@
 This patch fixes bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=482536 in Orion 10.
-This bug is already fixed in Orion 11.
+Bug482536 is already fixed in Orion 11.
 ======================================================
 diff --git a/org/eclipse/che/ide/editor/orion/public/built-codeEdit-10.0/javascript/plugins/javascriptPlugin.js b/org/eclipse/che/ide/editor/orion/public/built-codeEdit-10.0/javascript/plugins/javascriptPlugin.js
 --- a/org/eclipse/che/ide/editor/orion/public/built-codeEdit-10.0/javascript/plugins/javascriptPlugin.js
